@@ -64,6 +64,15 @@ pub trait NativeReader {
         control: &dive_check::budget::EvaluationControl,
     ) -> Result<dive_eval::next::StateVals, AnalysisError>;
 
+    /// Whether every retained row was already converted by the producer before
+    /// it was retained, so a read repeats that exact conversion and can fail
+    /// only by interruption or a storage limit, interning no new name. Label
+    /// demand then reads rows only for reference fallbacks. Defaults to false,
+    /// which keeps eager per-vertex row demand.
+    fn reads_admitted(&self) -> bool {
+        false
+    }
+
     /// Whether this reader has prepared this exact retained predicate object.
     /// This is a scheduling hint only; it cannot grant semantic authority.
     fn has_predicate(&self, _atom: &crate::plan::PredicateAtom) -> bool {

@@ -345,6 +345,9 @@ fn check_configured_inner(
     let source_error = sink.take_source_error();
     let source_rows = sink.take_source_rows();
     let (graph, mut values) = sink.finish();
+    if let Some(message) = atoms.audit_mismatch() {
+        return internal(message, options, ir);
+    }
     run.metrics = crate::core_engine::metrics_json(&plan, &out.metrics, compile_time);
     let prefix = match out.verdict {
         dive_explore::Verdict::PrefixStop { level } => {
@@ -515,6 +518,9 @@ fn check_configured_inner(
         &control,
     );
     record_metrics(run, &graph, &values, &atoms);
+    if let Some(message) = atoms.audit_mismatch() {
+        return internal(message, options, ir);
+    }
     let analysis = match analysis {
         Ok(a) => a,
         Err(verdict @ (Verdict::Stopped(_) | Verdict::BudgetMeasurement { .. })) => {

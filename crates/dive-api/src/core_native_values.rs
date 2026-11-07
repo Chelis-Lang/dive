@@ -221,6 +221,11 @@ impl<'a> NativeValues<'a> {
     }
 
     /// Every accepted original is admitted before the producer retains metadata.
+    /// The bound model whose names and contexts this converter uses.
+    pub(crate) fn model(&self) -> &'a Model {
+        self.model
+    }
+
     pub(crate) fn admit(&mut self, row: &[Handle]) -> Result<(), Verdict> {
         let control = self.capture.clone();
         self.convert(row, &control, None).map_err(capture_error)?;
@@ -457,6 +462,41 @@ mod tests {
         assert_eq!(values.metrics()["cache_entries"], 0);
         assert_eq!(values.metrics()["cache_bytes"], 0);
         assert_eq!(values.metrics()["admitted_rows"], 2);
+    }
+
+    fn interned_names(model: &Model) -> u32 {
+        (0..u32::MAX)
+            .find(|&tok| model.names.resolve(tok).is_none())
+            .unwrap_or(u32::MAX)
+    }
+
+    #[test]
+    fn reads_after_admission_intern_no_new_name() {
+        let model = model();
+        let store = Arc::new(Store::default());
+        let mut heap = Heap::new(store.clone(), false, false);
+        let field = heap.string("admitted_field_name").expect("field");
+        let text = heap.string("admitted string payload").expect("text");
+        let inner = heap.record(&[field], &[text]);
+        let inner = heap.intern_exact(inner).expect("persistent record");
+        let outer = heap.fcn_sorted(&[text], &[inner]);
+        let outer = heap.intern_exact(outer).expect("persistent function");
+        let mut values = NativeValues::new(&model, store, &Budget::unlimited()).expect("converter");
+        values.cache.limit = 4096;
+        let control =
+            EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
+        let before = interned_names(&model);
+        values.admit(&[outer]).expect("admission");
+        let admitted = interned_names(&model);
+        assert!(admitted > before, "admission interns the row's names");
+        for _ in 0..3 {
+            values.read(0, &[outer], &control).expect("read");
+            assert_eq!(
+                interned_names(&model),
+                admitted,
+                "a read after admission interns no new name"
+            );
+        }
     }
 
     #[test]
