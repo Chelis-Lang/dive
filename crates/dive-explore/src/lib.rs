@@ -390,7 +390,8 @@ fn state_identity(
         Some(sym) => {
             let mut out = Vec::with_capacity(m.s1.len());
             let s1 = m.s1.clone();
-            sym.canonical(&mut m.heap, &s1, &mut out)?;
+            // The current state is usually the successor's predecessor.
+            sym.canonical_from(&mut m.heap, &s1, &m.s0, &mut out)?;
             image = out;
             &image
         }
@@ -439,7 +440,8 @@ fn view_key(
         Some(sym) => {
             let mut out = Vec::with_capacity(m.s1.len());
             let s1 = m.s1.clone();
-            sym.canonical(&mut m.heap, &s1, &mut out)?;
+            // The current state is usually the successor's predecessor.
+            sym.canonical_from(&mut m.heap, &s1, &m.s0, &mut out)?;
             Some(out)
         }
         None => None,

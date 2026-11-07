@@ -64,6 +64,10 @@ pub struct Heap {
     /// Interned enumerations of persistent finite symbolic sets, for
     /// [`Heap::materialize_cached`].
     materialized: std::collections::HashMap<Handle, Handle>,
+    /// Interned images of persistent values under one reduction's maps
+    /// (`symmetry.rs`), keyed by map index and value, with the reduction
+    /// they belong to.
+    pub(crate) sym_images: crate::symmetry::ImageCache,
     work_control: Option<Arc<dyn crate::eval::WorkControl>>,
     work_steps: std::cell::Cell<u32>,
     work_interrupted: std::cell::Cell<bool>,
@@ -151,6 +155,7 @@ impl Heap {
             full_hash,
             int_mode,
             materialized: std::collections::HashMap::new(),
+            sym_images: crate::symmetry::ImageCache::default(),
             work_control: None,
             work_steps: std::cell::Cell::new(0),
             work_interrupted: std::cell::Cell::new(false),
