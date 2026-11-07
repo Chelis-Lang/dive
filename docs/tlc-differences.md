@@ -1125,7 +1125,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - anything the binding stage or the evaluator refuses (for example `IOUtils`, Json file operations and the CommunityModules operators listed above);
   - evaluation errors whose exact TLC error class depends on value-source metadata not yet retained by dive. The 175-model error matrix identifies ten such cases explicitly; dive reports their messages but marks the deciding class as unverified, and the conformance harness refuses agreement.
 
-  Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
+  Also: `ALIAS` is not yet applied to printed counterexamples or simulation traces (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
   - deadlock endings whose successor absence cannot be decided by the independent finite-cover check. A concrete successor refutes the ending, complete finite-cover exhaustion validates it, and missing covers remain unsupported;
   - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with bounded ordered parallel capture; ordinary schedules and wider recovery remain refused;

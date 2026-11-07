@@ -322,3 +322,64 @@ fn native_prefix_stops_do_not_start_unbounded_independent_replay() -> Result {
     }
     Ok(())
 }
+
+/// `ALIAS` is not applied in simulation, as in checking: the traces show the
+/// states themselves and the report says so. A failed lookup, which TLC
+/// reports only when it prints a trace, stays a named refusal.
+#[test]
+fn alias_is_noted_not_applied_and_a_failed_lookup_refuses() -> Result {
+    let text = "---- MODULE SimAlias ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nInv == x < 3\nAlias == [y |-> x * 2]\n====\n";
+    let (_scratch, file) = source(
+        "SimAlias",
+        text,
+        "INIT Init\nNEXT Next\nINVARIANT Inv\nALIAS Alias\n",
+    )?;
+    let (_missing_scratch, missing) = source(
+        "SimAlias",
+        text,
+        "INIT Init\nNEXT Next\nINVARIANT Inv\nALIAS Missing\n",
+    )?;
+    for compat_tlc in [false, true] {
+        for engine in [Engine::Reference, Engine::Core] {
+            let request = SimulateRequest {
+                file: file.clone(),
+                compat_tlc,
+                seed: Some(7),
+                traces: 3,
+                depth: Some(10),
+                ..Default::default()
+            };
+            let report = simulate_file_engine(&request, engine)?.to_json();
+            assert_eq!(report["result"], "violation", "{report}");
+            assert_eq!(report["observed_violation"]["name"], "Inv");
+            assert_eq!(report["violation_validated"], true, "{report}");
+            assert_eq!(
+                report["notes"],
+                serde_json::json!([
+                    "ALIAS Alias is not applied: the traces show the states themselves (not implemented yet)."
+                ]),
+                "{report}"
+            );
+            let last = report["traces"][0]["document"]["states"]
+                .as_array()
+                .and_then(|states| states.last())
+                .cloned()
+                .unwrap_or_default();
+            assert_eq!(last["values"], serde_json::json!({"x": 3}), "{report}");
+            let refused = simulate_file_engine(
+                &SimulateRequest {
+                    file: missing.clone(),
+                    ..request
+                },
+                engine,
+            )?
+            .to_json();
+            assert_eq!(refused["result"], "unsupported", "{refused}");
+            assert_eq!(
+                refused["message"], "simulation ALIAS whose definition lookup fails",
+                "{refused}"
+            );
+        }
+    }
+    Ok(())
+}

@@ -150,6 +150,11 @@ impl SimulateReport {
                 );
             }
         }
+        if let Some(notes) = self.document["notes"].as_array() {
+            for note in notes.iter().filter_map(Value::as_str) {
+                let _ = writeln!(text, "note: {note}");
+            }
+        }
         text
     }
 }
@@ -555,6 +560,18 @@ pub fn simulate_file_engine(
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
     });
+    // ALIAS is not applied, as in checking (`dive_check::finish_bound_check`):
+    // the traces show the states themselves, and the report says so.
+    let mut notes = Vec::new();
+    if !traces.is_empty()
+        && let Some(Ok(alias)) = &model.model().alias
+    {
+        notes.push(format!(
+            "ALIAS {} is not applied: the traces show the states themselves (not implemented yet).",
+            alias.name
+        ));
+    }
+    document["notes"] = json!(notes);
     document["engine"] = json!(engine_used.name());
     document["engine_requested"] = json!(engine.name());
     document["engine_fallback"] = fallback.map_or(
