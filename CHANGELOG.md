@@ -118,6 +118,8 @@ published. Earlier pre-release development entries remain in git history.
   moves to another row, so `LET m == Min(...)` in `MCCRDT`'s `Reduction` is
   evaluated once per intermediate state instead of once per function cell.
   `FiniteMonotonic/MCCRDT` runs in about half the time, with the same counts.
+  Definitions that read primed variables are still evaluated by name in a
+  frame that composes, because each stage enumerates many successors.
 - Core evaluates a recursive operator or recursive LET function applied under
   a prime, as a refinement mapping `INSTANCE ... WITH v <- Op(e)` does under
   `[][Next]_vars`, in the successor state. `glowingRaccoon/product` now checks

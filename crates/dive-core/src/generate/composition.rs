@@ -65,10 +65,13 @@ impl Machine {
     /// the actual original-to-final edge to the caller's sink. Every buffer
     /// and source is restored even when a tail, caller or checkpoint stops.
     ///
-    /// `reset` lists this frame's state-dependent thunk slots. A thunk forced
-    /// against one pair of rows is never read against another: the slots
-    /// hold the caller's values outside the stages and at the sink, and are
-    /// emptied whenever a stage starts on a different source or successor.
+    /// `reset` lists this frame's thunk slots that read only the source row.
+    /// A thunk forced against one source is never read against another: the
+    /// slots hold the caller's values outside the stages and at the sink,
+    /// and are emptied whenever a stage starts on a different source. The
+    /// source is fixed within a stage. Thunks that read primed variables
+    /// are evaluated by name in a composing frame, because a stage changes
+    /// the successor it builds (`Compiler::reset_composition_thunks`).
     pub(super) fn composition(
         &mut self,
         code: &Code,

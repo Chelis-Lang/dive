@@ -130,13 +130,39 @@ impl Compiler<'_> {
 
     /// A composition evaluates its stages on rows other than its frame's
     /// source and successor. Keyed memo sites still read their actual state
-    /// keys; the frame's state-dependent thunks are instead reset by the
-    /// composition whenever it changes rows. Thunks of other frames need no
-    /// reset: a callee frame starts empty on each call, and call arguments
-    /// are values, so the stages read no other frame's slots.
+    /// keys. A thunk of a composing frame that reads only the source row is
+    /// reset by the composition whenever it changes source: within one stage
+    /// the source is fixed. A thunk that reads primed variables, or makes
+    /// unproved calls, may read the successor a stage is still building, so
+    /// it is evaluated by name instead: an empty existing scope is an
+    /// identity node, preserving lexical slots and all instruction indexes.
+    /// Thunks of other frames need neither: a callee frame starts empty on
+    /// each call, and call arguments are values, so the stages read no
+    /// other frame's slots.
     pub(super) fn reset_composition_thunks(&mut self) {
         if self.composition != State::Compiled {
             return;
+        }
+        let composing: std::collections::HashSet<u32> =
+            self.compositions.iter().map(|&(frame, _)| frame).collect();
+        for &(frame, p) in &self.lazies {
+            if !composing.contains(&frame) {
+                continue;
+            }
+            let Some(info) = self.info.get(p as usize) else {
+                continue;
+            };
+            if info.effect || (info.primed == 0 && !info.calls) {
+                continue;
+            }
+            if let Some(node) = self.code.nodes.get_mut(p as usize)
+                && let Node::Lazy { body, .. } = *node
+            {
+                *node = Node::Scope {
+                    reset: Box::new([]),
+                    body,
+                };
+            }
         }
         for (frame, site) in std::mem::take(&mut self.compositions) {
             let mut slots: Vec<u32> = self
@@ -145,9 +171,9 @@ impl Compiler<'_> {
                 .filter(|&&(f, _)| f == frame)
                 .filter_map(|&(_, p)| {
                     let info = self.info.get(p as usize)?;
-                    let state = !info.effect && (info.vars != 0 || info.primed != 0 || info.calls);
+                    let source = !info.effect && info.vars != 0;
                     match self.code.nodes.get(p as usize) {
-                        Some(Node::Lazy { slot, .. }) if state => Some(*slot),
+                        Some(Node::Lazy { slot, .. }) if source => Some(*slot),
                         _ => None,
                     }
                 })

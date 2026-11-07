@@ -120,6 +120,44 @@ fn duplicate_intermediates_scoped_state_thunks_and_all_assigned_predicates() {
     }
 }
 
+/// A step-mode thunk reading `x'` (`Ok`) is forced inside the first stage
+/// of a composition in an action property. It must be re-evaluated for each
+/// intermediate row: a value forced at `x' = 1` (FALSE) must not be reused at
+/// the witness `x' = 2`, which would report a false violation.
+#[test]
+fn primed_step_thunks_are_not_reused_across_first_stage_rows() {
+    let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/core-composition/specs/StepThunk/StepThunk.tla");
+    for compat_tlc in [false, true] {
+        let request = CheckRequest {
+            config: Some(file.with_extension("cfg")),
+            file: file.clone(),
+            compat_tlc,
+            action_composition: Some(ActionComposition::Tla),
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        };
+        let reference = check_file_engine(&request, Engine::Reference).expect("reference");
+        assert_eq!(
+            observed(&reference),
+            json!({"verdict":"success","property":null,"distinct":3,"generated":4,"depth":3,"exit":0}),
+            "{}",
+            reference.to_json()
+        );
+        for opts in ["", "-memo,-step-memo,-eager,-fold"] {
+            let core = check_file_core_opts(&request, opts).expect("Core");
+            assert_eq!(
+                observed(&core),
+                observed(&reference),
+                "compat={compat_tlc}, opts={opts}: {}",
+                core.to_json()
+            );
+        }
+    }
+}
+
 #[test]
 fn unproved_shapes_and_composition_modes_keep_named_refusals() {
     for compat_tlc in [false, true] {
