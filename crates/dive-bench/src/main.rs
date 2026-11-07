@@ -853,7 +853,14 @@ fn run_dive(
 
 fn check_native(p: &Prepared, r: &mut Run, v: &Value, time_limit_ms: u64, max_memory: u64) {
     (r.correct, r.note) = check(p, r);
-    if v["engine"] != "core" || v["engine_requested"] != "core" || !v["engine_fallback"].is_null() {
+    // `dive check --engine core` reports `engine: "core"` and never emits
+    // `engine_requested` or `engine_fallback`; when present they must still
+    // name Core and no fallback.
+    let requested = &v["engine_requested"];
+    if v["engine"] != "core"
+        || !(requested.is_null() || requested == "core")
+        || !v["engine_fallback"].is_null()
+    {
         r.correct = false;
         r.note
             .push_str("; native report does not confirm Core without fallback");
@@ -1907,6 +1914,7 @@ exit 5
         let output = dir.path().join("time.txt");
         for case in [
             "matching",
+            "check-shape",
             "missing",
             "unlimited",
             "wrong-time",
@@ -1946,6 +1954,11 @@ exit 5
                 "missing-engine" => {
                     report.as_object_mut().expect("report").remove("engine");
                 }
+                "check-shape" => {
+                    let report = report.as_object_mut().expect("report");
+                    report.remove("engine_requested");
+                    report.remove("engine_fallback");
+                }
                 _ => {}
             }
             let script = format!("#!/bin/sh\ncat <<'BENCH_REPORT'\n{report}\nBENCH_REPORT\n");
@@ -1958,7 +1971,8 @@ exit 5
                 "baseline-default-w1",
             ] {
                 let run = run_dive(&bin, &[], &p, arm, 0, &output, &opts)?;
-                assert_eq!(run.correct, case == "matching", "{case}: {}", run.note);
+                let accepted = matches!(case, "matching" | "check-shape");
+                assert_eq!(run.correct, accepted, "{case}: {}", run.note);
                 assert_eq!(run.metadata["reported_engine"], report["engine"]);
                 assert_eq!(
                     run.metadata["reported_engine_requested"],
@@ -1976,8 +1990,8 @@ exit 5
                     1,
                     false,
                 )?;
-                assert_eq!(pairs.paired, usize::from(case == "matching"));
-                if case != "matching" {
+                assert_eq!(pairs.paired, usize::from(accepted));
+                if !accepted {
                     assert_eq!(pairs.failed, 1);
                     assert!(pairs.median.is_none());
                     assert!(stats::geometric_mean(&[pairs]).is_none());
