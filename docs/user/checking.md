@@ -386,7 +386,18 @@ operator, such as `FoldFunctionOnSet(+, 0, f, S)` or `FoldSeq(\o, <<>>, s)`,
 and applies it as a `LAMBDA` of its arity. TLC reports an error raised inside
 such an operator through the override's Java-method error, which the core does
 not reproduce: that case is refused. Built-in operators passed this way
-(`FoldSet(\cup, {}, S)`) remain unsupported. `DyadicRationals!Reduce` follows
+(`FoldSet(\cup, {}, S)`) remain unsupported; the pinned TLC itself fails on
+them.
+
+A built-in value operator passed to a TLA+ operator, as in
+`ReduceSet(\intersect, S, base)`, is applied as if written in place: the set
+operators (`\cup`, `\cap`, `\`), `=`, `/=`, `\in`, `\notin`, `\subseteq`,
+`~`, `/\`, `\/`, `=>`, `<=>`, `SUBSET`, `UNION` and `DOMAIN`. The connectives
+keep their short-circuit evaluation, as in TLC. This also holds inside a
+recursive LET function and under a prime. A built-in applied as an action
+(`Op(\/)` in the next-state relation), and the state, action and temporal
+built-ins (`'`, `UNCHANGED`, `ENABLED`, `\cdot`, `[]`, `<>`, `~>`), stay
+refused. `DyadicRationals!Reduce` follows
 the Java override and refuses operands outside 32 bits.
 
 For a small refinement example, this command completes with 3 distinct states,

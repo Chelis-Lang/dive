@@ -366,6 +366,57 @@ enum Red {
 /// The most nodes of a constant [`Compiler::holds_lazy_set`] looks at.
 const LAZY_SCAN: usize = 4096;
 
+/// Whether Core applies the built-in `op` when it is passed as an
+/// operator argument and applied to values: the set, equality,
+/// membership, Boolean and `DOMAIN`/`SUBSET`/`UNION` operators. TLC
+/// applies these exactly as the operator written in place, including the
+/// short-circuit evaluation of `/\`, `\/` and `=>`. The state, temporal
+/// and action operators (`'`, `UNCHANGED`, `ENABLED`, `\cdot`, `[]`, ...)
+/// stay refused, and `\X` cannot be passed (`DIVE-S0032`).
+const fn builtin_value_arg(op: BuiltinOp) -> bool {
+    use BuiltinOp as B;
+    matches!(
+        op,
+        B::Eq
+            | B::Neq
+            | B::In
+            | B::NotIn
+            | B::Subseteq
+            | B::Cup
+            | B::Cap
+            | B::SetMinus
+            | B::PowerSet
+            | B::BigUnion
+            | B::Domain
+            | B::Not
+            | B::And
+            | B::Or
+            | B::Implies
+            | B::Equiv
+    )
+}
+
+/// The arity of a built-in [`builtin_value_arg`] admits.
+const fn builtin_arity(op: BuiltinOp) -> Option<usize> {
+    use BuiltinOp as B;
+    match op {
+        B::PowerSet | B::BigUnion | B::Domain | B::Not => Some(1),
+        B::Eq
+        | B::Neq
+        | B::In
+        | B::NotIn
+        | B::Subseteq
+        | B::Cup
+        | B::Cap
+        | B::SetMinus
+        | B::And
+        | B::Or
+        | B::Implies
+        | B::Equiv => Some(2),
+        _ => None,
+    }
+}
+
 fn union(a: &mut Vec<u32>, b: &[u32]) {
     if b.is_empty() {
         return;
@@ -2504,8 +2555,8 @@ impl Compiler<'_> {
                     ps.push(self.p(i, env, mode)?);
                 }
                 match kind {
-                    JunctionKind::And => self.push(Node::And(ps.into())),
-                    JunctionKind::Or => self.push(Node::Or(ps.into())),
+                    JunctionKind::And => self.push(Node::And(ps.clone().into())),
+                    JunctionKind::Or => self.push(Node::Or(ps.clone().into())),
                 }
             }
             Expr::Not(a) => {
@@ -2605,7 +2656,7 @@ impl Compiler<'_> {
             }
             Expr::Cartesian(items) => {
                 let ps = self.ps(items, env, mode)?;
-                self.push(Node::Product(ps.into()))
+                self.push(Node::Product(ps.clone().into()))
             }
             Expr::Record(fields) | Expr::RecordSet(fields) => {
                 let is_set = matches!(expr, Expr::RecordSet(_));
@@ -3681,10 +3732,7 @@ impl Compiler<'_> {
                 self.std_apply(*op, args, env, mode)
             }
             OpRef::Param(r) => self.apply_param(*r, args, env, env, mode),
-            OpRef::Builtin(op) => Err(Error::unsupported(format!(
-                "the built-in {} as an operator argument (M0 core)",
-                op.sany_name()
-            ))),
+            OpRef::Builtin(op) => self.builtin_apply(*op, args, env, mode),
             // `CONSTANT F(_)` with `F <- D` in the configuration.
             OpRef::Const(c) => match self.h.constants.get(c.index()).cloned().flatten() {
                 Some(ConstBinding::Def(_)) if args.is_empty() => self.const_expr(*c, env, mode),
@@ -3705,6 +3753,44 @@ impl Compiler<'_> {
             }
             OpRef::Unbound(n) => Err(Error::unsupported(format!("the unbound operator {n}"))),
         }
+    }
+
+    /// Applies a built-in operator passed as an operator argument (for
+    /// example `ReduceSet(\intersect, S, b)` applying `op(x, y)`) to
+    /// expression arguments compiled in `env`, as the built-in written
+    /// in place would be. Only the value operators of
+    /// [`builtin_value_arg`] are applied; the others stay refused.
+    fn builtin_apply(
+        &mut self,
+        op: BuiltinOp,
+        args: &[Arg],
+        env: usize,
+        mode: Mode,
+    ) -> Result<P, Error> {
+        if !builtin_value_arg(op) {
+            return Err(Error::unsupported(format!(
+                "the built-in {} as an operator argument (M0 core)",
+                op.sany_name()
+            )));
+        }
+        let mut exprs = Vec::with_capacity(args.len());
+        for a in args {
+            let Arg::Expr { expr, .. } = a else {
+                return Err(Error::unsupported(format!(
+                    "the built-in {} applied to an operator argument",
+                    op.sany_name()
+                )));
+            };
+            exprs.push(*expr);
+        }
+        if builtin_arity(op) != Some(exprs.len()) {
+            return Err(Error::internal(format!(
+                "the built-in {} applied to {} arguments",
+                op.sany_name(),
+                exprs.len()
+            )));
+        }
+        self.builtin(op, &exprs, env, mode)
     }
 
     /// Inlines a non-recursive operator applied to `args`, which are
@@ -3763,6 +3849,14 @@ impl Compiler<'_> {
                 Some(ConstBinding::Def(d)) => d,
                 _ => return self.guard_expr(e, env),
             },
+            // TLC's action splitting of a passed built-in (`Op(\/)`,
+            // `Op(=)` with a primed operand) is not reproduced.
+            OpRef::Builtin(b) => {
+                return Err(Error::unsupported(format!(
+                    "the built-in {} passed as an operator argument and applied as an action (M1 core)",
+                    b.sany_name()
+                )));
+            }
             _ => return self.guard_expr(e, env),
         };
         let d = self.redirect(d);
@@ -3998,7 +4092,12 @@ impl Compiler<'_> {
             OpRef::Subst(_) => Err(Error::unsupported(
                 "an INSTANCE-substituted operator passed as an operator argument (M1 core)",
             )),
-            op @ (OpRef::Std(_) | OpRef::Builtin(_) | OpRef::Const(_) | OpRef::Unbound(_)) => {
+            // A built-in has no body of its own: its application is the
+            // built-in written in place, over arguments compiled in `env`,
+            // so any recursive call or effect in it is the caller's own and
+            // nothing is hidden behind an enclosing callback.
+            OpRef::Builtin(b) => return self.builtin_apply(b, args, env, mode),
+            op @ (OpRef::Std(_) | OpRef::Const(_) | OpRef::Unbound(_)) => {
                 self.apply(&op, args, env, mode)
             }
         }?;
