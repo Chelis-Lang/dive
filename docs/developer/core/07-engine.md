@@ -554,8 +554,16 @@ non-constant split arguments (stream 2), and are refused naming them.
 - `dive_core::symmetry::Symmetry::canonical` computes a state's canonical
   image: the least of its images, the state itself first, compared variable
   by variable with `Heap::cmp`. A later image wins only when it is strictly
-  smaller, as in `Reduction::canonical_values`. Images are transient heap
-  values. A value is rebuilt only when something in it moves.
+  smaller, as in `Reduction::canonical_values`. A value is rebuilt only
+  when something in it moves. Outside speculative candidate expansion, the
+  image of a persistent value inside a state variable is interned and
+  remembered per worker (`ImageCache`, at most 2^20 entries). A state
+  variable's own value is never interned under the maps: a set variable
+  within eight elements of its value in the predecessor state
+  (`Symmetry::canonical_from`) takes its image from that value's sorted
+  element images, kept per map while the predecessor lasts, and is compared
+  with the best image before it is built. The result never depends on the
+  predecessor.
 - The explorer's `state_key` keys a state by its image, in the one-worker
   level, the parallel level and TLC's call-stack replay. The explored state,
   the predecessor log and the traces stay concrete.
