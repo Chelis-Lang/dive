@@ -301,6 +301,19 @@ generated_count_pair = { expected = 1350001, actual = 900001 }
 justification = "Action composition with its TLA+ meaning (D-022) generates 900001 states without TLC's 450000 composition intermediates (TLC: 1350001); success, physical exit 0, 25000 distinct states and depth 16 agree; issue #413 records the original full-gate finding"
 link = "docs/divergences.md#registry"
 
+# D-002: dive's own random streams. A start-up-fixed RandomElement graph
+# draws differently from TLC's java.util.Random in the default profile; under
+# --compat=tlc the counts agree (79550 distinct, 1357252 generated, depth 6).
+[[divergence]]
+id = "d002-spantreerandom-default-streams"
+pattern = "specifications/SpanningTree/SpanTreeRandom.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = ["counts.distinct_states"]
+generated_count_pair = { expected = 1357252, actual = 293361 }
+justification = "D-002: the default profile draws Edges once at start-up from dive's seeded streams (seed 0: 22040 distinct, 293361 generated, depth 6) instead of TLC's java.util.Random (79550/1357252/6); --compat=tlc reproduces TLC's counts exactly. Success and depth agree; no validation is excused."
+link = "docs/divergences.md#registry"
+
 # D-005: exact declared-symmetry temporal run, fully unreduced by default.
 # Numeric equality alone is insufficient: the strict native reader must also
 # observe the bound whole-run unreduced policy. Never counted as agreement.

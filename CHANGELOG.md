@@ -5,6 +5,15 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core checks `SYMMETRY` with genuine temporal properties under the default
+  `--symmetry-liveness=unreduced` (D-005), as Reference does: the whole run is
+  unreduced and the report says so. `=refuse` and `=tlc` still refuse.
+- Both engines check temporal properties when the only `RandomElement` is in
+  a constant-level definition fixed at start-up, from the reported seed
+  (D-002), so `SpanningTree/SpanTreeRandom` no longer refuses; under
+  `--compat=tlc` it gives TLC's counts. A violation of such a model still
+  refuses, because the independent validator does not replay start-up draws.
+
 - Core provides `TLCGet("config")` and the start-up counters to the
   `ASSUME`s, and `TLCGet("config")` during the search, as Reference does, so
   `DieHard/MCDieHardest` checks on Core.

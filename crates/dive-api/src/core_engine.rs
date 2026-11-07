@@ -360,7 +360,13 @@ fn refusal(model: &dive_model::Model, temporal: bool) -> Option<String> {
     {
         return Some("POSTCONDITION (M0 core engine)".into());
     }
-    if model.symmetry.is_some() && !model.implied_temporals.is_empty() {
+    // With genuine temporal properties, the default policy (D-005) checks
+    // the whole run unreduced: the start-up prepares no symmetry maps, and
+    // the report names the policy. Other policies are refused by the binder.
+    if model.symmetry.is_some()
+        && !model.implied_temporals.is_empty()
+        && !(temporal && model.unreduced_symmetry_liveness())
+    {
         return Some("SYMMETRY (M0 core engine)".into());
     }
     None

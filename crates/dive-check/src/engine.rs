@@ -283,8 +283,31 @@ fn random_op(op: dive_ir::StdOp) -> bool {
 /// definition itself is not a reference: `INSTANCE` of a module that extends
 /// `TLC` copies `RandomElement` into the instantiating module without calling it.
 pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
+    uses_random_except(ir, |_| false)
+}
+
+/// Whether a bound model can draw a random value after start-up: as
+/// [`uses_random`], except that a definition whose value the binder fixed at
+/// start-up (a precomputed constant-level definition, or a configured
+/// `Op = v` value) is never evaluated again, so neither its body nor what
+/// it references can draw. The start-up draws themselves come from the run's
+/// reported seed (D-002).
+pub(crate) fn uses_random_after_startup(model: &Model) -> bool {
+    let ev = &model.evaluator;
+    uses_random_except(&model.ir, |d| {
+        let d = dive_ir::DefId(d);
+        ev.redirected(d) == d && (ev.precomputed(d).is_some() || ev.is_value_override(d))
+    })
+}
+
+/// [`uses_random`], treating each definition `fixed` accepts as a value that
+/// is never evaluated again.
+fn uses_random_except(ir: &dive_ir::Ir, fixed: impl Fn(u32) -> bool) -> bool {
     use dive_ir::{Expr, OpRef};
     let defs = ir.defs();
+    let fixed: Vec<bool> = (0..defs.len())
+        .map(|i| u32::try_from(i).is_ok_and(&fixed))
+        .collect();
     let mut owned = vec![false; ir.nodes().len()];
     // Direct references of each definition's body subtree.
     let mut refs: Vec<Vec<usize>> = Vec::with_capacity(defs.len());
@@ -317,13 +340,18 @@ pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
             direct[i] |= referenced(&node.expr, &mut out);
             stack.extend(node.expr.children());
         }
+        // A fixed value's body is owned, but never evaluated again.
+        if fixed[i] {
+            direct[i] = false;
+            out.clear();
+        }
         refs.push(out);
     }
     // Close over references until no definition changes. Natives seed it.
     let mut random: Vec<bool> = defs
         .iter()
-        .zip(&direct)
-        .map(|(def, direct)| *direct || def.std.is_some_and(random_op))
+        .zip(direct.iter().zip(&fixed))
+        .map(|(def, (direct, fixed))| *direct || (!fixed && def.std.is_some_and(random_op)))
         .collect();
     let mut changed = true;
     while changed {

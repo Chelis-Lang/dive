@@ -4,7 +4,7 @@
 use std::collections::BTreeSet;
 
 use dive_eval::{Scope, SlotView};
-use dive_ir::{Arg, DefId, Effects, Expr, ExprId, OpRef, StdOp, StdSupport};
+use dive_ir::{Arg, DefId, Expr, ExprId, OpRef, StdOp, StdSupport};
 
 use crate::bind::Binder;
 use crate::model::{Model, Pred, Unsupported, UnsupportedKind};
@@ -383,7 +383,8 @@ pub const TLC_CDOT: &str = "action composition under `--action-composition=tlc` 
 pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> crate::bind::R<Sequential> {
     let ir = &*model.ir;
     let (roots, mut exprs) = checking_path(b, model);
-    let reach = ir.reachable_defs(&roots);
+    let fixed = startup_fixed(b, ir);
+    let reach = reachable_unfixed(ir, &roots, &fixed);
     let ordered_names = b.opts.eval.ctx.order == dive_value::ValueOrder::Tlc
         || b.opts.eval.exploration == dive_eval::ExplorationOrder::Tlc;
     let mut names: BTreeSet<String> = BTreeSet::new();
@@ -404,13 +405,15 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> crate::bind::R<Sequen
                         op.qualified_name()
                     ));
                 }
-            } else {
+            } else if !fixed.get(i).copied().unwrap_or(false) {
                 exprs.push(d.body);
             }
         }
     }
     let tlc_cdot = b.opts.eval.action_composition == dive_eval::ActionComposition::Tlc;
-    let impure = |e: ExprId| ir.node(e).effects.intersects(Effects::IMPURE);
+    // A start-up-fixed definition inside a lazily evaluated filter or
+    // function is a value, never evaluated again.
+    let impure = |e: ExprId| b.ev().impure_after_startup(e);
     let mut seen = vec![false; ir.nodes().len()];
     while let Some(e) = exprs.pop() {
         match seen.get_mut(e.index()) {
@@ -480,6 +483,53 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> crate::bind::R<Sequen
     // Only the actual worker restriction can be discharged by this proof.
     tuple_calls::remove_proved_concat(b, model, &mut classified.reasons)?;
     Ok(classified)
+}
+
+/// The definitions whose value the binder fixed at start-up
+/// ([`dive_eval::Evaluator::startup_fixed`]): checking reads the kept value
+/// and never evaluates the body again.
+fn startup_fixed(b: &Binder<'_>, ir: &dive_ir::Ir) -> Vec<bool> {
+    let ev = b.ev();
+    (0..ir.defs().len())
+        .map(|i| u32::try_from(i).is_ok_and(|i| ev.startup_fixed(DefId(i))))
+        .collect()
+}
+
+/// [`dive_ir::Ir::reachable_defs`], except that a start-up-fixed definition
+/// is reached without following its body.
+fn reachable_unfixed(ir: &dive_ir::Ir, roots: &[DefId], fixed: &[bool]) -> Vec<bool> {
+    let mut seen = vec![false; ir.defs().len()];
+    let mut work: Vec<DefId> = roots.to_vec();
+    while let Some(d) = work.pop() {
+        let Some(s) = seen.get_mut(d.index()) else {
+            continue;
+        };
+        if *s {
+            continue;
+        }
+        *s = true;
+        let def = ir.def(d);
+        if def.std.is_some() || fixed.get(d.index()).copied().unwrap_or(false) {
+            continue;
+        }
+        let mut exprs = vec![def.body];
+        while let Some(e) = exprs.pop() {
+            let node = ir.node(e);
+            if let Expr::Def(x) = &node.expr {
+                work.push(*x);
+            }
+            if let Expr::Let { defs, .. } = &node.expr {
+                work.extend(defs.iter().copied());
+            }
+            for r in node.expr.op_refs() {
+                if let OpRef::Def(x) = r {
+                    work.push(*x);
+                }
+            }
+            node.expr.for_each_child(|child| exprs.push(child));
+        }
+    }
+    seen
 }
 
 fn classify_sequential(
