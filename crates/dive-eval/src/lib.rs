@@ -61,6 +61,7 @@ mod random_relation;
 mod recursive_leaf;
 mod scope;
 mod stability;
+mod startup_calls;
 mod startup_fixed;
 mod std;
 mod svg;

@@ -44,7 +44,7 @@ impl Core {
         args: &[Arg],
         e: ExprId,
     ) -> Result<Ev> {
-        if let Some(&target) = self.std_redirects.get(&op) {
+        if let Some(target) = self.std_redirect_table.get(op as usize).copied().flatten() {
             let def = OpVal::Def {
                 def: target,
                 parent: None,

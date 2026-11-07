@@ -75,6 +75,12 @@ pub(crate) struct Core {
     /// Configuration overrides of definitions TLC implements in Java
     /// (`Nat <- NatOverride`): the override replaces the Java method.
     pub(crate) std_redirects: HashMap<dive_ir::StdOp, DefId>,
+    /// [`Self::std_redirects`] by `StdOp` discriminant, for the lookup every
+    /// standard-operator call makes.
+    pub(crate) std_redirect_table: Box<[Option<DefId>]>,
+    /// [`Self::redirects`] by definition index, for the lookup every call
+    /// makes ([`Core::redirect`]).
+    pub(crate) redirect_table: Box<[Option<DefId>]>,
     pub(crate) lits: Vec<Lit>,
     /// Interned field names of record constructors, record sets and record
     /// selections, by node.
@@ -89,6 +95,14 @@ pub(crate) struct Core {
     /// SANY levels can ignore native arguments (`Naturals` defines `a*b` as
     /// `TRUE`); explicit binding-stage startup values do not use this guard.
     pub(crate) constant_cache_safe: Vec<OnceLock<bool>>,
+    /// Whether a call of each definition depends only on its arguments
+    /// (`Core::state_free` with its parameters as inputs).
+    pub(crate) call_cache_safe: Vec<OnceLock<bool>>,
+    /// The pure calls kept during the current start-up evaluation
+    /// (`crate::startup_calls`); `None` outside one.
+    pub(crate) startup_calls: Mutex<Option<crate::startup_calls::StartupCalls>>,
+    /// How many calls start-up evaluations answered from kept results.
+    pub(crate) startup_call_hits: std::sync::atomic::AtomicU64,
     /// Whether the configuration's `<-` bindings keep constant definitions
     /// constant: every definition a constant or definition is bound to is
     /// constant-level and pure. Then a definition that reads a constant
@@ -181,6 +195,7 @@ impl Core {
         }
         let def_cache = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
         let constant_cache_safe = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
+        let call_cache_safe = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
         let constant_pure = |d: &DefId| {
             let def = ir.def(*d);
             def.level == dive_ir::Level::Constant
@@ -196,7 +211,19 @@ impl Core {
             .redirects
             .iter()
             .filter_map(|(d, t)| ir.def(*d).std.map(|op| (op, *t)))
-            .collect();
+            .collect::<HashMap<_, _>>();
+        let mut std_redirect_table = vec![None; dive_ir::StdOp::ALL.len()].into_boxed_slice();
+        for (&op, &target) in &std_redirects {
+            if let Some(slot) = std_redirect_table.get_mut(op as usize) {
+                *slot = Some(target);
+            }
+        }
+        let mut redirect_table = vec![None; ir.defs().len()].into_boxed_slice();
+        for (&source, &target) in &model.redirects {
+            if let Some(slot) = redirect_table.get_mut(source.index()) {
+                *slot = Some(target);
+            }
+        }
         Self {
             source_coverage: None,
             input_refusal: Mutex::new(None),
@@ -212,12 +239,17 @@ impl Core {
             redirects: model.redirects,
             def_values: model.def_values,
             std_redirects,
+            std_redirect_table,
+            redirect_table,
             lits,
             fields,
             frame_owners,
             frame_required,
             def_cache,
             constant_cache_safe,
+            call_cache_safe,
+            startup_calls: Mutex::default(),
+            startup_call_hits: std::sync::atomic::AtomicU64::new(0),
             open_ok,
             warned: Mutex::default(),
             startup,
