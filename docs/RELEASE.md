@@ -63,10 +63,10 @@ In order. Each item has a GitHub issue in the
 6. **Make compat nominal on Core** (R4): the existing cheap switches plus a gap
    list.
 7. **Remove the fallback.**
-   - Once R1 holds, remove Auto's Reference fallback and the Reference checking
-     runtime from the product path.
-   - Keep what `dive-trace` and Core startup still use.
-   - Replace the shadow gate with golden comparison.
+   - Done: Core is the default engine, Auto and its Reference fallback are
+     removed, and golden comparison replaced the shadow gate (#791 part A).
+   - Remaining: retire the Reference checking runtime from the product path,
+     keeping what `dive-trace` and Core startup still use (#791 part B).
 8. **Freeze the surface** (R5), then **package and ship** (R6): one
    release-candidate qualification, then the tag.
 
