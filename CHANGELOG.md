@@ -45,6 +45,9 @@ published. Earlier pre-release development entries remain in git history.
   properties. `ewd840/EWD840_anim` now agrees with its golden. Register reads
   and writes (`TLCGet(1)`, `TLCSet`) still refuse, as does `TLCGet("level")`
   in DFID.
+- Core refuses a primed `TLCGet("level")` by name in every mode. TLC
+  evaluates it at the successor's level; Core read the source's, which gave
+  a wrong action-property violation.
 - Core computes `SYMMETRY` canonical images faster: images of values inside
   a state that recur across states are remembered per worker, within 32 MiB
   per run, and a set variable's image is derived from its predecessor's.

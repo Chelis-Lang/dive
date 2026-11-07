@@ -919,7 +919,7 @@ mod tests {
     /// -seed 0 -workers 1`): 0 in Init, a state's trace position in its
     /// state checks, the source's in Next and in action checks.
     #[test]
-    fn simulation_tlcget_level_follows_tlc_in_every_role() -> Result {
+    fn simulation_unprimed_tlcget_level_follows_tlc_in_each_role() -> Result {
         let cases: [(&str, &[&str]); 2] = [
             (
                 "INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY Prop\n",
@@ -964,6 +964,45 @@ mod tests {
             );
             assert_eq!(printed(&report), expected);
             assert_eq!(report.traces[0].states.len(), 3);
+        }
+        Ok(())
+    }
+
+    /// TLC evaluates a primed `TLCGet("level")` at the successor's level
+    /// (`-simulate` prints `<<0, 1, 1, 2>>` for
+    /// `<<x, x', TLCGet("level"), (TLCGet("level"))'>>` in an action
+    /// property); Core refuses it by name rather than reading the source's.
+    #[test]
+    fn simulation_refuses_a_primed_tlcget_level() -> Result {
+        let cases = [
+            (
+                "Init == x = 0\nNext == x' = x + 1\nProp == [][(TLCGet(\"level\"))' = TLCGet(\"level\") + 1]_x\nInv == x < 5\n",
+                "INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY Prop\n",
+            ),
+            (
+                "Init == x = 1\nNext == x' = (TLCGet(\"level\"))'\nInv == x < 3\n",
+                "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            ),
+            (
+                "L == TLCGet(\"level\")\nInit == x = 0\nNext == x' = x + 1\nAC == L' > L\nInv == x < 5\n",
+                "INIT Init\nNEXT Next\nACTION_CONSTRAINT AC\nINVARIANT Inv\n",
+            ),
+        ];
+        for (body, config) in cases {
+            let source = model(
+                &format!("---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\n{body}====\n"),
+                config,
+            )?;
+            let refused = Native::prepare(source.model(), &dive_check::budget::Budget::unlimited());
+            assert!(
+                matches!(&refused, Err(SetupError::Unsupported(why)) if why.contains("TLCGet(\"level\") under a prime")),
+                "{body}: {}",
+                match &refused {
+                    Ok(_) => "prepared",
+                    Err(SetupError::Unsupported(why) | SetupError::Internal(why)) => why,
+                    Err(SetupError::Stopped) => "stopped",
+                }
+            );
         }
         Ok(())
     }
