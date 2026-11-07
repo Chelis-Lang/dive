@@ -3501,6 +3501,10 @@ impl Compiler<'_> {
         };
         let d = match op {
             OpRef::Def(d) => d,
+            OpRef::Std(s) => match self.h.std_redirects.get(&s) {
+                Some(&t) => t,
+                None => return self.std_op_fn(s, arity),
+            },
             OpRef::Const(c) => match self.h.constants.get(c.index()).cloned().flatten() {
                 Some(ConstBinding::Def(d)) => d,
                 _ => {
@@ -3511,11 +3515,25 @@ impl Compiler<'_> {
             },
             _ => {
                 return Err(Error::unsupported(
-                    "a std or built-in operator passed to a higher-order operator (M1 core)",
+                    "a built-in operator passed to a higher-order operator (M1 core)",
                 ));
             }
         };
-        let d = self.redirect(d);
+        let mut d = self.redirect(d);
+        if let Some(s) = self.ir.def(d).std {
+            match self.h.std_redirects.get(&s) {
+                Some(&t) if t != d => d = self.redirect(t),
+                _ => {
+                    if self.ir.def(d).params.len() != arity {
+                        return Err(Error::internal(format!(
+                            "{} passed where an operator of {arity} arguments is expected",
+                            self.ir.def(d).name
+                        )));
+                    }
+                    return self.std_op_fn(s, arity);
+                }
+            }
+        }
         let def = self.ir.def(d);
         if def.std.is_some() || def.recursive {
             return Err(Error::unsupported(
@@ -3547,6 +3565,43 @@ impl Compiler<'_> {
         let b = self.p(body, inner, Mode::Plain)?;
         self.enclosing_op_body(b, enclosing)?;
         Ok((slots.into(), b))
+    }
+
+    /// A value-only standard operator (`+`, `\\o`, ...) passed as an
+    /// operator argument, as the `LAMBDA` of its arity that applies it: TLC
+    /// passes its `MethodValue`, which the override applies to values.
+    /// TLC wraps an error the operator raises there in the override's
+    /// `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE` report, which the core does
+    /// not reproduce: the body is a `Node::Spec`, so any such error is
+    /// reported as `unsupported`.
+    ///
+    /// # Errors
+    /// Unsupported for an operator with operator arguments, an effectful
+    /// or nullary one, one of another arity, or one the core does not
+    /// apply to values.
+    fn std_op_fn(&mut self, op: StdOp, arity: usize) -> Result<(Box<[u32]>, P), Error> {
+        if crate::stdlib::higher_order(op) || op.impure() || arity == 0 {
+            return Err(Error::unsupported(format!(
+                "{} passed to a higher-order operator (M1 core)",
+                op.qualified_name()
+            )));
+        }
+        if usize::try_from(op.java_arity()).ok() != Some(arity) {
+            return Err(Error::unsupported(format!(
+                "{} passed where an operator of {arity} arguments is expected",
+                op.qualified_name()
+            )));
+        }
+        let mut slots = Vec::with_capacity(arity);
+        let mut ps = Vec::with_capacity(arity);
+        for _ in 0..arity {
+            let slot = self.alloc();
+            slots.push(slot);
+            ps.push(self.push(Node::Slot(slot))?);
+        }
+        let body = self.std_node(op, ps, None)?;
+        let body = self.push(Node::Spec(body))?;
+        Ok((slots.into(), body))
     }
 
     /// The operator argument an operator parameter is bound to, following
@@ -3862,7 +3917,6 @@ impl Compiler<'_> {
     }
 
     fn std_apply(&mut self, op: StdOp, args: &[Arg], env: usize, mode: Mode) -> Result<P, Error> {
-        use StdOp as S;
         if let Some(&t) = self.h.std_redirects.get(&op) {
             return if args.is_empty() {
                 self.def_use(t, env, mode)
@@ -3883,6 +3937,14 @@ impl Compiler<'_> {
             };
             ps.push(self.p(*expr, env, mode)?);
         }
+        self.std_node(op, ps, Some(args))
+    }
+
+    /// The node of the value-only standard operator `op` applied to the
+    /// compiled arguments `ps`; `args` are their source arguments, absent
+    /// when the operator is applied by a higher-order operator to values.
+    fn std_node(&mut self, op: StdOp, ps: Vec<P>, args: Option<&[Arg]>) -> Result<P, Error> {
+        use StdOp as S;
         let arg = |i: usize| {
             ps.get(i)
                 .copied()
@@ -3933,7 +3995,7 @@ impl Compiler<'_> {
                 // TLCGet's own (`TLCGetEval`), so the argument is a literal;
                 // `"level"` is the engine's, any other key a register.
                 let lit = match args {
-                    [Arg::Expr { expr, .. }] => match &self.ir.node(*expr).expr {
+                    Some([Arg::Expr { expr, .. }]) => match &self.ir.node(*expr).expr {
                         Expr::Str(k) => Some(k.as_ref() != "level"),
                         Expr::Num(_) => Some(true),
                         _ => None,
