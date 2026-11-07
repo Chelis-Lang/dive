@@ -171,6 +171,13 @@ pub struct Model {
     /// the core engine ([`crate::bind_deferring_constants`]); empty
     /// otherwise. The evaluator evaluates them lazily.
     pub deferred_constants: std::collections::BTreeSet<dive_ir::DefId>,
+    /// The root module's pure `ASSUME`s, in order, that the core engine
+    /// evaluates when it compiles its plan
+    /// ([`crate::bind_deferring_constants`]); empty otherwise. Their value
+    /// is a function of the start-up values alone, so one the core finds
+    /// `TRUE` need not be checked again
+    /// ([`Model::check_assumptions_except`]).
+    pub deferred_assumptions: Vec<DefId>,
 }
 
 impl Model {
@@ -375,6 +382,15 @@ impl Model {
     /// skipped, stopping at the first that is not `TRUE`.
     #[must_use]
     pub fn check_assumptions(&self) -> AssumptionOutcome {
+        self.check_assumptions_except(&[])
+    }
+
+    /// [`Self::check_assumptions`], skipping `proved`: pure assumptions
+    /// (among [`Self::deferred_assumptions`]) another evaluator found
+    /// `TRUE`. Skipping one is unobservable: TLC's evaluation of it has no
+    /// effect and does not stop the check.
+    #[must_use]
+    pub fn check_assumptions_except(&self, proved: &[DefId]) -> AssumptionOutcome {
         if let Err(error) = self.evaluator.validate_model_context(&self.ir, &self.names) {
             return AssumptionOutcome::Error {
                 def: DefId(u32::MAX),
@@ -391,7 +407,8 @@ impl Model {
                 .map(|(d, _)| *d)
                 .collect()
         };
-        self.evaluator.check_assumptions(|d| axioms.contains(&d))
+        self.evaluator
+            .check_assumptions(|d| axioms.contains(&d) || proved.contains(&d))
     }
 
     /// The `Print` output collected since the last call (the evaluator's

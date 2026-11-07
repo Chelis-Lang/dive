@@ -186,6 +186,12 @@ pub struct Handoff<'a> {
     /// core does not evaluate itself. Without one, such a definition keeps
     /// its body.
     pub startup_evaluator: Option<Arc<dyn StartupEvaluator>>,
+    /// Pure `ASSUME`s of the root module (`dive_model::Model::deferred_assumptions`):
+    /// the compiler evaluates them in order, after the deferred definitions,
+    /// as it evaluates those, stopping at the first that is not `TRUE`, and
+    /// lists the ones it finds `TRUE` in [`Plan::startup_assumptions`]. The caller checks the others with the
+    /// reference evaluator, which reports a false or failing one as TLC does.
+    pub assumptions: Vec<DefId>,
     /// Initial predicates.
     pub init: Vec<Role>,
     /// Next-state actions, split, in TLC's order.
@@ -521,6 +527,8 @@ fn compile_inner(
         consts: HashMap::new(),
         pre: HashMap::new(),
         fallback: HashMap::new(),
+        startup_assumptions: Vec::new(),
+        startup_assumption_false: None,
         next_slot: 0,
         reset_stack: Vec::new(),
         at_stack: Vec::new(),
@@ -641,6 +649,8 @@ fn compile_inner(
         view,
         stats: c.stats,
         bound_preset: c.bound_preset.unwrap_or_default(),
+        startup_assumptions: c.startup_assumptions,
+        startup_assumption_false: c.startup_assumption_false,
     };
     if mapped {
         let executable = crate::debug::reachable(&plan);
@@ -667,6 +677,10 @@ struct Compiler<'a> {
     /// Start-up values of deferred definitions the binder's evaluation
     /// supplied ([`Handoff::startup_evaluator`]), used as `h.precomputed`.
     fallback: HashMap<DefId, Value>,
+    /// The pure `ASSUME`s the compiler found `TRUE` ([`Handoff::assumptions`]).
+    startup_assumptions: Vec<DefId>,
+    /// The first pure `ASSUME` the compiler found `FALSE`, if it stopped there.
+    startup_assumption_false: Option<DefId>,
     next_slot: u32,
     reset_stack: Vec<Vec<u32>>,
     at_stack: Vec<u32>,
@@ -1695,7 +1709,7 @@ impl Compiler<'_> {
     /// surfaces where it is used, as TLC reports it after swallowing the
     /// startup failure.
     fn startup_values(&mut self) {
-        if self.h.deferred.is_empty() {
+        if self.h.deferred.is_empty() && self.h.assumptions.is_empty() {
             return;
         }
         let deferred: Vec<DefId> = self.h.deferred.iter().copied().collect();
@@ -1725,6 +1739,30 @@ impl Compiler<'_> {
             }
             self.stats.startup_nanos +=
                 u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+        }
+        // The pure `ASSUME`s, in order, under the same bounds, stopping at
+        // the first that is not `TRUE`, as TLC's `Tool.checkAssumptions`
+        // does: an earlier `ASSUME` may guard a later one. `FALSE` is
+        // reported ([`Plan::startup_assumption_false`]); anything else (an
+        // error, a refusal or the memory bound) is left to the reference
+        // evaluator, whose report TLC's matches.
+        for a in self.h.assumptions.clone() {
+            let def = self.ir.def(a);
+            if !def.params.is_empty() || def.std.is_some() || def.scope != DefScope::TopLevel {
+                break;
+            }
+            let started = std::time::Instant::now();
+            let value = self.startup_value(a);
+            self.stats.startup_nanos +=
+                u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+            if value == Some(Handle::TRUE) {
+                self.startup_assumptions.push(a);
+            } else {
+                if value == Some(Handle::FALSE) {
+                    self.startup_assumption_false = Some(a);
+                }
+                break;
+            }
         }
         // A bounded evaluation may still have grown the arena: give that
         // memory back before the search.

@@ -103,3 +103,97 @@ fn fallback() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(plan["startup_fallbacks"], 1, "{plan:#}");
     Ok(())
 }
+
+#[test]
+fn a_pure_assume_evaluated_by_the_core_matches_the_reference_engine()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-startup-constants");
+    for compat_tlc in [false, true] {
+        for (config, verdict) in [
+            ("AssumeHolding", "success"),
+            ("AssumeFalse", "assumption-false"),
+            ("AssumeError", "error"),
+        ] {
+            let req = CheckRequest {
+                file: root.join("StartupAssume.tla"),
+                config: Some(root.join(format!("{config}.cfg"))),
+                workers: Some(1),
+                compat_tlc,
+                seed: Some(0),
+                fp: Some(0),
+                ..Default::default()
+            };
+            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+            if verdict == "success" {
+                assert_eq!(expected["verdict"], "success", "{expected:#}");
+            } else {
+                assert_ne!(expected["verdict"], "success", "{expected:#}");
+            }
+            let core = check_file_engine(&req, Engine::Core)?;
+            let doc = core.to_json();
+            assert_eq!(doc["engine"], "core", "{doc:#}");
+            assert_eq!(observed(&core), expected, "{config}/{compat_tlc}");
+            // In the default profile `Test`, which only the ASSUME reads, is
+            // the core's start-up value. A false or failing ASSUME is then
+            // checked again by the reference evaluator, which reports it.
+            if verdict == "success" {
+                let plan = &doc["core"]["metrics"]["plan"];
+                // `Test` and `Graphs`, which only `Test` reads.
+                let expected_values = if compat_tlc { 0 } else { 2 };
+                assert_eq!(plan["startup_values"], expected_values, "{plan:#}");
+            }
+        }
+    }
+    Ok(())
+}
+
+/// The verdict of checking `module` on `engine`, or `None` when it takes
+/// longer than `limit`.
+fn bounded(
+    module: &str,
+    engine: Engine,
+    compat_tlc: bool,
+    limit: std::time::Duration,
+) -> Option<Value> {
+    let root =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-startup-constants");
+    let req = CheckRequest {
+        file: root.join(format!("{module}.tla")),
+        config: Some(root.join(format!("{module}.cfg"))),
+        workers: Some(1),
+        compat_tlc,
+        seed: Some(0),
+        fp: Some(0),
+        ..Default::default()
+    };
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let _ = tx.send(check_file_engine(&req, engine).map(|r| observed(&r)).ok());
+    });
+    rx.recv_timeout(limit).ok().flatten()
+}
+
+#[test]
+fn a_false_assume_guards_the_pure_assumes_after_it() {
+    // TLC stops at the first ASSUME that is not TRUE. The core, which
+    // evaluates the pure ASSUMEs when it compiles its plan, must not
+    // evaluate the expensive one a false guard precedes (PR #877's review).
+    let limit = std::time::Duration::from_secs(30);
+    for module in ["GuardedAssume", "GuardedAssumeImpure"] {
+        for compat_tlc in [false, true] {
+            let expected = bounded(module, Engine::Reference, compat_tlc, limit);
+            let expected = expected.unwrap_or_else(|| json!("reference timed out"));
+            assert_eq!(expected["class"], "TLC_ASSUMPTION_FALSE", "{expected:#}");
+            assert_eq!(expected["exit"], 10, "{expected:#}");
+            for engine in [Engine::Core, Engine::Auto] {
+                let got = bounded(module, engine, compat_tlc, limit);
+                assert_eq!(
+                    got.as_ref(),
+                    Some(&expected),
+                    "{module}/{engine:?}/{compat_tlc}"
+                );
+            }
+        }
+    }
+}

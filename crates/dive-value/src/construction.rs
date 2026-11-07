@@ -150,6 +150,10 @@ fn explicit_tree(value: &Value, ctx: Ctx, poll: &mut Poll<'_>, normalized: bool)
         checkpoint(poll)?;
         return Ok(true);
     }
+    if !needs_walk(value) {
+        checkpoint(poll)?;
+        return Ok(true);
+    }
     let mut work = Vec::new();
     reserve(&mut work, 1, poll)?;
     work.push(value);
@@ -169,7 +173,7 @@ fn explicit_tree(value: &Value, ctx: Ctx, poll: &mut Poll<'_>, normalized: bool)
                     return Ok(false);
                 }
                 reserve(&mut work, elements.len(), poll)?;
-                work.extend(elements.iter());
+                work.extend(elements.iter().filter(|v| needs_walk(v)));
             }
             Value::Fcn(f) => {
                 if normalized && !matches!(f.0.repr, FcnRepr::Tuple(_)) && f.order() != ctx.order {
@@ -177,11 +181,16 @@ fn explicit_tree(value: &Value, ctx: Ctx, poll: &mut Poll<'_>, normalized: bool)
                 }
                 reserve(&mut work, f.len().saturating_mul(2), poll)?;
                 match &f.0.repr {
-                    FcnRepr::Tuple(values) => work.extend(values.iter()),
-                    FcnRepr::Record(fields) => work.extend(fields.iter().map(|(_, value)| value)),
+                    FcnRepr::Tuple(values) => work.extend(values.iter().filter(|v| needs_walk(v))),
+                    FcnRepr::Record(fields) => work.extend(
+                        fields
+                            .iter()
+                            .map(|(_, value)| value)
+                            .filter(|v| needs_walk(v)),
+                    ),
                     FcnRepr::General(pairs) => {
-                        work.extend(pairs.domain.keys.iter());
-                        work.extend(pairs.values.iter());
+                        work.extend(pairs.domain.keys.iter().filter(|v| needs_walk(v)));
+                        work.extend(pairs.values.iter().filter(|v| needs_walk(v)));
                     }
                 }
             }
@@ -189,6 +198,22 @@ fn explicit_tree(value: &Value, ctx: Ctx, poll: &mut Poll<'_>, normalized: bool)
         }
     }
     Ok(true)
+}
+
+/// Whether [`explicit_tree`] must look inside `value`: a scalar, or a tuple
+/// of scalars (the common element of a set of sequences), is explicit
+/// whatever the name order.
+fn needs_walk(value: &Value) -> bool {
+    match value {
+        Value::Set(_) => true,
+        Value::Fcn(f) => match &f.0.repr {
+            FcnRepr::Tuple(values) => values
+                .iter()
+                .any(|v| matches!(v, Value::Set(_) | Value::Fcn(_))),
+            _ => true,
+        },
+        _ => false,
+    }
 }
 
 fn ordered_elements<'a>(set: &'a Set, ctx: Ctx, poll: &mut Poll<'_>) -> Result<Cow<'a, [Value]>> {
@@ -274,6 +299,20 @@ fn total(a: &Value, b: &Value, ctx: Ctx, poll: &mut Poll<'_>) -> Result<Ordering
         (Value::Fcn(f), Value::Fcn(g)) => {
             if f.len() != g.len() {
                 return Ok(f.len().cmp(&g.len()));
+            }
+            // Two tuples of one length have the same domain, `1..n`: only
+            // their components, in order, decide.
+            if let (FcnRepr::Tuple(xs), FcnRepr::Tuple(ys)) = (&f.0.repr, &g.0.repr) {
+                for (x, y) in xs.iter().zip(ys.iter()) {
+                    let comparison = match crate::order::scalar_cmp(x, y, ctx.order) {
+                        Some(comparison) => comparison,
+                        None => total(x, y, ctx, poll)?,
+                    };
+                    if comparison != Ordering::Equal {
+                        return Ok(comparison);
+                    }
+                }
+                return Ok(Ordering::Equal);
             }
             let (first, second) = (ordered_pairs(f, ctx, poll)?, ordered_pairs(g, ctx, poll)?);
             for at in 0..f.len() {
@@ -385,8 +424,25 @@ pub(crate) fn canonical_set(
     poll: &mut Poll<'_>,
 ) -> Result<Value> {
     for value in &mut elements {
+        // A closed value is its own materialized identity, and closed
+        // implies the raw explicit tree `require_closed` checks.
+        if closed(value, ctx, poll)? {
+            continue;
+        }
         *value = materialized_identity(value, ctx, poll, 0)?;
         require_closed(value, ctx, poll)?;
+    }
+    // Elements already in strictly ascending order (a set enumerated in
+    // canonical order, such as a function set's) are sorted and distinct.
+    let mut ascending = true;
+    for pair in elements.windows(2) {
+        if total(&pair[0], &pair[1], ctx, poll)? != Ordering::Less {
+            ascending = false;
+            break;
+        }
+    }
+    if ascending {
+        return Ok(Value::Set(Set::from_sorted(ctx.order, elements)));
     }
     sort(&mut elements, poll, &mut |a, b, poll| {
         total(a, b, ctx, poll)
@@ -453,7 +509,12 @@ pub(crate) fn materialized_identity(
             let mut out = Vec::new();
             reserve(&mut out, elements.len(), poll)?;
             for child in elements {
-                out.push(materialized_identity(&child, ctx, poll, depth + 1)?);
+                // `canonical_set` keeps a closed child as it is.
+                if closed(&child, ctx, poll)? {
+                    out.push(child);
+                } else {
+                    out.push(materialized_identity(&child, ctx, poll, depth + 1)?);
+                }
             }
             canonical_set(out, ctx, poll)
         }

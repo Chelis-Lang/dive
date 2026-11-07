@@ -155,12 +155,19 @@ pub(crate) fn pure(b: &Binder<'_>, def: DefId) -> bool {
 }
 
 /// [`effect_free`], or with `strict` [`pure`], which also follows the
-/// configuration's overrides of the definitions it reaches.
+/// configuration's overrides of the definitions it reaches and the
+/// substitutions of instances.
 fn effect_free_with(b: &Binder<'_>, def: DefId, strict: bool) -> bool {
     let reads_only = |op: StdOp| if strict { !op.impure() } else { reads_only(op) };
     let ir = &*b.t.ir;
     let mut seen = vec![false; ir.defs().len()];
     let mut work = vec![def];
+    // An instance's substitution is read dynamically: its value is a binding
+    // of an enclosing `Subst`, whose expressions and operators the walk
+    // visits there, or else the declaration itself, a constant (whose
+    // configured target's body is evaluated at each use) or a variable.
+    // Only `strict` follows that; otherwise it counts as an effect.
+    let substitutions = strict;
     let constant = |c: dive_ir::ConstId, work: &mut Vec<DefId>| match b.t.const_look(c) {
         Some(Look::Def(d)) => {
             work.push(d);
@@ -207,7 +214,16 @@ fn effect_free_with(b: &Binder<'_>, def: DefId, strict: bool) -> bool {
                         return false;
                     }
                 }
-                Expr::SubstRef { .. } => return false,
+                Expr::SubstRef { decl, .. } => {
+                    if !substitutions {
+                        return false;
+                    }
+                    if let Some(c) = ir.decl(*decl).constant
+                        && !constant(c, &mut work)
+                    {
+                        return false;
+                    }
+                }
                 _ => {}
             }
             for r in node.expr.op_refs() {
@@ -218,7 +234,13 @@ fn effect_free_with(b: &Binder<'_>, def: DefId, strict: bool) -> bool {
                     }
                     OpRef::Std(op) => reads_only(*op),
                     OpRef::Const(c) => constant(*c, &mut work),
-                    OpRef::Subst(_) => false,
+                    OpRef::Subst(decl) => {
+                        substitutions
+                            && ir
+                                .decl(*decl)
+                                .constant
+                                .is_none_or(|c| constant(c, &mut work))
+                    }
                     OpRef::Param(_) => !node.effects.intersects(Effects::IMPURE),
                     OpRef::Builtin(_) | OpRef::Unbound(_) => true,
                 };

@@ -440,6 +440,7 @@ pub(crate) fn handoff<'a>(
             Arc::new(BinderStartup(model.evaluator.clone()))
                 as Arc<dyn dive_core::compile::StartupEvaluator>
         }),
+        assumptions: model.deferred_assumptions.clone(),
         init: action_roles(model, &model.init_actions)?,
         next: action_roles(model, &model.actions)?,
         invariants: named_roles(model, &model.invariants)?,
@@ -799,10 +800,28 @@ fn prepare_observed(
     if let Some(feature) = refusal(&model, temporal) {
         return Err(Box::new(result(unsupported(feature), options, ir)));
     }
-    // The ASSUMEs are startup evaluation (the binder's, `04-plan-compiler.md`
-    // §2): a false or failing one ends the run as the reference engine
-    // reports it, before any core work.
-    let assumed = match model.check_assumptions() {
+    // The core compiles its plan, evaluating the pure ASSUMEs the binding
+    // left to it (`Model::deferred_assumptions`, issue #846), before the
+    // remaining ASSUMEs are checked. Compiling is pure start-up work (it
+    // prints nothing, draws nothing and reads no counter), so a compile
+    // failure is reported only after the ASSUMEs pass, as before.
+    let compiled = compile_plan(&model, ir, options, core_opts, &mut sym, debugger.as_ref());
+    // The core evaluates a leading run of the ASSUMEs, stopping at the first
+    // that is not TRUE (TLC's order: an ASSUME may guard the next). One it
+    // found FALSE is the first that is not TRUE, and is reported without
+    // evaluating it again.
+    let (proved, refuted): (&[DefId], _) = match &compiled {
+        Ok((_, plan, _)) => (&plan.startup_assumptions, plan.startup_assumption_false),
+        Err(_) => (&[], None),
+    };
+    // The other ASSUMEs are startup evaluation (the binder's,
+    // `04-plan-compiler.md` §2): a false or failing one ends the run as the
+    // reference engine reports it, before any search.
+    let outcome = match refuted {
+        Some(a) => model.evaluator.false_assumption(a),
+        None => model.check_assumptions_except(proved),
+    };
+    let assumed = match outcome {
         dive_eval::AssumptionOutcome::AllTrue => None,
         dive_eval::AssumptionOutcome::False {
             property, message, ..
@@ -841,37 +860,7 @@ fn prepare_observed(
         })
         .collect();
     startup.extend(model.take_output());
-    let h = match handoff(&model, ir, std::mem::take(&mut sym.maps)) {
-        Ok(h) => h,
-        Err(e) => return Err(Box::new(result(unsupported(e), options, ir))),
-    };
-    let store = match store_for(&model, core_opts.hashcons, semantics(&options.eval)) {
-        Ok(s) => Arc::new(s),
-        Err(message) => {
-            return Err(Box::new(result(
-                Verdict::InternalError { message },
-                options,
-                ir,
-            )));
-        }
-    };
-    let compile_started = Instant::now();
-    let compiled = if debugger.is_some() {
-        dive_core::compile::compile_debug(&h, Arc::clone(&store), core_opts)
-    } else {
-        dive_core::compile(&h, Arc::clone(&store), core_opts)
-    };
-    let mut plan = match compiled {
-        Ok(p) => p,
-        Err(e) => {
-            let v = match e.into_parts() {
-                (dive_core::ErrorKind::Internal, message) => Verdict::InternalError { message },
-                (_, message) => unsupported(message),
-            };
-            return Err(Box::new(result(v, options, ir)));
-        }
-    };
-    let compile_time = compile_started.elapsed();
+    let (store, mut plan, compile_time) = compiled?;
     if let Some(observer) = debugger {
         if let Some(map) = &plan.code.source_map
             && let Err(error) = observer.prepared(map)
@@ -902,6 +891,48 @@ fn prepare_observed(
         plan,
         compile_time,
     })
+}
+
+/// The hand-off, the store and the compiled plan, with the compile time; the
+/// `Err` is the run's result, reported after the ASSUMEs pass.
+fn compile_plan(
+    model: &dive_model::Model,
+    ir: &Arc<Ir>,
+    options: &CheckOptions,
+    core_opts: dive_core::Opts,
+    sym: &mut Symmetry,
+    debugger: Option<&Arc<dyn dive_core::debug::Observer>>,
+) -> Result<(Arc<dive_core::Store>, dive_core::Plan, std::time::Duration), Box<CheckResult>> {
+    let h = match handoff(model, ir, std::mem::take(&mut sym.maps)) {
+        Ok(h) => h,
+        Err(e) => return Err(Box::new(result(unsupported(e), options, ir))),
+    };
+    let store = match store_for(model, core_opts.hashcons, semantics(&options.eval)) {
+        Ok(s) => Arc::new(s),
+        Err(message) => {
+            return Err(Box::new(result(
+                Verdict::InternalError { message },
+                options,
+                ir,
+            )));
+        }
+    };
+    let compile_started = Instant::now();
+    let compiled = if debugger.is_some() {
+        dive_core::compile::compile_debug(&h, Arc::clone(&store), core_opts)
+    } else {
+        dive_core::compile(&h, Arc::clone(&store), core_opts)
+    };
+    match compiled {
+        Ok(plan) => Ok((store, plan, compile_started.elapsed())),
+        Err(e) => {
+            let v = match e.into_parts() {
+                (dive_core::ErrorKind::Internal, message) => Verdict::InternalError { message },
+                (_, message) => unsupported(message),
+            };
+            Err(Box::new(result(v, options, ir)))
+        }
+    }
 }
 
 /// What a core search ran with, for its report.
