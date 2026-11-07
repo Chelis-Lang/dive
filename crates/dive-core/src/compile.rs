@@ -1638,7 +1638,6 @@ impl Compiler<'_> {
         // functions belongs to this evaluation only: the roles compile
         // their own, in their own contexts.
         let saved_def_slots = std::mem::take(&mut self.def_slots);
-        let saved_intervals = std::mem::take(&mut self.interval_slots);
         let saved_thunks = std::mem::take(&mut self.effect_thunks);
         let saved_funs = std::mem::take(&mut self.funs);
         let saved_recfuns = std::mem::take(&mut self.recfuns);
@@ -1647,7 +1646,6 @@ impl Compiler<'_> {
         let compiled = self.p(body, env, Mode::Plain);
         let frame = self.next_slot;
         self.def_slots = saved_def_slots;
-        self.interval_slots = saved_intervals;
         self.effect_thunks = saved_thunks;
         self.funs = saved_funs;
         self.recfuns = saved_recfuns;
