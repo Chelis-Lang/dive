@@ -599,12 +599,12 @@ impl Machine {
                     let Some(e) = self.work_next(&mut c)? else {
                         break;
                     };
-                    let forced = self.stats.transient_thunks;
+                    let forced = self.thunk_mark();
                     self.bind_var(var, e);
                     let r = self.cont(code, acts, sink);
                     self.unbind_var(var);
                     r?;
-                    if self.stats.transient_thunks == forced {
+                    if self.thunks_released(forced) {
                         self.heap.rollback(before);
                     }
                 }
@@ -621,7 +621,7 @@ impl Machine {
                     let Some(e) = self.work_next(&mut c)? else {
                         break;
                     };
-                    let forced = self.stats.transient_thunks;
+                    let forced = self.thunk_mark();
                     self.bind_one(bind, e)?;
                     if self.eval_bool(code, *pred)? {
                         self.bind_var(var, e);
@@ -632,7 +632,7 @@ impl Machine {
                     // A rejected candidate is freed (R10; as in
                     // `Machine::filter`), and so is an accepted one once its
                     // continuation has emitted its states (#551).
-                    if self.stats.transient_thunks == forced {
+                    if self.thunks_released(forced) {
                         self.heap.rollback(before);
                     }
                 }
@@ -681,12 +681,12 @@ impl Machine {
             let Some(e) = self.work_next(c)? else {
                 return Ok(());
             };
-            let forced = self.stats.transient_thunks;
+            let forced = self.thunk_mark();
             self.bind_var(var, e);
             let r = self.cont(code, acts, sink);
             self.unbind_var(var);
             r?;
-            if self.stats.transient_thunks == forced {
+            if self.thunks_released(forced) {
                 self.heap.rollback(before);
             }
         }

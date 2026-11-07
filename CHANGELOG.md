@@ -65,6 +65,10 @@ published. Earlier pre-release development entries remain in git history.
   before. Building a canonical set of tuples is also cheaper for every
   engine. `MisraReachability/MCReachabilityTestAllGraphs` takes about 0.7 s
   on Core instead of 7 s.
+- Core frees an invariant's temporary values after each initial state even
+  when the invariant builds a definition of its own, such as `Corpus` in
+  `LeastCircularSubstring`. `MCLeastCircularSubstringMedium` now peaks at
+  about 80 MB instead of 12 GB, with unchanged counts.
 - Core evaluates a recursive operator or recursive LET function applied under
   a prime, as a refinement mapping `INSTANCE ... WITH v <- Op(e)` does under
   `[][Next]_vars`, in the successor state. `glowingRaccoon/product` now checks
