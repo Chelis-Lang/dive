@@ -66,9 +66,12 @@ pub trait NativeReader {
 
     /// Whether every retained row was already converted by the producer before
     /// it was retained, so a read repeats that exact conversion and can fail
-    /// only by interruption or a storage limit, interning no new name. Label
-    /// demand then reads rows only for reference fallbacks. Defaults to false,
-    /// which keeps eager per-vertex row demand.
+    /// only by interruption or a storage limit, interning no new name. A
+    /// producer may also answer true when its first read admits the pending
+    /// rows in retention order, interning what eager admission would have;
+    /// that read may then refuse an unconvertible row. Label demand then
+    /// reads rows only for reference fallbacks. Defaults to false, which keeps
+    /// eager per-vertex row demand.
     fn reads_admitted(&self) -> bool {
         false
     }

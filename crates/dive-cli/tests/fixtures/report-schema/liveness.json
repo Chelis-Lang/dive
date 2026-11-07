@@ -111,9 +111,10 @@
         "retained_rows": 3,
         "storage": "native-csr",
         "values": {
+          "admission": "deferred",
           "admission_memo_bytes": 0,
           "admission_memo_hits": 0,
-          "admitted_rows": 4,
+          "admitted_rows": 3,
           "cache_allocation_bypasses": 0,
           "cache_bypasses": 0,
           "cache_byte_rejections": 0,
@@ -136,11 +137,13 @@
           "cache_slots": 0,
           "cache_table_bytes": 0,
           "cache_uncovered_misses": 0,
+          "caught_up_rows": 3,
           "convert_ms": 0.0,
           "convert_ms_scope": "admission and read slow paths; single-variable cache hits are not timed",
           "converted_values": 1,
+          "deferred_rows": 4,
           "read_rows": 1,
-          "skipped_admission_conversions": 4
+          "skipped_admission_conversions": 3
         }
       },
       "memo": [],

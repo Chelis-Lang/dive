@@ -10,6 +10,12 @@ published. Earlier pre-release development entries remain in git history.
   the default profile, and looks configured operator overrides up directly
   (issue #846). `MisraReachability/MCReachabilityTestRandomGraphs` takes
   about 1.1 s instead of 1.8 s. `--compat=tlc` evaluates every call.
+- Core liveness checking no longer converts every generated state to reference
+  values when all of a property's atoms evaluate natively; it converts them,
+  in the same order, only when a row is first read. A state that has no
+  reference value is now refused only if the check needs it.
+  `core.metrics.liveness.values` gains `admission`, `deferred_rows` and
+  `caught_up_rows`.
 - Core is now the default engine of `dive check`, `dive simulate`,
   `dive dfid` and the `dive tlc` adapter, and of `dive_api::check_file`,
   `check_file_tlc_inputs`, `check_file_checkpoint`, `simulate_file` and
