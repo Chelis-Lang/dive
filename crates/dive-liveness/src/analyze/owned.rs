@@ -8,10 +8,11 @@ use std::marker::PhantomData;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use dive_check::{CheckOptions, CheckResult, budget::EvaluationControl, final_roles};
+use dive_check::final_roles;
 use dive_config::ModelConfig;
 use dive_ir::Ir;
 use dive_model::{ControlledBindError, Model, SymmetryLivenessResolution};
+use dive_runtime::{CheckOptions, CheckResult, budget::EvaluationControl};
 
 use super::{Analysis, DetailedFailure, GraphLabelPolicy, Limits, periodic};
 use crate::product::AcceptancePolicy;
@@ -40,7 +41,7 @@ pub enum Dispatch {
 ///
 /// ```no_run
 /// # fn run(ir: &std::sync::Arc<dive_ir::Ir>, config: &dive_config::ModelConfig,
-/// # options: &dive_check::CheckOptions, control: std::sync::Arc<dive_check::budget::EvaluationControl>) {
+/// # options: &dive_runtime::CheckOptions, control: std::sync::Arc<dive_runtime::budget::EvaluationControl>) {
 /// use dive_liveness::analyze::{owned, Limits, GraphLabelPolicy};
 /// use dive_liveness::product::AcceptancePolicy;
 /// if let Some(Ok(owned::Dispatch::Temporal(runtime))) =

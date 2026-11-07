@@ -4,9 +4,9 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 
-use dive_check::checkpoint::{self, Action, Counters, Receipt, Request};
-use dive_check::{CheckOptions, Verdict};
 use dive_ir::Ir;
+use dive_runtime::checkpoint::{self, Action, Counters, Receipt, Request};
+use dive_runtime::{CheckOptions, Verdict};
 
 use crate::core_engine::{self, CoreRun, Prepared, Search};
 
@@ -66,7 +66,7 @@ pub(crate) fn metadata(path: &Path) -> Result<(crate::Engine, i64, usize), Strin
         let (seed, fp) = checkpoint::owned_identity_seed_fp(parts[0])?;
         Ok((crate::Engine::Core, seed, fp))
     } else {
-        let (seed, fp) = checkpoint::recovery_seed_fp(path)?;
+        let (seed, fp) = dive_check::checkpoint::recovery_seed_fp(path)?;
         Ok((crate::Engine::Reference, seed, fp))
     }
 }

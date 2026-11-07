@@ -21,7 +21,8 @@ fn model(property: &str) -> Model {
 }
 
 fn captured(model: &Model) -> capture::BehaviorGraph {
-    match capture::explore(model, &CheckOptions::tlc(0, 0), capture::Limits::default()) {
+    match dive_check::capture::explore(model, &CheckOptions::tlc(0, 0), capture::Limits::default())
+    {
         capture::Exploration::Complete(captured) => captured.graph.clone(),
         other @ capture::Exploration::Stopped(_) => panic!("expected complete capture: {other:?}"),
     }

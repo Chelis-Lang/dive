@@ -224,10 +224,10 @@ fn attribution_helper_retains_its_distinct_final_and_periodic_site() {
 
 #[test]
 fn owned_budget_interruption_does_not_become_an_ordinary_state_error_or_foreign_stop() {
-    use dive_check::budget::{Budget, Phase};
+    use dive_runtime::budget::{Budget, Phase};
     let mut options = CheckOptions::tlc(0, 0);
     options.budget = Budget::new(Some(std::time::Duration::ZERO), None);
-    let (_watchdog, armed) = dive_check::budget::arm(&options).expect("armed zero budget");
+    let (_watchdog, armed) = dive_runtime::budget::arm(&options).expect("armed zero budget");
     let model = bound("[]<>x", "x' = 1 - x", &options);
     let control = evaluator_control(&armed).expect("owned control");
     let interrupted =

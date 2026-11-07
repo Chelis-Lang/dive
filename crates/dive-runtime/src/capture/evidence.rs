@@ -12,7 +12,7 @@ use crate::{CheckOptions, CheckResult, Stats};
 /// Public graph edits, statistics and a zero queue cannot create these facts.
 ///
 /// ```
-/// use dive_check::capture::{Complete, CompleteEvidence};
+/// use dive_runtime::capture::{Complete, CompleteEvidence};
 /// fn release_graph(captured: Complete) -> CompleteEvidence {
 ///     let counters = captured.evidence().stats();
 ///     let evidence = captured.into_evidence();
@@ -22,7 +22,7 @@ use crate::{CheckOptions, CheckResult, Stats};
 /// ```
 ///
 /// ```compile_fail
-/// use dive_check::capture::CompleteEvidence;
+/// use dive_runtime::capture::CompleteEvidence;
 /// let forged = CompleteEvidence { /* public graph shape is insufficient */ };
 /// ```
 #[derive(Clone, Debug)]
@@ -34,7 +34,9 @@ pub struct CompleteEvidence {
 }
 
 impl CompleteEvidence {
-    pub(super) fn new(
+    #[doc(hidden)]
+    #[must_use]
+    pub fn new(
         result: CheckResult,
         options: CheckOptions,
         stats: Stats,
@@ -73,7 +75,8 @@ impl CompleteEvidence {
         &self.options
     }
 
-    pub(super) fn set_elapsed(&mut self, elapsed: Duration) {
+    #[doc(hidden)]
+    pub fn set_elapsed(&mut self, elapsed: Duration) {
         self.result.elapsed = elapsed;
     }
 }
@@ -85,7 +88,7 @@ impl CompleteEvidence {
 /// A safety failure or resource stop does not create a successful prefix.
 ///
 /// ```
-/// use dive_check::capture::{Prefix, PrefixEvidence};
+/// use dive_runtime::capture::{Prefix, PrefixEvidence};
 /// fn release_prefix(captured: Prefix) -> PrefixEvidence {
 ///     let level = captured.level();
 ///     let evidence = captured.into_evidence();
@@ -96,7 +99,7 @@ impl CompleteEvidence {
 /// ```
 ///
 /// ```compile_fail
-/// use dive_check::capture::{CompleteEvidence, PrefixEvidence};
+/// use dive_runtime::capture::{CompleteEvidence, PrefixEvidence};
 /// fn promote(prefix: PrefixEvidence) -> CompleteEvidence { prefix.into() }
 /// ```
 #[derive(Clone, Debug)]
@@ -108,12 +111,9 @@ pub struct PrefixEvidence {
 }
 
 impl PrefixEvidence {
-    pub(super) fn new(
-        result: CheckResult,
-        options: CheckOptions,
-        stats: Stats,
-        level: u64,
-    ) -> Self {
+    #[doc(hidden)]
+    #[must_use]
+    pub fn new(result: CheckResult, options: CheckOptions, stats: Stats, level: u64) -> Self {
         Self {
             result: Box::new(result),
             options,
@@ -147,11 +147,14 @@ impl PrefixEvidence {
         self.level
     }
 
-    pub(super) fn set_elapsed(&mut self, elapsed: Duration) {
+    #[doc(hidden)]
+    pub fn set_elapsed(&mut self, elapsed: Duration) {
         self.result.elapsed = elapsed;
     }
 
-    pub(super) fn into_result(self) -> Box<CheckResult> {
+    #[doc(hidden)]
+    #[must_use]
+    pub fn into_result(self) -> Box<CheckResult> {
         self.result
     }
 }

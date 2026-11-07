@@ -18,13 +18,13 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use dive_check::Verdict;
-use dive_check::budget::{Budget, EvaluationControl, Phase};
 use dive_core::{Handle, Heap, Store};
 use dive_eval::next::StateVals;
 use dive_eval::{EvalError, HostControl};
 use dive_liveness::analyze::AnalysisError;
 use dive_model::Model;
+use dive_runtime::Verdict;
+use dive_runtime::budget::{Budget, EvaluationControl, Phase};
 use dive_value::Value;
 
 const MAX_CACHE_BYTES: usize = 128 * 1024 * 1024;

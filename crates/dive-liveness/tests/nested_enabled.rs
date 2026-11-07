@@ -1,7 +1,7 @@
 //! Two actual primary nested ENABLED references and independent native words.
 #![allow(clippy::expect_used, clippy::panic, reason = "tiny primary assertions")]
-use dive_check::CheckOptions;
 use dive_liveness::analyze::{Analysis, Limits, analyze_final};
+use dive_runtime::CheckOptions;
 use dive_trace::{Ending, TraceDoc, Validation};
 use serde_json::{Value, json};
 use std::sync::Arc;

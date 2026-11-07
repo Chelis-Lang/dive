@@ -60,6 +60,7 @@ use dive_store::trace::StateId;
 use dive_store::{Candidate, Candidates, ResolveOptions};
 use dive_value::Ctx;
 
+use crate::CheckOptions;
 use crate::class;
 use crate::engine::{
     Keyed, Levels, Search, Stop, action_name, check_implied_actions, check_invariants,
@@ -67,9 +68,8 @@ use crate::engine::{
     trace_state, values,
 };
 use crate::host::{ThreadLevel, set_thread_level};
-use crate::options::CheckOptions;
 use crate::pool::{Job, Pool, with_pool};
-use crate::result::{ErrorSite, Stats, TraceState, Verdict};
+use crate::{ErrorSite, Stats, TraceState, Verdict};
 
 /// A successor's position in its level: state, unit action, ordinal in the
 /// unit.
@@ -1209,7 +1209,10 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 control: search.control.clone(),
                 exhausted: std::sync::atomic::AtomicBool::new(false),
                 #[cfg(test)]
-                pause: opts.parallel_budget_test.clone(),
+                pause: opts
+                    .parallel_budget_test
+                    .clone()
+                    .and_then(|pause| pause.downcast::<budget_cut_tests::Pause>().ok()),
             });
             let job: Job<'env> = {
                 let e = expand.clone();
@@ -1877,7 +1880,7 @@ pub(crate) mod budget_cut_tests {
                 .expect("watchdog");
             let pause = Arc::new(Pause::default());
             opts.budget = watchdog.budget().clone();
-            opts.parallel_budget_test = Some(pause.clone());
+            opts.parallel_budget_test = Some(pause.clone() as Arc<dyn std::any::Any + Send + Sync>);
             let result = std::thread::scope(|scope| {
                 let check = scope.spawn(|| crate::check(&ir, &cfg, &opts));
                 pause.trip(&opts.budget);
@@ -1949,7 +1952,8 @@ pub(crate) mod budget_cut_tests {
             });
             options.workers = 4;
             options.budget = watchdog.budget().clone();
-            options.parallel_budget_test = Some(pause.clone());
+            options.parallel_budget_test =
+                Some(pause.clone() as Arc<dyn std::any::Any + Send + Sync>);
             (watchdog, pause)
         }
 

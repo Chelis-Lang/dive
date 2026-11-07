@@ -62,7 +62,8 @@ fn fixture(options: &CheckOptions, fail: bool) -> (Model, capture::BehaviorGraph
         },
     )
     .expect("model");
-    let mut graph = match capture::explore(&model, options, capture::Limits::default()) {
+    let mut graph = match dive_check::capture::explore(&model, options, capture::Limits::default())
+    {
         capture::Exploration::Complete(complete) => complete.graph,
         other @ capture::Exploration::Stopped(_) => panic!("finite capture: {other:?}"),
     };

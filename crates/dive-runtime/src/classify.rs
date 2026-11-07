@@ -45,8 +45,8 @@ pub fn initial_check_error(
     verdict: Verdict,
     state: &[Option<dive_value::Value>],
 ) -> Verdict {
-    let diagnostic = crate::engine::initial_value_method_replay(model, &verdict, state, None);
-    let text = crate::engine::state_text(model, state, model.evaluator.options().ctx);
+    let diagnostic = crate::diagnostic::initial_value_method_replay(model, &verdict, state, None);
+    let text = crate::diagnostic::state_text(model, state, model.evaluator.options().ctx);
     class::init_error(verdict, Some(&text), diagnostic.as_ref())
 }
 

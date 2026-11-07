@@ -6,13 +6,13 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use dive_check::budget::{EvaluationControl, Phase};
-use dive_check::capture::{CsrCaptureInput, Limits, MAX_EXPANSION_UNITS};
-use dive_check::{CheckOptions, Stats, Verdict};
 use dive_core::{Handle, Heap, Store};
 use dive_eval::HostControl;
 use dive_explore::graph::{GraphSink, SourceRow, Step, Stopped};
 use dive_liveness::analyze::AnalysisError;
+use dive_runtime::budget::{EvaluationControl, Phase};
+use dive_runtime::capture::{CsrCaptureInput, Limits, MAX_EXPANSION_UNITS};
+use dive_runtime::{CheckOptions, Stats, Verdict};
 
 use crate::core_native_values::NativeValues;
 

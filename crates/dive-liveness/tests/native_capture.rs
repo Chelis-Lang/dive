@@ -4,8 +4,6 @@
     clippy::panic,
     reason = "finite equivalence fixtures"
 )]
-use dive_check::budget::{Budget, EvaluationControl, Phase};
-use dive_check::{CheckOptions, Stats, capture};
 use dive_eval::next::StateVals;
 use dive_liveness::analyze::periodic::{
     Checks, Schedule,
@@ -13,6 +11,8 @@ use dive_liveness::analyze::periodic::{
 };
 use dive_liveness::analyze::{self, AnalysisError, GraphLabelPolicy, Limits};
 use dive_liveness::product::AcceptancePolicy;
+use dive_runtime::budget::{Budget, EvaluationControl, Phase};
+use dive_runtime::{CheckOptions, Stats, capture};
 use std::sync::Arc;
 
 struct Fixture {
@@ -199,7 +199,7 @@ fn native(
         schedule,
     )?;
     let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
-    let captured = capture::explore_controlled_with_evidence(
+    let captured = dive_check::capture::explore_controlled_with_evidence(
         model,
         options,
         limits.capture,
@@ -272,7 +272,7 @@ fn legacy(
         GraphLabelPolicy::NoCellLimit,
         schedule,
     )?;
-    let captured = capture::explore_controlled_with_evidence(
+    let captured = dive_check::capture::explore_controlled_with_evidence(
         model,
         options,
         limits.capture,

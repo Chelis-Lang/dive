@@ -1,7 +1,7 @@
 //! Pinned strong-fairness controls and independent original-formula replay.
 #![allow(clippy::expect_used, clippy::panic, reason = "fixture assertions")]
-use dive_check::CheckOptions;
 use dive_liveness::analyze::{Analysis, Limits, analyze_final};
+use dive_runtime::CheckOptions;
 use dive_trace::{Ending, TraceDoc, Validation};
 use std::sync::Arc;
 

@@ -5,6 +5,9 @@
 )]
 
 use super::*;
+use crate::Stats;
+use crate::capture::{CheckpointPhase, Edge, ReachedCheckpoint};
+use dive_eval::ErrorClass;
 use dive_eval::{EvalError, St, next::StateVals};
 use dive_value::Value;
 use std::sync::Arc;

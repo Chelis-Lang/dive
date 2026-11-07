@@ -6,7 +6,7 @@
 )]
 
 use super::*;
-use dive_check::budget::{Phase, Resource};
+use dive_runtime::budget::{Phase, Resource};
 use std::sync::Arc;
 
 struct FreshCaptureThread<'a, 'b> {
@@ -58,9 +58,9 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
     let planning = super::super::evaluator_control(&CheckOptions::tlc(0, 0)).expect("control");
     let plans = prepare(&model, limits, &planning).expect("plans before the budget expires");
     let watchdog = crate::budget::expired_for_test();
-    let control = dive_check::budget::EvaluationControl::new(
+    let control = dive_runtime::budget::EvaluationControl::new(
         watchdog.budget(),
-        dive_check::budget::Phase::Temporal,
+        dive_runtime::budget::Phase::Temporal,
     )
     .expect("control");
     let mut observer = Observe {
@@ -90,7 +90,7 @@ fn a_due_prefix_inherits_its_budget_and_parent_reports_a_typed_stop() {
             parent: std::thread::current().id(),
             saw_callback: false,
         };
-        let result = capture::explore_controlled_with_evidence(
+        let result = dive_check::capture::explore_controlled_with_evidence(
             &model,
             &CheckOptions::tlc(0, 0),
             limits.capture,

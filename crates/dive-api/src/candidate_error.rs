@@ -2,9 +2,9 @@
 
 use std::sync::Arc;
 
-use dive_check::budget::{EvaluationControl, Phase as BudgetPhase};
-use dive_check::{CheckOptions, CheckResult, Verdict};
 use dive_eval::HostControl;
+use dive_runtime::budget::{EvaluationControl, Phase as BudgetPhase};
+use dive_runtime::{CheckOptions, CheckResult, Verdict};
 use dive_trace::{CandidateStateEndpoint, Session, TraceDoc, Validation, ValidationRunError};
 
 use super::{CheckReport, Phase};
@@ -100,7 +100,7 @@ pub(super) fn certify_invariant(
         return;
     };
     let Verdict::EvaluationError {
-        site: dive_check::ErrorSite::Invariant,
+        site: dive_runtime::ErrorSite::Invariant,
         reported: 2111,
         code,
         verified: true,
@@ -320,7 +320,7 @@ mod tests {
         reason = "actual owned validation interruption controls"
     )]
     fn validation_stops_require_the_actual_expired_owner_and_keep_their_phase() {
-        let watchdog = dive_check::budget::Budget::new(Some(std::time::Duration::ZERO), None)
+        let watchdog = dive_runtime::budget::Budget::new(Some(std::time::Duration::ZERO), None)
             .start()
             .expect("watchdog starts")
             .expect("armed budget");
@@ -343,7 +343,7 @@ mod tests {
             matches!(failed(&owner, own.clone()), Verdict::Stopped(ref stopped) if stopped.phase == BudgetPhase::Validation)
         );
         let foreign = EvaluationControl::new(
-            &dive_check::budget::Budget::unlimited(),
+            &dive_runtime::budget::Budget::unlimited(),
             BudgetPhase::Validation,
         )
         .expect("other owner");

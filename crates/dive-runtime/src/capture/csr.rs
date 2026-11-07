@@ -379,14 +379,16 @@ impl<'a> CsrPrefix<'a> {
     }
 }
 
-pub(super) fn checkpoint(control: &EvaluationControl, position: usize) -> Result<(), Verdict> {
+#[doc(hidden)]
+pub fn checkpoint(control: &EvaluationControl, position: usize) -> Result<(), Verdict> {
     if position.is_multiple_of(256) {
         poll(control)?;
     }
     Ok(())
 }
 
-pub(super) fn poll(control: &EvaluationControl) -> Result<(), Verdict> {
+#[doc(hidden)]
+pub fn poll(control: &EvaluationControl) -> Result<(), Verdict> {
     control.check().map_err(|interrupted| {
         control
             .verdict(&dive_eval::EvalError::interrupted(interrupted))

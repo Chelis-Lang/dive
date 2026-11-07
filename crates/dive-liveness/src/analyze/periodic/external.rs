@@ -2,12 +2,12 @@
 //! by the execution core (`docs/developer/core/11-liveness.md`).
 //!
 //! The producer explores and builds the graph with
-//! [`dive_check::capture::GraphBuilder`]; [`GraphCheck`] runs the same
+//! [`dive_runtime::capture::GraphBuilder`]; [`GraphCheck`] runs the same
 //! planning, completed-level checks and final check as
 //! [`super::analyze_periodic`], on the same graph, with the same results.
 
-use dive_check::{CheckOptions, CheckResult, Stats, capture};
 use dive_model::Model;
+use dive_runtime::{CheckOptions, CheckResult, Stats, capture};
 
 use super::{
     Checks, Decisions, Inputs, PeriodicAnalysis, PeriodicFailure, Schedule, budget_failure,
@@ -37,7 +37,7 @@ pub enum NativeAnalysis {
 /// model variables in IR order. A failed or interrupted read returns no row.
 pub type NativeRead<'a> = dyn FnMut(
         usize,
-        &dive_check::budget::EvaluationControl,
+        &dive_runtime::budget::EvaluationControl,
     ) -> Result<dive_eval::next::StateVals, AnalysisError>
     + 'a;
 
@@ -46,7 +46,7 @@ pub type NativeRead<'a> = dyn FnMut(
 ///
 /// ```
 /// use dive_liveness::analyze::periodic::external::NativeReader;
-/// use dive_check::budget::EvaluationControl;
+/// use dive_runtime::budget::EvaluationControl;
 /// use dive_liveness::analyze::AnalysisError;
 /// let mut read = |_: usize, _: &EvaluationControl| {
 ///     Ok::<_, AnalysisError>(vec![Some(dive_value::Value::Int(0))].into())
@@ -61,7 +61,7 @@ pub trait NativeReader {
     fn read(
         &mut self,
         row: usize,
-        control: &dive_check::budget::EvaluationControl,
+        control: &dive_runtime::budget::EvaluationControl,
     ) -> Result<dive_eval::next::StateVals, AnalysisError>;
 
     /// Whether every retained row was already converted by the producer before
@@ -91,7 +91,7 @@ pub trait NativeReader {
         _atom: &crate::plan::PredicateAtom,
         _before: usize,
         _after: Option<usize>,
-        _control: &dive_check::budget::EvaluationControl,
+        _control: &dive_runtime::budget::EvaluationControl,
     ) -> Result<Option<bool>, AnalysisError> {
         Ok(None)
     }
@@ -107,7 +107,7 @@ pub trait NativeReader {
         _atom: &crate::plan::PredicateAtom,
         _before: usize,
         _after: Option<usize>,
-        _control: &dive_check::budget::EvaluationControl,
+        _control: &dive_runtime::budget::EvaluationControl,
     ) -> Result<bool, AnalysisError> {
         Ok(false)
     }
@@ -128,13 +128,13 @@ impl<F> NativeReader for F
 where
     F: FnMut(
         usize,
-        &dive_check::budget::EvaluationControl,
+        &dive_runtime::budget::EvaluationControl,
     ) -> Result<dive_eval::next::StateVals, AnalysisError>,
 {
     fn read(
         &mut self,
         row: usize,
-        control: &dive_check::budget::EvaluationControl,
+        control: &dive_runtime::budget::EvaluationControl,
     ) -> Result<dive_eval::next::StateVals, AnalysisError> {
         self(row, control)
     }
@@ -153,7 +153,7 @@ mod native;
 ///
 /// ```
 /// use std::sync::Arc;
-/// use dive_check::{CheckOptions, capture::{self, GraphBuilder}};
+/// use dive_runtime::{CheckOptions, capture::{self, GraphBuilder}};
 /// use dive_liveness::analyze::{Analysis, GraphLabelPolicy, Limits};
 /// use dive_liveness::analyze::periodic::{PeriodicAnalysis, external::GraphCheck};
 /// use dive_liveness::product::AcceptancePolicy;
@@ -169,7 +169,7 @@ mod native;
 /// // Here the reference capture plays the producer: one state, its step to
 /// // itself, then its stutter.
 /// let capture::Exploration::Complete(reference) =
-///     capture::explore(&model, &options, capture::Limits::default()) else { unreachable!() };
+///     dive_check::capture::explore(&model, &options, capture::Limits::default()) else { unreachable!() };
 /// let s = reference.graph.states[0].clone();
 /// let mut graph = GraphBuilder::new(capture::Limits::default());
 /// let built = (|| {
@@ -186,8 +186,8 @@ mod native;
 pub struct GraphCheck<'m> {
     model: &'m Model,
     options: CheckOptions,
-    watchdog: Option<dive_check::budget::Watchdog>,
-    control: std::sync::Arc<dive_check::budget::EvaluationControl>,
+    watchdog: Option<dive_runtime::budget::Watchdog>,
+    control: std::sync::Arc<dive_runtime::budget::EvaluationControl>,
     plans: Vec<PreparedProperty>,
     limits: Limits,
     policy: AcceptancePolicy,
@@ -227,13 +227,13 @@ impl<'m> GraphCheck<'m> {
             schedule: schedule.unwrap_or_default(),
             ..Checks::default()
         };
-        let (watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
+        let (watchdog, armed) = dive_runtime::budget::arm(options).map_err(|error| {
             Box::new(failure(
                 match error {
-                    dive_check::budget::StartError::Measurement(error) => {
+                    dive_runtime::budget::StartError::Measurement(error) => {
                         AnalysisError::BudgetMeasurement(error)
                     }
-                    error @ dive_check::budget::StartError::Thread(_) => {
+                    error @ dive_runtime::budget::StartError::Thread(_) => {
                         AnalysisError::BudgetStartup(error.to_string())
                     }
                 },

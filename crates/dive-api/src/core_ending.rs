@@ -7,7 +7,7 @@
 //! on the error's own code and on whether it is an `EvalException`. So the
 //! ending is reproduced with the reference evaluator, on the same states:
 //! the failing action, or the failing check, is evaluated again, and the
-//! reference engine's table (`dive_check::classify`) classifies the error it
+//! reference engine's table (`dive_runtime::classify`) classifies the error it
 //! raises. The search itself, its counts and TLC's call-stack replay are the
 //! core's.
 //!
@@ -17,11 +17,11 @@
 
 use std::sync::Arc;
 
-use dive_check::{ErrorSite, Verdict, classify};
 use dive_eval::next::{Flow, Successor};
 use dive_eval::{Ec, EvalError, St};
 use dive_explore::{Failure, Replayed, Site};
 use dive_model::{Model, Named};
+use dive_runtime::{ErrorSite, Verdict, classify};
 use dive_value::Value;
 
 /// How a core run that failed ends, as the reference engine reports it.
@@ -261,7 +261,7 @@ fn incomplete(model: &Model, f: &Failure, t: &[Option<Value>]) -> Verdict {
         initial_candidate: if f.initial {
             f.init_action
                 .and_then(|index| model.init_actions.get(index))
-                .map(|action| dive_check::PartialState {
+                .map(|action| dive_runtime::PartialState {
                     values: t.to_vec(),
                     expression: action.expr(),
                 })

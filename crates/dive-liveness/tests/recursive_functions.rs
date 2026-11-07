@@ -4,8 +4,8 @@
     clippy::panic,
     reason = "tiny generated oracle controls"
 )]
-use dive_check::CheckOptions;
 use dive_liveness::analyze::{Analysis, Limits, analyze_final};
+use dive_runtime::CheckOptions;
 use dive_trace::{Ending, TraceDoc, Validation};
 use serde_json::{Value, json};
 use std::{path::PathBuf, sync::Arc};

@@ -6,7 +6,7 @@
 )]
 
 use super::*;
-use dive_check::budget::Phase;
+use dive_runtime::budget::Phase;
 
 fn input(body: &str, properties: &str) -> (Arc<Ir>, ModelConfig) {
     let text =
@@ -94,7 +94,7 @@ fn original_fairness_errors_retain_actual_first_primary_and_unfinished_source_wo
             );
             assert!(matches!(
                 row.result().verdict,
-                dive_check::Verdict::Unsupported { .. }
+                dive_runtime::Verdict::Unsupported { .. }
             ));
             assert_eq!(failure.failure().stage, super::super::Stage::Capture);
         }
@@ -222,7 +222,7 @@ fn no_bind_fallback_and_the_two_binding_failure_contracts_stay_distinct() {
         panic!("ordinary binding failure is still a safety result")
     };
     assert!(result.binding_model_error);
-    assert_ne!(result.verdict, dive_check::Verdict::Success);
+    assert_ne!(result.verdict, dive_runtime::Verdict::Success);
 }
 
 fn legacy_model(ir: &Arc<Ir>, config: &ModelConfig, options: &CheckOptions) -> Model {
@@ -272,13 +272,13 @@ fn assert_legacy_capture(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
-    complete: &dive_check::capture::Complete,
+    complete: &dive_runtime::capture::Complete,
 ) {
     let model = legacy_model(ir, config, options);
     let legacy =
         dive_check::capture::explore_with_evidence(&model, options, Limits::default().capture)
             .expect("legacy capture thread");
-    let dive_check::capture::Exploration::Complete(legacy) = legacy else {
+    let dive_runtime::capture::Exploration::Complete(legacy) = legacy else {
         panic!("legacy completed capture")
     };
     assert_eq!(complete.stats, legacy.stats);
@@ -657,11 +657,11 @@ fn semantic_fallback_continues_the_same_capture_to_later_next_and_invariant_fail
             if invariant.is_empty() {
                 assert!(matches!(
                     actual.verdict,
-                    dive_check::Verdict::EvaluationError { code: 2179, .. }
+                    dive_runtime::Verdict::EvaluationError { code: 2179, .. }
                 ));
             } else {
                 assert!(
-                    matches!(&actual.verdict, dive_check::Verdict::InvariantViolated { property, initial: false } if property == "Inv")
+                    matches!(&actual.verdict, dive_runtime::Verdict::InvariantViolated { property, initial: false } if property == "Inv")
                 );
             }
         }
@@ -706,7 +706,7 @@ fn operative_host_selection_retains_fresh_owned_final_and_periodic_graphs() {
                 for periodic in [false, true] {
                     // The ordinary callback capture runs FIRST on its own binding.
                     let reference = legacy_model(&ir, &config, &options);
-                    let dive_check::capture::Exploration::Complete(reference) =
+                    let dive_runtime::capture::Exploration::Complete(reference) =
                         dive_check::capture::explore_with_evidence(
                             &reference,
                             &options,

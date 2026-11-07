@@ -7,7 +7,6 @@
 
 use std::sync::{Arc, Weak};
 
-use dive_check::CheckOptions;
 use dive_eval::next::StateVals;
 use dive_liveness::analyze::{
     self, Analysis, Limits,
@@ -18,6 +17,7 @@ use dive_liveness::analyze::{
 };
 use dive_liveness::product::AcceptancePolicy;
 use dive_model::Model;
+use dive_runtime::CheckOptions;
 
 fn model(property: &str, options: &CheckOptions) -> Model {
     let source = format!(

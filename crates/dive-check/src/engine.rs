@@ -34,7 +34,6 @@
 
 use crate::capture::{BehaviorGraph, Collector};
 use std::collections::BTreeSet;
-use std::fmt::Write as _;
 
 use dive_eval::next::{Action, Flow, StateVals, Successor};
 use dive_eval::{Ec, EvalError, Evaluator, St};
@@ -45,13 +44,13 @@ use dive_store::trace::StateId;
 use dive_store::{ExactSet, FpSet, StateSet, StoreError, StoreMode, collision};
 use dive_value::{Ctx, Value};
 
-use dive_eval::{Counter, RunConfig};
+use dive_eval::Counter;
 use dive_stdlib::host::RunHost;
 use dive_stdlib::random::{RandomMode, Streams};
 
+use crate::CheckOptions;
 use crate::class;
-use crate::options::CheckOptions;
-use crate::result::{Collision, Counterexample, ErrorSite, Stats, TraceState, Verdict, Workers};
+use crate::{Collision, Counterexample, ErrorSite, Stats, TraceState, Verdict, Workers};
 use dive_model::{Model, Named};
 
 /// The fingerprint functions of fingerprint mode.
@@ -206,240 +205,9 @@ pub(crate) fn run_host(opts: &CheckOptions) -> RunHost {
     }
 }
 
-/// `TLCGet("config")` (`AbstractChecker.createConfig`). The worker count is
-/// the logical one, 1, by default and the requested one under
-/// `--compat=tlc`, as TLC reports `-workers` (D-011); the install location
-/// is dive's executable.
-#[must_use]
-pub fn run_config(opts: &CheckOptions, deadlock: bool) -> RunConfig {
-    #[allow(clippy::cast_possible_wrap, reason = "Java's long: same bits")]
-    let fingerprint = dive_value::fp64::POLYS
-        .get(opts.fp_index)
-        .copied()
-        .unwrap_or(0) as i64;
-    RunConfig {
-        deadlock,
-        workers: match opts.profile {
-            dive_eval::Profile::Tlc => i64::try_from(opts.workers).unwrap_or(i64::MAX),
-            dive_eval::Profile::Dive => 1,
-        },
-        seed: opts.seed,
-        fingerprint,
-        install: std::env::current_exe()
-            .map(|p| p.display().to_string())
-            .unwrap_or_default(),
-    }
-}
+pub use dive_runtime::run::{run_config, search_counters, startup_counters};
 
-/// The counters while TLC checks assumptions: no state yet, diameter 1
-/// (measured on the pinned TLC, fixture `TgAssume`).
-pub fn startup_counters(host: &RunHost) {
-    for c in [
-        Counter::Generated,
-        Counter::Distinct,
-        Counter::Queue,
-        Counter::Initial,
-    ] {
-        host.set_counter(c, Some(0));
-    }
-    host.set_counter(Counter::Diameter, Some(1));
-}
-
-/// During the search the live counters are not provided: reading one is
-/// refused rather than answered with a count TLC may not report at that
-/// point.
-pub fn search_counters(host: &RunHost) {
-    for c in [
-        Counter::Generated,
-        Counter::Distinct,
-        Counter::Queue,
-        Counter::Initial,
-        Counter::Diameter,
-        Counter::DurationSecs,
-    ] {
-        host.set_counter(c, None);
-    }
-}
-
-/// Whether the specification refers to a random operator, so that expanded
-/// states need their own random stream.
-fn random_op(op: dive_ir::StdOp) -> bool {
-    use dive_ir::StdOp;
-    matches!(
-        op,
-        StdOp::TlcRandomElement
-            | StdOp::RandomizationRandomSubset
-            | StdOp::RandomizationRandomSetOfSubsets
-            | StdOp::RandomizationRandomSubsetSet
-    )
-}
-
-/// Whether a definition outside the embedded standard modules, or a node that
-/// belongs to no definition, can reach a random operator through the
-/// definitions it references. A standard module that merely defines a random
-/// helper, such as `Randomization`'s `TestRandomSetOfSubsets`, does not make
-/// a specification that never calls it random. Any reference counts, used or
-/// not, so an unused random helper in a user module still does. A native
-/// definition itself is not a reference: `INSTANCE` of a module that extends
-/// `TLC` copies `RandomElement` into the instantiating module without calling it.
-pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
-    uses_random_except(ir, |_| false, |_| None, |_| None)
-}
-
-/// Whether a bound model can draw a random value after start-up: as
-/// [`uses_random`], except that a definition whose value the binder fixed at
-/// start-up (a precomputed constant-level definition, or a configured
-/// `Op = v` value) is never evaluated again, so neither its body nor what
-/// it references can draw. The start-up draws themselves come from the run's
-/// reported seed (D-002). A configured redirect (`Op <- D`, `C <- D`)
-/// evaluates `D`'s body at every use, so it references `D`, and `D` is not
-/// fixed ([`dive_eval::Evaluator::startup_fixed`]).
-pub(crate) fn uses_random_after_startup(model: &Model) -> bool {
-    let ev = &model.evaluator;
-    uses_random_except(
-        &model.ir,
-        |d| ev.startup_fixed(d),
-        |d| Some(ev.redirected(d)).filter(|&t| t != d),
-        |c| match ev.constant_binding(c) {
-            Some(dive_eval::ConstBinding::Def(d)) => Some(ev.redirected(d)),
-            _ => None,
-        },
-    )
-}
-
-/// [`uses_random`], treating each definition `fixed` accepts as a value that
-/// is never evaluated again, each definition as referencing its `redirect`
-/// target, and each constant as referencing its bound definition.
-fn uses_random_except(
-    ir: &dive_ir::Ir,
-    fixed: impl Fn(dive_ir::DefId) -> bool,
-    redirect: impl Fn(dive_ir::DefId) -> Option<dive_ir::DefId>,
-    constant: impl Fn(dive_ir::ConstId) -> Option<dive_ir::DefId>,
-) -> bool {
-    use dive_ir::{Expr, OpRef};
-    let defs = ir.defs();
-    let ids = || (0..defs.len()).map(|i| u32::try_from(i).map(dive_ir::DefId));
-    let fixed: Vec<bool> = ids().map(|d| d.is_ok_and(&fixed)).collect();
-    let mut owned = vec![false; ir.nodes().len()];
-    // Direct references of each definition's body subtree.
-    let mut refs: Vec<Vec<usize>> = Vec::with_capacity(defs.len());
-    // Whether a definition's own body calls a random native operator.
-    let mut direct = vec![false; defs.len()];
-    let referenced = |e: &Expr, out: &mut Vec<usize>| -> bool {
-        let mut random = false;
-        if let Expr::Def(d) = e {
-            out.push(d.index());
-        }
-        if let Expr::Const(c) = e {
-            out.extend(constant(*c).map(dive_ir::DefId::index));
-        }
-        for r in e.op_refs() {
-            match r {
-                OpRef::Std(op) => random |= random_op(*op),
-                OpRef::Def(d) => out.push(d.index()),
-                OpRef::Const(c) => out.extend(constant(*c).map(dive_ir::DefId::index)),
-                _ => {}
-            }
-        }
-        random
-    };
-    for (i, def) in defs.iter().enumerate() {
-        let mut out = Vec::new();
-        let mut stack = vec![def.body];
-        while let Some(e) = stack.pop() {
-            let Some(slot) = owned.get_mut(e.index()) else {
-                // A malformed reference: keep the conservative answer.
-                return true;
-            };
-            *slot = true;
-            let node = ir.node(e);
-            direct[i] |= referenced(&node.expr, &mut out);
-            stack.extend(node.expr.children());
-        }
-        // A fixed value's body is owned, but never evaluated again.
-        if fixed[i] {
-            direct[i] = false;
-            out.clear();
-        }
-        // `Op <- D`: a use of `Op` evaluates `D`.
-        if let Ok(d) = u32::try_from(i) {
-            out.extend(redirect(dive_ir::DefId(d)).map(dive_ir::DefId::index));
-        }
-        refs.push(out);
-    }
-    // Close over references until no definition changes. Natives seed it.
-    let mut random: Vec<bool> = defs
-        .iter()
-        .zip(direct.iter().zip(&fixed))
-        .map(|(def, (direct, fixed))| *direct || (!fixed && def.std.is_some_and(random_op)))
-        .collect();
-    let mut changed = true;
-    while changed {
-        changed = false;
-        for i in 0..defs.len() {
-            if !random[i]
-                && refs[i]
-                    .iter()
-                    .any(|&d| random.get(d).copied().unwrap_or(true))
-            {
-                random[i] = true;
-                changed = true;
-            }
-        }
-    }
-    let reaches = |out: &[usize]| out.iter().any(|&d| random.get(d).copied().unwrap_or(true));
-    let user = defs
-        .iter()
-        .zip(direct.iter().zip(&refs))
-        .any(|(def, (direct, out))| !ir.module(def.module).standard && (*direct || reaches(out)));
-    user || ir.nodes().iter().zip(&owned).any(|(node, owned)| {
-        let mut out = Vec::new();
-        !owned && (referenced(&node.expr, &mut out) || reaches(&out))
-    })
-}
-
-// A supplied bound model no longer carries its source cfg. Inspect admitted
-// constant bindings and actual redirects without invoking any expression or
-// lazy callback. Unused native imports alone must not refuse pure captures.
-pub(crate) fn bound_configured_random(model: &Model) -> Result<bool, String> {
-    // The shared capture entry admission already verifies full model context.
-    // Keep the helper defensive against any future caller as well.
-    model
-        .evaluator
-        .validate_model_context(&model.ir, &model.names)
-        .map_err(|e| e.to_string())?;
-    let native = |id: dive_ir::DefId| -> Result<bool, String> {
-        if model.ir.defs().get(id.index()).is_none() {
-            return Err("DIVE-EVAL-C001: invalid configured native definition".into());
-        }
-        let id = model.evaluator.redirected(id);
-        let def = model
-            .ir
-            .defs()
-            .get(id.index())
-            .ok_or_else(|| "DIVE-EVAL-C001: invalid redirected native definition".to_owned())?;
-        Ok(def.std.is_some_and(random_op))
-    };
-    for (index, _) in model.ir.consts().iter().enumerate() {
-        let index = u32::try_from(index)
-            .map_err(|_| "DIVE-EVAL-C005: constant index overflow".to_owned())?;
-        if let Some(dive_eval::ConstBinding::Def(id)) =
-            model.evaluator.constant_binding(dive_ir::ConstId(index))
-            && native(id)?
-        {
-            return Ok(true);
-        }
-    }
-    for (index, _) in model.ir.defs().iter().enumerate() {
-        let index = u32::try_from(index)
-            .map_err(|_| "DIVE-EVAL-C005: definition index overflow".to_owned())?;
-        let id = dive_ir::DefId(index);
-        if model.evaluator.redirected(id) != id && native(id)? {
-            return Ok(true);
-        }
-    }
-    Ok(false)
-}
+pub(crate) use dive_runtime::admission::{bound_configured_random, uses_random};
 
 /// TLC's level of a state at BFS level `n` (initial states are level 1).
 pub(crate) fn level_of(n: u64) -> i64 {
@@ -579,13 +347,7 @@ mod concrete_value_tests {
     }
 }
 
-/// Evaluates a role once, leaving mode-specific nonboolean/error diagnostics to callers.
-pub(crate) fn role_boolean(m: &Model, c: &Named, st: &St) -> Result<Option<bool>, EvalError> {
-    m.eval(&c.pred, st).map(|value| match value {
-        Value::Bool(value) => Some(value),
-        _ => None,
-    })
-}
+pub(crate) use dive_runtime::diagnostic::{initial_value_method_replay, role_boolean, state_text};
 
 /// Evaluates a check as a boolean. A value that is not a boolean is TLC's
 /// `TLC_EXPECTED_VALUE` at the check's location (`Tool.isValid`; fixtures
@@ -601,99 +363,6 @@ pub(crate) fn holds(
         control
             .verdict(&error)
             .unwrap_or_else(|| class::search_error(&error, site, Some(&c.name)))
-    })
-}
-
-/// Re-evaluates an actual receiver failure with the diagnostic source hook.
-/// Existing function materialization retains its role replay; tuple/record
-/// receivers additionally require the first history-free Init emission and
-/// first invariant with no quotient/constraint pipeline to reconstruct.
-pub(crate) fn initial_value_method_replay(
-    m: &Model,
-    verdict: &Verdict,
-    state: &[Option<Value>],
-    initial_context: Option<(u64, &crate::budget::EvaluationControl)>,
-) -> Option<EvalError> {
-    let _source_coverage = m.evaluator.pause_source_coverage();
-    let Verdict::EvaluationError {
-        site: ErrorSite::Invariant,
-        cause,
-        invariant: Some(name),
-        ..
-    } = verdict
-    else {
-        return None;
-    };
-    let method = cause.value_method()?.method();
-    let role = m.invariants.iter().find(|role| role.name == *name)?;
-    if m.ir
-        .node(role.pred.expr)
-        .effects
-        .intersects(dive_ir::Effects::IMPURE)
-        || m.evaluator.scope_has_effects(&role.pred.scope)
-    {
-        return None;
-    }
-    if method == dive_eval::ValueMethod::FunctionMaterialize {
-        let context = St::state(std::sync::Arc::from(state)).diagnostic();
-        return role_boolean(m, role, &context).err();
-    }
-    // Do not emulate Init's seen-state, constraint, VIEW, or prior-invariant
-    // pipeline. This extension certifies its first emitted, history-free row
-    // and first invariant only; other receiver lifetimes remain unproved.
-    let (0, control) = initial_context? else {
-        return None;
-    };
-    if m.invariants.first().is_none_or(|first| first.name != *name)
-        || !m.constraints.is_empty()
-        || m.view.is_some()
-        || m.symmetry.is_some()
-        || !receiver_replay_state(m, state, control)
-        || m.init_actions.iter().any(|action| {
-            m.ir.node(action.expr())
-                .effects
-                .intersects(dive_ir::Effects::IMPURE)
-                || m.evaluator.scope_has_effects(&action.scope())
-        })
-    {
-        return None;
-    }
-    let mut diagnostic = None;
-    let _ = m
-        .evaluator
-        .init_states_diagnostic(&m.init_actions, &mut |succ| {
-            if succ.ordinal == 0
-                && receiver_replay_state(m, succ.state, control)
-                && succ.state == state
-            {
-                let context = St::state(std::sync::Arc::from(succ.state)).diagnostic();
-                diagnostic = role_boolean(m, role, &context).err();
-            }
-            Flow::Stop
-        });
-    diagnostic
-}
-
-fn receiver_replay_state(
-    m: &Model,
-    state: &[Option<Value>],
-    control: &crate::budget::EvaluationControl,
-) -> bool {
-    let mut work = 0usize;
-    let mut proceed = || {
-        let due = work.trailing_zeros() >= 6;
-        work = work.wrapping_add(1);
-        !due || dive_eval::HostControl::check(control).is_ok()
-    };
-    state.iter().all(|value| {
-        value.as_ref().is_some_and(|value| {
-            // Existing controlled inspector proves the absence of set/provider
-            // history, not construction provenance. Actual typed catches plus the
-            // first generator emission supply that separate authority.
-            value
-                .closed_function_cache_heap_bytes(&m.names, &mut proceed)
-                .is_some()
-        })
     })
 }
 
@@ -721,34 +390,6 @@ fn initial_generation_value_method_replay(
         .map(|failure| failure.error)
 }
 
-/// TLC's text of a state (`TLCStateMut.toString`): `/\ x = v` per variable
-/// in TLC's variable order (`x = v` for a single variable), `null` for an
-/// unassigned one.
-pub(crate) fn state_text(m: &Model, s: &[Option<Value>], ctx: Ctx) -> String {
-    let _source_coverage = m.evaluator.pause_source_coverage();
-    let order = m.ir.tlc_var_order();
-    let single = order.len() == 1;
-    let mut out = String::new();
-    for v in order {
-        let name = &m.ir.decl(m.ir.vars()[v.index()]).name;
-        let val = s.get(v.index()).and_then(Option::as_ref).map_or_else(
-            || "null".to_owned(),
-            |x| {
-                dive_value::print::to_tlc_string(x, ctx).map_or_else(
-                    |_| dive_value::print::to_tlc_string_lenient(x, ctx),
-                    |t| dive_value::print::ppr(&t),
-                )
-            },
-        );
-        if single {
-            let _ = writeln!(out, "{name} = {val}");
-        } else {
-            let _ = writeln!(out, "/\\ {name} = {val}");
-        }
-    }
-    out
-}
-
 /// The trace state of an emitted successor (or initial state). A successor
 /// that leaves variables unassigned retains text and separate typed bindings.
 pub(crate) fn trace_state(m: &Model, succ: &Successor<'_>, initial: bool) -> TraceState {
@@ -773,7 +414,7 @@ pub(crate) fn trace_state(m: &Model, succ: &Successor<'_>, initial: bool) -> Tra
         },
         values,
         text,
-        partial: (!succ.complete()).then(|| crate::result::PartialState {
+        partial: (!succ.complete()).then(|| crate::PartialState {
             values: succ.state.to_vec(),
             expression: succ.action.expr(),
         }),
@@ -2373,7 +2014,7 @@ pub(crate) struct Outcome {
     pub graph: Option<BehaviorGraph>,
     pub prefix_level: Option<u64>,
     pub frontier: crate::FrontierUsage,
-    pub predecessor: crate::result::PredecessorUsage,
+    pub predecessor: crate::PredecessorUsage,
     pub verdict: Verdict,
     pub stats: Option<Stats>,
     pub tlc_prints_stats: bool,
@@ -2542,7 +2183,7 @@ fn search_in<S: Keyed>(
                 graph: None,
                 prefix_level: None,
                 frontier: crate::FrontierUsage::default(),
-                predecessor: crate::result::PredecessorUsage::default(),
+                predecessor: crate::PredecessorUsage::default(),
                 verdict: Verdict::InternalError {
                     message: error.to_string(),
                 },
@@ -2564,7 +2205,7 @@ fn search_in<S: Keyed>(
                 graph: None,
                 prefix_level: None,
                 frontier: crate::FrontierUsage::default(),
-                predecessor: crate::result::PredecessorUsage::default(),
+                predecessor: crate::PredecessorUsage::default(),
                 verdict: Verdict::InternalError {
                     message: error.to_string(),
                 },
@@ -2601,7 +2242,7 @@ fn search_in<S: Keyed>(
             return Outcome {
                 prefix_level: None,
                 seen: None,
-                predecessor: crate::result::PredecessorUsage::default(),
+                predecessor: crate::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: Verdict::Unsupported { feature },
@@ -2622,7 +2263,7 @@ fn search_in<S: Keyed>(
             return Outcome {
                 prefix_level: None,
                 seen: None,
-                predecessor: crate::result::PredecessorUsage::default(),
+                predecessor: crate::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: Verdict::InternalError { message },
@@ -2640,7 +2281,7 @@ fn search_in<S: Keyed>(
         return Outcome {
             prefix_level: None,
             seen: None,
-            predecessor: crate::result::PredecessorUsage::default(),
+            predecessor: crate::PredecessorUsage::default(),
             graph: None,
             frontier: crate::FrontierUsage::default(),
             verdict: Verdict::InternalError {
@@ -2678,7 +2319,7 @@ fn search_in<S: Keyed>(
                     opts.seen_disk.as_ref(),
                     &error,
                 )),
-                predecessor: crate::result::PredecessorUsage::default(),
+                predecessor: crate::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: crate::seen::verdict(&error),
@@ -2859,7 +2500,7 @@ fn search_in<S: Keyed>(
                 Outcome {
                     prefix_level: s.prefix_level,
                     seen: None,
-                    predecessor: crate::result::PredecessorUsage::default(),
+                    predecessor: crate::PredecessorUsage::default(),
                     graph: s.capture.take().map(Collector::finish),
                     frontier,
                     collision: if verdict == Verdict::Success {
@@ -2954,7 +2595,7 @@ fn search_in<S: Keyed>(
         Outcome {
             prefix_level: None,
             seen: None,
-            predecessor: crate::result::PredecessorUsage::default(),
+            predecessor: crate::PredecessorUsage::default(),
             graph: None,
             frontier,
             // TLC prints statistics after an error in the initial states, not
@@ -2977,9 +2618,9 @@ fn search_in<S: Keyed>(
 
 /// Close storage only after replay, retaining the deciding event on failure.
 fn finalize_predecessor(log: &mut PredecessorLog, mut outcome: Outcome) -> Outcome {
-    let mut evidence = crate::result::PredecessorUsage {
+    let mut evidence = crate::PredecessorUsage {
         storage: log.usage(),
-        ..crate::result::PredecessorUsage::default()
+        ..crate::PredecessorUsage::default()
     };
     if let Some(failure) = log.failure() {
         evidence.failures.push(failure.to_string());
@@ -3121,7 +2762,7 @@ mod predecessor_tests {
             Outcome {
                 prefix_level: None,
                 seen: None,
-                predecessor: crate::result::PredecessorUsage::default(),
+                predecessor: crate::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: verdict.clone(),
@@ -3167,7 +2808,7 @@ mod predecessor_tests {
             Outcome {
                 prefix_level: None,
                 seen: None,
-                predecessor: crate::result::PredecessorUsage::default(),
+                predecessor: crate::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: verdict.clone(),

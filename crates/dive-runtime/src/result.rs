@@ -403,7 +403,8 @@ pub struct Counterexample {
 /// neither this typed transport nor a reported wrapper supplies proof.
 #[derive(Clone, Debug)]
 pub struct DiagnosticWitness {
-    pub(crate) states: Vec<TraceState>,
+    #[doc(hidden)]
+    pub states: Vec<TraceState>,
 }
 
 impl DiagnosticWitness {

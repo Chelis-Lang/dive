@@ -93,6 +93,7 @@ dependencies = [
  "dive-liveness",
  "dive-model",
  "dive-pluscal",
+ "dive-runtime",
  "dive-sema",
  "dive-sim",
  "dive-stdlib",
@@ -111,13 +112,12 @@ dependencies = [
  "dive-eval",
  "dive-ir",
  "dive-model",
+ "dive-runtime",
  "dive-stdlib",
  "dive-store",
  "dive-value",
- "memory-stats",
  "serde",
  "serde_json",
- "sha2",
 ]
 
 [[package]]
@@ -177,6 +177,7 @@ dependencies = [
  "dive-eval",
  "dive-ir",
  "dive-model",
+ "dive-runtime",
  "dive-value",
 ]
 
@@ -205,6 +206,23 @@ version = "0.0.0"
 dependencies = [
  "dive-api",
  "serde_json",
+]
+
+[[package]]
+name = "dive-runtime"
+version = "0.0.0"
+dependencies = [
+ "dive-config",
+ "dive-eval",
+ "dive-ir",
+ "dive-model",
+ "dive-stdlib",
+ "dive-store",
+ "dive-value",
+ "memory-stats",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]

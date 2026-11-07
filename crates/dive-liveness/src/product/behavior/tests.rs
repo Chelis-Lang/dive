@@ -9,7 +9,7 @@ use crate::product::{
     ProductError,
 };
 use crate::search::Lasso;
-use dive_check::capture::{ConcreteSuccessor, Edge};
+use dive_runtime::capture::{ConcreteSuccessor, Edge};
 use std::sync::Arc;
 
 fn captured(edges: Vec<Vec<usize>>, roots: Vec<usize>) -> BehaviorGraph {

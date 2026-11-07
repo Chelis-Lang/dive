@@ -1,8 +1,8 @@
 //! Original constant-declaration fallbacks must survive unused INSTANCE imports.
 #![allow(clippy::expect_used, reason = "original primary fixtures")]
 
-use dive_check::CheckOptions;
 use dive_liveness::analyze::{Analysis, Limits, analyze_final};
+use dive_runtime::CheckOptions;
 use std::{path::Path, sync::Arc};
 
 #[test]
