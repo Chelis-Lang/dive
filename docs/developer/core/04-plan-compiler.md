@@ -454,6 +454,20 @@ substitution and is not folded. MCDisruptor_MPMC at one worker, user time:
 core 35.3 s before and 0.9 s after; the reference engine takes 3.8 s.
 Fixture `UnionOne`: TLC reports `Inv` violated, 8/11/2.
 
+**`{E \in SUBSET T : \A e \in E : Q}`.** The compiler attaches `F =
+{e \in T : Q}` to the filter (`Node::Filter::subset`) when the bound is one
+plain variable over `SUBSET T` (or its folded constant), the predicate is a
+single-variable `\A` whose domain is `E` itself, and `Q` does not read `E`,
+reads no primed variable, makes no call and has no effect. `Q` is then a
+function of `e` alone, so the filter is exactly `SUBSET F`. Enumeration
+(`Machine::filter` and the streamed `x \in S` of an action) walks the
+subsets of `F`, which keep their canonical order among those of `T`.
+Membership keeps the filter's own evaluation. An evaluation error while
+building `F` declines the rewrite, so the filter raises the error itself,
+where TLC raises it. SpanTreeTest5Nodes enumerates 2^10 sets of pairs
+instead of the 2^32 subsets of `SUBSET Nodes` (#853). Fixtures:
+`crates/dive-api/tests/fixtures/core-subset-filter/`.
+
 ## 5. Error classes
 
 Compiled nodes raise typed errors that carry the error-class (EC) code. They

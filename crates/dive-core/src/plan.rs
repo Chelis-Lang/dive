@@ -219,6 +219,14 @@ pub enum Node {
         bind: Bind,
         /// The predicate.
         pred: P,
+        /// A proven rewrite of `{E \in SUBSET T : \A e \in E : Q}` as
+        /// `SUBSET F`: the node of `F = {e \in T : Q}`. The compiler sets it
+        /// only when `Q` is pure, makes no call and does not read `E`, so
+        /// the filter's elements are exactly the subsets of `F`. Only
+        /// enumeration uses it; membership keeps the filter's own order of
+        /// evaluation, and an evaluation error in `F` falls back to the
+        /// filter itself.
+        subset: Option<P>,
     },
     /// `{e : x \in S, ...}`
     Map {

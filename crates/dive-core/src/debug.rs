@@ -291,7 +291,7 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                             }
                             values.extend(*other);
                         }
-                        Node::Filter { bind, pred } => values.extend([bind.domain, *pred]),
+                        Node::Filter { bind, pred, .. } => values.extend([bind.domain, *pred]),
                         Node::Map { binds, body }
                         | Node::FcnCons { binds, body }
                         | Node::Quant { binds, body, .. } => {
