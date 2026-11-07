@@ -286,6 +286,9 @@ struct Lift {
     caps: Vec<(u32, usize, u32)>,
     /// Recursive calls inside the body, completed with the captures.
     self_calls: Vec<P>,
+    /// The mode the body is compiled in. A next-state variant reads every
+    /// capture primed, and its callers compute the captures primed.
+    mode: Mode,
 }
 
 /// One active `INSTANCE` substitution `decl <- value` (`Expr::Subst`), in
@@ -523,6 +526,10 @@ fn compile_inner(
         init_mode: false,
         funs: HashMap::new(),
         recfuns: HashMap::new(),
+        primed_funs: std::collections::HashSet::new(),
+        next_funs: std::collections::HashSet::new(),
+        open_funs: std::collections::HashSet::new(),
+        reentered_funs: std::collections::HashSet::new(),
         recursive_action_predicate: false,
         composition: composition::State::Absent,
         def_slots: std::collections::HashSet::new(),
@@ -668,6 +675,21 @@ struct Compiler<'a> {
     /// Recursive function definitions `f[x \in S] == e` compiled as
     /// functions of their argument.
     recfuns: HashMap<RecKey, u32>,
+    /// The functions compiled as a next-state variant (`Mode::Primed`): the
+    /// whole body, and every capture, is read in the next state, so a call
+    /// of one reads primed variables.
+    primed_funs: std::collections::HashSet<u32>,
+    /// The functions a call of which reads primed variables: the next-state
+    /// variants, the plain variants of action-level definitions (SANY's
+    /// level, the maximum over a recursive section, known before the body
+    /// is compiled), and plain variants whose compiled body reads primed
+    /// variables. A call of one is never passed as a thunk.
+    next_funs: std::collections::HashSet<u32>,
+    /// The functions whose body is being compiled.
+    open_funs: std::collections::HashSet<u32>,
+    /// The open functions called from inside their own compilation, before
+    /// their body's reads were known.
+    reentered_funs: std::collections::HashSet<u32>,
     /// Whether an applied recursive function became a Boolean action guard.
     recursive_action_predicate: bool,
     /// Whether source-changing composition is present or being compiled.
@@ -1048,12 +1070,15 @@ impl Compiler<'_> {
                     }
                 }
             }
-            Node::Call { args, .. } => {
+            Node::Call { fun, args } => {
                 for &a in args {
                     add(a, &mut i);
                 }
                 i.calls = true;
                 i.vars = u64::MAX;
+                if self.next_funs.contains(fun) {
+                    i.primed = u64::MAX;
+                }
             }
             // The action's reads are not tracked variable by variable: it
             // reads every variable, so it is never folded or skipped.
@@ -1382,7 +1407,7 @@ impl Compiler<'_> {
             self.substs.last().map(|s| s.id),
         );
         if let Some(&f) = self.recfuns.get(&key) {
-            return Ok(f);
+            return Ok(self.reenter(f));
         }
         let def = self.ir.def(d);
         let Expr::RecFcn { name, bounds, body } = &self.ir.node(def.body).expr else {
@@ -1410,12 +1435,13 @@ impl Compiler<'_> {
             caps: Box::new([]),
         });
         self.recfuns.insert(key, id);
+        self.open_fun(id, mode, def.level);
         let saved_slot = self.next_slot;
         let saved_resets = std::mem::take(&mut self.reset_stack);
         let saved_cache = std::mem::take(&mut self.def_cache);
         let saved_at = std::mem::take(&mut self.at_stack);
         self.next_slot = 1;
-        let (env, lifted) = match self.begin_recfun(d, id, call_env, owner) {
+        let (env, lifted) = match self.begin_recfun(d, id, call_env, owner, mode) {
             Ok(x) => x,
             Err(e) => {
                 self.next_slot = saved_slot;
@@ -1440,8 +1466,10 @@ impl Compiler<'_> {
         self.reset_stack = saved_resets;
         self.def_cache = saved_cache;
         self.at_stack = saved_at;
+        self.open_funs.remove(&id);
         let (dom, b) = r?;
         ended?;
+        self.note_next_reads(id, &[dom, b])?;
         if mode == Mode::Primed && (self.info[dom as usize].effect || self.info[b as usize].effect)
         {
             return Err(Error::unsupported(
@@ -2915,10 +2943,20 @@ impl Compiler<'_> {
     /// A reference, inside a lifted function, to a local of an enclosing
     /// definition: a capture slot of the function.
     fn capture(&mut self, fe: usize, slot: usize, mode: Mode) -> Result<P, Error> {
-        if mode == Mode::Primed {
-            return Err(Error::unsupported(
-                "a recursive LET definition reading an enclosing local under a prime (M1 core)",
-            ));
+        // A function's captures are computed once per call, in its mode: a
+        // read in the other mode would need a second value of the capture.
+        match (self.lifts.last().map(|l| l.mode), mode) {
+            (None | Some(Mode::Plain), Mode::Primed) => {
+                return Err(Error::unsupported(
+                    "a recursive LET definition reading an enclosing local under a prime (M1 core)",
+                ));
+            }
+            (Some(Mode::Primed), Mode::Plain) => {
+                return Err(Error::unsupported(
+                    "a recursive LET definition under a prime reading an enclosing local unprimed (M1 core)",
+                ));
+            }
+            _ => {}
         }
         if matches!(self.envs[fe].slots.get(slot), Some(Sb::RecSelf(..))) {
             return Err(Error::unsupported(
@@ -2977,6 +3015,11 @@ impl Compiler<'_> {
         }
         let caps = self.fun_caps.get(&fun).cloned().unwrap_or_default();
         if !caps.is_empty() {
+            let mode = if self.primed_funs.contains(&fun) {
+                Mode::Primed
+            } else {
+                Mode::Plain
+            };
             let parent = match self.ir.def(d).scope {
                 DefScope::LetValue { parent, .. } => self.find_env(env, parent),
                 _ => self.lexical_parent(d, env)?,
@@ -2990,7 +3033,7 @@ impl Compiler<'_> {
                     up: k,
                     slot: dive_ir::Slot(slot as u32),
                 };
-                let v = self.local(r, parent, Mode::Plain)?;
+                let v = self.local(r, parent, mode)?;
                 if self.info[v as usize].calls {
                     return Err(Error::unsupported(
                         "a recursive definition capturing a value with unproved recursive calls (M1 core)",
@@ -3014,7 +3057,13 @@ impl Compiler<'_> {
     /// Starts a fresh runtime frame for `d`, including top-level definitions.
     /// Its boundary prevents caller substitutions from reusing frame slots;
     /// a nested definition's lexical parent supplies its captures.
-    fn begin_fun(&mut self, d: DefId, fun: u32, env: usize) -> Result<(usize, bool), Error> {
+    fn begin_fun(
+        &mut self,
+        d: DefId,
+        fun: u32,
+        env: usize,
+        mode: Mode,
+    ) -> Result<(usize, bool), Error> {
         let parent = self.lexical_parent(d, env)?;
         let inner = self.new_env(d, parent);
         self.lifts.push(Lift {
@@ -3023,6 +3072,7 @@ impl Compiler<'_> {
             fun,
             caps: Vec::new(),
             self_calls: Vec::new(),
+            mode,
         });
         Ok((inner, true))
     }
@@ -3034,9 +3084,10 @@ impl Compiler<'_> {
         fun: u32,
         env: usize,
         owner: Option<usize>,
+        mode: Mode,
     ) -> Result<(usize, bool), Error> {
         if !matches!(self.ir.def(d).scope, DefScope::LetValue { .. }) {
-            return self.begin_fun(d, fun, env);
+            return self.begin_fun(d, fun, env, mode);
         }
         let owner = owner.ok_or_else(|| Error::internal("recursive LET function owner"))?;
         let inner = self.new_env(self.envs[owner].def, self.envs[owner].parent);
@@ -3049,6 +3100,7 @@ impl Compiler<'_> {
             fun,
             caps: Vec::new(),
             self_calls: Vec::new(),
+            mode,
         });
         Ok((inner, true))
     }
@@ -3876,13 +3928,13 @@ impl Compiler<'_> {
         Ok((inner, reset))
     }
 
+    /// A recursive operator call. Under a prime, `op(a)'` is `op` applied to
+    /// `a'` and evaluated in the next state: the call is of `op`'s
+    /// next-state variant, whose body is compiled primed. A prime or
+    /// `ENABLED` inside that body stays refused (a doubly primed expression,
+    /// a primed `ENABLED`).
     fn call(&mut self, d: DefId, args: &[Arg], env: usize, mode: Mode) -> Result<P, Error> {
-        if mode == Mode::Primed {
-            return Err(Error::unsupported(
-                "a recursive operator under a prime (M0 core)",
-            ));
-        }
-        let fun = self.fun(d, env)?;
+        let fun = self.fun(d, env, mode)?;
         let mut ps = Vec::with_capacity(args.len());
         for a in args {
             let Arg::Expr { expr, .. } = a else {
@@ -3902,16 +3954,16 @@ impl Compiler<'_> {
         self.fun_call(d, fun, ps, env)
     }
 
-    fn fun(&mut self, d: DefId, call_env: usize) -> Result<u32, Error> {
+    fn fun(&mut self, d: DefId, call_env: usize, mode: Mode) -> Result<u32, Error> {
         let key = (
             d,
-            Mode::Plain,
+            mode,
             self.init_mode,
             self.lexical_parent(d, call_env)?,
             self.substs.last().map(|s| s.id),
         );
         if let Some(&f) = self.funs.get(&key) {
-            return Ok(f);
+            return Ok(self.reenter(f));
         }
         let def = self.ir.def(d);
         #[allow(clippy::cast_possible_truncation, reason = "bounded")]
@@ -3929,12 +3981,13 @@ impl Compiler<'_> {
             caps: Box::new([]),
         });
         self.funs.insert(key, id);
+        self.open_fun(id, mode, def.level);
         let saved_slot = self.next_slot;
         let saved_resets = std::mem::take(&mut self.reset_stack);
         let saved_cache = std::mem::take(&mut self.def_cache);
         let saved_at = std::mem::take(&mut self.at_stack);
         self.next_slot = params;
-        let (env, lifted) = match self.begin_fun(d, id, call_env) {
+        let (env, lifted) = match self.begin_fun(d, id, call_env, mode) {
             Ok(x) => x,
             Err(e) => {
                 self.next_slot = saved_slot;
@@ -3954,20 +4007,85 @@ impl Compiler<'_> {
                 *x = s;
             }
         }
-        let body = self.p(def.body, env, Mode::Plain);
+        let body = self.p(def.body, env, mode);
         let ended = self.end_fun(id, lifted);
         let frame = self.next_slot;
         self.next_slot = saved_slot;
         self.reset_stack = saved_resets;
         self.def_cache = saved_cache;
         self.at_stack = saved_at;
+        self.open_funs.remove(&id);
         let body = body?;
         ended?;
+        self.note_next_reads(id, &[body])?;
+        if mode == Mode::Primed && self.info[body as usize].effect {
+            return Err(Error::unsupported(
+                "an effectful recursive operator under a prime (M1 core)",
+            ));
+        }
         if let Some(f) = self.code.funs.get_mut(id as usize) {
             f.body = body;
             f.frame = frame;
         }
         Ok(id)
+    }
+
+    /// A call of `fun` found compiled: notes a call from inside its own
+    /// compilation.
+    fn reenter(&mut self, fun: u32) -> u32 {
+        if self.open_funs.contains(&fun) {
+            self.reentered_funs.insert(fun);
+        }
+        fun
+    }
+
+    /// Starts compiling `fun`, a `mode` variant of a definition at `level`.
+    fn open_fun(&mut self, fun: u32, mode: Mode, level: Level) {
+        if mode == Mode::Primed {
+            self.primed_funs.insert(fun);
+        }
+        if mode == Mode::Primed || self.reads_next(level) {
+            self.next_funs.insert(fun);
+        }
+        self.open_funs.insert(fun);
+    }
+
+    /// Whether a plain-mode function of a definition at `level`, in the
+    /// active substitutions, may read primed variables: an action-level
+    /// definition, or a state-level one while compiling an initial
+    /// predicate (which reads the state being built as primed), or any
+    /// definition under a substitution whose value is at that level.
+    fn reads_next(&self, level: Level) -> bool {
+        let at = if self.init_mode {
+            Level::State
+        } else {
+            Level::Action
+        };
+        level >= at
+            || self.substs.iter().any(|s| match &s.value {
+                Ok(Arg::Expr { expr, .. }) => self.ir.node(*expr).level >= at,
+                Ok(Arg::Op { level, .. }) => *level >= at,
+                Err(p) => self.info.get(*p as usize).is_none_or(|i| i.primed != 0),
+            })
+    }
+
+    /// Records that a call of `fun` reads primed variables when its compiled
+    /// `parts` do, although [`Self::reads_next`] did not predict it. Calls
+    /// compiled while `fun` was open assumed it did not, so then the
+    /// function is refused.
+    fn note_next_reads(&mut self, fun: u32, parts: &[P]) -> Result<(), Error> {
+        let reentered = self.reentered_funs.remove(&fun);
+        if self.next_funs.contains(&fun) || parts.iter().all(|&p| self.info[p as usize].primed == 0)
+        {
+            return Ok(());
+        }
+        if reentered {
+            return Err(Error::unsupported(
+                "a recursive definition below action level whose body reads the next state (M1 core)",
+            ));
+        }
+        self.next_funs.insert(fun);
+        Ok(())
     }
 
     /// A [`crate::stdlib`] operator with operator arguments
