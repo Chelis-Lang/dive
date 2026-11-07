@@ -34,6 +34,7 @@ struct Inner {
     ids: HashMap<Arc<str>, u32>,
     texts: Vec<Arc<str>>,
     payload_bytes: usize,
+    longest_bytes: usize,
 }
 
 /// Known storage and opaque index capacity of an append-only string table.
@@ -149,6 +150,7 @@ impl Strings {
             .map_err(|_| crate::Error::unsupported("more than 2^32 distinct strings"))?;
         let text: Arc<str> = text.into();
         inner.payload_bytes += text.len();
+        inner.longest_bytes = inner.longest_bytes.max(text.len());
         inner.texts.push(text.clone());
         inner.ids.insert(text, id);
         Ok(id)
@@ -193,6 +195,17 @@ impl Strings {
             (Some(x), Some(y)) => x.cmp(y),
             _ => a.cmp(&b),
         }
+    }
+
+    /// The UTF-8 length of the longest text in the table so far. The table
+    /// is append-only, so every id it has issued names a text at most this
+    /// long: it bounds the work of one scan over any one current string.
+    #[must_use]
+    pub fn longest_text_bytes(&self) -> usize {
+        self.inner
+            .read()
+            .unwrap_or_else(PoisonError::into_inner)
+            .longest_bytes
     }
 
     /// The number of strings.
@@ -277,6 +290,18 @@ mod tests {
         t.seal();
         assert_eq!(t.intern("alpha").ok(), Some(1));
         assert!(t.intern("beta").is_err());
+    }
+
+    #[test]
+    fn longest_text_bytes_grows_with_new_texts_only() {
+        let t = Strings::new(StringOrder::Text);
+        assert_eq!(t.longest_text_bytes(), 0);
+        assert!(t.intern("abc").is_ok());
+        assert!(t.intern("\u{e9}").is_ok());
+        assert_eq!(t.longest_text_bytes(), 3);
+        assert!(t.intern("abcdef").is_ok());
+        assert!(t.intern("abc").is_ok());
+        assert_eq!(t.longest_text_bytes(), 6);
     }
 
     #[test]

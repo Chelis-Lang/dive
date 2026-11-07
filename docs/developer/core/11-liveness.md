@@ -311,7 +311,8 @@ validation remain unchanged. Legacy row-only callbacks retain their signatures.
 
 Eligibility requires the actual retained atom object and source-owned scope,
 callback-free closed-predicate inspection, run-owned names/constant contexts,
-and actual set-free closed input handles. Immutable interval domains support
+and materialized input handles (ADR
+[0154](../../decisions/0154-native-atom-rows-by-materialization.md)). Immutable interval domains support
 quantifiers over closed scalar-keyed general functions. The original canonical
 producer certificate is unchanged. Enabled fairness tests reuse existing core
 successor search and INSTANCE identity/cutoff checks. Ordinary Nonstuttering
@@ -342,9 +343,10 @@ Unknown eager symbolic shapes fall back before calling Heap, and optional
 materialization never interns into the producer Store. Its
 in-query checkpoint uses the actual retained budget; quota exhaustion remains
 reference fallback, with no fabricated resource stop. String Len charges its
-O(1) UTF-8 byte-length upper bound before computing Java's UTF-16 length; closed
-input/constant function trees also count string payload bytes so lexical key
-operations cannot hide arbitrarily long strings behind one scalar component.
+O(1) UTF-8 byte-length upper bound before computing Java's UTF-16 length. Other
+string operators (comparison, prefix, replacement) scan without charging, so
+input rows keep a name allowance once the Store holds a text over 4,096 bytes
+(below).
 The 4,096 allowance counts explicit semantic traversal/copy work. It is not a
 hard CPU-instruction, allocator-latency or wall-clock guarantee for each primitive;
 existing whole-run cooperative time and sampled-memory limits retain their scope.
@@ -352,13 +354,26 @@ Explicit loops such as UTF-16 length traversal are still precharged.
 
 Each private native Reader also owns positive input-proof bits scoped to its
 borrowed immutable graph (ADR [0134](../../decisions/0134-native-atom-row-proofs.md)).
-After the existing descriptor and control checks, the unchanged closed validator
-issues a bit only for a successful actual retained-row demand. Source and target
-retain separate 4,096-component/string-byte input allowances; Machine fuel is
-unchanged. Hits still check the current Machine Heap poison and exact Store
+After the existing descriptor and control checks, `admissible_row` issues a bit
+only for a successful actual retained-row demand (ADR
+[0154](../../decisions/0154-native-atom-rows-by-materialization.md)). A row is
+admitted when every handle is materialized as `compare::materialized` defines
+it: sets, model values, big integers and functions with any key class qualify;
+lazy, symbolic, SetEnum, transient and empty handles and a poisoned heap
+decline. A handle proved by `Heap::proved_concrete` (a scalar, a known name or a
+persistent node carrying `flags::CONCRETE`) needs no walk. Otherwise
+`Heap::materialized_within` walks at most 16,384 handles; rows restored from a
+snapshot or exchanged between workers take this path because those codecs clear
+the bit. While every Store text is at most 4,096 bytes the bit is trusted; after
+a longer text appears every row is walked and its string and model-name
+occurrences count against a 4,096-byte allowance. Compiled string, function and
+Select-key constants use the same predicate. Native truth is Core's evaluation
+of the stored representation in `Heap::cmp` order, which a property test checks
+against `Value::cmp_with` in both string orders. Source and target are checked
+separately; Machine fuel is unchanged. Hits still check the current Machine Heap poison and exact Store
 owner. No negative result, reference conversion or atom truth issues a proof.
 One fallible, checked allocation requests and retains at most one MiB; oversized
-graphs and allocation failure scan through the original validator instead.
+graphs and allocation failure run `admissible_row` on every demand instead.
 A new Reader at every periodic/final analysis starts empty, and its bits drop
 before independent replay. Eager admission is unchanged. `atoms.row_proofs` reports scans, hits, certifications and peak
 retained storage bytes across readers; these counters establish consumption,
