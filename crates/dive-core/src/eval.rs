@@ -216,6 +216,19 @@ impl Machine {
         );
     }
 
+    /// Whether a bounded machine has spent all of its fuel
+    /// ([`Machine::set_fuel`]), as the last charge that failed leaves it.
+    ///
+    /// ```
+    /// # fn inspect(machine: &dive_core::Machine) {
+    /// let _ = machine.fuel_exhausted();
+    /// # }
+    /// ```
+    #[must_use]
+    pub const fn fuel_exhausted(&self) -> bool {
+        self.fuel == 0
+    }
+
     /// Makes every site where the reference evaluator prints a warning that
     /// this machine does not record in [`Machine::warnings`] fail as
     /// unsupported instead: an `EXCEPT` key outside the function's domain
@@ -584,6 +597,12 @@ impl Machine {
                     && let Some(h) = fast_arith(*op, i, j, self.heap.int_mode())
                 {
                     return Ok(h);
+                }
+                // A bounded machine pays for a big power's digits before
+                // they are allocated.
+                if *op == Arith::Pow && self.fuel != u64::MAX {
+                    let words = self.heap.pow_result_words(x, y);
+                    self.charge(usize::try_from(words).unwrap_or(usize::MAX))?;
                 }
                 self.heap.int_arith(int_op(*op), x, y)
             }
@@ -2525,5 +2544,107 @@ mod recursive_call_bounds {
         assert_eq!(m.depth, 0);
         assert_eq!(m.frame, Vec::<Handle>::new());
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod bounded_analysis_machine {
+    #![allow(clippy::unwrap_used, reason = "tests")]
+    use super::*;
+    use crate::plan::MemoSite;
+
+    fn memo_code(step: bool) -> Code {
+        Code {
+            nodes: vec![
+                Node::Const(Handle::int(7).unwrap()),
+                Node::Memo { site: 0, body: 0 },
+            ],
+            sites: vec![MemoSite {
+                name: "site".into(),
+                vars: Box::new([0]),
+                slots: Box::new([]),
+                primed: Box::new([]),
+                step,
+            }],
+            ..Default::default()
+        }
+    }
+
+    fn machine(memo_on: bool, memo: Memo) -> Machine {
+        let opts = Opts {
+            memo: memo_on,
+            step_memo: memo_on,
+            ..Opts::default()
+        };
+        let mut m = Machine::new(Arc::new(Store::default()), 1, opts, memo);
+        m.s0[0] = Handle::int(1).unwrap();
+        m
+    }
+
+    #[test]
+    fn memo_off_machines_evaluate_memo_bodies_without_reading_or_filling_a_site() {
+        // Control: with memoization on, the site is looked up and filled.
+        let mut on = machine(true, Memo::new(&[1]));
+        assert_eq!(
+            on.eval(&memo_code(false), 1).unwrap(),
+            Handle::int(7).unwrap()
+        );
+        assert_eq!(on.memo.stats()[0].lookups, 1);
+        assert!(on.memo.bytes() > 0);
+        // memo = step_memo = false: even a site with a table is never used.
+        let mut off = machine(false, Memo::new(&[1]));
+        for _ in 0..2 {
+            assert_eq!(
+                off.eval(&memo_code(false), 1).unwrap(),
+                Handle::int(7).unwrap()
+            );
+        }
+        assert_eq!(off.memo.stats()[0].lookups, 0);
+        assert_eq!(off.memo.bytes(), 0);
+        // An analysis machine owns a table-less Memo, so not even a step
+        // site (which ignores Opts::memo) can read or fill one.
+        let mut analysis = machine(false, Memo::default());
+        for step in [false, true] {
+            assert_eq!(
+                analysis.eval(&memo_code(step), 1).unwrap(),
+                Handle::int(7).unwrap()
+            );
+        }
+        assert_eq!(analysis.memo.stats(), Vec::new());
+        assert_eq!(analysis.memo.bytes(), 0);
+    }
+
+    #[test]
+    fn bounded_machines_precharge_big_powers_before_allocating() {
+        let pow = |x: i64, y: i64| Code {
+            nodes: vec![
+                Node::Const(Handle::int(x).unwrap()),
+                Node::Const(Handle::int(y).unwrap()),
+                Node::Arith(Arith::Pow, 0, 1),
+            ],
+            ..Default::default()
+        };
+        let mut m = machine(false, Memo::default());
+        // 3^100000 has about 158,497 bits (2,476 words): more than the fuel.
+        m.set_fuel(1000);
+        let nodes = m.heap.arena().peak().0;
+        let error = m.eval(&pow(3, 100_000), 2).unwrap_err();
+        assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+        assert!(m.fuel_exhausted());
+        assert_eq!(m.heap.arena().peak().0, nodes, "no digits allocated");
+        // Within the fuel the exact big result is built.
+        m.set_fuel(1 << 20);
+        let big = m.eval(&pow(3, 100_000), 2).unwrap();
+        assert_eq!(
+            m.heap.big(big).unwrap(),
+            num_traits::Pow::pow(num_bigint::BigInt::from(3), 100_000_u32)
+        );
+        assert!(!m.fuel_exhausted());
+        // Small and TLC-mode powers cost no digit fuel.
+        m.set_fuel(4);
+        assert_eq!(m.eval(&pow(2, 10), 2).unwrap(), Handle::int(1024).unwrap());
+        m.heap.set_int_mode(crate::int::IntMode::Tlc);
+        m.set_fuel(4);
+        assert_eq!(m.eval(&pow(2, 10), 2).unwrap(), Handle::int(1024).unwrap());
     }
 }

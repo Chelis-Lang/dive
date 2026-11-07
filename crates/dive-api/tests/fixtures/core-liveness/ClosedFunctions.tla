@@ -1,5 +1,5 @@
 ---- MODULE ClosedFunctions ----
-EXTENDS Naturals, Sequences
+EXTENDS Naturals, Sequences, TLC
 VARIABLES active, counter, color, inbox
 vars == <<active, counter, color, inbox>>
 Node == 0..2
@@ -16,6 +16,6 @@ Next == /\ counter[0] < 1100
                         ELSE <<[type |-> "tok", q |-> 0]>>]
 H == []<> (\A i \in Node : Len(SelectSeq(inbox[i], LAMBDA msg: msg.type = "pl")) <= 1)
 P == []<> (counter[0] = 0)
-\* Pow keeps these atoms on reference fallback, so rows are still read.
-R == []<> (counter[0] ^ 1 >= 0) /\ []<> (counter[0] ^ 2 >= 0)
+\* ToString keeps these atoms on reference fallback, so rows are still read.
+R == []<> (ToString(counter[0] % 2) \in {"0", "1"}) /\ []<> (ToString(1 - (counter[0] % 2)) \in {"0", "1"})
 ====
