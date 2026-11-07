@@ -889,7 +889,7 @@ mod replacement_tests {
         );
         let value = m.heap.int_from_i64(1);
         let sequence = m.heap.tuple(&[value]);
-        m.fuel = 0;
+        m.set_fuel(0);
         let result = replace_sequence(
             &mut m,
             StdOp::SequencesExtReplaceFirstSubSeq,
