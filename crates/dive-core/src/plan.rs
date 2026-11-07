@@ -716,4 +716,7 @@ pub struct CompileStats {
     pub startup_nanos: u64,
     /// Calls their evaluation answered from its call results.
     pub startup_call_hits: u64,
+    /// Those the core did not evaluate whose value the binder's evaluation
+    /// supplied ([`crate::compile::Handoff::startup_evaluator`]).
+    pub startup_fallbacks: usize,
 }

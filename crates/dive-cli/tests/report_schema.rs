@@ -25,6 +25,7 @@ fn normalize(value: &mut Value, fixture_prefix: &str) {
                         | "expand_ms"
                         | "commit_ms"
                         | "fold_ms"
+                        | "startup_ms"
                 ) && item.is_number()
                 {
                     *item = if item.is_f64() {

@@ -66,3 +66,40 @@ fn startup_constants_evaluated_by_the_core_match_the_reference_engine()
     }
     Ok(())
 }
+
+#[test]
+fn a_startup_constant_the_core_cannot_evaluate_takes_the_binders_value() {
+    // The reference evaluator recurses on the native stack, as the
+    // engines' own threads allow.
+    let joined = std::thread::Builder::new()
+        .stack_size(64 << 20)
+        .spawn(|| fallback().map_err(|e| e.to_string()))
+        .map(std::thread::JoinHandle::join);
+    assert!(matches!(joined, Ok(Ok(Ok(())))), "{joined:?}");
+}
+
+fn fallback() -> Result<(), Box<dyn std::error::Error>> {
+    let root =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-startup-constants");
+    let req = CheckRequest {
+        file: root.join("StartupFallback.tla"),
+        config: Some(root.join("StartupFallback.cfg")),
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..Default::default()
+    };
+    let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+    assert_eq!(expected["verdict"], "success", "{expected:#}");
+    assert_eq!(expected["statistics"]["distinct"], 4, "{expected:#}");
+    let core = check_file_engine(&req, Engine::Core)?;
+    let doc = core.to_json();
+    assert_eq!(doc["engine"], "core", "{doc:#}");
+    assert_eq!(observed(&core), expected);
+    // `Total` exceeds the core's recursive-call depth limit at start-up;
+    // the binder's evaluation gives its value.
+    let plan = &doc["core"]["metrics"]["plan"];
+    assert_eq!(plan["startup_values"], 0, "{plan:#}");
+    assert_eq!(plan["startup_fallbacks"], 1, "{plan:#}");
+    Ok(())
+}

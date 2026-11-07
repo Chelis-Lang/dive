@@ -142,6 +142,26 @@ impl Arena {
         self.next_epoch();
     }
 
+    /// The bytes the live transients hold, about: node headers, pool
+    /// handles and the intern column.
+    #[must_use]
+    pub(crate) fn footprint(&self) -> usize {
+        self.nodes.len() * std::mem::size_of::<ANode>()
+            + (self.pool.len() + self.interned.len() + 2 * self.boxed.len())
+                * std::mem::size_of::<Handle>()
+    }
+
+    /// Frees the capacity of an empty arena (after [`Self::reset`]), which
+    /// a large one-off evaluation may have grown.
+    pub(crate) fn release(&mut self) {
+        if self.nodes.is_empty() {
+            self.nodes = Vec::new();
+            self.pool = Vec::new();
+            self.boxed = Vec::new();
+            self.interned = Vec::new();
+        }
+    }
+
     pub(crate) fn cache_revision(&self) -> (u64, u64) {
         (self.resets, self.rollbacks)
     }

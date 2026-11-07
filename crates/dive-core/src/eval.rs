@@ -105,6 +105,10 @@ pub struct Machine {
     /// Results of calls, kept only while the compiler evaluates start-up
     /// constant definitions (see [`CallCache`]).
     pub(crate) calls: Option<CallCache>,
+    /// The most transient bytes an evaluation may hold
+    /// ([`crate::compile::STARTUP_TRANSIENT_BYTES`] while the compiler
+    /// evaluates start-up constant definitions); unbounded otherwise.
+    pub(crate) transient_bound: usize,
 }
 
 /// The results of the calls made while the compiler evaluates the pure
@@ -223,6 +227,7 @@ impl Machine {
             work_control: None,
             debugger: None,
             calls: None,
+            transient_bound: usize::MAX,
         }
     }
 
@@ -361,6 +366,10 @@ impl Machine {
         {
             self.heap.mark_work_interrupted();
             return Err(Error::stop());
+        }
+        if self.transient_bound != usize::MAX && self.heap.arena.footprint() > self.transient_bound
+        {
+            return Err(Error::unsupported("the start-up evaluation memory bound"));
         }
         if self.fuel == u64::MAX {
             return Ok(());
@@ -1708,11 +1717,21 @@ impl Machine {
                 }
                 let d = self.eval(code, binds[0].domain)?;
                 let mut cur = self.work_cursor(d)?;
-                while let Some(e) = self.work_next(&mut cur)? {
+                loop {
+                    // Free a rejected candidate, and the predicate's
+                    // transients, by arena rollback, as `filter` does.
+                    let before = self.heap.mark();
+                    let Some(e) = self.work_next(&mut cur)? else {
+                        break;
+                    };
                     self.charge(1)?;
+                    let forced = self.stats.transient_thunks;
                     self.bind_one(&binds[0], e)?;
                     if self.eval_bool(code, body)? {
                         return Ok(e);
+                    }
+                    if self.stats.transient_thunks == forced {
+                        self.heap.rollback(before);
                     }
                 }
                 Err(general(
@@ -2224,6 +2243,30 @@ mod tests {
     #![allow(clippy::unwrap_used, reason = "tests")]
     use super::*;
     use crate::TlcClass;
+
+    #[test]
+    fn a_transient_bound_stops_an_evaluation_by_name() {
+        let mut m = Machine::new(
+            Arc::new(Store::with_semantics(true, crate::Semantics::default())),
+            0,
+            Opts::default(),
+            Memo::new(&[]),
+        );
+        let one = Handle::int(1).unwrap();
+        assert_eq!(m.charge(1), Ok(()));
+        m.transient_bound = 4096;
+        while m.heap.arena.footprint() <= 4096 {
+            m.heap.tuple(&[one, one, one, one]);
+        }
+        let error = m.charge(1).unwrap_err();
+        assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
+        assert!(error.message().contains("start-up evaluation memory bound"));
+        m.transient_bound = usize::MAX;
+        assert_eq!(m.charge(1), Ok(()));
+        m.heap.reset();
+        m.heap.arena.release();
+        assert_eq!(m.heap.arena.footprint(), 0);
+    }
 
     #[test]
     fn sequences_keep_the_original_product_range_and_its_member_demand() {

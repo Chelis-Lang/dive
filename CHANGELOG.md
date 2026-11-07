@@ -22,7 +22,9 @@ published. Earlier pre-release development entries remain in git history.
   safety roles use as values once, when it compiles its plan, instead of the
   reference binder, and reuses the results of repeated calls while it does.
   `ewd998/EWD998ChanID_shiviz`'s `RingOfNodes` search drops from 16 s to
-  1.5 s. Results are unchanged.
+  under 1 s. A definition Core does not evaluate within its limits (256 MiB
+  of transients, its recursion depth) still gets the binder's value. Core's
+  `CHOOSE` frees rejected candidates as it searches.
 - Core provides `TLCGet("config")` and the start-up counters to the
   `ASSUME`s, and `TLCGet("config")` during the search, as Reference does, so
   `DieHard/MCDieHardest` checks on Core.

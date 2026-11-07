@@ -385,10 +385,17 @@ call, is `Maybe`. Folding keeps the expression's value.
   (`Handoff::deferred`), each in a fresh frame without a fuel bound, keeping
   the results of calls made during that evaluation (keyed by the function
   and exact argument handles, emptied whenever the arena resets or rolls
-  back). A body that does not compile, or whose evaluation fails, is
+  back), and with at most `STARTUP_TRANSIENT_BYTES` (256 MiB) of transients
+  per definition. A definition the core does not evaluate to a value (its
+  body does not compile or is not closed, its evaluation fails, or it needs
+  more memory or deeper recursion than the core allows) goes to the binder's
+  evaluation (`Handoff::startup_evaluator`, `Evaluator::precompute`), which
+  evaluated every such definition before; one that fails there too is
   compiled in place, so its error surfaces where it is used, as TLC reports
   it after swallowing the startup failure. The others are evaluated by no
-  one: their startup evaluation is unobservable. `--compat=tlc` and the
+  one: their startup evaluation is unobservable. `CHOOSE` frees each
+  rejected candidate by arena rollback, as a filter does, unless a thunk
+  was forced to a transient meanwhile. `--compat=tlc` and the
   temporal route keep the binder's evaluation.
 
 **Not yet.** These need further demand-order or hidden-query lifetime support:

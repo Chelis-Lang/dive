@@ -372,6 +372,18 @@ fn refusal(model: &dive_model::Model, temporal: bool) -> Option<String> {
     None
 }
 
+/// The binder's start-up evaluation of a constant definition it left to the
+/// core: `Evaluator::precompute`, as `processConstantDefns` runs it. A
+/// failure leaves no value, as the binder swallows it.
+#[derive(Debug)]
+struct BinderStartup(dive_eval::Evaluator);
+
+impl dive_core::compile::StartupEvaluator for BinderStartup {
+    fn evaluate(&self, def: DefId) -> Option<dive_value::Value> {
+        self.0.precompute(def).ok().flatten()
+    }
+}
+
 pub(crate) fn handoff<'a>(
     model: &'a dive_model::Model,
     ir: &'a Ir,
@@ -424,6 +436,10 @@ pub(crate) fn handoff<'a>(
         precomputed,
         overrides,
         deferred: model.deferred_constants.clone(),
+        startup_evaluator: (!model.deferred_constants.is_empty()).then(|| {
+            Arc::new(BinderStartup(model.evaluator.clone()))
+                as Arc<dyn dive_core::compile::StartupEvaluator>
+        }),
         init: action_roles(model, &model.init_actions)?,
         next: action_roles(model, &model.actions)?,
         invariants: named_roles(model, &model.invariants)?,
@@ -1727,7 +1743,7 @@ pub(crate) fn metrics_json(
             "folded": plan.stats.folded, "fold_abandoned": plan.stats.fold_abandoned,
             "fold_skipped": plan.stats.fold_skipped, "fold_fuel": plan.stats.fold_fuel,
             "fold_ms": std::time::Duration::from_nanos(plan.stats.fold_nanos).as_secs_f64() * 1e3, "cached_defs": plan.stats.cached_defs, "speculative": plan.stats.speculative, "beta": plan.stats.beta, "substituted": plan.stats.substituted, "memo_sites": plan.code.sites.len(),
-            "startup_values": plan.stats.startup_values, "startup_ms": std::time::Duration::from_nanos(plan.stats.startup_nanos).as_secs_f64() * 1e3, "startup_call_hits": plan.stats.startup_call_hits,
+            "startup_values": plan.stats.startup_values, "startup_ms": std::time::Duration::from_nanos(plan.stats.startup_nanos).as_secs_f64() * 1e3, "startup_call_hits": plan.stats.startup_call_hits, "startup_fallbacks": plan.stats.startup_fallbacks,
         },
         "probed": m.probed,
         "discarded_before_intern": m.discarded_before_intern,
