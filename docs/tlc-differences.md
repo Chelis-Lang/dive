@@ -166,7 +166,9 @@ constant-level definition such as SpanTreeRandom's
 is evaluated once at start-up, from the reported seed, and its value is kept for
 the whole run, as TLC keeps it. Checking never draws again, so both engines check
 temporal properties of such a model on the fixed graph. A draw while checking,
-including through an operator with parameters, still refuses. Under
+including through an operator with parameters, still refuses. So does a draw in
+a definition that a configured `Op <- D` or `C <- D` targets: TLC evaluates
+`D`'s body at every use of `Op` or `C`, so `D` is not fixed. Under
 `--compat=tlc` the draws are TLC's: `SpanningTree/SpanTreeRandom` at `-seed 0`
 gives TLC's 79,550 distinct and 1,357,252 generated states. The default profile
 draws from dive's own streams, so its counts differ (22,040 distinct and 293,361

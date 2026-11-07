@@ -283,7 +283,7 @@ fn random_op(op: dive_ir::StdOp) -> bool {
 /// definition itself is not a reference: `INSTANCE` of a module that extends
 /// `TLC` copies `RandomElement` into the instantiating module without calling it.
 pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
-    uses_random_except(ir, |_| false)
+    uses_random_except(ir, |_| false, |_| None, |_| None)
 }
 
 /// Whether a bound model can draw a random value after start-up: as
@@ -291,23 +291,35 @@ pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
 /// start-up (a precomputed constant-level definition, or a configured
 /// `Op = v` value) is never evaluated again, so neither its body nor what
 /// it references can draw. The start-up draws themselves come from the run's
-/// reported seed (D-002).
+/// reported seed (D-002). A configured redirect (`Op <- D`, `C <- D`)
+/// evaluates `D`'s body at every use, so it references `D`, and `D` is not
+/// fixed ([`dive_eval::Evaluator::startup_fixed`]).
 pub(crate) fn uses_random_after_startup(model: &Model) -> bool {
     let ev = &model.evaluator;
-    uses_random_except(&model.ir, |d| {
-        let d = dive_ir::DefId(d);
-        ev.redirected(d) == d && (ev.precomputed(d).is_some() || ev.is_value_override(d))
-    })
+    uses_random_except(
+        &model.ir,
+        |d| ev.startup_fixed(d),
+        |d| Some(ev.redirected(d)).filter(|&t| t != d),
+        |c| match ev.constant_binding(c) {
+            Some(dive_eval::ConstBinding::Def(d)) => Some(ev.redirected(d)),
+            _ => None,
+        },
+    )
 }
 
 /// [`uses_random`], treating each definition `fixed` accepts as a value that
-/// is never evaluated again.
-fn uses_random_except(ir: &dive_ir::Ir, fixed: impl Fn(u32) -> bool) -> bool {
+/// is never evaluated again, each definition as referencing its `redirect`
+/// target, and each constant as referencing its bound definition.
+fn uses_random_except(
+    ir: &dive_ir::Ir,
+    fixed: impl Fn(dive_ir::DefId) -> bool,
+    redirect: impl Fn(dive_ir::DefId) -> Option<dive_ir::DefId>,
+    constant: impl Fn(dive_ir::ConstId) -> Option<dive_ir::DefId>,
+) -> bool {
     use dive_ir::{Expr, OpRef};
     let defs = ir.defs();
-    let fixed: Vec<bool> = (0..defs.len())
-        .map(|i| u32::try_from(i).is_ok_and(&fixed))
-        .collect();
+    let ids = || (0..defs.len()).map(|i| u32::try_from(i).map(dive_ir::DefId));
+    let fixed: Vec<bool> = ids().map(|d| d.is_ok_and(&fixed)).collect();
     let mut owned = vec![false; ir.nodes().len()];
     // Direct references of each definition's body subtree.
     let mut refs: Vec<Vec<usize>> = Vec::with_capacity(defs.len());
@@ -318,10 +330,14 @@ fn uses_random_except(ir: &dive_ir::Ir, fixed: impl Fn(u32) -> bool) -> bool {
         if let Expr::Def(d) = e {
             out.push(d.index());
         }
+        if let Expr::Const(c) = e {
+            out.extend(constant(*c).map(dive_ir::DefId::index));
+        }
         for r in e.op_refs() {
             match r {
                 OpRef::Std(op) => random |= random_op(*op),
                 OpRef::Def(d) => out.push(d.index()),
+                OpRef::Const(c) => out.extend(constant(*c).map(dive_ir::DefId::index)),
                 _ => {}
             }
         }
@@ -344,6 +360,10 @@ fn uses_random_except(ir: &dive_ir::Ir, fixed: impl Fn(u32) -> bool) -> bool {
         if fixed[i] {
             direct[i] = false;
             out.clear();
+        }
+        // `Op <- D`: a use of `Op` evaluates `D`.
+        if let Ok(d) = u32::try_from(i) {
+            out.extend(redirect(dive_ir::DefId(d)).map(dive_ir::DefId::index));
         }
         refs.push(out);
     }

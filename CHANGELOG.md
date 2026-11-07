@@ -13,6 +13,8 @@ published. Earlier pre-release development entries remain in git history.
   (D-002), so `SpanningTree/SpanTreeRandom` no longer refuses; under
   `--compat=tlc` it gives TLC's counts. A violation of such a model still
   refuses, because the independent validator does not replay start-up draws.
+  A definition that a configured `Op <- D` or `C <- D` targets is not fixed:
+  each use evaluates its body, so its draws still refuse on both routes.
 
 - Core provides `TLCGet("config")` and the start-up counters to the
   `ASSUME`s, and `TLCGet("config")` during the search, as Reference does, so

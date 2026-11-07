@@ -3275,7 +3275,18 @@ impl Compiler<'_> {
 
     /// A use of a zero-arity definition.
     fn def_use(&mut self, d: DefId, env: usize, mode: Mode) -> Result<P, Error> {
-        let d = self.redirect(d);
+        let r = self.redirect(d);
+        if r != d
+            && !self.h.overrides.contains(&r)
+            && self.ir.def(r).effects.intersects(dive_ir::Effects::IMPURE)
+        {
+            // `Op <- D`: `Op`'s tool object is `D`'s node, whose body TLC
+            // evaluates at every use, not `D`'s own startup value. A pure
+            // body's startup value is the same, so only an impure one
+            // (`RandomElement`, ...) is compiled again.
+            return self.def_body(r, env, mode);
+        }
+        let d = r;
         if let Some(h) = self.precomputed(d)? {
             return self.konst(h);
         }

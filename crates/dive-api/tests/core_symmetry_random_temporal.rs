@@ -131,12 +131,36 @@ fn unvalidated_or_runtime_draws_with_temporal_properties_refuse_by_name() {
     );
     assert_eq!(core["verdict"], "unsupported", "{core}");
     assert!(core["counterexample"].is_null());
-    // Draws while checking, directly or through a parameterized operator.
-    for name in ["NextDraw", "PickDraw"] {
+    // Draws while checking, directly, through a parameterized operator, or
+    // through a configured redirect (`Op <- D`, `C <- D`) whose target's
+    // body each use evaluates.
+    for name in ["NextDraw", "PickDraw", "RedirectDraw", "ConstDraw"] {
         let spec = fixture(name);
-        let core = run(&spec, &spec.with_extension("cfg"), Engine::Core, None, 0);
-        assert_eq!(core["verdict"], "unsupported", "{name}: {core}");
-        let text = core.to_string();
-        assert!(text.contains("random operators"), "{name}: {core}");
+        for seed in [0, 1, 5] {
+            let core = run(&spec, &spec.with_extension("cfg"), Engine::Core, None, seed);
+            assert_eq!(core["verdict"], "unsupported", "{name} seed {seed}: {core}");
+            assert!(core["counterexample"].is_null(), "{name} seed {seed}");
+            let text = core.to_string();
+            assert!(
+                text.contains("random operators"),
+                "{name} seed {seed}: {core}"
+            );
+        }
+    }
+}
+
+#[test]
+fn a_redirected_random_definition_is_never_read_as_its_startup_value_on_the_safety_route() {
+    // Each use of `Op <- D` evaluates D's body; Core never answers with D's
+    // single start-up draw, so it refuses the draws by name rather than
+    // claim the invariant holds.
+    let spec = fixture("RedirectInvariant");
+    for seed in [0, 1, 2, 3] {
+        let core = run(&spec, &spec.with_extension("cfg"), Engine::Core, None, seed);
+        assert_eq!(core["verdict"], "unsupported", "seed {seed}: {core}");
+        assert!(
+            core.to_string().contains("RandomElement"),
+            "seed {seed}: {core}"
+        );
     }
 }

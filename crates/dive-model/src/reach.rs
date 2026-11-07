@@ -384,7 +384,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> crate::bind::R<Sequen
     let ir = &*model.ir;
     let (roots, mut exprs) = checking_path(b, model);
     let fixed = startup_fixed(b, ir);
-    let reach = reachable_unfixed(ir, &roots, &fixed);
+    let reach = reachable_unfixed(b.ev(), ir, &roots, &fixed);
     let ordered_names = b.opts.eval.ctx.order == dive_value::ValueOrder::Tlc
         || b.opts.eval.exploration == dive_eval::ExplorationOrder::Tlc;
     let mut names: BTreeSet<String> = BTreeSet::new();
@@ -496,8 +496,18 @@ fn startup_fixed(b: &Binder<'_>, ir: &dive_ir::Ir) -> Vec<bool> {
 }
 
 /// [`dive_ir::Ir::reachable_defs`], except that a start-up-fixed definition
-/// is reached without following its body.
-fn reachable_unfixed(ir: &dive_ir::Ir, roots: &[DefId], fixed: &[bool]) -> Vec<bool> {
+/// is reached without following its body, and that a configured redirect
+/// (`Op <- D`, `C <- D`) reaches `D`, whose body each use evaluates.
+fn reachable_unfixed(
+    ev: &dive_eval::Evaluator,
+    ir: &dive_ir::Ir,
+    roots: &[DefId],
+    fixed: &[bool],
+) -> Vec<bool> {
+    let constant = |c: &dive_ir::ConstId| match ev.constant_binding(*c) {
+        Some(dive_eval::ConstBinding::Def(d)) => Some(d),
+        _ => None,
+    };
     let mut seen = vec![false; ir.defs().len()];
     let mut work: Vec<DefId> = roots.to_vec();
     while let Some(d) = work.pop() {
@@ -508,6 +518,7 @@ fn reachable_unfixed(ir: &dive_ir::Ir, roots: &[DefId], fixed: &[bool]) -> Vec<b
             continue;
         }
         *s = true;
+        work.push(ev.redirected(d));
         let def = ir.def(d);
         if def.std.is_some() || fixed.get(d.index()).copied().unwrap_or(false) {
             continue;
@@ -521,9 +532,14 @@ fn reachable_unfixed(ir: &dive_ir::Ir, roots: &[DefId], fixed: &[bool]) -> Vec<b
             if let Expr::Let { defs, .. } = &node.expr {
                 work.extend(defs.iter().copied());
             }
+            if let Expr::Const(c) = &node.expr {
+                work.extend(constant(c));
+            }
             for r in node.expr.op_refs() {
-                if let OpRef::Def(x) = r {
-                    work.push(*x);
+                match r {
+                    OpRef::Def(x) => work.push(*x),
+                    OpRef::Const(c) => work.extend(constant(c)),
+                    _ => {}
                 }
             }
             node.expr.for_each_child(|child| exprs.push(child));
