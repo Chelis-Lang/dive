@@ -55,6 +55,14 @@ the local copy in both profiles. Classification retains TLC's UTF-16 rule:
 the name has more than two code units and its second unit is `_`; its type is
 the first unit. Arena reset does not invalidate immutable names or their ids.
 
+The table also keeps a dense rank of every id in the profile's string order
+(`Strings::ranks`), and each heap copies it with the texts, so a comparison
+of two ranked ids is a `u32` comparison. Interning shifts ranks but never
+reorders two ids ranked together, so a heap's older copy stays valid for the
+pairs it covers. The table re-ranks with every new string up to 1024
+strings, and past that once the unranked ids reach an eighth of the ranked
+ones; a comparison involving an unranked id compares texts (or tokens).
+
 ## 3. Regions
 
 ### 3.1 Persistent store
