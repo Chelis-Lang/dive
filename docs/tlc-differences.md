@@ -44,6 +44,14 @@ retain their original reproducers; their closed issues were folded into
   ([cutover](https://github.com/Chelis-Lang/dive/issues/791)). TLC-profile
   agreements the reference engine reached and Core does not are nominal gaps
   under ADR 0153.
+- Boolean recursive predicate guards keep their
+  [D-029](#d-029-predicate-witness-counts) successor counts under
+  `--compat=tlc` on Core. `byzpaxos/VoteProof` succeeds with TLC's 6962
+  distinct states and depth 14 but generates 27727 states instead of TLC's
+  318877. The harness registers this exact pair as a TLC-profile compat gap
+  (`d029-voteproof-tlc` in `conformance/expected-divergences.toml`) and reports
+  it as `expected-divergence`, never `agree`; any other difference stays a
+  finding.
 
 Each gap keeps its actual refusal or measured difference. Internal errors remain
 defects. None permits a false verdict or weakens counterexample validation.

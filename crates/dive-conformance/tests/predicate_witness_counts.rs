@@ -78,11 +78,18 @@ fn exact_measured_pairs_are_default_divergences_only() -> TestResult {
         assert!(entry.id.starts_with("d029-"));
         assert_eq!(entry.pattern, path);
         assert_eq!(entry.fields, Vec::<String>::new());
-        for profile in [
-            None,
-            Some(Profile::Tlc),
-            Some(Profile::TlcWithOverrides(vec!["counts".into()])),
-        ] {
+        // Under `--compat=tlc` only VoteProof's pair is a registered compat
+        // gap (ADR 0153), linked from docs/tlc-differences.md.
+        let gap = registry.excuse(Some(&Profile::Tlc), &[], path, Verdict::Success, &diffs);
+        if path == "specifications/byzpaxos/VoteProof.cfg" {
+            let gap = gap.ok_or("missing VoteProof TLC-profile compat gap")?;
+            assert_eq!(gap.id, "d029-voteproof-tlc");
+            assert_eq!(gap.profile.as_deref(), Some("tlc"));
+            assert_eq!(gap.link, "docs/tlc-differences.md#compat-gaps");
+        } else {
+            assert!(gap.is_none());
+        }
+        for profile in [None, Some(Profile::TlcWithOverrides(vec!["counts".into()]))] {
             assert!(
                 registry
                     .excuse(profile.as_ref(), &[], path, Verdict::Success, &diffs)

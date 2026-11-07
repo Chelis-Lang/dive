@@ -7,21 +7,23 @@
 //!   `conformance/expected-divergences.toml`, with a justification in
 //!   `docs/divergences.md`.
 //! - [`Profile::Tlc`] selects nominal TLC switches, including defaults for
-//!   worker count, seeding and exit codes. Known compatibility gaps remain
-//!   findings; this registry never excuses them. It is the only profile whose
-//!   agreement counts for the strict tier.
+//!   worker count, seeding and exit codes (ADR 0153: compatibility is
+//!   nominal). A compatibility gap is a finding unless it is registered here
+//!   with `profile = "tlc"` and documented in `docs/tlc-differences.md`; it
+//!   is the only profile whose agreement counts for the strict tier, and a
+//!   registered gap never counts as agreement.
 //! - [`Profile::TlcWithOverrides`] is TLC behaviour with explicitly listed
 //!   per-feature overrides. It is never strict-tier agreement.
 //!
-//! The registry applies only under `dive`. There, a disagreement that
-//! matches an entry, with the entry's expected verdict and with every
-//! differing field among the entry's `fields` or its exact `exit_code_pair`
-//! or `generated_count_pair`,
-//! is reported as
+//! An entry applies only under the profile it names: `dive` entries (and
+//! option entries) under `dive`, `tlc` entries under `tlc`. There, a
+//! disagreement that matches an entry, with the entry's expected verdict and
+//! with every differing field among the entry's `fields` or its exact
+//! `exit_code_pair` or `generated_count_pair`, is reported as
 //! `expected-divergence`. It is never counted as `agree`. Any other
-//! disagreement, and every difference under `tlc` or `tlc+overrides`, is
-//! `disagree`. TLC oracles and external adapters have no profile, and the
-//! registry never applies to them.
+//! disagreement, and every difference under `tlc+overrides`, is `disagree`.
+//! TLC oracles and external adapters have no profile, and the registry never
+//! applies to them.
 
 use crate::compare::{CompareContext, FieldDiff};
 use crate::error::{Error, Result};
@@ -251,7 +253,9 @@ pub struct ExpectedDivergence {
     pub id: String,
     /// Model or module path glob it covers.
     pub pattern: String,
-    /// The profile it applies to. Only `dive` is allowed.
+    /// The profile it applies to: `dive`, or `tlc` for a registered nominal
+    /// compatibility gap (ADR 0153), whose `link` points into
+    /// `docs/tlc-differences.md`.
     #[serde(default)]
     pub profile: Option<String>,
     /// Or the implementation option it applies to (under `dive`), e.g. `int=big`.
@@ -284,7 +288,8 @@ pub struct ExpectedDivergence {
     pub unreduced_symmetry_counts: Option<UnreducedSymmetryCounts>,
     /// Why the divergence is approved.
     pub justification: String,
-    /// The entry in `docs/divergences.md`, e.g. `docs/divergences.md#integer-overflow`.
+    /// The entry in `docs/divergences.md`, e.g. `docs/divergences.md#integer-overflow`,
+    /// or, for a `tlc` entry, in `docs/tlc-differences.md`.
     pub link: String,
 }
 
@@ -307,11 +312,11 @@ impl Registry {
     /// # Errors
     /// Fails on:
     /// - malformed TOML or duplicate ids;
-    /// - an entry naming any profile other than `dive` (in particular `tlc`
-    ///   or `tlc+overrides`: the registry never applies under the TLC
-    ///   profiles);
+    /// - an entry naming any profile other than `dive` or `tlc` (in
+    ///   particular `tlc+overrides`, which the registry never excuses);
     /// - an entry with both or neither of `profile` and `option`;
-    /// - an empty justification, or a link outside `docs/divergences.md`;
+    /// - an empty justification, or a link outside `docs/divergences.md`
+    ///   (`docs/tlc-differences.md` for a `tlc` entry);
     /// - an expected verdict that is not an oracle fact;
     /// - no fields or exact pairs, equal pairs, a field glob covering
     ///   `exit_code` (only exact pairs may excuse it), no compared field, or one
@@ -334,7 +339,7 @@ impl Registry {
                 return bad("duplicate id");
             }
             match (d.profile.as_deref(), d.option.as_deref()) {
-                (Some("dive"), None) | (None, Some(_)) => {}
+                (Some("dive" | "tlc"), None) | (None, Some(_)) => {}
                 (Some(p), None) if p.starts_with("tlc") || p.contains("compat") => {
                     return bad("the registry never applies under the tlc profiles");
                 }
@@ -348,7 +353,11 @@ impl Registry {
             if d.justification.trim().is_empty() {
                 return bad("empty justification");
             }
-            if !d.link.starts_with("docs/divergences.md") {
+            if d.profile.as_deref() == Some("tlc") {
+                if !d.link.starts_with("docs/tlc-differences.md#") {
+                    return bad("a tlc compat gap must link into docs/tlc-differences.md");
+                }
+            } else if !d.link.starts_with("docs/divergences.md") {
                 return bad("link must point into docs/divergences.md");
             }
             if !d.expected_verdict.is_oracle_fact() {
@@ -429,9 +438,10 @@ impl Registry {
     }
 
     /// The entry that excuses a disagreement on `path`, if any. Only under
-    /// the `dive` profile; never under `tlc`, `tlc+overrides` or without a
-    /// profile. An entry matches when its glob matches `path`, it applies to
-    /// the `dive` profile or to an active option (`name` or `name=value`),
+    /// the `dive` profile, or under `tlc` for an entry registered with
+    /// `profile = "tlc"`; never under `tlc+overrides` or without a profile.
+    /// An entry matches when its glob matches `path`, it names the run's
+    /// profile (an option entry: `dive` with that active option, `name` or `name=value`),
     /// the observed verdict is its expected verdict, and every field in
     /// `diffs` matches one of its `fields` or its exact `exit_code_pair` or
     /// `generated_count_pair`. Each declared pair must occur in `diffs`; it
@@ -543,7 +553,12 @@ impl Registry {
         diffs: &[FieldDiff],
         facts: Option<ResultFacts<'_>>,
     ) -> Option<&ExpectedDivergence> {
-        if profile != Some(&Profile::Dive) || diffs.is_empty() {
+        let name = match profile {
+            Some(Profile::Dive) => "dive",
+            Some(Profile::Tlc) => "tlc",
+            _ => return None,
+        };
+        if diffs.is_empty() {
             return None;
         }
         self.divergence.iter().find(|d| {
@@ -598,8 +613,8 @@ impl Registry {
                     }
                 })
                 && match (&d.profile, &d.option) {
-                    (Some(_), None) => true,
-                    (None, Some(o)) => options.iter().any(|a| a == o),
+                    (Some(p), None) => p == name,
+                    (None, Some(o)) => name == "dive" && options.iter().any(|a| a == o),
                     _ => false,
                 }
         })
@@ -634,6 +649,7 @@ link = "docs/divergences.md#integer-overflow"
         let r = Registry::parse(ENTRY)?;
         assert_eq!(r.divergence.len(), 1);
         for (from, to) in [
+            // A tlc compat gap must link into docs/tlc-differences.md.
             (r#"profile = "dive""#, r#"profile = "tlc""#),
             (r#"profile = "dive""#, r#"profile = "tlc+overrides""#),
             (r#"profile = "dive""#, r#"profile = "compat=tlc""#),
@@ -662,6 +678,80 @@ link = "docs/divergences.md#integer-overflow"
         }
         assert!(Registry::parse(&format!("{ENTRY}{ENTRY}")).is_err());
         assert!(Registry::parse(&format!("{ENTRY}\nextra = 1\n")).is_err());
+        Ok(())
+    }
+
+    const TLC_GAP: &str = r#"
+[[divergence]]
+id = "gap"
+pattern = "specifications/x/X.cfg"
+profile = "tlc"
+expected_verdict = "success"
+fields = []
+generated_count_pair = { expected = 10, actual = 4 }
+justification = "nominal compat gap (ADR 0153)"
+link = "docs/tlc-differences.md#compat-gaps"
+"#;
+
+    fn generated(expected: u64, actual: u64) -> Vec<FieldDiff> {
+        vec![FieldDiff {
+            field: "counts.states_generated".to_owned(),
+            expected: expected.into(),
+            actual: actual.into(),
+        }]
+    }
+
+    #[test]
+    fn a_registered_tlc_compat_gap_is_an_expected_divergence_only_under_tlc() -> Result<()> {
+        let r = Registry::parse(TLC_GAP)?;
+        let p = "specifications/x/X.cfg";
+        let tlc = Some(&Profile::Tlc);
+        let d = generated(10, 4);
+        assert!(r.excuse(tlc, &[], p, Verdict::Success, &d).is_some());
+        // Never under another profile, nor for other counts, fields, verdicts
+        // or models.
+        assert!(
+            r.excuse(Some(&Profile::Dive), &[], p, Verdict::Success, &d)
+                .is_none()
+        );
+        let over = Profile::TlcWithOverrides(vec!["int".to_owned()]);
+        assert!(
+            r.excuse(Some(&over), &[], p, Verdict::Success, &d)
+                .is_none()
+        );
+        assert!(r.excuse(None, &[], p, Verdict::Success, &d).is_none());
+        assert!(
+            r.excuse(tlc, &[], p, Verdict::Success, &generated(10, 5))
+                .is_none()
+        );
+        assert!(
+            r.excuse(tlc, &[], p, Verdict::Success, &diff("counts.depth"))
+                .is_none()
+        );
+        let mut both = generated(10, 4);
+        both.extend(diff("counts.distinct_states"));
+        assert!(r.excuse(tlc, &[], p, Verdict::Success, &both).is_none());
+        assert!(r.excuse(tlc, &[], p, Verdict::Overflow, &d).is_none());
+        let other = "specifications/y/Y.cfg";
+        assert!(r.excuse(tlc, &[], other, Verdict::Success, &d).is_none());
+        // A default-profile entry never excuses a tlc disagreement.
+        let dive = Registry::parse(ENTRY)?;
+        assert!(
+            dive.excuse(tlc, &[], p, Verdict::Success, &diff("counts.depth"))
+                .is_none()
+        );
+        // A tlc gap must be documented in docs/tlc-differences.md.
+        assert!(
+            Registry::parse(&TLC_GAP.replace(
+                "docs/tlc-differences.md#compat-gaps",
+                "docs/divergences.md#d-029"
+            ))
+            .is_err()
+        );
+        assert!(
+            Registry::parse(&TLC_GAP.replace(r#"profile = "tlc""#, r#"option = "compat=tlc""#))
+                .is_err()
+        );
         Ok(())
     }
 
