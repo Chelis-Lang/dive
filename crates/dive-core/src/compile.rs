@@ -371,10 +371,11 @@ pub enum BoundTest {
 }
 
 /// Compiles one optional source-bound atom using existing evaluation/generation.
-/// Guarded single-key updates decline at run time when their domain is unproved.
 ///
-/// Callers separately certify source/scope/effect history and closed actual
-/// input handles. This compiler acceptance alone supplies no such authority.
+/// The plan uses the same value nodes as safety checking. Callers separately
+/// check its effects, compiled constants and actual input handles, and run it
+/// on a machine with [`crate::Machine::set_refuse_unrecorded_warnings`], so a
+/// reference warning that Core does not record declines instead.
 ///
 /// ```no_run
 /// # fn example(h: &dive_core::Handoff<'_>, store: std::sync::Arc<dive_core::Store>) -> Result<(), dive_core::Error> {
@@ -499,8 +500,7 @@ fn compile_inner(
         stats: CompileStats::default(),
         site_names: Vec::new(),
         role_name: String::new(),
-        bound_test: test,
-        interval_slots: HashMap::new(),
+        bound_preset: test.map(|_| Vec::new()),
     };
     // The initial predicates are conjoined, as TLC's (and the reference
     // engine's `init_states`): one action.
@@ -593,6 +593,7 @@ fn compile_inner(
         effects: c.effects,
         view,
         stats: c.stats,
+        bound_preset: c.bound_preset.unwrap_or_default(),
     };
     if mapped {
         let executable = crate::debug::reachable(&plan);
@@ -658,11 +659,9 @@ struct Compiler<'a> {
     stats: CompileStats,
     site_names: Vec<String>,
     role_name: String,
-    // Ordinary atoms preserve constructed values without an ENABLED cutoff;
-    // queries retain the established narrower update subset.
-    bound_test: Option<BoundTest>,
-    // Actual flat binder slots, never source slot numbers or name guesses.
-    interval_slots: HashMap<u32, P>,
+    /// `Some` while compiling one bound optional atom: the frame slots its
+    /// role binds, with their values, which the caller installs.
+    bound_preset: Option<Vec<(u32, Handle)>>,
 }
 
 impl Compiler<'_> {
@@ -959,21 +958,6 @@ impl Compiler<'_> {
             | Node::FcnCons { binds, body }
             | Node::Quant { binds, body, .. } => {
                 binders(binds, &[*body], &mut i, &mut add);
-            }
-            Node::ClosedUpdate {
-                base,
-                key,
-                domain,
-                at,
-                value,
-            } => {
-                for p in [base, key, value] {
-                    add(*p, &mut i);
-                }
-                if let Some(domain) = domain {
-                    add(*domain, &mut i);
-                }
-                i.free.retain(|slot| slot != at);
             }
             Node::Except { base, updates } => {
                 add(*base, &mut i);
@@ -1978,7 +1962,9 @@ impl Compiler<'_> {
     fn check(&mut self, r: &Role) -> Result<Check, Error> {
         self.init_mode = false;
         let (env, preset) = self.role_env(r)?;
-        if !preset.is_empty() {
+        if let Some(bound) = &mut self.bound_preset {
+            bound.extend(preset);
+        } else if !preset.is_empty() {
             return Err(Error::unsupported(
                 "an invariant with bound parameters (M0 core)",
             ));
@@ -2021,9 +2007,11 @@ impl Compiler<'_> {
         }
         self.init_mode = false;
         let (env, preset) = self.role_env(r)?;
-        if !preset.is_empty() {
-            return Err(Error::unsupported(
-                "a bound atom with unresolved preset slots",
+        if let Some(bound) = &mut self.bound_preset {
+            bound.extend(preset);
+        } else if !preset.is_empty() {
+            return Err(Error::internal(
+                "a bound atom outside bound-test compilation",
             ));
         }
         let p = match test {
@@ -2246,9 +2234,6 @@ impl Compiler<'_> {
                 let b = self.p(*body, env, mode);
                 self.unbind(saved);
                 let b = b?;
-                if self.bound_test.is_some() && *kind == QuantKind::Choose {
-                    self.optional_interval_binder(&binds)?;
-                }
                 let kind = match kind {
                     QuantKind::Exists => Quant::Exists,
                     QuantKind::Forall => Quant::Forall,
@@ -2282,9 +2267,6 @@ impl Compiler<'_> {
             }
             Expr::FcnCons { bounds, body } => {
                 let (binds, saved) = self.binds(bounds, env, mode)?;
-                if self.bound_test.is_some() {
-                    self.optional_interval_binder(&binds)?;
-                }
                 let b = self.p(*body, env, mode);
                 self.unbind(saved);
                 let b = b?;
@@ -2361,44 +2343,10 @@ impl Compiler<'_> {
                         value: v?,
                     });
                 }
-                if self.bound_test.is_some() {
-                    let [u] = out.as_slice() else {
-                        return Err(Error::unsupported("multiple optional EXCEPT clauses"));
-                    };
-                    let [key] = u.path.as_ref() else {
-                        return Err(Error::unsupported("nested optional EXCEPT path"));
-                    };
-                    // Preserve the established exact-domain proof for a root
-                    // update whose key came from an immutable interval binder.
-                    // New certified closed-base/constant-key/@ cases instead
-                    // prove actual key membership before evaluating the RHS.
-                    let domain = match (
-                        &self.code.nodes[b as usize],
-                        &self.code.nodes[*key as usize],
-                    ) {
-                        (Node::Var(_), Node::Slot(slot)) => self.interval_slots.get(slot).copied(),
-                        _ => None,
-                    };
-                    if !self.ordinary_atoms()
-                        && (domain.is_none() || self.info[u.value as usize].free.contains(&u.at))
-                    {
-                        return Err(Error::unsupported(
-                            "optional ENABLED retains its immutable-binder update subset",
-                        ));
-                    }
-                    self.push(Node::ClosedUpdate {
-                        base: b,
-                        key: *key,
-                        domain,
-                        at: u.at,
-                        value: u.value,
-                    })
-                } else {
-                    self.push(Node::Except {
-                        base: b,
-                        updates: out.into(),
-                    })
-                }
+                self.push(Node::Except {
+                    base: b,
+                    updates: out.into(),
+                })
             }
             Expr::ExceptAt => match self.at_stack.last() {
                 Some(&at) => self.push(Node::Slot(at)),
@@ -2576,17 +2524,6 @@ impl Compiler<'_> {
                 if let Some(s) = self.envs[env].slots.get_mut(v.index()) {
                     *s = Sb::Flat(flat);
                 }
-                if self.bound_test.is_some() && !b.tuple {
-                    let info = &self.info[domain as usize];
-                    if info.vars == 0
-                        && info.primed == 0
-                        && info.free.is_empty()
-                        && !info.effect
-                        && !info.calls
-                    {
-                        self.interval_slots.insert(flat, domain);
-                    }
-                }
                 slots.push(flat);
             }
             binds.push(Bind {
@@ -2596,53 +2533,6 @@ impl Compiler<'_> {
             });
         }
         Ok((binds, saved))
-    }
-
-    fn ordinary_atoms(&self) -> bool {
-        matches!(
-            self.bound_test,
-            Some(BoundTest::Predicate | BoundTest::Nonstuttering(_))
-        )
-    }
-
-    /// The optional construction/choice lane uses one scalar interval binder.
-    /// Existing lazy wrappers remain intact; this inspection never evaluates
-    /// a domain, and the source certificate separately proves its history.
-    fn optional_interval_binder(&self, binds: &[Bind]) -> Result<(), Error> {
-        if !self.ordinary_atoms() {
-            return Err(Error::unsupported(
-                "optional ENABLED construction remains reference",
-            ));
-        }
-        let [bind] = binds else {
-            return Err(Error::unsupported(
-                "multiple optional constructor/CHOOSE bounds",
-            ));
-        };
-        if bind.tuple || bind.slots.len() != 1 {
-            return Err(Error::unsupported(
-                "a nonscalar optional constructor/CHOOSE binder",
-            ));
-        }
-        let mut domain = bind.domain;
-        loop {
-            match &self.code.nodes[domain as usize] {
-                Node::Range(_, _) => return Ok(()),
-                Node::Const(value)
-                    if value.is_compound() && self.m.heap.view(*value).kind == Kind::Interval =>
-                {
-                    return Ok(());
-                }
-                Node::Spec(body) | Node::Lazy { body, .. } | Node::Scope { body, .. } => {
-                    domain = *body;
-                }
-                _ => {
-                    return Err(Error::unsupported(
-                        "an optional constructor/CHOOSE domain without an interval proof",
-                    ));
-                }
-            }
-        }
     }
 
     fn unbind(&mut self, saved: Saved) {

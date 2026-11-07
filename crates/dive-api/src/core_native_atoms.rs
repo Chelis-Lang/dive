@@ -1,8 +1,10 @@
-//! Optional native predicates with the existing reference stability certificate.
+//! Optional native predicates admitted by Core plan facts.
 //!
-//! This is deliberately narrower than general compiler acceptance. Successful
-//! reference stability inspection, exact retained predicate object identity and
-//! closed input handles are all required before replacing a reference call.
+//! A retained atom runs natively when its exact object and source scope bind,
+//! the Core bound-test compiler accepts it, its plan is effect-free and cannot
+//! add a string to the shared table, and every compiled constant and input row
+//! is a materialized Core value (ADRs 0129, 0154). Anything else, and every
+//! error, fuel exhaustion, warning or printed output, keeps the reference call.
 
 use std::sync::Arc;
 
@@ -57,10 +59,10 @@ pub(crate) struct NativeAtoms {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Rejection {
     NegatedEnabled,
-    StableCertificate,
+    ForeignScope,
     CompileError,
     Effects,
-    CodeNodes,
+    FreshString,
     Funs,
     Memo,
     Pow,
@@ -71,10 +73,10 @@ enum Rejection {
 #[derive(Default)]
 struct Rejections {
     negated_enabled: u64,
-    stable_certificate: u64,
+    foreign_scope: u64,
     compile_error: u64,
     effects: u64,
-    code_nodes: u64,
+    fresh_string: u64,
     funs: u64,
     memo: u64,
     pow: u64,
@@ -86,10 +88,10 @@ impl Rejections {
     fn record(&mut self, reason: Rejection) {
         let slot = match reason {
             Rejection::NegatedEnabled => &mut self.negated_enabled,
-            Rejection::StableCertificate => &mut self.stable_certificate,
+            Rejection::ForeignScope => &mut self.foreign_scope,
             Rejection::CompileError => &mut self.compile_error,
             Rejection::Effects => &mut self.effects,
-            Rejection::CodeNodes => &mut self.code_nodes,
+            Rejection::FreshString => &mut self.fresh_string,
             Rejection::Funs => &mut self.funs,
             Rejection::Memo => &mut self.memo,
             Rejection::Pow => &mut self.pow,
@@ -101,8 +103,9 @@ impl Rejections {
 
     fn json(&self) -> serde_json::Value {
         serde_json::json!({"negated_enabled": self.negated_enabled,
-            "stable_certificate": self.stable_certificate, "compile_error": self.compile_error,
-            "effects": self.effects, "code_nodes": self.code_nodes, "funs": self.funs,
+            "foreign_scope": self.foreign_scope, "compile_error": self.compile_error,
+            "effects": self.effects,
+            "fresh_string": self.fresh_string, "funs": self.funs,
             "memo": self.memo, "pow": self.pow, "const_unclosed": self.const_unclosed,
             "allocation": self.allocation})
     }
@@ -170,29 +173,31 @@ impl NativeAtoms {
         result
             .machine
             .set_work_control(Some(Arc::new(QueryControl(Arc::clone(control)))));
+        // A native truth must not add a string token that the skipped
+        // reference call would not have added (string order under
+        // `--compat=tlc`); a new text is an unsupported error and falls back.
+        result.machine.heap.set_existing_strings_only(true);
+        // A reference warning Core does not record (2144) must reach the
+        // reference evaluator, which prints it.
+        result.machine.set_refuse_unrecorded_warnings(true);
         for atom in driver.native_predicates() {
             result.total += 1;
             if matches!(atom.test, AtomTest::NegatedEnabled { .. }) {
                 result.rejections.record(Rejection::NegatedEnabled);
                 continue;
             }
-            // This existing callback-free certificate checks actual scopes,
-            // configured constants, cached bodies, intermediate constructors,
-            // effects and name capabilities. Native compiler acceptance alone
-            // does not provide that representation/history guarantee.
-            let inspected = stable(model, atom, control);
-            let stable = match inspected {
-                Ok(stable) => stable,
-                Err(error) => {
-                    if let Some(verdict) = control.verdict(&error) {
-                        return Err(verdict);
-                    }
-                    result.rejections.record(Rejection::StableCertificate);
-                    continue;
-                }
+            // (a) The exact retained atom and its source scope must bind to
+            // this model's evaluator; equal source text is not enough.
+            let sub = match atom.test {
+                AtomTest::Enabled { sub } => sub,
+                AtomTest::Nonstuttering { sub } => Some(sub),
+                AtomTest::Predicate | AtomTest::NegatedEnabled { .. } => None,
             };
-            if !stable {
-                result.rejections.record(Rejection::StableCertificate);
+            let ev = &model.evaluator;
+            if !ev.admits_scoped_expr(&atom.pred.scope, atom.pred.expr)
+                || sub.is_some_and(|sub| !ev.admits_scoped_expr(&atom.pred.scope, sub))
+            {
+                result.rejections.record(Rejection::ForeignScope);
                 continue;
             }
             let plan = match compile(model, store, atom, opts, &result.machine.heap) {
@@ -242,7 +247,14 @@ impl NativeAtoms {
             "fallbacks": {"row_proof": self.fallbacks.row_proof, "fuel_or_error": self.fallbacks.fuel_or_error,
                 "warning_or_print": self.fallbacks.warning_or_print, "not_compiled": self.fallbacks.not_compiled},
             "audit": self.audit,
-            "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries"})
+            "eligibility": "source-scoped effect-free Core plans without fresh strings over materialized rows; identity-scoped fairness queries"})
+    }
+
+    #[cfg(test)]
+    fn has(&self, atom: &PredicateAtom) -> bool {
+        self.compiled
+            .iter()
+            .any(|item| std::ptr::eq(item.identity, atom))
     }
 
     /// The first native-versus-reference disagreement found by the audit.
@@ -296,6 +308,15 @@ impl NativeAtoms {
         self.machine.set_fuel(4096);
         let predicate = &compiled.plan.implied_actions[0];
         let frame = self.machine.enter(predicate.frame);
+        for &(slot, value) in &compiled.plan.bound_preset {
+            if let Some(cell) = self
+                .machine
+                .frame
+                .get_mut(self.machine.base + slot as usize)
+            {
+                *cell = value;
+            }
+        }
         self.machine.warnings.clear();
         self.machine.printed.clear();
         let result = predicate.conjuncts.iter().try_fold(true, |holds, part| {
@@ -360,35 +381,6 @@ impl NativeAtoms {
     }
 }
 
-fn stable(
-    model: &Model,
-    atom: &PredicateAtom,
-    control: &EvaluationControl,
-) -> Result<bool, EvalError> {
-    let ev = &model.evaluator;
-    let scoped = &atom.pred.scope;
-    match atom.test {
-        AtomTest::Predicate => {
-            ev.guarded_action_stability_budgeted(scoped, atom.pred.expr, Some(control))
-        }
-        AtomTest::Enabled { sub } => {
-            if !ev.guarded_action_stability_budgeted(scoped, atom.pred.expr, Some(control))? {
-                return Ok(false);
-            }
-            sub.map_or(Ok(true), |sub| {
-                ev.closed_predicate_stability_budgeted(scoped, sub, Some(control))
-            })
-        }
-        AtomTest::Nonstuttering { sub } => {
-            Ok(
-                ev.guarded_action_stability_budgeted(scoped, atom.pred.expr, Some(control))?
-                    && ev.guarded_action_stability_budgeted(scoped, sub, Some(control))?,
-            )
-        }
-        AtomTest::NegatedEnabled { .. } => Ok(false),
-    }
-}
-
 fn compile(
     model: &Model,
     store: &Arc<Store>,
@@ -447,8 +439,19 @@ fn admit_plan(plan: &dive_core::plan::Plan, heap: &dive_core::Heap) -> Result<()
     if plan.effects.any {
         return Err(Rejection::Effects);
     }
-    if plan.code.nodes.len() > 4096 || plan.code.gnodes.len() > 4096 {
-        return Err(Rejection::CodeNodes);
+    // `ToString` prints through the reference name table, so it could add a
+    // name there that the skipped reference call would not; the Heap's
+    // existing-strings mode covers every other string builder.
+    if plan.code.nodes.iter().any(|node| {
+        matches!(
+            node,
+            dive_core::plan::Node::Lib {
+                op: dive_ir::StdOp::TlcToString,
+                ..
+            }
+        )
+    }) {
+        return Err(Rejection::FreshString);
     }
     if !plan.code.funs.is_empty() {
         return Err(Rejection::Funs);
@@ -469,7 +472,11 @@ fn admit_plan(plan: &dive_core::plan::Plan, heap: &dive_core::Heap) -> Result<()
             _ => None,
         };
         value.is_some_and(|value| !admissible_row(heap, &[value]))
-    }) {
+    }) || plan
+        .bound_preset
+        .iter()
+        .any(|&(_, value)| !admissible_row(heap, &[value]))
+    {
         return Err(Rejection::ConstUnclosed);
     }
     match plan.code.nodes.iter().find_map(|node| match node {
@@ -864,6 +871,56 @@ mod tests {
         sink.finish()
     }
 
+    /// Evaluates `atom` natively on rows converted from `before`/`after`.
+    /// When native evaluation produced a truth, the reference evaluator must
+    /// return the same truth without printing a warning.
+    fn agree(
+        prepared: &crate::core_engine::Prepared,
+        atoms: &mut NativeAtoms,
+        atom: &PredicateAtom,
+        control: &EvaluationControl,
+        before: &[dive_value::Value],
+        after: Option<&[dive_value::Value]>,
+    ) -> Option<bool> {
+        let ctx = prepared.model.evaluator.options().ctx;
+        let mut heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+        let mut row = |values: &[dive_value::Value]| -> Vec<Handle> {
+            values
+                .iter()
+                .map(|v| dive_core::convert::from_value(&mut heap, v, ctx).expect("row"))
+                .collect()
+        };
+        let source = row(before);
+        let target = after.map(&mut row);
+        let native = atoms
+            .evaluate(atom, &source, target.as_deref(), control)
+            .expect("native");
+        let vals = |values: &[dive_value::Value]| -> dive_eval::next::StateVals {
+            values.iter().cloned().map(Some).collect()
+        };
+        let st = match after {
+            Some(after) => dive_eval::St::action(vals(before), vals(after)),
+            None => dive_eval::St::state(vals(before)),
+        };
+        // The reference runs only on a native truth: a declined query may be
+        // one whose reference evaluation is deliberately enormous.
+        if let Some(truth) = native {
+            let capture = dive_eval::capture::PrintCapture::start();
+            let reference = atom.evaluate(&prepared.model, &st);
+            let printed = capture.take();
+            assert!(
+                matches!(reference, Ok(r) if r == truth),
+                "native {truth}, reference {reference:?}"
+            );
+            assert!(printed.is_empty(), "native truth hid output: {printed:?}");
+        }
+        native
+    }
+
+    fn int(i: i64) -> dive_value::Value {
+        dive_value::Value::Int(i)
+    }
+
     #[test]
     fn row_proof_storage_bounds_overflow_and_allocation_failure() {
         let allocate = |bits: &mut Vec<u8>, bytes| bits.try_reserve_exact(bytes).is_ok();
@@ -1253,7 +1310,7 @@ mod tests {
     }
 
     #[test]
-    fn fairness_checks_use_closed_updates_and_require_the_actual_interval_domain() {
+    fn fairness_checks_use_core_updates_on_any_function_domain() {
         let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x = <<0,0>> /\\ y=0\nA == \\E i \\in 1..2: x'=[x EXCEPT ![i]=x[i]+1] /\\ UNCHANGED y\nSpec == Init /\\ [][A]_<<x,y>> /\\ WF_<<x,y>>(A)\nP == <> (y=1)\n====\n";
         for tlc in [false, true] {
             with_wrappers(source, tlc, |prepared, driver, atoms, control| {
@@ -1301,18 +1358,19 @@ mod tests {
                     .native_predicates()
                     .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
                     .expect("enabled");
-                for (lo, values) in [
-                    (0, vec![zero, zero]),
-                    (1, vec![zero]),
-                    (1, vec![zero, zero, zero]),
-                ] {
-                    let wrong = heap.int_fcn(lo, &values);
-                    let wrong = heap.intern_exact(wrong).expect("wrong domain");
+                // Key 1 is in each domain, so the first candidate changes x
+                // and the reference reaches no missing key.
+                let ctx = prepared.model.evaluator.options().ctx;
+                for (lo, len) in [(0, 2), (1, 1), (1, 3)] {
+                    let wrong = dive_value::Value::fcn(
+                        (lo..lo + len).map(|k| (int(k), int(0))).collect(),
+                        ctx,
+                    )
+                    .expect("function");
                     assert_eq!(
-                        atoms
-                            .evaluate(enabled, &[wrong, zero], None, control)
-                            .expect("fallback"),
-                        None
+                        agree(prepared, atoms, enabled, control, &[wrong, int(0)], None),
+                        Some(true),
+                        "domain {lo}..{len}"
                     );
                 }
                 assert_eq!(
@@ -1721,88 +1779,69 @@ mod tests {
     }
 
     #[test]
-    fn actual_binder_alias_and_shadow_controls() {
+    fn binder_alias_shadow_and_update_shapes_agree_with_reference() {
+        // `None`: Core declines; a missing EXCEPT key (reference warning 2144)
+        // and an EXCEPT path through a non-function stay with the reference.
         for tlc in [false, true] {
-            for (defs, action, eligible) in [
+            for (defs, action, expected) in [
                 (
                     "U(k) == [x EXCEPT ![k] = x[k]+1]",
                     "\\E j \\in 1..2: x'=U(j) /\\ UNCHANGED y",
-                    true,
+                    Some(true),
                 ),
                 (
                     "U(k) == [x EXCEPT ![k] = x[k]+1]",
                     "\\E j \\in 1..2: x'=U(j+0) /\\ UNCHANGED y",
-                    false,
+                    Some(true),
                 ),
                 (
                     "",
                     "\\E j \\in 1..2: (\\E k \\in 3..4: x'=[x EXCEPT ![k]=0]) /\\ UNCHANGED y",
-                    true,
+                    None,
                 ),
                 (
                     "",
                     "\\E j \\in 1..y: x'=[x EXCEPT ![j]=0] /\\ UNCHANGED y",
-                    false,
+                    Some(false),
                 ),
                 (
                     "",
                     "\\E j \\in {1,2}: x'=[x EXCEPT ![j]=0] /\\ UNCHANGED y",
-                    true,
+                    Some(false),
                 ),
                 (
                     "",
                     "\\E j \\in 1..2: x'=[x EXCEPT ![j]=@+1] /\\ UNCHANGED y",
-                    false,
+                    Some(true),
                 ),
                 (
                     "",
                     "\\E j \\in 1..2: x'=[x EXCEPT ![j]=1, ![j]=2] /\\ UNCHANGED y",
-                    false,
+                    Some(true),
                 ),
                 (
                     "",
                     "\\E j \\in 1..2: x'=[x EXCEPT ![j][1]=1] /\\ UNCHANGED y",
-                    false,
+                    None,
                 ),
                 (
                     "",
                     "\\E j \\in 1..2: x'=[(IF TRUE THEN x ELSE x) EXCEPT ![j]=1] /\\ UNCHANGED y",
-                    false,
+                    Some(true),
                 ),
             ] {
                 let source = format!(
                     "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y\nInit == x = <<0,0>> /\\ y=2\nNext == UNCHANGED <<x,y>>\n{defs}\nA == {action}\nSpec == Init /\\ [][Next]_<<x,y>> /\\ WF_<<x,y>>(A)\nP == <> (y=1)\n====\n"
                 );
                 with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
+                    assert_eq!(atoms.eligible, atoms.total, "{action}");
                     let enabled = driver
                         .native_predicates()
                         .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
                         .expect("enabled");
-                    let mut heap = dive_core::Heap::new(prepared.store.clone(), false, false);
-                    let zero = Handle::int(0).expect("zero");
-                    let x = heap.int_fcn(1, &[zero, zero]);
-                    let x = heap.intern_exact(x).expect("persistent");
-                    let two = Handle::int(2).expect("two");
-                    let got = atoms
-                        .evaluate(enabled, &[x, two], None, control)
-                        .expect("optional");
-                    if !eligible || action.contains("3..4") || action.contains("{1,2}") {
-                        assert_eq!(got, None, "{action}, tlc={tlc}");
-                    } else {
-                        assert_eq!(got, Some(true), "{action}, tlc={tlc}");
-                        let state = dive_eval::St::state(Arc::from([
-                            Some(dive_value::Value::tuple(vec![
-                                dive_value::Value::Int(0),
-                                dive_value::Value::Int(0),
-                            ])),
-                            Some(dive_value::Value::Int(2)),
-                        ]));
-                        assert!(
-                            enabled
-                                .evaluate(&prepared.model, &state)
-                                .expect("reference")
-                        );
-                    }
+                    let x = dive_value::Value::tuple(vec![int(0), int(0)]);
+                    let got = agree(prepared, atoms, enabled, control, &[x, int(2)], None);
+                    assert_eq!(got, expected, "{action}, tlc={tlc}");
                 });
             }
         }
@@ -1952,6 +1991,122 @@ mod tests {
         }
     }
 
+    /// Sets, SUBSET/UNION, filters, Cardinality, CHOOSE over sets, records,
+    /// multi-clause and nested EXCEPT/@, several-binder constructors, strings
+    /// and parameterized fairness all run on Core and agree with the
+    /// reference on every retained row and row pair, in both profiles.
+    #[test]
+    fn admitted_core_shapes_agree_with_reference_on_every_row() {
+        let source = r#"---- MODULE Atoms ----
+EXTENDS Naturals, FiniteSets
+VARIABLES S, r, f
+vars == <<S, r, f>>
+Init == S = {} /\ r = [a |-> 0, b |-> "u"] /\ f = <<<<0, 0>>, <<0, 0>>>>
+Add(e) == /\ e \notin S
+          /\ S' = S \cup {e}
+          /\ r' = [r EXCEPT !.a = (@ + e) % 3, !.b = IF e = 2 THEN "v" ELSE @]
+          /\ f' = [f EXCEPT ![1][2] = e, ![2] = <<@[2], @[1]>>]
+Drop == /\ S # {}
+        /\ S' = S \ {CHOOSE e \in S : \A d \in S : e <= d}
+        /\ UNCHANGED <<r, f>>
+Next == (\E e \in 1..3 : Add(e)) \/ Drop
+Spec == Init /\ [][Next]_vars /\ \A e \in 1..3 : WF_vars(Add(e)) /\ WF_vars(Drop)
+Pick == CHOOSE T \in SUBSET S : Cardinality(T) = 1 \/ T = S
+Name == CHOOSE s \in {"v", "u", "w"} : s # r.b
+P == <>(/\ Pick = {}
+        /\ Cardinality({e \in S : e > 1}) = 2
+        /\ \E T \in SUBSET S : UNION {T, {7}} = {7, 3}
+        /\ [i \in 1..2, j \in S |-> i + j] # [i \in 1..2, j \in {} |-> 0]
+        /\ Name \in {"u", "w"}
+        /\ (CHOOSE g \in {f[1], f[2]} : TRUE) = f[2])
+====
+"#;
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                assert_eq!(atoms.eligible, atoms.total, "{}", atoms.metrics());
+                let options = if tlc {
+                    dive_check::CheckOptions::tlc(0, 0)
+                } else {
+                    dive_check::CheckOptions::dive(0)
+                };
+                let (graph, mut values) = capture(prepared, &options);
+                atoms.audit = true;
+                let rows = graph.input().retained_rows;
+                assert!(rows > 8, "{rows}");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                for atom in driver.native_predicates() {
+                    for before in 0..rows {
+                        let targets: Vec<Option<usize>> =
+                            if atom.kind == dive_liveness::formula::AtomKind::Action {
+                                (0..rows.min(12)).map(Some).collect()
+                            } else {
+                                vec![None]
+                            };
+                        for after in targets {
+                            let got = reader
+                                .predicate(atom, before, after, control)
+                                .expect("audited agreement");
+                            assert!(got.is_some(), "{:?} on {before}/{after:?}", atom.test);
+                        }
+                    }
+                }
+                drop(reader);
+                assert!(atoms.audit_mismatch().is_none());
+                assert_eq!(atoms.fallback, 0, "{}", atoms.metrics());
+            });
+        }
+    }
+
+    #[test]
+    fn choose_errors_before_the_first_witness_fall_back_and_to_string_is_refused() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals, TLC\nVARIABLE S\nInit == S = {1, 2}\nNext == UNCHANGED S\nSpec == Init /\\ [][Next]_S\nP == <> ((CHOOSE e \\in S : 2 \\div (e - 1) > 0) = 2)\nQ == <> (ToString(S) = \"x\")\n====\n";
+        for tlc in [false, true] {
+            let (prepared, options) = prepare_text(
+                source,
+                "SPECIFICATION Spec\nPROPERTY P\nPROPERTY Q\nCHECK_DEADLOCK FALSE\n",
+                tlc,
+            );
+            let driver = GraphCheck::prepare(
+                &prepared.model,
+                &options,
+                dive_liveness::analyze::Limits::default(),
+                dive_liveness::product::AcceptancePolicy::compact_default(),
+                dive_liveness::analyze::GraphLabelPolicy::NoCellLimit,
+                None,
+            )
+            .expect("driver");
+            let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
+            let mut atoms = NativeAtoms::prepare(
+                &prepared.model,
+                &prepared.store,
+                &driver,
+                &control,
+                Opts::default(),
+            )
+            .expect("prepare");
+            assert_eq!(atoms.metrics()["rejections"]["fresh_string"], 1);
+            assert_eq!(atoms.eligible, 1);
+            let atom = driver
+                .native_predicates()
+                .find(|atom| atoms.has(atom))
+                .expect("CHOOSE atom");
+            let ctx = prepared.model.evaluator.options().ctx;
+            let set = dive_value::Value::set(vec![int(1), int(2)], ctx).expect("set");
+            // The first element in canonical order, 1, divides by zero
+            // before 2 could witness: the reference must raise it.
+            assert_eq!(
+                agree(&prepared, &mut atoms, atom, &control, &[set], None),
+                None
+            );
+            assert_eq!(atoms.metrics()["fallbacks"]["fuel_or_error"], 1);
+            let set = dive_value::Value::set(vec![int(2), int(3)], ctx).expect("set");
+            assert_eq!(
+                agree(&prepared, &mut atoms, atom, &control, &[set], None),
+                Some(true)
+            );
+        }
+    }
+
     #[test]
     fn negated_enabled_retains_reference_lane() {
         let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == x'=1\nSpec == Init /\\ [][Next]_x\nP == <> (~ENABLED A)\n====\n";
@@ -2069,27 +2224,23 @@ mod tests {
     }
 
     #[test]
-    fn unproved_product_sources_stay_reference_and_forall_recovers_after_quota() {
+    fn product_sources_run_natively_and_large_ones_and_forall_recover_after_quota() {
         for tlc in [false, true] {
             for (domain, expected) in [
-                ("(1..2) \\X (1..2)", None),
+                ("(1..2) \\X (1..2)", Some(false)),
                 ("(1..1000000000) \\X (1..2)", None),
                 ("(1..2) \\X ((1..1000000000) \\X (1..2))", None),
             ] {
                 let source = format!(
                     "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\E <<i,j>> \\in {domain}: x'=i /\\ x=i\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
                 );
-                with_wrappers(&source, tlc, |_, driver, atoms, control| {
-                    assert_eq!(
-                        atoms.eligible, 0,
-                        "existing product source certificate stays conservative"
-                    );
+                with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
+                    assert_eq!(atoms.eligible, 1, "Core plan facts admit products");
                     let atom = driver.native_predicates().next().expect("enabled");
                     assert_eq!(
-                        atoms
-                            .evaluate(atom, &[Handle::int(0).expect("zero")], None, control)
-                            .expect("bounded product"),
-                        expected
+                        agree(prepared, atoms, atom, control, &[int(0)], None),
+                        expected,
+                        "{domain}"
                     );
                 });
             }
@@ -2142,21 +2293,26 @@ mod tests {
                     .native_predicates()
                     .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
                     .expect("enabled");
-                let mut heap = dive_core::Heap::new(prepared.store.clone(), false, false);
-                let z = Handle::int(0).expect("zero");
-                let one = Handle::int(1).expect("one");
-                let two = Handle::int(2).expect("two");
+                // Key 1 is the first candidate: wherever it exists, the first
+                // successor changes x and the reference reaches no missing key.
+                // Boolean keys make the comparison fail, so Core declines.
+                let ctx = prepared.model.evaluator.options().ctx;
+                let bool = dive_value::Value::Bool;
                 for (keys, want) in [
-                    (vec![one, two], Some(true)),
-                    (vec![z, one], None),
-                    (vec![one], None),
-                    (vec![one, two, Handle::int(3).expect("three")], None),
-                    (vec![Handle::bool(false), Handle::bool(true)], None),
+                    (vec![int(1), int(2)], Some(true)),
+                    (vec![int(0), int(1)], Some(true)),
+                    (vec![int(1)], Some(true)),
+                    (vec![int(1), int(2), int(3)], Some(true)),
+                    (vec![int(0)], None),
+                    (vec![bool(false), bool(true)], None),
                 ] {
-                    let f = heap.fcn_sorted(&keys, &vec![z; keys.len()]);
-                    let f = heap.intern_exact(f).expect("persistent");
+                    let f = dive_value::Value::fcn(
+                        keys.iter().map(|k| (k.clone(), int(0))).collect(),
+                        ctx,
+                    )
+                    .expect("function");
                     assert_eq!(
-                        atoms.evaluate(atom, &[f, z], None, control).expect("query"),
+                        agree(prepared, atoms, atom, control, &[f, int(0)], None),
                         want,
                         "keys={keys:?}"
                     );

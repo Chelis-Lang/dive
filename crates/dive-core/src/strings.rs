@@ -122,6 +122,17 @@ impl Strings {
         self.sealed.load(AtomicOrdering::Acquire)
     }
 
+    /// The id of `text` if the table already holds it, never assigning one.
+    #[must_use]
+    pub fn lookup(&self, text: &str) -> Option<u32> {
+        self.inner
+            .read()
+            .unwrap_or_else(PoisonError::into_inner)
+            .ids
+            .get(text)
+            .copied()
+    }
+
     /// The id of `text`, assigning one if it is new.
     ///
     /// # Errors

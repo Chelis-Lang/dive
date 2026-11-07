@@ -2428,6 +2428,7 @@ mod tests {
             effects: Effects::default(),
             view: None,
             stats: CompileStats::default(),
+            bound_preset: Vec::new(),
         })
     }
 
