@@ -974,11 +974,15 @@ pub(crate) fn safety_result(
     }
     if plan.effects.prints
         && !owned_budget
+        && !out.printed.is_empty()
         && (out.verdict != dive_explore::Verdict::Success || !out.warnings.is_empty())
     {
         // TLC prints again while it rebuilds a trace or reports an error,
         // and interleaves warnings with the output; the core does not
-        // reproduce either yet.
+        // reproduce either yet. A search that printed nothing is exempt:
+        // TLC's rebuild and error report re-evaluate only what the search
+        // evaluated, so they print nothing either (a `Print` in a disjunct
+        // reached only after a violation, as in a trace export).
         let v = match out.verdict {
             dive_explore::Verdict::Unsupported { feature } => unsupported(feature),
             dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
