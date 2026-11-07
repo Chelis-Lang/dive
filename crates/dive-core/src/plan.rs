@@ -753,7 +753,9 @@ pub struct CompileStats {
     /// argument alone (`Node::Beta`).
     pub beta: u64,
     /// Constant definitions the binder left to the core, evaluated here
-    /// ([`crate::compile::Handoff::deferred`]).
+    /// ([`crate::compile::Handoff::deferred`]), and closed zero-arity
+    /// definitions too large to fold, evaluated once at their first use
+    /// ([`crate::compile::SETTLE_FUEL`]).
     pub startup_values: usize,
     /// Wall time spent evaluating them, in nanoseconds.
     pub startup_nanos: u64,

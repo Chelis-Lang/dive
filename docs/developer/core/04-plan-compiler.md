@@ -105,6 +105,17 @@ section 4 decide.
      was rebuilt in every state (72% of the run in `set_bin`). CoffeeCan's
      initial filter (10,201 records at 100 beans) still exceeds it and
      streams.
+   - **Closed definitions.** The body of a closed zero-arity top-level
+     definition whose fold ran out of fuel is evaluated once, at its first
+     use outside any `INSTANCE` substitution, within `SETTLE_FUEL` (2^22)
+     loop elements, `SETTLE_BUDGET` (2^24) for the compile, and
+     `STARTUP_TRANSIENT_BYTES` of transient memory, as TLC evaluates a
+     constant definition at start-up. The value replaces the body, as a fold
+     would, and is counted in `startup_values`. An evaluation that fails or
+     exceeds a bound changes nothing, so the body is evaluated where it is
+     used and an error surfaces only there. LeastCircularSubstring's
+     `Corpus == ZSeq(CharacterSet)` (9,841 sequences in the Medium model)
+     was rebuilt in every state that tested membership in it.
 2. **INSTANCE substitution.** `Subst` bodies and `SubstRef` uses
    (`crates/dive-ir/src/expr.rs:342`, `:495`) are inlined by name: each
    reference is replaced by the bound argument expression in the substituting
