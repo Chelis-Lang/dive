@@ -12,7 +12,7 @@ fn coverage_reports_native_work_and_keeps_unimplemented_tlc_property_roles_refus
             file.to_str().ok_or("path")?,
             "--source-coverage",
             "--engine",
-            "auto",
+            "reference",
             "--workers",
             "4",
             "--seed",
@@ -29,7 +29,7 @@ fn coverage_reports_native_work_and_keeps_unimplemented_tlc_property_roles_refus
         assert_eq!(output.status.code(), Some(0), "{output:?}");
         let doc: serde_json::Value = serde_json::from_slice(&output.stdout)?;
         assert_eq!(doc["verdict"], "success");
-        assert_eq!(doc["engine"], "reference");
+        assert_ne!(doc["engine"], "core");
         assert_eq!(doc["options"]["workers"]["requested"], 4);
         assert_eq!(doc["options"]["workers"]["used"], 1);
         assert_eq!(doc["source_coverage"]["metric"], "native-source-work");
@@ -41,6 +41,13 @@ fn coverage_reports_native_work_and_keeps_unimplemented_tlc_property_roles_refus
                     && row["counts"]["evaluations"].as_u64().is_some_and(|n| n > 0)))
         );
     }
+    // The default engine (Core) refuses source coverage by name.
+    let default = Command::new(env!("CARGO_BIN_EXE_dive"))
+        .args(["check", file.to_str().ok_or("path")?, "--source-coverage"])
+        .env_remove("DIVE_ENGINE")
+        .output()?;
+    assert_eq!(default.status.code(), Some(3), "{default:?}");
+    assert!(String::from_utf8_lossy(&default.stderr).contains("--engine reference"));
     let refused = Command::new(env!("CARGO_BIN_EXE_dive"))
         .args(["tlc", "-coverage", "0", file.to_str().ok_or("path")?])
         .output()?;

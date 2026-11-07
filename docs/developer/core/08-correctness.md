@@ -20,38 +20,32 @@ This document says how the new core uses them.
 
 ## 2. Engine selection
 
-- `dive check --engine=reference|core|auto`, or `DIVE_ENGINE`. The default
-  stays `reference` until M4. The same choice is available through
-  `dive_api::check_file_engine`.
-- **JSON report.** It names the engine that ran (`engine`). Under `auto` it
-  also carries `engine_requested` and the fallback (`engine_fallback`: stage
-  and reason, or `null`).
+- `dive check --engine=core|reference`, or `DIVE_ENGINE`. Core is the
+  default of `dive check`, `dive simulate`, `dive dfid` and `dive tlc`
+  (ADR 0153). The same choice is available through
+  `dive_api::check_file_engine`; `dive_api::check_file` runs Core.
+- **JSON report.** A check that ran on Core names it (`engine: core`).
+  Simulation and DFID reports keep `engine_requested` and a `null`
+  `engine_fallback` in schema 3.
 - **Harness and bench.** They run any engine unchanged, because they invoke
-  the binary as a black box (`crates/dive-conformance/src/dive.rs`;
-  `crates/dive-bench/src/main.rs`).
+  the binary as a black box and always pass `--engine`
+  (`crates/dive-conformance/src/dive.rs`; `crates/dive-bench/src/main.rs`).
 
-## 3. Static fallback (`--engine=auto`, built in M1)
+## 3. No fallback
 
-- **`--engine=core` never falls back.** A refusal is an `unsupported`
-  result naming the feature, so tests and benchmarks cannot be satisfied by
-  the reference engine. This is the role the design gave `--no-fallback`.
-- **Refusal before the search (static).** The core refuses, naming the
-  feature, any construct or run option it does not implement. Examples are
-  disk seen sets, `--chaos`, unproved evaluation options and plan constructs,
-  and checkpoints. Exact safety stores, ordered frontier spill and predecessor
-  spill are supported; their temporal combinations still refuse. With
-  `--engine=auto`, the reference engine runs an unsupported whole check.
-- **Refusal during the search (dynamic).** The core aborts when it meets an
-  unsupported case during the run: a lazily represented value it cannot
-  enumerate, a mixed-class set, or an error ending it cannot reproduce. Auto
-  discards the core's result, counts and output (the core buffers all
-  output), reruns the whole check on the reference engine under the same
-  armed budget, and reports both facts. It never continues mid-run on
-  another engine.
-- **Implementation.** `crates/dive-api/src/check.rs` (the dispatch) and
-  `core_engine::Fallback`. `crates/dive-api/tests/core_auto.rs` runs every
-  core fixture under auto. Each run must equal the core's result, or the
-  reference engine's result with a named fallback. Both stages are covered.
+- **Core never falls back.** A refusal is an `unsupported` result naming the
+  feature, so tests and benchmarks cannot be satisfied by the reference
+  engine. The former `--engine=auto`, which reran a refused check on the
+  reference engine, was removed with the cutover; `--engine auto` is a usage
+  error. What Auto selected the reference engine for before the search is a
+  named Core refusal: source and TLC coverage, external inputs (`--allow-io`)
+  and Reference checkpoint archives, which recover only with
+  `--engine reference`. Disk seen sets, checkpoint pause and finite-mode
+  random/register effects run on Core or refuse there by name.
+- **Implementation.** `crates/dive-api/src/check.rs` (the dispatch).
+  `crates/dive-api/tests/core_default.rs` runs every core fixture on the
+  default engine: each run must equal the explicit Core result, and every
+  refusal must be named.
 
 ## 4. Shadow comparison
 
@@ -130,22 +124,12 @@ How to run it:
 cargo build --release -p dive-cli -p dive-conformance
 target/release/dive-conformance shadow --corpus examples --tier small \
   --workers 1,4 --tlc-budgets --budget-cap 900 --jobs 2
-scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt   # CI's list
 ```
 
-Where it runs:
-
-- CI's `Conformance gate` job runs `scripts/shadow-gate.sh` on
-  `conformance/gates/shadow-smoke.txt`, under `--strict`. The list has 26
-  examples models the core runs, invariant violations (stops, whose counts
-  are compared at one worker only) and complete searches, each under 0.7 s
-  for both engines at both worker counts on an M3, where the whole list
-  takes about 2 s. The step should stay within about 30 s on CI.
-- `cargo xtask gate --full` shadows `conformance/gates/cm1.txt` at 1, 4 and
-  8 workers, then the whole small tier (the four corpora of the small-tier
-  runs) at 1 and 4 workers, both without `--strict`, so models the core
-  refuses are counted, not failed. On cm1 (21 models), 10 agree at all
-  three worker counts and 11 are refused (2026-10-27).
+Where it runs: by hand, for a Reference-vs-Core census. Since Core became the
+default engine, neither CI nor `cargo xtask gate --full` runs the shadow
+comparison; their gates compare Core with the TLC goldens and the Core
+baselines.
 - Results on the small tier (2026-10-27, after model values, #533; 156
   models at 1 and 4 workers): 50 models agree at both worker counts and
   106 are refused by the core. There is no difference, refuted trace,

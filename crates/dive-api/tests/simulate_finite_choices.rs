@@ -37,11 +37,6 @@ fn native_random_steps_and_startup_have_reproducible_validated_samples() {
             .expect("same seed")
             .to_json();
         assert_eq!(first["traces"], repeated["traces"]);
-        let automatic = simulate_file_engine(&request, Engine::Auto)
-            .expect("Auto request")
-            .to_json();
-        assert_eq!(automatic["result"], "sampled", "{automatic}");
-        assert_eq!(first["traces"], automatic["traces"]);
     }
     check_action_contexts(&file);
     std::fs::write(&file,"---- MODULE Choices ----\nEXTENDS TLC\nVARIABLE x\nInit==x=TLCGet(\"config\").seed\nNext==UNCHANGED x\n====\n").expect("configuration source");

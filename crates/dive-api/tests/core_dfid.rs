@@ -1,5 +1,5 @@
 //! Core DFID preserves finite visitation certificates and actual concrete words.
-use dive_api::{DfidRequest, Engine, dfid_file, dfid_file_engine};
+use dive_api::{DfidRequest, Engine, dfid_file_engine};
 use std::path::PathBuf;
 
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -33,7 +33,9 @@ fn native_deterministic_search_matches_reference_certificates_counts_and_names()
                     "DfidDeadlock",
                 ] {
                     let request = request(name, compat, exact, seed);
-                    let reference = dfid_file(&request)?.to_json();
+                    let reference =
+                        dive_api::dfid_file_engine(&request, dive_api::Engine::Reference)?
+                            .to_json();
                     let core = dfid_file_engine(&request, Engine::Core)?.to_json();
                     assert_eq!(core["engine"], "core", "{name}: {core}");
                     assert_eq!(core["engine_requested"], "core");
@@ -68,16 +70,17 @@ fn native_deterministic_search_matches_reference_certificates_counts_and_names()
 }
 
 #[test]
-fn native_depth_exhaustion_remains_incomplete_and_auto_reports_core() -> Result {
+fn native_depth_exhaustion_remains_incomplete_on_the_default_core_engine() -> Result {
     for compat in [false, true] {
         for depth in [0, 1, 2, 4] {
             let request = DfidRequest {
                 max_level: depth,
                 ..request("DfidBound", compat, true, 0)
             };
-            let report = dfid_file_engine(&request, Engine::Auto)?.to_json();
+            let report = dive_api::dfid_file(&request)?.to_json();
             assert_eq!(report["engine"], "core", "{report}");
-            assert_eq!(report["engine_requested"], "auto");
+            assert_eq!(report["engine_requested"], "core");
+            assert!(report["engine_fallback"].is_null());
             assert_eq!(report["result"], "incomplete");
             assert_eq!(report["model_proved"], false);
             assert_eq!(report["termination"], "depth-bound");
@@ -103,8 +106,10 @@ fn enumerated_compound_batches_match_pinned_counts_and_actual_words() -> Result 
                     worker_seeds: Some(vec![0; 6]),
                     ..Default::default()
                 };
-                let reference = dfid_file(&request)?.to_json();
-                for engine in [Engine::Core, Engine::Auto] {
+                let reference =
+                    dive_api::dfid_file_engine(&request, dive_api::Engine::Reference)?.to_json();
+                {
+                    let engine = Engine::Core;
                     let actual = dfid_file_engine(&request, engine)?.to_json();
                     assert_eq!(actual["engine"], "core", "{name}: {actual}");
                     for field in [
@@ -173,7 +178,8 @@ fn closed_compound_candidates_preserve_reference_normalization_and_completion() 
                 seed: Some(7),
                 ..Default::default()
             };
-            let reference = dfid_file(&request)?.to_json();
+            let reference =
+                dive_api::dfid_file_engine(&request, dive_api::Engine::Reference)?.to_json();
             let native = dfid_file_engine(&request, Engine::Core)?.to_json();
             for field in [
                 "result",

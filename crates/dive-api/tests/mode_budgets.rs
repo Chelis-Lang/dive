@@ -1,5 +1,5 @@
 //! Finite execution modes stop with actual resource evidence and prefix progress.
-use dive_api::{BudgetSetting, DfidRequest, SimulateRequest, dfid_file, simulate_file};
+use dive_api::{BudgetSetting, DfidRequest, SimulateRequest};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -68,34 +68,46 @@ fn stopped(document: &Value, resource: &str, phase: &str) {
 fn both_modes_stop_on_time_and_memory_in_both_profiles() -> Result {
     let (_scratch, file) = model("0")?;
     for compat in [false, true] {
-        let simulation = simulate_file(&SimulateRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(20)),
-            ..simulation(&file, compat)
-        })?;
+        let simulation = dive_api::simulate_file_engine(
+            &SimulateRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(20)),
+                ..simulation(&file, compat)
+            },
+            dive_api::Engine::Reference,
+        )?;
         assert_eq!(simulation.exit_code(), 5);
         stopped(&simulation.to_json(), "time", "simulation");
-        let iterative = dfid_file(&DfidRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(20)),
-            ..dfid(&file, compat)
-        })?;
+        let iterative = dive_api::dfid_file_engine(
+            &DfidRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(20)),
+                ..dfid(&file, compat)
+            },
+            dive_api::Engine::Reference,
+        )?;
         assert_eq!(iterative.exit_status(), 5, "{}", iterative.to_json());
         stopped(&iterative.to_json(), "time", "dfid");
         for (document, phase) in [
             (
-                simulate_file(&SimulateRequest {
-                    max_memory: BudgetSetting::Explicit(1),
-                    time_limit: BudgetSetting::Unlimited,
-                    ..self::simulation(&file, compat)
-                })?
+                dive_api::simulate_file_engine(
+                    &SimulateRequest {
+                        max_memory: BudgetSetting::Explicit(1),
+                        time_limit: BudgetSetting::Unlimited,
+                        ..self::simulation(&file, compat)
+                    },
+                    dive_api::Engine::Reference,
+                )?
                 .to_json(),
                 "simulation",
             ),
             (
-                dfid_file(&DfidRequest {
-                    max_memory: BudgetSetting::Explicit(1),
-                    time_limit: BudgetSetting::Unlimited,
-                    ..dfid(&file, compat)
-                })?
+                dive_api::dfid_file_engine(
+                    &DfidRequest {
+                        max_memory: BudgetSetting::Explicit(1),
+                        time_limit: BudgetSetting::Unlimited,
+                        ..dfid(&file, compat)
+                    },
+                    dive_api::Engine::Reference,
+                )?
                 .to_json(),
                 "dfid",
             ),
@@ -111,17 +123,23 @@ fn bulk_initial_predicate_is_interrupted_before_emitting_a_state() -> Result {
     let (_scratch, file) =
         model("IF (\\A i \\in 1..1000: \\A j \\in 1..1000: i + j >= 0) THEN 0 ELSE 1")?;
     for compat in [false, true] {
-        let simulation = simulate_file(&SimulateRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(10)),
-            ..simulation(&file, compat)
-        })?
+        let simulation = dive_api::simulate_file_engine(
+            &SimulateRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(10)),
+                ..simulation(&file, compat)
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json();
         stopped(&simulation, "time", "simulation");
         assert_eq!(simulation["statistics"]["initial_candidates"], 0);
-        let iterative = dfid_file(&DfidRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(10)),
-            ..dfid(&file, compat)
-        })?
+        let iterative = dive_api::dfid_file_engine(
+            &DfidRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(10)),
+                ..dfid(&file, compat)
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json();
         stopped(&iterative, "time", "dfid");
         assert_eq!(iterative["statistics"]["initial_candidates"], 0);
@@ -139,11 +157,15 @@ fn unlimited_and_generous_budgets_preserve_seeded_samples() -> Result {
             time_limit: BudgetSetting::Unlimited,
             ..simulation(&file, compat)
         };
-        let unlimited = simulate_file(&request)?.to_json();
-        let generous = simulate_file(&SimulateRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_secs(60)),
-            ..request
-        })?
+        let unlimited =
+            dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
+        let generous = dive_api::simulate_file_engine(
+            &SimulateRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_secs(60)),
+                ..request
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json();
         assert_eq!(unlimited["traces"], generous["traces"]);
         assert_eq!(unlimited["statistics"], generous["statistics"]);
@@ -153,11 +175,14 @@ fn unlimited_and_generous_budgets_preserve_seeded_samples() -> Result {
             generous["options"]["budget"]["time_limit_source"],
             "explicit"
         );
-        let refused = simulate_file(&SimulateRequest {
-            workers: Some(8),
-            max_memory: BudgetSetting::Explicit(1),
-            ..simulation(&file, compat)
-        })?
+        let refused = dive_api::simulate_file_engine(
+            &SimulateRequest {
+                workers: Some(8),
+                max_memory: BudgetSetting::Explicit(1),
+                ..simulation(&file, compat)
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json();
         assert_eq!(refused["result"], "unsupported");
         assert_eq!(refused["options"]["workers_used"], 0);
@@ -175,11 +200,14 @@ fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
                 time_limit: BudgetSetting::Unlimited,
                 ..dfid(&file, compat)
             };
-            let expected = dfid_file(&request)?;
-            let limited = dfid_file(&DfidRequest {
-                max_memory: BudgetSetting::Explicit(1),
-                ..request
-            })?;
+            let expected = dive_api::dfid_file_engine(&request, dive_api::Engine::Reference)?;
+            let limited = dive_api::dfid_file_engine(
+                &DfidRequest {
+                    max_memory: BudgetSetting::Explicit(1),
+                    ..request
+                },
+                dive_api::Engine::Reference,
+            )?;
             let expected_json = expected.to_json();
             let limited_json = limited.to_json();
             assert_eq!(limited.exit_status(), expected.exit_status());
@@ -194,11 +222,14 @@ fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
             time_limit: BudgetSetting::Unlimited,
             ..simulation(&file, compat)
         };
-        let expected = simulate_file(&request)?;
-        let limited = simulate_file(&SimulateRequest {
-            max_memory: BudgetSetting::Explicit(1),
-            ..request
-        })?;
+        let expected = dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?;
+        let limited = dive_api::simulate_file_engine(
+            &SimulateRequest {
+                max_memory: BudgetSetting::Explicit(1),
+                ..request
+            },
+            dive_api::Engine::Reference,
+        )?;
         assert_eq!(limited.exit_code(), expected.exit_code());
         assert_eq!(limited.to_json()["result"], expected.to_json()["result"]);
         assert_eq!(limited.to_json()["message"], expected.to_json()["message"]);
@@ -210,11 +241,14 @@ fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
             time_limit: BudgetSetting::Unlimited,
             ..dfid(&file, compat)
         };
-        let expected = dfid_file(&request)?;
-        let limited = dfid_file(&DfidRequest {
-            max_memory: BudgetSetting::Explicit(1),
-            ..request
-        })?;
+        let expected = dive_api::dfid_file_engine(&request, dive_api::Engine::Reference)?;
+        let limited = dive_api::dfid_file_engine(
+            &DfidRequest {
+                max_memory: BudgetSetting::Explicit(1),
+                ..request
+            },
+            dive_api::Engine::Reference,
+        )?;
         assert_eq!(expected.to_json()["result"], "resource-limit");
         assert_eq!(limited.exit_status(), expected.exit_status());
         assert_eq!(limited.to_json()["result"], expected.to_json()["result"]);
@@ -226,11 +260,14 @@ fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
         time_limit: BudgetSetting::Unlimited,
         ..simulation(&file, true)
     };
-    let expected = simulate_file(&request)?;
-    let limited = simulate_file(&SimulateRequest {
-        max_memory: BudgetSetting::Explicit(1),
-        ..request
-    })?;
+    let expected = dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?;
+    let limited = dive_api::simulate_file_engine(
+        &SimulateRequest {
+            max_memory: BudgetSetting::Explicit(1),
+            ..request
+        },
+        dive_api::Engine::Reference,
+    )?;
     assert_eq!(expected.to_json()["result"], "resource-limit");
     assert_eq!(limited.exit_code(), expected.exit_code());
     assert_eq!(limited.to_json()["result"], expected.to_json()["result"]);
@@ -245,12 +282,15 @@ fn simulation_does_not_replay_a_retained_prefix_after_exhaustion() -> Result {
     for compat in [false, true] {
         for (traces, depth) in [(100_000, 10), (1, 10_000_000)] {
             let start = std::time::Instant::now();
-            let report = simulate_file(&SimulateRequest {
-                traces,
-                depth: Some(depth),
-                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
-                ..simulation(&file, compat)
-            })?;
+            let report = dive_api::simulate_file_engine(
+                &SimulateRequest {
+                    traces,
+                    depth: Some(depth),
+                    time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+                    ..simulation(&file, compat)
+                },
+                dive_api::Engine::Reference,
+            )?;
             stopped(&report.to_json(), "time", "simulation");
             assert_eq!(report.to_json()["traces"], serde_json::json!([]));
             assert!(start.elapsed() < Duration::from_secs(3));

@@ -19,7 +19,7 @@ fn a_different_diagnostic_cause_refuses_without_retagging_or_publishing_an_inval
         ("LaterOverflowDiagnosticDiv", "TLC_MODULE_OVERFLOW"),
     ] {
         let file = fixture(name);
-        for (engine, workers) in [Engine::Reference, Engine::Core, Engine::Auto]
+        for (engine, workers) in [Engine::Reference, Engine::Core]
             .into_iter()
             .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
         {

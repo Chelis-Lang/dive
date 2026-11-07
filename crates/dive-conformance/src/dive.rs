@@ -96,27 +96,26 @@ pub struct DiveProvenance {
 /// baseline; reports record it, and each row the engine that ran.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum DiveEngine {
-    /// The reference checker, `dive check`'s default.
+    /// The compiled core, `dive check`'s default (ADR 0153), which refuses
+    /// what it does not implement.
     #[default]
-    Reference,
-    /// The new core, which refuses what it does not implement.
     Core,
-    /// The core where it runs the check, the reference engine otherwise.
-    Auto,
+    /// The reference checker, an explicit opt-in.
+    Reference,
 }
 
 impl DiveEngine {
-    /// Parses `reference`, `core` or `auto`.
+    /// Parses `core` or `reference`.
     ///
     /// # Errors
-    /// A usage error naming the accepted engines.
+    /// A usage error naming the accepted engines (`auto` was removed with
+    /// the Reference fallback).
     pub fn parse(s: &str) -> Result<Self> {
         match s {
             "reference" => Ok(Self::Reference),
             "core" => Ok(Self::Core),
-            "auto" => Ok(Self::Auto),
             _ => Err(Error::Usage(format!(
-                "unknown dive engine `{s}`: expected reference, core or auto"
+                "unknown dive engine `{s}`: expected core or reference"
             ))),
         }
     }
@@ -138,7 +137,6 @@ impl DiveEngine {
         match self {
             Self::Reference => "reference",
             Self::Core => "core",
-            Self::Auto => "auto",
         }
     }
 }
@@ -354,14 +352,8 @@ impl DiveImplementation {
             extra
                 .extend::<[&std::ffi::OsStr; 2]>(["--action-composition".as_ref(), "tlc".as_ref()]);
         }
-        // Older binaries have no `--engine`; the reference engine is their
-        // only one, so the flag is passed only for another engine.
-        if self.engine != DiveEngine::Reference {
-            extra.extend::<[&std::ffi::OsStr; 2]>([
-                "--engine".as_ref(),
-                self.engine.name().as_ref(),
-            ]);
-        }
+        // Always explicit: the binary's default engine is not assumed.
+        extra.extend::<[&std::ffi::OsStr; 2]>(["--engine".as_ref(), self.engine.name().as_ref()]);
         if let Some(n) = &sample {
             extra.extend::<[&std::ffi::OsStr; 2]>(["--core-sample".as_ref(), n.as_ref()]);
         }
@@ -1537,7 +1529,9 @@ mod tests {
         let fallback = fell.and_then(|e| e.fallback);
         assert_eq!(fallback.as_ref().map(|f| f.stage.as_str()), Some("static"));
         assert_eq!(fallback.map(|f| f.reason), Some("SYMMETRY".to_owned()));
-        assert_eq!(DiveEngine::parse("auto")?, DiveEngine::Auto);
+        assert_eq!(DiveEngine::parse("core")?, DiveEngine::Core);
+        assert_eq!(DiveEngine::default(), DiveEngine::Core);
+        assert!(DiveEngine::parse("auto").is_err());
         assert!(DiveEngine::parse("fast").is_err());
         Ok(())
     }
@@ -1626,15 +1620,18 @@ mod tests {
                     "INIT Init\nNEXT Next\n"
                 },
             )?;
-            let report = dive_api::check_file(&CheckRequest {
-                file: file.clone(),
-                compat_tlc: true,
-                fp: Some(0),
-                seed: Some(0),
-                time_limit: BudgetSetting::Explicit(limit),
-                max_memory: BudgetSetting::Unlimited,
-                ..CheckRequest::default()
-            })?;
+            let report = dive_api::check_file_engine(
+                &CheckRequest {
+                    file: file.clone(),
+                    compat_tlc: true,
+                    fp: Some(0),
+                    seed: Some(0),
+                    time_limit: BudgetSetting::Explicit(limit),
+                    max_memory: BudgetSetting::Unlimited,
+                    ..CheckRequest::default()
+                },
+                dive_api::Engine::Reference,
+            )?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             let status = i32::from(report.exit_code_for(ExitConvention::Tlc));
             let mapped = |value: &Value| {
@@ -1710,16 +1707,19 @@ mod tests {
         )?;
         for compat_tlc in [false, true] {
             for temporal in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-                let report = dive_api::check_file(&CheckRequest {
-                    file: file.clone(),
-                    compat_tlc,
-                    seed: Some(0),
-                    fp: Some(0),
-                    max_memory: BudgetSetting::Explicit(1),
-                    time_limit: BudgetSetting::Unlimited,
-                    temporal,
-                    ..CheckRequest::default()
-                })?;
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        compat_tlc,
+                        seed: Some(0),
+                        fp: Some(0),
+                        max_memory: BudgetSetting::Explicit(1),
+                        time_limit: BudgetSetting::Unlimited,
+                        temporal,
+                        ..CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )?;
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(value["verdict"], "stopped");
                 assert_eq!(value["stopped"]["resource"], "memory");
@@ -2067,17 +2067,20 @@ mod symmetry_policy_transport_tests {
     fn actual(tlc: bool) -> Value {
         let file = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla");
-        dive_api::check_file(&dive_api::CheckRequest {
-            file,
-            compat_tlc: tlc,
-            symmetry_liveness: tlc.then_some(dive_api::SymmetryLiveness::Unreduced),
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            time_limit: dive_api::BudgetSetting::Unlimited,
-            max_memory: dive_api::BudgetSetting::Unlimited,
-            ..Default::default()
-        })
+        dive_api::check_file_engine(
+            &dive_api::CheckRequest {
+                file,
+                compat_tlc: tlc,
+                symmetry_liveness: tlc.then_some(dive_api::SymmetryLiveness::Unreduced),
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                time_limit: dive_api::BudgetSetting::Unlimited,
+                max_memory: dive_api::BudgetSetting::Unlimited,
+                ..Default::default()
+            },
+            dive_api::Engine::Reference,
+        )
         .expect("real finite writer")
         .to_json_with_exit_convention(dive_api::ExitConvention::Tlc)
     }

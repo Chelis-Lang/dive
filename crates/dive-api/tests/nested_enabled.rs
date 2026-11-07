@@ -22,17 +22,20 @@ fn nested_enabled_primary_public_results_keep_existing_schema_and_statuses() -> 
     for compat_tlc in [true, false] {
         for store in [Store::Fingerprint, Store::Exact] {
             for (name, violation) in [("hold", false), ("fail", true)] {
-                let report = dive_api::check_file(&CheckRequest {
-                    file: directory.join("NestedEnabled.tla"),
-                    config: Some(directory.join(format!("{name}.cfg"))),
-                    compat_tlc,
-                    store,
-                    temporal: TemporalMode::FinalShort,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..CheckRequest::default()
-                })?;
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        file: directory.join("NestedEnabled.tla"),
+                        config: Some(directory.join(format!("{name}.cfg"))),
+                        compat_tlc,
+                        store,
+                        temporal: TemporalMode::FinalShort,
+                        workers: Some(1),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )?;
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(value["schema_version"], 3);
                 assert_eq!(value["statistics"]["generated"], oracle["generated"]);
@@ -55,16 +58,19 @@ fn nested_enabled_primary_public_results_keep_existing_schema_and_statuses() -> 
                     "explicit FinalShort retains its existing qualification"
                 );
                 if compat_tlc && matches!(store, Store::Fingerprint) {
-                    let ordinary = dive_api::check_file(&CheckRequest {
-                        file: directory.join("NestedEnabled.tla"),
-                        config: Some(directory.join(format!("{name}.cfg"))),
-                        compat_tlc: true,
-                        temporal: TemporalMode::Ordinary,
-                        workers: Some(1),
-                        seed: Some(0),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    })?
+                    let ordinary = dive_api::check_file_engine(
+                        &CheckRequest {
+                            file: directory.join("NestedEnabled.tla"),
+                            config: Some(directory.join(format!("{name}.cfg"))),
+                            compat_tlc: true,
+                            temporal: TemporalMode::Ordinary,
+                            workers: Some(1),
+                            seed: Some(0),
+                            fp: Some(0),
+                            ..CheckRequest::default()
+                        },
+                        dive_api::Engine::Reference,
+                    )?
                     .to_json_with_exit_convention(ExitConvention::Tlc);
                     assert_eq!(ordinary["verdict"], value["verdict"]);
                     assert_eq!(ordinary["statistics"], value["statistics"]);
@@ -111,16 +117,19 @@ fn true_query_guard_preserves_final_selected_target_error_and_function_control()
                 &config,
                 format!("INIT Init\nNEXT {next}\nPROPERTY ActionCheck\n"),
             )?;
-            let report = dive_api::check_file(&CheckRequest {
-                file: file.clone(),
-                config: Some(config),
-                compat_tlc: true,
-                temporal: TemporalMode::FinalShort,
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                ..CheckRequest::default()
-            })?;
+            let report = dive_api::check_file_engine(
+                &CheckRequest {
+                    file: file.clone(),
+                    config: Some(config),
+                    compat_tlc: true,
+                    temporal: TemporalMode::FinalShort,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                },
+                dive_api::Engine::Reference,
+            )?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(
                 report.exit_code_for(ExitConvention::Tlc),
@@ -170,17 +179,20 @@ fn direct_query_instance_properties_keep_original_native_holds() -> TestResult {
         )?;
         for compat_tlc in [true, false] {
             for store in [Store::Fingerprint, Store::Exact] {
-                let report = dive_api::check_file(&CheckRequest {
-                    file: file.clone(),
-                    config: Some(config.clone()),
-                    compat_tlc,
-                    store,
-                    temporal: TemporalMode::FinalShort,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..CheckRequest::default()
-                })?;
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        config: Some(config.clone()),
+                        compat_tlc,
+                        store,
+                        temporal: TemporalMode::FinalShort,
+                        workers: Some(1),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )?;
                 let v = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(report.exit_code_for(ExitConvention::Tlc), 0, "{name}: {v}");
                 assert_eq!(v["verdict"], "success", "{name}");

@@ -111,7 +111,8 @@ fn candidate_spill_combines_with_disk_seen_and_refuses_other_backends() {
             req.seen_disk = Some(dive_api::SeenOptions::default());
             let actual = check_file_engine(&req, Engine::Core).expect("disk candidate check");
             assert_eq!(observed(&actual.to_json()), observed(&baseline.to_json()));
-            for engine in [Engine::Reference, Engine::Auto] {
+            {
+                let engine = Engine::Reference;
                 assert!(
                     check_file_engine(&req, engine).is_err(),
                     "backend must not ignore candidate policy"

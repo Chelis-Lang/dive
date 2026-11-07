@@ -1,9 +1,7 @@
 //! Explicit API admission, failure evidence and independent disk-search witnesses.
 #![allow(clippy::expect_used, reason = "test assertions")]
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{
-    CheckRequest, SeenOptions, Store, TemporalMode, check_file, check_file_checkpoint, checkpoint,
-};
+use dive_api::{CheckRequest, SeenOptions, Store, TemporalMode, checkpoint};
 use std::path::Path;
 
 #[test]
@@ -13,18 +11,21 @@ fn invariant_error_replay_reports_actual_continuation_and_verified_known_class()
     for compat_tlc in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             for width in [1, 4, 8] {
-                let json = check_file(&CheckRequest {
-                    file: file.clone(),
-                    config: Some(file.with_extension("cfg")),
-                    compat_tlc,
-                    store,
-                    workers: Some(width),
-                    seed: Some(7),
-                    fp: Some(0),
-                    chaos: Some(7),
-                    seen_disk: Some(SeenOptions::default()),
-                    ..CheckRequest::default()
-                })
+                let json = dive_api::check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        store,
+                        workers: Some(width),
+                        seed: Some(7),
+                        fp: Some(0),
+                        chaos: Some(7),
+                        seen_disk: Some(SeenOptions::default()),
+                        ..CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )
                 .expect("error report")
                 .to_json();
                 assert_eq!(json["statistics"]["generated"], 2);
@@ -72,12 +73,12 @@ fn malformed_and_unimplemented_requests_refuse_before_input_or_archive_access() 
         };
         request.seen_disk.as_mut().expect("policy").limits.entries = 0;
         assert!(
-            matches!(check_file(&request),Err(dive_api::ApiError::Rejected{message}) if message.contains("DIVE-S0700"))
+            matches!(dive_api::check_file_engine(&request, dive_api::Engine::Reference),Err(dive_api::ApiError::Rejected{message}) if message.contains("DIVE-S0700"))
         );
         request.seen_disk.as_mut().expect("policy").limits.entries = 16;
         request.temporal = TemporalMode::FinalShort;
         assert!(
-            matches!(check_file(&request),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
+            matches!(dive_api::check_file_engine(&request, dive_api::Engine::Reference),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
         );
         request.temporal = TemporalMode::Ordinary;
         let archive = checkpoint::Request {
@@ -87,7 +88,7 @@ fn malformed_and_unimplemented_requests_refuse_before_input_or_archive_access() 
             config_source_sha256: None,
         };
         assert!(
-            matches!(check_file_checkpoint(&request,&archive),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
+            matches!(dive_api::check_file_checkpoint_engine(&request,&archive, dive_api::Engine::Reference),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
         );
     }
 }
@@ -108,20 +109,23 @@ fn witness_case(name: &str, root: &Path) {
         .expect("independent model");
         for store in [Store::Fingerprint, Store::Exact] {
             for width in [1, 4, 8] {
-                let report = check_file(&CheckRequest {
-                    file: file.clone(),
-                    config: Some(config.clone()),
-                    seen_disk: Some(SeenOptions::default()),
-                    compat_tlc,
-                    store,
-                    workers: Some(width),
-                    seed: Some(7),
-                    fp: Some(0),
-                    chaos: Some(7),
-                    frontier_memory_bytes: Some(0),
-                    predecessor_memory_bytes: Some(0),
-                    ..CheckRequest::default()
-                })
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        config: Some(config.clone()),
+                        seen_disk: Some(SeenOptions::default()),
+                        compat_tlc,
+                        store,
+                        workers: Some(width),
+                        seed: Some(7),
+                        fp: Some(0),
+                        chaos: Some(7),
+                        frontier_memory_bytes: Some(0),
+                        predecessor_memory_bytes: Some(0),
+                        ..CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )
                 .expect("check");
                 let json = report.to_json();
                 assert_eq!(json["options"]["workers"]["requested"], width);
@@ -172,17 +176,20 @@ fn invariant_counterexample_has_independent_original_and_mutant_controls() {
 fn creation_failure_reports_no_initial_search_or_success() {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-check/tests/fixtures/disk-seen/DuplicateNext/DuplicateNext.tla");
-    let report = check_file(&CheckRequest {
-        file: file.clone(),
-        seen_disk: Some(SeenOptions {
-            directory: Some(file),
-            ..SeenOptions::default()
-        }),
-        workers: Some(8),
-        seed: Some(7),
-        fp: Some(0),
-        ..CheckRequest::default()
-    })
+    let report = dive_api::check_file_engine(
+        &CheckRequest {
+            file: file.clone(),
+            seen_disk: Some(SeenOptions {
+                directory: Some(file),
+                ..SeenOptions::default()
+            }),
+            workers: Some(8),
+            seed: Some(7),
+            fp: Some(0),
+            ..CheckRequest::default()
+        },
+        dive_api::Engine::Reference,
+    )
     .expect("typed result");
     let json = report.to_json();
     assert_eq!(json["verdict"], "resource-limit");
@@ -280,18 +287,21 @@ fn actual_print_events_refuse_unproved_disk_error_output() {
         for compat_tlc in [false, true] {
             for store in [Store::Fingerprint, Store::Exact] {
                 for width in [1, 4, 8] {
-                    let json = check_file(&CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc,
-                        store,
-                        seen_disk: Some(SeenOptions::default()),
-                        workers: Some(width),
-                        seed: Some(7),
-                        fp: Some(0),
-                        chaos: Some(7),
-                        ..CheckRequest::default()
-                    })
+                    let json = dive_api::check_file_engine(
+                        &CheckRequest {
+                            file: file.clone(),
+                            config: Some(file.with_extension("cfg")),
+                            compat_tlc,
+                            store,
+                            seen_disk: Some(SeenOptions::default()),
+                            workers: Some(width),
+                            seed: Some(7),
+                            fp: Some(0),
+                            chaos: Some(7),
+                            ..CheckRequest::default()
+                        },
+                        dive_api::Engine::Reference,
+                    )
                     .expect("diagnostic report")
                     .to_json();
                     assert_eq!(json["verdict"], "unsupported", "{name}: {json}");

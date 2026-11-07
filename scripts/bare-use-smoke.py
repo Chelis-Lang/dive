@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Check pinned Examples directly, without the harness's module search paths."""
+"""Check pinned Examples directly, without the harness's module search paths.
+
+The checks run on the default engine, which must be Core: every report must
+name `engine: core`.
+"""
 
 from __future__ import annotations
 
@@ -27,14 +31,16 @@ MODELS = (
 
 
 def expected_ewd_refusal(model: str, status: int, report: dict) -> bool:
+    # Exact Core refusal messages (owner-approved VIEW refusal; ADR 0153).
     reasons = {
-        "graph capture with VIEW requires quotient edge and closing-state evidence",
+        "temporal properties: graph capture with VIEW requires quotient edge and "
+        "closing-state evidence (core)",
         "a recursive function used other than applied (M1 core)",
         "an operator parameter of a recursive operator (M1 core)",
     }
     return (model == "ewd998/EWD998ChanID" and status == 3
             and report.get("verdict") == "unsupported" and report.get("message") in reasons
-            and ("engine" not in report or report["engine"] in {"core", "reference"}))
+            and report.get("engine") == "core")
 
 
 def main() -> int:
@@ -88,18 +94,18 @@ def main() -> int:
             str(binary), "check", source.name, "--output", "json", "--workers", "1",
             "--seed", "0", "--fp", "0", "--time-limit", "2m", "--max-memory", "2g",
         ])
-        # A successful report without `engine` is the legacy Reference path.
-        success_engine = report.get("engine", "reference")
-        if status == 0 and report.get("verdict") == "success" and success_engine in {"core", "reference"}:
+        # The default engine must be Core; a report without `engine` did not
+        # run on it.
+        if status == 0 and report.get("verdict") == "success" and report.get("engine") == "core":
             checked += 1
-            print(f"bare-use: {model}: success on {success_engine}", flush=True)
+            print(f"bare-use: {model}: success on core", flush=True)
             continue
         if expected_ewd_refusal(model, status, report):
             refused += 1
-            engine = report.get("engine", "not-started")
-            print(f"bare-use: {model}: named refusal on {engine}: {report['message']}", flush=True)
+            print(f"bare-use: {model}: named refusal on core: {report['message']}", flush=True)
             continue
-        sys.exit(f"bare-use: {model}: exit {status}, {report.get('verdict')}: "
+        sys.exit(f"bare-use: {model}: exit {status}, {report.get('verdict')} on "
+                 f"{report.get('engine', 'no engine')}: "
                  f"{report.get('message') or report.get('diagnostics')}")
     if arguments.analyze_only:
         print(f"bare-use: resolved={len(MODELS)}; checking not tested")

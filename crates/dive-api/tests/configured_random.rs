@@ -3,7 +3,7 @@
 #[path = "support/memory_observations.rs"]
 mod memory_observations;
 
-use dive_api::{CheckRequest, Store, check_file};
+use dive_api::{CheckRequest, Store};
 #[test]
 fn configured_random_corrects_both_wrong_verdicts_and_matches_direct_api_reports() {
     let dir = std::env::temp_dir().join(format!("dive-configured-random-{}", std::process::id()));
@@ -26,11 +26,15 @@ fn configured_random_corrects_both_wrong_verdicts_and_matches_direct_api_reports
                             chaos,
                             ..CheckRequest::default()
                         };
-                        let report = check_file(&request).expect("well-formed request");
+                        let report =
+                            dive_api::check_file_engine(&request, dive_api::Engine::Reference)
+                                .expect("well-formed request");
                         let original = std::fs::read_to_string(&file).expect("source");
                         let direct = original.replace("x'=C(", "x'=RandomElement(");
                         std::fs::write(&file, &direct).expect("direct counterpart");
-                        let expected = check_file(&request).expect("direct request");
+                        let expected =
+                            dive_api::check_file_engine(&request, dive_api::Engine::Reference)
+                                .expect("direct request");
                         std::fs::write(&file, &original).expect("restore configured source");
                         let mut j = report.to_json();
                         let mut counterpart = expected.to_json();
@@ -108,17 +112,20 @@ fn property_bearing_final_routes_do_not_return_configured_rng_false_verdicts() {
                     for store in [Store::Fingerprint, Store::Exact] {
                         for width in [1, 4, 8] {
                             for chaos in [None, Some(19)] {
-                                let r = check_file(&CheckRequest {
-                                    file: file.clone(),
-                                    temporal,
-                                    compat_tlc: compat,
-                                    store,
-                                    workers: Some(width),
-                                    seed: Some(7),
-                                    fp: Some(0),
-                                    chaos,
-                                    ..CheckRequest::default()
-                                })
+                                let r = dive_api::check_file_engine(
+                                    &CheckRequest {
+                                        file: file.clone(),
+                                        temporal,
+                                        compat_tlc: compat,
+                                        store,
+                                        workers: Some(width),
+                                        seed: Some(7),
+                                        fp: Some(0),
+                                        chaos,
+                                        ..CheckRequest::default()
+                                    },
+                                    dive_api::Engine::Reference,
+                                )
                                 .expect("request");
                                 let j = r.to_json();
                                 assert_eq!(j["verdict"], "unsupported", "{j}");

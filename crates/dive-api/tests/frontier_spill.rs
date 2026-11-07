@@ -1,7 +1,7 @@
 //! User-facing disk-frontier evidence and independent concrete witnesses.
 #![allow(clippy::expect_used, reason = "test assertions")]
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Store, check_file};
+use dive_api::{CheckRequest, Store};
 
 #[test]
 fn a_frontier_directory_without_a_budget_rejects_before_file_access() {
@@ -10,13 +10,18 @@ fn a_frontier_directory_without_a_budget_rejects_before_file_access() {
             dive_api::TemporalMode::Ordinary,
             dive_api::TemporalMode::FinalShort,
         ] {
-            let error = check_file(&CheckRequest {
-                file: std::path::PathBuf::from("missing-model-for-invalid-frontier-request.tla"),
-                frontier_directory: Some(std::path::PathBuf::from("unused-frontier-directory")),
-                compat_tlc,
-                temporal,
-                ..CheckRequest::default()
-            })
+            let error = dive_api::check_file_engine(
+                &CheckRequest {
+                    file: std::path::PathBuf::from(
+                        "missing-model-for-invalid-frontier-request.tla",
+                    ),
+                    frontier_directory: Some(std::path::PathBuf::from("unused-frontier-directory")),
+                    compat_tlc,
+                    temporal,
+                    ..CheckRequest::default()
+                },
+                dive_api::Engine::Reference,
+            )
             .expect_err("the directory must not be silently ignored");
             assert!(matches!(error, dive_api::ApiError::Rejected { message }
                 if message == "DIVE-A0100: frontier_directory requires frontier_memory_bytes"));
@@ -44,18 +49,21 @@ fn spilled_counterexamples_validate_and_corruptions_are_rejected() {
             .expect("model");
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
-                    let r = check_file(&CheckRequest {
-                        file: file.clone(),
-                        config: Some(config.clone()),
-                        compat_tlc,
-                        store,
-                        workers: Some(workers),
-                        seed: Some(7),
-                        fp: Some(0),
-                        chaos: Some(13),
-                        frontier_memory_bytes: Some(0),
-                        ..CheckRequest::default()
-                    })
+                    let r = dive_api::check_file_engine(
+                        &CheckRequest {
+                            file: file.clone(),
+                            config: Some(config.clone()),
+                            compat_tlc,
+                            store,
+                            workers: Some(workers),
+                            seed: Some(7),
+                            fp: Some(0),
+                            chaos: Some(13),
+                            frontier_memory_bytes: Some(0),
+                            ..CheckRequest::default()
+                        },
+                        dive_api::Engine::Reference,
+                    )
                     .expect("check");
                     let json = r.to_json();
                     assert_eq!(json["frontier_storage"]["retained_bytes"], 0);
@@ -80,16 +88,19 @@ fn disk_creation_failure_has_no_success_and_truthful_worker_evidence() {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(
         "../dive-check/tests/fixtures/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.tla",
     );
-    let r = check_file(&CheckRequest {
-        frontier_memory_bytes: Some(0),
-        frontier_directory: Some(file.clone()),
-        file,
-        compat_tlc: true,
-        workers: Some(8),
-        seed: Some(7),
-        fp: Some(0),
-        ..CheckRequest::default()
-    })
+    let r = dive_api::check_file_engine(
+        &CheckRequest {
+            frontier_memory_bytes: Some(0),
+            frontier_directory: Some(file.clone()),
+            file,
+            compat_tlc: true,
+            workers: Some(8),
+            seed: Some(7),
+            fp: Some(0),
+            ..CheckRequest::default()
+        },
+        dive_api::Engine::Reference,
+    )
     .expect("check");
     let j = r.to_json();
     assert_eq!(j["verdict"], "resource-limit");

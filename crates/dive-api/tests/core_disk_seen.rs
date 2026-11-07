@@ -147,7 +147,7 @@ fn disk_creation_and_entry_failure_are_resource_stops_without_certificates() {
 }
 
 #[test]
-fn disk_auto_keeps_its_static_whole_reference_backend() {
+fn disk_runs_on_the_default_core_engine_without_fallback() {
     let mut req = request(
         "tests/fixtures/core-m0/CompoundTrace.tla",
         true,
@@ -155,12 +155,17 @@ fn disk_auto_keeps_its_static_whole_reference_backend() {
         8,
     );
     req.seen_disk = Some(SeenOptions::default());
-    let doc = check_file_engine(&req, Engine::Auto)
-        .expect("static disk fallback")
+    let doc = dive_api::check_file(&req)
+        .expect("default disk check")
         .to_json();
-    assert_eq!(doc["engine"], "reference");
-    assert_eq!(doc["engine_fallback"]["stage"], "static");
-    assert_eq!(doc["options"]["workers"]["used"], 1);
+    let core = check_file_engine(&req, Engine::Core)
+        .expect("explicit Core disk check")
+        .to_json();
+    assert_eq!(doc["engine"], "core");
+    assert!(doc.get("engine_fallback").is_none());
+    for field in ["verdict", "statistics", "property", "counterexample"] {
+        assert_eq!(doc[field], core[field], "{field}");
+    }
 }
 
 #[test]

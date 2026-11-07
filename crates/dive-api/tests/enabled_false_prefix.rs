@@ -27,16 +27,19 @@ fn check(
     temporal: TemporalMode,
 ) -> Result<Value, Box<dyn std::error::Error>> {
     let (file, config) = spec(name);
-    Ok(dive_api::check_file(&CheckRequest {
-        file,
-        config: Some(config),
-        compat_tlc,
-        temporal,
-        seed: Some(0),
-        fp: Some(0),
-        workers: Some(1),
-        ..Default::default()
-    })?
+    Ok(dive_api::check_file_engine(
+        &CheckRequest {
+            file,
+            config: Some(config),
+            compat_tlc,
+            temporal,
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            ..Default::default()
+        },
+        dive_api::Engine::Reference,
+    )?
     .to_json_with_exit_convention(ExitConvention::Tlc))
 }
 
@@ -142,15 +145,18 @@ fn reached_filter_equality_reaches_the_division_error_in_the_tlc_profile() -> Te
     let file = dir.join("StartupFilterReachedError.tla");
     std::fs::write(&file, reached)?;
     let result = (|| -> TestResult {
-        let report = dive_api::check_file(&CheckRequest {
-            file: file.clone(),
-            config: Some(config.clone()),
-            compat_tlc: true,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            ..Default::default()
-        })?
+        let report = dive_api::check_file_engine(
+            &CheckRequest {
+                file: file.clone(),
+                config: Some(config.clone()),
+                compat_tlc: true,
+                seed: Some(0),
+                fp: Some(0),
+                workers: Some(1),
+                ..Default::default()
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json_with_exit_convention(ExitConvention::Tlc);
         assert_ne!(report["verdict"], "success", "{report}");
         assert!(report.to_string().contains("2179"), "{report}");

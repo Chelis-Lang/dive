@@ -36,6 +36,8 @@ fn selected_original_action_has_physical255_and_function_first_has_zero()
             format!("INIT Init\nNEXT {next}\nPROPERTY {property}\n"),
         )?;
         let output = Command::new(&binary)
+            // The reference engine this test was written for.
+            .env("DIVE_ENGINE", "reference")
             .arg("check")
             .arg(&file)
             .args([

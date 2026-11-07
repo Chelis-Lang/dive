@@ -73,7 +73,10 @@ fn required_action_error_is_general255_while_state_and_selected_function_succeed
     ] {
         let spec = Spec::new(next, property, "")?;
         for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-            let report = dive_api::check_file(&spec.request(true, mode))?;
+            let report = dive_api::check_file_engine(
+                &spec.request(true, mode),
+                dive_api::Engine::Reference,
+            )?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(
                 report.exit_code_for(ExitConvention::Tlc),
@@ -100,7 +103,10 @@ fn required_action_error_is_general255_while_state_and_selected_function_succeed
                 assert_eq!(value["verdict"], "success");
             }
         }
-        let default = dive_api::check_file(&spec.request(false, TemporalMode::FinalShort))?;
+        let default = dive_api::check_file_engine(
+            &spec.request(false, TemporalMode::FinalShort),
+            dive_api::Engine::Reference,
+        )?;
         assert_eq!(default.exit_code_for(ExitConvention::Tlc), 0);
     }
     Ok(())
@@ -108,7 +114,10 @@ fn required_action_error_is_general255_while_state_and_selected_function_succeed
 #[test]
 fn residual_state_error_remains_validation_refusal_without_a_false_word() -> TestResult {
     let spec = Spec::new("Next", "EventuallyEqual", "")?;
-    let report = dive_api::check_file(&spec.request(true, TemporalMode::FinalShort))?;
+    let report = dive_api::check_file_engine(
+        &spec.request(true, TemporalMode::FinalShort),
+        dive_api::Engine::Reference,
+    )?;
     let value = report.to_json();
     assert_eq!(report.verdict(), "unsupported");
     assert_eq!(value["execution"]["stage"], "validation");
@@ -125,7 +134,10 @@ fn state_nonboolean_and_uncertain_multi_property_errors_are_not_verified_tlc_err
         ("ActionCheck Other", "Other == <>[](FALSE)"),
     ] {
         let spec = Spec::new("Next", property, extra)?;
-        let report = dive_api::check_file(&spec.request(true, TemporalMode::FinalShort))?;
+        let report = dive_api::check_file_engine(
+            &spec.request(true, TemporalMode::FinalShort),
+            dive_api::Engine::Reference,
+        )?;
         let value = report.to_json();
         assert_eq!(report.verdict(), "unsupported", "{value}");
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
@@ -170,7 +182,7 @@ fn eliminated_false_action_candidate_still_refuses_attribution_without_a_word() 
     for store in [dive_api::Store::Fingerprint, dive_api::Store::Exact] {
         let mut request = spec.request(true, TemporalMode::FinalShort);
         request.store = store;
-        let report = dive_api::check_file(&request)?;
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
         let value = report.to_json();
         assert_eq!(report.verdict(), "unsupported", "{value}");
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);

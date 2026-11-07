@@ -6,8 +6,8 @@
 
 use std::path::PathBuf;
 
+use dive_api::SimulateRequest;
 use dive_api::trace::{ControlMode, SpecModel, Trace, TraceDoc, TraceOptions, Validation};
-use dive_api::{SimulateRequest, simulate_file};
 use serde_json::{Value, json};
 
 fn fixtures() -> PathBuf {
@@ -45,7 +45,8 @@ fn direct_captured_and_configured_prints_match_genuine_primary_words() {
         let depth = usize::try_from(row["depth"].as_u64().expect("depth")).expect("bounded depth");
         for compat_tlc in [false, true] {
             let req = request(name, depth, compat_tlc);
-            let report = simulate_file(&req).expect("simulation");
+            let report = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+                .expect("simulation");
             let result = report.to_json();
             check_print_statistics(&req, row, &result);
             if row["native_scope"] == "unsupported" && name != "RuntimePrintConditional" {
@@ -119,7 +120,8 @@ fn check_print_statistics(req: &SimulateRequest, row: &Value, plain: &Value) {
         action_stats: true,
         ..req.clone()
     };
-    let counted_report = simulate_file(&counted_req).expect("Print with basic statistics");
+    let counted_report = dive_api::simulate_file_engine(&counted_req, dive_api::Engine::Reference)
+        .expect("Print with basic statistics");
     let counted = counted_report.to_json();
     check_statistics_toggle_fields(&counted, plain);
     assert_eq!(counted["options"]["action_stats"], true);
@@ -253,9 +255,13 @@ fn print_domains_preserve_every_existing_seeded_choice_and_count() {
         req.traces = 3;
         req.seed = row["seed"].as_i64();
         req.aril = row["aril"].as_u64().expect("aril");
-        let printed = simulate_file(&req).expect("printed run").to_json();
+        let printed = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+            .expect("printed run")
+            .to_json();
         req.action_stats = true;
-        let counted = simulate_file(&req).expect("printed basic run").to_json();
+        let counted = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+            .expect("printed basic run")
+            .to_json();
         check_statistics_toggle_fields(&counted, &printed);
         assert_eq!(counted["result"], "sampled");
         req.action_stats = false;
@@ -263,7 +269,9 @@ fn print_domains_preserve_every_existing_seeded_choice_and_count() {
             .parent()
             .expect("fixtures parent")
             .join("SimChoice.tla");
-        let plain = simulate_file(&req).expect("plain run").to_json();
+        let plain = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+            .expect("plain run")
+            .to_json();
         assert_eq!(printed["statistics"], plain["statistics"]);
         assert_eq!(printed["statistics"]["generated"], row["generated"]);
         let words = |result: &Value| {
@@ -330,9 +338,13 @@ fn print_domains_keep_the_default_stream_and_prefix() {
     let mut req = request("SimChoicePrinted", 5, false);
     req.seed = Some(7);
     req.traces = 3;
-    let printed = simulate_file(&req).expect("printed").to_json();
+    let printed = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+        .expect("printed")
+        .to_json();
     req.action_stats = true;
-    let counted = simulate_file(&req).expect("printed basic").to_json();
+    let counted = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+        .expect("printed basic")
+        .to_json();
     check_statistics_toggle_fields(&counted, &printed);
     assert_eq!(counted["result"], "sampled");
     req.action_stats = false;
@@ -340,12 +352,16 @@ fn print_domains_keep_the_default_stream_and_prefix() {
         .parent()
         .expect("fixtures parent")
         .join("SimChoice.tla");
-    let plain = simulate_file(&req).expect("plain").to_json();
+    let plain = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+        .expect("plain")
+        .to_json();
     assert_eq!(printed["statistics"], plain["statistics"]);
     assert_eq!(printed["traces"], plain["traces"]);
     req.file = fixtures().join("SimChoicePrinted.tla");
     req.traces = 5;
-    let longer = simulate_file(&req).expect("longer").to_json();
+    let longer = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+        .expect("longer")
+        .to_json();
     assert_eq!(
         printed["traces"].as_array().expect("three"),
         &longer["traces"].as_array().expect("five")[..3]

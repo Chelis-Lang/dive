@@ -1,13 +1,11 @@
-//! `--engine=auto` (`docs/developer/core/08-correctness.md` §3): where the
-//! core runs a check, auto reports the core's result; where the core
-//! refuses it, before the search (static) or during it (dynamic), auto
-//! reports the reference engine's result for the whole check and names the
-//! refusal. Every fixture the core runs is checked both ways.
+//! The default engine is the compiled Core (ADR 0153): `check_file` reports
+//! exactly what explicit Core reports, and what Core does not implement is a
+//! named refusal (exit 3), never a fallback to the reference engine.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, Engine, check_file, check_file_engine};
 use serde_json::Value;
 
 fn repo() -> PathBuf {
@@ -65,8 +63,16 @@ fn observed(v: &Value) -> Value {
     })
 }
 
+fn run_default(req: &CheckRequest) -> Value {
+    let report = check_file(req).expect("check runs");
+    let mut j = report.to_json();
+    j["exit"] = Value::from(report.exit_code());
+    j["human"] = Value::from(report.render_human());
+    j
+}
+
 #[test]
-fn auto_reports_the_core_or_the_whole_reference_run() {
+fn the_default_engine_is_core_and_refuses_by_name_without_fallback() {
     let mut all = Vec::new();
     for dir in [
         "crates/dive-eval/tests/fixtures/next/specs",
@@ -77,58 +83,48 @@ fn auto_reports_the_core_or_the_whole_reference_run() {
     ] {
         specs(&repo().join(dir), &mut all);
     }
-    let (mut on_core, mut fell_static, mut fell_dynamic) = (0, 0, 0);
+    let (mut on_core, mut refused) = (0, 0);
     for spec in &all {
         let name = spec.file_stem().and_then(|n| n.to_str()).unwrap_or("?");
         let req = request(spec);
-        let auto = run(&req, Engine::Auto);
+        let default = run_default(&req);
         let core = run(&req, Engine::Core);
-        assert_eq!(auto["engine_requested"], "auto", "{name}");
-        if core["verdict"] == "unsupported" {
-            let reference = run(&req, Engine::Reference);
-            assert_eq!(observed(&auto), observed(&reference), "{name}");
-            assert_eq!(auto["engine"], "reference", "{name}");
-            let fallback = &auto["engine_fallback"];
-            assert_eq!(fallback["reason"], core["message"], "{name}");
-            match fallback["stage"].as_str() {
-                Some("static") => fell_static += 1,
-                Some("dynamic") => fell_dynamic += 1,
-                other => panic!("{name}: stage {other:?}"),
-            }
-            let human = auto["human"].as_str().unwrap_or_default();
+        assert_eq!(observed(&default), observed(&core), "{name}");
+        // A check that ends before the search names no engine.
+        assert_eq!(default["engine"], core["engine"], "{name}");
+        assert_ne!(default["engine"], "reference", "{name}");
+        assert!(default.get("engine_fallback").is_none(), "{name}");
+        assert!(default.get("engine_requested").is_none(), "{name}");
+        if default["verdict"] == "unsupported" {
+            assert_eq!(default["exit"], 3, "{name}");
             assert!(
-                human.contains("engine auto: the reference engine ran"),
-                "{name}: {human}"
+                default["message"].as_str().is_some_and(|m| !m.is_empty()),
+                "{name}: unnamed refusal"
             );
-        } else {
-            assert_eq!(observed(&auto), observed(&core), "{name}");
-            // A check that ends before the search names no engine.
-            assert_eq!(auto["engine"], core["engine"], "{name}");
-            assert!(auto["engine_fallback"].is_null(), "{name}");
-            if core["engine"] == "core" {
-                on_core += 1;
-            }
+            refused += 1;
+        } else if default["engine"] == "core" {
+            on_core += 1;
         }
+        let human = default["human"].as_str().unwrap_or_default();
+        assert!(human.contains("requested engine core"), "{name}: {human}");
+        assert!(!human.contains("engine auto"), "{name}: {human}");
     }
     assert!(on_core >= 120, "only {on_core} runs on the core");
-    // At this writing: 127 on the core, 92 static and 5 dynamic fallbacks.
-    // Both kinds of fallback must stay covered as the core grows.
-    assert!(fell_static >= 1, "no static fallback");
-    assert!(fell_dynamic >= 1, "no dynamic fallback");
+    // Refusals stay covered as the core grows.
+    assert!(refused >= 1, "no named refusal");
 }
 
-/// Exact storage now executes on the core and preserves reference observables.
+/// Exact storage executes on the core and preserves reference observables.
 #[test]
 fn exact_storage_runs_on_the_core() {
     let spec = repo().join("crates/dive-api/tests/fixtures/core-m0/Mix.tla");
     let mut req = request(&spec);
     req.store = dive_api::Store::Exact;
     let core = run(&req, Engine::Core);
-    let auto = run(&req, Engine::Auto);
+    let default = run_default(&req);
     let reference = run(&req, Engine::Reference);
     assert_eq!(observed(&core), observed(&reference));
-    assert_eq!(observed(&auto), observed(&reference));
-    assert_eq!(auto["engine"], "core");
-    assert!(auto["engine_fallback"].is_null());
-    assert_eq!(auto["options"]["store"], "exact");
+    assert_eq!(observed(&default), observed(&reference));
+    assert_eq!(default["engine"], "core");
+    assert_eq!(default["options"]["store"], "exact");
 }

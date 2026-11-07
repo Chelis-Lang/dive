@@ -48,7 +48,7 @@ fn proved_source_rows_publish_only_freshly_validated_v5_words() {
             directory().join(format!("../../../../../conformance/golden/tlc-2026.10.06.014338/fairness-primary/specifications/{name}/{name}.cfg.json"))
         ).expect("official oracle golden")).expect("golden JSON");
         for tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 let req = request(name, tlc, 1);
                 let report = check_file_engine(&req, engine).expect("owned source run");
                 let json = report.to_json();
@@ -115,7 +115,7 @@ fn different_primary_and_candidate_error_lifecycles_do_not_borrow_source_row_aut
     for name in ["RowDifferentPrimary", "RowCandidateBeforeTemporal"] {
         same_corpus_input(name);
         for tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 let report =
                     check_file_engine(&request(name, tlc, 1), engine).expect("actual boundary");
                 let json = report.to_json();
@@ -159,7 +159,7 @@ fn an_unproved_first_row_or_multiple_init_emissions_cannot_publish_v5() {
         )
         .expect("actual source");
         for tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 let req = CheckRequest {
                     file: file.clone(),
                     config: Some(config.clone()),
@@ -189,7 +189,7 @@ fn unproved_temporal_next_primaries_are_refusals_not_verified_75_or_general() {
         same_corpus_input(name);
         for tlc in [false, true] {
             for workers in [1, 8] {
-                for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+                for engine in [Engine::Reference, Engine::Core] {
                     if name == "MinChooseFair" && workers == 1 {
                         continue; // The separately asserted reached-row capability is now proved.
                     }

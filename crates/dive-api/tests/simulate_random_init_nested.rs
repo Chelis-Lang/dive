@@ -1,6 +1,6 @@
 //! Random Init keeps nested ENABLED successor semantics and independent replay.
+use dive_api::SimulateRequest;
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{SimulateRequest, simulate_file};
 use serde_json::json;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -37,7 +37,7 @@ Safe == x \in {0,1}
                 traces: 2,
                 ..Default::default()
             };
-            let report = simulate_file(&request)?;
+            let report = dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?;
             assert_eq!(report.exit_code(), 0);
             let sampled = report.to_json();
             assert_eq!(sampled["result"], "sampled");
@@ -69,7 +69,8 @@ Safe == x \in {0,1}
             let reached =
                 source.replace("~ENABLED (x'=x /\\ x=2)", "ENABLED (x'=RandomElement({x}))");
             std::fs::write(&file, reached)?;
-            let refused = simulate_file(&request)?.to_json();
+            let refused =
+                dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
             assert_eq!(refused["result"], "unsupported");
             assert!(
                 refused["message"]

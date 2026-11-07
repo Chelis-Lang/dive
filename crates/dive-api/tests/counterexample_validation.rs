@@ -30,7 +30,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use dive_api::trace::{Ending, Failure, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{BudgetSetting, CheckRequest, Engine, check_file, check_file_engine};
+use dive_api::{BudgetSetting, CheckRequest, Engine, check_file_engine};
 use serde_json::{Value, json};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -86,17 +86,20 @@ impl Profile {
 }
 
 fn run(spec: &Path, profile: Profile) -> Result<Value> {
-    let report = check_file(&CheckRequest {
-        file: spec.to_path_buf(),
-        config: Some(spec.with_extension("cfg")),
-        compat_tlc: profile == Profile::Tlc,
-        seed: Some(0),
-        fp: Some(0),
-        workers: Some(1),
-        max_states: Some(MAX_STATES),
-        time_limit: BudgetSetting::Explicit(TIME_LIMIT),
-        ..CheckRequest::default()
-    })?;
+    let report = dive_api::check_file_engine(
+        &CheckRequest {
+            file: spec.to_path_buf(),
+            config: Some(spec.with_extension("cfg")),
+            compat_tlc: profile == Profile::Tlc,
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            max_states: Some(MAX_STATES),
+            time_limit: BudgetSetting::Explicit(TIME_LIMIT),
+            ..CheckRequest::default()
+        },
+        dive_api::Engine::Reference,
+    )?;
     Ok(report.to_json())
 }
 

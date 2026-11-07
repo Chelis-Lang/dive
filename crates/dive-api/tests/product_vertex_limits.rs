@@ -138,15 +138,18 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
         let files = Files::new(config);
         for compat_tlc in [false, true] {
             for temporal in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-                let report = dive_api::check_file(&CheckRequest {
-                    file: files.0.clone(),
-                    compat_tlc,
-                    temporal,
-                    seed: Some(0),
-                    fp: Some(0),
-                    workers: Some(1),
-                    ..CheckRequest::default()
-                })
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        file: files.0.clone(),
+                        compat_tlc,
+                        temporal,
+                        seed: Some(0),
+                        fp: Some(0),
+                        workers: Some(1),
+                        ..CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )
                 .expect("real file report");
                 let json = report.to_json();
                 assert_eq!(json["schema_version"], 3);

@@ -2,7 +2,7 @@
 #![allow(clippy::expect_used, reason = "bounded primary corpus controls")]
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, ExitConvention, check_file};
+use dive_api::{CheckRequest, ExitConvention};
 
 #[test]
 fn empty_subset_bases_reach_the_initial_invariant_and_validate_the_finite_word() {
@@ -12,15 +12,18 @@ fn empty_subset_bases_reach_the_initial_invariant_and_validate_the_finite_word()
         for name in ["EmptyBase", "DirectEmptyBase"] {
             let file = specs.join(name).join(format!("{name}.tla"));
             let config = file.with_extension("cfg");
-            let report = check_file(&CheckRequest {
-                file: file.clone(),
-                config: Some(config.clone()),
-                compat_tlc,
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                ..CheckRequest::default()
-            })
+            let report = dive_api::check_file_engine(
+                &CheckRequest {
+                    file: file.clone(),
+                    config: Some(config.clone()),
+                    compat_tlc,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                },
+                dive_api::Engine::Reference,
+            )
             .expect("ordinary source-bound check");
             assert_eq!(report.verdict(), "invariant-violation");
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 12);

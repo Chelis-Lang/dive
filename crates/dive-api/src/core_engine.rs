@@ -19,37 +19,34 @@ use dive_value::Value;
 use serde_json::{Value as Json, json};
 
 /// Which execution engine runs a checking or finite-mode request.
+///
+/// The compiled Core is the default (ADR 0153). The reference checker stays
+/// available as an explicit opt-in; there is no automatic fallback between
+/// them.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Engine {
-    /// The reference checker (`dive-check`).
-    #[default]
+    /// The reference checker (`dive-check`), selected explicitly.
     Reference,
-    /// The compiled core on supported requests in either profile. Unsupported
-    /// language or mode combinations are named refusals, without fallback.
+    /// The compiled core in either profile. Unsupported language or mode
+    /// combinations are named refusals, without fallback.
+    #[default]
     Core,
-    /// The new core where it implements the run, the reference checker
-    /// otherwise (`docs/developer/core/08-correctness.md` §3). A refusal
-    /// before the search (static) or during it (dynamic) runs the whole
-    /// check again on the reference engine, and the report names the
-    /// engine that ran and why. Finite simulation/DFID select a whole backend
-    /// before execution only; a reached refusal never reruns their effects.
-    Auto,
 }
 
 impl Engine {
-    /// Parses `reference`, `core` or `auto`.
+    /// Parses `reference` or `core`.
     ///
     /// ```
     /// assert_eq!(dive_api::Engine::parse("core"), Some(dive_api::Engine::Core));
-    /// assert_eq!(dive_api::Engine::parse("auto"), Some(dive_api::Engine::Auto));
-    /// assert_eq!(dive_api::Engine::parse("fast"), None);
+    /// assert_eq!(dive_api::Engine::parse("reference"), Some(dive_api::Engine::Reference));
+    /// assert_eq!(dive_api::Engine::parse("auto"), None);
+    /// assert_eq!(dive_api::Engine::default(), dive_api::Engine::Core);
     /// ```
     #[must_use]
     pub fn parse(s: &str) -> Option<Self> {
         match s {
             "reference" => Some(Self::Reference),
             "core" => Some(Self::Core),
-            "auto" => Some(Self::Auto),
             _ => None,
         }
     }
@@ -60,7 +57,6 @@ impl Engine {
         match self {
             Self::Reference => "reference",
             Self::Core => "core",
-            Self::Auto => "auto",
         }
     }
 }
@@ -89,39 +85,6 @@ pub(crate) enum CoreOutcome {
     Temporal(Box<crate::temporal::Report>),
     /// A real temporal resource stop with actual execution facts.
     TemporalFailure(Box<crate::temporal::Failure>),
-}
-
-impl CoreOutcome {
-    /// The safety result, if this is one.
-    pub(crate) fn checked(&self) -> Option<&CheckResult> {
-        match self {
-            Self::Checked(r) => Some(r),
-            Self::Temporal(_) | Self::TemporalFailure(_) => None,
-        }
-    }
-}
-
-/// Why `--engine=auto` ran the reference engine.
-#[derive(Clone, Debug)]
-pub(crate) struct Fallback {
-    /// `static` (refused before the search) or `dynamic` (during it).
-    pub(crate) stage: &'static str,
-    /// The feature the core refused.
-    pub(crate) reason: String,
-}
-
-impl Fallback {
-    /// The fallback for a core run that ended in `unsupported`, if it did.
-    pub(crate) fn of(outcome: &CoreOutcome, run: &CoreRun) -> Option<Self> {
-        let result = outcome.checked()?;
-        match &result.verdict {
-            Verdict::Unsupported { feature } => Some(Self {
-                stage: if run.searched { "dynamic" } else { "static" },
-                reason: feature.clone(),
-            }),
-            _ => None,
-        }
-    }
 }
 
 fn unsupported(feature: impl Into<String>) -> Verdict {

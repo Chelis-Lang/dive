@@ -1,9 +1,9 @@
 # Core golden gate: the required `Conformance gate` job runs
 # DIVE_GATE_IMPL=dive:core DIVE_GATE_PROFILE=dive scripts/conformance-gate.sh
-# conformance/gates/core-smoke.txt --workers 1,4. Core alone (no fallback) must
-# agree with the TLC goldens, or match a registered expected divergence, on the
-# union of smoke.txt and shadow-smoke.txt. Shadow agreement with the Reference
-# engine is not soundness evidence; golden agreement is.
+# conformance/gates/core-smoke.txt --workers 1,4. Core, the default engine
+# (no fallback), must agree with the TLC goldens in the default profile, or
+# match a registered expected divergence, on smoke.txt plus the former shadow
+# selection. Golden agreement is the soundness evidence.
 specifications/byihive/VoucherLifeCycle.cfg
 specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg
 specifications/CigaretteSmokers/CigaretteSmokers.cfg

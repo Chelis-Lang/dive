@@ -159,7 +159,8 @@ impl SimulateReport {
     }
 }
 
-/// Loads and samples a specification; validates every returned trace separately.
+/// Loads and samples a specification on the default engine (Core); validates
+/// every returned trace separately.
 ///
 /// # Errors
 /// Unreadable/rejected files, unimplemented binding, or worker-thread failure.
@@ -168,14 +169,14 @@ impl SimulateReport {
     reason = "report construction keeps the simulation and independent validation evidence together"
 )]
 pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::ApiError> {
-    simulate_file_engine(req, crate::Engine::Reference)
+    simulate_file_engine(req, crate::Engine::default())
 }
 
 /// Samples with an explicitly selected execution engine.
 ///
-/// `Core` never falls back. `Auto` may select the whole reference simulation
-/// only before execution; a reached native refusal never reruns effects.
-/// The report names the actual engine and any static fallback reason.
+/// `Core` (the default) never falls back: what it does not implement is a
+/// named refusal, and a reached refusal never reruns effects. `Reference`
+/// runs the reference simulator. The report names the engine.
 ///
 /// # Errors
 /// The same load, budget and ownership failures as [`simulate_file`].
@@ -242,12 +243,6 @@ pub fn simulate_file_engine(
             })?;
     let mut native = None;
     let mut setup_failure = None;
-    let mut fallback = None;
-    let mut engine_used = if engine == crate::Engine::Reference {
-        crate::Engine::Reference
-    } else {
-        crate::Engine::Core
-    };
     if engine != crate::Engine::Reference && req.workers.is_none_or(|workers| workers == 1) {
         if let Some(outcome) = dive_sim::preflight(model.model(), &options) {
             setup_failure = Some(outcome);
@@ -259,22 +254,7 @@ pub fn simulate_file_engine(
                 &run_budget.budget,
                 control.clone(),
             ) {
-                Ok(prepared) => {
-                    if engine == crate::Engine::Auto
-                        && let Some(reason) = prepared.selection_refusal()
-                    {
-                        fallback = Some(reason.to_owned());
-                        engine_used = crate::Engine::Reference;
-                    } else {
-                        native = Some(prepared);
-                    }
-                }
-                Err(crate::core_modes::SetupError::Unsupported(reason))
-                    if engine == crate::Engine::Auto =>
-                {
-                    fallback = Some(reason);
-                    engine_used = crate::Engine::Reference;
-                }
+                Ok(prepared) => native = Some(prepared),
                 Err(error) => setup_failure = Some(error.simulation()),
             }
         }
@@ -572,13 +552,11 @@ pub fn simulate_file_engine(
         ));
     }
     document["notes"] = json!(notes);
-    document["engine"] = json!(engine_used.name());
+    document["engine"] = json!(engine.name());
     document["engine_requested"] = json!(engine.name());
-    document["engine_fallback"] = fallback.map_or(
-        Value::Null,
-        |reason| json!({"stage": "static", "reason": reason}),
-    );
-    document["options"]["execution_scope"] = json!(if engine_used == crate::Engine::Core {
+    // Retained in report schema 3; there is no automatic fallback.
+    document["engine_fallback"] = Value::Null;
+    document["options"]["execution_scope"] = json!(if engine == crate::Engine::Core {
         "compiled-plan-simulation"
     } else {
         "simulation-backend"

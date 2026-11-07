@@ -1,5 +1,5 @@
 //! Compiled finite simulation retains check semantics and independent witnesses.
-use dive_api::{Engine, SimulateRequest, simulate_file, simulate_file_engine};
+use dive_api::{Engine, SimulateRequest, simulate_file_engine};
 use serde_json::Value;
 use std::path::PathBuf;
 
@@ -75,7 +75,8 @@ fn deterministic_violations_and_errors_keep_reference_classes() -> Result {
             "SimInitialIncomplete",
         ] {
             let request = request(name, compat);
-            let reference = simulate_file(&request)?.to_json();
+            let reference =
+                dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
             let native = simulate_file_engine(&request, Engine::Core)?.to_json();
             assert_eq!(native["engine"], "core", "{name}: {native}");
             for field in ["result", "tlc_code", "exit_code", "violation_validated"] {
@@ -99,7 +100,8 @@ fn direct_captured_and_configured_prints_keep_actual_output() -> Result {
             "RuntimePrintConditional",
         ] {
             let request = request(&format!("runtime-print/{name}"), compat);
-            let reference = simulate_file(&request)?.to_json();
+            let reference =
+                dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
             let native = simulate_file_engine(&request, Engine::Core)?.to_json();
             checked(&native);
             if name == "RuntimePrintConditional" {
@@ -117,19 +119,6 @@ fn direct_captured_and_configured_prints_keep_actual_output() -> Result {
                 assert_eq!(native["statistics"]["scope"], "completed-prefix");
                 assert_eq!(native["violation_validated"], false);
                 assert_eq!(native["runtime_output"], reference["runtime_output"]);
-                let automatic = simulate_file_engine(&request, Engine::Auto)?.to_json();
-                assert_eq!(automatic["engine"], "reference");
-                assert_eq!(automatic["engine_fallback"]["stage"], "static");
-                for field in [
-                    "result",
-                    "tlc_code",
-                    "runtime_output",
-                    "startup_output",
-                    "violation_validated",
-                    "traces",
-                ] {
-                    assert_eq!(automatic[field], reference[field], "{field}: {automatic}");
-                }
                 continue;
             }
             for field in [
@@ -209,7 +198,7 @@ fn view_refuses_before_execution_and_budget_exhaustion_in_every_engine() -> Resu
     let file =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-sim/tests/fixtures/SimView.tla");
     for compat_tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+        for engine in [Engine::Reference, Engine::Core] {
             for limited in [false, true] {
                 let report = simulate_file_engine(
                     &SimulateRequest {
@@ -253,20 +242,23 @@ fn view_refuses_before_execution_and_budget_exhaustion_in_every_engine() -> Resu
 }
 
 #[test]
-fn auto_selects_reference_before_runtime_effects_and_core_never_retries() -> Result {
+fn the_default_engine_refuses_runtime_effects_on_core_and_never_retries() -> Result {
     for compat in [false, true] {
         let request = request("runtime-print/RuntimePrintRegister", compat);
-        let reference = simulate_file(&request)?.to_json();
-        let automatic = simulate_file_engine(&request, Engine::Auto)?.to_json();
-        assert_eq!(automatic["engine"], "reference");
-        assert_eq!(automatic["engine_fallback"]["stage"], "static");
-        assert_eq!(automatic["runtime_output"], reference["runtime_output"]);
-        assert_eq!(automatic["statistics"], reference["statistics"]);
+        let reference =
+            dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
         let explicit = simulate_file_engine(&request, Engine::Core)?.to_json();
         assert_eq!(explicit["engine"], "core");
         assert!(explicit["engine_fallback"].is_null());
         assert_eq!(explicit["result"], "unsupported");
         assert_eq!(explicit["runtime_output"], reference["runtime_output"]);
+        let default = dive_api::simulate_file(&request)?.to_json();
+        assert_eq!(default["engine"], "core");
+        assert_eq!(default["engine_requested"], "core");
+        assert!(default["engine_fallback"].is_null());
+        assert_eq!(default["result"], "unsupported");
+        assert_eq!(default["runtime_output"], explicit["runtime_output"]);
+        assert_eq!(default["statistics"], explicit["statistics"]);
     }
     let (_scratch, file) = source(
         "DeniedArgs",

@@ -417,12 +417,70 @@ fn registry_excuses_only_under_the_dive_profile() -> TestResult {
         run(Some(Profile::Dive))?.models[0].outcome,
         Outcome::Disagree
     );
-    // A registry entry claiming to apply under the tlc profile is refused.
+    // A tlc entry not documented in docs/tlc-differences.md is refused.
     std::fs::write(
         repo.join("conformance/expected-divergences.toml"),
-        "[[divergence]]\nid = \"bad\"\npattern = \"*\"\nprofile = \"tlc\"\nexpected_verdict = \"overflow\"\njustification = \"x\"\nlink = \"docs/divergences.md\"\n",
+        "[[divergence]]\nid = \"bad\"\npattern = \"*\"\nprofile = \"tlc\"\nexpected_verdict = \"overflow\"\nfields = [\"verdict\", \"error_class\"]\njustification = \"x\"\nlink = \"docs/divergences.md\"\n",
     )?;
     assert!(run(Some(Profile::Dive)).is_err());
+    Ok(())
+}
+
+#[test]
+fn a_registered_tlc_compat_gap_is_an_expected_divergence_never_agree() -> TestResult {
+    let tmp = dive_conformance::util::TempDir::new("compat-gap")?;
+    let (repo, cache) = setup(tmp.path())?;
+    let config = Config::load(&repo)?;
+    write_success_golden(&repo, &config)?;
+    let mut overflow = success();
+    overflow.verdict = Verdict::Overflow;
+    overflow.verdict_code = Some(2178);
+    overflow.error_class = Some("TLC_MODULE_OVERFLOW".to_owned());
+    let mut opts = options(&repo, vec!["specifications/x/X.cfg".to_owned()]);
+    opts.sany = false;
+    opts.workers = vec![1];
+    let run_with = |profile: Option<Profile>,
+                    result: &OracleResult|
+     -> Result<_, Box<dyn std::error::Error>> {
+        let imp = Optioned {
+            options: vec![],
+            profile,
+            result: result.clone(),
+        };
+        Ok(pipeline::run(&config, &cache, &imp, None, &opts)?)
+    };
+    let run = |profile| run_with(profile, &overflow);
+    // Unregistered, the TLC-profile difference is a disagreement.
+    assert_eq!(
+        run(Some(Profile::Tlc))?.models[0].outcome,
+        Outcome::Disagree
+    );
+    std::fs::write(
+        repo.join("conformance/expected-divergences.toml"),
+        "[[divergence]]\nid = \"gap\"\npattern = \"specifications/x/X.cfg\"\nprofile = \"tlc\"\nexpected_verdict = \"overflow\"\nfields = [\"verdict\", \"error_class\"]\njustification = \"test\"\nlink = \"docs/tlc-differences.md#compat-gaps\"\n",
+    )?;
+    // Registered, it is an expected divergence under tlc only.
+    let tlc = run(Some(Profile::Tlc))?;
+    assert_eq!(tlc.models[0].outcome, Outcome::ExpectedDivergence);
+    assert!(
+        tlc.models[0].runs[0]
+            .detail
+            .as_deref()
+            .is_some_and(|d| d.contains("`gap`") && d.contains("docs/tlc-differences.md"))
+    );
+    assert_eq!(
+        run(Some(Profile::Dive))?.models[0].outcome,
+        Outcome::Disagree
+    );
+    let over = run(Some(Profile::TlcWithOverrides(vec!["int".to_owned()])))?;
+    assert_eq!(over.models[0].outcome, Outcome::Disagree);
+    // A difference outside the registered fields still disagrees.
+    let mut deeper = overflow.clone();
+    deeper.counts.depth = Some(99);
+    assert_eq!(
+        run_with(Some(Profile::Tlc), &deeper)?.models[0].outcome,
+        Outcome::Disagree
+    );
     Ok(())
 }
 

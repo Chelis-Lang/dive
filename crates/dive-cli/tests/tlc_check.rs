@@ -17,6 +17,8 @@ fn run(binary: &str, args: &[String], cwd: &Path) -> std::io::Result<Output> {
         .current_dir(cwd)
         .env("DIVE_COMPAT", "dive")
         .env("DIVE_CHAOS", "99")
+        // The reference engine these adapter tests were written for.
+        .env("DIVE_ENGINE", "reference")
         .output()
 }
 
@@ -110,7 +112,7 @@ fn absolute_root_relative_config_and_existing_aliases_transport_options() -> Tes
         ..Default::default()
     };
     assert!(matches!(
-        dive_api::check_file(&request),
+        dive_api::check_file_engine(&request, dive_api::Engine::Reference),
         Err(dive_api::ApiError::Io { .. })
     ));
     Ok(())
@@ -184,7 +186,9 @@ fn configuration_errors_precede_module_errors_on_each_tlc_entrypoint() -> TestRe
                 compat_tlc,
                 ..Default::default()
             };
-            let Err(dive_api::ApiError::Io { path, .. }) = dive_api::check_file(&request) else {
+            let Err(dive_api::ApiError::Io { path, .. }) =
+                dive_api::check_file_engine(&request, dive_api::Engine::Reference)
+            else {
                 return Err("file API must read the module first".into());
             };
             assert_eq!(path, request.file.display().to_string());

@@ -67,7 +67,8 @@ fn options(tlc: bool, inputs: RecordedInputs) -> TraceOptions {
 #[test]
 fn actual_file_capture_replays_after_the_file_is_removed_and_rejects_forgery() {
     for tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Auto] {
+        {
+            let engine = Engine::Reference;
             let fixture = Fixture::new();
             let input = fixture.file("input.txt");
             std::fs::write(&input, "hello\n").expect("input");

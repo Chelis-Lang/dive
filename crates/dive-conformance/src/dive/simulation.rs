@@ -233,20 +233,8 @@ fn simulation_result(
     else {
         return malformed("actual engine is absent");
     };
-    if implementation.engine.name() != "auto" {
-        if engine != implementation.engine.name() || !value["engine_fallback"].is_null() {
-            return malformed("engine does not match explicit request");
-        }
-    } else if engine == "reference" {
-        if value["engine_fallback"]["stage"] != "static"
-            || value["engine_fallback"]["reason"]
-                .as_str()
-                .is_none_or(str::is_empty)
-        {
-            return malformed("Auto fallback is not a named static selection");
-        }
-    } else if !value["engine_fallback"].is_null() {
-        return malformed("unexpected fallback on Core");
+    if engine != implementation.engine.name() || !value["engine_fallback"].is_null() {
+        return malformed("engine does not match explicit request");
     }
     let kind = value["result"].as_str().unwrap_or_default();
     if matches!(kind, "unsupported" | "resource-limit") && outcome.exit_code == Some(3) {
