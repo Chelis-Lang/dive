@@ -760,24 +760,68 @@ impl<'a> Binder<'a> {
             if self.left_to_core(real) {
                 continue;
             }
-            let (result, input_refusal) = self.startup_precompute(real);
-            match result {
-                Ok(Some(v)) => {
-                    self.t.tool_obj.insert(real, Look::Value(v.clone()));
-                    let real_name = ir.def(real).name.clone();
-                    if matches!(self.defns.get(&real_name), Some(Look::Def(x)) if *x == real) {
-                        self.defns.insert(real_name, Look::Value(v));
-                    }
-                    let _ = name;
-                }
-                Ok(None) => {}
-                Err(e) => self.note_startup_failure(real, &e, input_refusal)?,
-            }
+            let _ = name;
+            self.keep_startup_value(real)?;
         }
         for inner in inner_modules(&ir, m) {
             self.constant_defns_of(inner)?;
         }
         Ok(())
+    }
+
+    /// Evaluates `real` at start-up and keeps its value, as
+    /// `processConstantDefns` does; a failure is swallowed as TLC swallows it
+    /// ([`Binder::note_startup_failure`]).
+    fn keep_startup_value(&mut self, real: DefId) -> R<()> {
+        let (result, input_refusal) = self.startup_precompute(real);
+        match result {
+            Ok(Some(v)) => {
+                self.t.tool_obj.insert(real, Look::Value(v.clone()));
+                let real_name = self.t.ir.def(real).name.clone();
+                if matches!(self.defns.get(&real_name), Some(Look::Def(x)) if *x == real) {
+                    self.defns.insert(real_name, Look::Value(v));
+                }
+                Ok(())
+            }
+            Ok(None) => Ok(()),
+            Err(e) => self.note_startup_failure(real, &e, input_refusal),
+        }
+    }
+
+    /// Evaluates, as `processConstantDefns` would have, the definitions left
+    /// to the core that the reference evaluator may evaluate after binding
+    /// on the temporal route (`crate::defer::reference_temporal`), and
+    /// returns them: they are no longer left to the core.
+    pub(crate) fn keep_temporal_startup_values(
+        &mut self,
+        model: &crate::Model,
+    ) -> R<std::collections::BTreeSet<DefId>> {
+        let Some(defer) = &self.defer else {
+            return Ok(std::collections::BTreeSet::new());
+        };
+        if model.implied_temporals.is_empty() || defer.skip.is_empty() {
+            return Ok(std::collections::BTreeSet::new());
+        }
+        let reached = crate::defer::reference_temporal(self, model);
+        let settled: std::collections::BTreeSet<DefId> = defer
+            .skip
+            .iter()
+            .copied()
+            .filter(|d| reached.contains(d))
+            .collect();
+        for &d in &settled {
+            self.keep_startup_value(d)?;
+        }
+        if let Some(defer) = &mut self.defer {
+            for d in &settled {
+                defer.skip.remove(d);
+                defer.evaluate.remove(d);
+            }
+        }
+        for d in &settled {
+            self.deferred.remove(d);
+        }
+        Ok(settled)
     }
 
     /// Whether the start-up evaluation of `def` is left to the core

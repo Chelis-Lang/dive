@@ -446,6 +446,13 @@ fn compile(
     handoff.implied_actions = vec![role];
     handoff.view = None;
     handoff.check_deadlock = false;
+    // The run's plan already evaluated the start-up definitions and the
+    // ASSUMEs left to the core; an atom reaches none of those definitions
+    // (the binder evaluated what temporal properties reach), so its compile
+    // evaluates no start-up values, and would compile any body in place.
+    handoff.deferred.clear();
+    handoff.startup_evaluator = None;
+    handoff.assumptions.clear();
     let plan = match atom.test {
         AtomTest::Predicate => dive_core::compile::compile_bound_test(
             &handoff,

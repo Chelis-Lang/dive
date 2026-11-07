@@ -256,7 +256,7 @@ fn effect_free_with(b: &Binder<'_>, def: DefId, strict: bool) -> bool {
 
 /// The definitions a role's expression uses directly, including through the
 /// arguments its scope binds lazily.
-fn role_defs(
+pub(crate) fn role_defs(
     b: &Binder<'_>,
     e: ExprId,
     scope: &Scope,

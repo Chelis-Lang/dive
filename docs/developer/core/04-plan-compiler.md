@@ -410,7 +410,12 @@ call, is `Maybe`. Folding keeps the expression's value.
   reference evaluator (`Model::check_assumptions_except`), so a false or
   failing `ASSUME` is reported exactly as before. Because the compile now precedes that check, a
   compile refusal is reported only after the `ASSUME`s pass. `--compat=tlc`
-  and the temporal route keep the binder's evaluation.
+  keeps the binder's evaluation. With genuine temporal properties the binder
+  still evaluates the startup definitions that the temporal properties, the
+  specification's fairness and the configured properties reach (through
+  lazily bound arguments too), since the reference evaluator checks those;
+  the core keeps the others, and an atom's own compile evaluates no startup
+  values.
 
 **Not yet.** These need further demand-order or hidden-query lifetime support:
 - the demand-order analysis proper;

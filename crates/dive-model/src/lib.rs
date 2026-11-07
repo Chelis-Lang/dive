@@ -309,7 +309,10 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
 /// needs them, with the same values. The root module's pure `ASSUME`s are
 /// listed in [`Model::deferred_assumptions`]: the core evaluates them when
 /// it compiles its plan, and [`Model::check_assumptions_except`] checks the
-/// others.
+/// others. With genuine temporal properties, the definitions those
+/// properties, the specification's fairness and the configured properties
+/// reach are evaluated at start-up as [`bind`] evaluates them, for the
+/// reference evaluator that checks them; the core keeps the others.
 ///
 /// # Errors
 /// As [`bind`].
@@ -720,6 +723,12 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
             .map(|d| d.assumptions.clone())
             .unwrap_or_default(),
     };
+    // The temporal route's reference evaluation needs the start-up values
+    // of what it reaches: the binder evaluates those, as TLC does, and the
+    // core keeps the rest (issue #846).
+    for d in b.keep_temporal_startup_values(&model)? {
+        model.deferred_constants.remove(&d);
+    }
     model.unsupported = reach::unsupported(b, &model);
     let sequential = reach::sequential(b, &model)?;
     model.sequential = sequential.reasons;

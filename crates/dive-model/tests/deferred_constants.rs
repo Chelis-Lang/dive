@@ -155,3 +155,50 @@ fn the_core_takes_only_the_pure_assumes_no_impure_one_precedes() {
         root.assumptions[..1].to_vec()
     );
 }
+
+fn inputs_with(source: &str, config: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig) {
+    let (ir, _) = inputs(source);
+    let cfg = dive_config::parse(config).into_config().expect("config");
+    (ir, cfg)
+}
+
+const TEMPORAL: &str = "Inv == Typed
+Spec == Init /\\ [][Next]_x /\\ WF_x(x' = Ring[x])
+Live == <>(x = Start)
+Loose == Init /\\ [][Next]_x
+Typing == <>[](x \\in Node)";
+
+#[test]
+fn what_temporal_properties_reach_keeps_the_binders_evaluation() {
+    let source = SOURCE.replace("Inv == Typed", TEMPORAL);
+    let (ir, cfg) = inputs_with(
+        &source,
+        "CONSTANT Node = {a, b}\nSPECIFICATION Spec\nPROPERTY Live\nINVARIANT Inv\n",
+    );
+    let deferred =
+        bind_deferring_constants(ir, &cfg, &BindOptions::dive()).expect("deferring binding");
+    assert!(!deferred.implied_temporals.is_empty());
+    // The reference evaluator checks the fairness, which reads `Ring`, and
+    // `Live`, which reads `Start`: the binder evaluates both at start-up.
+    assert_eq!(names(&deferred), BTreeSet::from(["Bound".to_owned()]));
+    for name in ["Ring", "Start"] {
+        let d = deferred.ir.root_def(name).expect("definition");
+        assert!(deferred.evaluator.precomputed(d).is_some(), "{name}");
+    }
+}
+
+#[test]
+fn what_temporal_properties_do_not_reach_stays_the_cores() {
+    let source = SOURCE.replace("Inv == Typed", TEMPORAL);
+    let (ir, cfg) = inputs_with(
+        &source,
+        "CONSTANT Node = {a, b}\nSPECIFICATION Loose\nPROPERTY Typing\nINVARIANT Inv\n",
+    );
+    let deferred =
+        bind_deferring_constants(ir, &cfg, &BindOptions::dive()).expect("deferring binding");
+    assert!(!deferred.implied_temporals.is_empty());
+    assert_eq!(
+        names(&deferred),
+        BTreeSet::from(["Bound".to_owned(), "Ring".to_owned(), "Start".to_owned()])
+    );
+}
