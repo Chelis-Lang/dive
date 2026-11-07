@@ -447,6 +447,7 @@ pub fn compile_bound_test(
     let opts = Opts {
         memo: false,
         step_memo: false,
+        primed_memo: false,
         fold: false,
         ..opts
     };
@@ -1243,6 +1244,18 @@ impl Compiler<'_> {
         match self.code.nodes.get(p as usize) {
             Some(Node::Filter { .. } | Node::SetBin(..)) => self.red(p) == Red::No,
             Some(Node::Lazy { body, .. } | Node::Scope { body, .. }) => self.lazy_set(*body),
+            // A primed definition's site is transparent to membership: the
+            // test is decided on the body, never on a materialized value
+            // (`Machine::member_lazy`, `06-memoization.md` §2.4).
+            Some(Node::Memo { site, body })
+                if self
+                    .code
+                    .sites
+                    .get(*site as usize)
+                    .is_some_and(|s| s.candidate) =>
+            {
+                self.lazy_set(*body)
+            }
             _ => false,
         }
     }
@@ -2047,6 +2060,7 @@ impl Compiler<'_> {
             slots: slots.into(),
             primed: Box::new([]),
             step: false,
+            candidate: false,
         });
         self.site_names.push(name);
         Ok(Some(self.push(Node::Memo { site, body: p })?))
@@ -3421,6 +3435,7 @@ impl Compiler<'_> {
             slots: Box::new([]),
             primed: primed.into(),
             step: true,
+            candidate: false,
         });
         self.site_names.push(name);
         self.push(Node::Memo { site, body })
@@ -3519,7 +3534,90 @@ impl Compiler<'_> {
             self.stats.cached_defs += 1;
             return self.push(Node::Lazy { slot, body });
         }
+        if def.scope == DefScope::TopLevel && !self.init_mode {
+            return self.primed_site(d, mode, body);
+        }
         Ok(body)
+    }
+
+    /// A zero-arity top-level definition that a next-state action reads
+    /// primed, such as `totalOpOrder'` in `InnerSerial`, as a memo site
+    /// keyed on the variables it reads, primed and unprimed
+    /// (`Opts::primed_memo`, `06-memoization.md` §2.4).
+    ///
+    /// The body is pure (no effect), makes no call and reads no bound
+    /// variable, so its value is a function of the key alone. At run time
+    /// the site is used only once every primed variable of its key is
+    /// assigned (`Machine::memo_eval` bypasses an unassigned one, and the
+    /// body then raises the error it raises), so a body that does not read
+    /// the variable an enumeration `x' \in S` assigns is evaluated once
+    /// per distinct key, not once per candidate. Errors are never cached.
+    fn primed_site(&mut self, d: DefId, mode: Mode, body: P) -> Result<P, Error> {
+        if !self.opts.primed_memo
+            || self.assembles(body)
+            || self.is_trivial(body)
+            || self.structural(body)
+        {
+            return Ok(body);
+        }
+        let info = &self.info[body as usize];
+        if info.primed == 0 || !info.free.is_empty() || info.effect || info.calls {
+            return Ok(body);
+        }
+        let bits = |m: u64| -> Vec<u16> {
+            #[allow(clippy::cast_possible_truncation, reason = "at most 64 variables")]
+            (0..64u16).filter(|&v| m & (1u64 << v) != 0).collect()
+        };
+        let (vars, primed) = (bits(info.vars), bits(info.primed));
+        if vars.len() + primed.len() > MAX_KEY {
+            return Ok(body);
+        }
+        let name = format!("{} ({mode:?}, action)", self.ir.def(d).name);
+        #[allow(clippy::cast_possible_truncation, reason = "bounded")]
+        let site = self.code.sites.len() as u32;
+        self.code.sites.push(MemoSite {
+            name: name.clone(),
+            vars: vars.into(),
+            slots: Box::new([]),
+            primed: primed.into(),
+            step: true,
+            candidate: true,
+        });
+        self.site_names.push(name);
+        self.push(Node::Memo { site, body })
+    }
+
+    /// Whether a primed definition's body is a value its consumers may
+    /// use without building it, so that a memo site, which builds it,
+    /// would change what is evaluated: a function constructor (applied
+    /// through `Node::Beta`, or its `DOMAIN` taken, without being built)
+    /// or a symbolic set constructor (`SUBSET`, `\X`, `[S -> T]`, a
+    /// record set, `Seq`), whose value is a description and which a
+    /// filter over it may rewrite (`Compiler::subset_rewrite`). A filter
+    /// or set operation stays eligible: membership in it is decided on the
+    /// body through the site (`Compiler::lazy_set`), and an enumeration
+    /// streams a filter's body (`Machine::assign_in`); every other
+    /// consumer builds it.
+    fn structural(&self, body: P) -> bool {
+        if self.lambda(body).is_some() {
+            return true;
+        }
+        let mut p = body;
+        while let Some(Node::Scope { body: b, .. } | Node::Spec(b)) =
+            self.code.nodes.get(p as usize)
+        {
+            p = *b;
+        }
+        matches!(
+            self.code.nodes.get(p as usize),
+            Some(
+                Node::Powerset(_)
+                    | Node::Product(_)
+                    | Node::FcnSet(..)
+                    | Node::RecSet(_)
+                    | Node::Std(StdFn::Seq, _)
+            )
+        )
     }
 
     fn apply(&mut self, callee: &OpRef, args: &[Arg], env: usize, mode: Mode) -> Result<P, Error> {

@@ -138,6 +138,10 @@ pub struct Memo {
     bytes: usize,
     /// The most the tables may hold, in bytes.
     cap: usize,
+    /// About the bytes of the persistent copies that candidate sites
+    /// (`MemoSite::candidate`) have added to the store: at most `cap`
+    /// before they all turn off ([`Memo::charge_kept`]).
+    kept: usize,
     members: Members,
     pub(crate) member_index: crate::member_index::MemberIndex,
 }
@@ -162,6 +166,7 @@ impl Memo {
                 .collect(),
             bytes: 0,
             cap: DEFAULT_CAP,
+            kept: 0,
             members: Members::default(),
             member_index: crate::member_index::MemberIndex::default(),
         }
@@ -247,6 +252,33 @@ impl Memo {
             .get(site as usize)
             .and_then(Option::as_ref)
             .is_some_and(|t| !t.stats.off)
+    }
+
+    /// Whether candidate sites may still add persistent copies to the
+    /// store: until they have added the tables' byte cap.
+    #[must_use]
+    pub fn may_keep(&self) -> bool {
+        self.kept <= self.cap
+    }
+
+    /// Charges the bytes a candidate site's keys and result added to the
+    /// store. The store never frees them, so once candidate sites have
+    /// added the tables' byte cap in all, the site turns off, and so does
+    /// every other candidate site at its next lookup ([`Memo::may_keep`]).
+    /// This bounds what keys that are values of enumeration candidates
+    /// can retain; turning a site off only drops cached results.
+    pub fn charge_kept(&mut self, site: u32, bytes: u64) {
+        self.kept = self
+            .kept
+            .saturating_add(usize::try_from(bytes).unwrap_or(usize::MAX));
+        if self.may_keep() {
+            return;
+        }
+        if let Some(Some(t)) = self.tables.get_mut(site as usize) {
+            t.stats.off = true;
+            self.bytes -= t.bytes();
+            t.words = Vec::new();
+        }
     }
 
     /// Records an evaluation that bypassed the table.
@@ -395,6 +427,23 @@ mod tests {
         assert_eq!(m.get(0, &k2), None);
         let s = m.stats()[0];
         assert_eq!((s.lookups, s.hits), (3, 1));
+    }
+
+    #[test]
+    fn candidate_sites_turn_off_once_their_copies_reach_the_cap() {
+        let mut m = Memo::new(&[1, 1]);
+        m.set_cap(4096);
+        let k = [Handle::TRUE];
+        m.put(0, &k, Handle::FALSE);
+        m.charge_kept(0, 4096);
+        assert!(m.may_keep() && m.active(0));
+        assert_eq!(m.get(0, &k), Some(Handle::FALSE));
+        m.charge_kept(0, 1);
+        assert!(!m.may_keep());
+        assert!(!m.active(0) && m.stats()[0].off);
+        assert_eq!(m.get(0, &k), None);
+        // Another site is not dropped, but its caller sees `may_keep` false.
+        assert!(m.active(1));
     }
 
     #[test]

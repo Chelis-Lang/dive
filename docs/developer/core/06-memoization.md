@@ -294,6 +294,59 @@ definition read at both ends of the step) in `core-m1`, through
 `StepAbs`. Keying the sites on the unprimed variables only makes both
 fail.
 
+### 2.4 Definitions a next-state action reads primed
+
+Outside a step predicate, a definition read primed is not a thunk: the
+generator is still assigning its primed variables. It can still be a memo
+site (`Opts::primed_memo`, on by default; `-primed-memo` turns it off;
+`Compiler::primed_site`). The site applies to a zero-arity top-level
+definition whose compiled body:
+- reads at least one primed variable;
+- reads no bound variable (no free slot);
+- has no effect and makes no call (recursive operator, `ENABLED`,
+  composition);
+- is neither trivial nor a plain assembly of leaves (§2.3);
+- is not a value its consumers use without building it
+  (`Compiler::structural`): a function constructor, which `f'[a]` applies
+  and `DOMAIN f'` reads without building it, or a symbolic set constructor
+  (`SUBSET`, `\X`, `[S -> T]`, a record set, `Seq`), which a
+  `SUBSET`-forall filter over it rewrites (#853, `04-plan-compiler.md` §4.2).
+
+A site never builds a value its consumer would have kept lazy. A filter
+or set operation body stays a site, because the consumers that keep it
+lazy see through the site to the body: membership (`Compiler::lazy_set`,
+`Machine::member_lazy`) is decided on the element, and `y' \in F'` over a
+filter streams the body (`Machine::assign_in`). Every other consumer
+builds the value with or without the site.
+
+The key is the handles of the unprimed variables it reads and exact
+persistent copies of the primed ones (as in §2.3), at most `MAX_KEY` in
+all. Such a body is a function of its key. At run time the site is used
+only when every primed variable of its key is assigned: an unassigned one
+bypasses the site, and the body raises the error it raises without it.
+Errors are never cached, and a site that is never reached (an empty
+enumeration before it) is never evaluated.
+
+The site runs once per enumeration candidate, so its primed key is often
+a new candidate value, and the store never frees the persistent copy of a
+key or result. The bytes those copies add (`MemoSite::candidate`,
+`InternCache::added`) are charged to one budget per worker, the memo byte
+cap. Once primed-definition sites have added that much, they all turn off
+(`Memo::charge_kept`), which only drops cached results. A model whose
+candidates are all distinct then retains at most the cap, not a copy per
+candidate.
+
+In `x' \in S /\ P'`, a definition inside `P` that does not read `x'` is
+then evaluated once per distinct value of what it reads, not once per
+candidate of `x'`. `SpecifyingSystems/AdvancedExamples/MCInnerSerial`
+enumerates `opOrder' \in SUBSET (opId' \X opId')` (up to 2^16 candidates)
+and checks `Serializable'` on each. `Serializable` enumerates
+`totalOpOrder`, a filter over `SUBSET (opId \X opId)` that reads only
+`opQ`. The callgrind profile put 99.6% of the time under the candidate loop
+(`Machine::assign_in`, `each_in`) rebuilding `totalOpOrder'`. With the
+site, the run completes in 3.3 s with TLC's counts. TLC takes 417 s on the
+same host. Fixtures are in `core-primed-memo`, through `core_primed_memo.rs`.
+
 ## 3. Read-set analysis
 
 The compiler computes read sets during the pass that records reads and purity

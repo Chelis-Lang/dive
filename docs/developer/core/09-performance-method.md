@@ -95,6 +95,7 @@ must leave all observables unchanged (`08-correctness.md` §6).
 | `-member-index` | S5: repeated normalized membership uses the original search; TLC comparisons always use that search |
 | `-memo` | S6: no pure-result memoization |
 | `-step-memo` | S6: no step-predicate body memoization |
+| `-primed-memo` | S6: no memoization of definitions an action reads primed |
 | `-parent-skip` | S6: no parent-delta skip |
 | `-arena` | S7: transients are heap-allocated |
 | `-eager` | S8: every lazy argument is a thunk |

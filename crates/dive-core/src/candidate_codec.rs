@@ -608,6 +608,7 @@ mod tests {
                 slots: vec![].into(),
                 primed: vec![0].into(),
                 step: true,
+                candidate: false,
             }],
             ..Code::default()
         };

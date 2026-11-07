@@ -1025,6 +1025,7 @@ fn evaluate_scalar(
         fold: false,
         memo: false,
         step_memo: false,
+        primed_memo: false,
         ..dive_core::Opts::default()
     };
     let plan = dive_core::compile(&h, Arc::clone(&store), opts)
