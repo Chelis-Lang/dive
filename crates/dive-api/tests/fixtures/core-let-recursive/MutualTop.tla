@@ -14,6 +14,10 @@ Nested(a) == LET RECURSIVE C(_), D(_)
              IN C(2)
 NestedCorrect == Nested(x)=x+2
 PrimeCorrect == [][(A(2))'=x'+2]_x
+PrimeWrong == [][(A(2))'=x+2]_x
+RECURSIVE Can(_)
+Can(n) == IF n=0 THEN ENABLED (x'=x+1) ELSE Can(n-1)
+PrimedEnabled == [][(Can(1))'=Can(1)]_x
 RECURSIVE LoopA(_), LoopB(_)
 LoopA(n) == IF n<0 THEN x ELSE LoopB(n)
 LoopB(n) == IF n<0 THEN x ELSE LoopA(n)

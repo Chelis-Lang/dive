@@ -274,10 +274,6 @@ fn enclosing_callbacks_keep_capture_effect_and_recursive_boundaries()
                 "a recursive function with a dynamic INSTANCE capture outside its lexical activation (M1 core)",
             ),
             (
-                "OpPrimeCapture",
-                "a recursive LET definition reading an enclosing local under a prime (M1 core)",
-            ),
-            (
                 "OpEffect",
                 "an enclosing operator argument with effects or recursive calls inside a recursive function (M1 core)",
             ),
@@ -425,10 +421,7 @@ fn mutually_recursive_top_level_operators_keep_isolated_frames()
                 "MutualNested",
                 "mutually recursive nested definitions (M1 core)",
             ),
-            (
-                "MutualPrime",
-                "a recursive operator under a prime (M0 core)",
-            ),
+            ("MutualPrimedEnabled", "a primed ENABLED (M1 core)"),
         ] {
             for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
                 let core = check_file_core_opts(&mutual_request(config, compat_tlc, 1), switches)?;
@@ -927,7 +920,7 @@ fn primed_captures_mixed_self_calls_effects_and_escapes_stay_refused()
     for compat_tlc in [false, true] {
         for (config, message) in [
             (
-                "PrimedCaptured",
+                "PrimedCapturedInside",
                 "a recursive LET definition reading an enclosing local under a prime (M1 core)",
             ),
             (
@@ -1072,6 +1065,179 @@ fn recursive_boolean_or_does_not_demand_a_proven_unnecessary_error()
                     },
                 )?;
                 validate_action_predicate_word(&req, &model, true, &doc)?;
+            }
+        }
+    }
+    Ok(())
+}
+
+/// The request for a next-state variant fixture, with the holding
+/// configuration and property its wrong variant is checked against.
+fn next_state_variant(config: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
+    if config.starts_with("Mutual") {
+        mutual_request(config, compat_tlc, workers)
+    } else if config.starts_with("Op") {
+        op_request(config, compat_tlc, workers)
+    } else {
+        primed_request(config, compat_tlc, workers)
+    }
+}
+
+#[test]
+fn recursive_definitions_under_a_prime_evaluate_in_the_next_state()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        // Pinned TLC 2026.10.06.014338 confirms each verdict and count. The
+        // holding variants read the recursive definition (a top-level
+        // mutually recursive operator, a LET function capturing an operator
+        // parameter, one capturing an operator argument) primed; the wrong
+        // ones compare it with the current state.
+        for (config, holding, property, generated, distinct, depth) in [
+            ("MutualPrime", "", "", 4, 3, 3),
+            ("MutualPrimeWrong", "MutualPrime", "PrimeCorrect", 2, 2, 2),
+            ("PrimedCaptured", "", "", 7, 3, 2),
+            ("PrimedCapturedHolding", "", "", 7, 3, 2),
+            (
+                "PrimedCapturedWrong",
+                "PrimedCapturedHolding",
+                "CapturedCorrect",
+                2,
+                2,
+                2,
+            ),
+            ("OpPrimeCapture", "", "", 4, 3, 3),
+            ("OpPrimeCaptureHolding", "", "", 4, 3, 3),
+            (
+                "OpPrimeCaptureWrong",
+                "OpPrimeCaptureHolding",
+                "PrimeCaptureCorrect",
+                2,
+                2,
+                2,
+            ),
+        ] {
+            let wrong = config.ends_with("Wrong");
+            let reference = check_file_engine(
+                &next_state_variant(config, compat_tlc, 1),
+                Engine::Reference,
+            )?;
+            let expected = observed(&reference);
+            assert_eq!(
+                expected["verdict"],
+                if wrong {
+                    "action-property-violation"
+                } else {
+                    "success"
+                },
+                "{config}"
+            );
+            assert_eq!(expected["code"], if wrong { 2112 } else { 2193 });
+            assert_eq!(expected["exit"], if wrong { 13 } else { 0 });
+            assert_eq!(expected["statistics"]["generated"], generated);
+            assert_eq!(expected["statistics"]["distinct"], distinct);
+            assert_eq!(expected["statistics"]["depth"], depth);
+            for workers in [1, 4] {
+                let req = next_state_variant(config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                    if !wrong {
+                        assert!(core.to_json()["counterexample"].is_null());
+                        continue;
+                    }
+                    let options = TraceOptions {
+                        compat_tlc,
+                        run: Some((0, 0)),
+                        ..Default::default()
+                    };
+                    let model =
+                        SpecModel::load(&req.file, req.config.as_ref().ok_or("config")?, &options)?;
+                    let payload = core.to_json()["counterexample"]["trace"].clone();
+                    assert_eq!(
+                        model.validate(&TraceDoc::from_json(&payload)?).validation,
+                        Validation::Valid
+                    );
+                    let mut bad = payload.clone();
+                    bad["states"][1]["values"]["x"] = json!(3);
+                    assert!(matches!(
+                        model.validate(&TraceDoc::from_json(&bad)?).validation,
+                        Validation::Invalid(ref failure) if failure.check == Check::Next
+                    ));
+                    let holding = next_state_variant(holding, compat_tlc, 1);
+                    let holding_model = SpecModel::load(
+                        &holding.file,
+                        holding.config.as_ref().ok_or("holding config")?,
+                        &options,
+                    )?;
+                    let mut bad = payload;
+                    bad["ending"]["name"] = json!(property);
+                    assert!(matches!(
+                        holding_model.validate(&TraceDoc::from_json(&bad)?).validation,
+                        Validation::Invalid(ref failure) if failure.check == Check::Ending
+                            && failure.detail.contains("holds")
+                    ));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn next_read_request(file: &str, config: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-let-recursive");
+    CheckRequest {
+        file: root.join(format!("{file}.tla")),
+        config: Some(root.join(format!("{config}.cfg"))),
+        workers: Some(workers),
+        compat_tlc,
+        seed: Some(0),
+        fp: Some(0),
+        ..Default::default()
+    }
+}
+
+#[test]
+fn recursive_calls_reading_the_next_state_are_not_shared_across_disjuncts()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        // An operator argument whose recursive callee reads the state being
+        // built (through a primed recursive call, a direct prime, a
+        // recursive function, a primed INSTANCE substitution, or a state
+        // read in an initial predicate) is evaluated in each disjunct's
+        // state, not shared between them. Pinned TLC 2026.10.06.014338
+        // confirms each count.
+        for (file, config, generated, distinct, depth) in [
+            ("NextReadCalls", "NextReadPrimed", 5, 2, 2),
+            ("NextReadCalls", "NextReadDirect", 5, 2, 2),
+            ("NextReadCalls", "NextReadFcn", 5, 2, 2),
+            ("NextReadCalls", "NextReadInit", 4, 2, 1),
+            ("NextReadSub", "NextReadSub", 5, 2, 2),
+        ] {
+            let reference = check_file_engine(
+                &next_read_request(file, config, compat_tlc, 1),
+                Engine::Reference,
+            )?;
+            let expected = observed(&reference);
+            assert_eq!(expected["verdict"], "success", "{config}");
+            assert_eq!(expected["statistics"]["generated"], generated);
+            assert_eq!(expected["statistics"]["distinct"], distinct);
+            assert_eq!(expected["statistics"]["depth"], depth);
+            for workers in [1, 4] {
+                let req = next_read_request(file, config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                }
             }
         }
     }
