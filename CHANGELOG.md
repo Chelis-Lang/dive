@@ -5,6 +5,15 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core provides `TLCGet("config")` and the start-up counters to the
+  `ASSUME`s, and `TLCGet("config")` during the search, as Reference does, so
+  `DieHard/MCDieHardest` checks on Core.
+- `dive simulate` no longer refuses `ALIAS`: as in `dive check`, the traces
+  show the states themselves and the report notes that `ALIAS` is not
+  applied. An `ALIAS` naming no definition still refuses.
+- Core refuses `TLCExt!Trace` and `TLCExt!CounterExample` only when a run
+  evaluates them, not when a specification merely mentions them.
+
 - Fold closed constant sets of up to 65,536 loop iterations at compile time
   (was 4,096), so type sets such as MCNano's `SignedBlock \cup {NoBlock}` are
   built once rather than in every state. Results are unchanged.
