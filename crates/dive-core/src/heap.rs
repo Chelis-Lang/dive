@@ -721,7 +721,7 @@ impl Heap {
         self.int_fcn_as(lo, vals, 0)
     }
 
-    fn int_fcn_as(&mut self, lo: i64, vals: &[Handle], view: u8) -> Handle {
+    pub(crate) fn int_fcn_as(&mut self, lo: i64, vals: &[Handle], view: u8) -> Handle {
         let lo = if vals.is_empty() { 1 } else { lo };
         let mut sum = 0u64;
         let mut fl = 0;
@@ -762,7 +762,7 @@ impl Heap {
         self.fcn_sorted_as(keys, vals, 0)
     }
 
-    fn fcn_sorted_as(&mut self, keys: &[Handle], vals: &[Handle], view: u8) -> Handle {
+    pub(crate) fn fcn_sorted_as(&mut self, keys: &[Handle], vals: &[Handle], view: u8) -> Handle {
         if let Some(lo) = contiguous_ints(keys) {
             return self.int_fcn(lo, vals);
         }
