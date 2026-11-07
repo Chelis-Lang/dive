@@ -947,7 +947,7 @@ fn labels_with_reuse<'a>(
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     evaluations: &mut EvaluationErrors,
     control: &dive_check::budget::EvaluationControl,
-    frozen_wf: Option<plan::FrozenWfPair>,
+    frozen_prefix: Option<plan::FrozenPrefix>,
     reuse: &mut fairness::Cache,
 ) -> Result<(PackedTruth, usize), AnalysisError> {
     let graph = graph.into();
@@ -979,7 +979,7 @@ fn labels_with_reuse<'a>(
     // sources keep their eager per-vertex demand order.
     let eager = !states.defers_reads();
     for (index, pred) in plan.atoms.iter().enumerate() {
-        let recipe = frozen_wf.and_then(|pair| pair.atom(index));
+        let recipe = frozen_prefix.and_then(|prefix| prefix.atom(index, pred.kind));
         let mut fully_native = true;
         let mut consumed = false;
         for v in 0..states.representative_count() {
@@ -1042,7 +1042,7 @@ fn labels_with_reuse<'a>(
                     } else {
                         let flat = labels
                             .action_position(v, position)
-                            .ok_or(AnalysisError::Inconsistent("frozen WF action position"))?;
+                            .ok_or(AnalysisError::Inconsistent("frozen prefix action position"))?;
                         let native = if let Some(value) = reuse.get(recipe, flat)
                             && states.validate_predicate_inputs(pred, v, Some(target.original))?
                         {
@@ -1598,7 +1598,7 @@ fn analyze_unbudgeted(
 struct PreparedProperty {
     plan: Plan,
     groups: Vec<PreparedGroup>,
-    frozen_wf: Option<plan::FrozenWfPair>,
+    frozen_prefix: Option<plan::FrozenPrefix>,
 }
 
 struct PreparedGroup {
@@ -1676,7 +1676,7 @@ fn prepare(
     // initial/safety roles needed for attribution. No scope-cycle identity or
     // expression equality permits replacing them with the temporal-role plans.
     // The row consumer retains its original complete MUST/producer authority.
-    let (original_plans, frozen_wf) = plan::lower_original_claims(model, limits.formula)
+    let (original_plans, frozen_prefix) = plan::lower_original_claims(model, limits.formula)
         .map_err(|error| planning_failure(control, error))?;
     let plans = original_plans
         .into_iter()
@@ -1696,7 +1696,7 @@ fn prepare(
             Ok(PreparedProperty {
                 plan,
                 groups,
-                frozen_wf,
+                frozen_prefix,
             })
         })
         .collect::<Result<_, AnalysisError>>()?;
@@ -1873,7 +1873,10 @@ fn analyze_graph(
     control: &dive_check::budget::EvaluationControl,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     let mut reuse = fairness::Cache::new(
-        searched.min(plans.len()) > 1 && plans.first().is_some_and(|plan| plan.frozen_wf.is_some()),
+        searched.min(plans.len()) > 1
+            && plans
+                .first()
+                .is_some_and(|plan| plan.frozen_prefix.is_some()),
         crate::budget::fairness_reuse_limit(),
     );
     let result = (|| {
@@ -1909,7 +1912,7 @@ fn analyze_graph(
                         &active,
                         evaluations,
                         control,
-                        prepared.frozen_wf,
+                        prepared.frozen_prefix,
                         &mut reuse,
                     )?
                 };

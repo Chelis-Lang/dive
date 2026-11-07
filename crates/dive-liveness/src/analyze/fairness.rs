@@ -1,10 +1,10 @@
-//! Optional packed columns from one literal cloned bound behavior WF pair.
+//! Optional packed columns of the literal cloned bound behavior prefix atoms.
 //!
 //! The owning `analyze_graph` invocation fixes the immutable graph namespace and
 //! the planner batch. This stores no row keys, offsets, scopes or property graphs.
 
 use super::{AnalysisError, PackedTruth};
-use crate::plan::FrozenWfAtom;
+use crate::plan::FrozenAtom;
 
 pub(super) struct Cache {
     enabled: bool,
@@ -12,7 +12,7 @@ pub(super) struct Cache {
     cap: usize,
     widths: [usize; 2],
     owner: Option<u64>,
-    columns: [Option<Vec<u64>>; 2],
+    columns: Vec<Option<Vec<u64>>>,
     pub(super) peak_bytes: usize,
     pub(super) cap_bypasses: u64,
     pub(super) allocation_bypasses: u64,
@@ -27,7 +27,7 @@ impl Cache {
             cap,
             widths: [0; 2],
             owner: None,
-            columns: [None, None],
+            columns: Vec::new(),
             peak_bytes: 0,
             cap_bypasses: 0,
             allocation_bypasses: 0,
@@ -54,12 +54,12 @@ impl Cache {
         }
     }
 
-    pub(super) fn get(&self, recipe: Option<FrozenWfAtom>, position: usize) -> Option<bool> {
+    pub(super) fn get(&self, recipe: Option<FrozenAtom>, position: usize) -> Option<bool> {
         let recipe = recipe?;
         if self.owner != Some(recipe.owner()) {
             return None;
         }
-        let words = self.columns[usize::from(recipe.action())].as_ref()?;
+        let words = self.columns.get(recipe.index())?.as_ref()?;
         words
             .get(position / 64)
             .map(|word| word & (1 << (position % 64)) != 0)
@@ -67,7 +67,7 @@ impl Cache {
 
     pub(super) fn complete(
         &mut self,
-        recipe: Option<FrozenWfAtom>,
+        recipe: Option<FrozenAtom>,
         atom: usize,
         labels: &PackedTruth,
         fully_native: bool,
@@ -79,7 +79,7 @@ impl Cache {
 
     pub(super) fn complete_with(
         &mut self,
-        recipe: Option<FrozenWfAtom>,
+        recipe: Option<FrozenAtom>,
         atom: usize,
         labels: &PackedTruth,
         fully_native: bool,
@@ -91,28 +91,38 @@ impl Cache {
         if self.owner.is_some_and(|owner| owner != recipe.owner()) {
             return Ok(());
         }
-        let slot = usize::from(recipe.action());
-        if self.columns[slot].is_some() {
+        let slot = recipe.index();
+        if self.columns.get(slot).is_some_and(Option::is_some) {
             return Ok(());
         }
         let words = labels
             .column_words(atom, recipe.action())
-            .filter(|words| words.len() == self.widths[slot])
-            .ok_or(AnalysisError::Inconsistent("frozen WF column layout"))?;
+            .filter(|words| words.len() == self.widths[usize::from(recipe.action())])
+            .ok_or(AnalysisError::Inconsistent("frozen prefix column layout"))?;
+        let slots = slot
+            .checked_add(1)
+            .ok_or(AnalysisError::Inconsistent("frozen prefix column index"))?
+            .max(self.columns.len());
         let mut copy = Vec::new();
         if !reserve(&mut copy, words.len()) || copy.capacity() < words.len() {
             self.allocation_bypasses += 1;
             return Ok(());
         }
-        let bytes = self
-            .columns
-            .iter()
-            .flatten()
-            .try_fold(size_of::<Self>(), |bytes, column| {
-                column
-                    .capacity()
-                    .checked_mul(size_of::<u64>())
-                    .and_then(|n| bytes.checked_add(n))
+        let metadata = slots
+            .max(self.columns.capacity())
+            .checked_mul(size_of::<Option<Vec<u64>>>())
+            .and_then(|bytes| bytes.checked_add(size_of::<Self>()));
+        let bytes = metadata
+            .and_then(|metadata| {
+                self.columns
+                    .iter()
+                    .flatten()
+                    .try_fold(metadata, |bytes, column| {
+                        column
+                            .capacity()
+                            .checked_mul(size_of::<u64>())
+                            .and_then(|n| bytes.checked_add(n))
+                    })
             })
             .and_then(|bytes| {
                 copy.capacity()
@@ -132,8 +142,22 @@ impl Cache {
             }
             copy.extend_from_slice(chunk);
         }
+        if self.columns.len() < slots {
+            if self
+                .columns
+                .try_reserve_exact(slots - self.columns.len())
+                .is_err()
+            {
+                self.allocation_bypasses += 1;
+                return Ok(());
+            }
+            self.columns.resize_with(slots, || None);
+        }
+        let Some(column) = self.columns.get_mut(slot) else {
+            return Err(AnalysisError::Inconsistent("frozen prefix column index"));
+        };
+        *column = Some(copy);
         self.owner = Some(recipe.owner());
-        self.columns[slot] = Some(copy);
         self.stored_columns += 1;
         Ok(())
     }

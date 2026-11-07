@@ -74,3 +74,18 @@ Whole-process allocation accounting remains incomplete. Adoption requires focuse
 positive/negative controls and bounded unchanged-original capacity confirmation;
 the eleven-of-twelve prior matrix and TLC/W1's thin margin remain unresolved until
 new source-bound evidence establishes the required completion/headroom.
+
+## Amendments
+
+- **Amendment 1, 2026-11-07 (issue #820): every frozen prefix atom.** The
+  planner issues one token for the whole bound behavior prefix that it lowers
+  once and clones into every original configured property plan, instead of
+  only its first WF pair. Every prefix atom (each WF and SF pair, and any other
+  behavior temporal atom) may therefore keep one completed, entirely native
+  packed column per analysis. Property-owned atoms still receive no token, and
+  the other rules above are unchanged: completion-only installation, input
+  validation on every consumption, the same storage cap (now including the
+  per-atom column table), fresh storage per analysis. The cause was
+  `SDP_Attack_New_Solution_Spec/MC`: six properties over fifteen behavior WF
+  pairs evaluated 1,087,181 native atoms, 93% of the run's instructions; with
+  the amendment it evaluates 206,091.

@@ -459,13 +459,14 @@ internal error naming the atom location, test and row ids. Frozen WF reuse is
 not re-audited: its column came from audited native evaluations. The audit adds
 reads and reference work; `atoms.audit` reports whether it was on.
 
-### Frozen behavior WF columns
+### Frozen behavior prefix columns
 
-ADR [0138](../../decisions/0138-frozen-behavior-fairness-reuse.md) permits two
-packed columns for the first literal cloned bound behavior WF pair across
+ADR [0138](../../decisions/0138-frozen-behavior-fairness-reuse.md) (amended)
+permits one packed column for each atom of the literal cloned bound behavior
+prefix (every WF and SF pair and other behavior temporal atom) across
 configured properties. The private planner token comes from one frozen prefix;
 expression IDs or scope-cycle helpers supply no equivalence. Property-owned
-fairness and separately lowered contexts do not receive tokens. A cache belongs
+atoms and separately lowered contexts do not receive tokens. A cache belongs
 to one immutable graph analysis, never the run or a later prefix/final graph.
 
 Only a complete entirely native column is retained. Every reuse still demands
@@ -475,7 +476,7 @@ checks. Reader-only adapters decline input reuse by default. Actual evaluations
 retain their fuel and fallback behavior; independent replay gets fresh state.
 
 The optional cap is the smaller of 16 MiB and one 256th of requested memory,
-including metadata and actual vector capacities. Fallible allocation or cap
+including metadata, the per-atom column table and actual vector capacities. Fallible allocation or cap
 refusal preserves the original path; interrupted copying publishes no column.
 Single-property searches, including current periodic checks, allocate no columns.
 `core.metrics.liveness.atoms.fairness_reuse` reports validated state/action

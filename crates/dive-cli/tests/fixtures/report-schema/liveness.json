@@ -52,7 +52,7 @@
             "allocation_bypasses": 0,
             "cap_bypasses": 0,
             "peak_storage_bytes": 0,
-            "scope": "one completed native frozen behavior WF pair per analysis; actual evaluation counters exclude reuse",
+            "scope": "completed native frozen behavior prefix columns per analysis; actual evaluation counters exclude reuse",
             "state_consumptions": 0,
             "stored_columns": 0
           },
