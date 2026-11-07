@@ -22,6 +22,30 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
             kind: UnsupportedKind::Feature,
         })
         .collect();
+    let ir = &*model.ir;
+    let (roots, _) = checking_path(b, model);
+    let reach = ir.reachable_defs(&roots);
+    let used = ir.reachable_defs(&startup_roots(b, model, roots.clone()));
+    // A refused start-up evaluation of an impure definition matters only if
+    // the checking path uses the definition (TLC may have given it a value)
+    // or TLC's evaluation of it may have had a lasting effect (output, a
+    // random draw, a register, a write or shared input state). Under TLC's
+    // value or exploration order, the strings that evaluation would have
+    // created (`IOEnv`'s keys and values, `ToString`) change later order, so
+    // every such refusal stands there.
+    let ordered_names = b.opts.eval.ctx.order == dive_value::ValueOrder::Tlc
+        || b.opts.eval.exploration == dive_eval::ExplorationOrder::Tlc;
+    for refusal in &b.startup_refusals {
+        let reached = used.get(refusal.def.index()).copied().unwrap_or(true);
+        if reached || ordered_names || !effect_free(b, refusal.def) {
+            b.ev()
+                .restore_external_input_refusal(refusal.input_refusal.clone());
+            out.push(Unsupported {
+                feature: refusal.what.clone(),
+                kind: UnsupportedKind::Feature,
+            });
+        }
+    }
     if !model.implied_temporals.is_empty() {
         let names: Vec<&str> = model
             .implied_temporals
@@ -45,9 +69,6 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
         });
     }
     // Java overrides dive does not implement, reachable from what is checked.
-    let ir = &*model.ir;
-    let (roots, _) = checking_path(b, model);
-    let reach = ir.reachable_defs(&roots);
     let mut refused: BTreeSet<String> = BTreeSet::new();
     for r in ir.refusals() {
         if reach.get(r.def.index()).copied().unwrap_or(false) {
@@ -78,6 +99,109 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
         kind: UnsupportedKind::Feature,
     }));
     out
+}
+
+/// Every definition any role may evaluate: the checking path's `roots`, plus
+/// temporal properties, `ALIAS`, `POSTCONDITION`s and `SYMMETRY`.
+fn startup_roots(b: &Binder<'_>, model: &Model, roots: Vec<DefId>) -> Vec<DefId> {
+    let mut out: BTreeSet<DefId> = roots.into_iter().collect();
+    let mut exprs = Vec::new();
+    let mut preds: Vec<&Pred> = Vec::new();
+    for group in [
+        &model.temporals,
+        &model.implied_temporals,
+        &model.configured_properties,
+    ] {
+        preds.extend(group.iter().map(|n| &n.pred));
+    }
+    if let Some(Ok(alias)) = &model.alias {
+        preds.push(&alias.pred);
+    }
+    if let Ok(post) = &model.postconditions {
+        preds.extend(post.iter().map(|n| &n.pred));
+    }
+    for p in preds {
+        role_defs(b, p.expr, &p.scope, &mut out, &mut exprs, 0);
+    }
+    if let Some(Look::Def(d) | Look::Java(_, d)) = &model.symmetry_definition {
+        out.insert(*d);
+    }
+    out.into_iter().collect()
+}
+
+/// Impure Java overrides whose evaluation only reads: TLC's evaluation of
+/// them leaves nothing behind that a later evaluation can observe.
+fn reads_only(op: StdOp) -> bool {
+    !op.impure()
+        || matches!(
+            op,
+            StdOp::IoUtilsIOEnv | StdOp::TlcJavaTime | StdOp::TlcTLCGet
+        )
+}
+
+/// Whether evaluating `def` (everything it can reach, through constants the
+/// configuration binds) can have no lasting effect: every impure operator it
+/// may apply only reads. Conservative: an instance substitution or an
+/// operator parameter that may be impure counts as an effect.
+fn effect_free(b: &Binder<'_>, def: DefId) -> bool {
+    let ir = &*b.t.ir;
+    let mut seen = vec![false; ir.defs().len()];
+    let mut work = vec![def];
+    let constant = |c: dive_ir::ConstId, work: &mut Vec<DefId>| match b.t.const_look(c) {
+        Some(Look::Def(d)) => {
+            work.push(d);
+            true
+        }
+        Some(Look::Java(op, _)) => reads_only(op),
+        Some(Look::Value(_) | Look::Literal(_)) | None => true,
+    };
+    while let Some(d) = work.pop() {
+        match seen.get_mut(d.index()) {
+            Some(s) if !*s => *s = true,
+            Some(_) => continue,
+            None => return false,
+        }
+        let def = ir.def(d);
+        if let Some(op) = def.std {
+            if !reads_only(op) {
+                return false;
+            }
+            continue;
+        }
+        let mut exprs = vec![def.body];
+        while let Some(e) = exprs.pop() {
+            let node = ir.node(e);
+            match &node.expr {
+                Expr::Def(x) => work.push(*x),
+                Expr::Let { defs, .. } => work.extend(defs.iter().copied()),
+                Expr::Const(c) => {
+                    if !constant(*c, &mut work) {
+                        return false;
+                    }
+                }
+                Expr::SubstRef { .. } => return false,
+                _ => {}
+            }
+            for r in node.expr.op_refs() {
+                let ok = match r {
+                    OpRef::Def(x) => {
+                        work.push(*x);
+                        true
+                    }
+                    OpRef::Std(op) => reads_only(*op),
+                    OpRef::Const(c) => constant(*c, &mut work),
+                    OpRef::Subst(_) => false,
+                    OpRef::Param(_) => !node.effects.intersects(Effects::IMPURE),
+                    OpRef::Builtin(_) | OpRef::Unbound(_) => true,
+                };
+                if !ok {
+                    return false;
+                }
+            }
+            node.expr.for_each_child(|child| exprs.push(child));
+        }
+    }
+    true
 }
 
 /// The definitions a role's expression uses directly, including through the

@@ -106,6 +106,21 @@ pub(crate) struct Binder<'a> {
     /// feature or a resource limit): TLC may have given them a value, so
     /// whatever depends on that value is refused too.
     pub(crate) refused: HashMap<DefId, String>,
+    /// Impure definitions whose start-up evaluation dive refused. Each is
+    /// refused only if the checking path reaches it or its evaluation may
+    /// have had a lasting effect in TLC (`reach::unsupported`).
+    pub(crate) startup_refusals: Vec<StartupRefusal>,
+}
+
+/// A refused start-up evaluation of an impure definition.
+pub(crate) struct StartupRefusal {
+    /// The definition.
+    pub def: DefId,
+    /// The refusal, naming the definition.
+    pub what: String,
+    /// The external-input refusal that evaluation recorded, if any; restored
+    /// when the refusal is kept.
+    pub input_refusal: Option<String>,
 }
 
 impl<'a> Binder<'a> {
@@ -142,6 +157,7 @@ impl<'a> Binder<'a> {
             action_constraints: Vec::new(),
             unsupported: Vec::new(),
             refused: HashMap::new(),
+            startup_refusals: Vec::new(),
         })
     }
 
@@ -667,7 +683,8 @@ impl<'a> Binder<'a> {
             if !ir.def(def).params.is_empty() {
                 continue;
             }
-            match self.ev().precompute(def) {
+            let (result, input_refusal) = self.startup_precompute(def);
+            match result {
                 Ok(Some(v)) => {
                     // `opDef.setToolObject(toolId, defVal)`.
                     self.t.tool_obj.insert(def, Look::Value(v));
@@ -699,7 +716,7 @@ impl<'a> Binder<'a> {
                         )
                         .into());
                     }
-                    self.note_startup_failure(def, &e)?;
+                    self.note_startup_failure(def, &e, input_refusal)?;
                 }
             }
         }
@@ -729,7 +746,8 @@ impl<'a> Binder<'a> {
             if level != 0 {
                 continue;
             }
-            match self.ev().precompute(real) {
+            let (result, input_refusal) = self.startup_precompute(real);
+            match result {
                 Ok(Some(v)) => {
                     self.t.tool_obj.insert(real, Look::Value(v.clone()));
                     let real_name = ir.def(real).name.clone();
@@ -739,7 +757,7 @@ impl<'a> Binder<'a> {
                     let _ = name;
                 }
                 Ok(None) => {}
-                Err(e) => self.note_startup_failure(real, &e)?,
+                Err(e) => self.note_startup_failure(real, &e, input_refusal)?,
             }
         }
         for inner in inner_modules(&ir, m) {
@@ -748,13 +766,40 @@ impl<'a> Binder<'a> {
         Ok(())
     }
 
+    /// Precomputes `def` at start-up, returning the external-input refusal
+    /// this evaluation recorded separately. A successful evaluation's refusal
+    /// is restored at once; a failed one's goes to
+    /// [`Binder::note_startup_failure`].
+    fn startup_precompute(
+        &self,
+        def: DefId,
+    ) -> (Result<Option<Value>, dive_eval::EvalError>, Option<String>) {
+        let ev = self.ev();
+        let prior = ev.take_external_input_refusal();
+        let result = ev.precompute(def);
+        let mine = ev.take_external_input_refusal();
+        ev.restore_external_input_refusal(prior);
+        if result.is_ok() {
+            ev.restore_external_input_refusal(mine);
+            return (result, None);
+        }
+        (result, mine)
+    }
+
     /// A start-up evaluation failed. TLC swallows the error; dive does too,
     /// unless dive refused something TLC may have evaluated, in which case
     /// the outcome may differ if the definition is impure (it prints or
-    /// draws) and the model is refused.
-    fn note_startup_failure(&mut self, def: DefId, e: &dive_eval::EvalError) -> R<()> {
+    /// draws, or the checking path reaches it) and the model is refused.
+    /// That decision waits for the checking path (`reach::unsupported`).
+    fn note_startup_failure(
+        &mut self,
+        def: DefId,
+        e: &dive_eval::EvalError,
+        input_refusal: Option<String>,
+    ) -> R<()> {
         self.propagate_interruption(e)?;
         if e.class() == ErrorClass::Eval {
+            self.ev().restore_external_input_refusal(input_refusal);
             return Ok(());
         }
         let ir = &*self.t.ir;
@@ -764,7 +809,13 @@ impl<'a> Binder<'a> {
             e.message()
         );
         if ir.def(def).effects.intersects(dive_ir::Effects::IMPURE) {
-            self.unsupported.push(what.clone());
+            self.startup_refusals.push(StartupRefusal {
+                def,
+                what: what.clone(),
+                input_refusal,
+            });
+        } else {
+            self.ev().restore_external_input_refusal(input_refusal);
         }
         self.refused.entry(def).or_insert(what);
         Ok(())
