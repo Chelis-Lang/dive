@@ -91,6 +91,10 @@ pub struct Machine {
     pub(crate) cvals: Vec<Handle>,
     pub(crate) saved: Vec<Handle>,
     scratch: Vec<Vec<Handle>>,
+    /// The absolute frame positions of thunk slots forced to a transient,
+    /// in forcing order ([`Machine::thunk_mark`]). A position at or past
+    /// the frame's length names a slot that has left the frame.
+    transient_slots: Vec<usize>,
     depth: usize,
     /// Loop iterations left before evaluation gives up. Unbounded at run
     /// time; the compiler bounds it while folding constants (R9), and an
@@ -221,6 +225,7 @@ impl Machine {
             cvals: Vec::new(),
             saved: Vec::new(),
             scratch: Vec::new(),
+            transient_slots: Vec::new(),
             depth: 0,
             fuel: u64::MAX,
             refuse_unrecorded_warnings: false,
@@ -418,6 +423,45 @@ impl Machine {
     pub fn leave(&mut self, old: usize) {
         self.frame.truncate(self.base);
         self.base = old;
+        if self.frame.is_empty() {
+            // Every recorded thunk slot has left the frame.
+            self.transient_slots.clear();
+        }
+    }
+
+    /// The point from which [`Machine::thunks_released`] considers the thunk
+    /// slots forced to a transient. Take it with the [`Heap::mark`] that a
+    /// later rollback frees to.
+    #[must_use]
+    pub fn thunk_mark(&self) -> usize {
+        self.transient_slots.len()
+    }
+
+    /// Whether no thunk slot still in the frame holds a transient forced
+    /// since `since` (`03-value-model.md` §11.5 rule 2), so that a rollback
+    /// to the heap mark taken with it frees no value a live slot holds.
+    /// A slot forced in a frame that has since been left is gone: entering
+    /// a frame fills fresh slots with [`Handle::EMPTY`]. Forgets the
+    /// positions of slots that have left the frame; a true result forgets
+    /// every position recorded since `since`.
+    pub fn thunks_released(&mut self, since: usize) -> bool {
+        let len = self.transient_slots.len();
+        if since >= len {
+            return true;
+        }
+        let live = self.frame.len();
+        let mut kept = since;
+        let mut i = since;
+        while i < len {
+            let slot = self.transient_slots[i];
+            if slot < live {
+                self.transient_slots[kept] = slot;
+                kept += 1;
+            }
+            i += 1;
+        }
+        self.transient_slots.truncate(kept);
+        kept == since
     }
 
     #[inline]
@@ -517,7 +561,10 @@ impl Machine {
                 }
                 self.stats.forced += 1;
                 let v = self.eval(code, *body)?;
-                self.stats.transient_thunks += u64::from(v.is_transient());
+                if v.is_transient() {
+                    self.stats.transient_thunks += 1;
+                    self.transient_slots.push(self.base + *slot as usize);
+                }
                 self.set_slot(*slot, v);
                 Ok(v)
             }
@@ -1637,10 +1684,10 @@ impl Machine {
             };
             self.charge(1)?;
             let after = self.heap.mark();
-            let forced = self.stats.transient_thunks;
+            let forced = self.thunk_mark();
             self.bind_one(bind, e)?;
             let keep = self.eval_bool(code, pred)?;
-            if self.stats.transient_thunks == forced {
+            if self.thunks_released(forced) {
                 if keep {
                     self.heap.rollback(after);
                 } else {
@@ -1670,14 +1717,14 @@ impl Machine {
             return Ok(None);
         };
         let before = self.heap.mark();
-        let forced = self.stats.transient_thunks;
+        let forced = self.thunk_mark();
         match self.eval_norm(code, set) {
             Ok(f) => {
                 let powerset = self.heap.symbolic(Kind::Subset, 0, &[f]);
                 self.work_cursor(powerset).map(Some)
             }
             Err(e) if e.kind() == crate::ErrorKind::Eval => {
-                if self.stats.transient_thunks == forced {
+                if self.thunks_released(forced) {
                     self.heap.rollback(before);
                 }
                 Ok(None)
@@ -1828,12 +1875,12 @@ impl Machine {
                         break;
                     };
                     self.charge(1)?;
-                    let forced = self.stats.transient_thunks;
+                    let forced = self.thunk_mark();
                     self.bind_one(&binds[0], e)?;
                     if self.eval_bool(code, body)? {
                         return Ok(e);
                     }
-                    if self.stats.transient_thunks == forced {
+                    if self.thunks_released(forced) {
                         self.heap.rollback(before);
                     }
                 }
@@ -2784,6 +2831,96 @@ mod recursive_call_bounds {
         assert_eq!(m.depth, 0);
         assert_eq!(m.frame, Vec::<Handle>::new());
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod thunk_rollback {
+    #![allow(clippy::unwrap_used, reason = "tests")]
+    use super::*;
+
+    /// Slot 0's thunk is a tuple of `x`: a transient.
+    fn code() -> Code {
+        Code {
+            nodes: vec![
+                Node::Var(0),
+                Node::Tuple(Box::new([0, 0])),
+                Node::Lazy { slot: 0, body: 1 },
+            ],
+            ..Default::default()
+        }
+    }
+
+    fn machine() -> Machine {
+        let mut m = Machine::new(
+            Arc::new(Store::default()),
+            1,
+            Opts::default(),
+            Memo::default(),
+        );
+        m.s0[0] = Handle::int(1).unwrap();
+        m
+    }
+
+    #[test]
+    fn a_thunk_forced_in_a_left_frame_releases_the_rollback() {
+        let code = code();
+        let mut m = machine();
+        let outer = m.enter(1);
+        let before = m.heap.mark();
+        let since = m.thunk_mark();
+        let inner = m.enter(1);
+        let v = m.eval(&code, 2).unwrap();
+        assert!(v.is_transient());
+        // While the check's frame is live, its slot holds the value.
+        assert!(!m.thunks_released(since));
+        m.leave(inner);
+        assert!(m.thunks_released(since));
+        m.heap.rollback(before);
+        assert!(!m.heap.poisoned());
+        // The outer frame's own thunk is unforced and evaluates afresh.
+        let w = m.eval(&code, 2).unwrap();
+        assert!(compare::equals(&m.heap, w, w).unwrap());
+        assert!(!m.heap.poisoned());
+        m.leave(outer);
+    }
+
+    #[test]
+    fn a_thunk_forced_in_a_live_frame_keeps_the_values_it_holds() {
+        let code = code();
+        let mut m = machine();
+        let outer = m.enter(1);
+        let since = m.thunk_mark();
+        let v = m.eval(&code, 2).unwrap();
+        let inner = m.enter(1);
+        m.leave(inner);
+        // The live slot holds a value built after the mark: no rollback.
+        assert!(!m.thunks_released(since));
+        // An enclosing scope still sees it, and a later scope does not.
+        assert!(!m.thunks_released(0));
+        let later = m.thunk_mark();
+        assert!(m.thunks_released(later));
+        assert_eq!(m.eval(&code, 2).unwrap(), v);
+        assert!(!m.heap.poisoned());
+        m.leave(outer);
+        // Leaving the last frame drops every slot.
+        assert!(m.thunks_released(0));
+    }
+
+    #[test]
+    fn a_released_inner_scope_keeps_the_enclosing_scopes_live_slots() {
+        let code = code();
+        let mut m = machine();
+        let outer = m.enter(1);
+        let since = m.thunk_mark();
+        m.eval(&code, 2).unwrap();
+        let inner_since = m.thunk_mark();
+        let inner = m.enter(1);
+        m.eval(&code, 2).unwrap();
+        m.leave(inner);
+        assert!(m.thunks_released(inner_since));
+        assert!(!m.thunks_released(since));
+        m.leave(outer);
     }
 }
 
