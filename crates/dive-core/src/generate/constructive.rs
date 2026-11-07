@@ -159,9 +159,9 @@ impl Machine {
             let index = usize::try_from(index)
                 .map_err(|_| Error::unsupported("constructive branch index"))?;
             let before = self.heap.mark();
-            let forced = self.stats.transient_thunks;
+            let forced = self.thunk_mark();
             self.gen_node(code, items[index], acts, sink)?;
-            if self.stats.transient_thunks == forced {
+            if self.thunks_released(forced) {
                 self.heap.rollback(before);
             }
             if !order.advance() {
@@ -219,7 +219,7 @@ impl Machine {
             self.charge(1)?;
             let mark = self.save(slots.iter().copied());
             let before = self.heap.mark();
-            let forced = self.stats.transient_thunks;
+            let forced = self.thunk_mark();
             let result = (|| {
                 for ((unit, domain), order) in units.iter().zip(&orders) {
                     let index = order
@@ -235,7 +235,7 @@ impl Machine {
             // escape the context and prevent rollback. Chosen sink Stop keeps
             // its retained state and unwinds through the outer driver cleanup.
             result?;
-            if self.stats.transient_thunks == forced {
+            if self.thunks_released(forced) {
                 self.heap.rollback(before);
             }
             let mut carry = true;

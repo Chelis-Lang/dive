@@ -1269,7 +1269,7 @@ impl Sink for Explorer<'_> {
         // (`03-value-model.md` §11.5 rule 2). The state's own values predate
         // the mark, and the frontier holds them interned.
         let before = m.heap.mark();
-        let forced = m.stats.transient_thunks;
+        let forced = m.thunk_mark();
         let draws = m.draws;
         // State checks read the checked state's `TLCGet("level")`.
         let level = m.level;
@@ -1283,7 +1283,7 @@ impl Sink for Explorer<'_> {
                 "RandomElement in an invariant, constraint or implied action (M1 core)",
             ));
         }
-        if r.is_ok() && m.stats.transient_thunks == forced {
+        if r.is_ok() && m.thunks_released(forced) {
             m.heap.rollback(before);
         }
         if m.heap.poisoned() {
@@ -2699,6 +2699,93 @@ mod tests {
         assert!(capture_reserve(&mut values, usize::MAX).is_err());
         assert_eq!(values, [Handle::EMPTY]);
         assert_eq!(values.capacity(), capacity);
+    }
+
+    /// An invariant whose own frame forces a thunk to a transient (a
+    /// definition built per checked state, as `Corpus` in
+    /// `LeastCircularSubstring`) still frees the check's transients once each
+    /// initial state is accepted: the thunk's slot leaves the frame with the
+    /// check. Before, every initial state's copy was held until `Init` ended.
+    #[test]
+    #[allow(clippy::unwrap_used, reason = "deterministic explorer control")]
+    fn invariant_frame_thunks_do_not_hold_initial_transients() {
+        use dive_core::plan::{Action, CompileStats, Conjunct, Effects, GNode, Node};
+
+        const WIDTH: usize = 64;
+        const STATES: u64 = 128;
+        let store = Arc::new(Store::new(false));
+        let mut heap = dive_core::Heap::new(Arc::clone(&store), false, false);
+        let domain = heap.interval(0, 127);
+        let domain = heap.intern_const(domain).unwrap();
+        let action = |name: &str, g| Action {
+            name: name.into(),
+            g,
+            // A live action frame below the check's.
+            frame: 1,
+            preset: Vec::new(),
+        };
+        let plan = Plan {
+            code: Code {
+                nodes: vec![
+                    Node::Const(domain),
+                    Node::Var(0),
+                    // A tuple built from the checked state: always transient.
+                    Node::Tuple(vec![1; WIDTH].into_boxed_slice()),
+                    Node::Lazy { slot: 0, body: 2 },
+                    Node::Eq(3, 3),
+                ],
+                gnodes: vec![
+                    GNode::AssignIn { var: 0, set: 0 },
+                    GNode::Assign { var: 0, rhs: 1 },
+                ],
+                ..Code::default()
+            },
+            vars: vec!["x".into()],
+            init: vec![action("Init", 0)],
+            next: vec![action("Next", 1)],
+            invariants: vec![Check {
+                name: "Inv".into(),
+                frame: 1,
+                conjuncts: vec![Conjunct {
+                    p: 4,
+                    reads: 1,
+                    skippable: false,
+                    site: None,
+                }],
+            }],
+            constraints: Vec::new(),
+            action_constraints: Vec::new(),
+            implied_inits: Vec::new(),
+            implied_actions: Vec::new(),
+            check_deadlock: true,
+            symmetry: None,
+            effects: Effects::default(),
+            view: None,
+            stats: CompileStats::default(),
+            bound_preset: Vec::new(),
+        };
+        let out = explore(
+            &plan,
+            &store,
+            Config {
+                opts: Opts::default(),
+                max_states: None,
+                max_depth: None,
+                workers: 1,
+                warn: true,
+                sample: None,
+            },
+            &|| false,
+        );
+        assert_eq!(out.verdict, Verdict::Success);
+        assert_eq!(out.stats.distinct, STATES);
+        assert_eq!(out.metrics.thunks, (STATES, STATES));
+        // One state's tuple at a time, not one per initial state.
+        let (_, handles) = out.metrics.arena_peak;
+        assert!(
+            handles < 4 * WIDTH,
+            "arena peak of {handles} handles holds the initial states' check transients"
+        );
     }
 
     #[test]

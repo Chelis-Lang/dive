@@ -717,7 +717,12 @@ arena nodes directly.
    or thunk caches. Each rollback starts a new epoch for later allocations,
    so a stale use is detected like rule 1. Use it only around work whose
    result is a scalar or a value built before the mark (a filter predicate,
-   a rejected candidate).
+   a rejected candidate). A thunk forced to a transient records its absolute
+   frame position (`Machine::thunk_mark`); a rollback site rolls back only
+   when every position recorded since its mark has left the frame
+   (`Machine::thunks_released`). A check or call that forces a thunk in its
+   own frame therefore does not block the rollback once it returns, while a
+   thunk in a still-live frame does.
 3. **Intern after claim.** The engine interns a successor's values only after
    its state key wins the seen-set claim (or, without the early probe,
    before the probe). Nothing else interns state values, except that a step
