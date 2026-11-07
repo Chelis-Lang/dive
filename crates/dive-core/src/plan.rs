@@ -183,6 +183,20 @@ pub enum Node {
     Case(Box<[(P, P)]>, Option<P>),
     /// `a = b`
     Eq(P, P),
+    /// `e = e'` for a subscript `e` compiled to a tuple, possibly nested and
+    /// behind thunks, of state variables (`changed_test`). `eq` is that
+    /// `Eq`. Outside TLC comparisons, when no thunk on the way is forced and
+    /// every leaf of both states is materialized, the result is each leaf's
+    /// `Heap::eq`, without building either tuple or forcing a thunk;
+    /// otherwise `eq` is evaluated.
+    SameVars {
+        /// The original `Eq` of the two tuples.
+        eq: P,
+        /// Each leaf variable and its depth (1 for an outer element).
+        leaves: Box<[(u16, u8)]>,
+        /// The slots of the thunks (`Node::Lazy`) between `eq` and the leaves.
+        thunks: Box<[u32]>,
+    },
     /// `a /= b`
     Neq(P, P),
     /// `a \in S`

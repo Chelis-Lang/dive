@@ -57,6 +57,8 @@ pub(crate) struct NativeAtoms {
     machine: Machine,
     control: Arc<EvaluationControl>,
     compiled: Vec<Compiled>,
+    /// The last atom [`NativeAtoms::position`] found, with its index.
+    last_position: std::cell::Cell<Option<(*const PredicateAtom, usize)>>,
     eligible: usize,
     total: usize,
     evaluated: u64,
@@ -179,6 +181,7 @@ impl NativeAtoms {
             ),
             control: Arc::clone(control),
             compiled: Vec::new(),
+            last_position: std::cell::Cell::new(None),
             eligible: 0,
             total: 0,
             evaluated: 0,
@@ -288,9 +291,26 @@ impl NativeAtoms {
 
     #[cfg(test)]
     fn has(&self, atom: &PredicateAtom) -> bool {
-        self.compiled
+        self.position(atom).is_some()
+    }
+
+    /// The prepared plan of exactly this atom object. The analysis asks for
+    /// one atom on every row and edge before the next, so the last hit is
+    /// remembered; `compiled` is fixed after preparation, so its index stays
+    /// valid.
+    fn position(&self, atom: &PredicateAtom) -> Option<usize> {
+        let identity = std::ptr::from_ref(atom);
+        if let Some((last, index)) = self.last_position.get()
+            && std::ptr::eq(last, identity)
+        {
+            return Some(index);
+        }
+        let index = self
+            .compiled
             .iter()
-            .any(|item| std::ptr::eq(item.identity, atom))
+            .position(|item| std::ptr::eq(item.identity, identity))?;
+        self.last_position.set(Some((identity, index)));
+        Some(index)
     }
 
     /// The first native-versus-reference disagreement found by the audit.
@@ -320,11 +340,7 @@ impl NativeAtoms {
         inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<Option<bool>, AnalysisError> {
         check(&self.control, control)?;
-        let Some(index) = self
-            .compiled
-            .iter()
-            .position(|item| std::ptr::eq(item.identity, atom))
-        else {
+        let Some(index) = self.position(atom) else {
             self.fallback += 1;
             self.fallbacks.not_compiled += 1;
             return Ok(None);
@@ -418,11 +434,7 @@ impl NativeAtoms {
         inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<bool, AnalysisError> {
         check(&self.control, control)?;
-        if !self
-            .compiled
-            .iter()
-            .any(|item| std::ptr::eq(item.identity, atom))
-        {
+        if self.position(atom).is_none() {
             return Ok(false);
         }
         let admitted = inputs_closed(&self.machine.heap)?;
@@ -761,10 +773,7 @@ impl NativeReader for Reader<'_, '_> {
     }
 
     fn has_predicate(&self, atom: &PredicateAtom) -> bool {
-        self.atoms
-            .compiled
-            .iter()
-            .any(|item| std::ptr::eq(item.identity, atom))
+        self.atoms.position(atom).is_some()
     }
 
     fn read(
@@ -1658,6 +1667,70 @@ mod tests {
                         .expect("frame reset"),
                     Some(false)
                 );
+            });
+        }
+    }
+
+    #[test]
+    fn nested_variable_subscripts_compare_variables_directly_with_reference_truth() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLES x,y,z\nInner == <<y,z>>\nvars == <<x,Inner>>\nInit == x=0 /\\ y={} /\\ z=0\nNext == UNCHANGED vars\nA == x'=x+1 /\\ UNCHANGED <<y,z>>\nSpec == Init /\\ [][Next]_vars /\\ WF_vars(A)\nP == <> (x=1)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let wrappers: Vec<_> = driver
+                    .native_predicates()
+                    .filter(|a| a.test != AtomTest::Predicate)
+                    .collect();
+                assert_eq!(wrappers.len(), 2);
+                for atom in &wrappers {
+                    let compiled = atoms
+                        .compiled
+                        .iter()
+                        .find(|item| std::ptr::eq(item.identity, *atom))
+                        .expect("compiled wrapper");
+                    assert!(
+                        compiled
+                            .plan
+                            .code
+                            .nodes
+                            .iter()
+                            .any(|node| matches!(node, dive_core::plan::Node::SameVars { leaves, .. } if leaves.len() == 3)),
+                        "{:?}",
+                        atom.test
+                    );
+                }
+                let nonstuttering = wrappers
+                    .iter()
+                    .find(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                    .expect("nonstuttering");
+                let enabled = wrappers
+                    .iter()
+                    .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
+                    .expect("enabled");
+                let int = |i| dive_value::Value::Int(i);
+                let ctx = prepared.model.evaluator.options().ctx;
+                let set = |items: Vec<i64>| {
+                    dive_value::Value::set(items.into_iter().map(int).collect(), ctx).expect("set")
+                };
+                let rows = [
+                    vec![int(0), set(vec![]), int(0)],
+                    vec![int(1), set(vec![]), int(0)],
+                    vec![int(0), set(vec![1]), int(0)],
+                    vec![int(0), set(vec![]), int(2)],
+                    vec![int(1), set(vec![1, 2]), int(2)],
+                ];
+                let mut decided = 0;
+                for before in &rows {
+                    decided += usize::from(
+                        agree(prepared, atoms, enabled, control, before, None).is_some(),
+                    );
+                    for after in &rows {
+                        decided += usize::from(
+                            agree(prepared, atoms, nonstuttering, control, before, Some(after))
+                                .is_some(),
+                        );
+                    }
+                }
+                assert_eq!(decided, rows.len() * (rows.len() + 1), "every truth native");
             });
         }
     }

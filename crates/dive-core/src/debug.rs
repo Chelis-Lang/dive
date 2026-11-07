@@ -260,6 +260,7 @@ pub(crate) fn reachable(plan: &crate::plan::Plan) -> Vec<Instruction> {
                         | Node::Select(a, _) => values.push(*a),
                         Node::Lazy { body, .. }
                         | Node::Scope { body, .. }
+                        | Node::SameVars { eq: body, .. }
                         | Node::Memo { body, .. } => values.push(*body),
                         Node::Implies(a, b)
                         | Node::Equiv(a, b)

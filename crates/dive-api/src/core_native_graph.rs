@@ -130,18 +130,21 @@ impl NativeGraph {
     }
 
     pub(crate) fn row(&self, id: usize) -> Result<&[Handle], AnalysisError> {
+        // Every atom demand reads its rows here: no error value is built
+        // (and dropped) on the success path.
         if id >= self.retained_rows {
             return Err(AnalysisError::Inconsistent("native retained state row"));
         }
-        let start = id
-            .checked_mul(self.nvars)
-            .ok_or(AnalysisError::Inconsistent("native state row offset"))?;
-        let end = start
-            .checked_add(self.nvars)
-            .ok_or(AnalysisError::Inconsistent("native state row end"))?;
-        self.rows
-            .get(start..end)
-            .ok_or(AnalysisError::Inconsistent("native state row width"))
+        let Some(start) = id.checked_mul(self.nvars) else {
+            return Err(AnalysisError::Inconsistent("native state row offset"));
+        };
+        let Some(end) = start.checked_add(self.nvars) else {
+            return Err(AnalysisError::Inconsistent("native state row end"));
+        };
+        let Some(row) = self.rows.get(start..end) else {
+            return Err(AnalysisError::Inconsistent("native state row width"));
+        };
+        Ok(row)
     }
 
     pub(crate) fn state_count(&self) -> usize {
