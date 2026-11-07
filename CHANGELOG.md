@@ -25,6 +25,12 @@ published. Earlier pre-release development entries remain in git history.
   liveness with run-time names and finite modes that reach unreplayed random or
   register effects are named Core refusals; see
   [compatibility gaps](docs/tlc-differences.md#compat-gaps).
+- Core keeps its start-up evaluation of pure constant definitions when the
+  model has temporal properties: the binder evaluates only the definitions
+  the temporal properties and the specification's fairness reach, instead of
+  binding the model again and evaluating every one. `LoopInvariance/MCBinarySearch`
+  (`PROPERTY Termination`) takes about 2.5 s on Core instead of 5.6 s, the
+  same as without the property.
 - Core computes `SYMMETRY` canonical images faster: images of values inside
   a state that recur across states are remembered per worker, within 32 MiB
   per run, and a set variable's image is derived from its predecessor's.

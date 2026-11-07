@@ -22,4 +22,9 @@ Step == k < Limit /\ x' = Ring[x] /\ k' = k + 1
 Next == Step
 NextBad == Step \/ (k = Limit /\ x' = Bad /\ UNCHANGED k)
 Inv == k <= Limit /\ x \in Node
+\* Temporal properties: `Live` reaches no start-up definition, so the core
+\* keeps all three; `Never` reads `Limit`, which the binder then evaluates.
+Spec == Init /\ [][Next]_<<x, k>>
+Live == <>[](x \in Node)
+Never == <>(k > Limit)
 ====

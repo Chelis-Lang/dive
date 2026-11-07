@@ -68,6 +68,37 @@ fn startup_constants_evaluated_by_the_core_match_the_reference_engine()
 }
 
 #[test]
+fn temporal_properties_keep_the_cores_startup_constants_they_do_not_reach()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        // `Live` reads no start-up definition; `Never` reads `Limit`, which
+        // the binder evaluates for the liveness checker.
+        for (config, verdict, core_values) in
+            [("LiveHolding", "success", 3), ("LiveFailing", "error", 2)]
+        {
+            let req = request(config, compat_tlc);
+            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+            if verdict == "success" {
+                assert_eq!(expected["verdict"], "success", "{expected:#}");
+            } else {
+                assert_eq!(expected["property"], "Never", "{expected:#}");
+            }
+            let core = check_file_engine(&req, Engine::Core)?;
+            let doc = core.to_json();
+            assert_eq!(doc["engine"], "core", "{doc:#}");
+            assert_eq!(observed(&core), expected, "{config}/{compat_tlc}");
+            let plan = &doc["core"]["metrics"]["plan"];
+            let want = if compat_tlc { 0 } else { core_values };
+            assert_eq!(
+                plan["startup_values"], want,
+                "{config}/{compat_tlc}: {plan:#}"
+            );
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn a_startup_constant_the_core_cannot_evaluate_takes_the_binders_value() {
     // The reference evaluator recurses on the native stack, as the
     // engines' own threads allow.
