@@ -1035,7 +1035,9 @@ impl Machine {
                 crate::stdlib::call_ho(self, *op, &a)
             }
             Node::Enabled { g, .. } => self.enabled(code, *g),
-            Node::Composition { first, then, .. } => self.composition_holds(code, *first, *then),
+            Node::Composition {
+                first, then, reset, ..
+            } => self.composition_holds(code, *first, *then, reset),
             Node::Memo { site, body } => self.memo_eval(code, *site, *body),
             Node::Spec(b) => self.eval(code, *b).map_err(speculative),
             Node::Beta { chain, fc, arg } => self.beta(code, *chain, *fc, *arg),

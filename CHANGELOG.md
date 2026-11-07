@@ -112,6 +112,12 @@ published. Earlier pre-release development entries remain in git history.
   `core.metrics.liveness.atoms` gains `negated_enabled_evaluations` and
   `reference_evaluations` (state and action label demands answered by the
   reference evaluator), and drops the `negated_enabled` rejection count.
+- Core no longer evaluates every state-dependent `LET` definition by name
+  once a spec uses action composition (`A \cdot B`). A composition now
+  re-forces only its own frame's state-dependent definitions when a stage
+  moves to another row, so `LET m == Min(...)` in `MCCRDT`'s `Reduction` is
+  evaluated once per intermediate state instead of once per function cell.
+  `FiniteMonotonic/MCCRDT` runs in about half the time, with the same counts.
 - Core evaluates a recursive operator or recursive LET function applied under
   a prime, as a refinement mapping `INSTANCE ... WITH v <- Op(e)` does under
   `[][Next]_vars`, in the successor state. `glowingRaccoon/product` now checks

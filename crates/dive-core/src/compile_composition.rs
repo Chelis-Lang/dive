@@ -18,6 +18,16 @@ pub(super) enum State {
     Compiled,
 }
 
+/// A compiled composition, whose thunk resets are filled in once the whole
+/// plan is compiled.
+#[derive(Clone, Copy)]
+pub(super) enum Site {
+    /// A Boolean composition (`Node::Composition`).
+    Value(P),
+    /// A generated composition (`GNode::Composition`).
+    Generator(G),
+}
+
 impl Compiler<'_> {
     pub(super) fn composition_value(
         &mut self,
@@ -30,11 +40,24 @@ impl Compiler<'_> {
             return Err(Error::unsupported("primed action composition"));
         }
         let (first, then, free) = self.composition_parts(first, then, env)?;
-        self.push(Node::Composition {
+        let p = self.push(Node::Composition {
             first,
             then,
             free: free.into(),
-        })
+            reset: Box::new([]),
+        })?;
+        self.compositions.push((self.frame, Site::Value(p)));
+        Ok(p)
+    }
+
+    pub(super) fn composition_gen(&mut self, first: G, then: G) -> G {
+        let g = self.gpush(GNode::Composition {
+            first,
+            then,
+            reset: Box::new([]),
+        });
+        self.compositions.push((self.frame, Site::Generator(g)));
+        g
     }
 
     pub(super) fn composition_parts(
@@ -105,23 +128,48 @@ impl Compiler<'_> {
         }
     }
 
-    /// A frame may now evaluate pure bodies on several source rows. Keyed
-    /// memo sites still read their actual state keys; once-per-frame values
-    /// must instead be evaluated by name. An empty existing scope is an
-    /// identity node, preserving lexical slots and all instruction indexes.
-    pub(super) fn uncache_composition_states(&mut self) {
+    /// A composition evaluates its stages on rows other than its frame's
+    /// source and successor. Keyed memo sites still read their actual state
+    /// keys; the frame's state-dependent thunks are instead reset by the
+    /// composition whenever it changes rows. Thunks of other frames need no
+    /// reset: a callee frame starts empty on each call, and call arguments
+    /// are values, so the stages read no other frame's slots.
+    pub(super) fn reset_composition_thunks(&mut self) {
         if self.composition != State::Compiled {
             return;
         }
-        for (node, info) in self.code.nodes.iter_mut().zip(&self.info) {
-            if !info.effect
-                && (info.vars != 0 || info.primed != 0 || info.calls)
-                && let Node::Lazy { body, .. } = node
-            {
-                *node = Node::Scope {
-                    reset: Box::new([]),
-                    body: *body,
-                };
+        for (frame, site) in std::mem::take(&mut self.compositions) {
+            let mut slots: Vec<u32> = self
+                .lazies
+                .iter()
+                .filter(|&&(f, _)| f == frame)
+                .filter_map(|&(_, p)| {
+                    let info = self.info.get(p as usize)?;
+                    let state = !info.effect && (info.vars != 0 || info.primed != 0 || info.calls);
+                    match self.code.nodes.get(p as usize) {
+                        Some(Node::Lazy { slot, .. }) if state => Some(*slot),
+                        _ => None,
+                    }
+                })
+                .collect();
+            slots.sort_unstable();
+            slots.dedup();
+            let slots: Box<[u32]> = slots.into();
+            match site {
+                Site::Value(p) => {
+                    if let Some(Node::Composition { reset, .. }) =
+                        self.code.nodes.get_mut(p as usize)
+                    {
+                        *reset = slots;
+                    }
+                }
+                Site::Generator(g) => {
+                    if let Some(GNode::Composition { reset, .. }) =
+                        self.code.gnodes.get_mut(g as usize)
+                    {
+                        *reset = slots;
+                    }
+                }
             }
         }
     }

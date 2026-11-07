@@ -381,7 +381,7 @@ impl Machine {
             return Err(Error::internal("generator node out of range"));
         };
         match node {
-            GNode::Composition { first, then } => {
+            GNode::Composition { first, then, reset } => {
                 if sink.constructive() {
                     return Err(Error::unsupported(
                         "constructive generation of action composition",
@@ -392,7 +392,7 @@ impl Machine {
                         "action composition with pending conjuncts or preassigned variables (D-022)",
                     ));
                 }
-                self.composition(code, *first, *then, sink)
+                self.composition(code, *first, *then, reset, sink)
             }
             GNode::Conj(items) => {
                 let Some((&(first, _), rest)) = items.split_first() else {

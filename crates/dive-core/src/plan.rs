@@ -176,6 +176,9 @@ pub enum Node {
         then: G,
         /// Captured lexical slots.
         free: Box<[u32]>,
+        /// State-dependent thunk slots of this frame, reset whenever the
+        /// stages change the rows they read.
+        reset: Box<[u32]>,
     },
     /// `IF c THEN a ELSE b`
     If(P, P, P),
@@ -364,6 +367,9 @@ pub enum GNode {
         first: G,
         /// Fully assigning deterministic tail.
         then: G,
+        /// State-dependent thunk slots of this frame, reset whenever the
+        /// stages change the rows they read.
+        reset: Box<[u32]>,
     },
     /// A conjunction: items processed left to right as continuations; each
     /// item has a boolean form for the all-assigned shortcut.
