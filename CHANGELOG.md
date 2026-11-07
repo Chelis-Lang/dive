@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- The binder's start-up evaluation of a constant definition evaluates a
+  repeated call of a pure operator on the same constant arguments once, in
+  the default profile, and looks configured operator overrides up directly
+  (issue #846). `MisraReachability/MCReachabilityTestRandomGraphs` takes
+  about 1.1 s instead of 1.8 s. `--compat=tlc` evaluates every call.
 - Core is now the default engine of `dive check`, `dive simulate`,
   `dive dfid` and the `dive tlc` adapter, and of `dive_api::check_file`,
   `check_file_tlc_inputs`, `check_file_checkpoint`, `simulate_file` and
