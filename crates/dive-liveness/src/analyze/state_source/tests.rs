@@ -830,13 +830,13 @@ fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_
             crate::plan::lower_original_claims(&model, limits.formula).expect("separate batch");
         assert!(
             cache
-                .get(separate.and_then(|pair| pair.atom(0)), 0)
+                .get(separate.and_then(|pair| pair.atom(0, AtomKind::State)), 0)
                 .is_none(),
             "same expression/scope input from another preparation is not a token match"
         );
         cache
             .complete(
-                separate.and_then(|pair| pair.atom(0)),
+                separate.and_then(|pair| pair.atom(0, AtomKind::State)),
                 0,
                 &expected[0],
                 true,
@@ -847,7 +847,7 @@ fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_
         excess.configure(graph.states.len(), graph.edges.iter().map(Vec::len).sum());
         excess
             .complete_with(
-                pair.and_then(|pair| pair.atom(0)),
+                pair.and_then(|pair| pair.atom(0, AtomKind::State)),
                 0,
                 &expected[0],
                 true,
@@ -860,7 +860,7 @@ fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_
         allocation.configure(graph.states.len(), graph.edges.iter().map(Vec::len).sum());
         allocation
             .complete_with(
-                pair.and_then(|pair| pair.atom(0)),
+                pair.and_then(|pair| pair.atom(0, AtomKind::State)),
                 0,
                 &expected[0],
                 true,
@@ -873,7 +873,12 @@ fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_
         {
             let _budget = crate::budget::enter(watchdog.budget());
             assert!(matches!(
-                allocation.complete(pair.and_then(|pair| pair.atom(0)), 0, &expected[0], true),
+                allocation.complete(
+                    pair.and_then(|pair| pair.atom(0, AtomKind::State)),
+                    0,
+                    &expected[0],
+                    true
+                ),
                 Err(AnalysisError::Limit(crate::budget::EXHAUSTED))
             ));
         }
@@ -967,6 +972,73 @@ fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_
             fresh.evaluations, reused.evaluations,
             "new analysis owns fresh columns"
         );
+    }
+}
+
+#[test]
+fn every_frozen_behavior_prefix_atom_is_reused_with_identical_truth() {
+    for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+        let model = bound(
+            "Init == x=0\nA == x'=(x+1)%3\nB == x=2 /\\ x'=0\nNext == A \\/ B\nSpec == Init /\\ [][Next]_x /\\ WF_x(A) /\\ WF_x(B) /\\ SF_x(B)\nP == []<>(x=1)\nQ == []<>(x=0)\nR == <>[](x=2)",
+            "SPECIFICATION Spec\nPROPERTIES P Q R\n",
+            &options,
+        );
+        let graph = captured(&model, &options);
+        let limits = Limits::default();
+        let control = evaluator_control(&options).expect("control");
+        let (plans, prefix) =
+            crate::plan::lower_original_claims(&model, limits.formula).expect("frozen originals");
+        assert!(prefix.is_some());
+        let shape = BehaviorView::checked_captured(&graph).expect("topology");
+        let run_labels = |cap: usize| {
+            let mut states = NativeLazy {
+                inner: Lazy::new(&graph),
+                model: &model,
+                evaluations: 0,
+                validations: 0,
+                admit: true,
+                fallback_state: false,
+                corrupt_metadata: false,
+                fail_predicate: None,
+                defer: false,
+            };
+            let mut cache = crate::analyze::fairness::Cache::new(cap > 0, cap);
+            let truths = plans
+                .iter()
+                .map(|plan| {
+                    let active = crate::tlc_plan::active_actions(&plan.formula, limits.formula)
+                        .expect("actions");
+                    labels_with_reuse(
+                        &model,
+                        plan,
+                        &graph,
+                        &mut states,
+                        shape,
+                        "fixture",
+                        GraphLabelPolicy::NoCellLimit,
+                        &active,
+                        &mut EvaluationErrors::default(),
+                        &control,
+                        prefix,
+                        &mut cache,
+                    )
+                    .expect("labels")
+                    .0
+                })
+                .collect::<Vec<_>>();
+            (truths, states, cache)
+        };
+        let (expected, plain, _) = run_labels(0);
+        let (actual, reused, cache) = run_labels(16 * 1024 * 1024);
+        assert_eq!(actual, expected, "reused prefix truth is identical");
+        assert_eq!(
+            reused.inner.reads, plain.inner.reads,
+            "conversion demands remain exact"
+        );
+        // Two WF pairs and one SF pair: six prefix atoms, each stored once.
+        assert_eq!(cache.stored_columns, 6);
+        assert!(reused.evaluations < plain.evaluations);
+        assert!(reused.validations > 0);
     }
 }
 

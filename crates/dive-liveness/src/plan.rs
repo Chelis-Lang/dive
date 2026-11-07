@@ -250,53 +250,50 @@ struct Lower<'a> {
     atoms: Vec<PredicateAtom>,
     steps: usize,
     root_expr: ExprId,
-    first_wf: Option<FrozenWfPair>,
 }
 
-/// The two atoms cloned from one actual, fully bound behavior WF conversion.
+/// The atoms of one actual, fully bound behavior prefix, lowered once and
+/// literally cloned into every original configured property plan of a batch.
 /// This private token is meaningful only in that batch's analysis invocation.
 #[derive(Clone, Copy)]
-pub(crate) struct FrozenWfPair {
+pub(crate) struct FrozenPrefix {
     owner: u64,
-    enabled: usize,
-    action: usize,
+    atoms: usize,
 }
 
-/// A member of a planner-issued frozen pair, never an expression/scope key.
+/// A member of a planner-issued frozen prefix, never an expression/scope key.
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub(crate) struct FrozenWfAtom {
+pub(crate) struct FrozenAtom {
     owner: u64,
+    index: usize,
     action: bool,
 }
 
 // Tokens are never reused, even across separately prepared batches with the
 // same expressions/scopes. Exhaustion merely declines optional reuse.
-static NEXT_FROZEN_WF: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+static NEXT_FROZEN_PREFIX: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
-impl FrozenWfPair {
-    pub(crate) fn atom(self, index: usize) -> Option<FrozenWfAtom> {
-        if index == self.enabled {
-            Some(FrozenWfAtom {
-                owner: self.owner,
-                action: false,
-            })
-        } else if index == self.action {
-            Some(FrozenWfAtom {
-                owner: self.owner,
-                action: true,
-            })
-        } else {
-            None
-        }
+impl FrozenPrefix {
+    /// The token of prefix atom `index` of kind `kind`; property-owned atoms
+    /// (at or after the prefix length) receive none.
+    pub(crate) fn atom(self, index: usize, kind: AtomKind) -> Option<FrozenAtom> {
+        (index < self.atoms).then_some(FrozenAtom {
+            owner: self.owner,
+            index,
+            action: kind == AtomKind::Action,
+        })
     }
 }
 
-impl FrozenWfAtom {
+impl FrozenAtom {
     pub(crate) const fn action(self) -> bool {
         self.action
     }
     pub(crate) const fn owner(self) -> u64 {
         self.owner
+    }
+    pub(crate) const fn index(self) -> usize {
+        self.index
     }
 }
 
@@ -1929,14 +1926,12 @@ impl Lower<'_> {
                 }
                 self.pure_atom(*action, scope)?;
                 self.pure_scoped_mode(*sub, scope, depth, false, false)?;
-                let enabled_index = self.atoms.len();
                 let en = self.special_atom(
                     *action,
                     scope,
                     AtomKind::State,
                     AtomTest::Enabled { sub: Some(*sub) },
                 )?;
-                let action_index = self.atoms.len();
                 let action = self.special_atom(
                     *action,
                     scope,
@@ -1945,20 +1940,6 @@ impl Lower<'_> {
                 )?;
                 let disabled = self.push(Node::Not(en))?;
                 if matches!(node.expr, Expr::Wf { .. }) {
-                    if self.first_wf.is_none() {
-                        self.first_wf = NEXT_FROZEN_WF
-                            .try_update(
-                                std::sync::atomic::Ordering::Relaxed,
-                                std::sync::atomic::Ordering::Relaxed,
-                                |next| next.checked_add(1),
-                            )
-                            .ok()
-                            .map(|owner| FrozenWfPair {
-                                owner,
-                                enabled: enabled_index,
-                                action: action_index,
-                            });
-                    }
                     // Pinned astToLive WF shape: []<>(~ENABLED <A>_v \/ <A>_v).
                     let disjunction = self.push(Node::Or(vec![disabled, action]))?;
                     let eventual = self.push(Node::Eventually(disjunction))?;
@@ -2000,7 +1981,6 @@ pub fn lower(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, Plannin
         atoms: Vec::new(),
         steps: 0,
         root_expr: pred.expr,
-        first_wf: None,
     };
     model
         .evaluator
@@ -2039,7 +2019,6 @@ pub fn lower_violation(
         atoms: Vec::new(),
         steps: 0,
         root_expr: property.expr,
-        first_wf: None,
     };
     let mut conjuncts = Vec::new();
     for behavior in &model.temporals {
@@ -2073,7 +2052,7 @@ pub(crate) fn lower_claims(
 pub(crate) fn lower_original_claims(
     model: &Model,
     limits: Limits,
-) -> Result<(Vec<Plan>, Option<FrozenWfPair>), PlanningError> {
+) -> Result<(Vec<Plan>, Option<FrozenPrefix>), PlanningError> {
     let claims = model
         .property_claims()
         .iter()
@@ -2086,7 +2065,7 @@ fn lower_frozen_claims(
     model: &Model,
     properties: &[Pred],
     limits: Limits,
-) -> Result<(Vec<Plan>, Option<FrozenWfPair>), PlanningError> {
+) -> Result<(Vec<Plan>, Option<FrozenPrefix>), PlanningError> {
     let mut cx = Lower {
         model,
         limits,
@@ -2094,14 +2073,29 @@ fn lower_frozen_claims(
         atoms: Vec::new(),
         steps: 0,
         root_expr: properties.first().map_or(ExprId(0), |p| p.expr),
-        first_wf: None,
     };
     let mut fairness = Vec::new();
     for behavior in &model.temporals {
         cx.root_expr = behavior.pred.expr;
         fairness.push(cx.expr(behavior.pred.expr, &behavior.pred.scope, 0)?);
     }
-    let frozen = cx.first_wf;
+    // Only an actual behavior prefix receives a token; property-owned atoms
+    // never do, even when their expressions repeat a prefix atom's.
+    let frozen = if cx.atoms.is_empty() {
+        None
+    } else {
+        NEXT_FROZEN_PREFIX
+            .try_update(
+                std::sync::atomic::Ordering::Relaxed,
+                std::sync::atomic::Ordering::Relaxed,
+                |next| next.checked_add(1),
+            )
+            .ok()
+            .map(|owner| FrozenPrefix {
+                owner,
+                atoms: cx.atoms.len(),
+            })
+    };
     let plans = properties
         .iter()
         .map(|property| {
@@ -2112,7 +2106,6 @@ fn lower_frozen_claims(
                 atoms: cx.atoms.clone(),
                 steps: cx.steps,
                 root_expr: property.expr,
-                first_wf: cx.first_wf,
             };
             let property = claim.expr(property.expr, &property.scope, 0)?;
             let mut conjuncts = fairness.clone();
