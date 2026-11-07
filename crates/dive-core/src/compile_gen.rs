@@ -328,7 +328,7 @@ impl Compiler<'_> {
             Expr::Def(d) => {
                 let d = self.redirect(d);
                 let def = self.ir.def(d);
-                if self.h.precomputed.contains_key(&d)
+                if self.has_startup_value(d)
                     || def.std.is_some()
                     || !def.params.is_empty()
                     || def.recursive
@@ -346,7 +346,7 @@ impl Compiler<'_> {
             } if args.is_empty() => {
                 let d = self.redirect(d);
                 let def = self.ir.def(d);
-                if self.h.precomputed.contains_key(&d)
+                if self.has_startup_value(d)
                     || def.std.is_some()
                     || def.recursive
                     || matches!(def.scope, DefScope::LetValue { .. })
@@ -453,7 +453,7 @@ impl Compiler<'_> {
                 }
                 let d = self.redirect(d);
                 let def = self.ir.def(d);
-                if self.h.precomputed.contains_key(&d)
+                if self.has_startup_value(d)
                     || def.std.is_some()
                     || !def.params.is_empty()
                     || def.recursive

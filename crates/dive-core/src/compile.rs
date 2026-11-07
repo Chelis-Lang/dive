@@ -129,6 +129,31 @@ pub enum ConstBinding {
     Def(DefId),
 }
 
+/// The binder's start-up evaluation of a constant definition it left to
+/// the core ([`Handoff::deferred`]).
+///
+/// ```
+/// #[derive(Debug)]
+/// struct Never;
+/// impl dive_core::compile::StartupEvaluator for Never {
+///     fn evaluate(&self, _def: dive_ir::DefId) -> Option<dive_value::Value> {
+///         None
+///     }
+/// }
+/// ```
+pub trait StartupEvaluator: std::fmt::Debug {
+    /// The definition's start-up value, or `None` when its evaluation fails
+    /// or leaves no value: the core then evaluates its body where it is
+    /// used.
+    fn evaluate(&self, def: DefId) -> Option<Value>;
+}
+
+/// The most transient memory, in bytes, the core's evaluation of one
+/// deferred start-up definition may hold; past it, the definition goes to
+/// the binder's evaluation ([`Handoff::startup_evaluator`]), as before
+/// issue #846.
+pub const STARTUP_TRANSIENT_BYTES: usize = 256 << 20;
+
 /// What the reference binder hands to the core (`04-plan-compiler.md` §2).
 #[derive(Clone, Debug)]
 pub struct Handoff<'a> {
@@ -149,6 +174,18 @@ pub struct Handoff<'a> {
     /// The definitions among `precomputed` whose value is a configuration
     /// override (`Op <- value`): their body is not their value.
     pub overrides: std::collections::HashSet<DefId>,
+    /// Pure constant-level definitions the binder did not evaluate at
+    /// startup (`dive_model::bind_deferring_constants`): the compiler
+    /// evaluates each once, before the roles, and uses its value as a
+    /// startup value. One the core cannot evaluate within its startup
+    /// bounds goes to [`Self::startup_evaluator`], the binder's evaluation;
+    /// one that fails there too keeps its body, which is then evaluated
+    /// where it is used, as TLC does after a failed startup evaluation.
+    pub deferred: std::collections::BTreeSet<DefId>,
+    /// The binder's evaluation of a deferred definition, for the ones the
+    /// core does not evaluate itself. Without one, such a definition keeps
+    /// its body.
+    pub startup_evaluator: Option<Arc<dyn StartupEvaluator>>,
     /// Initial predicates.
     pub init: Vec<Role>,
     /// Next-state actions, split, in TLC's order.
@@ -479,6 +516,7 @@ fn compile_inner(
         m: Machine::new(store, nvars, opts, Memo::default()),
         consts: HashMap::new(),
         pre: HashMap::new(),
+        fallback: HashMap::new(),
         next_slot: 0,
         reset_stack: Vec::new(),
         at_stack: Vec::new(),
@@ -502,6 +540,7 @@ fn compile_inner(
         role_name: String::new(),
         bound_preset: test.map(|_| Vec::new()),
     };
+    c.startup_values();
     // The initial predicates are conjoined, as TLC's (and the reference
     // engine's `init_states`): one action.
     let init = if h.init.is_empty() {
@@ -617,6 +656,9 @@ struct Compiler<'a> {
     m: Machine,
     consts: HashMap<usize, Handle>,
     pre: HashMap<DefId, Handle>,
+    /// Start-up values of deferred definitions the binder's evaluation
+    /// supplied ([`Handoff::startup_evaluator`]), used as `h.precomputed`.
+    fallback: HashMap<DefId, Value>,
     next_slot: u32,
     reset_stack: Vec<Vec<u32>>,
     at_stack: Vec<u32>,
@@ -772,17 +814,29 @@ impl Compiler<'_> {
         crate::convert::from_value(&mut self.m.heap, v, self.h.ctx)
     }
 
+    /// Whether `d` has a startup value: the binder's, or one the compiler
+    /// evaluated ([`Self::startup_values`]).
+    fn has_startup_value(&self, d: DefId) -> bool {
+        self.h.precomputed.contains_key(&d)
+            || self.pre.contains_key(&d)
+            || self.fallback.contains_key(&d)
+    }
+
     fn precomputed(&mut self, d: DefId) -> Result<Option<Handle>, Error> {
         if let Some(&h) = self.pre.get(&d) {
             return Ok(Some(h));
         }
-        let Some(v) = self.h.precomputed.get(&d) else {
-            return Ok(None);
+        let v = match self.h.precomputed.get(&d) {
+            Some(v) => v.clone(),
+            None => match self.fallback.get(&d) {
+                Some(v) => v.clone(),
+                None => return Ok(None),
+            },
         };
         // TLC's startup value of a constant definition may be lazy (a
         // filter or function over `Nat`, a recursive function): the core
         // then compiles the definition's body, which has the same value.
-        let h = match self.convert(v) {
+        let h = match self.convert(&v) {
             Ok(h) => h,
             Err(e)
                 if e.kind() == crate::ErrorKind::Unsupported && !self.h.overrides.contains(&d) =>
@@ -1519,6 +1573,117 @@ impl Compiler<'_> {
         }
     }
 
+    /// Evaluates the constant definitions the binder left to the core
+    /// ([`Handoff::deferred`]), in definition order, before any role is
+    /// compiled. Each body is compiled in a fresh top-level frame and
+    /// evaluated without a fuel bound, as TLC evaluates it at startup, with
+    /// the results of calls kept for the evaluation ([`crate::eval`]'s
+    /// `CallCache`), and within [`STARTUP_TRANSIENT_BYTES`] of transient
+    /// memory. A definition the core does not evaluate to a value (its body
+    /// does not compile, is not closed, fails, or needs more memory) goes to
+    /// the binder's evaluation ([`Handoff::startup_evaluator`]), which
+    /// evaluated every such definition before issue #846. One that fails
+    /// there too is left alone: its uses compile it in place, and an error
+    /// surfaces where it is used, as TLC reports it after swallowing the
+    /// startup failure.
+    fn startup_values(&mut self) {
+        if self.h.deferred.is_empty() {
+            return;
+        }
+        let deferred: Vec<DefId> = self.h.deferred.iter().copied().collect();
+        for d in deferred {
+            if self.redirect(d) != d || self.h.precomputed.contains_key(&d) {
+                continue;
+            }
+            let def = self.ir.def(d);
+            let started = std::time::Instant::now();
+            let skip = !def.params.is_empty()
+                || def.std.is_some()
+                || def.recursive
+                || def.scope != DefScope::TopLevel
+                || matches!(self.ir.node(def.body).expr, Expr::RecFcn { .. });
+            let value = if skip { None } else { self.startup_value(d) };
+            if let Some(h) = value {
+                self.pre.insert(d, h);
+                self.stats.startup_values += 1;
+            } else if let Some(v) = self
+                .h
+                .startup_evaluator
+                .as_ref()
+                .and_then(|e| e.evaluate(d))
+            {
+                self.fallback.insert(d, v);
+                self.stats.startup_fallbacks += 1;
+            }
+            self.stats.startup_nanos +=
+                u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+        }
+        // A bounded evaluation may still have grown the arena: give that
+        // memory back before the search.
+        self.m.heap.reset();
+        self.m.heap.arena.release();
+    }
+
+    fn startup_value(&mut self, d: DefId) -> Option<Handle> {
+        let body = self.ir.def(d).body;
+        let saved_slot = self.next_slot;
+        let saved_resets = std::mem::take(&mut self.reset_stack);
+        let saved_cache = std::mem::take(&mut self.def_cache);
+        let saved_at = std::mem::take(&mut self.at_stack);
+        let saved_lifts = self.lifts.len();
+        let saved_substs = self.substs.len();
+        let init = std::mem::replace(&mut self.init_mode, false);
+        let step = std::mem::replace(&mut self.step, false);
+        // What compiling the body records about frame slots and compiled
+        // functions belongs to this evaluation only: the roles compile
+        // their own, in their own contexts.
+        let saved_def_slots = std::mem::take(&mut self.def_slots);
+        let saved_thunks = std::mem::take(&mut self.effect_thunks);
+        let saved_funs = std::mem::take(&mut self.funs);
+        let saved_recfuns = std::mem::take(&mut self.recfuns);
+        self.next_slot = 0;
+        let env = self.new_env(d, None);
+        let compiled = self.p(body, env, Mode::Plain);
+        let frame = self.next_slot;
+        self.def_slots = saved_def_slots;
+        self.effect_thunks = saved_thunks;
+        self.funs = saved_funs;
+        self.recfuns = saved_recfuns;
+        self.next_slot = saved_slot;
+        self.reset_stack = saved_resets;
+        self.def_cache = saved_cache;
+        self.at_stack = saved_at;
+        self.lifts.truncate(saved_lifts);
+        self.substs.truncate(saved_substs);
+        self.init_mode = init;
+        self.step = step;
+        let p = compiled.ok()?;
+        let info = self.info.get(p as usize)?;
+        // A call is assumed to read every variable; the compiler's machine
+        // has no state, so a read raises an error, and the body is left
+        // alone.
+        if (info.vars != 0 && !info.calls)
+            || info.primed != 0
+            || !info.free.is_empty()
+            || info.effect
+        {
+            return None;
+        }
+        self.m.set_fuel(u64::MAX);
+        self.m.calls = Some(crate::eval::CallCache::default());
+        self.m.transient_bound = STARTUP_TRANSIENT_BYTES;
+        let old = self.m.enter(frame + 1);
+        let r = self.m.eval(&self.code, p);
+        self.m.leave(old);
+        self.m.transient_bound = usize::MAX;
+        if let Some(calls) = self.m.calls.take() {
+            self.stats.startup_call_hits += calls.hits;
+        }
+        let r = r.and_then(|h| self.m.heap.intern_const(h));
+        self.m.heap.reset();
+        r.ok().filter(|h| !h.is_empty())
+    }
+
     /// `ENABLED A` (`04-plan-compiler.md` §5.5): `A` compiled as an action
     /// in the current frame, searched for one successor at run time.
     ///
@@ -2098,7 +2263,7 @@ impl Compiler<'_> {
             Expr::Def(d) => {
                 let d = self.redirect(*d);
                 let def = self.ir.def(d);
-                if self.h.precomputed.contains_key(&d)
+                if self.has_startup_value(d)
                     || def.std.is_some()
                     || def.recursive
                     || !def.params.is_empty()
@@ -4331,7 +4496,7 @@ impl Compiler<'_> {
             Expr::Def(d) => {
                 let d = self.redirect(*d);
                 let def = self.ir.def(d);
-                if self.h.precomputed.contains_key(&d)
+                if self.has_startup_value(d)
                     || def.std.is_some()
                     || def.recursive
                     || !def.params.is_empty()
@@ -4353,7 +4518,7 @@ impl Compiler<'_> {
                     if args.is_empty()
                         && def.std.is_none()
                         && !def.recursive
-                        && !self.h.precomputed.contains_key(&d)
+                        && !self.has_startup_value(d)
                     {
                         let parent = self.lexical_parent(d, env)?;
                         let inner = self.new_env(d, parent);
@@ -4469,7 +4634,7 @@ impl Compiler<'_> {
             Expr::Def(d) => {
                 let d = self.redirect(*d);
                 let def = self.ir.def(d);
-                if self.h.precomputed.contains_key(&d)
+                if self.has_startup_value(d)
                     || def.std.is_some()
                     || !def.params.is_empty()
                     || def.recursive

@@ -61,6 +61,10 @@
         "memo_sites": 1,
         "nodes": 16,
         "speculative": 0,
+        "startup_call_hits": 0,
+        "startup_fallbacks": 0,
+        "startup_ms": 0.0,
+        "startup_values": 0,
         "substituted": 0,
         "thunk_args": 0
       },
