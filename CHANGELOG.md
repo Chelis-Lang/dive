@@ -15,6 +15,9 @@ published. Earlier pre-release development entries remain in git history.
   refuses, because the independent validator does not replay start-up draws.
   A definition that a configured `Op <- D` or `C <- D` targets is not fixed:
   each use evaluates its body, so its draws still refuse on both routes.
+  Nor is a definition whose start-up value keeps a lazy set (`{x \in S : P}`
+  or `{e : x \in S}` over an infinite or deferred domain): each membership
+  test evaluates it again, so its draws refuse too.
 
 - Core provides `TLCGet("config")` and the start-up counters to the
   `ASSUME`s, and `TLCGet("config")` during the search, as Reference does, so

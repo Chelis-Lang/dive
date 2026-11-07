@@ -11,15 +11,23 @@
 //! question with the fixed definitions as values, and is conservative in
 //! every case it does not resolve.
 
+use std::sync::OnceLock;
+
 use dive_ir::{Arg, DefId, Effects, Expr, ExprId, OpRef, StdOp};
+use dive_value::Value;
 
 use crate::{ConstBinding, Evaluator};
 
 impl Evaluator {
     /// Whether start-up fixed the value of `def` for the whole run: it was
-    /// precomputed, or the configuration assigns it a value, it is not
-    /// redirected to another definition, and no configured redirect
-    /// ([`Self::redirect_target`]) evaluates its body.
+    /// precomputed to an eager value, or the configuration assigns it a
+    /// value, it is not redirected to another definition, and no configured
+    /// redirect ([`Self::redirect_target`]) evaluates its body.
+    ///
+    /// A precomputed value that holds a deferred set anywhere inside it
+    /// (`{x \in S : P}` or `{e : x \in S}` kept lazy) is not fixed: each
+    /// membership test or enumeration evaluates its predicate or map again
+    /// while checking, so its body still runs after start-up.
     ///
     /// ```
     /// # fn example(ev: &dive_eval::Evaluator, d: dive_ir::DefId) {
@@ -32,8 +40,22 @@ impl Evaluator {
     #[must_use]
     pub fn startup_fixed(&self, def: DefId) -> bool {
         self.redirected(def) == def
-            && (self.precomputed(def).is_some() || self.is_value_override(def))
+            && (self.precomputed_eager(def) || self.is_value_override(def))
             && !self.redirect_target(def)
+    }
+
+    /// Whether `def` has a precomputed value with no deferred set anywhere
+    /// inside it. The answer is kept once the value is set, which start-up
+    /// does at most once.
+    fn precomputed_eager(&self, def: DefId) -> bool {
+        let core = &self.core;
+        let (Some(value), Some(eager)) = (
+            core.startup.get(def.index()).and_then(OnceLock::get),
+            core.startup_eager.get(def.index()),
+        ) else {
+            return false;
+        };
+        *eager.get_or_init(|| no_deferred_set(value))
     }
 
     /// Whether a configured redirect evaluates `def`'s body at each use,
@@ -227,4 +249,36 @@ fn opref_impure(
         OpRef::Param(_) | OpRef::Subst(_) => true,
         OpRef::Builtin(_) | OpRef::Const(_) | OpRef::Unbound(_) => false,
     }
+}
+
+/// Whether `value` holds no deferred set anywhere: in set elements, in the
+/// components of a lazy set (`SUBSET S`, `[S -> T]`, `S \X T`, records,
+/// `Seq(S)`), or in function keys and values. The walk reads stored
+/// structure only and never invokes a deferred provider.
+fn no_deferred_set(value: &Value) -> bool {
+    let mut work = vec![value.clone()];
+    while let Some(value) = work.pop() {
+        match value {
+            Value::Set(set) => {
+                if set.as_deferred().is_some() {
+                    return false;
+                }
+                if let Some(elements) = set.stored_elements() {
+                    work.extend(elements.iter().cloned());
+                }
+                work.extend(set.components().into_iter().map(|(_, c)| c));
+            }
+            Value::Fcn(f) => {
+                for i in 0..f.len() {
+                    if let Some((key, val)) = f.entry_cow(i) {
+                        work.push(key.into_owned());
+                        work.push(val.clone());
+                    }
+                }
+            }
+            Value::Bool(_) | Value::Int(_) | Value::BigInt(_) | Value::Str(_) | Value::Model(_) => {
+            }
+        }
+    }
+    true
 }

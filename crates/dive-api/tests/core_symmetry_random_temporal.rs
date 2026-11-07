@@ -164,3 +164,31 @@ fn a_redirected_random_definition_is_never_read_as_its_startup_value_on_the_safe
         );
     }
 }
+
+#[test]
+fn a_lazy_startup_value_that_draws_at_each_membership_test_refuses_on_every_engine() {
+    // `S` is precomputed, but as a deferred filter whose predicate each
+    // membership test evaluates: it draws while checking, so it is not fixed
+    // at start-up and no seed may report the temporal property as proved.
+    let spec = fixture("LazyDraw");
+    let cfg = spec.with_extension("cfg");
+    for seed in 0..10 {
+        for engine in [Engine::Reference, Engine::Auto] {
+            let v = run(&spec, &cfg, engine, None, seed);
+            assert_eq!(v["verdict"], "unsupported", "{engine:?} seed {seed}: {v}");
+            assert!(v["counterexample"].is_null(), "{engine:?} seed {seed}");
+            assert!(
+                v.to_string()
+                    .contains("effects or dynamic bindings in temporal planning"),
+                "{engine:?} seed {seed}: {v}"
+            );
+        }
+        let core = run(&spec, &cfg, Engine::Core, None, seed);
+        assert_eq!(core["verdict"], "unsupported", "seed {seed}: {core}");
+        assert!(core["counterexample"].is_null(), "seed {seed}");
+        assert!(
+            core.to_string().contains("RandomElement"),
+            "seed {seed}: {core}"
+        );
+    }
+}

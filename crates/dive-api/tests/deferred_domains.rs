@@ -130,7 +130,7 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
 /// recursive domain conservatively), so no violation is claimed.
 #[test]
 fn startup_fixed_recursive_domains_plan_and_never_claim_unvalidated_words() {
-    use dive_api::temporal::Error;
+    use dive_api::temporal::{Error, Stage};
 
     let root =
         Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/finite-deferred-audit/specs");
@@ -170,15 +170,34 @@ fn startup_fixed_recursive_domains_plan_and_never_claim_unvalidated_words() {
                     let legacy = legacy.expect_err("an unvalidated word is not a violation");
                     let failure = evidence.expect_err("an unvalidated word is not a violation");
                     for error in [&legacy, failure.error()] {
-                        assert!(
-                            matches!(
-                                error,
-                                Error::Validation { .. } | Error::NativeValidation { .. }
+                        // Exactly the validator's named refusal of the
+                        // recursive domain, for the planned property's word.
+                        let Error::Validation { candidate, report } = error else {
+                            panic!("{name}: expected the validation refusal, got {error:?}");
+                        };
+                        assert_eq!(candidate.target_property, "Live", "{name}");
+                        assert_eq!(candidate.properties, ["Live"], "{name}");
+                        assert_eq!(
+                            report.validation,
+                            Validation::Unsupported(
+                                "nonconstant predicate quantifier domain".into()
                             ),
-                            "{name}: {error:?}"
+                            "{name}"
                         );
+                        assert_eq!(error.code(), "DIVE-A0032", "{name}");
                     }
-                    assert_eq!(failure.error().code(), legacy.code());
+                    assert_eq!(failure.error().to_string(), legacy.to_string());
+                    // Refused at validation after a complete capture: no
+                    // action evaluation is claimed, and the one requested
+                    // worker is the one used.
+                    assert_eq!(failure.stage(), Stage::Validation, "{name}");
+                    assert_eq!(failure.capture_completed(), Some(true), "{name}");
+                    assert!(failure.action_evaluation().is_none(), "{name}");
+                    assert_eq!(
+                        failure.workers(options.workers).expect("known width").used,
+                        1,
+                        "{name}"
+                    );
                 }
             }
         }
