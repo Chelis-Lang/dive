@@ -563,13 +563,25 @@ non-constant split arguments (stream 2), and are refused naming them.
   memo has served four lookups per image held, and one reduction's
   remembered images take at most 32 MiB across workers (`MAX_IMAGE_BYTES`,
   store bytes plus entries); past either bound images are computed
-  transiently, as before the memo. A state
-  variable's own value is never interned under the maps: a set variable
-  within eight elements of its value in the predecessor state
+  transiently, as before the memo. A persistent state variable's own value
+  (one a step left unchanged) is remembered under the same rules. A set
+  variable within eight elements of its value in the predecessor state
   (`Symmetry::canonical_from`) takes its image from that value's sorted
   element images, kept per map while the predecessor lasts, and is compared
   with the best image before it is built. The result never depends on the
   predecessor.
+- A function's image is a gather, not a sort: for each map and each
+  function domain (its sorted keys, when they and their images are
+  persistent or scalar) the worker keeps a `DomainImage`, the sorted image
+  keys and the position of each one's preimage, within 2^20 keys per
+  worker. Keys that are strings, integers or Booleans never move, so a
+  record keeps its key order and its record-literal bit, and a tuple its
+  tuple-literal bit. In the default profile a proved-materialized
+  (`CONCRETE`) function variable is compared with the best image before it
+  is built: size, the image keys, then its permuted values in order, up to
+  the first that differs. The best image itself is built lazily: a winning
+  candidate's remaining variables are built only when a later candidate is
+  compared with them, or at the end.
 - The explorer's `state_key` keys a state by its image, in the one-worker
   level, the parallel level and TLC's call-stack replay. The explored state,
   the predecessor log and the traces stay concrete.

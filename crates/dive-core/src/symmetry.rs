@@ -22,7 +22,7 @@ use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering as AtomicOrdering};
 use crate::Error;
 use crate::handle::{Handle, Tag};
 use crate::heap::Heap;
-use crate::node::Kind;
+use crate::node::{Kind, flags};
 
 /// The most images one worker's [`ImageCache`] remembers. Past it, images
 /// are still computed, but no longer interned or remembered.
@@ -65,11 +65,16 @@ static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 /// costs the store nothing. The bytes remembered are bounded per reduction
 /// across workers by [`MAX_IMAGE_BYTES`].
 ///
-/// A state variable's own value is not interned under the maps (a new
-/// value per state would fill the store with images no state holds).
-/// Instead, for a set variable, the sorted element images of its value in
-/// the base state (the predecessor, [`Symmetry::canonical_from`]) are kept
-/// per map while that base value lasts, in `roots`.
+/// A persistent state variable's own value, such as one a step left
+/// unchanged, is remembered under the same admission rules, so a value
+/// that recurs is permuted once per map. For a set variable with a delta
+/// from its value in the base state (the predecessor,
+/// [`Symmetry::canonical_from`]), the sorted element images of the base
+/// value are kept per map while that base value lasts, in `roots`.
+///
+/// The images of function domains are kept in `domains`
+/// (`DomainImage`), so that a function's image is a gather of its
+/// permuted values, without sorting its keys.
 #[derive(Debug, Default)]
 pub struct ImageCache {
     owner: u64,
@@ -82,6 +87,34 @@ pub struct ImageCache {
     /// The memo's lookups that found an image.
     hits: u64,
     roots: Vec<RootImages>,
+    /// Images of function domains, by map index, then the domain's keys
+    /// ([`DomainImage`]).
+    domains: Vec<DomainMap>,
+    /// The keys `domains` holds, bounded by [`MAX_DOMAIN_KEYS`].
+    domain_keys: usize,
+    /// Buffers for [`cmp_image`], kept between calls.
+    scratch: (Vec<Handle>, Vec<Handle>),
+}
+
+/// One map's [`DomainImage`]s, keyed by the sorted keys of the domain.
+type DomainMap = HashMap<Box<[Handle]>, Arc<DomainImage>, BuildHasherDefault<KeyHasher>>;
+
+/// The most keys, over all domains, one worker's [`ImageCache`] remembers
+/// [`DomainImage`]s for. Past it, domain images are still computed, but no
+/// longer remembered; those already remembered still serve.
+const MAX_DOMAIN_KEYS: usize = 1 << 20;
+
+/// The image of the sorted keys of a function's domain under one map: the
+/// image keys, sorted, and for each the position of the key it is the image
+/// of. A function on that domain has its image by gather: the image's value
+/// at position `j` is the image of the value at position `src[j]`, since
+/// the image of `f` maps `π(x)` to `π(f[x])`. No key is compared or sorted.
+#[derive(Debug)]
+struct DomainImage {
+    /// The image keys, sorted.
+    keys: Box<[Handle]>,
+    /// For each image key, the position of its preimage among the keys.
+    src: Box<[u32]>,
 }
 
 /// One state variable's base value and its images by map.
@@ -117,6 +150,10 @@ impl Hasher for KeyHasher {
 
     fn write_u32(&mut self, x: u32) {
         self.write_u64(u64::from(x));
+    }
+
+    fn write_usize(&mut self, x: usize) {
+        self.write_u64(x as u64);
     }
 
     fn write_u64(&mut self, x: u64) {
@@ -222,9 +259,11 @@ impl Symmetry {
             heap.sym_images.images.clear();
             heap.sym_images.seen.clear();
             heap.sym_images.roots.clear();
+            heap.sym_images.domains.clear();
+            heap.sym_images.domain_keys = 0;
         }
         heap.sym_images.epoch += 1;
-        let mut deltas: Vec<Option<Delta>> = Vec::new();
+        let mut deltas: Vec<Option<Delta>> = Vec::with_capacity(state.len());
         if base.len() == state.len() && !self.maps.is_empty() && !heap.speculative {
             if heap.sym_images.roots.len() != state.len() {
                 heap.sym_images.roots.clear();
@@ -236,8 +275,6 @@ impl Symmetry {
                 deltas.push(Delta::of(heap, i, h, b));
             }
         }
-        out.clear();
-        out.extend_from_slice(state);
         let identity: Vec<usize>;
         let order = match &self.tlc {
             Some(order) if order.len() == state.len() => order.as_slice(),
@@ -247,67 +284,269 @@ impl Symmetry {
                 &identity
             }
         };
-        let mut cand = state.to_vec();
-        let n = self.maps.len();
+        // The best image so far is the state under map `best_map` (`None`:
+        // the state itself), built lazily: `best[i]` is its value of
+        // variable `i` once built. A candidate is built only up to the
+        // variable that decides it, and a winner's other variables only
+        // when a later candidate is compared with them, or at the end.
+        let mut best_map: Option<u32> = None;
+        let mut best: Vec<Option<Handle>> = state.iter().copied().map(Some).collect();
+        let mut cand: Vec<Option<Handle>> = vec![None; state.len()];
         for (k, map) in self.maps.iter().enumerate() {
             let k = u32::try_from(k).map_err(|_| {
                 Error::unsupported("SYMMETRY with more than 2^32 permutations (core)")
             })?;
+            cand.fill(None);
             let mut ord = Ordering::Equal;
             for &i in order {
-                let (Some(&h), Some(&best)) = (state.get(i), out.get(i)) else {
+                let Some(&h) = state.get(i) else {
                     return Err(Error::internal("a SYMMETRY variable outside the state"));
                 };
-                let delta = deltas.get(i).and_then(Option::as_ref);
-                if ord != Ordering::Equal {
-                    // Decided: the rest of the candidate is only built.
-                    cand[i] = match delta {
-                        Some(d) => match d.elems(self, heap, map, k, n)? {
-                            None => h,
-                            Some(list) => heap.set_sorted(&list),
-                        },
-                        None => permute_node(self, heap, map, k, h)?,
-                    };
-                    continue;
-                }
-                let elems = match delta {
-                    Some(d) => Some(d.elems(self, heap, map, k, n)?),
-                    None => None,
+                let best_i = if let Some(b) = best.get(i).copied().flatten() {
+                    b
+                } else {
+                    let b = self.image_of(heap, &deltas, best_map, i, h)?;
+                    best[i] = Some(b);
+                    b
                 };
-                match elems {
-                    // Compared before it is built: most images lose here.
-                    Some(Some(list)) if self.tlc.is_none() && is_set(heap, best) => {
-                        ord = cmp_elems(heap, &list, best);
-                        cand[i] = match ord {
-                            Ordering::Equal => best,
-                            Ordering::Less => heap.set_sorted(&list),
-                            Ordering::Greater => break,
-                        };
-                    }
-                    elems => {
-                        let img = match elems {
-                            Some(None) => h,
-                            Some(Some(list)) => heap.set_sorted(&list),
-                            None => permute_node(self, heap, map, k, h)?,
-                        };
-                        cand[i] = img;
-                        ord = if self.tlc.is_some() {
-                            tlc_cmp(heap, img, best)?
-                        } else {
-                            heap.cmp(img, best)
-                        };
-                        if ord == Ordering::Greater {
-                            break;
-                        }
-                    }
+                let delta = deltas.get(i).and_then(Option::as_ref);
+                let (c, img) = self.cmp_var(heap, delta, map, k, h, best_i)?;
+                let Some(img) = img else {
+                    break;
+                };
+                cand[i] = Some(img);
+                if c != Ordering::Equal {
+                    ord = c;
+                    break;
                 }
             }
             if ord == Ordering::Less {
-                out.clone_from(&cand);
+                best_map = Some(k);
+                std::mem::swap(&mut best, &mut cand);
             }
+        }
+        out.clear();
+        for (i, &h) in state.iter().enumerate() {
+            let img = match best.get(i).copied().flatten() {
+                Some(b) => b,
+                None => self.image_of(heap, &deltas, best_map, i, h)?,
+            };
+            out.push(img);
         }
         Ok(())
     }
+
+    /// The image of `value`, the state's variable `var`, under map number
+    /// `at` (`None`: `value` itself), from its delta when it has one.
+    fn image_of(
+        &self,
+        heap: &mut Heap,
+        deltas: &[Option<Delta>],
+        at: Option<u32>,
+        var: usize,
+        value: Handle,
+    ) -> Result<Handle, Error> {
+        let Some(index) = at else {
+            return Ok(value);
+        };
+        let Some(map) = self.maps.get(index as usize) else {
+            return Err(Error::internal("a SYMMETRY map outside the closure"));
+        };
+        Ok(match deltas.get(var).and_then(Option::as_ref) {
+            Some(delta) => match delta.elems(self, heap, map, index, self.maps.len())? {
+                None => value,
+                Some(list) => heap.set_sorted(&list),
+            },
+            None => permute(self, heap, map, index, value)?,
+        })
+    }
+
+    /// Compares the image of a variable's value `h` under `map` (map
+    /// number `k`) with `best`, the best image's value of the variable:
+    /// the order and the image, which is `best` when they are equal and is
+    /// not built (`None`) when it is greater, where possible.
+    #[allow(
+        clippy::many_single_char_names,
+        reason = "short names for a value and its map"
+    )]
+    fn cmp_var(
+        &self,
+        heap: &mut Heap,
+        delta: Option<&Delta>,
+        map: &[(u32, u32)],
+        k: u32,
+        h: Handle,
+        best: Handle,
+    ) -> Result<(Ordering, Option<Handle>), Error> {
+        let elems = match delta {
+            Some(d) => Some(d.elems(self, heap, map, k, self.maps.len())?),
+            None => None,
+        };
+        Ok(match elems {
+            // Compared before it is built: most images lose here.
+            Some(Some(list)) if self.tlc.is_none() && is_set(heap, best) => {
+                match cmp_elems(heap, &list, best) {
+                    Ordering::Equal => (Ordering::Equal, Some(best)),
+                    Ordering::Less => (Ordering::Less, Some(heap.set_sorted(&list))),
+                    Ordering::Greater => (Ordering::Greater, None),
+                }
+            }
+            // A remembered image is compared as it is.
+            None if h.is_persistent()
+                && !heap.speculative
+                && let Some(&img) = heap.sym_images.images.get(&(k, h)) =>
+            {
+                heap.sym_images.hits += 1;
+                let c = if self.tlc.is_some() {
+                    tlc_cmp(heap, img, best)?
+                } else {
+                    heap.cmp(img, best)
+                };
+                (c, Some(img))
+            }
+            None if self.tlc.is_none()
+                && let Some(c) = cmp_image(self, heap, map, k, h, best)? =>
+            {
+                match c {
+                    Ordering::Equal => (Ordering::Equal, Some(best)),
+                    Ordering::Less => (Ordering::Less, Some(permute(self, heap, map, k, h)?)),
+                    Ordering::Greater => (Ordering::Greater, None),
+                }
+            }
+            elems => {
+                let img = match elems {
+                    Some(None) => h,
+                    Some(Some(list)) => heap.set_sorted(&list),
+                    None => permute(self, heap, map, k, h)?,
+                };
+                let c = if self.tlc.is_some() {
+                    tlc_cmp(heap, img, best)?
+                } else {
+                    heap.cmp(img, best)
+                };
+                (c, Some(img))
+            }
+        })
+    }
+}
+
+/// Whether `h` is an eager function node (`IntFcn` or `Fcn`) whose
+/// values are all closed.
+fn is_fcn_node(heap: &Heap, h: Handle) -> bool {
+    h.is_compound() && {
+        let v = heap.view(h);
+        matches!(v.kind, Kind::IntFcn | Kind::Fcn) && !v.is_lazy()
+    }
+}
+
+/// [`Heap::cmp`] of the image of `h` under `map` (map number `k`) with
+/// `best`, without building the image, when both are eager functions and
+/// `h` is proved materialized ([`flags::CONCRETE`]), so that permuting any
+/// part of it cannot fail; otherwise `None`. Functions compare by size,
+/// then keys in order, then values in key order: the image's keys come
+/// from its [`DomainImage`], and its values are permuted one at a time,
+/// up to the first that differs. Most images lose at their first values.
+#[allow(
+    clippy::many_single_char_names,
+    reason = "short names for a value, its view and its entries"
+)]
+fn cmp_image(
+    sym: &Symmetry,
+    heap: &mut Heap,
+    map: &[(u32, u32)],
+    k: u32,
+    h: Handle,
+    best: Handle,
+) -> Result<Option<Ordering>, Error> {
+    if !is_fcn_node(heap, h) || !is_fcn_node(heap, best) {
+        return Ok(None);
+    }
+    let v = heap.view(h);
+    if v.flags & flags::CONCRETE == 0 {
+        return Ok(None);
+    }
+    let n = v.len();
+    let bv = heap.view(best);
+    if n != bv.len() {
+        return Ok(Some(n.cmp(&bv.len())));
+    }
+    let (kind, lo) = (v.kind, v.lo);
+    let (best_kind, best_lo) = (bv.kind, bv.lo);
+    // Copies of the entries, in buffers kept between calls.
+    let (mut data, mut best_data) = std::mem::take(&mut heap.sym_images.scratch);
+    data.clear();
+    data.extend_from_slice(heap.view(h).data);
+    best_data.clear();
+    best_data.extend_from_slice(heap.view(best).data);
+    let r = cmp_entries(
+        sym,
+        heap,
+        (map, k),
+        (kind, lo, &data),
+        (best_kind, best_lo, &best_data),
+    );
+    heap.sym_images.scratch = (data, best_data);
+    r.map(Some)
+}
+
+/// [`cmp_image`] on the entries of the function and of `best`, each with
+/// its kind and lower bound.
+fn cmp_entries(
+    sym: &Symmetry,
+    heap: &mut Heap,
+    (map, k): (&[(u32, u32)], u32),
+    (kind, lo, data): (Kind, i64, &[Handle]),
+    (best_kind, best_lo, best_data): (Kind, i64, &[Handle]),
+) -> Result<Ordering, Error> {
+    let n = match kind {
+        Kind::Fcn => data.len() / 2,
+        _ => data.len(),
+    };
+    let best_vals = match best_kind {
+        Kind::Fcn => &best_data[n..],
+        _ => best_data,
+    };
+    let (vals, dom) = match kind {
+        Kind::Fcn => (&data[n..], domain_image(sym, heap, map, k, &data[..n])?),
+        _ => (data, None),
+    };
+    // The keys, unless both are functions over the same integers.
+    if kind != Kind::IntFcn || best_kind != Kind::IntFcn || lo != best_lo {
+        for i in 0..n {
+            let mine = match (&dom, kind) {
+                (Some(d), _) => d.keys.get(i).copied(),
+                (None, Kind::Fcn) => data.get(i).copied(),
+                #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
+                (None, _) => Some(Handle::int(lo + i as i64).unwrap_or(Handle::EMPTY)),
+            };
+            #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
+            let theirs = match best_kind {
+                Kind::Fcn => best_data.get(i).copied(),
+                _ => Some(Handle::int(best_lo + i as i64).unwrap_or(Handle::EMPTY)),
+            };
+            let (Some(mine), Some(theirs)) = (mine, theirs) else {
+                return Err(Error::internal("a SYMMETRY function image of another size"));
+            };
+            let c = heap.cmp(mine, theirs);
+            if c != Ordering::Equal {
+                return Ok(c);
+            }
+        }
+    }
+    for (j, &theirs) in best_vals.iter().enumerate() {
+        let at = dom
+            .as_ref()
+            .map_or(Some(j), |d| d.src.get(j).map(|&i| i as usize));
+        let Some(&e) = at.and_then(|i| vals.get(i)) else {
+            return Err(Error::internal("a SYMMETRY function image of another size"));
+        };
+        let mine = permute(sym, heap, map, k, e)?;
+        let c = heap.cmp(mine, theirs);
+        if c != Ordering::Equal {
+            return Ok(c);
+        }
+    }
+    Ok(Ordering::Equal)
 }
 
 /// Whether `h` is a finite set node.
@@ -582,7 +821,7 @@ fn tlc_cmp(heap: &Heap, a: Handle, b: Handle) -> Result<Ordering, Error> {
     Ok(Ordering::Equal)
 }
 
-/// The image of `h`, a value inside a state variable's value, under `map`
+/// The image of `h`, a state variable's value or a value inside one, under `map`
 /// (the reduction's map number `k`); `h` itself when nothing in it moves.
 /// The image of a persistent value is interned and remembered in the
 /// heap's [`ImageCache`], outside speculative candidate expansion, which
@@ -648,6 +887,67 @@ fn permute_remembered(
     Ok(img)
 }
 
+/// The image of the sorted, distinct `keys` of a function's domain under
+/// `map` (map number `k`), or `None` when no key moves. It is remembered
+/// for the keys when they and their images are all persistent or scalar.
+fn domain_image(
+    sym: &Symmetry,
+    heap: &mut Heap,
+    map: &[(u32, u32)],
+    k: u32,
+    keys: &[Handle],
+) -> Result<Option<Arc<DomainImage>>, Error> {
+    // Strings, integers and Booleans never move (a record's fields).
+    if keys
+        .iter()
+        .all(|&x| matches!(x.tag(), Tag::Str | Tag::Int | Tag::Bool))
+    {
+        return Ok(None);
+    }
+    let slot = k as usize;
+    let lasting = keys.iter().all(|&x| !x.is_transient());
+    if lasting && let Some(dom) = heap.sym_images.domains.get(slot).and_then(|m| m.get(keys)) {
+        // Empty image keys: no key moves.
+        return Ok((!dom.keys.is_empty()).then(|| dom.clone()));
+    }
+    let mut moved = false;
+    let mut images = Vec::with_capacity(keys.len());
+    for (i, &x) in keys.iter().enumerate() {
+        let y = permute(sym, heap, map, k, x)?;
+        moved |= y != x;
+        let i = u32::try_from(i)
+            .map_err(|_| Error::unsupported("SYMMETRY over a function of 2^32 entries (core)"))?;
+        images.push((y, i));
+    }
+    let dom = if moved {
+        // A map is injective: the image keys are distinct.
+        images.sort_unstable_by(|a, b| heap.cmp(a.0, b.0));
+        Arc::new(DomainImage {
+            keys: images.iter().map(|p| p.0).collect(),
+            src: images.iter().map(|p| p.1).collect(),
+        })
+    } else {
+        Arc::new(DomainImage {
+            keys: Box::default(),
+            src: Box::default(),
+        })
+    };
+    let cache = &mut heap.sym_images;
+    if lasting
+        && dom.keys.iter().all(|&x| !x.is_transient())
+        && cache.domain_keys + keys.len() <= MAX_DOMAIN_KEYS
+    {
+        if cache.domains.len() <= slot {
+            cache.domains.resize_with(slot + 1, DomainMap::default);
+        }
+        if let Some(m) = cache.domains.get_mut(slot) {
+            cache.domain_keys += keys.len();
+            m.insert(keys.into(), dom.clone());
+        }
+    }
+    Ok(moved.then_some(dom))
+}
+
 /// The bytes the transient nodes of `h` take, which interning copies into
 /// the store.
 fn transient_bytes(heap: &Heap, h: Handle) -> usize {
@@ -660,7 +960,7 @@ fn transient_bytes(heap: &Heap, h: Handle) -> usize {
 }
 
 /// [`permute`] on one node, unremembered: its children through
-/// [`permute`]. A state variable's value is permuted with this.
+/// [`permute`]. A function is permuted through its [`DomainImage`].
 #[allow(
     clippy::many_single_char_names,
     reason = "short names for a value, its view and its entries"
@@ -691,6 +991,7 @@ fn permute_node(
     let v = heap.view(h);
     let kind = v.kind;
     let lo = v.lo;
+    let view_bits = v.flags;
     let data = v.data.to_vec();
     match kind {
         Kind::BigInt | Kind::Interval | Kind::Nat | Kind::Int => Ok(h),
@@ -712,26 +1013,44 @@ fn permute_node(
                 moved |= x != e;
                 vals.push(x);
             }
-            Ok(if moved { heap.int_fcn(lo, &vals) } else { h })
-        }
-        Kind::Fcn => {
-            let n = data.len() / 2;
-            let mut moved = false;
-            let mut pairs = Vec::with_capacity(n);
-            for i in 0..n {
-                let (key, e) = (data[i], data[n + i]);
-                let (pk, pe) = (
-                    permute(sym, heap, map, k, key)?,
-                    permute(sym, heap, map, k, e)?,
-                );
-                moved |= pk != key || pe != e;
-                pairs.push((pk, pe));
-            }
+            // The keys do not move: the image keeps the representation.
             Ok(if moved {
-                heap.fcn_from_pairs(&mut pairs)
+                heap.int_fcn_as(lo, &vals, view_bits & flags::TUPLE)
             } else {
                 h
             })
+        }
+        Kind::Fcn => {
+            let n = data.len() / 2;
+            let (keys, vals) = data.split_at(n);
+            let mut image = Vec::with_capacity(n);
+            match domain_image(sym, heap, map, k, keys)? {
+                None => {
+                    // No key moves: the image keeps the key order and the
+                    // representation (a record stays a record).
+                    let mut moved = false;
+                    for &e in vals {
+                        let x = permute(sym, heap, map, k, e)?;
+                        moved |= x != e;
+                        image.push(x);
+                    }
+                    Ok(if moved {
+                        heap.fcn_sorted_as(keys, &image, view_bits & flags::RECORD)
+                    } else {
+                        h
+                    })
+                }
+                Some(dom) => {
+                    for &i in &dom.src {
+                        let Some(&e) = vals.get(i as usize) else {
+                            return Err(Error::internal("a SYMMETRY domain image of another size"));
+                        };
+                        image.push(permute(sym, heap, map, k, e)?);
+                    }
+                    // A record's keys are strings, which never move.
+                    Ok(heap.fcn_sorted(&dom.keys, &image))
+                }
+            }
         }
         _ => Err(Error::unsupported(
             "SYMMETRY over a state holding a lazily represented set or function (core)",
@@ -858,6 +1177,157 @@ mod tests {
         // At most one image past the limit: [j \in 0..7 |-> v] and its entry.
         assert!(spent < limit + 512, "{spent}");
         assert!(h.sym_images.images.len() < limit / ENTRY_BYTES);
+    }
+
+    /// The image of `h` under `map`, built by sorting, as permuting did
+    /// before domain images: the reference for [`permute_node`].
+    fn sorted_image(h: &mut Heap, map: &[(u32, u32)], x: Handle) -> Handle {
+        if let Some(id) = x.as_model_id() {
+            return match map.binary_search_by_key(&id, |&(a, _)| a) {
+                Ok(i) => Handle::model(map[i].1),
+                Err(_) => x,
+            };
+        }
+        if !x.is_compound() {
+            return x;
+        }
+        let v = h.view(x);
+        let (kind, lo, data) = (v.kind, v.lo, v.data.to_vec());
+        let mut img: Vec<Handle> = data.iter().map(|&e| sorted_image(h, map, e)).collect();
+        match kind {
+            Kind::Set => h.set_from(&mut img),
+            Kind::IntFcn => h.int_fcn(lo, &img),
+            Kind::Fcn => {
+                let n = img.len() / 2;
+                let mut pairs: Vec<(Handle, Handle)> =
+                    (0..n).map(|i| (img[i], img[n + i])).collect();
+                h.fcn_from_pairs(&mut pairs)
+            }
+            _ => x,
+        }
+    }
+
+    #[test]
+    fn functions_permute_by_domain_images_as_by_sorting() {
+        let mut h = Heap::new(Arc::new(Store::default()), false, false);
+        let mv = |h: &Heap, t: &str| Handle::model(h.store().strings().intern(t).unwrap());
+        // `n0` is not moved by any map, and sorts between the others.
+        let vals = [mv(&h, "a"), mv(&h, "m"), mv(&h, "z"), mv(&h, "n0")];
+        let ids: Vec<u32> = vals.iter().map(|v| v.as_model_id().unwrap()).collect();
+        let perms = [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+        let maps: Vec<Vec<(u32, u32)>> = perms
+            .iter()
+            .map(|p| (0..3).map(|i| (ids[i], ids[p[i]])).collect())
+            .collect();
+        let sym = Symmetry::new(maps);
+        let int = |n: i64| Handle::int(n).unwrap();
+        let s = h.store().strings().intern("f").unwrap();
+        let text = Handle::string(s);
+        let mut cases = Vec::new();
+        for round in 0..3i64 {
+            // Keyed by model values: the whole symmetric set, a subset, a
+            // domain with an unmoved value, values that are model values.
+            let f = h.fcn_from_pairs(&mut [
+                (vals[0], int(round)),
+                (vals[1], vals[2]),
+                (vals[2], int(7)),
+            ]);
+            let g = h.fcn_from_pairs(&mut [(vals[0], vals[1]), (vals[2], int(round))]);
+            let u = h.fcn_from_pairs(&mut [
+                (vals[3], vals[0]),
+                (vals[1], int(round)),
+                (int(5), vals[2]),
+            ]);
+            // Keyed by pairs of model values, interned (remembered) and not.
+            let mut pairs = Vec::new();
+            for (i, &x) in vals[..3].iter().enumerate() {
+                for (j, &y) in vals[..3].iter().enumerate() {
+                    let t = h.tuple(&[x, y]);
+                    let t = h.intern(t).unwrap();
+                    #[allow(clippy::cast_possible_wrap, reason = "small indexes")]
+                    pairs.push((t, int((i * 3 + j) as i64 + round)));
+                }
+            }
+            let p = h.fcn_from_pairs(&mut pairs);
+            let p_interned = h.intern(p).unwrap();
+            let t0 = h.tuple(&[vals[0], vals[1]]);
+            let t1 = h.tuple(&[vals[2], vals[0]]);
+            let q = h.fcn_from_pairs(&mut [(t0, int(1)), (t1, vals[1])]);
+            // Nested: a function of functions keyed by model values.
+            let nested = h.fcn_from_pairs(&mut [(vals[0], g), (vals[1], f), (vals[2], u)]);
+            let rec = h.record(&[text], &[vals[0]]);
+            cases.extend([f, g, u, p, p_interned, q, nested, rec]);
+        }
+        for (k, map) in sym.maps.iter().enumerate() {
+            let k = u32::try_from(k).unwrap();
+            for &x in &cases {
+                let want = sorted_image(&mut h, map, x);
+                let got = permute_node(&sym, &mut h, map, k, x).unwrap();
+                assert!(h.eq(got, want), "map {k}: {x:?}");
+            }
+        }
+        assert!(
+            !h.sym_images.domains.is_empty(),
+            "domain images are remembered"
+        );
+
+        // Compared before it is built: as built, against every other case
+        // (functions of other sizes, kinds and domains among them).
+        let mut decided = 0;
+        for (k, map) in sym.maps.iter().enumerate() {
+            let k = u32::try_from(k).unwrap();
+            for &x in &cases {
+                let img = permute_node(&sym, &mut h, map, k, x).unwrap();
+                for &best in &cases {
+                    let want = h.cmp(img, best);
+                    if let Some(got) = cmp_image(&sym, &mut h, map, k, x, best).unwrap() {
+                        assert_eq!(got, want, "map {k}: {x:?} against {best:?}");
+                        decided += 1;
+                    }
+                }
+            }
+        }
+        assert_eq!(decided, sym.len() * cases.len() * cases.len());
+        // The canonical image of states of these functions is the least
+        // image built by sorting.
+        for w in cases.windows(3) {
+            let mut want = w.to_vec();
+            for map in &sym.maps {
+                let img: Vec<Handle> = w.iter().map(|&x| sorted_image(&mut h, map, x)).collect();
+                let ord = img
+                    .iter()
+                    .zip(&want)
+                    .map(|(&x, &y)| h.cmp(x, y))
+                    .find(|&c| c != Ordering::Equal);
+                if ord == Some(Ordering::Less) {
+                    want = img;
+                }
+            }
+            let mut got = Vec::new();
+            sym.canonical(&mut h, w, &mut got).unwrap();
+            assert!(got.iter().zip(&want).all(|(&x, &y)| h.eq(x, y)));
+        }
+    }
+
+    #[test]
+    fn images_keep_record_and_tuple_literals() {
+        let mut h = Heap::new(Arc::new(Store::default()), false, false);
+        let mv = |h: &Heap, t: &str| Handle::model(h.store().strings().intern(t).unwrap());
+        let (a, b) = (mv(&h, "a"), mv(&h, "b"));
+        let swap = vec![
+            (a.as_model_id().unwrap(), b.as_model_id().unwrap()),
+            (b.as_model_id().unwrap(), a.as_model_id().unwrap()),
+        ];
+        let sym = Symmetry::new(vec![swap.clone()]);
+        let field = Handle::string(h.store().strings().intern("x").unwrap());
+        let rec = h.record(&[field], &[a]);
+        let img = permute_node(&sym, &mut h, &swap, 0, rec).unwrap();
+        let want = h.record(&[field], &[b]);
+        assert!(h.eq(img, want));
+        assert!(h.view(img).is_record_literal());
+        let tup = h.tuple_literal(&[a, b]);
+        let img = permute_node(&sym, &mut h, &swap, 0, tup).unwrap();
+        assert!(h.view(img).is_tuple_literal());
     }
 
     #[test]
