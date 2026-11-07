@@ -9,6 +9,4 @@ Ok == x' # 1
 A == x' \in {1, 2} /\ Ok
 B == x' = (x + 1) % 3
 Prop == [][(x' = 0) => (A \cdot B)]_x
-Composed == A \cdot B
-Inv == x \in {0, 1, 2}
 ====
