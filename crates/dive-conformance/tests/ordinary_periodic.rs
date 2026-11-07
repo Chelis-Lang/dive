@@ -48,7 +48,10 @@ impl Spec {
             },
             ..CheckRequest::default()
         };
-        Ok(dive_api::check_file(&request)?.to_json_with_exit_convention(ExitConvention::Tlc))
+        Ok(
+            dive_api::check_file_engine(&request, dive_api::Engine::Reference)?
+                .to_json_with_exit_convention(ExitConvention::Tlc),
+        )
     }
 }
 fn mapped(value: &Value, status: Option<i32>, profile: bool) -> CheckMapping {

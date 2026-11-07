@@ -16,6 +16,8 @@ fn run(
     let binary =
         std::env::var_os("DIVE_TEST_CLI").unwrap_or_else(|| env!("CARGO_BIN_EXE_dive").into());
     Command::new(binary)
+        // The reference engine these tests were written for.
+        .env("DIVE_ENGINE", "reference")
         .arg("check")
         .arg(file)
         .args(["--output=json", "--seed=7", "--fp=0"])

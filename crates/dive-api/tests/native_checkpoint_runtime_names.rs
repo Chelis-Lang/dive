@@ -4,7 +4,7 @@
 mod memory_observations;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
+use dive_api::{CheckRequest, Store, checkpoint};
 use std::path::{Path, PathBuf};
 
 fn directory() -> PathBuf {
@@ -107,11 +107,14 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
             * 2;
     // References must span stores and widths, not restart inside the split
     // wrapper. These are actual full runs of the same source/profile at width1.
-    let fingerprint_reference = check_file(&CheckRequest {
-        store: Store::Fingerprint,
-        workers: Some(1),
-        ..base.clone()
-    })
+    let fingerprint_reference = dive_api::check_file_engine(
+        &CheckRequest {
+            store: Store::Fingerprint,
+            workers: Some(1),
+            ..base.clone()
+        },
+        dive_api::Engine::Reference,
+    )
     .expect("full fingerprint reference")
     .to_json();
     assert_eq!(fingerprint_reference["verdict"], "invariant-violation");
@@ -121,11 +124,14 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
         let store_reference = if store == Store::Fingerprint {
             fingerprint_reference.clone()
         } else {
-            check_file(&CheckRequest {
-                store,
-                workers: Some(1),
-                ..base.clone()
-            })
+            dive_api::check_file_engine(
+                &CheckRequest {
+                    store,
+                    workers: Some(1),
+                    ..base.clone()
+                },
+                dive_api::Engine::Reference,
+            )
             .expect("full store reference")
             .to_json()
         };
@@ -143,7 +149,9 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                     predecessor_memory_bytes: (family & 2 != 0).then_some(0),
                     ..base.clone()
                 };
-                let full = check_file(&req).expect("full").to_json();
+                let full = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                    .expect("full")
+                    .to_json();
                 assert_eq!(full["verdict"], "invariant-violation", "{full}");
                 metadata(&full, store, compat_tlc);
                 let semantic = cross_store(observable(full.clone()));
@@ -165,7 +173,13 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                         counters: checkpoint::Counters::Retain,
                         config_source_sha256: None,
                     };
-                    let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
+                    let paused = dive_api::check_file_checkpoint_engine(
+                        &req,
+                        &cp,
+                        dive_api::Engine::Reference,
+                    )
+                    .expect("pause")
+                    .to_json();
                     assert_eq!(paused["verdict"], "resource-limit", "{paused}");
                     metadata(&paused, store, compat_tlc);
                     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
@@ -188,12 +202,13 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                         workers: Some(if workers == 8 { 4 } else { 8 }),
                         ..req.clone()
                     };
-                    let resumed = check_file_checkpoint(
+                    let resumed = dive_api::check_file_checkpoint_engine(
                         &recovery,
                         &checkpoint::Request {
                             action: checkpoint::Action::Recover,
                             ..cp.clone()
                         },
+                        dive_api::Engine::Reference,
                     )
                     .expect("recover")
                     .to_json();
@@ -237,13 +252,14 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                             Validation::Invalid(_)
                         ));
                     }
-                    let reset = check_file_checkpoint(
+                    let reset = dive_api::check_file_checkpoint_engine(
                         &recovery,
                         &checkpoint::Request {
                             action: checkpoint::Action::Recover,
                             counters: checkpoint::Counters::Tlc,
                             ..cp
                         },
+                        dive_api::Engine::Reference,
                     )
                     .expect("reset")
                     .to_json();

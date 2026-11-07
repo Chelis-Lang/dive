@@ -24,7 +24,7 @@ fn actual_initial_receivers_match_pinned_source_wrappers() {
         ));
         let golden:Value=serde_json::from_str(&std::fs::read_to_string(root().join(format!("conformance/golden/tlc-2026.10.06.014338/comparison-receiver-primary/specifications/{name}/{name}.cfg.json"))).expect("golden")).expect("JSON");
         for workers in [1, 4] {
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 for compat in [false, true] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -108,7 +108,7 @@ fn cached_and_stored_receivers_do_not_acquire_a_diagnostic_source() {
             "crates/dive-api/tests/fixtures/comparison-receiver-unclassified/{name}.tla"
         ));
         for workers in [1, 4] {
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 for compat in [false, true] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -161,7 +161,7 @@ fn unrelated_tool_errors_and_later_errors_keep_their_existing_primary_contract()
             ))
         };
         for workers in [1, 4] {
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 for compat in [false, true] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -275,7 +275,8 @@ fn later_initial_rows_and_unproved_state_history_do_not_gain_a_certificate() {
         )
         .expect("config");
         for workers in [1, 4] {
-            for engine in [Engine::Reference, Engine::Auto] {
+            {
+                let engine = Engine::Reference;
                 let report = check_file_engine(
                     &CheckRequest {
                         file: file.clone(),

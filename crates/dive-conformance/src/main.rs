@@ -84,7 +84,7 @@ GOLDEN GENERATE:
 
 RUN:
     --impl <impl>          tlc | tlc:<oracle-id> | dive | dive:<engine> | adapter:<file.toml>
-                           (dive engines: reference (default, or DIVE_ENGINE) | core | auto;
+                           (dive engines: core (default, or DIVE_ENGINE) | reference;
                            each report row records the engine that ran)
     --golden-oracle <id>   oracle whose goldens are compared (default: the default oracle)
     --workers <list>       worker counts, e.g. 1,4 (default: 1)
@@ -934,8 +934,7 @@ fn cmd_shadow(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<b
     Ok(!findings.is_empty())
 }
 
-/// The engine of `--impl dive` (`DIVE_ENGINE`, else the reference
-/// engine) or `--impl dive:<engine>`; `None` for any other implementation.
+/// The engine of `--impl dive` (`DIVE_ENGINE`, else Core) or `--impl dive:<engine>`; `None` for any other implementation.
 fn dive_engine(imp_spec: &str) -> Result<Option<DiveEngine>> {
     Ok(match imp_spec.strip_prefix("dive:") {
         Some(engine) => Some(DiveEngine::parse(engine)?),

@@ -3,7 +3,13 @@
 use std::process::Command;
 
 fn dive(args: &[&str]) -> std::process::Output {
-    match Command::new(env!("CARGO_BIN_EXE_dive")).args(args).output() {
+    // The reference engine these tests were written for; Core, the default,
+    // is covered by explicit `--engine core` tests and the default-engine tests.
+    match Command::new(env!("CARGO_BIN_EXE_dive"))
+        .env("DIVE_ENGINE", "reference")
+        .args(args)
+        .output()
+    {
         Ok(output) => output,
         Err(e) => unreachable!("cannot run dive binary: {e}"),
     }
@@ -1930,4 +1936,45 @@ fn core_candidate_flags_run_real_spill_and_reject_missing_budget() {
     ]);
     assert_eq!(output.status.code(), Some(2));
     assert!(String::from_utf8_lossy(&output.stderr).contains("requires --candidate-memory-bytes"));
+}
+
+/// Core, the default engine, has no bounded final route: `--lncheck final`
+/// and the adapter's `-lncheck final` are named refusals, never a fallback.
+#[test]
+fn the_default_engine_refuses_bounded_final_checking_by_name() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/user/examples");
+    let file = root.join("Counter.tla");
+    let config = root.join("CounterTemporal.cfg");
+    let (Some(file), Some(config)) = (file.to_str(), config.to_str()) else {
+        unreachable!("non-UTF-8 fixture path");
+    };
+    for arguments in [
+        vec![
+            "check",
+            file,
+            "--config",
+            config,
+            "--lncheck",
+            "final",
+            "--lasso",
+            "short",
+        ],
+        vec!["tlc", "-config", config, "-lncheck", "final", file],
+    ] {
+        let output = Command::new(env!("CARGO_BIN_EXE_dive"))
+            .env_remove("DIVE_ENGINE")
+            .env_remove("DIVE_COMPAT")
+            .args(&arguments)
+            .output();
+        let Ok(output) = output else {
+            unreachable!("cannot run dive binary");
+        };
+        assert_eq!(output.status.code(), Some(3), "{arguments:?}: {output:?}");
+        let text = format!(
+            "{}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(text.contains("unsupported"), "{arguments:?}: {text}");
+    }
 }

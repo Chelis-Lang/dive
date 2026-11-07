@@ -1,6 +1,6 @@
 //! Name admission does not authorize startup output, random draws or checker reads.
 #![allow(clippy::expect_used, reason = "pre-effect refusal controls")]
-use dive_api::{CheckRequest, check_file_checkpoint, checkpoint};
+use dive_api::{CheckRequest, checkpoint};
 use std::path::PathBuf;
 
 #[test]
@@ -26,7 +26,7 @@ fn mixed_effects_refuse_before_work_output_or_archive() {
         for compat_tlc in [false, true] {
             for workers in [1, 4, 8] {
                 let path = dir.join(format!("{at}-{compat_tlc}-{workers}.cp"));
-                let report = check_file_checkpoint(
+                let report = dive_api::check_file_checkpoint_engine(
                     &CheckRequest {
                         file: file.clone(),
                         config: Some(cfg.clone()),
@@ -43,6 +43,7 @@ fn mixed_effects_refuse_before_work_output_or_archive() {
                         counters: checkpoint::Counters::Retain,
                         config_source_sha256: None,
                     },
+                    dive_api::Engine::Reference,
                 )
                 .expect("admission")
                 .to_json();

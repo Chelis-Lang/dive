@@ -38,6 +38,8 @@ fn command(
         .args(extra)
         .env_remove("DIVE_COMPAT")
         .env_remove("DIVE_CHAOS")
+        // The reference engine's row-error reports; Core refuses them by name.
+        .env("DIVE_ENGINE", "reference")
         .output()
 }
 #[test]

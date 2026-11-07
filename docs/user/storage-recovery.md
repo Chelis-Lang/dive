@@ -11,7 +11,7 @@ This guide covers the opt-in disk storage for safety search and native
 checkpoint/recovery. The design decision is
 [ADR 0083](../decisions/0083-storage-and-checkpoint.md).
 
-`--engine core` safety BFS supports `--store exact` and the frontier and
+Core (the default engine) safety BFS supports `--store exact` and the frontier and
 predecessor budget/directory options. Exact membership resolves hash collisions by comparing
 complete canonical mathematical state identities; representation and receiver
 history stay attached to the concrete states used for evaluation and replay.
@@ -20,9 +20,7 @@ Predecessor read, write, corruption and explicit-cleanup failures produce a
 resource stop with storage evidence and no certified counterexample.
 Core safety BFS also supports opt-in disk membership with `--seen-disk-entries`,
 using one actual worker and complete canonical keys for exact membership.
-`--engine auto` keeps its statically selected Reference disk backend because
-whole-backend admission for Core disk requests is not yet proved. Explicit Core
-never falls back. Explicit Core also supports completed-level safety checkpoint
+Core never falls back. Core also supports completed-level safety checkpoint
 and recovery with these storage choices. Temporal exact/spill/disk combinations
 remain unsupported.
 
@@ -193,21 +191,22 @@ correctness.
 
 ## Native checkpoints
 
-Checkpoints are a separate, bounded, safety-only feature. The default Reference
-wrapper remains available. Select `--engine core` for owned Core checkpoints;
-`--engine auto` pauses on Reference and selects the encoded backend when recovering.
-An explicit backend that disagrees with the archive rejects before evaluation.
+Checkpoints are a separate, bounded, safety-only feature. Core, the default
+engine, owns its checkpoints; the Reference wrapper remains available with
+`--engine reference`. A backend that disagrees with the archive rejects with
+`DIVE-S0400` before evaluation: a Reference archive recovers only with
+`--engine reference`.
 Core recovery supports both profiles, fingerprint/exact, VIEW, safety symmetry,
 changed requested worker widths, transient spill and disk membership (one actual
 worker). It resumes the saved frontier without re-enumerating Init as search work.
 
 ```sh
 dive check docs/user/examples/CheckpointCounter.tla --engine core --compat=tlc --seed 7 --fp 0 --workers 4 --checkpoint counter.core.cp --checkpoint-after-levels 2 --checkpoint-counters retain --output json
-dive check docs/user/examples/CheckpointCounter.tla --engine auto --compat=tlc --workers 8 --recover counter.core.cp --checkpoint-counters retain --output json
+dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --workers 8 --recover counter.core.cp --checkpoint-counters retain --output json
 ```
 
 The additive Rust API is `check_file_checkpoint_engine(request, checkpoint,
-Engine::Core)`; `check_file_checkpoint` keeps its Reference behavior. Core's
+Engine::Core)`; `check_file_checkpoint` uses the default engine, Core. Core's
 `DIVECC01` archive retains the compiled startup prefix, owned Store DAG and
 registered raw/normalized construction authority, complete original/canonical
 discovery rows, keys, parents/ordinals and ordered frontier. New transient files

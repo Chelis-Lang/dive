@@ -3,7 +3,7 @@
 
 use std::path::Path;
 
-use dive_api::{CheckRequest, check_file};
+use dive_api::CheckRequest;
 
 #[test]
 fn symmetry_errors_precede_assumptions_and_preserve_general_exit_class() {
@@ -35,15 +35,18 @@ fn symmetry_errors_precede_assumptions_and_preserve_general_exit_class() {
             )
             .unwrap();
             for compat_tlc in [false, true] {
-                let report = check_file(&CheckRequest {
-                    file: file.clone(),
-                    config: Some(config.clone()),
-                    compat_tlc,
-                    seed: Some(0),
-                    fp: Some(0),
-                    workers: Some(1),
-                    ..CheckRequest::default()
-                })
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        file: file.clone(),
+                        config: Some(config.clone()),
+                        compat_tlc,
+                        seed: Some(0),
+                        fp: Some(0),
+                        workers: Some(1),
+                        ..CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )
                 .unwrap();
                 assert_eq!(report.verdict(), "model-error", "{name}");
                 assert_eq!(report.exit_code(), if compat_tlc { 255 } else { 1 });

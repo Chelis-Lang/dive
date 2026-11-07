@@ -86,6 +86,12 @@ impl Fixture {
             ])
             .arg(modules)
             .args(extra);
+        // External inputs are implemented on the reference engine only; the
+        // default engine (Core) refuses them by name (tested separately). The
+        // environment is the specification's input, so the flag selects it.
+        if matches!(command, "check" | "simulate") && !extra.contains(&"--engine") {
+            run.args(["--engine", "reference"]);
+        }
         if tlc {
             run.arg("--compat=tlc");
         }
@@ -354,7 +360,7 @@ fn source_coverage_and_grants_share_the_actual_reference_binding() {
                 "--allow-io=env,files",
                 "--source-coverage",
                 "--engine",
-                "auto",
+                "reference",
             ],
         );
         status(&plain, 12);
@@ -413,4 +419,30 @@ fn missing_categories_and_invalid_flags_never_run_a_spec_host_operation() {
             status(&output, 2);
         }
     }
+}
+
+#[test]
+fn the_default_engine_refuses_external_inputs_by_name() {
+    let fixture = Fixture::new();
+    let output = Command::new(env!("CARGO_BIN_EXE_dive"))
+        .env_clear()
+        .current_dir(&fixture.0)
+        .args([
+            "check",
+            "Captured.tla",
+            "--allow-io=env,files",
+            "--workers",
+            "1",
+        ])
+        .args(["--library-path"])
+        .arg(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../dive-eval/tests/fixtures/community-modules"),
+        )
+        .output()
+        .expect("dive runs");
+    status(&output, 3);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(stderr.contains("external inputs"), "{stderr}");
+    assert!(stderr.contains("--engine reference"), "{stderr}");
 }

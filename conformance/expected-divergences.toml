@@ -3,17 +3,21 @@
 # dive runs under one of three profiles, recorded in every report:
 #   dive            the default; may differ from TLC where listed here
 #   tlc             nominal TLC switches (--compat=tlc or DIVE_COMPAT=tlc);
-#                   known gaps remain strict findings. Only this profile counts
-#                   for strict-tier agreement.
+#                   a gap is a finding unless registered here with
+#                   profile = "tlc" and documented in docs/tlc-differences.md
+#                   (ADR 0153). Only this profile counts for strict-tier
+#                   agreement; a registered gap never counts as agree.
 #   tlc+overrides   TLC behaviour with listed per-feature overrides; never
 #                   strict-tier agreement
 #
-# Under `dive`, a disagreement matching an entry below, with the entry's
+# Under the entry's profile (`dive`, or `tlc` for a registered compat gap),
+# a disagreement matching an entry below, with the entry's
 # expected verdict and with every differing field among the entry's
 # `fields` or its exact `exit_code_pair`/`generated_count_pair`, is reported as
 # `expected-divergence`. It is never counted
 # as `agree`. Everything else is `disagree`. The registry never applies under
-# `tlc` or `tlc+overrides`, and an entry naming them is a configuration error.
+# `tlc+overrides`, and an entry naming it is a configuration error. A `tlc`
+# entry must link into docs/tlc-differences.md.
 #
 # Entry shape (exact exit/count pairs are optional; give exactly one profile/option). `fields`
 # are globs over the compared fields (`verdict`, `error_class`,
@@ -481,6 +485,16 @@ fields = []
 generated_count_pair = { expected = 318877, actual = 27727 }
 justification = "D-029: Boolean recursive predicate guards avoid duplicate logical-witness successors; original VoteProof succeeds with the same 6962 distinct states, depth 14 and empty queue. Only this exact generated-count pair is registered; other observables and independent trace validation remain required."
 link = "docs/divergences.md#d-029-predicate-witness-counts"
+
+[[divergence]]
+id = "d029-voteproof-tlc"
+pattern = "specifications/byzpaxos/VoteProof.cfg"
+profile = "tlc"
+expected_verdict = "success"
+fields = []
+generated_count_pair = { expected = 318877, actual = 27727 }
+justification = "Nominal compat gap (ADR 0153): the D-029 behaviour under --compat=tlc. Core's Boolean recursive predicate guards avoid duplicate logical-witness successors; VoteProof succeeds with the same 6962 distinct states and depth 14. Only this exact generated-count pair is registered; other observables and independent trace validation remain required."
+link = "docs/tlc-differences.md#compat-gaps"
 
 [[divergence]]
 id = "d029-or-error"

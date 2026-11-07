@@ -7,8 +7,9 @@ fields, and low-level checking uses `CheckOptions::tlc(fp_index, seed)`.
 
 Core compatibility is nominal under [ADR 0153](../decisions/0153-core-is-the-product.md):
 known gaps are documented, and unsupported features refuse by name. Exact TLC
-fidelity is not promised. Reference remains the current default; use
-`dive check Spec.tla --engine core --compat=tlc` to select Core explicitly.
+fidelity is not promised. Core is the default engine, so
+`dive check Spec.tla --compat=tlc` runs on Core; `--engine reference` selects the
+reference engine explicitly.
 See the [compatibility gaps and their reproducers](../tlc-differences.md#compat-gaps).
 
 | Behavior | Dive default | TLC counterpart |

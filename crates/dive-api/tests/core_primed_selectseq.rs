@@ -170,14 +170,6 @@ fn state_captures_effects_and_other_higher_order_operators_stay_refused() {
                         "{name}: {doc:#}"
                     );
                 }
-                let auto = check_file_engine(&req, Engine::Auto).expect("whole-run fallback");
-                assert_eq!(auto.to_json()["engine"], "reference");
-                assert_eq!(
-                    observed(&auto),
-                    reference_observed,
-                    "{name}/{compat}/{workers}"
-                );
-                assert_eq!(auto.to_json()["output"], reference.to_json()["output"]);
             }
         }
     }

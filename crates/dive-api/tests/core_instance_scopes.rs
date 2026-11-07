@@ -118,7 +118,7 @@ fn original_holding_and_missed_violation_controls_match_the_oracle() {
                     let core = check_file_core_opts(&req, opts).expect("core");
                     check(&core);
                 }
-                check(&check_file_engine(&req, Engine::Auto).expect("auto stays on core"));
+                check(&dive_api::check_file(&req).expect("the default engine stays on core"));
                 // Main's reference still has #515 on this exact Naturals dummy
                 // body. Independent words are checked externally by the frozen
                 // #515 validator, with its source/ELF identity in the receipt.
@@ -205,10 +205,10 @@ fn controls(role: &str) {
                     );
                     validate(&req, &core, expected);
                 }
-                let auto = check_file_engine(&req, Engine::Auto).expect("auto");
-                assert_eq!(auto.to_json()["engine"], "core");
-                assert_eq!(observed(&auto), observed_reference);
-                validate(&req, &auto, expected);
+                let default = dive_api::check_file(&req).expect("default engine");
+                assert_eq!(default.to_json()["engine"], "core");
+                assert_eq!(observed(&default), observed_reference);
+                validate(&req, &default, expected);
             }
         }
     }

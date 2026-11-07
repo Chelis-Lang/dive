@@ -1,7 +1,7 @@
 //! Bounded `PointOnLine` checker witnesses are independently validated.
 #![allow(clippy::expect_used, reason = "functional assertions")]
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Store, check_file};
+use dive_api::{CheckRequest, Store};
 use std::path::PathBuf;
 
 #[test]
@@ -21,16 +21,19 @@ fn point_witness_matches_counts_and_rejects_forged_coordinates() {
         )
         .expect("independent model");
         for store in [Store::Exact, Store::Fingerprint] {
-            let report = check_file(&CheckRequest {
-                file: file.clone(),
-                compat_tlc,
-                store,
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                module_paths: vec![modules.clone()],
-                ..CheckRequest::default()
-            })
+            let report = dive_api::check_file_engine(
+                &CheckRequest {
+                    file: file.clone(),
+                    compat_tlc,
+                    store,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    module_paths: vec![modules.clone()],
+                    ..CheckRequest::default()
+                },
+                dive_api::Engine::Reference,
+            )
             .expect("check");
             assert_eq!(report.exit_code(), if compat_tlc { 12 } else { 10 });
             let json = report.to_json();
@@ -63,15 +66,18 @@ fn unsupported_shape_has_no_authoritative_witness() {
     let modules =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-eval/tests/fixtures/svg-point");
     for compat_tlc in [true, false] {
-        let report = check_file(&CheckRequest {
-            file: file.clone(),
-            compat_tlc,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            module_paths: vec![modules.clone()],
-            ..CheckRequest::default()
-        })
+        let report = dive_api::check_file_engine(
+            &CheckRequest {
+                file: file.clone(),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                module_paths: vec![modules.clone()],
+                ..CheckRequest::default()
+            },
+            dive_api::Engine::Reference,
+        )
         .expect("check");
         assert_eq!(report.exit_code(), 3);
         let json = report.to_json();

@@ -30,7 +30,7 @@ use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use dive_api::{BudgetSetting, CheckRequest, check_file};
+use dive_api::{BudgetSetting, CheckRequest};
 use dive_syntax::{SyntaxKind, SyntaxNode, ast::AstNode as _};
 use serde_json::{Value, json};
 
@@ -1007,16 +1007,19 @@ fn variants(seed: &str, module: &Module, cfg: &str, siblings: &BTreeSet<String>)
 // Running and comparing
 
 fn run(dir: &Path, root: &str) -> Result<Value> {
-    let report = check_file(&CheckRequest {
-        file: dir.join(format!("{root}.tla")),
-        config: Some(dir.join(format!("{root}.cfg"))),
-        seed: Some(0),
-        fp: Some(0),
-        workers: Some(1),
-        max_states: Some(MAX_STATES),
-        time_limit: BudgetSetting::Explicit(TIME_LIMIT),
-        ..CheckRequest::default()
-    })?;
+    let report = dive_api::check_file_engine(
+        &CheckRequest {
+            file: dir.join(format!("{root}.tla")),
+            config: Some(dir.join(format!("{root}.cfg"))),
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            max_states: Some(MAX_STATES),
+            time_limit: BudgetSetting::Explicit(TIME_LIMIT),
+            ..CheckRequest::default()
+        },
+        dive_api::Engine::Reference,
+    )?;
     Ok(report.to_json())
 }
 

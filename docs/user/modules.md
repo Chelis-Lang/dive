@@ -20,10 +20,10 @@ standard modules retain their existing origin and priority. The source pins
 and licenses are in [the bundled-library README](../../crates/dive-sema/bundled/README.md).
 
 The bundled-library smoke checks ten original Examples without library flags.
-Nine must check successfully. `EWD998ChanID` resolves its imports but may report
-an explicit unsupported result: the Reference engine refuses its VIEW/liveness
-capture, and Core refuses an enclosing operator parameter in its recursive LET
-function. This is a
+Nine must check successfully on Core, the default engine, and every report must
+name `engine: core`. `EWD998ChanID` resolves its imports but may report an
+explicit unsupported result: Core refuses its VIEW/liveness graph capture by
+name. This is a
 checking limitation, not a missing-library error; it does not establish a
 verdict. Supporting that model remains deferred in #428.
 
@@ -313,13 +313,11 @@ repeated-demand effects are unproved. In particular, the
 TLA+ fallback can evaluate a sequence argument more than once; replacing it
 with a single evaluation would change `PrintT` or checker-register behavior.
 Existing effectful string arguments retain their single evaluation. Inputs and
-materialized outputs are bounded at 2^24 elements. `--engine auto` reruns refused
-cases on the reference engine; the default remains `reference`.
-
-Auto preserves the frozen reference engine's result and output. For effectful
-sequence arguments, that engine has a known reevaluation-order difference from
-TLC (issue #612); equal output counts do not establish argument-order parity.
-The core continues to refuse those calls.
+materialized outputs are bounded at 2^24 elements. Core, the default engine,
+refuses the remaining cases by name; `--engine reference` runs the frozen
+reference engine explicitly. For effectful sequence arguments, that engine has a
+known reevaluation-order difference from TLC (issue #612); equal output counts do
+not establish argument-order parity. The core continues to refuse those calls.
 
 This checked fixture needs the CommunityModules source path and completes with
 success, 1 distinct state, 2 generated states, depth 1 and exit 0:

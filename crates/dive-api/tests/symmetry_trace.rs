@@ -2,7 +2,7 @@
 #![allow(clippy::expect_used, reason = "test assertions")]
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Store, TemporalMode, check_file};
+use dive_api::{CheckRequest, Store, TemporalMode};
 
 #[test]
 fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
@@ -24,29 +24,32 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
             .expect("model");
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
-                    let report = check_file(&CheckRequest {
-                        seen_disk: None,
-                        frontier_memory_bytes: None,
-                        frontier_directory: None,
-                        predecessor_memory_bytes: None,
-                        predecessor_directory: None,
-                        file: file.clone(),
-                        config: Some(config.clone()),
-                        library_paths: Vec::new(),
-                        module_paths: Vec::new(),
-                        compat_tlc,
-                        action_composition: None,
-                        store,
-                        seed: Some(0),
-                        fp: Some(0),
-                        workers: Some(workers),
-                        no_deadlock: false,
-                        sequential: false,
-                        chaos: Some(19),
-                        temporal: TemporalMode::default(),
-                        periodic: dive_api::PeriodicSchedule::default(),
-                        ..CheckRequest::default()
-                    })
+                    let report = dive_api::check_file_engine(
+                        &CheckRequest {
+                            seen_disk: None,
+                            frontier_memory_bytes: None,
+                            frontier_directory: None,
+                            predecessor_memory_bytes: None,
+                            predecessor_directory: None,
+                            file: file.clone(),
+                            config: Some(config.clone()),
+                            library_paths: Vec::new(),
+                            module_paths: Vec::new(),
+                            compat_tlc,
+                            action_composition: None,
+                            store,
+                            seed: Some(0),
+                            fp: Some(0),
+                            workers: Some(workers),
+                            no_deadlock: false,
+                            sequential: false,
+                            chaos: Some(19),
+                            temporal: TemporalMode::default(),
+                            periodic: dive_api::PeriodicSchedule::default(),
+                            ..CheckRequest::default()
+                        },
+                        dive_api::Engine::Reference,
+                    )
                     .expect("check");
                     let doc = TraceDoc::from_json(&report.to_json())
                         .expect("concrete counterexample document");

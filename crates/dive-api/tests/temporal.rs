@@ -1757,15 +1757,18 @@ fn assert_large_constructor_report(
     model_values: &[String],
 ) {
     for store in [dive_api::Store::Exact, dive_api::Store::Fingerprint] {
-        let report = dive_api::check_file(&dive_api::CheckRequest {
-            file: file.to_path_buf(),
-            compat_tlc: tlc,
-            store,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            ..dive_api::CheckRequest::default()
-        })
+        let report = dive_api::check_file_engine(
+            &dive_api::CheckRequest {
+                file: file.to_path_buf(),
+                compat_tlc: tlc,
+                store,
+                seed: Some(0),
+                fp: Some(0),
+                workers: Some(1),
+                ..dive_api::CheckRequest::default()
+            },
+            dive_api::Engine::Reference,
+        )
         .expect("check");
         let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
         assert_eq!(value["exit_code"], golden["result"]["exit_code"], "{value}");

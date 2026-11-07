@@ -121,7 +121,7 @@ fn actual_next_function_receiver_requires_its_first_source_diagnostic_lifetime()
                     ..TraceOptions::default()
                 },
             )?;
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -209,7 +209,7 @@ fn effectful_later_and_multiple_lifetimes_gain_no_receiver_certificate() -> Test
                     ..TraceOptions::default()
                 },
             )?;
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {

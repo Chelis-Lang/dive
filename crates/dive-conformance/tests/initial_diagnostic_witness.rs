@@ -74,7 +74,7 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
                     ..TraceOptions::default()
                 },
             )?;
-            for (engine, workers) in [Engine::Reference, Engine::Core, Engine::Auto]
+            for (engine, workers) in [Engine::Reference, Engine::Core]
                 .into_iter()
                 .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
             {

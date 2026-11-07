@@ -12,6 +12,8 @@ fn run(compat_tlc: bool, workers: usize) -> Result<Output, Box<dyn std::error::E
         .join("../../docs/user/examples/RejectedCandidates.tla");
     let mut command = Command::new(binary);
     command.env_remove("DIVE_COMPAT");
+    // The reference engine this test was written for.
+    command.env("DIVE_ENGINE", "reference");
     command.arg("check").arg(file).args([
         "--seed",
         "0",

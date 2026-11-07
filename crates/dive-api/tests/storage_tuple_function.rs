@@ -4,7 +4,7 @@
 mod memory_observations;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
+use dive_api::{CheckRequest, Store, checkpoint};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 
@@ -136,6 +136,10 @@ fn assert_comparison(reference: &Value, compat: bool) {
         assert_eq!(reference["tlc"]["exit_status"], 0);
     }
 }
+#[allow(
+    clippy::too_many_lines,
+    reason = "one storage matrix against the explicit reference engine"
+)]
 fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedules: &[Option<u64>]) {
     let directory = directory();
     let mut serial = 0;
@@ -149,7 +153,9 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                     chaos,
                     ..request(name, compat)
                 };
-                let reference = check_file(&base).expect("memory").to_json();
+                let reference = dive_api::check_file_engine(&base, dive_api::Engine::Reference)
+                    .expect("memory")
+                    .to_json();
                 if name == "Apply" {
                     assert_eq!(reference["verdict"], "evaluation-error");
                     assert!(reference["message"].as_str().expect("cause").ends_with("Attempted to apply function with integer domain to the non-integer argument \"a\""));
@@ -176,7 +182,9 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                         predecessor_memory_bytes: predecessor.then_some(0),
                         ..base.clone()
                     };
-                    let bounded = check_file(&req).expect("bounded").to_json();
+                    let bounded = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                        .expect("bounded")
+                        .to_json();
                     assert_eq!(bounded["options"]["workers"]["used"], workers);
                     storage(&bounded, frontier, predecessor);
                     assert_eq!(
@@ -191,17 +199,24 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                         config_source_sha256: None,
                     };
                     serial += 1;
-                    let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
+                    let paused = dive_api::check_file_checkpoint_engine(
+                        &req,
+                        &cp,
+                        dive_api::Engine::Reference,
+                    )
+                    .expect("pause")
+                    .to_json();
                     assert_eq!(paused["verdict"], "resource-limit");
                     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
                     assert_eq!(paused["options"]["workers"]["used"], 1);
                     assert_eq!(&std::fs::read(&cp.path).expect("archive")[..8], b"DIVECP02");
-                    let resumed = check_file_checkpoint(
+                    let resumed = dive_api::check_file_checkpoint_engine(
                         &req,
                         &checkpoint::Request {
                             action: checkpoint::Action::Recover,
                             ..cp
                         },
+                        dive_api::Engine::Reference,
                     )
                     .expect("recover")
                     .to_json();
@@ -285,7 +300,7 @@ fn actual_older_ambiguous_archive_refuses_without_search() {
         b"DIVECP01"
     );
     for compat in [true, false] {
-        let result = check_file_checkpoint(
+        let result = dive_api::check_file_checkpoint_engine(
             &request("Apply", compat),
             &checkpoint::Request {
                 path: path.clone(),
@@ -293,6 +308,7 @@ fn actual_older_ambiguous_archive_refuses_without_search() {
                 counters: checkpoint::Counters::Retain,
                 config_source_sha256: None,
             },
+            dive_api::Engine::Reference,
         )
         .expect_err("pre-search archive refusal");
         assert!(

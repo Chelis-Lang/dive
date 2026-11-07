@@ -73,25 +73,25 @@ fn human_header_names_requested_engine_and_actual_workers() -> Result<(), Box<dy
 {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../docs/user/examples/Counter.tla");
-    for engine in ["reference", "core", "auto"] {
-        let output = dive(&[
-            "check",
-            file.to_str().ok_or("non-UTF-8 fixture path")?,
-            "--engine",
-            engine,
-            "--workers=1",
-            "--seed=7",
-            "--fp=0",
-        ])?;
-        assert!(output.status.success(), "{engine}: {output:?}");
-        assert!(output.stderr.is_empty(), "{engine}: {output:?}");
+    // `None` is the default engine, Core.
+    for engine in [Some("reference"), Some("core"), None] {
+        let path = file.to_str().ok_or("non-UTF-8 fixture path")?;
+        let mut arguments = vec!["check", path, "--workers=1", "--seed=7", "--fp=0"];
+        if let Some(engine) = engine {
+            arguments.extend(["--engine", engine]);
+        }
+        let output = dive(&arguments)?;
+        assert!(output.status.success(), "{engine:?}: {output:?}");
+        assert!(output.stderr.is_empty(), "{engine:?}: {output:?}");
         let human = String::from_utf8(output.stdout)?;
         let header = human.lines().next().ok_or("missing human header")?;
-        assert!(header.contains(&format!("requested engine {engine},")));
+        let named = engine.unwrap_or("core");
+        assert!(header.contains(&format!("requested engine {named},")));
         assert!(header.contains("1 worker(s) requested, 1 used"));
-        if engine == "auto" {
-            assert!(human.contains("engine auto: the core ran"));
-        }
+        assert!(!human.contains("engine auto"));
     }
+    let removed = dive(&["check", "Counter.tla", "--engine", "auto"])?;
+    assert_eq!(removed.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&removed.stderr).contains("--engine auto was removed"));
     Ok(())
 }

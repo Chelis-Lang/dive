@@ -2,8 +2,9 @@ name: conformance
 
 # Standard and deep conformance tiers (ADR 0001), on manual dispatch with a
 # chosen tier (default small). Nightly, the `baseline` job alone runs dive's
-# small tier in both profiles and fails on any regression against the
-# committed baselines in conformance/baselines/ (`run --baseline`). The
+# small tier on Core, the default engine, in both profiles and fails on any
+# regression against the committed Core baselines in conformance/baselines/
+# (`run --baseline`). The
 # dispatched `conformance` job runs the pinned TLC against the
 # committed goldens, with worker-count invariance (charter rule 7) and the
 # Examples manifest cross-check. Then runs dive under --compat=tlc (`dive
@@ -145,24 +146,15 @@ jobs:
       # A model
       # or module that agreed in the baseline and no longer does, or a changed
       # observable, fails the step; improvements are listed and pass.
-      - name: dive (tlc profile) against its baseline
+      - name: dive (Core, tlc profile) against its baseline
         if: always()
         run: |
           mkdir -p "$RUNNER_TEMP/baseline"
           target/release/dive-conformance run \
-            --impl dive --impl-profile tlc \
+            --impl dive:core --impl-profile tlc \
             --corpus examples --corpus probes --corpus validation-smoke --corpus configured-temporal-operators \
             --tier small --workers 1 --jobs 2 --tlc-budgets --budget-cap 900 \
-            --baseline conformance/baselines/small-tlc-w1.json \
-            --report-dir "$RUNNER_TEMP/baseline" --no-summary
-      - name: dive (default profile) against its baseline
-        if: always()
-        run: |
-          target/release/dive-conformance run \
-            --impl dive --impl-profile dive \
-            --corpus examples --corpus probes --corpus validation-smoke --corpus configured-temporal-operators \
-            --tier small --workers 1 --no-sany --jobs 2 --tlc-budgets --budget-cap 900 \
-            --baseline conformance/baselines/small-dive-w1.json \
+            --baseline conformance/baselines/small-core-tlc-w1.json \
             --report-dir "$RUNNER_TEMP/baseline" --no-summary
       - name: Upload reports
         if: always()

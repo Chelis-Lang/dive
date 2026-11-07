@@ -14,17 +14,14 @@ protect-main`:
   `scripts/test-rust-consumer.sh` as the local gate. `cargo deny` runs only when the
   PR changes `Cargo.lock` or `deny.toml` (a step condition, so the required
   check always reports), and on every push to `main`.
-- **Conformance gate**: release builds of the harness and `dive`, then
-  `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`,
-  the Core golden gate (the same script with `DIVE_GATE_IMPL=dive:core
-  DIVE_GATE_PROFILE=dive` over `conformance/gates/core-smoke.txt`, the union
-  of the smoke and shadow-smoke lists: Core alone must agree with the TLC
-  goldens or match a registered expected divergence), and the shadow gate `scripts/shadow-gate.sh
-  conformance/gates/shadow-smoke.txt`. The shadow gate runs the new core
-  against the reference engine on 26 fast examples models at 1 and 4
-  workers, under `--strict` and with successor sampling
-  (`docs/developer/core/08-correctness.md` §4). The full gate shadows the
-  cm1 list at 1, 4 and 8 workers and the whole small tier.
+- **Conformance gate**: release builds of the harness and `dive`, then, all
+  on Core (the default engine):
+  `scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4`
+  in the TLC profile, the Core golden gate (the same script with
+  `DIVE_GATE_PROFILE=dive` over `conformance/gates/core-smoke.txt`: Core must
+  agree with the TLC goldens or match a registered expected divergence), and
+  the bare-use smoke (`scripts/bare-use-smoke.py`), whose every report must
+  name `engine: core`.
 
 The push run on `main` checks the merged result (branch protection is not
 strict) and saves the rust-cache entries that PR runs restore.
@@ -110,16 +107,16 @@ handling; these controls are not a process sandbox.
 
 ```sh
 cargo xtask gate --fast                 # what CI's Workspace gate runs
-cargo xtask gate --full                 # whole suite, cm1 + validation-smoke at 1/4/8, small corpus tier vs baselines, shadow
-cargo xtask gate --full --skip-corpus   # without the small corpus tier and shadow
+cargo xtask gate --full                 # whole suite, cm1 + validation-smoke at 1/4/8, small corpus tier vs Core baselines
+cargo xtask gate --full --skip-corpus   # without the small corpus tier
 ```
 
 `--full` keeps going after a failure and writes `target/gate-report.md` (under
 `CARGO_TARGET_DIR` if set): each step's result and duration, and the corpus
 tier's outcome counts per profile. The corpus tier runs the 156-model small
 selection (examples, probes, validation-smoke, configured-temporal-operators)
-at one worker in the `tlc` profile (models and modules) and the default `dive`
-profile (models), each with `run --baseline` against its committed baseline
+on Core at one worker in the `tlc` profile (models and modules) and the default
+`dive` profile (models), each with `run --baseline` against its committed Core baseline
 (see [Corpus baselines](#corpus-baselines)). A regression fails the step. Run it
 on integrated milestone and release candidates, recording the exact source in
 the milestone/release PR. Per the owner correction of 2026-10-29, routine edits
@@ -321,8 +318,8 @@ committed baselines. It is not a required check.
 
 ## Corpus baselines
 
-`conformance/baselines/small-<profile>-w<workers>.json` are compact digests
-(`dive-conformance report baseline`) of small-tier reports on `main`: each
+`conformance/baselines/small-core-<profile>-w<workers>.json` are compact digests
+(`dive-conformance report baseline`) of small-tier Core reports on `main`: each
 model's outcome and observables (verdict, error class and code, physical exit,
 violated property, distinct and generated counts, depth) per worker count, and
 each module's outcome. `dive-conformance run --baseline <file>` fails (exit 1)
@@ -334,15 +331,15 @@ Refresh a baseline in the PR that improves it (or that deliberately changes an
 observable, with the reason in the PR body), from a run of that PR:
 
 ```sh
-dive-conformance run --impl dive --impl-profile tlc \
+dive-conformance run --impl dive:core --impl-profile tlc \
   --corpus examples --corpus probes --corpus validation-smoke \
   --corpus configured-temporal-operators --tier small --workers 1 \
-  --tlc-budgets --budget-cap 900 --report-dir "$OUT" --no-summary
+  --jobs 2 --tlc-budgets --budget-cap 900 --report-dir "$OUT" --no-summary
 dive-conformance report baseline "$OUT"/<run-id>.json \
-  --out conformance/baselines/small-tlc-w1.json
+  --out conformance/baselines/small-core-tlc-w1.json
 ```
 
-The default profile adds `--no-sany` and writes `small-dive-w1.json`.
+The default profile adds `--no-sany` and writes `small-core-dive-w1.json`.
 `report summarise` regenerates `docs/conformance.md` from the same reports.
 
 The model gates and nightly runs pass `--tlc-budgets --budget-cap 900`

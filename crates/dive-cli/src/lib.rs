@@ -38,6 +38,30 @@ const EXIT_USAGE: u8 = 2;
 /// Exit code for a request that `dive` recognises but does not implement.
 const EXIT_UNSUPPORTED: u8 = 3;
 
+/// The engine an `--engine` value names. `auto` was removed with the
+/// Reference fallback (ADR 0153).
+fn engine_option(name: Option<&str>) -> Result<dive_api::Engine, String> {
+    match name {
+        Some("auto") => Err(
+            "--engine auto was removed: Core is the default engine and refuses by \
+             name what it does not implement; use --engine reference to run the reference engine"
+                .to_owned(),
+        ),
+        Some(name) => dive_api::Engine::parse(name)
+            .ok_or_else(|| "--engine expects `core` or `reference`".to_owned()),
+        None => Err("--engine expects `core` or `reference`".to_owned()),
+    }
+}
+
+/// `DIVE_ENGINE`, or the default engine (Core) when it is unset or empty.
+fn engine_from_env() -> Result<dive_api::Engine, String> {
+    match std::env::var("DIVE_ENGINE").ok().as_deref() {
+        None | Some("") => Ok(dive_api::Engine::default()),
+        Some(name) => engine_option(Some(name))
+            .map_err(|message| message.replacen("--engine", "DIVE_ENGINE", 1)),
+    }
+}
+
 fn usage() -> String {
     format!(
         "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive debug <FILE.tla> [--stdio|--listen 127.0.0.1:PORT] [--compat=tlc]\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [--source-coverage] [-deadlock] [--action-composition off|tlc|tla]\n               [--symmetry-liveness unreduced|refuse|tlc] [--allow-io=env,files,exec]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
@@ -46,9 +70,9 @@ fn usage() -> String {
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
                [--distributed-worker IP:port]... [--worker-key FILE] [--worker-timeout-ms N] [--distributed-retries N]
-               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+               [--lncheck final --lasso short] [--engine core|reference] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine core|reference] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine core|reference] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile; explicit final/short keeps final checking.
-    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.\n    --engine core (or DIVE_ENGINE=core) runs the compiled Core on supported requests;\n    other features are named refusals. --engine auto runs the core where it can and\n    otherwise the whole check on the reference engine, naming the engine that ran and why. The\n    reference engine is the default. --core-sample N (with the core) also compares the successors\n    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is\n    diagnostic and changes no result.
+    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.\n    The compiled Core is the default engine of check, simulate, dfid and tlc; what it does not\n    implement is a named refusal, never a fallback. --engine reference (or\n    DIVE_ENGINE=reference) runs the reference engine explicitly. --core-sample N (with the core)\n    also compares the successors of N sampled states with the reference evaluator's, in the JSON\n    report (core.sample); it is diagnostic and changes no result.
     --coverage 0 requests final TLC logical costs; --source-coverage reports native source work.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
@@ -410,17 +434,11 @@ fn check_command_mode(
     let mut engine = if worker_mode {
         dive_api::Engine::Core
     } else {
-        match std::env::var("DIVE_ENGINE").ok().as_deref() {
-            None | Some("") => dive_api::Engine::Reference,
-            Some(name) => {
-                let Some(e) = dive_api::Engine::parse(name) else {
-                    let _ = writeln!(
-                        err,
-                        "error: DIVE_ENGINE expects `reference`, `core` or `auto`"
-                    );
-                    return ExitCode::from(EXIT_USAGE);
-                };
-                e
+        match engine_from_env() {
+            Ok(engine) => engine,
+            Err(message) => {
+                let _ = writeln!(err, "error: {message}");
+                return ExitCode::from(EXIT_USAGE);
             }
         }
     };
@@ -601,9 +619,9 @@ fn check_command_mode(
                     );
                 }
             },
-            "--engine" => match value().as_deref().and_then(dive_api::Engine::parse) {
-                Some(e) => engine = e,
-                None => return usage_error(err, "--engine expects `reference`, `core` or `auto`"),
+            "--engine" => match engine_option(value().as_deref()) {
+                Ok(e) => engine = e,
+                Err(message) => return usage_error(err, &message),
             },
             "--core-sample" => match value().and_then(|v| v.parse().ok()) {
                 Some(n) => req.core_sample = Some(n),
@@ -807,8 +825,7 @@ fn check_command_mode(
             );
         }
         let reference_checkpoint = engine == dive_api::Engine::Reference
-            && (checkpoint_path.is_some() || recover_path.is_some())
-            || engine == dive_api::Engine::Auto && checkpoint_path.is_some();
+            && (checkpoint_path.is_some() || recover_path.is_some());
         if reference_checkpoint {
             return usage_error(
                 err,
@@ -1282,14 +1299,9 @@ fn simulate_command(
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|s| s == "tlc"),
         ..Default::default()
     };
-    let mut engine = match std::env::var("DIVE_ENGINE").ok().as_deref() {
-        None | Some("") => dive_api::Engine::Reference,
-        Some(name) => match dive_api::Engine::parse(name) {
-            Some(engine) => engine,
-            None => {
-                return simulation_usage_error(err, "DIVE_ENGINE expects reference, core or auto");
-            }
-        },
+    let mut engine = match engine_from_env() {
+        Ok(engine) => engine,
+        Err(message) => return simulation_usage_error(err, &message),
     };
     let mut json = false;
     let mut exit_convention = None;
@@ -1342,17 +1354,13 @@ fn simulate_command(
                     );
                 }
             },
-            "--engine" => match it.next().and_then(|name| dive_api::Engine::parse(name)) {
-                Some(selected) => engine = selected,
-                None => {
-                    return simulation_usage_error(err, "--engine expects reference, core or auto");
-                }
+            "--engine" => match engine_option(it.next().map(String::as_str)) {
+                Ok(selected) => engine = selected,
+                Err(message) => return simulation_usage_error(err, &message),
             },
-            name if name.starts_with("--engine=") => match dive_api::Engine::parse(&name[9..]) {
-                Some(selected) => engine = selected,
-                None => {
-                    return simulation_usage_error(err, "--engine expects reference, core or auto");
-                }
+            name if name.starts_with("--engine=") => match engine_option(Some(&name[9..])) {
+                Ok(selected) => engine = selected,
+                Err(message) => return simulation_usage_error(err, &message),
             },
             "--config" => {
                 let Some(value) = it.next() else {
@@ -1519,15 +1527,11 @@ fn dfid_command(
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
         ..dive_api::DfidRequest::default()
     };
-    let mut engine = match std::env::var("DIVE_ENGINE").ok().as_deref() {
-        None | Some("") => dive_api::Engine::Reference,
-        Some(name) => {
-            if let Some(engine) = dive_api::Engine::parse(name) {
-                engine
-            } else {
-                let _ = writeln!(err, "error: DIVE_ENGINE expects reference, core or auto");
-                return ExitCode::from(EXIT_USAGE);
-            }
+    let mut engine = match engine_from_env() {
+        Ok(engine) => engine,
+        Err(message) => {
+            let _ = writeln!(err, "error: {message}");
+            return ExitCode::from(EXIT_USAGE);
         }
     };
     let mut json = false;
@@ -1559,9 +1563,9 @@ fn dfid_command(
                 Some("dive" | "none") => req.compat_tlc = false,
                 _ => return usage_error(err, "--compat expects tlc or dive"),
             },
-            "--engine" => match value().as_deref().and_then(dive_api::Engine::parse) {
-                Some(selected) => engine = selected,
-                None => return usage_error(err, "--engine expects reference, core or auto"),
+            "--engine" => match engine_option(value().as_deref()) {
+                Ok(selected) => engine = selected,
+                Err(message) => return usage_error(err, &message),
             },
             "--config" | "-config" => match value() {
                 Some(v) => req.config = Some(v.into()),
@@ -1797,7 +1801,14 @@ mod seen_tests {
             vec!["--seen-disk-entries", "0"],
             vec!["--seen-disk-entries", "4", "--seen-key-bytes", "0"],
             vec!["--seen-disk-entries", "4", "--seen-probe-steps", "0"],
-            vec!["--seen-disk-entries", "4", "--recover", "missing.cp"],
+            vec![
+                "--seen-disk-entries",
+                "4",
+                "--recover",
+                "missing.cp",
+                "--engine",
+                "reference",
+            ],
             vec![
                 "--seen-disk-entries",
                 "4",

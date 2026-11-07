@@ -186,14 +186,9 @@ fn a_false_assume_guards_the_pure_assumes_after_it() {
             let expected = expected.unwrap_or_else(|| json!("reference timed out"));
             assert_eq!(expected["class"], "TLC_ASSUMPTION_FALSE", "{expected:#}");
             assert_eq!(expected["exit"], 10, "{expected:#}");
-            for engine in [Engine::Core, Engine::Auto] {
-                let got = bounded(module, engine, compat_tlc, limit);
-                assert_eq!(
-                    got.as_ref(),
-                    Some(&expected),
-                    "{module}/{engine:?}/{compat_tlc}"
-                );
-            }
+            // Core is the default engine; Auto was removed with its fallback.
+            let got = bounded(module, Engine::Core, compat_tlc, limit);
+            assert_eq!(got.as_ref(), Some(&expected), "{module}/core/{compat_tlc}");
         }
     }
 }

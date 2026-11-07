@@ -159,7 +159,8 @@ fn transformed_spilled_and_disk_recovery_preserves_actual_words() {
         );
         cp.action = checkpoint::Action::Recover;
         req.workers = Some(8);
-        let resumed = check_file_checkpoint_engine(&req, &cp, Engine::Auto)
+        // The default engine recovers the Core archive.
+        let resumed = dive_api::check_file_checkpoint(&req, &cp)
             .expect("resume")
             .to_json();
         for field in ["verdict", "statistics", "counterexample", "property", "tlc"] {
@@ -206,7 +207,7 @@ fn subprocess_resume_worker() {
         counters: checkpoint::Counters::Retain,
         config_source_sha256: None,
     };
-    let result = check_file_checkpoint_engine(&req(), &cp, Engine::Auto)
+    let result = dive_api::check_file_checkpoint(&req(), &cp)
         .expect("fresh process resume")
         .to_json();
     std::fs::write(output, serde_json::to_vec(&result).expect("json")).expect("result");
@@ -354,7 +355,7 @@ fn malformed_archive_identity_no_replace_and_storage_failures_never_certify() {
         action: checkpoint::Action::Recover,
         ..cp
     };
-    assert!(check_file_checkpoint_engine(&req, &bad, Engine::Auto).is_err());
+    assert!(dive_api::check_file_checkpoint(&req, &bad).is_err());
     std::fs::remove_file(corrupt).expect("cleanup");
     std::fs::remove_file(file).expect("cleanup");
 }
@@ -484,7 +485,7 @@ fn backend_disk_policy_admits_before_archive_or_model_loading() {
     ));
     cp.action = checkpoint::Action::PauseAfterLevels(0);
     assert!(matches!(
-        check_file_checkpoint_engine(&request, &cp, Engine::Auto),
+        check_file_checkpoint_engine(&request, &cp, Engine::Reference),
         Err(ApiError::Unsupported { feature }) if feature.contains("Reference checkpoint/recovery")
     ));
     cp.action = checkpoint::Action::Recover;
@@ -498,17 +499,25 @@ fn backend_disk_policy_admits_before_archive_or_model_loading() {
         Err(ApiError::Rejected { message }) if message.contains("DIVE-S0700")
     ));
 
-    // Auto must inspect an actual Reference archive to select the backend, but
-    // its unsupported disk combination must still win over a missing model.
+    // A Reference archive is rejected explicitly on the default engine (Core)
+    // before the model loads; on Reference, the unsupported disk combination
+    // still wins over a missing model.
     cp.action = checkpoint::Action::PauseAfterLevels(0);
-    let paused = dive_api::check_file_checkpoint(&req(), &cp)
+    let paused = dive_api::check_file_checkpoint_engine(&req(), &cp, dive_api::Engine::Reference)
         .expect("Reference archive")
         .to_json();
     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
-    request.seen_disk = Some(dive_api::SeenOptions::default());
     cp.action = checkpoint::Action::Recover;
+    request.seen_disk = None;
     assert!(matches!(
-        check_file_checkpoint_engine(&request, &cp, Engine::Auto),
+        dive_api::check_file_checkpoint(&request, &cp),
+        Err(ApiError::Rejected { message }) if message.contains("DIVE-S0400")
+            && message.contains("archive backend reference does not match requested core")
+            && message.contains("--engine reference")
+    ));
+    request.seen_disk = Some(dive_api::SeenOptions::default());
+    assert!(matches!(
+        check_file_checkpoint_engine(&request, &cp, Engine::Reference),
         Err(ApiError::Unsupported { feature }) if feature.contains("Reference checkpoint/recovery")
     ));
     std::fs::remove_file(missing).expect("archive cleanup");

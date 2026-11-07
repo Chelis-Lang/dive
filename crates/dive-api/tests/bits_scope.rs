@@ -6,13 +6,19 @@
 )]
 
 use dive_api::{
-    CheckReport, CheckRequest, SimulateRequest, Store, check_file, check_file_checkpoint,
-    check_file_tlc_inputs, checkpoint, simulate_file,
+    CheckReport, CheckRequest, SimulateRequest, Store, check_file, check_file_tlc_inputs,
+    checkpoint,
 };
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 const CLASS: &[u8] = include_bytes!("../../dive-model/tests/fixtures/bits/Bits.class");
+
+/// The reference engine, explicitly; `check_file` and `check_file_tlc_inputs`
+/// run the default engine (Core).
+fn reference_engine(req: &CheckRequest) -> Result<CheckReport, dive_api::ApiError> {
+    dive_api::check_file_engine(req, dive_api::Engine::Reference)
+}
 
 struct Files(PathBuf);
 impl Drop for Files {
@@ -146,7 +152,8 @@ fn pinned_local_class_matches_reference_at_supported_worker_widths() {
     for profile in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             let mut req = request(&files, profile, 1, store);
-            let completed = check_file(&req).expect("one worker");
+            let completed =
+                dive_api::check_file_engine(&req, dive_api::Engine::Reference).expect("one worker");
             assert_eq!(completed.verdict(), "success", "{}", completed.to_json());
             assert_eq!(completed.exit_code(), 0);
             assert_eq!(completed.to_json()["statistics"]["distinct"], 4);
@@ -156,7 +163,8 @@ fn pinned_local_class_matches_reference_at_supported_worker_widths() {
                 for sequential in [false, true] {
                     req.sequential = sequential;
                     reference(
-                        &check_file(&req).expect("supported width"),
+                        &dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                            .expect("supported width"),
                         workers,
                         &baseline,
                     );
@@ -193,7 +201,7 @@ fn unknown_class_refuses_before_constant_roles_assumptions_or_fallback_errors() 
         .expect("constant invariant");
         for profile in [false, true] {
             let req = request(&files, profile, 4, Store::Fingerprint);
-            for check in [check_file, check_file_tlc_inputs] {
+            for check in [reference_engine, check_file, check_file_tlc_inputs] {
                 let report = check(&req).expect("named refusal");
                 let json = report.to_json();
                 assert_eq!(report.verdict(), "unsupported", "{json}");
@@ -222,7 +230,7 @@ fn class_refusal_preserves_configuration_binding_priority_and_known_class_execut
     .expect("constant invariant");
     for profile in [false, true] {
         let req = request(&files, profile, 1, Store::Fingerprint);
-        for check in [check_file, check_file_tlc_inputs] {
+        for check in [reference_engine, check_file, check_file_tlc_inputs] {
             let json = check(&req).expect("known class").to_json();
             assert_eq!(json["verdict"], "success", "{json}");
             assert_eq!(json["statistics"]["distinct"], 4);
@@ -241,7 +249,7 @@ fn class_refusal_preserves_configuration_binding_priority_and_known_class_execut
     .expect("invalid configuration binding");
     for profile in [false, true] {
         let req = request(&files, profile, 1, Store::Fingerprint);
-        for check in [check_file, check_file_tlc_inputs] {
+        for check in [reference_engine, check_file, check_file_tlc_inputs] {
             let json = check(&req).expect("config error").to_json();
             assert_eq!(json["verdict"], "model-error", "{json}");
             assert_eq!(json["tlc"]["code"], 2226);
@@ -275,7 +283,7 @@ fn class_refusal_preserves_configured_constant_operator_arity_errors() {
         }
         for profile in [false, true] {
             let req = request(&files, profile, 1, Store::Fingerprint);
-            for check in [check_file, check_file_tlc_inputs] {
+            for check in [reference_engine, check_file, check_file_tlc_inputs] {
                 let json = check(&req).expect("configuration error").to_json();
                 assert_eq!(json["verdict"], "model-error", "{json}");
                 assert_eq!(json["tlc"]["code"], 2225);
@@ -292,7 +300,9 @@ fn plain_tla_bits_preserves_parallel_checking_and_checkpoint_recovery() {
     for profile in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             let req = request(&files, profile, 1, store);
-            let baseline = check_file(&req).expect("TLA fallback").to_json();
+            let baseline = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                .expect("TLA fallback")
+                .to_json();
             let path = files.0.join(format!("fallback-{profile}-{store:?}.cp"));
             let pause = checkpoint::Request {
                 path,
@@ -301,21 +311,28 @@ fn plain_tla_bits_preserves_parallel_checking_and_checkpoint_recovery() {
                 config_source_sha256: None,
             };
             assert_eq!(
-                check_file_checkpoint(&req, &pause)
+                dive_api::check_file_checkpoint_engine(&req, &pause, dive_api::Engine::Reference)
                     .expect("fallback pause")
                     .verdict(),
                 "resource-limit"
             );
             for workers in [1, 4, 8] {
                 let req = request(&files, profile, workers, store);
-                let complete = check_file(&req).expect("fallback width").to_json();
+                let complete = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                    .expect("fallback width")
+                    .to_json();
                 assert_eq!(complete["verdict"], "success");
                 assert_eq!(complete["statistics"], baseline["statistics"]);
                 let resume = checkpoint::Request {
                     action: checkpoint::Action::Recover,
                     ..pause.clone()
                 };
-                let resumed = check_file_checkpoint(&req, &resume).expect("fallback recovery");
+                let resumed = dive_api::check_file_checkpoint_engine(
+                    &req,
+                    &resume,
+                    dive_api::Engine::Reference,
+                )
+                .expect("fallback recovery");
                 assert_eq!(resumed.verdict(), "success", "{}", resumed.to_json());
                 assert_eq!(resumed.to_json()["statistics"], baseline["statistics"]);
             }
@@ -335,8 +352,12 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
                 counters: checkpoint::Counters::Retain,
                 config_source_sha256: None,
             };
-            let baseline = check_file(&req).expect("reference check").to_json();
-            let paused = check_file_checkpoint(&req, &pause).expect("one-worker pause");
+            let baseline = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                .expect("reference check")
+                .to_json();
+            let paused =
+                dive_api::check_file_checkpoint_engine(&req, &pause, dive_api::Engine::Reference)
+                    .expect("one-worker pause");
             assert_eq!(paused.verdict(), "resource-limit");
             let bytes = std::fs::read(&pause.path).expect("archive");
             let resume = checkpoint::Request {
@@ -344,7 +365,7 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
                 ..pause.clone()
             };
             assert_eq!(
-                check_file_checkpoint(&req, &resume)
+                dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Reference)
                     .expect("one-worker resume")
                     .verdict(),
                 "success"
@@ -357,12 +378,21 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
                 width_pause.path = files
                     .0
                     .join(format!("supported-{profile}-{store:?}-{workers}.cp"));
-                let paused_at_width =
-                    check_file_checkpoint(&req, &width_pause).expect("pause width");
+                let paused_at_width = dive_api::check_file_checkpoint_engine(
+                    &req,
+                    &width_pause,
+                    dive_api::Engine::Reference,
+                )
+                .expect("pause width");
                 assert_eq!(paused_at_width.verdict(), "resource-limit");
                 assert!(width_pause.path.exists());
                 reference(
-                    &check_file_checkpoint(&req, &resume).expect("recovery width"),
+                    &dive_api::check_file_checkpoint_engine(
+                        &req,
+                        &resume,
+                        dive_api::Engine::Reference,
+                    )
+                    .expect("recovery width"),
                     workers,
                     &baseline,
                 );
@@ -416,12 +446,14 @@ fn finite_simulation_keeps_its_separate_worker_contract() {
             workers: Some(1),
             ..SimulateRequest::default()
         };
-        let sampled = simulate_file(&req).expect("sample").to_json();
+        let sampled = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+            .expect("sample")
+            .to_json();
         assert_eq!(sampled["result"], "sampled");
         assert_eq!(sampled["model_proved"], false);
         assert_eq!(sampled["traces"][0]["validation"]["result"], "valid");
         req.workers = Some(4);
-        let refused = simulate_file(&req)
+        let refused = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
             .expect("existing worker boundary")
             .to_json();
         assert_eq!(refused["result"], "unsupported");

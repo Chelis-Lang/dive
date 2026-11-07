@@ -374,14 +374,17 @@ mod tests {
                 ),
             )?;
             for compat in [false, true] {
-                let report = dive_api::check_file(&dive_api::CheckRequest {
-                    file: file.clone(),
-                    compat_tlc: compat,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..dive_api::CheckRequest::default()
-                })?;
+                let report = dive_api::check_file_engine(
+                    &dive_api::CheckRequest {
+                        file: file.clone(),
+                        compat_tlc: compat,
+                        workers: Some(1),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..dive_api::CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )?;
                 let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
                 let run = actual_outcome(&report);
                 assert_eq!(value["check_kind"], "temporal");
@@ -477,14 +480,17 @@ mod tests {
                 "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
             ));
             for compat in [false, true] {
-                let report = dive_api::check_file(&dive_api::CheckRequest {
-                    file: file.clone(),
-                    compat_tlc: compat,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..dive_api::CheckRequest::default()
-                })?;
+                let report = dive_api::check_file_engine(
+                    &dive_api::CheckRequest {
+                        file: file.clone(),
+                        compat_tlc: compat,
+                        workers: Some(1),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..dive_api::CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )?;
                 let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
                 let run = actual_outcome(&report);
                 assert_eq!(value["check_kind"], "temporal");
@@ -559,14 +565,17 @@ mod tests {
             "INIT Init\nNEXT Next\nINVARIANT Inv\n",
         )?;
         for compat in [false, true] {
-            let report = dive_api::check_file(&dive_api::CheckRequest {
-                file: file.clone(),
-                compat_tlc: compat,
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                ..dive_api::CheckRequest::default()
-            })?;
+            let report = dive_api::check_file_engine(
+                &dive_api::CheckRequest {
+                    file: file.clone(),
+                    compat_tlc: compat,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..dive_api::CheckRequest::default()
+                },
+                dive_api::Engine::Reference,
+            )?;
             let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
             let mut run = ProcessOutcome {
                 exit_code: Some(12),
@@ -618,14 +627,17 @@ mod tests {
         )?;
         std::fs::write(&cfg, "INIT Init\nNEXT Next\nINVARIANT Inv\n")?;
         for (compat, profile) in [(false, Profile::Dive), (true, Profile::Tlc)] {
-            let report = dive_api::check_file(&dive_api::CheckRequest {
-                file: file.clone(),
-                compat_tlc: compat,
-                seed: Some(0),
-                fp: Some(0),
-                workers: Some(1),
-                ..dive_api::CheckRequest::default()
-            })?;
+            let report = dive_api::check_file_engine(
+                &dive_api::CheckRequest {
+                    file: file.clone(),
+                    compat_tlc: compat,
+                    seed: Some(0),
+                    fp: Some(0),
+                    workers: Some(1),
+                    ..dive_api::CheckRequest::default()
+                },
+                dive_api::Engine::Reference,
+            )?;
             let run = ProcessOutcome {
                 exit_code: Some(i32::from(
                     report.exit_code_for(dive_api::ExitConvention::Tlc),

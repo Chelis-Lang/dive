@@ -28,7 +28,7 @@ fn check_primary_cases(temporal: TemporalMode) -> TestResult {
             if temporal == TemporalMode::FinalShort {
                 request.temporal = TemporalMode::FinalShort;
             }
-            let report = dive_api::check_file(&request)?;
+            let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
             let doc = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(doc["execution"]["capture_completed"], true, "{doc}");
             assert_eq!(doc["options"]["action_composition"], "tlc");
@@ -171,17 +171,20 @@ fn independent_composed_words_validate_tla_and_keep_tlc_accounting_refused() -> 
 /// because its finite-binding preflight evaluated that untaken domain.
 #[test]
 fn original_short_fragment_matches_the_pinned_success() -> TestResult {
-    let report = dive_api::check_file(&CheckRequest {
-        file: fixtures().join("original/NameCdot.tla"),
-        config: Some(fixtures().join("hold.cfg")),
-        compat_tlc: true,
-        action_composition: Some(ActionComposition::Tlc),
-        temporal: TemporalMode::FinalShort,
-        seed: Some(0),
-        fp: Some(0),
-        workers: Some(1),
-        ..Default::default()
-    })?;
+    let report = dive_api::check_file_engine(
+        &CheckRequest {
+            file: fixtures().join("original/NameCdot.tla"),
+            config: Some(fixtures().join("hold.cfg")),
+            compat_tlc: true,
+            action_composition: Some(ActionComposition::Tlc),
+            temporal: TemporalMode::FinalShort,
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            ..Default::default()
+        },
+        dive_api::Engine::Reference,
+    )?;
     let doc = report.to_json();
     assert_eq!(doc["verdict"], "success", "{doc}");
     assert_eq!(doc["execution"]["capture_completed"], true);
