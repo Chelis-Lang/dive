@@ -75,6 +75,17 @@ published. Earlier pre-release development entries remain in git history.
   when the invariant builds a definition of its own, such as `Corpus` in
   `LeastCircularSubstring`. `MCLeastCircularSubstringMedium` now peaks at
   about 80 MB instead of 12 GB, with unchanged counts.
+- Core evaluates `ENABLED` inside an `INSTANCE` whose variables map to the
+  same-named root variables when the query reads a recursive operator or
+  function, provided the whole compiled plan has no effects (`Print`,
+  `RandomElement`, `TLCSet`) and no call body reaches a nested `ENABLED` or
+  composition. Core liveness also evaluates `~ENABLED A` atoms and the
+  `allocator/AllocatorImplementation` fairness atom natively, so
+  `SpanningTree/SpanTree*` and `allocator/AllocatorImplementation` no longer
+  evaluate any temporal atom with the reference evaluator. The report's
+  `core.metrics.liveness.atoms` gains `negated_enabled_evaluations` and
+  `reference_evaluations` (state and action label demands answered by the
+  reference evaluator), and drops the `negated_enabled` rejection count.
 - Core evaluates a recursive operator or recursive LET function applied under
   a prime, as a refinement mapping `INSTANCE ... WITH v <- Op(e)` does under
   `[][Next]_vars`, in the successor state. `glowingRaccoon/product` now checks

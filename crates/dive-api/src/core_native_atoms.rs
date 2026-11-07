@@ -24,6 +24,9 @@ use crate::core_native_values::NativeValues;
 struct Compiled {
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
+    /// A directly syntactic `~ENABLED A` atom: the plan searches `A` and the
+    /// truth is its negation, as the reference evaluator negates its search.
+    negate: bool,
     /// Fuel exhaustions in a row; at [`FUEL_STRIKES`] the atom stops running
     /// natively in this analysis.
     exhausted_in_a_row: u32,
@@ -63,6 +66,10 @@ pub(crate) struct NativeAtoms {
     evaluated_action: u64,
     evaluated_enabled: u64,
     evaluated_nonstuttering: u64,
+    evaluated_negated_enabled: u64,
+    /// Label demands the caller answered by reference evaluation because no
+    /// native truth was available (unprepared atoms and fallbacks).
+    reference: ReferenceMetrics,
     row_proofs: RowProofMetrics,
     reuse: ReuseMetrics,
     rejections: Rejections,
@@ -79,7 +86,6 @@ pub(crate) struct NativeAtoms {
 /// Why a native predicate was not prepared, by its first failing check.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Rejection {
-    NegatedEnabled,
     ForeignScope,
     CompileError,
     Effects,
@@ -90,7 +96,6 @@ enum Rejection {
 
 #[derive(Default)]
 struct Rejections {
-    negated_enabled: u64,
     foreign_scope: u64,
     compile_error: u64,
     effects: u64,
@@ -102,7 +107,6 @@ struct Rejections {
 impl Rejections {
     fn record(&mut self, reason: Rejection) {
         let slot = match reason {
-            Rejection::NegatedEnabled => &mut self.negated_enabled,
             Rejection::ForeignScope => &mut self.foreign_scope,
             Rejection::CompileError => &mut self.compile_error,
             Rejection::Effects => &mut self.effects,
@@ -114,8 +118,7 @@ impl Rejections {
     }
 
     fn json(&self) -> serde_json::Value {
-        serde_json::json!({"negated_enabled": self.negated_enabled,
-            "foreign_scope": self.foreign_scope, "compile_error": self.compile_error,
+        serde_json::json!({"foreign_scope": self.foreign_scope, "compile_error": self.compile_error,
             "effects": self.effects,
             "fresh_string": self.fresh_string, "const_unclosed": self.const_unclosed,
             "allocation": self.allocation})
@@ -132,6 +135,13 @@ struct Fallbacks {
     not_compiled: u64,
     /// Demands of an atom retired after [`FUEL_STRIKES`] exhaustions.
     fuel_retired: u64,
+}
+
+/// Reference label evaluations by atom domain.
+#[derive(Default)]
+struct ReferenceMetrics {
+    state: u64,
+    action: u64,
 }
 
 #[derive(Default)]
@@ -178,6 +188,8 @@ impl NativeAtoms {
             evaluated_action: 0,
             evaluated_enabled: 0,
             evaluated_nonstuttering: 0,
+            evaluated_negated_enabled: 0,
+            reference: ReferenceMetrics::default(),
             row_proofs: RowProofMetrics::default(),
             reuse: ReuseMetrics::default(),
             rejections: Rejections::default(),
@@ -199,16 +211,15 @@ impl NativeAtoms {
         result.machine.set_refuse_unrecorded_warnings(true);
         for atom in driver.native_predicates() {
             result.total += 1;
-            if matches!(atom.test, AtomTest::NegatedEnabled { .. }) {
-                result.rejections.record(Rejection::NegatedEnabled);
-                continue;
-            }
             // (a) The exact retained atom and its source scope must bind to
-            // this model's evaluator; equal source text is not enough.
+            // this model's evaluator; equal source text is not enough. A
+            // `~ENABLED A` atom validates both its source expression and the
+            // pure action it searches, as the reference evaluator does.
             let sub = match atom.test {
                 AtomTest::Enabled { sub } => sub,
                 AtomTest::Nonstuttering { sub } => Some(sub),
-                AtomTest::Predicate | AtomTest::NegatedEnabled { .. } => None,
+                AtomTest::NegatedEnabled { action } => Some(action),
+                AtomTest::Predicate => None,
             };
             let ev = &model.evaluator;
             if !ev.admits_scoped_expr(&atom.pred.scope, atom.pred.expr)
@@ -231,6 +242,7 @@ impl NativeAtoms {
             result.compiled.push(Compiled {
                 identity: std::ptr::from_ref(atom),
                 plan,
+                negate: matches!(atom.test, AtomTest::NegatedEnabled { .. }),
                 exhausted_in_a_row: 0,
             });
             result.eligible += 1;
@@ -255,6 +267,9 @@ impl NativeAtoms {
             "eligible_state_atoms": self.eligible_state, "eligible_action_atoms": self.eligible_action,
             "state_evaluations": self.evaluated_state, "action_evaluations": self.evaluated_action,
             "enabled_evaluations": self.evaluated_enabled, "nonstuttering_evaluations": self.evaluated_nonstuttering,
+            "negated_enabled_evaluations": self.evaluated_negated_enabled,
+            "reference_evaluations": {"state": self.reference.state, "action": self.reference.action,
+                "scope": "label demands answered by the reference evaluator: unprepared atoms and fallbacks"},
             "row_proofs": {"scans": self.row_proofs.scans, "hits": self.row_proofs.hits,
                 "certified": self.row_proofs.certified, "peak_storage_bytes": self.row_proofs.peak_storage_bytes},
             "fairness_reuse": {"state_consumptions": self.reuse.state, "action_consumptions": self.reuse.action,
@@ -319,6 +334,7 @@ impl NativeAtoms {
             return Ok(None);
         }
         let compiled = &self.compiled[index];
+        let negate = compiled.negate;
         // The exact object came from this still-live driver's fixed plan Vec;
         // no expression ID, scope guess or extensional row equality is a key.
         if !inputs_closed(&self.machine.heap)? {
@@ -373,13 +389,14 @@ impl NativeAtoms {
             match atom.test {
                 AtomTest::Enabled { .. } => self.evaluated_enabled += 1,
                 AtomTest::Nonstuttering { .. } => self.evaluated_nonstuttering += 1,
-                _ => {}
+                AtomTest::NegatedEnabled { .. } => self.evaluated_negated_enabled += 1,
+                AtomTest::Predicate => {}
             }
             match atom.kind {
                 dive_liveness::formula::AtomKind::State => self.evaluated_state += 1,
                 dive_liveness::formula::AtomKind::Action => self.evaluated_action += 1,
             }
-            Ok(Some(value))
+            Ok(Some(value != negate))
         } else {
             self.fallback += 1;
             if exhausted {
@@ -429,10 +446,16 @@ fn compile(
     let Ok(mut handoff) = crate::core_engine::handoff(model, &model.ir, Vec::new()) else {
         return Err(Rejection::CompileError);
     };
+    // `~ENABLED A` compiles the search of its pure action `A`; the caller
+    // negates the truth.
+    let expr = match atom.test {
+        AtomTest::NegatedEnabled { action } => action,
+        _ => atom.pred.expr,
+    };
     let Ok(role) = crate::core_engine::role(
         model,
         "native temporal predicate".into(),
-        atom.pred.expr,
+        expr,
         &atom.pred.scope,
     ) else {
         return Err(Rejection::CompileError);
@@ -466,13 +489,18 @@ fn compile(
             opts,
             dive_core::compile::BoundTest::Enabled(sub),
         ),
+        AtomTest::NegatedEnabled { .. } => dive_core::compile::compile_bound_test(
+            &handoff,
+            Arc::clone(store),
+            opts,
+            dive_core::compile::BoundTest::Enabled(None),
+        ),
         AtomTest::Nonstuttering { sub } => dive_core::compile::compile_bound_test(
             &handoff,
             Arc::clone(store),
             opts,
             dive_core::compile::BoundTest::Nonstuttering(sub),
         ),
-        AtomTest::NegatedEnabled { .. } => return Err(Rejection::NegatedEnabled),
     }
     .map_err(|_| Rejection::CompileError)?;
     admit_plan(&plan, heap)?;
@@ -790,6 +818,13 @@ impl NativeReader for Reader<'_, '_> {
             }
             after.map_or(Ok(true), |row| self.proofs.closed(heap, row))
         })
+    }
+
+    fn reference_predicate(&mut self, atom: &PredicateAtom) {
+        match atom.kind {
+            dive_liveness::formula::AtomKind::State => self.atoms.reference.state += 1,
+            dive_liveness::formula::AtomKind::Action => self.atoms.reference.action += 1,
+        }
     }
 
     fn predicate_reuse_storage(&mut self, bytes: usize, cap: u64, allocation: u64, columns: u64) {
@@ -1900,8 +1935,8 @@ mod tests {
         let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == x'=1\nSpec == Init /\\ [][Next]_x\nP == <> (~ENABLED A)\n====\n";
         with_wrappers(source, false, |_, _, atoms, _| {
             let metrics = atoms.metrics();
-            assert_eq!(metrics["rejections"]["negated_enabled"], 1);
-            assert_eq!(metrics["eligible_atoms"], 0);
+            assert!(metrics["rejections"].get("negated_enabled").is_none());
+            assert_eq!(metrics["eligible_atoms"], 1);
         });
         for (predicate, rejection) in [("2^x > 0", None::<&str>), ("x >= 0", None)] {
             let (prepared, options) = prepare_source(predicate);
@@ -2246,20 +2281,48 @@ P == <>(/\ Pick = {}
     }
 
     #[test]
-    fn negated_enabled_retains_reference_lane() {
-        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == x'=1\nSpec == Init /\\ [][Next]_x\nP == <> (~ENABLED A)\n====\n";
+    fn negated_enabled_negates_the_native_search() {
+        // `A` is enabled exactly when x < 2; `B` reads a recursive operator.
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nR[n \\in Nat] == IF n = 0 THEN 0 ELSE R[n-1] + 1\nA == x < 2 /\\ x'=x+1\nB == R[x] = 1 /\\ x' = 0\nSpec == Init /\\ [][Next]_x\nP == <> (~ENABLED A) /\\ <>(~ENABLED B)\n====\n";
         for tlc in [false, true] {
-            with_wrappers(source, tlc, |_, driver, atoms, control| {
-                for atom in driver.native_predicates() {
-                    let got = atoms
-                        .evaluate(atom, &[Handle::int(0).expect("zero")], None, control)
-                        .expect("query");
-                    if matches!(atom.test, AtomTest::NegatedEnabled { .. }) {
-                        assert_eq!(got, None);
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                assert_eq!(atoms.eligible, atoms.total);
+                let negated: Vec<_> = driver
+                    .native_predicates()
+                    .filter(|atom| matches!(atom.test, AtomTest::NegatedEnabled { .. }))
+                    .collect();
+                assert_eq!(negated.len(), 2);
+                for (atom, expected) in negated
+                    .iter()
+                    .zip([[false, false, true], [true, false, true]])
+                {
+                    for (x, want) in (0..3).zip(expected) {
+                        let got = agree(prepared, atoms, atom, control, &[int(x)], None);
+                        assert_eq!(got, Some(want), "x={x}, tlc={tlc}");
                     }
                 }
+                let metrics = atoms.metrics();
+                assert_eq!(metrics["negated_enabled_evaluations"], 6);
+                assert_eq!(metrics["enabled_evaluations"], 0);
             });
         }
+    }
+
+    #[test]
+    fn negated_enabled_errors_fall_back_to_the_reference() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == 1 \\div x = 1 /\\ x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (~ENABLED A)\n====\n";
+        with_wrappers(source, false, |prepared, driver, atoms, control| {
+            let atom = driver
+                .native_predicates()
+                .find(|atom| matches!(atom.test, AtomTest::NegatedEnabled { .. }))
+                .expect("negated");
+            assert_eq!(agree(prepared, atoms, atom, control, &[int(0)], None), None);
+            assert_eq!(atoms.metrics()["fallbacks"]["error"], 1);
+            assert_eq!(
+                agree(prepared, atoms, atom, control, &[int(1)], None),
+                Some(false)
+            );
+        });
     }
 
     #[test]

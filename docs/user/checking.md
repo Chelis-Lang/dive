@@ -297,11 +297,13 @@ success with 4 distinct states, 5 generated states and depth 4 in both profiles:
 dive check crates/dive-api/tests/fixtures/core-m0/EnabConstInstance.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
-Hidden or renamed instance variables, instance queries inside an initial
-predicate, state-dependent configuration operator overrides, and query bodies
-with effects or recursive/nested calls remain explicitly unsupported by the
-core. The same restrictions apply in both
-compatibility profiles.
+A query body may call recursive operators and functions when the whole
+compiled plan has no effects and no call body reaches a nested `ENABLED` or
+composition. Hidden or renamed instance variables, instance queries inside an
+initial predicate, state-dependent configuration operator overrides, query
+bodies with effects or nested queries, and recursive calls in a plan with any
+effect remain explicitly unsupported by the core. The same restrictions apply
+in both compatibility profiles.
 
 Cached core definitions also retain their own `INSTANCE` substitution context,
 including nested instances and primed definitions in a step property. A shared

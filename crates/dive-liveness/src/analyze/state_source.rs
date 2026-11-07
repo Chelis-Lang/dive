@@ -71,6 +71,9 @@ pub(super) trait StateSource {
         Ok(false)
     }
 
+    /// Records one label demand answered by the reference evaluator.
+    fn reference_predicate(&mut self, _atom: &crate::plan::PredicateAtom) {}
+
     fn predicate_reuse_storage(
         &mut self,
         _bytes: usize,
@@ -211,6 +214,10 @@ impl StateSource for NativeStates<'_, '_> {
         let (before, after) = self.predicate_rows(source, target)?;
         self.read
             .validate_predicate_inputs(atom, before, after, self.control)
+    }
+
+    fn reference_predicate(&mut self, atom: &crate::plan::PredicateAtom) {
+        self.read.reference_predicate(atom);
     }
 
     fn predicate_reuse_storage(&mut self, bytes: usize, cap: u64, allocation: u64, columns: u64) {

@@ -238,6 +238,138 @@ fn constant_parameters_cannot_capture_state_across_the_query_boundary() {
 }
 
 #[test]
+fn pure_recursive_calls_in_identity_instance_queries_run_on_core() {
+    // Pinned TLC tlc-2026.10.06.014338 (jar SHA-256 7beec0f0...a62fa193),
+    // BFS/W1/seed0/fp0: EnabRecursive succeeds with 4 distinct/5 generated/
+    // depth 4. A call whose whole plan is effect-free and reaches no nested
+    // query cannot observe the instance cutoff (identity substitutions).
+    let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/core-enabled-boundaries/EnabRecursive.tla");
+    for compat_tlc in [false, true] {
+        for workers in [1, 4, 8] {
+            let req = CheckRequest {
+                config: Some(file.with_extension("cfg")),
+                file: file.clone(),
+                compat_tlc,
+                workers: Some(workers),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            };
+            let expected =
+                observed(&check_file_engine(&req, Engine::Reference).expect("reference"));
+            assert_eq!(expected["verdict"], "success");
+            assert_eq!(
+                [
+                    &expected["distinct"],
+                    &expected["generated"],
+                    &expected["depth"]
+                ],
+                [4, 5, 4]
+            );
+            for switches in ["", "-eager", "-memo", "-step-memo", "-memo,-step-memo"] {
+                let actual = check_file_core_opts(&req, switches).expect("core");
+                assert_eq!(actual.to_json()["engine"], "core");
+                assert_eq!(
+                    observed(&actual),
+                    expected,
+                    "{compat_tlc}/{workers}/{switches}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn identity_instance_fairness_over_recursive_functions_runs_native_atoms() {
+    // Pinned TLC tlc-2026.10.06.014338, BFS/W1/seed0/fp0: RecLive succeeds
+    // and RecLiveBad violates Prop (2116, exit 13), each 6/6/6. Every atom,
+    // including `~ENABLED Sched!Step` and the WF enabledness of an action
+    // reading the recursive `Sum`, is evaluated natively by Core.
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/core-enabled-recursive-live");
+    for (name, bad) in [("RecLive", false), ("RecLiveBad", true)] {
+        let file = dir.join(format!("{name}.tla"));
+        for compat_tlc in [false, true] {
+            let req = CheckRequest {
+                config: Some(file.with_extension("cfg")),
+                file: file.clone(),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            };
+            let reference = check_file_engine(&req, Engine::Reference).expect("reference");
+            let expected = observed(&reference);
+            assert_eq!(expected["exit"], if bad { 13 } else { 0 }, "{name}");
+            assert_eq!(
+                [
+                    &expected["distinct"],
+                    &expected["generated"],
+                    &expected["depth"]
+                ],
+                [6, 6, 6]
+            );
+            let core = check_file_engine(&req, Engine::Core).expect("core");
+            let value = core.to_json();
+            assert_eq!(value["engine"], "core", "{name}: {value}");
+            let actual = observed(&core);
+            for key in [
+                "verdict",
+                "property",
+                "distinct",
+                "generated",
+                "depth",
+                "code",
+                "exit",
+            ] {
+                assert_eq!(actual[key], expected[key], "{name}/{compat_tlc}/{key}");
+            }
+            let atoms = &value["core"]["metrics"]["liveness"]["atoms"];
+            assert_eq!(
+                atoms["eligible_atoms"], atoms["total_atoms"],
+                "{name}: {atoms}"
+            );
+            assert!(
+                atoms["rejections"]
+                    .as_object()
+                    .expect("rejections")
+                    .values()
+                    .all(|count| count == 0),
+                "{name}: {atoms}"
+            );
+            assert_eq!(atoms["negated_enabled_evaluations"], 6, "{name}: {atoms}");
+            assert_eq!(
+                atoms["reference_evaluations"]["state"], 0,
+                "{name}: {atoms}"
+            );
+            assert_eq!(
+                atoms["reference_evaluations"]["action"], 0,
+                "{name}: {atoms}"
+            );
+            if bad {
+                let model = SpecModel::load(
+                    &file,
+                    &file.with_extension("cfg"),
+                    &TraceOptions {
+                        compat_tlc,
+                        run: Some((0, 0)),
+                        ..TraceOptions::default()
+                    },
+                )
+                .expect("independent validator binds");
+                let word = TraceDoc::from_json(&actual["trace"]).expect("word decodes");
+                assert!(matches!(
+                    model.validate(&word).validation,
+                    Validation::Valid
+                ));
+            }
+        }
+    }
+}
+
+#[test]
 fn unproved_configured_captures_effects_and_calls_stay_static_refusals() {
     let dir =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-enabled-boundaries");
@@ -250,7 +382,7 @@ fn unproved_configured_captures_effects_and_calls_stay_static_refusals() {
         "EnabPrint",
         "EnabRandom",
         "EnabRegister",
-        "EnabRecursive",
+        "EnabRecursivePrint",
     ] {
         for compat_tlc in [false, true] {
             for workers in [1, 4, 8] {
