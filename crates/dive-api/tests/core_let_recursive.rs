@@ -1187,3 +1187,59 @@ fn recursive_definitions_under_a_prime_evaluate_in_the_next_state()
     }
     Ok(())
 }
+
+fn next_read_request(file: &str, config: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-let-recursive");
+    CheckRequest {
+        file: root.join(format!("{file}.tla")),
+        config: Some(root.join(format!("{config}.cfg"))),
+        workers: Some(workers),
+        compat_tlc,
+        seed: Some(0),
+        fp: Some(0),
+        ..Default::default()
+    }
+}
+
+#[test]
+fn recursive_calls_reading_the_next_state_are_not_shared_across_disjuncts()
+-> Result<(), Box<dyn std::error::Error>> {
+    for compat_tlc in [false, true] {
+        // An operator argument whose recursive callee reads the state being
+        // built (through a primed recursive call, a direct prime, a
+        // recursive function, a primed INSTANCE substitution, or a state
+        // read in an initial predicate) is evaluated in each disjunct's
+        // state, not shared between them. Pinned TLC 2026.10.06.014338
+        // confirms each count.
+        for (file, config, generated, distinct, depth) in [
+            ("NextReadCalls", "NextReadPrimed", 5, 2, 2),
+            ("NextReadCalls", "NextReadDirect", 5, 2, 2),
+            ("NextReadCalls", "NextReadFcn", 5, 2, 2),
+            ("NextReadCalls", "NextReadInit", 4, 2, 1),
+            ("NextReadSub", "NextReadSub", 5, 2, 2),
+        ] {
+            let reference = check_file_engine(
+                &next_read_request(file, config, compat_tlc, 1),
+                Engine::Reference,
+            )?;
+            let expected = observed(&reference);
+            assert_eq!(expected["verdict"], "success", "{config}");
+            assert_eq!(expected["statistics"]["generated"], generated);
+            assert_eq!(expected["statistics"]["distinct"], distinct);
+            assert_eq!(expected["statistics"]["depth"], depth);
+            for workers in [1, 4] {
+                let req = next_read_request(file, config, compat_tlc, workers);
+                for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
+                    let core = check_file_core_opts(&req, switches)?;
+                    assert_eq!(core.to_json()["engine"], "core");
+                    assert_eq!(
+                        observed(&core),
+                        expected,
+                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    );
+                }
+            }
+        }
+    }
+    Ok(())
+}

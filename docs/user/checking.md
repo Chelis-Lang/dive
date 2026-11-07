@@ -336,6 +336,8 @@ state, including state-dependent domains and arguments. A recursive operator or
 LET function applied under a prime, such as `sumList(templates)'` from an
 `INSTANCE ... WITH` refinement mapping, is evaluated in the successor state: its
 arguments, its body and the enclosing locals it captures are all read primed.
+A recursive call that reads the next state, passed as an operator argument, is
+evaluated in each disjunct's next state.
 Escaping recursive function values, a prime or `ENABLED` inside a recursive
 definition applied under a prime, an enclosing local read primed by a recursive
 definition applied unprimed, mixed plain/primed self calls, effectful primed

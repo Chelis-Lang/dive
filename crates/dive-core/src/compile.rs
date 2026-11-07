@@ -527,6 +527,9 @@ fn compile_inner(
         funs: HashMap::new(),
         recfuns: HashMap::new(),
         primed_funs: std::collections::HashSet::new(),
+        next_funs: std::collections::HashSet::new(),
+        open_funs: std::collections::HashSet::new(),
+        reentered_funs: std::collections::HashSet::new(),
         recursive_action_predicate: false,
         composition: composition::State::Absent,
         def_slots: std::collections::HashSet::new(),
@@ -676,6 +679,17 @@ struct Compiler<'a> {
     /// whole body, and every capture, is read in the next state, so a call
     /// of one reads primed variables.
     primed_funs: std::collections::HashSet<u32>,
+    /// The functions a call of which reads primed variables: the next-state
+    /// variants, the plain variants of action-level definitions (SANY's
+    /// level, the maximum over a recursive section, known before the body
+    /// is compiled), and plain variants whose compiled body reads primed
+    /// variables. A call of one is never passed as a thunk.
+    next_funs: std::collections::HashSet<u32>,
+    /// The functions whose body is being compiled.
+    open_funs: std::collections::HashSet<u32>,
+    /// The open functions called from inside their own compilation, before
+    /// their body's reads were known.
+    reentered_funs: std::collections::HashSet<u32>,
     /// Whether an applied recursive function became a Boolean action guard.
     recursive_action_predicate: bool,
     /// Whether source-changing composition is present or being compiled.
@@ -1062,7 +1076,7 @@ impl Compiler<'_> {
                 }
                 i.calls = true;
                 i.vars = u64::MAX;
-                if self.primed_funs.contains(fun) {
+                if self.next_funs.contains(fun) {
                     i.primed = u64::MAX;
                 }
             }
@@ -1393,7 +1407,7 @@ impl Compiler<'_> {
             self.substs.last().map(|s| s.id),
         );
         if let Some(&f) = self.recfuns.get(&key) {
-            return Ok(f);
+            return Ok(self.reenter(f));
         }
         let def = self.ir.def(d);
         let Expr::RecFcn { name, bounds, body } = &self.ir.node(def.body).expr else {
@@ -1421,9 +1435,7 @@ impl Compiler<'_> {
             caps: Box::new([]),
         });
         self.recfuns.insert(key, id);
-        if mode == Mode::Primed {
-            self.primed_funs.insert(id);
-        }
+        self.open_fun(id, mode, def.level);
         let saved_slot = self.next_slot;
         let saved_resets = std::mem::take(&mut self.reset_stack);
         let saved_cache = std::mem::take(&mut self.def_cache);
@@ -1454,8 +1466,10 @@ impl Compiler<'_> {
         self.reset_stack = saved_resets;
         self.def_cache = saved_cache;
         self.at_stack = saved_at;
+        self.open_funs.remove(&id);
         let (dom, b) = r?;
         ended?;
+        self.note_next_reads(id, &[dom, b])?;
         if mode == Mode::Primed && (self.info[dom as usize].effect || self.info[b as usize].effect)
         {
             return Err(Error::unsupported(
@@ -3949,7 +3963,7 @@ impl Compiler<'_> {
             self.substs.last().map(|s| s.id),
         );
         if let Some(&f) = self.funs.get(&key) {
-            return Ok(f);
+            return Ok(self.reenter(f));
         }
         let def = self.ir.def(d);
         #[allow(clippy::cast_possible_truncation, reason = "bounded")]
@@ -3967,9 +3981,7 @@ impl Compiler<'_> {
             caps: Box::new([]),
         });
         self.funs.insert(key, id);
-        if mode == Mode::Primed {
-            self.primed_funs.insert(id);
-        }
+        self.open_fun(id, mode, def.level);
         let saved_slot = self.next_slot;
         let saved_resets = std::mem::take(&mut self.reset_stack);
         let saved_cache = std::mem::take(&mut self.def_cache);
@@ -4002,8 +4014,10 @@ impl Compiler<'_> {
         self.reset_stack = saved_resets;
         self.def_cache = saved_cache;
         self.at_stack = saved_at;
+        self.open_funs.remove(&id);
         let body = body?;
         ended?;
+        self.note_next_reads(id, &[body])?;
         if mode == Mode::Primed && self.info[body as usize].effect {
             return Err(Error::unsupported(
                 "an effectful recursive operator under a prime (M1 core)",
@@ -4014,6 +4028,64 @@ impl Compiler<'_> {
             f.frame = frame;
         }
         Ok(id)
+    }
+
+    /// A call of `fun` found compiled: notes a call from inside its own
+    /// compilation.
+    fn reenter(&mut self, fun: u32) -> u32 {
+        if self.open_funs.contains(&fun) {
+            self.reentered_funs.insert(fun);
+        }
+        fun
+    }
+
+    /// Starts compiling `fun`, a `mode` variant of a definition at `level`.
+    fn open_fun(&mut self, fun: u32, mode: Mode, level: Level) {
+        if mode == Mode::Primed {
+            self.primed_funs.insert(fun);
+        }
+        if mode == Mode::Primed || self.reads_next(level) {
+            self.next_funs.insert(fun);
+        }
+        self.open_funs.insert(fun);
+    }
+
+    /// Whether a plain-mode function of a definition at `level`, in the
+    /// active substitutions, may read primed variables: an action-level
+    /// definition, or a state-level one while compiling an initial
+    /// predicate (which reads the state being built as primed), or any
+    /// definition under a substitution whose value is at that level.
+    fn reads_next(&self, level: Level) -> bool {
+        let at = if self.init_mode {
+            Level::State
+        } else {
+            Level::Action
+        };
+        level >= at
+            || self.substs.iter().any(|s| match &s.value {
+                Ok(Arg::Expr { expr, .. }) => self.ir.node(*expr).level >= at,
+                Ok(Arg::Op { level, .. }) => *level >= at,
+                Err(p) => self.info.get(*p as usize).is_none_or(|i| i.primed != 0),
+            })
+    }
+
+    /// Records that a call of `fun` reads primed variables when its compiled
+    /// `parts` do, although [`Self::reads_next`] did not predict it. Calls
+    /// compiled while `fun` was open assumed it did not, so then the
+    /// function is refused.
+    fn note_next_reads(&mut self, fun: u32, parts: &[P]) -> Result<(), Error> {
+        let reentered = self.reentered_funs.remove(&fun);
+        if self.next_funs.contains(&fun) || parts.iter().all(|&p| self.info[p as usize].primed == 0)
+        {
+            return Ok(());
+        }
+        if reentered {
+            return Err(Error::unsupported(
+                "a recursive definition below action level whose body reads the next state (M1 core)",
+            ));
+        }
+        self.next_funs.insert(fun);
+        Ok(())
     }
 
     /// A [`crate::stdlib`] operator with operator arguments
