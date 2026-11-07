@@ -5,6 +5,12 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core computes `SYMMETRY` canonical images faster: images of values inside
+  a state that recur across states are remembered per worker, within 32 MiB
+  per run, and a set variable's image is derived from its predecessor's.
+  `SimplifiedFastPaxos/Paxos` drops from 3.7 s to about 1 s and
+  `SimplifiedFastPaxos/FastPaxos` from its time budget to about 18 s (TLC:
+  1.1 s and 22.7 s), with unchanged counts.
 - Core evaluates each fairness condition of the specification once per
   liveness analysis instead of once per configured property, reusing the
   completed truth of every `WF`/`SF` condition rather than only the first `WF`.
