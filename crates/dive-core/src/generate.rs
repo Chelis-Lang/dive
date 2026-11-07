@@ -576,8 +576,27 @@ impl Machine {
         // A filter is streamed: its bound set's elements, filtered, without
         // building the set.
         if cur.is_empty()
-            && let Some(Node::Filter { bind, pred }) = code.nodes.get(set as usize)
+            && let Some(Node::Filter { bind, pred, subset }) = code.nodes.get(set as usize)
         {
+            // A proven `SUBSET F` rewrite streams the subsets of `F`: they
+            // are the filter's elements, in its order.
+            if let Some(mut c) = self.subset_cursor(code, *subset)? {
+                loop {
+                    let before = self.heap.mark();
+                    let Some(e) = self.work_next(&mut c)? else {
+                        break;
+                    };
+                    let forced = self.stats.transient_thunks;
+                    self.bind_var(var, e);
+                    let r = self.cont(code, acts, sink);
+                    self.unbind_var(var);
+                    r?;
+                    if self.stats.transient_thunks == forced {
+                        self.heap.rollback(before);
+                    }
+                }
+                return Ok(());
+            }
             // Enumerated without normalizing, so that a symbolic domain's
             // candidates are built one at a time.
             let dom = self.eval(code, bind.domain)?;
