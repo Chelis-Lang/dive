@@ -48,6 +48,10 @@ published. Earlier pre-release development entries remain in git history.
 - Core refuses a primed `TLCGet("level")` by name in every mode. TLC
   evaluates it at the successor's level; Core read the source's, which gave
   a wrong action-property violation.
+- Core checks the run's time and memory budgets once per 32 units of
+  evaluation work instead of at every unit, so `--time-limit` and
+  `--max-memory` stops may come up to 32 work units later. Verdicts and
+  counts are unchanged.
 - Core computes `SYMMETRY` canonical images faster: images of values inside
   a state that recur across states are remembered per worker, within 32 MiB
   per run, and a set variable's image is derived from its predecessor's.

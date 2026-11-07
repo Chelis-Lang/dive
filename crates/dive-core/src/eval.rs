@@ -23,6 +23,14 @@ mod work;
 /// before unbounded model recursion consumes the host interpreter's stack.
 const MAX_CALL_DEPTH: usize = 64;
 
+/// Charged units between polls of the installed [`WorkControl`]. Every
+/// charge counts at least one unit, so the checkpoint runs at least once per
+/// this many charges and before any charge that would carry the units since
+/// the last poll to this bound. The first charge after
+/// [`Machine::set_work_control`], and every charge after a refused poll,
+/// polls at once.
+pub const WORK_POLL_UNITS: u64 = 32;
+
 /// Evaluation counters.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct EvalStats {
@@ -105,6 +113,11 @@ pub struct Machine {
     /// ([`Machine::set_refuse_unrecorded_warnings`]).
     refuse_unrecorded_warnings: bool,
     work_control: Option<Arc<dyn WorkControl>>,
+    /// Charged units left before the next [`WorkControl`] poll, while fuel
+    /// and the transient bound are unbounded ([`Machine::charge`]).
+    work_countdown: u64,
+    /// The same countdown while either is bounded.
+    bounded_countdown: u64,
     pub(crate) debugger: Option<Arc<dyn crate::debug::Observer>>,
     /// Results of calls, kept only while the compiler evaluates start-up
     /// constant definitions (see [`CallCache`]).
@@ -241,6 +254,8 @@ impl Machine {
             fuel: u64::MAX,
             refuse_unrecorded_warnings: false,
             work_control: None,
+            work_countdown: 0,
+            bounded_countdown: 0,
             debugger: None,
             calls: None,
             transient_bound: usize::MAX,
@@ -256,6 +271,7 @@ impl Machine {
     /// # }
     /// ```
     pub fn set_fuel(&mut self, units: u64) {
+        self.disarm_inline_charge();
         self.fuel = units;
         self.memo.reserve_member_index(
             units == u64::MAX
@@ -304,6 +320,8 @@ impl Machine {
     pub fn set_work_control(&mut self, control: Option<Arc<dyn WorkControl>>) {
         self.heap.set_work_control(control.clone());
         self.work_control = control;
+        self.work_countdown = 0;
+        self.bounded_countdown = 0;
     }
 
     /// Installs explicit producer observation. Fresh replay/analysis machines
@@ -400,21 +418,53 @@ impl Machine {
     }
 
     /// Spends `n` units of fuel: one per element a loop visits.
+    ///
+    /// The inline path only counts down to the next [`WorkControl`] poll
+    /// ([`WORK_POLL_UNITS`]). Its countdown is armed only while fuel and the
+    /// start-up transient bound are unbounded, so a bounded machine checks
+    /// both exactly on every charge ([`Machine::charge_slow`]).
     #[inline]
     pub(crate) fn charge(&mut self, n: usize) -> Result<(), Error> {
-        if self
+        let units = (n as u64).max(1);
+        if units < self.work_countdown {
+            self.work_countdown -= units;
+            return Ok(());
+        }
+        self.charge_slow(units, n)
+    }
+
+    /// The checks [`Machine::charge`] amortizes or skips: the work poll
+    /// once the units since the last one reach [`WORK_POLL_UNITS`], and the
+    /// start-up transient bound and finite fuel, exactly. The units left
+    /// before the next poll live in `work_countdown` while the machine is
+    /// unbounded and in `bounded_countdown` otherwise; at most one is
+    /// nonzero. A refused poll leaves both at zero, so every later charge
+    /// polls again.
+    #[inline(never)]
+    fn charge_slow(&mut self, units: u64, n: usize) -> Result<(), Error> {
+        let left = self.work_countdown.max(self.bounded_countdown);
+        self.work_countdown = 0;
+        self.bounded_countdown = 0;
+        if units < left {
+            self.bounded_countdown = left - units;
+        } else if self
             .work_control
             .as_ref()
             .is_some_and(|control| !control.proceed())
         {
             self.heap.mark_work_interrupted();
             return Err(Error::stop());
+        } else {
+            self.bounded_countdown = WORK_POLL_UNITS;
         }
         if self.transient_bound != usize::MAX && self.heap.arena.footprint() > self.transient_bound
         {
             return Err(Error::unsupported("the start-up evaluation memory bound"));
         }
         if self.fuel == u64::MAX {
+            if self.transient_bound == usize::MAX {
+                self.work_countdown = std::mem::take(&mut self.bounded_countdown);
+            }
             return Ok(());
         }
         let n = n as u64;
@@ -424,6 +474,21 @@ impl Machine {
         }
         self.fuel -= n;
         Ok(())
+    }
+
+    /// Moves the poll countdown off the inline path of [`Machine::charge`]
+    /// before fuel or the transient bound changes, keeping the units left.
+    fn disarm_inline_charge(&mut self) {
+        self.bounded_countdown = self
+            .bounded_countdown
+            .max(std::mem::take(&mut self.work_countdown));
+    }
+
+    /// Bounds the transient bytes an evaluation may hold; [`Machine::charge`]
+    /// checks the bound exactly while it is finite.
+    pub(crate) fn set_transient_bound(&mut self, bytes: usize) {
+        self.disarm_inline_charge();
+        self.transient_bound = bytes;
     }
 
     fn take_scratch(&mut self) -> Vec<Handle> {
@@ -2488,14 +2553,14 @@ mod tests {
         );
         let one = Handle::int(1).unwrap();
         assert_eq!(m.charge(1), Ok(()));
-        m.transient_bound = 4096;
+        m.set_transient_bound(4096);
         while m.heap.arena.footprint() <= 4096 {
             m.heap.tuple(&[one, one, one, one]);
         }
         let error = m.charge(1).unwrap_err();
         assert_eq!(error.kind(), crate::ErrorKind::Unsupported);
         assert!(error.message().contains("start-up evaluation memory bound"));
-        m.transient_bound = usize::MAX;
+        m.set_transient_bound(usize::MAX);
         assert_eq!(m.charge(1), Ok(()));
         m.heap.reset();
         m.heap.arena.release();
@@ -2946,6 +3011,143 @@ mod thunk_rollback {
         assert!(m.thunks_released(inner_since));
         assert!(!m.thunks_released(since));
         m.leave(outer);
+    }
+}
+
+#[cfg(test)]
+mod work_poll_bound {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    /// Proceeds for the first `allow` polls, then refuses.
+    #[derive(Debug)]
+    struct Allow {
+        allow: usize,
+        polls: AtomicUsize,
+    }
+    impl WorkControl for Allow {
+        fn proceed(&self) -> bool {
+            self.polls.fetch_add(1, Ordering::Relaxed) < self.allow
+        }
+    }
+
+    fn machine(allow: usize) -> (Machine, Arc<Allow>) {
+        let mut m = Machine::new(
+            Arc::new(Store::default()),
+            0,
+            Opts::default(),
+            Memo::default(),
+        );
+        let control = Arc::new(Allow {
+            allow,
+            polls: AtomicUsize::new(0),
+        });
+        m.set_work_control(Some(control.clone()));
+        (m, control)
+    }
+
+    fn polls(control: &Allow) -> usize {
+        control.polls.load(Ordering::Relaxed)
+    }
+
+    #[test]
+    fn the_first_charge_after_installation_polls() {
+        let (mut m, control) = machine(0);
+        let error = m.charge(1).err();
+        assert!(error.is_some_and(|e| e.kind() == crate::ErrorKind::Stop));
+        assert_eq!(polls(&control), 1);
+        assert!(m.heap.work_interrupted());
+    }
+
+    #[test]
+    fn a_stop_is_seen_within_the_documented_unit_bound() {
+        let units = usize::try_from(WORK_POLL_UNITS).unwrap_or(usize::MAX);
+        for n in [0, 1, 3] {
+            let (mut m, control) = machine(1);
+            let mut charged = 0usize;
+            let mut calls = 0usize;
+            let stopped = loop {
+                let result = m.charge(n);
+                calls += 1;
+                if let Err(error) = result {
+                    break error;
+                }
+                charged += n.max(1);
+                assert!(calls <= units + 1, "no stop within the bound (n={n})");
+            };
+            assert_eq!(stopped.kind(), crate::ErrorKind::Stop);
+            assert_eq!(polls(&control), 2);
+            // The first charge polled; the refused poll came on the charge
+            // that would carry the units since it to the bound.
+            assert!(charged < units + n.max(1), "n={n} charged={charged}");
+            assert!(calls <= units + 1, "n={n} calls={calls}");
+            // Once refused, every later charge polls again.
+            for _ in 0..3 {
+                assert!(m.charge(1).is_err());
+            }
+            assert_eq!(polls(&control), 5);
+        }
+    }
+
+    #[test]
+    fn a_large_charge_polls_before_its_work() {
+        let (mut m, control) = machine(1);
+        assert_eq!(m.charge(1), Ok(()));
+        let big = usize::try_from(WORK_POLL_UNITS).unwrap_or(usize::MAX);
+        let error = m.charge(big).err();
+        assert!(error.is_some_and(|e| e.kind() == crate::ErrorKind::Stop));
+        assert_eq!(polls(&control), 2);
+    }
+
+    #[test]
+    fn bounded_fuel_and_transients_are_checked_on_every_charge_and_polled_on_the_bound() {
+        let units = usize::try_from(WORK_POLL_UNITS).unwrap_or(usize::MAX);
+        let (mut m, control) = machine(usize::MAX);
+        assert_eq!(m.charge(1), Ok(()));
+        m.set_fuel(10);
+        for spent in 1..=10 {
+            assert_eq!(m.charge(1), Ok(()));
+            assert_eq!(m.fuel, 10 - spent);
+        }
+        let error = m.charge(1).err();
+        assert!(error.is_some_and(|e| e.kind() == crate::ErrorKind::Unsupported));
+        assert_eq!(polls(&control), 1);
+        m.set_fuel(u64::MAX);
+        m.heap.tuple(&[Handle::TRUE]);
+        m.set_transient_bound(0);
+        let error = m.charge(1).err();
+        assert!(error.is_some_and(|e| e.kind() == crate::ErrorKind::Unsupported));
+        m.set_transient_bound(usize::MAX);
+        // Twelve charges since the one that polled: the bound counts the
+        // bounded and unbounded charges alike, so charge 33 polls.
+        for _ in 13..units {
+            assert_eq!(m.charge(1), Ok(()));
+        }
+        assert_eq!(polls(&control), 1);
+        assert_eq!(m.charge(1), Ok(()));
+        assert_eq!(polls(&control), 2);
+        // A bounded machine still polls within the bound.
+        m.set_fuel(u64::MAX - 1);
+        for _ in 1..units {
+            assert_eq!(m.charge(1), Ok(()));
+        }
+        assert_eq!(polls(&control), 2);
+        assert_eq!(m.charge(1), Ok(()));
+        assert_eq!(polls(&control), 3);
+    }
+
+    #[test]
+    fn reinstalling_a_control_polls_at_once() {
+        let (mut m, control) = machine(usize::MAX);
+        assert_eq!(m.charge(1), Ok(()));
+        assert_eq!(polls(&control), 1);
+        let deny = Arc::new(Allow {
+            allow: 0,
+            polls: AtomicUsize::new(0),
+        });
+        m.set_work_control(Some(deny.clone()));
+        assert!(m.charge(1).is_err());
+        assert_eq!(polls(&deny), 1);
     }
 }
 

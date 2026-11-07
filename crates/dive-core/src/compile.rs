@@ -1903,11 +1903,11 @@ impl Compiler<'_> {
         }
         self.m.set_fuel(u64::MAX);
         self.m.calls = Some(crate::eval::CallCache::default());
-        self.m.transient_bound = STARTUP_TRANSIENT_BYTES;
+        self.m.set_transient_bound(STARTUP_TRANSIENT_BYTES);
         let old = self.m.enter(frame + 1);
         let r = self.m.eval(&self.code, p);
         self.m.leave(old);
-        self.m.transient_bound = usize::MAX;
+        self.m.set_transient_bound(usize::MAX);
         if let Some(calls) = self.m.calls.take() {
             self.stats.startup_call_hits += calls.hits;
         }

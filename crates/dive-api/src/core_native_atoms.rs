@@ -34,9 +34,10 @@ struct Compiled {
 
 /// Node visits one native atom demand may spend before it falls back. The
 /// run's time and memory budgets still bound the work through
-/// [`QueryControl`], polled at every charge; this allowance only bounds the
-/// work wasted, and the memory held until `heap.reset()`, before the
-/// reference evaluator answers instead.
+/// [`QueryControl`], polled at least once per
+/// [`dive_core::eval::WORK_POLL_UNITS`] charged units; this allowance only
+/// bounds the work wasted, and the memory held until `heap.reset()`, before
+/// the reference evaluator answers instead.
 const NATIVE_FUEL: u64 = 1 << 20;
 
 /// Consecutive fuel exhaustions after which an atom is left to the reference
@@ -2335,7 +2336,10 @@ P == <>(/\ Pick = {}
         }
         impl dive_core::eval::WorkControl for Pause {
             fn proceed(&self) -> bool {
-                if self.calls.fetch_add(1, Ordering::Relaxed) == 3 {
+                // The first poll is the first charge after installation; the
+                // second comes within `WORK_POLL_UNITS` charged units, or at
+                // a precharge for larger work, so it is inside enumeration.
+                if self.calls.fetch_add(1, Ordering::Relaxed) == 1 {
                     std::thread::sleep(std::time::Duration::from_millis(120));
                 }
                 self.owner.check().is_ok()
@@ -2384,7 +2388,7 @@ P == <>(/\ Pick = {}
                         matches!(atoms.evaluate(atom,&[value],None,&phase),Err(AnalysisError::Stopped(ref stop)) if stop.phase==Phase::Temporal)
                     );
                     assert!(
-                        poll.calls.load(Ordering::Relaxed) >= 4,
+                        poll.calls.load(Ordering::Relaxed) >= 2,
                         "query reached its internal checkpoint"
                     );
                     assert_eq!(atoms.evaluated, 0);

@@ -395,7 +395,7 @@ Each native demand gets `NATIVE_FUEL` (2^20) units of fuel. The allowance
 counts explicit semantic traversal/copy work. It is not a
 hard CPU-instruction, allocator-latency or wall-clock guarantee for each primitive;
 existing whole-run cooperative time and sampled-memory limits retain their scope,
-polled at every charge, and bound the work and the memory held until the
+polled at least once per `WORK_POLL_UNITS` (32) charged units, and bound the work and the memory held until the
 per-demand `heap.reset()`. Explicit loops such as UTF-16 length traversal are
 still precharged. After `FUEL_STRIKES` (8) consecutive exhaustions an atom is
 retired to the reference evaluator for the rest of that analysis; a completed
