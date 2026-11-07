@@ -27,6 +27,8 @@ Wrong == Good /\ MapSeq(<<x>>,Inc)= <<1>>
 Far(a) == MapSeq(<<1>>,LAMBDA v: v+a)
 OutsideCapture == Far(x)= <<x+1>>
 PrimeCapture == (Local(x))'= <<x'+1,x'+2>>
+PrimeCaptureCorrect == [][PrimeCapture]_x
+PrimeCaptureWrong == [][(Local(x))'= <<x+1,x+2>>]_x
 Effect == MapSeq(<<x>>,LAMBDA v: Print("map",v))= <<x>>
 CapturedEffect == Local(Print("map",x))= <<x+1,x+2>>
 RECURSIVE Hidden(_)

@@ -24,6 +24,13 @@ Unused == LET bad == 1 \div 0
 Read(a) == LET f[i \in 0..1] == IF i=0 THEN a ELSE f[i-1]+1
            IN (f[1])'=x'+1
 Captured == Read(x)
+ReadBad(a) == LET f[i \in 0..1] == IF i=0 THEN a ELSE f[i-1]+1
+              IN (f[1])'=x+1
+CapturedCorrect == [][Captured]_x
+ReadInside(a) == LET f[i \in 0..1] == IF i=0 THEN a' ELSE f[i-1]+1
+                 IN f[1]=x'+1
+CapturedInside == ReadInside(x)
+CapturedWrong == [][ReadBad(x)]_x
 Mixed == LET f[i \in 0..1] == IF i=0 THEN x ELSE (f[i-1])'
          IN f[1]=x'
 Effect == LET f[i \in 0..1] == IF i=0 THEN Print("value",x) ELSE f[i-1]+1

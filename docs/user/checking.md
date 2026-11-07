@@ -332,10 +332,14 @@ Core evaluates LET-bound recursive functions used through `f[arg]`, retaining
 the actual enclosing values across recursive and repeated calls, including
 `INSTANCE` substitutions. An unused failing LET binding or argument stays
 unevaluated. Primed applications with pure domains and bodies read the successor
-state, including state-dependent domains and arguments. Escaping recursive
-function values, primed enclosing-local captures, mixed plain/primed self calls,
-effectful primed functions and mutually nested recursion remain named refusals
-in both profiles.
+state, including state-dependent domains and arguments. A recursive operator or
+LET function applied under a prime, such as `sumList(templates)'` from an
+`INSTANCE ... WITH` refinement mapping, is evaluated in the successor state: its
+arguments, its body and the enclosing locals it captures are all read primed.
+Escaping recursive function values, a prime or `ENABLED` inside a recursive
+definition applied under a prime, an enclosing local read primed by a recursive
+definition applied unprimed, mixed plain/primed self calls, effectful primed
+functions and mutually nested recursion remain named refusals in both profiles.
 An enclosing operator parameter used by a LET-recursive function can be bound
 to a pure non-recursive operator, including a `LAMBDA` or forwarded parameter.
 Its body keeps the original lexical context; reachable local captures use the

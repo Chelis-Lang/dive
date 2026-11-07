@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core evaluates a recursive operator or recursive LET function applied under
+  a prime, as a refinement mapping `INSTANCE ... WITH v <- Op(e)` does under
+  `[][Next]_vars`, in the successor state. `glowingRaccoon/product` now checks
+  on Core; `ewd998/EWD998ChanID` reaches its VIEW-with-liveness refusal. A
+  prime or `ENABLED` inside such a definition is still refused.
 - Core enumerates `{E \in SUBSET T : \A e \in E : Q}` as the subsets of
   `{e \in T : Q}` when `Q` is pure and does not read `E`, so
   `SpanningTree/SpanTreeTest5Nodes` (2^32 candidate subsets) checks on Core

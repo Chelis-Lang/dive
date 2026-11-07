@@ -41,12 +41,10 @@ reason covers one or two models, so work them in any order.
 | `TLCExt!Trace` | **`ewd840/EWD840_json`**, **`ewd998/EWD998ChanID_export`** |
 | `TLCGet("config")` | **`DieHard/MCDieHardest`** |
 | `SUBSET` of more than 24 elements | **`SpanningTree/SpanTreeTest5Nodes`** |
-| recursive operator under a prime | **`glowingRaccoon/product`** |
-| recursive LET reading an enclosing local under a prime | `ewd998/EWD998ChanID` |
 | `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/SmokeEWD998`, `ewd998/EWD998ChanTrace` |
 | `TLC!JavaTime` | `ewd998/SmokeEWD998_SC` |
 | SYMMETRY | `KeyValueStore/MCKVsnap` |
-| graph capture with VIEW / random operators | `FiniteMonotonic/MCDistributedReplicatedLog`, `SpanningTree/SpanTreeRandom` |
+| graph capture with VIEW / random operators | `FiniteMonotonic/MCDistributedReplicatedLog`, `ewd998/EWD998ChanID`, `SpanningTree/SpanTreeRandom` |
 | simulation ALIAS; DT2 liveness | `ewd840/EWD840_anim`, `ewd687a/EWD687a_anim` |
 | 900-second stop | `MultiCarElevator/ElevatorSafetyLarge`, `MultiPaxos-SMR/MultiPaxos_MC`, `NanoBlockchain/MCNanoLarge`, `SlushProtocol/SlushLarge`, `bcastFolklore/bcastFolklore`, `SpecifyingSystems/AdvancedExamples/MCInnerSerial` |
 
