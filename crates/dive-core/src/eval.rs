@@ -836,6 +836,12 @@ impl Machine {
                 repeatable_args,
             } => {
                 self.check_finite_access(*op)?;
+                // A call the core does not reproduce refuses before its
+                // arguments are evaluated: an argument may itself be such a
+                // call, or have an effect TLC would order differently.
+                if crate::stdlib::deferred(*op) {
+                    return Err(crate::stdlib::deferred_refusal(*op));
+                }
                 // A value printed keeps its form: TLC prints an interval as
                 // `1..3` (`crate::print`), and draws from a lazy `[S -> T]`
                 // one value per component (`crate::random`).
