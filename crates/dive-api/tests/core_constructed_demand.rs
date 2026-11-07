@@ -86,6 +86,8 @@ fn named_selection_is_true_but_whole_function_demand_still_errors() {
                 std_redirects: HashMap::new(),
                 precomputed: HashMap::new(),
                 overrides: HashSet::new(),
+                deferred: std::collections::BTreeSet::new(),
+                startup_evaluator: None,
                 init: Vec::new(),
                 next: Vec::new(),
                 invariants: Vec::new(),

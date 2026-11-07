@@ -709,4 +709,14 @@ pub struct CompileStats {
     /// Applications of lazy function constructors evaluated for their
     /// argument alone (`Node::Beta`).
     pub beta: u64,
+    /// Constant definitions the binder left to the core, evaluated here
+    /// ([`crate::compile::Handoff::deferred`]).
+    pub startup_values: usize,
+    /// Wall time spent evaluating them, in nanoseconds.
+    pub startup_nanos: u64,
+    /// Calls their evaluation answered from its call results.
+    pub startup_call_hits: u64,
+    /// Those the core did not evaluate whose value the binder's evaluation
+    /// supplied ([`crate::compile::Handoff::startup_evaluator`]).
+    pub startup_fallbacks: usize,
 }

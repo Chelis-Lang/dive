@@ -110,6 +110,12 @@ pub(crate) struct Binder<'a> {
     /// refused only if the checking path reaches it or its evaluation may
     /// have had a lasting effect in TLC (`reach::unsupported`).
     pub(crate) startup_refusals: Vec<StartupRefusal>,
+    /// The constant definitions the start-up evaluation leaves to the core
+    /// engine (`crate::defer`); `None` unless the core route asked.
+    pub(crate) defer: Option<crate::defer::Deferral>,
+    /// The left definitions a configured role uses, which the core
+    /// evaluates.
+    pub(crate) deferred: std::collections::BTreeSet<DefId>,
 }
 
 /// A refused start-up evaluation of an impure definition.
@@ -158,6 +164,8 @@ impl<'a> Binder<'a> {
             unsupported: Vec::new(),
             refused: HashMap::new(),
             startup_refusals: Vec::new(),
+            defer: None,
+            deferred: std::collections::BTreeSet::new(),
         })
     }
 
@@ -637,6 +645,9 @@ impl<'a> Binder<'a> {
     /// to definitions, then every constant-level zero-arity definition, are
     /// evaluated, and the values kept. Failures are swallowed.
     pub(crate) fn process_constant_defns(&mut self) -> R<()> {
+        if self.defer.is_some() {
+            self.defer = Some(crate::defer::candidates(self));
+        }
         let ir = self.t.ir.clone();
         for m in file_modules(&ir) {
             if self.processes_constant_defns(m) {
@@ -649,7 +660,7 @@ impl<'a> Binder<'a> {
 
     /// `ModuleNode.processConstantDefns`: not for a module that is
     /// instantiated and has parameters.
-    fn processes_constant_defns(&self, m: ModuleId) -> bool {
+    pub(crate) fn processes_constant_defns(&self, m: ModuleId) -> bool {
         let ir = &*self.t.ir;
         let module = ir.module(m);
         if !module.instantiated {
@@ -746,6 +757,9 @@ impl<'a> Binder<'a> {
             if level != 0 {
                 continue;
             }
+            if self.left_to_core(real) {
+                continue;
+            }
             let (result, input_refusal) = self.startup_precompute(real);
             match result {
                 Ok(Some(v)) => {
@@ -764,6 +778,22 @@ impl<'a> Binder<'a> {
             self.constant_defns_of(inner)?;
         }
         Ok(())
+    }
+
+    /// Whether the start-up evaluation of `def` is left to the core
+    /// (`crate::defer`), which evaluates it when it compiles its plan if a
+    /// role uses it.
+    fn left_to_core(&mut self, def: DefId) -> bool {
+        let Some(defer) = &self.defer else {
+            return false;
+        };
+        if !defer.skip.contains(&def) {
+            return false;
+        }
+        if defer.evaluate.contains(&def) {
+            self.deferred.insert(def);
+        }
+        true
     }
 
     /// Precomputes `def` at start-up, returning the external-input refusal

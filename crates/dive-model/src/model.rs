@@ -167,6 +167,10 @@ pub struct Model {
     /// can remove a scheduling reason without changing replay's inventory.
     pub runtime_name_order: bool,
     pub(crate) stateful_checking: Option<String>,
+    /// Pure constant-level definitions whose start-up evaluation was left to
+    /// the core engine ([`crate::bind_deferring_constants`]); empty
+    /// otherwise. The evaluator evaluates them lazily.
+    pub deferred_constants: std::collections::BTreeSet<dive_ir::DefId>,
 }
 
 impl Model {
