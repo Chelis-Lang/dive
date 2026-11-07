@@ -303,3 +303,37 @@ fn unknown_switches_are_refused() {
     let r = dive_api::check_file_core_opts(&req, "-turbo").expect("runs");
     assert_eq!(r.to_json()["verdict"], "unsupported");
 }
+
+/// A standard operator passed to a higher-order operator (`+`, `\o`, `*`)
+/// is applied as the `LAMBDA` of its arity, and `DyadicRationals!Reduce`
+/// is the Java override's (#849).
+#[test]
+fn std_operators_as_operator_arguments_and_dyadic_reduce() {
+    let reference = run("HoStd", Engine::Reference);
+    let core = run("HoStd", Engine::Core);
+    assert_eq!(core["engine"], "core");
+    assert_eq!(core["verdict"], "success", "{core:#}");
+    assert_eq!(counts(&core), counts(&reference), "{core:#}");
+}
+
+/// TLC reports an error inside such an operator through the override's
+/// Java-method report, which the core does not reproduce: it refuses.
+#[test]
+fn an_error_inside_a_passed_std_operator_is_refused() {
+    let core = run("HoStdErr", Engine::Core);
+    assert_eq!(core["engine"], "core");
+    assert_eq!(core["verdict"], "unsupported", "{core:#}");
+}
+
+/// `Reduce` keeps the reference engine's refusal of operands beyond 32 bits.
+#[test]
+fn dyadic_reduce_refuses_operands_beyond_32_bits() {
+    let core = run("DyadicBig", Engine::Core);
+    assert_eq!(core["verdict"], "unsupported", "{core:#}");
+    assert!(
+        core["message"]
+            .as_str()
+            .is_some_and(|m| m.contains("DyadicRationals") && m.contains("32-bit")),
+        "{core:#}"
+    );
+}
