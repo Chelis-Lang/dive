@@ -58,10 +58,17 @@
           },
           "fallback": 0,
           "fallbacks": {
-            "fuel_or_error": 0,
+            "error": 0,
+            "fuel_exhausted": 0,
+            "fuel_retired": 0,
             "not_compiled": 0,
             "row_proof": 0,
             "warning_or_print": 0
+          },
+          "fuel": {
+            "per_demand": 1048576,
+            "retired_atoms": 0,
+            "strikes": 8
           },
           "nonstuttering_evaluations": 0,
           "rejections": {
@@ -71,10 +78,7 @@
             "effects": 0,
             "foreign_scope": 0,
             "fresh_string": 0,
-            "funs": 0,
-            "memo": 0,
-            "negated_enabled": 0,
-            "pow": 0
+            "negated_enabled": 0
           },
           "row_proofs": {
             "certified": 3,

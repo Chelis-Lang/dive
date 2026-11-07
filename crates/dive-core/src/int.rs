@@ -181,6 +181,24 @@ impl Heap {
         Ok(self.int_from_big(&value))
     }
 
+    /// An upper bound, in 64-bit words, on the magnitude of `base ^ exp`
+    /// that [`Heap::int_arith`] would allocate: 0 where the result is inline,
+    /// a Java `int` (TLC mode), an error, or refused above the bit limit
+    /// before allocating. A fuel-bounded machine charges it in advance.
+    pub(crate) fn pow_result_words(&self, base: Handle, exp: Handle) -> u64 {
+        if self.int_mode == IntMode::Tlc {
+            return 0;
+        }
+        let (Some(x), Some(y)) = (self.big(base), self.big(exp)) else {
+            return 0;
+        };
+        if x.abs() <= BigInt::one() || !y.is_positive() {
+            return 0;
+        }
+        let bits = y.to_u64().unwrap_or(u64::MAX).saturating_mul(x.bits());
+        if bits > MAX_POW_BITS { 0 } else { bits / 64 }
+    }
+
     /// `-a` under the heap's [`IntMode`].
     ///
     /// # Errors
