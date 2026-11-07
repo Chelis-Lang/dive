@@ -103,7 +103,9 @@ fn check_of(model: &Model, site: Site) -> Option<(&Named, ErrorSite)> {
 }
 
 /// Counts the emissions of `run` until its error; the error, or why the
-/// reference evaluator disagrees.
+/// reference evaluator disagrees. The replay stops at the first emission
+/// past the core's count: the two already disagree there, so the rest of
+/// the initial states or successors is never enumerated.
 fn reproduce_actions(
     emitted: u64,
     run: impl FnOnce(&mut dyn FnMut(&Successor<'_>) -> Flow) -> Result<(), EvalError>,
@@ -111,12 +113,19 @@ fn reproduce_actions(
     let mut n = 0u64;
     let r = run(&mut |_| {
         n += 1;
-        Flow::Continue
+        if n > emitted {
+            Flow::Stop
+        } else {
+            Flow::Continue
+        }
     });
     match r {
         Err(e) if n == emitted => Ok(e),
         Err(_) => Err(format!(
             "the reference evaluator emits {n} states before the error, the core {emitted}"
+        )),
+        Ok(()) if n > emitted => Err(format!(
+            "the reference evaluator emits more than {emitted} states before any error, the core {emitted}"
         )),
         Ok(()) => Err("the reference evaluator raises no error there".into()),
     }
