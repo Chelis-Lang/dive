@@ -61,6 +61,11 @@ published. Earlier pre-release development entries remain in git history.
   evaluation work instead of at every unit, so `--time-limit` and
   `--max-memory` stops may come up to 32 work units later. Verdicts and
   counts are unchanged.
+- Core evaluates a closed constant definition too large to fold once, when it
+  compiles the plan, instead of in every state that uses it.
+  `LeastCircularSubstring/MCLeastCircularSubstringMedium` drops from its time
+  budget to about 1.2 s (TLC: 108 s), with unchanged counts. A definition
+  whose evaluation fails is still evaluated, and fails, only where it is used.
 - Core computes `SYMMETRY` canonical images faster: images of values inside
   a state that recur across states are remembered per worker, within 32 MiB
   per run, and a set variable's image is derived from its predecessor's.

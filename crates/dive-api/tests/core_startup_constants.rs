@@ -223,3 +223,36 @@ fn a_false_assume_guards_the_pure_assumes_after_it() {
         }
     }
 }
+
+#[test]
+fn a_closed_definition_too_large_to_fold_is_evaluated_once()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-startup-constants");
+    for compat_tlc in [false, true] {
+        for (config, verdict) in [("Settle", "success"), ("SettleBad", "evaluation-error")] {
+            let req = CheckRequest {
+                file: root.join("Settle.tla"),
+                config: Some(root.join(format!("{config}.cfg"))),
+                workers: Some(1),
+                compat_tlc,
+                seed: Some(0),
+                fp: Some(0),
+                ..Default::default()
+            };
+            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+            assert_eq!(expected["verdict"], verdict, "{expected:#}");
+            let core = check_file_engine(&req, Engine::Core)?;
+            let doc = core.to_json();
+            assert_eq!(doc["engine"], "core", "{doc:#}");
+            assert_eq!(observed(&core), expected, "{config}/{compat_tlc}");
+            // `Corpus` is a stored value, not a thunk forced in every
+            // state; `Bad`, whose evaluation fails, is not.
+            let metrics = &doc["core"]["metrics"];
+            assert_eq!(metrics["plan"]["startup_values"], 1, "{metrics:#}");
+            let forced = u64::from(verdict != "success");
+            assert_eq!(metrics["thunks"]["forced"], forced, "{metrics:#}");
+        }
+    }
+    Ok(())
+}

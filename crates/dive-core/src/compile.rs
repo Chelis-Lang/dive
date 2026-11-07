@@ -71,6 +71,18 @@ pub const FOLD_FUEL: u64 = 1 << 16;
 /// is folded.
 pub const FOLD_BUDGET: u64 = 1 << 22;
 
+/// The most loop iterations the start-up evaluation of one closed
+/// zero-arity definition whose fold ran out of [`FOLD_FUEL`] may spend
+/// (`Compiler::settle`). `LeastCircularSubstring`'s
+/// `Corpus == ZSeq(CharacterSet)` (9,841 sequences in the Medium model,
+/// about 217,000 iterations) fits, and is built once instead of in every
+/// state that tests membership in it (#846).
+pub const SETTLE_FUEL: u64 = 1 << 22;
+
+/// The most loop iterations all such start-up evaluations of one compile
+/// may spend together.
+pub const SETTLE_BUDGET: u64 = 1 << 24;
+
 /// A role as the reference binder split it: an expression evaluated in a
 /// definition's frame, with some of that frame's slots bound to values.
 #[derive(Clone, Debug)]
@@ -580,6 +592,8 @@ fn compile_inner(
         m: Machine::new(store, nvars, opts, Memo::default()),
         consts: HashMap::new(),
         pre: HashMap::new(),
+        settled: HashMap::new(),
+        settle_fuel: 0,
         fallback: HashMap::new(),
         startup_assumptions: Vec::new(),
         startup_assumption_false: None,
@@ -751,6 +765,12 @@ struct Compiler<'a> {
     m: Machine,
     consts: HashMap<usize, Handle>,
     pre: HashMap<DefId, Handle>,
+    /// Closed zero-arity definitions whose fold ran out of fuel, evaluated
+    /// once at their first use (`Self::settle`): the value, or `None` when
+    /// the evaluation failed and the body is evaluated where it is used.
+    settled: HashMap<DefId, Option<Handle>>,
+    /// Loop iterations spent by [`Self::settle`], against [`SETTLE_BUDGET`].
+    settle_fuel: u64,
     /// Start-up values of deferred definitions the binder's evaluation
     /// supplied ([`Handoff::startup_evaluator`]), used as `h.precomputed`.
     fallback: HashMap<DefId, Value>,
@@ -3615,7 +3635,84 @@ impl Compiler<'_> {
         if let Some(h) = self.precomputed(d)? {
             return self.konst(h);
         }
+        if self.substs.is_empty()
+            && let Some(&Some(h)) = self.settled.get(&d)
+        {
+            return self.konst(h);
+        }
         self.def_body(d, env, mode)
+    }
+
+    /// Evaluates the compiled body of a closed zero-arity top-level
+    /// definition once, when its constant fold ran out of [`FOLD_FUEL`]
+    /// (`Info::heavy`): within [`SETTLE_FUEL`], what is left of
+    /// [`SETTLE_BUDGET`] and [`STARTUP_TRANSIENT_BYTES`], into the permanent
+    /// store, as TLC evaluates a constant definition at start-up
+    /// (`SpecProcessor.processConstantDefns`). Its uses then read the value
+    /// instead of rebuilding it in every state (#846). The body is the same
+    /// node a fold would replace, with the same reducibility, so its uses
+    /// behave as they do for a folded one.
+    ///
+    /// An evaluation that fails, refuses, or runs out of fuel or memory
+    /// changes nothing: the body is evaluated where it is used, as before,
+    /// so an error surfaces only where TLC raises it. Only a definition
+    /// outside any `INSTANCE` substitution is evaluated, so that its value
+    /// depends on the definition alone and is kept for all its uses.
+    fn settle(&mut self, d: DefId, body: P) -> P {
+        // A deferred definition was evaluated without a fuel bound already
+        // (`Self::startup_values`): one that is still compiled failed there.
+        if !self.opts.fold
+            || !self.substs.is_empty()
+            || self.h.deferred.contains(&d)
+            || self.settled.contains_key(&d)
+        {
+            return body;
+        }
+        let Some(info) = self.info.get(body as usize) else {
+            return body;
+        };
+        let closed = info.vars == 0
+            && info.primed == 0
+            && info.free.is_empty()
+            && !info.calls
+            && !info.effect;
+        if !closed || !info.heavy || self.is_trivial(body) {
+            return body;
+        }
+        let fuel = SETTLE_FUEL.min(SETTLE_BUDGET.saturating_sub(self.settle_fuel));
+        if fuel == 0 {
+            return body;
+        }
+        let started = std::time::Instant::now();
+        self.m.set_fuel(fuel);
+        let bound = std::mem::replace(&mut self.m.transient_bound, STARTUP_TRANSIENT_BYTES);
+        let old = self.m.enter(self.next_slot + 1);
+        let r = self.m.eval(&self.code, body);
+        self.m.leave(old);
+        self.m.transient_bound = bound;
+        let spent = fuel - self.m.fuel;
+        let exhausted = self.m.fuel == 0;
+        self.m.set_fuel(u64::MAX);
+        let r = r.and_then(|h| self.m.heap.intern_const(h));
+        self.m.heap.reset();
+        self.settle_fuel += spent;
+        self.stats.startup_nanos += u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+        match r {
+            Ok(h) if !exhausted && !h.is_empty() => {
+                self.code.nodes[body as usize] = Node::Const(h);
+                let red = self.info[body as usize].red;
+                self.info[body as usize] = Info {
+                    red,
+                    ..Info::default()
+                };
+                self.settled.insert(d, Some(h));
+                self.stats.startup_values += 1;
+            }
+            _ => {
+                self.settled.insert(d, None);
+            }
+        }
+        body
     }
 
     /// Compiles a definition's body without replacing it by its startup value.
@@ -3638,7 +3735,8 @@ impl Compiler<'_> {
             let parent = self.lexical_parent(d, env)?;
             return self.step_cached(key, |c| {
                 let inner = c.new_env(d, parent);
-                c.p(def.body, inner, mode)
+                let body = c.p(def.body, inner, mode)?;
+                Ok(c.settle(d, body))
             });
         }
         let cacheable = mode == Mode::Plain && !self.init_mode && def.scope == DefScope::TopLevel;
@@ -3648,6 +3746,7 @@ impl Compiler<'_> {
         let parent = self.lexical_parent(d, env)?;
         let inner = self.new_env(d, parent);
         let body = self.p(def.body, inner, mode)?;
+        let body = self.settle(d, body);
         // A state-level definition is a pure function of the current state:
         // evaluate it at most once per frame activation (the state does not
         // change within one). TLC re-evaluates it; the result is the same.
