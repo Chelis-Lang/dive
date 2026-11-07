@@ -75,6 +75,54 @@ impl Machine {
                 }
                 Ok(count)
             }
+            Kind::Subset => {
+                // `Heap::cursor` and `norm` materialize the base, then visit
+                // or build each subset (at most 24 base elements).
+                let base = self.heap.view(h).data[0];
+                let n = self.domain_work(base, true, depth + 1)?;
+                if n > 24 {
+                    return Err(quota());
+                }
+                let count = 1usize << n;
+                if materialize {
+                    self.charge(count.checked_mul(n + 3).ok_or_else(quota)?)?;
+                }
+                Ok(count)
+            }
+            Kind::FcnSet => {
+                // Both the domain and the range are materialized first; each
+                // function holds one key and one value per domain element.
+                let (domain, range) = (self.heap.view(h).data[0], self.heap.view(h).data[1]);
+                let keys = self.domain_work(domain, true, depth + 1)?;
+                let values = self.domain_work(range, true, depth + 1)?;
+                let count = u32::try_from(keys)
+                    .ok()
+                    .and_then(|keys| values.checked_pow(keys))
+                    .ok_or_else(quota)?;
+                self.charge(keys.checked_mul(values).ok_or_else(quota)?)?;
+                if materialize {
+                    self.charge(
+                        count
+                            .checked_mul(
+                                keys.checked_mul(2)
+                                    .and_then(|n| n.checked_add(3))
+                                    .ok_or_else(quota)?,
+                            )
+                            .ok_or_else(quota)?,
+                    )?;
+                }
+                Ok(count)
+            }
+            Kind::Union => {
+                // Both operands are materialized and merged into one set.
+                let (a, b) = (self.heap.view(h).data[0], self.heap.view(h).data[1]);
+                let count = self
+                    .domain_work(a, true, depth + 1)?
+                    .checked_add(self.domain_work(b, true, depth + 1)?)
+                    .ok_or_else(quota)?;
+                self.charge(count.checked_mul(3).ok_or_else(quota)?)?;
+                Ok(count)
+            }
             // These constructors need different eager Heap work bounds. They
             // stay on reference fallback before invoking any such primitive.
             _ => Err(Error::unsupported(
@@ -212,119 +260,6 @@ mod tests {
     use crate::plan::Node;
     use crate::{Opts, Store};
     use std::sync::Arc;
-
-    #[test]
-    fn scalar_updates_bind_at_preserve_domains_and_decline_before_missing_rhs() {
-        let mut m = Machine::new(
-            Arc::new(Store::default()),
-            0,
-            Opts::default(),
-            crate::memo::Memo::default(),
-        );
-        let zero = Handle::int(0).expect("zero");
-        let one = Handle::int(1).expect("one");
-        let two = Handle::int(2).expect("two");
-        let source = m.heap.int_fcn(0, &[one, two]);
-        let code = Code {
-            nodes: vec![
-                Node::Const(source),
-                Node::Const(zero),
-                Node::Slot(0),
-                Node::Const(one),
-                Node::Arith(crate::plan::Arith::Add, 2, 3),
-                Node::ClosedUpdate {
-                    base: 0,
-                    key: 1,
-                    domain: None,
-                    at: 0,
-                    value: 4,
-                },
-                Node::Const(Handle::int(9).expect("missing")),
-                Node::Arith(crate::plan::Arith::Div, 1, 1),
-                Node::ClosedUpdate {
-                    base: 0,
-                    key: 6,
-                    domain: None,
-                    at: 0,
-                    value: 7,
-                },
-                Node::ClosedUpdate {
-                    base: 0,
-                    key: 1,
-                    domain: None,
-                    at: 0,
-                    value: 7,
-                },
-            ],
-            ..Code::default()
-        };
-        let frame = m.enter(1);
-        m.set_slot(0, Handle::TRUE);
-        m.set_fuel(4096);
-        let changed = m.eval(&code, 5).expect("scalar @ update");
-        assert_eq!(m.heap.view(changed).kind, m.heap.view(source).kind);
-        assert_eq!(m.heap.view(changed).lo, 0);
-        assert_eq!(m.heap.view(changed).values(), &[two, two]);
-        assert_eq!(m.heap.view(source).values(), &[one, two]);
-        assert_eq!(m.slot(0), Handle::TRUE, "lexical @ restores after success");
-        let missing = m.eval(&code, 8).expect_err("missing key declines");
-        assert_eq!(missing.kind(), crate::ErrorKind::Unsupported);
-        assert!(missing.message().contains("warning semantics"));
-        assert_eq!(m.slot(0), Handle::TRUE);
-        assert!(
-            m.eval(&code, 9).is_err(),
-            "existing key demands failing RHS"
-        );
-        assert_eq!(m.slot(0), Handle::TRUE, "lexical @ restores after error");
-        m.set_fuel(4096);
-        assert!(m.eval(&code, 5).is_ok(), "clean call after failures");
-        m.leave(frame);
-    }
-
-    #[test]
-    fn scalar_update_copy_is_precharged_and_compound_old_leaves_decline() {
-        let mut m = Machine::new(
-            Arc::new(Store::default()),
-            0,
-            Opts::default(),
-            crate::memo::Memo::default(),
-        );
-        let zero = Handle::int(0).expect("zero");
-        let huge = m.heap.int_fcn(0, &vec![zero; 3000]);
-        let inner = m.heap.tuple(&[zero]);
-        let compound = m.heap.int_fcn(0, &[inner]);
-        let code = Code {
-            nodes: vec![
-                Node::Const(huge),
-                Node::Const(zero),
-                Node::Const(compound),
-                Node::ClosedUpdate {
-                    base: 0,
-                    key: 1,
-                    domain: None,
-                    at: 0,
-                    value: 1,
-                },
-                Node::ClosedUpdate {
-                    base: 2,
-                    key: 1,
-                    domain: None,
-                    at: 0,
-                    value: 1,
-                },
-            ],
-            ..Code::default()
-        };
-        let frame = m.enter(1);
-        m.set_fuel(4096);
-        let before = m.heap.arena().peak();
-        assert!(m.eval(&code, 3).is_err());
-        assert_eq!(m.fuel, 0);
-        assert_eq!(m.heap.arena().peak(), before, "no update copy before quota");
-        m.set_fuel(4096);
-        assert!(m.eval(&code, 4).is_err(), "compound @ leaf stays reference");
-        m.leave(frame);
-    }
 
     #[test]
     fn large_materialization_and_nested_product_components_decline_before_allocation() {
@@ -498,6 +433,40 @@ mod tests {
         }
     }
     #[test]
+    fn subset_function_set_and_union_preflight_before_allocation() {
+        let mut machine = Machine::new(
+            Arc::new(Store::default()),
+            0,
+            Opts::default(),
+            crate::memo::Memo::default(),
+        );
+        let small = machine.heap.interval(1, 3);
+        let large = machine.heap.interval(1, 20);
+        let other = machine.heap.interval(5, 6);
+        for (kind, data, size) in [
+            (Kind::Subset, vec![small], 8),
+            (Kind::FcnSet, vec![small, other], 8),
+            (Kind::Union, vec![small, other], 5),
+        ] {
+            let set = machine.heap.symbolic(kind, 0, &data);
+            machine.set_fuel(4096);
+            let result = machine.work_norm(set).expect("bounded small set");
+            assert_eq!(machine.heap.view(result).data.len(), size, "{kind:?}");
+        }
+        for (kind, data) in [
+            (Kind::Subset, vec![large]),
+            (Kind::FcnSet, vec![large, small]),
+        ] {
+            let set = machine.heap.symbolic(kind, 0, &data);
+            let before = machine.heap.arena().peak();
+            machine.set_fuel(4096);
+            assert!(machine.work_norm(set).is_err(), "{kind:?}");
+            assert_eq!(machine.fuel, 0, "{kind:?}: known cost exhausts the quota");
+            assert_eq!(machine.heap.arena().peak(), before, "{kind:?}");
+        }
+    }
+
+    #[test]
     fn record_set_known_work_exhausts_quota_but_unknown_shapes_do_not() {
         let mut machine = Machine::new(
             Arc::new(Store::default()),
@@ -533,7 +502,7 @@ mod tests {
         machine.set_fuel(4096);
         let result = machine.work_norm(small).expect("bounded small record set");
         assert_eq!(machine.heap.view(result).data.len(), 4);
-        let unknown = machine.heap.symbolic(Kind::Subset, 0, &[small_domain]);
+        let unknown = machine.heap.symbolic(Kind::SeqSet, 0, &[small_domain]);
         machine.set_fuel(4096);
         let error = machine
             .work_norm(unknown)

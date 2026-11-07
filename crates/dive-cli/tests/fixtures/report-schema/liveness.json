@@ -41,7 +41,7 @@
         "atoms": {
           "action_evaluations": 0,
           "audit": false,
-          "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries",
+          "eligibility": "source-scoped effect-free Core plans without fresh strings over materialized rows; identity-scoped fairness queries",
           "eligible_action_atoms": 0,
           "eligible_atoms": 1,
           "eligible_state_atoms": 1,
@@ -66,15 +66,15 @@
           "nonstuttering_evaluations": 0,
           "rejections": {
             "allocation": 0,
-            "code_nodes": 0,
             "compile_error": 0,
             "const_unclosed": 0,
             "effects": 0,
+            "foreign_scope": 0,
+            "fresh_string": 0,
             "funs": 0,
             "memo": 0,
             "negated_enabled": 0,
-            "pow": 0,
-            "stable_certificate": 0
+            "pow": 0
           },
           "row_proofs": {
             "certified": 3,
