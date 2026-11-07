@@ -550,11 +550,14 @@ pub struct MemoSite {
     pub vars: Box<[u16]>,
     /// The free slots the body reads.
     pub slots: Box<[u32]>,
-    /// The primed variables the body reads: only in a step predicate,
-    /// whose pair is complete (`Compiler::step`).
+    /// The primed variables the body reads: in a step predicate, whose
+    /// pair is complete (`Compiler::step`), or in an action's primed
+    /// definition, whose site is bypassed while one is unassigned
+    /// (`Opts::primed_memo`).
     pub primed: Box<[u16]>,
-    /// A step predicate's site (`Opts::step_memo`): on whatever
-    /// `Opts::memo` says, and its results are interned to be kept.
+    /// A step predicate's or primed definition's site (`Opts::step_memo`,
+    /// `Opts::primed_memo`): on whatever `Opts::memo` says, and its results
+    /// are interned to be kept.
     pub step: bool,
 }
 

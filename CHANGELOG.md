@@ -14,6 +14,11 @@ published. Earlier pre-release development entries remain in git history.
   recursive definition, or a state-level one in an initial predicate) to an
   operator as a value shared between disjuncts that assign different next
   states, losing states. Such a call is now evaluated in each disjunct.
+- Core evaluates a definition that an action reads primed, such as
+  `totalOpOrder'` in `InnerSerial`, once per distinct value of the variables
+  it reads instead of once per candidate of an enclosing `x' \in S`.
+  `SpecifyingSystems/AdvancedExamples/MCInnerSerial` completes in about 3 s
+  with TLC's counts instead of stopping at its time budget.
 - Core enumerates `{E \in SUBSET T : \A e \in E : Q}` as the subsets of
   `{e \in T : Q}` when `Q` is pure and does not read `E`, so
   `SpanningTree/SpanTreeTest5Nodes` (2^32 candidate subsets) checks on Core

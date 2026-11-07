@@ -447,6 +447,7 @@ pub fn compile_bound_test(
     let opts = Opts {
         memo: false,
         step_memo: false,
+        primed_memo: false,
         fold: false,
         ..opts
     };
@@ -3519,7 +3520,52 @@ impl Compiler<'_> {
             self.stats.cached_defs += 1;
             return self.push(Node::Lazy { slot, body });
         }
+        if def.scope == DefScope::TopLevel && !self.init_mode {
+            return self.primed_site(d, mode, body);
+        }
         Ok(body)
+    }
+
+    /// A zero-arity top-level definition that a next-state action reads
+    /// primed, such as `totalOpOrder'` in `InnerSerial`, as a memo site
+    /// keyed on the variables it reads, primed and unprimed
+    /// (`Opts::primed_memo`, `06-memoization.md` §2.4).
+    ///
+    /// The body is pure (no effect), makes no call and reads no bound
+    /// variable, so its value is a function of the key alone. At run time
+    /// the site is used only once every primed variable of its key is
+    /// assigned (`Machine::memo_eval` bypasses an unassigned one, and the
+    /// body then raises the error it raises), so a body that does not read
+    /// the variable an enumeration `x' \in S` assigns is evaluated once
+    /// per distinct key, not once per candidate. Errors are never cached.
+    fn primed_site(&mut self, d: DefId, mode: Mode, body: P) -> Result<P, Error> {
+        if !self.opts.primed_memo || self.assembles(body) || self.is_trivial(body) {
+            return Ok(body);
+        }
+        let info = &self.info[body as usize];
+        if info.primed == 0 || !info.free.is_empty() || info.effect || info.calls {
+            return Ok(body);
+        }
+        let bits = |m: u64| -> Vec<u16> {
+            #[allow(clippy::cast_possible_truncation, reason = "at most 64 variables")]
+            (0..64u16).filter(|&v| m & (1u64 << v) != 0).collect()
+        };
+        let (vars, primed) = (bits(info.vars), bits(info.primed));
+        if vars.len() + primed.len() > MAX_KEY {
+            return Ok(body);
+        }
+        let name = format!("{} ({mode:?}, action)", self.ir.def(d).name);
+        #[allow(clippy::cast_possible_truncation, reason = "bounded")]
+        let site = self.code.sites.len() as u32;
+        self.code.sites.push(MemoSite {
+            name: name.clone(),
+            vars: vars.into(),
+            slots: Box::new([]),
+            primed: primed.into(),
+            step: true,
+        });
+        self.site_names.push(name);
+        self.push(Node::Memo { site, body })
     }
 
     fn apply(&mut self, callee: &OpRef, args: &[Arg], env: usize, mode: Mode) -> Result<P, Error> {
