@@ -260,7 +260,7 @@ impl NativeAtoms {
             "fairness_reuse": {"state_consumptions": self.reuse.state, "action_consumptions": self.reuse.action,
                 "peak_storage_bytes": self.reuse.peak_bytes, "cap_bypasses": self.reuse.cap_bypasses,
                 "allocation_bypasses": self.reuse.allocation_bypasses, "stored_columns": self.reuse.stored_columns,
-                "scope": "one completed native frozen behavior WF pair per analysis; actual evaluation counters exclude reuse"},
+                "scope": "completed native frozen behavior prefix columns per analysis; actual evaluation counters exclude reuse"},
             "rejections": self.rejections.json(),
             "fallbacks": {"row_proof": self.fallbacks.row_proof, "fuel_exhausted": self.fallbacks.fuel_exhausted,
                 "error": self.fallbacks.error, "warning_or_print": self.fallbacks.warning_or_print,
