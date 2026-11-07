@@ -16,7 +16,8 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::hash::{BuildHasherDefault, Hasher};
-use std::sync::atomic::{AtomicU64, Ordering as AtomicOrdering};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering as AtomicOrdering};
 
 use crate::Error;
 use crate::handle::{Handle, Tag};
@@ -26,6 +27,27 @@ use crate::node::Kind;
 /// The most images one worker's [`ImageCache`] remembers. Past it, images
 /// are still computed, but no longer interned or remembered.
 pub const MAX_CACHED_IMAGES: usize = 1 << 20;
+
+/// The most bytes one reduction's remembered images may take, across all
+/// workers: the interned images in the shared store and the memo entries.
+/// Past it, images are still computed, but no longer interned or
+/// remembered; the images already remembered still serve.
+pub const MAX_IMAGE_BYTES: usize = 32 << 20;
+
+/// The most values one worker's [`ImageCache`] tracks as seen once. When it
+/// is full it is cleared, which only delays admitting values.
+const MAX_SEEN: usize = 1 << 18;
+
+/// The images a worker's [`ImageCache`] remembers before it must have
+/// served [`MIN_HITS`] lookups per image it holds.
+const WARM_UP: usize = 1 << 10;
+
+/// The lookups a worker's [`ImageCache`] must have served per image it
+/// holds, past [`WARM_UP`], to remember another.
+const MIN_HITS: u64 = 4;
+
+/// The bytes charged for one memo entry beside its image.
+const ENTRY_BYTES: usize = 32;
 
 /// Distinguishes reductions, so that a heap's [`ImageCache`] never serves
 /// one reduction's images to another.
@@ -37,6 +59,12 @@ static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 /// the store; states share most of their values with their predecessors,
 /// so most images are found here instead of rebuilt.
 ///
+/// A value's images are interned only once the value is seen again in a
+/// later canonicalization (`seen`): a value inside one state only, as in a
+/// nested function rewritten by every step, is permuted transiently and
+/// costs the store nothing. The bytes remembered are bounded per reduction
+/// across workers by [`MAX_IMAGE_BYTES`].
+///
 /// A state variable's own value is not interned under the maps (a new
 /// value per state would fill the store with images no state holds).
 /// Instead, for a set variable, the sorted element images of its value in
@@ -46,6 +74,13 @@ static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 pub struct ImageCache {
     owner: u64,
     images: HashMap<(u32, Handle), Handle, BuildHasherDefault<KeyHasher>>,
+    /// Persistent values whose images are not remembered, with the number
+    /// of the canonicalization that first met them.
+    seen: HashMap<Handle, u64, BuildHasherDefault<KeyHasher>>,
+    /// The number of the current canonicalization.
+    epoch: u64,
+    /// The memo's lookups that found an image.
+    hits: u64,
     roots: Vec<RootImages>,
 }
 
@@ -96,6 +131,10 @@ pub struct Symmetry {
     maps: Vec<Vec<(u32, u32)>>,
     /// This reduction's identity for [`ImageCache`] (0: none yet).
     id: u64,
+    /// The bytes this reduction's [`ImageCache`]s hold, across workers.
+    spent: Arc<AtomicUsize>,
+    /// The bound on `spent` ([`MAX_IMAGE_BYTES`]).
+    limit: usize,
     /// TLC's comparison, in this variable order (`None`: the canonical
     /// order, in declaration order).
     tlc: Option<Vec<usize>>,
@@ -112,8 +151,17 @@ impl Symmetry {
         Self {
             maps,
             id: NEXT_ID.fetch_add(1, AtomicOrdering::Relaxed),
+            spent: Arc::new(AtomicUsize::new(0)),
+            limit: MAX_IMAGE_BYTES,
             tlc: None,
         }
+    }
+
+    /// This reduction with at most `limit` bytes of remembered images.
+    #[cfg(test)]
+    fn with_image_limit(mut self, limit: usize) -> Self {
+        self.limit = limit;
+        self
     }
 
     /// TLC's canonicalization: candidates compared with TLC's `compareTo`,
@@ -172,8 +220,10 @@ impl Symmetry {
         if heap.sym_images.owner != self.id {
             heap.sym_images.owner = self.id;
             heap.sym_images.images.clear();
+            heap.sym_images.seen.clear();
             heap.sym_images.roots.clear();
         }
+        heap.sym_images.epoch += 1;
         let mut deltas: Vec<Option<Delta>> = Vec::new();
         if base.len() == state.len() && !self.maps.is_empty() && !heap.speculative {
             if heap.sym_images.roots.len() != state.len() {
@@ -212,16 +262,16 @@ impl Symmetry {
                 if ord != Ordering::Equal {
                     // Decided: the rest of the candidate is only built.
                     cand[i] = match delta {
-                        Some(d) => match d.elems(heap, map, k, n)? {
+                        Some(d) => match d.elems(self, heap, map, k, n)? {
                             None => h,
                             Some(list) => heap.set_sorted(&list),
                         },
-                        None => permute_node(heap, map, k, h)?,
+                        None => permute_node(self, heap, map, k, h)?,
                     };
                     continue;
                 }
                 let elems = match delta {
-                    Some(d) => Some(d.elems(heap, map, k, n)?),
+                    Some(d) => Some(d.elems(self, heap, map, k, n)?),
                     None => None,
                 };
                 match elems {
@@ -238,7 +288,7 @@ impl Symmetry {
                         let img = match elems {
                             Some(None) => h,
                             Some(Some(list)) => heap.set_sorted(&list),
-                            None => permute_node(heap, map, k, h)?,
+                            None => permute_node(self, heap, map, k, h)?,
                         };
                         cand[i] = img;
                         ord = if self.tlc.is_some() {
@@ -350,22 +400,23 @@ impl Delta {
     /// `map` (map number `k` of `n`), or `None` when no element moves.
     fn elems(
         &self,
+        sym: &Symmetry,
         heap: &mut Heap,
         map: &[(u32, u32)],
         k: u32,
         n: usize,
     ) -> Result<Option<Vec<Handle>>, Error> {
-        let root = self.root(heap, map, k, n)?;
+        let root = self.root(sym, heap, map, k, n)?;
         let mut moved = matches!(root, RootImage::Elems(_));
         let mut removed = Vec::with_capacity(self.removed.len());
         for &r in &self.removed {
-            let x = permute(heap, map, k, r)?;
+            let x = permute(sym, heap, map, k, r)?;
             moved |= x != r;
             removed.push(x);
         }
         let mut added = Vec::with_capacity(self.added.len());
         for &a in &self.added {
-            let x = permute(heap, map, k, a)?;
+            let x = permute(sym, heap, map, k, a)?;
             moved |= x != a;
             added.push(x);
         }
@@ -401,6 +452,7 @@ impl Delta {
     /// value while its element images are all persistent.
     fn root(
         &self,
+        sym: &Symmetry,
         heap: &mut Heap,
         map: &[(u32, u32)],
         k: u32,
@@ -422,7 +474,7 @@ impl Delta {
         let mut keep = true;
         let mut elems = Vec::with_capacity(data.len());
         for e in data {
-            let x = permute(heap, map, k, e)?;
+            let x = permute(sym, heap, map, k, e)?;
             moved |= x != e;
             keep &= !x.is_transient();
             elems.push(x);
@@ -535,20 +587,76 @@ fn tlc_cmp(heap: &Heap, a: Handle, b: Handle) -> Result<Ordering, Error> {
 /// The image of a persistent value is interned and remembered in the
 /// heap's [`ImageCache`], outside speculative candidate expansion, which
 /// must not promote values.
-fn permute(heap: &mut Heap, map: &[(u32, u32)], k: u32, h: Handle) -> Result<Handle, Error> {
+#[inline]
+fn permute(
+    sym: &Symmetry,
+    heap: &mut Heap,
+    map: &[(u32, u32)],
+    k: u32,
+    h: Handle,
+) -> Result<Handle, Error> {
     if !h.is_compound() || !h.is_persistent() || heap.speculative {
-        return permute_node(heap, map, k, h);
+        return permute_node(sym, heap, map, k, h);
     }
+    permute_remembered(sym, heap, map, k, h)
+}
+
+/// [`permute`] on a persistent compound value, through the memo.
+#[inline(never)]
+fn permute_remembered(
+    sym: &Symmetry,
+    heap: &mut Heap,
+    map: &[(u32, u32)],
+    k: u32,
+    h: Handle,
+) -> Result<Handle, Error> {
     if let Some(&img) = heap.sym_images.images.get(&(k, h)) {
+        heap.sym_images.hits += 1;
         return Ok(img);
     }
-    let img = permute_node(heap, map, k, h)?;
-    if heap.sym_images.images.len() >= MAX_CACHED_IMAGES {
+    let img = permute_node(sym, heap, map, k, h)?;
+    let cache = &mut heap.sym_images;
+    // Admitted when met again in a later canonicalization: a value of one
+    // state only is permuted transiently, at no cost to the store.
+    let epoch = cache.epoch;
+    match cache.seen.get(&h) {
+        Some(&first) if first != epoch => {}
+        Some(_) => return Ok(img),
+        None => {
+            if cache.seen.len() >= MAX_SEEN {
+                cache.seen.clear();
+            }
+            cache.seen.insert(h, epoch);
+            return Ok(img);
+        }
+    }
+    // Past a warm-up, an image is remembered only while the memo has
+    // served [`MIN_HITS`] lookups for each image it holds: an image used
+    // about once costs more to intern than to rebuild.
+    let held = cache.images.len();
+    if held >= MAX_CACHED_IMAGES
+        || (held >= WARM_UP && cache.hits < MIN_HITS * held as u64)
+        || sym.spent.load(AtomicOrdering::Relaxed) >= sym.limit
+    {
         return Ok(img);
     }
+    let cost = ENTRY_BYTES + transient_bytes(heap, img);
+    // Workers may each overshoot the limit by one image.
+    sym.spent.fetch_add(cost, AtomicOrdering::Relaxed);
     let img = if img == h { h } else { heap.intern(img)? };
     heap.sym_images.images.insert((k, h), img);
     Ok(img)
+}
+
+/// The bytes the transient nodes of `h` take, which interning copies into
+/// the store.
+fn transient_bytes(heap: &Heap, h: Handle) -> usize {
+    if !h.is_compound() || !h.is_transient() {
+        return 0;
+    }
+    let data = heap.view(h).data;
+    let own = 16 + std::mem::size_of_val(data);
+    data.iter().fold(own, |n, &c| n + transient_bytes(heap, c))
 }
 
 /// [`permute`] on one node, unremembered: its children through
@@ -557,7 +665,13 @@ fn permute(heap: &mut Heap, map: &[(u32, u32)], k: u32, h: Handle) -> Result<Han
     clippy::many_single_char_names,
     reason = "short names for a value, its view and its entries"
 )]
-fn permute_node(heap: &mut Heap, map: &[(u32, u32)], k: u32, h: Handle) -> Result<Handle, Error> {
+fn permute_node(
+    sym: &Symmetry,
+    heap: &mut Heap,
+    map: &[(u32, u32)],
+    k: u32,
+    h: Handle,
+) -> Result<Handle, Error> {
     match h.tag() {
         Tag::Model => {
             let Some(id) = h.as_model_id() else {
@@ -584,7 +698,7 @@ fn permute_node(heap: &mut Heap, map: &[(u32, u32)], k: u32, h: Handle) -> Resul
             let mut moved = false;
             let mut elems = Vec::with_capacity(data.len());
             for e in data {
-                let x = permute(heap, map, k, e)?;
+                let x = permute(sym, heap, map, k, e)?;
                 moved |= x != e;
                 elems.push(x);
             }
@@ -594,7 +708,7 @@ fn permute_node(heap: &mut Heap, map: &[(u32, u32)], k: u32, h: Handle) -> Resul
             let mut moved = false;
             let mut vals = Vec::with_capacity(data.len());
             for e in data {
-                let x = permute(heap, map, k, e)?;
+                let x = permute(sym, heap, map, k, e)?;
                 moved |= x != e;
                 vals.push(x);
             }
@@ -606,7 +720,10 @@ fn permute_node(heap: &mut Heap, map: &[(u32, u32)], k: u32, h: Handle) -> Resul
             let mut pairs = Vec::with_capacity(n);
             for i in 0..n {
                 let (key, e) = (data[i], data[n + i]);
-                let (pk, pe) = (permute(heap, map, k, key)?, permute(heap, map, k, e)?);
+                let (pk, pe) = (
+                    permute(sym, heap, map, k, key)?,
+                    permute(sym, heap, map, k, e)?,
+                );
                 moved |= pk != key || pe != e;
                 pairs.push((pk, pe));
             }
@@ -656,6 +773,91 @@ mod tests {
         let s = h.set_from(&mut vec![one, two]);
         sym.canonical(&mut h, &[s], &mut x).unwrap();
         assert_eq!(x, vec![s]);
+    }
+
+    /// The reduction of every permutation of three model values, the
+    /// values, and `n` distinct interned functions over them, each held in
+    /// a transient state value `[1 |-> f]`.
+    fn nested_states(n: usize) -> (Heap, Symmetry, Vec<Handle>) {
+        let mut h = Heap::new(Arc::new(Store::default()), false, false);
+        let mv = |h: &Heap, t: &str| Handle::model(h.store().strings().intern(t).unwrap());
+        let vals = [mv(&h, "a"), mv(&h, "b"), mv(&h, "c")];
+        let ids: Vec<u32> = vals.iter().map(|v| v.as_model_id().unwrap()).collect();
+        let perms = [[0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+        let maps = perms
+            .iter()
+            .map(|p| (0..3).map(|i| (ids[i], ids[p[i]])).collect())
+            .collect();
+        let int = |n: i64| Handle::int(n).unwrap();
+        let inner: Vec<Handle> = (0..n)
+            .map(|i| {
+                // Position j holds base-3 digit j of i.
+                let mut pairs: Vec<(Handle, Handle)> = (0..8u32)
+                    .map(|j| (int(i64::from(j)), vals[i / 3usize.pow(j) % 3]))
+                    .collect();
+                let f = h.fcn_from_pairs(&mut pairs);
+                h.intern(f).unwrap()
+            })
+            .collect();
+        (h, Symmetry::new(maps), inner)
+    }
+
+    /// The canonical image of `[1 |-> f]`, checked against the image
+    /// computed without the memo.
+    fn canonical_nested(h: &mut Heap, sym: &Symmetry, f: Handle) {
+        let one = Handle::int(1).unwrap();
+        let v = h.fcn_from_pairs(&mut [(one, f)]);
+        let (mut x, mut y) = (Vec::new(), Vec::new());
+        h.set_speculative(true);
+        sym.canonical(h, &[v], &mut x).unwrap();
+        h.set_speculative(false);
+        sym.canonical(h, &[v], &mut y).unwrap();
+        assert!(h.eq(x[0], y[0]));
+    }
+
+    #[test]
+    fn values_met_in_one_canonicalization_add_nothing_to_the_store() {
+        // A nested value that each state rewrites (#876 review): its images
+        // are never wanted again, so they must stay transient.
+        let (mut h, sym, inner) = nested_states(300);
+        let before = h.store().stats().nodes;
+        for &f in &inner {
+            canonical_nested(&mut h, &sym, f);
+        }
+        assert_eq!(h.store().stats().nodes, before);
+        assert!(h.sym_images.images.is_empty());
+        assert_eq!(sym.spent.load(AtomicOrdering::Relaxed), 0);
+    }
+
+    #[test]
+    fn images_that_serve_no_later_lookup_stop_being_remembered() {
+        // Each value is met twice and then never again: past the warm-up,
+        // the memo has served too few lookups to remember more.
+        let (mut h, sym, inner) = nested_states(600);
+        for &f in &inner {
+            canonical_nested(&mut h, &sym, f);
+            canonical_nested(&mut h, &sym, f);
+        }
+        let held = h.sym_images.images.len();
+        assert!(held >= WARM_UP && held <= WARM_UP + sym.len(), "{held}");
+    }
+
+    #[test]
+    fn remembered_images_stay_within_the_reductions_byte_limit() {
+        let (mut h, sym, inner) = nested_states(200);
+        let limit = 4096;
+        let sym = sym.with_image_limit(limit);
+        // Every value recurs, so every lookup after the first two hits.
+        for _ in 0..4 {
+            for &f in &inner {
+                canonical_nested(&mut h, &sym, f);
+            }
+        }
+        let spent = sym.spent.load(AtomicOrdering::Relaxed);
+        assert!(spent >= limit, "{spent}");
+        // At most one image past the limit: [j \in 0..7 |-> v] and its entry.
+        assert!(spent < limit + 512, "{spent}");
+        assert!(h.sym_images.images.len() < limit / ENTRY_BYTES);
     }
 
     #[test]

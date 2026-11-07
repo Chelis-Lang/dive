@@ -557,7 +557,13 @@ non-constant split arguments (stream 2), and are refused naming them.
   smaller, as in `Reduction::canonical_values`. A value is rebuilt only
   when something in it moves. Outside speculative candidate expansion, the
   image of a persistent value inside a state variable is interned and
-  remembered per worker (`ImageCache`, at most 2^20 entries). A state
+  remembered per worker (`ImageCache`) once the value is met in a second
+  canonicalization, so a nested value that every step rewrites stays
+  transient. Past 1024 images a worker remembers another only while its
+  memo has served four lookups per image held, and one reduction's
+  remembered images take at most 32 MiB across workers (`MAX_IMAGE_BYTES`,
+  store bytes plus entries); past either bound images are computed
+  transiently, as before the memo. A state
   variable's own value is never interned under the maps: a set variable
   within eight elements of its value in the predecessor state
   (`Symmetry::canonical_from`) takes its image from that value's sorted
