@@ -43,7 +43,10 @@ impl Spec {
             workers: Some(1),
             ..CheckRequest::default()
         };
-        Ok(dive_api::check_file(&request)?.to_json_with_exit_convention(ExitConvention::Tlc))
+        Ok(
+            dive_api::check_file_engine(&request, dive_api::Engine::Reference)?
+                .to_json_with_exit_convention(ExitConvention::Tlc),
+        )
     }
     fn model(&self) -> Result<SpecModel, Box<dyn std::error::Error>> {
         Ok(SpecModel::load(
@@ -234,8 +237,8 @@ fn actual_pure_state_property_dispatch_has_no_unused_temporal_policy() -> TestRe
             workers: Some(1),
             ..CheckRequest::default()
         };
-        let report =
-            dive_api::check_file(&request)?.to_json_with_exit_convention(ExitConvention::Tlc);
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?
+            .to_json_with_exit_convention(ExitConvention::Tlc);
         assert_eq!(report["schema_version"], 3);
         assert_eq!(report["check_kind"], "safety");
         assert_eq!(report["verdict"], "success");
@@ -393,7 +396,7 @@ fn ordinary_route_matches_read_historical_pinned_final_controls() -> TestResult 
                 workers: Some(workers),
                 ..CheckRequest::default()
             };
-            let report = dive_api::check_file(&request)?;
+            let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             let CheckMapping::Result(result) = mapped(
                 &value,

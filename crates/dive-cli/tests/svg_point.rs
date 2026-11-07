@@ -11,7 +11,9 @@ fn run(
     native_status: bool,
 ) -> Output {
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_dive"));
+    // The reference engine; Core refuses `SVG!PointOnLine` by name.
     cmd.env_remove("DIVE_COMPAT")
+        .env("DIVE_ENGINE", "reference")
         .arg(command)
         .arg(file)
         .arg("--output")

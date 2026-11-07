@@ -69,8 +69,9 @@ a proof. The independent project is in
 for a Rust application's own specifications and recorded behaviors.
 
 Set `CheckRequest.source_coverage = true` for opt-in native producer source-work
-rows through the ordinary Reference safety route. Auto selects Reference before
-execution; explicit Core/temporal/checkpoint combinations refuse. The exact
+rows through the ordinary Reference safety route
+(`check_file_engine(&request, Engine::Reference)`); Core, the default of
+`check_file`, and temporal/checkpoint combinations refuse by name. The exact
 source positions and actual expression/generator counters are available in the
 optional `source_coverage` JSON field and typed `CheckReport::source_coverage()`
 snapshot. They are not TLC logical costs or proof
@@ -194,7 +195,7 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
 | `analyze_source` / `analyze_file` | Resolved semantic analysis |
 | `parse_config_source` / `parse_config_file` | Configuration reading |
-| `check_file` | Ordinary safety, eligible ordinary dive-profile deterministic level checks, TLC-profile final analysis, or explicit `TemporalMode::FinalShort`; inspect actual route/completion |
+| `check_file` | On Core, the default engine (`check_file_engine` selects `Engine::Reference` explicitly): ordinary safety, eligible ordinary dive-profile deterministic level checks, TLC-profile final analysis, or explicit `TemporalMode::FinalShort`; inspect actual route/completion |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
 | `CheckRequest::host_access` | Explicit env/files/exec permissions; bounded Reference startup env/TXT capture |
@@ -261,9 +262,9 @@ a stopped report never has `model_proved: true`. One owner covers execution,
 retained-state serialization checkpoints and fresh finite-word validation.
 See the mode guides for the after-loading scope and uninterruptible value units.
 
-Use `simulate_file_engine(&request, Engine::Core)` or
-`dfid_file_engine(&request, Engine::Core)` for compiled finite execution.
-Existing `simulate_file` / `dfid_file` wrappers remain reference. `Engine::Auto`
-can select a whole reference finite run before execution; it does not retry a
-reached native refusal. Reports name the engine that actually ran. Seeded
+`simulate_file` and `dfid_file` run compiled finite execution on Core, the
+default engine; `simulate_file_engine(&request, Engine::Reference)` and
+`dfid_file_engine(&request, Engine::Reference)` select the reference engine
+explicitly. A reached native refusal is never retried; there is no
+`Engine::Auto`. Reports name the engine that actually ran. Seeded
 reproduction includes that engine and the same request settings.

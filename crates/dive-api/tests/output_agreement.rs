@@ -15,7 +15,7 @@ use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use dive_api::{BudgetSetting, CheckRequest, check_file};
+use dive_api::{BudgetSetting, CheckRequest};
 use serde_json::{Value, json};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -56,17 +56,20 @@ const MAX_STATES: u64 = 20_000;
 const TIME_LIMIT: Duration = Duration::from_secs(10);
 
 fn run(spec: &Path, compat_tlc: bool) -> Result<(Value, String)> {
-    let report = check_file(&CheckRequest {
-        file: spec.to_path_buf(),
-        config: Some(spec.with_extension("cfg")),
-        compat_tlc,
-        seed: Some(0),
-        fp: Some(0),
-        workers: Some(1),
-        max_states: Some(MAX_STATES),
-        time_limit: BudgetSetting::Explicit(TIME_LIMIT),
-        ..CheckRequest::default()
-    })?;
+    let report = dive_api::check_file_engine(
+        &CheckRequest {
+            file: spec.to_path_buf(),
+            config: Some(spec.with_extension("cfg")),
+            compat_tlc,
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            max_states: Some(MAX_STATES),
+            time_limit: BudgetSetting::Explicit(TIME_LIMIT),
+            ..CheckRequest::default()
+        },
+        dive_api::Engine::Reference,
+    )?;
     Ok((report.to_json(), report.render_human()))
 }
 

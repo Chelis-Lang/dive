@@ -60,7 +60,7 @@ fn original_issue_matches_the_official_minimal_corpus_golden() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 let report = check_file_engine(&req, engine).expect("runs");
                 let actual = observed(&report);
                 assert_eq!(actual["verdict"], expected["verdict"]);
@@ -123,7 +123,7 @@ fn multiplication_scope_demand_and_error_priority_match_pinned_controls() {
                 let engines: &[Engine] = if name == "NestedScopes" {
                     &[Engine::Reference]
                 } else {
-                    &[Engine::Reference, Engine::Core, Engine::Auto]
+                    &[Engine::Reference, Engine::Core]
                 };
                 for &engine in engines {
                     let report = check_file_engine(&req, engine).expect("runs");

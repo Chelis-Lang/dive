@@ -251,16 +251,20 @@ fn parallel_compat_runs_give_the_one_worker_result() {
     assert!(ran >= 130, "only {ran} fixtures ran");
 }
 
-/// `--engine=auto` runs `--compat=tlc` on the core, and falls back to the
-/// reference engine where the core refuses.
+/// The default engine runs `--compat=tlc` on the core, and refuses by name,
+/// without a Reference fallback, where the core refuses.
 #[test]
-fn auto_runs_compat_on_the_core() {
+fn the_default_engine_runs_compat_on_the_core() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-compat");
-    let j = run(&dir.join("CompatQueue.tla"), Engine::Auto, true);
+    let j = run(&dir.join("CompatQueue.tla"), Engine::default(), true);
     assert_eq!(j["engine"], "core", "{j:#}");
     assert_eq!(j["verdict"], "invariant-violation");
-    let j = run(&dir.join("CompatShape.tla"), Engine::Auto, true);
-    assert_eq!(j["engine"], "reference", "{j:#}");
-    assert_eq!(j["verdict"], "evaluation-error");
-    assert_eq!(j["engine_fallback"]["stage"], "dynamic", "{j:#}");
+    let j = run(&dir.join("CompatShape.tla"), Engine::default(), true);
+    assert_eq!(j["engine"], "core", "{j:#}");
+    assert_eq!(j["verdict"], "unsupported", "{j:#}");
+    assert!(
+        j["message"].as_str().is_some_and(|m| !m.is_empty()),
+        "{j:#}"
+    );
+    assert!(j.get("engine_fallback").is_none(), "{j:#}");
 }

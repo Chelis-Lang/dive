@@ -6,7 +6,7 @@ use std::process::ExitCode;
 
 use serde_json::{Value, json};
 
-const HELP: &str = "dive TLC checking adapter (supported subset)\n\nUSAGE: dive tlc [OPTIONS] SPEC[.tla]\n       tlc [OPTIONS] SPEC[.tla]\n\n    -config FILE[.cfg]   configuration (default SPEC.cfg)\n    -workers N|auto     worker count (default 1)\n    -seed N             signed 64-bit replay seed (always reported)\n    -fp N               fingerprint polynomial, 0..130\n    -deadlock           disable deadlock checking\n    -coverage 0        final Init/Next logical coverage (supported scalar slice)\n    -modelcheck         explicit checking mode\n    -simulate num=N     finite enumerating simulation\n    -generate num=N     finite constructive simulation\n    -depth N            finite simulation depth\n    -lncheck final      bounded final checking with deterministic short lassos\n    -lncheck default    ordinary; eligible pure requests with -fp 0 use final\n    -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)\n    -h, -help           this supported-subset help\n\nThe adapter selects TLC evaluation and TLC verdict statuses. Final checking\nretains its reported limits, refusals and independent counterexample validation;\nits deterministic short lasso need not be TLC's chosen lasso. Dive extensions:\n--output human|json; --symmetry-liveness unreduced|refuse|tlc (TLC quotient currently refuses); --max-memory SIZE|auto|none; --max-states N|none; --max-depth N|none; --config/--workers/--seed/--fp/--lncheck aliases. Native\ndive check defaults and its explicit final/short flags are unchanged.\n\n-tool output, unbounded/file simulation, DFID, checkpoint/storage and debugger TLC protocols\nare not implemented here and refuse by name. This is not full TLC CLI parity.\n";
+const HELP: &str = "dive TLC checking adapter (supported subset)\n\nUSAGE: dive tlc [OPTIONS] SPEC[.tla]\n       tlc [OPTIONS] SPEC[.tla]\n\n    -config FILE[.cfg]   configuration (default SPEC.cfg)\n    -workers N|auto     worker count (default 1)\n    -seed N             signed 64-bit replay seed (always reported)\n    -fp N               fingerprint polynomial, 0..130\n    -deadlock           disable deadlock checking\n    -coverage 0        final Init/Next logical coverage (supported scalar slice)\n    -modelcheck         explicit checking mode\n    -simulate num=N     finite enumerating simulation\n    -generate num=N     finite constructive simulation\n    -depth N            finite simulation depth\n    -lncheck final      bounded final checking with deterministic short lassos\n    -lncheck default    ordinary; eligible pure requests with -fp 0 use final\n    -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)\n    -h, -help           this supported-subset help\n\nThe adapter selects TLC evaluation and TLC verdict statuses on the Core engine\n(DIVE_ENGINE=reference selects the reference engine). Final checking\nretains its reported limits, refusals and independent counterexample validation;\nits deterministic short lasso need not be TLC's chosen lasso. Dive extensions:\n--output human|json; --symmetry-liveness unreduced|refuse|tlc (TLC quotient currently refuses); --max-memory SIZE|auto|none; --max-states N|none; --max-depth N|none; --config/--workers/--seed/--fp/--lncheck aliases. Native\ndive check defaults and its explicit final/short flags are unchanged.\n\n-tool output, unbounded/file simulation, DFID, checkpoint/storage and debugger TLC protocols\nare not implemented here and refuse by name. This is not full TLC CLI parity.\n";
 
 #[derive(Default)]
 struct Arguments {
@@ -351,7 +351,12 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
         let _ = write!(out, "{HELP}");
         return ExitCode::SUCCESS;
     }
-    let report = match dive_api::check_file_tlc_inputs(&parsed.request) {
+    // Core by default; `DIVE_ENGINE=reference` selects the reference engine.
+    let engine = match super::engine_from_env() {
+        Ok(engine) => engine,
+        Err(message) => return Failure::Usage(message).emit(err),
+    };
+    let report = match dive_api::check_file_tlc_inputs_engine(&parsed.request, engine) {
         Ok(report) => report,
         Err(dive_api::ApiError::BudgetStartup(error)) => {
             let _ = writeln!(err, "{error}; no verdict produced");
@@ -681,7 +686,7 @@ mod tests {
             workers: Some(1),
             ..Default::default()
         };
-        let mut doc = dive_api::check_file(&request)?.to_json();
+        let mut doc = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?.to_json();
         assert!(validate_trace(&request, &mut doc).is_ok());
         assert_eq!(doc["counterexample"]["validation"], "valid");
         doc["counterexample"]["trace"]["states"][1]["values"]["x"] = json!(99);

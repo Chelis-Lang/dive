@@ -25,7 +25,8 @@ fn ordinary_native_capture_budget_stops_keep_schema_phase_and_actual_work() {
                 max_memory: BudgetSetting::Unlimited,
                 ..CheckRequest::default()
             };
-            for engine in [Engine::Core, Engine::Auto] {
+            {
+                let engine = Engine::Core;
                 let report = check_file_engine(&request, engine).expect("check");
                 let json = report.to_json();
                 assert_eq!(json["schema_version"], 3, "{json:#}");
@@ -62,7 +63,8 @@ fn ordinary_native_postcapture_budget_is_a_structured_stop_without_fallback() {
     let config = file.with_extension("cfg");
     std::fs::write(&config, "INIT Init\nNEXT Next\nPROPERTY P\n").expect("config");
     for compat_tlc in [false, true] {
-        for engine in [Engine::Core, Engine::Auto] {
+        {
+            let engine = Engine::Core;
             let report = check_file_engine(
                 &CheckRequest {
                     file: file.clone(),

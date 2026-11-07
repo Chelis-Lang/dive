@@ -4,7 +4,7 @@
 //! independent validator; recursive operators outside the rule keep the named
 //! planning refusal. Expected results are the pinned TLC's.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
-use dive_api::{CheckRequest, check_file};
+use dive_api::CheckRequest;
 
 const SPEC: &str = include_str!("fixtures/recursive-temporal/Rec.tla");
 
@@ -18,14 +18,17 @@ fn check(directory: &std::path::Path, property: &str, compat_tlc: bool) -> serde
         },
     )
     .expect("cfg");
-    check_file(&CheckRequest {
-        file: directory.join("Rec.tla"),
-        compat_tlc,
-        seed: Some(0),
-        fp: Some(0),
-        workers: Some(1),
-        ..CheckRequest::default()
-    })
+    dive_api::check_file_engine(
+        &CheckRequest {
+            file: directory.join("Rec.tla"),
+            compat_tlc,
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            ..CheckRequest::default()
+        },
+        dive_api::Engine::Reference,
+    )
     .expect("checked")
     .to_json()
 }

@@ -199,14 +199,14 @@ fn every_kind_of_ending_is_covered() {
 }
 
 #[test]
-fn what_the_core_refuses_falls_back_under_auto() {
+fn what_the_core_refuses_is_a_named_refusal_on_the_default_engine() {
     let core = run("Viewed", Engine::Core, 1, false, false);
     assert_eq!(core["verdict"], "unsupported", "{core:#}");
-    let auto = run("Viewed", Engine::Auto, 1, false, false);
-    assert_eq!(auto["engine"], "reference", "{auto:#}");
-    assert_eq!(auto["engine_fallback"]["stage"], "static", "{auto:#}");
-    let reference = run("Viewed", Engine::Reference, 1, false, false);
-    assert_eq!(auto["verdict"], reference["verdict"]);
+    let default = run("Viewed", Engine::default(), 1, false, false);
+    assert_eq!(default["engine"], "core", "{default:#}");
+    assert_eq!(default["verdict"], "unsupported", "{default:#}");
+    assert_eq!(default["message"], core["message"], "{default:#}");
+    assert!(default.get("engine_fallback").is_none(), "{default:#}");
 }
 
 #[test]
@@ -303,17 +303,14 @@ fn class_controls(module: &str, cases: &[(&str, bool)]) {
                         "{case} tlc={tlc} workers={workers} switches={switches}: {core:#}"
                     );
                 }
-                let auto = check_file_engine(&request, Engine::Auto)
-                    .expect("auto")
+                let default = dive_api::check_file(&request)
+                    .expect("default engine")
                     .to_json();
                 assert_eq!(
-                    auto["verdict"], expected,
-                    "{case} tlc={tlc} workers={workers}: {auto:#}"
+                    default["verdict"], expected,
+                    "{case} tlc={tlc} workers={workers}: {default:#}"
                 );
-                assert_eq!(
-                    auto["engine"],
-                    if tlc && literal { "reference" } else { "core" }
-                );
+                assert_eq!(default["engine"], "core");
             }
         }
     }
@@ -371,11 +368,11 @@ fn ordinary_safety_keeps_its_existing_checked_comparison_refusal() {
         .expect("core")
         .to_json();
     assert_eq!(core["verdict"], "unsupported");
-    let auto = check_file_engine(&request, Engine::Auto)
-        .expect("auto")
+    let default = dive_api::check_file(&request)
+        .expect("default engine")
         .to_json();
-    assert_eq!(auto["verdict"], reference["verdict"]);
-    assert_eq!(auto["engine"], "reference");
+    assert_eq!(default["verdict"], "unsupported");
+    assert_eq!(default["engine"], "core");
 }
 
 /// Error words reconstruct canonical state identities while source evaluation
@@ -425,11 +422,11 @@ fn captured_source_error_endings_replay_the_canonical_frontier_identity() {
                     assert_error_ending(&core, &reference, case, tlc, workers, switches);
                     assert_eq!(core["engine"], "core");
                 }
-                let auto = check_file_engine(&request, Engine::Auto)
-                    .expect("auto")
+                let default = dive_api::check_file(&request)
+                    .expect("default engine")
                     .to_json();
-                assert_error_ending(&auto, &reference, case, tlc, workers, "auto");
-                assert_eq!(auto["engine"], "core");
+                assert_error_ending(&default, &reference, case, tlc, workers, "default");
+                assert_eq!(default["engine"], "core");
             }
         }
     }

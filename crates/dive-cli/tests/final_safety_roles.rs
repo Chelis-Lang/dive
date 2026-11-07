@@ -13,7 +13,9 @@ fn run(file: &Path, profile: &str, workers: usize, final_mode: bool) -> std::io:
     let binary =
         std::env::var_os("DIVE_TEST_CLI").unwrap_or_else(|| env!("CARGO_BIN_EXE_dive").into());
     let mut command = Command::new(binary);
+    // Bounded final checking runs on the reference engine only.
     command
+        .env("DIVE_ENGINE", "reference")
         .arg("check")
         .arg(file)
         .args(["--output=json", "--seed=0", "--fp=0"])

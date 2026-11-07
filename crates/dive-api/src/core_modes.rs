@@ -138,10 +138,6 @@ impl Native {
             budget: budget.clone(),
         })
     }
-    pub(crate) fn selection_refusal(&self) -> Option<&'static str> {
-        (self.plan.effects.draws || self.plan.effects.registers || self.plan.effects.level)
-            .then_some("native finite mode random/register/runtime-level execution")
-    }
 }
 
 struct Emission<'a, F>(&'a mut F);

@@ -55,7 +55,7 @@ fn actual_primary_hold_retains_intermediate_counts_and_fail_retains_replay_refus
         let spec = Spec::new(SOURCE, if holds { HOLD } else { FAIL })?;
         for workers in [1, 4] {
             let request = spec.request(workers);
-            let report = dive_api::check_file(&request)?;
+            let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(value["schema_version"], 3);
             assert_eq!(value["options"]["profile"], "tlc");
@@ -84,7 +84,8 @@ fn actual_primary_hold_retains_intermediate_counts_and_fail_retains_replay_refus
             assert!(value["property"].is_null());
             let mut explicit = request;
             explicit.temporal = TemporalMode::FinalShort;
-            let direct = dive_api::check_file(&explicit)?.to_json();
+            let direct =
+                dive_api::check_file_engine(&explicit, dive_api::Engine::Reference)?.to_json();
             assert_eq!(direct["verdict"], value["verdict"]);
             assert_eq!(direct["statistics"], value["statistics"]);
         }
@@ -101,7 +102,7 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
             &format!("INIT Init\nNEXT Next\nPROPERTY {property}\n"),
         )?;
         let request = spec.request(4);
-        let report = dive_api::check_file(&request)?;
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
         let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
         assert_eq!(value["schema_version"], 3);
         assert_eq!(value["statistics"]["generated"], 4);
@@ -139,7 +140,7 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
                 0 => excluded.action_composition = Some(ActionComposition::Tla),
                 _ => excluded.compat_tlc = false,
             }
-            let refused = dive_api::check_file(&excluded)?;
+            let refused = dive_api::check_file_engine(&excluded, dive_api::Engine::Reference)?;
             assert_eq!(refused.verdict(), "unsupported");
             assert_eq!(refused.to_json()["schema_version"], 3);
         }
@@ -153,7 +154,8 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
                 2 => admitted.store = dive_api::Store::Exact,
                 _ => admitted.no_deadlock = true,
             }
-            let actual = dive_api::check_file(&admitted)?.to_json();
+            let actual =
+                dive_api::check_file_engine(&admitted, dive_api::Engine::Reference)?.to_json();
             assert_eq!(actual["verdict"], value["verdict"], "{admitted:?}");
             assert_eq!(actual["property"], value["property"]);
             assert_eq!(actual["statistics"], value["statistics"]);
@@ -174,7 +176,7 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
     for seed in 0..4 {
         let mut request = spec.request(4);
         request.seed = Some(seed);
-        let report = dive_api::check_file(&request)?;
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
         let actual = report.result().ok_or("ordinary safety result")?;
         let mut options = dive_check::CheckOptions::tlc(0, seed);
         options.eval.action_composition = ActionComposition::Tlc;
@@ -190,7 +192,7 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
         "---- MODULE CompositionFinal ----\nEXTENDS TLC\nCONSTANT C\nBoot==Print(\"must-not-start\",0)\nVARIABLE x\nInit==x=C\nNext==x'=x\nHold==<>(x=1)\n====\n",
         "INIT Init\nNEXT Next\nPROPERTY Hold\n",
     )?;
-    let failure = dive_api::check_file(&missing.request(1))?;
+    let failure = dive_api::check_file_engine(&missing.request(1), dive_api::Engine::Reference)?;
     assert_eq!(failure.to_json()["schema_version"], 3);
     assert_eq!(failure.to_json()["output"], serde_json::json!([]));
     assert_ne!(failure.verdict(), "success");
@@ -200,7 +202,8 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
 #[test]
 fn composed_fairness_and_custom_generated_bound_keep_their_original_limits() -> TestResult {
     let spec = Spec::new(&SOURCE.replace("WF_x(Fair)", "WF_x(Next)"), HOLD)?;
-    let refused = dive_api::check_file(&spec.request(1))?.to_json();
+    let refused =
+        dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Reference)?.to_json();
     assert_eq!(refused["verdict"], "unsupported");
     assert!(
         refused["message"]

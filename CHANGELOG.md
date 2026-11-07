@@ -5,6 +5,26 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core is now the default engine of `dive check`, `dive simulate`,
+  `dive dfid` and the `dive tlc` adapter, and of `dive_api::check_file`,
+  `check_file_tlc_inputs`, `check_file_checkpoint`, `simulate_file` and
+  `dfid_file` (`Engine::default()` is `Engine::Core`). What Core does not
+  implement is a named refusal (exit 3), never a fallback. `--engine reference`
+  (or `DIVE_ENGINE=reference`, or `Engine::Reference`) runs the reference engine
+  explicitly until it is retired. Migration: callers that relied on the
+  reference default pass `--engine reference` or call `check_file_engine` with
+  `Engine::Reference`.
+- `--engine auto` and `Engine::Auto` are removed: `--engine auto` is a usage
+  error (exit 2) that names the replacement. What Auto ran on the reference
+  engine is now a named Core refusal that points to `--engine reference`:
+  source and TLC logical coverage, external inputs (`--allow-io`) and
+  recovery of a Reference checkpoint archive (`DIVE-S0400`). Check reports no
+  longer carry the Auto-only `engine_requested`/`engine_fallback` fields;
+  simulation and DFID reports keep `engine_fallback`, now always `null`.
+- Bounded final temporal checking (`--lncheck final --lasso short`), multi-worker
+  liveness with run-time names and finite modes that reach unreplayed random or
+  register effects are named Core refusals; see
+  [compatibility gaps](docs/tlc-differences.md#compat-gaps).
 - Core computes `SYMMETRY` canonical images faster: images of values inside
   a state that recur across states are remembered per worker, within 32 MiB
   per run, and a set variable's image is derived from its predecessor's.

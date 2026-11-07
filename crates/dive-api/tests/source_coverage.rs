@@ -166,13 +166,20 @@ fn failing_demands_retain_the_original_error_and_count_only_producer_entries() {
     }
 }
 #[test]
-fn stops_report_only_the_actual_prefix_and_auto_selects_reference_before_work() {
+fn stops_report_only_the_actual_prefix_and_the_default_engine_refuses_by_name() {
     let project = Project::new(SOURCE, CONFIG);
     for compat in [false, true] {
         let mut request = project.request(compat, true);
         request.max_states = Some(2);
         request.workers = Some(4);
-        let observed = check_file_engine(&request, Engine::Auto).unwrap().to_json();
+        assert!(matches!(
+            dive_api::check_file(&request),
+            Err(dive_api::ApiError::Unsupported { feature })
+                if feature.contains("source coverage") && feature.contains("--engine reference")
+        ));
+        let observed = check_file_engine(&request, Engine::Reference)
+            .unwrap()
+            .to_json();
         let plain = check_file_engine(
             &CheckRequest {
                 source_coverage: false,
@@ -186,8 +193,8 @@ fn stops_report_only_the_actual_prefix_and_auto_selects_reference_before_work() 
         assert_eq!(observed["statistics"], plain["statistics"]);
         assert_eq!(observed["source_coverage"]["scope"], "producer-prefix");
         assert_eq!(observed["source_coverage"]["active"], false);
-        assert_eq!(observed["engine"], "reference");
-        assert_eq!(observed["engine_fallback"]["stage"], "static");
+        assert!(observed.get("engine").is_none());
+        assert!(observed.get("engine_fallback").is_none());
         assert!(observed.get("core").is_none());
         assert_eq!(observed["options"]["workers"]["requested"], 4);
         assert_eq!(observed["options"]["workers"]["used"], 1);
@@ -201,7 +208,8 @@ fn stops_report_only_the_actual_prefix_and_auto_selects_reference_before_work() 
 }
 #[test]
 fn unsupported_modes_refuse_before_model_loading_and_temporal_obligations_never_pass_as_safety() {
-    for engine in [Engine::Core, Engine::Auto] {
+    {
+        let engine = Engine::Core;
         let request = CheckRequest {
             file: "missing-coverage-input.tla".into(),
             source_coverage: true,

@@ -144,9 +144,10 @@ jobs:
 
   conformance-gate:
     # Required check name; must match `cargo xtask protect-main`.
-    # Smoke subset of the CM1 gate: `dive check --compat=tlc` must agree with
-    # the committed TLC goldens. Never runs TLC. The whole CM1 list and the
-    # validation-smoke corpus run in `cargo xtask gate --full`.
+    # Smoke subset of the CM1 gate: `dive check --compat=tlc` on the default
+    # engine (Core) must agree with the committed TLC goldens, then Core in the
+    # default profile on core-smoke.txt. Never runs TLC. The whole CM1 list and
+    # the validation-smoke corpus run in `cargo xtask gate --full`.
     name: Conformance gate
     runs-on: ${{ vars.DIVE_CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
@@ -178,16 +179,16 @@ jobs:
         run: |
           target/release/dive-conformance oracle fetch
           target/release/dive-conformance corpus fetch --corpus examples
-      - name: Smoke gate (1 and 4 workers)
+      - name: Smoke gate (Core, tlc profile, 1 and 4 workers)
+        env:
+          DIVE_GATE_IMPL: dive:core
         run: scripts/conformance-gate.sh conformance/gates/smoke.txt --workers 1,4
       - name: Core golden gate (Core alone vs TLC goldens, 1 and 4 workers)
         env:
           DIVE_GATE_IMPL: dive:core
           DIVE_GATE_PROFILE: dive
         run: scripts/conformance-gate.sh conformance/gates/core-smoke.txt --workers 1,4
-      - name: Shadow gate (core vs reference engine, 1 and 4 workers)
-        run: scripts/shadow-gate.sh conformance/gates/shadow-smoke.txt
-      - name: Bare-use smoke (bundled libraries, explicit named refusal)
+      - name: Bare-use smoke (default engine Core, bundled libraries, explicit named refusal)
         run: |
           python3 scripts/test-bare-use-smoke.py
           python3 scripts/bare-use-smoke.py

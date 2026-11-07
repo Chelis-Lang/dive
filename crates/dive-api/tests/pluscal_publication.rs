@@ -1,7 +1,7 @@
 //! Explicit publication preserves admitted bytes and ordinary translator file effects.
 #![allow(clippy::unwrap_used, reason = "test fixture filesystem operations")]
 use dive_api::{
-    CheckRequest, RewriteRequest, TranslationRequest, check_file, prepare_translation_file,
+    CheckRequest, RewriteRequest, TranslationRequest, prepare_translation_file,
     write_original_ast_file, write_translation_file,
 };
 use std::{
@@ -79,12 +79,15 @@ fn prepared_translation_writes_only_on_publish_and_checks_as_a_real_model() {
             fs::read_to_string(file.with_extension("cfg")).unwrap(),
             "SPECIFICATION Spec\n\\* Add statements after this line.\n"
         );
-        let checked = check_file(&CheckRequest {
-            file,
-            compat_tlc: compat,
-            seed: Some(7),
-            ..CheckRequest::default()
-        })
+        let checked = dive_api::check_file_engine(
+            &CheckRequest {
+                file,
+                compat_tlc: compat,
+                seed: Some(7),
+                ..CheckRequest::default()
+            },
+            dive_api::Engine::Reference,
+        )
         .unwrap();
         assert_eq!(checked.exit_code(), 0, "{}", checked.to_json());
         assert!(checked.result().is_some());

@@ -49,8 +49,8 @@ rather than restarting the clock for each trace or iteration.
 
 ## Execution engines
 
-`--engine reference|core|auto` and `DIVE_ENGINE` also select DFID execution.
-The default and `dfid_file` remain reference. The core runs the supported pure
+`--engine core|reference` and `DIVE_ENGINE` also select DFID execution.
+Core is the default of `dive dfid` and `dfid_file`. The core runs the supported pure
 finite slice through compiled Init/Next and predicate plans in both profiles,
 with fingerprint-plus-exact-collision-guard or exact membership. Actual
 normalization/view demand stays separate from canonical membership keys.
@@ -59,8 +59,8 @@ normalization/view demand stays separate from canonical membership keys.
 dive dfid docs/user/examples/Counter.tla --max-level 8 --seed 7 --engine core --output json
 ```
 
-Reports name `engine`, `engine_requested` and any static `engine_fallback`.
-Core never falls back; Auto selects a whole reference run before execution only.
+Reports name `engine`, `engine_requested` and `engine_fallback`, which is always
+`null`: Core never falls back, and `--engine auto` was removed.
 A reached refusal never restarts DFID. Native candidate batches release their
 transients after real checking/key demand and retention of required DFS rows;
 persistent values, seen keys, DFS frames and reports remain separate consumers,

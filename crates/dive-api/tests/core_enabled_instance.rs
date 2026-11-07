@@ -179,12 +179,10 @@ fn nonidentity_and_hidden_query_contexts_remain_explicitly_refused() {
                 .is_some_and(|s| s == "EnabConstInstanceInit")
             {
                 assert!(value.to_string().contains("initial predicate"));
-                let auto = check_file_engine(&req, Engine::Auto).expect("static fallback");
-                let auto = auto.to_json();
-                assert_eq!(auto["engine"], "reference");
-                assert_eq!(auto["engine_fallback"]["stage"], "static");
-                assert_eq!(auto["verdict"], "success");
-                assert_eq!(auto["statistics"]["distinct"], 4);
+                let reference = check_file_engine(&req, Engine::Reference).expect("reference");
+                let reference = reference.to_json();
+                assert_eq!(reference["verdict"], "success");
+                assert_eq!(reference["statistics"]["distinct"], 4);
             }
         }
     }
@@ -289,16 +287,6 @@ fn unproved_configured_captures_effects_and_calls_stay_static_refusals() {
                     core["message"].as_str().expect("reason").contains(reason),
                     "{name}: {core}"
                 );
-                let auto = check_file_engine(&req, Engine::Auto).expect("static fallback");
-                let auto = auto.to_json();
-                assert_eq!(auto["engine"], "reference");
-                assert_eq!(auto["engine_fallback"]["stage"], "static");
-                for key in ["verdict", "statistics", "tlc", "output", "counterexample"] {
-                    assert_eq!(
-                        auto[key], reference[key],
-                        "{name}/{compat_tlc}/{workers}/{key}"
-                    );
-                }
             }
         }
     }

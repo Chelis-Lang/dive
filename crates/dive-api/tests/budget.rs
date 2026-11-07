@@ -4,7 +4,7 @@
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use dive_api::{BudgetSetting, CheckRequest, ExitConvention, check_file, exit};
+use dive_api::{BudgetSetting, CheckRequest, ExitConvention, exit};
 
 struct Scratch(PathBuf);
 impl Drop for Scratch {
@@ -75,11 +75,14 @@ fn explicit_search_caps_report_actual_prefixes_and_never_temporal_completion()
                 for (resource, states, depth, limit) in
                     [("states", Some(5), None, 5), ("depth", None, Some(2), 2)]
                 {
-                    let report = check_file(&CheckRequest {
-                        max_states: states,
-                        max_depth: depth,
-                        ..request(&file, compat_tlc, workers)
-                    })?;
+                    let report = dive_api::check_file_engine(
+                        &CheckRequest {
+                            max_states: states,
+                            max_depth: depth,
+                            ..request(&file, compat_tlc, workers)
+                        },
+                        dive_api::Engine::Reference,
+                    )?;
                     let json = report.to_json();
                     assert_stopped(
                         &json,
@@ -123,10 +126,13 @@ fn an_exhausted_time_limit_stops_safety_search_in_both_profiles_and_widths()
     let file = write(&scratch.0, "INIT Init\nNEXT Next\n")?;
     for compat_tlc in [false, true] {
         for workers in [1, 4] {
-            let report = check_file(&CheckRequest {
-                time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
-                ..request(&file, compat_tlc, workers)
-            })?;
+            let report = dive_api::check_file_engine(
+                &CheckRequest {
+                    time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
+                    ..request(&file, compat_tlc, workers)
+                },
+                dive_api::Engine::Reference,
+            )?;
             let json = report.to_json();
             assert_stopped(&json, "time", "safety-search");
             assert_eq!(json["schema_version"], 3);
@@ -159,10 +165,13 @@ fn an_exhausted_time_limit_stops_graph_capture_with_no_temporal_claim()
     let scratch = scratch()?;
     let file = write(&scratch.0, "INIT Init\nNEXT Next\nPROPERTY Live\n")?;
     for compat_tlc in [false, true] {
-        let report = check_file(&CheckRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
-            ..request(&file, compat_tlc, 1)
-        })?;
+        let report = dive_api::check_file_engine(
+            &CheckRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
+                ..request(&file, compat_tlc, 1)
+            },
+            dive_api::Engine::Reference,
+        )?;
         let json = report.to_json();
         assert_stopped(&json, "time", "graph-capture");
         assert_eq!(report.exit_code(), exit::STOPPED);
@@ -178,11 +187,14 @@ fn a_memory_ceiling_below_the_footprint_stops_the_run() -> Result<(), Box<dyn st
     let scratch = scratch()?;
     let file = write(&scratch.0, "INIT Init\nNEXT Next\n")?;
     for compat_tlc in [false, true] {
-        let report = check_file(&CheckRequest {
-            max_memory: BudgetSetting::Explicit(1 << 20),
-            time_limit: BudgetSetting::Explicit(Duration::from_secs(120)),
-            ..request(&file, compat_tlc, 1)
-        })?;
+        let report = dive_api::check_file_engine(
+            &CheckRequest {
+                max_memory: BudgetSetting::Explicit(1 << 20),
+                time_limit: BudgetSetting::Explicit(Duration::from_secs(120)),
+                ..request(&file, compat_tlc, 1)
+            },
+            dive_api::Engine::Reference,
+        )?;
         let json = report.to_json();
         assert_stopped(&json, "memory", "check-startup");
         assert!(json["statistics"].is_null());
@@ -205,10 +217,13 @@ fn an_exhausted_time_limit_stops_a_long_initial_state_enumeration()
     )?;
     std::fs::write(scratch.0.join("WideInit.cfg"), "INIT Init\nNEXT Next\n")?;
     for compat_tlc in [false, true] {
-        let json = check_file(&CheckRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
-            ..request(&file, compat_tlc, 1)
-        })?
+        let json = dive_api::check_file_engine(
+            &CheckRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
+                ..request(&file, compat_tlc, 1)
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json();
         assert_stopped(&json, "time", "safety-search");
         assert_eq!(json["statistics"]["reported_by_tlc"], false, "{json}");
@@ -247,10 +262,13 @@ fn a_budget_either_stops_or_reports_exactly_the_unbudgeted_result()
         )
     };
     for compat_tlc in [false, true] {
-        let reference = check_file(&CheckRequest {
-            time_limit: BudgetSetting::Unlimited,
-            ..request(&file, compat_tlc, 1)
-        })?
+        let reference = dive_api::check_file_engine(
+            &CheckRequest {
+                time_limit: BudgetSetting::Unlimited,
+                ..request(&file, compat_tlc, 1)
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json();
         assert_eq!(reference["verdict"], "invariant-violation", "{reference}");
         let mut stopped = 0;
@@ -258,11 +276,14 @@ fn a_budget_either_stops_or_reports_exactly_the_unbudgeted_result()
             .into_iter()
             .enumerate()
         {
-            let json = check_file(&CheckRequest {
-                time_limit: BudgetSetting::Explicit(Duration::from_millis(ms)),
-                chaos: Some(i as u64),
-                ..request(&file, compat_tlc, 4)
-            })?
+            let json = dive_api::check_file_engine(
+                &CheckRequest {
+                    time_limit: BudgetSetting::Explicit(Duration::from_millis(ms)),
+                    chaos: Some(i as u64),
+                    ..request(&file, compat_tlc, 4)
+                },
+                dive_api::Engine::Reference,
+            )?
             .to_json();
             if json["verdict"] == "stopped" {
                 stopped += 1;
@@ -293,7 +314,7 @@ fn profiles_resolve_their_default_budgets_and_generous_budgets_change_nothing()
     for compat_tlc in [false, true] {
         let mut req = request(&spec, compat_tlc, 1);
         req.no_deadlock = true;
-        let json = check_file(&req)?.to_json();
+        let json = dive_api::check_file_engine(&req, dive_api::Engine::Reference)?.to_json();
         assert_eq!(json["verdict"], "success", "{json}");
         let budget = &json["options"]["budget"];
         if compat_tlc {
@@ -313,11 +334,14 @@ fn profiles_resolve_their_default_budgets_and_generous_budgets_change_nothing()
             }
             None => assert_eq!(budget["max_memory_source"], "unavailable"),
         }
-        let unlimited = check_file(&CheckRequest {
-            time_limit: BudgetSetting::Unlimited,
-            max_memory: BudgetSetting::Unlimited,
-            ..req.clone()
-        })?
+        let unlimited = dive_api::check_file_engine(
+            &CheckRequest {
+                time_limit: BudgetSetting::Unlimited,
+                max_memory: BudgetSetting::Unlimited,
+                ..req.clone()
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json();
         assert_eq!(unlimited["verdict"], "success");
         assert_eq!(unlimited["statistics"], json["statistics"]);
@@ -338,11 +362,14 @@ fn a_large_interval_reaches_the_initial_state_budget_without_materialization()
     )?;
     std::fs::write(scratch.0.join("WideInterval.cfg"), "INIT Init\nNEXT Next\n")?;
     for compat_tlc in [false, true] {
-        let report = check_file(&CheckRequest {
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
-            max_memory: BudgetSetting::Explicit(1 << 30),
-            ..request(&file, compat_tlc, 1)
-        })?;
+        let report = dive_api::check_file_engine(
+            &CheckRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+                max_memory: BudgetSetting::Explicit(1 << 30),
+                ..request(&file, compat_tlc, 1)
+            },
+            dive_api::Engine::Reference,
+        )?;
         let json = report.to_json();
         assert_stopped(&json, "time", "safety-search");
         assert!(
@@ -369,11 +396,14 @@ fn a_large_interval_reaches_the_successor_budget_at_each_worker_width()
     )?;
     for compat_tlc in [false, true] {
         for workers in [1, 4] {
-            let report = check_file(&CheckRequest {
-                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
-                max_memory: BudgetSetting::Explicit(1 << 30),
-                ..request(&file, compat_tlc, workers)
-            })?;
+            let report = dive_api::check_file_engine(
+                &CheckRequest {
+                    time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+                    max_memory: BudgetSetting::Explicit(1 << 30),
+                    ..request(&file, compat_tlc, workers)
+                },
+                dive_api::Engine::Reference,
+            )?;
             let json = report.to_json();
             assert_stopped(&json, "time", "safety-search");
             assert!(
@@ -413,12 +443,15 @@ fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
                         "INIT Init\nNEXT Next\n"
                     },
                 )?;
-                let report = check_file(&CheckRequest {
-                    max_memory: BudgetSetting::Explicit(1),
-                    time_limit: BudgetSetting::Unlimited,
-                    temporal,
-                    ..request(&file, compat, workers)
-                })?;
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        max_memory: BudgetSetting::Explicit(1),
+                        time_limit: BudgetSetting::Unlimited,
+                        temporal,
+                        ..request(&file, compat, workers)
+                    },
+                    dive_api::Engine::Reference,
+                )?;
                 let json = report.to_json();
                 assert_stopped(&json, "memory", "check-startup");
                 assert_eq!(report.exit_code(), 5);
@@ -451,11 +484,14 @@ fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
         }
         // This control proves the binding effect/error would occur without the cut.
         std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n")?;
-        let ordinary = check_file(&CheckRequest {
-            max_memory: BudgetSetting::Unlimited,
-            time_limit: BudgetSetting::Unlimited,
-            ..request(&file, compat, 1)
-        })?
+        let ordinary = dive_api::check_file_engine(
+            &CheckRequest {
+                max_memory: BudgetSetting::Unlimited,
+                time_limit: BudgetSetting::Unlimited,
+                ..request(&file, compat, 1)
+            },
+            dive_api::Engine::Reference,
+        )?
         .to_json();
         assert_eq!(ordinary["verdict"], "assumption-failure");
         assert!(
@@ -485,11 +521,11 @@ fn loading_errors_remain_before_initial_memory_sampling() -> Result<(), Box<dyn 
         ..request(&file, false, 1)
     };
     assert!(matches!(
-        check_file(&req),
+        dive_api::check_file_engine(&req, dive_api::Engine::Reference),
         Err(dive_api::ApiError::Io { .. })
     ));
     std::fs::write(file.with_extension("cfg"), "INIT\n")?;
-    let rejected = check_file(&req)?.to_json();
+    let rejected = dive_api::check_file_engine(&req, dive_api::Engine::Reference)?.to_json();
     assert_eq!(rejected["verdict"], "rejected");
     assert_eq!(rejected["resources"]["memory"]["status"], "not-started");
     assert_eq!(rejected["resources"]["memory"]["samples"], 0);
@@ -509,11 +545,14 @@ fn evaluator_loops_stop_next_even_when_no_successor_is_emitted()
     std::fs::write(scratch.0.join("LoopNext.cfg"), "INIT Init\nNEXT Next\n")?;
     for compat_tlc in [false, true] {
         for workers in [1, 4] {
-            let report = check_file(&CheckRequest {
-                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
-                max_memory: BudgetSetting::Unlimited,
-                ..request(&file, compat_tlc, workers)
-            })?;
+            let report = dive_api::check_file_engine(
+                &CheckRequest {
+                    time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+                    max_memory: BudgetSetting::Unlimited,
+                    ..request(&file, compat_tlc, workers)
+                },
+                dive_api::Engine::Reference,
+            )?;
             let json = report.to_json();
             assert_stopped(&json, "time", "safety-search");
             assert!(
@@ -546,12 +585,15 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
         "INIT Init\nNEXT Next\nPROPERTY P\n",
     )?;
     for compat_tlc in [false, true] {
-        let report = check_file(&CheckRequest {
-            temporal: dive_api::TemporalMode::FinalShort,
-            time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
-            max_memory: BudgetSetting::Unlimited,
-            ..request(&file, compat_tlc, 1)
-        })?;
+        let report = dive_api::check_file_engine(
+            &CheckRequest {
+                temporal: dive_api::TemporalMode::FinalShort,
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+                max_memory: BudgetSetting::Unlimited,
+                ..request(&file, compat_tlc, 1)
+            },
+            dive_api::Engine::Reference,
+        )?;
         let json = report.to_json();
         assert_stopped(&json, "time", "temporal-analysis");
         assert_eq!(json["execution"]["stage"], "atoms", "{json}");

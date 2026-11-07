@@ -57,14 +57,17 @@ fn ordinary_file_reports_require_certified_error_and_actual_source_row_counts() 
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/state-atom-error/StateCause.tla");
     for compat_tlc in [false, true] {
-        let report = dive_api::check_file(&dive_api::CheckRequest {
-            file: file.clone(),
-            compat_tlc,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..dive_api::CheckRequest::default()
-        })
+        let report = dive_api::check_file_engine(
+            &dive_api::CheckRequest {
+                file: file.clone(),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..dive_api::CheckRequest::default()
+            },
+            dive_api::Engine::Reference,
+        )
         .expect("ordinary check");
         assert_eq!(report.verdict(), "evaluation-error");
         assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 255);

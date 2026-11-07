@@ -63,7 +63,10 @@ fn pinned_zero_solution_startup_precedes_assumptions_init_and_invariants() -> Te
         for tlc in [false, true] {
             for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
                 for workers in [1, 4] {
-                    let report = dive_api::check_file(&request(name, tlc, mode, workers))?;
+                    let report = dive_api::check_file_engine(
+                        &request(name, tlc, mode, workers),
+                        dive_api::Engine::Reference,
+                    )?;
                     assert!(report.result().is_none());
                     assert!(report.temporal_result().is_none());
                     zero_document(
@@ -86,7 +89,10 @@ fn semantically_true_temporal_forms_keep_their_actual_nonzero_startup_route() ->
         let expected = oracle(name)?;
         for tlc in [false, true] {
             for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-                let report = dive_api::check_file(&request(name, tlc, mode, 1))?;
+                let report = dive_api::check_file_engine(
+                    &request(name, tlc, mode, 1),
+                    dive_api::Engine::Reference,
+                )?;
                 let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(actual["verdict"], expected["result"]["verdict"]);
                 if mode == TemporalMode::Ordinary {
@@ -126,7 +132,10 @@ fn earlier_binding_errors_keep_the_original_code_and_never_become_tautology() ->
     let expected = oracle(name)?;
     for tlc in [false, true] {
         for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-            let report = dive_api::check_file(&request(name, tlc, mode, 1))?;
+            let report = dive_api::check_file_engine(
+                &request(name, tlc, mode, 1),
+                dive_api::Engine::Reference,
+            )?;
             let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
             assert_eq!(actual["tlc"]["name"], expected["result"]["error_class"]);
@@ -175,7 +184,7 @@ fn an_expired_run_budget_is_a_typed_stop_not_a_zero_solution_verdict() -> TestRe
         for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
             let mut req = request("UnusedDemandTautology", tlc, mode, 1);
             req.time_limit = dive_api::BudgetSetting::Explicit(std::time::Duration::ZERO);
-            let report = dive_api::check_file(&req)?;
+            let report = dive_api::check_file_engine(&req, dive_api::Engine::Reference)?;
             let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(actual["verdict"], "stopped");
             assert_eq!(actual["stopped"]["resource"], "time");

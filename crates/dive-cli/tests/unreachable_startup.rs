@@ -38,7 +38,9 @@ fn check(defs: &str, cfg: &str, tlc: bool, extra: &[&str]) -> (Option<i32>, serd
     run.env_clear()
         .env("BF", "{1}")
         .current_dir(&dir.0)
+        // External inputs run on the reference engine only (Core refuses).
         .args(["check", "M.tla", "--output", "json", "--workers", "1"])
+        .args(["--engine", "reference"])
         .arg("--library-path")
         .arg(modules)
         .args(extra);

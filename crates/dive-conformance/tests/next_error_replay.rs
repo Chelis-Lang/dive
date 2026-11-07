@@ -345,7 +345,7 @@ fn actual_next_receiver_wrapper_requires_the_original_source_word_and_diagnostic
         assert_eq!(oracle.exit_code, Some(75));
         for compat in [false, true] {
             let source = model(&file, compat);
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {

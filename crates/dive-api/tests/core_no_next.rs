@@ -62,7 +62,7 @@ fn missing_next_actions_keep_tlcs_model_error_and_precedence() {
                         ..CheckRequest::default()
                     };
                     let mut reference = Value::Null;
-                    for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+                    for engine in [Engine::Reference, Engine::Core] {
                         let report = check_file_engine(&request, engine).expect("check runs");
                         assert_eq!(report.exit_code_for(ExitConvention::Tlc), expected_exit);
                         let document = report.to_json();

@@ -173,7 +173,8 @@ fn a_lazy_startup_value_that_draws_at_each_membership_test_refuses_on_every_engi
     let spec = fixture("LazyDraw");
     let cfg = spec.with_extension("cfg");
     for seed in 0..10 {
-        for engine in [Engine::Reference, Engine::Auto] {
+        {
+            let engine = Engine::Reference;
             let v = run(&spec, &cfg, engine, None, seed);
             assert_eq!(v["verdict"], "unsupported", "{engine:?} seed {seed}: {v}");
             assert!(v["counterexample"].is_null(), "{engine:?} seed {seed}");

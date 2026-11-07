@@ -1,7 +1,7 @@
 //! The public checker exposes the VIEW/RNG no-work refusal in both profiles.
 #![allow(clippy::expect_used, reason = "test assertions")]
 
-use dive_api::{CheckRequest, Store, check_file};
+use dive_api::{CheckRequest, Store};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 static SERIAL: AtomicU64 = AtomicU64::new(0);
@@ -41,16 +41,19 @@ fn public_view_random_refusal_never_claims_workers_output_or_witness() {
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
                     for chaos in [None, Some(19)] {
-                        let report = check_file(&CheckRequest {
-                            file: source.clone(),
-                            compat_tlc: compat,
-                            seed: Some(7),
-                            fp: Some(0),
-                            workers: Some(workers),
-                            store,
-                            chaos,
-                            ..CheckRequest::default()
-                        })
+                        let report = dive_api::check_file_engine(
+                            &CheckRequest {
+                                file: source.clone(),
+                                compat_tlc: compat,
+                                seed: Some(7),
+                                fp: Some(0),
+                                workers: Some(workers),
+                                store,
+                                chaos,
+                                ..CheckRequest::default()
+                            },
+                            dive_api::Engine::Reference,
+                        )
                         .expect("well-formed request");
                         let json = report.to_json();
                         assert_eq!(json["verdict"], "unsupported");

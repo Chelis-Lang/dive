@@ -13,6 +13,8 @@ fn real_cli_and_tlc_transport_report_multi_variable_logical_costs()
         vec!["tlc", "-coverage", "0"],
     ] {
         let output = Command::new(env!("CARGO_BIN_EXE_dive"))
+            // TLC logical coverage is implemented on the reference engine only.
+            .env("DIVE_ENGINE", "reference")
             .args(args)
             .arg(&file)
             .args([

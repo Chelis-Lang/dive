@@ -4,7 +4,7 @@
 mod memory_observations;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Store, TemporalMode, check_file, check_file_checkpoint, checkpoint};
+use dive_api::{CheckRequest, Store, TemporalMode, checkpoint};
 use std::path::Path;
 
 fn request(name: &str) -> CheckRequest {
@@ -58,7 +58,10 @@ fn verify_frontier_recovery_cases(names: &[&str]) {
                         req.store = store;
                         req.workers = Some(workers);
                         req.chaos = chaos;
-                        let reference = check_file(&req).expect("reference").to_json();
+                        let reference =
+                            dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                                .expect("reference")
+                                .to_json();
                         assert_ne!(reference["verdict"], "unsupported");
                         assert_ne!(reference["verdict"], "internal-error");
                         let checkpoint = checkpoint::Request {
@@ -68,20 +71,25 @@ fn verify_frontier_recovery_cases(names: &[&str]) {
                             config_source_sha256: None,
                         };
                         serial += 1;
-                        let paused = check_file_checkpoint(&req, &checkpoint)
-                            .expect("pause")
-                            .to_json();
+                        let paused = dive_api::check_file_checkpoint_engine(
+                            &req,
+                            &checkpoint,
+                            dive_api::Engine::Reference,
+                        )
+                        .expect("pause")
+                        .to_json();
                         assert_eq!(paused["verdict"], "resource-limit", "{name}: {paused}");
                         assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
                         assert_eq!(paused["options"]["workers"]["requested"], workers);
                         assert_eq!(paused["options"]["workers"]["used"], 1);
                         assert!(paused["counterexample"].is_null());
-                        let resumed = check_file_checkpoint(
+                        let resumed = dive_api::check_file_checkpoint_engine(
                             &req,
                             &checkpoint::Request {
                                 action: checkpoint::Action::Recover,
                                 ..checkpoint
                             },
+                            dive_api::Engine::Reference,
                         )
                         .expect("resume")
                         .to_json();
@@ -165,7 +173,9 @@ fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
         config_source_sha256: None,
     };
     assert_eq!(
-        check_file_checkpoint(&req, &cp).expect("pause").to_json()["checkpoint"]["status"],
+        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Reference)
+            .expect("pause")
+            .to_json()["checkpoint"]["status"],
         "paused-incomplete"
     );
     req.seed = None;
@@ -174,7 +184,7 @@ fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
         action: checkpoint::Action::Recover,
         ..cp
     };
-    let json = check_file_checkpoint(&req, &resume)
+    let json = dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Reference)
         .expect("resume")
         .to_json();
     assert_eq!(json["verdict"], "success");
@@ -188,7 +198,7 @@ fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
     let original = std::fs::read_to_string(req.config.as_ref().expect("config")).expect("cfg");
     std::fs::write(&cfg, format!("{original}\n\\* Changed bytes only\n")).expect("alternate cfg");
     req.config = Some(cfg);
-    let drift = check_file_checkpoint(&req, &resume)
+    let drift = dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Reference)
         .expect("identity rejection")
         .to_json();
     assert_eq!(drift["verdict"], "resource-limit");
@@ -212,19 +222,19 @@ fn unsupported_mode_combinations_refuse_before_file_access() {
         ..CheckRequest::default()
     };
     assert!(matches!(
-        check_file_checkpoint(&req, &cp),
+        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Reference),
         Err(dive_api::ApiError::Unsupported { .. })
     ));
     req.temporal = TemporalMode::Ordinary;
     req.frontier_directory = Some("orphan-frontier".into());
     assert!(matches!(
-        check_file_checkpoint(&req, &cp),
+        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Reference),
         Err(dive_api::ApiError::Rejected { message }) if message.contains("DIVE-A0100")
     ));
     req.frontier_directory = None;
     req.predecessor_directory = Some("orphan-directory".into());
     assert!(matches!(
-        check_file_checkpoint(&req, &cp),
+        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Reference),
         Err(dive_api::ApiError::Rejected { message }) if message.contains("DIVE-A0101")
     ));
 }

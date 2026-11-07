@@ -36,11 +36,11 @@ COMMANDS:
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
                [--distributed-worker IP:port]... [--worker-key FILE] [--worker-timeout-ms N] [--distributed-retries N]
-               [--lncheck final --lasso short] [--engine reference|core|auto] [--core-sample N] [--library-path DIR]... [--module-path DIR]...
+               [--lncheck final --lasso short] [--engine core|reference] [--core-sample N] [--library-path DIR]... [--module-path DIR]...
     dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]
                 [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]
-    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]
-    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine reference|core|auto] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]
+    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine core|reference] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]
+    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine core|reference] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]
     dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]
                [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...
 
@@ -52,19 +52,18 @@ COMMANDS:
     limit, 4 internal error and 5 stopped by a run budget (no verdict).
     --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory
     defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.
-    --engine core (or DIVE_ENGINE=core) runs the compiled Core on supported requests;
-    other features are named refusals. --engine auto runs the core where it can and
-    otherwise the whole check on the reference engine, naming the engine that ran and why. The
-    reference engine is the default. --core-sample N (with the core) also compares the successors
-    of N sampled states with the reference evaluator's, in the JSON report (core.sample); it is
-    diagnostic and changes no result.
+    The compiled Core is the default engine of check, simulate, dfid and tlc; what it does not
+    implement is a named refusal, never a fallback. --engine reference (or
+    DIVE_ENGINE=reference) runs the reference engine explicitly. --core-sample N (with the core)
+    also compares the successors of N sampled states with the reference evaluator's, in the JSON
+    report (core.sample); it is diagnostic and changes no result.
     --coverage 0 requests final TLC logical costs; --source-coverage reports native source work.
 
 === dive check --help ===
 USAGE: dive check FILE.tla [OPTIONS]
 
 --config FILE.cfg       configuration (default FILE.cfg beside the source)
---engine reference|core|auto
+--engine core|reference execution engine (default core)
 --compat=tlc            select existing TLC-compatible behavior
 --workers N|auto        worker count; --sequential forces sequential search
 --seed N --fp N         replay seed and fingerprint polynomial
@@ -130,7 +129,8 @@ USAGE: dive tlc [OPTIONS] SPEC[.tla]
     -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)
     -h, -help           this supported-subset help
 
-The adapter selects TLC evaluation and TLC verdict statuses. Final checking
+The adapter selects TLC evaluation and TLC verdict statuses on the Core engine
+(DIVE_ENGINE=reference selects the reference engine). Final checking
 retains its reported limits, refusals and independent counterexample validation;
 its deterministic short lasso need not be TLC's chosen lasso. Dive extensions:
 --output human|json; --symmetry-liveness unreduced|refuse|tlc (TLC quotient currently refuses); --max-memory SIZE|auto|none; --max-states N|none; --max-depth N|none; --config/--workers/--seed/--fp/--lncheck aliases. Native
@@ -141,7 +141,7 @@ are not implemented here and refuse by name. This is not full TLC CLI parity.
 
 === dive dfid --help ===
 USAGE: dive dfid FILE.tla --max-level N [--config FILE.cfg] [--workers N]
-                      [--seed N] [--worker-seeds S,...] [--engine reference|core|auto]
+                      [--seed N] [--worker-seeds S,...] [--engine core|reference]
                       [--compat=tlc] [--output human|json]
                       [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
 
@@ -150,7 +150,7 @@ Run supported bounded iterative deepening; incomplete exploration gives no proof
 === dive simulate --help ===
 USAGE: dive simulate FILE.tla --traces N [--generate] [--depth N]
                           [--seed N] [--aril N] [--workers N] [--stats none|basic]
-                          [--engine reference|core|auto] [--compat=tlc]
+                          [--engine core|reference] [--compat=tlc]
                           [--exit-codes native|tlc] [--output human|json]
                           [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
 

@@ -31,7 +31,7 @@ fn empty_functions_match_pinned_len_results_without_fallback() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+                for engine in [Engine::Reference, Engine::Core] {
                     let report = check_file_engine(&req, engine).expect("check");
                     assert_eq!(
                         observed(&report),
@@ -76,8 +76,6 @@ fn empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences() {
             assert_eq!(core.to_json()["verdict"], "evaluation-error", "{name}");
             assert_eq!(observed(&core), observed(&reference), "{name}");
             assert_eq!(core.to_json()["tlc"]["verified"], false);
-            let auto = check_file_engine(&req, Engine::Auto).expect("auto");
-            assert_eq!(observed(&auto), observed(&reference), "{name}");
         }
     }
 }

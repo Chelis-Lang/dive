@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Runs `dive check --compat=tlc` on a fixed list of models against the
+# Runs `dive check --compat=tlc` (Core, the default engine) on a fixed list of models against the
 # committed TLC goldens and fails unless every one of them agrees.
 #
 #   scripts/conformance-gate.sh conformance/gates/cm1.txt [--workers 1,4,8] [extra run args...]
 # Set DIVE_GATE_CORPUS for another registered corpus (default: examples),
-# DIVE_GATE_IMPL for another dive engine (default: dive, e.g. dive:core) and
+# DIVE_GATE_IMPL for another dive engine (default: dive:core, e.g. dive:reference) and
 # DIVE_GATE_PROFILE for the dive profile (default: tlc). In the default `dive`
 # profile a registered `expected-divergence` outcome also passes.
 #
@@ -23,7 +23,7 @@ list="${1:?usage: conformance-gate.sh <model-list> [run args...]}"
 shift
 harness="${HARNESS:-target/release/dive-conformance}"
 corpus="${DIVE_GATE_CORPUS:-examples}"
-impl="${DIVE_GATE_IMPL:-dive}"
+impl="${DIVE_GATE_IMPL:-dive:core}"
 profile="${DIVE_GATE_PROFILE:-tlc}"
 pass='agree'
 [ "$profile" = dive ] && pass='(agree|expected-divergence)'

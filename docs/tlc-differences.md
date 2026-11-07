@@ -11,8 +11,8 @@ refuse by name, and approved default differences have stable D-entries below.
 
 ## Compat gaps
 
-Reference remains the current default. Select Core explicitly with
-`dive check Spec.tla --engine core --compat=tlc`. The following consolidated gaps
+Core is the default engine of `dive check`, `dive simulate`, `dive dfid` and
+`dive tlc`, so `dive check Spec.tla --compat=tlc` runs on Core. The following consolidated gaps
 retain their original reproducers; their closed issues were folded into
 [the Core compatibility deliverable](https://github.com/Chelis-Lang/dive/issues/790).
 
@@ -32,6 +32,18 @@ retain their original reproducers; their closed issues were folded into
 - Deterministic native multi-worker results use the pinned one-worker baseline;
   matching TLC's multi-worker queue order is outside parity:
   [Hanoi/Bits counts and depth](https://github.com/Chelis-Lang/dive/issues/272).
+- Since Core became the default engine, these remain named Core refusals until
+  Core implements them: bounded final temporal checking (`--lncheck final
+  --lasso short`, and `dive tlc -lncheck final`); multi-worker liveness whose
+  violated names are known only at run time; finite simulation and DFID that
+  reach random or register runtime effects Core does not replay; source and TLC
+  logical coverage (`--source-coverage`, `--coverage 0`, `dive tlc -coverage 0`);
+  external inputs (`--allow-io`); and recovery of a Reference checkpoint
+  archive. The coverage, input and archive refusals name `--engine reference`,
+  which runs the reference engine explicitly until it is retired
+  ([cutover](https://github.com/Chelis-Lang/dive/issues/791)). TLC-profile
+  agreements the reference engine reached and Core does not are nominal gaps
+  under ADR 0153.
 
 Each gap keeps its actual refusal or measured difference. Internal errors remain
 defects. None permits a false verdict or weakens counterexample validation.

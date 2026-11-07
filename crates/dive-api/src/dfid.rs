@@ -86,7 +86,8 @@ impl DfidReport {
     }
 }
 
-/// Loads and runs a DFID model, independently certifying every violation.
+/// Loads and runs a DFID model on the default engine (Core), independently
+/// certifying every violation.
 ///
 /// # Errors
 /// This API retains load and thread errors as structured unknown/partial
@@ -96,12 +97,12 @@ impl DfidReport {
     reason = "keep report provenance and certification in one path"
 )]
 pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
-    dfid_file_engine(req, crate::Engine::Reference)
+    dfid_file_engine(req, crate::Engine::default())
 }
 
 /// Runs DFID with an explicit execution engine and common independent witnesses.
-/// `Core` never falls back; `Auto` selects a whole reference run only before
-/// execution, and reports the static reason. A reached native refusal stops.
+/// `Core` (the default) never falls back; a reached native refusal stops.
+/// `Reference` runs the reference DFID backend.
 ///
 /// # Errors
 /// The same budget and ownership failures as [`dfid_file`].
@@ -226,12 +227,6 @@ pub fn dfid_file_engine(
     options.worker_seeds.clone_from(&req.worker_seeds);
     let mut native = None;
     let mut setup_failure = None;
-    let mut fallback = None;
-    let mut engine_used = if engine == crate::Engine::Reference {
-        crate::Engine::Reference
-    } else {
-        crate::Engine::Core
-    };
     if engine != crate::Engine::Reference {
         if let Some(outcome) = dive_check::dfid::preflight(model.model(), &options) {
             setup_failure = Some(outcome);
@@ -247,32 +242,15 @@ pub fn dfid_file_engine(
                 &run_budget.budget,
                 control.clone(),
             ) {
-                Ok(prepared) => {
-                    if engine == crate::Engine::Auto
-                        && let Some(reason) = prepared.selection_refusal()
-                    {
-                        fallback = Some(reason.to_owned());
-                        engine_used = crate::Engine::Reference;
-                    } else {
-                        native = Some(prepared);
-                    }
-                }
-                Err(crate::core_modes::SetupError::Unsupported(reason))
-                    if engine == crate::Engine::Auto =>
-                {
-                    fallback = Some(reason);
-                    engine_used = crate::Engine::Reference;
-                }
+                Ok(prepared) => native = Some(prepared),
                 Err(error) => setup_failure = Some(error.dfid()),
             }
         }
     }
-    document["engine"] = json!(engine_used.name());
-    document["engine_fallback"] = fallback.map_or(
-        Value::Null,
-        |reason| json!({"stage": "static", "reason": reason}),
-    );
-    document["options"]["execution_scope"] = json!(if engine_used == crate::Engine::Core {
+    document["engine"] = json!(engine.name());
+    // Retained in report schema 3; there is no automatic fallback.
+    document["engine_fallback"] = Value::Null;
+    document["options"]["execution_scope"] = json!(if engine == crate::Engine::Core {
         "compiled-plan-dfid"
     } else {
         "native-dfid"

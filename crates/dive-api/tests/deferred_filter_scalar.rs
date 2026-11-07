@@ -38,16 +38,19 @@ fn filtered_wf_matches_two_primary_outcomes_and_validates_the_primary_word() -> 
         std::fs::write(files.0.with_extension("cfg"), cfg)?;
         for compat_tlc in [true, false] {
             for store in [Store::Fingerprint, Store::Exact] {
-                let report = dive_api::check_file(&CheckRequest {
-                    file: files.0.clone(),
-                    compat_tlc,
-                    store,
-                    temporal: TemporalMode::FinalShort,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..CheckRequest::default()
-                })?;
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        file: files.0.clone(),
+                        compat_tlc,
+                        store,
+                        temporal: TemporalMode::FinalShort,
+                        workers: Some(1),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    },
+                    dive_api::Engine::Reference,
+                )?;
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(value["exit_code"], case["physical_exit"], "{value}");
                 for field in ["generated", "distinct", "depth"] {

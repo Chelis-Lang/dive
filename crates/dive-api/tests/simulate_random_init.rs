@@ -4,8 +4,8 @@
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+use dive_api::SimulateRequest;
 use dive_api::trace::{Check, Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{SimulateRequest, simulate_file};
 use serde_json::{Value, json};
 
 fn fixtures() -> PathBuf {
@@ -61,7 +61,8 @@ fn actual_primary_init_words_errors_and_output_keep_their_boundaries() {
                 continue;
             }
             let req = request(row, compat_tlc);
-            let report = simulate_file(&req).expect("simulation");
+            let report = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+                .expect("simulation");
             let doc = report.to_json();
             assert_eq!(doc["exhaustive"], false);
             assert_eq!(doc["model_proved"], false);
@@ -147,15 +148,26 @@ fn seed_prefix_statistics_and_true_word_mutations_remain_independent() {
             compat_tlc,
             ..Default::default()
         };
-        let plain = simulate_file(&req).expect("plain").to_json();
-        assert_eq!(plain, simulate_file(&req).expect("replay").to_json());
+        let plain = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+            .expect("plain")
+            .to_json();
+        assert_eq!(
+            plain,
+            dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+                .expect("replay")
+                .to_json()
+        );
         req.action_stats = true;
-        let counted = simulate_file(&req).expect("counted").to_json();
+        let counted = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+            .expect("counted")
+            .to_json();
         for field in ["traces", "statistics", "runtime_output", "observed_result"] {
             assert_eq!(plain[field], counted[field]);
         }
         req.traces = 4;
-        let more = simulate_file(&req).expect("longer sample").to_json();
+        let more = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+            .expect("longer sample")
+            .to_json();
         assert_eq!(
             plain["traces"].as_array().expect("short"),
             &more["traces"].as_array().expect("long")[..2]
@@ -263,7 +275,7 @@ fn nested_correlated_and_captured_randomness_has_independent_sample_proof() {
         ),
     ] {
         let files = Files::new(init, next, safe, extra, config);
-        let report = simulate_file(&files.request())
+        let report = dive_api::simulate_file_engine(&files.request(), dive_api::Engine::Reference)
             .expect("finite random simulation")
             .to_json();
         assert_eq!(report["result"], "sampled", "{init}: {report}");
@@ -283,7 +295,7 @@ fn nested_correlated_and_captured_randomness_has_independent_sample_proof() {
         "",
     );
     assert_eq!(
-        simulate_file(&quiet.request())
+        dive_api::simulate_file_engine(&quiet.request(), dive_api::Engine::Reference)
             .expect("untaken effects")
             .to_json()["result"],
         "sampled"
@@ -295,7 +307,7 @@ fn nested_correlated_and_captured_randomness_has_independent_sample_proof() {
         "",
         "",
     );
-    let report = simulate_file(&reached.request())
+    let report = dive_api::simulate_file_engine(&reached.request(), dive_api::Engine::Reference)
         .expect("actual nested invocation")
         .to_json();
     assert_eq!(report["result"], "sampled", "{report}");
@@ -312,7 +324,7 @@ fn nested_domain_errors_precede_the_unreached_outer_native_invocation() {
         "",
         "",
     );
-    let report = simulate_file(&files.request())
+    let report = dive_api::simulate_file_engine(&files.request(), dive_api::Engine::Reference)
         .expect("normal domain evaluation error")
         .to_json();
     assert_eq!(report["result"], "evaluation-error", "{report}");

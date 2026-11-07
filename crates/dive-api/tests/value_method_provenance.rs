@@ -28,7 +28,7 @@ fn whole_function_failure_matches_the_generated_oracle_without_changing_alias_de
             "conformance/corpus/constant-retry-lazy/specifications/{name}/{name}.tla"
         ));
         for compat_tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core, Engine::Auto] {
+            for engine in [Engine::Reference, Engine::Core] {
                 for store in [Store::Exact, Store::Fingerprint] {
                     for workers in [1, 4] {
                         let report = check_file_engine(

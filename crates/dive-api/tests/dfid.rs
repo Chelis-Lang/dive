@@ -1,8 +1,8 @@
 //! Native DFID completion and independently checked witness controls.
 #![allow(clippy::expect_used, clippy::panic, reason = "test controls")]
 
+use dive_api::DfidRequest;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{DfidRequest, dfid_file};
 
 fn request(name: &str, level: u32, seed: i64) -> DfidRequest {
     DfidRequest {
@@ -18,7 +18,9 @@ fn request(name: &str, level: u32, seed: i64) -> DfidRequest {
 
 #[test]
 fn completion_certificate_and_zero_exit_are_separate() {
-    let report = dfid_file(&request("DfidBound", 6, 0)).expect("report");
+    let report =
+        dive_api::dfid_file_engine(&request("DfidBound", 6, 0), dive_api::Engine::Reference)
+            .expect("report");
     let json = report.to_json();
     assert_eq!(report.exit_status(), 0);
     assert_eq!(json["result"], "incomplete");
@@ -31,28 +33,38 @@ fn completion_certificate_and_zero_exit_are_separate() {
         json["options"]["worker_seeds"],
         serde_json::json!([0, 0, 0, 0, 0])
     );
-    let completed = dfid_file(&request("DfidCycle", 6, 0))
-        .expect("report")
-        .to_json();
+    let completed =
+        dive_api::dfid_file_engine(&request("DfidCycle", 6, 0), dive_api::Engine::Reference)
+            .expect("report")
+            .to_json();
     assert_eq!(completed["result"], "complete");
     assert_eq!(completed["model_proved"], true);
     assert_eq!(completed["statistics"]["generated"], 7);
     for bound in [0, 1] {
-        let report = dfid_file(&request("DfidBound", bound, 0)).expect("report");
+        let report = dive_api::dfid_file_engine(
+            &request("DfidBound", bound, 0),
+            dive_api::Engine::Reference,
+        )
+        .expect("report");
         assert_eq!(report.exit_status(), 255);
         assert_eq!(report.to_json()["model_proved"], false);
     }
     let mut native = request("DfidBound", 6, 0);
     native.compat_tlc = false;
     native.worker_seeds = None;
-    assert_eq!(dfid_file(&native).expect("report").exit_status(), 3);
+    assert_eq!(
+        dive_api::dfid_file_engine(&native, dive_api::Engine::Reference)
+            .expect("report")
+            .exit_status(),
+        3
+    );
 }
 
 #[test]
 fn cross_root_witness_is_valid_and_mutant_is_rejected() {
     for seed in [0, 1, 7, -1] {
         let req = request("DfidRootsMixed", 6, seed);
-        let report = dfid_file(&req).expect("report");
+        let report = dive_api::dfid_file_engine(&req, dive_api::Engine::Reference).expect("report");
         let json = report.to_json();
         assert_eq!(json["result"], "violation", "{json}");
         assert_eq!(json["violation_validated"], true);
@@ -80,9 +92,10 @@ fn cross_root_witness_is_valid_and_mutant_is_rejected() {
 
 #[test]
 fn finite_deadlock_is_independently_certified() {
-    let json = dfid_file(&request("DfidDeadlock", 6, 0))
-        .expect("report")
-        .to_json();
+    let json =
+        dive_api::dfid_file_engine(&request("DfidDeadlock", 6, 0), dive_api::Engine::Reference)
+            .expect("report")
+            .to_json();
     assert_eq!(json["observed_tlc_code"], 2114);
     assert_eq!(json["result"], "violation");
     assert_eq!(json["violation_validated"], true);
@@ -96,9 +109,10 @@ fn ordered_start_up_names_validate_independently() {
     // SANY interns at start-up: replay creates no name, so the encounter
     // order CHOOSE depends on is TLC's, and the witness validates
     // (ADR 0016, amendment 3).
-    let json = dfid_file(&request("DfidSeedNames", 6, 0))
-        .expect("structured report")
-        .to_json();
+    let json =
+        dive_api::dfid_file_engine(&request("DfidSeedNames", 6, 0), dive_api::Engine::Reference)
+            .expect("structured report")
+            .to_json();
     assert_eq!(json["result"], "violation", "{json}");
     assert_eq!(json["observed_result"], "violation");
     assert_eq!(json["counterexample"]["validation"]["result"], "valid");
@@ -112,9 +126,10 @@ fn ordered_start_up_names_validate_independently() {
 
 #[test]
 fn load_failure_reports_unknown_statistics() {
-    let json = dfid_file(&request("MissingModel", 6, 0))
-        .expect("structured error")
-        .to_json();
+    let json =
+        dive_api::dfid_file_engine(&request("MissingModel", 6, 0), dive_api::Engine::Reference)
+            .expect("structured error")
+            .to_json();
     assert_eq!(json["options"]["workers_used"], 0);
     assert_eq!(json["options"]["execution_stage"], "model-loading");
     assert_eq!(json["statistics"]["generated"], serde_json::Value::Null);
@@ -125,7 +140,8 @@ fn load_failure_reports_unknown_statistics() {
 fn zero_width_precedes_even_model_loading() {
     let mut req = request("MissingModel", 6, 0);
     req.workers = Some(0);
-    let report = dfid_file(&req).expect("parameter report");
+    let report =
+        dive_api::dfid_file_engine(&req, dive_api::Engine::Reference).expect("parameter report");
     let json = report.to_json();
     assert_eq!(report.exit_status(), 1);
     assert_eq!(json["observed_tlc_code"], 1102);

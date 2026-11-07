@@ -82,14 +82,16 @@ source coverage or an aggregate memory/performance guarantee.
 ## Native source work
 
 ```sh
-dive check docs/user/examples/Counter.tla --source-coverage --seed 7 --output json
-dive check docs/user/examples/Counter.tla --source-coverage --compat=tlc --engine auto --workers 4 --seed 7 --fp 0
+dive check docs/user/examples/Counter.tla --source-coverage --engine reference --seed 7 --output json
+dive check docs/user/examples/Counter.tla --source-coverage --compat=tlc --engine reference --workers 4 --seed 7 --fp 0
 ```
 
 This option reports actual producer expression evaluations, Init/Next walker
 visits and generator emissions at original source locations. The example succeeds
-with five distinct states; Auto selects a whole Reference run before execution,
-with one actual worker even when more were requested. The default is off, which
+with five distinct states on the reference engine, with one actual worker even
+when more were requested. Source coverage is implemented only by the reference
+engine: on Core, the default engine, it is a named refusal (exit 3) that
+names `--engine reference`. The default is off, which
 is the TLC-equivalent setting. Both semantic profiles can request these native
 metrics explicitly; they are **not TLC's logical coverage costs**. Pinned TLC
 `-coverage 0` has the separate supported logical-cost route described above.
@@ -203,15 +205,16 @@ checker and validator in process. See the [Rust API guide](rust-api.md) for
 the supported library interfaces.
 
 ```sh
-dive check Spec.tla --engine core --workers 4 --output json
-dive check Spec.tla --engine auto
-DIVE_ENGINE=core dive check Spec.tla --output json
+dive check Spec.tla --workers 4 --output json
+dive check Spec.tla --engine reference
+DIVE_ENGINE=reference dive check Spec.tla --output json
 ```
 
-`--engine core` (or `DIVE_ENGINE=core`) runs the check on the new execution
-core (ADR 0117), which is under construction. The reference engine stays the
-default (`--engine reference`), and it is also the TLC-equivalent setting. The
-core currently covers:
+Core, the compiled execution core (ADR 0117), is the default engine of
+`dive check`, `dive simulate`, `dive dfid` and `dive tlc` (ADR 0153), in both
+profiles. `--engine reference` (or `DIVE_ENGINE=reference`) runs the reference
+engine explicitly until it is retired; there is no automatic fallback between
+them, and `--engine auto` was removed. The core currently covers:
 
 - the default profile and `--compat=tlc` (below). Safety checks support
   `--store fp|exact`, ordered frontier spill and predecessor-log spill under
@@ -237,8 +240,7 @@ core currently covers:
   `VIEW`, `SYMMETRY`, `Print`, `RandomElement`, `TLCSet`, `TLCGet`,
   `--max-states` or `--max-depth` is reported as unsupported. So, for now,
   is a run whose liveness check fails rather than answers (a planning or
-  evaluation error, or a graph limit): `--engine auto` reports the
-  reference engine's result for it. Capture retains original accepted targets,
+  evaluation error, or a graph limit): Core refuses it by name. Capture retains original accepted targets,
   including seen successors, with their action and ordinal. Parallel capture
   buffers at most eight source states. Ordinary core files use the actual run
   time/memory budgets with checked layouts and fallible growth across capture,
@@ -298,7 +300,7 @@ dive check crates/dive-api/tests/fixtures/core-m0/EnabConstInstance.tla --engine
 Hidden or renamed instance variables, instance queries inside an initial
 predicate, state-dependent configuration operator overrides, and query bodies
 with effects or recursive/nested calls remain explicitly unsupported by the
-core. `--engine auto` selects the reference engine for these cases. The same restrictions apply in both
+core. The same restrictions apply in both
 compatibility profiles.
 
 Cached core definitions also retain their own `INSTANCE` substitution context,
@@ -379,7 +381,7 @@ such as counting messages selected by `msg.type = "pl"`. A callback that reads
 state, captures an enclosing local, reaches an effect or makes an unproved
 recursive call remains unsupported under prime. Other higher-order operators
 under prime retain their existing refusals. These restrictions apply in both
-profiles; `--engine auto` retries the reference engine on a core refusal.
+profiles.
 
 The core also accepts a value-only standard operator passed to a higher-order
 operator, such as `FoldFunctionOnSet(+, 0, f, S)` or `FoldSeq(\o, <<>>, s)`,
@@ -402,11 +404,15 @@ exit 5; that probe establishes admission only, with no completed verdict or
 performance/capacity claim. It needs the configured CommunityModules and
 dependency module-library roots, as well as its adjacent `EWD998` module.
 
-With `--engine core`, anything the core does not implement yields an
-`unsupported` verdict that names it, and the run never falls back. The JSON
-report adds `"engine": "core"` and a `core` object with strategy metrics.
+On Core, anything the core does not implement yields an `unsupported` verdict
+(exit 3) that names it, and the run never falls back. The JSON report adds
+`"engine": "core"` and a `core` object with strategy metrics. Features
+implemented only by the reference engine, such as source and TLC logical
+coverage and external inputs (`--allow-io`), are named refusals on Core that
+point to `--engine reference`. A Reference checkpoint archive recovers only with
+`--engine reference`; Core rejects it with `DIVE-S0400` before loading the model.
 
-`--core-sample N` (with `--engine core`) is a diagnostic for the core's
+`--core-sample N` (with the core) is a diagnostic for the core's
 developers. After the search, it takes `N` of the expanded states, chosen
 by the run's seed, and compares each one's successors with the reference
 evaluator's. The result is in the JSON report as `core.sample`. It changes
@@ -417,19 +423,8 @@ in its next-state relation. Both regenerated evaluations use that source
 level, starting at one for initial states, so level-dependent successors
 can be compared without an unavailable or invented level.
 
-`--engine auto` (or `DIVE_ENGINE=auto`) runs the core where it can. Where the
-core refuses, auto runs the whole check again on the reference engine and
-reports the reference result. The refusal can come before the search
-(`static`) or during it (`dynamic`). The core's partial counts and output are
-discarded, so results are never mixed. The report names the engine that ran:
-- in JSON, `"engine": "core"` or `"reference"`, `"engine_requested":
-  "auto"`, and `"engine_fallback"` with the `stage` and `reason` (or `null`);
-- in text, a line `engine auto: ...`.
-
 A check that ends before any search, for example at a false `ASSUME`, names
-no engine. After a dynamic refusal, the reference run gets what is left of
-`--time-limit`. Auto works the same way under `--compat=tlc`: the core runs
-TLC's profile, and the reference engine runs whatever the core refuses.
+no engine.
 
 During startup, `CHOOSE` over finite function spaces with normalized scalar
 domains and ranges generates candidates as needed. Both profiles keep their
@@ -923,8 +918,7 @@ The current D-009 comparison improvements do not make every mixed structure
 normalizable. The core refuses compound sets whose nested comparison shapes do not
 unify in both profiles, including `Cardinality({<<1>>, <<TRUE>>})`. This
 conservative refusal also covers some sets TLC can sort by an earlier field or
-size without inspecting the conflict. `--engine auto` retries the whole check
-on the reference engine. A reversed heterogeneous set may refuse even in the
+size without inspecting the conflict. A reversed heterogeneous set may refuse even in the
 default profile. A forward heterogeneous set can produce a checker report whose
 canonical structured trace then fails decoder shape admission in both profiles.
 Treat that report as an unvalidated witness; checking counts or a displayed

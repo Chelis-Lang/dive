@@ -98,11 +98,6 @@ fn canonical_default_accepts_shapes_while_nominal_compat_names_its_gaps() {
                         );
                     }
                 }
-                if refused {
-                    let auto = check_file_engine(&req, Engine::Auto).expect("auto runs");
-                    assert_eq!(auto.to_json()["engine"], "reference");
-                    assert_eq!(observed(&auto), reference_observed, "{name}");
-                }
             }
         }
     }

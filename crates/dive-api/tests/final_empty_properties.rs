@@ -293,11 +293,14 @@ fn final_safety_reports_actual_binding_origin_not_model_error_class() -> TestRes
                 fp: Some(0),
                 ..Default::default()
             };
-            let ordinary = dive_api::check_file(&request)?;
-            let selected = dive_api::check_file(&dive_api::CheckRequest {
-                temporal: dive_api::TemporalMode::FinalShort,
-                ..request
-            })?;
+            let ordinary = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+            let selected = dive_api::check_file_engine(
+                &dive_api::CheckRequest {
+                    temporal: dive_api::TemporalMode::FinalShort,
+                    ..request
+                },
+                dive_api::Engine::Reference,
+            )?;
             let result = selected.result().ok_or("safety result")?;
             equal_safety(result, ordinary.result().ok_or("ordinary result")?);
             assert!(

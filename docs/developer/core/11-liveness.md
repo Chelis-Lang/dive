@@ -678,8 +678,8 @@ Remaining qualification and accounting work:
 
 L5 does not implement VIEW quotient edges, symmetry closing-state semantics,
 temporal error-demand order, new temporal language or effects. Those remain
-separate semantic obligations. `reference` remains the default engine; native
-storage alone supplies no default-engine, corpus, throughput or capacity credit.
+separate semantic obligations. Native storage alone supplies no corpus,
+throughput or capacity credit.
 
 ### 7.1 Implemented first dependency: borrowed CSR topology
 

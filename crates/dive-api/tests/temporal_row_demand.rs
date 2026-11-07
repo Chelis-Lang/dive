@@ -15,16 +15,19 @@ fn root() -> PathBuf {
 }
 
 fn report(corpus: &str, name: &str, tlc: bool) -> Result<Value, Box<dyn std::error::Error>> {
-    let result = dive_api::check_file(&CheckRequest {
-        file: root().join(format!(
-            "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
-        )),
-        compat_tlc: tlc,
-        workers: Some(1),
-        seed: Some(0),
-        fp: Some(0),
-        ..CheckRequest::default()
-    })?;
+    let result = dive_api::check_file_engine(
+        &CheckRequest {
+            file: root().join(format!(
+                "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
+            )),
+            compat_tlc: tlc,
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        },
+        dive_api::Engine::Reference,
+    )?;
     Ok(result.to_json_with_exit_convention(ExitConvention::Tlc))
 }
 
