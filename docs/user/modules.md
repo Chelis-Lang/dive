@@ -383,6 +383,15 @@ start with no grants, including `--compat=tlc` (D-017). Denial happens before
 native host callbacks. A grant supplies permission;
 unsupported operators still refuse.
 
+In the default profile, a denied read in a constant definition's startup
+evaluation refuses the model only when checking can reach that definition
+(from the configuration's roles, assumptions or bindings) or its evaluation
+could leave an effect, such as output, a random draw, a register or a file. A
+definition such as `PN == CHOOSE s \in 1..10 : ToString(s) = IOEnv.PN` that
+nothing checked uses does not need `--allow-io=env`. `--compat=tlc` still
+refuses it: TLC's evaluation creates strings that change TLC's later value
+order.
+
 Ordinary Reference safety checking supports source-binding `IOUtils!IOEnv` and
 successful `IOUtils!Deserialize(path, [format |-> "TXT", charset |-> "UTF-8"])`.
 Use a constant-level definition to capture the input before assumptions and

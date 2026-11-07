@@ -362,10 +362,21 @@ fn an_unused_actual_startup_denial_cannot_be_swallowed_by_binding() {
         .expect("low-level soft precomputation remains available");
         let word = TraceDoc::behavior(vec![json!({"x":0})]).expect("word");
         let (report, transport) = model.read(&word);
-        assert!(
-            matches!(report.validation,Validation::Unsupported(feature) if feature.contains("--allow-io=env"))
-        );
-        assert!(transport.is_none());
+        if tlc {
+            // TLC's evaluation would have interned the environment's strings.
+            assert!(
+                matches!(report.validation,Validation::Unsupported(feature) if feature.contains("--allow-io=env"))
+            );
+            assert!(transport.is_none());
+        } else {
+            // Nothing checked reaches `Unused`, and reading the environment
+            // leaves nothing a later evaluation observes (issue #852).
+            assert!(
+                matches!(report.validation, Validation::Valid),
+                "{:?}",
+                report.validation
+            );
+        }
     }
 }
 
