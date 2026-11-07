@@ -618,6 +618,31 @@ impl Evaluator {
             .clone()
     }
 
+    /// Takes the recorded external-input refusal, leaving none. The binding
+    /// stage uses it to attribute a refusal to one start-up evaluation, and
+    /// puts it back with [`Evaluator::restore_external_input_refusal`] unless
+    /// that evaluation provably cannot affect the model.
+    #[must_use]
+    pub fn take_external_input_refusal(&self) -> Option<String> {
+        self.core
+            .input_refusal
+            .lock()
+            .unwrap_or_else(::std::sync::PoisonError::into_inner)
+            .take()
+    }
+
+    /// Records `refusal` as the external-input refusal unless one is already
+    /// recorded (the first refusal wins).
+    pub fn restore_external_input_refusal(&self, refusal: Option<String>) {
+        if let Some(refusal) = refusal {
+            self.core
+                .input_refusal
+                .lock()
+                .unwrap_or_else(::std::sync::PoisonError::into_inner)
+                .get_or_insert(refusal);
+        }
+    }
+
     /// The IR.
     #[must_use]
     pub fn ir(&self) -> &Arc<Ir> {

@@ -13,6 +13,10 @@ published. Earlier pre-release development entries remain in git history.
   applied. An `ALIAS` naming no definition still refuses.
 - Core refuses `TLCExt!Trace` and `TLCExt!CounterExample` only when a run
   evaluates them, not when a specification merely mentions them.
+- In the default profile, a constant definition that reads the environment
+  without `--allow-io=env` no longer refuses the model when checking never
+  uses it and its evaluation only reads (so `ewd998/SmokeEWD998` reaches its
+  next refusal).
 
 - Fold closed constant sets of up to 65,536 loop iterations at compile time
   (was 4,096), so type sets such as MCNano's `SignedBlock \cup {NoBlock}` are
