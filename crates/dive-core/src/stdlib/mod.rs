@@ -43,14 +43,36 @@ pub fn effectful(op: StdOp) -> bool {
     implements(op) && op.impure() && !deferred(op)
 }
 
-/// Whether `op` compiles to a call that refuses when it is evaluated: TLC's
-/// trace introspection (`TLCExt!Trace`, `TLCExt!CounterExample`), which the
-/// core does not reproduce. A specification often guards it behind a
-/// disjunct TLC evaluates only after a violation, so refusing at compile
-/// time would refuse runs that never reach it. The call never yields a
-/// value, so it is neither an effect nor a value a fold or memo could keep.
-fn deferred(op: StdOp) -> bool {
+/// Whether `op` compiles to a call that refuses when it is evaluated, before
+/// its arguments are: TLC's trace introspection (`TLCExt!Trace`,
+/// `TLCExt!CounterExample`) and the `Json` and `IOUtils` operators, which
+/// the core does not reproduce. A specification often guards them behind a
+/// disjunct TLC evaluates only after a violation (to export the trace), so
+/// refusing at compile time would refuse runs that never reach them. The
+/// call never yields a value and performs no I/O, so it is neither an
+/// effect nor a value a fold or memo could keep.
+#[must_use]
+pub(crate) fn deferred(op: StdOp) -> bool {
     matches!(op, StdOp::TlcExtTrace | StdOp::TlcExtCounterExample)
+        || (matches!(op.module(), "Json" | "IOUtils")
+            && !(bags::implements(op)
+                || tlc::implements(op)
+                || community::implements(op)
+                || graphs::implements(op)))
+}
+
+/// The refusal of an evaluated [`deferred`] call of `op`.
+#[must_use]
+pub(crate) fn deferred_refusal(op: StdOp) -> Error {
+    let what = if op.module() == "TLCExt" {
+        "trace introspection operators"
+    } else {
+        "Json and IOUtils operators"
+    };
+    refuse(
+        op,
+        &format!("evaluated; {what} are not implemented (M1 core)"),
+    )
 }
 
 /// Whether the core implements `op` here as an operator with operator
@@ -136,10 +158,7 @@ pub fn call_ho(m: &mut Machine, op: StdOp, args: &[Ho<'_>]) -> Result<Handle, Er
 /// core does not reproduce; internal for an operator not implemented here.
 pub fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
     if deferred(op) {
-        return Err(refuse(
-            op,
-            "evaluated; trace introspection is not implemented (M1 core)",
-        ));
+        return Err(deferred_refusal(op));
     }
     if bags::implements(op) {
         return bags::call(m, op, args);

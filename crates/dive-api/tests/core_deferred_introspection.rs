@@ -1,4 +1,5 @@
-//! `TLCExt!Trace` and `TLCExt!CounterExample` on the new core: a call the
+//! `TLCExt!Trace`, `TLCExt!CounterExample` and the `Json` and `IOUtils`
+//! operators (issue #883) on the new core: a call the
 //! core does not implement compiles to a node that refuses only when it is
 //! evaluated, so a run that never reaches it (TLC evaluates a disjunct only
 //! when the ones before it are false) gives the reference engine's result,
@@ -44,7 +45,7 @@ fn write(dir: &Path, name: &str, inv: &str) -> std::path::PathBuf {
     std::fs::write(
         &spec,
         format!(
-            "---- MODULE {name} ----\nEXTENDS Integers, Sequences, TLCExt\nVARIABLE x\n\
+            "---- MODULE {name} ----\nEXTENDS Integers, Sequences, TLC, TLCExt, Json, IOUtils\nVARIABLE x\n\
              Init == x = 0\nNext == x < 3 /\\ x' = x + 1\nInv == {inv}\n====\n"
         ),
     )
@@ -74,6 +75,31 @@ fn unreached_trace_introspection_is_not_refused_and_reached_names_it() {
             "x < 2 \\/ CounterExample = {}",
             Some("TLCExt!CounterExample"),
         ),
+        (
+            "UnreachedJson",
+            "x < 9 \\/ JsonSerialize(\"never-written.json\", Trace)",
+            None,
+        ),
+        (
+            "UnreachedExec",
+            "x < 9 \\/ IOExecTemplate(<<\"true\", \"%s\">>, <<ToJsonObject(Trace)>>).exitValue = 0",
+            None,
+        ),
+        (
+            "ReachedJson",
+            "x < 2 \\/ JsonSerialize(\"never-written.json\", <<x>>)",
+            Some("Json!JsonSerialize"),
+        ),
+        (
+            "ReachedToJson",
+            "x < 2 \\/ ToJsonObject([a |-> x]) = \"{}\"",
+            Some("Json!ToJsonObject"),
+        ),
+        (
+            "ReachedExec",
+            "x < 2 \\/ IOExec(<<\"true\">>).exitValue = 0",
+            Some("IOUtils!IOExec"),
+        ),
     ];
     for (name, inv, refused) in cases {
         let spec = write(&dir, name, inv);
@@ -92,6 +118,44 @@ fn unreached_trace_introspection_is_not_refused_and_reached_names_it() {
                 assert_eq!(core["verdict"], "success", "{at}: {core:#}");
                 let reference = run(&spec, Engine::Reference, compat);
                 assert_eq!(observed(&core), observed(&reference), "{at}");
+            }
+        }
+    }
+    // No I/O is performed without a grant (D-017).
+    assert!(!dir.join("never-written.json").exists());
+    assert!(!Path::new("never-written.json").exists());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A failing run whose `Print` (here, a trace export's) is never reached
+/// gives the reference engine's result; one that prints still refuses.
+#[test]
+fn failing_run_that_never_prints_is_not_refused() {
+    let dir = std::env::temp_dir().join(format!("dive-core-unprinted-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("temp dir");
+    let cases = [
+        (
+            "UnprintedFail",
+            "x < 2 \\/ (x > 9 /\\ Print(ToJsonObject(Trace), FALSE))",
+            false,
+        ),
+        ("PrintedFail", "x < 2 \\/ Print(x, FALSE)", true),
+    ];
+    for (name, inv, refused) in cases {
+        let spec = write(&dir, name, inv);
+        for compat in [false, true] {
+            let at = format!("{name} compat={compat}");
+            let core = run(&spec, Engine::Core, compat);
+            assert_eq!(core["engine"], "core", "{at}: {core:#}");
+            if refused {
+                assert_eq!(core["verdict"], "unsupported", "{at}: {core:#}");
+                let message = core["message"].as_str().unwrap_or_default();
+                assert!(message.contains("Print or PrintT"), "{at}: {core:#}");
+            } else {
+                assert_eq!(core["verdict"], "invariant-violation", "{at}: {core:#}");
+                let reference = run(&spec, Engine::Reference, compat);
+                assert_eq!(observed(&core), observed(&reference), "{at}");
+                assert_eq!(core["output"], reference["output"], "{at}");
             }
         }
     }

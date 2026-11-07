@@ -15,6 +15,13 @@ published. Earlier pre-release development entries remain in git history.
   the string table maintains, instead of by their text, cutting about 6% of
   the instructions of `CheckpointCoordination/MCCheckpointCoordination`.
   The order is unchanged in both profiles.
+- Core refuses the `Json` and `IOUtils` operators (`JsonSerialize`,
+  `ToJsonObject`, `IOExec` and the rest) only when a run evaluates them, as
+  it does `TLCExt!Trace`: a trace export in a disjunct reached only after a
+  violation no longer refuses the model, so `ewd840/EWD840_json` and
+  `ewd998/EWD998ChanID_export` check on Core. Core still performs no I/O.
+  A run that fails or warns no longer refuses for `Print` when the search
+  printed nothing.
 - Core evaluates a recursive operator or recursive LET function applied under
   a prime, as a refinement mapping `INSTANCE ... WITH v <- Op(e)` does under
   `[][Next]_vars`, in the successor state. `glowingRaccoon/product` now checks
