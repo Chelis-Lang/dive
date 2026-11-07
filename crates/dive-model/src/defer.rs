@@ -174,6 +174,35 @@ fn pure_assumptions(b: &Binder<'_>) -> Vec<DefId> {
         .collect()
 }
 
+/// The definitions the reference evaluator may evaluate after binding on the
+/// temporal route: those the temporal properties, the behavior
+/// specification's fairness and the configured properties reach, including
+/// through the arguments their scopes bind lazily. The liveness checker and
+/// its validation evaluate these, so the binder evaluates the start-up
+/// definitions among them, as TLC does; the core keeps the others.
+pub(crate) fn reference_temporal(b: &Binder<'_>, model: &crate::Model) -> HashSet<DefId> {
+    let mut roots = std::collections::BTreeSet::new();
+    let mut exprs = Vec::new();
+    for named in model
+        .temporals
+        .iter()
+        .chain(&model.implied_temporals)
+        .chain(&model.configured_properties)
+    {
+        crate::reach::role_defs(
+            b,
+            named.pred.expr,
+            &named.pred.scope,
+            &mut roots,
+            &mut exprs,
+            0,
+        );
+    }
+    let roots: Vec<DefId> = roots.into_iter().collect();
+    let walk = Walk::run(b, &roots, false, false);
+    walk.value.into_iter().chain(walk.position).collect()
+}
+
 /// The definitions the second phase of `processConstantDefns` evaluates:
 /// the zero-arity constant-level definitions of the modules it processes,
 /// after the configuration's overrides. A definition whose level cannot be

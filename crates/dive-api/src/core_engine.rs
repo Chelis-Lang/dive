@@ -687,12 +687,10 @@ fn prepare_observed(
     } else {
         dive_stdlib::random::RandomMode::Dive
     };
-    let new_host = || {
-        Arc::new(dive_stdlib::host::RunHost::new(
-            dive_stdlib::random::Streams::new(options.seed, mode),
-            None,
-        ))
-    };
+    let host = Arc::new(dive_stdlib::host::RunHost::new(
+        dive_stdlib::random::Streams::new(options.seed, mode),
+        None,
+    ));
     let defaults = dive_model::BindOptions::dive();
     let bind_options = |host: &Arc<dive_stdlib::host::RunHost>| dive_model::BindOptions {
         eval: options.eval,
@@ -706,7 +704,6 @@ fn prepare_observed(
             defaults.symmetry_liveness
         },
     };
-    let mut host = new_host();
     // In the default profile the core evaluates the pure constant
     // definitions its roles use only as values, once, when it compiles its
     // plan (issue #846). Under `--compat=tlc` the startup evaluation stays
@@ -720,17 +717,9 @@ fn prepare_observed(
         Ok(m) => m,
         Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
     };
-    // The temporal route checks its properties with the reference
-    // evaluator, which would evaluate a deferred definition wherever it is
-    // used: such a model is bound again, with a fresh host, as the
-    // reference engine binds it.
-    if temporal && !model.implied_temporals.is_empty() && !model.deferred_constants.is_empty() {
-        host = new_host();
-        model = match dive_model::bind(Arc::clone(ir), config, &bind_options(&host)) {
-            Ok(m) => m,
-            Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
-        };
-    }
+    // On the temporal route the binder still evaluates the start-up
+    // definitions the temporal properties and their checking reach
+    // (`dive_model::bind_deferring_constants`); the core keeps the others.
     // TLC creates its model checker after binding, as the reference engine
     // does: `TLCGet("config")` and the checker's names exist from here on,
     // and the ASSUMEs read the start-up counters.
