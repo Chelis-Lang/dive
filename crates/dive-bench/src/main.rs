@@ -2097,7 +2097,11 @@ exit 7
         std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).map_err(err)?;
         let mut opts = native_test_options(&bin);
         opts.fail_fast = true;
-        opts.timeout = Duration::from_millis(100);
+        // The timer is armed before `/usr/bin/time` and `sh` start, so it must
+        // leave a loaded runner ample time to reach the `printf` (issue #844).
+        // The child still sleeps 30 s, far past it, so the run is always killed
+        // by the timeout and the retained output is still asserted below.
+        opts.timeout = Duration::from_secs(2);
         opts.raw_dir = Some(dir.path().join("raw"));
         let mut p = prepared();
         p.corpus_root = dir.path().to_path_buf();
