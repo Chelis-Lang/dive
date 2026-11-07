@@ -24,9 +24,9 @@ fn prepared(compat_tlc: bool) -> Prepared {
         .into_config()
         .expect("config");
     let options = if compat_tlc {
-        dive_check::CheckOptions::tlc(0, 0)
+        dive_runtime::CheckOptions::tlc(0, 0)
     } else {
-        dive_check::CheckOptions::dive(0)
+        dive_runtime::CheckOptions::dive(0)
     };
     crate::core_engine::prepare(&ir, &config, &options, compat_tlc, Opts::default(), false)
         .expect("core prepares")

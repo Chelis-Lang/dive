@@ -4,7 +4,7 @@
 //! later checked compact producer can consume the same result assembly with
 //! graph-independent producer evidence; no graph reconstruction occurs here.
 
-use dive_check::capture::{self, CompleteEvidence, PrefixEvidence};
+use dive_runtime::capture::{self, CompleteEvidence, PrefixEvidence};
 
 use super::periodic::PrefixCandidate;
 use super::{Analysis, AnalysisError, Candidate, CandidateWord};

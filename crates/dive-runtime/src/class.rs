@@ -106,7 +106,9 @@ fn replay_class_known(e: &EvalError) -> bool {
 /// The internal replay code still supplies physical exit 75. Native wrapper
 /// provenance is typed; neither a method signature nor nested message text
 /// can establish this rule. Other Init errors retain their existing table.
-pub(crate) fn init_primary_general(
+#[doc(hidden)]
+#[must_use]
+pub fn init_primary_general(
     site: ErrorSite,
     code: u32,
     reported: u32,
@@ -126,7 +128,8 @@ pub(crate) fn init_primary_general(
 
 /// The `EC` name of a code this module or the evaluator reports.
 #[must_use]
-pub(crate) fn ec_name(code: u32) -> &'static str {
+#[doc(hidden)]
+pub fn ec_name(code: u32) -> &'static str {
     match code {
         1000 => "GENERAL",
         2102 => "TLC_INITIAL_STATE",
@@ -213,7 +216,8 @@ fn replayed(e: &EvalError) -> (u32, bool) {
 ///   checks the step again.
 /// - `Startup`: as raised (the binding stage's errors, WP-C1).
 #[must_use]
-pub(crate) fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -> Verdict {
+#[doc(hidden)]
+pub fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -> Verdict {
     if let Some(v) = not_eval(e) {
         return v;
     }
@@ -263,7 +267,8 @@ pub(crate) fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -
 /// An invariant that failed to evaluate on a state TLC's replay checks
 /// again (a state outside the model): the replay decides.
 #[must_use]
-pub(crate) fn recurring(v: Verdict) -> Verdict {
+#[doc(hidden)]
+pub fn recurring(v: Verdict) -> Verdict {
     match v {
         Verdict::EvaluationError {
             site,
@@ -283,7 +288,8 @@ pub(crate) fn recurring(v: Verdict) -> Verdict {
 /// The class once TLC's replay meets the further error `e2` after an
 /// invariant failed to evaluate on a new state (`Search::replay_after`).
 #[must_use]
-pub(crate) fn replay_error(v: Verdict, e2: &EvalError) -> Verdict {
+#[doc(hidden)]
+pub fn replay_error(v: Verdict, e2: &EvalError) -> Verdict {
     match v {
         Verdict::EvaluationError {
             site,
@@ -309,11 +315,8 @@ pub(crate) fn replay_error(v: Verdict, e2: &EvalError) -> Verdict {
 /// (constraints, fingerprint, invariants, implied initial predicates), and
 /// `None` for an error while generating them.
 #[must_use]
-pub(crate) fn init_error(
-    v: Verdict,
-    state: Option<&str>,
-    diagnostic: Option<&EvalError>,
-) -> Verdict {
+#[doc(hidden)]
+pub fn init_error(v: Verdict, state: Option<&str>, diagnostic: Option<&EvalError>) -> Verdict {
     let Verdict::EvaluationError {
         site,
         cause,
@@ -366,7 +369,8 @@ pub(crate) fn init_error(
 /// An `ASSUME` that fails to evaluate: `TLC_ASSUMPTION_EVALUATION_ERROR`
 /// with TLC's message (WP-C1).
 #[must_use]
-pub(crate) fn assumption_error(e: &EvalError, message: String) -> Verdict {
+#[doc(hidden)]
+pub fn assumption_error(e: &EvalError, message: String) -> Verdict {
     if let Some(v) = not_eval(e) {
         return v;
     }
@@ -377,7 +381,8 @@ pub(crate) fn assumption_error(e: &EvalError, message: String) -> Verdict {
 /// (`Tool.checkPostConditionWithContext`): `TLC_POSTCONDITION_EVALUATION_ERROR`
 /// around the error (fixtures `ErPost*`).
 #[must_use]
-pub(crate) fn postcondition_error(e: &EvalError, name: &str, location: &str) -> Verdict {
+#[doc(hidden)]
+pub fn postcondition_error(e: &EvalError, name: &str, location: &str) -> Verdict {
     if let Some(v) = not_eval(e) {
         return v;
     }
@@ -398,6 +403,7 @@ pub(crate) fn postcondition_error(e: &EvalError, name: &str, location: &str) -> 
 /// TLC's `GENERAL` report of a non-`EvalException` caught by its outermost
 /// handler (`MP.printError(EC.GENERAL, Throwable)`), around `inner`.
 #[must_use]
-pub(crate) fn general_text(inner: &str) -> String {
+#[doc(hidden)]
+pub fn general_text(inner: &str) -> String {
     format!("{GENERAL_PREFIX}{inner}")
 }

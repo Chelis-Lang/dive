@@ -9,9 +9,9 @@ use super::{
     Failure, GraphLabelPolicy, Limits, Stage, analyze_captured, prepare, validate_analysis_context,
 };
 use crate::product::AcceptancePolicy;
-use dive_check::{CheckOptions, Stats, capture};
 use dive_eval::next::StateVals;
 use dive_model::Model;
+use dive_runtime::{CheckOptions, Stats, capture};
 
 /// When a completed, nonexhausted level is checked (ADR 0018 section 7, D-014).
 ///
@@ -151,8 +151,8 @@ pub struct PeriodicFailure {
 /// The fixed inputs of a level or final check.
 #[derive(Clone, Copy)]
 struct Inputs<'a> {
-    budget: &'a dive_check::budget::Budget,
-    control: &'a std::sync::Arc<dive_check::budget::EvaluationControl>,
+    budget: &'a dive_runtime::budget::Budget,
+    control: &'a std::sync::Arc<dive_runtime::budget::EvaluationControl>,
     model: &'a Model,
     plans: &'a [super::PreparedProperty],
     limits: Limits,
@@ -411,7 +411,7 @@ pub fn analyze_periodic(
 /// # fn example(model: &dive_model::Model) {
 /// use dive_liveness::{analyze::{GraphLabelPolicy, Limits, periodic}, product::AcceptancePolicy};
 /// let result = periodic::analyze_periodic_with_policies(model,
-///     &dive_check::CheckOptions::dive(0), Limits::default(),
+///     &dive_runtime::CheckOptions::dive(0), Limits::default(),
 ///     AcceptancePolicy::compact_default(), GraphLabelPolicy::Cells(31),
 ///     periodic::Schedule::DEFAULT);
 /// # let _ = result;
@@ -442,13 +442,13 @@ pub(super) fn analyze_periodic_bound(
 ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
     // One budget for capture and every level check (ADR 0107); only the
     // budget's own limit becomes a stop.
-    let (mut watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
+    let (mut watchdog, armed) = dive_runtime::budget::arm(options).map_err(|error| {
         failure(
             match error {
-                dive_check::budget::StartError::Measurement(error) => {
+                dive_runtime::budget::StartError::Measurement(error) => {
                     AnalysisError::BudgetMeasurement(error)
                 }
-                error @ dive_check::budget::StartError::Thread(_) => {
+                error @ dive_runtime::budget::StartError::Thread(_) => {
                     AnalysisError::BudgetStartup(error.to_string())
                 }
             },
@@ -479,7 +479,7 @@ pub(super) fn analyze_periodic_bound(
 /// The run's final budget check for the entry point that armed it: a
 /// result is replaced by a stop when the budget ran out while finishing.
 fn close_budget(
-    watchdog: Option<&mut dive_check::budget::Watchdog>,
+    watchdog: Option<&mut dive_runtime::budget::Watchdog>,
     result: Result<(PeriodicAnalysis, Checks), PeriodicFailure>,
 ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
     if let Some(watchdog) = watchdog {
@@ -488,7 +488,7 @@ fn close_budget(
             let error = match finished {
                 Err(error) => Some(AnalysisError::BudgetMeasurement(error)),
                 Ok(Some(exhausted)) => Some(AnalysisError::Stopped(Box::new(
-                    exhausted.during(dive_check::budget::Phase::Finalization),
+                    exhausted.during(dive_runtime::budget::Phase::Finalization),
                 ))),
                 Ok(None) => None,
             };
@@ -530,13 +530,13 @@ fn close_budget(
 
 fn budget_failure(
     mut failure: PeriodicFailure,
-    budget: &dive_check::budget::Budget,
+    budget: &dive_runtime::budget::Budget,
 ) -> PeriodicFailure {
     if super::budget_limit(&failure.failure.failure.error) {
         match budget.poll() {
             Ok(Some(exhausted)) => {
                 failure.failure.failure.error = AnalysisError::Stopped(Box::new(
-                    exhausted.during(dive_check::budget::Phase::Temporal),
+                    exhausted.during(dive_runtime::budget::Phase::Temporal),
                 ));
             }
             Err(error) => failure.failure.failure.error = AnalysisError::BudgetMeasurement(error),
@@ -555,7 +555,7 @@ fn planned(
     checks: Checks,
 ) -> Result<
     (
-        std::sync::Arc<dive_check::budget::EvaluationControl>,
+        std::sync::Arc<dive_runtime::budget::EvaluationControl>,
         Vec<super::PreparedProperty>,
     ),
     PeriodicFailure,
@@ -733,7 +733,7 @@ fn periodic_unbudgeted(
                 )
             })?
     } else {
-        capture::explore_controlled_with_native_hooks(
+        dive_check::capture::explore_controlled_with_native_hooks(
             model,
             options,
             limits.capture,

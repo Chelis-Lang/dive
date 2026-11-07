@@ -1,6 +1,6 @@
 //! CSR analysis uses the same planning, labels, product, attribution and finish.
 
-use dive_check::{CheckResult, Stats, capture};
+use dive_runtime::{CheckResult, Stats, capture};
 
 use super::{GraphCheck, NativeAnalysis, NativeRead, NativeReader};
 use crate::analyze::periodic::{Checks, PeriodicFailure, budget_failure, failure};
@@ -43,7 +43,8 @@ impl GraphCheck<'_> {
         stats: Stats,
         read: &mut NativeRead<'_>,
     ) -> bool {
-        let mut reader = |row, control: &dive_check::budget::EvaluationControl| read(row, control);
+        let mut reader =
+            |row, control: &dive_runtime::budget::EvaluationControl| read(row, control);
         self.level_native_with_reader(level, graph, stats, &mut reader)
     }
 
@@ -93,7 +94,7 @@ impl GraphCheck<'_> {
     /// authority or a candidate. The actual producer supplies its stopped stats.
     ///
     /// ```no_run
-    /// # use dive_check::CheckResult;
+    /// # use dive_runtime::CheckResult;
     /// # use dive_liveness::analyze::periodic::external::GraphCheck;
     /// # fn stopped(driver: &mut GraphCheck<'_>, actual: &CheckResult) {
     /// if let Some(failure) = driver.take_native_prefix_failure(actual) {
@@ -134,7 +135,8 @@ impl GraphCheck<'_> {
         complete: capture::CsrComplete<'_>,
         read: &mut NativeRead<'_>,
     ) -> Result<(NativeAnalysis, Checks), Box<PeriodicFailure>> {
-        let mut reader = |row, control: &dive_check::budget::EvaluationControl| read(row, control);
+        let mut reader =
+            |row, control: &dive_runtime::budget::EvaluationControl| read(row, control);
         self.finish_native_with_reader(complete, &mut reader)
     }
 
@@ -225,7 +227,7 @@ impl GraphCheck<'_> {
 }
 
 fn close(
-    watchdog: Option<&mut dive_check::budget::Watchdog>,
+    watchdog: Option<&mut dive_runtime::budget::Watchdog>,
     result: Result<(NativeAnalysis, Checks), PeriodicFailure>,
     exploration: ExplorationEvidence,
     completed: bool,
@@ -236,7 +238,7 @@ fn close(
             let error = match finished {
                 Err(error) => Some(AnalysisError::BudgetMeasurement(error)),
                 Ok(Some(exhausted)) => Some(AnalysisError::Stopped(Box::new(
-                    exhausted.during(dive_check::budget::Phase::Finalization),
+                    exhausted.during(dive_runtime::budget::Phase::Finalization),
                 ))),
                 Ok(None) => None,
             };

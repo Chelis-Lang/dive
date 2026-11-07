@@ -6,11 +6,11 @@ use std::sync::{
     atomic::{AtomicUsize, Ordering},
 };
 
-use dive_check::CheckOptions;
 use dive_liveness::{
     analyze::{self, Analysis, AnalysisError, Limits, Stage},
     plan::PlanningError,
 };
+use dive_runtime::CheckOptions;
 
 const CONFIGURED: &str = "---- MODULE ContextGuard ----\nEXTENDS Sequences\nCONSTANT Op(_)\nVARIABLE x\nInit==x=0\nNext==x'=x\nLength(v)==Len(v)\nP==<>(Op(<<1>>)=1)\n====\n";
 

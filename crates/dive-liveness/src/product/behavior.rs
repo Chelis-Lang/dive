@@ -2,7 +2,7 @@
 
 use super::CsrTopology;
 use crate::{Graph, GraphError};
-use dive_check::capture::BehaviorGraph;
+use dive_runtime::capture::BehaviorGraph;
 
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum BehaviorView<'a> {

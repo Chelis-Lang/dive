@@ -5,8 +5,8 @@
     reason = "finite resource controls"
 )]
 use super::*;
-use dive_check::budget::{Budget, Watchdog};
 use dive_liveness::analyze::{AnalysisError, Stage};
+use dive_runtime::budget::{Budget, Watchdog};
 use std::time::Duration;
 
 const SOURCE: &str = "---- MODULE Capacity ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = (x + 1) % 4\nP == []<>(x = 99)\n====\n";
@@ -66,7 +66,7 @@ fn core_file_capacity_is_budgeted_while_library_and_reference_limits_stay_exact(
     assert_eq!(core.limits.properties, defaults.properties);
     assert_eq!(
         legacy.limits.capture,
-        dive_check::capture::Limits::default()
+        dive_runtime::capture::Limits::default()
     );
     assert_eq!(legacy.limits.product.edges, defaults.product.edges);
     assert_eq!(legacy.limits.product.steps, defaults.product.steps);

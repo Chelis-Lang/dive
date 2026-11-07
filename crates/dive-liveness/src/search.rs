@@ -619,7 +619,7 @@ mod tests {
     #[test]
     fn a_budget_trip_during_labelled_search_is_control_flow() {
         struct InstallsBudget<'a> {
-            budget: &'a dive_check::budget::Budget,
+            budget: &'a dive_runtime::budget::Budget,
             scope: RefCell<Option<crate::budget::Scope>>,
             accesses: Cell<usize>,
         }

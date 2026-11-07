@@ -37,10 +37,10 @@ fn actual_domains_and_all_scope_owners_are_required() {
     let source = format!("{BODY}====\n");
     let (ir, config, options, mut prepared) = prepare(&source, "");
     assert!(fixed_name_domain(&prepared));
-    assert!(dive_check::capture::runtime_names_only(&prepared.model));
+    assert!(dive_runtime::capture::runtime_names_only(&prepared.model));
     assert!(static_refusal(&ir, &config, &options, &prepared).is_none());
     // Reference pool policy is unchanged even though native demand is guarded.
-    assert!(dive_check::capture::refusal(&prepared.model, &options, true).is_some());
+    assert!(dive_runtime::capture::refusal(&prepared.model, &options, true).is_some());
     let other = dive_model::bind(ir.clone(), &config, &dive_model::BindOptions::tlc())
         .expect("foreign model");
     prepared.model.implied_temporals[0].pred.scope = other.implied_temporals[0].pred.scope.clone();
@@ -63,7 +63,7 @@ fn unused_and_configured_effects_do_not_gain_native_admission() {
         ),
     ] {
         let (ir, config, options, prepared) = prepare(&format!("{BODY}{suffix}"), extra);
-        assert!(!dive_check::capture::runtime_names_only(&prepared.model));
+        assert!(!dive_runtime::capture::runtime_names_only(&prepared.model));
         assert!(static_refusal(&ir, &config, &options, &prepared).is_some());
     }
 }
@@ -126,8 +126,8 @@ fn real_domain_growth_refuses_semantics_but_preserves_nonsemantic_stop_phase() {
         .model
         .names
         .intern("a-new-name-not-in-the-startup-domain");
-    let stopped = dive_check::budget::Stopped {
-        resource: dive_check::budget::Resource::Time,
+    let stopped = dive_runtime::budget::Stopped {
+        resource: dive_runtime::budget::Resource::Time,
         limit: 5,
         observed: 6,
         elapsed_ms: 6,

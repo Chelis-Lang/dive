@@ -5,18 +5,18 @@
 
 use std::sync::Arc;
 
-use dive_check::CheckOptions;
-use dive_check::capture::{self, BehaviorGraph};
 use dive_core::node::{Kind, flags};
 use dive_explore::graph::{GraphSink, Step, Stopped};
+use dive_runtime::CheckOptions;
+use dive_runtime::capture::{self, BehaviorGraph};
 
 use super::Graph;
 
 #[test]
 fn conversion_stops_require_this_captures_actual_budget_evidence() {
-    use dive_check::Verdict;
-    use dive_check::budget::{Budget, Phase};
     use dive_core::print::ConversionError;
+    use dive_runtime::Verdict;
+    use dive_runtime::budget::{Budget, Phase};
     use dive_value::ConstructionError;
     let watchdog = Budget::new(Some(std::time::Duration::ZERO), None)
         .start()
@@ -92,7 +92,7 @@ fn reference(
         },
     )
     .expect("model");
-    match capture::explore(&model, options, capture::Limits::default()) {
+    match dive_check::capture::explore(&model, options, capture::Limits::default()) {
         capture::Exploration::Complete(c) => c.graph,
         other @ capture::Exploration::Stopped(_) => {
             panic!("reference capture did not complete: {other:?}")
@@ -292,7 +292,7 @@ fn seen_targets_keep_original_values_ordinals_and_representations() {
                                 ..capture::Limits::default()
                             },
                             None,
-                            &dive_check::budget::Budget::unlimited(),
+                            &dive_runtime::budget::Budget::unlimited(),
                         ),
                         rows: vec![],
                         variable,
@@ -405,7 +405,7 @@ fn converted_new_and_seen_originals_preserve_checked_equality() {
                         &prepared.model,
                         capture::Limits::default(),
                         None,
-                        &dive_check::budget::Budget::unlimited(),
+                        &dive_runtime::budget::Budget::unlimited(),
                     );
                     let out = dive_explore::explore_with(
                         &prepared.plan,
@@ -474,7 +474,7 @@ fn capture_scratch_limit_stops_before_retaining_the_overflow_target() {
                 ..capture::Limits::default()
             },
             None,
-            &dive_check::budget::Budget::unlimited(),
+            &dive_runtime::budget::Budget::unlimited(),
         );
         let out = dive_explore::explore_with(
             &prepared.plan,
@@ -568,7 +568,7 @@ fn capture_polls_the_run_budget_before_retaining_each_original() {
             &prepared.model,
             capture::Limits::default(),
             None,
-            &dive_check::budget::Budget::unlimited(),
+            &dive_runtime::budget::Budget::unlimited(),
         );
         let out = dive_explore::explore_with(
             &prepared.plan,

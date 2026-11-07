@@ -8,15 +8,15 @@
 )]
 use std::sync::Arc;
 
-use dive_check::{
-    CheckOptions, Stats,
-    capture::{self, BehaviorGraph, GraphBuilder},
-};
 use dive_liveness::analyze::{
     self, Analysis, GraphLabelPolicy, Limits,
     periodic::{Checks, PeriodicAnalysis, PeriodicFailure, Schedule, external::GraphCheck},
 };
 use dive_liveness::product::AcceptancePolicy;
+use dive_runtime::{
+    CheckOptions, Stats,
+    capture::{self, BehaviorGraph, GraphBuilder},
+};
 
 const EVERY_LEVEL: Schedule = Schedule {
     min_states: 2,
@@ -220,8 +220,13 @@ fn external(
             check: &mut check,
             stop: false,
         };
-        capture::explore_controlled_with_evidence(model, options, limits.capture, &mut forward)
-            .expect("capture thread")
+        dive_check::capture::explore_controlled_with_evidence(
+            model,
+            options,
+            limits.capture,
+            &mut forward,
+        )
+        .expect("capture thread")
     };
     match captured {
         capture::ControlledExploration::Complete(complete) => {

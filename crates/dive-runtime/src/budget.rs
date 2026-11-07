@@ -28,7 +28,7 @@
 //!
 //! ```
 //! use std::time::Duration;
-//! use dive_check::budget::Budget;
+//! use dive_runtime::budget::Budget;
 //! let budget = Budget::new(Some(Duration::from_secs(3600)), None);
 //! let watchdog = budget.start().expect("watchdog thread starts").expect("a limited budget starts a watchdog");
 //! assert!(watchdog.budget().poll().expect("measurement").is_none());
@@ -470,9 +470,11 @@ pub struct Budget {
 }
 
 impl Budget {
-    /// Trips an armed budget deterministically while a test expansion is in flight.
-    #[cfg(test)]
-    pub(crate) fn trip_for_test(&self) {
+    /// Trips an armed budget deterministically while a test expansion is in
+    /// flight (this crate's tests and the `test-hooks` feature only).
+    #[cfg(any(test, feature = "test-hooks"))]
+    #[doc(hidden)]
+    pub fn trip_for_test(&self) {
         if let Some(inner) = &self.signal {
             inner.trip(Resource::Time, millis(inner.started.elapsed()));
         }
@@ -670,7 +672,7 @@ fn millis(d: Duration) -> u64 {
 ///
 /// ```
 /// use std::time::Duration;
-/// use dive_check::{CheckOptions, budget::{Budget, arm}};
+/// use dive_runtime::{CheckOptions, budget::{Budget, arm}};
 /// let opts = CheckOptions {
 ///     budget: Budget::new(Some(Duration::from_secs(60)), None),
 ///     ..CheckOptions::dive(0)
@@ -870,7 +872,7 @@ pub fn physical_bytes() -> Option<u64> {
 /// availability independently when it is armed.
 ///
 /// ```
-/// if let Some(bytes) = dive_check::budget::default_memory() {
+/// if let Some(bytes) = dive_runtime::budget::default_memory() {
 ///     assert!(bytes > 0);
 /// }
 /// ```
@@ -1179,47 +1181,6 @@ mod tests {
         assert_eq!((stop.resource, stop.limit), (Resource::Time, 1));
         assert!(stop.observed >= 1);
     }
-
-    #[test]
-    fn terminal_memory_failures_preserve_real_earlier_errors_but_replace_success() {
-        let source = "---- MODULE Earlier ----\nVARIABLE x\nInit == x = TRUE\nNext == UNCHANGED x\nInv == ~x\n====\n";
-        let analysis =
-            dive_sema::analyze_source("Earlier.tla", source, &dive_sema::Options::default());
-        assert!(analysis.accepted());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let opts = crate::CheckOptions::tlc(0, 0);
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\n")
-            .into_config()
-            .expect("cfg");
-        let mut violation = crate::check(&ir, &cfg, &opts);
-        assert!(
-            matches!(violation.verdict, crate::Verdict::InvariantViolated { .. }),
-            "{:?}",
-            violation.verdict
-        );
-        let witness = format!("{:?}", violation.counterexample);
-        let failed = Err(MeasurementError::unavailable(SamplePoint::Final));
-        finish_result(&mut violation, failed, Phase::Finalization);
-        assert!(
-            matches!(violation.verdict, crate::Verdict::InvariantViolated { .. }),
-            "{:?}",
-            violation.verdict
-        );
-        assert_eq!(format!("{:?}", violation.counterexample), witness);
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
-            .into_config()
-            .expect("cfg");
-        let mut success = crate::check(&ir, &cfg, &opts);
-        assert_eq!(success.verdict, crate::Verdict::Success);
-        finish_result(&mut success, failed, Phase::Finalization);
-        assert!(matches!(
-            success.verdict,
-            crate::Verdict::BudgetMeasurement { .. }
-        ));
-        assert!(success.counterexample.is_none());
-        assert!(success.collision.is_none());
-        assert!(success.verdict.tlc().is_none());
-    }
 }
 
 /// The run evidence used to classify cooperative evaluator interruption.
@@ -1244,10 +1205,9 @@ impl dive_eval::HostControl for EvaluationControl {
 
 /// Checks producer assumptions under the already armed startup budget.
 /// Binding and independent validation retain their own explicit boundaries.
-pub(crate) fn check_assumptions(
-    model: &dive_model::Model,
-    budget: &Budget,
-) -> Option<crate::Verdict> {
+#[doc(hidden)]
+#[must_use]
+pub fn check_assumptions(model: &dive_model::Model, budget: &Budget) -> Option<crate::Verdict> {
     let control = match EvaluationControl::new(budget, Phase::Startup) {
         Ok(control) => control,
         Err(error) => {
@@ -1497,36 +1457,6 @@ mod assumption_controls {
                 dive_eval::AssumptionOutcome::AllTrue
             ));
             assert_eq!(model.take_output().len(), 1);
-        }
-    }
-
-    #[test]
-    fn capture_assumption_stop_has_no_graph_search_statistics_or_witness() {
-        for mut options in [crate::CheckOptions::tlc(0, 0), crate::CheckOptions::dive(0)] {
-            let model = model(LOOP, &options);
-            let watchdog = Budget::new(Some(Duration::from_secs(3600)), None)
-                .start()
-                .expect("watchdog")
-                .expect("finite budget");
-            watchdog.budget().trip_for_test();
-            options.budget = watchdog.budget().clone();
-            let outcome =
-                crate::capture::explore(&model, &options, crate::capture::Limits::default());
-            let crate::capture::Exploration::Stopped(result) = outcome else {
-                panic!("an interrupted assumption cannot produce a complete graph");
-            };
-            assert!(
-                matches!(result.verdict, crate::Verdict::Stopped(ref stop) if stop.phase == Phase::Startup)
-            );
-            assert!(result.stats.is_none());
-            assert!(result.counterexample.is_none());
-            assert!(result.verdict.tlc().is_none());
-            assert!(
-                result
-                    .output
-                    .iter()
-                    .any(|line| line.contains("before-loop"))
-            );
         }
     }
 

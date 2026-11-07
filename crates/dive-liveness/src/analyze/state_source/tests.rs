@@ -6,7 +6,7 @@ use std::sync::Arc;
 use super::*;
 use crate::analyze::*;
 use crate::product::BehaviorView;
-use dive_check::{CheckOptions, capture};
+use dive_runtime::{CheckOptions, capture};
 use dive_value::Value;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -46,12 +46,12 @@ impl<'a> Lazy<'a> {
         self.reads.push(read);
         if self.fail == Some(self.reads.len()) {
             return Err(if self.stopped {
-                AnalysisError::Stopped(Box::new(dive_check::budget::Stopped {
-                    resource: dive_check::budget::Resource::Time,
+                AnalysisError::Stopped(Box::new(dive_runtime::budget::Stopped {
+                    resource: dive_runtime::budget::Resource::Time,
                     limit: 10,
                     observed: 11,
                     elapsed_ms: 11,
-                    phase: dive_check::budget::Phase::Temporal,
+                    phase: dive_runtime::budget::Phase::Temporal,
                 }))
             } else {
                 AnalysisError::Limit("lazy source control")
@@ -128,7 +128,7 @@ fn bound(body: &str, configuration: &str, options: &CheckOptions) -> Model {
 }
 
 fn captured(model: &Model, options: &CheckOptions) -> capture::BehaviorGraph {
-    match capture::explore(model, options, capture::Limits::default()) {
+    match dive_check::capture::explore(model, options, capture::Limits::default()) {
         capture::Exploration::Complete(complete) => complete.graph,
         capture::Exploration::Stopped(result) => panic!("finite capture: {result:?}"),
     }
@@ -412,7 +412,7 @@ fn source_errors_and_typed_stops_propagate_at_every_demanded_read() {
                         let AnalysisError::Stopped(actual) = error else {
                             panic!("typed source stop")
                         };
-                        assert_eq!(actual.phase, dive_check::budget::Phase::Temporal);
+                        assert_eq!(actual.phase, dive_runtime::budget::Phase::Temporal);
                         assert_eq!((actual.limit, actual.observed), (10, 11));
                     } else {
                         assert!(matches!(error, AnalysisError::Limit("lazy source control")));

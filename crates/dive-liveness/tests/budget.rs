@@ -5,9 +5,9 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use dive_check::CheckOptions;
-use dive_check::budget::{Budget, Phase, Resource};
 use dive_liveness::analyze::{Analysis, AnalysisError, Limits, analyze_final};
+use dive_runtime::CheckOptions;
+use dive_runtime::budget::{Budget, Phase, Resource};
 
 #[test]
 fn an_exhausted_budget_stops_the_analysis_and_a_generous_one_changes_nothing() {

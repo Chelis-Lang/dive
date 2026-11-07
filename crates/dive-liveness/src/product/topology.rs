@@ -87,7 +87,7 @@ impl<'a> CsrTopology<'a> {
 
     /// Borrows references whose layout was already checked under producer
     /// control. This grants topology access only, never completion authority.
-    pub(crate) fn from_capture(graph: &dive_check::capture::CsrCapture<'a>) -> Self {
+    pub(crate) fn from_capture(graph: &dive_runtime::capture::CsrCapture<'a>) -> Self {
         Self {
             offsets: graph.offsets(),
             targets: graph.targets(),

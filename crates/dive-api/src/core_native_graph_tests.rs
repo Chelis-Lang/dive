@@ -7,8 +7,8 @@
 
 use std::sync::Arc;
 
-use dive_check::capture::{CsrCapture, CsrComplete};
 use dive_core::node::flags;
+use dive_runtime::capture::{CsrCapture, CsrComplete};
 
 use super::*;
 

@@ -1,8 +1,8 @@
 //! Pure final analysis versus pinned TLC counts and independent word validation.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
-use dive_check::{CheckOptions, Verdict};
 use dive_liveness::analyze::{Analysis, AnalysisError, Limits, analyze_final};
+use dive_runtime::{CheckOptions, Verdict};
 use dive_trace::{Ending, TraceDoc, Validation};
 use dive_value::Value;
 use serde_json::json;

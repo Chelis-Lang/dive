@@ -7,9 +7,9 @@
 
 use std::{path::Path, sync::Arc};
 
-use dive_check::CheckOptions;
 use dive_liveness::analyze::{Analysis, Limits, analyze_final};
 use dive_model::Model;
+use dive_runtime::CheckOptions;
 use dive_trace::{Ending, TraceDoc, Validation};
 use serde_json::{Value, json};
 

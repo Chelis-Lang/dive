@@ -20,18 +20,18 @@ fn rejected(message: impl Into<String>) -> ApiError {
 pub(crate) fn identity(
     ir: &dive_ir::Ir,
     model: &dive_config::ModelConfig,
-    options: &dive_check::CheckOptions,
+    options: &dive_runtime::CheckOptions,
     config_hash: &str,
     opts: dive_core::Opts,
-) -> Result<Vec<u8>, dive_check::Verdict> {
-    let request = dive_check::checkpoint::Request {
+) -> Result<Vec<u8>, dive_runtime::Verdict> {
+    let request = dive_runtime::checkpoint::Request {
         path: std::path::PathBuf::new(),
-        action: dive_check::checkpoint::Action::PauseAfterLevels(0),
-        counters: dive_check::checkpoint::Counters::Retain,
+        action: dive_runtime::checkpoint::Action::PauseAfterLevels(0),
+        counters: dive_runtime::checkpoint::Counters::Retain,
         config_source_sha256: Some(config_hash.into()),
     };
     let mut identity =
-        dive_check::checkpoint::owned_identity(ir, model, options, &request, &opts.describe())?;
+        dive_runtime::checkpoint::owned_identity(ir, model, options, &request, &opts.describe())?;
     identity.extend_from_slice(
         format!(
             "\ndistributed-policy-0151-v1/{:?}/{:?}",
@@ -185,9 +185,9 @@ fn prepare_inner(
     let seed = request.seed.ok_or_else(|| rejected("worker seed"))?;
     let fp = request.fp.ok_or_else(|| rejected("worker fingerprint"))?;
     let mut options = if request.compat_tlc {
-        dive_check::CheckOptions::tlc(fp, seed)
+        dive_runtime::CheckOptions::tlc(fp, seed)
     } else {
-        let mut options = dive_check::CheckOptions::dive(seed);
+        let mut options = dive_runtime::CheckOptions::dive(seed);
         options.fp_index = fp;
         options
     };
@@ -218,7 +218,7 @@ fn prepare_inner(
         &ir,
         model,
         &options,
-        &dive_check::checkpoint::config_source_hash(config.source_bytes()),
+        &dive_runtime::checkpoint::config_source_hash(config.source_bytes()),
         opts,
     )
     .map_err(|v| ApiError::Unsupported {

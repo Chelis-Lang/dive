@@ -10,7 +10,7 @@
 
 use std::cell::RefCell;
 
-use dive_check::budget::Budget;
+use dive_runtime::budget::Budget;
 
 /// The named limit stages report for an exhausted budget.
 pub(crate) const EXHAUSTED: &str = "run budget";
@@ -57,7 +57,7 @@ pub(crate) fn fairness_reuse_limit() -> usize {
 
 #[cfg(test)]
 #[allow(clippy::expect_used, reason = "an armed, expired test budget")]
-pub(crate) fn expired_for_test() -> dive_check::budget::Watchdog {
+pub(crate) fn expired_for_test() -> dive_runtime::budget::Watchdog {
     use std::time::{Duration, Instant};
     let watchdog = Budget::new(Some(Duration::ZERO), None)
         .start()
@@ -87,7 +87,7 @@ mod reuse_limit_tests {
             (Some(256 * 1024), 1024),
             (Some(16 * 1024 * 1024 * 1024), 16 * 1024 * 1024),
         ] {
-            let budget = dive_check::budget::Budget::new(None, memory);
+            let budget = dive_runtime::budget::Budget::new(None, memory);
             let _scope = super::enter(&budget);
             assert_eq!(super::fairness_reuse_limit(), expected);
         }

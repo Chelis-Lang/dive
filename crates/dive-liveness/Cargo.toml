@@ -13,6 +13,10 @@ dive-ir.workspace = true
 dive-eval.workspace = true
 dive-value.workspace = true
 dive-model.workspace = true
+# The shared run contract (ADR 0155).
+dive-runtime.workspace = true
+# Reference graph-capture drivers and the reference safety continuation of
+# the source-binding dispatch only (ADR 0155); retired with the reference engine.
 dive-check.workspace = true
 dive-config.workspace = true
 

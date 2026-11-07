@@ -4,8 +4,8 @@
     clippy::panic,
     reason = "finite regression assertions"
 )]
-use dive_check::CheckOptions;
 use dive_liveness::analyze::{self, Analysis, AnalysisError, Limits};
+use dive_runtime::CheckOptions;
 use std::sync::Arc;
 const SOURCE: &str = include_str!("fixtures/constructor-alias.tla");
 fn bound(next: &str, property: &str, options: &CheckOptions) -> dive_model::Model {

@@ -15,12 +15,12 @@
 use std::sync::Arc;
 use std::time::Instant;
 
-use dive_check::budget::{EvaluationControl, Phase};
-use dive_check::capture::{CsrCapture, CsrComplete, CsrPrefix};
-use dive_check::{CheckOptions, CheckResult, Verdict};
 use dive_ir::Ir;
 use dive_liveness::analyze::periodic::Schedule;
 use dive_liveness::analyze::periodic::external::{GraphCheck, NativeAnalysis};
+use dive_runtime::budget::{EvaluationControl, Phase};
+use dive_runtime::capture::{CsrCapture, CsrComplete, CsrPrefix};
+use dive_runtime::{CheckOptions, CheckResult, Verdict};
 
 use crate::core_engine::{CoreOutcome, CoreRun, Prepared, Search};
 use crate::core_native_graph::{NativeGraph, NativeSink};
@@ -68,12 +68,12 @@ fn static_refusal(
     options: &CheckOptions,
     prepared: &Prepared,
 ) -> Option<String> {
-    if let Some(reason) = dive_check::final_roles::route_exclusion(ir, config, options) {
+    if let Some(reason) = dive_runtime::admission::route_exclusion(ir, config, options) {
         return Some(format!("temporal properties with {reason} (core)"));
     }
     let guarded_names =
-        fixed_name_domain(prepared) && dive_check::capture::runtime_names_only(&prepared.model);
-    if let Some(reason) = dive_check::capture::refusal(
+        fixed_name_domain(prepared) && dive_runtime::capture::runtime_names_only(&prepared.model);
+    if let Some(reason) = dive_runtime::capture::refusal(
         &prepared.model,
         options,
         options.workers > 1 && !guarded_names,
@@ -408,7 +408,7 @@ fn check_configured_inner(
         safety.verdict = Verdict::Unsupported {
             feature: crate::core_native_graph::SOURCE_ROW_STOP.into(),
         };
-        safety.stats = Some(dive_check::Stats {
+        safety.stats = Some(dive_runtime::Stats {
             generated: producer_stats.generated,
             distinct: producer_stats.distinct,
             depth: producer_stats.depth,
@@ -435,7 +435,7 @@ fn check_configured_inner(
     }
     if let Some(error) = source_error {
         safety.verdict = error.clone();
-        safety.stats = Some(dive_check::Stats {
+        safety.stats = Some(dive_runtime::Stats {
             generated: producer_stats.generated,
             distinct: producer_stats.distinct,
             depth: producer_stats.depth,
@@ -453,7 +453,7 @@ fn check_configured_inner(
         return CoreOutcome::TemporalFailure(Box::new(failure));
     }
     if matches!(safety.verdict, Verdict::BudgetMeasurement { .. }) {
-        safety.stats = Some(dive_check::Stats {
+        safety.stats = Some(dive_runtime::Stats {
             generated: producer_stats.generated,
             distinct: producer_stats.distinct,
             left_on_queue: producer_stats.left_on_queue,
@@ -484,7 +484,7 @@ fn check_configured_inner(
     if let Verdict::Stopped(stopped) = &mut safety.verdict {
         stopped.phase = Phase::Capture;
     }
-    dive_check::capture::refuse_unproved_temporal_next_error(&model, &mut safety);
+    dive_runtime::capture::refuse_unproved_temporal_next_error(&model, &mut safety);
     if safety.verdict != Verdict::Success {
         record_metrics(run, &graph, &values, &atoms);
         safety.symmetry_liveness = Some(model.symmetry_liveness().clone());

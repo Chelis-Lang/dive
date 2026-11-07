@@ -17,18 +17,20 @@ dive-config.workspace = true
 dive-store.workspace = true
 dive-stdlib.workspace = true
 dive-model.workspace = true
+# The shared run contract (ADR 0155).
+dive-runtime.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
-sha2.workspace = true
-
-[target.'cfg(target_os = "macos")'.dependencies]
-memory-stats.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true
+# Checkpoint tests rewrite archive checksums.
+sha2.workspace = true
 # The probe tests load their specifications; dev-dependencies are outside the
 # layering (`xtask/src/layering.rs`).
 dive-sema.workspace = true
+# Unit tests synchronize the parallel budget race through a test hook.
+dive-runtime = { workspace = true, features = ["test-hooks"] }
 
 [lints]
 workspace = true

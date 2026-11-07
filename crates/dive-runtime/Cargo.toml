@@ -1,0 +1,36 @@
+[package]
+name = "dive-runtime"
+description = "The run contract shared by every checking engine: options, budgets, results and capture evidence"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+dive-ir.workspace = true
+dive-value.workspace = true
+dive-eval.workspace = true
+dive-config.workspace = true
+dive-store.workspace = true
+dive-stdlib.workspace = true
+dive-model.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+sha2.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+memory-stats.workspace = true
+
+[features]
+# Test-only synchronization hooks for the reference engine's unit tests.
+test-hooks = []
+
+[dev-dependencies]
+# Doctests and unit tests lower small specifications; dev-dependencies are
+# outside the layering (`xtask/src/layering.rs`).
+dive-sema.workspace = true
+
+[lints]
+workspace = true
