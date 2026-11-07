@@ -56,6 +56,8 @@ pub(crate) struct NativeAtoms {
     machine: Machine,
     control: Arc<EvaluationControl>,
     compiled: Vec<Compiled>,
+    /// The last atom [`NativeAtoms::position`] found, with its index.
+    last_position: std::cell::Cell<Option<(*const PredicateAtom, usize)>>,
     eligible: usize,
     total: usize,
     evaluated: u64,
@@ -178,6 +180,7 @@ impl NativeAtoms {
             ),
             control: Arc::clone(control),
             compiled: Vec::new(),
+            last_position: std::cell::Cell::new(None),
             eligible: 0,
             total: 0,
             evaluated: 0,
@@ -287,9 +290,26 @@ impl NativeAtoms {
 
     #[cfg(test)]
     fn has(&self, atom: &PredicateAtom) -> bool {
-        self.compiled
+        self.position(atom).is_some()
+    }
+
+    /// The prepared plan of exactly this atom object. The analysis asks for
+    /// one atom on every row and edge before the next, so the last hit is
+    /// remembered; `compiled` is fixed after preparation, so its index stays
+    /// valid.
+    fn position(&self, atom: &PredicateAtom) -> Option<usize> {
+        let identity = std::ptr::from_ref(atom);
+        if let Some((last, index)) = self.last_position.get()
+            && std::ptr::eq(last, identity)
+        {
+            return Some(index);
+        }
+        let index = self
+            .compiled
             .iter()
-            .any(|item| std::ptr::eq(item.identity, atom))
+            .position(|item| std::ptr::eq(item.identity, identity))?;
+        self.last_position.set(Some((identity, index)));
+        Some(index)
     }
 
     /// The first native-versus-reference disagreement found by the audit.
@@ -319,11 +339,7 @@ impl NativeAtoms {
         inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<Option<bool>, AnalysisError> {
         check(&self.control, control)?;
-        let Some(index) = self
-            .compiled
-            .iter()
-            .position(|item| std::ptr::eq(item.identity, atom))
-        else {
+        let Some(index) = self.position(atom) else {
             self.fallback += 1;
             self.fallbacks.not_compiled += 1;
             return Ok(None);
@@ -417,11 +433,7 @@ impl NativeAtoms {
         inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<bool, AnalysisError> {
         check(&self.control, control)?;
-        if !self
-            .compiled
-            .iter()
-            .any(|item| std::ptr::eq(item.identity, atom))
-        {
+        if self.position(atom).is_none() {
             return Ok(false);
         }
         let admitted = inputs_closed(&self.machine.heap)?;
@@ -760,10 +772,7 @@ impl NativeReader for Reader<'_, '_> {
     }
 
     fn has_predicate(&self, atom: &PredicateAtom) -> bool {
-        self.atoms
-            .compiled
-            .iter()
-            .any(|item| std::ptr::eq(item.identity, atom))
+        self.atoms.position(atom).is_some()
     }
 
     fn read(
