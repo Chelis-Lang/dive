@@ -489,10 +489,17 @@ as its source; the outward sink sees the original source and the final row.
 All buffers, bindings and continuations restore on errors and stops. Boolean
 composition on a complete step uses the same relation, including all-assigned
 continuations. Effects, nested/recursive searches, incomplete intermediates,
-unproved tails and pending generator continuations refuse. Compiled models
-containing composition evaluate pure state-dependent thunks by name; keyed
-memo sites retain their actual source/step keys. No value cached solely for a
-frame activation can cross a changed source row.
+unproved tails and pending generator continuations refuse. Each composition
+carries the thunk slots of its own frame that read only the source row: it
+empties them before the first stage and before each tail, so such a thunk is
+forced once per source, and puts the caller's values back around the outward
+sink and on every exit. A stage enumerates many successors against one source,
+so thunks of a composing frame that read primed variables or make unproved
+calls are evaluated by name. Thunks of other frames need no reset: a callee
+frame starts empty on each call, and the caller's frames are not read by the
+stages. Keyed memo sites retain their actual source/step keys. No value cached
+solely for a frame activation can cross a changed source or successor
+source row.
 
 ### 4.11 When a successor counts as generated
 

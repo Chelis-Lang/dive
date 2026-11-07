@@ -596,6 +596,10 @@ fn compile_inner(
         recursive_action_predicate: false,
         instance_query_calls: false,
         composition: composition::State::Absent,
+        frame: 0,
+        frames: 0,
+        lazies: Vec::new(),
+        compositions: Vec::new(),
         def_slots: std::collections::HashSet::new(),
         lifts: Vec::new(),
         substs: Vec::new(),
@@ -680,7 +684,7 @@ fn compile_inner(
             "ENABLED in an INSTANCE with effects or recursive/nested calls (M1 core)",
         ));
     }
-    c.uncache_composition_states();
+    c.reset_composition_thunks();
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
     let vars =
@@ -789,6 +793,15 @@ struct Compiler<'a> {
     instance_query_calls: bool,
     /// Whether source-changing composition is present or being compiled.
     composition: composition::State,
+    /// The runtime frame being compiled: a role's frame, a compiled
+    /// function body or a start-up evaluation. Slots index this frame only.
+    frame: u32,
+    /// Frames numbered so far.
+    frames: u32,
+    /// Every pushed thunk, with its frame (`Node::Lazy`).
+    lazies: Vec<(u32, P)>,
+    /// Every compiled composition site, with its frame.
+    compositions: Vec<(u32, composition::Site)>,
     /// The thunk slots of `def_cache`.
     def_slots: std::collections::HashSet<u32>,
     /// The nested functions being compiled, innermost last.
@@ -908,6 +921,12 @@ impl Compiler<'_> {
         let index = map.locations.len();
         map.locations.push(location);
         Ok(Some(index))
+    }
+
+    /// Starts a new runtime frame, returning the enclosing one.
+    fn new_frame(&mut self) -> u32 {
+        self.frames += 1;
+        std::mem::replace(&mut self.frame, self.frames)
     }
 
     fn alloc(&mut self) -> u32 {
@@ -1555,9 +1574,11 @@ impl Compiler<'_> {
         let saved_cache = std::mem::take(&mut self.def_cache);
         let saved_at = std::mem::take(&mut self.at_stack);
         self.next_slot = 1;
+        let saved_frame = self.new_frame();
         let (env, lifted) = match self.begin_recfun(d, id, call_env, owner, mode) {
             Ok(x) => x,
             Err(e) => {
+                self.frame = saved_frame;
                 self.next_slot = saved_slot;
                 self.reset_stack = saved_resets;
                 self.def_cache = saved_cache;
@@ -1575,6 +1596,7 @@ impl Compiler<'_> {
             .p(domain, env, mode)
             .and_then(|dom| Ok((dom, self.p(body, env, mode)?)));
         let ended = self.end_fun(id, lifted);
+        self.frame = saved_frame;
         let frame = self.next_slot;
         self.next_slot = saved_slot;
         self.reset_stack = saved_resets;
@@ -1727,6 +1749,9 @@ impl Compiler<'_> {
             });
             map.values.push(source);
         }
+        if matches!(n, Node::Lazy { .. }) {
+            self.lazies.push((self.frame, id));
+        }
         self.code.nodes.push(n);
         let closed = info.vars == 0
             && info.primed == 0
@@ -1875,8 +1900,10 @@ impl Compiler<'_> {
         let saved_funs = std::mem::take(&mut self.funs);
         let saved_recfuns = std::mem::take(&mut self.recfuns);
         self.next_slot = 0;
+        let saved_frame = self.new_frame();
         let env = self.new_env(d, None);
         let compiled = self.p(body, env, Mode::Plain);
+        self.frame = saved_frame;
         let frame = self.next_slot;
         self.def_slots = saved_def_slots;
         self.effect_thunks = saved_thunks;
@@ -2054,7 +2081,7 @@ impl Compiler<'_> {
             return Err(Error::internal("generator node out of range"));
         };
         match node {
-            GNode::Composition { first, then } => {
+            GNode::Composition { first, then, .. } => {
                 inner |= self.g_free(*first, out, depth + 1, instance)?;
                 inner |= self.g_free(*then, out, depth + 1, instance)?;
             }
@@ -2224,6 +2251,7 @@ impl Compiler<'_> {
 
     fn role_env(&mut self, r: &Role) -> Result<(usize, Vec<(u32, Handle)>), Error> {
         self.next_slot = 0;
+        self.new_frame();
         self.role_env_after(r)
     }
 
@@ -4264,9 +4292,11 @@ impl Compiler<'_> {
         let saved_cache = std::mem::take(&mut self.def_cache);
         let saved_at = std::mem::take(&mut self.at_stack);
         self.next_slot = params;
+        let saved_frame = self.new_frame();
         let (env, lifted) = match self.begin_fun(d, id, call_env, mode) {
             Ok(x) => x,
             Err(e) => {
+                self.frame = saved_frame;
                 self.next_slot = saved_slot;
                 self.reset_stack = saved_resets;
                 self.def_cache = saved_cache;
@@ -4286,6 +4316,7 @@ impl Compiler<'_> {
         }
         let body = self.p(def.body, env, mode);
         let ended = self.end_fun(id, lifted);
+        self.frame = saved_frame;
         let frame = self.next_slot;
         self.next_slot = saved_slot;
         self.reset_stack = saved_resets;
@@ -4733,14 +4764,14 @@ impl Compiler<'_> {
         match expr {
             Expr::Cdot(a, b) => {
                 let (first, then, _) = self.composition_parts(*a, *b, env)?;
-                Ok(self.gpush(GNode::Composition { first, then }))
+                Ok(self.composition_gen(first, then))
             }
             Expr::Builtin {
                 op: BuiltinOp::Cdot,
                 args,
             } if args.len() == 2 => {
                 let (first, then, _) = self.composition_parts(args[0], args[1], env)?;
-                Ok(self.gpush(GNode::Composition { first, then }))
+                Ok(self.composition_gen(first, then))
             }
             Expr::Junction { kind, items, .. } => match kind {
                 JunctionKind::And => {
