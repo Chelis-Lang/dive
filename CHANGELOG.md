@@ -39,6 +39,12 @@ published. Earlier pre-release development entries remain in git history.
   124 s to 50 s and `MCCheckpointCoordinationFailure` from 7.0 s to 2.9 s
   (TLC: 158 s and 11.2 s), with unchanged counts. Images of records and tuple
   literals keep their literal form.
+- Core simulation evaluates `TLCGet("level")` as TLC's simulator does: 0 in
+  `Init`, a state's 1-based trace position in its invariants and constraints,
+  and the source state's position in `Next`, action constraints and action
+  properties. `ewd840/EWD840_anim` now agrees with its golden. Register reads
+  and writes (`TLCGet(1)`, `TLCSet`) still refuse, as does `TLCGet("level")`
+  in DFID.
 - Core computes `SYMMETRY` canonical images faster: images of values inside
   a state that recur across states are remembered per worker, within 32 MiB
   per run, and a set variable's image is derived from its predecessor's.
