@@ -293,6 +293,100 @@ impl Heap {
         }
     }
 
+    /// Whether a value is proved materialized by a cached fact, without a
+    /// walk: a boolean, an inline integer, a string or model value whose name
+    /// this heap's [`Store`] issued, an eager big integer, or a persistent
+    /// eager node carrying [`flags::CONCRETE`] (an eager `Set`, `IntFcn` or
+    /// `Fcn` whose every descendant is materialized, as
+    /// `compare::materialized` defines it). `false` proves nothing: snapshot
+    /// restore, owned exchange and candidate decoding clear the bit, and
+    /// [`Heap::materialized_within`] then decides.
+    #[must_use]
+    pub fn proved_concrete(&self, h: Handle) -> bool {
+        if h.is_empty() || h.is_transient() {
+            return false;
+        }
+        if !h.is_compound() {
+            return h
+                .as_str_id()
+                .or_else(|| h.as_model_id())
+                .is_none_or(|id| self.known_name(id));
+        }
+        let v = self.view(h);
+        !v.is_lazy()
+            && v.flags & flags::UNNORM == 0
+            && (v.flags & flags::CONCRETE != 0 || v.kind == Kind::BigInt)
+    }
+
+    /// Whether every root is materialized as `compare::materialized`
+    /// defines it (no lazy, symbolic or unnormalized node and no unknown name
+    /// at any depth), decided by an iterative walk over at most `nodes`
+    /// handles. Transient and empty handles decline. `false` proves nothing:
+    /// an exhausted allowance or a failed scratch allocation also declines,
+    /// and so does a heap that is poisoned when the walk ends.
+    ///
+    /// Without `name_bytes`, a node carrying [`flags::CONCRETE`] is trusted
+    /// and not entered. With `name_bytes: Some(n)` every node is entered,
+    /// and the text bytes of every string and model-value occurrence count
+    /// against `n`.
+    #[must_use]
+    pub fn materialized_within(
+        &self,
+        roots: &[Handle],
+        nodes: usize,
+        name_bytes: Option<usize>,
+    ) -> bool {
+        let mut pending = Vec::new();
+        if pending.try_reserve(roots.len()).is_err() {
+            return false;
+        }
+        pending.extend_from_slice(roots);
+        let (mut work, mut bytes) = (0usize, 0usize);
+        while let Some(h) = pending.pop() {
+            work += 1;
+            if work > nodes || h.is_empty() || h.is_transient() {
+                return false;
+            }
+            if !h.is_compound() {
+                let Some(id) = h.as_str_id().or_else(|| h.as_model_id()) else {
+                    continue;
+                };
+                if !self.known_name(id) {
+                    return false;
+                }
+                if let Some(limit) = name_bytes {
+                    let Some(len) = self.texts.borrow().get(id as usize).map(|t| t.len()) else {
+                        return false;
+                    };
+                    bytes = bytes.saturating_add(len);
+                    if bytes > limit {
+                        return false;
+                    }
+                }
+                continue;
+            }
+            let v = self.view(h);
+            if v.is_lazy() || v.flags & flags::UNNORM != 0 {
+                return false;
+            }
+            if name_bytes.is_none() && v.flags & flags::CONCRETE != 0 {
+                continue;
+            }
+            match v.kind {
+                Kind::BigInt => continue,
+                Kind::Set | Kind::IntFcn | Kind::Fcn => {}
+                _ => return false,
+            }
+            if v.data.len() > nodes.saturating_sub(work).saturating_sub(pending.len())
+                || pending.try_reserve(v.data.len()).is_err()
+            {
+                return false;
+            }
+            pending.extend_from_slice(v.data);
+        }
+        !self.poisoned()
+    }
+
     /// Whether a value must be closed by the evaluator before it is hashed,
     /// compared or interned (§11.3).
     #[must_use]
@@ -2236,5 +2330,76 @@ mod tests {
         for w in elems.windows(2) {
             assert_eq!(h.cmp(w[0], w[1]), Ordering::Less);
         }
+    }
+
+    /// A persistent copy of a transient node without [`flags::CONCRETE`], as
+    /// snapshot restore and owned exchange produce it.
+    fn unmarked(h: &mut Heap, t: Handle) -> Handle {
+        let v = h.view(t);
+        let (kind, fl, lo, hash, sum) = (v.kind, v.flags & !flags::CONCRETE, v.lo, v.hash, v.sum);
+        let data = v.data.to_vec();
+        h.store.intern(&mut h.cache, kind, fl, lo, hash, sum, &data)
+    }
+
+    #[test]
+    fn concrete_proofs_trust_the_bit_and_the_bounded_walk_decides_without_it() {
+        let mut h = heap(false);
+        let name = h.string("abcd").unwrap_or(Handle::EMPTY);
+        let model = Handle::model(h.store().strings().intern("m").unwrap_or(0));
+        for scalar in [Handle::TRUE, int(-3), name, model] {
+            assert!(h.proved_concrete(scalar));
+            assert!(h.materialized_within(&[scalar], 1, None));
+        }
+        let unknown = Handle::string(1 << 20);
+        for refused in [Handle::EMPTY, unknown, Handle::model(1 << 20)] {
+            assert!(!h.proved_concrete(refused));
+            assert!(!h.materialized_within(&[refused], 8, None));
+        }
+        // Eager builders and exact interning keep the cached proof.
+        let tuple = h.tuple_literal(&[name, model]);
+        let set = h.set_from(&mut vec![tuple, int(1), model]);
+        assert!(!h.proved_concrete(set), "a transient is never proved");
+        assert!(!h.materialized_within(&[set], 64, None));
+        let marked = h.intern_exact(set).unwrap_or(Handle::EMPTY);
+        assert!(h.proved_concrete(marked));
+        assert!(h.materialized_within(&[marked], 1, None));
+        // With a name allowance every node is entered and every occurrence counts.
+        assert!(h.materialized_within(&[marked], 64, Some(6)));
+        assert!(!h.materialized_within(&[marked], 64, Some(5)));
+        assert!(!h.materialized_within(&[marked], 3, Some(64)));
+        // Without the bit the walk decides, within its node allowance.
+        let inner = h.tuple_literal(&[int(7), name]);
+        let inner = unmarked(&mut h, inner);
+        let outer = h.set_from(&mut vec![inner, Handle::FALSE]);
+        let outer = unmarked(&mut h, outer);
+        assert_eq!(h.view(outer).flags & flags::CONCRETE, 0);
+        assert!(!h.proved_concrete(outer));
+        assert!(h.materialized_within(&[outer], 5, None));
+        assert!(!h.materialized_within(&[outer], 4, None));
+        // Symbolic, unnormalized and lazy nodes decline at any depth.
+        let interval = h.interval(1, 3);
+        let raw = h.set_enum(&[int(2), int(1)]);
+        let raw = h.intern_exact(raw).unwrap_or(Handle::EMPTY);
+        for symbolic in [interval, raw] {
+            let symbolic = h.intern_exact(symbolic).unwrap_or(Handle::EMPTY);
+            let nested = h.tuple(&[symbolic]);
+            let nested = unmarked(&mut h, nested);
+            for value in [symbolic, nested] {
+                assert!(!h.proved_concrete(value));
+                assert!(!h.materialized_within(&[value], 64, None));
+            }
+        }
+        let big = h.int_from_big(&(num_bigint::BigInt::from(1) << 80u32));
+        if big.is_compound() {
+            let big = h.intern_exact(big).unwrap_or(Handle::EMPTY);
+            assert!(h.proved_concrete(big));
+            assert!(h.materialized_within(&[big], 1, None));
+        }
+        assert!(!h.poisoned());
+        let _ = h.view(Handle::EMPTY);
+        assert!(
+            !h.materialized_within(&[int(1)], 1, None),
+            "current poison declines"
+        );
     }
 }

@@ -25,6 +25,10 @@ published. Earlier pre-release development entries remain in git history.
   evaluator needs it, not before every native evaluation; the implicit stutter
   reuses its source row. AllocatorImplementation reads 15% fewer rows and
   CoffeeCan1000Beans half as many.
+- Core liveness evaluates prepared temporal atoms natively on state rows that
+  hold sets, model values or functions with any keys, when every value is
+  materialized. SDP and MCFlashWithMutexLive no longer fall back to the
+  reference evaluator for their prepared atoms. Results are unchanged.
 
 - Independently validate pure bounded TLA-mode action composition, including
   actual closing edges, deadlock and fairness. Nonstuttering compares the

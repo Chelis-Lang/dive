@@ -1,6 +1,6 @@
 # 0134: Reuse positive native atom input proofs within one graph analysis
 
-- **Status:** accepted
+- **Status:** accepted; input-row admission amended by [0154](0154-native-atom-rows-by-materialization.md)
 - **Date:** 2026-11-01
 
 ## Context
