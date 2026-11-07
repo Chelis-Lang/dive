@@ -193,3 +193,57 @@ fn finite_storage_inspection_refuses_hidden_symbolic_children_without_callbacks(
         }
     }
 }
+
+#[test]
+fn sets_of_tuples_are_sorted_and_distinct_in_any_input_order()
+-> Result<(), Box<dyn std::error::Error>> {
+    for ctx in [Ctx::dive(), Ctx::tlc()] {
+        let names = Interner::new();
+        let (a, b) = (
+            Value::Model(names.intern("a")),
+            Value::Model(names.intern("b")),
+        );
+        let t = |xs: &[&Value]| Value::tuple(xs.iter().map(|x| (*x).clone()).collect());
+        let ascending = vec![
+            t(&[]),
+            t(&[&a]),
+            t(&[&b]),
+            t(&[&a, &a]),
+            t(&[&a, &b]),
+            t(&[&b, &a]),
+            t(&[&b, &b]),
+        ];
+        let expected = Value::set_canonical(ascending.clone(), ctx)?;
+        let mut descending = ascending.clone();
+        descending.reverse();
+        let mut repeated = ascending.clone();
+        repeated.extend(ascending.iter().cloned());
+        for elements in [descending, repeated] {
+            let built = Value::set_canonical(elements, ctx)?;
+            assert_eq!(built, expected);
+            assert_eq!(format!("{built:?}"), format!("{expected:?}"));
+        }
+        let Value::Set(set) = &expected else {
+            return Err("not a set".into());
+        };
+        assert_eq!(set.elements(ctx)?.len(), 7);
+        // A set of function sets materializes to the same elements.
+        let s = Value::set_canonical(vec![a.clone(), b.clone()], ctx)?;
+        let sets = Value::set_canonical(
+            vec![
+                Value::fcn_set(Value::interval(1.into(), 2.into(), ctx), s.clone(), ctx),
+                Value::fcn_set(Value::interval(1.into(), 1.into(), ctx), s, ctx),
+            ],
+            ctx,
+        )?;
+        let explicit = Value::set_canonical(
+            vec![
+                Value::set_canonical(vec![t(&[&a]), t(&[&b])], ctx)?,
+                Value::set_canonical(ascending[3..].to_vec(), ctx)?,
+            ],
+            ctx,
+        )?;
+        assert_eq!(sets, explicit);
+    }
+    Ok(())
+}

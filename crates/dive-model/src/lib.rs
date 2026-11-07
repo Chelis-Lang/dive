@@ -306,7 +306,10 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
 /// compiles are not evaluated at start-up. They are listed in
 /// [`Model::deferred_constants`], for the core to evaluate when it compiles
 /// its plan; the model's own evaluator evaluates them lazily wherever it
-/// needs them, with the same values.
+/// needs them, with the same values. The root module's pure `ASSUME`s are
+/// listed in [`Model::deferred_assumptions`]: the core evaluates them when
+/// it compiles its plan, and [`Model::check_assumptions_except`] checks the
+/// others.
 ///
 /// # Errors
 /// As [`bind`].
@@ -565,6 +568,7 @@ fn bind_in_source_covered_deferring(
         b.defer = Some(defer::Deferral {
             skip: std::collections::HashSet::new(),
             evaluate: std::collections::HashSet::new(),
+            assumptions: Vec::new(),
         });
     }
     let result = run(&mut b, predicates_only);
@@ -710,6 +714,11 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
         runtime_name_order: false,
         stateful_checking: None,
         deferred_constants: std::mem::take(&mut b.deferred),
+        deferred_assumptions: b
+            .defer
+            .as_ref()
+            .map(|d| d.assumptions.clone())
+            .unwrap_or_default(),
     };
     model.unsupported = reach::unsupported(b, &model);
     let sequential = reach::sequential(b, &model)?;

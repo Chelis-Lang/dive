@@ -774,11 +774,7 @@ impl Evaluator {
         let mut env = Env::new(a, def.depth, def.frame.len(), None, Dyn::default());
         match self.core.eval(&mut env, &St::constant(), def.body) {
             Ok(Ev::V(Value::Bool(true))) => AssumptionOutcome::AllTrue,
-            Ok(Ev::V(Value::Bool(false))) => AssumptionOutcome::False {
-                def: a,
-                message: format!("Assumption {loc} is false."),
-                property: loc,
-            },
+            Ok(Ev::V(Value::Bool(false))) => Self::assumption_false(a, loc),
             Ok(_) => {
                 let error = EvalError::coded(
                     Ec::ExpectedValue,
@@ -799,6 +795,30 @@ impl Evaluator {
                     message,
                 }
             }
+        }
+    }
+
+    /// The outcome [`Self::check_assumption`] reports for `a` when it
+    /// evaluates to `FALSE`, for an evaluator that found it so (the core
+    /// engine's start-up evaluation of a pure `ASSUME`), without
+    /// evaluating it again.
+    #[must_use]
+    pub fn false_assumption(&self, a: DefId) -> AssumptionOutcome {
+        match self.admit_def(a) {
+            Ok(def) => Self::assumption_false(a, self.core.loc(def.body)),
+            Err(error) => AssumptionOutcome::Error {
+                def: a,
+                message: error.to_string(),
+                error,
+            },
+        }
+    }
+
+    fn assumption_false(a: DefId, loc: String) -> AssumptionOutcome {
+        AssumptionOutcome::False {
+            def: a,
+            message: format!("Assumption {loc} is false."),
+            property: loc,
         }
     }
 
