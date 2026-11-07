@@ -11,6 +11,17 @@ published. Earlier pre-release development entries remain in git history.
   `SimplifiedFastPaxos/Paxos` drops from 3.7 s to about 1 s and
   `SimplifiedFastPaxos/FastPaxos` from its time budget to about 18 s (TLC:
   1.1 s and 22.7 s), with unchanged counts.
+- Core applies a built-in value operator passed as an operator argument, such
+  as KeyValueStore's `ReduceSet(\intersect, S, b)`: the set operators, `=`,
+  `/=`, `\in`, `\notin`, `\subseteq`, the Boolean connectives (still
+  short-circuiting), `SUBSET`, `UNION` and `DOMAIN`, as if written in place.
+  Applied as an action, or passed to a Java-overridden fold (where TLC itself
+  fails), a built-in is still refused.
+- Fix: Core reported an internal stale-handle error when a function's domain
+  held a value retaining a nested record view, such as KeyValueStore's
+  `PermSeqs` over logged operations while a temporal property is checked.
+  `KeyValueStore/MCKVsnap` now completes with the pinned TLC's unreduced
+  counts (D-005).
 - Core evaluates each fairness condition of the specification once per
   liveness analysis instead of once per configured property, reusing the
   completed truth of every `WF`/`SF` condition rather than only the first `WF`.

@@ -327,6 +327,16 @@ unreduced_symmetry_counts = { expected = [1, 2, 1], actual = [2, 3, 2] }
 justification = "D-005: approved whole-run unreduced symmetry, with the exact no-SYMMETRY primary reference (2 distinct, 3 generated, depth 2). The reduced TLC original is 1/2/1. The actual native unreduced mode and every tuple fact are required; no arbitrary verdict or count difference is excused."
 link = "docs/divergences.md#symmetry-with-liveness"
 
+[[divergence]]
+id = "symmetry-liveness-unreduced-mckvsnap"
+pattern = "specifications/KeyValueStore/MCKVsnap.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = []
+unreduced_symmetry_counts = { expected = [32293, 63082, 13], actual = [189664, 365596, 13] }
+justification = "D-005: approved whole-run unreduced symmetry for Termination. The pinned TLC on MCKVsnap.cfg with only SYMMETRY removed gives exactly 189664 distinct, 365596 generated, depth 13; the reduced TLC original is 32293/63082/13. The actual native unreduced mode and every tuple fact are required."
+link = "docs/divergences.md#symmetry-with-liveness"
+
 # D-009: existing default behavior of the receiver-provenance controls.
 # Each exact path, exit and generated pair is measured; no TLC or trace-validation waiver.
 

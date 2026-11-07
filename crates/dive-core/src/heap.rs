@@ -771,11 +771,14 @@ impl Heap {
         for (&k, &v) in keys.iter().zip(vals) {
             let (kh, kf) = self.child(k);
             let (vh, vf) = self.child(v);
-            if kf != 0 {
+            // Only a lazy key is a misuse. A key may be a closed view (a
+            // tuple of records an exact intern marked `NESTED_VIEW`), which
+            // is then retained like a value's view.
+            if kf & flags::LAZY != 0 {
                 self.lazy_misuse();
             }
             sum = sum.wrapping_add(mix2(kh, vh));
-            fl |= vf;
+            fl |= kf | vf;
         }
         let mut data = Vec::with_capacity(keys.len() * 2);
         data.extend_from_slice(keys);
@@ -2345,6 +2348,30 @@ mod tests {
         assert_eq!(h.intern_exact(lit2).ok(), Some(exact));
         let fcn = h.fcn_sorted(&[a, b], &[inner2, span2]);
         assert_ne!(h.intern_exact(fcn).ok(), Some(exact));
+    }
+
+    /// A function key may be a closed view: a tuple of records that an
+    /// exact intern (graph capture for liveness) marked `NESTED_VIEW`, as
+    /// `KeyValueStore`'s `PermSeqs` over its logged operations builds (#851).
+    /// Only a lazy key is a misuse.
+    #[test]
+    fn a_closed_view_is_a_function_key() {
+        let mut h = heap(false);
+        let a = h.string("a").unwrap_or(Handle::EMPTY);
+        let rec = h.record(&[a], &[int(1)]);
+        let seq = h.tuple_literal(&[rec]);
+        let key = h.intern_exact(seq).unwrap_or(Handle::EMPTY);
+        assert_ne!(h.view(key).flags & flags::NESTED_VIEW, 0);
+        let f = h.fcn_sorted(&[key, a], &[int(1), int(2)]);
+        assert!(!h.poisoned());
+        assert_ne!(h.view(f).flags & flags::NESTED_VIEW, 0, "the view is kept");
+        let plain = h.tuple(&[rec]);
+        let g = h.fcn_sorted(&[plain, a], &[int(1), int(2)]);
+        assert!(h.eq(f, g));
+        let dom = h.interval(1, 2);
+        let lazy = h.set_pred(0, dom, &[]);
+        let _ = h.fcn_sorted(&[lazy], &[int(1)]);
+        assert!(h.poisoned(), "a lazy key is still a misuse");
     }
 
     #[test]

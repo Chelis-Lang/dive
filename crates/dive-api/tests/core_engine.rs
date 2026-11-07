@@ -325,6 +325,72 @@ fn an_error_inside_a_passed_std_operator_is_refused() {
     assert_eq!(core["verdict"], "unsupported", "{core:#}");
 }
 
+/// Built-in value operators passed as operator arguments (`\intersect`
+/// through `KeyValueStore`'s LET-recursive `ReduceSet`, the set, membership
+/// and Boolean operators, `SUBSET`, `UNION`, `DOMAIN`, also under a prime)
+/// apply as written in place, with `/\` and `\/` short-circuiting (#851).
+/// The pinned TLC gives success, 5 generated, 4 distinct, depth 4.
+#[test]
+fn built_in_operators_as_operator_arguments() {
+    let tlc = (
+        Value::from("success"),
+        Value::from(5),
+        Value::from(4),
+        Value::from(4),
+    );
+    let reference = run("HoBuiltin", Engine::Reference);
+    let core = run("HoBuiltin", Engine::Core);
+    assert_eq!(core["engine"], "core");
+    assert_eq!(counts(&core), tlc, "{core:#}");
+    assert_eq!(counts(&reference), tlc, "{reference:#}");
+}
+
+/// `=>` (short-circuiting) and `<=>` passed as operator arguments, which
+/// the reference engine refuses; the counts are the pinned TLC's.
+#[test]
+fn implication_and_equivalence_as_operator_arguments() {
+    let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/core-ho-builtin/HoBuiltinImp.tla");
+    let report = check_file_engine(
+        &CheckRequest {
+            config: Some(file.with_extension("cfg")),
+            file,
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        },
+        Engine::Core,
+    )
+    .expect("check runs");
+    let core = report.to_json();
+    assert_eq!(core["engine"], "core");
+    assert_eq!(
+        counts(&core),
+        (
+            Value::from("success"),
+            Value::from(5),
+            Value::from(4),
+            Value::from(4)
+        ),
+        "{core:#}"
+    );
+}
+
+/// A built-in passed as an operator argument and applied as an action
+/// stays a named refusal: TLC's action splitting of it is not reproduced.
+#[test]
+fn a_built_in_operator_argument_applied_as_an_action_is_refused() {
+    let core = run("HoBuiltinAct", Engine::Core);
+    assert_eq!(core["verdict"], "unsupported", "{core:#}");
+    assert!(
+        core["message"]
+            .as_str()
+            .is_some_and(|m| m.contains("applied as an action")),
+        "{core:#}"
+    );
+}
+
 /// `Reduce` keeps the reference engine's refusal of operands beyond 32 bits.
 #[test]
 fn dyadic_reduce_refuses_operands_beyond_32_bits() {
