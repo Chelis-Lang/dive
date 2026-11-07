@@ -35,6 +35,22 @@ struct Inner {
     texts: Vec<Arc<str>>,
     payload_bytes: usize,
     longest_bytes: usize,
+    /// The dense rank of each id below `ranks.len()` in the table's order
+    /// among those ids ([`Strings::ranks`]).
+    ranks: Arc<[u32]>,
+}
+
+/// Up to this many strings, [`Strings::ranks`] ranks every new string at
+/// once; past it, only once the unranked ids reach an eighth of the ranked
+/// ones, so ranking a table that grows one string at a time costs a
+/// constant factor over sorting it once.
+const RANK_ALL_UP_TO: usize = 1024;
+
+/// Whether [`Strings::ranks`] should re-rank `len` ids of which `ranked`
+/// are ranked.
+fn rank_stale(ranked: usize, len: usize) -> bool {
+    let unranked = len.saturating_sub(ranked);
+    unranked > 0 && (len <= RANK_ALL_UP_TO || unranked.saturating_mul(8) >= ranked)
 }
 
 /// Known storage and opaque index capacity of an append-only string table.
@@ -42,6 +58,7 @@ struct Inner {
 /// Text payload is counted once, even though the index, text vector and callers
 /// share each string. Arc control blocks, allocator overhead and the physical
 /// `HashMap` bucket allocation are not exposed by stable standard-library APIs.
+/// The rank index ([`Strings::ranks`]), which heaps share, is not counted.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct StringsMemory {
     /// Unique UTF-8 payload bytes, excluding Arc control blocks.
@@ -208,6 +225,43 @@ impl Strings {
         }
     }
 
+    /// The dense rank of each id in the table's order, for the ids below
+    /// the result's length: comparing two ranks compares the two strings
+    /// as [`Strings::cmp`] does.
+    ///
+    /// Ranks are rebuilt here, not on every intern, so the ids interned
+    /// since the last rebuild may lie past the result; the caller compares
+    /// those by text. Interning shifts ranks but never reorders two ids
+    /// that were ranked together, so an earlier result still orders every
+    /// pair it covers.
+    #[must_use]
+    pub fn ranks(&self) -> Arc<[u32]> {
+        {
+            let inner = self.inner.read().unwrap_or_else(PoisonError::into_inner);
+            if !rank_stale(inner.ranks.len(), inner.texts.len()) {
+                return inner.ranks.clone();
+            }
+        }
+        let mut inner = self.inner.write().unwrap_or_else(PoisonError::into_inner);
+        if rank_stale(inner.ranks.len(), inner.texts.len()) {
+            // Ids are issued as `u32`, so their count fits unless the
+            // table is full; a full table keeps its earlier ranks.
+            if let Ok(len) = u32::try_from(inner.texts.len()) {
+                let mut order: Vec<u32> = (0..len).collect();
+                if self.order == StringOrder::Text {
+                    let texts = &inner.texts;
+                    order.sort_unstable_by(|&a, &b| texts[a as usize].cmp(&texts[b as usize]));
+                }
+                let mut ranks = vec![0; order.len()];
+                for (rank, id) in (0u32..).zip(order) {
+                    ranks[id as usize] = rank;
+                }
+                inner.ranks = ranks.into();
+            }
+        }
+        inner.ranks.clone()
+    }
+
     /// The UTF-8 length of the longest text in the table so far. The table
     /// is append-only, so every id it has issued names a text at most this
     /// long: it bounds the work of one scan over any one current string.
@@ -320,6 +374,52 @@ mod tests {
         let t = Strings::new(StringOrder::Text);
         let (b, a) = (t.intern("b").unwrap_or(0), t.intern("a").unwrap_or(0));
         assert_eq!(t.cmp(a, b), Ordering::Less);
+    }
+
+    /// Ranks order every pair they cover as [`Strings::cmp`] does, also
+    /// after strings are interned between and around ranked ones, and an
+    /// earlier rank copy stays valid for the pairs it covers.
+    #[test]
+    fn ranks_follow_the_table_order_as_it_grows() {
+        for order in [StringOrder::Text, StringOrder::Token] {
+            let t = Strings::new(order);
+            let mut snapshots = Vec::new();
+            for text in ["m", "c", "x", "", "cc", "b", "\u{e9}", "z", "a", "mm"] {
+                assert!(t.intern(text).is_ok());
+                snapshots.push(t.ranks());
+            }
+            let n = u32::try_from(t.len()).unwrap_or(0);
+            for ranks in &snapshots {
+                for a in 0..n {
+                    for b in 0..n {
+                        if let (Some(x), Some(y)) = (ranks.get(a as usize), ranks.get(b as usize)) {
+                            assert_eq!(x.cmp(y), t.cmp(a, b), "{order:?} {a} {b}");
+                        }
+                    }
+                }
+            }
+            assert_eq!(snapshots.last().map(|r| r.len()), Some(t.len()));
+        }
+    }
+
+    /// Past [`RANK_ALL_UP_TO`] strings, a few new strings stay unranked
+    /// until enough accumulate, and ranking then covers them all.
+    #[test]
+    fn large_tables_rank_new_strings_in_batches() {
+        let t = Strings::new(StringOrder::Text);
+        for n in (0..2048).rev() {
+            assert!(t.intern(&format!("s{n:05}")).is_ok());
+        }
+        assert_eq!(t.ranks().len(), 2048);
+        assert!(t.intern("a").is_ok());
+        assert_eq!(t.ranks().len(), 2048, "one new string waits");
+        for n in 0..256 {
+            assert!(t.intern(&format!("t{n}")).is_ok());
+        }
+        let ranks = t.ranks();
+        assert_eq!(ranks.len(), t.len());
+        let a = t.lookup("a").unwrap_or(0);
+        assert_eq!(ranks.get(a as usize), Some(&0));
     }
 
     #[test]

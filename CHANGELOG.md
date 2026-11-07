@@ -11,6 +11,10 @@ published. Earlier pre-release development entries remain in git history.
   `SDP_Verification/SDP_Attack_New_Solution_Spec/MC` (six properties, fifteen
   `WF` conditions) evaluates 206,091 native atoms instead of 1,087,181.
   Verdicts, counts and counterexamples are unchanged.
+- Core compares strings and model values by a rank in canonical order that
+  the string table maintains, instead of by their text, cutting about 6% of
+  the instructions of `CheckpointCoordination/MCCheckpointCoordination`.
+  The order is unchanged in both profiles.
 - Core evaluates a recursive operator or recursive LET function applied under
   a prime, as a refinement mapping `INSTANCE ... WITH v <- Op(e)` does under
   `[][Next]_vars`, in the successor state. `glowingRaccoon/product` now checks

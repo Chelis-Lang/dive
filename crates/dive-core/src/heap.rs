@@ -67,11 +67,10 @@ pub struct Heap {
     work_control: Option<Arc<dyn crate::eval::WorkControl>>,
     work_steps: std::cell::Cell<u32>,
     work_interrupted: std::cell::Cell<bool>,
-    /// This heap's copy of the string table's texts, by id, extended on a
-    /// miss: string comparisons read it without the table's lock, which
-    /// every worker would otherwise share (#550). Ids never change their
-    /// text, so a copy never goes stale.
-    texts: std::cell::RefCell<Vec<Arc<str>>>,
+    /// This heap's copy of the string table's texts and ranks, by id,
+    /// extended on a miss: string comparisons read it without the table's
+    /// lock, which every worker would otherwise share (#550).
+    names: std::cell::RefCell<Names>,
     /// This heap's view of the store's deduplication tables, for interning
     /// a value already present without the shard lock (#550).
     pub(crate) cache: crate::store::InternCache,
@@ -80,6 +79,35 @@ pub struct Heap {
 impl Drop for Heap {
     fn drop(&mut self) {
         self.store.flush_hits(&mut self.cache);
+    }
+}
+
+/// A heap's lock-free copy of the shared string table
+/// ([`crate::strings::Strings`]).
+///
+/// Ids never change their text, so the text copy never goes stale. Ranks
+/// shift as strings are interned, but never reorder two ids the table had
+/// already ranked together, so a rank copy that covers both ids of a
+/// comparison orders them as the table does now.
+#[derive(Debug, Default)]
+struct Names {
+    texts: Vec<Arc<str>>,
+    ranks: Arc<[u32]>,
+}
+
+impl Names {
+    /// Extends the copy when `id` is past it, taking the table's current
+    /// ranks with the new texts.
+    fn sync(&mut self, strings: &crate::strings::Strings, id: u32) {
+        if (id as usize) < self.texts.len() {
+            return;
+        }
+        let more = strings.texts_from(self.texts.len());
+        if more.is_empty() {
+            return;
+        }
+        self.texts.extend(more);
+        self.ranks = strings.ranks();
     }
 }
 
@@ -126,51 +154,64 @@ impl Heap {
             work_control: None,
             work_steps: std::cell::Cell::new(0),
             work_interrupted: std::cell::Cell::new(false),
-            texts: std::cell::RefCell::new(Vec::new()),
+            names: std::cell::RefCell::new(Names::default()),
             cache: crate::store::InternCache::default(),
         }
     }
 
     /// Compares two string or model-value ids in the table's order, as
-    /// [`crate::strings::Strings::cmp`] does, from this heap's copy of the
-    /// texts.
+    /// [`crate::strings::Strings::cmp`] does: by the ranks in this heap's
+    /// copy when it ranks both ids, else from its copy of the texts.
+    #[inline]
     pub(crate) fn str_cmp(&self, a: u32, b: u32) -> Ordering {
         if a == b {
             return Ordering::Equal;
         }
+        {
+            let names = self.names.borrow();
+            if let (Some(x), Some(y)) = (names.ranks.get(a as usize), names.ranks.get(b as usize)) {
+                return x.cmp(y);
+            }
+        }
+        self.str_cmp_unranked(a, b)
+    }
+
+    /// [`Heap::str_cmp`] for an id outside this heap's rank copy: refreshes
+    /// the copy, then compares by rank, by token or by text.
+    #[inline(never)]
+    fn str_cmp_unranked(&self, a: u32, b: u32) -> Ordering {
         let strings = self.store.strings();
+        let mut names = self.names.borrow_mut();
+        names.sync(strings, a.max(b));
+        if let (Some(x), Some(y)) = (names.ranks.get(a as usize), names.ranks.get(b as usize)) {
+            return x.cmp(y);
+        }
         if strings.order() == crate::strings::StringOrder::Token {
             return a.cmp(&b);
         }
-        let mut texts = self.texts.borrow_mut();
-        if a.max(b) as usize >= texts.len() {
-            let more = strings.texts_from(texts.len());
-            texts.extend(more);
-        }
-        match (texts.get(a as usize), texts.get(b as usize)) {
+        match (names.texts.get(a as usize), names.texts.get(b as usize)) {
             (Some(x), Some(y)) => x.cmp(y),
             _ => a.cmp(&b),
         }
     }
 
+    /// Whether the shared table has issued `id`.
+    #[inline]
     pub(crate) fn known_name(&self, id: u32) -> bool {
-        let mut texts = self.texts.borrow_mut();
-        if id as usize >= texts.len() {
-            let more = self.store.strings().texts_from(texts.len());
-            texts.extend(more);
+        if (id as usize) < self.names.borrow().texts.len() {
+            return true;
         }
-        (id as usize) < texts.len()
+        let mut names = self.names.borrow_mut();
+        names.sync(self.store.strings(), id);
+        (id as usize) < names.texts.len()
     }
 
     /// TLC's model-value type for a name, using this heap's append-only
     /// text copy. The rule counts UTF-16 units, as `ModelValue` does.
     pub(crate) fn model_type(&self, id: u32) -> Option<u16> {
-        let mut texts = self.texts.borrow_mut();
-        if id as usize >= texts.len() {
-            let more = self.store.strings().texts_from(texts.len());
-            texts.extend(more);
-        }
-        let mut units = texts.get(id as usize)?.encode_utf16();
+        let mut names = self.names.borrow_mut();
+        names.sync(self.store.strings(), id);
+        let mut units = names.texts.get(id as usize)?.encode_utf16();
         let (first, second) = (units.next()?, units.next()?);
         (second == u16::from(b'_') && units.next().is_some()).then_some(first)
     }
@@ -359,7 +400,8 @@ impl Heap {
                     return false;
                 }
                 if let Some(limit) = name_bytes {
-                    let Some(len) = self.texts.borrow().get(id as usize).map(|t| t.len()) else {
+                    let Some(len) = self.names.borrow().texts.get(id as usize).map(|t| t.len())
+                    else {
                         return false;
                     };
                     bytes = bytes.saturating_add(len);
@@ -1939,6 +1981,24 @@ mod tests {
         let (c, aa) = (id("c"), id("aa"));
         for (x, y) in [(a, b), (b, c), (aa, a), (aa, b), (c, aa), (c, c)] {
             assert_eq!(h.str_cmp(x, y), t.cmp(x, y), "{x} {y}");
+        }
+    }
+
+    /// Strings the table has not ranked yet compare by text, against ranked
+    /// and unranked strings alike, as the table orders them.
+    #[test]
+    fn string_comparison_covers_strings_past_the_ranks() {
+        let h = heap(false);
+        let t = h.store().strings();
+        let id = |s: &str| t.intern(s).unwrap_or(u32::MAX);
+        let ranked: Vec<u32> = (0..1500).map(|n| id(&format!("k{n:04}"))).collect();
+        assert_eq!(h.str_cmp(ranked[1], ranked[0]), Ordering::Greater);
+        let late = [id("k0500x"), id("a"), id("zz")];
+        assert!(t.ranks().len() < t.len(), "the late strings stay unranked");
+        for &x in late.iter().chain(&ranked[495..505]) {
+            for &y in late.iter().chain(&ranked[495..505]) {
+                assert_eq!(h.str_cmp(x, y), t.cmp(x, y), "{x} {y}");
+            }
         }
     }
 
