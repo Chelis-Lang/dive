@@ -680,13 +680,29 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
             "simulation runtime string encounter order requires independent namespace provenance",
         );
     }
-    if let Some(u) = model.unsupported.first() {
+    // A temporal property's binding refusal names the liveness backend, which
+    // simulation never uses; the simulation-specific refusal below names it.
+    if let Some(u) = model
+        .unsupported
+        .iter()
+        .find(|u| u.kind != dive_model::UnsupportedKind::TemporalProperty)
+    {
         return refusal(&u.feature);
     }
     // Fairness (`model.temporals`) constrains only infinite behaviors and is
     // inert for the finite safety prefixes simulation checks (ADR 0116).
+    // Simulation does not check temporal properties on its traces (deferred
+    // by owner ruling, 2026-11-06).
     if !model.implied_temporals.is_empty() {
-        return refusal("simulation temporal properties");
+        let names: Vec<&str> = model
+            .implied_temporals
+            .iter()
+            .map(|n| n.name.as_str())
+            .collect();
+        return refusal(&format!(
+            "simulation temporal properties: {}",
+            names.join(", ")
+        ));
     }
     if !model.implied_inits.is_empty() {
         return refusal(

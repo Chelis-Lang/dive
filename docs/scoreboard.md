@@ -41,11 +41,11 @@ reason covers one or two models, so work them in any order.
 | `TLCExt!Trace` | **`ewd840/EWD840_json`**, **`ewd998/EWD998ChanID_export`** |
 | `TLCGet("config")` | **`DieHard/MCDieHardest`** |
 | `SUBSET` of more than 24 elements | **`SpanningTree/SpanTreeTest5Nodes`** |
-| `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/SmokeEWD998`, `ewd998/EWD998ChanTrace` |
+| `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/EWD998ChanTrace` |
 | VIEW with liveness (deferred past v0.1 by owner ruling, 2026-11-06) | `FiniteMonotonic/MCDistributedReplicatedLog`, `ewd998/EWD998ChanID` |
 | graph capture with random operators | `SpanningTree/SpanTreeRandom` |
 | simulation ALIAS | `ewd840/EWD840_anim` |
-| simulation with a liveness `PROPERTY` (deferred by owner ruling, 2026-11-06) | `ewd687a/EWD687a_anim` |
+| simulation with a liveness `PROPERTY` (deferred by owner ruling, 2026-11-06) | `ewd687a/EWD687a_anim`, `ewd998/SmokeEWD998` |
 | 900-second stop | `MultiCarElevator/ElevatorSafetyLarge`, `MultiPaxos-SMR/MultiPaxos_MC`, `NanoBlockchain/MCNanoLarge`, `SlushProtocol/SlushLarge`, `bcastFolklore/bcastFolklore`, `SpecifyingSystems/AdvancedExamples/MCInnerSerial` |
 
 Out of scope: `ewd998/SmokeEWD998_SC` is a host script, not a model. It

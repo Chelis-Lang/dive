@@ -101,10 +101,34 @@ fn temporal_properties_are_named_refusals() {
             &Options::new(0, mode, 3, 1),
         );
         assert!(
-            matches!(&report.outcome, Outcome::Unsupported(f) if f.contains("temporal properties")),
+            matches!(&report.outcome, Outcome::Unsupported(f) if f == "simulation temporal properties: Live"),
             "{:?}",
             report.outcome
         );
+        assert_eq!(report.traces_started, 0);
+    }
+}
+
+// A fairness conjunct of a specification named as a PROPERTY (the shape of
+// Examples `ewd998/SmokeEWD998`, with a state constraint) is a temporal
+// property: simulation refuses it by its own name, not the liveness backend's.
+#[test]
+fn property_fairness_conjunct_is_a_simulation_refusal() {
+    let source = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = (x + 1) % 4\nPSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nStop == x < 10\n====\n";
+    for mode in [RandomMode::Tlc, RandomMode::Dive] {
+        let report = run(
+            source,
+            "INIT Init\nNEXT Next\nPROPERTY PSpec\nCONSTRAINT Stop\n",
+            &Options::new(0, mode, 3, 1),
+        );
+        assert!(
+            matches!(&report.outcome, Outcome::Unsupported(f)
+                if f.starts_with("simulation temporal properties: ")
+                    && !f.contains("liveness checking")),
+            "{:?}",
+            report.outcome
+        );
+        assert_eq!(report.stage, "preflight");
         assert_eq!(report.traces_started, 0);
     }
 }

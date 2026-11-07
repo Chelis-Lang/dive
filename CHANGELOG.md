@@ -54,6 +54,11 @@ published. Earlier pre-release development entries remain in git history.
   `SimplifiedFastPaxos/Paxos` drops from 3.7 s to about 1 s and
   `SimplifiedFastPaxos/FastPaxos` from its time budget to about 18 s (TLC:
   1.1 s and 22.7 s), with unchanged counts.
+- `dive simulate` names a temporal `PROPERTY` it refuses as
+  `simulation temporal properties: <names>` on both engines, instead of the
+  exhaustive checker's `temporal properties (liveness checking)` reason, so
+  `ewd998/SmokeEWD998` reports the same deferred refusal as
+  `ewd687a/EWD687a_anim`.
 - Core applies a built-in value operator passed as an operator argument, such
   as KeyValueStore's `ReduceSet(\intersect, S, b)`: the set operators, `=`,
   `/=`, `\in`, `\notin`, `\subseteq`, the Boolean connectives (still
