@@ -1,7 +1,8 @@
 //! Native original-value retention and ordered CSR capture.
 //!
-//! No reference value graph is retained. The converter still admits every
-//! original before graph admission, including seen occurrences, in event order.
+//! No reference value graph is retained. The converter admits every original
+//! before graph admission, including seen occurrences, in event order, unless
+//! the run deferred admission to reads (see `core_native_values`).
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -297,6 +298,12 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
         self.error.take()
     }
 
+    /// Converts rows only when they are read; see
+    /// [`NativeValues::defer_admission`] for the caller's obligations.
+    pub(crate) fn defer_admission(&mut self) {
+        self.values.defer_admission();
+    }
+
     pub(crate) fn prepare_source_rows(&mut self, setup: SourceRowSetup) {
         self.source_setup = Some(setup);
     }
@@ -322,14 +329,29 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
         Stopped
     }
 
+    fn record(&mut self, heap: &Heap, step: Step<'_>) -> Result<(), Verdict> {
+        // Preserve the legacy converter-before-state/edge-admission precedence,
+        // including seen originals and run-local name interning order. A
+        // deferred admission happens at the next read, in retention order.
+        // A seen root that need not be retained is still admitted at once,
+        // after the pending rows, as it may differ from its representative.
+        let admitted = self
+            .values
+            .admits_now(step.parent.is_none() && step.new.is_none());
+        if admitted {
+            self.values
+                .catch_up(&self.graph)
+                .map_err(crate::core_native_values::capture_error)?;
+            self.values.admit(step.original)?;
+        }
+        self.record_admitted(heap, step)
+    }
+
     #[allow(
         clippy::too_many_lines,
         reason = "ordered admission and exact original retention"
     )]
-    fn record(&mut self, heap: &mut Heap, step: Step<'_>) -> Result<(), Verdict> {
-        // Preserve the legacy converter-before-state/edge-admission precedence,
-        // including seen originals and run-local name interning order.
-        self.values.admit(step.original)?;
+    fn record_admitted(&mut self, heap: &Heap, step: Step<'_>) -> Result<(), Verdict> {
         if !Arc::ptr_eq(heap.store(), &self.graph.store) || step.original.len() != self.graph.nvars
         {
             return Err(bug("native original store or row width differs"));
@@ -521,7 +543,7 @@ impl GraphSink for NativeSink<'_, '_> {
                 as usize;
             let state = self
                 .values
-                .read(original, row.original, &self.control)
+                .read_retained_as(&self.graph, original, row.original, &self.control)
                 .map_err(source_error)?;
             let start = *self
                 .graph
@@ -537,11 +559,7 @@ impl GraphSink for NativeSink<'_, '_> {
                     })?;
                     targets.push(
                         self.values
-                            .read(
-                                retained,
-                                self.graph.row(retained).map_err(source_error)?,
-                                &self.control,
-                            )
+                            .read_retained(&self.graph, retained, &self.control)
                             .map_err(source_error)?,
                     );
                 }

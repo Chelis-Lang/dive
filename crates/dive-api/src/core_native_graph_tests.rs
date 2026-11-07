@@ -29,7 +29,17 @@ fn prepare(
     tlc: bool,
     opts: dive_core::Opts,
 ) -> crate::core_engine::Prepared {
-    let source = format!("---- MODULE Native ----\nEXTENDS Naturals\n{body}\n====\n");
+    prepare_extending("Naturals", body, cfg, tlc, opts)
+}
+
+fn prepare_extending(
+    extends: &str,
+    body: &str,
+    cfg: &str,
+    tlc: bool,
+    opts: dive_core::Opts,
+) -> crate::core_engine::Prepared {
+    let source = format!("---- MODULE Native ----\nEXTENDS {extends}\n{body}\n====\n");
     let analysis = dive_sema::analyze_source("Native.tla", &source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{analysis:?}");
     let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
@@ -546,5 +556,124 @@ fn native_callback_shape_failure_stops_without_selecting_a_prefix() {
     assert!(matches!(
         sink.take_error(),
         Some(Verdict::InternalError { .. })
+    ));
+}
+
+/// Explores `body` with eager or deferred admission and then reads every
+/// retained row, returning the names interned after start-up and the reads.
+fn admitted_names(body: &str, deferred: bool, workers: usize) -> (Vec<String>, Vec<String>, u64) {
+    let opts = dive_core::Opts::default();
+    let prepared = prepare_extending("Naturals, TLC", body, "INIT Init\nNEXT Next\n", false, opts);
+    let options = options(false);
+    let startup = prepared.model.names.len();
+    let mut sink = NativeSink::new(
+        &prepared.model,
+        Arc::clone(&prepared.store),
+        Limits::default(),
+        &options,
+        None,
+    )
+    .expect("sink");
+    if deferred {
+        sink.defer_admission();
+    }
+    let out = dive_explore::explore_with(
+        &prepared.plan,
+        &prepared.store,
+        config(opts, workers),
+        &|| false,
+        Some(&mut sink),
+    );
+    assert_eq!(out.verdict, dive_explore::Verdict::Success);
+    let (graph, mut values) = sink.finish();
+    let captured = prepared.model.names.len();
+    let admitted = values.metrics()["admitted_rows"].as_u64().expect("count");
+    let control = EvaluationControl::new(&options.budget, Phase::Temporal).expect("control");
+    let mut reads = Vec::new();
+    for row in (0..graph.retained_rows).rev() {
+        let vals = values.read_retained(&graph, row, &control).expect("read");
+        reads.push(format!("{vals:?}"));
+    }
+    if deferred {
+        assert_eq!(captured, startup, "deferred capture interns no name");
+    }
+    let names = (startup..prepared.model.names.len())
+        .map(|token| {
+            let token = u32::try_from(token).expect("token");
+            prepared
+                .model
+                .names
+                .resolve(token)
+                .expect("name")
+                .as_str()
+                .to_owned()
+        })
+        .collect();
+    (names, reads, admitted)
+}
+
+#[test]
+fn deferred_admission_interns_the_eager_names_in_the_same_order_at_its_first_read() {
+    // Run-time strings in successor rows, and seen roots whose originals
+    // differ from their representatives (a general function aliasing a tuple).
+    let body = "VARIABLES n, x, s\n\
+Init == n \\in 0..3 /\\ (x = <<0>> \\/ x = [i \\in 1..1 |-> 0]) /\\ s = \"init\"\n\
+Next == n' = (n + 1) % 4 /\\ x' = x /\\ s' = ToString(<<n, \"z\", n * 7>>)";
+    for workers in [1, 2, 8] {
+        let (eager, eager_reads, eager_admitted) = admitted_names(body, false, workers);
+        let (deferred, deferred_reads, deferred_admitted) = admitted_names(body, true, workers);
+        assert!(!eager.is_empty(), "the fixture interns run-time names");
+        assert_eq!(deferred, eager, "{workers} workers");
+        assert_eq!(deferred_reads, eager_reads, "{workers} workers");
+        assert!(
+            deferred_admitted < eager_admitted,
+            "seen successors stay unadmitted"
+        );
+    }
+}
+
+#[test]
+fn deferred_admission_refuses_an_unconvertible_row_at_its_read() {
+    let opts = dive_core::Opts::default();
+    let prepared = prepare(
+        "VARIABLE x\nInit == x = 0\nNext == UNCHANGED x",
+        "INIT Init\nNEXT Next\n",
+        false,
+        opts,
+    );
+    let options = options(false);
+    let mut sink = NativeSink::new(
+        &prepared.model,
+        Arc::clone(&prepared.store),
+        Limits::default(),
+        &options,
+        None,
+    )
+    .expect("sink");
+    sink.defer_admission();
+    let mut heap = Heap::new(Arc::clone(&prepared.store), false, false);
+    let interval = heap.interval(1, 2);
+    let original = heap.intern_exact(interval).expect("original");
+    let canonical = heap.intern(interval).expect("identity");
+    sink.emitted(1, None).expect("generated admission first");
+    sink.state(
+        &mut heap,
+        Step {
+            key: 1,
+            new: Some((0, &[canonical])),
+            original: &[original],
+            parent: None,
+            ordinal: 0,
+            action: None,
+        },
+    )
+    .expect("a deferred row is retained without conversion");
+    let (graph, mut values) = sink.finish();
+    assert_eq!(graph.retained_rows, 1);
+    assert_eq!(values.metrics()["admitted_rows"], 0);
+    let control = EvaluationControl::new(&options.budget, Phase::Temporal).expect("control");
+    assert!(matches!(
+        values.read_retained(&graph, 0, &control),
+        Err(AnalysisError::UnsupportedValue(reason)) if reason.contains("unmaterialized symbolic")
     ));
 }

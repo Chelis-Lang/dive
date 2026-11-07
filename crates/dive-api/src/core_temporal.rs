@@ -285,6 +285,9 @@ fn check_configured_inner(
             )));
         }
     };
+    // With every atom native, values are read only for an actual fallback,
+    // source-row check or report; admission waits for that read.
+    let defer_admission = atoms.all_native();
     let mut on_level = |level: u64, graph: &NativeGraph, values: &mut NativeValues<'_>, stats| {
         // Final-only and not-yet-due levels do not scan any retained CSR.
         if !graph_check.native_level_due(stats) {
@@ -322,6 +325,9 @@ fn check_configured_inner(
             );
         }
     };
+    if defer_admission {
+        sink.defer_admission();
+    }
     if let Some(setup) = source_setup {
         sink.prepare_source_rows(setup);
     }
@@ -632,7 +638,7 @@ fn finish(
     let mut read = crate::core_native_atoms::Reader::new(graph, values, atoms);
     if let Some(level) = prefix {
         let mut read =
-            |row, control: &EvaluationControl| read.values.read(row, graph.row(row)?, control);
+            |row, control: &EvaluationControl| read.values.read_retained(graph, row, control);
         let prefix = CsrPrefix::from_producer(
             graph.input(),
             level,

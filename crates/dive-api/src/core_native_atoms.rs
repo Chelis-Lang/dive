@@ -313,6 +313,12 @@ impl NativeAtoms {
         Some(index)
     }
 
+    /// Whether every retained liveness atom was prepared natively, so the
+    /// reference evaluator answers only an actual demand fallback.
+    pub(crate) fn all_native(&self) -> bool {
+        self.eligible == self.total
+    }
+
     /// The first native-versus-reference disagreement found by the audit.
     pub(crate) fn audit_mismatch(&self) -> Option<&str> {
         self.audit_mismatch.as_deref()
@@ -742,10 +748,10 @@ impl Reader<'_, '_> {
         control: &EvaluationControl,
     ) -> Result<(), AnalysisError> {
         let graph = self.proofs.graph;
-        let source = self.values.read(before, graph.row(before)?, control)?;
+        let source = self.values.read_retained(graph, before, control)?;
         let st = match after {
             Some(row) => {
-                dive_eval::St::action(source, self.values.read(row, graph.row(row)?, control)?)
+                dive_eval::St::action(source, self.values.read_retained(graph, row, control)?)
             }
             None => dive_eval::St::state(source),
         };
@@ -768,7 +774,10 @@ impl Reader<'_, '_> {
 impl NativeReader for Reader<'_, '_> {
     fn reads_admitted(&self) -> bool {
         // `NativeValues::admit` converted every retained original, interning
-        // names in event order, before the producer retained its row.
+        // names in event order, before the producer retained its row. Under
+        // deferred admission every atom is native, so reads stay limited to
+        // actual fallbacks; each read first admits the pending rows in
+        // retention order, and an unconvertible row is refused at that read.
         true
     }
 
@@ -781,7 +790,7 @@ impl NativeReader for Reader<'_, '_> {
         row: usize,
         control: &EvaluationControl,
     ) -> Result<dive_eval::next::StateVals, AnalysisError> {
-        self.values.read(row, self.proofs.graph.row(row)?, control)
+        self.values.read_retained(self.proofs.graph, row, control)
     }
     fn predicate(
         &mut self,
