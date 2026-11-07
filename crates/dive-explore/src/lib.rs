@@ -2429,6 +2429,8 @@ mod tests {
             view: None,
             stats: CompileStats::default(),
             bound_preset: Vec::new(),
+            startup_assumptions: Vec::new(),
+            startup_assumption_false: None,
         })
     }
 
