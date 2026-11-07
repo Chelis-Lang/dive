@@ -22,7 +22,9 @@ Initial states may hold compound values (sets, functions, records, sequences).
 A `SPECIFICATION` with fairness conjuncts is simulated: fairness constrains only
 infinite behaviors, so it cannot change a finite safety result (ADR 0116).
 Configured temporal `PROPERTY` checking, VIEW, symmetry and unproved sampling
-interactions refuse. Returned violations require independent trace validation;
+interactions refuse. `ALIAS` is not applied, as in `dive check`: the traces
+show the states themselves and the report's `notes` say so. An `ALIAS` that
+names no definition refuses. Returned violations require independent trace validation;
 unknown replay alignment returns `unsupported`.
 Configured VIEW is rejected by shared preflight in Reference, Core and Auto,
 before assumptions, Init or sampling; exhausted budgets do not rewrite that

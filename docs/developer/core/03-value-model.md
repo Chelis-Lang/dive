@@ -365,7 +365,11 @@ the run, and the seed is always reported.
   reference engine's code computes every result and error, so the core
   gives TLC's values under `--compat=tlc` too. Arguments and results are
   converted as reports are (`Conversion::Report`). Supported keys:
-  integer registers, `"s:..."` names, `"all"` and `"all:named"`.
+  integer registers, `"s:..."` names, `"all"` and `"all:named"`, and
+  `"config"`, which the core's host provides after binding as the
+  reference engine does (`dive_check::engine::run_config`). The `ASSUME`s
+  read the start-up counters; from `Init` on the counters are not
+  provided.
 - **Level.** `Machine::level` is set by the engine: 0 in `Init`, the
   checked state's level in invariants, constraints and implied initial
   predicates, the expanded state's level in the next-state relation,
@@ -382,7 +386,7 @@ the run, and the seed is always reported.
   - TLC's call-stack replay after a failing check, in a plan with
     registers or the level;
   - `TLCSet("exit")`, `TLCSet("pause")`, `TLCSet("-D...")`, and `TLCGet`
-    of the counters, `"config"`, `"stats"` and other keys;
+    of the counters during the search, `"stats"` and other keys;
   - `--core-sample` with registers.
 - **Tests.** `crates/dive-api/tests/core_registers.rs` runs the `Rg*`
   fixtures in both profiles at 1 and 4 workers against the reference

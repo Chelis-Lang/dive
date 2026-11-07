@@ -706,8 +706,11 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     if model.view.is_some() {
         return refusal("simulation VIEW declarations");
     }
-    if model.alias.is_some() {
-        return refusal("simulation ALIAS");
+    // ALIAS only projects printed traces; as in checking, the report shows
+    // the states themselves and says so (`dive_api::simulate`). A failed
+    // lookup is TLC's error when it prints a trace, which is not reproduced.
+    if matches!(model.alias, Some(Err(_))) {
+        return refusal("simulation ALIAS whose definition lookup fails");
     }
     if !matches!(&model.postconditions, Ok(p) if p.is_empty()) {
         return refusal("simulation POSTCONDITION");

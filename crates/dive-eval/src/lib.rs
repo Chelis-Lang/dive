@@ -646,7 +646,8 @@ impl Evaluator {
     /// `TLCSet(key, value)` or `TLCGet(key)` on evaluated arguments, against
     /// this evaluator's registers, which start-up evaluation (constant
     /// definitions, `ASSUME`s) wrote: integer registers, named `"s:..."`
-    /// registers, `"all"` and `"all:named"`. Errors are wrapped as TLC
+    /// registers, `"all"` and `"all:named"`, and the run's `"config"`
+    /// record, which the host provides. Errors are wrapped as TLC
     /// wraps them: `TLCGet`'s as its `EvaluatingValue`'s, `TLCSet`'s as a
     /// Java override's. Another engine evaluating the specification calls
     /// it to share the run's registers. `TLCGet` of any other string, and
@@ -666,7 +667,8 @@ impl Evaluator {
             Value::Str(s) => {
                 let s = s.as_str();
                 let ok = if op == dive_ir::StdOp::TlcTLCGet {
-                    s.starts_with("s:") || s == "all" || s == "all:named"
+                    // `"config"` is the run's, fixed before the ASSUMEs.
+                    s.starts_with("s:") || s == "all" || s == "all:named" || s == "config"
                 } else {
                     // Any other string is TLC's argument error.
                     !(s == "exit" || s == "pause" || s.starts_with("-D"))

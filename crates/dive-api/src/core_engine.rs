@@ -721,6 +721,14 @@ fn prepare_observed(
         Ok(m) => m,
         Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
     };
+    // TLC creates its model checker after binding, as the reference engine
+    // does: `TLCGet("config")` and the checker's names exist from here on,
+    // and the ASSUMEs read the start-up counters.
+    model.evaluator.intern_checker_names();
+    let run_config = dive_check::engine::run_config(options, model.settings.check_deadlock);
+    model.evaluator.intern_bfs_config(&run_config);
+    host.set_config(Some(run_config));
+    dive_check::engine::startup_counters(&host);
     if debugger.is_some() && !model.implied_temporals.is_empty() {
         return Err(Box::new(result(
             unsupported("compiled debugger with temporal checking"),
@@ -757,6 +765,10 @@ fn prepare_observed(
             Some(dive_check::classify::assumption_error(&error, message))
         }
     };
+    // From `Init` on the live counters are not provided, as in the
+    // reference engine's search: reading one is refused rather than
+    // answered with a count the core does not keep.
+    dive_check::engine::search_counters(&host);
     if let Some(v) = assumed {
         // Output printed while evaluating the ASSUMEs is the reference
         // engine's to order; the core does not report it.
