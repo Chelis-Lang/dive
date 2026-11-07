@@ -18,6 +18,13 @@ rendering and return values are evaluated. Reference execution supports repeated
 compound choices and captured operators. Independent replay remains bounded as
 described below. Registers, Randomization operators and unsupported host effects
 refuse; untaken branches do not run them.
+Core provides `TLCGet("level")` with the values the pinned TLC simulator
+gives: 0 in `Init`, a state's 1-based position in its trace in invariants and
+`CONSTRAINT`s, and the position of the step's source state in `Next`,
+`ACTION_CONSTRAINT`s and action properties. Independent replay recomputes the
+level from each state's position. A primed `TLCGet("level")`, which TLC
+evaluates at the successor's level, refuses by name. The Reference simulator
+still refuses `TLCGet("level")`.
 Initial states may hold compound values (sets, functions, records, sequences).
 A `SPECIFICATION` with fairness conjuncts is simulated: fairness constrains only
 infinite behaviors, so it cannot change a finite safety result (ADR 0116).

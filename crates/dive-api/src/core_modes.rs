@@ -204,6 +204,20 @@ fn predicate(machine: &mut Machine, code: &Code, check: &Check, step: bool) -> R
     result
 }
 
+/// Runs `work` with `TLCGet("level")` at `level`, then restores the level
+/// generation continues at.
+fn at_level<T>(machine: &mut Machine, level: i64, work: impl FnOnce(&mut Machine) -> T) -> T {
+    let previous = std::mem::replace(&mut machine.level, level);
+    let result = work(machine);
+    machine.level = previous;
+    result
+}
+
+/// A trace position (1-based) as a `TLCGet("level")`.
+fn level_of(position: usize) -> i64 {
+    i64::try_from(position).unwrap_or(i64::MAX)
+}
+
 fn allowed(
     machine: &mut Machine,
     plan: &Plan,
@@ -449,6 +463,11 @@ impl Native {
         let (events, bytes) = remaining();
         self.machine.set_output_limits(events, bytes);
         let Self { machine, plan, .. } = self;
+        // TLC's simulator: `TLCGet("level")` is 0 in Init, a state's 1-based
+        // trace position in its state checks and in the next-state relation
+        // and action checks of the step it starts.
+        machine.allow_finite_level();
+        machine.level = 0;
         report.stage = "initialization";
         let mut initial = Vec::new();
         for (index, action) in plan.init.iter().enumerate() {
@@ -493,6 +512,7 @@ impl Native {
                 return report;
             }
             machine.s1.clone_from(&state);
+            machine.level = 1;
             if let Some(outcome) = roles(
                 machine,
                 plan,
@@ -580,6 +600,9 @@ impl Native {
                     return report;
                 }
                 machine.s0.clone_from(&current);
+                let source = level_of(states.len());
+                let target = level_of(states.len() + 1);
+                machine.level = source;
                 let mut candidates = Vec::new();
                 let mut index =
                     usize::try_from(rng.next_index(plan.next.len() as u64)).unwrap_or(0);
@@ -607,15 +630,17 @@ impl Native {
                             return Err(Error::stop());
                         }
                         report.generated += 1;
-                        failed = roles(
-                            machine,
-                            plan,
-                            &plan.invariants,
-                            false,
-                            "invariant",
-                            2110,
-                            2111,
-                        )
+                        failed = at_level(machine, target, |machine| {
+                            roles(
+                                machine,
+                                plan,
+                                &plan.invariants,
+                                false,
+                                "invariant",
+                                2110,
+                                2111,
+                            )
+                        })
                         .or_else(|| {
                             roles(
                                 machine,
@@ -642,8 +667,9 @@ impl Native {
                             }
                             return Err(Error::stop());
                         }
-                        if allowed(machine, plan, &plan.constraints, false)?
-                            && allowed(machine, plan, &plan.action_constraints, true)?
+                        if at_level(machine, target, |machine| {
+                            allowed(machine, plan, &plan.constraints, false)
+                        })? && allowed(machine, plan, &plan.action_constraints, true)?
                         {
                             candidates.push(retain(machine)?);
                             if options.generation {
@@ -875,6 +901,128 @@ mod tests {
         assert_eq!(
             result.runtime_output,
             [] as [dive_eval::capture::Captured; 0]
+        );
+        Ok(())
+    }
+
+    const LEVELS: &str = "---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == PrintT(<<\"init\", TLCGet(\"level\")>>) /\\ x = 0\nNext == PrintT(<<\"next\", x, TLCGet(\"level\")>>) /\\ x' = x + 1\nConstr == PrintT(<<\"constr\", x, TLCGet(\"level\")>>)\nActConstr == PrintT(<<\"actconstr\", x, x', TLCGet(\"level\")>>)\nInv == PrintT(<<\"inv\", x, TLCGet(\"level\")>>) /\\ x < 2\nProp == [][PrintT(<<\"actprop\", x, x', TLCGet(\"level\")>>)]_x\n====\n";
+
+    fn printed(report: &Report) -> Vec<&str> {
+        report
+            .runtime_output
+            .iter()
+            .map(|line| line.text.as_str())
+            .collect()
+    }
+
+    /// The transcripts are the pinned TLC's (`-simulate num=1 -depth 20
+    /// -seed 0 -workers 1`): 0 in Init, a state's trace position in its
+    /// state checks, the source's in Next and in action checks.
+    #[test]
+    fn simulation_unprimed_tlcget_level_follows_tlc_in_each_role() -> Result {
+        let cases: [(&str, &[&str]); 2] = [
+            (
+                "INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY Prop\n",
+                &[
+                    "<<\"init\", 0>>",
+                    "<<\"inv\", 0, 1>>",
+                    "<<\"next\", 0, 1>>",
+                    "<<\"inv\", 1, 2>>",
+                    "<<\"actprop\", 0, 1, 1>>",
+                    "<<\"next\", 1, 2>>",
+                    "<<\"inv\", 2, 3>>",
+                ],
+            ),
+            (
+                "INIT Init\nNEXT Next\nCONSTRAINT Constr\nACTION_CONSTRAINT ActConstr\nINVARIANT Inv\n",
+                &[
+                    "<<\"init\", 0>>",
+                    "<<\"inv\", 0, 1>>",
+                    "<<\"constr\", 0, 1>>",
+                    "<<\"next\", 0, 1>>",
+                    "<<\"inv\", 1, 2>>",
+                    "<<\"constr\", 1, 2>>",
+                    "<<\"actconstr\", 0, 1, 1>>",
+                    "<<\"next\", 1, 2>>",
+                    "<<\"inv\", 2, 3>>",
+                ],
+            ),
+        ];
+        for (config, expected) in cases {
+            let source = model(LEVELS, config)?;
+            let mut native = prepare(source.model())?;
+            let options = dive_sim::Options::new(0, dive_stdlib::random::RandomMode::Dive, 20, 1);
+            let report = native.simulate(
+                source.model(),
+                &options,
+                &dive_sim::Runtime::new(options.clone()),
+                &|| false,
+            );
+            assert!(
+                matches!(&report.outcome, Outcome::Violation { name: Some(name), .. } if name == "Inv"),
+                "{report:?}"
+            );
+            assert_eq!(printed(&report), expected);
+            assert_eq!(report.traces[0].states.len(), 3);
+        }
+        Ok(())
+    }
+
+    /// TLC evaluates a primed `TLCGet("level")` at the successor's level
+    /// (`-simulate` prints `<<0, 1, 1, 2>>` for
+    /// `<<x, x', TLCGet("level"), (TLCGet("level"))'>>` in an action
+    /// property); Core refuses it by name rather than reading the source's.
+    #[test]
+    fn simulation_refuses_a_primed_tlcget_level() -> Result {
+        let cases = [
+            (
+                "Init == x = 0\nNext == x' = x + 1\nProp == [][(TLCGet(\"level\"))' = TLCGet(\"level\") + 1]_x\nInv == x < 5\n",
+                "INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY Prop\n",
+            ),
+            (
+                "Init == x = 1\nNext == x' = (TLCGet(\"level\"))'\nInv == x < 3\n",
+                "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+            ),
+            (
+                "L == TLCGet(\"level\")\nInit == x = 0\nNext == x' = x + 1\nAC == L' > L\nInv == x < 5\n",
+                "INIT Init\nNEXT Next\nACTION_CONSTRAINT AC\nINVARIANT Inv\n",
+            ),
+        ];
+        for (body, config) in cases {
+            let source = model(
+                &format!("---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\n{body}====\n"),
+                config,
+            )?;
+            let refused = Native::prepare(source.model(), &dive_check::budget::Budget::unlimited());
+            assert!(
+                matches!(&refused, Err(SetupError::Unsupported(why)) if why.contains("TLCGet(\"level\") under a prime")),
+                "{body}: {}",
+                match &refused {
+                    Ok(_) => "prepared",
+                    Err(SetupError::Unsupported(why) | SetupError::Internal(why)) => why,
+                    Err(SetupError::Stopped) => "stopped",
+                }
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn simulation_keeps_refusing_reached_tlc_registers() -> Result {
+        let source = model(
+            "---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nInv == TLCGet(1) = 0\n====\n",
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+        )?;
+        let options = dive_sim::Options::new(0, dive_stdlib::random::RandomMode::Dive, 3, 1);
+        let report = prepare(source.model())?.simulate(
+            source.model(),
+            &options,
+            &dive_sim::Runtime::new(options.clone()),
+            &|| false,
+        );
+        assert!(
+            matches!(&report.outcome, Outcome::Unsupported(why) if why.contains("TLCGet")),
+            "{report:?}"
         );
         Ok(())
     }

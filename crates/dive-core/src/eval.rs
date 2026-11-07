@@ -76,7 +76,7 @@ pub struct Machine {
     output_limits: Option<(usize, usize)>,
     output_used: (usize, usize),
     output_failure: Option<&'static str>,
-    pub(crate) checker_access: bool,
+    pub(crate) checker_access: CheckerAccess,
     /// The random stream draws come from: the startup stream or the
     /// expanded state's (`random.rs`); `None` outside a search.
     pub draw: Option<Box<dyn crate::random::DrawStream>>,
@@ -113,6 +113,17 @@ pub struct Machine {
     /// ([`crate::compile::STARTUP_TRANSIENT_BYTES`] while the compiler
     /// evaluates start-up constant definitions); unbounded otherwise.
     pub(crate) transient_bound: usize,
+}
+
+/// What of a live checker `TLCGet`/`TLCSet` may read.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CheckerAccess {
+    /// Registers and `TLCGet("level")` (model checking).
+    Full,
+    /// `TLCGet("level")` only, set by a finite mode's driver.
+    Level,
+    /// Nothing: a finite mode without a checker context.
+    Denied,
 }
 
 /// The results of the calls made while the compiler evaluates the pure
@@ -217,7 +228,7 @@ impl Machine {
             output_limits: None,
             output_used: (0, 0),
             output_failure: None,
-            checker_access: true,
+            checker_access: CheckerAccess::Full,
             draw: None,
             draws: 0,
             level: 0,
@@ -326,11 +337,25 @@ impl Machine {
     /// Disables TLCGet/TLCSet in finite modes without a live checker context.
     /// Access refuses when reached; an untaken branch remains unevaluated.
     pub fn deny_checker_access(&mut self) {
-        self.checker_access = false;
+        self.checker_access = CheckerAccess::Denied;
+    }
+
+    /// Keeps `TLCGet("level")` available in a finite mode whose driver sets
+    /// [`Machine::level`] the way TLC does for that mode. Register reads and
+    /// writes still refuse.
+    pub fn allow_finite_level(&mut self) {
+        if self.checker_access == CheckerAccess::Denied {
+            self.checker_access = CheckerAccess::Level;
+        }
     }
 
     fn check_finite_access(&self, op: dive_ir::StdOp) -> Result<(), Error> {
-        if !self.checker_access
+        let allowed = match self.checker_access {
+            CheckerAccess::Full => true,
+            CheckerAccess::Level => op == dive_ir::StdOp::TlcTLCGet,
+            CheckerAccess::Denied => false,
+        };
+        if !allowed
             && op.impure()
             && !matches!(op, dive_ir::StdOp::TlcPrint | dive_ir::StdOp::TlcPrintT)
         {
