@@ -375,6 +375,14 @@ recursive call remains unsupported under prime. Other higher-order operators
 under prime retain their existing refusals. These restrictions apply in both
 profiles; `--engine auto` retries the reference engine on a core refusal.
 
+The core also accepts a value-only standard operator passed to a higher-order
+operator, such as `FoldFunctionOnSet(+, 0, f, S)` or `FoldSeq(\o, <<>>, s)`,
+and applies it as a `LAMBDA` of its arity. TLC reports an error raised inside
+such an operator through the override's Java-method error, which the core does
+not reproduce: that case is refused. Built-in operators passed this way
+(`FoldSet(\cup, {}, S)`) remain unsupported. `DyadicRationals!Reduce` follows
+the Java override and refuses operands outside 32 bits.
+
 For a small refinement example, this command completes with 3 distinct states,
 4 generated states, depth 3 and exit 0:
 

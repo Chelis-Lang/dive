@@ -40,9 +40,7 @@ reason covers one or two models, so work them in any order.
 |---|---|
 | `TLCExt!Trace` | **`ewd840/EWD840_json`**, **`ewd998/EWD998ChanID_export`** |
 | `TLCGet("config")` | **`DieHard/MCDieHardest`** |
-| `DyadicRationals!Reduce` | **`Huang/Huang`** |
 | `SUBSET` of more than 24 elements | **`SpanningTree/SpanTreeTest5Nodes`** |
-| std or built-in operator passed to a higher-order operator | **`ewd998/EWD998Small`** |
 | recursive operator under a prime | **`glowingRaccoon/product`** |
 | recursive LET reading an enclosing local under a prime | `ewd998/EWD998ChanID` |
 | `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/SmokeEWD998`, `ewd998/EWD998ChanTrace` |

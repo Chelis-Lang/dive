@@ -1,8 +1,8 @@
 //! CommunityModules operators that take only values: `SequencesExt`
 //! (`Contains`, `RemoveFirst`, `Suffixes`, `AllSubSeqs`, `SetToSeq`,
 //! `IsPrefix`, `LongestCommonPrefix`, and `ReplaceFirstSubSeq` and
-//! `ReplaceAllSubSeqs` on strings and pure scalar sequences), `Functions` (`IsInjective`) and
-//! `Bitwise`. The reference is
+//! `ReplaceAllSubSeqs` on strings and pure scalar sequences), `Functions` (`IsInjective`),
+//! `DyadicRationals` (`Reduce`) and `Bitwise`. The reference is
 //! `crates/dive-eval/src/community.rs` (`call_ext`), which follows the Java
 //! overrides of `tlc2.overrides` (`docs/provenance.md`).
 
@@ -34,6 +34,7 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::BitwiseXor
             | StdOp::BitwiseNot
             | StdOp::BitwiseShiftR
+            | StdOp::DyadicRationalsReduce
     )
 }
 
@@ -122,8 +123,67 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
             let r = (n.cast_unsigned() >> (pos.cast_unsigned() & 31)).cast_signed();
             int(i64::from(r))
         }
+        StdOp::DyadicRationalsReduce => reduce_dyadic(m, op, arg(args, 0)?),
         _ => Err(Error::internal("not a CommunityModules operator")),
     }
+}
+
+/// `DyadicRationals.reduce`: the record `[num |-> n, den |-> d]` divided
+/// by `gcd(n, d)`, or the argument itself when the gcd is 1. Like the
+/// reference engine, the core refuses the cases where TLC fails with a
+/// Java exception (an operand outside 32 bits, a zero or minimal
+/// numerator and denominator); it also refuses an argument that is not a
+/// record literal or lacks a field, whose TLC error it does not reproduce.
+fn reduce_dyadic(m: &mut Machine, op: StdOp, val: Handle) -> Result<Handle, Error> {
+    if !val.is_compound() {
+        return Err(refuse(op, "an argument that is not a record"));
+    }
+    let view = m.heap.view(val);
+    if view.kind != Kind::Fcn || !view.is_record_literal() {
+        return Err(refuse(op, "an argument that is not a record literal"));
+    }
+    let (keys, values) = (view.keys().to_vec(), view.values().to_vec());
+    let den_key = m.heap.string("den")?;
+    let num_key = m.heap.string("num")?;
+    let field = |key: Handle| {
+        keys.iter()
+            .position(|&k| k == key)
+            .map(|i| values[i])
+            .ok_or_else(|| refuse(op, "a record without a num or den field"))
+    };
+    let (den, num) = (field(den_key)?, field(num_key)?);
+    let small = |h: Handle| h.as_int().filter(|i| i32::try_from(*i).is_ok());
+    let (Some(d), Some(n)) = (small(den), small(num)) else {
+        return Err(refuse(
+            op,
+            "a numerator or denominator that is not a 32-bit integer (TLC fails with a ClassCastException)",
+        ));
+    };
+    let g = gcd(n, d);
+    if g == 0 || n == i64::from(i32::MIN) || d == i64::from(i32::MIN) {
+        return Err(refuse(
+            op,
+            "a zero or minimal numerator and denominator (TLC fails with an ArithmeticException)",
+        ));
+    }
+    if g == 1 {
+        return Ok(val);
+    }
+    // Java's truncating division.
+    let mut pairs = [(den_key, int(d / g)?), (num_key, int(n / g)?)];
+    pairs.sort_unstable_by(|a, b| m.heap.cmp(a.0, b.0));
+    let (keys, values): (Vec<Handle>, Vec<Handle>) = pairs.into_iter().unzip();
+    Ok(m.heap.record(&keys, &values))
+}
+
+/// `ArithmeticUtils.gcd(int, int)` for arguments other than
+/// `Integer.MIN_VALUE`: the non-negative greatest common divisor.
+fn gcd(a: i64, b: i64) -> i64 {
+    let (mut a, mut b) = (a.abs(), b.abs());
+    while b != 0 {
+        (a, b) = (b, a % b);
+    }
+    a
 }
 
 /// `SetToSeqs(S)`: every ordering of `S` as a sequence. TLC builds them
