@@ -81,6 +81,13 @@ published. Earlier pre-release development entries remain in git history.
   in a row stays with the reference evaluator for the rest of the analysis.
   AllocatorImplementation drops from 14.3 s to 9.9 s at one worker. Results
   are unchanged.
+- Core liveness no longer converts every generated state to reference values
+  when it admits it to the temporal graph. It converts only a state's new
+  strings and the values whose conversion could fail, such as sets of records
+  or of mixed kinds, and remembers values already admitted. Refusals and the
+  order of runtime names are unchanged. MCEWD687a drops from 2.8 s to 2.0 s
+  at one worker (TLC 3.4 s) and CoffeeCan1000Beans from 9.0 s to 7.2 s (TLC
+  20.0 s). Results are unchanged.
 
 - Independently validate pure bounded TLA-mode action composition, including
   actual closing edges, deadlock and fairness. Nonstuttering compares the

@@ -90,7 +90,7 @@
           "total_atoms": 1
         },
         "convert_ms": 0.0,
-        "converted_nodes": 5,
+        "converted_nodes": 1,
         "graph_states": 3,
         "memo_entries": 0,
         "memory": {
@@ -106,6 +106,8 @@
         "retained_rows": 3,
         "storage": "native-csr",
         "values": {
+          "admission_memo_bytes": 0,
+          "admission_memo_hits": 0,
           "admitted_rows": 4,
           "cache_allocation_bypasses": 0,
           "cache_bypasses": 0,
@@ -131,8 +133,9 @@
           "cache_uncovered_misses": 0,
           "convert_ms": 0.0,
           "convert_ms_scope": "admission and read slow paths; single-variable cache hits are not timed",
-          "converted_values": 5,
-          "read_rows": 1
+          "converted_values": 1,
+          "read_rows": 1,
+          "skipped_admission_conversions": 4
         }
       },
       "memo": [],

@@ -227,15 +227,31 @@ not supply a whole-process memory metric or original-capacity qualification.
 
 `core_native_values.rs` uses
 `dive_core::print::to_value_controlled(.., Conversion::Graph)`. Every accepted
-original, new or seen, is converted before state/edge retention admission;
-emitted-count admission still comes first. This preserves conversion refusals
-and runtime name-interning order. Graph conversion preserves general-function
+original, new or seen, is admitted before state/edge retention admission;
+emitted-count admission still comes first. Admission succeeds exactly when the
+Graph conversion of the row would, and interns the same new names in the same
+order, but builds reference values only where that is needed to know it. It
+walks the row in conversion order (set elements and integer-function values in
+order, function pairs key first). It enters a node without converting it only
+when the node's own reference construction cannot fail once its children
+convert: an eager normalized `IntFcn`, a `Set` that is empty or holds inline
+integers only, strings only or booleans only, and a `Fcn` whose keys are all
+strictly increasing inline integers (not a record literal) or all distinct
+strings. Every other node, including any set with compound or mixed elements
+(`{1, "a"}` is refused by the reference constructor), is converted in full, so
+its refusal text is the conversion's. A string or model value is converted, and
+so interned, at its first occurrence in walk order; a run-local bitset of
+converted name ids skips later occurrences. A persistent node that was walked
+or converted successfully goes into a lossy direct-mapped table
+(`min(8 MiB, memory_budget / 512)`): its later conversion would succeed and
+intern nothing. `values.skipped_admission_conversions` counts rows admitted
+with no conversion, `admission_memo_hits` the table hits. Graph conversion preserves general-function
 versus tuple/record literal classes recursively (ADR 0121). Raw or symbolic set
 representations without certified normalization history are refused; report
 formatting conversion does not supply that history.
 
-The admitted row is dropped immediately; eager admission always performs the
-controlled Graph conversion. Reads can reuse successful values by exact
+The admitted row is dropped immediately; admission never fills or reads the
+read cache. Reads can reuse successful values by exact
 persistent `Handle` identity in a cache owned by this fixed run/store/profile.
 Eligibility is limited to closed materialized trees with Bool/Int or run-owned
 string leaves, recursively containing tuples, records, functions or enumerated
@@ -276,7 +292,7 @@ Actual owner/temporal control is checked before hits and misses and before a row
 returns. A cache hit supplies the same immutable converted Value, including
 representation flags. For one-variable models, hits return the same shared row
 without allocating a new row; multi-variable models assemble their rows from
-cached components. This does not change eager admission or independent word
+cached components. This does not change admission or independent word
 validation. Cache speed and memory tradeoffs require source-bound measurement;
 this implementation alone earns no capacity or throughput credit.
 
@@ -889,8 +905,8 @@ budgets capped at 900 s; harness reports kept outside the repository):
   agree. Labels are never derived independently.
 - **Conversion work and memory.** The native path removes the retained
   evaluator-value graph. Bounded closed-materialized-value read reuse addresses repeated
-  conversion; eager admission still converts every original, and unproved classes
-  still reconvert on demand; transient source/target rows and analysis
+  conversion; admission converts only first names and nodes it cannot prove,
+  and unproved classes still reconvert on demand; transient source/target rows and analysis
   allocations still coexist with persistent storage. Their cost and remaining
   accounting need measurement before extending cache eligibility or claiming
   original-workload capacity.

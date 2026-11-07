@@ -519,10 +519,16 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
                     "all EWD-shaped closed functions are eligible"
                 );
                 assert!(cache["cache_bytes"].as_u64() <= cache["cache_limit_bytes"].as_u64());
+                // Admission proves these closed integer/string-keyed functions
+                // convertible without building reference values (#845).
                 assert!(
-                    cache["converted_values"].as_u64()
-                        >= cache["admitted_rows"].as_u64().map(|rows| rows * 4),
-                    "every original eagerly converts all four variables"
+                    cache["skipped_admission_conversions"].as_u64() > Some(0),
+                    "{cache}"
+                );
+                assert!(
+                    cache["skipped_admission_conversions"].as_u64()
+                        <= cache["admitted_rows"].as_u64(),
+                    "{cache}"
                 );
                 assert_eq!(
                     comparable(core),
@@ -576,9 +582,12 @@ fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
                 "closed materialized sets are eligible"
             );
             assert!(cache["cache_bytes"].as_u64() <= cache["cache_limit_bytes"].as_u64());
+            // Fresh `ToString` names are converted at their first admission;
+            // later admissions of proved rows convert nothing (#845).
+            assert!(cache["converted_values"].as_u64() > Some(0), "{cache}");
             assert!(
-                cache["converted_values"].as_u64()
-                    >= cache["admitted_rows"].as_u64().map(|n| n * 2)
+                cache["skipped_admission_conversions"].as_u64() > Some(0),
+                "{cache}"
             );
             if verdict == "liveness-violation" {
                 assert_eq!(core["counterexample"]["validation"], "valid");
