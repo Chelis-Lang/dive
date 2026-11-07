@@ -1036,6 +1036,7 @@ one ordinary binding and role split, without repeating startup output or effects
 A `PROPERTY` that binds entirely to initial/invariant/implied-action roles does
 not trigger this rule, nor does fairness alone; ordinary safety symmetry and
 its declaration/error ordering remain unchanged.
+Core and Reference apply the same policy and report the same counts.
 
 ```sh
 dive check conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla --workers 1 --seed 0 --fp 0 --output json

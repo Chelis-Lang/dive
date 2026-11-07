@@ -1233,7 +1233,7 @@ pub fn refusal(model: &Model, opts: &CheckOptions, parallel: bool) -> Option<Str
         Err(error) => return Some(format!("graph capture invalid native authority: {error}")),
         Ok(false) => {}
     }
-    if engine::uses_random(&model.ir) {
+    if engine::uses_random_after_startup(model) {
         return Some("graph capture with random operators".into());
     }
     if let Some(s) = model.stateful_checking() {

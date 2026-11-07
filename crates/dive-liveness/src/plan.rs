@@ -750,7 +750,8 @@ impl Lower<'_> {
             let n = ir.nodes().get(e.index()).ok_or_else(|| {
                 self.refused(self.root_expr, "missing forwarded temporal expression")
             })?;
-            if n.effects.intersects(Effects::IMPURE | Effects::LIVE_TLCGET)
+            if n.effects.intersects(Effects::LIVE_TLCGET)
+                || ev.impure_after_startup(e)
                 || ev.scope_shares_side_effects(&sc)
             {
                 return Err(self.refused(e, "effectful forwarded temporal context"));
@@ -1080,7 +1081,7 @@ impl Lower<'_> {
                     }
                     return Ok(level);
                 }
-                if ir.def(d).std.is_none() && !ev.is_value_override(d) {
+                if ir.def(d).std.is_none() && !ev.is_value_override(d) && !ev.startup_fixed(d) {
                     let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
                     return self.scoped_level_mode(ir.def(d).body, &sc, depth + 1, query_state);
                 }
@@ -1091,7 +1092,7 @@ impl Lower<'_> {
                 if leaf {
                     return Ok(ir.def(d).level);
                 }
-                if ir.def(d).std.is_none() && !ev.is_value_override(d) {
+                if ir.def(d).std.is_none() && !ev.is_value_override(d) && !ev.startup_fixed(d) {
                     let sc = self.scoped_call(expr, scope, d, &[], depth + 1)?;
                     return self.scoped_level_mode(ir.def(d).body, &sc, depth + 1, query_state);
                 }
@@ -1310,7 +1311,8 @@ impl Lower<'_> {
                 .nodes()
                 .get(e.index())
                 .ok_or_else(|| self.refused(e, "missing scoped expression"))?;
-            if n.effects.intersects(Effects::IMPURE | Effects::TEMPORAL)
+            if n.effects.intersects(Effects::TEMPORAL)
+                || ev.impure_after_startup(e)
                 || ev.scope_shares_side_effects(&scope)
             {
                 return Err(self.refused(
@@ -1516,7 +1518,8 @@ impl Lower<'_> {
                         let leaf = self.recursive_leaf(&scope, d);
                         let d = self.checked_definition(e, d)?;
                         let def = ir.def(d);
-                        if !ev.is_value_override(d) && def.std.is_none() {
+                        // A configured or start-up-fixed value is a leaf.
+                        if !ev.is_value_override(d) && !ev.startup_fixed(d) && def.std.is_none() {
                             let sc = if inspect_only {
                                 if def.recursive
                                     || args.iter().any(|arg| matches!(arg, Arg::Op { .. }))
@@ -1666,7 +1669,8 @@ impl Lower<'_> {
             .nodes()
             .get(expr.index())
             .ok_or_else(|| self.refused(expr, "missing scoped expression"))?;
-        if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
+        // A start-up-fixed definition is a value here (`impure_after_startup`).
+        if ev.impure_after_startup(expr) || ev.scope_shares_side_effects(scope) {
             return Err(self.refused(expr, "effects or dynamic bindings in temporal planning"));
         }
         if let Expr::Subst { body, .. } = &node.expr {
@@ -1703,7 +1707,8 @@ impl Lower<'_> {
             let d = self.checked_definition(expr, *d)?;
             // TLC does not expand a recursive call at most action level
             // (`Liveness.astToLive`); a state-level leaf is an atom below.
-            if ir.def(d).std.is_none() && !ev.is_value_override(d) && !leaf {
+            if ir.def(d).std.is_none() && !ev.is_value_override(d) && !ev.startup_fixed(d) && !leaf
+            {
                 let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
                 let saved = (self.nodes.len(), self.atoms.len());
                 match self.expr(ir.def(d).body, &sc, depth + 1) {
