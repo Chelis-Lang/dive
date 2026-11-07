@@ -559,6 +559,11 @@ pub struct MemoSite {
     /// `Opts::primed_memo`): on whatever `Opts::memo` says, and its results
     /// are interned to be kept.
     pub step: bool,
+    /// A primed definition's site (`Opts::primed_memo`), evaluated once per
+    /// enumeration candidate: its primed keys are candidate values, so the
+    /// bytes its persistent keys and results add to the store are bounded
+    /// (`Memo::charge_kept`).
+    pub candidate: bool,
 }
 
 impl MemoSite {

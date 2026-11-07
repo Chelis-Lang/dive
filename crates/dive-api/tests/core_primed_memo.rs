@@ -97,3 +97,47 @@ fn a_primed_site_read_before_its_variable_is_assigned_raises_the_read_error() {
     let (reference, _) = compare("Unassigned");
     assert_eq!(reference["verdict"], "evaluation-error", "{reference:#}");
 }
+
+/// The Core's observables with the sites on and off, which must agree.
+fn core_on_off(name: &str) -> Value {
+    let req = request(name);
+    let on = check_file_core_opts(&req, "").expect("core runs").to_json();
+    let off = check_file_core_opts(&req, "-primed-memo")
+        .expect("core runs")
+        .to_json();
+    assert_eq!(on["engine"], "core", "{name}: {on:#}");
+    assert_eq!(observed(&on), observed(&off), "{name}");
+    on
+}
+
+/// #869 review: membership in a primed filter over `SUBSET` is decided on
+/// the element through the site, as without it, never by building the set
+/// to cache it.
+#[test]
+fn membership_in_a_primed_filter_does_not_build_it() {
+    let (reference, _) = compare("LazyMember");
+    assert_eq!(reference["verdict"], "deadlock", "{reference:#}");
+    assert_eq!(reference["statistics"]["distinct"], 4);
+    assert_eq!(reference["statistics"]["generated"], 4);
+}
+
+/// #869 review: a primed function constructor over `Nat`, applied and its
+/// `DOMAIN` taken, is not a site; a primed filter enumerated by `y' \in`
+/// is streamed.
+#[test]
+fn primed_values_used_without_being_built_stay_unbuilt() {
+    let (reference, core) = compare("LazyShapes");
+    assert_eq!(reference["verdict"], "deadlock", "{reference:#}");
+    assert_eq!(reference["statistics"]["distinct"], 7);
+    assert!(site(&core, "F (Primed, action)").is_none(), "{core:#}");
+    assert!(site(&core, "D (Primed, action)").is_none(), "{core:#}");
+}
+
+/// #869 review: a primed `SUBSET` of 41 elements under a `SUBSET`-forall
+/// filter keeps the #853 rewrite with the site on.
+#[test]
+fn a_primed_powerset_keeps_the_subset_rewrite() {
+    let core = core_on_off("LazySubset");
+    assert_eq!(core["verdict"], "deadlock", "{core:#}");
+    assert_eq!(core["statistics"]["distinct"], 4);
+}

@@ -18,7 +18,9 @@ published. Earlier pre-release development entries remain in git history.
   `totalOpOrder'` in `InnerSerial`, once per distinct value of the variables
   it reads instead of once per candidate of an enclosing `x' \in S`.
   `SpecifyingSystems/AdvancedExamples/MCInnerSerial` completes in about 3 s
-  with TLC's counts instead of stopping at its time budget.
+  with TLC's counts instead of stopping at its time budget. The cache never
+  builds a set or function the action would have used without building it,
+  and the copies it keeps are bounded by the memo byte cap.
 - Core enumerates `{E \in SUBSET T : \A e \in E : Q}` as the subsets of
   `{e \in T : Q}` when `Q` is pure and does not read `E`, so
   `SpanningTree/SpanTreeTest5Nodes` (2^32 candidate subsets) checks on Core

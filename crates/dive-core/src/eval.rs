@@ -1018,6 +1018,14 @@ impl Machine {
             // lazy, so deciding membership structurally is exactly TLC's
             // evaluation: no speculation.
             Some(Node::Spec(b)) => self.member_lazy(code, x, *b),
+            // A primed definition's site is decided on its body, as the
+            // inline body is: the test builds nothing to cache
+            // (`Compiler::lazy_set`).
+            Some(Node::Memo { site, body })
+                if code.sites.get(*site as usize).is_some_and(|s| s.candidate) =>
+            {
+                self.member_lazy(code, x, *body)
+            }
             _ => {
                 let s = self.eval(code, set)?;
                 self.member(x, s)
@@ -1038,6 +1046,13 @@ impl Machine {
         if !(self.opts.memo || s.step) || !self.memo.active(site) {
             return self.eval(code, body);
         }
+        // A candidate site's persistent copies are charged to a bounded
+        // budget; once it is spent the site is off (`Memo::charge_kept`).
+        if s.candidate && !self.memo.may_keep() {
+            self.memo.charge_kept(site, 0);
+            return self.eval(code, body);
+        }
+        let added = self.heap.cache.added;
         let mut key = [Handle::EMPTY; MAX_KEY];
         let mut n = 0;
         for &v in &s.vars {
@@ -1065,6 +1080,9 @@ impl Machine {
             let h = match self.heap.intern_exact(h) {
                 Ok(k) if !h.is_empty() && n < MAX_KEY => k,
                 _ => {
+                    if s.candidate {
+                        self.charge_kept(site, added);
+                    }
                     self.memo.bypass(site);
                     return self.eval(code, body);
                 }
@@ -1081,10 +1099,14 @@ impl Machine {
             key[n] = h;
             n += 1;
         }
+        if s.candidate {
+            self.charge_kept(site, added);
+        }
         if let Some(r) = self.memo.get(site, &key[..n]) {
             return Ok(r);
         }
         let r = self.eval(code, body)?;
+        let added = self.heap.cache.added;
         // A step site keeps an exact persistent copy of its result; one
         // that cannot be kept (lazy) is returned uncached.
         let kept = if s.step && r.is_transient() {
@@ -1092,10 +1114,20 @@ impl Machine {
         } else {
             r
         };
+        if s.candidate {
+            self.charge_kept(site, added);
+        }
         if !kept.is_transient() {
             self.memo.put(site, &key[..n], kept);
         }
         Ok(kept)
+    }
+
+    /// Charges a candidate site for the store bytes this heap has added
+    /// since `since` (`InternCache::added`, `Memo::charge_kept`).
+    fn charge_kept(&mut self, site: u32, since: u64) {
+        let bytes = self.heap.cache.added.saturating_sub(since);
+        self.memo.charge_kept(site, bytes);
     }
 
     fn call(&mut self, code: &Code, fun: u32, args: &[P]) -> Result<Handle, Error> {
@@ -2308,6 +2340,65 @@ mod tests {
     #![allow(clippy::unwrap_used, reason = "tests")]
     use super::*;
     use crate::TlcClass;
+
+    /// A primed definition's site (`MemoSite::candidate`) sees a new
+    /// primed key value for every enumeration candidate. Its persistent
+    /// copies are bounded by the memo cap (#869 review), never one per
+    /// candidate, and its results are those of the body throughout.
+    #[test]
+    fn candidate_site_copies_stay_within_the_memo_cap() {
+        use crate::plan::{Code, MemoSite};
+        let cap = 64 << 10;
+        let store = Arc::new(Store::new(true));
+        let opts = Opts {
+            memo_cap: cap,
+            ..Opts::default()
+        };
+        let mut m = Machine::new(Arc::clone(&store), 1, opts, Memo::new(&[1]));
+        let code = Code {
+            nodes: vec![
+                Node::Primed(0),
+                Node::Tuple(vec![0, 0].into()),
+                Node::Memo { site: 0, body: 1 },
+            ],
+            sites: vec![MemoSite {
+                name: "F (Primed, action)".into(),
+                vars: vec![].into(),
+                slots: vec![].into(),
+                primed: vec![0].into(),
+                step: true,
+                candidate: true,
+            }],
+            ..Code::default()
+        };
+        let before = store.stats().nodes;
+        let candidates: i64 = 20_000;
+        for i in 0..candidates {
+            let items: Vec<Handle> = (0..6).map(|k| Handle::int(i * 8 + k).unwrap()).collect();
+            let x = m.heap.tuple(&items);
+            m.s1[0] = x;
+            let expected = m.heap.tuple(&[x, x]);
+            for _ in 0..4 {
+                let r = m.eval(&code, 2).unwrap();
+                assert!(
+                    compare::equals(&m.heap, r, expected).unwrap(),
+                    "candidate {i}"
+                );
+            }
+            m.s1[0] = Handle::EMPTY;
+            m.heap.reset();
+        }
+        let added = store.stats().nodes - before;
+        // Each candidate's key and result are two nodes of 6 and 2 handles:
+        // copying every one would add `2 * candidates` nodes.
+        assert!(
+            added < 2 * candidates.unsigned_abs() / 4,
+            "{added} persistent nodes"
+        );
+        assert!(!m.memo.may_keep());
+        assert!(m.memo.stats()[0].off);
+        assert!(m.memo.stats()[0].hits > 0);
+    }
 
     #[test]
     fn a_transient_bound_stops_an_evaluation_by_name() {

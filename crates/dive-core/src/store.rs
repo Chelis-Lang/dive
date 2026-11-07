@@ -479,6 +479,11 @@ pub struct InternCache {
     tables: Vec<Option<(u64, Table)>>,
     hits: u64,
     stripe: usize,
+    /// About the bytes of the nodes this heap has added to the store (a
+    /// node header and its handles each): what a caller that must bound
+    /// its persistent copies, such as a primed-definition memo site,
+    /// charges (`Machine::memo_eval`).
+    pub(crate) added: u64,
 }
 
 impl Default for InternCache {
@@ -493,6 +498,7 @@ impl Default for InternCache {
             tables: vec![None; SHARDS],
             hits: 0,
             stripe,
+            added: 0,
         }
     }
 }
@@ -929,6 +935,7 @@ impl Store {
         }
         index.lens[usize::from(class)] += 1;
         index.misses += 1;
+        cache.added += (std::mem::size_of::<Head>() + std::mem::size_of_val(data)) as u64;
         index.handles += data.len() as u64;
         index.boxed_payload_bytes += usize::from(class >= 2) * std::mem::size_of_val(data);
         if let Some(p) = slot {
