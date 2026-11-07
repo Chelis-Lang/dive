@@ -2799,6 +2799,7 @@ mod bounded_analysis_machine {
                 slots: Box::new([]),
                 primed: Box::new([]),
                 step,
+                candidate: false,
             }],
             ..Default::default()
         }
