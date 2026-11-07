@@ -259,7 +259,7 @@ impl NativeAtoms {
         control: &EvaluationControl,
     ) -> Result<Option<bool>, AnalysisError> {
         self.evaluate_with(atom, before, after, control, |heap| {
-            Ok(closed(heap, before) && after.is_none_or(|row| closed(heap, row)))
+            Ok(admissible_row(heap, before) && after.is_none_or(|row| admissible_row(heap, row)))
         })
     }
 
@@ -468,7 +468,7 @@ fn admit_plan(plan: &dive_core::plan::Plan, heap: &dive_core::Heap) -> Result<()
             dive_core::plan::Node::Select(_, key) => Some(*key),
             _ => None,
         };
-        value.is_some_and(|value| !closed(heap, &[value]))
+        value.is_some_and(|value| !admissible_row(heap, &[value]))
     }) {
         return Err(Rejection::ConstUnclosed);
     }
@@ -505,79 +505,40 @@ fn check(owner: &EvaluationControl, control: &EvaluationControl) -> Result<(), A
         })
 }
 
-fn string_payload(heap: &dive_core::Heap, value: Handle, work: &mut usize) -> bool {
-    let Some(id) = value.as_str_id() else {
-        return true;
-    };
-    let Some(text) = heap.store().strings().text(id) else {
-        return false;
-    };
-    if text.len() > 4096usize.saturating_sub(*work) {
-        return false;
-    }
-    *work += text.len();
-    true
-}
+/// Handles the bounded walk visits for a row whose nodes lack the cached
+/// [`dive_core::node::flags::CONCRETE`] proof (rows restored from a snapshot
+/// or exchanged between workers).
+const ROW_WALK_NODES: usize = 1 << 14;
 
-fn closed(heap: &dive_core::Heap, roots: &[Handle]) -> bool {
-    let mut pending = Vec::new();
-    if pending.try_reserve(roots.len()).is_err() {
+/// The string and model-name bytes a row may hold when some name in the
+/// Store is longer than this. Several string builtins (comparison, prefix and
+/// replacement operators) scan texts without charging their length to the
+/// analysis Machine's fuel, so one scan must stay bounded.
+const ROW_NAME_BYTES: usize = 4096;
+
+/// Whether native evaluation may read these input handles: every handle is a
+/// materialized Core value (`compare::materialized`), so the native evaluator
+/// and value order are the ones safety checking used on the same stored
+/// representation (ADR 0154). Symbolic, lazy, unnormalized, transient and
+/// empty handles decline, and so does a poisoned heap.
+fn admissible_row(heap: &dive_core::Heap, roots: &[Handle]) -> bool {
+    if heap.poisoned() {
         return false;
     }
-    pending.extend_from_slice(roots);
-    let mut work = 0;
-    while let Some(handle) = pending.pop() {
-        work += 1;
-        if work > 4096 || handle.is_empty() || handle.is_transient() {
-            return false;
-        }
-        if handle.as_str_id().is_some() {
-            if !string_payload(heap, handle, &mut work) {
-                return false;
-            }
-            continue;
-        }
-        if handle.as_bool().is_some() || handle.as_int().is_some() {
-            continue;
-        }
-        if !handle.is_compound() {
-            return false;
-        }
-        let view = heap.view(handle);
-        if !matches!(
-            view.kind,
-            dive_core::node::Kind::IntFcn | dive_core::node::Kind::Fcn
-        ) {
-            return false;
-        }
-        if view.kind == dive_core::node::Kind::Fcn
-            && view.keys().iter().any(|key| {
-                key.as_int().is_none() && key.as_bool().is_none() && key.as_str_id().is_none()
-            })
-        {
-            return false;
-        }
-        if view
-            .keys()
-            .iter()
-            .any(|&key| !string_payload(heap, key, &mut work))
-        {
-            return false;
-        }
-        if view.values().len() > 4096 - work
-            || pending.len() + view.values().len() > 4096
-            || pending.try_reserve(view.values().len()).is_err()
-        {
-            return false;
-        }
-        pending.extend_from_slice(view.values());
+    let short_names = heap.store().strings().longest_text_bytes() <= ROW_NAME_BYTES;
+    if short_names && roots.iter().all(|&root| heap.proved_concrete(root)) {
+        return !heap.poisoned();
     }
-    !heap.poisoned()
+    heap.materialized_within(
+        roots,
+        ROW_WALK_NODES,
+        (!short_names).then_some(ROW_NAME_BYTES),
+    )
 }
 
 // A positive fact is scoped by an immutable graph borrow, never by a handle's
-// bits across Stores or by extensional row equality. It is issued only by the
-// unchanged closed() check, independently for each actual row demand (ADR 0134).
+// bits across Stores or by extensional row equality. It is issued only by
+// admissible_row(), independently for each actual row demand (ADR 0134, 0154).
 const MAX_ROW_PROOF_BYTES: usize = 1024 * 1024;
 
 #[derive(Default)]
@@ -640,7 +601,7 @@ impl<'a> RowProofs<'a> {
             return Ok(true);
         }
         self.metrics.scans += 1;
-        let success = closed(heap, roots);
+        let success = admissible_row(heap, roots);
         if success && let Some(byte) = self.bits.get_mut(row / 8) {
             *byte |= bit;
             self.metrics.certified += 1;
@@ -946,7 +907,8 @@ mod tests {
             let mut proofs = RowProofs::new(&graph);
             assert!(!proofs.initialized);
             for row in 0..rows {
-                let expected = closed(&heap, graph.row(row).expect("retained"));
+                let expected = admissible_row(&heap, graph.row(row).expect("retained"));
+                assert!(expected, "materialized tuples and sets are admitted");
                 let scans = proofs.metrics.scans;
                 let hits = proofs.metrics.hits;
                 assert_eq!(proofs.closed(&heap, row).expect("first"), expected);
@@ -1233,8 +1195,8 @@ mod tests {
     }
 
     #[test]
-    fn over_quota_closed_inputs_never_gain_a_positive_row_proof() {
-        let tuple = vec!["0"; 4096].join(",");
+    fn concrete_rows_skip_the_walk_and_unproved_rows_keep_its_allowances() {
+        let tuple = vec!["0"; ROW_WALK_NODES + 1].join(",");
         let source = format!(
             "---- MODULE Atoms ----\nVARIABLE x\nInit == x = <<{tuple}>>\nNext == UNCHANGED x\nP == <> (x=x)\n====\n"
         );
@@ -1243,14 +1205,51 @@ mod tests {
                 prepare_text(&source, "INIT Init\nNEXT Next\nPROPERTY P\n", tlc);
             let (graph, _) = capture(&prepared, &options);
             let heap = dive_core::Heap::new(prepared.store.clone(), false, false);
+            let row = graph.row(0).expect("retained");
+            assert!(heap.proved_concrete(row[0]), "builders prove the tuple");
             let mut proofs = RowProofs::new(&graph);
             for _ in 0..2 {
-                assert!(!proofs.closed(&heap, 0).expect("over-quota"));
+                assert!(proofs.closed(&heap, 0).expect("concrete row"));
             }
-            assert_eq!(proofs.metrics.scans, 2);
-            assert_eq!(proofs.metrics.certified, 0);
-            assert_eq!(proofs.metrics.hits, 0);
+            assert_eq!(proofs.metrics.scans, 1);
+            assert_eq!(proofs.metrics.certified, 1);
+            assert_eq!(proofs.metrics.hits, 1);
+            // A name longer than the allowance makes every row walk and
+            // count its names; this one is over the node allowance.
+            let long = "n".repeat(ROW_NAME_BYTES + 1);
+            if prepared.store.strings().intern(&long).is_err() {
+                assert!(tlc, "only a sealed TLC string table refuses");
+                continue;
+            }
+            let mut walked = RowProofs::new(&graph);
+            for _ in 0..2 {
+                assert!(!walked.closed(&heap, 0).expect("over the node allowance"));
+            }
+            assert_eq!(walked.metrics.scans, 2);
+            assert_eq!(walked.metrics.certified, 0);
+            assert!(!heap.poisoned());
         }
+    }
+
+    #[test]
+    fn long_names_count_every_occurrence_against_the_row_allowance() {
+        let store = Arc::new(Store::default());
+        let mut heap = dive_core::Heap::new(store.clone(), false, false);
+        let half = heap.string(&"h".repeat(ROW_NAME_BYTES / 2)).expect("text");
+        let once = heap.tuple_literal(&[half]);
+        let once = heap.intern_exact(once).expect("persistent");
+        let twice = heap.tuple_literal(&[half, half, Handle::int(0).expect("zero")]);
+        let twice = heap.intern_exact(twice).expect("persistent");
+        assert!(
+            admissible_row(&heap, &[once, twice]),
+            "short names trust the bit"
+        );
+        heap.string(&"l".repeat(ROW_NAME_BYTES + 1))
+            .expect("long text");
+        assert!(admissible_row(&heap, &[once]));
+        assert!(admissible_row(&heap, &[twice]));
+        assert!(!admissible_row(&heap, &[once, twice]));
+        assert!(!heap.poisoned());
     }
 
     #[test]
@@ -1655,31 +1654,47 @@ mod tests {
     }
 
     #[test]
-    fn exact_closed_functions_admit_scalar_keys_and_refuse_sets_and_models_without_poisoning() {
+    fn materialized_rows_admit_sets_models_and_any_keys_and_refuse_symbolic_values() {
         let store = Arc::new(Store::default());
         let mut heap = dive_core::Heap::new(store.clone(), false, false);
         let zero = Handle::int(0).expect("integer");
         let function = heap.int_fcn(0, &[zero, Handle::bool(true)]);
         let function = heap.intern_exact(function).expect("persistent function");
-        assert!(closed(&heap, &[function]));
-        let set = heap.set_from(&mut vec![zero]);
-        let set = heap.intern_exact(set).expect("persistent set");
-        assert!(!closed(&heap, &[set]));
+        assert!(admissible_row(&heap, &[function]));
         let model = Handle::model(store.strings().intern("model").expect("name"));
-        assert!(!closed(&heap, &[model]));
-        assert!(
-            !heap.poisoned(),
-            "refused scalar classes do not inspect invalid compound handles"
-        );
+        assert!(admissible_row(&heap, &[model]));
+        let set = heap.set_from(&mut vec![zero, model]);
+        let set = heap.intern_exact(set).expect("persistent set");
+        assert!(admissible_row(&heap, &[set]));
         let transient = heap.tuple(&[zero]);
-        assert!(!closed(&heap, &[transient]));
+        assert!(!admissible_row(&heap, &[transient]));
         let tuple = heap.intern_exact(transient).expect("persistent tuple");
-        let aggregate_key = heap.fcn_sorted(&[tuple], &[zero]);
+        let aggregate_key = heap.fcn_sorted(&[set, tuple], &[zero, model]);
         let aggregate_key = heap
             .intern_exact(aggregate_key)
             .expect("persistent function");
-        assert!(!closed(&heap, &[aggregate_key]));
-        assert!(!heap.poisoned());
+        assert!(admissible_row(&heap, &[aggregate_key, function, model]));
+        let interval = heap.interval(1, 3);
+        let interval = heap.intern_exact(interval).expect("persistent interval");
+        let raw = heap.set_enum(&[Handle::int(2).expect("two"), zero]);
+        let raw = heap.intern_exact(raw).expect("persistent enumeration");
+        for symbolic in [interval, raw] {
+            let nested = heap.tuple(&[symbolic]);
+            let nested = heap.intern_exact(nested).expect("persistent");
+            assert!(!admissible_row(&heap, &[symbolic]));
+            assert!(!admissible_row(&heap, &[function, nested]));
+        }
+        assert!(!admissible_row(&heap, &[Handle::EMPTY]));
+        assert!(!admissible_row(&heap, &[Handle::string(1 << 20)]));
+        assert!(
+            !heap.poisoned(),
+            "refused handles do not inspect invalid compound handles"
+        );
+        let _ = heap.view(Handle::EMPTY);
+        assert!(
+            !admissible_row(&heap, &[function]),
+            "current poison declines"
+        );
     }
 
     #[test]

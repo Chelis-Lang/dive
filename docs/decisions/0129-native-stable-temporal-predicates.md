@@ -1,6 +1,6 @@
 # 0129: Evaluate stable temporal predicates on native original rows
 
-- **Status:** accepted
+- **Status:** accepted; input-row admission amended by [0154](0154-native-atom-rows-by-materialization.md)
 - **Date:** 2026-10-30
 
 ## Context
