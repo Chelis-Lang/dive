@@ -113,7 +113,8 @@ project.
   a release candidate or an engine-cutover candidate. Otherwise there are no
   "phase" qualifications, checkpoint JSON, cloud archive ledgers or cleanup
   byte counts.
-- At most three live worktrees. Prune each one when its PR merges.
+- Keep live worktrees few (three by default; more when the owner allows it for
+  parallel work). Prune each one when its PR merges.
 - Cite only commits that are on `main`.
 
 **Write less, decide more.**
@@ -151,10 +152,11 @@ This is enforced by `.githooks/commit-msg` (installed with
 **PR mode** (since 2026-10-08). `main` is protected (`cargo xtask protect-main`).
 Every change lands through a squash-merged PR that passes the required checks
 (`No AI authorship markers`, `Workspace gate` and `Conformance gate`); admins are
-not exempt. CI's conformance gate runs `conformance/gates/smoke.txt` at 1 and 4
-workers, then shadows `conformance/gates/shadow-smoke.txt` (the new core against
-the reference engine); the full cm1 gate runs locally with `cargo xtask gate --full`. Keep `main` green: gate locally before pushing, never merge
-on red, and fix a red `main` first (label the issue `failing-on-main`).
+not exempt. CI's conformance gate runs Core (the default engine) against the TLC
+goldens on `conformance/gates/smoke.txt` and `conformance/gates/core-smoke.txt`
+at 1 and 4 workers, then the bare-use smoke; the full cm1 gate runs locally with
+`cargo xtask gate --full`. Keep `main` green: gate locally before pushing, never
+merge on red, and fix a red `main` first (label the issue `failing-on-main`).
 
 - Small, single-scope PRs from `main`. No long-lived integration or compose
   branches.
@@ -228,13 +230,12 @@ cargo deny --locked check                       # only when Cargo.lock or deny.t
 
 The `ci` nextest profile (`.config/nextest.toml`) leaves out slow,
 evidence-oriented and multi-worker matrix tests; everything it excludes still
-runs in the full gate. The `Conformance gate` job checks the eight models of
-`conformance/gates/smoke.txt` at 1 and 4 workers, then the Core golden gate: Core alone (`--engine core`, default
-profile) must agree with the TLC goldens, or match a registered expected
-divergence, on `conformance/gates/core-smoke.txt` at 1 and 4 workers. It then runs
-`scripts/shadow-gate.sh` over `conformance/gates/shadow-smoke.txt`: the new
-execution core (`--engine core`) must agree with the reference engine and its
-counterexamples must validate (`docs/developer/core/08-correctness.md`).
+runs in the full gate. The `Conformance gate` job runs Core, the default engine,
+against the TLC goldens: the models of `conformance/gates/smoke.txt` in the TLC
+profile and `conformance/gates/core-smoke.txt` in the default profile, each at 1
+and 4 workers, must agree or match a registered expected divergence, with
+independently validated counterexamples (`docs/developer/core/08-correctness.md`).
+It then runs the bare-use smoke (R3) on Core.
 
 **Full gate.** `cargo xtask gate --full` runs the fast gate with the whole
 nextest suite, then `scripts/conformance-gate.sh` over `conformance/gates/cm1.txt`
