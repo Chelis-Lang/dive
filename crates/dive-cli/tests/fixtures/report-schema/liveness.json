@@ -70,15 +70,20 @@
             "retired_atoms": 0,
             "strikes": 8
           },
+          "negated_enabled_evaluations": 0,
           "nonstuttering_evaluations": 0,
+          "reference_evaluations": {
+            "action": 0,
+            "scope": "label demands answered by the reference evaluator: unprepared atoms and fallbacks",
+            "state": 0
+          },
           "rejections": {
             "allocation": 0,
             "compile_error": 0,
             "const_unclosed": 0,
             "effects": 0,
             "foreign_scope": 0,
-            "fresh_string": 0,
-            "negated_enabled": 0
+            "fresh_string": 0
           },
           "row_proofs": {
             "certified": 3,

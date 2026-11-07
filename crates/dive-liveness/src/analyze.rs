@@ -1010,6 +1010,7 @@ fn labels_with_reuse<'a>(
                 let value = if let Some(value) = native {
                     value
                 } else {
+                    states.reference_predicate(pred);
                     let vals = match vals.take() {
                         Some(vals) => vals,
                         None => states.representative(v)?.into_owned(),
@@ -1061,6 +1062,7 @@ fn labels_with_reuse<'a>(
                         let value = if let Some(value) = native {
                             value
                         } else {
+                            states.reference_predicate(pred);
                             let before = if let Some(before) = &vals {
                                 before.clone()
                             } else {

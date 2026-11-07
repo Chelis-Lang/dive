@@ -749,7 +749,11 @@ stripped:
 - **Plan facts.** The node reads every variable, so it is never folded, skipped by the parent-delta skip or memoized on a partial key. Its free slots are those the action's value nodes read from outside it (`Compiler::g_free`).
 - **Instances.** Constant and operator parameters are supported when every
   variable substitution resolves to the root variable with the same name.
-  This first subset excludes effects and recursive/nested query calls.
+  Value nodes with effects or nested queries (`Info::nested_query`: a nested
+  `ENABLED` or composition) are refused. Compiled calls (`Node::Call`) are
+  admitted, because `Info` does not follow call bodies, only when the whole
+  compiled plan has no effects, every call target is a compiled function and
+  no function body reaches a nested query (checked once all bodies exist).
   `Compiler::enabled_substs` proves that identity through the captured
   substitution scopes using the generator's variable-target resolution. TLC's
   branch cutoff cannot change such a variable lookup. Constants remain visible
@@ -767,9 +771,11 @@ stripped:
   - State-dependent configuration operator bindings or definition redirects:
     configuration overrides can bypass the source-level constant constraint.
     This is conservative even for an unrelated state-dependent override.
-  - Effects and recursive/nested calls in an instance query. The generator
-    traversal checks every referenced value node's `effect` and `calls` facts;
-    unknown call effects are not treated as pure.
+  - Effects and nested queries in an instance query. The generator traversal
+    checks every referenced value node's `effect` and `nested_query` facts.
+    A compiled call is refused when any node of the plan has an effect, a call
+    target is unknown, or any function body reaches a nested query: call
+    effects are not inferred, only excluded plan-wide.
   - A primed `ENABLED`.
 - **Lazy arguments.** Operator arguments that read primed variables are passed by name, as everywhere in the core. TLC's root-module `LazyValue` reuse gives the same answer: corpus `root_remove_two` succeeds with 1 distinct state in both profiles, as with TLC.
 

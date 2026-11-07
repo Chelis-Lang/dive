@@ -112,6 +112,11 @@ pub trait NativeReader {
         Ok(false)
     }
 
+    /// Records that label demand answered this exact retained atom on one
+    /// state or edge by the reference evaluator, because no native truth was
+    /// available. A counter only; it supplies no truth. Ignored by default.
+    fn reference_predicate(&mut self, _atom: &crate::plan::PredicateAtom) {}
+
     /// Records optional per-analysis reuse storage and bypass observations.
     /// Bytes are retained capacity, not a whole-process or allocation-time cap.
     fn predicate_reuse_storage(
