@@ -88,6 +88,7 @@ fn named_selection_is_true_but_whole_function_demand_still_errors() {
                 overrides: HashSet::new(),
                 deferred: std::collections::BTreeSet::new(),
                 startup_evaluator: None,
+                assumptions: Vec::new(),
                 init: Vec::new(),
                 next: Vec::new(),
                 invariants: Vec::new(),

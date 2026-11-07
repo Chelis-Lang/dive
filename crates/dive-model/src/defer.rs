@@ -11,6 +11,12 @@
 //! configuration's substitutions). A definition used only as a value by the
 //! roles the core compiles is therefore evaluated by the core instead, once,
 //! when it compiles the plan (issue #846).
+//!
+//! A pure `ASSUME` of the root module is a value too: TLC's
+//! `Tool.checkAssumptions` evaluates it once, and only its truth is
+//! observable. The core evaluates such an `ASSUME` when it compiles the
+//! plan, and the reference evaluator checks only those the core does not
+//! find `TRUE`, so the definitions it reaches may be left to the core.
 
 use std::collections::HashSet;
 
@@ -30,6 +36,9 @@ pub(crate) struct Deferral {
     /// others are evaluated by no one, which is unobservable, since TLC
     /// swallows the failure of a pure startup evaluation.
     pub evaluate: HashSet<DefId>,
+    /// The root module's pure `ASSUME`s, in order, which the core evaluates
+    /// before the reference evaluator checks the others.
+    pub assumptions: Vec<DefId>,
 }
 
 pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
@@ -80,9 +89,16 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
         }
     }
     let ir = &*b.t.ir;
+    let assumptions = pure_assumptions(b);
     for m in 0..ir.modules().len() {
         let module = ir.module(dive_ir::ModuleId(u32::try_from(m).unwrap_or(u32::MAX)));
-        reference.extend(module.assumptions.iter().copied());
+        reference.extend(
+            module
+                .assumptions
+                .iter()
+                .copied()
+                .filter(|d| !assumptions.contains(d)),
+        );
     }
     // Constants the configuration binds to definitions: their targets are
     // evaluated at start-up by the reference evaluator.
@@ -96,6 +112,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
     }
     let by_reference = Walk::run(b, &reference, false, false);
     let by_roles = Walk::run(b, &roles, true, false);
+    let by_assumptions = Walk::run(b, &assumptions, false, false);
     // What the binder evaluates at start-up must not reach a deferred
     // definition: the reference evaluator would evaluate it lazily there,
     // once per use. Removing a candidate makes it one of those, so this
@@ -127,14 +144,29 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
             let evaluate = deferred
                 .iter()
                 .copied()
-                .filter(|d| by_roles.value.contains(d))
+                .filter(|d| by_roles.value.contains(d) || by_assumptions.value.contains(d))
                 .collect();
             return Deferral {
                 skip: deferred,
                 evaluate,
+                assumptions,
             };
         }
     }
+}
+
+/// The root module's `ASSUME`s (the ones TLC checks, `AXIOM`s aside) that
+/// apply no impure operator, in order: the core evaluates them.
+fn pure_assumptions(b: &Binder<'_>) -> Vec<DefId> {
+    let ir = &*b.t.ir;
+    let root = ir.module(ir.root());
+    root.assumptions
+        .iter()
+        .zip(root.axioms.iter().chain(std::iter::repeat(&false)))
+        .filter(|(_, axiom)| !**axiom)
+        .map(|(d, _)| *d)
+        .filter(|d| crate::reach::pure(b, *d))
+        .collect()
 }
 
 /// The definitions the second phase of `processConstantDefns` evaluates:

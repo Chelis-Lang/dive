@@ -103,3 +103,47 @@ fn fallback() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(plan["startup_fallbacks"], 1, "{plan:#}");
     Ok(())
 }
+
+#[test]
+fn a_pure_assume_evaluated_by_the_core_matches_the_reference_engine()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-startup-constants");
+    for compat_tlc in [false, true] {
+        for (config, verdict) in [
+            ("AssumeHolding", "success"),
+            ("AssumeFalse", "assumption-false"),
+            ("AssumeError", "error"),
+        ] {
+            let req = CheckRequest {
+                file: root.join("StartupAssume.tla"),
+                config: Some(root.join(format!("{config}.cfg"))),
+                workers: Some(1),
+                compat_tlc,
+                seed: Some(0),
+                fp: Some(0),
+                ..Default::default()
+            };
+            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+            if verdict == "success" {
+                assert_eq!(expected["verdict"], "success", "{expected:#}");
+            } else {
+                assert_ne!(expected["verdict"], "success", "{expected:#}");
+            }
+            let core = check_file_engine(&req, Engine::Core)?;
+            let doc = core.to_json();
+            assert_eq!(doc["engine"], "core", "{doc:#}");
+            assert_eq!(observed(&core), expected, "{config}/{compat_tlc}");
+            // In the default profile `Test`, which only the ASSUME reads, is
+            // the core's start-up value. A false or failing ASSUME is then
+            // checked again by the reference evaluator, which reports it.
+            if verdict == "success" {
+                let plan = &doc["core"]["metrics"]["plan"];
+                // `Test` and `Graphs`, which only `Test` reads.
+                let expected_values = if compat_tlc { 0 } else { 2 };
+                assert_eq!(plan["startup_values"], expected_values, "{plan:#}");
+            }
+        }
+    }
+    Ok(())
+}

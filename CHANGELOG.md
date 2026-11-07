@@ -22,6 +22,12 @@ published. Earlier pre-release development entries remain in git history.
   `ewd998/EWD998ChanID_export` check on Core. Core still performs no I/O.
   A run that fails or warns no longer refuses for `Print` when the search
   printed nothing.
+- Core evaluates a pure `ASSUME`, and the constant definitions only it reads,
+  when it compiles its plan, so the binder no longer evaluates them
+  (issue #846); a false or failing `ASSUME` is still reported exactly as
+  before. Building a canonical set of tuples is also cheaper for every
+  engine. `MisraReachability/MCReachabilityTestAllGraphs` takes about 0.7 s
+  on Core instead of 7 s.
 - Core evaluates a recursive operator or recursive LET function applied under
   a prime, as a refinement mapping `INSTANCE ... WITH v <- Op(e)` does under
   `[][Next]_vars`, in the successor state. `glowingRaccoon/product` now checks

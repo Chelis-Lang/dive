@@ -1004,6 +1004,7 @@ fn evaluate_scalar(
         overrides: std::collections::HashSet::new(),
         deferred: std::collections::BTreeSet::new(),
         startup_evaluator: None,
+        assumptions: Vec::new(),
         init: Vec::new(),
         next: Vec::new(),
         invariants: vec![Role {

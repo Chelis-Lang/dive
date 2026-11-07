@@ -668,6 +668,9 @@ pub struct Plan {
     /// parameters of its scope), with their values, which the caller
     /// installs after entering the check's frame; empty otherwise.
     pub bound_preset: Vec<(u32, Handle)>,
+    /// The pure `ASSUME`s ([`crate::compile::Handoff::assumptions`]) the
+    /// compiler evaluated to `TRUE`, in order.
+    pub startup_assumptions: Vec<dive_ir::DefId>,
 }
 
 /// What effects a plan has (`Info::effect`).
