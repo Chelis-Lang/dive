@@ -890,8 +890,8 @@ impl Core {
     pub(crate) fn redirect(&self, d: dive_ir::DefId) -> dive_ir::DefId {
         let mut d = d;
         for _ in 0..64 {
-            match self.redirects.get(&d) {
-                Some(&t) if t != d => d = t,
+            match self.redirect_table.get(d.index()).copied().flatten() {
+                Some(t) if t != d => d = t,
                 _ => break,
             }
         }
@@ -976,15 +976,16 @@ impl Core {
             && !self.ir.module(def.module).instantiated
             && !def.effects.intersects(dive_ir::Effects::IMPURE)
             && (self.open_ok || !def.effects.intersects(dive_ir::Effects::OPEN))
-            && *self.constant_cache_safe[d.index()]
-                .get_or_init(|| self.constant_cache_state_free(d))
+            && *self.constant_cache_safe[d.index()].get_or_init(|| self.state_free(d, false))
     }
 
     /// A bounded, non-evaluating guard for the optional empty-state cache.
     /// Follow actual native arguments and configured targets rather than the
     /// native module's SANY parameter weights. Unknown lexical/dynamic inputs
     /// disable this cache; the binder's explicit startup processing is unchanged.
-    fn constant_cache_state_free(&self, d: dive_ir::DefId) -> bool {
+    /// With `params`, `d`'s own parameters are inputs too (the start-up call
+    /// results, `crate::startup_calls`, bind them to the call's values).
+    pub(crate) fn state_free(&self, d: dive_ir::DefId, params: bool) -> bool {
         const WORK: usize = 4096;
         let mut todo = vec![(self.ir.def(d).body, d)];
         let mut seen = std::collections::HashSet::new();
@@ -1017,14 +1018,7 @@ impl Core {
             // mistaken for a binding in the calling definition. Outer slots,
             // parameters and LET thunks remain unknown and disable the cache.
             if let Expr::Local(local) = node.expr
-                && (local.up != 0
-                    || !matches!(
-                        self.ir.def(frame).frame.get(local.slot.index()),
-                        Some(dive_ir::SlotInfo {
-                            kind: dive_ir::SlotKind::Bound,
-                            ..
-                        })
-                    ))
+                && !self.state_free_local(local, frame, params.then_some(d))
             {
                 return false;
             }
@@ -1093,6 +1087,29 @@ impl Core {
         true
     }
 
+    /// Whether a local name in `frame`'s body is an input [`Self::state_free`]
+    /// knows: a constructor binding, or a parameter of `own` (the definition
+    /// whose parameters the caller binds to values).
+    fn state_free_local(
+        &self,
+        local: dive_ir::LocalRef,
+        frame: dive_ir::DefId,
+        own: Option<dive_ir::DefId>,
+    ) -> bool {
+        local.up == 0
+            && match self.ir.def(frame).frame.get(local.slot.index()) {
+                Some(dive_ir::SlotInfo {
+                    kind: dive_ir::SlotKind::Bound,
+                    ..
+                }) => true,
+                Some(dive_ir::SlotInfo {
+                    kind: dive_ir::SlotKind::Param,
+                    ..
+                }) => own == Some(frame),
+                _ => false,
+            }
+    }
+
     /// Calls a user definition: a new frame with the arguments bound
     /// (`getOpContext`: every expression argument is a `LazyValue`).
     pub(crate) fn call_def(
@@ -1104,6 +1121,9 @@ impl Core {
         args: &[Arg],
         e: ExprId,
     ) -> Result<Ev> {
+        if let Some(r) = self.startup_call(caller, st, d, args, e) {
+            return r;
+        }
         let mut callee = self.callee_env(caller, st, d, parent, args)?;
         let _g = self.enter(e)?;
         self.eval(&mut callee, st, self.ir.def(d).body)
@@ -1184,7 +1204,7 @@ impl Core {
     /// effect and does not depend on the states, so binding the value
     /// directly is indistinguishable from TLC's lazy binding, and the call
     /// allocates no thunk for the argument.
-    fn settled(&self, env: &Env, expr: ExprId) -> Option<Value> {
+    pub(crate) fn settled(&self, env: &Env, expr: ExprId) -> Option<Value> {
         match &self.ir.node(expr).expr {
             Expr::Bool(_) | Expr::Num(_) | Expr::Str(_) | Expr::Decimal { .. } => {
                 match &self.lits[expr.index()] {

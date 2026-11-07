@@ -1360,7 +1360,20 @@ impl Evaluator {
         let mut env = Env::new(def, d.depth, d.frame.len(), None, Dyn::default());
         let st = St::constant()
             .with_control(crate::env::control::CONST | crate::env::control::PRECOMPUTE);
-        let ev = core.eval(&mut env, &st, d.body)?;
+        // Pure calls repeated within this evaluation are evaluated once
+        // (`crate::startup_calls`); their results last only as long as it.
+        let lock = || {
+            core.startup_calls
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+        };
+        *lock() = Some(crate::startup_calls::StartupCalls::default());
+        let ev = core.eval(&mut env, &st, d.body);
+        if let Some(calls) = lock().take() {
+            core.startup_call_hits
+                .fetch_add(calls.hits, std::sync::atomic::Ordering::Relaxed);
+        }
+        let ev = ev?;
         let Ev::V(v) = ev else {
             return Ok(None);
         };
