@@ -327,8 +327,13 @@ Eligibility is a set of Core plan facts (ADR
   parameter value of the atom's scope (`\A e \in S : WF_v(A(e))`), is a
   materialized Core value (`const_unclosed`), and so is every input row.
 
-Plan size has no semantic role and is not capped. User-defined recursive
-functions (`funs`), Memo sites (`memo`) and `^` (`pow`) remain refused for now.
+Plan size has no semantic role and is not capped. Recursive operators and
+recursive functions run in the analysis Machine's own frames; its 64-activation
+call-depth limit is an unsupported error that falls back, and `call` restores
+the depth and frame on every path. A Memo site evaluates its body directly: the
+analysis Machine compiles with `memo = step_memo = false` and owns a table-less
+`Memo`, so not even a step site reads or fills a table. `^` charges an upper
+bound on its result's 64-bit words to fuel before allocating digits.
 There is no separate reference stability certificate: ADR 0129 kept one to
 protect reference constructor, normalization, name and thunk history, which
 ADR 0153 treats as a TLC artifact the default profile does not reproduce. A
@@ -370,10 +375,15 @@ O(1) UTF-8 byte-length upper bound before computing Java's UTF-16 length. Other
 string operators (comparison, prefix, replacement) scan without charging, so
 input rows keep a name allowance once the Store holds a text over 4,096 bytes
 (below).
-The 4,096 allowance counts explicit semantic traversal/copy work. It is not a
+Each native demand gets `NATIVE_FUEL` (2^20) units of fuel. The allowance
+counts explicit semantic traversal/copy work. It is not a
 hard CPU-instruction, allocator-latency or wall-clock guarantee for each primitive;
-existing whole-run cooperative time and sampled-memory limits retain their scope.
-Explicit loops such as UTF-16 length traversal are still precharged.
+existing whole-run cooperative time and sampled-memory limits retain their scope,
+polled at every charge, and bound the work and the memory held until the
+per-demand `heap.reset()`. Explicit loops such as UTF-16 length traversal are
+still precharged. After `FUEL_STRIKES` (8) consecutive exhaustions an atom is
+retired to the reference evaluator for the rest of that analysis; a completed
+demand resets the count. This is scheduling only and changes no truth value.
 
 Each private native Reader also owns positive input-proof bits scoped to its
 borrowed immutable graph (ADR [0134](../../decisions/0134-native-atom-row-proofs.md)).
@@ -407,10 +417,11 @@ folding disabled. It does not intern predicate results into the producer Store.
 Additive `core.metrics.liveness.atoms` counters distinguish prepared eligibility,
 actual native evaluations and fallback. `atoms.rejections` counts unprepared
 atoms by their first failing check (`negated_enabled`, `foreign_scope`,
-`compile_error`, `effects`, `fresh_string`, `funs`, `memo`, `pow`,
-`const_unclosed`, `allocation`); `atoms.fallbacks` splits actual fallback
-demands into `row_proof`, `fuel_or_error`, `warning_or_print` and
-`not_compiled`. These are capability measurements,
+`compile_error`, `effects`, `fresh_string`, `const_unclosed`, `allocation`);
+`atoms.fallbacks` splits actual fallback demands into `row_proof`,
+`fuel_exhausted`, `error`, `warning_or_print`, `not_compiled` and
+`fuel_retired`, and `atoms.fuel` reports the per-demand allowance, the strike
+limit and the retired atoms. These are capability measurements,
 not performance acceptance; original workload completion and paired timing are
 still required. The existing conversion-cache allowance and eager admission
 policy are unchanged.

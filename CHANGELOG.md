@@ -65,6 +65,13 @@ published. Earlier pre-release development entries remain in git history.
   AllocatorImplementation drops from 101 s to 23 s, MCFlashWithMutexLive from
   40 s to 3.7 s and SDP_Attack_New_Solution from 6.5 s to 2.8 s. Results are
   unchanged.
+- Core liveness also evaluates temporal atoms that call recursive operators
+  or recursive functions, read memoizable definitions or use `^` natively. A
+  native atom demand may spend up to 2^20 evaluation steps (was 4,096) before
+  it falls back to the reference evaluator, and an atom that runs out 8 times
+  in a row stays with the reference evaluator for the rest of the analysis.
+  AllocatorImplementation drops from 14.3 s to 9.9 s at one worker. Results
+  are unchanged.
 
 - Independently validate pure bounded TLA-mode action composition, including
   actual closing edges, deadlock and fairness. Nonstuttering compares the

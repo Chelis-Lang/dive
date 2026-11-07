@@ -3,8 +3,10 @@
 //! A retained atom runs natively when its exact object and source scope bind,
 //! the Core bound-test compiler accepts it, its plan is effect-free and cannot
 //! add a string to the shared table, and every compiled constant and input row
-//! is a materialized Core value (ADRs 0129, 0154). Anything else, and every
-//! error, fuel exhaustion, warning or printed output, keeps the reference call.
+//! is a materialized Core value (ADRs 0129, 0154). Recursive operators, memo
+//! sites (evaluated directly: the analysis Machine memoizes nothing) and
+//! powers are admitted. Anything else, and every error, fuel exhaustion,
+//! warning or printed output, keeps the reference call.
 
 use std::sync::Arc;
 
@@ -22,7 +24,22 @@ use crate::core_native_values::NativeValues;
 struct Compiled {
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
+    /// Fuel exhaustions in a row; at [`FUEL_STRIKES`] the atom stops running
+    /// natively in this analysis.
+    exhausted_in_a_row: u32,
 }
+
+/// Node visits one native atom demand may spend before it falls back. The
+/// run's time and memory budgets still bound the work through
+/// [`QueryControl`], polled at every charge; this allowance only bounds the
+/// work wasted, and the memory held until `heap.reset()`, before the
+/// reference evaluator answers instead.
+const NATIVE_FUEL: u64 = 1 << 20;
+
+/// Consecutive fuel exhaustions after which an atom is left to the reference
+/// evaluator for the rest of the analysis: a scheduling choice that changes
+/// no truth value.
+const FUEL_STRIKES: u32 = 8;
 
 #[derive(Debug)]
 struct QueryControl(Arc<EvaluationControl>);
@@ -50,6 +67,10 @@ pub(crate) struct NativeAtoms {
     reuse: ReuseMetrics,
     rejections: Rejections,
     fallbacks: Fallbacks,
+    /// Per-demand fuel ([`NATIVE_FUEL`]; tests lower it).
+    fuel: u64,
+    /// Atoms that reached [`FUEL_STRIKES`].
+    fuel_retired: u64,
     /// `DIVE_NATIVE_ATOM_AUDIT=1`: re-evaluate every native truth by reference.
     audit: bool,
     audit_mismatch: Option<String>,
@@ -63,9 +84,6 @@ enum Rejection {
     CompileError,
     Effects,
     FreshString,
-    Funs,
-    Memo,
-    Pow,
     ConstUnclosed,
     Allocation,
 }
@@ -77,9 +95,6 @@ struct Rejections {
     compile_error: u64,
     effects: u64,
     fresh_string: u64,
-    funs: u64,
-    memo: u64,
-    pow: u64,
     const_unclosed: u64,
     allocation: u64,
 }
@@ -92,9 +107,6 @@ impl Rejections {
             Rejection::CompileError => &mut self.compile_error,
             Rejection::Effects => &mut self.effects,
             Rejection::FreshString => &mut self.fresh_string,
-            Rejection::Funs => &mut self.funs,
-            Rejection::Memo => &mut self.memo,
-            Rejection::Pow => &mut self.pow,
             Rejection::ConstUnclosed => &mut self.const_unclosed,
             Rejection::Allocation => &mut self.allocation,
         };
@@ -105,8 +117,7 @@ impl Rejections {
         serde_json::json!({"negated_enabled": self.negated_enabled,
             "foreign_scope": self.foreign_scope, "compile_error": self.compile_error,
             "effects": self.effects,
-            "fresh_string": self.fresh_string, "funs": self.funs,
-            "memo": self.memo, "pow": self.pow, "const_unclosed": self.const_unclosed,
+            "fresh_string": self.fresh_string, "const_unclosed": self.const_unclosed,
             "allocation": self.allocation})
     }
 }
@@ -115,9 +126,12 @@ impl Rejections {
 #[derive(Default)]
 struct Fallbacks {
     row_proof: u64,
-    fuel_or_error: u64,
+    fuel_exhausted: u64,
+    error: u64,
     warning_or_print: u64,
     not_compiled: u64,
+    /// Demands of an atom retired after [`FUEL_STRIKES`] exhaustions.
+    fuel_retired: u64,
 }
 
 #[derive(Default)]
@@ -167,6 +181,8 @@ impl NativeAtoms {
             reuse: ReuseMetrics::default(),
             rejections: Rejections::default(),
             fallbacks: Fallbacks::default(),
+            fuel: NATIVE_FUEL,
+            fuel_retired: 0,
             audit: std::env::var_os("DIVE_NATIVE_ATOM_AUDIT").is_some_and(|value| value == "1"),
             audit_mismatch: None,
         };
@@ -214,6 +230,7 @@ impl NativeAtoms {
             result.compiled.push(Compiled {
                 identity: std::ptr::from_ref(atom),
                 plan,
+                exhausted_in_a_row: 0,
             });
             result.eligible += 1;
             match atom.kind {
@@ -244,8 +261,10 @@ impl NativeAtoms {
                 "allocation_bypasses": self.reuse.allocation_bypasses, "stored_columns": self.reuse.stored_columns,
                 "scope": "one completed native frozen behavior WF pair per analysis; actual evaluation counters exclude reuse"},
             "rejections": self.rejections.json(),
-            "fallbacks": {"row_proof": self.fallbacks.row_proof, "fuel_or_error": self.fallbacks.fuel_or_error,
-                "warning_or_print": self.fallbacks.warning_or_print, "not_compiled": self.fallbacks.not_compiled},
+            "fallbacks": {"row_proof": self.fallbacks.row_proof, "fuel_exhausted": self.fallbacks.fuel_exhausted,
+                "error": self.fallbacks.error, "warning_or_print": self.fallbacks.warning_or_print,
+                "not_compiled": self.fallbacks.not_compiled, "fuel_retired": self.fallbacks.fuel_retired},
+            "fuel": {"per_demand": self.fuel, "strikes": FUEL_STRIKES, "retired_atoms": self.fuel_retired},
             "audit": self.audit,
             "eligibility": "source-scoped effect-free Core plans without fresh strings over materialized rows; identity-scoped fairness queries"})
     }
@@ -284,15 +303,21 @@ impl NativeAtoms {
         inputs_closed: impl FnOnce(&dive_core::Heap) -> Result<bool, AnalysisError>,
     ) -> Result<Option<bool>, AnalysisError> {
         check(&self.control, control)?;
-        let Some(compiled) = self
+        let Some(index) = self
             .compiled
             .iter()
-            .find(|item| std::ptr::eq(item.identity, atom))
+            .position(|item| std::ptr::eq(item.identity, atom))
         else {
             self.fallback += 1;
             self.fallbacks.not_compiled += 1;
             return Ok(None);
         };
+        if self.compiled[index].exhausted_in_a_row >= FUEL_STRIKES {
+            self.fallback += 1;
+            self.fallbacks.fuel_retired += 1;
+            return Ok(None);
+        }
+        let compiled = &self.compiled[index];
         // The exact object came from this still-live driver's fixed plan Vec;
         // no expression ID, scope guess or extensional row equality is a key.
         if !inputs_closed(&self.machine.heap)? {
@@ -305,7 +330,7 @@ impl NativeAtoms {
         if let Some(after) = after {
             self.machine.s1.copy_from_slice(after);
         }
-        self.machine.set_fuel(4096);
+        self.machine.set_fuel(self.fuel);
         let predicate = &compiled.plan.implied_actions[0];
         let frame = self.machine.enter(predicate.frame);
         for &(slot, value) in &compiled.plan.bound_preset {
@@ -329,6 +354,16 @@ impl NativeAtoms {
         self.machine.leave(frame);
         self.machine.heap.reset();
         check(&self.control, control)?;
+        let exhausted = result.is_err() && self.machine.fuel_exhausted();
+        let strikes = &mut self.compiled[index].exhausted_in_a_row;
+        if exhausted {
+            *strikes += 1;
+            if *strikes == FUEL_STRIKES {
+                self.fuel_retired += 1;
+            }
+        } else {
+            *strikes = 0;
+        }
         if let Ok(value) = result
             && self.machine.warnings.is_empty()
             && self.machine.printed.is_empty()
@@ -346,8 +381,10 @@ impl NativeAtoms {
             Ok(Some(value))
         } else {
             self.fallback += 1;
-            if result.is_err() {
-                self.fallbacks.fuel_or_error += 1;
+            if exhausted {
+                self.fallbacks.fuel_exhausted += 1;
+            } else if result.is_err() {
+                self.fallbacks.error += 1;
             } else {
                 self.fallbacks.warning_or_print += 1;
             }
@@ -453,9 +490,8 @@ fn admit_plan(plan: &dive_core::plan::Plan, heap: &dive_core::Heap) -> Result<()
     }) {
         return Err(Rejection::FreshString);
     }
-    if !plan.code.funs.is_empty() {
-        return Err(Rejection::Funs);
-    }
+    // Recursive operators run in the analysis Machine's own frames; its
+    // call-depth limit and fuel are errors that fall back.
     if plan.code.nodes.iter().any(|node| {
         let value = match node {
             dive_core::plan::Node::Const(value)
@@ -479,14 +515,10 @@ fn admit_plan(plan: &dive_core::plan::Plan, heap: &dive_core::Heap) -> Result<()
     {
         return Err(Rejection::ConstUnclosed);
     }
-    match plan.code.nodes.iter().find_map(|node| match node {
-        dive_core::plan::Node::Memo { .. } => Some(Rejection::Memo),
-        dive_core::plan::Node::Arith(dive_core::plan::Arith::Pow, _, _) => Some(Rejection::Pow),
-        _ => None,
-    }) {
-        Some(reason) => Err(reason),
-        None => Ok(()),
-    }
+    // A memo site evaluates its body directly: the analysis Machine has
+    // memo = step_memo = false and a table-less Memo, so it never reads or
+    // fills one. A power's digits are charged to fuel before allocation.
+    Ok(())
 }
 
 fn check(owner: &EvaluationControl, control: &EvaluationControl) -> Result<(), AnalysisError> {
@@ -768,6 +800,11 @@ impl NativeReader for Reader<'_, '_> {
 mod tests {
     use super::*;
     use dive_check::budget::{Budget, Phase};
+
+    /// The per-demand fuel the quota tests exhaust: small enough that their
+    /// 10,000-element sources run out, as the run's [`NATIVE_FUEL`] does at
+    /// larger sizes.
+    const QUOTA_FUEL: u64 = 4096;
 
     fn prepare_source(predicate: &str) -> (crate::core_engine::Prepared, dive_check::CheckOptions) {
         let source = format!(
@@ -1225,6 +1262,7 @@ mod tests {
         let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\A i \\in 1..10000: x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
         for tlc in [false, true] {
             with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                atoms.fuel = QUOTA_FUEL;
                 let options = if tlc {
                     dive_check::CheckOptions::tlc(0, 0)
                 } else {
@@ -1855,7 +1893,7 @@ mod tests {
             assert_eq!(metrics["rejections"]["negated_enabled"], 1);
             assert_eq!(metrics["eligible_atoms"], 0);
         });
-        for (predicate, rejection) in [("2^x > 0", Some("pow")), ("x >= 0", None)] {
+        for (predicate, rejection) in [("2^x > 0", None::<&str>), ("x >= 0", None)] {
             let (prepared, options) = prepare_source(predicate);
             let driver = GraphCheck::prepare(
                 &prepared.model,
@@ -1911,7 +1949,8 @@ mod tests {
             let fallbacks = atoms.metrics()["fallbacks"].clone();
             assert_eq!(fallbacks["not_compiled"], 1);
             assert_eq!(fallbacks["row_proof"], 1);
-            assert_eq!(fallbacks["fuel_or_error"], 0);
+            assert_eq!(fallbacks["error"], 0);
+            assert_eq!(fallbacks["fuel_exhausted"], 0);
             assert_eq!(atoms.metrics()["fallback"], 2);
         }
         let (prepared, options) = prepare_source("x \\div 0 = 0");
@@ -1940,7 +1979,96 @@ mod tests {
                 .expect("semantic error"),
             None
         );
-        assert_eq!(atoms.metrics()["fallbacks"]["fuel_or_error"], 1);
+        assert_eq!(atoms.metrics()["fallbacks"]["error"], 1);
+    }
+
+    #[test]
+    fn recursive_operators_powers_and_memo_free_plans_run_natively() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nRECURSIVE Sum(_)\nSum(n) == IF n = 0 THEN 0 ELSE n + Sum(n-1)\nf[n \\in 0..200] == IF n = 0 THEN 0 ELSE f[n-1] + 1\nInit == x=0\nNext == x'=x+1\nSpec == Init /\\ [][Next]_x\nP == <> (Sum(x) = 6 /\\ f[x] = x /\\ 2^(64 * x) > 2^60)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                assert_eq!(atoms.eligible, 1, "{}", atoms.metrics()["rejections"]);
+                assert!(
+                    !atoms.compiled[0].plan.code.funs.is_empty(),
+                    "a recursive plan"
+                );
+                let atom = driver
+                    .native_predicates()
+                    .find(|atom| atoms.has(atom))
+                    .expect("atom");
+                if tlc {
+                    // 2^192 overflows a Java int: an error, which falls back.
+                    assert_eq!(agree(prepared, atoms, atom, control, &[int(3)], None), None);
+                    assert_eq!(atoms.metrics()["fallbacks"]["error"], 1);
+                    return;
+                }
+                assert_eq!(
+                    agree(prepared, atoms, atom, control, &[int(3)], None),
+                    Some(true)
+                );
+                assert_eq!(
+                    agree(prepared, atoms, atom, control, &[int(2)], None),
+                    Some(false)
+                );
+                // Past Core's call-depth limit the error falls back, and the
+                // next row starts from a clean frame and depth.
+                assert_eq!(
+                    agree(prepared, atoms, atom, control, &[int(100)], None),
+                    None
+                );
+                assert_eq!(atoms.machine.frame, Vec::<Handle>::new());
+                assert_eq!(
+                    agree(prepared, atoms, atom, control, &[int(3)], None),
+                    Some(true)
+                );
+                let metrics = atoms.metrics();
+                assert_eq!(metrics["fallbacks"]["error"], 1);
+                assert_eq!(metrics["fallbacks"]["fuel_exhausted"], 0);
+                assert_eq!(metrics["evaluated"], 3);
+            });
+        }
+    }
+
+    #[test]
+    fn fuel_exhaustion_falls_back_and_retires_an_atom_after_consecutive_strikes() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=x+1\nSpec == Init /\\ [][Next]_x\nP == <> (x = 0 \\/ \\A i \\in 1..10000 : i + x > 0)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let atom = driver
+                    .native_predicates()
+                    .find(|atom| atoms.has(atom))
+                    .expect("atom");
+                // The run's allowance covers this 10,000-element source.
+                assert_eq!(atoms.fuel, NATIVE_FUEL);
+                assert_eq!(
+                    agree(prepared, atoms, atom, control, &[int(5)], None),
+                    Some(true)
+                );
+                atoms.fuel = QUOTA_FUEL;
+                for _ in 1..FUEL_STRIKES {
+                    assert_eq!(agree(prepared, atoms, atom, control, &[int(5)], None), None);
+                }
+                // A demand that completes resets the count.
+                assert_eq!(
+                    agree(prepared, atoms, atom, control, &[int(0)], None),
+                    Some(true)
+                );
+                for _ in 0..FUEL_STRIKES {
+                    assert_eq!(agree(prepared, atoms, atom, control, &[int(5)], None), None);
+                }
+                // Retired: even a cheap row now goes to the reference evaluator.
+                assert_eq!(agree(prepared, atoms, atom, control, &[int(0)], None), None);
+                let metrics = atoms.metrics();
+                assert_eq!(
+                    metrics["fallbacks"]["fuel_exhausted"],
+                    u64::from(2 * FUEL_STRIKES - 1)
+                );
+                assert_eq!(metrics["fallbacks"]["error"], 0);
+                assert_eq!(metrics["fallbacks"]["fuel_retired"], 1);
+                assert_eq!(metrics["fuel"]["retired_atoms"], 1);
+                assert_eq!(metrics["evaluated"], 2);
+            });
+        }
     }
 
     #[test]
@@ -2098,7 +2226,7 @@ P == <>(/\ Pick = {}
                 agree(&prepared, &mut atoms, atom, &control, &[set], None),
                 None
             );
-            assert_eq!(atoms.metrics()["fallbacks"]["fuel_or_error"], 1);
+            assert_eq!(atoms.metrics()["fallbacks"]["error"], 1);
             let set = dive_value::Value::set(vec![int(2), int(3)], ctx).expect("set");
             assert_eq!(
                 agree(&prepared, &mut atoms, atom, &control, &[set], None),
@@ -2208,6 +2336,7 @@ P == <>(/\ Pick = {}
                     "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == {action}\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
                 );
                 with_wrappers(&source, tlc, |_, driver, atoms, control| {
+                    atoms.fuel = QUOTA_FUEL;
                     let atom = driver.native_predicates().next().expect("enabled");
                     assert_eq!(
                         atoms
@@ -2235,6 +2364,7 @@ P == <>(/\ Pick = {}
                     "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\E <<i,j>> \\in {domain}: x'=i /\\ x=i\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
                 );
                 with_wrappers(&source, tlc, |prepared, driver, atoms, control| {
+                    atoms.fuel = QUOTA_FUEL;
                     assert_eq!(atoms.eligible, 1, "Core plan facts admit products");
                     let atom = driver.native_predicates().next().expect("enabled");
                     assert_eq!(
@@ -2246,6 +2376,7 @@ P == <>(/\ Pick = {}
             }
             let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\A i \\in 1..x: x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
             with_wrappers(source, tlc, |_, driver, atoms, control| {
+                atoms.fuel = QUOTA_FUEL;
                 let atom = driver.native_predicates().next().expect("enabled");
                 assert_eq!(
                     atoms
@@ -2320,6 +2451,7 @@ P == <>(/\ Pick = {}
             });
             let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == \\E i \\in 1..10000: x'=i /\\ i=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
             with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                atoms.fuel = QUOTA_FUEL;
                 let atom = driver
                     .native_predicates()
                     .find(|a| matches!(a.test, AtomTest::Enabled { .. }))
@@ -2353,6 +2485,7 @@ P == <>(/\ Pick = {}
         let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == ((1..10000) \\subseteq (1..10000)) /\\ x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n";
         for tlc in [false, true] {
             with_wrappers(source, tlc, |_, driver, atoms, control| {
+                atoms.fuel = QUOTA_FUEL;
                 assert_eq!(atoms.eligible, 1, "probe must reach actual native code");
                 let atom = driver.native_predicates().next().expect("atom");
                 let got = atoms
@@ -2419,6 +2552,7 @@ P == <>(/\ Pick = {}
                     "---- MODULE Atoms ----\nEXTENDS Naturals, FiniteSets\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == {expression} /\\ x'=x\nSpec == Init /\\ [][Next]_x\nP == <> (ENABLED A)\n====\n"
                 );
                 with_wrappers(&source, tlc, |_, driver, atoms, control| {
+                    atoms.fuel = QUOTA_FUEL;
                     assert_eq!(atoms.eligible, 1, "actual admitted source");
                     let atom = driver.native_predicates().next().expect("enabled");
                     assert_eq!(
