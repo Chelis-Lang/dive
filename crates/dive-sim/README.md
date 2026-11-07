@@ -86,7 +86,8 @@ it is not substituted for the concrete validation input. All reports contain
 Compound initial values and fairness-bearing specifications are simulated
 (ADR 0116). Temporal property checking, unsupported runtime effects and random
 operators outside the direct scalar Init subset, unresolved constant-operator
-effects, implied-initial properties, action properties combined with state/action constraints, ALIAS, POSTCONDITION,
+effects, implied-initial properties, action properties combined with state/action constraints, an ALIAS whose
+lookup fails, POSTCONDITION,
 probabilistic/RL simulation, generation, distributed execution, continuation
 after violations, and additional workers remain named refusals. The core
 sampling stream is replayable; this slice does not claim worker scaling or

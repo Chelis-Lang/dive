@@ -28,7 +28,8 @@ mod tlc;
 /// Whether the core implements `op` here.
 #[must_use]
 pub fn implements(op: StdOp) -> bool {
-    bags::implements(op)
+    deferred(op)
+        || bags::implements(op)
         || tlc::implements(op)
         || community::implements(op)
         || graphs::implements(op)
@@ -39,7 +40,17 @@ pub fn implements(op: StdOp) -> bool {
 /// memoized. Of the operators implemented here, `Print` and `PrintT`.
 #[must_use]
 pub fn effectful(op: StdOp) -> bool {
-    implements(op) && op.impure()
+    implements(op) && op.impure() && !deferred(op)
+}
+
+/// Whether `op` compiles to a call that refuses when it is evaluated: TLC's
+/// trace introspection (`TLCExt!Trace`, `TLCExt!CounterExample`), which the
+/// core does not reproduce. A specification often guards it behind a
+/// disjunct TLC evaluates only after a violation, so refusing at compile
+/// time would refuse runs that never reach it. The call never yields a
+/// value, so it is neither an effect nor a value a fold or memo could keep.
+fn deferred(op: StdOp) -> bool {
+    matches!(op, StdOp::TlcExtTrace | StdOp::TlcExtCounterExample)
 }
 
 /// Whether the core implements `op` here as an operator with operator
@@ -124,6 +135,12 @@ pub fn call_ho(m: &mut Machine, op: StdOp, args: &[Ho<'_>]) -> Result<Handle, Er
 /// TLC's evaluation error, with its class; `unsupported` for a case the
 /// core does not reproduce; internal for an operator not implemented here.
 pub fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
+    if deferred(op) {
+        return Err(refuse(
+            op,
+            "evaluated; trace introspection is not implemented (M1 core)",
+        ));
+    }
     if bags::implements(op) {
         return bags::call(m, op, args);
     }

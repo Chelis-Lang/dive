@@ -210,7 +210,8 @@ pub(crate) fn run_host(opts: &CheckOptions) -> RunHost {
 /// the logical one, 1, by default and the requested one under
 /// `--compat=tlc`, as TLC reports `-workers` (D-011); the install location
 /// is dive's executable.
-pub(crate) fn run_config(opts: &CheckOptions, deadlock: bool) -> RunConfig {
+#[must_use]
+pub fn run_config(opts: &CheckOptions, deadlock: bool) -> RunConfig {
     #[allow(clippy::cast_possible_wrap, reason = "Java's long: same bits")]
     let fingerprint = dive_value::fp64::POLYS
         .get(opts.fp_index)
@@ -232,7 +233,7 @@ pub(crate) fn run_config(opts: &CheckOptions, deadlock: bool) -> RunConfig {
 
 /// The counters while TLC checks assumptions: no state yet, diameter 1
 /// (measured on the pinned TLC, fixture `TgAssume`).
-pub(crate) fn startup_counters(host: &RunHost) {
+pub fn startup_counters(host: &RunHost) {
     for c in [
         Counter::Generated,
         Counter::Distinct,
@@ -247,7 +248,7 @@ pub(crate) fn startup_counters(host: &RunHost) {
 /// During the search the live counters are not provided: reading one is
 /// refused rather than answered with a count TLC may not report at that
 /// point.
-fn search_counters(host: &RunHost) {
+pub fn search_counters(host: &RunHost) {
     for c in [
         Counter::Generated,
         Counter::Distinct,
