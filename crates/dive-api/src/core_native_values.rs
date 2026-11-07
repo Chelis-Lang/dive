@@ -1,8 +1,19 @@
 //! Controlled Graph admission and on-demand values for the compact producer.
 //!
 //! Persistent roots stay with `NativeGraph`. A bounded exact-handle cache reuses
-//! successful closed materialized-value conversions during reads; eager admission
-//! always converts, preserving its refusal and name encounter order.
+//! successful closed materialized-value conversions during reads.
+//!
+//! Eager admission keeps the refusal and name encounter order of a full Graph
+//! conversion without always building the reference values. It walks each
+//! row in conversion order, and it skips the construction of a node only when
+//! that construction cannot fail: a tuple or integer-domain function, a
+//! function whose keys are all inline integers or all strings, and a set of
+//! inline integers, booleans or strings. A string or model value is converted
+//! (and so interned) at its first occurrence, in walk order; later occurrences
+//! of the same name intern nothing. Every other node is converted exactly as
+//! before, and a persistent node that converted or walked successfully is
+//! remembered in a bounded lossy table, because a later conversion of the same
+//! persistent handle would succeed and intern nothing new.
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -19,6 +30,8 @@ use dive_value::Value;
 const MAX_CACHE_BYTES: usize = 128 * 1024 * 1024;
 const CACHE_WARMUP: u64 = 1024;
 const CACHE_PROBES: usize = 16;
+/// Bytes of the admission table of persistent handles proved convertible.
+const MAX_MEMO_BYTES: usize = 8 * 1024 * 1024;
 struct Entry {
     key: Handle,
     row: StateVals,
@@ -184,6 +197,13 @@ pub(crate) struct NativeValues<'a> {
     converted: u64,
     conversion: Duration,
     cache: ConversionCache,
+    /// Lossy table of persistent handles whose Graph conversion succeeded.
+    memo: Vec<u64>,
+    memo_slots: usize,
+    memo_hits: u64,
+    /// String and model-value ids already converted (so interned).
+    names: Vec<u64>,
+    skipped: u64,
 }
 
 impl<'a> NativeValues<'a> {
@@ -217,6 +237,15 @@ impl<'a> NativeValues<'a> {
                 }),
                 ..ConversionCache::default()
             },
+            memo: Vec::new(),
+            memo_slots: budget.memory.map_or(MAX_MEMO_BYTES, |bytes| {
+                usize::try_from(bytes / 512)
+                    .unwrap_or(usize::MAX)
+                    .min(MAX_MEMO_BYTES)
+            }) / std::mem::size_of::<u64>(),
+            memo_hits: 0,
+            names: Vec::new(),
+            skipped: 0,
         })
     }
 
@@ -226,11 +255,147 @@ impl<'a> NativeValues<'a> {
         self.model
     }
 
+    /// Admits a row: succeeds exactly when its Graph conversion would, and
+    /// interns the same new names in the same order (see the module docs).
     pub(crate) fn admit(&mut self, row: &[Handle]) -> Result<(), Verdict> {
         let control = self.capture.clone();
-        self.convert(row, &control, None).map_err(capture_error)?;
+        check(&self.capture, &control).map_err(capture_error)?;
+        if row.len() != self.model.ir.vars().len() {
+            return Err(capture_error(AnalysisError::Inconsistent(
+                "native value row variable dimensions",
+            )));
+        }
+        let started = Instant::now();
+        let before = self.converted;
+        for &handle in row {
+            self.admit_value(handle, &control).map_err(capture_error)?;
+        }
+        check(&self.capture, &control).map_err(capture_error)?;
+        self.conversion += started.elapsed();
+        if self.converted == before {
+            self.skipped = self.skipped.saturating_add(1);
+        }
         self.admitted = self.admitted.saturating_add(1);
         Ok(())
+    }
+
+    /// Admits one value in Graph conversion order. A node is entered without
+    /// conversion only when its own reference construction is infallible
+    /// given convertible children; any other node is converted in full.
+    fn admit_value(
+        &mut self,
+        handle: Handle,
+        control: &EvaluationControl,
+    ) -> Result<(), AnalysisError> {
+        if !handle.is_compound() {
+            let Some(id) = handle.as_str_id().or_else(|| handle.as_model_id()) else {
+                // Booleans and inline integers always convert, interning nothing.
+                if handle.as_bool().is_some() || handle.as_int().is_some() {
+                    return Ok(());
+                }
+                return self.convert_value(handle, control).map(drop);
+            };
+            if self.name_converted(id) {
+                return Ok(());
+            }
+            self.convert_value(handle, control)?;
+            self.remember_name(id);
+            return Ok(());
+        }
+        if self.memo_contains(handle) {
+            self.memo_hits = self.memo_hits.saturating_add(1);
+            return Ok(());
+        }
+        check(&self.capture, control)?;
+        let view = self.heap.view(handle);
+        let enter = !view.is_lazy()
+            && view.is_norm()
+            && match view.kind {
+                // `Value::tuple`, `Value::tuple_fcn` or distinct integer keys.
+                dive_core::node::Kind::IntFcn => true,
+                // Same-class scalar sets sort and deduplicate infallibly.
+                dive_core::node::Kind::Set => {
+                    view.values().is_empty() || scalar_class(view.values()).is_some()
+                }
+                // Distinct same-class scalar keys: no incomparable pair and no
+                // duplicate; a record literal needs string keys.
+                dive_core::node::Kind::Fcn => match scalar_class(view.keys()) {
+                    Some(Scalar::Int) => !view.is_record_literal() && increasing(view.keys()),
+                    Some(Scalar::Str) => view.keys().windows(2).all(|w| w[0] != w[1]),
+                    None => view.keys().is_empty(),
+                    Some(Scalar::Bool) => false,
+                },
+                _ => false,
+            };
+        if !enter {
+            self.convert_value(handle, control)?;
+            self.memo_insert(handle);
+            return Ok(());
+        }
+        // Graph conversion visits a set's elements and an integer function's
+        // values in order, and a function's pairs key first. A view of a
+        // live handle is fixed, so it is fetched again per child.
+        let (pairs, len) = (!view.keys().is_empty(), view.values().len());
+        for at in 0..len {
+            const CHANGED: AnalysisError =
+                AnalysisError::Inconsistent("native admission view changed during its walk");
+            if pairs {
+                let key = self.heap.view(handle).keys().get(at).copied();
+                self.admit_value(key.ok_or(CHANGED)?, control)?;
+            }
+            let value = self.heap.view(handle).values().get(at).copied();
+            self.admit_value(value.ok_or(CHANGED)?, control)?;
+        }
+        self.memo_insert(handle);
+        Ok(())
+    }
+
+    fn name_converted(&self, id: u32) -> bool {
+        self.names
+            .get(id as usize / 64)
+            .is_some_and(|word| word & (1 << (id % 64)) != 0)
+    }
+
+    fn remember_name(&mut self, id: u32) {
+        let word = id as usize / 64;
+        if word >= self.names.len() {
+            if self.names.try_reserve(word + 1 - self.names.len()).is_err() {
+                return;
+            }
+            self.names.resize(word + 1, 0);
+        }
+        self.names[word] |= 1 << (id % 64);
+    }
+
+    fn memo_index(&self, handle: Handle) -> usize {
+        let mut bits = handle.bits();
+        bits = (bits ^ (bits >> 33)).wrapping_mul(0xff51_afd7_ed55_8ccd);
+        bits ^= bits >> 33;
+        usize::try_from(bits % self.memo.len() as u64).unwrap_or(0)
+    }
+
+    fn memo_contains(&self, handle: Handle) -> bool {
+        handle.is_persistent()
+            && !self.memo.is_empty()
+            && self.memo[self.memo_index(handle)] == handle.bits()
+    }
+
+    /// Remembers a persistent handle whose conversion is proved to succeed.
+    /// The table is lossy: an overwritten handle is only walked again.
+    fn memo_insert(&mut self, handle: Handle) {
+        if !handle.is_persistent() || handle.bits() == 0 {
+            return;
+        }
+        if self.memo.is_empty() {
+            let slots = self.memo_slots;
+            if slots == 0 || self.memo.try_reserve_exact(slots).is_err() {
+                self.memo_slots = 0;
+                return;
+            }
+            self.memo.resize(slots, 0);
+        }
+        let at = self.memo_index(handle);
+        self.memo[at] = handle.bits();
     }
 
     pub(crate) fn read(
@@ -279,32 +444,7 @@ impl<'a> NativeValues<'a> {
                 values.push(row[0].clone());
                 continue;
             }
-            let mut interrupted = None;
-            let mut proceed = || match self.capture.check().and_then(|()| control.check()) {
-                Ok(()) => true,
-                Err(cause) => {
-                    interrupted = Some(EvalError::interrupted(cause));
-                    false
-                }
-            };
-            let value = dive_core::print::to_value_controlled(
-                &mut self.heap,
-                &self.model.names,
-                handle,
-                self.model.evaluator.options().ctx,
-                dive_core::print::Conversion::Graph,
-                &mut proceed,
-            )
-            .map_err(|error| match error {
-                dive_core::print::ConversionError::Construction(
-                    dive_value::ConstructionError::Interrupted,
-                ) => interruption(&self.capture, control, interrupted),
-                dive_core::print::ConversionError::Construction(
-                    dive_value::ConstructionError::Allocation,
-                ) => AnalysisError::Limit("native conversion scratch storage"),
-                error => AnalysisError::UnsupportedValue(error.to_string()),
-            })?;
-            self.converted = self.converted.saturating_add(1);
+            let value = self.convert_value(handle, control)?;
             if reuse {
                 let mut cache_proceed = || check(&self.capture, control).is_ok();
                 if let Some(bytes) =
@@ -329,10 +469,48 @@ impl<'a> NativeValues<'a> {
         Ok(values.into())
     }
 
+    /// One full Graph conversion, with the run's cooperative checkpoints.
+    fn convert_value(
+        &mut self,
+        handle: Handle,
+        control: &EvaluationControl,
+    ) -> Result<Value, AnalysisError> {
+        let mut interrupted = None;
+        let mut proceed = || match self.capture.check().and_then(|()| control.check()) {
+            Ok(()) => true,
+            Err(cause) => {
+                interrupted = Some(EvalError::interrupted(cause));
+                false
+            }
+        };
+        let value = dive_core::print::to_value_controlled(
+            &mut self.heap,
+            &self.model.names,
+            handle,
+            self.model.evaluator.options().ctx,
+            dive_core::print::Conversion::Graph,
+            &mut proceed,
+        )
+        .map_err(|error| match error {
+            dive_core::print::ConversionError::Construction(
+                dive_value::ConstructionError::Interrupted,
+            ) => interruption(&self.capture, control, interrupted),
+            dive_core::print::ConversionError::Construction(
+                dive_value::ConstructionError::Allocation,
+            ) => AnalysisError::Limit("native conversion scratch storage"),
+            error => AnalysisError::UnsupportedValue(error.to_string()),
+        })?;
+        self.converted = self.converted.saturating_add(1);
+        Ok(value)
+    }
+
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({
             "admitted_rows": self.admitted, "read_rows": self.read,
             "converted_values": self.converted,
+            "skipped_admission_conversions": self.skipped,
+            "admission_memo_hits": self.memo_hits,
+            "admission_memo_bytes": self.memo.capacity() * std::mem::size_of::<u64>(),
             "convert_ms": self.conversion.as_secs_f64() * 1e3,
             "convert_ms_scope": "admission and read slow paths; single-variable cache hits are not timed",
             "cache_entries": self.cache.entries, "cache_bytes": self.cache.bytes,
@@ -353,6 +531,41 @@ impl<'a> NativeValues<'a> {
             "cache_scope": "requested table capacity, single-component row arrays and closed-function/set payload including potential scalar-domain order storage; string/field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
         })
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Scalar {
+    Int,
+    Str,
+    Bool,
+}
+
+/// The common class of inline scalars (integers, strings or booleans), if
+/// every handle has the same one. Model values and compounds have none.
+fn scalar_class(handles: &[Handle]) -> Option<Scalar> {
+    let class = |h: Handle| {
+        if h.is_compound() {
+            None
+        } else if h.as_int().is_some() {
+            Some(Scalar::Int)
+        } else if h.as_str_id().is_some() {
+            Some(Scalar::Str)
+        } else if h.as_bool().is_some() {
+            Some(Scalar::Bool)
+        } else {
+            None
+        }
+    };
+    let first = class(*handles.first()?)?;
+    handles
+        .iter()
+        .all(|&h| class(h) == Some(first))
+        .then_some(first)
+}
+
+fn increasing(keys: &[Handle]) -> bool {
+    keys.windows(2)
+        .all(|w| matches!((w[0].as_int(), w[1].as_int()), (Some(a), Some(b)) if a < b))
 }
 
 fn check(owner: &EvaluationControl, control: &EvaluationControl) -> Result<(), AnalysisError> {
@@ -398,7 +611,11 @@ fn capture_error(error: AnalysisError) -> Verdict {
 }
 
 #[cfg(test)]
-#[allow(clippy::expect_used, reason = "finite native admission fixtures")]
+#[allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "finite native admission fixtures"
+)]
 mod tests {
     use super::*;
 
@@ -462,6 +679,135 @@ mod tests {
         assert_eq!(values.metrics()["cache_entries"], 0);
         assert_eq!(values.metrics()["cache_bytes"], 0);
         assert_eq!(values.metrics()["admitted_rows"], 2);
+    }
+
+    fn bound(source: &str, tlc: bool) -> Model {
+        let parsed = dive_sema::analyze_source("V.tla", source, &dive_sema::Options::default());
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+            .into_config()
+            .expect("config");
+        let options = if tlc {
+            dive_model::BindOptions::tlc()
+        } else {
+            dive_model::BindOptions::dive()
+        };
+        dive_model::bind(
+            Arc::new(dive_ir::lower(&parsed).expect("IR")),
+            &cfg,
+            &options,
+        )
+        .expect("model")
+    }
+
+    fn names_of(model: &Model) -> Vec<String> {
+        (0..)
+            .map_while(|tok| model.names.resolve(tok))
+            .map(|atom| atom.to_string())
+            .collect()
+    }
+
+    /// Runtime strings (as `ToString` creates them) are converted at their
+    /// first admission, so the reference names gain them in exactly the order
+    /// and at exactly the event of a full Graph conversion; refusals match.
+    #[test]
+    fn admission_interns_fresh_names_and_refuses_as_full_conversion_in_both_profiles() {
+        let source = "---- MODULE V ----\nVARIABLE x, y\nInit == x = 0 /\\ y = 0\nNext == UNCHANGED <<x, y>>\nP == <>(x = 0)\n====\n";
+        for tlc in [false, true] {
+            let admitted = bound(source, tlc);
+            let converted = bound(source, tlc);
+            let store = Arc::new(Store::default());
+            let mut heap = Heap::new(store.clone(), false, false);
+            let text = |heap: &Heap, name: &str| heap.string(name).expect("runtime string");
+            let (sb, sa, sc, sd, se, sf) = (
+                text(&heap, "fresh b"),
+                text(&heap, "fresh a"),
+                text(&heap, "fresh c"),
+                text(&heap, "fresh d"),
+                text(&heap, "fresh e"),
+                text(&heap, "fresh f"),
+            );
+            let one = Handle::int(1).expect("integer");
+            let two = Handle::int(2).expect("integer");
+            let mut rows = Vec::new();
+            let record = heap.record(&[sb], &[sa]);
+            let tuple = heap.tuple_literal(&[sc, record, one]);
+            let mut strings = vec![sd, sb, sa];
+            let strings = heap.set_from(&mut strings);
+            rows.push([tuple, strings]);
+            // Repeated rows and components: nothing new is converted.
+            rows.push([tuple, strings]);
+            let mut pairs = [(se, one), (sa, two)];
+            let function = heap.fcn_from_pairs(&mut pairs);
+            let mut ints = vec![two, one];
+            let ints = heap.set_from(&mut ints);
+            let counter = heap.int_fcn(0, &[ints, function]);
+            rows.push([counter, strings]);
+            // A set of compound elements is converted in full.
+            let mut records = vec![record, tuple];
+            let records = heap.set_from(&mut records);
+            rows.push([records, sf]);
+            let mut mixed = vec![one, sf];
+            let mixed = heap.set_from(&mut mixed);
+            rows.push([mixed, one]);
+            let raw = heap.set_enum(&[one]);
+            let refused = heap.tuple_literal(&[text(&heap, "fresh g"), raw]);
+            rows.push([one, refused]);
+            let rows = rows
+                .into_iter()
+                .map(|row| row.map(|h| heap.intern_exact(h).expect("persistent original")))
+                .collect::<Vec<_>>();
+            let mut values =
+                NativeValues::new(&admitted, store.clone(), &Budget::unlimited()).expect("values");
+            let mut reference = Heap::new(store, false, false);
+            let ctx = converted.evaluator.options().ctx;
+            for (at, row) in rows.iter().enumerate() {
+                let admission = values.admit(row);
+                // A materialized mixed set is still refused at admission, as
+                // its reference construction compares a string with an integer.
+                assert_eq!(admission.is_err(), at >= 4, "row {at} tlc={tlc}");
+                let full = row.iter().try_for_each(|&handle| {
+                    dive_core::print::to_value_controlled(
+                        &mut reference,
+                        &converted.names,
+                        handle,
+                        ctx,
+                        dive_core::print::Conversion::Graph,
+                        &mut || true,
+                    )
+                    .map(drop)
+                });
+                match (&admission, &full) {
+                    (Ok(()), Ok(())) => {}
+                    (Err(Verdict::Unsupported { feature }), Err(error)) => {
+                        assert!(feature.ends_with(&error.to_string()), "{feature} {error}");
+                    }
+                    _ => panic!("row {at} tlc={tlc}: {admission:?} {full:?}"),
+                }
+                assert_eq!(
+                    names_of(&admitted),
+                    names_of(&converted),
+                    "row {at} tlc={tlc}: name encounter order"
+                );
+            }
+            assert!(names_of(&admitted).iter().any(|name| name == "fresh g"));
+            assert!(values.skipped >= 1, "a repeated row converts nothing");
+            let control =
+                EvaluationControl::new(&Budget::unlimited(), Phase::Temporal).expect("control");
+            for (at, row) in rows.iter().enumerate().take(4) {
+                let read = values.read(at, row, &control).expect("read");
+                for (slot, &handle) in read.iter().zip(row) {
+                    let full = dive_core::print::to_value(
+                        &mut reference,
+                        &converted.names,
+                        handle,
+                        ctx,
+                        dive_core::print::Conversion::Graph,
+                    )
+                    .expect("full conversion");
+                    assert_eq!(slot.as_ref(), Some(&full), "row {at} tlc={tlc}");
+                }
+            }
+        }
     }
 
     fn interned_names(model: &Model) -> u32 {
@@ -543,11 +889,12 @@ mod tests {
             assert!(a.ptr_eq(b));
             assert_eq!(a.is_record_literal(), b.is_record_literal());
             assert_eq!(a.is_tuple_literal(), b.is_tuple_literal());
+            let skipped = values.skipped;
             values.admit(&[handle]).expect("repeat admission");
             assert_eq!(
-                values.converted,
-                before + 1,
-                "eager admission never uses cache"
+                (values.converted, values.skipped),
+                (before, skipped + 1),
+                "a repeat admission neither converts nor uses the read cache"
             );
         }
         assert_eq!(
@@ -588,7 +935,11 @@ mod tests {
         assert_eq!(values.cache.hits, 2);
         assert_eq!(values.cache.misses, CACHE_WARMUP + 2);
         values.admit(&row).expect("admit");
-        assert_eq!(values.converted, 4);
+        assert_eq!(
+            (values.converted, values.skipped),
+            (2, 1),
+            "scalar rows are admitted without conversion"
+        );
         assert_eq!(values.cache.hits, 2);
     }
 
@@ -837,8 +1188,9 @@ mod tests {
                     assert!(!comparison.expect("general comparison"));
                 }
             }
-            values.admit(&[handle]).expect("repeat eager conversion");
-            assert_eq!(values.converted, before + 1);
+            let skipped = values.skipped;
+            values.admit(&[handle]).expect("repeat admission");
+            assert_eq!((values.converted, values.skipped), (before, skipped + 1));
         }
         assert_eq!(values.cache.entries, 3);
         let other = NativeValues::new(&model, Arc::new(Store::default()), &Budget::unlimited())
@@ -905,8 +1257,13 @@ mod tests {
                 .as_fcn()
                 .expect("function child");
             assert_eq!(child.is_record_literal(), row == 0);
-            values.admit(&[handle]).expect("admission still converts");
-            assert_eq!(values.converted, converted + 1);
+            let skipped = values.skipped;
+            values.admit(&[handle]).expect("repeat admission");
+            assert_eq!(
+                (values.converted, values.skipped),
+                (converted, skipped + 1),
+                "a proved original is not converted again"
+            );
         }
         assert_eq!(
             values.cache.entries, 2,
