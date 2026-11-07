@@ -378,7 +378,8 @@ call, is `Maybe`. Folding keeps the expression's value.
   safety route, the binder (`dive_model::bind_deferring_constants`,
   `crates/dive-model/src/defer.rs`) does not evaluate a constant definition
   that applies no impure operator, appears only in value positions of the
-  roles the core compiles or of the root module's pure `ASSUME`s, is not
+  roles the core compiles or of the root module's leading pure `ASSUME`s
+  (those no impure `ASSUME` precedes), is not
   named by the configuration, and is not reached by another `ASSUME`,
   `ALIAS`, `VIEW`, `SYMMETRY`, `POSTCONDITION`, a constant's replacement or
   a definition the binder does evaluate. Purity follows an instance's
@@ -398,12 +399,16 @@ call, is `Maybe`. Folding keeps the expression's value.
   it after swallowing the startup failure. The others are evaluated by no
   one: their startup evaluation is unobservable. `CHOOSE` frees each
   rejected candidate by arena rollback, as a filter does, unless a thunk
-  was forced to a transient meanwhile. The pure `ASSUME`s
-  (`Handoff::assumptions`) are then evaluated the same way, and the ones
-  found `TRUE` are listed in `Plan::startup_assumptions`; the engine checks
-  only the others with the reference evaluator
-  (`Model::check_assumptions_except`), so a false or failing `ASSUME` is
-  reported exactly as before. Because the compile now precedes that check, a
+  was forced to a transient meanwhile. The leading pure `ASSUME`s
+  (`Handoff::assumptions`) are then evaluated the same way, in order,
+  stopping at the first that is not `TRUE`, since TLC's
+  `Tool.checkAssumptions` stops there and an earlier `ASSUME` may guard a
+  later one. The ones found `TRUE` are listed in
+  `Plan::startup_assumptions`, and one found `FALSE` in
+  `Plan::startup_assumption_false`, which the engine reports without
+  evaluating it again. Otherwise the engine checks the others with the
+  reference evaluator (`Model::check_assumptions_except`), so a false or
+  failing `ASSUME` is reported exactly as before. Because the compile now precedes that check, a
   compile refusal is reported only after the `ASSUME`s pass. `--compat=tlc`
   and the temporal route keep the binder's evaluation.
 

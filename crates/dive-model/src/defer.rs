@@ -36,8 +36,8 @@ pub(crate) struct Deferral {
     /// others are evaluated by no one, which is unobservable, since TLC
     /// swallows the failure of a pure startup evaluation.
     pub evaluate: HashSet<DefId>,
-    /// The root module's pure `ASSUME`s, in order, which the core evaluates
-    /// before the reference evaluator checks the others.
+    /// The leading pure `ASSUME`s of the root module, in order, which the
+    /// core evaluates before the reference evaluator checks the others.
     pub assumptions: Vec<DefId>,
 }
 
@@ -155,8 +155,13 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
     }
 }
 
-/// The root module's `ASSUME`s (the ones TLC checks, `AXIOM`s aside) that
-/// apply no impure operator, in order: the core evaluates them.
+/// The leading run of the root module's `ASSUME`s (the ones TLC checks,
+/// `AXIOM`s aside) that apply no impure operator, in order: the core
+/// evaluates them. TLC's `Tool.checkAssumptions` stops at the first `ASSUME`
+/// that is not `TRUE`, so an `ASSUME` may guard the ones after it. The core
+/// evaluates its `ASSUME`s before the reference evaluator checks the others,
+/// so it takes only those no impure `ASSUME` precedes, and stops at the first
+/// that is not `TRUE` itself.
 fn pure_assumptions(b: &Binder<'_>) -> Vec<DefId> {
     let ir = &*b.t.ir;
     let root = ir.module(ir.root());
@@ -165,7 +170,7 @@ fn pure_assumptions(b: &Binder<'_>) -> Vec<DefId> {
         .zip(root.axioms.iter().chain(std::iter::repeat(&false)))
         .filter(|(_, axiom)| !**axiom)
         .map(|(d, _)| *d)
-        .filter(|d| crate::reach::pure(b, *d))
+        .take_while(|d| crate::reach::pure(b, *d))
         .collect()
 }
 

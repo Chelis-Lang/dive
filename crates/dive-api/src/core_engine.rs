@@ -806,14 +806,22 @@ fn prepare_observed(
     // prints nothing, draws nothing and reads no counter), so a compile
     // failure is reported only after the ASSUMEs pass, as before.
     let compiled = compile_plan(&model, ir, options, core_opts, &mut sym, debugger.as_ref());
-    let proved: &[DefId] = match &compiled {
-        Ok((_, plan, _)) => &plan.startup_assumptions,
-        Err(_) => &[],
+    // The core evaluates a leading run of the ASSUMEs, stopping at the first
+    // that is not TRUE (TLC's order: an ASSUME may guard the next). One it
+    // found FALSE is the first that is not TRUE, and is reported without
+    // evaluating it again.
+    let (proved, refuted): (&[DefId], _) = match &compiled {
+        Ok((_, plan, _)) => (&plan.startup_assumptions, plan.startup_assumption_false),
+        Err(_) => (&[], None),
     };
     // The other ASSUMEs are startup evaluation (the binder's,
     // `04-plan-compiler.md` §2): a false or failing one ends the run as the
     // reference engine reports it, before any search.
-    let assumed = match model.check_assumptions_except(proved) {
+    let outcome = match refuted {
+        Some(a) => model.evaluator.false_assumption(a),
+        None => model.check_assumptions_except(proved),
+    };
+    let assumed = match outcome {
         dive_eval::AssumptionOutcome::AllTrue => None,
         dive_eval::AssumptionOutcome::False {
             property, message, ..

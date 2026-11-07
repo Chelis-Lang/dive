@@ -136,3 +136,22 @@ ASSUME Test",
     assert_eq!(deferred.deferred_assumptions.len(), 2);
     assert!(names(&deferred).contains("Test"), "{:?}", names(&deferred));
 }
+
+#[test]
+fn the_core_takes_only_the_pure_assumes_no_impure_one_precedes() {
+    // TLC stops at the first ASSUME that is not TRUE, so the drawing one
+    // guards the pure one after it: the reference evaluator checks both.
+    let source = SOURCE.replace(
+        "ASSUME Bound > 0",
+        "ASSUME Bound > 0\nASSUME RandomElement(Node) \\in Node\nASSUME Cardinality(Node) > 0",
+    );
+    let (ir, cfg) = inputs(&source);
+    let deferred =
+        bind_deferring_constants(ir, &cfg, &BindOptions::dive()).expect("deferring binding");
+    let root = deferred.ir.module(deferred.ir.root());
+    assert_eq!(root.assumptions.len(), 3);
+    assert_eq!(
+        deferred.deferred_assumptions,
+        root.assumptions[..1].to_vec()
+    );
+}

@@ -671,6 +671,10 @@ pub struct Plan {
     /// The pure `ASSUME`s ([`crate::compile::Handoff::assumptions`]) the
     /// compiler evaluated to `TRUE`, in order.
     pub startup_assumptions: Vec<dive_ir::DefId>,
+    /// The pure `ASSUME` after [`Self::startup_assumptions`] that the
+    /// compiler evaluated to `FALSE`, where it stopped; `None` when it found
+    /// them all `TRUE` or stopped at one it did not evaluate to a Boolean.
+    pub startup_assumption_false: Option<dive_ir::DefId>,
 }
 
 /// What effects a plan has (`Info::effect`).
