@@ -4,7 +4,7 @@
 use std::collections::BTreeSet;
 
 use dive_eval::{Scope, SlotView};
-use dive_ir::{Arg, DefId, Expr, ExprId, OpRef, StdOp, StdSupport};
+use dive_ir::{Arg, DefId, Effects, Expr, ExprId, OpRef, StdOp, StdSupport};
 
 use crate::bind::Binder;
 use crate::model::{Model, Pred, Unsupported, UnsupportedKind};
