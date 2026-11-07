@@ -177,6 +177,13 @@ published. Earlier pre-release development entries remain in git history.
   (`FoldFunctionOnSet(+, 0, f, S)`) and `DyadicRationals!Reduce`, so
   `ewd998/EWD998Small` and `Huang/Huang` no longer refuse. An error inside
   such an operator, and `Reduce` operands outside 32 bits, still refuse.
+- Core reports a model that fails to bind from its own binding, instead of
+  running the whole check again on the reference engine to confirm it. The
+  verdict, message, printed output and warnings are unchanged; a binding
+  failure under an option only Core implements (candidate spill, store
+  reclamation) is now reported rather than refused. Replaying an evaluation
+  error in the initial states or a successor set stops at the first state
+  past Core's count.
 
 - Fold closed constant sets of up to 65,536 loop iterations at compile time
   (was 4,096), so type sets such as MCNano's `SignedBlock \cup {NoBlock}` are

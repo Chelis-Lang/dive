@@ -477,30 +477,28 @@ pub(crate) fn store_for(
     Ok(store)
 }
 
-/// A model that fails to bind ends the run before any search, as on the
-/// reference engine (for example TLC's `TLC_INTEGER_TOO_BIG` for a numeral
-/// outside 32 bits under `--compat=tlc`). The core binds without the run's
-/// host, so its failure is confirmed by the reference engine's own binding:
-/// when that fails the same way, its result (verdict, printed output and
-/// warnings) is the run's; otherwise the run is refused.
+/// A model that fails to bind ends the run before any search (for example
+/// TLC's `TLC_INTEGER_TOO_BIG` for a numeral outside 32 bits under
+/// `--compat=tlc`). The core binds with the run's own host and binding
+/// options, so its failure is the run's result: the verdict, what the binder
+/// printed before it and its warnings, in the form every engine reports a
+/// binding failure (`dive_runtime::bare`).
+///
+/// In the default profile the core's binder leaves some pure constant
+/// definitions unevaluated (`dive_model::bind_deferring_constants`). That
+/// cannot change a binding failure: TLC swallows the failure of a start-up
+/// evaluation, and a pure definition prints nothing and draws nothing, so
+/// the failing stage, its error and the output before it are those of the
+/// full binding.
 fn binding_failure(
     ir: &Arc<Ir>,
-    config: &dive_config::ModelConfig,
     options: &CheckOptions,
     failure: &dive_model::Failure,
 ) -> CheckResult {
-    let mine = Verdict::from(&failure.error);
-    let reference = dive_check::check(ir, config, options);
-    if reference.verdict == mine && reference.stats.is_none() {
-        return reference;
-    }
-    result(
-        unsupported(format!(
-            "a binding failure the reference engine does not reproduce under the core engine: {failure}"
-        )),
-        options,
-        ir,
-    )
+    let mut r = dive_runtime::bare(Verdict::from(&failure.error), options, ir);
+    r.binding_model_error = matches!(r.verdict, Verdict::ModelError { .. });
+    dive_runtime::messages(&failure.output, &mut r);
+    r
 }
 
 /// `SYMMETRY`, prepared as the reference engine prepares it: its maps by
@@ -715,7 +713,7 @@ fn prepare_observed(
     };
     let mut model = match bound {
         Ok(m) => m,
-        Err(f) => return Err(Box::new(binding_failure(ir, config, options, &f))),
+        Err(f) => return Err(Box::new(binding_failure(ir, options, &f))),
     };
     // On the temporal route the binder still evaluates the start-up
     // definitions the temporal properties and their checking reach
@@ -724,10 +722,10 @@ fn prepare_observed(
     // does: `TLCGet("config")` and the checker's names exist from here on,
     // and the ASSUMEs read the start-up counters.
     model.evaluator.intern_checker_names();
-    let run_config = dive_check::engine::run_config(options, model.settings.check_deadlock);
+    let run_config = dive_runtime::run::run_config(options, model.settings.check_deadlock);
     model.evaluator.intern_bfs_config(&run_config);
     host.set_config(Some(run_config));
-    dive_check::engine::startup_counters(&host);
+    dive_runtime::run::startup_counters(&host);
     if debugger.is_some() && !model.implied_temporals.is_empty() {
         return Err(Box::new(result(
             unsupported("compiled debugger with temporal checking"),
@@ -779,13 +777,13 @@ fn prepare_observed(
             property, message, ..
         } => Some(Verdict::AssumptionFalse { property, message }),
         dive_eval::AssumptionOutcome::Error { error, message, .. } => {
-            Some(dive_check::classify::assumption_error(&error, message))
+            Some(dive_runtime::classify::assumption_error(&error, message))
         }
     };
     // From `Init` on the live counters are not provided, as in the
     // reference engine's search: reading one is refused rather than
     // answered with a count the core does not keep.
-    dive_check::engine::search_counters(&host);
+    dive_runtime::run::search_counters(&host);
     if let Some(v) = assumed {
         // Output printed while evaluating the ASSUMEs is the reference
         // engine's to order; the core does not report it.
