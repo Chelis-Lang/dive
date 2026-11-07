@@ -335,6 +335,9 @@ struct Info {
     primed: u64,
     free: Vec<u32>,
     calls: bool,
+    /// Reaches a nested `ENABLED` or composition query: an instance query's
+    /// identity-substitution proof does not cover its own cutoff.
+    nested_query: bool,
     /// Contains a fold that ran out of fuel: enclosing folds would too.
     heavy: bool,
     /// Reaches an operator with an effect (`Print`, `PrintT`): TLC performs
@@ -591,6 +594,7 @@ fn compile_inner(
         open_funs: std::collections::HashSet::new(),
         reentered_funs: std::collections::HashSet::new(),
         recursive_action_predicate: false,
+        instance_query_calls: false,
         composition: composition::State::Absent,
         def_slots: std::collections::HashSet::new(),
         lifts: Vec::new(),
@@ -658,6 +662,24 @@ fn compile_inner(
             "recursive Boolean action predicates in a compiled plan with effects or unproved calls (D-029)",
         ));
     }
+    // An instance ENABLED query may read compiled calls only when no call
+    // body can reach an effect or a nested query, proved conservatively over
+    // the whole plan once every function body is compiled.
+    if c.instance_query_calls
+        && (c.effects.any
+            || c.code.nodes.iter().any(|node| {
+                matches!(node, Node::Call { fun, .. } if c.code.funs.get(*fun as usize).is_none())
+            })
+            || c.code.funs.iter().any(|fun| {
+                c.info
+                    .get(fun.body as usize)
+                    .is_none_or(|info| info.effect || info.nested_query)
+            }))
+    {
+        return Err(Error::unsupported(
+            "ENABLED in an INSTANCE with effects or recursive/nested calls (M1 core)",
+        ));
+    }
     c.uncache_composition_states();
     c.stats.nodes = c.code.nodes.len();
     c.stats.gnodes = c.code.gnodes.len();
@@ -712,6 +734,10 @@ fn compile_inner(
     Ok(plan)
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent compile modes and whole-plan proof obligations"
+)]
 struct Compiler<'a> {
     h: &'a Handoff<'a>,
     /// The effects compiled nodes reach (`Info::effect`).
@@ -758,6 +784,9 @@ struct Compiler<'a> {
     reentered_funs: std::collections::HashSet<u32>,
     /// Whether an applied recursive function became a Boolean action guard.
     recursive_action_predicate: bool,
+    /// Whether an `ENABLED` query in an instance reads a compiled call
+    /// (`Node::Call`), whose body facts `Info` does not follow.
+    instance_query_calls: bool,
     /// Whether source-changing composition is present or being compiled.
     composition: composition::State,
     /// The thunk slots of `def_cache`.
@@ -987,6 +1016,7 @@ impl Compiler<'_> {
                 i.vars |= c.vars;
                 i.primed |= c.primed;
                 i.calls |= c.calls;
+                i.nested_query |= c.nested_query;
                 i.heavy |= c.heavy;
                 i.effect |= c.effect;
                 union(&mut i.free, &c.free);
@@ -1003,6 +1033,7 @@ impl Compiler<'_> {
                 i.vars |= inner.vars;
                 i.primed |= inner.primed;
                 i.calls |= inner.calls;
+                i.nested_query |= inner.nested_query;
                 i.heavy |= inner.heavy;
                 i.effect |= inner.effect;
                 union(&mut i.free, &inner.free);
@@ -1113,6 +1144,7 @@ impl Compiler<'_> {
                     i.vars |= inner.vars;
                     i.primed |= inner.primed;
                     i.calls |= inner.calls;
+                    i.nested_query |= inner.nested_query;
                     i.heavy |= inner.heavy;
                     i.effect |= inner.effect;
                     union(&mut i.free, &inner.free);
@@ -1129,6 +1161,7 @@ impl Compiler<'_> {
                             i.vars |= inner.vars;
                             i.primed |= inner.primed;
                             i.calls |= inner.calls;
+                            i.nested_query |= inner.nested_query;
                             i.heavy |= inner.heavy;
                             i.effect |= inner.effect;
                             union(&mut i.free, &inner.free);
@@ -1151,11 +1184,13 @@ impl Compiler<'_> {
             Node::Enabled { free, .. } => {
                 union(&mut i.free, free);
                 i.calls = true;
+                i.nested_query = true;
                 i.vars = u64::MAX;
             }
             Node::Composition { free, .. } => {
                 union(&mut i.free, free);
                 i.calls = true;
+                i.nested_query = true;
                 i.vars = u64::MAX;
                 i.primed = u64::MAX;
             }
@@ -1927,7 +1962,7 @@ impl Compiler<'_> {
         self.def_cache = cache;
         let g = g?;
         let mut free = Vec::new();
-        self.g_free(g, &mut free, 0, instance)?;
+        self.instance_query_calls |= self.g_free(g, &mut free, 0, instance)?;
         free.retain(|&s| s < first_slot);
         self.push(Node::Enabled {
             g,
@@ -1987,16 +2022,22 @@ impl Compiler<'_> {
 
     /// The free slots of the value nodes a generator node reads, its own
     /// binders included (the caller drops the slots the action allocated).
+    /// In an instance query, refuses value nodes with effects or nested
+    /// queries and returns whether any reads a compiled call, whose body the
+    /// caller checks once the whole plan is compiled.
     #[allow(clippy::too_many_lines, reason = "one arm per generator rule")]
-    fn g_free(&self, g: G, out: &mut Vec<u32>, depth: u32, instance: bool) -> Result<(), Error> {
+    fn g_free(&self, g: G, out: &mut Vec<u32>, depth: u32, instance: bool) -> Result<bool, Error> {
         if depth > 10_000 {
             return Err(Error::unsupported("an action nested too deeply (M1 core)"));
         }
         let mut unproved = false;
+        let mut calls = false;
+        let mut inner = false;
         let mut p = |p: P, out: &mut Vec<u32>| {
             if let Some(i) = self.info.get(p as usize) {
                 union(out, &i.free);
-                unproved |= instance && (i.effect || i.calls);
+                unproved |= instance && (i.effect || i.nested_query);
+                calls |= instance && i.calls;
             }
         };
         let unch = |items: &[crate::plan::Unch],
@@ -2013,18 +2054,18 @@ impl Compiler<'_> {
         };
         match node {
             GNode::Composition { first, then } => {
-                self.g_free(*first, out, depth + 1, instance)?;
-                self.g_free(*then, out, depth + 1, instance)?;
+                inner |= self.g_free(*first, out, depth + 1, instance)?;
+                inner |= self.g_free(*then, out, depth + 1, instance)?;
             }
             GNode::Conj(items) => {
                 for &(g, x) in items {
                     p(x, out);
-                    self.g_free(g, out, depth + 1, instance)?;
+                    inner |= self.g_free(g, out, depth + 1, instance)?;
                 }
             }
             GNode::Disj(gs) => {
                 for &g in gs {
-                    self.g_free(g, out, depth + 1, instance)?;
+                    inner |= self.g_free(g, out, depth + 1, instance)?;
                 }
             }
             GNode::Exists {
@@ -2041,47 +2082,47 @@ impl Compiler<'_> {
                     p(b.domain, out);
                 }
                 p(*body_p, out);
-                self.g_free(*body, out, depth + 1, instance)?;
+                inner |= self.g_free(*body, out, depth + 1, instance)?;
             }
             GNode::If { cond, then, other } => {
                 p(*cond, out);
-                self.g_free(*then, out, depth + 1, instance)?;
-                self.g_free(*other, out, depth + 1, instance)?;
+                inner |= self.g_free(*then, out, depth + 1, instance)?;
+                inner |= self.g_free(*other, out, depth + 1, instance)?;
             }
             GNode::Case { arms, other } => {
                 for &(c, g) in arms {
                     p(c, out);
-                    self.g_free(g, out, depth + 1, instance)?;
+                    inner |= self.g_free(g, out, depth + 1, instance)?;
                 }
                 if let Some(o) = other {
-                    self.g_free(*o, out, depth + 1, instance)?;
+                    inner |= self.g_free(*o, out, depth + 1, instance)?;
                 }
             }
             GNode::Implies { lhs, rhs } => {
                 p(*lhs, out);
-                self.g_free(*rhs, out, depth + 1, instance)?;
+                inner |= self.g_free(*rhs, out, depth + 1, instance)?;
             }
             GNode::Assign { rhs, .. } => p(*rhs, out),
             GNode::AssignIn { set, .. } | GNode::AssignInRaw { set, .. } => p(*set, out),
             GNode::Unchanged(items) => unch(items, out, &mut p),
             GNode::StepBox { action, vars } => {
                 unch(vars, out, &mut p);
-                self.g_free(*action, out, depth + 1, instance)?;
+                inner |= self.g_free(*action, out, depth + 1, instance)?;
             }
             GNode::StepAngle { action, same } => {
                 p(*same, out);
-                self.g_free(*action, out, depth + 1, instance)?;
+                inner |= self.g_free(*action, out, depth + 1, instance)?;
             }
             GNode::FcnAction { binds, arg, body } => {
                 for b in binds {
                     p(b.domain, out);
                 }
                 p(*arg, out);
-                self.g_free(*body, out, depth + 1, instance)?;
+                inner |= self.g_free(*body, out, depth + 1, instance)?;
             }
             GNode::Scope { reset, body } => {
                 union(out, reset);
-                self.g_free(*body, out, depth + 1, instance)?;
+                inner |= self.g_free(*body, out, depth + 1, instance)?;
             }
             GNode::Guard(x) => p(*x, out),
         }
@@ -2090,7 +2131,7 @@ impl Compiler<'_> {
                 "ENABLED in an INSTANCE with effects or recursive/nested calls (M1 core)",
             ));
         }
-        Ok(())
+        Ok(calls || inner)
     }
 
     fn konst(&mut self, h: Handle) -> Result<P, Error> {

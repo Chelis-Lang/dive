@@ -432,12 +432,17 @@ The analysis Machine has separate arena/frame/memo owners, with memoization and
 folding disabled. It does not intern predicate results into the producer Store.
 Additive `core.metrics.liveness.atoms` counters distinguish prepared eligibility,
 actual native evaluations and fallback. `atoms.rejections` counts unprepared
-atoms by their first failing check (`negated_enabled`, `foreign_scope`,
+atoms by their first failing check (`foreign_scope`,
 `compile_error`, `effects`, `fresh_string`, `const_unclosed`, `allocation`);
 `atoms.fallbacks` splits actual fallback demands into `row_proof`,
 `fuel_exhausted`, `error`, `warning_or_print`, `not_compiled` and
 `fuel_retired`, and `atoms.fuel` reports the per-demand allowance, the strike
-limit and the retired atoms. These are capability measurements,
+limit and the retired atoms. `atoms.reference_evaluations` counts the state
+and action label demands that label demand answered with the reference
+evaluator (unprepared atoms and fallbacks); attribution of a reported word is
+not counted. A directly syntactic `~ENABLED A` atom compiles the bounded
+search of `A` (both expressions must bind to the atom's scope) and negates a
+completed truth; `negated_enabled_evaluations` counts those. These are capability measurements,
 not performance acceptance; original workload completion and paired timing are
 still required. The existing conversion-cache allowance and eager admission
 policy are unchanged.
