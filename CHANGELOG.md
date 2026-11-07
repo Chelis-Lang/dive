@@ -25,6 +25,14 @@ published. Earlier pre-release development entries remain in git history.
   liveness with run-time names and finite modes that reach unreplayed random or
   register effects are named Core refusals; see
   [compatibility gaps](docs/tlc-differences.md#compat-gaps).
+- Core checks the subscript of `WF_vars(A)`, `SF_vars(A)` and `<<A>>_vars`
+  faster in the default profile when `vars` is a tuple, possibly nested, of
+  state variables: it compares the variables of the two states instead of
+  building both tuples. Results are unchanged; `--compat=tlc` keeps the
+  tuple comparison. Liveness checking of
+  `SDP_Verification/SDP_Attack_New_Solution_Spec/MC` takes about 0.4 s
+  instead of 0.6 s and `allocator/AllocatorImplementation` about 6.7 s
+  instead of 9.8 s on the same host.
 - Core keeps its start-up evaluation of pure constant definitions when the
   model has temporal properties: the binder evaluates only the definitions
   the temporal properties and the specification's fairness reach, instead of

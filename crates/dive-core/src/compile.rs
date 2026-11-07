@@ -1047,6 +1047,7 @@ impl Compiler<'_> {
             Node::Lazy { body, .. }
             | Node::Scope { body, .. }
             | Node::Memo { body, .. }
+            | Node::SameVars { eq: body, .. }
             | Node::Spec(body) => {
                 add(*body, &mut i);
             }
