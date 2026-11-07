@@ -96,6 +96,10 @@ pub struct Machine {
     /// time; the compiler bounds it while folding constants (R9), and an
     /// isolated optional analysis machine bounds its own speculative work.
     pub(crate) fuel: u64,
+    /// Whether a site where the reference evaluator prints a warning that
+    /// Core does not record in [`Machine::warnings`] refuses instead
+    /// ([`Machine::set_refuse_unrecorded_warnings`]).
+    refuse_unrecorded_warnings: bool,
     work_control: Option<Arc<dyn WorkControl>>,
     pub(crate) debugger: Option<Arc<dyn crate::debug::Observer>>,
 }
@@ -189,6 +193,7 @@ impl Machine {
             scratch: Vec::new(),
             depth: 0,
             fuel: u64::MAX,
+            refuse_unrecorded_warnings: false,
             work_control: None,
             debugger: None,
         }
@@ -209,6 +214,22 @@ impl Machine {
                 && self.opts.member_index
                 && !self.heap.store.semantics().tlc_comparisons,
         );
+    }
+
+    /// Makes every site where the reference evaluator prints a warning that
+    /// this machine does not record in [`Machine::warnings`] fail as
+    /// unsupported instead: an `EXCEPT` key outside the function's domain
+    /// (TLC warning 2144). An isolated optional machine sets it so that its
+    /// caller can fall back to the reference evaluator, which prints the
+    /// warning. Ordinary machines keep TLC's unchanged-function result.
+    ///
+    /// ```
+    /// # fn configure(machine: &mut dive_core::Machine) {
+    /// machine.set_refuse_unrecorded_warnings(true);
+    /// # }
+    /// ```
+    pub fn set_refuse_unrecorded_warnings(&mut self, enabled: bool) {
+        self.refuse_unrecorded_warnings = enabled;
     }
 
     /// Installs the optional caller-owned cooperative work checkpoint.
@@ -705,13 +726,6 @@ impl Machine {
                 let fv = self.eval(code, *f)?;
                 self.domain(fv)
             }
-            Node::ClosedUpdate {
-                base,
-                key,
-                domain,
-                at,
-                value,
-            } => self.closed_update(code, *base, *key, *domain, *at, *value),
             Node::Except { base, updates } => {
                 let mut f = self.eval_norm(code, *base)?;
                 for u in updates {
@@ -1834,86 +1848,6 @@ impl Machine {
         }
     }
 
-    fn closed_update(
-        &mut self,
-        code: &Code,
-        base: P,
-        key: P,
-        domain: Option<P>,
-        at: u32,
-        value: P,
-    ) -> Result<Handle, Error> {
-        let f = self.eval(code, base)?;
-        let key = self.eval(code, key)?;
-        if !f.is_compound()
-            || !self.heap.view(f).kind.is_fcn()
-            || (key.as_int().is_none() && key.as_bool().is_none() && key.as_str_id().is_none())
-        {
-            return Err(Error::unsupported("unproved optional update inputs"));
-        }
-        if let Some(domain) = domain {
-            let domain = self.eval(code, domain)?;
-            if !domain.is_compound() || self.heap.view(domain).kind != Kind::Interval {
-                return Err(Error::unsupported(
-                    "optional update binder is not an interval",
-                ));
-            }
-            let d = self.heap.view(domain);
-            let lo = d.lo;
-            let hi = d
-                .data
-                .first()
-                .and_then(|h| h.as_int())
-                .ok_or_else(|| Error::unsupported("optional interval bound"))?;
-            let n = hi
-                .checked_sub(lo)
-                .and_then(|v| v.checked_add(1))
-                .and_then(|v| usize::try_from(v).ok())
-                .ok_or_else(|| Error::unsupported("optional update interval size"))?;
-            self.charge(n)?;
-            let v = self.heap.view(f);
-            let same = match v.kind {
-                Kind::IntFcn => v.lo == lo && v.len() == n,
-                Kind::Fcn => {
-                    v.len() == n
-                        && v.keys().iter().enumerate().all(|(i, h)| {
-                            i64::try_from(i).ok().and_then(|i| lo.checked_add(i)) == h.as_int()
-                        })
-                }
-                _ => false,
-            };
-            if !same {
-                return Err(Error::unsupported(
-                    "optional update key/domain requires reference warning semantics",
-                ));
-            }
-        }
-        // Membership is checked on the actual immutable base before RHS/@.
-        // A missing EXCEPT field can succeed with warning2144 in reference.
-        self.charge(self.heap.view(f).len())?;
-        let Some(index) = self.fcn_index(f, key)? else {
-            return Err(Error::unsupported(
-                "optional update key requires reference warning semantics",
-            ));
-        };
-        let old = self.heap.view(f).values()[index];
-        if old.as_int().is_none() && old.as_bool().is_none() && old.as_str_id().is_none() {
-            return Err(Error::unsupported("optional update old leaf is not scalar"));
-        }
-        let saved = self.slot(at);
-        self.set_slot(at, old);
-        let result = self.eval(code, value);
-        self.set_slot(at, saved);
-        let new = result?;
-        if new.as_int().is_none() && new.as_bool().is_none() && new.as_str_id().is_none() {
-            return Err(Error::unsupported(
-                "optional update replacement is not scalar",
-            ));
-        }
-        self.charge(self.heap.view(f).data.len())?;
-        Ok(self.heap.fcn_with(f, index, new))
-    }
-
     fn except(
         &mut self,
         code: &Code,
@@ -1928,6 +1862,7 @@ impl Machine {
         if !f.is_compound() || !self.heap.view(f).kind.is_fcn() {
             return Err(eval_err("EXCEPT on a value that is not a function"));
         }
+        self.charge(self.heap.view(f).len())?;
         let Some(i) = self.fcn_index(f, key)? else {
             // TLC leaves the function unchanged when the key is outside its
             // domain, but fails when it had to compare the key with a domain
@@ -1942,6 +1877,11 @@ impl Machine {
             } else {
                 compare::miss(&self.heap, key, v.keys())?;
             }
+            if self.refuse_unrecorded_warnings {
+                return Err(Error::unsupported(
+                    "an EXCEPT key outside the function's domain, where the reference prints warning 2144",
+                ));
+            }
             return Ok(f);
         };
         let old = self.heap.view(f).values()[i];
@@ -1954,6 +1894,7 @@ impl Machine {
         if new == old {
             return Ok(f);
         }
+        self.charge(self.heap.view(f).data.len())?;
         Ok(self.heap.fcn_with(f, i, new))
     }
 

@@ -47,6 +47,14 @@ published. Earlier pre-release development entries remain in git history.
   hold sets, model values or functions with any keys, when every value is
   materialized. SDP and MCFlashWithMutexLive no longer fall back to the
   reference evaluator for their prepared atoms. Results are unchanged.
+- Core liveness admits a temporal atom for native evaluation by Core plan
+  facts instead of the reference stability check, and no longer caps plan
+  size. CHOOSE over sets, Cardinality, set filters, SUBSET, UNION, records and
+  multi-clause EXCEPT now run natively; recursive functions, `^`, `ToString`
+  and negated ENABLED atoms still use the reference evaluator. At one worker,
+  AllocatorImplementation drops from 101 s to 23 s, MCFlashWithMutexLive from
+  40 s to 3.7 s and SDP_Attack_New_Solution from 6.5 s to 2.8 s. Results are
+  unchanged.
 
 - Independently validate pure bounded TLA-mode action composition, including
   actual closing edges, deadlock and fairness. Nonstuttering compares the

@@ -299,7 +299,7 @@ requested bytes exclude the opaque overhead above. `memory` describes covered co
 capacities and reserve-growth overlap; the overlap is an upper bound, not
 observed peak RSS. `accounting_complete: false` remains explicit (§7).
 
-### 4.1 Optional stable native predicate evaluation
+### 4.1 Optional native predicate evaluation
 
 The native reader can additionally evaluate a prepared state/action Predicate,
 Enabled or Nonstuttering atom on the exact persistent source/original target
@@ -309,29 +309,52 @@ work (ADR 0129). Shared label demand order, first original successor selection,
 frontier handling, products, lassos, reference attribution and independent word
 validation remain unchanged. Legacy row-only callbacks retain their signatures.
 
-Eligibility requires the actual retained atom object and source-owned scope,
-callback-free closed-predicate inspection, run-owned names/constant contexts,
-and materialized input handles (ADR
-[0154](../../decisions/0154-native-atom-rows-by-materialization.md)). Immutable interval domains support
-quantifiers over closed scalar-keyed general functions. The original canonical
-producer certificate is unchanged. Enabled fairness tests reuse existing core
-successor search and INSTANCE identity/cutoff checks. Ordinary Nonstuttering
-compares the retained before/after scoped subscript before the action; unlike
-Enabled, it creates no branch cutoff and preserves nonidentity substitutions.
+Eligibility is a set of Core plan facts (ADR
+[0154](../../decisions/0154-native-atom-rows-by-materialization.md), amendment):
 
-The optional ordinary action lane additionally admits one-scalar-binder interval
-function constructors and bounded interval CHOOSE, with their actual retained
-scopes and existing Red/KEEP_LAZY/Beta demand behavior (ADR 0130). Source-local
-finite integer enumeration/difference supplies domains without authorizing raw
-set history. One-clause, one-key scalar EXCEPT/@ can use a certified closed
-constructed base: actual key membership is checked before RHS demand and lexical
-@ receives the old scalar leaf. Keys, domain order and literal/general class are
-preserved. Missing/incompatible keys fall back before reference warning 2144
-could be suppressed. The old root/immutable-binder class retains its exact
-actual-domain check. Enabled retains that narrower update subset; constructors
-and @ do not widen query admission. Nested/multiple updates, opaque domains,
-raw/deferred set history, effects, live TLCGet and hidden/nonidentity queries
-continue through reference evaluation. Unknown representations, optional work
+- the actual retained atom object and its source scope bind to the model's
+  evaluator (`foreign_scope` otherwise);
+- `compile_bound_test` accepts the atom, with the same value nodes safety
+  checking uses (`compile_error`); Enabled adds its substitution, effect and
+  call refusals, the B3 cutoff and the B2/B4 tlc-profile refusals;
+- the plan has no effects (`effects`): no Print/PrintT, RandomElement, TLCSet,
+  TLCGet registers or `TLCGet("level")`;
+- the plan contains no `ToString` (`fresh_string`), and the analysis Heap runs
+  with `Heap::set_existing_strings_only`, so any other builder of a text the
+  shared string table lacks fails and falls back. A new token would change
+  string order under `--compat=tlc` for the rest of the run;
+- every compiled string, function and Select-key constant, and every bound
+  parameter value of the atom's scope (`\A e \in S : WF_v(A(e))`), is a
+  materialized Core value (`const_unclosed`), and so is every input row.
+
+Plan size has no semantic role and is not capped. User-defined recursive
+functions (`funs`), Memo sites (`memo`) and `^` (`pow`) remain refused for now.
+There is no separate reference stability certificate: ADR 0129 kept one to
+protect reference constructor, normalization, name and thunk history, which
+ADR 0153 treats as a TLC artifact the default profile does not reproduce. A
+fresh conversion per read means skipping a reference call cannot change a later
+value.
+
+Admitted shapes therefore include bounded CHOOSE over any enumerable set (the
+first satisfying element in `Heap::cmp` order, which equals the reference value
+order per profile; an error before the first witness falls back), Cardinality,
+set filters, SUBSET, UNION and set algebra, records, function constructors with
+several binders, and EXCEPT with several clauses, nested paths and `@`. They run
+through the analysis Machine's bounded normalization and enumeration
+boundaries, which preflight SUBSET, function-set and union materialization
+before allocation. The analysis Machine runs with
+`Machine::set_refuse_unrecorded_warnings`: an EXCEPT key outside the function's
+domain, where the reference prints warning 2144, is an unsupported error and
+falls back, so the reference still prints it. Warning 2143 is recorded in
+`Machine::warnings`, and any recorded warning or printed output also falls
+back. Enabled fairness tests reuse existing core successor search and INSTANCE
+identity/cutoff checks; fairness subscripts reject stuttering candidates and
+continue the search. Ordinary Nonstuttering compares the retained before/after
+scoped subscript, in source then target order, before the action; unlike
+Enabled, it creates no branch cutoff and preserves nonidentity substitutions.
+NegatedEnabled atoms stay on the reference lane.
+
+Unknown representations, optional work
 bounds and semantic failures use the same reference fallback. Actual owned
 budget stops propagate; foreign interruption evidence is rejected. Optional query
 binding streams the existing cursors under its work quota, preflights eager
@@ -383,8 +406,8 @@ The analysis Machine has separate arena/frame/memo owners, with memoization and
 folding disabled. It does not intern predicate results into the producer Store.
 Additive `core.metrics.liveness.atoms` counters distinguish prepared eligibility,
 actual native evaluations and fallback. `atoms.rejections` counts unprepared
-atoms by their first failing check (`negated_enabled`, `stable_certificate`,
-`compile_error`, `effects`, `code_nodes`, `funs`, `memo`, `pow`,
+atoms by their first failing check (`negated_enabled`, `foreign_scope`,
+`compile_error`, `effects`, `fresh_string`, `funs`, `memo`, `pow`,
 `const_unclosed`, `allocation`); `atoms.fallbacks` splits actual fallback
 demands into `row_proof`, `fuel_or_error`, `warning_or_print` and
 `not_compiled`. These are capability measurements,

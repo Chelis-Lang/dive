@@ -637,6 +637,22 @@ pub(crate) fn frame_metadata(ir: &dive_ir::Ir) -> (Vec<DefId>, Vec<bool>) {
 }
 
 impl Evaluator {
+    /// Whether `expr` may be evaluated in `scope`: the scope was created by
+    /// this evaluator and, when the expression needs a lexical frame, the
+    /// scope is that frame's.
+    ///
+    /// ```no_run
+    /// # fn check(ev: &dive_eval::Evaluator, scope: &dive_eval::Scope, e: dive_ir::ExprId) {
+    /// if !ev.admits_scoped_expr(scope, e) {
+    ///     // a foreign or mismatched scope
+    /// }
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn admits_scoped_expr(&self, scope: &Scope, expr: ExprId) -> bool {
+        self.admit_scoped_expr(scope, expr).is_ok()
+    }
+
     pub(crate) fn admit_scoped_expr(&self, scope: &Scope, expr: ExprId) -> crate::Result<()> {
         self.validate_scope(scope)?;
         self.admit_expr(expr)?;

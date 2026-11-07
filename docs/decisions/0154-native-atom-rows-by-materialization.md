@@ -73,3 +73,40 @@ certificate is the next step of #845.
 compares every native truth with the reference evaluator, at 1 and 4 workers
 in both profiles. Rows with more than 16,384 nodes that lack the bit, and
 rows holding long names, still fall back.
+
+## Amendment (2026-11-07): admission by Core plan facts
+
+This amendment replaces the dive-eval stability certificate that ADR 0129
+kept at prepare time (`guarded_action_stability_budgeted` and
+`closed_predicate_stability_budgeted`), and removes the 4,096-node plan cap.
+ADR 0129 kept the certificate to protect reference constructor, normalization,
+name and thunk history. Under ADR 0153 that history is a TLC artifact the
+default profile does not reproduce, and a fresh conversion per read means that
+skipping a reference call cannot change a later value. An atom is admitted when:
+
+- its exact retained object and source scope bind to the model's evaluator;
+- `compile_bound_test` accepts it (for Enabled, with `enabled_substs` and the
+  existing effect and call refusals), using the value nodes safety uses;
+- the plan has no effects;
+- the plan has no `ToString`, and the analysis Heap refuses any text the shared
+  string table lacks (`Heap::set_existing_strings_only`), because a new token
+  would change string order under `--compat=tlc`;
+- every compiled constant, Select key and bound scope parameter passes the
+  materialization predicate above.
+
+Plan size has no semantic role. Recursive functions, Memo sites and `^` stay
+refused for now; NegatedEnabled stays on the reference lane.
+
+CHOOSE returns the first satisfying element in `Heap::cmp` order, which is the
+reference value order per profile; an error before the first witness falls
+back. Cardinality, filters, SUBSET, UNION and set algebra go through the
+analysis Machine's bounded normalization boundaries, which now also preflight
+SUBSET, function-set and union materialization; exhaustion falls back. EXCEPT,
+`@` and multi-clause updates use the ordinary Core node. The analysis Machine
+runs with `Machine::set_refuse_unrecorded_warnings`, so a missing EXCEPT key
+(reference warning 2144, the only reference warning Core does not record) is an
+unsupported error and falls back; a recorded warning (2143) or printed output
+also falls back. Fallback, attribution and independent replay are unchanged.
+No divergence is registered: `DIVE_NATIVE_ATOM_AUDIT=1` reports no mismatch on
+the measured models in either profile, and a mismatching shape would be refused
+by name.

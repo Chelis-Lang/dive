@@ -249,22 +249,6 @@ pub enum Node {
     Select(P, Handle),
     /// `DOMAIN f`
     Domain(P),
-    /// An optional scalar single-key update of a certified closed function.
-    /// A missing key or incompatible shape declines before evaluating the RHS,
-    /// preserving reference warning semantics. Existing root/binder updates
-    /// additionally retain their exact immutable interval-domain guard.
-    ClosedUpdate {
-        /// Original closed input or constructed function.
-        base: P,
-        /// Actual scalar key.
-        key: P,
-        /// Source-bound immutable interval for the root/binder source class.
-        domain: Option<P>,
-        /// Lexical slot holding this update's old scalar leaf for `@`.
-        at: u32,
-        /// Scalar replacement.
-        value: P,
-    },
     /// `[f EXCEPT ...]`
     Except {
         /// The function.
@@ -663,6 +647,11 @@ pub struct Plan {
     pub view: Option<Check>,
     /// Compile statistics.
     pub stats: CompileStats,
+    /// The frame slots a bound optional atom's role binds
+    /// ([`crate::compile::compile_bound_test`]: `\E` variables and inlined
+    /// parameters of its scope), with their values, which the caller
+    /// installs after entering the check's frame; empty otherwise.
+    pub bound_preset: Vec<(u32, Handle)>,
 }
 
 /// What effects a plan has (`Info::effect`).

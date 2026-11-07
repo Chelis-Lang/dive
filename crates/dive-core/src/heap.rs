@@ -53,6 +53,9 @@ pub struct Heap {
     pub(crate) defer_reclamation: bool,
     /// Candidate expansion must not promote speculative results through caches.
     pub(crate) speculative: bool,
+    /// Whether [`Heap::string`] refuses a text the shared table lacks
+    /// ([`Heap::set_existing_strings_only`]).
+    strings: StringMode,
     poisoned: std::cell::Cell<bool>,
     /// `-delta-hash`: recompute hashes in full instead of incrementally.
     pub(crate) full_hash: bool,
@@ -115,6 +118,7 @@ impl Heap {
             arena: Arena::new(heap_arena),
             defer_reclamation: false,
             speculative: false,
+            strings: StringMode::Intern,
             poisoned: std::cell::Cell::new(false),
             full_hash,
             int_mode,
@@ -1625,10 +1629,52 @@ impl Heap {
     /// The string id of `text`.
     ///
     /// # Errors
-    /// The string table is full.
+    /// The string table is full, or the text is new while
+    /// [`Heap::set_existing_strings_only`] holds (unsupported).
     pub fn string(&self, text: &str) -> Result<Handle, Error> {
+        if self.strings == StringMode::ExistingOnly {
+            return self
+                .store
+                .strings()
+                .lookup(text)
+                .map(Handle::string)
+                .ok_or_else(|| {
+                    Error::unsupported(
+                        "a string this optional evaluation would add to the shared string table",
+                    )
+                });
+        }
         Ok(Handle::string(self.store.strings().intern(text)?))
     }
+
+    /// Makes [`Heap::string`] refuse any text the shared table does not
+    /// already hold, returning the previous mode. An isolated optional
+    /// machine uses it so that skipping its work elsewhere cannot change
+    /// later string tokens (string order under `--compat=tlc`).
+    ///
+    /// ```
+    /// # fn example(heap: &mut dive_core::Heap) {
+    /// let previous = heap.set_existing_strings_only(true);
+    /// heap.set_existing_strings_only(previous);
+    /// # }
+    /// ```
+    pub fn set_existing_strings_only(&mut self, enabled: bool) -> bool {
+        let mode = if enabled {
+            StringMode::ExistingOnly
+        } else {
+            StringMode::Intern
+        };
+        std::mem::replace(&mut self.strings, mode) == StringMode::ExistingOnly
+    }
+}
+
+/// Whether [`Heap::string`] may add a text to the shared string table.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum StringMode {
+    /// Assign an id to a new text.
+    Intern,
+    /// Refuse a text the table lacks.
+    ExistingOnly,
 }
 
 /// The key of entry `i` of a function view.

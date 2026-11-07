@@ -561,14 +561,14 @@ fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
             assert_eq!(core["verdict"], verdict);
             assert_eq!(core["engine"], "core");
             assert_eq!(core["statistics"]["distinct"], 1101);
-            // `H` (and `P`) run natively on the set-valued rows (ADR 0154);
-            // the CHOOSE atom of `C` is unprepared, so its reference demands
-            // still read rows through the cache.
+            // `H`, `P` and the CHOOSE atom of `C` run natively on the
+            // set-valued rows (ADR 0154); the `ToString` atom of `S` is
+            // refused, so its reference demands read rows through the cache.
             let atoms = &core["core"]["metrics"]["liveness"]["atoms"];
-            assert!(atoms["eligible_atoms"].as_u64() >= Some(1), "{atoms}");
-            assert!(atoms["evaluated"].as_u64() >= Some(1101), "{atoms}");
+            assert!(atoms["eligible_atoms"].as_u64() >= Some(2), "{atoms}");
+            assert!(atoms["evaluated"].as_u64() >= Some(2 * 1101), "{atoms}");
             assert_eq!(atoms["fallback"], 0, "{atoms}");
-            assert_eq!(atoms["rejections"]["stable_certificate"], 1, "{atoms}");
+            assert_eq!(atoms["rejections"]["fresh_string"], 1, "{atoms}");
             let cache = &core["core"]["metrics"]["liveness"]["values"];
             assert!(cache["cache_hits"].as_u64() > Some(0), "{cache}");
             assert_eq!(
