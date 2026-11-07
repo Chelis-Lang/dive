@@ -46,6 +46,75 @@ pub(crate) struct NativeAtoms {
     evaluated_nonstuttering: u64,
     row_proofs: RowProofMetrics,
     reuse: ReuseMetrics,
+    rejections: Rejections,
+    fallbacks: Fallbacks,
+    /// `DIVE_NATIVE_ATOM_AUDIT=1`: re-evaluate every native truth by reference.
+    audit: bool,
+    audit_mismatch: Option<String>,
+}
+
+/// Why a native predicate was not prepared, by its first failing check.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Rejection {
+    NegatedEnabled,
+    StableCertificate,
+    CompileError,
+    Effects,
+    CodeNodes,
+    Funs,
+    Memo,
+    Pow,
+    ConstUnclosed,
+    Allocation,
+}
+
+#[derive(Default)]
+struct Rejections {
+    negated_enabled: u64,
+    stable_certificate: u64,
+    compile_error: u64,
+    effects: u64,
+    code_nodes: u64,
+    funs: u64,
+    memo: u64,
+    pow: u64,
+    const_unclosed: u64,
+    allocation: u64,
+}
+
+impl Rejections {
+    fn record(&mut self, reason: Rejection) {
+        let slot = match reason {
+            Rejection::NegatedEnabled => &mut self.negated_enabled,
+            Rejection::StableCertificate => &mut self.stable_certificate,
+            Rejection::CompileError => &mut self.compile_error,
+            Rejection::Effects => &mut self.effects,
+            Rejection::CodeNodes => &mut self.code_nodes,
+            Rejection::Funs => &mut self.funs,
+            Rejection::Memo => &mut self.memo,
+            Rejection::Pow => &mut self.pow,
+            Rejection::ConstUnclosed => &mut self.const_unclosed,
+            Rejection::Allocation => &mut self.allocation,
+        };
+        *slot += 1;
+    }
+
+    fn json(&self) -> serde_json::Value {
+        serde_json::json!({"negated_enabled": self.negated_enabled,
+            "stable_certificate": self.stable_certificate, "compile_error": self.compile_error,
+            "effects": self.effects, "code_nodes": self.code_nodes, "funs": self.funs,
+            "memo": self.memo, "pow": self.pow, "const_unclosed": self.const_unclosed,
+            "allocation": self.allocation})
+    }
+}
+
+/// Why an actual native demand returned to the reference evaluator.
+#[derive(Default)]
+struct Fallbacks {
+    row_proof: u64,
+    fuel_or_error: u64,
+    warning_or_print: u64,
+    not_compiled: u64,
 }
 
 #[derive(Default)]
@@ -93,6 +162,10 @@ impl NativeAtoms {
             evaluated_nonstuttering: 0,
             row_proofs: RowProofMetrics::default(),
             reuse: ReuseMetrics::default(),
+            rejections: Rejections::default(),
+            fallbacks: Fallbacks::default(),
+            audit: std::env::var_os("DIVE_NATIVE_ATOM_AUDIT").is_some_and(|value| value == "1"),
+            audit_mismatch: None,
         };
         result
             .machine
@@ -100,6 +173,7 @@ impl NativeAtoms {
         for atom in driver.native_predicates() {
             result.total += 1;
             if matches!(atom.test, AtomTest::NegatedEnabled { .. }) {
+                result.rejections.record(Rejection::NegatedEnabled);
                 continue;
             }
             // This existing callback-free certificate checks actual scopes,
@@ -113,16 +187,23 @@ impl NativeAtoms {
                     if let Some(verdict) = control.verdict(&error) {
                         return Err(verdict);
                     }
+                    result.rejections.record(Rejection::StableCertificate);
                     continue;
                 }
             };
             if !stable {
+                result.rejections.record(Rejection::StableCertificate);
                 continue;
             }
-            let Some(plan) = compile(model, store, atom, opts, &result.machine.heap) else {
-                continue;
+            let plan = match compile(model, store, atom, opts, &result.machine.heap) {
+                Ok(plan) => plan,
+                Err(reason) => {
+                    result.rejections.record(reason);
+                    continue;
+                }
             };
             if result.compiled.try_reserve(1).is_err() {
+                result.rejections.record(Rejection::Allocation);
                 continue;
             }
             result.compiled.push(Compiled {
@@ -157,7 +238,16 @@ impl NativeAtoms {
                 "peak_storage_bytes": self.reuse.peak_bytes, "cap_bypasses": self.reuse.cap_bypasses,
                 "allocation_bypasses": self.reuse.allocation_bypasses, "stored_columns": self.reuse.stored_columns,
                 "scope": "one completed native frozen behavior WF pair per analysis; actual evaluation counters exclude reuse"},
+            "rejections": self.rejections.json(),
+            "fallbacks": {"row_proof": self.fallbacks.row_proof, "fuel_or_error": self.fallbacks.fuel_or_error,
+                "warning_or_print": self.fallbacks.warning_or_print, "not_compiled": self.fallbacks.not_compiled},
+            "audit": self.audit,
             "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries"})
+    }
+
+    /// The first native-versus-reference disagreement found by the audit.
+    pub(crate) fn audit_mismatch(&self) -> Option<&str> {
+        self.audit_mismatch.as_deref()
     }
 
     #[cfg(test)]
@@ -188,12 +278,14 @@ impl NativeAtoms {
             .find(|item| std::ptr::eq(item.identity, atom))
         else {
             self.fallback += 1;
+            self.fallbacks.not_compiled += 1;
             return Ok(None);
         };
         // The exact object came from this still-live driver's fixed plan Vec;
         // no expression ID, scope guess or extensional row equality is a key.
         if !inputs_closed(&self.machine.heap)? {
             self.fallback += 1;
+            self.fallbacks.row_proof += 1;
             return Ok(None);
         }
         self.machine.s0.copy_from_slice(before);
@@ -233,6 +325,11 @@ impl NativeAtoms {
             Ok(Some(value))
         } else {
             self.fallback += 1;
+            if result.is_err() {
+                self.fallbacks.fuel_or_error += 1;
+            } else {
+                self.fallbacks.warning_or_print += 1;
+            }
             Ok(None)
         }
     }
@@ -298,9 +395,9 @@ fn compile(
     atom: &PredicateAtom,
     opts: Opts,
     heap: &dive_core::Heap,
-) -> Option<dive_core::plan::Plan> {
+) -> Result<dive_core::plan::Plan, Rejection> {
     let Ok(mut handoff) = crate::core_engine::handoff(model, &model.ir, Vec::new()) else {
-        return None;
+        return Err(Rejection::CompileError);
     };
     let Ok(role) = crate::core_engine::role(
         model,
@@ -308,7 +405,7 @@ fn compile(
         atom.pred.expr,
         &atom.pred.scope,
     ) else {
-        return None;
+        return Err(Rejection::CompileError);
     };
     handoff.init.clear();
     handoff.next.clear();
@@ -338,41 +435,51 @@ fn compile(
             opts,
             dive_core::compile::BoundTest::Nonstuttering(sub),
         ),
-        AtomTest::NegatedEnabled { .. } => return None,
+        AtomTest::NegatedEnabled { .. } => return Err(Rejection::NegatedEnabled),
     }
-    .ok()?;
-    if plan.effects.any
-        || plan.code.nodes.len() > 4096
-        || plan.code.gnodes.len() > 4096
-        || !plan.code.funs.is_empty()
-        || plan.code.nodes.iter().any(|node| {
-            let value = match node {
-                dive_core::plan::Node::Const(value)
-                    if value.as_str_id().is_some()
-                        || value.is_compound()
-                            && matches!(
-                                heap.view(*value).kind,
-                                dive_core::node::Kind::IntFcn | dive_core::node::Kind::Fcn
-                            ) =>
-                {
-                    Some(*value)
-                }
-                dive_core::plan::Node::Select(_, key) => Some(*key),
-                _ => None,
-            };
-            value.is_some_and(|value| !closed(heap, &[value]))
-        })
-        || plan.code.nodes.iter().any(|node| {
-            matches!(
-                node,
-                dive_core::plan::Node::Memo { .. }
-                    | dive_core::plan::Node::Arith(dive_core::plan::Arith::Pow, _, _)
-            )
-        })
-    {
-        return None;
+    .map_err(|_| Rejection::CompileError)?;
+    admit_plan(&plan, heap)?;
+    Ok(plan)
+}
+
+/// The first failing admission check of a compiled plan, in the original order.
+fn admit_plan(plan: &dive_core::plan::Plan, heap: &dive_core::Heap) -> Result<(), Rejection> {
+    if plan.effects.any {
+        return Err(Rejection::Effects);
     }
-    Some(plan)
+    if plan.code.nodes.len() > 4096 || plan.code.gnodes.len() > 4096 {
+        return Err(Rejection::CodeNodes);
+    }
+    if !plan.code.funs.is_empty() {
+        return Err(Rejection::Funs);
+    }
+    if plan.code.nodes.iter().any(|node| {
+        let value = match node {
+            dive_core::plan::Node::Const(value)
+                if value.as_str_id().is_some()
+                    || value.is_compound()
+                        && matches!(
+                            heap.view(*value).kind,
+                            dive_core::node::Kind::IntFcn | dive_core::node::Kind::Fcn
+                        ) =>
+            {
+                Some(*value)
+            }
+            dive_core::plan::Node::Select(_, key) => Some(*key),
+            _ => None,
+        };
+        value.is_some_and(|value| !closed(heap, &[value]))
+    }) {
+        return Err(Rejection::ConstUnclosed);
+    }
+    match plan.code.nodes.iter().find_map(|node| match node {
+        dive_core::plan::Node::Memo { .. } => Some(Rejection::Memo),
+        dive_core::plan::Node::Arith(dive_core::plan::Arith::Pow, _, _) => Some(Rejection::Pow),
+        _ => None,
+    }) {
+        Some(reason) => Err(reason),
+        None => Ok(()),
+    }
 }
 
 fn check(owner: &EvaluationControl, control: &EvaluationControl) -> Result<(), AnalysisError> {
@@ -574,7 +681,48 @@ impl Drop for Reader<'_, '_> {
     }
 }
 
+impl Reader<'_, '_> {
+    /// Re-evaluates a native truth by reference (`DIVE_NATIVE_ATOM_AUDIT=1`).
+    /// A different truth or a reference error ends the run as an internal error.
+    fn audit(
+        &mut self,
+        atom: &PredicateAtom,
+        before: usize,
+        after: Option<usize>,
+        native: bool,
+        control: &EvaluationControl,
+    ) -> Result<(), AnalysisError> {
+        let graph = self.proofs.graph;
+        let source = self.values.read(before, graph.row(before)?, control)?;
+        let st = match after {
+            Some(row) => {
+                dive_eval::St::action(source, self.values.read(row, graph.row(row)?, control)?)
+            }
+            None => dive_eval::St::state(source),
+        };
+        let model = self.values.model();
+        let reference = atom.evaluate(model, &st);
+        if matches!(reference, Ok(value) if value == native) {
+            return Ok(());
+        }
+        let location = model.evaluator.location(atom.pred.expr);
+        self.atoms.audit_mismatch.get_or_insert_with(|| {
+            format!(
+                "native atom audit mismatch: atom at {location} ({:?}) on rows {before}/{after:?}: native {native}, reference {reference:?}",
+                atom.test
+            )
+        });
+        Err(AnalysisError::Inconsistent("native atom audit mismatch"))
+    }
+}
+
 impl NativeReader for Reader<'_, '_> {
+    fn reads_admitted(&self) -> bool {
+        // `NativeValues::admit` converted every retained original, interning
+        // names in event order, before the producer retained its row.
+        true
+    }
+
     fn has_predicate(&self, atom: &PredicateAtom) -> bool {
         self.atoms
             .compiled
@@ -597,7 +745,7 @@ impl NativeReader for Reader<'_, '_> {
         control: &EvaluationControl,
     ) -> Result<Option<bool>, AnalysisError> {
         let graph = self.proofs.graph;
-        self.atoms.evaluate_with(
+        let native = self.atoms.evaluate_with(
             atom,
             graph.row(before)?,
             after.map(|row| graph.row(row)).transpose()?,
@@ -608,7 +756,13 @@ impl NativeReader for Reader<'_, '_> {
                 }
                 after.map_or(Ok(true), |row| self.proofs.closed(heap, row))
             },
-        )
+        )?;
+        if self.atoms.audit
+            && let Some(value) = native
+        {
+            self.audit(atom, before, after, value, control)?;
+        }
+        Ok(native)
     }
 
     fn validate_predicate_inputs(
@@ -1636,6 +1790,150 @@ mod tests {
                     }
                 });
             }
+        }
+    }
+
+    #[test]
+    fn rejection_and_fallback_histograms_name_the_first_reason() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nA == x'=1\nSpec == Init /\\ [][Next]_x\nP == <> (~ENABLED A)\n====\n";
+        with_wrappers(source, false, |_, _, atoms, _| {
+            let metrics = atoms.metrics();
+            assert_eq!(metrics["rejections"]["negated_enabled"], 1);
+            assert_eq!(metrics["eligible_atoms"], 0);
+        });
+        for (predicate, rejection) in [("2^x > 0", Some("pow")), ("x >= 0", None)] {
+            let (prepared, options) = prepare_source(predicate);
+            let driver = GraphCheck::prepare(
+                &prepared.model,
+                &options,
+                dive_liveness::analyze::Limits::default(),
+                dive_liveness::product::AcceptancePolicy::compact_default(),
+                dive_liveness::analyze::GraphLabelPolicy::NoCellLimit,
+                None,
+            )
+            .expect("driver");
+            let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
+            let mut atoms = NativeAtoms::prepare(
+                &prepared.model,
+                &prepared.store,
+                &driver,
+                &control,
+                Opts::default(),
+            )
+            .expect("prepare");
+            let rejections = atoms.metrics()["rejections"].clone();
+            let rejected = rejections
+                .as_object()
+                .expect("histogram")
+                .values()
+                .map(|count| count.as_u64().expect("count"))
+                .sum::<u64>();
+            assert_eq!(
+                rejected + u64::try_from(atoms.eligible).expect("count"),
+                u64::try_from(atoms.total).expect("count")
+            );
+            if let Some(reason) = rejection {
+                assert_eq!(rejections[reason], 1, "{predicate}: {rejections}");
+                continue;
+            }
+            let atom = driver.native_predicates().next().expect("atom");
+            let zero = [Handle::int(0).expect("zero")];
+            assert_eq!(
+                atoms
+                    .evaluate(&atom.clone(), &zero, None, &control)
+                    .expect("copied"),
+                None
+            );
+            assert_eq!(
+                atoms
+                    .evaluate(atom, &[Handle::EMPTY], None, &control)
+                    .expect("unproved row"),
+                None
+            );
+            assert_eq!(
+                atoms.evaluate(atom, &zero, None, &control).expect("native"),
+                Some(true)
+            );
+            let fallbacks = atoms.metrics()["fallbacks"].clone();
+            assert_eq!(fallbacks["not_compiled"], 1);
+            assert_eq!(fallbacks["row_proof"], 1);
+            assert_eq!(fallbacks["fuel_or_error"], 0);
+            assert_eq!(atoms.metrics()["fallback"], 2);
+        }
+        let (prepared, options) = prepare_source("x \\div 0 = 0");
+        let driver = GraphCheck::prepare(
+            &prepared.model,
+            &options,
+            dive_liveness::analyze::Limits::default(),
+            dive_liveness::product::AcceptancePolicy::compact_default(),
+            dive_liveness::analyze::GraphLabelPolicy::NoCellLimit,
+            None,
+        )
+        .expect("driver");
+        let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
+        let mut atoms = NativeAtoms::prepare(
+            &prepared.model,
+            &prepared.store,
+            &driver,
+            &control,
+            Opts::default(),
+        )
+        .expect("prepare");
+        let atom = driver.native_predicates().next().expect("atom");
+        assert_eq!(
+            atoms
+                .evaluate(atom, &[Handle::int(0).expect("zero")], None, &control)
+                .expect("semantic error"),
+            None
+        );
+        assert_eq!(atoms.metrics()["fallbacks"]["fuel_or_error"], 1);
+    }
+
+    #[test]
+    fn audit_compares_native_truth_with_reference_and_records_the_first_mismatch() {
+        let source = "---- MODULE Atoms ----\nEXTENDS Naturals\nVARIABLE y\nInit == y=0\nA == y'=1-y\nSpec == Init /\\ [][A]_y /\\ WF_y(A)\nP == <> (y=1)\n====\n";
+        for tlc in [false, true] {
+            with_wrappers(source, tlc, |prepared, driver, atoms, control| {
+                let options = if tlc {
+                    dive_check::CheckOptions::tlc(0, 0)
+                } else {
+                    dive_check::CheckOptions::dive(0)
+                };
+                let (graph, mut values) = capture(prepared, &options);
+                atoms.audit = true;
+                let state_atom = driver
+                    .native_predicates()
+                    .find(|atom| {
+                        matches!(atom.test, AtomTest::Predicate)
+                            && atom.kind == dive_liveness::formula::AtomKind::State
+                    })
+                    .expect("state predicate");
+                let reads = values.metrics()["read_rows"].as_u64().expect("reads");
+                let mut reader = Reader::new(&graph, &mut values, atoms);
+                assert!(reader.reads_admitted());
+                assert_eq!(
+                    reader
+                        .predicate(state_atom, 0, None, control)
+                        .expect("audited agreement"),
+                    Some(false)
+                );
+                assert!(reader.atoms.audit_mismatch().is_none());
+                assert!(matches!(
+                    reader.audit(state_atom, 0, None, true, control),
+                    Err(AnalysisError::Inconsistent("native atom audit mismatch"))
+                ));
+                drop(reader);
+                assert_eq!(
+                    values.metrics()["read_rows"].as_u64().expect("reads"),
+                    reads + 2,
+                    "the audit reads the reference row only for its own comparison"
+                );
+                let message = atoms.audit_mismatch().expect("mismatch").to_owned();
+                assert!(message.contains("rows 0/None"), "{message}");
+                assert!(message.contains("native true"), "{message}");
+                assert!(message.contains("Ok(false)"), "{message}");
+                assert_eq!(atoms.metrics()["audit"], true);
+            });
         }
     }
 

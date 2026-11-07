@@ -666,6 +666,10 @@ fn reference_rows_borrow_and_action_atoms_evaluate_once_per_destination() {
 }
 
 /// Native truth and input admission remain separate from demanded reference rows.
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent fixture switches"
+)]
 struct NativeLazy<'a> {
     inner: Lazy<'a>,
     model: &'a Model,
@@ -675,6 +679,7 @@ struct NativeLazy<'a> {
     fallback_state: bool,
     corrupt_metadata: bool,
     fail_predicate: Option<usize>,
+    defer: bool,
 }
 
 impl StateSource for NativeLazy<'_> {
@@ -689,6 +694,9 @@ impl StateSource for NativeLazy<'_> {
     }
     fn concrete_count(&self, source: usize) -> Option<usize> {
         self.inner.concrete_count(source)
+    }
+    fn defers_reads(&self) -> bool {
+        self.defer
     }
     fn concrete_metadata(&self, source: usize, original: usize) -> Option<ConcreteMetadata<'_>> {
         let mut metadata = self.inner.concrete_metadata(source, original)?;
@@ -770,6 +778,7 @@ fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_
                 fallback_state,
                 corrupt_metadata: false,
                 fail_predicate: None,
+                defer: false,
             };
             let mut cache = crate::analyze::fairness::Cache::new(true, cap);
             let mut truths = Vec::new();
@@ -928,6 +937,7 @@ fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_
             fallback_state: false,
             corrupt_metadata: false,
             fail_predicate: Some(1),
+            defer: false,
         };
         let mut empty = crate::analyze::fairness::Cache::new(true, 16 * 1024 * 1024);
         assert!(matches!(
@@ -974,4 +984,86 @@ fn property_owned_fairness_does_not_receive_a_frozen_behavior_recipe() {
         pair.is_none(),
         "repeated expression IDs grant no recipe identity"
     );
+}
+
+#[test]
+fn admitted_sources_read_rows_only_for_reference_fallbacks() {
+    for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+        let model = bound(
+            "Init == x=0\nNext == x'=1-x\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == []<>(x=1)\nQ == [](x=0 => <>(x=1))",
+            "SPECIFICATION Spec\nPROPERTIES P Q\n",
+            &options,
+        );
+        let graph = captured(&model, &options);
+        let limits = Limits::default();
+        let control = evaluator_control(&options).expect("control");
+        let (plans, _) =
+            crate::plan::lower_original_claims(&model, limits.formula).expect("originals");
+        let shape = BehaviorView::checked_captured(&graph).expect("topology");
+        let run_labels = |defer: bool, fallback_state: bool| {
+            let mut states = NativeLazy {
+                inner: Lazy::new(&graph),
+                model: &model,
+                evaluations: 0,
+                validations: 0,
+                admit: false,
+                fallback_state,
+                corrupt_metadata: false,
+                fail_predicate: None,
+                defer,
+            };
+            let mut truths = Vec::new();
+            let mut state_atoms = 0;
+            for plan in &plans {
+                state_atoms += plan
+                    .atoms
+                    .iter()
+                    .filter(|atom| atom.kind == AtomKind::State)
+                    .count();
+                let active = crate::tlc_plan::active_actions(&plan.formula, limits.formula)
+                    .expect("actions");
+                let mut cache = crate::analyze::fairness::Cache::new(false, 0);
+                truths.push(
+                    labels_with_reuse(
+                        &model,
+                        plan,
+                        &graph,
+                        &mut states,
+                        shape,
+                        "fixture",
+                        GraphLabelPolicy::NoCellLimit,
+                        &active,
+                        &mut EvaluationErrors::default(),
+                        &control,
+                        None,
+                        &mut cache,
+                    )
+                    .expect("labels")
+                    .0,
+                );
+            }
+            (truths, states.inner.reads, state_atoms)
+        };
+        let (expected, eager_reads, _) = run_labels(false, false);
+        assert!(
+            eager_reads
+                .iter()
+                .any(|read| matches!(read, Read::Concrete(..))),
+            "eager demand reads originals before native answers"
+        );
+        let (native, reads, _) = run_labels(true, false);
+        assert_eq!(native, expected);
+        assert!(reads.is_empty(), "native answers read no row: {reads:?}");
+        let (fallback, reads, state_atoms) = run_labels(true, true);
+        assert_eq!(fallback, expected);
+        assert!(state_atoms > 0);
+        let representatives = (0..graph.states.len()).map(Read::Representative);
+        assert_eq!(
+            reads,
+            std::iter::repeat_n(representatives, state_atoms)
+                .flatten()
+                .collect::<Vec<_>>(),
+            "only reference fallbacks read their own source row, in demand order"
+        );
+    }
 }

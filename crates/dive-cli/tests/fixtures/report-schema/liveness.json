@@ -40,6 +40,7 @@
       "liveness": {
         "atoms": {
           "action_evaluations": 0,
+          "audit": false,
           "eligibility": "source-scoped closed ordinary constructions and scalar updates; identity-scoped fairness queries",
           "eligible_action_atoms": 0,
           "eligible_atoms": 1,
@@ -56,7 +57,25 @@
             "stored_columns": 0
           },
           "fallback": 0,
+          "fallbacks": {
+            "fuel_or_error": 0,
+            "not_compiled": 0,
+            "row_proof": 0,
+            "warning_or_print": 0
+          },
           "nonstuttering_evaluations": 0,
+          "rejections": {
+            "allocation": 0,
+            "code_nodes": 0,
+            "compile_error": 0,
+            "const_unclosed": 0,
+            "effects": 0,
+            "funs": 0,
+            "memo": 0,
+            "negated_enabled": 0,
+            "pow": 0,
+            "stable_certificate": 0
+          },
           "row_proofs": {
             "certified": 3,
             "hits": 0,
@@ -67,7 +86,7 @@
           "total_atoms": 1
         },
         "convert_ms": 0.0,
-        "converted_nodes": 8,
+        "converted_nodes": 5,
         "graph_states": 3,
         "memo_entries": 0,
         "memory": {
@@ -90,7 +109,7 @@
           "cache_bytes": 0,
           "cache_direct_hits": 0,
           "cache_direct_lookups": 0,
-          "cache_eligible_misses": 4,
+          "cache_eligible_misses": 1,
           "cache_enabled": false,
           "cache_entries": 0,
           "cache_entry_bytes": 32,
@@ -98,7 +117,7 @@
           "cache_hits": 0,
           "cache_insertions": 0,
           "cache_limit_bytes": 134217728,
-          "cache_misses": 4,
+          "cache_misses": 1,
           "cache_probe_exhaustions": 0,
           "cache_row_index_fallbacks": 0,
           "cache_scope": "requested table capacity, single-component row arrays and closed-function/set payload including potential scalar-domain order storage; string/field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
@@ -108,8 +127,8 @@
           "cache_uncovered_misses": 0,
           "convert_ms": 0.0,
           "convert_ms_scope": "admission and read slow paths; single-variable cache hits are not timed",
-          "converted_values": 8,
-          "read_rows": 4
+          "converted_values": 5,
+          "read_rows": 1
         }
       },
       "memo": [],

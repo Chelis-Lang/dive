@@ -782,17 +782,54 @@ impl<'a> OriginalEdges<'a> {
     }
 }
 
+#[cfg(test)]
 #[derive(Debug, PartialEq)]
 struct SelectedTarget {
     values: StateVals,
     original: OriginalTarget,
 }
 
+/// The first original per destination, with its values read eagerly (the
+/// reference demand order).
+#[cfg(test)]
 fn selected_targets<'a>(
     graph: impl Into<OriginalEdges<'a>>,
     source: usize,
     states: &mut (impl StateSource + ?Sized),
 ) -> Result<std::collections::BTreeMap<usize, SelectedTarget>, AnalysisError> {
+    selected_originals(graph, source, states, true)?
+        .into_iter()
+        .map(|(to, selected)| {
+            let values = selected
+                .values
+                .ok_or(AnalysisError::Inconsistent("eager original values"))?;
+            Ok((
+                to,
+                SelectedTarget {
+                    values,
+                    original: selected.original,
+                },
+            ))
+        })
+        .collect()
+}
+
+/// A selected original whose values are present only under eager demand.
+#[derive(Debug, PartialEq)]
+struct SelectedOriginal {
+    values: Option<StateVals>,
+    original: OriginalTarget,
+}
+
+/// Validates the complete source edge row and selects the first physical
+/// original per destination. With `eager`, each selected row is read in edge
+/// order exactly as reference demand does; otherwise no value is read.
+fn selected_originals<'a>(
+    graph: impl Into<OriginalEdges<'a>>,
+    source: usize,
+    states: &mut (impl StateSource + ?Sized),
+    eager: bool,
+) -> Result<std::collections::BTreeMap<usize, SelectedOriginal>, AnalysisError> {
     let graph = graph.into();
     let malformed = || AnalysisError::Inconsistent("original action target row shape");
     let originals = states.concrete_count(source).ok_or_else(malformed)?;
@@ -814,8 +851,12 @@ fn selected_targets<'a>(
                 return Err(malformed());
             }
             if let std::collections::btree_map::Entry::Vacant(entry) = selected.entry(edge.to) {
-                entry.insert(SelectedTarget {
-                    values: states.concrete(source, original)?,
+                entry.insert(SelectedOriginal {
+                    values: if eager {
+                        Some(states.concrete(source, original)?)
+                    } else {
+                        None
+                    },
                     original: OriginalTarget::Generated(original),
                 });
             }
@@ -825,8 +866,12 @@ fn selected_targets<'a>(
                 return Err(malformed());
             }
             if let std::collections::btree_map::Entry::Vacant(entry) = selected.entry(source) {
-                entry.insert(SelectedTarget {
-                    values: states.representative(source)?.into_owned(),
+                entry.insert(SelectedOriginal {
+                    values: if eager {
+                        Some(states.representative(source)?.into_owned())
+                    } else {
+                        None
+                    },
                     original: OriginalTarget::Stuttering,
                 });
             }
@@ -836,6 +881,23 @@ fn selected_targets<'a>(
         return Err(malformed());
     }
     Ok(selected)
+}
+
+/// Reads a selected original's values for a reference fallback.
+fn original_values(
+    states: &mut (impl StateSource + ?Sized),
+    source: usize,
+    target: &SelectedOriginal,
+    before: &StateVals,
+) -> Result<StateVals, AnalysisError> {
+    if let Some(values) = &target.values {
+        return Ok(values.clone());
+    }
+    match target.original {
+        OriginalTarget::Generated(original) => states.concrete(source, original),
+        // The implicit stutter's after-state is the source representative.
+        OriginalTarget::Stuttering => Ok(before.clone()),
+    }
 }
 
 #[cfg(test)]
@@ -913,6 +975,9 @@ fn labels_with_reuse<'a>(
         control,
         attribution: false,
     };
+    // Admitted native rows are read only for a reference fallback; other
+    // sources keep their eager per-vertex demand order.
+    let eager = !states.defers_reads();
     for (index, pred) in plan.atoms.iter().enumerate() {
         let recipe = frozen_wf.and_then(|pair| pair.atom(index));
         let mut fully_native = true;
@@ -922,7 +987,11 @@ fn labels_with_reuse<'a>(
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
             if pred.kind == AtomKind::State {
-                let vals = states.representative(v)?.into_owned();
+                let mut vals = if eager {
+                    Some(states.representative(v)?.into_owned())
+                } else {
+                    None
+                };
                 let native = if let Some(value) = reuse.get(recipe, v)
                     && states.validate_predicate_inputs(pred, v, None)?
                 {
@@ -932,9 +1001,14 @@ fn labels_with_reuse<'a>(
                 };
                 consumed |= native.is_some();
                 fully_native &= native.is_some();
-                let value = match native {
-                    Some(value) => value,
-                    None => atom(model, plan, index, &St::state(vals), &mut context)?,
+                let value = if let Some(value) = native {
+                    value
+                } else {
+                    let vals = match vals.take() {
+                        Some(vals) => vals,
+                        None => states.representative(v)?.into_owned(),
+                    };
+                    atom(model, plan, index, &St::state(vals), &mut context)?
                 };
                 labels
                     .set_state(index, v, value)
@@ -945,11 +1019,15 @@ fn labels_with_reuse<'a>(
                 fully_native = false;
                 continue; // The actual action-domain column is already FALSE.
             }
-            let targets = selected_targets(graph, v, states)?;
+            let targets = selected_originals(graph, v, states, eager)?;
             if graph.len(v) == Some(0) {
                 continue;
             }
-            let vals = states.representative(v)?.into_owned();
+            let mut vals = if eager {
+                Some(states.representative(v)?.into_owned())
+            } else {
+                None
+            };
             let mut evaluated = std::collections::BTreeMap::new();
             for position in 0..graph
                 .len(v)
@@ -974,12 +1052,18 @@ fn labels_with_reuse<'a>(
                         };
                         consumed |= native.is_some();
                         fully_native &= native.is_some();
-                        let value = native.map_or_else(
-                            || {
-                                pred.evaluate_detailed(
-                                    model,
-                                    &St::action(vals.clone(), target.values.clone()),
-                                )
+                        let value = if let Some(value) = native {
+                            value
+                        } else {
+                            let before = if let Some(before) = &vals {
+                                before.clone()
+                            } else {
+                                let before = states.representative(v)?.into_owned();
+                                vals = Some(before.clone());
+                                before
+                            };
+                            let after = original_values(states, v, target, &before)?;
+                            pred.evaluate_detailed(model, &St::action(before, after))
                                 .map_err(|failure| {
                                     action_failure(
                                         model,
@@ -988,10 +1072,8 @@ fn labels_with_reuse<'a>(
                                         &mut context,
                                         active.1 == Some(index),
                                     )
-                                })
-                            },
-                            Ok,
-                        )?;
+                                })?
+                        };
                         evaluated.insert(edge.to, value);
                         value
                     }
