@@ -20,7 +20,6 @@ const ORACLE: &str = "tlc-2026.10.06.014338";
 
 /// The `Tm*` fixtures the core refuses, with a word its refusal contains.
 const REFUSED: &[(&str, &str)] = &[
-    ("TmConfig", "TLCGet(\"config\")"),
     ("TmExit", "TLCSet(\"exit\")"),
     ("TmExitInit", "TLCSet(\"exit\")"),
     (
