@@ -130,16 +130,6 @@ impl Verdict {
     }
 }
 
-/// How the model was run.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum RunMode {
-    /// Breadth-first exhaustive search.
-    Exhaustive,
-    /// `-simulate`; counts are random and not comparable.
-    Simulate,
-}
-
 /// State-space statistics as TLC reports them.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

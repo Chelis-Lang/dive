@@ -151,15 +151,6 @@ impl Options {
         }
     }
 
-    /// The options of a profile.
-    #[must_use]
-    pub const fn for_profile(profile: Profile) -> Self {
-        match profile {
-            Profile::Dive => Self::dive(),
-            Profile::Tlc => Self::tlc(),
-        }
-    }
-
     /// Whether every option is at its TLC setting (a pure `--compat=tlc` run).
     #[must_use]
     pub fn is_tlc(&self) -> bool {
@@ -194,7 +185,6 @@ mod tests {
     fn tlc_profile_is_pure_tlc() {
         assert!(Options::tlc().is_tlc());
         assert!(!Options::dive().is_tlc());
-        assert_eq!(Options::for_profile(Profile::Tlc), Options::tlc());
     }
 
     #[test]

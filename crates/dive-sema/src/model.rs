@@ -777,14 +777,6 @@ impl Model {
         }
     }
 
-    /// The external module with this name, if loaded.
-    #[must_use]
-    pub fn module_by_name(&self, name: &str) -> Option<NodeId> {
-        self.modules.iter().copied().find(
-            |&m| matches!(&self.node(m).kind, NodeKind::Module(d) if self.name(d.name) == name),
-        )
-    }
-
     /// The level of a node after level checking, as SANY's `getLevel`.
     #[must_use]
     pub fn level(&self, id: NodeId) -> Level {

@@ -9,6 +9,17 @@ published. Earlier pre-release development entries remain in git history.
   longer labels its `options.checkpoint` with `"backend": "reference"` and a
   1 MiB `max_state_bytes` (issue #791). It names `core` and reports
   `max_state_bytes: null`, as every Core run already did.
+- Public Rust items with no caller are removed (issue #791):
+  `dive_model::{bind_with_names, bind_with_names_controlled}` (restored name
+  tables for reference archives), `dive_explore::explore_checkpoint`,
+  `dive_eval::Options::for_profile`, `dive_value::codec::{probe_set,
+  probe_fcn, probe_raw_set}`, `dive_value::Set::component_count`,
+  `dive_ir::IR_SCHEMA`, `dive_core::generate::is_set_kind`,
+  `dive_config::ModelConfig::substituted_by`, `dive_sema`'s
+  `Model::module_by_name`, `dive_syntax`'s `GeneralId::is_qualified`,
+  `dive_conformance::tlc::result::RunMode` and the unauthenticated
+  `dive_core::owned_exchange::Exchange::receive_request` (use
+  `receive_request_with_startup`). Behaviour is unchanged.
 - The binder's start-up evaluation now also evaluates a repeated pure call
   once when the operator comes from an instantiated module or calls other
   operators, in the default profile. The instance's substitutions count as
