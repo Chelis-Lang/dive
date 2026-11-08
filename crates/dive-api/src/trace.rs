@@ -386,7 +386,8 @@ impl SpecModel {
     }
 
     /// Validates finite simulation samples; deciding diagnostic endpoints keep
-    /// their ordinary operation through `validate_mode` instead.
+    /// their ordinary operation through `validate_mode` instead. A simulation
+    /// deadlock is a state with no successor inside the model's constraints.
     pub(crate) fn validate_sample_mode(
         &self,
         doc: &TraceDoc,
@@ -395,6 +396,8 @@ impl SpecModel {
         on_big_stack(|| {
             if doc.ending == Some(Ending::Behavior) {
                 self.session.read_sampled(doc, Some(control))
+            } else if doc.ending == Some(Ending::Deadlock) {
+                self.session.read_sampled_deadlock(doc, Some(control))
             } else {
                 self.session.read_controlled(doc, control)
             }
@@ -407,6 +410,8 @@ impl SpecModel {
     /// constraints, invariants and implied finite properties, on fresh source.
     /// Unlike ordinary behavior validity, this operation rejects a prefix that
     /// passed a deciding safety violation. It proves no exhaustive result.
+    /// A `deadlock` ending is checked as a simulation deadlock: no successor
+    /// of the last state satisfies every constraint.
     ///
     /// ```no_run
     /// # fn sample(source: &dive_api::trace::SpecModel,
@@ -420,9 +425,12 @@ impl SpecModel {
     /// Typed interruption, resource exhaustion or isolated validation failure.
     pub fn try_validate_sample(&self, doc: &TraceDoc) -> Result<Report, ValidationRunError> {
         on_big_stack(|| {
-            self.session
-                .read_sampled(doc, None)
-                .map(|(report, _)| report)
+            if doc.ending == Some(Ending::Deadlock) {
+                self.session.read_sampled_deadlock(doc, None)
+            } else {
+                self.session.read_sampled(doc, None)
+            }
+            .map(|(report, _)| report)
         })
         .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }

@@ -198,7 +198,7 @@ fn compound_states_and_fairness_only_specs_produce_independent_violations() -> R
             )?
             .to_json();
             checked(&report);
-            assert_eq!(report["result"], "violation", "{report}");
+            assert_eq!(report["result"], "violation", "{name}: {report}");
             assert_eq!(report["observed_violation"]["name"], "Inv");
             assert_eq!(report["violation_validated"], true);
         }
@@ -394,6 +394,35 @@ fn alias_is_noted_not_applied_and_a_failed_lookup_refuses() -> Result {
                 "{refused}"
             );
         }
+    }
+    Ok(())
+}
+
+/// Simulation keeps only successors inside the constraints, so the last
+/// in-model state is a deadlock, as pinned TLC `-simulate` reports (#896).
+#[test]
+fn constraint_excluded_successors_end_in_a_validated_deadlock() -> Result {
+    for (name, compat) in ["SimConstraintDeadlock", "SimLevelConstraintDeadlock"]
+        .into_iter()
+        .flat_map(|name| [(name, false), (name, true)])
+    {
+        let request = SimulateRequest {
+            traces: 1,
+            depth: Some(20),
+            seed: Some(0),
+            ..request(name, compat)
+        };
+        let report = simulate_file_engine(&request, Engine::Core)?.to_json();
+        checked(&report);
+        assert_eq!(report["result"], "violation", "{name}: {report}");
+        assert_eq!(report["observed_violation"]["kind"], "deadlock");
+        assert_eq!(report["violation_validated"], true);
+        assert_eq!(report["exit_code"], 11);
+        assert_eq!(report["statistics"]["generated"], 4);
+        assert_eq!(
+            report["traces"][0]["tlc_states"],
+            serde_json::json!([{"x": 0}, {"x": 1}, {"x": 2}])
+        );
     }
     Ok(())
 }
