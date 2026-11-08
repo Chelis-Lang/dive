@@ -29,6 +29,10 @@ pub struct Storage {
     /// Completed-level trigger for rebuilding the Store from live roots.
     /// Zero forces every boundary. This is not a hard memory limit.
     pub store_compact_bytes: Option<usize>,
+    /// The trigger is the caller's default rather than an explicit request.
+    /// Reclamation that cannot run on this search is then skipped and recorded
+    /// instead of refusing the search; cancellation still stops it.
+    pub store_compact_default: bool,
     /// Opt-in fallible disk membership; runs inline and does not bound values.
     pub seen_disk: Option<DiskOptions>,
 }
@@ -244,6 +248,11 @@ pub struct ReclamationUsage {
     pub failures: Vec<String>,
     /// Requested measured-Store-byte trigger; zero forces every boundary.
     pub trigger_bytes: Option<usize>,
+    /// The trigger came from the default policy rather than a request.
+    pub default_trigger: bool,
+    /// Why a default trigger stopped reclaiming; the search continued with the
+    /// resident Store unchanged.
+    pub skipped: Option<String>,
     /// Completed replacement transactions.
     pub collections: u64,
     /// Cumulative values released from replaced Stores.

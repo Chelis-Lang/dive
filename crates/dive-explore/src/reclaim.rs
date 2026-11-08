@@ -6,7 +6,32 @@ use dive_core::memo::Memo;
 use dive_core::store::compact::Permanent;
 use dive_core::{Error, Handle, Machine, Store};
 
+/// Whether a default-trigger reclamation failure may leave the resident Store
+/// in place: a named refusal or an allocation failure, never a stop or a bug.
+pub(super) fn skippable(error: &Error) -> bool {
+    error.kind() == dive_core::ErrorKind::Unsupported || error.message().starts_with("DIVE-S0203:")
+}
+
 pub(super) fn boundary(
+    machines: &mut [Machine],
+    ex: &mut super::Explorer<'_>,
+    store: &mut Arc<Store>,
+    permanent: Option<&Permanent>,
+    control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
+) -> Result<(), Error> {
+    match collect(machines, ex, store, permanent, control) {
+        // Every replacement is built before anything is installed, so a failed
+        // default collection leaves the original Store, Machines and frontier.
+        Err(error) if ex.candidate_storage.store_compact_default && skippable(&error) => {
+            ex.candidate_storage.store_compact_bytes = None;
+            ex.metrics.storage.reclamation.skipped = Some(error.message().to_owned());
+            Ok(())
+        }
+        other => other,
+    }
+}
+
+fn collect(
     machines: &mut [Machine],
     ex: &mut super::Explorer<'_>,
     store: &mut Arc<Store>,
@@ -136,6 +161,59 @@ mod tests {
                 old.upgrade().is_none(),
                 "no startup or worker may retain the old payload owner"
             );
+        }
+    }
+
+    #[test]
+    fn a_default_trigger_skips_instead_of_refusing_and_keeps_the_result() {
+        let mut reference = None;
+        for (trigger, default) in [(None, false), (Some(0), true), (Some(0), false)] {
+            let mut store = Arc::new(Store::new(true));
+            let plan = crate::tests::frontier_plan(&store, false).expect("plan");
+            let out = explore_owned(
+                &plan,
+                &mut store,
+                Config {
+                    opts: dive_core::Opts::default(),
+                    max_states: None,
+                    max_depth: None,
+                    workers: 1,
+                    warn: true,
+                    sample: Some(crate::sample::Sample { seed: 7, states: 2 }),
+                },
+                &|| false,
+                None,
+                &storage::Storage {
+                    store_compact_bytes: trigger,
+                    store_compact_default: default,
+                    ..storage::Storage::default()
+                },
+                None,
+                None,
+            );
+            let usage = &out.metrics.storage.reclamation;
+            match (trigger, default) {
+                (Some(_), false) => {
+                    assert!(matches!(out.verdict, Verdict::Unsupported { .. }));
+                }
+                (Some(_), true) => {
+                    assert_eq!(out.verdict, Verdict::Success);
+                    assert_eq!(usage.trigger_bytes, Some(0));
+                    assert!(usage.default_trigger);
+                    assert!(
+                        usage
+                            .skipped
+                            .as_deref()
+                            .is_some_and(|why| why.contains("sampling"))
+                    );
+                    assert_eq!(usage.collections, 0);
+                    assert_eq!(Some(out.stats), reference);
+                }
+                (None, _) => {
+                    assert_eq!(out.verdict, Verdict::Success);
+                    reference = Some(out.stats);
+                }
+            }
         }
     }
 

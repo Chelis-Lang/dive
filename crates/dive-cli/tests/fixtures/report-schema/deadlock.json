@@ -110,7 +110,9 @@
         "peak_before_bytes_lower_bound": 0,
         "reclaimed_nodes": 0,
         "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
-        "trigger_bytes": null
+        "skipped": null,
+        "trigger_bytes": 268435456,
+        "trigger_source": "default"
       },
       "thunks": {
         "cached": 0,

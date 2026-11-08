@@ -49,10 +49,19 @@ dive check docs/user/examples/Counter.tla --engine core --store-compact-bytes 0 
 ```
 
 The matching `CheckRequest` and `CheckOptions` field is
-`store_compact_bytes: Option<usize>`. Omit it for the resident reference in either
-profile; omission is the TLC-equivalent setting. Zero forces reclamation after
-Init and each completed source level. A positive number triggers it when the
-Store's measured retained-byte lower bound exceeds that number. The option is a
+`store_compact_bytes: Option<usize>`. Zero forces reclamation after Init and each
+completed source level. A positive number triggers it when the Store's measured
+retained-byte lower bound exceeds that number.
+
+When the option is omitted, Core uses a default trigger of 256 MiB (268435456
+bytes) in both profiles for pure fingerprint safety BFS: no exact membership, no
+spill or disk-membership budget, no runtime effects, temporal properties,
+sampling, checkpoint, debugger or distributed workers. Reclamation preserves every
+result: verdict, counts, depth, counterexample and warnings are unchanged. Below
+the trigger it never runs, so most searches pay nothing. Under the default, a
+search that reclamation cannot serve keeps its resident Store instead of refusing,
+and the report says why in `core.metrics.store_reclamation.skipped`; an explicit
+`--store-compact-bytes` keeps the named refusals listed below. The option is a
 trigger, **not a hard memory cap**: all live values remain mandatory, and values
 can grow during a source level before its workers join.
 
@@ -81,7 +90,8 @@ Checkpoint pause with reclamation, temporal capture, runtime effects, sampling,
 Reference and Auto refuse this policy. Checkpoint discovery residency and
 temporal graph/product/SCC paging/recovery remain separate work.
 
-JSON `core.metrics.store_reclamation` reports `trigger_bytes`, `collections`,
+JSON `core.metrics.store_reclamation` reports `trigger_bytes`, `trigger_source`
+(`"requested"`, `"default"` or `null`), `skipped`, `collections`,
 `reclaimed_nodes`, `peak_before_bytes_lower_bound`,
 `peak_after_bytes_lower_bound` and `peak_after_nodes`. These are observations
 among completed collection transactions; they are not a total-RSS peak. The
