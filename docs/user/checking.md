@@ -349,6 +349,11 @@ Mixed structured sets, such as a set containing both a tuple and a record,
 have order-independent identity and can appear in independently validated
 counterexamples. Direct undefined scalar comparisons still report errors.
 Large symbolic powersets, function sets and sequence domains stay lazy.
+Applying a function constructor that TLC keeps lazy, such as a definition
+`F[a, b \in S] == e` applied as `F[x, y]`, evaluates `e` for that argument
+alone, as TLC does, with any number of bound variables. It does not build the
+whole function, so a domain such as `Nat` and entries whose bodies would fail
+no longer stop the check.
 Core does not retain mutable per-object normalization phases or constructor
 origins. Canonical values cross state and candidate handoff directly; genuine
 tuple and record metadata remains available for printing and nominal compatibility.

@@ -9,6 +9,12 @@ published. Earlier pre-release development entries remain in git history.
   `\E r \in SUBSET (P \X M)`, once per worker instead of once per state, and
   its cached guards on the bound variable now apply (issue #937). Verdicts
   and counts are unchanged; such checks run faster.
+- Core applies a lazily kept function constructor of several bound variables,
+  such as `CanServiceCall[e, c]` in `MultiCarElevator`, to its argument without
+  building the whole function, as it already did with one bound variable
+  (issue #938). Such applications over infinite domains, or past entries whose
+  bodies fail, now check instead of being refused; verdicts and counts are
+  otherwise unchanged and the checks run faster.
 - `dive --help` and the `check`, `simulate`, `dfid` and `tlc` help no longer
   list options that Core always refuses (issue #941): `--lncheck final
   --lasso short`, `--action-composition tlc`, `--allow-io`,
