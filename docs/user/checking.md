@@ -25,12 +25,14 @@ the tests to restore when it lands.
 
 ## Native distributed workers
 
-For explicit authenticated pure Core workers on independently initialized
-processes, see [distributed safety](distributed-safety.md). Repeat
-`--distributed-worker IP:port` on Core, explicit seed/fingerprint
-and a local `--worker-key FILE`. Omission preserves local checking in both
-profiles. Remote source evaluation and ordered coordinator commit do not provide
-source coverage or an aggregate memory/performance guarantee.
+`dive check --distributed-worker IP:port` (repeated, two or more) sends source
+states to running `dive worker` processes with the same build, model files,
+`--seed`, `--fp` and a shared `--worker-key FILE`. Results equal a local
+one-worker check; temporal properties, `SYMMETRY`, `VIEW` and runtime effects
+refuse by name, and a run whose workers fail stops with exit 3, never a
+success. Distribution is slower than local checking for most models. See
+[distributed safety](distributed-safety.md) for setup, options and failure
+behaviour.
 
 Invariant expressions that use `ENABLED` through an `INSTANCE` retain the
 query context inside native callbacks such as `SelectSeq`. A callback that reads

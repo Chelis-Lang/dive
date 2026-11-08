@@ -36,5 +36,6 @@ not (
     | (binary_id(dive-api::predecessor_spill) & test(=zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos))
     | (binary_id(dive-store::state_fingerprint) & test(=fingerprint_and_exact_membership_agree_on_a_large_sample))
     | (binary_id(dive-cli::ordinary_final) & test(=default_schedule_stops_at_the_first_due_level))
+    | (binary_id(dive-cli::distributed) & test(=four_process_workers_match_local_results_deterministically_across_verdicts))
 )
 """

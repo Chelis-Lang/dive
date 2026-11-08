@@ -94,6 +94,24 @@ fn unsupported(feature: impl Into<String>) -> Verdict {
     }
 }
 
+/// Names the first model feature that distributed safety does not admit.
+pub(crate) fn distributed_model_refusal(
+    plan: &dive_core::Plan,
+    model: &dive_model::Model,
+) -> Option<&'static str> {
+    Some(if !model.implied_temporals.is_empty() {
+        "distributed safety with temporal properties is not implemented"
+    } else if plan.symmetry.is_some() {
+        "distributed safety with SYMMETRY is not implemented"
+    } else if plan.view.is_some() {
+        "distributed safety with VIEW is not implemented"
+    } else if plan.effects.any {
+        "distributed safety with runtime effects (Print, PrintT, RandomElement, TLCGet or TLCSet) is not implemented"
+    } else {
+        return None;
+    })
+}
+
 pub(crate) fn result(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
     CheckResult {
         symmetry_liveness: None,
@@ -1317,19 +1335,9 @@ pub(crate) fn check(
         );
     }
     if distributed.is_some()
-        && (prepared.plan.effects.any
-            || prepared.plan.view.is_some()
-            || prepared.plan.symmetry.is_some()
-            || !prepared.model.implied_temporals.is_empty())
+        && let Some(feature) = distributed_model_refusal(&prepared.plan, &prepared.model)
     {
-        return (
-            finish(result(
-                unsupported("distributed runtime effects, VIEW, symmetry or temporal properties"),
-                options,
-                ir,
-            )),
-            run,
-        );
+        return (finish(result(unsupported(feature), options, ir)), run);
     }
     if !prepared.model.implied_temporals.is_empty()
         && (options.store == dive_store::StoreMode::Exact
