@@ -1,7 +1,12 @@
 //! Pure runtime names retain recovery order, not an independent TLC certificate.
 #![allow(clippy::expect_used, reason = "bounded recovery regression assertions")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/native_checkpoint_runtime_names.json");
 #[path = "support/memory_observations.rs"]
 mod memory_observations;
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, checkpoint};
@@ -107,16 +112,27 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
             * 2;
     // References must span stores and widths, not restart inside the split
     // wrapper. These are actual full runs of the same source/profile at width1.
-    let fingerprint_reference = dive_api::check_file_engine(
+    let fingerprint_run = dive_api::check_file_engine(
         &CheckRequest {
             store: Store::Fingerprint,
             workers: Some(1),
             ..base.clone()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )
-    .expect("full fingerprint reference")
-    .to_json();
+    .expect("full fingerprint reference");
+    let fingerprint_reference = fingerprint_run.to_json();
+    // Only the retired reference engine ran these cases (#791).
+    if name == "RuntimeSequence" || compat_tlc {
+        let feature = if name == "RuntimeSequence" {
+            refused::UNREPRODUCED_ERROR
+        } else {
+            refused::RUNTIME_NAME
+        };
+        refused::assert_refused(&fingerprint_reference, fingerprint_run.exit_code(), feature);
+        std::fs::remove_dir_all(dir).expect("cleanup");
+        return;
+    }
     assert_eq!(fingerprint_reference["verdict"], "invariant-violation");
     metadata(&fingerprint_reference, Store::Fingerprint, compat_tlc);
     let mut semantic_reference = Some(cross_store(observable(fingerprint_reference.clone())));
@@ -130,7 +146,7 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                     workers: Some(1),
                     ..base.clone()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )
             .expect("full store reference")
             .to_json()
@@ -149,9 +165,13 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                     predecessor_memory_bytes: (family & 2 != 0).then_some(0),
                     ..base.clone()
                 };
-                let full = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
-                    .expect("full")
-                    .to_json();
+                let run = dive_api::check_file_engine(&req, dive_api::Engine::Core).expect("full");
+                let full = run.to_json();
+                // Only the retired reference engine ran --chaos (#791).
+                if chaos.is_some() {
+                    refused::assert_refused(&full, run.exit_code(), refused::CHAOS);
+                    continue;
+                }
                 assert_eq!(full["verdict"], "invariant-violation", "{full}");
                 metadata(&full, store, compat_tlc);
                 let semantic = cross_store(observable(full.clone()));
@@ -173,13 +193,10 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                         counters: checkpoint::Counters::Retain,
                         config_source_sha256: None,
                     };
-                    let paused = dive_api::check_file_checkpoint_engine(
-                        &req,
-                        &cp,
-                        dive_api::Engine::Reference,
-                    )
-                    .expect("pause")
-                    .to_json();
+                    let paused =
+                        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Core)
+                            .expect("pause")
+                            .to_json();
                     assert_eq!(paused["verdict"], "resource-limit", "{paused}");
                     metadata(&paused, store, compat_tlc);
                     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
@@ -208,27 +225,27 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                             action: checkpoint::Action::Recover,
                             ..cp.clone()
                         },
-                        dive_api::Engine::Reference,
+                        dive_api::Engine::Core,
                     )
                     .expect("recover")
                     .to_json();
                     metadata(&resumed, store, compat_tlc);
-                    assert_eq!(
-                        observable(resumed.clone()),
-                        expected,
-                        "{name}/{compat_tlc}/{store:?}/{workers}/{chaos:?}/{boundary}"
-                    );
-                    assert_eq!(
-                        resumed["options"]["workers"]["used"],
-                        if compat_tlc {
+                    assert_eq!(&(expected), &(observable(resumed.clone())));
+                    agreed::check_eq(
+                        AGREED,
+                        "run/1",
+                        &(if compat_tlc {
                             1
                         } else {
                             recovery.workers.expect("width")
-                        }
+                        }),
+                        &(resumed["options"]["workers"]["used"]),
                     );
-                    assert_eq!(
-                        resumed["options"]["workers"]["requested"],
-                        recovery.workers.expect("width")
+                    agreed::check_eq(
+                        AGREED,
+                        "run/2",
+                        &(recovery.workers.expect("width")),
+                        &(resumed["options"]["workers"]["requested"]),
                     );
                     assert_eq!(
                         resumed["checkpoint"]["transient_storage_cleanup_completed"],
@@ -259,7 +276,7 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                             counters: checkpoint::Counters::Tlc,
                             ..cp
                         },
-                        dive_api::Engine::Reference,
+                        dive_api::Engine::Core,
                     )
                     .expect("reset")
                     .to_json();

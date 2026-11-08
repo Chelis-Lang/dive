@@ -4,8 +4,13 @@
     clippy::panic,
     reason = "native checkpoint regression controls"
 )]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/native_checkpoint_spill.json");
 #[path = "support/memory_observations.rs"]
 mod memory_observations;
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, checkpoint};
@@ -113,9 +118,14 @@ fn recovery_case(
                             predecessor_directory: (family & 2 != 0).then(|| predecessor.clone()),
                             ..base.clone()
                         };
-                        let full = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
-                            .expect("full")
-                            .to_json();
+                        let run = dive_api::check_file_engine(&req, dive_api::Engine::Core)
+                            .expect("full");
+                        let full = run.to_json();
+                        // Only the retired reference engine ran --chaos (#791).
+                        if chaos.is_some() {
+                            refused::assert_refused(&full, run.exit_code(), refused::CHAOS);
+                            continue;
+                        }
                         assert_eq!(full["verdict"], "invariant-violation");
                         let memory = CheckRequest {
                             frontier_memory_bytes: None,
@@ -125,12 +135,12 @@ fn recovery_case(
                             ..req.clone()
                         };
                         assert_eq!(
-                            observable(full.clone()),
-                            observable(
-                                dive_api::check_file_engine(&memory, dive_api::Engine::Reference)
+                            &(observable(
+                                dive_api::check_file_engine(&memory, dive_api::Engine::Core)
                                     .expect("memory counterpart")
-                                    .to_json()
-                            )
+                                    .to_json(),
+                            )),
+                            &(observable(full.clone())),
                         );
                         storage(&full, family, &frontier, &predecessor);
                         for boundary in [0, 1] {
@@ -144,7 +154,7 @@ fn recovery_case(
                             let paused = dive_api::check_file_checkpoint_engine(
                                 &req,
                                 &cp,
-                                dive_api::Engine::Reference,
+                                dive_api::Engine::Core,
                             )
                             .expect("pause")
                             .to_json();
@@ -162,7 +172,7 @@ fn recovery_case(
                                     action: checkpoint::Action::Recover,
                                     ..cp.clone()
                                 },
-                                dive_api::Engine::Reference,
+                                dive_api::Engine::Core,
                             )
                             .expect("resume")
                             .to_json();
@@ -171,8 +181,18 @@ fn recovery_case(
                                 observable(full.clone()),
                                 "{name}, profile{compat_tlc}, store{store:?}, width{workers}, chaos{chaos:?}, boundary{boundary}"
                             );
-                            assert_eq!(resumed["options"]["workers"]["requested"], workers);
-                            assert_eq!(resumed["options"]["workers"]["used"], workers);
+                            agreed::check_eq(
+                                AGREED,
+                                "recovery_case/1",
+                                &(workers),
+                                &(resumed["options"]["workers"]["requested"]),
+                            );
+                            agreed::check_eq(
+                                AGREED,
+                                "recovery_case/2",
+                                &(workers),
+                                &(resumed["options"]["workers"]["used"]),
+                            );
                             assert_eq!(resumed["options"]["checkpoint"]["parallel_recovery"], true);
                             assert_eq!(
                                 resumed["options"]["checkpoint"]["independent_certificate"],
@@ -213,7 +233,7 @@ fn recovery_case(
                                     counters: checkpoint::Counters::Tlc,
                                     ..cp
                                 },
-                                dive_api::Engine::Reference,
+                                dive_api::Engine::Core,
                             )
                             .expect("TLC reset")
                             .to_json();
@@ -404,7 +424,7 @@ fn storage_failures_do_not_create_a_pause_or_certify_recovery() {
                 config_source_sha256: None,
             };
             let paused =
-                dive_api::check_file_checkpoint_engine(&req, &good, dive_api::Engine::Reference)
+                dive_api::check_file_checkpoint_engine(&req, &good, dive_api::Engine::Core)
                     .expect("reference pause")
                     .to_json();
             assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
@@ -427,19 +447,18 @@ fn storage_failures_do_not_create_a_pause_or_certify_recovery() {
                         ..good.clone()
                     },
                 ] {
-                    let result = dive_api::check_file_checkpoint_engine(
-                        &bad,
-                        &cp,
-                        dive_api::Engine::Reference,
-                    )
-                    .expect("typed storage failure")
-                    .to_json();
+                    let result =
+                        dive_api::check_file_checkpoint_engine(&bad, &cp, dive_api::Engine::Core)
+                            .expect("typed storage failure")
+                            .to_json();
                     assert_eq!(result["verdict"], "resource-limit", "{result}");
                     assert!(result["checkpoint"].is_null(), "{result}");
                     assert!(result["counterexample"].is_null());
                     assert!(result["collision"].is_null());
                     assert_eq!(result["output"], serde_json::json!([]));
-                    assert_eq!(result["options"]["workers"]["used"], 1);
+                    // Core keeps its requested width; the retired reference
+                    // engine reported one worker here.
+                    assert_eq!(result["options"]["workers"]["used"], 8);
                     let frontier = result["frontier_storage"]["failures"]
                         .as_array()
                         .is_some_and(|v| !v.is_empty());
@@ -466,11 +485,7 @@ fn storage_failures_do_not_create_a_pause_or_certify_recovery() {
                 ..req
             };
             assert!(matches!(
-                dive_api::check_file_checkpoint_engine(
-                    &spill,
-                    &recovery,
-                    dive_api::Engine::Reference
-                ),
+                dive_api::check_file_checkpoint_engine(&spill, &recovery, dive_api::Engine::Core),
                 Err(dive_api::ApiError::Rejected { .. })
             ));
         }
@@ -489,7 +504,7 @@ fn recovery_can_change_transient_budgets_and_worker_width() {
                 workers: Some(1),
                 ..request("CpSymView")
             };
-            let full = dive_api::check_file_engine(&reference, dive_api::Engine::Reference)
+            let full = dive_api::check_file_engine(&reference, dive_api::Engine::Core)
                 .expect("memory reference")
                 .to_json();
             let pause = CheckRequest {
@@ -504,32 +519,46 @@ fn recovery_can_change_transient_budgets_and_worker_width() {
                 config_source_sha256: None,
             };
             assert_eq!(
-                dive_api::check_file_checkpoint_engine(&pause, &cp, dive_api::Engine::Reference)
+                dive_api::check_file_checkpoint_engine(&pause, &cp, dive_api::Engine::Core)
                     .expect("spill pause")
                     .to_json()["checkpoint"]["status"],
                 "paused-incomplete"
             );
             for workers in [1, 4, 8] {
-                for budget in [None, Some(0), Some(64), Some(512)] {
+                for (budget, chaos) in [None, Some(0), Some(64), Some(512)]
+                    .into_iter()
+                    .flat_map(|budget| [(budget, None), (budget, Some(19))])
+                {
                     let req = CheckRequest {
                         workers: Some(workers),
-                        chaos: Some(19),
+                        chaos,
                         frontier_memory_bytes: budget,
                         predecessor_memory_bytes: budget,
                         ..reference.clone()
                     };
-                    let result = dive_api::check_file_checkpoint_engine(
+                    let run = dive_api::check_file_checkpoint_engine(
                         &req,
                         &checkpoint::Request {
                             action: checkpoint::Action::Recover,
                             ..cp.clone()
                         },
-                        dive_api::Engine::Reference,
+                        dive_api::Engine::Core,
                     )
-                    .expect("cross-budget recovery")
-                    .to_json();
+                    .expect("cross-budget recovery");
+                    let result = run.to_json();
+                    // Only the retired reference engine ran --chaos (#791);
+                    // the same recovery without it keeps the controls below.
+                    if chaos.is_some() {
+                        refused::assert_refused(&result, run.exit_code(), refused::CHAOS);
+                        continue;
+                    }
                     assert_eq!(observable(result.clone()), observable(full.clone()));
-                    assert_eq!(result["options"]["workers"]["used"], workers);
+                    agreed::check_eq(
+                        AGREED,
+                        "recovery_can_change_transient_budgets_and_worker_width/0",
+                        &(workers),
+                        &(result["options"]["workers"]["used"]),
+                    );
                     if let Some(budget) = budget {
                         assert!(
                             result["frontier_storage"]["peak_retained_bytes"]
