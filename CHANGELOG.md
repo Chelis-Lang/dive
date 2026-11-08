@@ -5,6 +5,12 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- The Rust API no longer has `Engine::Reference` (issue #791). `Engine` has
+  the single variant `Engine::Core`, `Engine::parse("reference")` returns
+  `None`, and the `*_engine` entry points accept only Core. Requests that
+  only the reference engine ran (source or TLC logical coverage, external
+  inputs) stay named refusals. Recovering a checkpoint archive the reference
+  engine wrote is rejected with DIVE-S0400, as before.
 - In the default profile, `IsFiniteSet` of a record set with an empty field
   and a field that is not a proved set (for example
   `IsFiniteSet([a : {}, b : 0])`) now refuses with "Cardinality/IsFiniteSet

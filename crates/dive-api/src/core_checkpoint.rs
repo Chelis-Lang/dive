@@ -53,8 +53,9 @@ fn join(parts: Parts<'_>) -> Result<Vec<u8>, String> {
     Ok(bytes)
 }
 
-/// Determines an encoded backend and saved defaults without model evaluation.
-pub(crate) fn metadata(path: &Path) -> Result<(crate::Engine, i64, usize), String> {
+/// Saved seed and fingerprint defaults of a Core archive, without model
+/// evaluation. `None` is an archive the removed reference engine wrote.
+pub(crate) fn metadata(path: &Path) -> Result<Option<(i64, usize)>, String> {
     use std::io::Read;
     let mut magic = [0; 8];
     std::fs::File::open(path)
@@ -64,10 +65,12 @@ pub(crate) fn metadata(path: &Path) -> Result<(crate::Engine, i64, usize), Strin
         let (bytes, _, _) = checkpoint::read_payload(path, MAGIC)?;
         let parts = split(&bytes)?;
         let (seed, fp) = checkpoint::owned_identity_seed_fp(parts[0])?;
-        Ok((crate::Engine::Core, seed, fp))
+        Ok(Some((seed, fp)))
     } else {
-        let (seed, fp) = dive_check::checkpoint::recovery_seed_fp(path)?;
-        Ok((crate::Engine::Reference, seed, fp))
+        // Frames the reference archive as before, so a damaged file still
+        // reports its framing error rather than the engine.
+        dive_check::checkpoint::recovery_seed_fp(path)?;
+        Ok(None)
     }
 }
 
