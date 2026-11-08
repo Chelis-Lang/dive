@@ -11,6 +11,7 @@ use crate::Graph;
 #[cfg(test)]
 use crate::formula::AtomKind;
 use crate::formula::{CycleConditions, Recurrence, Tableau};
+#[cfg(test)]
 use crate::graph::GraphAccess;
 #[cfg(test)]
 use crate::search::{Acceptance, Lasso, Step, find_lasso, find_lasso_view};
@@ -19,6 +20,7 @@ use crate::search::{AcceptanceAccess, SearchError};
 use std::collections::{BTreeSet, HashMap};
 
 mod csr;
+#[cfg(test)]
 use csr::ProductRows;
 #[cfg(test)]
 use csr::{CsrGraph, FlatRows};
@@ -127,14 +129,10 @@ struct Parts<A, G> {
 }
 
 // Borrowed only while finalizing one builder; both routes retain the same
-// renumbering, adjacency order and original-edge projection. An on-the-fly
-// product stores no rows; only recurrence conditions read them.
+// renumbering, so promise columns follow the final vertex order.
 struct Ordered<'a> {
     pairs: &'a [(usize, usize)],
     order: &'a [usize],
-    graph: Option<&'a dyn ProductRows>,
-    edge_count: usize,
-    scratch_len: usize,
 }
 
 #[cfg(test)]
@@ -142,11 +140,8 @@ struct Builder<'a, T: TruthAccess, R: RowStorage> {
     graph: BehaviorView<'a>,
     tableau: &'a Tableau,
     labels: &'a T,
-    conditions: &'a [Recurrence],
     limits: Limits,
     acceptance_policy: AcceptancePolicy,
-    behavior_edges: usize,
-    scratch_len: usize,
     pairs: Vec<(usize, usize)>,
     ids: HashMap<(usize, usize), usize>,
     rows: R,
@@ -170,22 +165,10 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
 
     fn acceptance_cells(&self, size: usize, edges: usize) -> Result<(), ProductError> {
         if let AcceptancePolicy::Buffers { bytes, .. } = self.acceptance_policy {
-            return budget::fits_layout(
-                size,
-                edges,
-                self.tableau.promise_count,
-                self.conditions.len(),
-                self.scratch_len,
-                budget::ActionDomain::behavior(self.graph.vertex_count(), self.behavior_edges),
-                bytes,
-            );
+            return budget::fits_layout(size, self.tableau.promise_count, bytes);
         }
         size.checked_mul(self.tableau.promise_count)
-            .and_then(|n| {
-                edges
-                    .checked_mul(self.conditions.len().checked_add(1)?)
-                    .and_then(|e| n.checked_add(e))
-            })
+            .and_then(|n| n.checked_add(edges))
             .filter(|n| *n <= self.limits.acceptance_cells)
             .ok_or(ProductError::Limit("acceptance cells"))?;
         Ok(())
@@ -287,9 +270,6 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
         let acceptance = acceptance(Ordered {
             pairs: &self.pairs,
             order: &ordered,
-            graph: Some(&graph),
-            edge_count: self.edge_count,
-            scratch_len: self.scratch_len,
         })?;
         let mut behavior_states = csr::reserve(ordered.len())?;
         for (position, &old) in ordered.iter().enumerate() {
@@ -346,31 +326,7 @@ impl Product {
         labels: &Labels,
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        Self::with_recurrences(graph, tableau, labels, &[], limits)
-    }
-
-    /// Constructs the reachable product with additional infinitely-recurring
-    /// boolean conditions.
-    /// Conditions constrain the recurrent walk, including closing edges; they
-    /// never filter a finite prefix. Each condition contributes one acceptance
-    /// cell per retained edge, subject to the same explicit resource budget.
-    ///
-    /// # Errors
-    /// Malformed inputs/condition atom references or explicit resource limits.
-    pub(crate) fn with_recurrences(
-        graph: &Graph,
-        tableau: &Tableau,
-        labels: &Labels,
-        conditions: &[Recurrence],
-        limits: Limits,
-    ) -> Result<Self, ProductError> {
-        Self::with_behavior(
-            BehaviorView::Dense(graph),
-            tableau,
-            labels,
-            conditions,
-            limits,
-        )
+        Self::with_behavior(BehaviorView::Dense(graph), tableau, labels, limits)
     }
 
     /// Constructs the same product from checked borrowed CSR adjacency.
@@ -385,43 +341,23 @@ impl Product {
         labels: &Labels,
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        Self::with_csr_recurrences(graph, tableau, labels, &[], limits)
-    }
-
-    /// Constructs a borrowed-CSR product with recurring conditions.
-    /// Conditions, edge positions and resource bounds have the same meaning as
-    /// in [`Self::with_recurrences`]; no adjacency copy is made before building
-    /// the product.
-    ///
-    /// # Errors
-    /// Malformed tableau/labels, condition atom references or product limits.
-    pub(crate) fn with_csr_recurrences(
-        graph: CsrTopology<'_>,
-        tableau: &Tableau,
-        labels: &Labels,
-        conditions: &[Recurrence],
-        limits: Limits,
-    ) -> Result<Self, ProductError> {
-        Self::with_behavior((&graph).into(), tableau, labels, conditions, limits)
+        Self::with_behavior((&graph).into(), tableau, labels, limits)
     }
 
     fn with_behavior(
         graph: BehaviorView<'_>,
         tableau: &Tableau,
         labels: &Labels,
-        conditions: &[Recurrence],
         limits: Limits,
     ) -> Result<Self, ProductError> {
         let parts = build::<_, OwnedRows>(
             graph,
             tableau,
             labels,
-            conditions,
             limits,
-            (AcceptancePolicy::Legacy, 0),
+            AcceptancePolicy::Legacy,
             |input| {
-                let graph = input.graph.ok_or_else(rowless)?;
-                let states = (0..tableau.promise_count)
+                Ok((0..tableau.promise_count)
                     .map(|p| {
                         input
                             .order
@@ -429,38 +365,23 @@ impl Product {
                             .map(|&old| tableau.nodes[input.pairs[old].1].fulfilled[p])
                             .collect()
                     })
-                    .collect();
-                let recurrent = (0..graph.vertex_count())
-                    .map(|v| vec![true; graph.successors(v).len()])
-                    .collect();
-                let actions = conditions
-                    .iter()
-                    .map(|condition| {
-                        input
-                            .order
-                            .iter()
-                            .enumerate()
-                            .map(|(id, &old)| {
-                                let v = input.pairs[old].0;
-                                graph
-                                    .original_edges(id)
-                                    .iter()
-                                    .map(|&e| condition.evaluate(|atom| labels.truth(atom, v, e)))
-                                    .collect()
-                            })
-                            .collect()
-                    })
-                    .collect();
-                Ok(Acceptance {
-                    recurrent,
-                    states,
-                    actions,
-                })
+                    .collect::<Vec<Vec<bool>>>())
             },
         )?;
+        let recurrent = parts
+            .graph
+            .graph
+            .edges
+            .iter()
+            .map(|row| vec![true; row.len()])
+            .collect();
         Ok(Self {
             graph: parts.graph.graph,
-            acceptance: parts.acceptance,
+            acceptance: Acceptance {
+                recurrent,
+                states: parts.acceptance,
+                actions: vec![],
+            },
             behavior_states: parts.behavior_states,
             original_edges: parts.graph.original_edges,
         })
@@ -493,32 +414,17 @@ fn build<A, R: RowStorage>(
     graph: BehaviorView<'_>,
     tableau: &Tableau,
     labels: &impl TruthAccess,
-    conditions: &[Recurrence],
     limits: Limits,
-    acceptance_budget: (AcceptancePolicy, usize),
+    acceptance_policy: AcceptancePolicy,
     acceptance: impl FnOnce(Ordered<'_>) -> Result<A, ProductError>,
 ) -> Result<Parts<A, R::Graph>, ProductError> {
     validate(graph, tableau, labels)?;
-    for atom in conditions.iter().flat_map(Recurrence::atoms) {
-        if !labels.contains(atom) {
-            return Err(ProductError::Shape(
-                "recurrence predicate outside label table".into(),
-            ));
-        }
-    }
     let mut builder = Builder {
         graph,
         tableau,
         labels,
-        conditions,
         limits,
-        acceptance_policy: acceptance_budget.0,
-        behavior_edges: acceptance_budget.1,
-        scratch_len: conditions
-            .iter()
-            .map(Recurrence::scratch_len)
-            .max()
-            .unwrap_or(0),
+        acceptance_policy,
         pairs: Vec::new(),
         ids: HashMap::new(),
         rows: R::default(),
@@ -542,21 +448,11 @@ fn build<A, R: RowStorage>(
     builder.finish(roots, acceptance)
 }
 
-fn rowless() -> ProductError {
-    ProductError::Shape("recurrence conditions need stored product rows".into())
-}
-
-// Each column packs one Boolean per product vertex or flattened product edge.
-// Recurrent-edge truth is uniformly true for constructed products.
+// Each promise column packs one Boolean per product vertex. Recurrent-edge
+// truth is uniformly true and products carry no action columns; cycle
+// conditions are evaluated during the search (see `Conditioned`).
 struct CompactAcceptance {
     states: Vec<Vec<u64>>,
-    actions: Vec<Vec<u64>>,
-    edge_offsets: Vec<usize>,
-    #[cfg_attr(
-        not(test),
-        expect(dead_code, reason = "read only by the materialized reference product")
-    )]
-    behavior_actions: bool,
     /// Actual covered work already spent by the buffer-policy materializer.
     materialization_work: usize,
 }
@@ -578,26 +474,13 @@ impl CompactAcceptance {
         let headers = self
             .states
             .capacity()
-            .checked_add(self.actions.capacity())?
             .checked_mul(std::mem::size_of::<Vec<u64>>())?;
-        let offsets = self
-            .edge_offsets
-            .capacity()
-            .checked_mul(std::mem::size_of::<usize>())?;
-        self.states.iter().chain(&self.actions).try_fold(
-            headers.checked_add(offsets)?,
-            |bytes, words| {
-                bytes.checked_add(words.capacity().checked_mul(std::mem::size_of::<u64>())?)
-            },
-        )
+        self.states.iter().try_fold(headers, |bytes, words| {
+            bytes.checked_add(words.capacity().checked_mul(std::mem::size_of::<u64>())?)
+        })
     }
 
-    fn new(
-        input: &Ordered<'_>,
-        tableau: &Tableau,
-        labels: &impl TruthAccess,
-        conditions: &[Recurrence],
-    ) -> Result<Self, ProductError> {
+    fn new(input: &Ordered<'_>, tableau: &Tableau) -> Self {
         let states = (0..tableau.promise_count)
             .map(|p| {
                 let mut words = vec![0; input.order.len().div_ceil(64)];
@@ -611,47 +494,10 @@ impl CompactAcceptance {
                 words
             })
             .collect();
-        let mut edge_offsets = Vec::new();
-        let mut edges = 0;
-        let graph = if conditions.is_empty() {
-            None
-        } else {
-            Some(input.graph.ok_or_else(rowless)?)
-        };
-        if let Some(graph) = graph {
-            edge_offsets.reserve_exact(graph.vertex_count() + 1);
-            edge_offsets.push(0);
-            for v in 0..graph.vertex_count() {
-                let row = graph.successors(v);
-                // The shared builder already checked every retained-edge addition.
-                edges += row.len();
-                edge_offsets.push(edges);
-            }
-        }
-        let mut scratch = Vec::new();
-        let actions = conditions
-            .iter()
-            .map(|condition| {
-                let mut words = vec![0; edges.div_ceil(64)];
-                for (id, &old) in input.order.iter().enumerate() {
-                    let v = input.pairs[old].0;
-                    let rows = graph.map_or(&[][..], |graph| graph.original_edges(id));
-                    for (position, &e) in rows.iter().enumerate() {
-                        let truth = condition
-                            .evaluate_with_scratch(|atom| labels.truth(atom, v, e), &mut scratch);
-                        set_bit(&mut words, edge_offsets[id] + position, truth);
-                    }
-                }
-                words
-            })
-            .collect();
-        Ok(Self {
+        Self {
             states,
-            actions,
-            edge_offsets,
-            behavior_actions: false,
             materialization_work: 0,
-        })
+        }
     }
 }
 
@@ -669,70 +515,36 @@ pub(crate) struct CompactProduct {
 
 #[cfg(test)]
 impl CompactProduct {
-    #[cfg(test)]
-    fn with_recurrences(
+    fn new(
         graph: &Graph,
         tableau: &Tableau,
         labels: &Labels,
-        conditions: &[Recurrence],
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        Self::with_policy(
-            graph,
-            tableau,
-            labels,
-            conditions,
-            limits,
-            AcceptancePolicy::Legacy,
-        )
+        Self::with_policy(graph, tableau, labels, limits, AcceptancePolicy::Legacy)
     }
 
-    #[cfg(test)]
-    fn with_policy(
-        graph: &Graph,
-        tableau: &Tableau,
-        labels: &Labels,
-        conditions: &[Recurrence],
-        limits: Limits,
-        policy: AcceptancePolicy,
-    ) -> Result<Self, ProductError> {
-        // Production reuses the edge count already checked by atom admission.
-        let edges = graph.edges.iter().map(Vec::len).sum();
-        Self::with_policy_and_edges(graph, tableau, labels, conditions, limits, policy, edges)
-    }
-
-    pub(crate) fn with_policy_and_edges<'a>(
+    pub(crate) fn with_policy<'a>(
         graph: impl Into<BehaviorView<'a>>,
         tableau: &Tableau,
         labels: &impl TruthAccess,
-        conditions: &[Recurrence],
         limits: Limits,
         policy: AcceptancePolicy,
-        behavior_edges: usize,
     ) -> Result<Self, ProductError> {
-        let graph = graph.into();
-        let parts = build::<_, FlatRows>(
-            graph,
-            tableau,
-            labels,
-            conditions,
-            limits,
-            (policy, behavior_edges),
-            |input| match policy {
-                AcceptancePolicy::Legacy => {
-                    CompactAcceptance::new(&input, tableau, labels, conditions)
-                }
-                AcceptancePolicy::Buffers { bytes, work } => budget::materialize(
-                    &input,
-                    tableau,
-                    labels,
-                    conditions,
-                    bytes,
-                    work,
-                    (graph, behavior_edges),
-                ),
-            },
-        )?;
+        let parts =
+            build::<_, FlatRows>(
+                graph.into(),
+                tableau,
+                labels,
+                limits,
+                policy,
+                |input| match policy {
+                    AcceptancePolicy::Legacy => Ok(CompactAcceptance::new(&input, tableau)),
+                    AcceptancePolicy::Buffers { bytes, work } => {
+                        budget::materialize(&input, tableau, bytes, work)
+                    }
+                },
+            )?;
         Ok(Self {
             parts,
             limits,
@@ -806,7 +618,7 @@ impl AcceptanceAccess for CompactProduct {
     }
 
     fn action_count(&self) -> usize {
-        self.parts.acceptance.actions.len()
+        0
     }
 
     fn recurrent(&self, _: usize, _: usize) -> bool {
@@ -817,20 +629,8 @@ impl AcceptanceAccess for CompactProduct {
         bit(&self.parts.acceptance.states[condition], vertex)
     }
 
-    fn action(&self, condition: usize, source: usize, edge: usize) -> bool {
-        let labels = &self.parts.acceptance;
-        let (source, edge) = if labels.behavior_actions {
-            (
-                self.parts.behavior_states[source],
-                self.parts.graph.original_edges(source)[edge],
-            )
-        } else {
-            (source, edge)
-        };
-        bit(
-            &labels.actions[condition],
-            labels.edge_offsets[source] + edge,
-        )
+    fn action(&self, _: usize, _: usize, _: usize) -> bool {
+        false
     }
 }
 

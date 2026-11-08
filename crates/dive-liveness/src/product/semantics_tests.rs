@@ -35,8 +35,7 @@ impl<'a> OnTheFly<'a> {
         limits: Limits,
         policy: AcceptancePolicy,
     ) -> Result<Self, ProductError> {
-        let edges = graph.edges.iter().map(Vec::len).sum();
-        let product = ImplicitProduct::new(graph, tableau, labels, limits, policy, edges)?;
+        let product = ImplicitProduct::new(graph, tableau, labels, limits, policy)?;
         Ok(Self { product, labels })
     }
 
@@ -607,7 +606,6 @@ fn borrowed_csr_self_loop_accepts_the_true_formula() {
         &labels,
         Limits::default(),
         AcceptancePolicy::Legacy,
-        1,
     )
     .expect("product");
     let none = CycleConditions {

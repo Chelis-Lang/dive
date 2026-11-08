@@ -2,7 +2,7 @@
 #![allow(clippy::expect_used, reason = "finite topology differential controls")]
 
 use super::*;
-use crate::formula::{Atom, AtomKind, Formula, Node, Tableau, TableauNode};
+use crate::formula::{Atom, AtomKind, Tableau, TableauNode};
 use crate::product::truth::TruthAccess;
 use crate::product::{
     AcceptancePolicy, CompactProduct, CsrTopology, Labels, Limits, PackedTruth, Product,
@@ -60,32 +60,12 @@ fn tableau() -> Tableau {
     }
 }
 
-fn conditions() -> Vec<crate::formula::Recurrence> {
-    let formula = Formula::new(
-        vec![
-            Node::Atom(Atom {
-                kind: AtomKind::Action,
-                index: 0,
-            }),
-            Node::Eventually(0),
-            Node::Always(1),
-        ],
-        2,
-    )
-    .expect("formula");
-    // The body of `[]<>A`, as solution decomposition extracts it.
-    vec![crate::formula::Recurrence::condition(&formula, &[0]).expect("recurrence")]
-}
-
 #[derive(Debug, PartialEq, Eq)]
 struct Snapshot {
     graph: Graph,
     original_edges: Vec<Vec<usize>>,
     behavior_states: Vec<usize>,
     state_acceptance: Vec<Vec<u64>>,
-    action_acceptance: Vec<Vec<u64>>,
-    offsets: Vec<usize>,
-    behavior_actions: bool,
     materialization_work: usize,
     lasso: Option<Lasso>,
 }
@@ -95,26 +75,13 @@ fn snapshot(
     labels: &impl TruthAccess,
     limits: Limits,
     policy: AcceptancePolicy,
-    recurring: bool,
 ) -> Result<Snapshot, ProductError> {
-    let conditions = if recurring { conditions() } else { vec![] };
-    let product = CompactProduct::with_policy_and_edges(
-        graph,
-        &tableau(),
-        labels,
-        &conditions,
-        limits,
-        policy,
-        (0..graph.vertex_count()).map(|v| graph.row_len(v)).sum(),
-    )?;
+    let product = CompactProduct::with_policy(graph, &tableau(), labels, limits, policy)?;
     Ok(Snapshot {
         graph: product.parts.graph.owned_graph(),
         original_edges: product.parts.graph.owned_original_edges(),
         behavior_states: product.parts.behavior_states.clone(),
         state_acceptance: product.parts.acceptance.states.clone(),
-        action_acceptance: product.parts.acceptance.actions.clone(),
-        offsets: product.parts.acceptance.edge_offsets.clone(),
-        behavior_actions: product.parts.acceptance.behavior_actions,
         materialization_work: product.parts.acceptance.materialization_work,
         lasso: product.find_lasso()?,
     })
@@ -148,18 +115,15 @@ fn dense_and_captured_inputs_preserve_full_products_acceptance_and_lassos() {
                 work: 1_000_000,
             },
         ] {
-            for recurring in [false, true] {
-                assert_eq!(
-                    snapshot(view, &labels, Limits::default(), policy, recurring),
-                    snapshot(
-                        BehaviorView::Dense(&dense),
-                        &labels,
-                        Limits::default(),
-                        policy,
-                        recurring
-                    )
-                );
-            }
+            assert_eq!(
+                snapshot(view, &labels, Limits::default(), policy),
+                snapshot(
+                    BehaviorView::Dense(&dense),
+                    &labels,
+                    Limits::default(),
+                    policy
+                )
+            );
         }
     }
 }
@@ -193,13 +157,12 @@ fn every_existing_product_limit_keeps_its_dense_result() {
             },
         ] {
             assert_eq!(
-                snapshot(view, &labels, limits, AcceptancePolicy::Legacy, true),
+                snapshot(view, &labels, limits, AcceptancePolicy::Legacy),
                 snapshot(
                     BehaviorView::Dense(&dense),
                     &labels,
                     limits,
-                    AcceptancePolicy::Legacy,
-                    true
+                    AcceptancePolicy::Legacy
                 )
             );
         }
@@ -214,13 +177,12 @@ fn every_existing_product_limit_keeps_its_dense_result() {
             },
         ] {
             assert_eq!(
-                snapshot(view, &labels, Limits::default(), policy, true),
+                snapshot(view, &labels, Limits::default(), policy),
                 snapshot(
                     BehaviorView::Dense(&dense),
                     &labels,
                     Limits::default(),
-                    policy,
-                    true
+                    policy
                 )
             );
         }
@@ -368,20 +330,6 @@ fn view_borrows_all_occurrences_without_cloning_state_owners() {
     assert_eq!(graph.edges[0][2].ordinal, None);
 }
 
-fn materialized_snapshot(product: &CompactProduct) -> Result<Snapshot, ProductError> {
-    Ok(Snapshot {
-        graph: product.parts.graph.owned_graph(),
-        original_edges: product.parts.graph.owned_original_edges(),
-        behavior_states: product.parts.behavior_states.clone(),
-        state_acceptance: product.parts.acceptance.states.clone(),
-        action_acceptance: product.parts.acceptance.actions.clone(),
-        offsets: product.parts.acceptance.edge_offsets.clone(),
-        behavior_actions: product.parts.acceptance.behavior_actions,
-        materialization_work: product.parts.acceptance.materialization_work,
-        lasso: product.find_lasso()?,
-    })
-}
-
 fn csr_arrays(graph: &Graph) -> (Vec<usize>, Vec<u32>) {
     let mut offsets = vec![0];
     let mut targets = Vec::new();
@@ -426,45 +374,24 @@ fn csr_preserves_owned_and_compact_products_and_original_edge_positions() {
                             .collect(),
                     ],
                 };
-                for recurring in [false, true] {
-                    let recurrences = if recurring { conditions() } else { vec![] };
-                    let owned = Product::with_recurrences(
-                        &dense,
-                        &tableau(),
-                        &labels,
-                        &recurrences,
-                        Limits::default(),
-                    );
-                    let borrowed = Product::with_csr_recurrences(
-                        csr,
-                        &tableau(),
-                        &labels,
-                        &recurrences,
-                        Limits::default(),
-                    );
-                    assert_eq!(borrowed, owned);
+                let owned = Product::new(&dense, &tableau(), &labels, Limits::default());
+                let borrowed = Product::from_csr(csr, &tableau(), &labels, Limits::default());
+                assert_eq!(borrowed, owned);
+                assert_eq!(
+                    borrowed.expect("CSR owned product").find_lasso(),
+                    owned.expect("dense owned product").find_lasso()
+                );
+                for policy in [
+                    AcceptancePolicy::Legacy,
+                    AcceptancePolicy::Buffers {
+                        bytes: 1_000_000,
+                        work: 1_000_000,
+                    },
+                ] {
                     assert_eq!(
-                        borrowed.expect("CSR owned product").find_lasso(),
-                        owned.expect("dense owned product").find_lasso()
+                        snapshot((&csr).into(), &labels, Limits::default(), policy),
+                        snapshot((&dense).into(), &labels, Limits::default(), policy)
                     );
-                    for policy in [
-                        AcceptancePolicy::Legacy,
-                        AcceptancePolicy::Buffers {
-                            bytes: 1_000_000,
-                            work: 1_000_000,
-                        },
-                    ] {
-                        assert_eq!(
-                            snapshot((&csr).into(), &labels, Limits::default(), policy, recurring),
-                            snapshot(
-                                (&dense).into(),
-                                &labels,
-                                Limits::default(),
-                                policy,
-                                recurring
-                            )
-                        );
-                    }
                 }
             }
         }
@@ -500,20 +427,8 @@ fn csr_keeps_every_existing_product_and_acceptance_limit() {
             },
         ] {
             assert_eq!(
-                snapshot(
-                    (&csr).into(),
-                    &labels,
-                    limits,
-                    AcceptancePolicy::Legacy,
-                    true
-                ),
-                snapshot(
-                    (&dense).into(),
-                    &labels,
-                    limits,
-                    AcceptancePolicy::Legacy,
-                    true
-                )
+                snapshot((&csr).into(), &labels, limits, AcceptancePolicy::Legacy),
+                snapshot((&dense).into(), &labels, limits, AcceptancePolicy::Legacy)
             );
         }
         for policy in [
@@ -527,8 +442,8 @@ fn csr_keeps_every_existing_product_and_acceptance_limit() {
             },
         ] {
             assert_eq!(
-                snapshot((&csr).into(), &labels, Limits::default(), policy, true),
-                snapshot((&dense).into(), &labels, Limits::default(), policy, true)
+                snapshot((&csr).into(), &labels, Limits::default(), policy),
+                snapshot((&dense).into(), &labels, Limits::default(), policy)
             );
         }
     }
@@ -570,96 +485,6 @@ fn csr_keeps_shape_refusals_and_does_not_add_dead_end_stutters() {
             .expect("search"),
         None
     );
-}
-
-#[test]
-fn captured_behavior_domain_and_product_fallback_are_both_explicitly_exercised() {
-    let captured = captured(vec![vec![0, 0], vec![1, 1]], vec![0, 1]);
-    let dense = copied(&captured).expect("dense reference");
-    let view = BehaviorView::checked_captured(&captured).expect("captured topology");
-    let expanded = Tableau {
-        nodes: (0..4)
-            .map(|q| TableauNode {
-                literals: vec![],
-                successors: vec![0, 1, 2, 3],
-                fulfilled: vec![q % 2 == 0, q % 2 == 1],
-            })
-            .collect(),
-        roots: vec![0],
-        promise_count: 2,
-    };
-    let bytes = 3 * size_of::<Vec<u64>>() + 3 * size_of::<u64>() + 3 * size_of::<usize>() + 2;
-    let conditions = conditions();
-    for satisfiable in [false, true] {
-        let labels = Labels {
-            states: vec![],
-            actions: vec![vec![vec![false, satisfiable]; 2]],
-        };
-        for (tableau, policy, expected_behavior) in [
-            (
-                expanded.clone(),
-                AcceptancePolicy::Buffers { bytes, work: 53 },
-                true,
-            ),
-            (
-                tableau(),
-                AcceptancePolicy::Buffers {
-                    bytes: 1_000_000,
-                    work: 1_000_000,
-                },
-                false,
-            ),
-        ] {
-            let original = CompactProduct::with_policy_and_edges(
-                &dense,
-                &tableau,
-                &labels,
-                &conditions,
-                Limits::default(),
-                policy,
-                4,
-            )
-            .expect("dense product");
-            let borrowed = CompactProduct::with_policy_and_edges(
-                view,
-                &tableau,
-                &labels,
-                &conditions,
-                Limits::default(),
-                policy,
-                4,
-            )
-            .expect("captured product");
-            assert_eq!(
-                original.parts.acceptance.behavior_actions,
-                expected_behavior
-            );
-            assert_eq!(
-                borrowed.parts.acceptance.behavior_actions,
-                expected_behavior
-            );
-            assert_eq!(
-                materialized_snapshot(&borrowed),
-                materialized_snapshot(&original)
-            );
-            assert_eq!(borrowed.find_lasso().expect("lasso").is_some(), satisfiable);
-            if expected_behavior {
-                assert_eq!(borrowed.parts.acceptance.edge_offsets, vec![0, 2, 4]);
-                assert_eq!(borrowed.parts.graph.owned_graph().edges.len(), 8);
-                assert_eq!(
-                    borrowed
-                        .parts
-                        .graph
-                        .owned_graph()
-                        .edges
-                        .iter()
-                        .map(Vec::len)
-                        .sum::<usize>(),
-                    64
-                );
-            }
-        }
-    }
 }
 
 #[test]
