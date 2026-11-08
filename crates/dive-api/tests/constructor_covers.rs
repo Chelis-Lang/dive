@@ -1,6 +1,9 @@
 //! ENABLED through set and function constructors never certifies a disabled action that has a successor.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
+#[path = "support/core_final.rs"]
+mod core_final;
+
 use dive_eval::St;
 use dive_model::{BindOptions, Model, Pred};
 use dive_trace::enabled::{EnabledError, enabled};
@@ -119,9 +122,8 @@ fn constructor_effects_refuse_before_evaluation() {
 
 #[test]
 fn pinned_constructor_fairness_runs_have_independently_valid_counterexamples() {
-    use dive_api::temporal::{self, Outcome};
+    use core_final::Outcome;
     use dive_check::CheckOptions;
-    use dive_liveness::analyze;
     use dive_store::StoreMode;
     use dive_trace::Validation;
     let root =
@@ -136,11 +138,6 @@ fn pinned_constructor_fairness_runs_have_independently_valid_counterexamples() {
             std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
         let cfg =
             std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("cfg");
-        let a =
-            dive_sema::analyze_source(&format!("{name}.tla"), &src, &dive_sema::Options::default());
-        assert!(a.accepted(), "{a:?}");
-        let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
-        let cfg = dive_config::parse(&cfg).into_config().expect("config");
         let raw = root.join("tlc-2026.10.06.014338");
         let code: i32 = std::fs::read_to_string(raw.join(format!("{name}.exit")))
             .expect("exit")
@@ -158,10 +155,11 @@ fn pinned_constructor_fairness_runs_have_independently_valid_counterexamples() {
             "{stdout}"
         );
         for mut options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            // Exact seen storage with temporal properties is a Core refusal.
+            {
+                let store = StoreMode::Fingerprint;
                 options.store = store;
-                let report = temporal::check_final(&ir, &cfg, &options, analyze::Limits::default())
-                    .expect(name);
+                let report = core_final::check(&src, &cfg, &options).expect(name);
                 let exploration = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(code, 0, "{name}");
@@ -173,12 +171,6 @@ fn pinned_constructor_fairness_runs_have_independently_valid_counterexamples() {
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(

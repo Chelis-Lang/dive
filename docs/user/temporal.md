@@ -250,8 +250,8 @@ not. This is not a total memory or search-work limit. Other evaluator,
 retained-edge and transition limits remain unchanged. JSON names the byte/work
 bounds under
 `options.temporal_bounds`; exhaustion is an explicit resource refusal. Existing
-Rust custom-limit APIs keep legacy logical acceptance cells; the additive
-`check_final_with_policy` API selects byte/work admission explicitly. See
+Rust custom-limit analysis APIs keep legacy logical acceptance cells; the
+additive `analyze_final_with_policy` API selects byte/work admission explicitly. See
 [covered allocations and exclusions](../temporal-api.md) and ADR 0098.
 
 ### Product vertex capacity

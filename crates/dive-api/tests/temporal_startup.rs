@@ -1,12 +1,12 @@
 //! Startup zero solutions use actual bound temporal roles, before exploration.
+#[path = "support/core_final.rs"]
+mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 use dive_api::{CheckRequest, ExitConvention, TemporalMode};
 use dive_check::CheckOptions;
-use dive_liveness::analyze::{AnalysisError, Limits};
 use serde_json::Value;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -123,34 +123,26 @@ fn earlier_binding_errors_keep_the_original_code_and_never_become_tautology() ->
 }
 
 #[test]
-fn typed_startup_failure_retains_one_binding_print_and_has_no_row_or_eval_error() -> TestResult {
+fn startup_tautology_after_a_binding_print_is_a_named_refusal() {
+    // The retired reference final route (#791) typed this start-up tautology
+    // and kept its one binding Print; Core refuses the temporal validation
+    // failure report by name, before any search and with no output.
     let text = "---- MODULE StartupPrint ----\nEXTENDS Naturals,TLC\nVARIABLE x\nBindingMarker == PrintT(\"BIND_SEEN\")\nASSUME PrintT(\"ASSUME_SEEN\")\nInit == x=0\nNext == x'=1-x\nBad == IF x=0 THEN 1 \\div 0=0 ELSE TRUE\nP == ([]<>Bad)=>TRUE\n====\n";
-    let analysis =
-        dive_sema::analyze_source("StartupPrint.tla", text, &dive_sema::Options::default());
-    assert!(analysis.accepted(), "{analysis:?}");
-    let ir = Arc::new(dive_ir::lower(&analysis)?);
-    let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\nCHECK_DEADLOCK FALSE\n")
-        .into_config()
-        .ok_or("config")?;
     for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        let failure =
-            dive_api::temporal::check_final_with_evidence(&ir, &cfg, &options, Limits::default())
-                .err()
-                .ok_or("startup failure")?;
-        assert!(matches!(
-            failure.error(),
-            dive_api::temporal::Error::Analysis(AnalysisError::StartupTautology { .. })
-        ));
-        assert_eq!(failure.capture_completed(), Some(false));
-        assert!(failure.exploration().is_none());
-        assert!(failure.state_evaluation().is_none());
-        assert!(failure.action_evaluation().is_none());
-        assert_eq!(failure.binding_output().len(), 1);
-        assert!(
-            matches!(&failure.binding_output()[0], dive_model::Message::Print(line) if line.contains("BIND_SEEN"))
+        let report = core_final::run(
+            text,
+            "INIT Init\nNEXT Next\nPROPERTY P\nCHECK_DEADLOCK FALSE\n",
+            &options,
         );
+        let actual = report.to_json();
+        refused::assert_refused(
+            &actual,
+            report.exit_code(),
+            refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
+        );
+        assert_eq!(actual["output"], serde_json::json!([]), "{actual}");
+        assert!(actual["statistics"].is_null(), "{actual}");
     }
-    Ok(())
 }
 
 #[test]

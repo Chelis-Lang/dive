@@ -1,9 +1,12 @@
 //! Finite lazy domains: pinned complete counts and independently validated
-//! temporal counterexamples. These are final/short checks, not strict TLC lassos.
+//! temporal counterexamples on Core. These are final/short checks, not strict
+//! TLC lassos. They ran on the retired reference final route until #791;
+//! exact seen storage with temporal properties is a named Core refusal.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
-use dive_api::temporal::{self, Outcome};
+#[path = "support/core_final.rs"]
+mod core_final;
+use core_final::Outcome;
 use dive_check::CheckOptions;
-use dive_liveness::analyze::Limits;
 use dive_model::{BindOptions, Pred};
 use dive_store::StoreMode;
 use dive_trace::Validation;
@@ -14,7 +17,7 @@ use std::{path::Path, sync::Arc};
 #[test]
 #[allow(
     clippy::too_many_lines,
-    reason = "retain oracle assertions and explicit rejection of unexpected Final prefixes"
+    reason = "retain oracle assertions and independent word controls together"
 )]
 fn lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/lazy-domains");
@@ -62,15 +65,15 @@ fn lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls() 
             let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
             let cfg = dive_config::parse(&config).into_config().expect("cfg");
             for profile in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-                for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                {
+                    let store = StoreMode::Fingerprint;
                     for workers in [1, 4, 8] {
                         let options = CheckOptions {
                             store,
                             workers,
                             ..profile.clone()
                         };
-                        let report = temporal::check_final(&ir, &cfg, &options, Limits::default())
-                            .expect(&name);
+                        let report = core_final::check(&source, &config, &options).expect(&name);
                         let capture = match report.outcome() {
                             Outcome::Holds(c) => {
                                 assert!(holds, "{name}");
@@ -80,14 +83,6 @@ fn lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls() 
                                 assert!(!holds, "{name}");
                                 assert_eq!(v.validation().validation, Validation::Valid);
                                 &v.candidate().exploration
-                            }
-                            Outcome::NativeHolds(_)
-                            | Outcome::NativeViolation(_)
-                            | Outcome::NativePrefixViolation(_) => {
-                                panic!("explicit reference API must retain its legacy result type")
-                            }
-                            Outcome::PrefixViolation(_) => {
-                                panic!("explicit Final cannot return a prefix")
                             }
                             Outcome::Safety(s) => panic!("{name}: {:?}", s.verdict),
                         };

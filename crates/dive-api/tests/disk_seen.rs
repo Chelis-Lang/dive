@@ -1,5 +1,7 @@
 //! Explicit API admission, failure evidence and independent disk-search witnesses.
 #![allow(clippy::expect_used, reason = "test assertions")]
+#[path = "support/core_final.rs"]
+mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
@@ -212,68 +214,68 @@ fn creation_failure_reports_no_initial_search_or_success() {
     );
 }
 
+/// Core's report for `source` and `cfg` with resident and with disk seen
+/// storage, under `opts`.
+fn resident_and_disk(
+    source: &str,
+    cfg: &str,
+    opts: &dive_check::CheckOptions,
+) -> (serde_json::Value, serde_json::Value) {
+    let files = core_final::Files::new(source, cfg);
+    let resident = files.request(opts);
+    let disk = CheckRequest {
+        seen_disk: Some(SeenOptions::default()),
+        ..resident.clone()
+    };
+    let run = |request: &CheckRequest| {
+        dive_api::check_file_engine(request, dive_api::Engine::Core)
+            .expect("report")
+            .to_json()
+    };
+    (run(&resident), run(&disk))
+}
+
 #[test]
-fn low_level_temporal_facades_refuse_before_startup_prints_or_assumptions() {
+fn disk_seen_storage_with_temporal_properties_refuses_before_startup_prints_or_assumptions() {
     let source = "---- MODULE M ----\nEXTENDS TLC\nVARIABLE x\nUnused == PrintT(\"must not bind\")\nASSUME PrintT(\"must not assume\")\nInit == x=0\nNext == x'=x\nP == []<>(x=0)\n====\n";
-    let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
-    assert!(analysis.accepted());
-    let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
-    let config = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
-        .into_config()
-        .expect("config");
-    for mut options in [
+    for options in [
         dive_check::CheckOptions::tlc(0, 7),
         dive_check::CheckOptions::dive(7),
     ] {
-        // The ordinary checker binds as in the resident route (startup
-        // output included) and refuses the temporal property.
-        let resident = dive_check::check(&ir, &config, &options);
-        options.seen_disk = Some(SeenOptions::default());
-        let ordinary = dive_check::check(&ir, &config, &options);
-        assert!(matches!(
-            ordinary.verdict,
-            dive_check::Verdict::Unsupported { .. }
-        ));
-        assert_eq!(ordinary.verdict, resident.verdict);
-        assert_eq!(ordinary.output, resident.output);
-        assert!(ordinary.stats.is_none());
-        assert!(ordinary.seen.is_none());
-        let short = dive_api::temporal::check_final(
-            &ir,
-            &config,
-            &options,
-            dive_liveness::analyze::Limits::default(),
-        )
-        .expect_err("unimplemented combination");
-        assert!(matches!(
-            short,
-            dive_api::temporal::Error::Analysis(
-                dive_liveness::analyze::AnalysisError::Unsupported(_)
-            )
-        ));
+        let (resident, disk) =
+            resident_and_disk(source, "INIT Init\nNEXT Next\nPROPERTY P\n", &options);
+        // Resident storage binds (start-up output included) and checks P.
+        assert_eq!(resident["verdict"], "success", "{resident}");
+        assert_eq!(
+            resident["output"],
+            serde_json::json!(["\"must not bind\"", "\"must not assume\""])
+        );
+        assert_eq!(resident["statistics"]["generated"], 2);
+        assert_eq!(resident["statistics"]["distinct"], 1);
+        // Disk storage with a temporal property is refused before start-up.
+        assert_eq!(disk["verdict"], "unsupported", "{disk}");
+        assert_eq!(
+            disk["message"],
+            "disk seen-state retention with temporal checking"
+        );
+        assert_eq!(disk["output"], serde_json::json!([]));
+        assert!(disk["statistics"].is_null(), "{disk}");
     }
 }
 
 #[test]
 fn effectful_specification_role_matches_resident_storage() {
     let source = "---- MODULE M ----\nEXTENDS TLC\nVARIABLE x\nUnused == PrintT(\"must not bind\")\nASSUME PrintT(\"must not assume\")\nInit == x=0\nNext == x'=x\nSpec == Init /\\ [][Next]_x\n====\n";
-    let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
-    assert!(analysis.accepted());
-    let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
-    let config = dive_config::parse("SPECIFICATION Spec\n")
-        .into_config()
-        .expect("config");
-    for mut options in [
+    for options in [
         dive_check::CheckOptions::tlc(0, 7),
         dive_check::CheckOptions::dive(7),
     ] {
-        let resident = dive_check::check(&ir, &config, &options);
-        options.seen_disk = Some(SeenOptions::default());
-        let result = dive_check::check(&ir, &config, &options);
-        assert_eq!(result.verdict, resident.verdict);
-        assert_eq!(result.stats, resident.stats);
-        assert_eq!(result.output, resident.output);
-        assert!(result.stats.is_some());
+        let (resident, disk) = resident_and_disk(source, "SPECIFICATION Spec\n", &options);
+        assert_eq!(disk["verdict"], "success", "{disk}");
+        assert_eq!(disk["verdict"], resident["verdict"]);
+        assert_eq!(disk["statistics"], resident["statistics"]);
+        assert_eq!(disk["output"], resident["output"]);
+        assert_eq!(disk["statistics"]["generated"], 2);
     }
 }
 

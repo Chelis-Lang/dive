@@ -1564,9 +1564,8 @@ publication remain pending; the accepted statistics gate is not Print gate credi
 
 ## Empty-property final checking and model-error origin
 
-When the configured `PROPERTY` list is literally empty,
-`dive_api::temporal::check_final` delegates to ordinary safety checking and
-returns `Outcome::Safety`. It does not bind twice, build a temporal capture,
+When the configured `PROPERTY` list is literally empty, a temporal check
+delegates to ordinary safety checking and returns the safety result. It does not bind twice, build a temporal capture,
 consume temporal limits or issue a temporal holding claim. Binding and
 symmetry-preparation model errors retain their actual `binding` origin;
 engine model errors retain `capture`. `CheckResult::binding_model_error`

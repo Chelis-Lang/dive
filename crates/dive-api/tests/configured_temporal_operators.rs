@@ -1,12 +1,17 @@
 //! Direct configured calls retain lazy scope and independent word validation.
+//! Final verdicts run on Core; they ran on the retired reference final route
+//! until #791.
 #![allow(clippy::expect_used, clippy::panic, reason = "conformance assertions")]
 
 use std::{path::Path, sync::Arc};
 
-use dive_api::temporal::{self, Outcome};
+#[path = "support/core_final.rs"]
+mod core_final;
+
+use core_final::Outcome;
 use dive_check::CheckOptions;
 use dive_eval::{St, StateRef};
-use dive_liveness::{analyze::Limits, formula::Limits as FormulaLimits, plan};
+use dive_liveness::{formula::Limits as FormulaLimits, plan};
 use dive_model::{BindOptions, Model, Pred};
 use dive_trace::{Ending, Validation, temporal::evaluate_lasso};
 use dive_value::Value;
@@ -72,8 +77,7 @@ fn configured_reply_matches_pinned_counts_and_rejects_forged_words() {
         for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
             let model = bound(&source, &config, &options);
             let cfg = dive_config::parse(&config).into_config().expect("config");
-            let report =
-                temporal::check_final(&model.ir, &cfg, &options, Limits::default()).expect(&name);
+            let report = core_final::check(&source, &config, &options).expect(&name);
             let capture = match report.outcome() {
                 Outcome::Holds(c) => {
                     assert_eq!(suffix, "Holds");
@@ -127,12 +131,6 @@ fn configured_reply_matches_pinned_counts_and_rejects_forged_words() {
                     ));
                     &v.candidate().exploration
                 }
-                Outcome::NativeHolds(_)
-                | Outcome::NativeViolation(_)
-                | Outcome::NativePrefixViolation(_) => {
-                    panic!("explicit reference API must retain its legacy result type")
-                }
-                Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
                 Outcome::Safety(s) => panic!("unexpected safety result: {:?}", s.verdict),
             };
             let counts = &golden["result"]["counts"];
@@ -195,9 +193,8 @@ fn unused_actual_binder_domains_are_inspected_without_evaluation() {
             Value::Bool(true)
         );
         assert!(evaluate_lasso(&model, &p, &[state(0)], 0).expect("independent unused domain")[0]);
-        let cfg = dive_config::parse(config).into_config().expect("config");
         assert!(matches!(
-            temporal::check_final(&model.ir, &cfg, &options, Limits::default())
+            core_final::check(source, config, &options)
                 .expect("unused domain")
                 .outcome(),
             Outcome::Holds(_)

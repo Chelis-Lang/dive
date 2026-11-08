@@ -32,9 +32,8 @@ temporal verdict. Unknown execution after a thread failure uses `null` worker
 usage and capture completion, rather than asserting zero. Before-search binding
 and planning failures still prove zero capture workers. Ordinary schema-1
 checks are unchanged. Rust callers can use
-`dive_api::temporal::check_final_with_evidence` or
-`dive_liveness::analyze::analyze_final_with_evidence`; the original error-returning
-entry points remain available. This correction does not rewrite the historical
+`dive_api::CheckReport::temporal_failure` or
+`dive_liveness::analyze::analyze_final_with_evidence`. This correction does not rewrite the historical
 53-model artifact or improve its conformance totals.
 
 This is explicit `--lncheck final --lasso short` with TLC values, reported as

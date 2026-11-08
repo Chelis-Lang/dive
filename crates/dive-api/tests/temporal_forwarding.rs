@@ -1,6 +1,13 @@
-//! Temporal expression arguments retain their caller scopes on each periodic word.
+//! Temporal expression arguments retain their caller scopes on each periodic
+//! word. Final verdicts run on Core; they ran on the retired reference final
+//! route until #791. Exact seen storage with temporal properties is a named
+//! Core refusal, so these runs use fingerprint storage.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
-use dive_api::temporal::{self, Outcome};
+#[path = "support/core_final.rs"]
+mod core_final;
+#[path = "support/refused.rs"]
+mod refused;
+use core_final::Outcome;
 use dive_check::CheckOptions;
 use dive_liveness::analyze::Limits;
 use dive_model::{BindOptions, Pred};
@@ -104,12 +111,12 @@ fn forwarding_preserves_truth_at_all_positions_and_closing_edges() {
 #[test]
 fn final_verdicts_and_fresh_witness_validation_keep_forwarded_properties() {
     for name in ["P", "Q", "R", "S", "T", "U", "V"] {
-        let (ir, cfg) = input(SOURCE, &format!("INIT Init\nNEXT Next\nPROPERTY {name}\n"));
+        let cfg = format!("INIT Init\nNEXT Next\nPROPERTY {name}\n");
         for mut options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+            {
+                let store = StoreMode::Fingerprint;
                 options.store = store;
-                let report =
-                    temporal::check_final(&ir, &cfg, &options, Limits::default()).expect(name);
+                let report = core_final::check(SOURCE, &cfg, &options).expect(name);
                 let Outcome::Violation(v) = report.outcome() else {
                     panic!("unfair stutter violates {name}: {report:?}");
                 };
@@ -215,23 +222,25 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                     "13"
                 }
             );
+            let (src_text, cfg_text) = (src.clone(), cfg.clone());
             let (ir, cfg) = input(&src, &cfg);
             for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-                for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+                {
+                    let store = StoreMode::Fingerprint;
                     for workers in [1, 4, 8] {
                         let options = CheckOptions {
                             store,
                             workers,
                             ..base.clone()
                         };
-                        let report = temporal::check_final(&ir, &cfg, &options, Limits::default());
+                        let report = core_final::check(&src_text, &cfg_text, &options);
                         if kind == "Instance" {
                             assert!(stdout.contains("TLC cannot handle the temporal formula"));
-                            assert!(
-                                report
-                                    .expect_err("reference refusal remains a refusal")
-                                    .to_string()
-                                    .contains("INSTANCE")
+                            let stop = report.expect_err("TLC's refusal remains a refusal");
+                            refused::assert_refused(
+                                &stop.json(),
+                                stop.exit_code(),
+                                refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
                             );
                             let bind = if base.profile == dive_eval::Profile::Tlc {
                                 BindOptions::tlc()
@@ -333,14 +342,6 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                                     .expect("actual violated property")[0]
                                 );
                                 &v.candidate().exploration
-                            }
-                            Outcome::NativeHolds(_)
-                            | Outcome::NativeViolation(_)
-                            | Outcome::NativePrefixViolation(_) => {
-                                panic!("explicit reference API must retain its legacy result type")
-                            }
-                            Outcome::PrefixViolation(_) => {
-                                panic!("explicit Final cannot return a prefix")
                             }
                             Outcome::Safety(s) => panic!("{name}: {:?}", s.verdict),
                         };
