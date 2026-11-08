@@ -121,11 +121,10 @@ impl Exchange {
         Ok((bytes, exchange))
     }
 
-    /// Imports a request only into an independently identity-checked startup.
-    ///
-    /// # Errors
-    /// Invalid framing, ownership, names, shape, limits or interruption.
-    pub fn receive_request(
+    /// Imports a request without a startup index; the tests' unauthenticated
+    /// counterpart of [`Self::receive_request_with_startup`].
+    #[cfg(test)]
+    pub(crate) fn receive_request(
         heap: &mut Heap,
         bytes: &[u8],
         limit: usize,

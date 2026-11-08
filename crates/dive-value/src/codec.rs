@@ -827,69 +827,6 @@ fn build(t: u8, flag: bool, need: usize, input: &[u8]) -> Build {
     }
 }
 
-/// Runs the ordinary set constructor while preserving normalization markers in
-/// borrowed operand values. Intended for checked representation transport probes,
-/// not a new comparison policy. Callers must first reject deferred/provider values
-/// if their boundary requires callback-free behavior.
-///
-/// # Errors
-/// The same comparison and construction errors as [`Value::set`].
-pub fn probe_set(elems: Vec<Value>, ctx: Ctx) -> Result<Value> {
-    let _quiet = crate::value::quiet::Quiet::enter();
-    Value::set(elems, ctx)
-}
-
-/// Reconstructs a function through its ordinary representation constructor,
-/// preserving normalization markers in borrowed operands. Callers must reject
-/// provider/deferred operands before callback-free transport probes.
-///
-/// # Errors
-/// The same field/domain comparison and duplicate errors as [`Value::fcn`]
-/// or [`Value::record`]. A changed kind/literal/order is checked by the caller.
-pub fn probe_fcn(f: &Fcn, ctx: Ctx) -> Result<Value> {
-    let _quiet = crate::value::quiet::Quiet::enter();
-    if let Some(values) = f.as_tuple() {
-        Ok(if f.is_tuple_literal() {
-            Value::tuple(values.to_vec())
-        } else {
-            Value::tuple_fcn(values.to_vec())
-        })
-    } else if let Some(fields) = f.as_record()
-        && f.is_record_literal()
-    {
-        Value::record(fields.to_vec(), ctx)
-    } else {
-        Value::fcn(
-            f.iter()
-                .map(|(domain, value)| (domain, value.clone()))
-                .collect(),
-            ctx,
-        )
-    }
-}
-
-/// Probes the normalization requested by a stored Raw-set flag through the
-/// ordinary constructor, preserving markers in borrowed children. The new own
-/// marker is set only after successful normalization. Callers must first reject
-/// provider/deferred operands for a callback-free boundary.
-///
-/// # Errors
-/// The same comparison/construction errors as ordinary Raw-set normalization.
-pub fn probe_raw_set(elems: Vec<Value>, ctx: Ctx, normalized: bool) -> Result<Value> {
-    let value = {
-        let _quiet = crate::value::quiet::Quiet::enter();
-        let value = Value::set_raw(elems, ctx);
-        if normalized && let Value::Set(set) = &value {
-            set.elements(ctx)?;
-        }
-        value
-    };
-    if normalized && let Value::Set(set) = &value {
-        set.mark_normalized();
-    }
-    Ok(value)
-}
-
 /// Encoded byte length used by size regression controls.
 #[cfg(test)]
 fn encoded_len(v: &Value) -> usize {

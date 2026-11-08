@@ -1031,12 +1031,6 @@ impl GeneralId {
             .last()
             .map(|e| e.to_string())
     }
-
-    /// Whether the name is qualified (`M!x`).
-    #[must_use]
-    pub fn is_qualified(&self) -> bool {
-        self.0.children().any(|n| n.kind() == ID_PREFIX)
-    }
 }
 
 impl OpApplication {

@@ -1409,34 +1409,6 @@ pub fn explore_with_storage<'p>(
     )
 }
 
-/// Runs a quiescent completed-level safety transaction over the existing kernel.
-/// Ordinary exploration does not retain checkpoint discovery rows.
-#[must_use]
-pub fn explore_checkpoint<'p>(
-    plan: &'p Plan,
-    store: &Arc<Store>,
-    config: Config,
-    poll: &'p (dyn Fn() -> bool + Sync),
-    control: Option<&Arc<dyn dive_core::eval::WorkControl>>,
-    storage: &storage::Storage,
-    session: &'p mut checkpoint::Session,
-) -> Outcome {
-    let mut owner = Arc::clone(store);
-    explore_inner(
-        plan,
-        &mut owner,
-        config,
-        poll,
-        None,
-        control,
-        storage,
-        Some(session),
-        None,
-        false,
-        None,
-    )
-}
-
 /// Explores pure safety while allowing completed-level replacement of its Store.
 ///
 /// `store` always names the owner of the returned trace/sample handles. A supplied
