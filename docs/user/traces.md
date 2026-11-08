@@ -16,7 +16,10 @@ JSON report includes `validation_goal: "sample"`. A valid sample proves neither
 exhaustive safety nor liveness. Rust callers use `SpecModel::try_validate_sample`;
 lower-level owned sessions expose `Session::read_sampled`. Ordinary Behavior
 validation keeps its existing relation-only prefix semantics. Sample validation
-rejects non-Behavior endings and refuses configured temporal properties and
+also accepts a `deadlock` ending, checked as a simulation deadlock: every
+successor of the last state must fall outside the `CONSTRAINT`s and
+`ACTION_CONSTRAINT`s (`Session::read_sampled_deadlock`). It rejects other
+non-Behavior endings and refuses configured temporal properties and
 unproved projections; fairness alone does not constrain a finite sample.
 
 The JSON validation report uses `schema_version: 3`, `command: "validate-trace"`

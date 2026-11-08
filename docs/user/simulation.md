@@ -25,6 +25,13 @@ gives: 0 in `Init`, a state's 1-based position in its trace in invariants and
 level from each state's position. A primed `TLCGet("level")`, which TLC
 evaluates at the successor's level, refuses by name. The Reference simulator
 still refuses `TLCGet("level")`.
+As in TLC's simulator, a step only chooses among successors that satisfy every
+`CONSTRAINT` and then every `ACTION_CONSTRAINT`. A state none of whose
+successors satisfies them is reported as a deadlock (exit 11) when deadlock
+checking is on, even though `dive check` does not report one there: exhaustive
+checking only stops exploring past such successors. Independent validation
+regenerates every successor of the deadlocked state and accepts the deadlock
+only if each one falls outside the constraints.
 Initial states may hold compound values (sets, functions, records, sequences).
 A `SPECIFICATION` with fairness conjuncts is simulated: fairness constrains only
 infinite behaviors, so it cannot change a finite safety result (ADR 0116).
