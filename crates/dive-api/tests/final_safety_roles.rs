@@ -2,7 +2,7 @@
 //! one start-up stream. These cases compared the retired reference final route
 //! with the reference safety engine until #791; they now assert Core's results.
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_check::{CheckOptions, Verdict};
+use dive_runtime::{CheckOptions, Verdict};
 
 #[path = "support/core_final.rs"]
 mod core_final;
@@ -36,7 +36,7 @@ fn safety(
     body: &str,
     cfg: &str,
     opts: &CheckOptions,
-) -> Result<dive_check::CheckResult, Box<dyn std::error::Error>> {
+) -> Result<dive_runtime::CheckResult, Box<dyn std::error::Error>> {
     let run = core_final::check(source(body), cfg, opts).map_err(|e| e.json().to_string())?;
     match run.outcome() {
         Outcome::Safety(result) => Ok(result.as_ref().clone()),

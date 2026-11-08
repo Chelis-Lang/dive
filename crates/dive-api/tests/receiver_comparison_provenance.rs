@@ -222,7 +222,7 @@ fn unrelated_tool_errors_and_later_errors_keep_their_existing_primary_contract()
                         };
                         assert!(matches!(
                             &report.result().expect("actual stopped result").verdict,
-                            dive_check::Verdict::EvaluationError { cause, .. }
+                            dive_runtime::Verdict::EvaluationError { cause, .. }
                                 if cause.ec() == expected
                         ));
                     }

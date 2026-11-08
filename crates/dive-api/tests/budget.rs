@@ -192,7 +192,7 @@ fn an_exhausted_time_limit_stops_graph_capture_with_no_temporal_claim()
 
 #[test]
 fn a_memory_ceiling_below_the_footprint_stops_the_run() -> Result<(), Box<dyn std::error::Error>> {
-    if dive_check::budget::resident_bytes().is_none() {
+    if dive_runtime::budget::resident_bytes().is_none() {
         return Ok(());
     }
     let scratch = scratch()?;
@@ -322,7 +322,7 @@ fn profiles_resolve_their_default_budgets_and_generous_budgets_change_nothing()
         scratch.0.join("Small.cfg"),
         "INIT Init\nNEXT Next\nINVARIANT Inv\n",
     )?;
-    let known_memory = dive_check::budget::default_memory();
+    let known_memory = dive_runtime::budget::default_memory();
     for compat_tlc in [false, true] {
         let mut req = request(&spec, compat_tlc, 1);
         req.no_deadlock = true;
@@ -335,7 +335,7 @@ fn profiles_resolve_their_default_budgets_and_generous_budgets_change_nothing()
         } else {
             assert_eq!(
                 budget["time_limit_ms"],
-                u64::try_from(dive_check::budget::DEFAULT_TIME_LIMIT.as_millis())?
+                u64::try_from(dive_runtime::budget::DEFAULT_TIME_LIMIT.as_millis())?
             );
             assert_eq!(budget["time_limit_source"], "default");
         }
@@ -431,7 +431,7 @@ fn a_large_interval_reaches_the_successor_budget_at_each_worker_width()
 #[test]
 fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
 -> Result<(), Box<dyn std::error::Error>> {
-    if dive_check::budget::resident_bytes().is_none() {
+    if dive_runtime::budget::resident_bytes().is_none() {
         return Ok(());
     }
     let scratch = scratch()?;

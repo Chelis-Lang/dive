@@ -150,15 +150,39 @@ fn zero_width_precedes_even_model_loading() {
 
 #[test]
 fn constrained_initial_property_is_refused_before_uncertifiable_witness() {
-    let model = SpecModel::from_source("ConstrainedInitial.tla",
+    let dir = std::env::temp_dir().join(format!("dive-dfid-constrained-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("directory");
+    let file = dir.join("ConstrainedInitial.tla");
+    std::fs::write(
+        &file,
         "---- MODULE ConstrainedInitial ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x\nLimit == x > 0\nP == x > 0\n====\n",
-        "INIT Init\nNEXT Next\nCONSTRAINT Limit\nPROPERTY P\n", &TraceOptions {compat_tlc: true, ..TraceOptions::default()}).expect("model");
-    let report = dive_check::dfid::check(
-        model.model(),
-        &dive_check::dfid::Options::new(dive_check::CheckOptions::tlc(0, 7), 6),
-    );
+    )
+    .expect("source");
+    std::fs::write(
+        dir.join("ConstrainedInitial.cfg"),
+        "INIT Init\nNEXT Next\nCONSTRAINT Limit\nPROPERTY P\n",
+    )
+    .expect("config");
+    let report = dive_api::dfid_file_engine(
+        &DfidRequest {
+            file,
+            compat_tlc: true,
+            max_level: 6,
+            seed: Some(7),
+            ..DfidRequest::default()
+        },
+        dive_api::Engine::Core,
+    )
+    .expect("report");
+    let json = report.to_json();
+    assert_eq!(report.exit_status(), 3, "{json}");
+    assert_eq!(json["result"], "unsupported", "{json}");
     assert!(
-        matches!(report.outcome, dive_check::dfid::Outcome::Unsupported(s) if s.contains("initial properties with state constraints"))
+        json["message"]
+            .as_str()
+            .is_some_and(|m| m.contains("initial properties with state constraints")),
+        "{json}"
     );
-    assert_eq!(report.generated, 0);
+    assert_eq!(json["statistics"]["generated"], 0, "{json}");
+    std::fs::remove_dir_all(dir).expect("cleanup");
 }

@@ -8,7 +8,7 @@
 #[path = "support/core_final.rs"]
 mod core_final;
 
-use dive_check::CheckOptions;
+use dive_runtime::CheckOptions;
 use std::sync::Arc;
 
 const SOURCE: &str =

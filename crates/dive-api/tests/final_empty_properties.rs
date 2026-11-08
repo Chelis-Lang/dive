@@ -7,7 +7,7 @@ mod core_final;
 mod refused;
 use core_final::Outcome;
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_check::{CheckOptions, CheckResult, Verdict};
+use dive_runtime::{CheckOptions, CheckResult, Verdict};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 struct Scratch(std::path::PathBuf);

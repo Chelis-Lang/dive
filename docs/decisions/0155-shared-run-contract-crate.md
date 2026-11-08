@@ -61,14 +61,17 @@ Core no longer runs any `dive-check` code: the source-binding dispatch
 (`dive_liveness::analyze::owned::dispatch_controlled`) binds the model
 itself and no longer runs the reference search for safety-only properties,
 DFID's request types and static admission live in `dive-api`, and Core frames
-reference archives itself for their DIVE-S0400 rejection. These
-reference-runtime pieces of `dive-check` remain, which part B must delete:
-- in `dive-liveness`, the reference capture drivers
-  `capture::explore_with_native_hooks`, `explore_controlled_with_native_hooks`
-  and `explore_checkpoints_with_native_hooks`, behind `analyze_final*`,
-  `analyze_periodic*` and row-demand capture, which only tests reach;
-- in `dive-api`, the shared items still imported through `dive-check`'s
-  re-exports, and tests that compare Core with the reference drivers.
+reference archives itself for their DIVE-S0400 rejection. `dive-api`
+imports the shared contract from `dive-runtime` and no longer depends on
+`dive-check`; `xtask/src/layering.rs` no longer permits that edge.
+`dive_api::checkpoint` re-exports the archive request and format items from
+`dive-runtime`, without the reference engine's `check` and
+`recovery_seed_fp`.
 
-When those uses are gone, the `dive-liveness -> dive-check` edge is removed
-and `dive-api` drops `dive-check`. The re-exports go when `dive-check` does.
+One reference-runtime piece of `dive-check` remains, which part B must
+delete: in `dive-liveness`, the reference capture drivers
+`capture::explore_with_native_hooks`, `explore_controlled_with_native_hooks`
+and `explore_checkpoints_with_native_hooks`, behind `analyze_final*`,
+`analyze_periodic*` and row-demand capture, which only tests reach. When they
+are gone, the `dive-liveness -> dive-check` edge is removed and `dive-check`
+is deleted.

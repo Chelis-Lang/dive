@@ -5,11 +5,11 @@
     reason = "scoped boundary assertions"
 )]
 
-use dive_check::CheckOptions;
 use dive_eval::{Host, HostError, St};
 use dive_ir::{Expr, StdOp};
 use dive_liveness::{formula::Limits as FormulaLimits, plan};
 use dive_model::{Model, Pred};
+use dive_runtime::CheckOptions;
 use dive_trace::{State, enabled::enabled, temporal::evaluate_lasso};
 use dive_value::Value;
 use std::sync::{

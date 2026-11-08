@@ -7,7 +7,7 @@ mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{BudgetSetting, CheckRequest, ExitConvention, SymmetryLiveness, TemporalMode};
-use dive_check::CheckOptions;
+use dive_runtime::CheckOptions;
 use serde_json::{Value, json};
 use std::{
     path::{Path, PathBuf},
@@ -222,7 +222,7 @@ fn safety_roles_and_fairness_alone_keep_existing_reduction_and_declared_metadata
             let core_final::Outcome::Safety(safety) = run.outcome() else {
                 panic!("safety roles must not become liveness: {:?}", run.outcome())
             };
-            assert!(matches!(safety.verdict, dive_check::Verdict::Success));
+            assert!(matches!(safety.verdict, dive_runtime::Verdict::Success));
             let stats = safety.stats.expect("actual safety search");
             assert_eq!((stats.distinct, stats.generated, stats.depth), (1, 2, 1));
             // Core reports no symmetry-liveness resolution when no genuine
@@ -299,7 +299,7 @@ fn full_run_policy_keeps_earlier_invariants_identical_to_the_unreduced_search() 
         };
         assert!(matches!(
             actual.verdict,
-            dive_check::Verdict::InvariantViolated { initial: false, .. }
+            dive_runtime::Verdict::InvariantViolated { initial: false, .. }
         ));
         assert_eq!(actual.verdict, reference.verdict);
         assert_eq!(actual.stats, reference.stats);
