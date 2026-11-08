@@ -432,12 +432,6 @@ fn identity_key_and_unsupported_combinations_refuse_before_search_and_caps_never
     assert_eq!(doc["verdict"], "resource-limit");
     assert!(doc["statistics"].is_null());
     assert!(doc["counterexample"].is_null());
-    {
-        let engine = Engine::Reference;
-        let mut req = base.clone();
-        req.distributed = Some(policy.clone());
-        assert!(check_file_engine(&req, engine).is_err());
-    }
     for mutation in 0..7 {
         let mut req = base.clone();
         req.distributed = Some(policy.clone());

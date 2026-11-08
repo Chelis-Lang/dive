@@ -248,10 +248,6 @@ fn fresh_process_resumes_and_tlc_counter_reset_is_explicit() {
         .to_json();
     assert_eq!(reset["statistics"]["generated"], 6);
     assert_eq!(reset["statistics"]["initial_generated"], 3, "{reset}");
-    assert!(
-        check_file_checkpoint_engine(&req, &cp, Engine::Reference).is_err(),
-        "backend mismatch must reject before execution"
-    );
     std::fs::remove_file(file).expect("cleanup");
     std::fs::remove_file(output).expect("cleanup output");
 }
@@ -467,28 +463,21 @@ fn core_effect_and_temporal_refusals_do_not_execute_or_commit() {
 #[test]
 fn backend_disk_policy_admits_before_archive_or_model_loading() {
     use dive_api::ApiError;
+    // The retired reference engine refused disk seen-state with checkpoints
+    // and wrote the archives Core rejected (#791). Core validates the disk
+    // policy, then opens the archive, before the model loads.
     let missing = path();
     let mut request = CheckRequest {
         file: missing.with_extension("tla"),
         seen_disk: Some(dive_api::SeenOptions::default()),
         ..CheckRequest::default()
     };
-    let mut cp = checkpoint::Request {
+    let cp = checkpoint::Request {
         path: missing.clone(),
         action: checkpoint::Action::Recover,
         counters: checkpoint::Counters::Retain,
         config_source_sha256: None,
     };
-    assert!(matches!(
-        check_file_checkpoint_engine(&request, &cp, Engine::Reference),
-        Err(ApiError::Unsupported { feature }) if feature.contains("Reference checkpoint/recovery")
-    ));
-    cp.action = checkpoint::Action::PauseAfterLevels(0);
-    assert!(matches!(
-        check_file_checkpoint_engine(&request, &cp, Engine::Reference),
-        Err(ApiError::Unsupported { feature }) if feature.contains("Reference checkpoint/recovery")
-    ));
-    cp.action = checkpoint::Action::Recover;
     assert!(matches!(
         check_file_checkpoint_engine(&request, &cp, Engine::Core),
         Err(ApiError::Rejected { message }) if message.contains("DIVE-S0400")
@@ -498,27 +487,5 @@ fn backend_disk_policy_admits_before_archive_or_model_loading() {
         check_file_checkpoint_engine(&request, &cp, Engine::Core),
         Err(ApiError::Rejected { message }) if message.contains("DIVE-S0700")
     ));
-
-    // A Reference archive is rejected explicitly on the default engine (Core)
-    // before the model loads; on Reference, the unsupported disk combination
-    // still wins over a missing model.
-    cp.action = checkpoint::Action::PauseAfterLevels(0);
-    let paused = dive_api::check_file_checkpoint_engine(&req(), &cp, dive_api::Engine::Reference)
-        .expect("Reference archive")
-        .to_json();
-    assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
-    cp.action = checkpoint::Action::Recover;
-    request.seen_disk = None;
-    assert!(matches!(
-        dive_api::check_file_checkpoint(&request, &cp),
-        Err(ApiError::Rejected { message }) if message.contains("DIVE-S0400")
-            && message.contains("written by the reference engine")
-            && message.contains("Core cannot recover it")
-    ));
-    request.seen_disk = Some(dive_api::SeenOptions::default());
-    assert!(matches!(
-        check_file_checkpoint_engine(&request, &cp, Engine::Reference),
-        Err(ApiError::Unsupported { feature }) if feature.contains("Reference checkpoint/recovery")
-    ));
-    std::fs::remove_file(missing).expect("archive cleanup");
+    assert!(!missing.exists());
 }
