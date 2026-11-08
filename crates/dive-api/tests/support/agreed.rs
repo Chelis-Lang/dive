@@ -24,10 +24,7 @@ thread_local! {
 }
 
 fn next_key(site: &str) -> String {
-    let test = std::thread::current()
-        .name()
-        .unwrap_or("main")
-        .to_owned();
+    let test = std::thread::current().name().unwrap_or("main").to_owned();
     PASSES.with(|passes| {
         let mut passes = passes.borrow_mut();
         let site = format!("{test}::{site}");
@@ -114,8 +111,8 @@ pub fn record(rendering: &str) -> String {
 )]
 pub fn check<T: Debug + ?Sized>(records: &str, site: &str, actual: &T) {
     let key = next_key(site);
-    let records: HashMap<String, HashMap<String, String>> = serde_json::from_str(records)
-        .expect("agreed records map each test to its records");
+    let records: HashMap<String, HashMap<String, String>> =
+        serde_json::from_str(records).expect("agreed records map each test to its records");
     let rendering = format!("{actual:?}");
     let (test, pass) = key.rsplit_once("::").unwrap_or(("main", &key));
     let Some(agreed) = records.get(test).and_then(|test| test.get(pass)) else {
