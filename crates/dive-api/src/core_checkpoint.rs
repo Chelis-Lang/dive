@@ -262,6 +262,7 @@ pub(crate) fn check(
                 candidate_memory_bytes: options.candidate_memory_bytes,
                 candidate_directory: options.candidate_directory.clone(),
                 store_compact_bytes: options.store_compact_bytes,
+                store_compact_default: false,
                 seen_disk: options
                     .seen_disk
                     .as_ref()

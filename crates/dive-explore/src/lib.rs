@@ -1511,8 +1511,9 @@ fn explore_inner<'p>(
     distributed: Option<&'p distributed::Coordinator>,
 ) -> Outcome {
     let start = Instant::now();
-    let compact = storage.store_compact_bytes.is_some();
-    let reclaim_refusal = if compact && distributed.is_some() {
+    let trigger_bytes = storage.store_compact_bytes;
+    let mut compact = trigger_bytes.is_some();
+    let mut reclaim_refusal = if compact && distributed.is_some() {
         Some("Store reclamation with distributed workers is not implemented")
     } else if compact && !owned {
         Some("Store reclamation requires the owned exploration entrypoint")
@@ -1523,6 +1524,15 @@ fn explore_inner<'p>(
     } else {
         None
     };
+    // A default trigger never turns an admitted search into a refusal: when
+    // reclamation cannot run, the search keeps its resident Store and says why.
+    let mut default_skip = None;
+    if storage.store_compact_default
+        && let Some(feature) = reclaim_refusal.take()
+    {
+        compact = false;
+        default_skip = Some(feature.to_owned());
+    }
     let captured_permanent = if compact && permanent.is_none() && reclaim_refusal.is_none() {
         Some(dive_core::store::compact::Permanent::capture(
             store,
@@ -1531,9 +1541,25 @@ fn explore_inner<'p>(
     } else {
         None
     };
-    let (captured_permanent, permanent_error) = match captured_permanent.transpose() {
+    let (captured_permanent, mut permanent_error) = match captured_permanent.transpose() {
         Ok(permanent) => (permanent, None),
         Err(error) => (None, Some(error)),
+    };
+    if storage.store_compact_default
+        && let Some(error) = permanent_error.take_if(|error| reclaim::skippable(error))
+    {
+        compact = false;
+        default_skip = Some(error.message().to_owned());
+    }
+    let storage_owned;
+    let storage = if storage.store_compact_default && !compact {
+        storage_owned = storage::Storage {
+            store_compact_bytes: None,
+            ..storage.clone()
+        };
+        &storage_owned
+    } else {
+        storage
     };
     let permanent = permanent.or(captured_permanent.as_ref());
     let config = if storage.seen_disk.is_some() {
@@ -1563,7 +1589,9 @@ fn explore_inner<'p>(
         Err(error) => (None, Some(error)),
     };
     let mut initial_metrics = Metrics::default();
-    initial_metrics.storage.reclamation.trigger_bytes = storage.store_compact_bytes;
+    initial_metrics.storage.reclamation.trigger_bytes = trigger_bytes;
+    initial_metrics.storage.reclamation.default_trigger = storage.store_compact_default;
+    initial_metrics.storage.reclamation.skipped = default_skip;
     let (disk, disk_setup_error) = match storage
         .seen_disk
         .as_ref()
