@@ -2,17 +2,23 @@
 //!
 //! This is the graph-search part of ADR 0018 §5. It neither constructs a
 //! temporal tableau nor evaluates specification predicates, and cannot by
-//! itself establish a model-checking verdict. Callers supply the product
-//! graph, including stutter edges, and its acceptance labels.
+//! itself establish a model-checking verdict. The on-the-fly product supplies
+//! its graph, including stutter edges, and its acceptance labels. Only
+//! [`SearchError`] is public, as the cause carried by product errors.
 
 use crate::Graph;
 use crate::graph::GraphAccess;
 
-/// Acceptance labels for one order-of-solution / possible-error-model pair.
-/// Every state condition, action condition and tableau promise must occur
-/// infinitely often. Promises use the same representation as state conditions.
+#[cfg(test)]
+mod lasso_tests;
+
+/// Dense acceptance labels for one order-of-solution / possible-error-model
+/// pair, the search tests' reference representation. Every state condition,
+/// action condition and tableau promise must occur infinitely often. Promises
+/// use the same representation as state conditions.
+#[cfg(test)]
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Acceptance {
+pub(crate) struct Acceptance {
     /// Which edges may occur in the recurrent cycle (EA conditions).
     /// The finite prefix is unrestricted. Rows correspond to graph vertices;
     /// entries correspond to their outgoing edges, duplicates included.
@@ -110,7 +116,7 @@ fn initialized<T: Clone>(len: usize, value: T, poll: &mut Poll) -> Result<Vec<T>
 /// One edge of a witness. Its position distinguishes parallel edges with
 /// different action labels, even when they have the same destination.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Step {
+pub(crate) struct Step {
     /// Source vertex.
     pub from: usize,
     /// Position in the source vertex's original adjacency list.
@@ -123,7 +129,7 @@ pub struct Step {
 /// forever satisfies the supplied recurrence and visit conditions.
 /// Projection to concrete states and property attribution are separate work.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Lasso {
+pub(crate) struct Lasso {
     /// An initial graph root.
     pub root: usize,
     /// The selected component's entry vertex.
@@ -135,6 +141,7 @@ pub struct Lasso {
     pub cycle: Vec<Step>,
 }
 
+#[cfg(test)]
 impl Acceptance {
     fn validate(&self, graph: &Graph) -> Result<(), SearchError> {
         let adjacency = |rows: &[Vec<bool>], what: &str| {
@@ -303,6 +310,7 @@ pub(crate) fn edge_at(
     Err(SearchError::Invariant("witness edge is outside its row"))
 }
 
+#[cfg(test)]
 impl AcceptanceAccess for Acceptance {
     fn state_count(&self) -> usize {
         self.states.len()
@@ -325,6 +333,14 @@ impl AcceptanceAccess for Acceptance {
     }
 }
 
+/// Checks dense test labels against `graph`, then searches as
+/// [`find_lasso_view`] does.
+#[cfg(test)]
+pub(crate) fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<Lasso>, SearchError> {
+    labels.validate(graph)?;
+    find_lasso_view(graph, labels)
+}
+
 /// Finds a deterministic accepting lasso for the supplied labels, or `None`
 /// when no reachable cycle satisfies them. Prefixes are searched without EA
 /// pruning; cycles are searched with it. The entry minimizes unrestricted
@@ -333,29 +349,9 @@ impl AcceptanceAccess for Acceptance {
 /// Product vertex ids must be ordered by `(state id, tableau node id)` for
 /// that tie-break to implement ADR 0018's product-order rule.
 ///
-/// ```
-/// use dive_liveness::{Graph, search::{Acceptance, find_lasso}};
-/// let graph = Graph::new(vec![vec![1], vec![2], vec![1]], vec![0])?;
-/// let labels = Acceptance {
-///     recurrent: vec![vec![false], vec![true], vec![true]],
-///     states: vec![vec![false, true, false], vec![false, false, true]],
-///     actions: vec![],
-/// };
-/// let lasso = find_lasso(&graph, &labels)?.ok_or("expected accepting loop")?;
-/// assert_eq!((lasso.root, lasso.entry), (0, 1));
-/// assert_eq!(lasso.prefix.len(), 1);
-/// assert_eq!(lasso.cycle.iter().map(|e| e.to).collect::<Vec<_>>(), [2, 1]);
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-///
 /// # Errors
-/// Malformed labels, an internal witness-construction bug or an exhausted
-/// installed run budget. A budget error makes no claim about acceptance.
-pub fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<Lasso>, SearchError> {
-    labels.validate(graph)?;
-    find_lasso_view(graph, labels)
-}
-
+/// An internal witness-construction bug or an exhausted installed run budget.
+/// A budget error makes no claim about acceptance.
 pub(crate) fn find_lasso_view(
     graph: &(impl Adjacency + ?Sized),
     labels: &impl AcceptanceAccess,

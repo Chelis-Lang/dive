@@ -140,10 +140,11 @@ fn compare_formula(
         ],
         6,
     )
-    .expect("recurrences")
-    .factor_recurrences(4096)
-    .expect("factoring")
-    .1;
+    .expect("recurrences");
+    // The bodies of `[]<>S0 /\ []<>A1`, as solution decomposition extracts them.
+    let recurring = [0, 3].map(|body| {
+        crate::formula::Recurrence::condition(&recurring, &[body]).expect("recurrence")
+    });
     for group in formula::decompose(formula, formula::Limits::default()).expect("groups") {
         let tableau =
             formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");

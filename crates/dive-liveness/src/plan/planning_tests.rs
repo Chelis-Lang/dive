@@ -1,11 +1,11 @@
 //! Bound pure formula planning versus direct word semantics and pinned probes.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
+use crate::Graph;
+use crate::formula::{AtomKind, CycleConditions, Limits, Tableau, compile};
+use crate::plan::{Plan, lower};
+use crate::product::{AcceptancePolicy, ImplicitProduct, Labels, Limits as ProductLimits};
 use dive_eval::St;
-use dive_liveness::Graph;
-use dive_liveness::formula::{AtomKind, Limits, Tableau, compile};
-use dive_liveness::plan::{Plan, lower};
-use dive_liveness::product::{Labels, Limits as ProductLimits, Product};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 use std::sync::Arc;
@@ -82,14 +82,21 @@ fn accepts_states(
             })
             .collect(),
     };
-    Product::new(
-        &Graph::new(edges, vec![0]).expect("word"),
+    let graph = Graph::new(edges, vec![0]).expect("word");
+    let none = CycleConditions {
+        always: vec![],
+        recurring: vec![],
+    };
+    ImplicitProduct::new(
+        &graph,
         t,
         &labels,
         ProductLimits::default(),
+        AcceptancePolicy::Legacy,
+        word.len(),
     )
     .expect("product")
-    .find_lasso()
+    .find_lasso_with_conditions(&labels, &none)
     .expect("search")
     .is_some()
 }
@@ -197,7 +204,7 @@ fn unsupported_planning_never_executes_effects_or_guesses_a_scope() {
     ] {
         let error = lower(&model, &pred(&model, name), Limits::default()).expect_err(name);
         assert_eq!(error.code(), "DIVE-L0020");
-        let dive_liveness::plan::PlanningError::Unsupported(r) = &error else {
+        let crate::plan::PlanningError::Unsupported(r) = &error else {
             panic!("expected refusal")
         };
         assert!(r.cause.origin.begin.0 > 0);
@@ -212,7 +219,7 @@ fn unsupported_planning_never_executes_effects_or_guesses_a_scope() {
     }
     let error = lower(&model, &pred(&model, "Bad"), Limits::default()).expect_err("Bad");
     assert_eq!(error.code(), "DIVE-L0023");
-    let dive_liveness::plan::PlanningError::Evaluation { error, source } = error else {
+    let crate::plan::PlanningError::Evaluation { error, source } = error else {
         panic!("expected TLC evaluation error for a numeric temporal operand")
     };
     assert_eq!(error.class(), dive_eval::ErrorClass::Eval);
@@ -369,7 +376,7 @@ fn fairness_product_distinguishes_weak_and_strong_intermittent_enabledness() {
 
 #[test]
 fn temporal_nonstuttering_checks_subscript_before_body() {
-    use dive_liveness::plan::{AtomTest, PredicateAtom};
+    use crate::plan::{AtomTest, PredicateAtom};
     let model = bound(
         "---- MODULE ActionOrder ----\nEXTENDS Integers\nVARIABLE x\nInit == x = 0\nNext == x' \\in {0, 1, 2}\nBody == IF x' = 1 THEN 1 \\div 0 = 0 ELSE x' = 2\nSub == x\nRuntime == <<Body>>_x\n====\n",
         "INIT Init\nNEXT Next\n",
@@ -418,13 +425,13 @@ fn temporal_nonstuttering_checks_subscript_before_body() {
 
 #[test]
 fn direct_temporal_and_runtime_atoms_match_pinned_order_controls() {
-    use dive_liveness::plan::{AtomTest, PredicateAtom};
+    use crate::plan::{AtomTest, PredicateAtom};
     let model = bound(
-        include_str!("fixtures/probes/temporal-action-order/ActionOrder.tla"),
+        include_str!("../../tests/fixtures/probes/temporal-action-order/ActionOrder.tla"),
         "INIT Init\nNEXT Next\n",
     );
     let capture: serde_json::Value = serde_json::from_str(include_str!(
-        "fixtures/probes/temporal-action-order/capture.json"
+        "../../tests/fixtures/probes/temporal-action-order/capture.json"
     ))
     .expect("pinned capture");
     let state = |x| Arc::from([Some(Value::Int(x))]);
@@ -620,7 +627,7 @@ fn selectseq_constant_and_if_probes_lower_with_warm_enclosing_caches() {
 
 #[test]
 fn selectseq_nonstuttering_reads_subscript_before_and_after() {
-    use dive_liveness::plan::{AtomTest, PredicateAtom};
+    use crate::plan::{AtomTest, PredicateAtom};
     let model = bound(
         "---- MODULE SelectAggregate ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=0\nNext==x'=1\nKeep(y)==TRUE\nSub==SelectSeq(<<x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x>>,Keep)\nBody==TRUE\nSingle==Sub = <<0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0>>\n====",
         "INIT Init\nNEXT Next\n",
@@ -672,7 +679,7 @@ fn selectseq_enabled_negation_and_fairness_preserve_original_atom_semantics() {
 
 #[test]
 fn selectseq_manual_prebound_atom_reports_the_callback_evaluation_error() {
-    use dive_liveness::plan::{AtomTest, PredicateAtom};
+    use crate::plan::{AtomTest, PredicateAtom};
     let model = bound(
         "---- MODULE SelectPrebound ----\nEXTENDS Sequences\nVARIABLE x\nInit==x=0\nNext==x'=x\nRun(S)==SelectSeq(S,LAMBDA y:y[1]=0) = <<>>\n====",
         "INIT Init\nNEXT Next\n",
@@ -725,7 +732,7 @@ fn callback_source_failure_keeps_inner_cause_and_outer_request() {
         let leaf = ir.def(ir.root_def("Leaf").expect("Leaf")).body;
         let error = lower(&model, &request, Limits::default()).expect_err("same refusal");
         assert_eq!(error.code(), "DIVE-L0020");
-        let dive_liveness::plan::PlanningError::Unsupported(refusal) = error else {
+        let crate::plan::PlanningError::Unsupported(refusal) = error else {
             panic!("unsupported callback")
         };
         assert_eq!(refusal.cause.expr, leaf);

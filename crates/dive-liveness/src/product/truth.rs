@@ -2,7 +2,9 @@
 
 #[cfg(test)]
 use super::Graph;
-use super::{BehaviorView, Labels, ProductError};
+#[cfg(test)]
+use super::Labels;
+use super::{BehaviorView, ProductError};
 use crate::formula::{Atom, AtomKind};
 
 pub(crate) trait TruthAccess {
@@ -22,6 +24,7 @@ pub(crate) trait TruthAccess {
     }
 }
 
+#[cfg(test)]
 impl TruthAccess for Labels {
     fn contains(&self, atom: Atom) -> bool {
         atom.index

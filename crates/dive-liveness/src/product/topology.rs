@@ -1,6 +1,8 @@
 //! Checked borrowed adjacency for compact behavior producers.
 
+#[cfg(test)]
 use super::ProductError;
+#[cfg(test)]
 use crate::GraphError;
 
 /// A validated borrowed CSR behavior topology, without state values or labels.
@@ -12,20 +14,10 @@ use crate::GraphError;
 ///
 /// The view neither owns nor copies the arrays. It certifies their references,
 /// not graph completion, temporal acceptance or a bound specification.
-///
-/// ```
-/// use dive_liveness::product::CsrTopology;
-/// let offsets = [0, 2, 3];
-/// let targets = [1, 0, 1];
-/// let roots = [0];
-/// let topology = CsrTopology::new(&offsets, &targets, &roots)?;
-/// assert_eq!(topology.vertex_count(), 2);
-/// assert_eq!(topology.edge_count(), 3);
-/// assert_eq!(topology.roots(), &[0]);
-/// # Ok::<(), dive_liveness::product::ProductError>(())
-/// ```
+/// The temporal route borrows a checked capture; the checked constructor is
+/// the tests' reference for the same layout rules.
 #[derive(Clone, Copy, Debug)]
-pub struct CsrTopology<'a> {
+pub(crate) struct CsrTopology<'a> {
     offsets: &'a [usize],
     targets: &'a [u32],
     roots: &'a [usize],
@@ -42,7 +34,8 @@ impl<'a> CsrTopology<'a> {
     /// # Errors
     /// An empty, non-monotone or out-of-range offset table; trailing or omitted
     /// targets; a vertex domain wider than 32 bits; or an invalid root/target.
-    pub fn new(
+    #[cfg(test)]
+    pub(crate) fn new(
         offsets: &'a [usize],
         targets: &'a [u32],
         roots: &'a [usize],
@@ -97,19 +90,20 @@ impl<'a> CsrTopology<'a> {
 
     /// Number of behavior vertices, including unreachable vertices.
     #[must_use]
-    pub const fn vertex_count(&self) -> usize {
+    pub(crate) const fn vertex_count(&self) -> usize {
         self.offsets.len() - 1
     }
 
     /// Number of supplied behavior edges, including duplicates and stutters.
+    #[cfg(test)]
     #[must_use]
-    pub const fn edge_count(&self) -> usize {
+    pub(crate) const fn edge_count(&self) -> usize {
         self.targets.len()
     }
 
     /// Initial roots in the caller's original order, including duplicates.
     #[must_use]
-    pub const fn roots(&self) -> &'a [usize] {
+    pub(crate) const fn roots(&self) -> &'a [usize] {
         self.roots
     }
 
@@ -161,6 +155,18 @@ mod tests {
         }
         assert!(CsrTopology::new(&[0], &[], &[0]).is_err());
         assert!(CsrTopology::new(&[0], &[], &[]).is_ok());
+    }
+
+    #[test]
+    fn two_vertex_topology_counts_vertices_edges_and_roots() -> Result<(), ProductError> {
+        let offsets = [0, 2, 3];
+        let targets = [1, 0, 1];
+        let roots = [0];
+        let topology = CsrTopology::new(&offsets, &targets, &roots)?;
+        assert_eq!(topology.vertex_count(), 2);
+        assert_eq!(topology.edge_count(), 3);
+        assert_eq!(topology.roots(), &[0]);
+        Ok(())
     }
 
     #[test]
