@@ -74,8 +74,8 @@
             "random_streams": false,
             "registers": false
           },
-          "fixed_bytes": 862520,
-          "known_retained_bytes_lower_bound": 862520,
+          "fixed_bytes": 862480,
+          "known_retained_bytes_lower_bound": 862480,
           "largest_individual_rehash_scratch_bytes": 0,
           "rehash_scratch_bytes_cumulative": 0,
           "retired_table_bytes": 0,

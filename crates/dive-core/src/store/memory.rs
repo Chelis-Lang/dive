@@ -36,8 +36,6 @@ pub struct StoreMemory {
     /// Largest individual rehash temporary vector capacity in bytes. This is
     /// not a concurrent or whole-store peak; old/new tables overlap it.
     pub largest_rehash_scratch_bytes: usize,
-    /// Actual sparse constructor-origin vector capacity, including unused slots.
-    pub history_view_bytes: usize,
     /// String-table payload, slot storage and opaque index capacity.
     pub strings: StringsMemory,
     /// The store retains a shared external printer/name context.
@@ -61,7 +59,6 @@ impl StoreMemory {
             self.current_table_bytes,
             self.retired_table_bytes,
             self.retirement_tracking_bytes,
-            self.history_view_bytes,
             self.strings.known_retained_bytes()?,
         ]
         .into_iter()

@@ -2609,6 +2609,10 @@ change independent word validation.
 
 ### Owned set construction history
 
+Retired (#791): Core no longer creates or retains construction history; Store
+images, worker exchanges and candidate records refuse it as legacy. The record
+below describes the removed extension.
+
 Construction-history extension (#623, ADR 0131): `dive-core`'s checked insertion,
 receiver-to-query raw scan and query-to-pivot normalized search follow pinned
 `SetEnumValue.java` membership/normalization and `ValueVec.sort(true)` at
