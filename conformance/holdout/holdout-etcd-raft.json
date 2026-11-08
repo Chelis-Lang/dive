@@ -1,0 +1,38 @@
+{
+  "sources": [
+    "https://github.com/etcd-io/raft/tree/c51f010c851edd0dada5af41bafbf68e54617767/tla"
+  ],
+  "authors": [
+    "etcd maintainers"
+  ],
+  "tags": [
+    "holdout",
+    "industrial"
+  ],
+  "modules": [
+    {
+      "path": "tla/etcdraft.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "tla/etcdraft.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    },
+    {
+      "path": "tla/MCetcdraft.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "tla/MCetcdraft.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

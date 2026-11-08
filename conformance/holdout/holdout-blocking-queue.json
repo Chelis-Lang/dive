@@ -1,0 +1,73 @@
+{
+  "sources": [
+    "https://github.com/lemmy/BlockingQueue/tree/68715979666344cbcc66fa621b27039f281bdd5c"
+  ],
+  "authors": [
+    "Markus A. Kuppe"
+  ],
+  "tags": [
+    "holdout"
+  ],
+  "modules": [
+    {
+      "path": "BlockingQueue.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "BlockingQueue.cfg",
+          "runtime": "00:00:02",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "BlockingQueueFair.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "BlockingQueueFair.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "BlockingQueueDebug.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "BlockingQueueDebug.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "BlockingQueuePoisonPill.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "BlockingQueuePoisonPill.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "deadlock failure"
+        }
+      ]
+    },
+    {
+      "path": "BlockingQueuePoisonApple.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "BlockingQueuePoisonApple.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

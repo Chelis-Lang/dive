@@ -1,0 +1,124 @@
+{
+  "sources": [
+    "https://github.com/microsoft/CCF/tree/4ef031c6fb844e58baa820937bc1b65b4533a062/tla"
+  ],
+  "authors": [
+    "Microsoft CCF team"
+  ],
+  "tags": [
+    "holdout",
+    "industrial"
+  ],
+  "modules": [
+    {
+      "path": "tla/consensus/MCabs.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "tla/consensus/MCabs.cfg",
+          "runtime": "00:00:16",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "tla/consensus/MCccfraft.tla",
+      "features": [
+        "action composition"
+      ],
+      "models": [
+        {
+          "path": "tla/consensus/MCccfraft.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    },
+    {
+      "path": "tla/consistency/MCSingleNode.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "tla/consistency/MCSingleNode.cfg",
+          "runtime": "00:00:09",
+          "mode": "exhaustive search",
+          "result": "success"
+        },
+        {
+          "path": "tla/consistency/MCSingleNodeOrderedSerializable.cfg",
+          "runtime": "00:00:06",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "tla/consistency/MCSingleNodeReads.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "tla/consistency/MCSingleNodeReads.cfg",
+          "runtime": "00:00:24",
+          "mode": "exhaustive search",
+          "result": "success"
+        },
+        {
+          "path": "tla/consistency/MCSingleNodeCommitReachability.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "safety failure"
+        }
+      ]
+    },
+    {
+      "path": "tla/consistency/MCMultiNode.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "tla/consistency/MCMultiNode.cfg",
+          "runtime": "00:01:30",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "tla/consistency/MCMultiNodeReads.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "tla/consistency/MCMultiNodeReads.cfg",
+          "runtime": "00:04:02",
+          "mode": "exhaustive search",
+          "result": "success"
+        },
+        {
+          "path": "tla/consistency/MCMultiNodeCommitReachability.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "safety failure"
+        },
+        {
+          "path": "tla/consistency/MCMultiNodeReadsNotLinearizable.cfg",
+          "runtime": "00:00:14",
+          "mode": "exhaustive search",
+          "result": "safety failure"
+        }
+      ]
+    },
+    {
+      "path": "tla/consistency/MCMultiNodeReadsAlt.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "tla/consistency/MCMultiNodeReadsAlt.cfg",
+          "runtime": "00:00:37",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    }
+  ]
+}

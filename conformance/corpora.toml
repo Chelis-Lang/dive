@@ -388,3 +388,85 @@ id = "predicate-witness-counts"
 path = "conformance/corpus/predicate-witness-counts"
 license = "MIT"
 layout = "examples-manifest"
+
+# Real-world holdout (ADR 0005, amendment 2; issue #854): public specifications
+# written by industrial teams outside tlaplus/Examples. Each pins an upstream
+# repository by commit; a dive-owned manifest under conformance/holdout/ selects
+# the models with their existing .cfg files. Sources are never copied here.
+# Models the pinned TLC cannot finish within 600 seconds at one worker are
+# excluded with the measurement, so they never get a golden.
+[[corpus]]
+id = "holdout-ccf"
+repo = "https://github.com/microsoft/CCF"
+commit = "4ef031c6fb844e58baa820937bc1b65b4533a062" # 2026-11-04, last commit with tla/
+license = "Apache-2.0"
+layout = "examples-manifest"
+manifest = "conformance/holdout/holdout-ccf.json"
+
+[[corpus.exclude]]
+path = "tla/consensus/MCccfraft.cfg"
+reason = "needs TLC's -Dtlc2.tool.impl.Tool.cdot=true JVM property (CCF's tlc.py sets it); without it the pinned TLC stops with \"does not support action composition\" after the first states, which is a TLC limitation rather than a model result"
+
+[[corpus]]
+id = "holdout-etcd-raft"
+repo = "https://github.com/etcd-io/raft"
+commit = "c51f010c851edd0dada5af41bafbf68e54617767" # 2026-10-23
+license = "Apache-2.0"
+layout = "examples-manifest"
+manifest = "conformance/holdout/holdout-etcd-raft.json"
+
+[[corpus.exclude]]
+path = "tla/etcdraft.cfg"
+reason = "pinned TLC does not finish in 600 s at one worker (5.19M distinct states, 4.10M on queue at the cap, 2026-11-08)"
+
+[[corpus.exclude]]
+path = "tla/MCetcdraft.cfg"
+reason = "pinned TLC does not finish in 600 s at one worker (1.24M distinct states, 0.88M on queue at the cap, 2026-11-08)"
+
+[[corpus]]
+id = "holdout-tidb"
+repo = "https://github.com/pingcap/tla-plus"
+commit = "5649f86df14c73b0ab8773dda3802bc1937ace8d" # 2026-11-06
+license = "Apache-2.0"
+layout = "examples-manifest"
+manifest = "conformance/holdout/holdout-tidb.json"
+
+[[corpus]]
+id = "holdout-blocking-queue"
+repo = "https://github.com/lemmy/BlockingQueue"
+commit = "68715979666344cbcc66fa621b27039f281bdd5c" # 2026-04-22
+license = "MIT"
+layout = "examples-manifest"
+manifest = "conformance/holdout/holdout-blocking-queue.json"
+
+[[corpus.exclude]]
+path = "BlockingQueuePoisonApple.cfg"
+reason = "pinned TLC does not finish in 600 s at one worker (2.18M distinct states, 1.62M on queue at the cap, 2026-11-08)"
+
+[[corpus]]
+id = "holdout-jgroups-pluscal"
+repo = "https://github.com/belaban/pluscal"
+commit = "1c7430f2ee2b8099b5d14db6bf1341e698a0cfba" # 2017-01-12
+license = "Apache-2.0"
+layout = "examples-manifest"
+manifest = "conformance/holdout/holdout-jgroups-pluscal.json"
+
+[[corpus]]
+id = "holdout-bookkeeper"
+repo = "https://github.com/Vanlightly/bookkeeper-tlaplus"
+commit = "fe199dc717b5723f5308aca74eda6ab3b03917e5" # 2024-03-16
+license = "MIT"
+layout = "examples-manifest"
+manifest = "conformance/holdout/holdout-bookkeeper.json"
+
+[[corpus]]
+id = "holdout-kafka"
+repo = "https://github.com/Vanlightly/kafka-tlaplus"
+commit = "823615e8a0962d0160c11d9affb2576c56b7c054" # 2025-01-24
+license = "MIT"
+layout = "examples-manifest"
+manifest = "conformance/holdout/holdout-kafka.json"
+
+[[corpus.exclude]]
+path = "kraft/kip_996/model_liveness.cfg"
+reason = "pinned TLC does not finish in 600 s at one worker (8103 distinct states, 7946 on queue at the cap, 2026-11-08)"
