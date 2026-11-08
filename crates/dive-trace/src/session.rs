@@ -5,7 +5,7 @@ use std::sync::{Arc, PoisonError};
 
 use dive_model::{Model, Recipe};
 
-use crate::validate::{Run, TraceHost};
+use crate::validate::{FiniteScope, Run, TraceHost};
 use crate::{Report, Source, Trace, TraceDoc, Validation};
 
 /// Immutable validation inputs. Every interpretation gets a freshly bound
@@ -36,6 +36,8 @@ pub struct Session {
 enum FreshMode {
     Temporal,
     Finite(bool),
+    /// A finite word whose last state's successors are regenerated.
+    FiniteSuccessors(bool),
     NextPrefix,
     NextTerminal,
     InvariantPrefix,
@@ -126,7 +128,7 @@ impl Session {
         }
         if doc.source == Source::Dive && finite_word(doc) {
             return self
-                .read_finite_controlled(doc, None, false)
+                .read_finite_controlled(doc, None, FiniteScope::Behavior)
                 .unwrap_or_else(|error| (refusal(error.to_string(), doc.logical_length()), None));
         }
         let (model, host) = match self.bind() {
@@ -242,7 +244,61 @@ impl Session {
                 notes: Vec::new(), length: doc.logical_length(),
             }, None));
         }
-        let result = self.read_finite_controlled(doc, control.as_ref(), true);
+        let result = self.read_finite_controlled(doc, control.as_ref(), FiniteScope::Sample);
+        drop(control);
+        result
+    }
+
+    /// Independently checks a native finite deadlock found by simulation on a
+    /// freshly reconstructed runtime. Simulation keeps only the successors that
+    /// satisfy every `CONSTRAINT` and `ACTION_CONSTRAINT`, as TLC's simulator
+    /// does, so its deadlock is a last state none of whose successors is in
+    /// the model. This operation regenerates every successor of the last state
+    /// and rejects the word if any of them satisfies all the constraints; the
+    /// rest of the word is checked as by [`Self::read_controlled`]. Exhaustive
+    /// checking callers keep [`Self::read_controlled`], whose deadlock has no
+    /// successor at all. No producer metadata selects this operation.
+    ///
+    /// ```no_run
+    /// # fn check(session: &dive_trace::Session, document: &dive_trace::TraceDoc)
+    /// # -> Result<(), dive_trace::ValidationRunError> {
+    /// let (report, _) = session.read_sampled_deadlock(document, None)?;
+    /// # let _ = report; Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// The same typed resource, interruption and control failures as
+    /// [`Self::read_controlled`].
+    pub fn read_sampled_deadlock(
+        &self,
+        doc: &TraceDoc,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        if let Some(control) = &control {
+            control
+                .check()
+                .map_err(|error| crate::ValidationRunError::Interrupted {
+                    error: dive_eval::EvalError::interrupted(error),
+                    progress: crate::ValidationProgress {
+                        checks_passed: 0,
+                        state: None,
+                        check: None,
+                    },
+                })?;
+        }
+        if doc.source != Source::Dive
+            || doc.ending != Some(crate::Ending::Deadlock)
+            || !doc.properties.is_empty()
+        {
+            return Ok((Report {
+                validation: Validation::Invalid(crate::Failure { state: 0,
+                    check: crate::Check::Shape,
+                    detail: "sampled deadlock validation requires a native finite deadlock with no property claim".into() }),
+                notes: Vec::new(), length: doc.logical_length(),
+            }, None));
+        }
+        let result =
+            self.read_finite_controlled(doc, control.as_ref(), FiniteScope::SampledDeadlock);
         drop(control);
         result
     }
@@ -635,7 +691,7 @@ impl Session {
             );
         }
         if finite_word(doc) {
-            return self.read_finite_controlled(doc, control, false);
+            return self.read_finite_controlled(doc, control, FiniteScope::Behavior);
         }
         if !matches!(
             doc.ending,
@@ -712,10 +768,10 @@ impl Session {
         &self,
         doc: &TraceDoc,
         control: Option<&Arc<dyn dive_eval::HostControl>>,
-        sampled: bool,
+        scope: FiniteScope,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
         if !self.recipe.has_randomness() {
-            return self.read_finite_attempt(doc, control, sampled, None);
+            return self.read_finite_attempt(doc, control, scope, None);
         }
         let choices = Arc::new(crate::choices::Search::default());
         for _ in 0..crate::choices::MAX_ATTEMPTS {
@@ -734,7 +790,7 @@ impl Session {
             // The previous attempt, including every value and name it created,
             // is dropped before another source binding begins. A new host cache
             // domain alone would not isolate mutable normalization histories.
-            let result = self.read_finite_attempt(doc, control, sampled, Some(&choices))?;
+            let result = self.read_finite_attempt(doc, control, scope, Some(&choices))?;
             if !matches!(result.0.validation, Validation::Invalid(_))
                 || choices.refusal().is_some()
                 || !choices.advance()
@@ -758,7 +814,7 @@ impl Session {
         &self,
         doc: &TraceDoc,
         control: Option<&Arc<dyn dive_eval::HostControl>>,
-        sampled: bool,
+        scope: FiniteScope,
         choices: Option<&Arc<crate::choices::Search>>,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
         for initial in [true, false] {
@@ -767,14 +823,18 @@ impl Session {
             }
             let (model, host) = match self.fresh_binding_choices(
                 control,
-                FreshMode::Finite(initial),
+                if scope == FiniteScope::SampledDeadlock {
+                    FreshMode::FiniteSuccessors(initial)
+                } else {
+                    FreshMode::Finite(initial)
+                },
                 0,
                 choices.cloned(),
             )? {
                 Ok(runtime) => runtime,
                 Err(feature) => return Ok((refusal(feature, doc.logical_length()), None)),
             };
-            if sampled
+            if scope == FiniteScope::Sample
                 && (!model.implied_temporals.is_empty()
                     || model.view.is_some()
                     || model.symmetry.is_some()
@@ -806,7 +866,7 @@ impl Session {
                 &trace,
                 initial,
                 control.cloned(),
-                sampled,
+                scope,
             )?;
             if !retry {
                 return Ok((report, trace.to_doc(&model).ok()));
@@ -1048,13 +1108,17 @@ impl Session {
             Ok(())
         };
         poll()?;
-        let source_actions = choices.is_some() && matches!(mode, FreshMode::Finite(_));
+        let source_actions = (choices.is_some() && matches!(mode, FreshMode::Finite(_)))
+            || matches!(mode, FreshMode::FiniteSuccessors(_));
         let host = match self.startup_host(choices) {
             Ok(host) => host,
             Err(error) => return Ok(Err(error)),
         };
         host.startup.store(
-            matches!(mode, FreshMode::Temporal | FreshMode::Finite(true)),
+            matches!(
+                mode,
+                FreshMode::Temporal | FreshMode::Finite(true) | FreshMode::FiniteSuccessors(true)
+            ),
             Ordering::Relaxed,
         );
         // Invariant certification executes deterministic Print value semantics

@@ -27,6 +27,14 @@ published. Earlier pre-release development entries remain in git history.
   stops at the retained-state bound after a successor violates an invariant or
   action property, the report now keeps that violation as
   `pending_violation`, as it already did for an initial state.
+- `dive simulate` now reports a deadlock when every successor of a state is
+  excluded by a `CONSTRAINT` or `ACTION_CONSTRAINT`, as TLC's `-simulate`
+  does, instead of `internal-error` (issue #896). Independent validation
+  regenerates the last state's successors and accepts the deadlock only if
+  none satisfies every constraint. This includes models with
+  `CONSTRAINT TLCGet("level") < N`. `dive check` is unchanged: there a state
+  with constrained-out successors is not a deadlock. Rust callers can run
+  the check with `dive_trace::Session::read_sampled_deadlock`.
 - `dive_api::temporal::Outcome` no longer has the reference engine's
   `Holds`, `Violation` and `PrefixViolation` variants, and the
   `ValidatedCounterexample` and `ValidatedPrefix` types are removed (issue

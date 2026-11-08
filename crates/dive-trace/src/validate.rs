@@ -291,9 +291,15 @@ enum AssumptionControl {
     Cooperative,
 }
 
-enum FiniteScope {
+/// Which finite operation a trusted caller selected; never read from a document.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum FiniteScope {
+    /// An ordinary checking word: a deadlock has no successor.
     Behavior,
+    /// A sampled finite behavior whose every row passed the safety checks.
     Sample,
+    /// A simulation deadlock: no successor satisfies the model's constraints.
+    SampledDeadlock,
 }
 
 pub(crate) struct Run<'a> {
@@ -734,6 +740,12 @@ impl<'a> Run<'a> {
             }
         }
         Ok(match goal {
+            Goal::Deadlock
+                if self.finite_scope == FiniteScope::SampledDeadlock
+                    && !(m.constraints.is_empty() && m.action_constraints.is_empty()) =>
+            {
+                return self.sampled_deadlock(&trace.states[last], last);
+            }
             Goal::Deadlock => {
                 if let Some(next) = &m.next {
                     match crate::enabled::enabled(m, next, None, &trace.states[last]) {
@@ -1270,6 +1282,110 @@ impl<'a> Run<'a> {
         Ok(())
     }
 
+    /// A simulation deadlock. TLC's simulator keeps only the successors that
+    /// satisfy every `CONSTRAINT` and then every `ACTION_CONSTRAINT`, stopping
+    /// at the first false one (`SimulationWorker.addElement`, `isInModel` and
+    /// `isInActions`), and reports a deadlock when none is kept. Every
+    /// successor of the last state is regenerated here; the claim stands only
+    /// if each one falls outside the model. Constraints see the successor's
+    /// level, action constraints and generation the last state's.
+    fn sampled_deadlock(
+        &mut self,
+        state: &crate::State,
+        last: usize,
+    ) -> Result<Option<String>, Stop> {
+        let m = self.model;
+        if m.next.is_none() || m.actions.is_empty() {
+            return Ok(Some(DEADLOCK_UNSUPPORTED.to_owned()));
+        }
+        let source_level = last.saturating_add(1);
+        let mut ordinal = 0u64;
+        for action in &m.actions {
+            self.poll(Some(last), Some(Check::Ending))?;
+            let host = &self.host;
+            host.set_replay_level(source_level);
+            let mut found = None;
+            let mut sink = |candidate: &dive_eval::next::Successor<'_>| {
+                if !candidate.complete() {
+                    found = Some(Found::Incomplete);
+                    return dive_eval::next::Flow::Stop;
+                }
+                let successor: crate::State = candidate.state.iter().cloned().collect();
+                let here = St::state(successor.clone());
+                let step = St::action(state.clone(), successor);
+                let decision = in_model(m, host, &here, &step, source_level);
+                // Generation continues at the last state's level.
+                host.set_replay_level(source_level);
+                match decision {
+                    Ok(false) => dive_eval::next::Flow::Continue,
+                    Ok(true) => {
+                        found = Some(Found::Inside);
+                        dive_eval::next::Flow::Stop
+                    }
+                    Err(other) => {
+                        found = Some(other);
+                        dive_eval::next::Flow::Stop
+                    }
+                }
+            };
+            let outcome = m.evaluator.next_states(action, state, ordinal, &mut sink);
+            match found {
+                None => {}
+                Some(Found::Inside) => {
+                    return Err(invalid(
+                        last,
+                        Check::Ending,
+                        "the claimed deadlock has a successor that satisfies every constraint",
+                    ));
+                }
+                Some(Found::Incomplete) => {
+                    return Err(invalid(
+                        last,
+                        Check::Ending,
+                        "the claimed deadlock has a successor that does not assign every variable",
+                    ));
+                }
+                Some(Found::NotBoolean(detail)) => {
+                    return Err(invalid(last, Check::Ending, detail));
+                }
+                Some(Found::Error(e)) => {
+                    return Err(match e.class() {
+                        ErrorClass::Eval => invalid(
+                            last,
+                            Check::Ending,
+                            format!(
+                                "evaluating a constraint on a successor of the claimed deadlock fails: {}",
+                                e.message()
+                            ),
+                        ),
+                        _ => self.evaluation_refusal(&e, Some(last), Check::Ending),
+                    });
+                }
+            }
+            match outcome {
+                Ok(o) => ordinal = ordinal.saturating_add(o.emitted),
+                Err(e) => {
+                    return Err(match e.error.class() {
+                        ErrorClass::Eval => invalid(
+                            last,
+                            Check::Ending,
+                            format!(
+                                "generating a successor of the claimed deadlock fails: {}",
+                                e.error.message()
+                            ),
+                        ),
+                        _ => self.evaluation_refusal(&e.error, Some(last), Check::Ending),
+                    });
+                }
+            }
+        }
+        if m.has_runtime_names() {
+            return Ok(Some(crate::RUNTIME_NAMES_UNSUPPORTED.to_owned()));
+        }
+        self.notes.insert("Simulation deadlock: every successor of the last state lies outside the model's constraints, so TLC's simulator keeps none".to_owned());
+        Ok(None)
+    }
+
     fn evaluation_refusal(
         &mut self,
         error: &EvalError,
@@ -1320,6 +1436,48 @@ impl<'a> Run<'a> {
             },
         }
     }
+}
+
+/// What regenerating a claimed simulation deadlock's successors found.
+enum Found {
+    Inside,
+    Incomplete,
+    NotBoolean(String),
+    Error(EvalError),
+}
+
+/// Whether a successor satisfies every `CONSTRAINT` and then every
+/// `ACTION_CONSTRAINT`, stopping at the first false one, as TLC's simulator
+/// does. `source_level` is the TLC level of the state it succeeds.
+fn in_model(
+    m: &Model,
+    host: &TraceHost,
+    here: &St,
+    step: &St,
+    source_level: usize,
+) -> Result<bool, Found> {
+    let truth = |pred: &Pred, st: &St| match m.eval(pred, st) {
+        Ok(Value::Bool(b)) => Ok(b),
+        Ok(v) => Err(Found::NotBoolean(format!(
+            "{} is not a boolean on a successor of the claimed deadlock: {}",
+            m.location(pred),
+            v.kind_name()
+        ))),
+        Err(e) => Err(Found::Error(e)),
+    };
+    host.set_replay_level(source_level.saturating_add(1));
+    for constraint in &m.constraints {
+        if !truth(&constraint.pred, here)? {
+            return Ok(false);
+        }
+    }
+    host.set_replay_level(source_level);
+    for constraint in &m.action_constraints {
+        if !truth(&constraint.pred, step)? {
+            return Ok(false);
+        }
+    }
+    Ok(true)
 }
 
 fn invalid(state: usize, check: Check, detail: impl Into<String>) -> Stop {
@@ -1903,7 +2061,7 @@ pub(crate) fn validate_finite_private_controlled(
     trace: &Trace,
     initial: bool,
     control: Option<Arc<dyn dive_eval::HostControl>>,
-    sampled: bool,
+    scope: FiniteScope,
 ) -> Result<(Report, bool), ValidationRunError> {
     let _scope = control
         .as_ref()
@@ -1913,11 +2071,7 @@ pub(crate) fn validate_finite_private_controlled(
     let mut run = Run::private(model, host.clone(), initial);
     run.control = control;
     run.assumption_control = AssumptionControl::Cooperative;
-    run.finite_scope = if sampled {
-        FiniteScope::Sample
-    } else {
-        FiniteScope::Behavior
-    };
+    run.finite_scope = scope;
     let report = controlled_report(&mut run, trace)?;
     let retry = initial && run.init_incomplete && !host.register_used.load(Ordering::Relaxed);
     Ok((report, retry))

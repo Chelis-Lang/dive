@@ -95,3 +95,39 @@ fn finite_sampling_ignores_fairness_but_cannot_claim_temporal_properties() -> Re
     }
     Ok(())
 }
+
+#[test]
+fn sampled_deadlock_needs_every_successor_outside_the_constraints() -> Result {
+    let source = "---- MODULE D ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nC == x < 3\n====\n";
+    let deadlock = |last: i64| -> Result<TraceDoc> {
+        Ok(
+            TraceDoc::behavior((0..=last).map(|x| json!({ "x": x })).collect())?
+                .with_ending(Ending::Deadlock),
+        )
+    };
+    for tlc in [false, true] {
+        let model = SpecModel::from_source(
+            "D.tla",
+            source,
+            "INIT Init\nNEXT Next\nCONSTRAINT C\n",
+            &TraceOptions {
+                compat_tlc: tlc,
+                ..Default::default()
+            },
+        )?;
+        assert!(matches!(
+            model.try_validate_sample(&deadlock(2)?)?.validation,
+            Validation::Valid
+        ));
+        assert!(matches!(
+            model.try_validate_sample(&deadlock(1)?)?.validation,
+            Validation::Invalid(_)
+        ));
+        // An exhaustive deadlock has no successor at all.
+        assert!(matches!(
+            model.try_validate(&deadlock(2)?)?.validation,
+            Validation::Invalid(_)
+        ));
+    }
+    Ok(())
+}
