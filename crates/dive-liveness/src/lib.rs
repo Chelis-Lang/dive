@@ -17,6 +17,8 @@
 
 mod budget;
 mod graph;
+#[cfg(test)]
+mod test_capture;
 
 pub use graph::{Graph, GraphError};
 

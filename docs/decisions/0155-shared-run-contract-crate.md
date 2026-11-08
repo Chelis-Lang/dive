@@ -71,6 +71,6 @@ imports the shared contract from `dive-runtime` and no longer depends on
 `dive-liveness` no longer contains the reference temporal analyses
 (`analyze_final*`, `analyze_periodic*` and the row-demand capture) and no
 longer depends on `dive-check`; `xtask/src/layering.rs` no longer permits
-that edge. Its analyzer unit tests still use the reference graph capture as
-their graph producer, through a dev-dependency, until `dive-check` is
-deleted.
+that edge. Its analyzer tests build their graphs with a small test-only
+producer (`crates/dive-liveness/src/test_capture.rs`), so no `dive-liveness`
+target depends on `dive-check`.
