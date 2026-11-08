@@ -33,7 +33,7 @@ fn fixture(options: &CheckOptions) -> Model {
 }
 
 fn capture(model: &Model, options: &CheckOptions) -> capture::Complete {
-    match dive_check::capture::explore(model, options, capture::Limits::default()) {
+    match crate::test_capture::explore(model, options, capture::Limits::default()) {
         capture::Exploration::Complete(complete) => *complete,
         capture::Exploration::Stopped(result) => panic!("finite capture: {result:?}"),
     }
@@ -50,7 +50,7 @@ impl capture::Observer for Stop {
 }
 
 fn captured_prefix(model: &Model, options: &CheckOptions) -> capture::Prefix {
-    match dive_check::capture::explore_controlled_with_evidence(
+    match crate::test_capture::explore_controlled_with_evidence(
         model,
         options,
         capture::Limits::default(),

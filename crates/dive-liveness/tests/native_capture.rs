@@ -4,6 +4,9 @@
     clippy::panic,
     reason = "finite equivalence fixtures"
 )]
+#[path = "../src/test_capture.rs"]
+mod test_capture;
+
 use dive_eval::next::StateVals;
 use dive_liveness::analyze::periodic::{
     Checks, Schedule,
@@ -199,7 +202,7 @@ fn native(
         schedule,
     )?;
     let control = EvaluationControl::new(&options.budget, Phase::Capture).expect("control");
-    let captured = dive_check::capture::explore_controlled_with_evidence(
+    let captured = test_capture::explore_controlled_with_evidence(
         model,
         options,
         limits.capture,
@@ -272,7 +275,7 @@ fn legacy(
         GraphLabelPolicy::NoCellLimit,
         schedule,
     )?;
-    let captured = dive_check::capture::explore_controlled_with_evidence(
+    let captured = test_capture::explore_controlled_with_evidence(
         model,
         options,
         limits.capture,

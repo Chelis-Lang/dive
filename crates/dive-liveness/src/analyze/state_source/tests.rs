@@ -128,7 +128,7 @@ fn bound(body: &str, configuration: &str, options: &CheckOptions) -> Model {
 }
 
 fn captured(model: &Model, options: &CheckOptions) -> capture::BehaviorGraph {
-    match dive_check::capture::explore(model, options, capture::Limits::default()) {
+    match crate::test_capture::explore(model, options, capture::Limits::default()) {
         capture::Exploration::Complete(complete) => complete.graph,
         capture::Exploration::Stopped(result) => panic!("finite capture: {result:?}"),
     }

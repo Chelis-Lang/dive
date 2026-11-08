@@ -6,6 +6,9 @@
     clippy::panic,
     reason = "finite regression assertions"
 )]
+#[path = "../src/test_capture.rs"]
+mod test_capture;
+
 use std::sync::Arc;
 
 use dive_liveness::analyze::{
@@ -220,13 +223,8 @@ fn external(
             check: &mut check,
             stop: false,
         };
-        dive_check::capture::explore_controlled_with_evidence(
-            model,
-            options,
-            limits.capture,
-            &mut forward,
-        )
-        .expect("capture thread")
+        test_capture::explore_controlled_with_evidence(model, options, limits.capture, &mut forward)
+            .expect("capture thread")
     };
     match captured {
         capture::ControlledExploration::Complete(complete) => {
