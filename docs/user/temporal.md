@@ -2,23 +2,21 @@
 
 The checker exposes bounded temporal analysis. Eligible ordinary dive-profile
 requests check at deterministic completed-level boundaries; ordinary TLC-profile
-requests check only after exhaustion. Explicit final/short selection is available
-in both profiles:
+requests check only after exhaustion. Core does not implement explicit
+`--lncheck final --lasso short` selection: with temporal properties it refuses
+by name (exit 3) in both profiles.
 
 ```sh
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --lncheck final --lasso short --seed 7 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --seed 7 --output json
 ```
 
 The example reports a real liveness violation. Although `Next` always increments
 before four, TLA+ temporal behaviors can stutter at zero; there is no fairness
 condition in this model requiring the increment action to occur.
 
-This mode explores the supported graph, checks once at the end, chooses a
-deterministic short periodic witness and independently replays it in memory and
-as a lossless document. It checks the complete configured property claims,
-including the closing edge. This explicit mode does not use periodic
-scheduling or claim all evaluation-error timing. Explicit requests retain their
-existing `tlc+overrides` label when combined with TLC value semantics.
+The checker chooses a deterministic short periodic witness and independently
+replays it in memory and as a lossless document. It checks the complete
+configured property claims, including the closing edge.
 
 At one worker, a bounded temporal source-row error can now retain TLC's
 GENERAL1000 and TLC exit255 in either execution engine. The checker must reach
@@ -176,7 +174,7 @@ so results are the same at every worker count. Workers finish and join their
 level work before checking. Unexpanded frontier rows remain empty. Exhausted
 levels skip the prefix check; the complete graph receives one final check. A
 model with fewer than 65,536 states is therefore checked exactly once, at the
-end, with the same verdict and counts as `--lncheck final`.
+end, with the same verdict and counts as a final-only check.
 
 A prefix can produce only an independently validated violation or a named
 failure. It never proves that a property holds. A deciding prefix stops at that
@@ -189,7 +187,7 @@ produce `Holds`. TLC timing, queue order and final-oracle counts are not copied.
 A prefix check searches only the first configured property: a violation of it
 on a prefix is also a violation on the complete graph, where the final check
 would name it first. Violations of later properties wait for the final check,
-so the reported property is the one `--lncheck final` reports.
+so the reported property is the one a final-only check reports.
 
 Schema 3 reports the schedule (`min_states`, `growth_factor`), prefix check
 count, last checked level/size, exhaustion and final-check truth in `periodic`.
@@ -202,7 +200,7 @@ Rust callers can choose another schedule with `CheckRequest::periodic`
 cumulative across the search. Planning happens once; label/product/formula
 bounds retain their actual per-property and per-analysis-check scopes. Repeated
 checks add computation: these bounds promise neither a total-run work/byte cap
-nor a speedup. Explicit `--lncheck final --lasso short` retains the final schedule.
+nor a speedup. Explicit `--lncheck final --lasso short` is refused on Core.
 
 The conformance adapter reads these actual default prefix counters and schedule
 facts alongside ordinary TLC final reports. It independently replays words; a
@@ -213,7 +211,7 @@ on a prefix stops with fewer states than the golden, which is a D-014 count
 divergence. Like TLC's own periodic checking, a prefix violation can also
 preempt an invariant violation or evaluation error beyond the checked prefix
 that a final-only run reports instead. The
-TLC-equivalent setting is `--compat=tlc` or `--lncheck final --lasso short`.
+TLC-equivalent setting is `--compat=tlc`.
 
 ## Ordinary checking in the TLC profile
 
@@ -221,7 +219,7 @@ TLC-equivalent setting is `--compat=tlc` or `--lncheck final --lasso short`.
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --compat=tlc --fp 0 --seed 7 --output json
 ```
 
-This ordinary request uses the same bounded pure final analyzer and independent
+This ordinary request uses a bounded pure final analyzer and independent
 word validation. No lasso-policy flag is needed. It finishes graph exploration
 before checking temporal properties and chooses a deterministic short valid word;
 TLC's particular SCC, lasso, timing and queue order are not reproduced.
@@ -418,9 +416,7 @@ dive check crates/dive-trace/tests/fixtures/instance-constants/constant_absent_v
 This model reports property `Bad` violated, code 2116 and exit 13, with three
 generated states, two distinct states and depth two. Its periodic word passes
 independent validation. The paired configured-redirect fixture has the same
-result; the original holding fixtures report success. Explicit final checking
-also supports these cases with default value semantics: omit `--compat=tlc`
-and add `--lncheck final --lasso short`. Ordinary default-profile temporal
+result; the original holding fixtures report success. Ordinary default-profile temporal
 dispatch keeps its existing support boundary. Explicitly unset or opaque
 bindings, effectful/recursive/nonconstant constant redirects and missing finite
 ENABLED covers retain their named refusals.
@@ -473,14 +469,13 @@ and indexing conventions.
 
 ## Final checking in the TLC profile
 
-`dive check --compat=tlc --lncheck final --lasso short` checks temporal
-properties with TLC's value semantics and reports a deterministic short lasso
-that passes independent replay. The profile is labeled `tlc+overrides`, because
-TLC's own lasso choice is not reproduced: it depends on hash-table and SCC
-visitation order, which are not parity obligations (ADR 0082, ADR 0086).
-`--lasso tlc` is a usage error. Explicit final requests check only after
-exhaustion; the ordinary dive profile uses the deterministic level schedule
-described above.
+Ordinary `dive check --compat=tlc` requests check temporal properties after
+exhaustion with TLC's value semantics and report a deterministic short lasso
+that passes independent replay. TLC's own lasso choice is not reproduced: it
+depends on hash-table and SCC visitation order, which are not parity
+obligations (ADR 0082, ADR 0086). Core does not implement the explicit
+`--lncheck final --lasso short` mode; with temporal properties it refuses by
+name (exit 3). `--lasso tlc` is a usage error.
 
 Malformed numeric temporal operands, such as `Bad == <>1`, report
 `evaluation-error` before exploration, with TLC code 2215 (`TLC_EXPECTED_VALUE`).
@@ -643,7 +638,7 @@ interpreter scopes. Planning inspects these without evaluating state-dependent
 domains; execution obtains the concrete bounded contexts in each invocation.
 
 ```sh
-dive check crates/dive-liveness/tests/fixtures/recursive-function/PermSeqsScope.tla --config crates/dive-liveness/tests/fixtures/recursive-function/PermSeqsScope-2-Good.cfg --compat=tlc --fp 0 --seed 0 --workers 1 --lncheck final --lasso short --output json
+dive check crates/dive-liveness/tests/fixtures/recursive-function/PermSeqsScope.tla --config crates/dive-liveness/tests/fixtures/recursive-function/PermSeqsScope-2-Good.cfg --compat=tlc --fp 0 --seed 0 --workers 1 --output json
 ```
 
 This tiny model requires a Schedule action under weak fairness and checks
@@ -712,7 +707,7 @@ a primed variable, such as `ack' = IF x' = 1 THEN ~ack ELSE ack`, is decided
 like any other (issue #321; corpus `fairness-replay`).
 
 ```sh
-dive check crates/dive-liveness/tests/fixtures/nested-enabled/NestedEnabled.tla --config crates/dive-liveness/tests/fixtures/nested-enabled/hold.cfg --compat=tlc --workers 1 --fp 0 --seed 0 --lncheck final --lasso short --output json
+dive check crates/dive-liveness/tests/fixtures/nested-enabled/NestedEnabled.tla --config crates/dive-liveness/tests/fixtures/nested-enabled/hold.cfg --compat=tlc --workers 1 --fp 0 --seed 0 --output json
 ```
 
 The tiny model alternates `x=0` and `x=1`. `hold.cfg` returns success;

@@ -72,14 +72,13 @@ implementation status. Planned rows there are not implemented CLI switches.
 The gating reference is the [single pinned oracle bundle](../decisions/0002-oracle-pinning.md),
 not every historical TLC release.
 
-`--lncheck final --lasso short` under `--compat=tlc` checks temporal properties
-with TLC's value semantics and a short, independently validated lasso. TLC's
-exact lasso choice is not a parity obligation (ADR 0082), so the former
-`--lasso tlc` mode and its `dive-final-tlc` harness mode were removed on
-2026-10-12. Eligible ordinary TLC-profile requests select the same bounded final
-analyzer without extra policy flags; the report records the actual final/short
-mode and retains profile `tlc`. Ordinary default-profile requests use the same
-analyzer at deterministic completed-level boundaries (D-014). See
+Eligible ordinary `--compat=tlc` requests check temporal properties after
+exhaustion with TLC's value semantics and a short, independently validated
+lasso; the report records the actual final/short mode and retains profile
+`tlc`. TLC's exact lasso choice is not a parity obligation (ADR 0082), so there
+is no `--lasso tlc` mode. Core does not implement explicit
+`--lncheck final --lasso short`; with temporal properties it refuses by name.
+Ordinary default-profile requests use the same analyzer at deterministic completed-level boundaries (D-014). See
 [temporal checking](temporal.md#ordinary-checking-in-the-tlc-profile)
 for fp0/default resident-memory eligibility and explicit limits. Excluded
 temporal routes retain named refusals; TLC's wall-clock periodic trigger is not

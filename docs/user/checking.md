@@ -411,7 +411,9 @@ On Core, anything the core does not implement yields an `unsupported` verdict
 (exit 3) that names it, and the run never falls back. The JSON report adds
 `"engine": "core"` and a `core` object with strategy metrics. Source and TLC
 logical coverage, granted external inputs (`--allow-io`) and bounded final
-checking (`--lncheck final --lasso short`) are named refusals on Core. A
+checking (`--lncheck final --lasso short`) are named refusals on Core, and
+`dive check --help` does not list them (see the
+[command-line surface](README.md#command-line-surface)). A
 checkpoint archive written by the removed reference engine is rejected with
 `DIVE-S0400` before the model is loaded.
 
@@ -507,18 +509,16 @@ Absolute configuration paths remain absolute. There is no existence-based
 fallback between these directories. Native file APIs keep their explicit path
 semantics. Configurations embedded in `.tla` files retain their named refusal.
 
-`-lncheck final` directly selects the existing bounded final checker and its
-deterministic short lasso. It does not require a second policy flag. Reports
-retain `tlc+overrides`, actual bounds, startup and planning errors, incomplete
-capture and independent periodic-word validation. This selection need not match
-TLC's arbitrary lasso choice. `-lncheck default` retains ordinary checking.
-With profile-default resident-memory settings and `-fp 0`, eligible pure temporal
-obligations use the same bounded final analyzer, reported as profile `tlc` with
-actual final/short metadata and independent word validation. Other TLC-profile
-temporal combinations retain named refusals; see [ordinary TLC-profile temporal
-checking](temporal.md#ordinary-checking-in-the-tlc-profile) for exact eligibility.
-Other strategies refuse by name. Native
-`dive check --lncheck final --lasso short` keeps its existing explicit contract.
+`-lncheck final` is not listed in the adapter's help: Core does not implement
+the explicit bounded final mode, so with temporal properties it refuses by
+name (exit 3), as does the unlisted native
+`dive check --lncheck final --lasso short`. `-lncheck default` retains
+ordinary checking: Core checks eligible temporal properties once at
+exhaustion, reports profile `tlc` with final/short metadata, and validates
+the reported word independently. Other TLC-profile temporal combinations
+retain named refusals; see [ordinary TLC-profile temporal
+checking](temporal.md#ordinary-checking-in-the-tlc-profile) for exact
+eligibility.
 
 Every counterexample emitted by this adapter is independently replayed from
 fresh source/configuration inputs. JSON records `counterexample.validation` as

@@ -5,6 +5,13 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- `dive --help` and the `check`, `simulate`, `dfid` and `tlc` help no longer
+  list options that Core always refuses (issue #941): `--lncheck final
+  --lasso short`, `--action-composition tlc`, `--allow-io`,
+  `--source-coverage`, `--coverage 0`, the `simulate` and `dfid`
+  `--workers N` option, and the adapter's `-coverage 0` and `-lncheck final`. They still parse and refuse by name with exit 3, as
+  before. The `check` help no longer says that Reference is the default
+  engine. See the [command-line surface](docs/user/README.md#command-line-surface).
 - The `dive-check` crate, the reference checker, is deleted (issue #791).
   Core is the only checking engine; check with `dive_api::check_file` and the
   run contract in `dive-runtime`. Its shared test fixtures now live in

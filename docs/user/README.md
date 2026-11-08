@@ -31,6 +31,32 @@ resource stop does not establish safety.
 | Embed dive in Rust | [Rust API](rust-api.md) | Per-operation reports, errors and explicit options |
 | Interpret structured results | [Reports and errors](reports-and-errors.md) | Versioned schemas; exit zero alone is insufficient |
 
+## Command-line surface
+
+`dive --help` and `dive <command> --help` list only the commands and options
+that Core implements; `crates/dive-cli/tests/golden/command-help.txt` pins
+them. Options that Core always refuses are not listed. They still parse, so
+existing scripts get the same named refusal (verdict `unsupported`, exit 3,
+the feature named) rather than a usage error:
+
+| Command | Unlisted option | Refusal names |
+| --- | --- | --- |
+| `check` | `--lncheck final --lasso short` | bounded final checking (with temporal properties) |
+| `check` | `--action-composition tlc`, `-Dtlc2.tool.impl.Tool.cdot true` | `--action-composition=tlc` |
+| `check` | `--allow-io=env,files,exec` | external inputs |
+| `check` | `--source-coverage`, `--coverage 0` | source coverage and TLC logical coverage |
+| `simulate` | `--workers N` with N > 1 | parallel simulation workers |
+| `dfid` | `--workers N` with N > 1 | DFID multiple workers |
+| `tlc` | `-coverage 0`, `-lncheck final` | coverage; bounded final checking |
+
+Without temporal properties, `--lncheck final --lasso short` changes
+nothing and the check runs; `--workers 1` is accepted by `simulate` and
+`dfid`. `--compat=tlc` and `dive tlc` check temporal properties once at
+exhaustion without the explicit flags. `--symmetry-liveness tlc` stays
+listed: it is the `--compat=tlc` default and runs unless `SYMMETRY` meets
+temporal properties, which it refuses by name. `lsp` is not a listed
+command and refuses by name.
+
 These guides describe the implementation in this checkout. Read the
 [scoreboard](../scoreboard.md) for current coverage and the
 [maintained TLC differences log](../tlc-differences.md) for known limitations
