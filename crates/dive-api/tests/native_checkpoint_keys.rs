@@ -6,6 +6,8 @@
 )]
 #[path = "support/memory_observations.rs"]
 mod memory_observations;
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, checkpoint};
@@ -79,10 +81,15 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                             chaos,
                             ..base.clone()
                         };
-                        let full = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
-                            .expect("full")
-                            .to_json();
-                        assert_eq!(full["verdict"], "invariant-violation");
+                        let report = dive_api::check_file_engine(&req, dive_api::Engine::Core)
+                            .expect("full");
+                        let full = report.to_json();
+                        if chaos.is_some() {
+                            // Only the retired reference engine ran --chaos (#791, #910).
+                            refused::assert_refused(&full, report.exit_code(), refused::CHAOS);
+                            continue;
+                        }
+                        assert_eq!(full["verdict"], "invariant-violation", "{full}");
                         for boundary in [0, 1] {
                             let cp = checkpoint::Request {
                                 path: directory.join(format!("{serial}.cp")),
@@ -94,7 +101,7 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                             let paused = dive_api::check_file_checkpoint_engine(
                                 &req,
                                 &cp,
-                                dive_api::Engine::Reference,
+                                dive_api::Engine::Core,
                             )
                             .expect("pause")
                             .to_json();
@@ -111,7 +118,7 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                                     action: checkpoint::Action::Recover,
                                     ..cp.clone()
                                 },
-                                dive_api::Engine::Reference,
+                                dive_api::Engine::Core,
                             )
                             .expect("resume")
                             .to_json();
@@ -161,7 +168,7 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                                     counters: checkpoint::Counters::Tlc,
                                     ..cp
                                 },
-                                dive_api::Engine::Reference,
+                                dive_api::Engine::Core,
                             )
                             .expect("TLC reset")
                             .to_json();

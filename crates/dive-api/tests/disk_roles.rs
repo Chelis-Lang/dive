@@ -1,5 +1,7 @@
 //! Public safety roles retain independently checked concrete witnesses.
 #![allow(clippy::expect_used, reason = "test assertions")]
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, SeenOptions, Store};
 use std::path::Path;
@@ -19,24 +21,28 @@ fn witness_case(name: &str, root: &Path) {
         .expect("independent model");
         for store in [Store::Fingerprint, Store::Exact] {
             for width in [1, 4, 8] {
-                let report = dive_api::check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(config.clone()),
-                        seen_disk: Some(SeenOptions::default()),
-                        compat_tlc,
-                        store,
-                        workers: Some(width),
-                        seed: Some(7),
-                        fp: Some(0),
-                        chaos: Some(7),
-                        frontier_memory_bytes: Some(0),
-                        predecessor_memory_bytes: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    dive_api::Engine::Reference,
-                )
-                .expect("check");
+                let mut request = CheckRequest {
+                    file: file.clone(),
+                    config: Some(config.clone()),
+                    seen_disk: Some(SeenOptions::default()),
+                    compat_tlc,
+                    store,
+                    workers: Some(width),
+                    seed: Some(7),
+                    fp: Some(0),
+                    chaos: Some(7),
+                    frontier_memory_bytes: Some(0),
+                    predecessor_memory_bytes: Some(0),
+                    ..CheckRequest::default()
+                };
+                // Only the retired reference engine ran --chaos (#791, #910);
+                // the same request without it runs on Core.
+                let chaotic =
+                    dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("check");
+                refused::assert_refused(&chaotic.to_json(), chaotic.exit_code(), refused::CHAOS);
+                request.chaos = None;
+                let report =
+                    dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("check");
                 let json = report.to_json();
                 assert_eq!(json["options"]["workers"]["requested"], width);
                 assert_eq!(json["options"]["workers"]["used"], 1);
