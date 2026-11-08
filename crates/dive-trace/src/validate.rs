@@ -1352,7 +1352,7 @@ impl Drop for Run<'_> {
 }
 
 /// What the validator provides of a checking run: the level of the state
-/// being checked (`TLCGet("level")`) and `TLCGet("config")` from the host the
+/// being checked (`TLCGet("level")`, refusing it under a prime) and `TLCGet("config")` from the host the
 /// model was bound with, if any. Registers and live counters depend on
 /// evaluations outside the trace, so they are refused by name. Register
 /// access and unproved random draws are remembered so the whole verdict is
@@ -1597,6 +1597,14 @@ impl Host for TraceHost {
 
     fn level(&self) -> Option<i64> {
         Some(self.level.load(Ordering::Relaxed))
+    }
+
+    /// Replay tracks only the level of the state being checked, so a primed
+    /// `TLCGet("level")` (the successor's level in TLC) refuses the whole
+    /// verdict, even where a label check swallowed the error.
+    fn successor_level(&self) -> Result<i64, HostError> {
+        self.refuse_effect(dive_eval::PRIMED_LEVEL_UNSUPPORTED.to_owned())
+            .map(|()| 0)
     }
 
     fn config(&self) -> Option<dive_eval::RunConfig> {

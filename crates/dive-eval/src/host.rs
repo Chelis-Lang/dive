@@ -22,7 +22,7 @@ use dive_ir::{Arg, ExprId, StdOp};
 use dive_value::{Ctx, Int, Value};
 
 use crate::core::Core;
-use crate::env::{Env, Ev, St, control};
+use crate::env::{Env, Ev, St, StateRef, control};
 use crate::error::{Ec, EvalError, Result};
 
 /// A live counter of the model checker, as `TLCGet` reads it.
@@ -280,6 +280,21 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         None
     }
 
+    /// `TLCGet("level")` under a prime. TLC evaluates a primed expression with
+    /// the successor as its current state, so it reads the successor's level,
+    /// which [`Self::level`] does not describe. No host tracks it, so the
+    /// default refuses by name; a host may remember the refusal so that a
+    /// verdict built around a swallowed error is refused too.
+    ///
+    /// # Errors
+    /// The named refusal.
+    fn successor_level(&self) -> Result<i64, HostError> {
+        Err(HostError {
+            code: 0,
+            message: PRIMED_LEVEL_UNSUPPORTED.to_owned(),
+        })
+    }
+
     /// A live counter.
     fn counter(&self, _counter: Counter) -> Option<i64> {
         None
@@ -297,6 +312,10 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         false
     }
 }
+
+/// The refusal of a primed `TLCGet("level")` ([`Host::successor_level`]).
+pub const PRIMED_LEVEL_UNSUPPORTED: &str =
+    "TLCGet(\"level\") under a prime, which TLC evaluates at the successor's level";
 
 /// The names `TLCGetSet`'s static initializer interns, in declaration order
 /// (`tlc2/module/TLCGetSet.java:52-162`). TLC loads the class when it
@@ -872,6 +891,16 @@ impl Core {
                 if st.is(control::CONST) || st.is(control::INIT) {
                     // `TLCState.INIT_LEVEL - 1` in `ASSUME`s and `Init`.
                     return Ok(Value::Int(0));
+                }
+                // `s1` is `Null` exactly when evaluating under a prime (the
+                // successor moved into `s0`), and `Primed` marks it inside
+                // `ENABLED`: TLC then reads the successor's level.
+                if st.is(control::PRIMED) || matches!(st.s1, StateRef::Null) {
+                    return self
+                        .host_for(key)?
+                        .successor_level()
+                        .map(|level| Value::int(Int::Small(level)))
+                        .map_err(host_error);
                 }
                 let level = self.host_for(key)?.level().ok_or_else(|| {
                     EvalError::unsupported(

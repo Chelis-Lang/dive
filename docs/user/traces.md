@@ -170,6 +170,8 @@ The first complete Init candidate can receive safety checks; later candidates
 requiring global newness refuse. `TLCGet("level")` observes level 1 in initial
 candidate checks, including implied initial properties; generation resumes at
 level 0 after each callback. Action checks use their predecessor level.
+A primed `TLCGet("level")`, which TLC evaluates at the successor's level,
+refuses the whole validation by name.
 The producer captures scalar bindings under
 the existing budget and leaves compound/unavailable evidence explicitly
 unconfirmed. Optional evidence never changes the primary result or verified
