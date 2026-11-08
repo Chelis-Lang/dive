@@ -10,6 +10,11 @@ published. Earlier pre-release development entries remain in git history.
   graph (issue #909). Results and counterexamples are unchanged. Product
   memory now grows with product vertices only: `bcastFolklore` no longer
   exceeds 24 GB on `ReliableChan`, whose product has 2.6 billion edges.
+- Core keys and skips an invariant or constraint conjunct that calls a
+  recursive operator or function by the variables the called body actually
+  reads, instead of assuming it reads every variable (issue #908). Bodies
+  with an effect or a nested `ENABLED` keep the old behaviour. Examples
+  `KeyValueStore/MCKVsnap` takes about 9 s instead of 22 s at one worker.
 - `dive check`, `dive simulate`, `dive dfid` and the `dive tlc` adapter run
   only on Core (issue #791). `--engine reference` and `DIVE_ENGINE=reference`
   are usage errors (exit 2) that say the reference engine was removed;
