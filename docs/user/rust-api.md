@@ -80,9 +80,11 @@ effects. These scopes refuse before worker execution or output. Pure captured
 operators remain usable, and `Evaluator::scope_has_effects` exposes this
 non-evaluating effects check without forcing stored values or callbacks.
 
-Low-level graph consumers implement `dive_check::capture::Observer` and pass it to
-`capture::explore_observed_with_evidence`. Observation currently requires one
-worker; `--compat=tlc` uses the same hook semantics. Methods are inert by default.
+Low-level graph consumers implement `dive_runtime::capture::Observer`. The
+reference capture drivers that called it (`dive_check::capture::explore*`) were
+removed with the `dive-check` crate (issue #791); Core builds its behavior
+graphs itself. Observation requires one worker; `--compat=tlc` uses the same
+hook semantics. Methods are inert by default.
 `init` receives accepted roots after Init succeeds. `edge` receives original
 concrete successors, including duplicate and seen-state transitions, followed by
 implicit stutters. `level_done` borrows the graph after every source at that BFS
@@ -128,8 +130,9 @@ facts as reference capture. These low-level APIs do not evaluate the opaque rows
 or certify temporal properties. Existing `capture::Limits` remain unchanged;
 there is no new CLI option or TLC divergence. The ordinary core temporal route
 uses native retained rows and checked CSR, without a retained reference value
-graph. `capture_csr` tests build checked CSR
-from actual captures; run `cargo test -p dive-check --test capture_csr --locked`.
+graph. The `capture_csr` and `capture_evidence` tests build checked CSR and
+producer evidence from actual captures; run
+`cargo test -p dive-liveness --test capture_csr --test capture_evidence --locked`.
 
 After temporal analysis, `Analysis::into_native()` and
 `PeriodicAnalysis::into_native()` release that legacy graph storage. Their

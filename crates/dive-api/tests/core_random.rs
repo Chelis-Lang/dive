@@ -99,7 +99,7 @@ fn all() -> Vec<(String, PathBuf)> {
     let mut v = specs("crates/dive-api/tests/fixtures/core-lib", "Rd");
     v.extend(specs("crates/dive-stdlib/tests/fixtures/random", "Rnd"));
     v.extend(specs(
-        "crates/dive-check/tests/fixtures/tlc-module",
+        "crates/dive-api/tests/fixtures/checker/tlc-module",
         "TmRandom",
     ));
     v

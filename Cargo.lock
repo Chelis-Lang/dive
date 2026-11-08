@@ -193,24 +193,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dive-check"
-version = "0.0.0"
-dependencies = [
- "dive-config",
- "dive-eval",
- "dive-ir",
- "dive-model",
- "dive-runtime",
- "dive-sema",
- "dive-stdlib",
- "dive-store",
- "dive-value",
- "serde",
- "serde_json",
- "sha2",
-]
-
-[[package]]
 name = "dive-cli"
 version = "0.0.0"
 dependencies = [

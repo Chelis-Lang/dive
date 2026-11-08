@@ -1,13 +1,16 @@
 //! Producer evidence survives graph detachment but cannot promote failures.
 #![allow(clippy::expect_used, clippy::panic, reason = "actual capture controls")]
 
+#[path = "../src/test_capture.rs"]
+mod test_capture;
+
 use std::sync::Arc;
 
-use dive_check::{
+use dive_model::Model;
+use dive_runtime::{
     CheckOptions, Stats, Verdict,
     capture::{self, GraphBuilder, Limits},
 };
-use dive_model::Model;
 
 fn model(options: &CheckOptions) -> Model {
     let source = "---- MODULE CaptureEvidence ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\n====\n";
@@ -34,7 +37,7 @@ fn model(options: &CheckOptions) -> Model {
 }
 
 fn complete(model: &Model, options: &CheckOptions) -> capture::Complete {
-    match capture::explore(model, options, Limits::default()) {
+    match test_capture::explore(model, options, Limits::default()) {
         capture::Exploration::Complete(complete) => *complete,
         capture::Exploration::Stopped(result) => panic!("finite complete: {result:?}"),
     }
@@ -139,12 +142,12 @@ fn external_factories_reject_exact_original_failure_even_with_admissible_counter
             Verdict::ResourceLimit {
                 message: "test capture limit".into(),
             },
-            Verdict::Stopped(Box::new(dive_check::budget::Stopped {
-                resource: dive_check::budget::Resource::Memory,
+            Verdict::Stopped(Box::new(dive_runtime::budget::Stopped {
+                resource: dive_runtime::budget::Resource::Memory,
                 limit: 10,
                 observed: 11,
                 elapsed_ms: 12,
-                phase: dive_check::budget::Phase::Capture,
+                phase: dive_runtime::budget::Phase::Capture,
             })),
         ];
         for verdict in failures {
@@ -212,7 +215,7 @@ fn successful_factories_keep_existing_shape_checks_and_real_unexhausted_prefixes
                 "exhaustion is not a prefix"
             );
             let capture::ControlledExploration::Prefix(mut prefix) =
-                capture::explore_controlled_with_evidence(
+                test_capture::explore_controlled_with_evidence(
                     &model,
                     &options,
                     Limits::default(),

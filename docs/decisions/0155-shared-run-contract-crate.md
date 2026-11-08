@@ -74,3 +74,11 @@ longer depends on `dive-check`; `xtask/src/layering.rs` no longer permits
 that edge. Its analyzer tests build their graphs with a small test-only
 producer (`crates/dive-liveness/src/test_capture.rs`), so no `dive-liveness`
 target depends on `dive-check`.
+
+The `dive-check` crate is deleted (issue #791). `dive-runtime` is the only
+home of the run contract, and `xtask/src/layering.rs` no longer lists
+`dive-check`. The fixtures its tests shared with other crates moved to
+`crates/dive-api/tests/fixtures/checker/`; the tests that checked
+`dive-runtime`'s CSR and evidence factories against actual captures moved to
+`dive-liveness` (`tests/capture_csr.rs`, `tests/capture_evidence.rs`), and
+the tests of the reference engine itself were removed with it.

@@ -5,9 +5,12 @@
     reason = "deterministic capture controls"
 )]
 
+#[path = "../src/test_capture.rs"]
+mod test_capture;
+
 use std::sync::Arc;
 
-use dive_check::{
+use dive_runtime::{
     CheckOptions, Stats, Verdict,
     budget::{Budget, EvaluationControl, Phase},
     capture::{self, CsrCapture, CsrCaptureInput, CsrComplete, CsrPrefix, Limits},
@@ -109,7 +112,7 @@ fn model(options: &CheckOptions) -> dive_model::Model {
 }
 
 fn complete(options: &CheckOptions) -> capture::Complete {
-    match capture::explore(&model(options), options, Limits::default()) {
+    match test_capture::explore(&model(options), options, Limits::default()) {
         capture::Exploration::Complete(c) => *c,
         capture::Exploration::Stopped(s) => panic!("finite complete: {s:?}"),
     }
@@ -336,7 +339,7 @@ impl capture::Observer for Stop {
 fn actual_prefix_stays_incomplete_and_cannot_be_promoted() {
     let options = CheckOptions::dive(0);
     let capture::ControlledExploration::Prefix(original) =
-        capture::explore_controlled_with_evidence(
+        test_capture::explore_controlled_with_evidence(
             &model(&options),
             &options,
             Limits::default(),
@@ -415,7 +418,7 @@ fn armed_control_returns_actual_stop_and_never_completion() {
     let Verdict::Stopped(stop) = error else {
         panic!("actual resource stop: {error:?}")
     };
-    assert_eq!(stop.resource, dive_check::budget::Resource::Time);
+    assert_eq!(stop.resource, dive_runtime::budget::Resource::Time);
     assert_eq!(stop.phase, Phase::Capture);
     assert_eq!(stop.limit, 0);
 }

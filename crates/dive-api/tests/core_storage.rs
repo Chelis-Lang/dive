@@ -135,9 +135,9 @@ fn exact_keys_preserve_view_symmetry_and_diagnostic_replay_membership() {
         "tests/fixtures/core-m1/ViewMerge.tla",
         "tests/fixtures/core-m1/SymView.tla",
         "tests/fixtures/core-m1/SymSets.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErInvReplayViolation/ErInvReplayViolation.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErInvConstrained/ErInvConstrained.tla",
+        "tests/fixtures/checker/errors/specs/ErInvReplayViolation/ErInvReplayViolation.tla",
+        "tests/fixtures/checker/errors/specs/ErInvReplayError/ErInvReplayError.tla",
+        "tests/fixtures/checker/errors/specs/ErInvConstrained/ErInvConstrained.tla",
     ] {
         for compat_tlc in [false, true] {
             for workers in [1, 4, 8] {

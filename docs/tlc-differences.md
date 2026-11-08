@@ -121,7 +121,7 @@ How it works, in short: dive explores one breadth-first level at a time. Workers
 
 Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
 
-**Evidence.** Probe P8 in `docs/survey/competitive.md`, ADR 0004, ADR 0010, ADR 0015, `crates/dive-check/tests/invariance.rs` (every probe and a wide spec stopping with every kind of event, at 1–64 workers, under chaos, in both profiles and stores), and the harness worker-invariance reports in `docs/conformance.md`.
+**Evidence.** Probe P8 in `docs/survey/competitive.md`, ADR 0004, ADR 0010, ADR 0015, Core's worker-invariance tests (`crates/dive-api/tests/core_parallel.rs`: every Core fixture at 2, 3 and 8 workers against 1 worker), and the harness worker-invariance reports in `docs/conformance.md`.
 
 ---
 
@@ -132,7 +132,7 @@ Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
 | **Kind** | Same answer, better path (reporting); different answer only when you fix a seed |
 | **Default** | Fresh seed per run, as in TLC, but **the seed is always reported**; `--seed S` alone replays a run exactly, at any worker count |
 | **TLC behaviour** | TLC's seeding and TLC's draws, bit for bit, under `--compat=tlc` (given TLC's `-seed S` and `-fp N`) |
-| **Status** | implemented and wired into checking, in both modes, and verified against TLC. `dive check` accepts `--seed`, always reports the seed (and the fingerprint polynomial), and draws `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` from the run's streams: the start-up stream for constant definitions, `ASSUME`s and `Init`, and a stream per expanded state. On admitted untransformed routes under `--compat=tlc`, draws match TLC; this is not a claim of exact trace printing at every random stopping boundary (fixtures `TmRandom` and `TmRandomStartup` in `crates/dive-check/tests/fixtures/tlc-module/`). Like TLC, dive rebuilds a counterexample from a fresh start-up stream; when draws before `Init` make that impossible, dive reports the violation without a trace, as TLC does, and says why. `RandomSubsetSet` is still refused by name. The independent trace validator refuses every random draw made by a check: the run's seed and polynomial do not establish its stream position independently of successor generation (ADR 0016, amendment 3). Its TLC JSON interpretation heuristic scores only pure initial conjuncts, so it never consumes draws or writes registers before replay. |
+| **Status** | implemented and wired into checking, in both modes, and verified against TLC. `dive check` accepts `--seed`, always reports the seed (and the fingerprint polynomial), and draws `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` from the run's streams: the start-up stream for constant definitions, `ASSUME`s and `Init`, and a stream per expanded state. On admitted untransformed routes under `--compat=tlc`, draws match TLC; this is not a claim of exact trace printing at every random stopping boundary (fixtures `TmRandom` and `TmRandomStartup` in `crates/dive-api/tests/fixtures/checker/tlc-module/`). Like TLC, dive rebuilds a counterexample from a fresh start-up stream; when draws before `Init` make that impossible, dive reports the violation without a trace, as TLC does, and says why. `RandomSubsetSet` is still refused by name. The independent trace validator refuses every random draw made by a check: the run's seed and polynomial do not establish its stream position independently of successor generation (ADR 0016, amendment 3). Its TLC JSON interpretation heuristic scores only pure initial conjuncts, so it never consumes draws or writes registers before replay. |
 
 **What TLC does.** `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` draw from an unseeded random source during model checking unless you pass `-seed`. A spec that uses them can produce a different state space on every run.
 
@@ -448,8 +448,8 @@ so these words earn no agreement. See [the module guide](user/modules.md).
 | **Kind** | Same answer, with a stronger guarantee |
 | **Default** | Fingerprint mode, as in TLC, always reporting its collision bound |
 | **Better option** | `--store exact`: full states, with an unconditional claim that every state was checked |
-| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode on the TLC probes and harness fixtures (`crates/dive-check/tests/probes.rs`). Ordered safety-frontier spill is available with `--frontier-memory-bytes N` (zero forces disk), under both profiles/stores. It preserves concrete traces and ordered counts, and reports explicit I/O/cleanup failures. Visited stores, candidates, traces and graphs remain outside the frontier-only budget; their spill is still planned. See [frontier storage](user/storage-recovery.md) and ADR 0024. |
-| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode on the TLC probes and harness fixtures (`crates/dive-check/tests/probes.rs`). Separate predecessor spill is available; seen/graph spill is planned. |
+| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode (`exact_storage_runs_on_the_core` in `crates/dive-api/tests/core_default.rs`). Ordered safety-frontier spill is available with `--frontier-memory-bytes N` (zero forces disk), under both profiles/stores. It preserves concrete traces and ordered counts, and reports explicit I/O/cleanup failures. Visited stores, candidates, traces and graphs remain outside the frontier-only budget; their spill is still planned. See [frontier storage](user/storage-recovery.md) and ADR 0024. |
+| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode (`exact_storage_runs_on_the_core` in `crates/dive-api/tests/core_default.rs`). Separate predecessor spill is available; seen/graph spill is planned. |
 
 **What TLC does.** TLC stores 64-bit fingerprints of states, not the states themselves. A collision between two distinct states would silently skip part of the state space. TLC prints a probabilistic estimate of this at the end of a run, but the "no error found" verdict itself is probabilistic.
 
@@ -780,7 +780,7 @@ With `INVARIANT InvAlpha InvZeta`, the pinned TLC reports `InvZeta` after 2 stat
 
 **What dive does.** In the default profile, dive explores sets in the canonical order, as it does for `CHOOSE` (D-006), so the whole default profile is independent of the module text. Complete searches give the same states, totals and depth as TLC. Only *which* of several violations at the same depth is reported first, and the counts at that stop, can differ. dive flags runs where that happened. `--explore-order=tlc` (part of `--compat=tlc`) reproduces TLC's order exactly.
 
-**Evidence.** Probe `StringOrderViolation` in `crates/dive-check/tests/fixtures/tlc-probes/`; `crates/dive-eval/tests/options.rs`. Two Examples models show it in the default profile, with the same violated property, depth and counterexample length as TLC, and only the counts at the stop differing:
+**Evidence.** Probe `StringOrderViolation` in `crates/dive-api/tests/fixtures/checker/tlc-probes/`; `crates/dive-eval/tests/options.rs`. Two Examples models show it in the default profile, with the same violated property, depth and counterexample length as TLC, and only the counts at the stop differing:
 
 | Model | TLC (distinct / generated / queued) | dive default profile |
 |---|---|---|
@@ -811,7 +811,7 @@ retains input hashes and the diagnostic-only option change (#731).
 | **Kind** | Different answer (only for specs that read it) |
 | **Default** | `1`, the *logical* worker count, at every `--workers` setting (owner decision 2026-10-08) |
 | **TLC behaviour** | Under `--compat=tlc`, the physical worker count, as TLC reports it. `--compat=tlc` also defaults to 1 worker, as TLC does |
-| **Status** | implemented: `TLCGet("config").worker` is 1 by default and the requested `--workers` under `--compat=tlc` (`dive-check`'s `run_config`) |
+| **Status** | implemented: `TLCGet("config").worker` is 1 by default and the requested `--workers` under `--compat=tlc` |
 
 **What TLC does.** `TLCGet("config").worker` returns the number of worker threads. Specs read it to protect themselves from TLC's approximate multi-worker breadth-first search (D-001). For example, Examples `DieHard/MCDieHardest` declares:
 
@@ -1604,7 +1604,7 @@ A model such as `s' = (CHOOSE t \in {ToString(x), ToString(x+1)} : TRUE)`
 observes the order in which runtime strings are created. Speculative evaluation
 can change that order even with one requested worker. TLC additionally creates
 its configuration strings before assumptions: with `x \in 0..15` and the
-invariant in `crates/dive-check/tests/fixtures/runtime-names/DynamicStringOrder.tla`,
+invariant in `crates/dive-api/tests/fixtures/checker/runtime-names/DynamicStringOrder.tla`,
 seed 7 stops at 23 generated/distinct states; seeds 0 and 14 stop at 30.
 The raw pinned captures preserve this evidence.
 
@@ -1708,7 +1708,7 @@ Dive's native DFID exposes the reached level, partial counts and
 `termination: depth-bound`, with `exhaustive: false` and `model_proved: false`.
 A zero compatibility exit will not become a proof claim. A complete finite
 check will carry a separate visitation-completion certificate. Clean primary
-transcripts are under `crates/dive-check/tests/fixtures/dfid/`; no RNG or trace
+transcripts are under `crates/dive-api/tests/fixtures/checker/dfid/`; no RNG or trace
 instrumentation changes the oracle in these controls.
 
 **D-002 replay extension:** even with seed 7, aril 3 and fingerprint index 0,
@@ -1747,7 +1747,7 @@ verified search/counting contract but does not label a malformed word valid.
 Reports state this witness policy. No TLC-matching trace claim is made here.
 
 **Status and evidence.** Source and primary raw observations are in
-`crates/dive-check/tests/fixtures/dfid/`; `oracle-controls.json` records the clean
+`crates/dive-api/tests/fixtures/checker/dfid/`; `oracle-controls.json` records the clean
 selection. Separately labelled seeded-worker reference controls reproduce both
 root choices. This correction follows the soundness-first contract; a broken
 witness never certifies a violation.

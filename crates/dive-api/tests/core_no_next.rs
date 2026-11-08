@@ -15,7 +15,7 @@ fn missing_next_actions_keep_tlcs_model_error_and_precedence() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let cases = [
         (
-            "../dive-check/tests/fixtures/dfid/DfidInitialOnly.tla",
+            "tests/fixtures/checker/dfid/DfidInitialOnly.tla",
             "model-error",
             2115,
             75,

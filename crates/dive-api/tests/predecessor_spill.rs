@@ -15,9 +15,15 @@ fn request(corpus: &str, name: &str) -> CheckRequest {
     } else {
         "tlc-probes"
     };
-    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
-        "../{corpus}/tests/fixtures/{fixture}/specs/{name}/{name}.tla"
-    ));
+    // `checker` is this crate's copy of the retired reference checker's
+    // fixtures; any other corpus names a crate.
+    let root = if corpus == "checker" {
+        "tests/fixtures/checker".to_owned()
+    } else {
+        format!("../{corpus}/tests/fixtures")
+    };
+    let file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join(format!("{root}/{fixture}/specs/{name}/{name}.tla"));
     CheckRequest {
         config: Some(file.with_extension("cfg")),
         file,
@@ -46,16 +52,16 @@ fn observable(mut json: serde_json::Value) -> serde_json::Value {
 #[test]
 fn zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos() {
     for (corpus, name) in [
-        ("dive-check", "DuplicateSuccessors"),
-        ("dive-check", "TmRandom"),
-        ("dive-check", "TmRandomStartup"),
-        ("dive-check", "MidLevelViolation"),
-        ("dive-check", "DeadlockMidLevel"),
-        ("dive-check", "EvalErrorMidLevel"),
-        ("dive-check", "InitViolation"),
-        ("dive-check", "ConstrainedViolation"),
-        ("dive-check", "ActionConstraintNoDeadlock"),
-        ("dive-check", "ImpliedActionSeen"),
+        ("checker", "DuplicateSuccessors"),
+        ("checker", "TmRandom"),
+        ("checker", "TmRandomStartup"),
+        ("checker", "MidLevelViolation"),
+        ("checker", "DeadlockMidLevel"),
+        ("checker", "EvalErrorMidLevel"),
+        ("checker", "InitViolation"),
+        ("checker", "ConstrainedViolation"),
+        ("checker", "ActionConstraintNoDeadlock"),
+        ("checker", "ImpliedActionSeen"),
         ("dive-liveness", "SymOrder"),
         ("dive-liveness", "SymViolation"),
         ("dive-liveness", "SymView"),
@@ -179,7 +185,7 @@ fn early_admission_and_failed_creation_never_certify_success() {
             .to_string()
             .contains("predecessor spill")
     );
-    let mut req = request("dive-check", "DuplicateSuccessors");
+    let mut req = request("checker", "DuplicateSuccessors");
     req.compat_tlc = true;
     req.workers = Some(8);
     req.predecessor_memory_bytes = Some(0);
@@ -226,8 +232,8 @@ fn combined_frontier_and_predecessor_spill_preserves_order_and_witnesses() {
         j
     }
     for (corpus, name) in [
-        ("dive-check", "DuplicateSuccessors"),
-        ("dive-check", "MidLevelViolation"),
+        ("checker", "DuplicateSuccessors"),
+        ("checker", "MidLevelViolation"),
         ("dive-liveness", "SymViolation"),
         ("dive-liveness", "SymView"),
     ] {

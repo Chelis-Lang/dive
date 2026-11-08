@@ -13,10 +13,10 @@ type TestResult = Result<(), Box<dyn std::error::Error>>;
 fn partial_next_words_preserve_the_pinned_bfs_terminal_and_logical_length() -> TestResult {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     for path in [
-        "crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.tla",
-        "crates/dive-check/tests/fixtures/dfid/DfidIncomplete.tla",
-        "crates/dive-check/tests/fixtures/dfid/DfidActionPrecedence.tla",
-        "crates/dive-check/tests/fixtures/dfid/DfidNextPrecedence.tla",
+        "crates/dive-api/tests/fixtures/checker/errors/specs/ErNextIncomplete/ErNextIncomplete.tla",
+        "crates/dive-api/tests/fixtures/checker/dfid/DfidIncomplete.tla",
+        "crates/dive-api/tests/fixtures/checker/dfid/DfidActionPrecedence.tla",
+        "crates/dive-api/tests/fixtures/checker/dfid/DfidNextPrecedence.tla",
         "crates/dive-eval/tests/fixtures/next/specs/NxUnassigned/NxUnassigned.tla",
         "crates/dive-model/tests/fixtures/action-inventory/DirectTrue.tla",
         "crates/dive-model/tests/fixtures/action-inventory/SharedTrue.tla",
@@ -98,7 +98,7 @@ fn complete_prefix_must_pass_configured_safety_before_partial_replay() -> TestRe
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
         .join(
-            "crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.tla",
+            "crates/dive-api/tests/fixtures/checker/errors/specs/ErNextIncomplete/ErNextIncomplete.tla",
         );
     let original = std::fs::read_to_string(&file)?;
     let additions =
@@ -186,7 +186,7 @@ fn init_partial_error_witness_preserves_the_absent_formal_counterexample() -> Te
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
         .join(
-            "crates/dive-check/tests/fixtures/errors/specs/ErInitIncomplete/ErInitIncomplete.tla",
+            "crates/dive-api/tests/fixtures/checker/errors/specs/ErInitIncomplete/ErInitIncomplete.tla",
         );
     for compat_tlc in [false, true] {
         let spec = SpecModel::load(

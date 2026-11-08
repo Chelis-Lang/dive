@@ -98,8 +98,7 @@ fn exact_cause_named_invariant_and_first_failure_are_required() {
 
 #[test]
 fn named_invariant_word_survives_a_different_diagnostic_replay_error() {
-    let root =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/errors");
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checker/errors");
     let file = root.join("specs/ErInvReplayError/ErInvReplayError.tla");
     // The authoritative clean pinned run reports the original invariant
     // error, then a separate nested replay error. This is not a claim that

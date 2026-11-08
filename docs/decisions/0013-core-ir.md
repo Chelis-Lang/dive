@@ -20,7 +20,7 @@ Its input is `dive-sema`'s semantic model (in progress on its branch). That mode
 
 Lowering is therefore a port of how TLC walks SANY's graph, and this ADR fixes what that port must preserve.
 
-TLC paths below are relative to `tlatools/org.lamport.tlatools/src/` at tlaplus `94d0c50`. Probes are in `crates/dive-check/tests/fixtures/tlc-probes/`.
+TLC paths below are relative to `tlatools/org.lamport.tlatools/src/` at tlaplus `94d0c50`. Probes are in `crates/dive-api/tests/fixtures/checker/tlc-probes/`.
 
 ### TLC behaviour the IR must be able to express
 

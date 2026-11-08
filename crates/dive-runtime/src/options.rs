@@ -84,8 +84,8 @@ pub struct CheckOptions {
     /// levels, whether small phases run inline, and insert random yields.
     /// Results must not change; any change is a determinism bug.
     pub chaos: Option<u64>,
-    /// The run's time and memory limits (ADR 0107). `dive_check::check` arms an
-    /// unarmed budget for its own run; a caller that runs several stages
+    /// The run's time and memory limits (ADR 0107). A run arms an unarmed
+    /// budget for itself; a caller that runs several stages
     /// (capture, then temporal analysis) arms it once with
     /// [`crate::budget::Budget::start`] so the stages share one clock.
     /// Unlimited here; `dive_api` resolves the profile's defaults. TLC
@@ -97,8 +97,8 @@ pub struct CheckOptions {
     /// Maximum breadth-first discovery depth; initial states have depth one.
     /// `None` is TLC-equivalent; TLC's simulation `-depth` is unrelated.
     pub max_depth: Option<u64>,
-    /// Synchronizes the reference engine's budget/event race in its unit
-    /// tests (`dive-check`'s `test-hooks` dev-dependency); absent otherwise.
+    /// Synchronizes a budget/event race in tests that enable the
+    /// `test-hooks` feature; absent otherwise.
     #[cfg(feature = "test-hooks")]
     #[doc(hidden)]
     pub parallel_budget_test: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,

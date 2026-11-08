@@ -287,25 +287,25 @@
 {"id":"crates/dive-sema/tests/sany-cases/UnusedBadLevelInLet.tla","error":"java.lang.IllegalStateException: SANY rejects the module"}
 {"id":"crates/dive-sema/tests/sany-cases/UseUndefined.tla","error":"java.lang.IllegalStateException: SANY rejects the module"}
 {"id":"crates/dive-sema/tests/sany-cases/WFTemporalSubscript.tla","error":"java.lang.IllegalStateException: SANY rejects the module"}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/ActionConstraintNoDeadlock/ActionConstraintNoDeadlock.tla","module":"ActionConstraintNoDeadlock.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/ConstrainedViolation/ConstrainedViolation.tla","module":"ConstrainedViolation.tla","via":"sany","vars":["x"],"keys":89}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/ConstraintNoDeadlock/ConstraintNoDeadlock.tla","module":"ConstraintNoDeadlock.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/DeadlockMidLevel/DeadlockMidLevel.tla","module":"DeadlockMidLevel.tla","via":"sany","vars":["x"],"keys":87}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.tla","module":"DuplicateSuccessors.tla","via":"sany","vars":["x"],"keys":87}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/EvalErrorMidLevel/EvalErrorMidLevel.tla","module":"EvalErrorMidLevel.tla","via":"sany","vars":["x"],"keys":91}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/ExistsOrder/ExistsOrder.tla","module":"ExistsOrder.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/ExistsSetOrder/ExistsSetOrder.tla","module":"ExistsSetOrder.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/FilterSetOrder/FilterSetOrder.tla","module":"FilterSetOrder.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/ImpliedActionSeen/ImpliedActionSeen.tla","module":"ImpliedActionSeen.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/InSetOrder/InSetOrder.tla","module":"InSetOrder.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/InitViolation/InitViolation.tla","module":"InitViolation.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/MapSetOrder/MapSetOrder.tla","module":"MapSetOrder.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/MidLevelViolation/MidLevelViolation.tla","module":"MidLevelViolation.tla","via":"sany","vars":["x"],"keys":90}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/StringOrderPreinterned/StringOrderPreinterned.tla","module":"StringOrderPreinterned.tla","via":"sany","vars":["y"],"keys":78}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/StringOrderViolation/StringOrderViolation.tla","module":"StringOrderViolation.tla","via":"sany","vars":["y"],"keys":78}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/StutterInNext/StutterInNext.tla","module":"StutterInNext.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/StutterNext/StutterNext.tla","module":"StutterNext.tla","via":"sany","vars":["x"],"keys":88}
-{"id":"crates/dive-check/tests/fixtures/tlc-probes/specs/StutterSpec/StutterSpec.tla","module":"StutterSpec.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/ActionConstraintNoDeadlock/ActionConstraintNoDeadlock.tla","module":"ActionConstraintNoDeadlock.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/ConstrainedViolation/ConstrainedViolation.tla","module":"ConstrainedViolation.tla","via":"sany","vars":["x"],"keys":89}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/ConstraintNoDeadlock/ConstraintNoDeadlock.tla","module":"ConstraintNoDeadlock.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/DeadlockMidLevel/DeadlockMidLevel.tla","module":"DeadlockMidLevel.tla","via":"sany","vars":["x"],"keys":87}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.tla","module":"DuplicateSuccessors.tla","via":"sany","vars":["x"],"keys":87}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/EvalErrorMidLevel/EvalErrorMidLevel.tla","module":"EvalErrorMidLevel.tla","via":"sany","vars":["x"],"keys":91}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/ExistsOrder/ExistsOrder.tla","module":"ExistsOrder.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/ExistsSetOrder/ExistsSetOrder.tla","module":"ExistsSetOrder.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/FilterSetOrder/FilterSetOrder.tla","module":"FilterSetOrder.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/ImpliedActionSeen/ImpliedActionSeen.tla","module":"ImpliedActionSeen.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/InSetOrder/InSetOrder.tla","module":"InSetOrder.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/InitViolation/InitViolation.tla","module":"InitViolation.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/MapSetOrder/MapSetOrder.tla","module":"MapSetOrder.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/MidLevelViolation/MidLevelViolation.tla","module":"MidLevelViolation.tla","via":"sany","vars":["x"],"keys":90}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/StringOrderPreinterned/StringOrderPreinterned.tla","module":"StringOrderPreinterned.tla","via":"sany","vars":["y"],"keys":78}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/StringOrderViolation/StringOrderViolation.tla","module":"StringOrderViolation.tla","via":"sany","vars":["y"],"keys":78}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/StutterInNext/StutterInNext.tla","module":"StutterInNext.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/StutterNext/StutterNext.tla","module":"StutterNext.tla","via":"sany","vars":["x"],"keys":88}
+{"id":"crates/dive-api/tests/fixtures/checker/tlc-probes/specs/StutterSpec/StutterSpec.tla","module":"StutterSpec.tla","via":"sany","vars":["x"],"keys":88}
 {"id":"crates/dive-conformance/tests/fixtures/specs/ActionProperty/ActionProperty.tla","module":"ActionProperty.tla","via":"sany","vars":["x"],"keys":89}
 {"id":"crates/dive-conformance/tests/fixtures/specs/AssertFailure/AssertFailure.tla","module":"AssertFailure.tla","via":"sany","vars":["x"],"keys":101}
 {"id":"crates/dive-conformance/tests/fixtures/specs/Assumption/Assumption.tla","module":"Assumption.tla","via":"sany","vars":["x"],"keys":88}

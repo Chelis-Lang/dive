@@ -1,7 +1,7 @@
 //! The new core's successor generator against the rule fixtures of
 //! `docs/developer/core/05-successor-generation.md` §7 (the `Nx*` specs of
 //! `crates/dive-eval/tests/fixtures/next/`) and the TLC probes of
-//! `crates/dive-check/tests/fixtures/tlc-probes/`.
+//! `crates/dive-api/tests/fixtures/checker/tlc-probes/`.
 //!
 //! Each fixture runs under `--engine=core` and the reference engine in the
 //! default profile at one worker. Where the core runs it, its verdict,
@@ -253,16 +253,16 @@ fn rule_fixtures_match_the_reference_and_tlc() {
 
 #[test]
 fn tlc_probes_match_the_reference_and_tlc() {
-    let agreed = check_dir("crates/dive-check/tests/fixtures/tlc-probes");
+    let agreed = check_dir("crates/dive-api/tests/fixtures/checker/tlc-probes");
     assert!(agreed >= 18, "only {agreed} probes agreed");
 }
 
-/// The error-class fixtures (`crates/dive-check/tests/fixtures/errors/`):
+/// The error-class fixtures (`crates/dive-api/tests/fixtures/checker/errors/`):
 /// the core's error endings (class, exit, counts after TLC's call-stack
 /// replay, trace length) equal the reference engine's.
 #[test]
 fn error_fixtures_match_the_reference() {
-    let agreed = check_dir("crates/dive-check/tests/fixtures/errors");
+    let agreed = check_dir("crates/dive-api/tests/fixtures/checker/errors");
     // 175 fixtures: 130 or more agree, `ErFpInfinite`, the implied action
     // errors (`ErProp*`), the `ErAlias*` and the `ErView*` fixtures among
     // them; the rest use POSTCONDITION, Print, ENABLED, non-constant split

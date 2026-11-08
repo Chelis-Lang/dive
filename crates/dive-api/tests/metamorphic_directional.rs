@@ -40,7 +40,7 @@ const FAST_SEEDS: &[&str] = &[
     "crates/dive-eval/tests/fixtures/examples/specifications/DieHard/DieHard.tla",
     "crates/dive-eval/tests/fixtures/examples/specifications/transaction_commit/TCommit.tla",
     "crates/dive-eval/tests/fixtures/examples/specifications/CigaretteSmokers/CigaretteSmokers.tla",
-    "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayViolation/ErInvReplayViolation.tla",
+    "crates/dive-api/tests/fixtures/checker/errors/specs/ErInvReplayViolation/ErInvReplayViolation.tla",
 ];
 
 /// States explored per run.

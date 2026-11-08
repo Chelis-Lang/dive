@@ -36,7 +36,7 @@ fn candidate_spill_preserves_profiles_stores_widths_history_and_independent_word
         "tests/fixtures/core-m1/ViewMerge.tla",
         "tests/fixtures/core-m1/SymView.tla",
         "tests/fixtures/core-m1/SymSets.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.tla",
+        "tests/fixtures/checker/errors/specs/ErInvReplayError/ErInvReplayError.tla",
         "../../conformance/corpus/construction-set-history/specifications/ExceptSetHandoff/ExceptSetHandoff.tla",
     ] {
         for tlc in [false, true] {
@@ -217,9 +217,9 @@ fn candidate_policy_can_change_across_core_checkpoint_recovery() {
 #[test]
 fn candidate_spill_keeps_incomplete_constraint_and_action_endings() {
     for relative in [
-        "../dive-check/tests/fixtures/dfid/DfidIncomplete.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErConstrAssert/ErConstrAssert.tla",
-        "../dive-check/tests/fixtures/tlc-probes/specs/ImpliedActionSeen/ImpliedActionSeen.tla",
+        "tests/fixtures/checker/dfid/DfidIncomplete.tla",
+        "tests/fixtures/checker/errors/specs/ErConstrAssert/ErConstrAssert.tla",
+        "tests/fixtures/checker/tlc-probes/specs/ImpliedActionSeen/ImpliedActionSeen.tla",
     ] {
         for tlc in [false, true] {
             let mut req = request(relative, tlc, 4, Store::Exact);

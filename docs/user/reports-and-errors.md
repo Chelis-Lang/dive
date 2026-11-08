@@ -112,7 +112,7 @@ source expansions, actual key insertions and the terminal primary/diagnostic
 sequence. Report schema 3 remains unchanged.
 
 ```sh
-dive check crates/dive-check/tests/fixtures/errors/specs/ErViewChoose/ErViewChoose.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/checker/errors/specs/ErViewChoose/ErViewChoose.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 This reports the original underlying error, deciding2103/physical75 and two
@@ -401,7 +401,7 @@ severities throughout; unexpected frames leave its deciding class unproved.
 For example, the existing action-constraint division control runs as:
 
 ```sh
-dive check crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/checker/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 It reports evaluation-error, deciding code 2179/TLC exit 255 and a version-4 final

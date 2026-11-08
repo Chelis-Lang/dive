@@ -77,7 +77,7 @@ macro_rules! role {
         #[test]
         fn $test() {
             let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../dive-check/tests/fixtures/disk-seen-roles");
+                .join("tests/fixtures/checker/disk-seen-roles");
             witness_case($name, &root);
         }
     };

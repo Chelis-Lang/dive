@@ -16,9 +16,9 @@ Reproduce a cell after `oracle fetch` and `corpus fetch`:
 ```sh
 cargo run -p dive-conformance --release -- dev capture \
   --oracle tlc-2026.10.06.014338 \
-  --specs crates/dive-check/tests/fixtures/errors/specs \
+  --specs crates/dive-api/tests/fixtures/checker/errors/specs \
   --out /tmp/dive-error-capture ErNextUnassigned
-cargo test -p dive-check --test errors
+cargo nextest run -p dive-api -E 'test(/error/)' --locked
 ```
 
 The matrix compares the first error's code and complete nested message,
