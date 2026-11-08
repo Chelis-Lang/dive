@@ -531,22 +531,11 @@ See `docs/native-checkpoint.md` and the source/raw control study at
 
 ## D-008: Results are data, and diagnostics are built for people and agents
 
-Explicit `dive check --source-coverage` reports native expression entries and
-Init/Next generator work at original source positions. It defaults to off, its
-TLC-equivalent setting. Either profile can request these labelled native metrics
-for ordinary Reference safety checking; Auto selects Reference before execution.
-They count actual producer work, including a failing demand or stopped prefix,
-and exclude diagnostic reconstruction and independent trace replay. They are
-separate from completion or witness proof and do not implement TLC's logical
-action-context costs. The separate final `--coverage 0` / TLC `-coverage 0`
-route implements the admitted Reference Init/Next scalar/quantifier logical
-slice (ADR 0150), including multiple variables, reused helper paths and concrete
-domain enumeration. Its successful costs use original source trees; failed or
-stopped runs retain their model result but explicitly refuse unproved TLC
-reconstruction costs, without repeating effects. Nonzero intervals, remaining
-cost families and variable summaries remain unfinished. Core, ENABLED,
-temporal, checkpoint/recovery and core-sample combinations are not implemented
-in this first route. See [native source work](user/checking.md#native-source-work).
+Coverage is not implemented on Core. `dive check --source-coverage` (native
+source work) and `--coverage 0` (TLC `-coverage 0`, logical action-context
+costs) are named refusals in both profiles; both default to off, the
+TLC-equivalent setting. Only the removed reference engine collected them
+(issue #791). See [coverage](user/checking.md#coverage).
 
 D-008 PlusCal original AST data: `dive translate --ast` returns an earlier-stage
 `AST.tla` representation in memory. Exit0 and `artifact_available: true` mean bytes

@@ -10,6 +10,13 @@ published. Earlier pre-release development entries remain in git history.
   run contract in `dive-runtime`. Its shared test fixtures now live in
   `crates/dive-api/tests/fixtures/checker/`. Verdicts and counts are
   unchanged.
+- The coverage plumbing that only the reference engine fed is removed
+  (issue #791): `CheckReport::source_coverage()` and
+  `CheckReport::tlc_coverage()`, `CheckOptions::source_coverage`, and
+  `dive_model::bind_source_covered` and `bind_controlled_source_covered`. Core
+  already refuses `--coverage 0` and `--source-coverage` by name, so no report
+  carried coverage; the requests and their refusals are unchanged. The safety
+  checking guide no longer describes coverage as available.
 - `dive-liveness` no longer has the reference engine's temporal analyses
   (`analyze::analyze_final*`, `analyze::analyze_observed`,
   `analyze::periodic::analyze_periodic*` and the `OwnedTemporal`

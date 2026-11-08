@@ -5,70 +5,23 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers auto --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --store exact --output json
 ```
 
-## TLC logical coverage
+## Coverage
 
 ```sh
-dive check docs/user/examples/Coverage.tla --coverage 0 --compat=tlc --seed 7 --fp 0 --output json
-dive tlc -coverage 0 -workers 4 -seed 7 -fp 0 docs/user/examples/Coverage.tla
+dive check docs/user/examples/Coverage.tla --coverage 0 --compat=tlc --seed 7 --fp 0
+dive check docs/user/examples/Counter.tla --source-coverage --seed 7
 ```
 
-Both commands complete the two-variable example with three distinct states,
-four generated states and depth three. Auto selects Reference before execution
-and reports one actual worker. `--coverage 0` corresponds to TLC `-coverage 0`:
-produce the final logical action-context report. Coverage defaults to off in
-both profiles, matching TLC without `-coverage`. Nonzero reporting intervals
-are explicitly unsupported. The default semantic profile remains available;
-its existing value-order and integer defaults still apply. Use `--compat=tlc`
-when comparing against TLC's value semantics.
-
-The JSON `tlc_coverage` object contains separate Init and split Next action
-trees, original source ranges, logical invocations and enumeration costs.
-Repeated parameterizations of the same action predicate share a tree. Different
-calls to a helper within one action retain their own paths. Source labels use
-the original declaration header, including parameters; unvisited assignments
-retain TLC's zero rows. These are logical costs, not native expression-entry
-counts. Collection observes actual producer demands and concrete set identities;
-rendering or snapshotting never evaluates a TLA+ expression.
-
-Assignment source markers follow formal arguments and aliases, including a
-helper that primes an unprimed variable actual. Markers are shared by source
-predicate across the calling forest. Their non-evaluating scan stops at an
-equality or membership predicate, preserving TLC's rows for unused branches
-without demanding either side's values.
-
-The admitted slice supports multiple scalar state variables, explicit INIT/NEXT,
-acyclic first-order helpers, scalar arithmetic/boolean expressions, IF actions,
-finite literal/interval domains, interval-based powersets and differences,
-bounded quantifiers and CHOOSE. Concrete literal-domain enumeration includes
-TLC's prefetch demand and early termination. Existing laziness shortcuts are
-disabled only while measuring logical argument demand; unused effects remain
-unused and repeated lazy uses retain the ordinary thunk cache.
-
-Configured constants, SPECIFICATION/property/constraint roles, VIEW, symmetry,
-INSTANCE, recursion, higher-order operators, functions/compound state values,
-captured LET/substitution contexts, unproved set materialization, Core/ENABLED,
-temporal, checkpoint/recovery and sampling combinations are outside this slice.
-Unsupported source shapes refuse
-through the ordinary unsupported model path. A reached cost operation without
-an implemented map yields `tlc_coverage.status: "unsupported"`, with a named
-`feature` and no action costs; the original model result is retained.
-
-Failed, stopped or unsupported runs also refuse the coverage feature. The pinned
-TLC adds diagnostic-reconstruction work after an error; dive does not execute
-those effects again to manufacture matching costs. The original verdict,
-statistics, output and independently validated error word remain separate.
-Complete successful reports have `status: "available"`. Neither status supplies
-a proof beyond the ordinary model report. Counter saturation and the bounded
-calling-tree/set-source collector capacities refuse exact costs.
-
-Rust callers set `CheckRequest.tlc_coverage = true`; the ordinary checking API
-returns the typed `CheckReport::tlc_coverage()` snapshot. Its `unsupported` field
-names a coverage refusal. Native `source_coverage` and logical `tlc_coverage`
-requests are mutually exclusive. Low-level callers use `SourceCoverage::tlc`
-and the existing observed binding entrypoints, which prepare the action forest
-before generation. Further TLC coverage, variable-value summary, compiled
-source-map and debugging breadth are post-v0.1 work, frozen under
-[ADR 0153](../decisions/0153-core-is-the-product.md).
+Core does not implement TLC's logical coverage (`--coverage 0`, TLC
+`-coverage 0`) or native source work (`--source-coverage`). Either request is
+a named refusal (verdict `unsupported`, exit 3) in both profiles, and so is
+`dive tlc -coverage 0`. Coverage defaults to off, which is the TLC-equivalent
+setting; the same command without the option checks the model as usual. Rust
+callers that set `CheckRequest.tlc_coverage` or `CheckRequest.source_coverage`
+get `ApiError::Unsupported`. Only the removed reference engine collected
+coverage (issue #791); coverage on Core is frozen until after v0.1
+([ADR 0153](../decisions/0153-core-is-the-product.md)), and issue #910 lists
+the tests to restore when it lands.
 
 ## Native distributed workers
 
@@ -78,54 +31,6 @@ processes, see [distributed safety](distributed-safety.md). Repeat
 and a local `--worker-key FILE`. Omission preserves local checking in both
 profiles. Remote source evaluation and ordered coordinator commit do not provide
 source coverage or an aggregate memory/performance guarantee.
-
-## Native source work
-
-```sh
-dive check docs/user/examples/Counter.tla --source-coverage --seed 7 --output json
-```
-
-`--source-coverage` (native source work) and `--coverage 0` (TLC logical
-costs) are not implemented on Core: either is a named refusal (exit 3). The
-default is off, which is the TLC-equivalent setting.
-
-JSON adds `source_coverage` with `metric: "native-source-work"`, exact file/module,
-UTF-8 byte ranges and JavaCC line/column positions, static instance-definition
-names and five named counters per source row. End byte offsets are exclusive;
-end columns are inclusive and follow UTF-16/tab expansion. Rows with zero work remain available; embedded
-standard-module rows are excluded and synthetic origins are separate. Human
-output shows the visited source rows. Native counts can change with evaluation
-and caching strategies, independently of model semantics.
-
-The context is explicitly `static-ir-origin`: nested callers that reach the same
-original instantiated definition share its row. For example, outer `A` and `B`
-instances can both contribute to one inner `I!Double` source row. These rows do
-not reconstruct a dynamic calling tree or TLC's action-context costs.
-
-Observation begins before producer constant/ASSUME evaluation and includes the
-actual safety producer's Init, Next and property checks. It stops at checker
-return: independent witness/diagnostic replay and report presentation cannot
-inflate the rows. A failure or budget stop reports the actual producer prefix,
-with its original verdict/completion information. Generator emissions include
-candidates later rejected by constraints or already seen; they are not a count of
-distinct states or committed discoveries. Counters never supply a model proof.
-Saturation sets `overflowed: true` instead of wrapping into smaller counts.
-
-Rust callers set `CheckRequest.source_coverage = true` and use the existing
-checking functions; `CheckReport::source_coverage()` returns a typed snapshot.
-Low-level callers can create a `dive_eval::SourceCoverage`
-for their exact `Arc<Ir>` and use the observed evaluator/binding entry points;
-ordinary constructors and fresh replay recipes stay unobserved. Snapshotting
-counts does not execute a specification. The file API returns stopped collection;
-a manually shared live collector's snapshot is not coherent across concurrent
-entries.
-
-The first file route supports ordinary Reference safety BFS. Explicit Core,
-explicit temporal mode, checkpoint/recovery and core-sample combinations refuse.
-Genuine temporal properties still refuse rather than passing as safety. Models
-containing `ENABLED` currently refuse this option because its compiled query body
-has no source map; unobserved checking retains its existing support. Core source
-maps, TLC logical costs and source debugging remain work in progress.
 
 Invariant expressions that use `ENABLED` through an `INSTANCE` retain the
 query context inside native callbacks such as `SelectSeq`. A callback that reads
