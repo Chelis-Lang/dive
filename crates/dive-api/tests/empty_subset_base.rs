@@ -3,6 +3,8 @@
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, ExitConvention};
+#[path = "support/refused.rs"]
+mod refused;
 
 #[test]
 fn empty_subset_bases_reach_the_initial_invariant_and_validate_the_finite_word() {
@@ -22,9 +24,19 @@ fn empty_subset_bases_reach_the_initial_invariant_and_validate_the_finite_word()
                     fp: Some(0),
                     ..CheckRequest::default()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )
             .expect("ordinary source-bound check");
+            // Only the retired reference engine ran TLC's checked
+            // mixed-shape comparison on EmptyBase (#791, #910).
+            if compat_tlc && name == "EmptyBase" {
+                refused::assert_refused(
+                    &report.to_json(),
+                    report.exit_code(),
+                    refused::MIXED_SHAPES,
+                );
+                continue;
+            }
             assert_eq!(report.verdict(), "invariant-violation");
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 12);
             let value = report.to_json();

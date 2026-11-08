@@ -61,8 +61,6 @@ fn concrete_product_operations_match_pinned_successes_and_preserve_alias_history
             "distinct":r["counts"]["distinct_states"],"generated":r["counts"]["states_generated"],"depth":r["counts"]["depth"]});
         for compat in [false, true] {
             let req = request(name, compat);
-            let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
-            assert_eq!(facts(&reference), expected, "{name}/{compat}/Reference");
             for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
                 let core = check_file_core_opts(&req, switches).expect("Core check");
                 assert_eq!(core.to_json()["engine"], "core");
@@ -91,11 +89,8 @@ fn an_infinite_axis_does_not_hide_a_later_scalar_finiteness_error() {
     for compat in [false, true] {
         let req = request("InfiniteThenScalar", compat);
         assert!(!root().join("conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/InfiniteThenScalar/InfiniteThenScalar.cfg.json").exists());
-        let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
-        let d = reference.to_json();
-        assert_eq!(d["verdict"], "evaluation-error");
-        assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
-        assert_eq!(d["tlc"]["verified"], false);
+        // Only the retired reference engine reported this unverified
+        // finiteness error (75); Core refuses the factor by name (#791, #910).
         for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
             let core = check_file_core_opts(&req, switches).expect("Core check");
             let d = core.to_json();
@@ -114,8 +109,8 @@ fn an_infinite_axis_does_not_hide_a_later_scalar_finiteness_error() {
 fn sizing_keeps_product_membership_receiver_and_demands_nonempty_axis_sizes() {
     for compat in [false, true] {
         let req = request("SizedProductReceiver", compat);
-        let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
-        let expected = reference.to_json();
+        let default = check_file_engine(&req, Engine::Core).expect("Core check");
+        let expected = default.to_json();
         assert_eq!(expected["verdict"], "evaluation-error");
         assert!(
             expected["message"]
@@ -133,25 +128,16 @@ fn sizing_keeps_product_membership_receiver_and_demands_nonempty_axis_sizes() {
         }
         let req = request("DemandedRawProductSize", compat);
         assert!(!root().join("conformance/golden/tlc-2026.10.06.014338/product-operations/specifications/DemandedRawProductSize/DemandedRawProductSize.cfg.json").exists());
-        let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
-        let d = reference.to_json();
         if !compat {
             let expected = json!({"verdict":"success", "code":2193, "exit":0, "distinct":3, "generated":3, "depth":3});
-            assert_eq!(facts(&reference), expected);
             for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
                 let core = check_file_core_opts(&req, switches).expect("canonical Core check");
                 assert_eq!(facts(&core), expected, "{switches}");
             }
             continue;
         }
-        assert_eq!(d["verdict"], "evaluation-error");
-        assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
-        assert_eq!(d["tlc"]["verified"], false);
-        assert!(
-            d["message"]
-                .as_str()
-                .is_some_and(|s| s.contains("STARTMSG 2154:"))
-        );
+        // Only the retired reference engine reported TLC's unverified 2154
+        // error here; Core refuses the mixed-shape set by name (#791, #910).
         for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
             let core = check_file_core_opts(&req, switches).expect("Core check");
             let d = core.to_json();

@@ -1,5 +1,7 @@
 //! Bounded `PointOnLine` checker witnesses are independently validated.
 #![allow(clippy::expect_used, reason = "functional assertions")]
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store};
 use std::path::PathBuf;
@@ -10,7 +12,8 @@ fn point_witness_matches_counts_and_rejects_forged_coordinates() {
     let modules =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-eval/tests/fixtures/svg-point");
     for compat_tlc in [true, false] {
-        let model = SpecModel::load(
+        // The independent validator still binds the module.
+        let _model = SpecModel::load(
             &file,
             &file.with_extension("cfg"),
             &TraceOptions {
@@ -32,29 +35,18 @@ fn point_witness_matches_counts_and_rejects_forged_coordinates() {
                     module_paths: vec![modules.clone()],
                     ..CheckRequest::default()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )
             .expect("check");
-            assert_eq!(report.exit_code(), if compat_tlc { 12 } else { 10 });
-            let json = report.to_json();
-            assert_eq!(json["verdict"], "invariant-violation", "{json}");
-            assert_eq!(json["property"], "Inv");
-            assert_eq!(json["tlc"]["code"], 2110);
-            assert_eq!(json["statistics"]["generated"], 2);
-            assert_eq!(json["statistics"]["distinct"], 2);
-            assert_eq!(json["statistics"]["depth"], 2);
-            let doc = TraceDoc::from_json(&json).expect("witness");
-            assert_eq!(
-                doc.states[0]["p"],
-                serde_json::json!({"record":{"x":0,"y":1}})
+            // Only the retired reference engine evaluated SVG!PointOnLine
+            // (#791, #910). Pinned TLC: invariant `Inv` violated (2110) after
+            // 2 generated and 2 distinct states, with p = [x |-> 0, y |-> 1]
+            // in the first state.
+            refused::assert_refused(
+                &report.to_json(),
+                report.exit_code(),
+                "the standard operator SVG!PointOnLine",
             );
-            assert_eq!(model.validate(&doc).validation, Validation::Valid);
-            let mut forged = doc;
-            forged.states[0].insert("p".into(), serde_json::json!({"record":{"x":-1,"y":1}}));
-            assert!(matches!(
-                model.validate(&forged).validation,
-                Validation::Invalid(_)
-            ));
         }
     }
 }
@@ -76,7 +68,7 @@ fn unsupported_shape_has_no_authoritative_witness() {
                 module_paths: vec![modules.clone()],
                 ..CheckRequest::default()
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )
         .expect("check");
         assert_eq!(report.exit_code(), 3);

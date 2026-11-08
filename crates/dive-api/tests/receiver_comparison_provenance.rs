@@ -1,5 +1,7 @@
 //! Actual receiver construction/replay lifetime, against official pinned primaries.
 #![allow(clippy::expect_used, reason = "pinned regression assertions")]
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
 use serde_json::Value;
 use std::path::PathBuf;
@@ -24,7 +26,7 @@ fn actual_initial_receivers_match_pinned_source_wrappers() {
         ));
         let golden:Value=serde_json::from_str(&std::fs::read_to_string(root().join(format!("conformance/golden/tlc-2026.10.06.014338/comparison-receiver-primary/specifications/{name}/{name}.cfg.json"))).expect("golden")).expect("JSON");
         for workers in [1, 4] {
-            for engine in [Engine::Reference, Engine::Core] {
+            for engine in std::iter::once(Engine::Core) {
                 for compat in [false, true] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -108,7 +110,8 @@ fn cached_and_stored_receivers_do_not_acquire_a_diagnostic_source() {
             "crates/dive-api/tests/fixtures/comparison-receiver-unclassified/{name}.tla"
         ));
         for workers in [1, 4] {
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 for compat in [false, true] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -161,7 +164,7 @@ fn unrelated_tool_errors_and_later_errors_keep_their_existing_primary_contract()
             ))
         };
         for workers in [1, 4] {
-            for engine in [Engine::Reference, Engine::Core] {
+            for engine in std::iter::once(Engine::Core) {
                 for compat in [false, true] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -276,7 +279,7 @@ fn later_initial_rows_and_unproved_state_history_do_not_gain_a_certificate() {
         .expect("config");
         for workers in [1, 4] {
             {
-                let engine = Engine::Reference;
+                let engine = Engine::Core;
                 let report = check_file_engine(
                     &CheckRequest {
                         file: file.clone(),
@@ -291,6 +294,13 @@ fn later_initial_rows_and_unproved_state_history_do_not_gain_a_certificate() {
                 )
                 .expect("run");
                 let doc = report.to_json();
+                if doc["verdict"] == "unsupported" {
+                    // Only the retired reference engine reached TLC's checked
+                    // comparison here (#791, #910); Core refuses by name and
+                    // never certifies it.
+                    refused::assert_refused(&doc, report.exit_code(), refused::MIXED_SHAPES);
+                    continue;
+                }
                 assert_eq!(doc["verdict"], "evaluation-error", "{body}: {doc}");
                 assert_eq!(doc["tlc"]["verified"], false, "{body}: {doc}");
                 assert_ne!(doc["tlc"]["code"], 2147, "{body}: {doc}");
