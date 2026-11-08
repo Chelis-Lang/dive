@@ -123,15 +123,14 @@ is still accepted. The core currently covers:
   specification is of this kind), `SYMMETRY` (under `--compat=tlc`, with
   TLC's comparison; a comparison TLC could fail on is refused),
   `VIEW` (with `SYMMETRY` too, evaluated on the canonical state as TLC
-  does), and `ALIAS` as the reference engine handles it (not applied yet,
-  with a note). `POSTCONDITION` is reported as unsupported, naming the
-  feature;
+  does), and `ALIAS` (not applied yet, with a note). `POSTCONDITION` is
+  reported as unsupported, naming the feature;
 - liveness: a `PROPERTY` that needs liveness checking, with fairness. The
-  core explores the states and builds the behavior graph; the reference
-  engine's liveness checker then checks it, with the same schedule (in the
-  default profile, at completed levels, D-014; under `--compat=tlc`, once
-  the search is complete), the same independent validation of a
-  counterexample, and the same report. A temporal property together with
+  core explores the states and builds the behavior graph, and
+  `dive-liveness` checks it (in the default profile, at completed levels,
+  D-014; under `--compat=tlc`, once the search is complete). A
+  counterexample is validated independently before it is reported. A
+  temporal property together with
   `VIEW`, `SYMMETRY`, `Print`, `RandomElement`, `TLCSet`, `TLCGet`,
   `--max-states` or `--max-depth` is reported as unsupported. So, for now,
   is a run whose liveness check fails rather than answers (a planning or
@@ -140,14 +139,14 @@ is still accepted. The core currently covers:
   buffers at most eight source states. Ordinary core files use the actual run
   time/memory budgets with checked layouts and fallible growth across capture,
   products, acceptance and attributed words; inherited count ceilings no longer
-  decide capacity. Explicit Rust limits and reference routes retain their existing
+  decide capacity. Explicit Rust limits retain their existing
   bounds. Genuine budget stops preserve their stage, statistics and capture
   completion instead of becoming generic refusals; supported temporal combinations
   remain unchanged. Temporal expressions retain
   the original distinction between general functions and tuple/record literals,
   including nested values, independently of report formatting;
 - verdicts, TLC's distinct and generated counts and depth, counterexample
-  traces in the reference engine's format, TLC's evaluation-error endings
+  traces in the `dive-trace` format, TLC's evaluation-error endings
   where the core can reproduce them, and the run budgets (`--time-limit`,
   `--max-memory`, `--max-states`, `--max-depth`).
 - `Print`, `PrintT` and `ToString`, printing what TLC prints, in TLC's

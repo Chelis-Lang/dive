@@ -3,8 +3,9 @@
 #
 #   regenerate.sh <tla2tools.jar> <javac> <java> <examples-checkout> <tlaplus-checkout>
 #
-# <javac> must be a JDK 11+ compiler (the pinned JRE has none); <java> should
-# be the pinned JRE. Check the jar's SHA-256 against conformance/oracles.toml
+# <javac> must be a JDK 17+ compiler (the pinned JRE 17 has none; classes
+# are compiled with --release 17 so that it can load them); <java> should be
+# the pinned JRE. Check the jar's SHA-256 against conformance/oracles.toml
 # first. The checkouts must be at the pins in conformance/corpora.toml
 # (Examples 6a7b26a, tlaplus 94d0c50). See README.md.
 set -euo pipefail
@@ -14,7 +15,7 @@ crate=$(dirname "$here")
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-"$javac" -nowarn -cp "$jar" -d "$work/classes" "$here/CfgDump.java"
+"$javac" --release 17 -nowarn -cp "$jar" -d "$work/classes" "$here/CfgDump.java"
 
 # dump <root> <out.jsonl>: every .cfg under <root>, sorted by path.
 dump() {
