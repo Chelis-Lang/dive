@@ -178,7 +178,6 @@ impl Recipe {
                 no_deadlock: self.no_deadlock,
                 host: Some(host),
             },
-            None,
             true,
             None,
             false,
@@ -208,7 +207,6 @@ impl Recipe {
                 no_deadlock: self.no_deadlock,
                 host: Some(host),
             },
-            None,
             true,
             Some(control),
             false,
@@ -273,7 +271,6 @@ impl Recipe {
                 no_deadlock: self.no_deadlock,
                 host: Some(host),
             },
-            None,
             predicate_only,
             control,
             true,
@@ -298,7 +295,7 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, None, false, None, false).map_err(ControlledBindError::legacy)
+    bind_in(ir, cfg, opts, false, None, false).map_err(ControlledBindError::legacy)
 }
 
 /// Binds `ir` to `cfg` for the core engine: as [`bind`], except that the pure
@@ -321,24 +318,7 @@ pub fn bind_deferring_constants(
     cfg: &ModelConfig,
     opts: &BindOptions,
 ) -> Result<Model, Box<Failure>> {
-    bind_in_deferring(ir, cfg, opts, None, false, None, false, true)
-        .map_err(ControlledBindError::legacy)
-}
-
-/// Binds a trusted native recovered ordered name table before evaluating constants.
-/// The complete startup feed must be an identical prefix; missing, duplicate or
-/// reordered names refuse before any model callback. This is not an authenticity
-/// check and does not admit runtime state absent from the native checkpoint.
-///
-/// # Errors
-/// The ordinary binding errors, or a named unsupported restored-table mismatch.
-pub fn bind_with_names(
-    ir: Arc<Ir>,
-    cfg: &ModelConfig,
-    opts: &BindOptions,
-    restored: &[String],
-) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, Some(restored), false, None, false).map_err(ControlledBindError::legacy)
+    bind_in_deferring(ir, cfg, opts, false, None, false, true).map_err(ControlledBindError::legacy)
 }
 
 /// Binds a fresh model with typed cooperative evaluator control.
@@ -372,28 +352,13 @@ pub fn bind_controlled(
     opts: &BindOptions,
     control: Arc<dyn dive_eval::HostControl>,
 ) -> Result<Model, ControlledBindError> {
-    bind_in(ir, cfg, opts, None, false, Some(control), false)
-}
-
-/// Like [`bind_controlled`], restoring a checked native ordered name table.
-///
-/// # Errors
-/// The errors of [`bind_with_names`] and typed evaluator control failures.
-pub fn bind_with_names_controlled(
-    ir: Arc<Ir>,
-    cfg: &ModelConfig,
-    opts: &BindOptions,
-    restored: &[String],
-    control: Arc<dyn dive_eval::HostControl>,
-) -> Result<Model, ControlledBindError> {
-    bind_in(ir, cfg, opts, Some(restored), false, Some(control), false)
+    bind_in(ir, cfg, opts, false, Some(control), false)
 }
 
 fn bind_in(
     ir: Arc<Ir>,
     cfg: &ModelConfig,
     opts: &BindOptions,
-    restored: Option<&[String]>,
     predicates_only: bool,
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
@@ -402,7 +367,6 @@ fn bind_in(
         ir,
         cfg,
         opts,
-        restored,
         predicates_only,
         control,
         fallible_errors,
@@ -418,7 +382,6 @@ fn bind_in_deferring(
     ir: Arc<Ir>,
     cfg: &ModelConfig,
     opts: &BindOptions,
-    restored: Option<&[String]>,
     predicates_only: bool,
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
@@ -460,45 +423,7 @@ fn bind_in_deferring(
         .into());
     }
     let feed = intern::feed(&ir, cfg);
-    let names = if let Some(restored) = restored {
-        let refuse = || {
-            Box::new(Failure {
-                error: BindError {
-                    kind: ErrorKind::Unsupported {
-                        feature: "native checkpoint ordered name table/startup-prefix mismatch"
-                            .into(),
-                    },
-                    message: "native checkpoint ordered name table/startup-prefix mismatch".into(),
-                },
-                output: Vec::new(),
-            })
-        };
-        if restored.len() < feed.len()
-            || restored.len() > 65_536
-            || restored.iter().any(|s| s.len() > 1 << 20)
-            || restored
-                .iter()
-                .try_fold(0usize, |n, s| n.checked_add(s.len()))
-                .is_none_or(|n| n > 64 << 20)
-        {
-            return Err(refuse().into());
-        }
-        let names = dive_value::Interner::new();
-        for (i, text) in restored.iter().enumerate() {
-            if (i < feed.len()
-                && feed
-                    .resolve(u32::try_from(i).unwrap_or(u32::MAX))
-                    .is_none_or(|a| a.as_str() != text))
-                || names.get(text).is_some()
-            {
-                return Err(refuse().into());
-            }
-            names.intern(text);
-        }
-        Arc::new(names)
-    } else {
-        Arc::new(feed)
-    };
+    let names = Arc::new(feed);
     let mut b = bind::Binder::new(ir, cfg, opts, names, control, fallible_errors)
         .map_err(|error| error.with_output(Vec::new()))?;
     if defer && !predicates_only {

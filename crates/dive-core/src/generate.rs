@@ -12,7 +12,6 @@
 use crate::Error;
 use crate::eval::Machine;
 use crate::handle::Handle;
-use crate::node::Kind;
 use crate::plan::{Bind, Code, G, GNode, Node, P, Raw, Unch};
 
 mod composition;
@@ -971,10 +970,4 @@ fn forall_binds(code: &Code, g: G) -> Result<&[Bind], Error> {
         Some(GNode::Forall { binds, .. }) => Ok(binds),
         _ => Err(Error::internal("continuation of a non-\\A node")),
     }
-}
-
-/// Whether a value is a set kind (for diagnostics).
-#[must_use]
-pub fn is_set_kind(k: Kind) -> bool {
-    k.is_set()
 }

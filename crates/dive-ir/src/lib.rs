@@ -87,10 +87,6 @@ impl From<dive_sema::Level> for Level {
     }
 }
 
-/// The version of the IR's serialized form. Bump it whenever a serialized
-/// type changes; the on-disk cache (ADR 0013 §7) keys on it.
-pub const IR_SCHEMA: u32 = 5;
-
 /// One lowered specification.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Ir {

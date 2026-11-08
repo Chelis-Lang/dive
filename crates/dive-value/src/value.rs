@@ -624,20 +624,6 @@ impl Set {
         }
     }
 
-    /// Counts the structural components returned by [`Self::components`],
-    /// without cloning values, enumerating the set or invoking deferred callbacks.
-    /// Bounded callers can check this before allocating a component work list.
-    #[must_use]
-    pub fn component_count(&self) -> usize {
-        match &self.0.repr {
-            SetRepr::Subset(_) | SetRepr::Seq(_) => 1,
-            SetRepr::FcnSet(..) => 2,
-            SetRepr::Product(fs) => fs.len(),
-            SetRepr::RcdSet(fs) => fs.len(),
-            _ => 0,
-        }
-    }
-
     /// The elements of an enumerated set as constructed, without normalizing it (TLC's
     /// `SetEnumValue.elems` before `normalize()`), or `None` for other kinds or a set
     /// TLC would already treat as normalized.

@@ -216,6 +216,10 @@ constructing a graph or marking a validation boolean does not supply a certified
 model result. The trace crate decides `ENABLED` with the core evaluator and
 shares nothing else with the checker.
 
+Low-level items that only the removed reference engine called, such as
+`dive_model::bind_with_names` and `dive_explore::explore_checkpoint`, are gone;
+`CHANGELOG.md` lists them (#791).
+
 `Value::set_controlled`, `fcn_controlled` and `record_controlled` accept a
 cooperative `proceed` callback. Returning `false` discards the partial result
 with `ConstructionError::Interrupted`; scratch reservation failure and original

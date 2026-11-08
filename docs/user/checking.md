@@ -498,9 +498,9 @@ expansion. An interrupted startup definition is returned as typed control flow;
 it is never swallowed as a TLC evaluation error or relabelled `unsupported`.
 A binding stop reports `model-binding`, retains output already emitted, and
 reports no search statistics or used workers. The additive Rust
-`dive_model::bind_controlled`, `bind_with_names_controlled` and
-`Recipe::bind_controlled` entry points expose this capability separately from
-`BindOptions`; their uncontrolled counterparts retain their original behavior.
+`dive_model::bind_controlled` and `Recipe::bind_controlled` entry points expose
+this capability separately from `BindOptions`; their uncontrolled counterparts
+retain their original behavior.
 
 Optional worker-selection proof planning also preserves its original resource
 or internal error through controlled binding, including preceding startup

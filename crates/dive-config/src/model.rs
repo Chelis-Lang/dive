@@ -186,19 +186,4 @@ impl ModelConfig {
         }
         out
     }
-
-    /// The root-module constant that `target` substitutes, if any: the
-    /// last `C <- target` entry (TLC's `getOverridenSpecNameForConfigName`,
-    /// used to name an `ALIAS` that is itself substituted).
-    #[must_use]
-    pub fn substituted_by(&self, target: &str) -> Option<&Name> {
-        self.constants.iter().rev().find_map(|e| match e {
-            ConstantEntry::Substitution {
-                name,
-                module: None,
-                target: t,
-            } if t.text == target => Some(name),
-            _ => None,
-        })
-    }
 }
