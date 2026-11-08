@@ -85,9 +85,13 @@ Supported storage options:
 --checkpoint FILE --checkpoint-after-levels N | --recover FILE
 --checkpoint-counters tlc|retain
 
-Supported distributed options:
---distributed-worker IP:port (repeatable) --worker-key FILE
---worker-timeout-ms N --distributed-retries N
+Supported distributed options (pure safety; see docs/user/distributed-safety.md):
+--distributed-worker IP:port  a running `dive worker` endpoint; repeat, 2..64
+--worker-key FILE       local file holding the shared 32-byte secret
+--worker-timeout-ms N   per-operation and per-unit deadline, 1..60000 (5000)
+--distributed-retries N retries of a lost source unit, 0..8 (2)
+Requires --seed and --fp; temporal properties, SYMMETRY, VIEW and runtime
+effects refuse by name. Worker loss past the retries stops with exit 3.
 
 Core is the only engine. Options it does not implement are not listed here;
 they and unsupported combinations refuse by name (exit 3), for example
@@ -105,7 +109,14 @@ USAGE: dive worker FILE.tla --seed N --fp N --worker-key FILE
                         [--config FILE.cfg] [--compat=tlc] [--store fp|exact]
                         [--output human|json]
 
-Serve supported Core checking work; starting a worker proves no model.
+Serve pure Core safety work for `dive check --distributed-worker`; starting a
+worker proves no model. Give it the same build, FILE.tla, configuration,
+--seed, --fp, --compat, --store and -deadlock as the coordinator.
+
+--worker-key FILE       local file holding the shared 32-byte secret
+--listen IP:port        listening endpoint (default 127.0.0.1:0, printed)
+--worker-timeout-ms N   per-operation and per-unit deadline, 1..60000 (5000)
+--worker-max-units N    exit after N completed units (default: serve until killed)
 
 === dive tlc --help ===
 dive TLC checking adapter (supported subset)

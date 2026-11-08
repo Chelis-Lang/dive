@@ -480,15 +480,28 @@ fn check_command_mode(
                 Some(address) => worker_listen = Some(address),
                 None => return usage_error(err, "--listen expects an IP:port endpoint"),
             },
-            "--worker-timeout-ms" => match value().as_deref().and_then(|s| s.parse::<u64>().ok()) {
+            "--worker-timeout-ms" => match value()
+                .as_deref()
+                .and_then(|s| s.parse::<u64>().ok())
+                .filter(|ms| (1..=60_000).contains(ms))
+            {
                 Some(ms) => {
                     worker_timeout_given = true;
                     worker_timeout = std::time::Duration::from_millis(ms);
                 }
-                None => return usage_error(err, "--worker-timeout-ms expects milliseconds"),
+                None => {
+                    return usage_error(
+                        err,
+                        "--worker-timeout-ms expects milliseconds in 1..60000",
+                    );
+                }
             },
             "--distributed-retries" if !worker_mode => {
-                match value().as_deref().and_then(|s| s.parse::<u8>().ok()) {
+                match value()
+                    .as_deref()
+                    .and_then(|s| s.parse::<u8>().ok())
+                    .filter(|n| *n <= 8)
+                {
                     Some(n) => {
                         worker_retries_given = true;
                         worker_retries = n;
@@ -942,6 +955,16 @@ fn check_command_mode(
         };
     }
     if !remote_workers.is_empty() {
+        let distinct: std::collections::HashSet<_> = remote_workers.iter().collect();
+        if distinct.len() != remote_workers.len() {
+            return usage_error(err, "--distributed-worker endpoints must be distinct");
+        }
+        if !(2..=64).contains(&remote_workers.len()) {
+            return usage_error(
+                err,
+                "distributed safety requires 2..64 --distributed-worker endpoints",
+            );
+        }
         let Some(key) = worker_key else {
             return usage_error(err, "distributed safety requires --worker-key FILE");
         };
