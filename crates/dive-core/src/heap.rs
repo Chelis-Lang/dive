@@ -1990,6 +1990,19 @@ impl Cursor {
 }
 
 #[cfg(test)]
+impl Heap {
+    /// A persistent copy of a transient node without [`flags::CONCRETE`], as
+    /// snapshot restore and owned exchange produce it.
+    pub(crate) fn unmarked_copy(&mut self, t: Handle) -> Handle {
+        let v = self.view(t);
+        let (kind, fl, lo, hash, sum) = (v.kind, v.flags & !flags::CONCRETE, v.lo, v.hash, v.sum);
+        let data = v.data.to_vec();
+        self.store
+            .intern(&mut self.cache, kind, fl, lo, hash, sum, &data)
+    }
+}
+
+#[cfg(test)]
 #[allow(clippy::many_single_char_names, reason = "short value names in tests")]
 mod tests {
     use super::*;
@@ -2597,13 +2610,8 @@ mod tests {
         assert!(!h.poisoned());
     }
 
-    /// A persistent copy of a transient node without [`flags::CONCRETE`], as
-    /// snapshot restore and owned exchange produce it.
     fn unmarked(h: &mut Heap, t: Handle) -> Handle {
-        let v = h.view(t);
-        let (kind, fl, lo, hash, sum) = (v.kind, v.flags & !flags::CONCRETE, v.lo, v.hash, v.sum);
-        let data = v.data.to_vec();
-        h.store.intern(&mut h.cache, kind, fl, lo, hash, sum, &data)
+        h.unmarked_copy(t)
     }
 
     #[test]
