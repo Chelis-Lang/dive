@@ -1,7 +1,6 @@
 //! Fallible, private-file seen-state storage (ADR 0063).
 //!
-//! This additive library does not implement [`crate::StateSet`]: an I/O error
-//! cannot pass through that trait's Boolean membership/insertion interface.
+//! Every operation is fallible: an I/O error is returned, never read as absence.
 //! The checker admits this storage through an explicit fallible inline route.
 //! Entries are physical library commits,
 //! not a model checker's ordered discovery-prefix count.

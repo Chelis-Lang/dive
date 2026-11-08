@@ -222,6 +222,13 @@ Low-level items that only the removed reference engine called, such as
 `dive_model::bind_with_names` and `dive_explore::explore_checkpoint`, are gone;
 `CHANGELOG.md` lists them (#791).
 
+`dive-store` keeps what Core uses: `state::{StateFingerprinter, state_key}`,
+`StoreMode`, the [disk seen-state set](disk-seen-library.md), the ordered
+frontier spill and the predecessor log. The reference checker's in-memory
+stores (`StateSet`, `FpSet`, `ExactSet`, `frontier`, `TraceLog`,
+`encode_state`/`StateDecoder` and the `collision` estimates) were removed with
+it (#791).
+
 `Value::set_controlled`, `fcn_controlled` and `record_controlled` accept a
 cooperative `proceed` callback. Returning `false` discards the partial result
 with `ConstructionError::Interrupted`; scratch reservation failure and original

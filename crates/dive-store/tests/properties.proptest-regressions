@@ -1,9 +1,0 @@
-# Seeds for failure cases proptest has generated in the past. It is
-# automatically read and these particular cases re-run before any
-# novel cases are generated.
-#
-# It is recommended to check this file in to source control so that
-# everyone who runs the test benefits from these saved cases.
-cc ad2cf91e56cfaddf575789e99cedfba7059a54f36fe9062cd37ddf5208171284 # shrinks to levels = [[(14387688016129665287, (0, 0), 0), (14387688016129665287, (0, 1), 0)]], sch = Schedule { workers: 1, owner_seed: 0, threads: 1, chaos: None, shard_bits: 0 }
-cc 89d56ffcacbe106d20c22e2e8f1755536942f7889f92246693b1ff2ae2065ab0 # shrinks to levels = [[(18446744073709551615, (0, 0), 0), (18446744073709551615, (0, 1), 0)]], sch = Schedule { workers: 1, owner_seed: 0, threads: 1, chaos: None, shard_bits: 0 }
-cc 128aab973575fae5f6ea51bfe491431ffa48ff85a041c0575fe58ee46813bd60 # shrinks to levels = [[([], (0, 0), 0), ([], (0, 1), 0)]], sch = Schedule { workers: 1, owner_seed: 0, threads: 1, chaos: None, shard_bits: 0 }
