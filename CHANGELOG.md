@@ -5,6 +5,12 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- `dive-liveness` no longer has the reference engine's temporal analyses
+  (`analyze::analyze_final*`, `analyze::analyze_observed`,
+  `analyze::periodic::analyze_periodic*` and the `OwnedTemporal`
+  `final_analysis` and `periodic_analysis` methods; issue #791), and no
+  longer depends on the `dive-check` crate. Check a behavior graph with
+  `analyze::periodic::external::GraphCheck`, as Core does.
 - `dive_api::checkpoint` no longer exports the reference engine's
   `checkpoint::check` and `checkpoint::recovery_seed_fp` (issue #791). Check
   or recover with `dive_api::check_file_checkpoint`. The archive request,

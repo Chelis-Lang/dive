@@ -220,7 +220,6 @@ impl Decisions {
             &mut self.stage,
             &mut self.evaluations,
             inputs.control,
-            None,
         ) {
             Ok(None) => {}
             Ok(Some(word)) => self.decision = Some(Ok(word)),
@@ -259,7 +258,6 @@ impl Decisions {
         mut self,
         inputs: Inputs<'_>,
         complete: capture::Complete,
-        cache: Option<&std::sync::Mutex<super::row_demand::Cache>>,
     ) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
         let _control = inputs.control.enter(&inputs.model.evaluator).map_err(|_| {
             failure(
@@ -274,20 +272,6 @@ impl Decisions {
         self.checks.exhausted = true;
         self.checks.final_check = true;
         self.evaluations.periodic = false;
-        let cached = cache
-            .map(std::sync::Mutex::lock)
-            .transpose()
-            .map_err(|_| {
-                failure(
-                    AnalysisError::Inconsistent("temporal cache lock poisoned"),
-                    Stage::Product,
-                    Some(Box::new((&complete).into())),
-                    EvaluationErrors::default(),
-                    Some(true),
-                    self.checks,
-                )
-            })?
-            .filter(|cache| cache.active());
         let word = analyze_captured(
             inputs.model,
             inputs.plans,
@@ -299,7 +283,6 @@ impl Decisions {
             &mut self.stage,
             &mut self.evaluations,
             inputs.control,
-            cached.as_deref(),
         );
         let result =
             super::finish::complete(word, complete.evidence().clone()).map_err(|error| {
@@ -314,25 +297,6 @@ impl Decisions {
             })?;
         let analysis = result.reference(complete);
         Ok((PeriodicAnalysis::Final(analysis), self.checks))
-    }
-}
-
-struct Observe<'a> {
-    inputs: Inputs<'a>,
-    d: Decisions,
-}
-impl capture::Observer for Observe<'_> {
-    fn level_done(
-        &mut self,
-        level: u64,
-        graph: &capture::BehaviorGraph,
-        stats: Stats,
-    ) -> Result<(), String> {
-        self.d.level(self.inputs, level, graph, stats);
-        Ok(())
-    }
-    fn stop_after_level(&self) -> bool {
-        self.d.decision.is_some()
     }
 }
 
@@ -374,106 +338,6 @@ fn failure(
         capture_completed,
         checks,
     }
-}
-
-/// Plans once, then checks borrowed graphs only after fully committed levels.
-/// `schedule` selects the completed levels to check ([`Schedule::DEFAULT`] for
-/// the documented default). Exhausted levels are never checked as prefixes. Only real exhaustion can produce `Holds`.
-/// Candidates still need fresh independent typed and serialized validation.
-///
-/// Capture bounds are cumulative. Existing formula, label and product bounds
-/// retain their actual planning/per-property/per-check scopes; checks add work.
-///
-/// # Errors
-/// All existing planning, capture, atom, attribution and product errors are
-/// retained. Prefix failures explicitly report incomplete capture.
-pub fn analyze_periodic(
-    model: &Model,
-    options: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    schedule: Schedule,
-) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
-    analyze_periodic_with_policies(
-        model,
-        options,
-        limits,
-        policy,
-        GraphLabelPolicy::Cells(limits.atom_cells),
-        schedule,
-    )
-}
-
-/// Like [`analyze_periodic`], explicitly choosing only graph-label admission.
-/// All existing entrypoints retain every caller-supplied logical cell ceiling.
-///
-/// ```no_run
-/// # fn example(model: &dive_model::Model) {
-/// use dive_liveness::{analyze::{GraphLabelPolicy, Limits, periodic}, product::AcceptancePolicy};
-/// let result = periodic::analyze_periodic_with_policies(model,
-///     &dive_runtime::CheckOptions::dive(0), Limits::default(),
-///     AcceptancePolicy::compact_default(), GraphLabelPolicy::Cells(31),
-///     periodic::Schedule::DEFAULT);
-/// # let _ = result;
-/// # }
-/// ```
-///
-/// # Errors
-/// The same typed failures and actual prefix evidence as [`analyze_periodic`].
-pub fn analyze_periodic_with_policies(
-    model: &Model,
-    options: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-    schedule: Schedule,
-) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
-    analyze_periodic_bound(model, options, limits, policy, graph_labels, schedule, None)
-}
-
-pub(super) fn analyze_periodic_bound(
-    model: &Model,
-    options: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-    schedule: Schedule,
-    authority: Option<&super::owned::Authority<'_>>,
-) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
-    // One budget for capture and every level check (ADR 0107); only the
-    // budget's own limit becomes a stop.
-    let (mut watchdog, armed) = dive_runtime::budget::arm(options).map_err(|error| {
-        failure(
-            match error {
-                dive_runtime::budget::StartError::Measurement(error) => {
-                    AnalysisError::BudgetMeasurement(error)
-                }
-                error @ dive_runtime::budget::StartError::Thread(_) => {
-                    AnalysisError::BudgetStartup(error.to_string())
-                }
-            },
-            Stage::Planning,
-            None,
-            EvaluationErrors::default(),
-            Some(false),
-            Checks {
-                schedule,
-                ..Checks::default()
-            },
-        )
-    })?;
-    let _scope = crate::budget::enter(&armed.budget);
-    let result = periodic_unbudgeted(
-        model,
-        &armed,
-        limits,
-        policy,
-        graph_labels,
-        schedule,
-        authority,
-    )
-    .map_err(|failure| budget_failure(failure, &armed.budget));
-    close_budget(watchdog.as_mut(), result)
 }
 
 /// The run's final budget check for the entry point that armed it: a
@@ -610,166 +474,4 @@ fn planned(
     clippy::too_many_lines,
     reason = "keep producer outcomes and their distinct failure evidence together"
 )]
-fn periodic_unbudgeted(
-    model: &Model,
-    options: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-    schedule: Schedule,
-    authority: Option<&super::owned::Authority<'_>>,
-) -> Result<(PeriodicAnalysis, Checks), PeriodicFailure> {
-    let checks = Checks {
-        schedule,
-        ..Checks::default()
-    };
-    let (control, plans) = planned(model, options, limits, checks)?;
-    let demand = super::row_demand::prepare(
-        model,
-        &plans,
-        options,
-        model.temporals.len(),
-        limits.formula,
-        graph_labels,
-        (authority, &control),
-    )
-    .map_err(|error| {
-        failure(
-            error,
-            Stage::Planning,
-            None,
-            EvaluationErrors::default(),
-            Some(false),
-            checks,
-        )
-    })?;
-    let cache = demand
-        .as_ref()
-        .map(|program| std::sync::Mutex::new(super::row_demand::Cache::new(program)));
-    let source_demand = if demand.is_none() {
-        super::row_demand::prepare_source(
-            model,
-            &plans,
-            options,
-            model.temporals.len(),
-            limits.formula,
-            graph_labels,
-            (authority, &control),
-        )
-        .map_err(|error| {
-            failure(
-                error,
-                Stage::Planning,
-                None,
-                EvaluationErrors::default(),
-                Some(false),
-                checks,
-            )
-        })?
-    } else {
-        None
-    };
-    let mut observer = Observe {
-        inputs: Inputs {
-            budget: &options.budget,
-            control: &control,
-            model,
-            plans: &plans,
-            limits,
-            policy,
-            graph_labels,
-        },
-        d: Decisions::new(checks),
-    };
-    let native_hooks = super::owned::native_hooks(authority, model);
-    let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
-        let mut errors = EvaluationErrors {
-            periodic: true,
-            ..EvaluationErrors::default()
-        };
-        let mut exploration = None;
-        super::row_demand::Observe::new(model, &plans, program, cache)
-            .explore(
-                options,
-                limits.capture,
-                Some(&mut observer),
-                &mut errors,
-                &mut exploration,
-                native_hooks,
-            )
-            .map_err(|error| {
-                failure(
-                    error,
-                    Stage::Capture,
-                    exploration,
-                    errors,
-                    Some(false),
-                    observer.d.checks,
-                )
-            })?
-    } else if let Some(program) = &source_demand {
-        let mut errors = EvaluationErrors {
-            periodic: true,
-            ..EvaluationErrors::default()
-        };
-        let mut exploration = None;
-        super::row_demand::SourceObserve::new(model, &plans, program)
-            .explore(
-                options,
-                limits.capture,
-                Some(&mut observer),
-                &mut errors,
-                &mut exploration,
-                native_hooks,
-            )
-            .map_err(|error| {
-                failure(
-                    error,
-                    Stage::Capture,
-                    exploration,
-                    errors,
-                    Some(false),
-                    observer.d.checks,
-                )
-            })?
-    } else {
-        dive_check::capture::explore_controlled_with_native_hooks(
-            model,
-            options,
-            limits.capture,
-            &mut observer,
-            native_hooks,
-        )
-        .map_err(|message| {
-            failure(
-                AnalysisError::CaptureThread(message),
-                Stage::Unknown,
-                None,
-                EvaluationErrors::default(),
-                None,
-                observer.d.checks,
-            )
-        })?
-    };
-    match captured {
-        capture::ControlledExploration::Stopped(result) => Err(failure(
-            AnalysisError::Exploration(result),
-            Stage::Capture,
-            None,
-            EvaluationErrors::default(),
-            Some(false),
-            observer.d.checks,
-        )),
-        capture::ControlledExploration::Prefix(prefix) => observer.d.prefix(*prefix),
-        capture::ControlledExploration::Complete(complete) => {
-            observer
-                .d
-                .complete(observer.inputs, *complete, cache.as_ref())
-        }
-    }
-}
-
 pub mod external;
-
-#[cfg(test)]
-mod budget_tests;

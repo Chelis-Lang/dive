@@ -8,7 +8,6 @@
 use std::sync::Arc;
 
 use super::*;
-use crate::analyze::{self, Limits};
 use dive_model::Model;
 use dive_runtime::{CheckOptions, Stats, Verdict};
 
@@ -211,24 +210,4 @@ fn analysis_failures_and_typed_stops_never_become_absence_of_acceptance() {
         let actual = super::prefix(Err(error), prefix.clone()).expect_err("never prefix candidate");
         assert_eq!(format!("{actual:?}"), expected);
     }
-    // Exercise the production final-only and periodic adapters with the same
-    // real model, rather than only constructing neutral carriers in tests.
-    let final_result = analyze::analyze_final(&model, &options, Limits::default())
-        .expect("reference final analysis");
-    assert!(matches!(final_result, Analysis::Candidate(_)));
-    let periodic = analyze::periodic::analyze_periodic(
-        &model,
-        &options,
-        Limits::default(),
-        crate::product::AcceptancePolicy::Legacy,
-        analyze::periodic::Schedule {
-            min_states: 2,
-            growth_factor: 1,
-        },
-    )
-    .expect("reference periodic");
-    assert!(matches!(
-        periodic.0,
-        analyze::periodic::PeriodicAnalysis::Prefix(_)
-    ));
 }

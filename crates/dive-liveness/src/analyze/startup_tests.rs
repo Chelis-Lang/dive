@@ -117,7 +117,7 @@ fn nonzero_continuation_keeps_legacy_plans_and_split_initial_atoms_cannot_certif
         .ok_or("original envelope")?;
         assert!(!normalized.zero_solutions());
         assert!(
-            normalized.into_program()?.is_none(),
+            normalized.into_source_program()?.is_none(),
             "standalone initial atom is not an EA/AE bin"
         );
     }

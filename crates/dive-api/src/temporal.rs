@@ -13,8 +13,6 @@ use std::time::{Duration, Instant};
 
 use dive_config::ModelConfig;
 use dive_ir::Ir;
-#[cfg(test)]
-use dive_liveness::analyze::periodic::Schedule;
 use dive_liveness::analyze::periodic::{Checks, PrefixCandidate};
 use dive_liveness::analyze::{AnalysisError, Candidate, GraphLabelPolicy, Limits};
 use dive_liveness::product::AcceptancePolicy;
@@ -26,6 +24,8 @@ use dive_trace::{
 };
 
 mod native;
+#[cfg(test)]
+pub(crate) use native::core_analysis;
 pub use native::{ValidatedNativeCounterexample, ValidatedNativePrefix};
 pub(crate) use native::{core_capture_stop, core_native_report, core_source_row_failure};
 

@@ -126,9 +126,7 @@ width and the requested width. Explicit sequential mode retains its reason.
 Each fixed wave expands at most eight source states; fewer sources can use
 fewer concurrent units than the pool width.
 The limits bound formula entries, graph states/edges/generated work, labels and
-product construction. Existing public `analyze_final*` APIs retain their
-entry/work counts and custom logical `acceptance_cells` limits.
-They do not bound the preceding binding stage. Fingerprint mode retains the
+product construction. They do not bound the preceding binding stage. Fingerprint mode retains the
 safety engine's collision qualifications; exact mode stores full states.
 
 The coordinator stores base acceptance in private flat `u64` bit columns for
@@ -212,13 +210,11 @@ not claim a bound was exercised. Major-3 wire reports serialize these owner
 settings instead of the former ambiguous scalar. See
 [ADR 0111](decisions/0111-graph-label-policy-and-report-v3.md).
 
-Rust callers opt into this policy through `analyze::analyze_final_with_policy`,
-passing
-`product::AcceptancePolicy::Buffers { bytes, work }` or `compact_default()`.
-All existing public entrypoints retain legacy cells even with default-valued
-limits; no sentinel switches behavior. See [ADR 0098](decisions/0098-compact-acceptance-buffer-bounds.md)
-for default rationale and exclusions. The additive API example is compiled by
-rustdoc; the existing final/short CLI example below exercises the file default.
+Rust callers of `analyze::periodic::external::GraphCheck::prepare` pass
+`product::AcceptancePolicy::Buffers { bytes, work }` or `compact_default()`;
+no sentinel switches behavior. See [ADR 0098](decisions/0098-compact-acceptance-buffer-bounds.md)
+for default rationale and exclusions. The CLI example below exercises the file
+default.
 
 This API uses final checking and deterministic short-lasso selection. Passing
 `CheckOptions::tlc` selects TLC's value/arithmetic/ordering semantics, but does

@@ -6,7 +6,6 @@
 //! their complete configured property set.
 //! Prefix candidates require independent validation and never prove `Holds`.
 
-use dive_check::capture as reference;
 use dive_eval::{St, next::StateVals};
 use dive_model::Model;
 use dive_runtime::{CheckOptions, CheckResult, capture};
@@ -405,15 +404,11 @@ pub enum StateEvaluationSite {
 /// never the scope, evaluator or complete behavior graph.
 ///
 /// ```no_run
-/// # fn example(model: &dive_model::Model) {
-/// use dive_liveness::analyze::{analyze_final_with_action_errors, Limits};
-/// if let Err(failure) = analyze_final_with_action_errors(model,
-///     &dive_runtime::CheckOptions::tlc(0, 0), Limits::default()) {
-///     if let Some(state) = failure.state_evaluation() {
-///         let _actual_site = state.site();
-///         let _original_cause = state.core_cause();
-///         let _outer_source = state.source();
-///     }
+/// # fn example(failure: &dive_liveness::analyze::DetailedFailure) {
+/// if let Some(state) = failure.state_evaluation() {
+///     let _actual_site = state.site();
+///     let _original_cause = state.core_cause();
+///     let _outer_source = state.source();
 /// }
 /// # }
 /// ```
@@ -1098,51 +1093,6 @@ fn labels_with_reuse<'a>(
     Ok((labels, edges))
 }
 
-fn cached_labels(
-    property: usize,
-    plan: &Plan,
-    original: &capture::BehaviorGraph,
-    projection: &row_demand::Projection,
-    cache: &row_demand::Cache,
-    policy: GraphLabelPolicy,
-) -> Result<(PackedTruth, usize), AnalysisError> {
-    let original_edges = original
-        .edges
-        .iter()
-        .try_fold(0_usize, |n, row| n.checked_add(row.len()))
-        .ok_or(AnalysisError::Limit("atom cells"))?;
-    // Keep explicit caller cell ceilings on their original captured domain.
-    // Projection changes queried topology, not the configured admission policy.
-    policy.admit(original.states.len(), original_edges, plan.atoms.len())?;
-    let kinds = plan.atoms.iter().map(|atom| atom.kind).collect::<Vec<_>>();
-    let mut truth = PackedTruth::new(&projection.graph, &kinds).map_err(AnalysisError::Product)?;
-    let mut edges = 0_usize;
-    for (vertex, &source) in projection.sources.iter().enumerate() {
-        if crate::budget::exhausted() {
-            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
-        }
-        let row = &projection.edges[vertex];
-        edges = edges
-            .checked_add(row.len())
-            .ok_or(AnalysisError::Limit("atom cells"))?;
-        for (atom, kind) in kinds.iter().enumerate() {
-            let value = cache.read(property, atom, source)?;
-            if *kind == AtomKind::State {
-                truth
-                    .set_state(atom, vertex, value)
-                    .map_err(AnalysisError::Product)?;
-            } else {
-                for position in 0..row.len() {
-                    truth
-                        .set_action(atom, vertex, position, value)
-                        .map_err(AnalysisError::Product)?;
-                }
-            }
-        }
-    }
-    Ok((truth, edges))
-}
-
 fn attribute(
     model: &Model,
     plans: &[PreparedProperty],
@@ -1153,14 +1103,13 @@ fn attribute(
         &dive_runtime::budget::EvaluationControl,
         &mut EvaluationErrors,
     ),
-    cached: Option<(&row_demand::Cache, &[usize])>,
 ) -> Result<Vec<String>, AnalysisError> {
     let (control, evaluations) = evaluation;
     let mut violated = Vec::new();
     violated
         .try_reserve(plans.len())
         .map_err(|_| AnalysisError::Limit("attribution allocation"))?;
-    for (property, (p, prepared)) in model.property_claims().iter().zip(plans).enumerate() {
+    for (p, prepared) in model.property_claims().iter().zip(plans) {
         let plan = &prepared.plan;
         states
             .len()
@@ -1186,15 +1135,7 @@ fn attribute(
             row.try_reserve_exact(plan.atoms.len())
                 .map_err(|_| AnalysisError::Limit("attribution allocation"))?;
             for a in 0..plan.atoms.len() {
-                let value = if let Some((cache, sources)) = cached {
-                    let source = *sources
-                        .get(i)
-                        .ok_or(AnalysisError::Inconsistent("attribution source map"))?;
-                    cache.read(property, a, source)?
-                } else {
-                    atom(model, plan, a, &st, &mut context)?
-                };
-                row.push(value);
+                row.push(atom(model, plan, a, &st, &mut context)?);
             }
             rows.push(row);
         }
@@ -1209,161 +1150,6 @@ fn attribute(
         }
     }
     Ok(violated)
-}
-
-/// Checks the supported pure temporal properties after complete exploration.
-/// All behavior conjuncts and properties are planned before any search; one
-/// unsupported conjunct aborts the analysis. The graph is captured by the
-/// shared safety engine, then each behavior AND negated-property tableau is
-/// searched in property order. This selects a deterministic short candidate,
-/// not TLC's exact lasso. No periodic or CLI verdict is enabled by this API.
-///
-/// ```
-/// use std::sync::Arc;
-/// use dive_runtime::CheckOptions;
-/// use dive_liveness::analyze::{analyze_final, Analysis, Limits};
-/// let source = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nP == []<>x\n====\n";
-/// let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
-/// let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-/// let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n").into_config().expect("config");
-/// let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
-/// assert!(matches!(analyze_final(&model, &CheckOptions::tlc(0, 0), Limits::default())?, Analysis::Holds(_)));
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-///
-/// # Errors
-/// Planning, graph capture, atom evaluation, explicit resource bounds or
-/// product search failed. Postconditions are refused until their temporal
-/// failure priority is integrated.
-pub fn analyze_final(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-) -> Result<Analysis, AnalysisError> {
-    analyze_final_with_evidence(model, opts, limits).map_err(|failure| failure.error)
-}
-
-/// Like [`analyze_final`], retaining stage and completed capture evidence on
-/// failure. The graph itself is not copied into a failure report.
-///
-/// # Errors
-/// The same failures as [`analyze_final`], with execution evidence.
-pub fn analyze_final_with_evidence(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-) -> Result<Analysis, Failure> {
-    analyze_final_with_action_errors(model, opts, limits).map_err(|failure| failure.into_parts().0)
-}
-
-/// Like [`analyze_final_with_evidence`], retaining actual selected action errors.
-/// The legacy public error constructors remain unchanged. State and attribution
-/// failures do not acquire an action cause. A typed cause alone does not establish
-/// TLC error-order parity, especially across multiple configured properties.
-///
-/// ```no_run
-/// # fn example(model: &dive_model::Model) {
-/// use dive_liveness::analyze::{analyze_final_with_action_errors, Limits};
-/// if let Err(failure) = analyze_final_with_action_errors(model, &dive_runtime::CheckOptions::tlc(0, 0), Limits::default()) {
-///     if let Some(action) = failure.action_evaluation() {
-///         let _original_class = action.cause().class();
-///     }
-/// }
-/// # }
-/// ```
-///
-/// # Errors
-/// The same failures as [`analyze_final_with_evidence`], with their original
-/// typed action or state cause when that evaluation actually failed. State
-/// evidence retains its actual analysis site, without broadening verdict policy.
-pub fn analyze_final_with_action_errors(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-) -> Result<Analysis, DetailedFailure> {
-    analyze_final_with_policy(model, opts, limits, AcceptancePolicy::Legacy)
-}
-
-/// Like [`analyze_final_with_action_errors`], with an explicit compact
-/// acceptance admission policy. All other supplied limit fields keep their
-/// units. [`AcceptancePolicy::Buffers`] replaces only `acceptance_cells` and
-/// adds an independent acceptance materialization work bound.
-///
-/// # Errors
-/// The same failures as [`analyze_final_with_action_errors`], plus named covered
-/// buffer-byte, allocation and materialization-work refusals in buffer mode.
-pub fn analyze_final_with_policy(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-) -> Result<Analysis, DetailedFailure> {
-    analyze_final_with_policies(
-        model,
-        opts,
-        limits,
-        policy,
-        GraphLabelPolicy::Cells(limits.atom_cells),
-    )
-}
-
-/// Like [`analyze_final_with_policy`], explicitly choosing the graph-label
-/// policy independently of acceptance. Every existing entrypoint retains its
-/// supplied `Limits::atom_cells` ceiling. No other limit changes its scope.
-///
-/// ```no_run
-/// # fn example(model: &dive_model::Model) {
-/// use dive_liveness::{analyze::{self, GraphLabelPolicy, Limits}, product::AcceptancePolicy};
-/// let result = analyze::analyze_final_with_policies(model,
-///     &dive_runtime::CheckOptions::tlc(0, 0), Limits::default(),
-///     AcceptancePolicy::compact_default(), GraphLabelPolicy::NoCellLimit);
-/// // A candidate still requires independent trace validation.
-/// # let _ = result;
-/// # }
-/// ```
-///
-/// # Errors
-/// The same typed failures as [`analyze_final_with_policy`].
-pub fn analyze_final_with_policies(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-) -> Result<Analysis, DetailedFailure> {
-    analyze_final_bound(model, opts, limits, policy, graph_labels, None)
-}
-
-fn analyze_final_bound(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-    authority: Option<&owned::Authority<'_>>,
-) -> Result<Analysis, DetailedFailure> {
-    let mut stage = Stage::Planning;
-    let mut exploration = None;
-    let mut evaluations = EvaluationErrors::default();
-    analyze_observed(
-        model,
-        opts,
-        limits,
-        policy,
-        graph_labels,
-        &mut stage,
-        &mut exploration,
-        &mut evaluations,
-        authority,
-    )
-    .map_err(|error| DetailedFailure {
-        failure: Failure {
-            error,
-            stage,
-            exploration,
-        },
-        evaluations,
-    })
 }
 
 fn validate_analysis_context(model: &Model) -> Result<(), AnalysisError> {
@@ -1396,73 +1182,6 @@ fn validate_analysis_context(model: &Model) -> Result<(), AnalysisError> {
     clippy::too_many_arguments,
     reason = "explicit owner policies and separate typed execution evidence"
 )]
-fn analyze_observed(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-    stage: &mut Stage,
-    exploration: &mut Option<Box<ExplorationEvidence>>,
-    evaluations: &mut EvaluationErrors,
-    authority: Option<&owned::Authority<'_>>,
-) -> Result<Analysis, AnalysisError> {
-    let (mut watchdog, armed) = dive_runtime::budget::arm(opts).map_err(|error| match error {
-        dive_runtime::budget::StartError::Measurement(error) => {
-            AnalysisError::BudgetMeasurement(error)
-        }
-        error @ dive_runtime::budget::StartError::Thread(_) => {
-            AnalysisError::BudgetStartup(error.to_string())
-        }
-    })?;
-    let _scope = crate::budget::enter(&armed.budget);
-    let result = analyze_unbudgeted(
-        model,
-        &armed,
-        limits,
-        policy,
-        graph_labels,
-        stage,
-        exploration,
-        evaluations,
-        authority,
-    )
-    .map_err(|error| match armed.budget.poll() {
-        // Only the budget's own limit is a stop; every other failure,
-        // including one raised just as the budget ran out, keeps its class.
-        Ok(Some(exhausted)) if budget_limit(&error) => {
-            *evaluations = EvaluationErrors::default();
-            AnalysisError::Stopped(Box::new(
-                exhausted.during(dive_runtime::budget::Phase::Temporal),
-            ))
-        }
-        Err(measurement) if budget_limit(&error) => AnalysisError::BudgetMeasurement(measurement),
-        _ => error,
-    });
-    if let Some(watchdog) = &mut watchdog {
-        let finished = watchdog.finish();
-        if let Ok(analysis) = &result {
-            let error = match finished {
-                Err(error) => Some(AnalysisError::BudgetMeasurement(error)),
-                Ok(Some(exhausted)) => Some(AnalysisError::Stopped(Box::new(
-                    exhausted.during(dive_runtime::budget::Phase::Finalization),
-                ))),
-                Ok(None) => None,
-            };
-            if let Some(error) = error {
-                *stage = Stage::Finalization;
-                let capture = match analysis {
-                    Analysis::Holds(capture) => capture,
-                    Analysis::Candidate(candidate) => &candidate.exploration,
-                };
-                *exploration = Some(Box::new(capture.into()));
-                return Err(error);
-            }
-        }
-    }
-    result
-}
-
 /// Whether `error` is the limit a stage reports for an exhausted budget.
 fn budget_limit(error: &AnalysisError) -> bool {
     use crate::budget::EXHAUSTED;
@@ -1478,132 +1197,10 @@ fn budget_limit(error: &AnalysisError) -> bool {
     }
 }
 
-fn final_capture(
-    outcome: capture::ControlledExploration,
-) -> Result<capture::Complete, AnalysisError> {
-    match outcome {
-        capture::ControlledExploration::Complete(complete) => Ok(*complete),
-        capture::ControlledExploration::Stopped(result) => Err(AnalysisError::Exploration(result)),
-        capture::ControlledExploration::Prefix(_) => Err(AnalysisError::Inconsistent(
-            "final row capture returned a prefix",
-        )),
-    }
-}
-
 #[allow(
     clippy::too_many_arguments,
     reason = "explicit owner policies and separate typed execution evidence"
 )]
-fn analyze_unbudgeted(
-    model: &Model,
-    opts: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-    stage: &mut Stage,
-    exploration: &mut Option<Box<ExplorationEvidence>>,
-    evaluations: &mut EvaluationErrors,
-    authority: Option<&owned::Authority<'_>>,
-) -> Result<Analysis, AnalysisError> {
-    validate_analysis_context(model)?;
-    let control = evaluator_control(opts)?;
-    let plans = {
-        let _control = control
-            .enter(&model.evaluator)
-            .map_err(|_| AnalysisError::Inconsistent("another driver owns evaluator control"))?;
-        prepare(model, limits, &control)?
-    };
-    let demand = row_demand::prepare(
-        model,
-        &plans,
-        opts,
-        model.temporals.len(),
-        limits.formula,
-        graph_labels,
-        (authority, &control),
-    )?;
-    let cache = demand
-        .as_ref()
-        .map(|program| std::sync::Mutex::new(row_demand::Cache::new(program)));
-    let source_demand = if demand.is_none() {
-        row_demand::prepare_source(
-            model,
-            &plans,
-            opts,
-            model.temporals.len(),
-            limits.formula,
-            graph_labels,
-            (authority, &control),
-        )?
-    } else {
-        None
-    };
-    let native_hooks = owned::native_hooks(authority, model);
-    *stage = Stage::Capture;
-    let captured = if let (Some(program), Some(cache)) = (&demand, &cache) {
-        final_capture(
-            row_demand::Observe::new(model, &plans, program, cache).explore(
-                opts,
-                limits.capture,
-                None,
-                evaluations,
-                exploration,
-                native_hooks,
-            )?,
-        )?
-    } else if let Some(program) = &source_demand {
-        final_capture(
-            row_demand::SourceObserve::new(model, &plans, program).explore(
-                opts,
-                limits.capture,
-                None,
-                evaluations,
-                exploration,
-                native_hooks,
-            )?,
-        )?
-    } else {
-        // The reference engine's capture driver (ADR 0155).
-        match reference::explore_with_native_hooks(model, opts, limits.capture, native_hooks)
-            .map_err(|message| {
-                *stage = Stage::Unknown;
-                AnalysisError::CaptureThread(message)
-            })? {
-            capture::Exploration::Complete(c) => *c,
-            capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
-        }
-    };
-    let _control = control
-        .enter(&model.evaluator)
-        .map_err(|_| AnalysisError::Inconsistent("another driver owns evaluator control"))?;
-    let word = analyze_captured(
-        model,
-        &plans,
-        usize::MAX,
-        &captured.graph,
-        limits,
-        policy,
-        graph_labels,
-        stage,
-        evaluations,
-        &control,
-        cache
-            .as_ref()
-            .map(|cache| {
-                cache
-                    .lock()
-                    .map_err(|_| AnalysisError::Inconsistent("temporal cache lock poisoned"))
-            })
-            .transpose()?
-            .filter(|cache| cache.active())
-            .as_deref(),
-    )
-    .inspect_err(|_| {
-        *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
-    });
-    finish::complete(word, captured.evidence().clone()).map(|result| result.reference(captured))
-}
-
 struct PreparedProperty {
     plan: Plan,
     groups: Vec<PreparedGroup>,
@@ -1763,7 +1360,6 @@ type OriginalWord = (Vec<StateVals>, Vec<usize>, Vec<capture::Edge>);
 fn original_word<'a>(
     captured: impl Into<OriginalEdges<'a>>,
     source: &mut (impl StateSource + ?Sized),
-    projection: Option<&row_demand::Projection>,
     lasso: &crate::search::Lasso,
 ) -> Result<OriginalWord, AnalysisError> {
     let captured = captured.into();
@@ -1788,7 +1384,7 @@ fn original_word<'a>(
         if crate::budget::exhausted() {
             return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
         }
-        let id = projection.map_or(step.from, |p| p.sources[step.from]);
+        let id = step.from;
         states.push(source.representative(id)?.into_owned());
         source_ids.push(id);
     }
@@ -1796,9 +1392,7 @@ fn original_word<'a>(
         if crate::budget::exhausted() {
             return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
         }
-        let (source, edge) = projection.map_or((step.from, step.edge), |p| {
-            (p.sources[step.from], p.edges[step.from][step.edge])
-        });
+        let (source, edge) = (step.from, step.edge);
         let edge = captured
             .edge(source, edge)
             .ok_or(AnalysisError::Inconsistent("original word edge"))?;
@@ -1841,7 +1435,6 @@ fn analyze_captured(
     stage: &mut Stage,
     evaluations: &mut EvaluationErrors,
     control: &dive_runtime::budget::EvaluationControl,
-    cache: Option<&row_demand::Cache>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     analyze_source(
         model,
@@ -1855,7 +1448,6 @@ fn analyze_captured(
         stage,
         evaluations,
         control,
-        cache,
     )
 }
 
@@ -1875,18 +1467,10 @@ fn analyze_source(
     stage: &mut Stage,
     evaluations: &mut EvaluationErrors,
     control: &dive_runtime::budget::EvaluationControl,
-    cache: Option<&row_demand::Cache>,
 ) -> Result<Option<CandidateWord>, AnalysisError> {
     *stage = Stage::Product;
-    let cache = cache.filter(|cache| cache.active());
-    let original = product::BehaviorView::checked_captured(captured)
+    let graph = product::BehaviorView::checked_captured(captured)
         .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
-    let projection = cache
-        .map(|cache| row_demand::Projection::new(captured, cache))
-        .transpose()?;
-    let graph = projection.as_ref().map_or(original, |projection| {
-        product::BehaviorView::from(&projection.graph)
-    });
     analyze_graph(
         model,
         plans,
@@ -1894,8 +1478,6 @@ fn analyze_source(
         OriginalEdges::Legacy(captured),
         states,
         graph,
-        projection.as_ref(),
-        cache,
         limits,
         policy,
         graph_labels,
@@ -1916,8 +1498,6 @@ fn analyze_graph(
     captured: OriginalEdges<'_>,
     states: &mut (impl StateSource + ?Sized),
     graph: product::BehaviorView<'_>,
-    projection: Option<&row_demand::Projection>,
-    cache: Option<&row_demand::Cache>,
     limits: Limits,
     policy: AcceptancePolicy,
     graph_labels: GraphLabelPolicy,
@@ -1933,13 +1513,7 @@ fn analyze_graph(
         crate::budget::fairness_reuse_limit(),
     );
     let result = (|| {
-        for (property, (p, prepared)) in model
-            .property_claims()
-            .iter()
-            .zip(plans)
-            .take(searched)
-            .enumerate()
-        {
+        for (p, prepared) in model.property_claims().iter().zip(plans).take(searched) {
             let plan = &prepared.plan;
             *stage = Stage::Atoms;
             let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
@@ -1948,27 +1522,20 @@ fn analyze_graph(
             } else {
                 (std::collections::BTreeSet::new(), None)
             };
-            let (labels, behavior_edges) =
-                if let (Some(cache), Some(projection), OriginalEdges::Legacy(captured)) =
-                    (cache, projection, captured)
-                {
-                    cached_labels(property, plan, captured, projection, cache, graph_labels)?
-                } else {
-                    labels_with_reuse(
-                        model,
-                        plan,
-                        captured,
-                        states,
-                        graph,
-                        &p.name,
-                        graph_labels,
-                        &active,
-                        evaluations,
-                        control,
-                        prepared.frozen_prefix,
-                        &mut reuse,
-                    )?
-                };
+            let (labels, behavior_edges) = labels_with_reuse(
+                model,
+                plan,
+                captured,
+                states,
+                graph,
+                &p.name,
+                graph_labels,
+                &active,
+                evaluations,
+                control,
+                prepared.frozen_prefix,
+                &mut reuse,
+            )?;
             *stage = Stage::Product;
             for group in &prepared.groups {
                 // ADR 0018 §3: the product's vertices are retained and its
@@ -1987,8 +1554,7 @@ fn analyze_graph(
                         .find_lasso_with_conditions(&labels, conditions)
                         .map_err(AnalysisError::Product)?
                     {
-                        let (states, source_ids, edges) =
-                            original_word(captured, states, projection, &lasso)?;
+                        let (states, _, edges) = original_word(captured, states, &lasso)?;
                         *stage = Stage::Attribution;
                         let properties = attribute(
                             model,
@@ -1997,7 +1563,6 @@ fn analyze_graph(
                             lasso.prefix.len(),
                             limits.atom_cells,
                             (control, evaluations),
-                            cache.map(|cache| (cache, source_ids.as_slice())),
                         )?;
                         if !properties.contains(&p.name) {
                             return Err(AnalysisError::Inconsistent(
@@ -2061,8 +1626,6 @@ fn analyze_native(
         OriginalEdges::Native(captured),
         &mut states,
         product::BehaviorView::from(&topology),
-        None,
-        None,
         limits,
         policy,
         graph_labels,

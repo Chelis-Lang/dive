@@ -4,8 +4,6 @@
 //! All scope and `AtomTest` owners remain in that original prepared plan. The
 //! compiler executes no predicate and creates no substitute predicate scopes.
 
-use std::collections::BTreeSet;
-
 use super::Build;
 use crate::formula::{Formula, FormulaError, Limits, Node};
 
@@ -66,49 +64,6 @@ impl Check {
         Ok(Self { nodes, root })
     }
 
-    fn must_read(&self, build: &mut Build) -> Result<BTreeSet<usize>, FormulaError> {
-        let mut known: Vec<Option<bool>> = Vec::new();
-        let mut must: Vec<BTreeSet<usize>> = Vec::new();
-        for node in &self.nodes {
-            build.step(0)?;
-            let (value, reads) = match node {
-                Boolean::Constant(value) => (Some(*value), BTreeSet::new()),
-                Boolean::Atom(atom) => (None, BTreeSet::from([*atom])),
-                Boolean::Not(child) => (known[*child].map(|value| !value), must[*child].clone()),
-                Boolean::And(children) | Boolean::Or(children) => {
-                    let and = matches!(node, Boolean::And(_));
-                    let mut reads = BTreeSet::new();
-                    let mut forced = true;
-                    let mut all_known = true;
-                    let mut absorbing = false;
-                    for &child in children {
-                        build.step(0)?;
-                        if forced {
-                            for &atom in &must[child] {
-                                build.step(0)?;
-                                reads.insert(atom);
-                            }
-                        }
-                        forced &= known[child] == Some(and);
-                        all_known &= known[child].is_some();
-                        absorbing |= known[child] == Some(!and);
-                    }
-                    let value = if absorbing {
-                        Some(!and)
-                    } else if all_known {
-                        Some(and)
-                    } else {
-                        None
-                    };
-                    (value, reads)
-                }
-            };
-            known.push(value);
-            must.push(reads);
-        }
-        Ok(must.swap_remove(self.root))
-    }
-
     fn evaluate<E>(
         &self,
         at: usize,
@@ -143,14 +98,6 @@ impl Check {
 pub(crate) struct Slot {
     pub(crate) property: usize,
     pub(crate) atom: usize,
-}
-
-/// A complete certificate; construction is private and predicates are untouched.
-pub(crate) struct Program {
-    checks: Vec<Check>,
-    pub(crate) slots: Vec<Slot>,
-    pub(crate) offsets: Vec<usize>,
-    stability: Option<dive_eval::ProducerStability>,
 }
 
 #[derive(Clone, Debug)]
@@ -188,29 +135,6 @@ impl SourceProgram {
         &self,
         mut predicate: impl FnMut(usize) -> Result<bool, E>,
     ) -> Result<(), E> {
-        for check in &self.checks {
-            check.evaluate(check.root, &mut predicate)?;
-        }
-        Ok(())
-    }
-}
-
-impl Program {
-    pub(crate) fn bind_stability(&mut self, stability: dive_eval::ProducerStability) {
-        self.stability = Some(stability);
-    }
-
-    pub(crate) fn certificate(&self) -> Option<Certificate> {
-        self.stability.clone().map(|stability| Certificate {
-            _stability: stability,
-        })
-    }
-    pub(crate) fn evaluate<E>(
-        &self,
-        mut predicate: impl FnMut(usize) -> Result<bool, E>,
-    ) -> Result<(), E> {
-        // MUST is not an execution order. Each original Boolean bin retains
-        // source short circuits; a false bin never skips the next bin.
         for check in &self.checks {
             check.evaluate(check.root, &mut predicate)?;
         }
@@ -275,7 +199,6 @@ pub(crate) struct Normalized {
     build: Build,
     dnf: usize,
     slots: Vec<Slot>,
-    offsets: Vec<usize>,
 }
 
 /// `formulas` are complete violation envelopes and original atom counts.
@@ -297,12 +220,10 @@ pub(crate) fn normalize(
         limits,
     };
     let mut slots = Vec::new();
-    let mut offsets = Vec::new();
     let mut claims = Vec::new();
     let mut behaviors = Vec::new();
     for (property, &(formula, atoms)) in formulas.iter().enumerate() {
         let offset = slots.len();
-        offsets.push(offset);
         for atom in 0..atoms {
             build.step(0)?;
             slots.push(Slot { property, atom });
@@ -337,49 +258,13 @@ pub(crate) fn normalize(
     };
     let simplified = build.simplified(root)?;
     let dnf = build.dnf(simplified, 0)?;
-    Ok(Some(Normalized {
-        build,
-        dnf,
-        slots,
-        offsets,
-    }))
+    Ok(Some(Normalized { build, dnf, slots }))
 }
 
 impl Normalized {
     /// Only TLC's syntactic normalization result, never semantic tautology.
     pub(crate) fn zero_solutions(&self) -> bool {
         self.build.nodes[self.dnf] == Node::Bool(false)
-    }
-
-    pub(crate) fn into_program(self) -> Result<Option<Program>, FormulaError> {
-        if self.zero_solutions() {
-            return Ok(None);
-        }
-        let Self {
-            mut build,
-            dnf,
-            slots,
-            offsets,
-        } = self;
-        let Some(actions) = ordered_bins(&mut build, dnf)? else {
-            return Ok(None);
-        };
-        let mut must = BTreeSet::new();
-        for check in &actions {
-            for atom in check.must_read(&mut build)? {
-                build.step(0)?;
-                must.insert(atom);
-            }
-        }
-        if !(0..slots.len()).all(|atom| must.contains(&atom)) {
-            return Ok(None);
-        }
-        Ok(Some(Program {
-            checks: actions,
-            slots,
-            offsets,
-            stability: None,
-        }))
     }
 
     pub(crate) fn into_source_program(self) -> Result<Option<SourceProgram>, FormulaError> {
@@ -446,17 +331,6 @@ impl Normalized {
     }
 }
 
-pub(crate) fn compile(
-    formulas: &[(&Formula, usize)],
-    fairness: usize,
-    limits: Limits,
-) -> Result<Option<Program>, FormulaError> {
-    normalize(formulas, fairness, limits)?
-        .map(Normalized::into_program)
-        .transpose()
-        .map(Option::flatten)
-}
-
 pub(crate) fn compile_source(
     formulas: &[(&Formula, usize)],
     fairness: usize,
@@ -466,47 +340,4 @@ pub(crate) fn compile_source(
         .map(Normalized::into_source_program)
         .transpose()
         .map(Option::flatten)
-}
-
-fn ordered_bins(build: &mut Build, dnf: usize) -> Result<Option<Vec<Check>>, FormulaError> {
-    let branches = if let Node::Or(branches) = &build.nodes[dnf] {
-        branches.clone()
-    } else {
-        vec![dnf]
-    };
-    let mut actions = Vec::new();
-    let mut states = Vec::new();
-    for branch in branches {
-        let branch = build.flatten(branch, 0)?;
-        let conjuncts = if let Node::And(children) = &build.nodes[branch] {
-            children.clone()
-        } else {
-            vec![branch]
-        };
-        let mut eventual_always = Vec::new();
-        let mut always_eventual = Vec::new();
-        for conjunct in conjuncts {
-            if let Node::Eventually(always) = build.nodes[conjunct]
-                && let Node::Always(body) = build.nodes[always]
-                && build.level_action(body, 0)?.0 < 3
-            {
-                eventual_always.push(Check::copy(build, body)?);
-            } else if let Some(body) = build.ae_body(conjunct)
-                && build.level_action(body, 0)?.0 <= 1
-            {
-                always_eventual.push(Check::copy(build, body)?);
-            } else {
-                return Ok(None); // Actual residual/tableau or successor dependence.
-            }
-        }
-        // All residuals are absent, so TLC groups all PEMs into one solution.
-        for check in always_eventual {
-            unique(&mut states, check);
-        }
-        for check in eventual_always {
-            unique(&mut actions, check);
-        }
-    }
-    actions.extend(states);
-    Ok(Some(actions))
 }
