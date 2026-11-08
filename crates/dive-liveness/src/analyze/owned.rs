@@ -8,11 +8,12 @@ use std::marker::PhantomData;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use dive_check::final_roles;
 use dive_config::ModelConfig;
 use dive_ir::Ir;
-use dive_model::{ControlledBindError, Model, SymmetryLivenessResolution};
-use dive_runtime::{CheckOptions, CheckResult, budget::EvaluationControl};
+use dive_model::{BindError, BindOptions, ControlledBindError, Model, SymmetryLivenessResolution};
+use dive_runtime::{CheckOptions, budget::EvaluationControl};
+use dive_stdlib::host::RunHost;
+use dive_stdlib::random::{RandomMode, Streams};
 
 use super::{Analysis, DetailedFailure, GraphLabelPolicy, Limits, periodic};
 use crate::product::AcceptancePolicy;
@@ -26,8 +27,9 @@ mod tests;
 /// A source-binding result which has never published a temporal runtime.
 #[derive(Debug)]
 pub enum Dispatch {
-    /// The existing ordinary safety result, including its failures.
-    Safety(Box<CheckResult>),
+    /// Every bound obligation is a safety role. Nothing was checked; the
+    /// caller keeps its own safety route.
+    Safety,
     /// One freshly bound temporal runtime, consumed by its analysis.
     Temporal(Box<OwnedTemporal>),
 }
@@ -182,31 +184,79 @@ impl OwnedTemporal {
     }
 }
 
-// A caller cannot supply a prebound Dispatch::Temporal. These private fields
-// are filled only by the source-binding dispatch in the two entrypoints below.
-fn wrap(
-    dispatch: final_roles::Dispatch,
-    options: &CheckOptions,
-    control: Arc<EvaluationControl>,
-) -> Dispatch {
-    match dispatch {
-        final_roles::Dispatch::Safety(result) => Dispatch::Safety(result),
-        final_roles::Dispatch::Temporal(model) => Dispatch::Temporal(Box::new(OwnedTemporal {
-            model,
-            options: options.clone(),
-            _binding_control: control,
-            _thread: PhantomData,
-        })),
+// The run host of a fresh binding: the run's random stream and inputs, as the
+// checker installs them, so startup evaluation sees the same run.
+fn run_host(options: &CheckOptions) -> RunHost {
+    let mode = match options.profile {
+        dive_eval::Profile::Tlc => RandomMode::Tlc,
+        dive_eval::Profile::Dive => RandomMode::Dive,
+    };
+    let host = RunHost::new(Streams::new(options.seed, mode), None);
+    if let Some(inputs) = &options.inputs {
+        host.with_inputs(inputs.clone())
+    } else {
+        host
     }
 }
 
-/// Performs exactly the existing controlled source-binding dispatch once.
+fn unsupported(
+    feature: impl Into<String>,
+    output: Vec<dive_model::Message>,
+) -> ControlledBindError {
+    Box::new(dive_model::Failure {
+        error: BindError::unsupported(feature),
+        output,
+    })
+    .into()
+}
+
+fn bind(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    control: Arc<EvaluationControl>,
+) -> Result<Model, ControlledBindError> {
+    let bind_options = BindOptions {
+        eval: options.eval,
+        symmetry_liveness: options.symmetry_liveness,
+        no_deadlock: options.no_deadlock,
+        host: Some(Arc::new(run_host(options))),
+    };
+    let model = if let Some(coverage) = &options.source_coverage {
+        dive_model::bind_controlled_source_covered(
+            ir.clone(),
+            config,
+            &bind_options,
+            control,
+            coverage.clone(),
+        )
+    } else {
+        dive_model::bind_controlled(ir.clone(), config, &bind_options, control)
+    }?;
+    if let Some(feature) = model.evaluator.external_input_refusal() {
+        return Err(unsupported(feature, model.output));
+    }
+    if let Some(Err(error)) = options
+        .inputs
+        .as_ref()
+        .map(|inputs| inputs.finish_binding())
+    {
+        return Err(unsupported(error.message, model.output));
+    }
+    Ok(model)
+}
+
+/// Binds the source once and dispatches on the actual bound roles.
 ///
-/// `None` preserves the existing no-bind eligibility fallback. The caller must
-/// use the dedicated evaluator stack. This takes no prebound runtime or host.
+/// `None` means the request is outside this route
+/// ([`dive_runtime::admission::route_exclusion`], or no configured property):
+/// no binding or source evaluation ran. A binding whose roles are all safety
+/// is returned as [`Dispatch::Safety`] without checking anything. Otherwise
+/// the one fresh temporal runtime is returned. The caller must use the
+/// dedicated evaluator stack. This takes no prebound runtime or host.
 ///
 /// # Errors
-/// The unchanged controlled binding error and original startup output.
+/// The controlled binding error and its original startup output.
 #[must_use]
 pub fn dispatch_controlled(
     ir: &Arc<Ir>,
@@ -214,24 +264,23 @@ pub fn dispatch_controlled(
     options: &CheckOptions,
     control: Arc<EvaluationControl>,
 ) -> Option<Result<Dispatch, ControlledBindError>> {
-    final_roles::dispatch_controlled(ir, config, options, control.clone())
-        .map(|result| result.map(|dispatch| wrap(dispatch, options, control)))
-}
-
-/// Performs the existing ordinary controlled dispatch without changing failures.
-///
-/// Real ordinary binding failures remain safety results; interruption stays a
-/// controlled error. `None` still means no binding or source evaluation ran.
-///
-/// # Errors
-/// The unchanged ordinary-dispatch controlled interruption/error evidence.
-#[must_use]
-pub fn dispatch_ordinary_controlled(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    control: Arc<EvaluationControl>,
-) -> Option<Result<Dispatch, ControlledBindError>> {
-    final_roles::dispatch_ordinary_controlled(ir, config, options, control.clone())
-        .map(|result| result.map(|dispatch| wrap(dispatch, options, control)))
+    if config.properties.is_empty()
+        || dive_runtime::admission::route_exclusion(ir, config, options).is_some()
+    {
+        return None;
+    }
+    // A caller cannot supply a prebound Dispatch::Temporal: these private
+    // fields are filled only from this fresh source binding.
+    Some(bind(ir, config, options, control.clone()).map(|model| {
+        if model.implied_temporals.is_empty() {
+            Dispatch::Safety
+        } else {
+            Dispatch::Temporal(Box::new(OwnedTemporal {
+                model: Box::new(model),
+                options: options.clone(),
+                _binding_control: control,
+                _thread: PhantomData,
+            }))
+        }
+    }))
 }

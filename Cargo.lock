@@ -300,6 +300,7 @@ dependencies = [
  "dive-model",
  "dive-runtime",
  "dive-sema",
+ "dive-stdlib",
  "dive-store",
  "dive-trace",
  "dive-value",

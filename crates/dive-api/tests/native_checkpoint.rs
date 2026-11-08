@@ -215,6 +215,35 @@ fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
 }
 
 #[test]
+fn reference_engine_archives_are_rejected_by_name_and_damage_by_framing() {
+    let dir = dir();
+    let req = request("DuplicateSuccessors");
+    let resume = checkpoint::Request {
+        path: dir.join("reference.cp"),
+        action: checkpoint::Action::Recover,
+        counters: checkpoint::Counters::Retain,
+        config_source_sha256: None,
+    };
+    dive_runtime::checkpoint::write_payload(&resume.path, b"DIVECP02", b"{}")
+        .expect("framed reference archive");
+    assert!(matches!(
+        dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core),
+        Err(dive_api::ApiError::Rejected { message })
+            if message.starts_with("DIVE-S0400") && message.contains("reference engine")
+    ));
+    let mut bytes = std::fs::read(&resume.path).expect("archive bytes");
+    let last = bytes.len() - 1;
+    bytes[last] ^= 1;
+    std::fs::write(&resume.path, bytes).expect("damaged archive");
+    assert!(matches!(
+        dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core),
+        Err(dive_api::ApiError::Rejected { message })
+            if message.starts_with("DIVE-S0400") && message.contains("checksum")
+    ));
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}
+
+#[test]
 fn unsupported_mode_combinations_refuse_before_file_access() {
     let cp = checkpoint::Request {
         path: "nonexistent.cp".into(),

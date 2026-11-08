@@ -13,8 +13,8 @@
 //! # Ok::<(), dive_api::ApiError>(())
 //! ```
 
+use crate::dfid_admission::{Options, Outcome};
 use crate::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_check::dfid::{Options, Outcome};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -229,7 +229,7 @@ pub fn dfid_file_engine(
     let mut setup_failure = None;
     let crate::Engine::Core = engine;
     {
-        if let Some(outcome) = dive_check::dfid::preflight(model.model(), &options) {
+        if let Some(outcome) = crate::dfid_admission::preflight(model.model(), &options) {
             setup_failure = Some(outcome);
         } else {
             match crate::core_modes::Native::probe(
