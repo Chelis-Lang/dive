@@ -102,10 +102,6 @@ fn empty_product_conversions_and_nonempty_control_match_pinned_results() {
         for compat in [false, true] {
             for workers in [1, 4] {
                 let req = request(name, compat, workers);
-                let reference =
-                    check_file_engine(&req, Engine::Reference).expect("Reference check");
-                assert_eq!(observed(&reference), pinned, "{name}/{compat}/{workers}");
-                validate_violation(&req, &reference);
                 for switches in ["", "-fold,-memo", "-hashcons"] {
                     let core = check_file_core_opts(&req, switches).expect("Core check");
                     assert_eq!(core.to_json()["engine"], "core");
@@ -154,23 +150,28 @@ fn demanded_comparisons_operand_errors_and_axis_history_remain_demanded() {
         );
         for compat in [false, true] {
             let req = request(name, compat, 1);
-            let reference = check_file_engine(&req, Engine::Reference).expect("Reference check");
-            let doc = reference.to_json();
-            if !compat && matches!(name, "LazyDemandedProduct" | "LazyProductHistory") {
+            if matches!(name, "LazyDemandedProduct" | "LazyProductHistory") {
                 let expected = json!({"verdict":"success", "property":null, "distinct":3, "generated":3,
                     "depth":3, "code":2193, "class":"TLC_SUCCESS", "exit":0});
-                assert_eq!(observed(&reference), expected, "{name}");
                 for switches in ["", "-fold,-memo", "-hashcons"] {
-                    let core = check_file_core_opts(&req, switches).expect("canonical Core check");
-                    assert_eq!(observed(&core), expected, "{name}/{switches}");
+                    let core = check_file_core_opts(&req, switches).expect("Core check");
+                    if compat {
+                        let core_doc = core.to_json();
+                        assert_eq!(core_doc["verdict"], "unsupported", "{name}: {core_doc}");
+                        assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
+                        assert_eq!(core_doc["message"], MIXED_COMPAT);
+                    } else {
+                        assert_eq!(observed(&core), expected, "{name}/{switches}");
+                    }
                 }
                 continue;
             }
+            let first = check_file_engine(&req, Engine::Core).expect("Core check");
+            let doc = first.to_json();
             assert_eq!(doc["verdict"], "evaluation-error", "{name}: {doc}");
-            assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
+            assert_eq!(first.exit_code_for(ExitConvention::Tlc), 75);
             let (nested, demanded) = match name {
                 "LazyProductOperandError" => (2179, "second argument"),
-                "LazyProductHistory" => (2154, "FiniteSets.Cardinality"),
                 "LazyProductAxisOrder" => (2154, "Shouldn't call isEmpty() on value 0"),
                 _ => (2154, "Graphs.isStronglyConnected"),
             };
@@ -184,16 +185,10 @@ fn demanded_comparisons_operand_errors_and_axis_history_remain_demanded() {
             for switches in ["", "-fold,-memo", "-hashcons"] {
                 let core = check_file_core_opts(&req, switches).expect("Core check");
                 let core_doc = core.to_json();
-                if matches!(name, "LazyDemandedProduct" | "LazyProductHistory") {
-                    assert_eq!(core_doc["verdict"], "unsupported", "{name}: {core_doc}");
-                    assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
-                    assert_eq!(core_doc["message"], MIXED_COMPAT);
-                } else {
-                    assert_eq!(core_doc["verdict"], doc["verdict"]);
-                    assert_eq!(core_doc["tlc"], doc["tlc"]);
-                    assert_eq!(core_doc["message"], doc["message"]);
-                    assert_eq!(core.exit_code_for(ExitConvention::Tlc), 75);
-                }
+                assert_eq!(core_doc["verdict"], doc["verdict"]);
+                assert_eq!(core_doc["tlc"], doc["tlc"]);
+                assert_eq!(core_doc["message"], doc["message"]);
+                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 75);
             }
         }
     }

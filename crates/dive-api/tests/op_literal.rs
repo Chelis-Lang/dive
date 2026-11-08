@@ -98,36 +98,30 @@ fn literal_bodies_reach_java_methods_as_values() {
         });
         let mut compat_verdict = Value::Null;
         for compat in [true, false] {
-            let reference = run(&spec, Engine::Reference, compat);
-            let at = format!("{name} compat={compat}");
-            if compat {
-                assert_eq!(
-                    reference["exit"].as_i64(),
-                    Some(exit),
-                    "{at}: {reference:#}"
-                );
-                compat_verdict = reference["verdict"].clone();
-            } else {
-                // The default profile has its own exit codes.
-                assert_eq!(reference["verdict"], compat_verdict, "{at}: {reference:#}");
-            }
-            match &error {
-                Some(text) => {
-                    assert_eq!(reference["message"].as_str(), Some(text.as_str()), "{at}");
-                }
-                None => assert_eq!(reference["verdict"], "success", "{at}: {reference:#}"),
-            }
             let core = run(&spec, Engine::Core, compat);
+            let at = format!("{name} compat={compat}");
             if core["verdict"] == "unsupported" {
+                // Only the retired reference engine applied these (#791,
+                // #910); Core refuses by name.
                 assert!(
                     core["message"]
                         .as_str()
                         .is_some_and(|m| m.contains("body is constant")),
                     "{at}: {core:#}"
                 );
-            } else {
-                assert_eq!(core["exit"], reference["exit"], "{at}: {core:#}");
-                assert_eq!(core["message"], reference["message"], "{at}");
+                assert!(core["counterexample"].is_null(), "{at}: {core:#}");
+                continue;
+            }
+            if compat {
+                assert_eq!(core["exit"].as_i64(), Some(exit), "{at}: {core:#}");
+                compat_verdict = core["verdict"].clone();
+            } else if !compat_verdict.is_null() {
+                // The default profile has its own exit codes.
+                assert_eq!(compat_verdict, core["verdict"], "{at}: {core:#}");
+            }
+            match &error {
+                Some(text) => assert_eq!(Some(text.as_str()), core["message"].as_str(), "{at}"),
+                None => assert_eq!(core["verdict"], "success", "{at}: {core:#}"),
             }
         }
     }
