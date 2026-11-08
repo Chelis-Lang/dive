@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- `dive_api::temporal::Outcome` no longer has the reference engine's
+  `Holds`, `Violation` and `PrefixViolation` variants, and the
+  `ValidatedCounterexample` and `ValidatedPrefix` types are removed (issue
+  #791). Core reports `NativeHolds`, `NativeViolation`,
+  `NativePrefixViolation` or `Safety`, as before.
 - The Rust API no longer has the reference engine's in-memory final temporal
   route (`dive_api::temporal::check_final`, `check_final_with_evidence`,
   `check_final_with_policy` and `check_final_with_policies`; issue #791).

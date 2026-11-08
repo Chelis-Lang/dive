@@ -16,8 +16,8 @@ use dive_config::ModelConfig;
 use dive_ir::Ir;
 #[cfg(test)]
 use dive_liveness::analyze::periodic::Schedule;
-use dive_liveness::analyze::periodic::{Checks, PeriodicAnalysis, PrefixCandidate};
-use dive_liveness::analyze::{Analysis, AnalysisError, Candidate, GraphLabelPolicy, Limits};
+use dive_liveness::analyze::periodic::{Checks, PrefixCandidate};
+use dive_liveness::analyze::{AnalysisError, Candidate, GraphLabelPolicy, Limits};
 use dive_liveness::product::AcceptancePolicy;
 use dive_model::{BindOptions, Model};
 use dive_trace::{
@@ -29,17 +29,9 @@ mod native;
 pub use native::{ValidatedNativeCounterexample, ValidatedNativePrefix};
 pub(crate) use native::{core_capture_stop, core_native_report, core_source_row_failure};
 
-/// The outcome of a bounded temporal run, distinguishing real prefixes.
+/// The outcome of a bounded temporal run on Core, distinguishing real prefixes.
 #[derive(Clone, Debug)]
 pub enum Outcome {
-    /// Every planned property holds on the fully captured graph, subject to
-    /// the exploration's reported fingerprint collision qualifications.
-    Holds(Box<capture::Complete>),
-    /// A concrete periodic word falsifies the named properties and passes
-    /// the independent validator. TLC's exact lasso selection is not claimed.
-    Violation(Box<ValidatedCounterexample>),
-    /// Independently validated word on a real incomplete capture prefix.
-    PrefixViolation(Box<ValidatedPrefix>),
     /// All properties hold after complete native capture, without retained rows.
     NativeHolds(Box<capture::CompleteEvidence>),
     /// Independently validated native word with complete producer facts.
@@ -47,64 +39,11 @@ pub enum Outcome {
     /// Independently validated native word with unfinished-prefix facts.
     NativePrefixViolation(Box<ValidatedNativePrefix>),
     /// The ordinary safety result when no properties are configured, when
-    /// configured properties bind entirely to safety roles on the supported
-    /// default-memory route, or a safety stop before temporal checking completes.
-    /// This preserves its verdict, statistics, output and counterexample;
-    /// unsupported features and resource limits are never success.
+    /// configured properties bind entirely to safety roles, or a safety stop
+    /// before temporal checking completes. This preserves its verdict,
+    /// statistics, output and counterexample; unsupported features and
+    /// resource limits are never success.
     Safety(Box<CheckResult>),
-}
-
-/// An independently validated periodic counterexample. The fields are private
-/// so callers cannot construct this evidence from an unvalidated candidate.
-#[derive(Clone, Debug)]
-pub struct ValidatedCounterexample {
-    candidate: Candidate,
-    document: TraceDoc,
-    validation: ValidationReport,
-}
-impl ValidatedCounterexample {
-    /// The short candidate and its complete exploration evidence.
-    #[must_use]
-    pub fn candidate(&self) -> &Candidate {
-        &self.candidate
-    }
-    /// Independently admitted JSON trace data and the complete false-property set.
-    /// Tagged values retain the trace format's documented representation limits.
-    #[must_use]
-    pub fn document(&self) -> &TraceDoc {
-        &self.document
-    }
-    /// The independent validator's report, always [`Validation::Valid`].
-    #[must_use]
-    pub fn validation(&self) -> &ValidationReport {
-        &self.validation
-    }
-}
-
-/// A prefix word admitted by fresh independent typed and serialized validation.
-/// It cannot supply complete exploration evidence or a holding verdict.
-#[derive(Clone, Debug)]
-pub struct ValidatedPrefix {
-    candidate: PrefixCandidate,
-    document: TraceDoc,
-    validation: ValidationReport,
-}
-impl ValidatedPrefix {
-    /// Original candidate and actual committed-prefix capture evidence.
-    #[must_use]
-    pub fn candidate(&self) -> &PrefixCandidate {
-        &self.candidate
-    }
-    /// Independently validated serialized word and false-property names.
-    #[must_use]
-    pub fn document(&self) -> &TraceDoc {
-        &self.document
-    }
-    /// The actual independent serialized validation report, always valid.
-    #[must_use]
-    pub fn validation(&self) -> &ValidationReport {
-        &self.validation
-    }
 }
 
 /// Configured analysis owners, independent of whether execution reached them.
@@ -234,18 +173,6 @@ pub(crate) fn finish_report(
         Ok(None) => return None,
     };
     match &mut report.outcome {
-        Outcome::Holds(capture) => {
-            let mut failure = Failure::after(
-                error,
-                Stage::Analysis(dive_liveness::analyze::Stage::Finalization),
-                capture,
-            );
-            failure.elapsed = report.elapsed;
-            failure.periodic = report.periodic.map(Box::new);
-            failure.configuration = report.configuration.map(Box::new);
-            failure.symmetry_liveness = report.symmetry_liveness.clone().map(Box::new);
-            Some(failure)
-        }
         Outcome::NativeHolds(capture) => {
             let mut failure = Failure::before(
                 error,
@@ -270,10 +197,7 @@ pub(crate) fn finish_report(
             None
         }
         // These witnesses already passed fresh independent validation.
-        Outcome::Violation(_)
-        | Outcome::PrefixViolation(_)
-        | Outcome::NativeViolation(_)
-        | Outcome::NativePrefixViolation(_) => None,
+        Outcome::NativeViolation(_) | Outcome::NativePrefixViolation(_) => None,
     }
 }
 
@@ -485,23 +409,6 @@ impl Failure {
             error: Box::new(error),
             stage,
             exploration: None,
-            elapsed: Duration::ZERO,
-            action_evaluation: None,
-            state_evaluation: None,
-            row_validation: None,
-            validation_progress: None,
-            incomplete: false,
-            periodic: None,
-            configuration: None,
-            binding_output: Vec::new(),
-            symmetry_liveness: None,
-        }
-    }
-    fn after(error: Error, stage: Stage, capture: &capture::Complete) -> Self {
-        Self {
-            error: Box::new(error),
-            stage,
-            exploration: Some(Box::new(capture.into())),
             elapsed: Duration::ZERO,
             action_evaluation: None,
             state_evaluation: None,
@@ -739,19 +646,6 @@ fn validation_binding_failure(mut failure: Failure) -> Failure {
     failure
 }
 
-fn final_binding_validation_failure(failure: Failure, capture: &capture::Complete) -> Failure {
-    let mut failure = validation_binding_failure(failure);
-    failure.exploration = Some(Box::new(capture.into()));
-    failure
-}
-
-fn prefix_binding_validation_failure(failure: Failure, capture: &capture::Prefix) -> Failure {
-    let mut failure = validation_binding_failure(failure);
-    failure.exploration = Some(Box::new(capture.into()));
-    failure.incomplete = true;
-    failure
-}
-
 fn validation_control(
     options: &CheckOptions,
 ) -> Result<Arc<dive_check::budget::EvaluationControl>, Error> {
@@ -816,17 +710,6 @@ fn validation_run_error(
         }
     };
     (Error::Analysis(error), Some(progress))
-}
-
-fn final_validation_run_failure(
-    control: &dive_check::budget::EvaluationControl,
-    error: ValidationRunError,
-    capture: &capture::Complete,
-) -> Failure {
-    let (error, progress) = validation_run_error(control, error);
-    let mut failure = Failure::after(error, Stage::Validation, capture);
-    failure.validation_progress = progress.map(Box::new);
-    failure
 }
 
 // The API creates native documents itself. Keep this deliberately separate
@@ -1026,81 +909,6 @@ mod validation_controls {
         )
     }
 
-    fn assert_validation_stop(failure: &Failure, complete: bool, actual: dive_check::Stats) {
-        assert_eq!(failure.stage(), Stage::Validation);
-        assert_eq!(failure.capture_completed(), Some(complete));
-        assert_eq!(failure.exploration().expect("actual capture").stats, actual);
-        let Error::Analysis(AnalysisError::Stopped(stopped)) = failure.error() else {
-            panic!("typed stop")
-        };
-        assert_eq!(stopped.phase, dive_check::budget::Phase::Validation);
-        assert_eq!(stopped.resource, dive_check::budget::Resource::Time);
-        let progress = failure
-            .validation_progress()
-            .expect("actual validation admission");
-        assert_eq!(progress.checks_passed, 0);
-        assert_eq!(progress.state, None);
-        assert_eq!(progress.check, None);
-    }
-
-    #[test]
-    fn an_uncertified_final_candidate_stops_with_real_capture_and_no_violation() {
-        let (ir, config) = input();
-        for mut options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            let model = bind(&ir, &config, &options).expect("model");
-            let Analysis::Candidate(candidate) = dive_liveness::analyze::analyze_final_with_policy(
-                &model,
-                &options,
-                Limits::default(),
-                AcceptancePolicy::compact_default(),
-            )
-            .expect("real analysis") else {
-                panic!("real candidate")
-            };
-            let actual = candidate.exploration.stats;
-            let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
-                .start()
-                .expect("thread")
-                .expect("watchdog");
-            options.budget = watchdog.budget().clone();
-            let failure = finish_final(&ir, &config, &options, Ok(Analysis::Candidate(candidate)))
-                .expect_err("uncertified candidate cannot become violation");
-            assert_validation_stop(&failure, true, actual);
-        }
-    }
-
-    #[test]
-    fn an_uncertified_prefix_candidate_keeps_actual_incomplete_evidence() {
-        let (ir, config) = input();
-        for mut options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            let model = bind(&ir, &config, &options).expect("model");
-            let (PeriodicAnalysis::Prefix(candidate), _) =
-                dive_liveness::analyze::periodic::analyze_periodic(
-                    &model,
-                    &options,
-                    Limits::default(),
-                    AcceptancePolicy::compact_default(),
-                    Schedule {
-                        min_states: 2,
-                        growth_factor: 1,
-                    },
-                )
-                .expect("real periodic analysis")
-            else {
-                panic!("real prefix candidate")
-            };
-            let actual = candidate.exploration.stats;
-            let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
-                .start()
-                .expect("thread")
-                .expect("watchdog");
-            options.budget = watchdog.budget().clone();
-            let failure = validate_prefix(&ir, &config, &options, candidate)
-                .expect_err("uncertified prefix cannot become violation");
-            assert_validation_stop(&failure, false, actual);
-        }
-    }
-
     #[test]
     fn decoded_native_shape_errors_keep_the_independent_validation_class() {
         let (ir, config) = input();
@@ -1169,294 +977,39 @@ mod validation_controls {
     }
 }
 
-fn finish_final(
+/// The safety stop or typed failure of a periodic analysis that failed.
+fn finish_periodic_failure(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
-    analysis: Result<Analysis, dive_liveness::analyze::DetailedFailure>,
-) -> Result<Outcome, Failure> {
-    match analysis {
-        Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
-        Ok(Analysis::Candidate(candidate)) => {
-            let control = validation_control(options).map_err(|error| {
-                Failure::after(error, Stage::Validation, &candidate.exploration)
-            })?;
-            validation_checkpoint(&control).map_err(|error| {
-                final_validation_run_failure(&control, error, &candidate.exploration)
-            })?;
-            // Rebind separately: validation cannot inspect the checker's graph
-            // or depend on its mutable evaluator/host state.
-            let validation_model =
-                bind_controlled(ir, config, options, &control).map_err(|failure| {
-                    final_binding_validation_failure(failure, &candidate.exploration)
-                })?;
-            let trace = Trace {
-                states: candidate.states.clone(),
-                // Labels are optional; the validator checks the relation itself.
-                // Closing/implicit stuttering semantics come from the ending.
-                labels: vec![None; candidate.states.len()],
-                ending: Ending::Lasso {
-                    back_to: candidate.back_to,
-                },
-                length: Some(candidate.states.len()),
-                properties: candidate.properties.clone(),
-            };
-            let report =
-                dive_trace::validate_controlled(&validation_model, &trace, control.clone())
-                    .map_err(|error| {
-                        final_validation_run_failure(&control, error, &candidate.exploration)
-                    })?;
-            if report.validation != Validation::Valid {
-                return Err(final_validation_failure(candidate, report));
-            }
-            let document = trace.to_doc(&validation_model).map_err(|error| {
-                Failure::after(
-                    Error::Document(error),
-                    Stage::Document,
-                    &candidate.exploration,
-                )
-            })?;
-            // Validate the serialized form too; a conversion bug must not turn
-            // a certified in-memory word into an incorrect user-facing trace.
-            let report = validate_native_document(&validation_model, &document, &control).map_err(
-                |error| final_validation_run_failure(&control, error, &candidate.exploration),
-            )?;
-            if report.validation != Validation::Valid {
-                return Err(final_validation_failure(candidate, report));
-            }
-            Ok(Outcome::Violation(Box::new(ValidatedCounterexample {
-                candidate,
-                document,
-                validation: report,
-            })))
-        }
-        Err(mut detailed) => {
-            let state_evaluation = detailed.take_state_evaluation();
-            let (failure, action_evaluation) = detailed.into_parts();
-            if let AnalysisError::Exploration(result) = failure.error {
-                Ok(Outcome::Safety(result))
-            } else {
-                let incomplete = state_evaluation.as_deref().is_some_and(|state| {
-                    matches!(
-                        state.site(),
-                        dive_liveness::analyze::StateEvaluationSite::CaptureRow
-                            | dive_liveness::analyze::StateEvaluationSite::CaptureSourceRow
-                    )
-                });
-                Err(finish_row_failure(
-                    ir,
-                    config,
-                    options,
-                    Failure {
-                        error: Box::new(Error::Analysis(failure.error)),
-                        stage: Stage::Analysis(failure.stage),
-                        exploration: failure.exploration,
-                        elapsed: Duration::ZERO,
-                        action_evaluation,
-                        state_evaluation,
-                        row_validation: None,
-                        validation_progress: None,
-                        incomplete,
-                        periodic: None,
-                        configuration: None,
-                        binding_output: Vec::new(),
-                        symmetry_liveness: None,
-                    },
-                ))
-            }
-        }
-    }
-}
-
-fn final_validation_failure(candidate: Candidate, report: ValidationReport) -> Failure {
-    let exploration = Some(Box::new((&candidate.exploration).into()));
-    Failure {
-        error: Box::new(Error::Validation {
-            candidate: Box::new(candidate),
-            report,
-        }),
-        stage: Stage::Validation,
-        exploration,
-        elapsed: Duration::ZERO,
-        action_evaluation: None,
-        state_evaluation: None,
-        row_validation: None,
-        validation_progress: None,
-        incomplete: false,
-        periodic: None,
-        configuration: None,
-        binding_output: Vec::new(),
-        symmetry_liveness: None,
-    }
-}
-
-fn prefix_failure(error: Error, stage: Stage, prefix: &capture::Prefix) -> Failure {
-    Failure {
-        error: Box::new(error),
-        stage,
-        exploration: Some(Box::new(prefix.into())),
-        elapsed: Duration::ZERO,
-        action_evaluation: None,
-        state_evaluation: None,
-        row_validation: None,
-        validation_progress: None,
-        incomplete: true,
-        periodic: None,
-        configuration: None,
-        binding_output: Vec::new(),
-        symmetry_liveness: None,
-    }
-}
-
-fn prefix_validation_failure(candidate: PrefixCandidate, report: ValidationReport) -> Failure {
-    let exploration = Some(Box::new((&candidate.exploration).into()));
-    Failure {
-        error: Box::new(Error::PrefixValidation {
-            candidate: Box::new(candidate),
-            report,
-        }),
-        stage: Stage::Validation,
-        exploration,
-        elapsed: Duration::ZERO,
-        action_evaluation: None,
-        state_evaluation: None,
-        row_validation: None,
-        validation_progress: None,
-        incomplete: true,
-        periodic: None,
-        configuration: None,
-        binding_output: Vec::new(),
-        symmetry_liveness: None,
-    }
-}
-
-fn prefix_validation_run_failure(
-    control: &dive_check::budget::EvaluationControl,
-    error: ValidationRunError,
-    prefix: &capture::Prefix,
-) -> Failure {
-    let (error, progress) = validation_run_error(control, error);
-    let mut failure = prefix_failure(error, Stage::Validation, prefix);
-    failure.validation_progress = progress.map(Box::new);
-    failure
-}
-
-fn validate_prefix(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    candidate: PrefixCandidate,
-) -> Result<Outcome, Failure> {
-    // Same independent checks as final candidates, with distinct prefix evidence.
-    let control = validation_control(options)
-        .map_err(|error| prefix_failure(error, Stage::Validation, &candidate.exploration))?;
-    validation_checkpoint(&control)
-        .map_err(|error| prefix_validation_run_failure(&control, error, &candidate.exploration))?;
-    let model = bind_controlled(ir, config, options, &control)
-        .map_err(|failure| prefix_binding_validation_failure(failure, &candidate.exploration))?;
-    let trace = Trace {
-        states: candidate.states.clone(),
-        labels: vec![None; candidate.states.len()],
-        ending: Ending::Lasso {
-            back_to: candidate.back_to,
-        },
-        length: Some(candidate.states.len()),
-        properties: candidate.properties.clone(),
-    };
-    let report = dive_trace::validate_controlled(&model, &trace, control.clone())
-        .map_err(|error| prefix_validation_run_failure(&control, error, &candidate.exploration))?;
-    if report.validation != Validation::Valid {
-        return Err(prefix_validation_failure(candidate, report));
-    }
-    let document = trace.to_doc(&model).map_err(|error| {
-        prefix_failure(
-            Error::Document(error),
-            Stage::Document,
-            &candidate.exploration,
-        )
-    })?;
-    let report = validate_native_document(&model, &document, &control)
-        .map_err(|error| prefix_validation_run_failure(&control, error, &candidate.exploration))?;
-    if report.validation != Validation::Valid {
-        return Err(prefix_validation_failure(candidate, report));
-    }
-    Ok(Outcome::PrefixViolation(Box::new(ValidatedPrefix {
-        candidate,
-        document,
-        validation: report,
-    })))
-}
-
-#[cfg(test)]
-fn run_periodic(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    model: &Model,
-    schedule: Schedule,
-    configuration: Configuration,
+    failure: dive_liveness::analyze::periodic::PeriodicFailure,
 ) -> Result<(Outcome, Checks), Failure> {
-    finish_periodic(
+    let mut detailed = *failure.failure;
+    let state_evaluation = detailed.take_state_evaluation();
+    let (detail, action_evaluation) = detailed.into_parts();
+    if let AnalysisError::Exploration(result) = detail.error {
+        return Ok((Outcome::Safety(result), failure.checks));
+    }
+    Err(finish_row_failure(
         ir,
         config,
         options,
-        dive_liveness::analyze::periodic::analyze_periodic_with_policies(
-            model,
-            options,
-            configuration.limits,
-            configuration.acceptance,
-            configuration.graph_labels,
-            schedule,
-        ),
-    )
-}
-
-fn finish_periodic(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    result: Result<(PeriodicAnalysis, Checks), dive_liveness::analyze::periodic::PeriodicFailure>,
-) -> Result<(Outcome, Checks), Failure> {
-    let (analysis, checks) = match result {
-        Ok(result) => result,
-        Err(failure) => {
-            let mut detailed = *failure.failure;
-            let state_evaluation = detailed.take_state_evaluation();
-            let (detail, action_evaluation) = detailed.into_parts();
-            if let AnalysisError::Exploration(result) = detail.error {
-                return Ok((Outcome::Safety(result), failure.checks));
-            }
-            return Err(finish_row_failure(
-                ir,
-                config,
-                options,
-                Failure {
-                    error: Box::new(Error::Analysis(detail.error)),
-                    stage: Stage::Analysis(detail.stage),
-                    exploration: detail.exploration.or(failure.prefix),
-                    elapsed: Duration::ZERO,
-                    action_evaluation,
-                    state_evaluation,
-                    row_validation: None,
-                    validation_progress: None,
-                    incomplete: failure.capture_completed == Some(false),
-                    periodic: Some(Box::new(failure.checks)),
-                    configuration: None,
-                    binding_output: Vec::new(),
-                    symmetry_liveness: None,
-                },
-            ));
-        }
-    };
-    let outcome = match analysis {
-        PeriodicAnalysis::Final(analysis) => finish_final(ir, config, options, Ok(analysis)),
-        PeriodicAnalysis::Prefix(candidate) => validate_prefix(ir, config, options, candidate),
-    }
-    .map_err(|mut failure| {
-        failure.periodic = Some(Box::new(checks));
-        failure
-    })?;
-    Ok((outcome, checks))
+        Failure {
+            error: Box::new(Error::Analysis(detail.error)),
+            stage: Stage::Analysis(detail.stage),
+            exploration: detail.exploration.or(failure.prefix),
+            elapsed: Duration::ZERO,
+            action_evaluation,
+            state_evaluation,
+            row_validation: None,
+            validation_progress: None,
+            incomplete: failure.capture_completed == Some(false),
+            periodic: Some(Box::new(failure.checks)),
+            configuration: None,
+            binding_output: Vec::new(),
+            symmetry_liveness: None,
+        },
+    ))
 }
 
 /// The report of a temporal check whose graph the core engine produced
@@ -1468,12 +1021,12 @@ pub(crate) fn core_report(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
-    result: Result<(PeriodicAnalysis, Checks), dive_liveness::analyze::periodic::PeriodicFailure>,
+    failure: dive_liveness::analyze::periodic::PeriodicFailure,
     periodic: bool,
     symmetry_liveness: dive_model::SymmetryLivenessResolution,
     started: Instant,
 ) -> Result<Report, Failure> {
-    match finish_periodic(ir, config, options, result) {
+    match finish_periodic_failure(ir, config, options, failure) {
         Ok((outcome, checks)) => Ok(Report {
             outcome,
             symmetry_liveness: Some(symmetry_liveness),
@@ -1634,156 +1187,6 @@ mod evidence_controls {
             assert_eq!(failure.capture_completed(), None);
             assert!(failure.workers(8).is_none());
             assert!(failure.exploration().is_none());
-        }
-    }
-}
-
-#[cfg(test)]
-#[allow(
-    clippy::expect_used,
-    clippy::panic,
-    reason = "prefix publication boundary assertions"
-)]
-mod prefix_controls {
-    use super::*;
-    /// Checks every grown completed level, so small graphs exercise prefixes.
-    const EVERY_LEVEL: Schedule = Schedule {
-        min_states: 2,
-        growth_factor: 1,
-    };
-    fn input() -> (Arc<Ir>, ModelConfig, CheckOptions) {
-        let source = "---- MODULE Prefix ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\nP == <>(x=3)\n====\n";
-        let analysis =
-            dive_sema::analyze_source("Prefix.tla", source, &dive_sema::Options::default());
-        assert!(analysis.accepted());
-        (
-            Arc::new(dive_ir::lower(&analysis).expect("IR")),
-            dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
-                .into_config()
-                .expect("config"),
-            CheckOptions::dive(7),
-        )
-    }
-    #[test]
-    fn prefix_resource_failure_keeps_actual_incomplete_evidence_and_capture_stop() {
-        let (ir, config, options) = input();
-        let model = bind(&ir, &config, &options).expect("model");
-        let failure = run_periodic(
-            &ir,
-            &config,
-            &options,
-            &model,
-            EVERY_LEVEL,
-            Configuration {
-                limits: Limits {
-                    atom_cells: 0,
-                    ..Limits::default()
-                },
-                acceptance: AcceptancePolicy::compact_default(),
-                graph_labels: GraphLabelPolicy::Cells(0),
-            },
-        )
-        .expect_err("prefix label bound");
-        assert_eq!(failure.error().code(), "DIVE-L0034");
-        assert_eq!(
-            failure.stage(),
-            Stage::Analysis(dive_liveness::analyze::Stage::Atoms)
-        );
-        assert_eq!(failure.capture_completed(), Some(false));
-        assert_eq!(failure.workers(1).expect("actual workers").used, 1);
-        assert_eq!(
-            failure
-                .exploration()
-                .expect("actual prefix")
-                .stats
-                .left_on_queue,
-            1
-        );
-        assert_eq!(failure.periodic().expect("schedule").prefixes, 1);
-        assert!(!failure.periodic().expect("schedule").final_check);
-        let model = bind(&ir, &config, &options).expect("fresh model");
-        let (outcome, checks) = run_periodic(
-            &ir,
-            &config,
-            &options,
-            &model,
-            EVERY_LEVEL,
-            Configuration {
-                limits: Limits {
-                    capture: capture::Limits {
-                        states: 1,
-                        ..capture::Limits::default()
-                    },
-                    ..Limits::default()
-                },
-                acceptance: AcceptancePolicy::compact_default(),
-                graph_labels: GraphLabelPolicy::Cells(Limits::default().atom_cells),
-            },
-        )
-        .expect("safety stop");
-        assert!(
-            matches!(outcome, Outcome::Safety(stop) if matches!(stop.verdict, dive_check::Verdict::ResourceLimit { .. }))
-        );
-        assert_eq!(checks.prefixes, 0);
-        assert!(!checks.exhausted && !checks.final_check);
-    }
-    #[test]
-    fn prefix_publication_requires_fresh_typed_and_serialized_validation() {
-        let (ir, config, options) = input();
-        for mutation in 0..4 {
-            let model = bind(&ir, &config, &options).expect("model");
-            let (analysis, checks) = dive_liveness::analyze::periodic::analyze_periodic(
-                &model,
-                &options,
-                Limits::default(),
-                AcceptancePolicy::compact_default(),
-                EVERY_LEVEL,
-            )
-            .expect("candidate");
-            let PeriodicAnalysis::Prefix(mut candidate) = analysis else {
-                panic!("real prefix expected")
-            };
-            match mutation {
-                0 => {}
-                1 => candidate.states[0] = vec![Some(dive_value::Value::Int(99))].into(),
-                2 => candidate.back_to = candidate.states.len(),
-                _ => candidate.properties = vec!["invented-property".into()],
-            }
-            match validate_prefix(&ir, &config, &options, candidate) {
-                Ok(Outcome::PrefixViolation(word)) => {
-                    assert_eq!(mutation, 0);
-                    assert_eq!(word.validation().validation, Validation::Valid);
-                    assert_eq!(word.document().properties, ["P"]);
-                    assert_eq!(word.candidate().exploration.stats.left_on_queue, 1);
-                    let fresh = bind(&ir, &config, &options).expect("fresh model");
-                    assert_eq!(
-                        dive_trace::validate_doc(&fresh, word.document(), &config.model_values)
-                            .0
-                            .validation,
-                        Validation::Valid
-                    );
-                }
-                Err(failure) => {
-                    assert_ne!(mutation, 0);
-                    assert!(
-                        matches!(failure.error(), Error::PrefixValidation { report, .. } if report.validation != Validation::Valid)
-                    );
-                    assert_eq!(failure.stage(), Stage::Validation);
-                    assert_eq!(failure.capture_completed(), Some(false));
-                    assert_eq!(
-                        failure
-                            .exploration()
-                            .expect("actual prefix")
-                            .stats
-                            .left_on_queue,
-                        1
-                    );
-                    assert_eq!(failure.workers(1).expect("actual width").used, 1);
-                }
-                other => panic!("unexpected publication outcome: {other:?}"),
-            }
-            assert_eq!(checks.prefixes, 1);
-            assert!(!checks.exhausted);
         }
     }
 }

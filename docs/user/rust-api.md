@@ -168,8 +168,8 @@ metadata is not a complete RSS charge. Hits still check actual run control and
 eager admission always converts. Only demanded values and the bounded cache are
 retained; this is not an unbounded Value graph or a new capacity claim. Reference `GraphCheck::level`/`finish`/`finish_prefix` remain.
 
-Core-native `temporal::Report::outcome()` adds these boxed variants alongside
-existing reference outcomes:
+Core's `temporal::Report::outcome()` returns one of these boxed variants, or
+`Safety` with the ordinary safety result:
 
 | Native outcome | Accessible evidence |
 | --- | --- |
