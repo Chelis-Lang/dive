@@ -65,7 +65,7 @@ comparisons remain in force (ADR 0126).
 
 ## Native graph capture with the core engine
 
-Ordinary `--engine core` temporal checks retain persistent original state rows
+Ordinary Core temporal checks retain persistent original state rows
 and compact CSR edges. The existing temporal analyzer reads values on demand;
 a bounded cache reuses successful closed tuples, records, functions and fully
 materialized finite sets; other values use controlled conversion. It retains no second complete evaluator-value
@@ -77,7 +77,7 @@ retaining the first original successor values, implicit stuttering and the
 same demanded value-conversion failures.
 
 ```sh
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --engine core --workers 1 --seed 7 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --workers 1 --seed 7 --output json
 ```
 
 This checked example returns `liveness-violation` for `EventuallyFour`, exit 13:
@@ -92,7 +92,7 @@ Pure native temporal capture can use all requested workers under `--compat=tlc`
 when its real startup name table is fixed. For example:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-liveness/FixedNames/TupleSubSeq.tla --engine core --compat=tlc --workers 8 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-liveness/FixedNames/TupleSubSeq.tla --compat=tlc --workers 8 --seed 0 --fp 0 --output json
 ```
 
 This tuple `SubSeq` cycle returns success with 3 distinct states, 4 generated

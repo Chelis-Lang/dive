@@ -512,8 +512,8 @@ fn backend_disk_policy_admits_before_archive_or_model_loading() {
     assert!(matches!(
         dive_api::check_file_checkpoint(&request, &cp),
         Err(ApiError::Rejected { message }) if message.contains("DIVE-S0400")
-            && message.contains("archive backend reference does not match requested core")
-            && message.contains("--engine reference")
+            && message.contains("written by the reference engine")
+            && message.contains("Core cannot recover it")
     ));
     request.seen_disk = Some(dive_api::SeenOptions::default());
     assert!(matches!(

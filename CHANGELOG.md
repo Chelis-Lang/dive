@@ -5,6 +5,17 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- `dive check`, `dive simulate`, `dive dfid` and the `dive tlc` adapter run
+  only on Core (issue #791). `--engine reference` and `DIVE_ENGINE=reference`
+  are usage errors (exit 2) that say the reference engine was removed;
+  `--engine core` is still accepted and is no longer listed in the help. What
+  only the reference engine implemented is now a named refusal (exit 3) with
+  no alternative route: bounded final checking (`--lncheck final --lasso
+  short`, `dive tlc -lncheck final`, whose refusal now names the mode), source
+  and TLC logical coverage, granted external inputs (`--allow-io`) and
+  recovery of a reference-engine checkpoint archive (`DIVE-S0400`). Refusal
+  messages no longer point to `--engine reference`; Core's temporal failure
+  report refusals now read "its report is not implemented on Core".
 - The binder's start-up evaluation of a constant definition evaluates a
   repeated call of a pure operator on the same constant arguments once, in
   the default profile, and looks configured operator overrides up directly

@@ -1,4 +1,4 @@
-//! Real ordinary compat CLI reports use the bounded final API.
+//! Real ordinary compat CLI reports on Core, and its named refusals.
 use std::path::PathBuf;
 use std::process::{Command, Output};
 struct Spec(PathBuf);
@@ -16,8 +16,7 @@ fn run(
     let binary =
         std::env::var_os("DIVE_TEST_CLI").unwrap_or_else(|| env!("CARGO_BIN_EXE_dive").into());
     Command::new(binary)
-        // The reference engine these tests were written for.
-        .env("DIVE_ENGINE", "reference")
+        .env_remove("DIVE_ENGINE")
         .arg("check")
         .arg(file)
         .args(["--output=json", "--seed=7", "--fp=0"])
@@ -41,7 +40,9 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
     std::fs::create_dir(&directory)?;
     let spec = Spec(directory);
     let file = spec.0.join("Ordinary.tla");
-    for (property, status) in [("[]<>(x<=2)", 0), ("<>(x=3)", 13), ("<>1", 255)] {
+    // TLC reports `<>1` as an evaluation error (exit 255); Core does not
+    // build that temporal failure report yet and refuses it by name.
+    for (property, status) in [("[]<>(x<=2)", 0), ("<>(x=3)", 13), ("<>1", 3)] {
         std::fs::write(
             &file,
             format!(
@@ -59,31 +60,41 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
             assert_eq!(json["schema_version"], 3);
             assert_eq!(json["options"]["profile"], "tlc");
             assert_eq!(json["options"]["exit_codes"], "tlc");
-            assert_eq!(json["options"]["lncheck"], "final");
+            if status != 3 {
+                assert_eq!(json["options"]["lncheck"], "final");
+            }
             if status == 13 {
                 assert_eq!(json["counterexample"]["validation"], "valid");
             }
-            if status != 255 {
+            if status == 3 {
+                assert_eq!(
+                    json["message"],
+                    "a temporal validation failure (core): its report is not implemented on Core"
+                );
+            } else {
                 assert_eq!(json["execution"]["exhausted"], true);
                 assert_eq!(json["statistics"]["distinct"], 3);
             }
         }
+        // Core has no bounded final route.
         let explicit = run(&file, "tlc", 1, &["--lncheck=final", "--lasso=short"])?;
-        assert_eq!(explicit.status.code(), Some(status));
-        assert_eq!(
-            serde_json::from_slice::<serde_json::Value>(&explicit.stdout)?["options"]["profile"],
-            "tlc+overrides"
-        );
+        assert_eq!(explicit.status.code(), Some(3));
+        let explicit: serde_json::Value = serde_json::from_slice(&explicit.stdout)?;
+        assert_eq!(explicit["options"]["profile"], "tlc+overrides");
+        assert!(explicit["message"].as_str().is_some_and(|message| message
+            .ends_with("bounded final checking (--lncheck final --lasso short) is not implemented on Core")));
         let native = run(&file, "dive", 1, &[])?;
         assert_eq!(native.status.code(), Some(status));
         let native: serde_json::Value = serde_json::from_slice(&native.stdout)?;
         assert_eq!(native["schema_version"], 3);
         assert_eq!(native["options"]["profile"], "dive");
-        assert_eq!(native["options"]["lncheck"], "deterministic");
+        if status != 3 {
+            assert_eq!(native["options"]["lncheck"], "deterministic");
+        }
         if status == 13 {
             assert_eq!(native["counterexample"]["validation"], "valid");
         }
-        if status != 255 {
+        if status != 3 {
             // Three states never reach the default schedule's minimum: the
             // only check is the final one, with complete counts.
             assert_eq!(native["periodic"]["prefix_checks"], 0);
@@ -104,7 +115,7 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
 }
 
 #[test]
-fn existing_tlc_composition_option_keeps_counts_and_safe_validation_refusal()
+fn existing_tlc_composition_option_is_a_named_core_refusal()
 -> Result<(), Box<dyn std::error::Error>> {
     let directory = std::env::temp_dir().join(format!(
         "dive-cli-ordinary-cdot-{}-{}",
@@ -120,59 +131,33 @@ fn existing_tlc_composition_option_keeps_counts_and_safe_validation_refusal()
         &file,
         include_str!("../../dive-api/tests/fixtures/ordinary-cdot/CompositionFinal.tla"),
     )?;
-    let oracle: serde_json::Value = serde_json::from_str(include_str!(
-        "../../dive-api/tests/fixtures/ordinary-cdot/oracle.json"
-    ))?;
-    for case in oracle["cases"].as_array().ok_or("cases")? {
-        let holds = case["case"] == "hold";
-        std::fs::write(
-            file.with_extension("cfg"),
-            if holds {
-                include_str!("../../dive-api/tests/fixtures/ordinary-cdot/hold.cfg")
-            } else {
-                include_str!("../../dive-api/tests/fixtures/ordinary-cdot/fail.cfg")
-            },
-        )?;
-        for workers in [1, 4] {
-            let output = run(&file, "tlc", workers, &["--action-composition=tlc"])?;
-            assert_eq!(output.status.code(), Some(if holds { 0 } else { 3 }));
-            let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-            assert_eq!(value["schema_version"], 3);
-            assert_eq!(value["options"]["profile"], "tlc");
-            assert_eq!(value["execution"]["capture_completed"], true);
-            for field in ["generated", "distinct", "depth"] {
-                assert_eq!(value["statistics"][field], case[field]);
-            }
-            assert_eq!(
-                value["verdict"],
-                if holds { "success" } else { "unsupported" }
-            );
-            assert!(value["counterexample"].is_null());
-        }
-        for extra in [
-            vec!["--action-composition=tla"],
-            vec!["--action-composition=tlc", "--chaos", "0"],
+    for config in [
+        include_str!("../../dive-api/tests/fixtures/ordinary-cdot/hold.cfg"),
+        include_str!("../../dive-api/tests/fixtures/ordinary-cdot/fail.cfg"),
+    ] {
+        std::fs::write(file.with_extension("cfg"), config)?;
+        for (extra, message) in [
+            (
+                vec!["--action-composition=tlc"],
+                "--action-composition=tlc under the core engine",
+            ),
+            (
+                vec!["--action-composition=tlc", "--sequential"],
+                "--action-composition=tlc under the core engine",
+            ),
+            (
+                vec!["--action-composition=tla"],
+                "temporal properties with evaluation options other than the profile defaults (core)",
+            ),
         ] {
-            let output = run(&file, "tlc", 1, &extra)?;
-            let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-            assert_eq!(output.status.code(), Some(3));
-            assert_eq!(value["schema_version"], 3);
-            assert_eq!(value["verdict"], "unsupported");
-        }
-        // Sequential and exact-store requests keep the composed result.
-        for extra in [
-            vec!["--action-composition=tlc", "--sequential"],
-            vec!["--action-composition=tlc", "--store=exact"],
-        ] {
-            let output = run(&file, "tlc", 1, &extra)?;
-            let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-            assert_eq!(output.status.code(), Some(if holds { 0 } else { 3 }));
-            assert_eq!(
-                value["verdict"],
-                if holds { "success" } else { "unsupported" }
-            );
-            for field in ["generated", "distinct", "depth"] {
-                assert_eq!(value["statistics"][field], case[field]);
+            for workers in [1, 4] {
+                let output = run(&file, "tlc", workers, &extra)?;
+                let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+                assert_eq!(output.status.code(), Some(3), "{extra:?}");
+                assert_eq!(value["schema_version"], 3);
+                assert_eq!(value["verdict"], "unsupported");
+                assert_eq!(value["message"], message, "{extra:?}");
+                assert!(value["counterexample"].is_null());
             }
         }
     }

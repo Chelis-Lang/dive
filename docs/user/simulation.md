@@ -240,15 +240,14 @@ Core is the default engine. It uses compiled native Init/Next and predicate
 execution for the supported finite safety slice in either profile:
 
 ```sh
-dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --engine core --output json
+dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --output json
 ```
 
 What Core does not implement, such as some random or register runtime effects,
 is a named refusal; a reached native refusal never retries or duplicates producer
-output, and there is no fallback. `--engine reference` (or `DIVE_ENGINE=reference`)
-runs the reference simulator explicitly; `--engine auto` was removed. JSON adds
-`engine`, `engine_requested` and `engine_fallback`, which is always `null`;
-requested/actual workers remain separate. Both implementations currently use one
+output, and there is no fallback. `--engine reference` and `--engine auto` were
+removed. JSON adds `engine`, `engine_requested` and `engine_fallback`, which is
+always `null`; requested/actual workers remain separate. Simulation uses one
 actual worker.
 
 Native compound states, fairness-only specifications, Print and basic action

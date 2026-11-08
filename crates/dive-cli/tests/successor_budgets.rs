@@ -12,8 +12,7 @@ fn run(compat_tlc: bool, workers: usize) -> Result<Output, Box<dyn std::error::E
         .join("../../docs/user/examples/RejectedCandidates.tla");
     let mut command = Command::new(binary);
     command.env_remove("DIVE_COMPAT");
-    // The reference engine this test was written for.
-    command.env("DIVE_ENGINE", "reference");
+    command.env_remove("DIVE_ENGINE");
     command.arg("check").arg(file).args([
         "--seed",
         "0",
@@ -83,7 +82,8 @@ fn rejected_candidates_return_stopped_with_only_actual_external_progress() -> Te
             assert_eq!(json["statistics"]["generated"], 1, "{json}");
             assert_eq!(json["statistics"]["distinct"], 1, "{json}");
             assert_eq!(json["statistics"]["depth"], 1, "{json}");
-            assert_eq!(json["statistics"]["left_on_queue"], 1, "{json}");
+            // Core has dequeued the initial state it was expanding.
+            assert_eq!(json["statistics"]["left_on_queue"], 0, "{json}");
             assert_eq!(json["statistics"]["exhaustive"], false, "{json}");
             assert!(json["counterexample"].is_null(), "{json}");
             assert!(json["tlc"].is_null(), "{json}");

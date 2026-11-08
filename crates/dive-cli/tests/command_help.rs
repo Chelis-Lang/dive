@@ -74,7 +74,7 @@ fn human_header_names_requested_engine_and_actual_workers() -> Result<(), Box<dy
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../docs/user/examples/Counter.tla");
     // `None` is the default engine, Core.
-    for engine in [Some("reference"), Some("core"), None] {
+    for engine in [Some("core"), None] {
         let path = file.to_str().ok_or("non-UTF-8 fixture path")?;
         let mut arguments = vec!["check", path, "--workers=1", "--seed=7", "--fp=0"];
         if let Some(engine) = engine {
@@ -93,5 +93,14 @@ fn human_header_names_requested_engine_and_actual_workers() -> Result<(), Box<dy
     let removed = dive(&["check", "Counter.tla", "--engine", "auto"])?;
     assert_eq!(removed.status.code(), Some(2));
     assert!(String::from_utf8_lossy(&removed.stderr).contains("--engine auto was removed"));
+    let removed = dive(&["check", "Counter.tla", "--engine", "reference"])?;
+    assert_eq!(removed.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&removed.stderr).contains("--engine reference was removed"));
+    let removed = Command::new(env!("CARGO_BIN_EXE_dive"))
+        .args(["simulate", "Counter.tla", "--traces", "1"])
+        .env("DIVE_ENGINE", "reference")
+        .output()?;
+    assert_eq!(removed.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&removed.stderr).contains("DIVE_ENGINE reference was removed"));
     Ok(())
 }

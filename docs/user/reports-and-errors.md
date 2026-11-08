@@ -56,7 +56,7 @@ symmetry, extra safety roles, effects, other row shapes and unproved exception
 lifetimes retain named refusals. For example:
 
 ```sh
-dive check conformance/corpus/next-error-temporal/specifications/GenError/GenError.tla --config conformance/corpus/next-error-temporal/specifications/GenError/Record.cfg --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check conformance/corpus/next-error-temporal/specifications/GenError/GenError.tla --config conformance/corpus/next-error-temporal/specifications/GenError/Record.cfg --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 A pure Next-side whole-function error before any successor can also establish
@@ -70,7 +70,7 @@ reported code remain unchanged; the deciding wrapper is 2147 and physical exit
 75. No initial diagnostic or partial-state witness is added. For example:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/next-receiver-lifetime/EmptyLazyQuery.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/next-receiver-lifetime/EmptyLazyQuery.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 A source-bound consumer must independently validate this endpoint before
@@ -93,7 +93,7 @@ must treat the unverified classification as a refusal, even when its numbers
 match another report. For example:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/comparison-receiver-unclassified/InitialTool.tla --engine core --compat=tlc --workers 1 --seed 19 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/comparison-receiver-unclassified/InitialTool.tla --compat=tlc --workers 1 --seed 19 --fp 0 --output json
 ```
 
 The condition `IF 1 THEN TRUE ELSE FALSE` raises the original GENERAL error.
@@ -112,7 +112,7 @@ source expansions, actual key insertions and the terminal primary/diagnostic
 sequence. Report schema 3 remains unchanged.
 
 ```sh
-dive check crates/dive-check/tests/fixtures/errors/specs/ErViewChoose/ErViewChoose.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-check/tests/fixtures/errors/specs/ErViewChoose/ErViewChoose.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 This reports the original underlying error, deciding2103/physical75 and two
@@ -222,7 +222,7 @@ assumptions. Earlier assumptions retain their configured/source priority. An
 error evaluating an assumption retains code 2105 and a null `property`.
 
 ```sh
-dive check conformance/corpus/assumption-reporting/specifications/Assumptions/FalsePlain.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check conformance/corpus/assumption-reporting/specifications/Assumptions/FalsePlain.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 A temporal `evaluation-error` at `error_site: "temporal-state-row"` retains
@@ -401,7 +401,7 @@ severities throughout; unexpected frames leave its deciding class unproved.
 For example, the existing action-constraint division control runs as:
 
 ```sh
-dive check crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 It reports evaluation-error, deciding code 2179/TLC exit 255 and a version-4 final

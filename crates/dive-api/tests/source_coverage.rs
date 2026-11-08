@@ -175,7 +175,7 @@ fn stops_report_only_the_actual_prefix_and_the_default_engine_refuses_by_name() 
         assert!(matches!(
             dive_api::check_file(&request),
             Err(dive_api::ApiError::Unsupported { feature })
-                if feature.contains("source coverage") && feature.contains("--engine reference")
+                if feature.contains("source coverage") && feature.contains("not implemented on Core")
         ));
         let observed = check_file_engine(&request, Engine::Reference)
             .unwrap()

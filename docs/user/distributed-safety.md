@@ -41,7 +41,7 @@ target/debug/dive worker docs/user/examples/Counter.tla --seed 0 --fp 0 \
 Run the coordinator:
 
 ```sh
-target/debug/dive check docs/user/examples/Counter.tla --engine core --seed 0 --fp 0 \
+target/debug/dive check docs/user/examples/Counter.tla --seed 0 --fp 0 \
   --distributed-worker 127.0.0.1:7801 --distributed-worker 127.0.0.1:7802 \
   --worker-key worker.key --output json
 ```

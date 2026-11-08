@@ -38,18 +38,24 @@ const EXIT_USAGE: u8 = 2;
 /// Exit code for a request that `dive` recognises but does not implement.
 const EXIT_UNSUPPORTED: u8 = 3;
 
-/// The engine an `--engine` value names. `auto` was removed with the
-/// Reference fallback (ADR 0153).
+/// The engine an `--engine` value names. Core is the only engine: `auto`
+/// was removed with the Reference fallback and `reference` with the
+/// Reference checking runtime (ADR 0153, #791). `--engine core` is still
+/// accepted, and no longer advertised.
 fn engine_option(name: Option<&str>) -> Result<dive_api::Engine, String> {
     match name {
+        Some("core") => Ok(dive_api::Engine::Core),
         Some("auto") => Err(
-            "--engine auto was removed: Core is the default engine and refuses by \
-             name what it does not implement; use --engine reference to run the reference engine"
+            "--engine auto was removed: Core is the only engine and refuses by \
+             name what it does not implement"
                 .to_owned(),
         ),
-        Some(name) => dive_api::Engine::parse(name)
-            .ok_or_else(|| "--engine expects `core` or `reference`".to_owned()),
-        None => Err("--engine expects `core` or `reference`".to_owned()),
+        Some("reference") => Err(
+            "--engine reference was removed: the reference engine is no longer part of \
+             dive check, simulate, dfid or tlc; Core refuses by name what it does not implement"
+                .to_owned(),
+        ),
+        _ => Err("--engine expects `core`, the only engine".to_owned()),
     }
 }
 
@@ -70,10 +76,10 @@ fn usage() -> String {
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
                [--distributed-worker IP:port]... [--worker-key FILE] [--worker-timeout-ms N] [--distributed-retries N]
-               [--lncheck final --lasso short] [--engine core|reference] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--engine core|reference] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--engine core|reference] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
-    profile and final checking in the TLC profile; explicit final/short keeps final checking.
-    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.\n    The compiled Core is the default engine of check, simulate, dfid and tlc; what it does not\n    implement is a named refusal, never a fallback. --engine reference (or\n    DIVE_ENGINE=reference) runs the reference engine explicitly. --core-sample N (with the core)\n    also compares the successors of N sampled states with the reference evaluator's, in the JSON\n    report (core.sample); it is diagnostic and changes no result.
-    --coverage 0 requests final TLC logical costs; --source-coverage reports native source work.\n",
+               [--lncheck final --lasso short] [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
+    profile and final checking in the TLC profile.
+    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory\n    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.\n    The compiled Core is the engine of check, simulate, dfid and tlc; what it does not\n    implement is a named refusal, never a fallback. --core-sample N\n    also compares the successors of N sampled states with the reference evaluator's, in the JSON\n    report (core.sample); it is diagnostic and changes no result.
+    --coverage 0, --source-coverage, --allow-io grants and --lncheck final are not implemented\n    on Core and refuse by name.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -824,14 +830,6 @@ fn check_command_mode(
                 "disk seen-state retention with temporal/capture is not implemented",
             );
         }
-        let reference_checkpoint = engine == dive_api::Engine::Reference
-            && (checkpoint_path.is_some() || recover_path.is_some());
-        if reference_checkpoint {
-            return usage_error(
-                err,
-                "disk seen-state retention with Reference checkpoint/recovery is not implemented",
-            );
-        }
         req.seen_disk = Some(seen_policy);
     }
     if final_check != short_lasso {
@@ -883,7 +881,7 @@ fn check_command_mode(
     };
     req.file = file.into();
     if worker_mode {
-        if checkpoint.is_some() || engine != dive_api::Engine::Core {
+        if checkpoint.is_some() {
             return usage_error(
                 err,
                 "worker command requires pure Core roles without checkpoint/recovery",
@@ -1801,14 +1799,6 @@ mod seen_tests {
             vec!["--seen-disk-entries", "0"],
             vec!["--seen-disk-entries", "4", "--seen-key-bytes", "0"],
             vec!["--seen-disk-entries", "4", "--seen-probe-steps", "0"],
-            vec![
-                "--seen-disk-entries",
-                "4",
-                "--recover",
-                "missing.cp",
-                "--engine",
-                "reference",
-            ],
             vec![
                 "--seen-disk-entries",
                 "4",
