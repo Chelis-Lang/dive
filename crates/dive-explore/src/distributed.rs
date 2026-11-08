@@ -29,6 +29,9 @@ pub const MAX_SUCCESSORS: u64 = 16_384;
 const KEY_BYTES: usize = 1 << 20;
 const MAGIC: &[u8; 8] = b"DIVEWN01";
 const DOMAIN: &[u8] = b"dive worker HMAC-SHA256 v1\0";
+/// Shortest and longest wait between accept polls on an idle worker listener.
+const ACCEPT_POLL_MIN: Duration = Duration::from_micros(50);
+const ACCEPT_POLL_MAX: Duration = Duration::from_millis(10);
 const PING: u8 = 1;
 const PONG: u8 = 2;
 const WORK: u8 = 3;
@@ -843,6 +846,10 @@ impl Worker {
     ) -> Result<Usage, Error> {
         listener.set_nonblocking(true).map_err(io)?;
         let usage = Mutex::new(Usage::default());
+        // The coordinator opens one session per source unit, so the next one
+        // usually arrives within a millisecond of the last. Poll quickly after
+        // a session and back off to the idle interval while nothing arrives.
+        let mut idle = ACCEPT_POLL_MIN;
         while !stop()
             && max_units.is_none_or(|n| {
                 usage
@@ -853,9 +860,13 @@ impl Worker {
             })
         {
             let stream = match listener.accept() {
-                Ok((s, _)) => s,
+                Ok((s, _)) => {
+                    idle = ACCEPT_POLL_MIN;
+                    s
+                }
                 Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
-                    std::thread::sleep(Duration::from_millis(10));
+                    std::thread::sleep(idle);
+                    idle = (idle * 2).min(ACCEPT_POLL_MAX);
                     continue;
                 }
                 Err(e) => return Err(io(e)),
