@@ -11,6 +11,26 @@ use dive_conformance::trace_check::validate_counterexample;
 use serde_json::{Value, json};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
+
+/// A temporal report the retired reference engine produced (#791) for a run
+/// Core now refuses by name; it remains real producer output for the mapping
+/// checks. `core` is Core's report of the same run, which must be a refusal
+/// that publishes no word.
+fn recorded_after_core_refusal(
+    core: &Value,
+    key: &str,
+) -> Result<Value, Box<dyn std::error::Error>> {
+    assert_eq!(core["verdict"], "unsupported", "{core}");
+    assert_eq!(core["exit_code"], 3, "{core}");
+    assert!(core["counterexample"].is_null() && core["property"].is_null());
+    let recorded: Value = serde_json::from_str(include_str!(
+        "fixtures/retired-reference/ordinary-temporal-refusals.json"
+    ))?;
+    Ok(recorded
+        .get(key)
+        .ok_or_else(|| format!("no recorded report for {key}"))?
+        .clone())
+}
 struct Spec {
     _directory: dive_conformance::util::TempDir,
     file: PathBuf,
@@ -49,7 +69,7 @@ impl Spec {
             ..CheckRequest::default()
         };
         Ok(
-            dive_api::check_file_engine(&request, dive_api::Engine::Reference)?
+            dive_api::check_file_engine(&request, dive_api::Engine::Core)?
                 .to_json_with_exit_convention(ExitConvention::Tlc),
         )
     }
@@ -187,7 +207,7 @@ fn actual_default_exhaustion_is_required_for_holds_and_final_words() -> TestResu
 #[test]
 fn actual_default_typed_planning_error_retains_null_counts_and_exact_status() -> TestResult {
     let spec = Spec::new("<>1", CHAIN)?;
-    let value = spec.report(1)?;
+    let value = recorded_after_core_refusal(&spec.report(1)?, "periodic-planning-false")?;
     assert_eq!(value["verdict"], "evaluation-error");
     assert_eq!(value["diagnostics"][0]["code"], "DIVE-L0023");
     assert_eq!(value["execution"]["stage"], "planning");
@@ -225,7 +245,19 @@ fn actual_default_typed_planning_error_retains_null_counts_and_exact_status() ->
 fn actual_default_prefix_and_final_refusals_never_publish_a_word() -> TestResult {
     for (next, complete, checks) in [(CHAIN, false, 1), ("x", true, 0)] {
         let spec = Spec::new("<>[]x", next)?;
-        let value = spec.report(1)?;
+        let core = spec.report(1)?;
+        assert!(matches!(
+            mapped(&core, Some(3), false),
+            CheckMapping::Refused(_)
+        ));
+        let value = recorded_after_core_refusal(
+            &core,
+            if complete {
+                "periodic-prefix-complete-false"
+            } else {
+                "periodic-prefix-chain-false"
+            },
+        )?;
         assert_eq!(value["verdict"], "unsupported");
         assert_eq!(value["execution"]["stage"], "atoms");
         assert_eq!(value["execution"]["capture_completed"], complete);

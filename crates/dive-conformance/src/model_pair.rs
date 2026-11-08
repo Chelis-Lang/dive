@@ -342,6 +342,34 @@ mod tests {
     use super::*;
     use dive_api::trace::TraceDoc;
 
+    /// Temporal error reports the retired reference engine produced (#791).
+    /// Core refuses these runs by name, so these recorded reports remain the
+    /// real producer output that the envelope checks below exercise.
+    fn recorded_temporal_error(
+        key: &str,
+    ) -> std::result::Result<(Value, ProcessOutcome), Box<dyn std::error::Error>> {
+        let all: Value = serde_json::from_str(include_str!(
+            "../tests/fixtures/retired-reference/temporal-error-envelopes.json"
+        ))?;
+        let value = all.get(key).ok_or("no recorded report")?.clone();
+        let run = ProcessOutcome {
+            exit_code: Some(i32::try_from(
+                value["exit_code"].as_i64().ok_or("no exit code")?,
+            )?),
+            signal: None,
+            timed_out: false,
+            stdout: value.to_string(),
+            stderr: String::new(),
+            elapsed: Duration::ZERO,
+        };
+        Ok((value, run))
+    }
+
+    fn assert_core_refuses(report: &dive_api::CheckReport) {
+        assert_eq!(report.verdict(), "unsupported");
+        assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 3);
+    }
+
     fn actual_outcome(report: &dive_api::CheckReport) -> ProcessOutcome {
         ProcessOutcome {
             exit_code: Some(i32::from(
@@ -383,10 +411,17 @@ mod tests {
                         fp: Some(0),
                         ..dive_api::CheckRequest::default()
                     },
-                    dive_api::Engine::Reference,
+                    dive_api::Engine::Core,
                 )?;
-                let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
-                let run = actual_outcome(&report);
+                let (value, run) = if property == "<>1" {
+                    assert_core_refuses(&report);
+                    recorded_temporal_error(&format!("Temporal-planning/{compat}"))?
+                } else {
+                    (
+                        report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc),
+                        actual_outcome(&report),
+                    )
+                };
                 assert_eq!(value["check_kind"], "temporal");
                 assert!(value["tlc"].get("reported").is_none());
                 assert!(
@@ -489,10 +524,10 @@ mod tests {
                         fp: Some(0),
                         ..dive_api::CheckRequest::default()
                     },
-                    dive_api::Engine::Reference,
+                    dive_api::Engine::Core,
                 )?;
-                let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
-                let run = actual_outcome(&report);
+                assert_core_refuses(&report);
+                let (value, run) = recorded_temporal_error(&format!("{name}/{compat}"))?;
                 assert_eq!(value["check_kind"], "temporal");
                 assert!(value["tlc"].get("reported").is_some());
                 assert!(
@@ -574,7 +609,7 @@ mod tests {
                     fp: Some(0),
                     ..dive_api::CheckRequest::default()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?;
             let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
             let mut run = ProcessOutcome {
@@ -636,7 +671,7 @@ mod tests {
                     workers: Some(1),
                     ..dive_api::CheckRequest::default()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?;
             let run = ProcessOutcome {
                 exit_code: Some(i32::from(

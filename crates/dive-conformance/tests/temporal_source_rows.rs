@@ -88,7 +88,8 @@ fn real_source_rows_match_official_goldens_and_required_words_cannot_be_forged()
                     ..TraceOptions::default()
                 },
             )?;
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let value = check_file_engine(
                     &CheckRequest {
                         file: file.clone(),

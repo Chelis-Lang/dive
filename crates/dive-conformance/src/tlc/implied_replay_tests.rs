@@ -293,7 +293,7 @@ fn candidate_words_require_actual_replay_and_ambiguous_oracles_cannot_earn_agree
                     continue;
                 }
                 let spec = model(&file, compat);
-                for (engine, workers) in [Engine::Core, Engine::Reference]
+                for (engine, workers) in [Engine::Core]
                     .into_iter()
                     .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
                 {

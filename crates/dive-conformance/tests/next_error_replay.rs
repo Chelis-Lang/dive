@@ -71,7 +71,8 @@ fn pinned_direct_cause_requires_the_real_independent_word() {
     assert_eq!(golden.verdict_code, Some(2179));
     for compat in [false, true] {
         let spec = model(&file, compat);
-        for engine in [Engine::Core, Engine::Reference] {
+        {
+            let engine = Engine::Core;
             let actual = native(&file, engine, compat);
             assert_eq!(
                 diff_results(
@@ -116,7 +117,8 @@ fn next_word_validity_does_not_waive_an_unknown_or_mismatched_wrapper() {
     assert_eq!(oracle.verdict, Verdict::Unclassified);
     for compat in [false, true] {
         let spec = model(&file, compat);
-        for engine in [Engine::Core, Engine::Reference] {
+        {
+            let engine = Engine::Core;
             let actual = native(&file, engine, compat);
             let doc = TraceDoc::from_json(
                 actual
@@ -196,7 +198,8 @@ fn pinned_partial_candidate_requires_the_exact_independent_terminal() {
     assert_eq!(oracle.verdict_code, Some(2109));
     for compat in [false, true] {
         let spec = model(&file, compat);
-        for engine in [Engine::Core, Engine::Reference] {
+        {
+            let engine = Engine::Core;
             let actual = native(&file, engine, compat);
             assert_eq!(
                 diff_results(
@@ -266,7 +269,8 @@ fn candidate_wrapper_replay_preserves_pinned_primary_headers_and_strict_report_c
         );
         for compat in [false, true] {
             let spec = model(&file, compat);
-            for engine in [Engine::Core, Engine::Reference] {
+            {
+                let engine = Engine::Core;
                 let actual = native(&file, engine, compat);
                 let wire = actual
                     .trace
@@ -345,7 +349,8 @@ fn actual_next_receiver_wrapper_requires_the_original_source_word_and_diagnostic
         assert_eq!(oracle.exit_code, Some(75));
         for compat in [false, true] {
             let source = model(&file, compat);
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {

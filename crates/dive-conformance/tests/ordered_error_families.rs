@@ -14,9 +14,13 @@ type TestResult = Result<(), Box<dyn std::error::Error>>;
 #[test]
 #[allow(
     clippy::too_many_lines,
-    reason = "one fixture matrix checks both profiles, engines, exit conventions and independent words"
+    reason = "one fixture matrix checks both profiles, the agreed record, exit conventions and independent words"
 )]
 fn error_family_shadows_preserve_the_pinned_oracle_classification() -> TestResult {
+    // The results the retired reference engine and Core agreed on before the
+    // reference engine was removed (#791): Core must still equal them.
+    let agreed: serde_json::Map<String, serde_json::Value> =
+        serde_json::from_str(include_str!("fixtures/agreed/ordered-error-families.json"))?;
     let root =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/errors");
     for name in [
@@ -73,8 +77,16 @@ fn error_family_shadows_preserve_the_pinned_oracle_classification() -> TestResul
                 },
             )?;
             for workers in [1, 4] {
-                let mut pair = Vec::new();
-                for engine in [Engine::Reference, Engine::Core] {
+                let key = format!("{name}/{compat_tlc}/{workers}");
+                let recorded: dive_conformance::tlc::result::OracleResult = serde_json::from_value(
+                    agreed
+                        .get(&key)
+                        .ok_or_else(|| format!("no agreed result for {key}"))?
+                        .clone(),
+                )?;
+                let mut pair = vec![recorded];
+                {
+                    let engine = Engine::Core;
                     let report = check_file_engine(
                         &CheckRequest {
                             file: file.clone(),
@@ -175,7 +187,7 @@ fn error_family_shadows_preserve_the_pinned_oracle_classification() -> TestResul
                             )
                         );
                     }
-                    pair.push(actual);
+                    pair.push(*actual);
                 }
                 assert!(
                     diff_results(
