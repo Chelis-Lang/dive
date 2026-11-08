@@ -112,6 +112,12 @@ pub struct Machine {
     /// Core does not record in [`Machine::warnings`] refuses instead
     /// ([`Machine::set_refuse_unrecorded_warnings`]).
     refuse_unrecorded_warnings: bool,
+    /// Persistent handles the caller proved materialized
+    /// ([`Machine::set_proven_materialized`]): the rows it loaded into
+    /// `s0` and `s1`, position for position, and others.
+    proven_s0: Vec<Handle>,
+    proven_s1: Vec<Handle>,
+    proven: Vec<Handle>,
     work_control: Option<Arc<dyn WorkControl>>,
     /// Charged units left before the next [`WorkControl`] poll, while fuel
     /// and the transient bound are unbounded ([`Machine::charge`]).
@@ -253,6 +259,9 @@ impl Machine {
             depth: 0,
             fuel: u64::MAX,
             refuse_unrecorded_warnings: false,
+            proven_s0: Vec::new(),
+            proven_s1: Vec::new(),
+            proven: Vec::new(),
             work_control: None,
             work_countdown: 0,
             bounded_countdown: 0,
@@ -307,6 +316,67 @@ impl Machine {
     /// ```
     pub fn set_refuse_unrecorded_warnings(&mut self, enabled: bool) {
         self.refuse_unrecorded_warnings = enabled;
+    }
+
+    /// Records handles the caller proved materialized, as
+    /// `compare::materialized` defines it, in this machine's store
+    /// ([`Heap::proved_concrete`] or [`Heap::materialized_within`]): the rows
+    /// `s0` and `s1` it is about to load, and `others`. It forgets the
+    /// previous ones. Identity tests that require materialized operands (a
+    /// `SameVars` subscript, set membership) then skip re-proving those exact
+    /// handles. Only persistent compound handles are kept: persistent nodes
+    /// never change, so the proof stays true. An isolated analysis machine
+    /// passes the rows and constants it admitted before each evaluation.
+    ///
+    /// ```
+    /// # fn configure(machine: &mut dive_core::Machine, row: &[dive_core::Handle]) {
+    /// machine.set_proven_materialized(row, &[], []);
+    /// # }
+    /// ```
+    pub fn set_proven_materialized(
+        &mut self,
+        s0: &[Handle],
+        s1: &[Handle],
+        others: impl IntoIterator<Item = Handle>,
+    ) {
+        let keep = |h: &Handle| {
+            if h.is_persistent() && h.is_compound() {
+                *h
+            } else {
+                Handle::EMPTY
+            }
+        };
+        self.proven_s0.clear();
+        self.proven_s0.extend(s0.iter().map(keep));
+        self.proven_s1.clear();
+        self.proven_s1.extend(s1.iter().map(keep));
+        self.proven.clear();
+        self.proven.extend(
+            others
+                .into_iter()
+                .filter(|h| h.is_persistent() && h.is_compound()),
+        );
+    }
+
+    /// Whether `h` is a handle the caller proved materialized
+    /// ([`Machine::set_proven_materialized`]).
+    fn proven(&self, h: Handle) -> bool {
+        h.is_compound()
+            && (self.proven_s0.contains(&h)
+                || self.proven_s1.contains(&h)
+                || self.proven.contains(&h))
+    }
+
+    /// Whether `h`, the value of variable `v` in `s0` (`primed`: `s1`), is
+    /// the proven handle at that position, or otherwise proven.
+    #[inline]
+    fn proven_at(&self, v: usize, primed: bool, h: Handle) -> bool {
+        let row = if primed {
+            &self.proven_s1
+        } else {
+            &self.proven_s0
+        };
+        (h.is_compound() && row.get(v) == Some(&h)) || self.proven(h)
     }
 
     /// Installs the optional caller-owned cooperative work checkpoint.
@@ -610,8 +680,10 @@ impl Machine {
             let (Some(&a), Some(&b)) = (self.s0.get(v), self.s1.get(v)) else {
                 return Ok(false);
             };
-            if !compare::materialized(&self.heap, a, depth)?
-                || (a != b && !compare::materialized(&self.heap, b, depth)?)
+            if !(self.proven_at(v, false, a) || compare::materialized(&self.heap, a, depth)?)
+                || (a != b
+                    && !(self.proven_at(v, true, b)
+                        || compare::materialized(&self.heap, b, depth)?))
             {
                 return Ok(false);
             }
@@ -1538,7 +1610,11 @@ impl Machine {
                     None
                 };
                 if indexed.is_none() {
-                    compare::require_materialized(&self.heap, &[x, set])?;
+                    for h in [x, set] {
+                        if !self.proven(h) {
+                            compare::require_materialized(&self.heap, &[h])?;
+                        }
+                    }
                 }
                 if indexed
                     .unwrap_or_else(|| v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok())
@@ -3456,6 +3532,31 @@ mod same_vars {
                     let same = m.eval(&code, 15).map_err(|e| e.kind());
                     m.leave(frame);
                     assert_eq!(same, eq, "{before:?} {after:?}");
+                    // With the handles a row proof admits recorded as
+                    // proven, the result is the same.
+                    let proven: Vec<_> = before
+                        .iter()
+                        .chain(&after)
+                        .copied()
+                        .filter(|&h| m.heap.materialized_within(&[h], 4096, None))
+                        .collect();
+                    let keep = |row: &[Handle]| -> Vec<Handle> {
+                        row.iter()
+                            .map(|&h| {
+                                if proven.contains(&h) {
+                                    h
+                                } else {
+                                    Handle::EMPTY
+                                }
+                            })
+                            .collect()
+                    };
+                    m.set_proven_materialized(&keep(&before), &keep(&after), []);
+                    let frame = m.enter(3);
+                    let reused = m.eval(&code, 15).map_err(|e| e.kind());
+                    m.leave(frame);
+                    m.set_proven_materialized(&[], &[], []);
+                    assert_eq!(reused, eq, "{before:?} {after:?} with proofs");
                     checked += 1;
                 }
             }

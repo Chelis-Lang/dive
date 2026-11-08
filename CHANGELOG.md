@@ -11,6 +11,10 @@ published. Earlier pre-release development entries remain in git history.
   inputs of the call (issue #939).
   `MisraReachability/MCReachabilityTestRandomGraphs` takes about 0.1 s
   instead of 1.3 s. `--compat=tlc` still evaluates every call.
+- Core's native liveness atoms no longer re-prove the rows they were just
+  admitted on for the `<<A>>_vars` subscript test and set membership
+  (issue #940). Results are unchanged; `allocator/AllocatorImplementation`
+  runs fewer instructions.
 - Core enumerates a constant quantifier domain, such as bosco's
   `\E r \in SUBSET (P \X M)`, once per worker instead of once per state, and
   its cached guards on the bound variable now apply (issue #937). Verdicts
