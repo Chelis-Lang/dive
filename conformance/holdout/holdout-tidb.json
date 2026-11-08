@@ -1,0 +1,86 @@
+{
+  "sources": [
+    "https://github.com/pingcap/tla-plus/tree/5649f86df14c73b0ab8773dda3802bc1937ace8d"
+  ],
+  "authors": [
+    "PingCAP"
+  ],
+  "tags": [
+    "holdout",
+    "industrial"
+  ],
+  "modules": [
+    {
+      "path": "OptimizedCommitTS/Test1.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "OptimizedCommitTS/Test1.cfg",
+          "runtime": "00:01:39",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "OptimizedCommitTS/Test2.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "OptimizedCommitTS/Test2.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "DistributedTransaction/Test3.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "DistributedTransaction/Test3.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "ResolvedTS/MC.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "ResolvedTS/MC.cfg",
+          "runtime": "00:00:22",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "RaftMerge/RaftMerge.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "RaftMerge/Test1.cfg",
+          "runtime": "00:00:57",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    },
+    {
+      "path": "Percolator/Test2.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "Percolator/Test2.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "deadlock failure"
+        }
+      ]
+    }
+  ]
+}

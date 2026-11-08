@@ -193,7 +193,24 @@ fn load_corpus_with_setup(
             &format!("corpus `{id}`"),
             setup,
         )?;
-        enumerate(c, &dir)?
+        if let Some(rel) = &c.manifest {
+            // A dive-owned manifest selects the models of the checkout; its
+            // digest joins the commit in the identity goldens record, so
+            // editing it makes `run` refuse the goldens until regenerated.
+            let path = config.repo_root.join(rel);
+            let bytes = std::fs::read(&path).map_err(|e| Error::io(&path, &e))?;
+            let manifest: crate::corpus::Manifest = serde_json::from_slice(&bytes)
+                .map_err(|e| Error::Config(format!("{}: {e}", path.display())))?;
+            let mut index = crate::corpus::enumerate_manifest(c, &dir, &manifest)?;
+            index.commit = format!(
+                "{}+manifest-sha256:{}",
+                c.commit,
+                crate::hash::sha256_bytes(&bytes)
+            );
+            index
+        } else {
+            enumerate(c, &dir)?
+        }
     };
     if !index.uncovered.is_empty() {
         log(&format!(

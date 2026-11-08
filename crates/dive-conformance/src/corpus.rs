@@ -518,6 +518,56 @@ fn modules_only(corpus: &Corpus, root: &Path) -> Result<Vec<ModuleEntry>> {
 /// Fails for the `tbd` layout ("not yet supported"), on unreadable files or
 /// on manifest schema violations.
 pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
+    enumerate_with(corpus, root, None)
+}
+
+/// [`enumerate`] for a repository-pinned corpus whose modules and models a
+/// dive-owned manifest lists (`manifest` in `corpora.toml`). Every listed
+/// file must exist in the checkout. `[[corpus.exclude]]` entries name model
+/// ids (`.cfg` paths) that are reported as `out-of-scope` with their reason,
+/// for example models the pinned TLC cannot finish within the corpus cap.
+/// Files the manifest does not list are not reported as uncovered: such a
+/// corpus is a selection from its upstream repository.
+///
+/// # Errors
+/// As [`enumerate`]; also fails if a listed file is missing or an exclusion
+/// names no listed model.
+pub fn enumerate_manifest(
+    corpus: &Corpus,
+    root: &Path,
+    manifest: &Manifest,
+) -> Result<CorpusIndex> {
+    let mut index = enumerate_with(corpus, root, Some(manifest))?;
+    for path in index
+        .modules
+        .iter()
+        .map(|m| &m.path)
+        .chain(index.models.iter().map(|m| &m.id))
+    {
+        if !root.join(path).is_file() {
+            return Err(Error::Config(format!(
+                "corpus `{}`: manifest lists `{path}`, which is not a file in the checkout",
+                corpus.id
+            )));
+        }
+    }
+    for x in &corpus.exclude {
+        let Some(model) = index.models.iter_mut().find(|m| m.id == x.path) else {
+            return Err(Error::Config(format!(
+                "corpus `{}`: excluded model `{}` is not listed in its manifest",
+                corpus.id, x.path
+            )));
+        };
+        model.out_of_scope = Some(format!("excluded in corpora.toml: {}", x.reason));
+    }
+    Ok(index)
+}
+
+fn enumerate_with(
+    corpus: &Corpus,
+    root: &Path,
+    external: Option<&Manifest>,
+) -> Result<CorpusIndex> {
     let mut modules = Vec::new();
     let mut models = Vec::new();
     let mut uncovered = Vec::new();
@@ -529,6 +579,11 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
             )));
         }
         Layout::ModulesOnly => modules = modules_only(corpus, root)?,
+        Layout::ExamplesManifest if external.is_some() => {
+            if let Some(manifest) = external {
+                (modules, models) = models_of(manifest)?;
+            }
+        }
         Layout::ExamplesManifest => {
             let specs = root.join("specifications");
             let entries = std::fs::read_dir(&specs).map_err(|e| Error::io(&specs, &e))?;
@@ -557,7 +612,7 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
     modules.sort_by(|a, b| a.path.cmp(&b.path));
     modules.dedup_by(|a, b| a.path == b.path);
     models.sort_by(|a, b| a.id.cmp(&b.id));
-    if corpus.layout == Layout::ExamplesManifest {
+    if corpus.layout == Layout::ExamplesManifest && external.is_none() {
         let mut files = Vec::new();
         let specs = root.join("specifications");
         tla_files(root, &specs, false, &mut files)?;
@@ -653,6 +708,48 @@ mod tests {
         assert_eq!(sim.mode, ModelMode::Simulate { traces: 100 });
         assert!(sim.out_of_scope.is_none() && !sim.counts_comparable);
         assert_eq!(sim.tier, Tier::Deep);
+        Ok(())
+    }
+
+    #[test]
+    fn dive_owned_manifest_selects_from_a_checkout()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let dir = crate::util::TempDir::new("manifest")?;
+        std::fs::create_dir_all(dir.path().join("tla"))?;
+        for f in ["tla/M.tla", "tla/M.cfg", "tla/Big.cfg", "tla/Other.tla"] {
+            std::fs::write(dir.path().join(f), "x")?;
+        }
+        let manifest: Manifest = serde_json::from_str(
+            r#"{"sources": [], "authors": ["A"], "tags": [], "modules": [
+              {"path": "tla/M.tla", "features": [], "models": [
+                {"path": "tla/M.cfg", "runtime": "00:00:05", "mode": "exhaustive search", "result": "success"},
+                {"path": "tla/Big.cfg", "runtime": "unknown", "mode": "exhaustive search", "result": "unknown"}
+              ]}]}"#,
+        )?;
+        let toml = |exclude: &str| {
+            format!(
+                "[[corpus]]\nid = \"h\"\nrepo = \"https://x\"\ncommit = \"{}\"\nlicense = \"MIT\"\nlayout = \"examples-manifest\"\nmanifest = \"conformance/h.json\"\n{exclude}",
+                "0".repeat(40)
+            )
+        };
+        let excl = "[[corpus.exclude]]\npath = \"tla/Big.cfg\"\nreason = \"TLC exceeds the cap\"\n";
+        let file = crate::config::CorporaFile::parse(&toml(excl))?;
+        let index = enumerate_manifest(&file.corpus[0], dir.path(), &manifest)?;
+        assert_eq!(index.modules.len(), 1);
+        assert!(
+            index.uncovered.is_empty(),
+            "unlisted upstream files are not uncovered"
+        );
+        let big = index.models.iter().find(|m| m.id == "tla/Big.cfg");
+        assert!(big.is_some_and(|m| m.out_of_scope.as_deref().is_some_and(|r| r.contains("cap"))));
+        let small = index.models.iter().find(|m| m.id == "tla/M.cfg");
+        assert!(small.is_some_and(|m| m.out_of_scope.is_none() && m.tier == Tier::Small));
+        let bad = toml(&excl.replace("tla/Big.cfg", "tla/None.cfg"));
+        let file = crate::config::CorporaFile::parse(&bad)?;
+        assert!(enumerate_manifest(&file.corpus[0], dir.path(), &manifest).is_err());
+        std::fs::remove_file(dir.path().join("tla/M.cfg"))?;
+        let file = crate::config::CorporaFile::parse(&toml(""))?;
+        assert!(enumerate_manifest(&file.corpus[0], dir.path(), &manifest).is_err());
         Ok(())
     }
 
