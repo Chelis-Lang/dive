@@ -219,20 +219,20 @@ the proved signed 32-bit range retain named refusals. For example:
 dive check conformance/corpus/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
-Reference's `IsFiniteSet` also stops compound emptiness checks at the first
-empty Product axis or record field, including when that receiver is nested in
-another Product, function set or sequence set. For example,
-`IsFiniteSet([a : {}, b : x] \X {x})` succeeds without asking emptiness of `x`.
-Record finiteness and emptiness methods follow the run's recorded encounter
-order in both profiles, including when default storage puts the fields in
-canonical order. For example, encountering `zephyrAxis` before `amberAxis` makes
-its field the first demand even when the later record literal spells
-`amberAxis` first. A missing or mismatched run-name token mapping refuses.
-All constructor operands are still evaluated before the method call; an earlier
-invalid factor still errors, and an unproved provider finiteness method still refuses. These
-checks preserve raw axes and the original Product receiver for later demands.
-The separate `reference-finiteness-demand` corpus records these controls (#771).
-The simpler `IsFiniteSet({} \X x)` already worked before this correction.
+`IsFiniteSet` stops at the first empty Product axis or function-set domain in
+source order, as TLC does, in both profiles: `IsFiniteSet({} \X x)` is `TRUE`
+without asking whether `x` is a set. Record fields are different, because TLC
+checks them in the order it first stored the field names. With `--compat=tlc`
+Core follows that order, so `IsFiniteSet([zephyrAxis : {}, amberAxis : x] \X {x})`
+is `TRUE` when `zephyrAxis` was met first. In the default profile fields are in
+canonical order, so every field must be a proved set before an empty field
+decides. A field such as `0` refuses with "Cardinality/IsFiniteSet of a Product
+with an unproved factor shape or size", and `IsFiniteSet([a : {}, b : 0])` is
+never reported `TRUE`. All constructor operands are still evaluated before the
+method call; an earlier invalid factor still errors, and an unproved provider
+finiteness method still refuses. These checks preserve raw axes and the original Product receiver for
+later demands. The `reference-finiteness-demand` and
+`reference-finiteness-token-order` corpora record these controls.
 
 This state-dependent example exercises every override on Core:
 
