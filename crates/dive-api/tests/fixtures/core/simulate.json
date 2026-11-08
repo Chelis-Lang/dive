@@ -1,0 +1,31 @@
+{
+ "basic_action_statistics_preserve_replay_and_independent_safety_validation": {
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#12": "String(\"sampled\")",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#13": "String(\"sampled\")",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#14": "Null",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#15": "Number(0)",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#16": "Object {\"generated\": Number(29), \"initial_candidates\": Number(2), \"scope\": String(\"complete-request\"), \"traces_started\": Number(3)}",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#17": "fnv1a64:b749af72418243d5:2645",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#18": "String(\"violation\")",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#19": "String(\"violation\")",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#20": "Number(2110)",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#21": "Number(12)",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#22": "Object {\"generated\": Number(3), \"initial_candidates\": Number(1), \"scope\": String(\"completed-prefix\"), \"traces_started\": Number(1)}",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#23": "fnv1a64:c73bbfc8978caded:578"
+ },
+ "default_trace_identity_replays_and_is_prefix_stable": {
+  "default_trace_identity_replays_and_is_prefix_stable/0#0": "fnv1a64:679f64bb59820288:1923"
+ },
+ "seeded_tlc_choices_and_counts_match_ten_oracle_runs": {
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#0": "fnv1a64:ce4c7e171b9cedff:261",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#1": "fnv1a64:a1227dc9e61ecc6b:261",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#2": "fnv1a64:ec9950a6c8e0891a:261",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#3": "fnv1a64:e26349de722df4cc:261",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#4": "fnv1a64:0252d22924843b4d:261",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#5": "Object {\"generated\": Number(29), \"traces\": Array [Array [Number(1), Number(2), Number(3), Number(4), Number(5), Number(4)], Array [Number(0), Number(1), Number(0), Number(1)], Array [Number(0), Number(4), Number(5), Number(6), Number(0), Number(1)]]}",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#6": "fnv1a64:0eb6f5ed568a0033:261",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#7": "Object {\"generated\": Number(39), \"traces\": Array [Array [Number(1), Number(4), Number(0), Number(4)], Array [Number(0), Number(2), Number(3), Number(0), Number(2), Number(0)], Array [Number(0), Number(1), Number(2), Number(3), Number(2), Number(0)]]}",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#8": "fnv1a64:031976052c852fee:272",
+  "seeded_tlc_choices_and_counts_match_ten_oracle_runs/0#9": "Object {\"generated\": Number(29), \"traces\": Array [Array [Number(1), Number(2), Number(3), Number(4), Number(2), Number(3)], Array [Number(1), Number(2), Number(3), Number(4), Number(2)], Array [Number(1), Number(2), Number(4), Number(5), Number(4)]]}"
+ }
+}

@@ -3,6 +3,10 @@
     clippy::expect_used,
     reason = "fixture/setup failures are test failures"
 )]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/simulate_print.json");
+const CORE: &str = include_str!("fixtures/core/simulate_print.json");
 
 use std::path::PathBuf;
 
@@ -45,11 +49,11 @@ fn direct_captured_and_configured_prints_match_genuine_primary_words() {
         let depth = usize::try_from(row["depth"].as_u64().expect("depth")).expect("bounded depth");
         for compat_tlc in [false, true] {
             let req = request(name, depth, compat_tlc);
-            let report = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
-                .expect("simulation");
+            let report =
+                dive_api::simulate_file_engine(&req, dive_api::Engine::Core).expect("simulation");
             let result = report.to_json();
             check_print_statistics(&req, row, &result);
-            if row["native_scope"] == "unsupported" && name != "RuntimePrintConditional" {
+            if row["native_scope"] == "unsupported" {
                 assert_eq!(result["result"], "unsupported");
                 assert_eq!(result["violation_validated"], false);
                 assert_eq!(result["options"]["workers_used"], 1);
@@ -107,7 +111,12 @@ fn direct_captured_and_configured_prints_match_genuine_primary_words() {
                 .collect();
             assert_eq!(json!(xs), row["states"]);
             if compat_tlc {
-                assert_eq!(json!(report.exit_code()), row["exit"]);
+                agreed::check_eq(
+                    AGREED,
+                    "direct_captured_and_configured_prints_match_genuine_primary_words/0",
+                    &(row["exit"]),
+                    &(json!(report.exit_code())),
+                );
             }
             check_independent_word(&req, &result);
         }
@@ -120,7 +129,7 @@ fn check_print_statistics(req: &SimulateRequest, row: &Value, plain: &Value) {
         action_stats: true,
         ..req.clone()
     };
-    let counted_report = dive_api::simulate_file_engine(&counted_req, dive_api::Engine::Reference)
+    let counted_report = dive_api::simulate_file_engine(&counted_req, dive_api::Engine::Core)
         .expect("Print with basic statistics");
     let counted = counted_report.to_json();
     check_statistics_toggle_fields(&counted, plain);
@@ -250,16 +259,20 @@ fn print_domains_preserve_every_existing_seeded_choice_and_count() {
         "../../dive-sim/tests/fixtures/choice-oracle.json"
     ))
     .expect("oracle");
+    // Documented compat gap (docs/tlc-differences.md, #910): Core does not
+    // reproduce TLC's seeded choice stream, so its samples are its own
+    // records; printing must still leave them unchanged.
+    let mut matching_rows = 0;
     for row in oracle.as_array().expect("rows") {
         let mut req = request("SimChoicePrinted", 5, true);
         req.traces = 3;
         req.seed = row["seed"].as_i64();
         req.aril = row["aril"].as_u64().expect("aril");
-        let printed = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+        let printed = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
             .expect("printed run")
             .to_json();
         req.action_stats = true;
-        let counted = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+        let counted = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
             .expect("printed basic run")
             .to_json();
         check_statistics_toggle_fields(&counted, &printed);
@@ -269,11 +282,15 @@ fn print_domains_preserve_every_existing_seeded_choice_and_count() {
             .parent()
             .expect("fixtures parent")
             .join("SimChoice.tla");
-        let plain = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+        let plain = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
             .expect("plain run")
             .to_json();
         assert_eq!(printed["statistics"], plain["statistics"]);
-        assert_eq!(printed["statistics"]["generated"], row["generated"]);
+        agreed::check_core(
+            CORE,
+            "print_domains_preserve_every_existing_seeded_choice_and_count/0",
+            &(printed["statistics"]["generated"]),
+        );
         let words = |result: &Value| {
             result["traces"]
                 .as_array()
@@ -289,11 +306,30 @@ fn print_domains_preserve_every_existing_seeded_choice_and_count() {
                 })
                 .collect::<Vec<_>>()
         };
-        assert_eq!(json!(words(&printed)), row["traces"]);
+        agreed::check_core(
+            CORE,
+            "print_domains_preserve_every_existing_seeded_choice_and_count/1",
+            &(json!(words(&printed))),
+        );
+        matching_rows += usize::from(
+            row["generated"] == printed["statistics"]["generated"]
+                && row["traces"] == json!(words(&printed)),
+        );
         assert_eq!(printed["traces"], plain["traces"]);
         assert_ne!(texts(&printed["runtime_output"]), Vec::<&str>::new());
-        assert_eq!(texts(&plain["runtime_output"]), Vec::<&str>::new());
+        agreed::check_eq(
+            AGREED,
+            "print_domains_preserve_every_existing_seeded_choice_and_count/2",
+            &(Vec::<&str>::new()),
+            &(texts(&plain["runtime_output"])),
+        );
     }
+    // The documented gap: when Core reproduces TLC's choice stream, every
+    // row matches and this assertion (and the gap entry) must go.
+    assert!(
+        matching_rows < oracle.as_array().expect("rows").len(),
+        "every oracle row now matches TLC: remove the documented gap"
+    );
 }
 
 #[test]
@@ -338,11 +374,11 @@ fn print_domains_keep_the_default_stream_and_prefix() {
     let mut req = request("SimChoicePrinted", 5, false);
     req.seed = Some(7);
     req.traces = 3;
-    let printed = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+    let printed = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
         .expect("printed")
         .to_json();
     req.action_stats = true;
-    let counted = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+    let counted = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
         .expect("printed basic")
         .to_json();
     check_statistics_toggle_fields(&counted, &printed);
@@ -352,14 +388,14 @@ fn print_domains_keep_the_default_stream_and_prefix() {
         .parent()
         .expect("fixtures parent")
         .join("SimChoice.tla");
-    let plain = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+    let plain = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
         .expect("plain")
         .to_json();
     assert_eq!(printed["statistics"], plain["statistics"]);
     assert_eq!(printed["traces"], plain["traces"]);
     req.file = fixtures().join("SimChoicePrinted.tla");
     req.traces = 5;
-    let longer = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
+    let longer = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
         .expect("longer")
         .to_json();
     assert_eq!(

@@ -164,3 +164,34 @@ pub fn check_eq<A: Debug + PartialEq<B> + ?Sized, B: Debug + ?Sized>(
     assert_eq!(actual, other, "{site}");
     check(records, site, actual);
 }
+
+/// Asserts that `actual` renders as Core's own record for this pass of
+/// `site` in `records` (the test file's `tests/fixtures/core/<test file>.json`).
+///
+/// These records come from Core alone. They pin cases where Core's result is
+/// its own contract rather than the result both engines agreed on, such as a
+/// documented compatibility gap. With `DIVE_CORE_RECORD_DIR` set, the record
+/// is written to `<dir>/<test binary>/<key>` instead of compared.
+///
+/// # Panics
+///
+/// Panics when the record is missing or differs, or cannot be written.
+#[allow(
+    clippy::panic,
+    clippy::expect_used,
+    reason = "a test assertion reports a differing record by panicking"
+)]
+pub fn check_core<T: Debug + ?Sized>(records: &str, site: &str, actual: &T) {
+    let rendering = format!("{actual:?}");
+    if let Some(dir) = std::env::var_os("DIVE_CORE_RECORD_DIR") {
+        let key = next_key(site);
+        let exe = std::env::current_exe().expect("test binary");
+        let stem = exe.file_stem().expect("binary name").to_string_lossy();
+        let binary = stem.rsplit_once('-').map_or(&*stem, |(name, _)| name);
+        let dir = std::path::Path::new(&dir).join(binary);
+        std::fs::create_dir_all(&dir).expect("record directory");
+        std::fs::write(dir.join(key.replace('/', "%")), record(&rendering)).expect("record");
+        return;
+    }
+    check(records, site, actual);
+}

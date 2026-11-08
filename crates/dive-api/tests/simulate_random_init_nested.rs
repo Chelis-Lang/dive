@@ -1,4 +1,6 @@
 //! Random Init keeps nested ENABLED successor semantics and independent replay.
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::SimulateRequest;
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
 use serde_json::json;
@@ -37,10 +39,13 @@ Safe == x \in {0,1}
                 traces: 2,
                 ..Default::default()
             };
-            let report = dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?;
-            assert_eq!(report.exit_code(), 0);
-            let sampled = report.to_json();
-            assert_eq!(sampled["result"], "sampled");
+            // Only the retired reference engine sampled this draw (#791, #910).
+            let report = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?;
+            refused::assert_refused(
+                &report.to_json(),
+                report.exit_code(),
+                refused::FINITE_RANDOM,
+            );
             let fresh = SpecModel::from_source(
                 "RandomNested.tla",
                 source,
@@ -50,19 +55,20 @@ Safe == x \in {0,1}
                     ..Default::default()
                 },
             )?;
-            let traces = sampled["traces"].as_array().ok_or("traces")?;
-            assert_eq!(traces.len(), 2);
-            for trace in traces {
-                let serialized = serde_json::to_string(&trace["document"])?;
-                let word = TraceDoc::parse(&serialized)?;
-                assert_eq!(word.states.len(), 4);
-                assert_eq!(fresh.validate(&word).validation, Validation::Valid);
-                for (index, check) in [(0, Check::Init), (1, Check::Next)] {
-                    let mut forged = word.clone();
-                    forged.states[index]["x"] = json!(9);
-                    assert!(matches!(fresh.validate(&forged).validation,
-                        Validation::Invalid(f) if f.check == check));
-                }
+            // The independent validator still accepts the nested-query word
+            // and rejects forged Init and Next states.
+            let word = TraceDoc::behavior(vec![
+                json!({"x":0}),
+                json!({"x":1}),
+                json!({"x":0}),
+                json!({"x":1}),
+            ])?;
+            assert_eq!(fresh.validate(&word).validation, Validation::Valid);
+            for (index, check) in [(0, Check::Init), (1, Check::Next)] {
+                let mut forged = word.clone();
+                forged.states[index]["x"] = json!(9);
+                assert!(matches!(fresh.validate(&forged).validation,
+                    Validation::Invalid(f) if f.check == check));
             }
             let alternate = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])?;
             assert_eq!(fresh.validate(&alternate).validation, Validation::Valid);
@@ -70,7 +76,7 @@ Safe == x \in {0,1}
                 source.replace("~ENABLED (x'=x /\\ x=2)", "ENABLED (x'=RandomElement({x}))");
             std::fs::write(&file, reached)?;
             let refused =
-                dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
+                dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?.to_json();
             assert_eq!(refused["result"], "unsupported");
             assert!(
                 refused["message"]

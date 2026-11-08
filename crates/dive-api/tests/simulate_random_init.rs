@@ -1,5 +1,11 @@
 //! Primary startup draws remain separate from selection and independent membership.
+//!
+//! Only the retired reference engine sampled `RandomElement` in simulation
+//! (#791). Core refuses each of these requests by name; the restoring
+//! coverage is tracked in #910, which points to this file's earlier form.
 #![allow(clippy::expect_used, reason = "bounded fixture setup and assertions")]
+#[path = "support/refused.rs"]
+mod refused;
 
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -22,31 +28,15 @@ fn request(row: &Value, compat_tlc: bool) -> SimulateRequest {
         ..Default::default()
     }
 }
-fn texts(doc: &Value) -> Vec<&str> {
-    doc["runtime_output"]
-        .as_array()
-        .expect("events")
-        .iter()
-        .map(|v| v["text"].as_str().expect("text"))
-        .collect()
+fn assert_refused(request: &SimulateRequest) {
+    let report = dive_api::simulate_file_engine(request, dive_api::Engine::Core).expect("report");
+    refused::assert_refused(
+        &report.to_json(),
+        report.exit_code(),
+        refused::FINITE_RANDOM,
+    );
 }
-fn words(doc: &Value) -> Value {
-    json!(
-        doc["traces"]
-            .as_array()
-            .expect("traces")
-            .iter()
-            .map(|trace| {
-                trace["tlc_states"]
-                    .as_array()
-                    .expect("states")
-                    .iter()
-                    .map(|s| s["x"].clone())
-                    .collect::<Vec<_>>()
-            })
-            .collect::<Vec<_>>()
-    )
-}
+
 #[test]
 fn actual_primary_init_words_errors_and_output_keep_their_boundaries() {
     let oracle: Value = serde_json::from_str(
@@ -54,134 +44,43 @@ fn actual_primary_init_words_errors_and_output_keep_their_boundaries() {
     )
     .expect("primary JSON");
     assert_eq!(oracle["oracle"], "tlc-2026.10.06.014338");
-    assert_eq!(oracle["primary_before_production_implementation"], true);
+    let mut runs = 0;
     for row in oracle["primary_probes"].as_array().expect("primary cases") {
         for compat_tlc in [true, false] {
             if !compat_tlc && row["aril"] != 0 {
                 continue;
             }
-            let req = request(row, compat_tlc);
-            let report = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
-                .expect("simulation");
-            let doc = report.to_json();
-            assert_eq!(doc["exhaustive"], false);
-            assert_eq!(doc["model_proved"], false);
-            assert!(
-                doc["startup_output"]
-                    .as_array()
-                    .expect("startup events")
-                    .iter()
-                    .all(|event| event["kind"] == "warning"),
-                "unexpected startup Print: {doc}"
-            );
-            if row["native_scope"] == "unsupported" {
-                // Preserve the old primary capture's historical native scope.
-                // Its reached Next draw now has an independent source relation.
-                assert_eq!(row["model"], "InitRandomNextBoundary");
-                assert_eq!(doc["result"], "sampled", "{doc}");
-                assert_eq!(report.exit_code(), 0);
-                assert_eq!(json!(texts(&doc)), row["printed"]);
-                assert_eq!(doc["statistics"]["generated"], row["generated"]);
-                assert!(
-                    doc["traces"]
-                        .as_array()
-                        .expect("traces")
-                        .iter()
-                        .all(|trace| trace["validation"]["result"] == "valid")
-                );
-                continue;
-            }
-            if row["native_scope"] == "original-error" {
-                assert_eq!(doc["result"], "evaluation-error", "{doc}");
-                assert_eq!(doc["statistics"]["generated"], 0);
-            } else {
-                assert!(
-                    doc["traces"]
-                        .as_array()
-                        .expect("traces")
-                        .iter()
-                        .all(|t| t["validation"]["result"] == "valid"),
-                    "{doc}"
-                );
-                assert_eq!(json!(texts(&doc)), row["printed"]);
-                if row["physical_exit"] == 0 {
-                    assert_eq!(doc["result"], "sampled", "{doc}");
-                    if compat_tlc {
-                        assert_eq!(words(&doc), row["traces"], "{row}");
-                    }
-                } else {
-                    assert_eq!(doc["result"], "violation", "{doc}");
-                    assert_eq!(doc["violation_validated"], true);
-                    assert_eq!(doc["observed_violation"]["name"], row["violated_property"]);
-                    if compat_tlc {
-                        assert_eq!(words(&doc), json!([row["printed_states"]]));
-                    }
-                }
-            }
-            if compat_tlc {
-                assert_eq!(json!(report.exit_code()), row["physical_exit"]);
-                assert_eq!(
-                    doc["observed_tlc_code"],
-                    row["codes"]
-                        .as_array()
-                        .expect("codes")
-                        .first()
-                        .cloned()
-                        .unwrap_or(Value::Null)
-                );
-                if !row["generated"].is_null() {
-                    assert_eq!(doc["statistics"]["generated"], row["generated"]);
-                }
-            }
+            assert_refused(&request(row, compat_tlc));
+            runs += 1;
         }
     }
+    assert_eq!(runs, 20);
 }
 
 #[test]
 fn seed_prefix_statistics_and_true_word_mutations_remain_independent() {
+    let file = fixtures().join("InitRandomInterval.tla");
     for compat_tlc in [false, true] {
-        let mut req = SimulateRequest {
-            file: fixtures().join("InitRandomInterval.tla"),
+        assert_refused(&SimulateRequest {
+            file: file.clone(),
             seed: Some(0),
             depth: Some(3),
             traces: 2,
             compat_tlc,
             ..Default::default()
-        };
-        let plain = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
-            .expect("plain")
-            .to_json();
-        assert_eq!(
-            plain,
-            dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
-                .expect("replay")
-                .to_json()
-        );
-        req.action_stats = true;
-        let counted = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
-            .expect("counted")
-            .to_json();
-        for field in ["traces", "statistics", "runtime_output", "observed_result"] {
-            assert_eq!(plain[field], counted[field]);
-        }
-        req.traces = 4;
-        let more = dive_api::simulate_file_engine(&req, dive_api::Engine::Reference)
-            .expect("longer sample")
-            .to_json();
-        assert_eq!(
-            plain["traces"].as_array().expect("short"),
-            &more["traces"].as_array().expect("long")[..2]
-        );
+        });
+        // The independent validator still admits any drawn initial value and
+        // rejects forged Init, Next and ending claims.
         let model = SpecModel::load(
-            &req.file,
-            &req.file.with_extension("cfg"),
+            &file,
+            &file.with_extension("cfg"),
             &TraceOptions {
                 compat_tlc,
                 ..Default::default()
             },
         )
         .expect("fresh model");
-        let doc = TraceDoc::from_json(&plain["traces"][0]["document"]).expect("actual word");
+        let doc = TraceDoc::behavior(vec![json!({"x":17}), json!({"x":18})]).expect("word");
         assert_eq!(model.validate(&doc).validation, Validation::Valid);
         for (state, value, check) in [(0, -1, Check::Init), (1, -999, Check::Next)] {
             let mut forged = doc.clone();
@@ -194,9 +93,6 @@ fn seed_prefix_statistics_and_true_word_mutations_remain_independent() {
         assert!(
             matches!(model.validate(&false_ending).validation,Validation::Invalid(f) if f.check==Check::Ending)
         );
-        let other =
-            TraceDoc::behavior(vec![json!({"x":17})]).expect("different supported initial value");
-        assert_eq!(model.validate(&other).validation, Validation::Valid);
     }
 }
 
@@ -273,46 +169,23 @@ fn nested_correlated_and_captured_randomness_has_independent_sample_proof() {
             "",
             "",
         ),
+        (
+            "x=RandomElement(IF FALSE THEN RandomElement({{7}}) ELSE {7})",
+            "IF FALSE THEN x'=RandomElement({9}) ELSE UNCHANGED x",
+            "TRUE",
+            "",
+            "",
+        ),
+        (
+            "x=RandomElement(IF PrintT(\"before-inner\") THEN {RandomElement({7})} ELSE {})",
+            "UNCHANGED x",
+            "TRUE",
+            "",
+            "",
+        ),
     ] {
-        let files = Files::new(init, next, safe, extra, config);
-        let report = dive_api::simulate_file_engine(&files.request(), dive_api::Engine::Reference)
-            .expect("finite random simulation")
-            .to_json();
-        assert_eq!(report["result"], "sampled", "{init}: {report}");
-        assert!(
-            report["traces"]
-                .as_array()
-                .expect("traces")
-                .iter()
-                .all(|trace| trace["validation"]["result"] == "valid")
-        );
+        assert_refused(&Files::new(init, next, safe, extra, config).request());
     }
-    let quiet = Files::new(
-        "x=RandomElement(IF FALSE THEN RandomElement({{7}}) ELSE {7})",
-        "IF FALSE THEN x'=RandomElement({9}) ELSE UNCHANGED x",
-        "TRUE",
-        "",
-        "",
-    );
-    assert_eq!(
-        dive_api::simulate_file_engine(&quiet.request(), dive_api::Engine::Reference)
-            .expect("untaken effects")
-            .to_json()["result"],
-        "sampled"
-    );
-    let reached = Files::new(
-        "x=RandomElement(IF PrintT(\"before-inner\") THEN {RandomElement({7})} ELSE {})",
-        "UNCHANGED x",
-        "TRUE",
-        "",
-        "",
-    );
-    let report = dive_api::simulate_file_engine(&reached.request(), dive_api::Engine::Reference)
-        .expect("actual nested invocation")
-        .to_json();
-    assert_eq!(report["result"], "sampled", "{report}");
-    assert_eq!(report["traces"][0]["validation"]["result"], "valid");
-    assert_eq!(texts(&report), ["\"before-inner\""]);
 }
 
 #[test]
@@ -324,14 +197,5 @@ fn nested_domain_errors_precede_the_unreached_outer_native_invocation() {
         "",
         "",
     );
-    let report = dive_api::simulate_file_engine(&files.request(), dive_api::Engine::Reference)
-        .expect("normal domain evaluation error")
-        .to_json();
-    assert_eq!(report["result"], "evaluation-error", "{report}");
-    assert_eq!(report["observed_tlc_code"], 1000);
-    assert_eq!(report["statistics"]["generated"], 0);
-    assert_eq!(texts(&report), ["\"before-inner-error\""]);
-    let message = report["message"].as_str().expect("original error");
-    assert!(message.contains("not a finite set"), "{message}");
-    assert!(message.contains("42"), "{message}");
+    assert_refused(&files.request());
 }
