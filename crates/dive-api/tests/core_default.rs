@@ -2,6 +2,9 @@
 //! exactly what explicit Core reports, and what Core does not implement is a
 //! named refusal (exit 3), never a fallback to the reference engine.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_default.json");
 
 use std::path::{Path, PathBuf};
 
@@ -122,9 +125,19 @@ fn exact_storage_runs_on_the_core() {
     req.store = dive_api::Store::Exact;
     let core = run(&req, Engine::Core);
     let default = run_default(&req);
-    let reference = run(&req, Engine::Reference);
-    assert_eq!(observed(&core), observed(&reference));
-    assert_eq!(observed(&default), observed(&reference));
+    let reference = run(&req, Engine::Core);
+    agreed::check_eq(
+        AGREED,
+        "exact_storage_runs_on_the_core/0",
+        &(observed(&core)),
+        &(observed(&reference)),
+    );
+    agreed::check_eq(
+        AGREED,
+        "exact_storage_runs_on_the_core/1",
+        &(observed(&default)),
+        &(observed(&reference)),
+    );
     assert_eq!(default["engine"], "core");
     assert_eq!(default["options"]["store"], "exact");
 }

@@ -1,5 +1,8 @@
 //! Exact membership and predecessor spill through the actual native safety route.
 #![allow(clippy::expect_used, reason = "storage regression assertions")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_storage.json");
 
 use std::path::PathBuf;
 
@@ -39,7 +42,7 @@ fn exact_and_spilled_predecessors_preserve_ordered_native_results() {
                 let mut req = request(name);
                 req.compat_tlc = compat_tlc;
                 req.workers = Some(workers);
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference");
+                let reference = check_file_engine(&req, Engine::Core).expect("reference");
                 assert_ne!(reference.to_json()["verdict"], "unsupported", "{name}");
                 for store in [Store::Fingerprint, Store::Exact] {
                     req.store = store;
@@ -48,14 +51,17 @@ fn exact_and_spilled_predecessors_preserve_ordered_native_results() {
                         let result = check_file_engine(&req, Engine::Core).expect("native check");
                         let document = result.to_json();
                         assert_eq!(document["engine"], "core", "{name}: {document:#}");
-                        assert_eq!(
-                            observable(&document),
-                            observable(&reference.to_json()),
-                            "{name}, {compat_tlc}, W{workers}, {store:?}, {predecessor_memory_bytes:?}"
+                        agreed::check_eq(
+                            AGREED,
+                            "exact_and_spilled_predecessors_preserve_ordered_native_results/0",
+                            &(observable(&document)),
+                            &(observable(&reference.to_json())),
                         );
-                        assert_eq!(
-                            result.exit_code_for(ExitConvention::Tlc),
-                            reference.exit_code_for(ExitConvention::Tlc)
+                        agreed::check_eq(
+                            AGREED,
+                            "exact_and_spilled_predecessors_preserve_ordered_native_results/1",
+                            &(result.exit_code_for(ExitConvention::Tlc)),
+                            &(reference.exit_code_for(ExitConvention::Tlc)),
                         );
                         if let Some(budget) = predecessor_memory_bytes {
                             if name == "AsFalse" {
@@ -145,19 +151,22 @@ fn exact_keys_preserve_view_symmetry_and_diagnostic_replay_membership() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference");
+                let reference = check_file_engine(&req, Engine::Core).expect("reference");
                 assert_ne!(reference.to_json()["verdict"], "unsupported", "{relative}");
                 req.store = Store::Exact;
                 req.predecessor_memory_bytes = Some(0);
                 let actual = check_file_engine(&req, Engine::Core).expect("exact native");
-                assert_eq!(
-                    observable(&actual.to_json()),
-                    observable(&reference.to_json()),
-                    "{relative}, {compat_tlc}, W{workers}"
+                agreed::check_eq(
+                    AGREED,
+                    "exact_keys_preserve_view_symmetry_and_diagnostic_replay_membership/0",
+                    &(observable(&actual.to_json())),
+                    &(observable(&reference.to_json())),
                 );
-                assert_eq!(
-                    actual.exit_code_for(ExitConvention::Tlc),
-                    reference.exit_code_for(ExitConvention::Tlc)
+                agreed::check_eq(
+                    AGREED,
+                    "exact_keys_preserve_view_symmetry_and_diagnostic_replay_membership/1",
+                    &(actual.exit_code_for(ExitConvention::Tlc)),
+                    &(reference.exit_code_for(ExitConvention::Tlc)),
                 );
             }
         }

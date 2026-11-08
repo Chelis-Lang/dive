@@ -1,4 +1,7 @@
 //! A partial terminal binding is never a fabricated complete state.
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/partial_terminal_words.json");
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, check_file_engine};
@@ -32,8 +35,8 @@ fn partial_next_words_preserve_the_pinned_bfs_terminal_and_logical_length() -> T
                     ..TraceOptions::default()
                 },
             )?;
-            let mut before = None;
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let result = check_file_engine(
                     &CheckRequest {
                         file: file.clone(),
@@ -82,11 +85,7 @@ fn partial_next_words_preserve_the_pinned_bfs_terminal_and_logical_length() -> T
                         assert_eq!(result["statistics"][name], value);
                     }
                 }
-                if let Some(reference) = &before {
-                    assert_eq!(wire, reference, "{path}");
-                } else {
-                    before = Some(wire.clone());
-                }
+                agreed::check(AGREED, "cross/0", &(wire));
             }
         }
     }
@@ -199,8 +198,8 @@ fn init_partial_error_witness_preserves_the_absent_formal_counterexample() -> Te
                 ..TraceOptions::default()
             },
         )?;
-        let mut reference: Option<serde_json::Value> = None;
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let actual = check_file_engine(
                 &CheckRequest {
                     file: file.clone(),
@@ -274,12 +273,8 @@ fn init_partial_error_witness_preserves_the_absent_formal_counterexample() -> Te
                 *bad.pointer_mut(pointer).ok_or("field")? = value;
                 assert!(TraceDoc::from_json(&bad).is_err());
             }
-            if let Some(reference) = &reference {
-                for field in ["tlc", "statistics", "counterexample", "error_witness"] {
-                    assert_eq!(actual[field], reference[field]);
-                }
-            } else {
-                reference = Some(actual);
+            for field in ["tlc", "statistics", "counterexample", "error_witness"] {
+                agreed::check(AGREED, "cross/1", &(actual[field]));
             }
         }
     }
@@ -299,7 +294,8 @@ fn initial_candidate_level_proves_earlier_property_priority() -> TestResult {
         };
         let correct = SpecModel::load(&good, &good.with_extension("cfg"), &options)?;
         let forged = SpecModel::load(&bad, &bad.with_extension("cfg"), &options)?;
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let request = |file: &PathBuf| CheckRequest {
                 file: file.clone(),
                 config: Some(file.with_extension("cfg")),

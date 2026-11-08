@@ -1,0 +1,35 @@
+{
+ "a_closed_definition_too_large_to_fold_is_evaluated_once": {
+  "a_closed_definition_too_large_to_fold_is_evaluated_once/0#0": "\"success\"",
+  "a_closed_definition_too_large_to_fold_is_evaluated_once/0#1": "\"evaluation-error\"",
+  "a_closed_definition_too_large_to_fold_is_evaluated_once/0#2": "\"success\"",
+  "a_closed_definition_too_large_to_fold_is_evaluated_once/0#3": "\"evaluation-error\"",
+  "a_closed_definition_too_large_to_fold_is_evaluated_once/1#0": "fnv1a64:085d7366555fbec3:341",
+  "a_closed_definition_too_large_to_fold_is_evaluated_once/1#1": "fnv1a64:b6edce1dd79c5b17:453",
+  "a_closed_definition_too_large_to_fold_is_evaluated_once/1#2": "fnv1a64:085d7366555fbec3:341",
+  "a_closed_definition_too_large_to_fold_is_evaluated_once/1#3": "fnv1a64:b6edce1dd79c5b17:453"
+ },
+ "a_false_assume_guards_the_pure_assumes_after_it": {
+  "a_false_assume_guards_the_pure_assumes_after_it/0#0": "fnv1a64:b7b61d914c6334f6:350",
+  "a_false_assume_guards_the_pure_assumes_after_it/0#1": "fnv1a64:b7b61d914c6334f6:350",
+  "a_false_assume_guards_the_pure_assumes_after_it/0#2": "fnv1a64:c0373564d40180b4:366",
+  "a_false_assume_guards_the_pure_assumes_after_it/0#3": "fnv1a64:c0373564d40180b4:366"
+ },
+ "a_pure_assume_evaluated_by_the_core_matches_the_reference_engine": {
+  "a_pure_assume_evaluated_by_the_core_matches_the_reference_engine/0#0": "fnv1a64:00272e3da9e8a11e:341",
+  "a_pure_assume_evaluated_by_the_core_matches_the_reference_engine/0#1": "fnv1a64:3f790fcbcb6a96d9:348",
+  "a_pure_assume_evaluated_by_the_core_matches_the_reference_engine/0#2": "fnv1a64:ab73534e70355c6f:377",
+  "a_pure_assume_evaluated_by_the_core_matches_the_reference_engine/0#3": "fnv1a64:00272e3da9e8a11e:341",
+  "a_pure_assume_evaluated_by_the_core_matches_the_reference_engine/0#4": "fnv1a64:3f790fcbcb6a96d9:348",
+  "a_pure_assume_evaluated_by_the_core_matches_the_reference_engine/0#5": "fnv1a64:ab73534e70355c6f:377"
+ },
+ "main": {
+  "fallback/0#0": "fnv1a64:786b5f666a8a2603:341"
+ },
+ "temporal_properties_keep_the_cores_startup_constants_they_do_not_reach": {
+  "temporal_properties_keep_the_cores_startup_constants_they_do_not_reach/0#0": "fnv1a64:2936d555e902084a:345",
+  "temporal_properties_keep_the_cores_startup_constants_they_do_not_reach/0#1": "fnv1a64:7d93ebda54324d8f:731",
+  "temporal_properties_keep_the_cores_startup_constants_they_do_not_reach/0#2": "fnv1a64:2936d555e902084a:345",
+  "temporal_properties_keep_the_cores_startup_constants_they_do_not_reach/0#3": "fnv1a64:7d93ebda54324d8f:731"
+ }
+}

@@ -33,7 +33,8 @@ fn failed_assumptions_name_the_exact_oracle_property_without_parsing_messages() 
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                for engine in [Engine::Reference, Engine::Core] {
+                {
+                    let engine = Engine::Core;
                     let report = check_file_engine(&request, engine).expect("check");
                     let actual = report.to_json();
                     let native_verdict = if expected["verdict_code"] == 2105 {

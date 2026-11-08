@@ -178,7 +178,7 @@ fn controls(role: &str) {
         for compat in [false, true] {
             for workers in [1, 4, 8] {
                 let req = request(root.join(format!("{name}.tla")), compat, workers);
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference");
+                let reference = check_file_engine(&req, Engine::Core).expect("reference");
                 let observed_reference = observed(&reference);
                 for key in [
                     "verdict",

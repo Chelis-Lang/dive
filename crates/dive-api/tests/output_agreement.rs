@@ -68,7 +68,7 @@ fn run(spec: &Path, compat_tlc: bool) -> Result<(Value, String)> {
             time_limit: BudgetSetting::Explicit(TIME_LIMIT),
             ..CheckRequest::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )?;
     Ok((report.to_json(), report.render_human()))
 }

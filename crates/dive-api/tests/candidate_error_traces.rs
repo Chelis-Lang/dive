@@ -33,7 +33,7 @@ fn actual_candidate_errors_require_exact_word_source_site_and_both_identities() 
                     ..TraceOptions::default()
                 },
             )?;
-            for (engine, workers) in [Engine::Reference, Engine::Core]
+            for (engine, workers) in [Engine::Core]
                 .into_iter()
                 .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
             {
@@ -163,7 +163,7 @@ fn direct_module_errors_and_assertions_replay_actual_candidate_and_diagnostic() 
                         ..TraceOptions::default()
                     },
                 )?;
-                for (engine, workers) in [Engine::Reference, Engine::Core]
+                for (engine, workers) in [Engine::Core]
                     .into_iter()
                     .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
                 {
@@ -277,7 +277,7 @@ fn top_level_nonboolean_role_proofs_do_not_admit_the_old_anonymous_word() -> Tes
                     ..TraceOptions::default()
                 },
             )?;
-            for (engine, workers) in [Engine::Reference, Engine::Core]
+            for (engine, workers) in [Engine::Core]
                 .into_iter()
                 .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
             {

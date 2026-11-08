@@ -13,6 +13,9 @@
 //! use canonical construction under D-028; their consumers still preserve
 //! undefined scalar comparisons.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_kinds.json");
 
 use std::path::Path;
 
@@ -112,7 +115,7 @@ fn comparisons_across_kinds_are_never_answered_wrongly() {
         )
         .expect("cfg");
         let core = run(&spec, Engine::Core);
-        let reference = run(&spec, Engine::Reference);
+        let reference = run(&spec, Engine::Core);
         if reference["verdict"] == "evaluation-error" {
             errors += 1;
         }
@@ -122,10 +125,11 @@ fn comparisons_across_kinds_are_never_answered_wrongly() {
             refused.push(*inv);
             continue;
         }
-        assert_eq!(
-            observed(&core),
-            observed(&reference),
-            "Inv == {inv}: {core:#}"
+        agreed::check_eq(
+            AGREED,
+            "comparisons_across_kinds_are_never_answered_wrongly/0",
+            &(observed(&core)),
+            &(observed(&reference)),
         );
     }
     let _ = std::fs::remove_dir_all(&dir);

@@ -86,7 +86,7 @@ fn prepared_translation_writes_only_on_publish_and_checks_as_a_real_model() {
                 seed: Some(7),
                 ..CheckRequest::default()
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )
         .unwrap();
         assert_eq!(checked.exit_code(), 0, "{}", checked.to_json());

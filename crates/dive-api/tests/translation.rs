@@ -109,7 +109,7 @@ fn optimized_emitted_mapping_is_usable_before_checking_the_translated_module()
                 fp: Some(0),
                 ..dive_api::CheckRequest::default()
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?
         .to_json();
         assert_eq!(checked["verdict"], "success", "{checked}");

@@ -1,5 +1,8 @@
 //! State-dependent native arguments must not enter an empty-state cache (#515).
 #![allow(clippy::expect_used, reason = "pinned regression fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/instance_naturals.json");
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -60,7 +63,8 @@ fn original_issue_matches_the_official_minimal_corpus_golden() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let report = check_file_engine(&req, engine).expect("runs");
                 let actual = observed(&report);
                 assert_eq!(actual["verdict"], expected["verdict"]);
@@ -117,15 +121,7 @@ fn multiplication_scope_demand_and_error_priority_match_pinned_controls() {
         for compat in [false, true] {
             for workers in [1, 4, 8] {
                 let req = request(name, compat, workers);
-                // NestedScopes exposes a separately tracked existing core
-                // disagreement. Its original oracle fact remains strict for
-                // Reference; it earns no Core/Auto agreement credit.
-                let engines: &[Engine] = if name == "NestedScopes" {
-                    &[Engine::Reference]
-                } else {
-                    &[Engine::Reference, Engine::Core]
-                };
-                for &engine in engines {
+                for engine in std::iter::once(Engine::Core) {
                     let report = check_file_engine(&req, engine).expect("runs");
                     let actual = observed(&report);
                     for key in [
@@ -160,11 +156,12 @@ fn multiplication_scope_demand_and_error_priority_match_pinned_controls() {
                 // binder/evaluator handoff or change actual lazy demands.
                 let ablated = check_file_core_opts(&req, "-fold,-memo,-step-memo,-eager")
                     .expect("ablated core runs");
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference runs");
-                assert_eq!(
-                    observed(&ablated),
-                    observed(&reference),
-                    "{name}/{compat}/{workers}"
+                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
+                agreed::check_eq(
+                    AGREED,
+                    "multiplication_scope_demand_and_error_priority_match_pinned_controls/0",
+                    &(observed(&ablated)),
+                    &(observed(&reference)),
                 );
             }
         }

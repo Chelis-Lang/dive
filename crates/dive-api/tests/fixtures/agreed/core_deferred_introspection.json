@@ -1,0 +1,18 @@
+{
+ "failing_run_that_never_prints_is_not_refused": {
+  "failing_run_that_never_prints_is_not_refused/0#0": "Object {\"depth\": Number(3), \"distinct\": Number(3), \"exit\": Number(10), \"generated\": Number(3), \"verdict\": String(\"invariant-violation\")}",
+  "failing_run_that_never_prints_is_not_refused/0#1": "Object {\"depth\": Number(3), \"distinct\": Number(3), \"exit\": Number(12), \"generated\": Number(3), \"verdict\": String(\"invariant-violation\")}",
+  "failing_run_that_never_prints_is_not_refused/1#0": "Array []",
+  "failing_run_that_never_prints_is_not_refused/1#1": "Array []"
+ },
+ "unreached_trace_introspection_is_not_refused_and_reached_names_it": {
+  "unreached_trace_introspection_is_not_refused_and_reached_names_it/0#0": "Object {\"depth\": Number(4), \"distinct\": Number(4), \"exit\": Number(0), \"generated\": Number(4), \"verdict\": String(\"success\")}",
+  "unreached_trace_introspection_is_not_refused_and_reached_names_it/0#1": "Object {\"depth\": Number(4), \"distinct\": Number(4), \"exit\": Number(0), \"generated\": Number(4), \"verdict\": String(\"success\")}",
+  "unreached_trace_introspection_is_not_refused_and_reached_names_it/0#2": "Object {\"depth\": Number(4), \"distinct\": Number(4), \"exit\": Number(0), \"generated\": Number(4), \"verdict\": String(\"success\")}",
+  "unreached_trace_introspection_is_not_refused_and_reached_names_it/0#3": "Object {\"depth\": Number(4), \"distinct\": Number(4), \"exit\": Number(0), \"generated\": Number(4), \"verdict\": String(\"success\")}",
+  "unreached_trace_introspection_is_not_refused_and_reached_names_it/0#4": "Object {\"depth\": Number(4), \"distinct\": Number(4), \"exit\": Number(0), \"generated\": Number(4), \"verdict\": String(\"success\")}",
+  "unreached_trace_introspection_is_not_refused_and_reached_names_it/0#5": "Object {\"depth\": Number(4), \"distinct\": Number(4), \"exit\": Number(0), \"generated\": Number(4), \"verdict\": String(\"success\")}",
+  "unreached_trace_introspection_is_not_refused_and_reached_names_it/0#6": "Object {\"depth\": Number(4), \"distinct\": Number(4), \"exit\": Number(0), \"generated\": Number(4), \"verdict\": String(\"success\")}",
+  "unreached_trace_introspection_is_not_refused_and_reached_names_it/0#7": "Object {\"depth\": Number(4), \"distinct\": Number(4), \"exit\": Number(0), \"generated\": Number(4), \"verdict\": String(\"success\")}"
+ }
+}

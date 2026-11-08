@@ -32,7 +32,8 @@ fn ten_retained_cases_validate_in_both_engines_profiles_and_worker_counts() -> T
                     ..TraceOptions::default()
                 },
             )?;
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -115,7 +116,8 @@ fn view_module_errors_require_actual_primary_and_diagnostic_execution() -> TestR
                     ..TraceOptions::default()
                 },
             )?;
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let report = check_file_engine(
                     &CheckRequest {
                         file: file.clone(),

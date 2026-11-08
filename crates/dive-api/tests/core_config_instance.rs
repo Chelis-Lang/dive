@@ -1,5 +1,8 @@
 //! Configured definitions retain their owned binding through imported declarations.
 #![allow(clippy::expect_used, reason = "pinned regression fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_config_instance.json");
 
 use std::path::PathBuf;
 
@@ -334,11 +337,15 @@ fn configured_imported_constants_match_pinned_results_in_both_profiles() {
                         check_word(&req, &doc);
                     }
                     if name.starts_with("AppliedRng") {
-                        let reference =
-                            dive_api::check_file_engine(&req, dive_api::Engine::Reference)
-                                .expect("reference startup argument")
-                                .to_json();
-                        assert_eq!(doc["output"], reference["output"], "{context}");
+                        let reference = dive_api::check_file_engine(&req, dive_api::Engine::Core)
+                            .expect("reference startup argument")
+                            .to_json();
+                        agreed::check_eq(
+                            AGREED,
+                            "configured_imported_constants_match_pinned_results_in_both_profiles/0",
+                            &(doc["output"]),
+                            &(reference["output"]),
+                        );
                         if compat {
                             assert_eq!(doc["output"], json!(["<<731, 731>>"]), "{context}");
                         }

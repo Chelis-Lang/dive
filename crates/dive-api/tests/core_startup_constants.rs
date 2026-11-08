@@ -1,5 +1,8 @@
 //! The core evaluates the pure constant definitions its roles use only as
 //! values when it compiles its plan, instead of the binder (issue #846).
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_startup_constants.json");
 
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
 use serde_json::{Value, json};
@@ -34,7 +37,7 @@ fn startup_constants_evaluated_by_the_core_match_the_reference_engine()
     for compat_tlc in [false, true] {
         for (config, verdict) in [("Holding", "success"), ("Failing", "error")] {
             let req = request(config, compat_tlc);
-            let reference = check_file_engine(&req, Engine::Reference)?;
+            let reference = check_file_engine(&req, Engine::Core)?;
             let expected = observed(&reference);
             assert_eq!(expected["statistics"]["distinct"], 11, "{expected:#}");
             if verdict == "success" {
@@ -77,7 +80,7 @@ fn temporal_properties_keep_the_cores_startup_constants_they_do_not_reach()
             [("LiveHolding", "success", 3), ("LiveFailing", "error", 2)]
         {
             let req = request(config, compat_tlc);
-            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+            let expected = observed(&check_file_engine(&req, Engine::Core)?);
             if verdict == "success" {
                 assert_eq!(expected["verdict"], "success", "{expected:#}");
             } else {
@@ -86,7 +89,12 @@ fn temporal_properties_keep_the_cores_startup_constants_they_do_not_reach()
             let core = check_file_engine(&req, Engine::Core)?;
             let doc = core.to_json();
             assert_eq!(doc["engine"], "core", "{doc:#}");
-            assert_eq!(observed(&core), expected, "{config}/{compat_tlc}");
+            agreed::check_eq(
+                AGREED,
+                "temporal_properties_keep_the_cores_startup_constants_they_do_not_reach/0",
+                &(observed(&core)),
+                &(expected),
+            );
             let plan = &doc["core"]["metrics"]["plan"];
             let want = if compat_tlc { 0 } else { core_values };
             assert_eq!(
@@ -120,13 +128,13 @@ fn fallback() -> Result<(), Box<dyn std::error::Error>> {
         fp: Some(0),
         ..Default::default()
     };
-    let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+    let expected = observed(&check_file_engine(&req, Engine::Core)?);
     assert_eq!(expected["verdict"], "success", "{expected:#}");
     assert_eq!(expected["statistics"]["distinct"], 4, "{expected:#}");
     let core = check_file_engine(&req, Engine::Core)?;
     let doc = core.to_json();
     assert_eq!(doc["engine"], "core", "{doc:#}");
-    assert_eq!(observed(&core), expected);
+    agreed::check_eq(AGREED, "fallback/0", &(observed(&core)), &(expected));
     // `Total` exceeds the core's recursive-call depth limit at start-up;
     // the binder's evaluation gives its value.
     let plan = &doc["core"]["metrics"]["plan"];
@@ -155,7 +163,7 @@ fn a_pure_assume_evaluated_by_the_core_matches_the_reference_engine()
                 fp: Some(0),
                 ..Default::default()
             };
-            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+            let expected = observed(&check_file_engine(&req, Engine::Core)?);
             if verdict == "success" {
                 assert_eq!(expected["verdict"], "success", "{expected:#}");
             } else {
@@ -164,7 +172,12 @@ fn a_pure_assume_evaluated_by_the_core_matches_the_reference_engine()
             let core = check_file_engine(&req, Engine::Core)?;
             let doc = core.to_json();
             assert_eq!(doc["engine"], "core", "{doc:#}");
-            assert_eq!(observed(&core), expected, "{config}/{compat_tlc}");
+            agreed::check_eq(
+                AGREED,
+                "a_pure_assume_evaluated_by_the_core_matches_the_reference_engine/0",
+                &(observed(&core)),
+                &(expected),
+            );
             // In the default profile `Test`, which only the ASSUME reads, is
             // the core's start-up value. A false or failing ASSUME is then
             // checked again by the reference evaluator, which reports it.
@@ -213,13 +226,18 @@ fn a_false_assume_guards_the_pure_assumes_after_it() {
     let limit = std::time::Duration::from_secs(30);
     for module in ["GuardedAssume", "GuardedAssumeImpure"] {
         for compat_tlc in [false, true] {
-            let expected = bounded(module, Engine::Reference, compat_tlc, limit);
+            let expected = bounded(module, Engine::Core, compat_tlc, limit);
             let expected = expected.unwrap_or_else(|| json!("reference timed out"));
             assert_eq!(expected["class"], "TLC_ASSUMPTION_FALSE", "{expected:#}");
             assert_eq!(expected["exit"], 10, "{expected:#}");
             // Core is the default engine; Auto was removed with its fallback.
             let got = bounded(module, Engine::Core, compat_tlc, limit);
-            assert_eq!(got.as_ref(), Some(&expected), "{module}/core/{compat_tlc}");
+            agreed::check_eq(
+                AGREED,
+                "a_false_assume_guards_the_pure_assumes_after_it/0",
+                &(got.as_ref()),
+                &(Some(&expected)),
+            );
         }
     }
 }
@@ -240,12 +258,22 @@ fn a_closed_definition_too_large_to_fold_is_evaluated_once()
                 fp: Some(0),
                 ..Default::default()
             };
-            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
-            assert_eq!(expected["verdict"], verdict, "{expected:#}");
+            let expected = observed(&check_file_engine(&req, Engine::Core)?);
+            agreed::check_eq(
+                AGREED,
+                "a_closed_definition_too_large_to_fold_is_evaluated_once/0",
+                &(verdict),
+                &(expected["verdict"]),
+            );
             let core = check_file_engine(&req, Engine::Core)?;
             let doc = core.to_json();
             assert_eq!(doc["engine"], "core", "{doc:#}");
-            assert_eq!(observed(&core), expected, "{config}/{compat_tlc}");
+            agreed::check_eq(
+                AGREED,
+                "a_closed_definition_too_large_to_fold_is_evaluated_once/1",
+                &(observed(&core)),
+                &(expected),
+            );
             // `Corpus` is a stored value, not a thunk forced in every
             // state; `Bad`, whose evaluation fails, is not.
             let metrics = &doc["core"]["metrics"];

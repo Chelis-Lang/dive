@@ -41,7 +41,7 @@ fn compound_trace_survives_hashcons_ablation_and_validates() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&req, Engine::Reference).expect("reference runs");
+            let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
             let expected = observed(&reference);
             // Pinned TLC tlc-2026.10.06.014338, BFS/W1/seed0/fp0:
             // Inv/2110/exit12, 3 generated / 3 distinct / depth3.

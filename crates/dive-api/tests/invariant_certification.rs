@@ -51,7 +51,8 @@ fn prior_agreements_keep_multi_init_records_instances_and_print_values() -> Test
                     ..TraceOptions::default()
                 },
             )?;
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {
@@ -151,7 +152,7 @@ fn genuine_primary_wrappers_include_later_sources_and_value_method_causes() -> T
                         ..TraceOptions::default()
                     },
                 )?;
-                for engine in [Engine::Reference, Engine::Core] {
+                for engine in std::iter::once(Engine::Core) {
                     for workers in [1, 4] {
                         let report = check_file_engine(
                             &CheckRequest {

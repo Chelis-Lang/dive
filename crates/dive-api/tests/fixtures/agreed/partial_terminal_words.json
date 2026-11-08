@@ -1,0 +1,34 @@
+{
+ "init_partial_error_witness_preserves_the_absent_formal_counterexample": {
+  "cross/1#0": "Object {\"code\": Number(2102), \"exit_status\": Number(255), \"name\": String(\"TLC_INITIAL_STATE\"), \"reported\": Number(2102), \"verified\": Bool(true)}",
+  "cross/1#1": "Object {\"depth\": Number(1), \"distinct\": Number(0), \"generated\": Number(1), \"initial_generated\": Number(1), \"left_on_queue\": Number(0), \"reported_by_tlc\": Bool(false)}",
+  "cross/1#2": "Null",
+  "cross/1#3": "fnv1a64:1d828d7a808c48d3:488",
+  "cross/1#4": "Object {\"code\": Number(2102), \"exit_status\": Number(255), \"name\": String(\"TLC_INITIAL_STATE\"), \"reported\": Number(2102), \"verified\": Bool(true)}",
+  "cross/1#5": "Object {\"depth\": Number(1), \"distinct\": Number(0), \"generated\": Number(1), \"initial_generated\": Number(1), \"left_on_queue\": Number(0), \"reported_by_tlc\": Bool(false)}",
+  "cross/1#6": "Null",
+  "cross/1#7": "fnv1a64:1d828d7a808c48d3:488"
+ },
+ "partial_next_words_preserve_the_pinned_bfs_terminal_and_logical_length": {
+  "cross/0#0": "fnv1a64:1c7a86e2e98162e7:970",
+  "cross/0#1": "fnv1a64:1c7a86e2e98162e7:970",
+  "cross/0#10": "fnv1a64:e8241d525604d140:533",
+  "cross/0#11": "fnv1a64:e8241d525604d140:533",
+  "cross/0#12": "fnv1a64:fa47cce0919440cd:535",
+  "cross/0#13": "fnv1a64:fa47cce0919440cd:535",
+  "cross/0#14": "fnv1a64:233e81671b697bb0:581",
+  "cross/0#15": "fnv1a64:233e81671b697bb0:581",
+  "cross/0#16": "fnv1a64:041bae347d8c1b54:650",
+  "cross/0#17": "fnv1a64:409c7b688c63557c:650",
+  "cross/0#18": "fnv1a64:f03fd2beaec09a0a:536",
+  "cross/0#19": "fnv1a64:f03fd2beaec09a0a:536",
+  "cross/0#2": "fnv1a64:07a42a244d7c0c18:581",
+  "cross/0#3": "fnv1a64:07a42a244d7c0c18:581",
+  "cross/0#4": "fnv1a64:24512bc8a6fe485a:588",
+  "cross/0#5": "fnv1a64:24512bc8a6fe485a:588",
+  "cross/0#6": "fnv1a64:0d4737ecce66595f:585",
+  "cross/0#7": "fnv1a64:0d4737ecce66595f:585",
+  "cross/0#8": "fnv1a64:b75d985d871d4063:580",
+  "cross/0#9": "fnv1a64:b75d985d871d4063:580"
+ }
+}

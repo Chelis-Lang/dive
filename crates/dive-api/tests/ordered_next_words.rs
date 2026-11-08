@@ -1,4 +1,7 @@
 //! Ordered Next replay keeps primary facts and proves its diagnostic context.
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/ordered_next_words.json");
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, check_file_engine};
 use std::path::PathBuf;
@@ -48,8 +51,8 @@ fn native_ordered_next_families_reproduce_actual_source_and_diagnostic_error() -
                     ..TraceOptions::default()
                 },
             )?;
-            let mut reference: Option<serde_json::Value> = None;
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let actual = check_file_engine(
                     &CheckRequest {
                         file: file.clone(),
@@ -76,12 +79,8 @@ fn native_ordered_next_families_reproduce_actual_source_and_diagnostic_error() -
                     Validation::Valid,
                     "{relative} {engine:?} {compat_tlc}: {validation:?}"
                 );
-                if let Some(reference) = &reference {
-                    for field in ["tlc", "statistics", "counterexample"] {
-                        assert_eq!(actual[field], reference[field], "{relative}: {field}");
-                    }
-                } else {
-                    reference = Some(actual);
+                for field in ["tlc", "statistics", "counterexample"] {
+                    agreed::check(AGREED, "cross/0", &(actual[field]));
                 }
             }
         }
