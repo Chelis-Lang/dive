@@ -242,9 +242,7 @@ and consult [the API root](../../crates/dive-api/src/lib.rs),
 
 `dive-liveness` has no public API for building a temporal product from a
 supplied graph and labels. Temporal properties are checked through `CheckRequest`, which
-explores the product on the fly. The removed study API was
-`product::{Product, Labels, CsrTopology}`, `search::{find_lasso, Acceptance,
-Lasso, Step}`, `formula::Recurrence` and `Formula::factor_recurrences`.
+explores the product on the fly.
 
 The [fair procedure guide](../pluscal-translation.md) includes a compiled
 Rust caller using `TranslationRequest.limits.fairness`. Shared finite process

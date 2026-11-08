@@ -657,7 +657,7 @@ impl CompactAcceptance {
 
 /// Materialized product with flat acceptance bits, retained as the reference
 /// for [`ImplicitProduct`] and the acceptance-budget controls. All legacy construction
-/// guards run before materializing acceptance, just as for public owned products.
+/// guards run before materializing acceptance, just as for the owned reference.
 #[cfg(test)]
 pub(crate) struct CompactProduct {
     parts: Parts<CompactAcceptance, CsrGraph>,

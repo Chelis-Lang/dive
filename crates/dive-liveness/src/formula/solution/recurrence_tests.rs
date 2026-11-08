@@ -17,12 +17,23 @@ fn none() -> CycleConditions {
 }
 
 // Whether any alternative of any solution group of `formula` accepts a lasso
-// of `graph`, searched as the temporal route searches.
+// of `graph`: decomposed, compiled and searched as the temporal route does,
+// under the legacy policy or the one `accepts_with` names.
 fn accepts(
     formula: &Formula,
     graph: &Graph,
     labels: &Labels,
     limits: Limits,
+) -> Result<bool, ProductError> {
+    accepts_with(formula, graph, labels, limits, AcceptancePolicy::Legacy)
+}
+
+fn accepts_with(
+    formula: &Formula,
+    graph: &Graph,
+    labels: &Labels,
+    limits: Limits,
+    policy: AcceptancePolicy,
 ) -> Result<bool, ProductError> {
     let groups = decompose(formula, FormulaLimits::default()).expect("decompose");
     let edges = graph.edges.iter().map(Vec::len).sum();
@@ -30,14 +41,7 @@ fn accepts(
     for group in &groups {
         let tableau =
             compile_residual(&group.core, FormulaLimits::default()).expect("residual tableau");
-        let product = ImplicitProduct::new(
-            graph,
-            &tableau,
-            labels,
-            limits,
-            AcceptancePolicy::Legacy,
-            edges,
-        )?;
+        let product = ImplicitProduct::new(graph, &tableau, labels, limits, policy, edges)?;
         for conditions in &group.alternatives {
             found |= product
                 .find_lasso_with_conditions(labels, conditions)?
@@ -130,11 +134,17 @@ fn every_decomposed_short_word_matches_original_temporal_truth() {
                     let expected = formula
                         .evaluate_word(&states, &actions, back, 100_000)
                         .expect("direct word")[0];
-                    assert_eq!(
-                        accepts(&formula, &graph, &labels, Limits::default()).expect("search"),
-                        expected,
-                        "{formula:?} bits={bits} len={len} back={back}"
-                    );
+                    for policy in [
+                        AcceptancePolicy::Legacy,
+                        AcceptancePolicy::compact_default(),
+                    ] {
+                        assert_eq!(
+                            accepts_with(&formula, &graph, &labels, Limits::default(), policy)
+                                .expect("search"),
+                            expected,
+                            "{formula:?} {policy:?} bits={bits} len={len} back={back}"
+                        );
+                    }
                 }
             }
         }
@@ -271,5 +281,37 @@ fn shared_conjunctions_and_disjunctions_have_explicit_work_bounds() {
             }
         ),
         Err(FormulaError::Limit("formula nodes"))
+    ));
+}
+
+#[test]
+fn distinct_persistence_disjuncts_stop_at_the_decomposition_work_bound() {
+    let mut nodes = Vec::new();
+    let mut disjuncts = Vec::new();
+    for index in 0..8 {
+        let start = nodes.len();
+        nodes.push(Node::Atom(Atom {
+            kind: AtomKind::State,
+            index,
+        }));
+        nodes.push(Node::Always(start));
+        nodes.push(Node::Eventually(start + 1));
+        disjuncts.push(start + 2);
+    }
+    nodes.push(Node::Or(disjuncts));
+    let f = Formula::new(nodes.clone(), nodes.len() - 1).expect("eight FG disjuncts");
+    // Unlike `[]<>`, persistence disjuncts never merge: one alternative each.
+    let groups = decompose(&f, FormulaLimits::default()).expect("default work");
+    assert_eq!(groups.len(), 1);
+    assert_eq!(groups[0].alternatives.len(), 8);
+    assert!(matches!(
+        decompose(
+            &f,
+            FormulaLimits {
+                expansion_steps: 16,
+                ..FormulaLimits::default()
+            }
+        ),
+        Err(FormulaError::Limit("solution decomposition work"))
     ));
 }

@@ -1,5 +1,6 @@
 //! The on-the-fly product preserves edge semantics and agrees with direct
-//! word truth, under the legacy logical-cell acceptance policy.
+//! word truth. Limit controls use the legacy logical-cell policy; the word
+//! sweeps also check Core's buffer policy.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 use super::{AcceptancePolicy, ImplicitProduct, Labels, Limits, ProductError};
@@ -24,15 +25,18 @@ impl<'a> OnTheFly<'a> {
         labels: &'a Labels,
         limits: Limits,
     ) -> Result<Self, ProductError> {
+        Self::with_policy(graph, tableau, labels, limits, AcceptancePolicy::Legacy)
+    }
+
+    fn with_policy(
+        graph: &'a Graph,
+        tableau: &'a Tableau,
+        labels: &'a Labels,
+        limits: Limits,
+        policy: AcceptancePolicy,
+    ) -> Result<Self, ProductError> {
         let edges = graph.edges.iter().map(Vec::len).sum();
-        let product = ImplicitProduct::new(
-            graph,
-            tableau,
-            labels,
-            limits,
-            AcceptancePolicy::Legacy,
-            edges,
-        )?;
+        let product = ImplicitProduct::new(graph, tableau, labels, limits, policy, edges)?;
         Ok(Self { product, labels })
     }
 
@@ -334,6 +338,20 @@ fn every_short_two_atom_word_agrees_with_direct_semantics() {
                         _ => state[back..].iter().any(|b| *b) && action[back..].iter().any(|b| *b),
                     };
                     let lasso = product.find_lasso().expect("search");
+                    // Core's buffer policy finds the same witness.
+                    assert_eq!(
+                        OnTheFly::with_policy(
+                            &graph,
+                            &tableau,
+                            &labels,
+                            Limits::default(),
+                            AcceptancePolicy::compact_default(),
+                        )
+                        .expect("buffered product")
+                        .find_lasso()
+                        .expect("buffered search"),
+                        lasso
+                    );
                     assert_eq!(
                         lasso.is_some(),
                         expected,
@@ -521,11 +539,21 @@ fn all_two_vertex_branching_graphs_match_independent_path_closure() {
                 for (t, want) in tableaux.iter().zip(expected) {
                     let product =
                         OnTheFly::new(&graph, t, &labels, Limits::default()).expect("product");
+                    let lasso = product.find_lasso().expect("search");
                     assert_eq!(
-                        product.find_lasso().expect("search").is_some(),
+                        lasso.is_some(),
                         want,
                         "edges {edge_bits}, actions {action_bits}, states {state_bits}"
                     );
+                    let buffered = OnTheFly::with_policy(
+                        &graph,
+                        t,
+                        &labels,
+                        Limits::default(),
+                        AcceptancePolicy::compact_default(),
+                    )
+                    .expect("buffered product");
+                    assert_eq!(buffered.find_lasso().expect("buffered search"), lasso);
                 }
             }
         }
