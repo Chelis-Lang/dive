@@ -87,6 +87,11 @@ pub(crate) enum CoreOutcome {
     TemporalFailure(Box<crate::temporal::Failure>),
 }
 
+/// Default completed-level Store reclamation trigger for pure fingerprint
+/// safety BFS (ADR 0149). Reclamation is result-preserving; below this measured
+/// Store size it never runs, so small and medium searches pay nothing.
+pub(crate) const DEFAULT_STORE_COMPACT_BYTES: usize = 256 << 20;
+
 fn unsupported(feature: impl Into<String>) -> Verdict {
     Verdict::Unsupported {
         feature: feature.into(),
@@ -1423,6 +1428,21 @@ pub(crate) fn check(
         warn: options.eval.warnings,
         sample,
     };
+    let default_compact = (options.store_compact_bytes.is_none()
+        && options.store == dive_store::StoreMode::Fingerprint
+        && sample.is_none()
+        && debugger.is_none()
+        && coordinator.is_none()
+        && !plan.effects.any
+        && model.implied_temporals.is_empty()
+        && options.frontier_memory_bytes.is_none()
+        && options.frontier_directory.is_none()
+        && options.candidate_memory_bytes.is_none()
+        && options.candidate_directory.is_none()
+        && options.predecessor_memory_bytes.is_none()
+        && options.predecessor_directory.is_none()
+        && options.seen_disk.is_none())
+    .then_some(DEFAULT_STORE_COMPACT_BYTES);
     let storage = dive_explore::storage::Storage {
         exact: options.store == dive_store::StoreMode::Exact,
         predecessor_memory_bytes: options.predecessor_memory_bytes,
@@ -1431,7 +1451,8 @@ pub(crate) fn check(
         frontier_directory: options.frontier_directory.clone(),
         candidate_memory_bytes: options.candidate_memory_bytes,
         candidate_directory: options.candidate_directory.clone(),
-        store_compact_bytes: options.store_compact_bytes,
+        store_compact_bytes: options.store_compact_bytes.or(default_compact),
+        store_compact_default: options.store_compact_bytes.is_none() && default_compact.is_some(),
         seen_disk: options
             .seen_disk
             .as_ref()
@@ -1751,6 +1772,8 @@ pub(crate) fn metrics_json(
         "store_reclamation": {
             "failures": m.storage.reclamation.failures,
             "trigger_bytes": m.storage.reclamation.trigger_bytes,
+            "trigger_source": m.storage.reclamation.trigger_bytes.map(|_| if m.storage.reclamation.default_trigger { "default" } else { "requested" }),
+            "skipped": m.storage.reclamation.skipped,
             "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
             "collections": m.storage.reclamation.collections,
             "reclaimed_nodes": m.storage.reclamation.reclaimed_nodes,

@@ -74,7 +74,7 @@ impl Permanent {
         mapped
             .try_reserve(image.nodes.len())
             .map_err(|_| invalid("permanent node index allocation"))?;
-        for (i, node) in image.nodes.iter().enumerate() {
+        for (i, node) in image.nodes.iter_mut().enumerate() {
             if i.is_multiple_of(128) && !proceed() {
                 return Err(Error::stop());
             }
@@ -91,6 +91,11 @@ impl Permanent {
             {
                 return Err(invalid("compiled node changed"));
             }
+            // The image drops the cached [`flags::CONCRETE`] proof. The node, its
+            // children and every name token are unchanged in the replacement, so
+            // the source's proof still holds there; without it every membership
+            // or comparison against a compiled constant re-walks the value.
+            node.flags = v.flags;
             mapped.insert(handle, handle);
         }
         let mut origins = HashMap::new();
@@ -320,6 +325,27 @@ mod tests {
         assert_eq!(remap.store().view(raw).data, &[one, two]);
         assert_eq!(remap.store().view(normalized).data, &[one, two]);
         assert_eq!(remap.store().memory_usage().history_view_bytes, 0);
+    }
+
+    #[test]
+    fn replacement_keeps_the_concrete_proof_of_compiled_constants() {
+        let source = Arc::new(Store::with_semantics(true, crate::Semantics::tlc()));
+        let mut heap = Heap::new(Arc::clone(&source), true, false);
+        let one = Handle::int(1).expect("one");
+        let two = Handle::int(2).expect("two");
+        let inner = heap.canonical_test_set(&[two, one]).expect("literal");
+        let inner = heap.norm(inner).expect("canonical");
+        let constant = heap.tuple_literal(&[inner, one]);
+        let constant = heap.intern_exact(constant).expect("constant");
+        assert!(heap.proved_concrete(constant), "source proof");
+        let permanent = Permanent::capture(&source, &|| true).expect("permanent");
+        let remap = permanent.begin(&source, &|| true).expect("begin");
+        let replaced = Heap::new(Arc::clone(remap.store()), true, false);
+        assert!(replaced.proved_concrete(constant), "replacement proof");
+        assert_eq!(
+            remap.store().view(constant).flags & !flags::CONCRETE,
+            source.view(constant).flags & !flags::CONCRETE
+        );
     }
 
     #[test]

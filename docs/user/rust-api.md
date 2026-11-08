@@ -37,7 +37,8 @@ requests and internal failures.
 For pure Core safety, `CheckRequest.store_compact_bytes = Some(0)` with
 `check_file_engine(&request, Engine::Core)` reclaims expanded persistent values
 after each completed level. Positive values trigger on measured Store bytes;
-this is not a hard live-memory cap. The same field may be enabled for
+this is not a hard live-memory cap. `None` uses Core's default 256 MiB trigger
+on pure fingerprint safety BFS, which does not change results. The same field may be enabled for
 `check_file_checkpoint_engine` recovery-only requests. See the supported
 combinations, retained owners and metrics in [storage and recovery](storage-recovery.md).
 

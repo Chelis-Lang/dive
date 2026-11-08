@@ -16,6 +16,16 @@ published. Earlier pre-release development entries remain in git history.
   reference value is now refused only if the check needs it.
   `core.metrics.liveness.values` gains `admission`, `deferred_rows` and
   `caught_up_rows`.
+- Core now reclaims expanded Store values by default on pure fingerprint
+  safety BFS once the measured Store exceeds 256 MiB at a completed level
+  (`--store-compact-bytes` still sets the trigger explicitly). Results are
+  unchanged; searches whose Store stays below the trigger do no extra work.
+  Under the default, a search that reclamation cannot serve keeps its Store
+  instead of refusing. JSON `core.metrics.store_reclamation` adds
+  `trigger_source` and `skipped`. Reclaimed Stores also keep the cached
+  materialization proof of compiled constants, so checking after a
+  collection no longer slows down: `NanoBlockchain/MCNanoMedium` with a
+  64 MiB trigger previously took twice as long as without it.
 - Core is now the default engine of `dive check`, `dive simulate`,
   `dive dfid` and the `dive tlc` adapter, and of `dive_api::check_file`,
   `check_file_tlc_inputs`, `check_file_checkpoint`, `simulate_file` and
