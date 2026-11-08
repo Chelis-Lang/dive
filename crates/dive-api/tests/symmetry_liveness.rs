@@ -1,12 +1,13 @@
 //! D-005 uses full concrete identities and independently checked literal words.
 #![allow(clippy::expect_used, clippy::panic, reason = "finite primary controls")]
+#[path = "support/core_final.rs"]
+mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{BudgetSetting, CheckRequest, ExitConvention, SymmetryLiveness, TemporalMode};
 use dive_check::CheckOptions;
-use dive_liveness::analyze::Limits;
 use serde_json::{Value, json};
 use std::{
     path::{Path, PathBuf},
@@ -210,7 +211,6 @@ const CONFIG: &str = "CONSTANTS a=a b=b\nSPECIFICATION Spec\nSYMMETRY Sym\nPROPE
 #[test]
 fn safety_roles_and_fairness_alone_keep_existing_reduction_and_declared_metadata() {
     for cfg in [CONFIG.to_owned(), CONFIG.replace("PROPERTY P\n", "")] {
-        let (ir, cfg) = input(SOURCE, &cfg);
         for mode in [
             SymmetryLiveness::Unreduced,
             SymmetryLiveness::Refuse,
@@ -218,26 +218,18 @@ fn safety_roles_and_fairness_alone_keep_existing_reduction_and_declared_metadata
         ] {
             let mut opts = CheckOptions::dive(0);
             opts.symmetry_liveness = mode;
-            let ordinary = dive_check::check(&ir, &cfg, &opts);
-            assert!(matches!(ordinary.verdict, dive_check::Verdict::Success));
-            let stats = ordinary.stats.expect("actual safety search");
-            assert_eq!((stats.distinct, stats.generated, stats.depth), (1, 2, 1));
-            let resolution = ordinary
-                .symmetry_liveness
-                .as_ref()
-                .expect("successfully bound");
-            assert_eq!(resolution.declared(), Some("Sym"));
-            assert!(!resolution.genuine_temporal());
-            assert_eq!(resolution.effective(), "not-applicable");
-            let report =
-                dive_api::temporal::check_final_with_evidence(&ir, &cfg, &opts, Limits::default())
-                    .expect("same ordinary route");
-            let dive_api::temporal::Outcome::Safety(safety) = report.outcome() else {
-                panic!("safety roles must not become liveness")
+            let run = core_final::check(SOURCE, &cfg, &opts).expect("safety run");
+            let core_final::Outcome::Safety(safety) = run.outcome() else {
+                panic!("safety roles must not become liveness: {:?}", run.outcome())
             };
-            assert_eq!(safety.stats, ordinary.stats);
-            assert_eq!(safety.output, ordinary.output);
-            assert_eq!(safety.warnings, ordinary.warnings);
+            assert!(matches!(safety.verdict, dive_check::Verdict::Success));
+            let stats = safety.stats.expect("actual safety search");
+            assert_eq!((stats.distinct, stats.generated, stats.depth), (1, 2, 1));
+            // Core reports no symmetry-liveness resolution when no genuine
+            // temporal property is checked; the reduced counts above show
+            // the declared symmetry was applied (#791, #910).
+            let json = run.report().to_json();
+            assert!(json["symmetry_liveness"].is_null(), "{mode:?}: {json}");
         }
     }
 }
@@ -245,40 +237,22 @@ fn safety_roles_and_fairness_alone_keep_existing_reduction_and_declared_metadata
 #[test]
 fn ignored_declaration_does_not_rebind_or_preempt_existing_role_errors() {
     let source = SOURCE.replace("P==[](x \\in {a,b})", "P==<>(x=b)");
-    let (ir, cfg) = input(&source, &CONFIG.replace("SYMMETRY Sym", "SYMMETRY Missing"));
-    let report = dive_api::temporal::check_final_with_evidence(
-        &ir,
-        &cfg,
-        &CheckOptions::dive(0),
-        Limits::default(),
-    )
-    .expect("ignored declaration lookup");
-    assert!(matches!(
-        report.outcome(),
-        dive_api::temporal::Outcome::Holds(_)
-    ));
+    let missing = CONFIG.replace("SYMMETRY Sym", "SYMMETRY Missing");
+    let run = core_final::check(&source, &missing, &CheckOptions::dive(0));
+    let run = run.expect("ignored declaration lookup");
+    assert!(matches!(run.outcome(), core_final::Outcome::Holds(_)));
     assert_eq!(
-        report.symmetry_liveness().expect("bound").declared(),
-        Some("Missing")
+        run.report().to_json()["symmetry_liveness"]["declared"],
+        "Missing"
     );
-    let cfg = dive_config::parse(&CONFIG.replace("PROPERTY P", "PROPERTY Unknown"))
-        .into_config()
-        .expect("cfg syntax");
-    let failure = dive_api::temporal::check_final_with_evidence(
-        &ir,
-        &cfg,
-        &CheckOptions::dive(0),
-        Limits::default(),
-    )
-    .expect_err("role binding first");
-    assert_eq!(failure.stage(), dive_api::temporal::Stage::Binding);
-    assert!(failure.symmetry_liveness().is_none());
+    let unknown = CONFIG.replace("PROPERTY P", "PROPERTY Unknown");
+    let report = core_final::run(&source, &unknown, &CheckOptions::dive(0));
+    let json = report.to_json();
+    assert_eq!(json["verdict"], "model-error", "{json}");
+    assert!(json["symmetry_liveness"].is_null(), "{json}");
     // Ordinary safety still looks up its actual declaration and preserves errors.
-    let (ir, cfg) = input(SOURCE, &CONFIG.replace("SYMMETRY Sym", "SYMMETRY Missing"));
-    assert!(matches!(
-        dive_check::check(&ir, &cfg, &CheckOptions::dive(0)).verdict,
-        dive_check::Verdict::ModelError { .. }
-    ));
+    let report = core_final::run(SOURCE, &missing, &CheckOptions::dive(0));
+    assert_eq!(report.verdict(), "model-error", "{}", report.to_json());
 }
 
 #[test]
@@ -311,24 +285,15 @@ fn limits_are_not_verdicts_and_startup_metadata_is_not_a_bound_policy() {
 #[test]
 fn full_run_policy_keeps_earlier_invariants_identical_to_the_unreduced_search() {
     let source = SOURCE.replace("P==[](x \\in {a,b})", "P==<>(x=b)\nInv==x=a");
-    let cfg = CONFIG.replace("PROPERTY P", "PROPERTY P\nINVARIANT Inv");
-    let (ir, declared) = input(&source, &cfg);
-    let plain = dive_config::parse(&cfg.replace("SYMMETRY Sym\n", ""))
-        .into_config()
-        .expect("plain cfg");
+    let declared = CONFIG.replace("PROPERTY P", "PROPERTY P\nINVARIANT Inv");
+    let plain = declared.replace("SYMMETRY Sym\n", "");
     for workers in [1, 4, 8] {
         let mut opts = CheckOptions::dive(0);
         opts.workers = workers;
-        let actual =
-            dive_api::temporal::check_final_with_evidence(&ir, &declared, &opts, Limits::default())
-                .expect("safety stop");
-        let reference =
-            dive_api::temporal::check_final_with_evidence(&ir, &plain, &opts, Limits::default())
-                .expect("plain safety stop");
-        let (
-            dive_api::temporal::Outcome::Safety(actual),
-            dive_api::temporal::Outcome::Safety(reference),
-        ) = (actual.outcome(), reference.outcome())
+        let actual = core_final::check(&source, &declared, &opts).expect("safety stop");
+        let reference = core_final::check(&source, &plain, &opts).expect("plain safety stop");
+        let (core_final::Outcome::Safety(actual), core_final::Outcome::Safety(reference)) =
+            (actual.outcome(), reference.outcome())
         else {
             panic!("earlier invariant must decide")
         };

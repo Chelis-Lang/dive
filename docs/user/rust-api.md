@@ -199,7 +199,7 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `prepare_translation_file` / `write_translation_file` | Explicit admitted module, backup and merged cfg publication; prepared publication checks concurrent edits |
 | `original_ast_source` / `write_original_ast_file` | Separate original AST bytes/publication; a successful AST file write retains pinned exit 255 |
 | `trace::SpecModel` | Independent implementation/witness replay |
-| `temporal::check` | Explicit bounded final/short backend with private validated violations |
+| `CheckReport::temporal_result` / `temporal_failure` | Core temporal report with private validated violations, or its typed failure |
 | `check_file_checkpoint` | Bounded actual native safety pause/recovery |
 
 Request fields make profile and module resolution explicit. Rust APIs do not

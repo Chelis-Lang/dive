@@ -369,8 +369,8 @@ mod tests {
     #[test]
     fn temporal_diagnostics_retain_the_actual_cause_and_never_invent_a_span()
     -> Result<(), Box<dyn std::error::Error>> {
-        use crate::temporal::Error;
-        use dive_liveness::analyze::{AnalysisError, Limits};
+        use crate::temporal::{Error, Failure, Stage};
+        use dive_liveness::analyze::{self, AnalysisError, Limits};
         use dive_liveness::plan::PlanningError;
         let source = "---- MODULE Help ----\nEXTENDS TLC\nVARIABLE x\nInit == x=0\nNext == x'=x\nP == IF x'=x THEN [](x=0) ELSE [](x=0)\n====\n";
         let analysis =
@@ -380,12 +380,21 @@ mod tests {
         let config = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
             .into_config()
             .ok_or("valid configuration")?;
-        let options = dive_check::CheckOptions::tlc(0, 0);
-        let Err(failure) =
-            crate::temporal::check_final_with_evidence(&ir, &config, &options, Limits::default())
-        else {
+        let model = dive_model::bind(ir, &config, &dive_model::BindOptions::tlc())
+            .map_err(|e| format!("{e:?}"))?;
+        // The planner's own refusal of an action-level temporal guard, as the
+        // checker reports it before any search.
+        let Err(planning) = dive_liveness::plan::lower_violation(
+            &model,
+            &model.property_claims()[0].pred,
+            Limits::default().formula,
+        ) else {
             return Err("an action-level temporal guard must refuse".into());
         };
+        let failure = Failure::before(
+            Error::Analysis(AnalysisError::Planning(planning)),
+            Stage::Analysis(analyze::Stage::Planning),
+        );
         let Error::Analysis(AnalysisError::Planning(PlanningError::Unsupported(refusal))) =
             failure.error()
         else {
@@ -407,17 +416,10 @@ mod tests {
         );
         assert!(value.get("verdict").is_none());
 
-        let Err(failure) = crate::temporal::check_final_with_evidence(
-            &ir,
-            &config,
-            &options,
-            Limits {
-                properties: 0,
-                ..Default::default()
-            },
-        ) else {
-            return Err("a zero property bound must refuse".into());
-        };
+        let failure = Failure::before(
+            Error::Analysis(AnalysisError::Limit("properties")),
+            Stage::Analysis(analyze::Stage::Planning),
+        );
         let value = temporal_failure(&failure);
         assert_eq!(value["code"], "DIVE-L0034");
         assert!(value["span"].is_null() && value["location"].is_null());

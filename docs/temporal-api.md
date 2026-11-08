@@ -18,65 +18,53 @@ and [ordinary TLC-profile checking](user/temporal.md#ordinary-checking-in-the-tl
 for options, physical exits, reports and limits. Explicit `FinalShort` behavior
 and its mixed-profile label retain the final-only schedule.
 
-`dive_api::temporal::check_final` checks the supported pure temporal subset
-once the safety graph is completely explored. It returns either a holding
-result, an independently validated periodic counterexample, or the safety
-engine's earlier stop. Planning and validation refusals return an error.
-If the configuration has no `PROPERTY` entries, it runs the ordinary safety
-checker directly and returns `Outcome::Safety`, including a successful exhausted
-safety result. Binding and symmetry-preparation model errors retain the reported
+Temporal checks from Rust run on Core through `dive_api::check_file` (or
+`check_file_engine`) with a `CheckRequest`. `TemporalMode::FinalShort` checks
+the supported pure temporal subset once the safety graph is completely
+explored. `CheckReport::temporal_result` returns the temporal report: either a
+holding result over the exhausted graph, an independently validated periodic
+counterexample, or the safety engine's earlier stop. `CheckReport::result`
+returns a safety result, and `CheckReport::temporal_failure` the typed failure
+of a temporal check that stopped without a verdict, such as a resource stop.
+Planning and validation failures whose report Core does not build are named
+refusals (`unsupported`, exit 3).
+If the configuration has no `PROPERTY` entries, or its properties bind only to
+safety roles, the ordinary safety checker runs and its complete result is
+returned. Binding and symmetry-preparation model errors retain the reported
 `binding` stage; engine model errors and other safety stops retain `capture`.
-`CheckResult::binding_model_error` records this actual origin without inferring it
-from an error class or statistics. It does not bind twice or issue a temporal holding/capture proof;
-temporal limits are unused on this route. All ordinary checker settings remain
-in force.
+`CheckResult::binding_model_error` records this actual origin without inferring
+it from an error class or statistics. Behavior-specification fairness alone does
+not require temporal property checking. Genuine implied temporal properties
+always continue to the temporal analyzer.
 
-Configured properties also use the ordinary engine when their actual bound roles
-contain no implied temporal obligations and the request uses the narrow default
-resident-memory route. This route binds once under the checker's startup host;
-it retains all configured initial predicates, invariants and implied actions.
-Behavior-specification fairness alone does not require temporal property checking.
-The source/configuration eligibility inspection evaluates no expressions and
-grants no purity or model-truth claim. The bound role split decides the route.
-
-This initial scope requires profile-default evaluator and fingerprint settings,
-fingerprint polynomial 0, resident fingerprint storage, no storage budgets or
-directory overrides, no deadlock/sequential override and no chaos flag. Seed and
-requested workers are retained. Randomness under VIEW or SYMMETRY stays on the
-existing temporal route, as does every excluded option. Those routes retain
-their original binding/evaluation error priority and named refusals. Genuine
-implied temporal properties always continue to the temporal analyzer unchanged.
-The independent temporal validator and the analyzer's no-temporal-properties
-guard remain intact. The same role dispatch is used for eligible ordinary TLC-profile requests.
+The reference engine's in-memory `dive_api::temporal::check_final*` functions,
+which took a lowered module and caller-set analysis limits and policies, were
+removed with that engine (#791).
 
 ```rust
-use std::sync::Arc;
-use dive_api::temporal::{check_final, Outcome};
-use dive_check::CheckOptions;
-use dive_liveness::analyze::Limits;
+use dive_api::{CheckRequest, TemporalMode, temporal::Outcome};
 
-let source = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>[]x\n====\n";
-let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
-let ir = Arc::new(dive_ir::lower(&analysis)?);
-let config = dive_config::parse("SPECIFICATION Spec\nPROPERTY P\n")
-    .into_config().ok_or("invalid config")?;
-let report = check_final(&ir, &config, &CheckOptions::dive(17), Limits::default())?;
-
-match report.outcome() {
-    Outcome::Violation(v) => {
+let request = CheckRequest {
+    file: "M.tla".into(),
+    temporal: TemporalMode::FinalShort,
+    seed: Some(17),
+    ..CheckRequest::default()
+};
+let report = dive_api::check_file(&request)?;
+match report.temporal_result().map(|t| t.outcome()) {
+    Some(Outcome::NativeViolation(v)) => {
         println!("{}", v.document().to_json());
         assert_eq!(v.validation().validation, dive_trace::Validation::Valid);
     }
-    Outcome::PrefixViolation(v) => {
-        println!("{}", v.document().to_json());
-        assert_eq!(v.validation().validation, dive_trace::Validation::Valid);
+    Some(Outcome::NativeHolds(evidence)) => {
+        println!("{} distinct states", evidence.stats().distinct);
     }
-    Outcome::Holds(evidence) => println!("{} distinct states", evidence.stats.distinct),
-    Outcome::Safety(result) => println!("earlier safety result: {:?}", result.verdict),
+    _ => println!("{}", report.to_json()),
 }
+# Ok::<(), dive_api::ApiError>(())
 ```
 
-The function binds a fresh model for each run and a separate model for trace
+Each run binds a fresh model for checking and a separate model for trace
 validation. Returned counterexamples name **all** configured temporal
 properties they falsify. Their trace documents preserve exact values and
 include the closing edge. Both the in-memory word and its serialized form must
@@ -138,8 +126,8 @@ width and the requested width. Explicit sequential mode retains its reason.
 Each fixed wave expands at most eight source states; fewer sources can use
 fewer concurrent units than the pool width.
 The limits bound formula entries, graph states/edges/generated work, labels and
-product construction. Existing public `analyze_final*` and `check_final*` APIs
-retain their entry/work counts and custom logical `acceptance_cells` limits.
+product construction. Existing public `analyze_final*` APIs retain their
+entry/work counts and custom logical `acceptance_cells` limits.
 They do not bound the preceding binding stage. Fingerprint mode retains the
 safety engine's collision qualifications; exact mode stores full states.
 
@@ -224,8 +212,8 @@ not claim a bound was exercised. Major-3 wire reports serialize these owner
 settings instead of the former ambiguous scalar. See
 [ADR 0111](decisions/0111-graph-label-policy-and-report-v3.md).
 
-Rust callers opt into this policy through `temporal::check_final_with_policy`
-or `analyze::analyze_final_with_policy`, passing
+Rust callers opt into this policy through `analyze::analyze_final_with_policy`,
+passing
 `product::AcceptancePolicy::Buffers { bytes, work }` or `compact_default()`.
 All existing public entrypoints retain legacy cells even with default-valued
 limits; no sentinel switches behavior. See [ADR 0098](decisions/0098-compact-acceptance-buffer-bounds.md)

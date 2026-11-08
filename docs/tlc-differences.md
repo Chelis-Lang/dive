@@ -875,7 +875,7 @@ scratch admission bound. TLC-exact planning/selection, phase-L error
 accounting and periodic capture remain pending. Ordinary
 `dive check` still refuses temporal model checking.
 
-The Rust API [`dive_api::temporal::check_final`](temporal-api.md) returns a
+The [Rust API](temporal-api.md) returns a
 periodic violation only after both its in-memory word and lossless trace
 validate against a separately bound model. Unsupported validation stays a
 refusal. Safety stops retain their statistics and finite counterexamples.

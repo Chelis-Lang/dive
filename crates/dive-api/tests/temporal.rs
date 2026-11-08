@@ -1,7 +1,16 @@
-//! Final temporal API boundaries, independently validated lossless reports.
+//! Bounded final temporal checking on Core: verdicts, pinned counts and
+//! independently validated lossless reports. These cases ran on the retired
+//! reference final route until #791; exact and spilled seen storage and
+//! `--chaos` with temporal properties are named Core refusals, asserted in
+//! `temporal_budget.rs` and the other temporal tests.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
-use dive_api::temporal::{self, Error, Outcome};
+#[path = "support/core_final.rs"]
+mod core_final;
+#[path = "support/refused.rs"]
+mod refused;
+
+use core_final::Outcome;
 use dive_check::{CheckOptions, Verdict};
 use dive_liveness::analyze::Limits;
 use dive_store::StoreMode;
@@ -20,6 +29,14 @@ fn input(source: &str, cfg: &str) -> (Arc<dive_ir::Ir>, dive_config::ModelConfig
         Arc::new(dive_ir::lower(&a).expect("IR")),
         dive_config::parse(cfg).into_config().expect("cfg"),
     )
+}
+fn text(source: &str, cfg: &str) -> (String, String) {
+    (source.to_owned(), cfg.to_owned())
+}
+/// Asserts that Core refuses `source` and `cfg` by naming `feature`.
+fn refuses(source: &str, cfg: &str, opts: &CheckOptions, feature: &str) {
+    let e = core_final::check(source, cfg, opts).expect_err(feature);
+    refused::assert_refused(&e.json(), e.exit_code(), feature);
 }
 fn counts(stdout: &str) -> (u64, u64, u64) {
     let line = stdout
@@ -73,18 +90,18 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
                 .join(format!("{name}.stdout")),
         )
         .expect("oracle");
+        let (src_text, cfg_text) = text(&source, &cfg);
         let (ir, cfg) = input(&source, &cfg);
-        for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+        {
+            let store = StoreMode::Fingerprint;
             let mut reference = None;
-            for (workers, chaos) in [(1, None), (4, None), (8, None), (4, Some(0)), (8, Some(33))] {
+            for workers in [1, 4, 8] {
                 let opts = CheckOptions {
                     store,
                     workers,
-                    chaos,
                     ..CheckOptions::tlc(0, 19)
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&src_text, &cfg_text, &opts).expect(name);
                 let c = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert!(
@@ -103,7 +120,7 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
                         assert_eq!(v.document().properties, v.candidate().properties);
                         let document = v.document().to_json().to_string();
                         if let Some(previous) = &reference {
-                            assert_eq!(&document, previous, "{name} {workers} {chaos:?}");
+                            assert_eq!(&document, previous, "{name} {workers}");
                         } else {
                             reference = Some(document);
                         }
@@ -121,12 +138,7 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
                         );
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -145,10 +157,9 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
 #[test]
 fn default_profile_attributes_all_false_properties_and_repeat_runs_rebind() {
     let src = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>[]x\nQ == <>[](~x)\nR == []<>x\n====\n";
-    let (ir, cfg) = input(src, "SPECIFICATION Spec\nPROPERTY P Q R\n");
+    let (ir, cfg) = text(src, "SPECIFICATION Spec\nPROPERTY P Q R\n");
     for _ in 0..2 {
-        let r = temporal::check_final(&ir, &cfg, &CheckOptions::dive(17), Limits::default())
-            .expect("run");
+        let r = core_final::check(&ir, &cfg, &CheckOptions::dive(17)).expect("run");
         let Outcome::Violation(v) = r.outcome() else {
             panic!("two properties false")
         };
@@ -161,9 +172,9 @@ fn default_profile_attributes_all_false_properties_and_repeat_runs_rebind() {
 #[test]
 fn safety_stops_retain_trace_statistics_and_assumption_failures() {
     let src = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nInv == ~x\nP == []<>x\n====\n";
-    let (ir, cfg) = input(src, "INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY P\n");
+    let (ir, cfg) = text(src, "INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY P\n");
     let opts = CheckOptions::tlc(0, 0);
-    let r = temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect("safety stop");
+    let r = core_final::check(&ir, &cfg, &opts).expect("safety stop");
     let Outcome::Safety(r) = r.outcome() else {
         panic!("invariant takes precedence")
     };
@@ -176,11 +187,11 @@ fn safety_stops_retain_trace_statistics_and_assumption_failures() {
         (2, 2)
     );
     assert_eq!(r.counterexample.as_ref().expect("trace").states.len(), 2);
-    let (ir, cfg) = input(
+    let (ir, cfg) = text(
         &src.replace("VARIABLE x", "VARIABLE x\nASSUME FALSE"),
         "INIT Init\nNEXT Next\nPROPERTY P\n",
     );
-    let r = temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect("assumption stop");
+    let r = core_final::check(&ir, &cfg, &opts).expect("assumption stop");
     assert!(
         matches!(r.outcome(), Outcome::Safety(r) if matches!(r.verdict, Verdict::AssumptionFalse { .. }))
     );
@@ -189,37 +200,17 @@ fn safety_stops_retain_trace_statistics_and_assumption_failures() {
 #[test]
 fn state_argument_holds_and_resource_limits_never_become_holds() {
     let src = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nF(a) == []<>a\nP == F(x)\n====\n";
-    let (ir, cfg) = input(src, "INIT Init\nNEXT Next\nPROPERTY P\n");
-    let r = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
-        .expect("pure state argument");
+    let (ir, cfg) = text(src, "INIT Init\nNEXT Next\nPROPERTY P\n");
+    let r = core_final::check(&ir, &cfg, &CheckOptions::dive(0)).expect("pure state argument");
     assert!(matches!(r.outcome(), Outcome::Holds(_)));
-    let r = temporal::check_final(
-        &ir,
-        &cfg,
-        &CheckOptions::dive(0),
-        Limits {
-            capture: dive_check::capture::Limits {
-                states: 0,
-                ..Default::default()
-            },
-            ..Default::default()
-        },
-    )
-    .expect("capture limit result");
-    assert!(
-        matches!(r.outcome(), Outcome::Safety(r) if matches!(r.verdict, Verdict::ResourceLimit { .. }))
-    );
-    let e = temporal::check_final(
-        &ir,
-        &cfg,
-        &CheckOptions::dive(0),
-        Limits {
-            properties: 0,
-            ..Default::default()
-        },
-    )
-    .expect_err("planning bound");
-    assert_eq!(e.code(), "DIVE-L0034");
+    // A state cap with temporal properties is a named Core refusal, never Holds.
+    let files = core_final::Files::new(&ir, &cfg);
+    let request = dive_api::CheckRequest {
+        max_states: Some(1),
+        ..files.request(&CheckOptions::dive(0))
+    };
+    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("report");
+    refused::assert_refused(&report.to_json(), report.exit_code(), refused::TEMPORAL_CAP);
 }
 
 /// Shape of `specifications/YoYo`: the finite-binding preflight visits every
@@ -239,39 +230,35 @@ fn unreached_binder_domain_errors_are_not_atom_failures() {
     let cfg = "SPECIFICATION Spec\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n";
     for source in [src, outside.as_str()] {
         for opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            let (ir, cfg) = input(source, cfg);
-            let r = temporal::check_final(&ir, &cfg, &opts, Limits::default())
-                .expect("an unreached domain is not evaluated");
+            let (ir, cfg) = text(source, cfg);
+            let r =
+                core_final::check(&ir, &cfg, &opts).expect("an unreached domain is not evaluated");
             let Outcome::Holds(c) = r.outcome() else {
                 panic!("Live holds: {:?}", r.outcome())
             };
             assert_eq!((c.stats.generated, c.stats.distinct), (3, 3));
         }
     }
+    // Where evaluation reaches the domain, the error is a temporal failure,
+    // whose report Core does not build: a named refusal, never a verdict.
     let reached = "SPECIFICATION Spec\nPROPERTY Reached\nCHECK_DEADLOCK FALSE\n";
-    let (ir, cfg) = input(src, reached);
-    let e = temporal::check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
-        .expect_err("a reached domain still fails");
-    assert_eq!(e.code(), "DIVE-L0033", "{e}");
-    assert!(e.to_string().contains("CHOOSE x \\in S: P"), "{e}");
-    let (ir, cfg) = input(&outside, reached);
-    let e = temporal::check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
-        .expect_err("a reached domain still refuses");
-    assert_eq!(e.code(), "DIVE-L0033", "{e}");
-    assert!(e.to_string().contains("outside its domain"), "{e}");
+    for source in [src, outside.as_str()] {
+        for opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            refuses(source, reached, &opts, refused::TEMPORAL_FAILURE_REPORT);
+        }
+    }
 }
 
 #[test]
 fn never_enabled_fairness_is_a_validated_violation() {
     let src = "---- MODULE M ----\nVARIABLE x\nInit == x = [n \\in {0} |-> 0]\nNext == x' \\in [{0} -> {0}] /\\ x' # x'\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>(x # x)\n====\n";
-    let (ir, cfg) = input(
+    let (ir, cfg) = text(
         src,
         "SPECIFICATION Spec\nPROPERTY P\nCHECK_DEADLOCK FALSE\n",
     );
     // `x' # x'` is never true, so Next is never enabled and WF holds on the
     // stuttering word, which violates P.
-    let r = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
-        .expect("decided");
+    let r = core_final::check(&ir, &cfg, &CheckOptions::dive(0)).expect("decided");
     assert!(
         matches!(r.outcome(), Outcome::Violation(v) if v.validation().validation == Validation::Valid),
         "{r:?}"
@@ -294,15 +281,15 @@ fn pinned_constant_domain_quantifiers_match_verdicts_and_counts() {
                 .join(format!("{name}.stdout")),
         )
         .expect("oracle");
-        let (ir, cfg) = input(&src, &cfg);
+        let (ir, cfg) = text(&src, &cfg);
         for opts in [CheckOptions::tlc(0, 17), CheckOptions::dive(17)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            {
+                let store = StoreMode::Fingerprint;
                 let opts = CheckOptions {
                     store,
                     ..opts.clone()
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let c = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert!(name == "QtFairVisit" || name == "QtTuple", "{name}");
@@ -316,12 +303,7 @@ fn pinned_constant_domain_quantifiers_match_verdicts_and_counts() {
                         assert_eq!(v.validation().validation, Validation::Valid);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -392,33 +374,36 @@ fn quantified_word_truth_matches_cycle_algebra_and_empty_domain_identities() {
 
 #[test]
 fn quantifier_limits_and_hidden_constant_effects_are_not_success() {
+    // A domain too large to enumerate, checker introspection or a hidden
+    // effect in a constant is a temporal validation failure: Core refuses it
+    // by name. Under --compat=tlc the module's literal 1000000000000 is
+    // already TLC's integer overflow, a model error.
     let src = "---- MODULE M ----\nEXTENDS Naturals, TLC\nCONSTANT S\nVARIABLE x\nInit == x = 0\nNext == x' = x\nNumbers == 0..1000000000000\nHidden == TLCGet(\"level\")\nP == \\A i \\in S: []<>(x=i)\n====\n";
-    let (ir, cfg) = input(
-        src,
-        "INIT Init\nNEXT Next\nCONSTANT S <- Numbers\nPROPERTY P\n",
-    );
-    let e = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
-        .expect_err("domain bound before enumeration");
-    assert_eq!(e.code(), "DIVE-L0021", "{e}");
-    let (ir, cfg) = input(
-        src,
-        "INIT Init\nNEXT Next\nCONSTANT S <- Hidden\nPROPERTY P\n",
-    );
-    let e = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
-        .expect_err("hidden checker introspection");
-    assert!(
-        e.to_string().contains("TLCGet") || matches!(e, Error::Binding(_)),
-        "{e}"
-    );
+    for constant in ["Numbers", "Hidden"] {
+        let cfg = format!("INIT Init\nNEXT Next\nCONSTANT S <- {constant}\nPROPERTY P\n");
+        refuses(
+            src,
+            &cfg,
+            &CheckOptions::dive(0),
+            refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
+        );
+        let r = core_final::check(src, &cfg, &CheckOptions::tlc(0, 0)).expect("model error");
+        let Outcome::Safety(r) = r.outcome() else {
+            panic!("{constant}: {:?}", r.outcome())
+        };
+        assert!(
+            matches!(r.verdict, Verdict::ModelError { .. }),
+            "{:?}",
+            r.verdict
+        );
+    }
     let src = "---- MODULE M ----\nEXTENDS TLC\nCONSTANT C\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nHidden == PrintT(\"hidden effect\")\nP == []<>(x = C)\n====\n";
-    let (ir, cfg) = input(
+    refuses(
         src,
         "INIT Init\nNEXT Next\nCONSTANT C <- Hidden\nPROPERTY P\n",
+        &CheckOptions::dive(0),
+        refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
     );
-    assert!(matches!(
-        temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default()),
-        Err(Error::Analysis(_))
-    ));
 }
 
 #[test]
@@ -531,12 +516,12 @@ fn pinned_temporal_conditionals_match_oracle_counts_in_both_profiles_and_stores(
                 .trim()
                 .parse()
                 .expect("code");
-        let (ir, cfg) = input(&source, &config);
+        let (ir, cfg) = text(&source, &config);
         for mut opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            {
+                let store = StoreMode::Fingerprint;
                 opts.store = store;
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let complete = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(exit, 0, "{name}");
@@ -548,12 +533,7 @@ fn pinned_temporal_conditionals_match_oracle_counts_in_both_profiles_and_stores(
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -574,10 +554,12 @@ fn pinned_temporal_conditionals_match_oracle_counts_in_both_profiles_and_stores(
 fn incomplete_cases_and_effectful_conditional_branches_are_refused() {
     let source = "---- MODULE M ----\nEXTENDS TLC\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == CASE x -> []<>x\nQ == IF x THEN []<>x ELSE []PrintT(\"hidden\")\n====\n";
     for name in ["P", "Q"] {
-        let (ir, cfg) = input(source, &format!("INIT Init\nNEXT Next\nPROPERTY {name}\n"));
-        let error = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
-            .expect_err("undefined/effectful conditional cannot become a verdict");
-        assert!(matches!(error, Error::Analysis(_)), "{error}");
+        refuses(
+            source,
+            &format!("INIT Init\nNEXT Next\nPROPERTY {name}\n"),
+            &CheckOptions::dive(0),
+            refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
+        );
     }
 }
 
@@ -597,18 +579,12 @@ fn oracle_rejected_temporal_conditionals_remain_named_refusals() {
             stdout.contains(&format!("STARTMSG {deciding_code}:1")),
             "{name}: {stdout}"
         );
-        let (ir, cfg) = input(&source, &config);
         for opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            let error = temporal::check_final(&ir, &cfg, &opts, Limits::default())
-                .expect_err("no verdict for oracle-rejected formula");
-            assert!(matches!(error, Error::Analysis(_)), "{name}: {error}");
-            assert!(
-                error.to_string().contains(if name == "CdAction" {
-                    "action-level conditional"
-                } else {
-                    "Case"
-                }),
-                "{error}"
+            refuses(
+                &source,
+                &config,
+                &opts,
+                refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
             );
         }
     }
@@ -667,6 +643,8 @@ fn constant_temporal_calls_keep_scopes_and_match_direct_word_semantics() {
 fn effectful_arguments_refuse_while_pure_state_arguments_keep_their_truth() {
     let source = "---- MODULE M ----\nEXTENDS TLC, Naturals\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nVisit(i) == []<>(x=i)\nHidden(i) == TLCGet(\"level\")+i\nWrap(i) == Visit(i)\nP == Wrap(Hidden(0)) /\\ Wrap(0)\nQ == Visit(x)\nR == Visit(PrintT(\"hidden\"))\n====\n";
     for name in ["P", "R"] {
+        let (src_text, cfg_text) =
+            text(source, &format!("INIT Init\nNEXT Next\nPROPERTY {name}\n"));
         let (ir, cfg) = input(source, &format!("INIT Init\nNEXT Next\nPROPERTY {name}\n"));
         let model =
             dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("model");
@@ -688,13 +666,15 @@ fn effectful_arguments_refuse_while_pure_state_arguments_keep_their_truth() {
             ),
             "{name}"
         );
-        assert!(
-            temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default()).is_err(),
-            "{name}"
+        refuses(
+            &src_text,
+            &cfg_text,
+            &CheckOptions::dive(0),
+            refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
         );
     }
-    let (ir, cfg) = input(source, "INIT Init\nNEXT Next\nPROPERTY Q\n");
-    let report = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
+    let (src_text, cfg_text) = text(source, "INIT Init\nNEXT Next\nPROPERTY Q\n");
+    let report = core_final::check(&src_text, &cfg_text, &CheckOptions::dive(0))
         .expect("x=x at every position");
     assert!(matches!(report.outcome(), Outcome::Holds(_)));
 }
@@ -717,12 +697,12 @@ fn pinned_constant_temporal_calls_match_truth_counts_and_validate_independently(
                 .trim()
                 .parse()
                 .expect("number");
-        let (ir, cfg) = input(&src, &config);
+        let (ir, cfg) = text(&src, &config);
         for mut opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            {
+                let store = StoreMode::Fingerprint;
                 opts.store = store;
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let evidence = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(code, 0, "{name}");
@@ -734,12 +714,7 @@ fn pinned_constant_temporal_calls_match_truth_counts_and_validate_independently(
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -869,12 +844,12 @@ fn pinned_state_argument_operators_match_truth_counts_and_validate_independently
                 .trim()
                 .parse()
                 .expect("number");
-        let (ir, cfg) = input(&src, &config);
+        let (ir, cfg) = text(&src, &config);
         for mut opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            {
+                let store = StoreMode::Fingerprint;
                 opts.store = store;
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let evidence = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(code, 0, "{name}");
@@ -886,12 +861,7 @@ fn pinned_state_argument_operators_match_truth_counts_and_validate_independently
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -940,12 +910,12 @@ fn scoped_fairness_and_enabledness_match_pinned_truth_and_independent_validation
                 .trim()
                 .parse()
                 .expect("number");
-        let (ir, cfg) = input(&src, &config);
+        let (ir, cfg) = text(&src, &config);
         for mut opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            {
+                let store = StoreMode::Fingerprint;
                 opts.store = store;
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let evidence = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(code, 0, "{name}");
@@ -964,12 +934,7 @@ fn scoped_fairness_and_enabledness_match_pinned_truth_and_independent_validation
                         );
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -1007,15 +972,15 @@ fn quantified_actions_and_predicates_match_pinned_final_truth_and_validate() {
                 .expect("oracle");
         let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
             .expect("exit");
-        let (ir, cfg) = input(&src, &config);
+        let (ir, cfg) = text(&src, &config);
         for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            {
+                let store = StoreMode::Fingerprint;
                 let opts = CheckOptions {
                     store,
                     ..base.clone()
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let c = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(exit.trim(), "0", "{name}");
@@ -1027,12 +992,7 @@ fn quantified_actions_and_predicates_match_pinned_final_truth_and_validate() {
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -1129,15 +1089,15 @@ fn let_scopes_match_pinned_final_truth_and_validate_independently() {
                 .expect("oracle");
         let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
             .expect("exit");
-        let (ir, cfg) = input(&src, &config);
+        let (ir, cfg) = text(&src, &config);
         for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            {
+                let store = StoreMode::Fingerprint;
                 let opts = CheckOptions {
                     store,
                     ..base.clone()
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let c = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(exit.trim(), "0", "{name}");
@@ -1149,12 +1109,7 @@ fn let_scopes_match_pinned_final_truth_and_validate_independently() {
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -1276,15 +1231,15 @@ fn instance_substitutions_match_pinned_final_truth_and_validate_independently() 
                 .expect("oracle");
         let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
             .expect("exit");
-        let (ir, cfg) = input(&src, &config);
+        let (ir, cfg) = text(&src, &config);
         for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            {
+                let store = StoreMode::Fingerprint;
                 let opts = CheckOptions {
                     store,
                     ..base.clone()
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let c = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(exit.trim(), "0", "{name}");
@@ -1296,12 +1251,7 @@ fn instance_substitutions_match_pinned_final_truth_and_validate_independently() 
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -1556,15 +1506,15 @@ fn finite_data_constructors_match_pinned_temporal_truth_and_counts() {
                 .join(format!("{name}.exit")),
         )
         .expect("exit");
-        let (ir, cfg) = input(&source, &cfg);
+        let (ir, cfg) = text(&source, &cfg);
         for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+            {
+                let store = StoreMode::Fingerprint;
                 let opts = CheckOptions {
                     store,
                     ..base.clone()
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &opts).expect(name);
                 let c = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(exit.trim(), "0", "{name}");
@@ -1576,12 +1526,7 @@ fn finite_data_constructors_match_pinned_temporal_truth_and_counts() {
                         assert_eq!(v.document().properties, ["P"]);
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -1831,17 +1776,17 @@ fn state_dependent_constructor_domains_use_actual_states_and_match_tlc() {
     let exit = std::fs::read_to_string(root.join("tlc-2026.10.06.014338/BcStateDomain.exit"))
         .expect("oracle");
     assert_eq!(exit.trim(), "0", "TLC supports this domain");
-    let (ir, cfg) = input(&source, &cfg);
+    let (ir, cfg) = text(&source, &cfg);
     let stdout = std::fs::read_to_string(root.join("tlc-2026.10.06.014338/BcStateDomain.stdout"))
         .expect("oracle");
     for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-        for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+        {
+            let store = StoreMode::Fingerprint;
             let options = CheckOptions {
                 store,
                 ..options.clone()
             };
-            let report = temporal::check_final(&ir, &cfg, &options, Limits::default())
-                .expect("finite state domains");
+            let report = core_final::check(&ir, &cfg, &options).expect("finite state domains");
             let Outcome::Holds(c) = report.outcome() else {
                 panic!("{report:?}");
             };
@@ -2052,15 +1997,16 @@ fn state_domain_models_match_pinned_final_truth_counts_and_independent_validatio
                 .expect("oracle");
         let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
             .expect("exit");
+        let (src_text, cfg_text) = text(&src, &config);
         let (ir, cfg) = input(&src, &config);
         for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+            {
+                let store = StoreMode::Fingerprint;
                 let options = CheckOptions {
                     store,
                     ..base.clone()
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &options, Limits::default()).expect(name);
+                let report = core_final::check(&src_text, &cfg_text, &options).expect(name);
                 let c = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(exit.trim(), "0", "{name}");
@@ -2081,12 +2027,7 @@ fn state_domain_models_match_pinned_final_truth_counts_and_independent_validatio
                         );
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -2294,15 +2235,15 @@ fn finite_choose_models_match_pinned_truth_counts_in_both_profiles_and_stores() 
                 .expect("oracle");
         let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
             .expect("oracle exit");
-        let (ir, cfg) = input(&source, &config);
+        let (ir, cfg) = text(&source, &config);
         for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+            {
+                let store = StoreMode::Fingerprint;
                 let options = CheckOptions {
                     store,
                     ..base.clone()
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &options, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &options).expect(name);
                 let c = match report.outcome() {
                     Outcome::Holds(c) => {
                         assert_eq!(exit.trim(), "0", "{name}");
@@ -2313,12 +2254,7 @@ fn finite_choose_models_match_pinned_truth_counts_in_both_profiles_and_stores() 
                         assert_eq!(v.validation().validation, Validation::Valid, "{name}");
                         &v.candidate().exploration
                     }
-                    Outcome::NativeHolds(_)
-                    | Outcome::NativeViolation(_)
-                    | Outcome::NativePrefixViolation(_) => {
-                        panic!("explicit reference API must retain its legacy result type")
-                    }
-                    Outcome::PrefixViolation(_) => panic!("explicit Final cannot return a prefix"),
+
                     Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                 };
                 assert_eq!(
@@ -2508,15 +2444,15 @@ fn pinned_action_argument_models_match_final_truth_counts_and_validate() {
         let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
             .expect("exit");
         assert_eq!(exit.trim(), "13", "{name}");
-        let (ir, cfg) = input(&source, &config);
+        let (ir, cfg) = text(&source, &config);
         for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+            {
+                let store = StoreMode::Fingerprint;
                 let options = CheckOptions {
                     store,
                     ..base.clone()
                 };
-                let report =
-                    temporal::check_final(&ir, &cfg, &options, Limits::default()).expect(name);
+                let report = core_final::check(&ir, &cfg, &options).expect(name);
                 let Outcome::Violation(v) = report.outcome() else {
                     panic!("{name}: {report:?}");
                 };
@@ -2565,14 +2501,15 @@ fn pinned_multi_process_fairness_fits_bounded_products_and_rejects_unfair_mutant
             );
         }
         for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+            {
+                let store = StoreMode::Fingerprint;
                 for workers in [1, 4, 8] {
                     let opts = CheckOptions {
                         store,
                         workers,
                         ..base.clone()
                     };
-                    let report = temporal::check_final(&ir, &cfg, &opts, limits).expect(name);
+                    let report = core_final::check(&source, &config, &opts).expect(name);
                     let c = match report.outcome() {
                         Outcome::Holds(c) => {
                             assert_ne!(name, "FwMissing");
@@ -2583,14 +2520,6 @@ fn pinned_multi_process_fairness_fits_bounded_products_and_rejects_unfair_mutant
                             assert_eq!(v.validation().validation, Validation::Valid);
                             fairness_validation_controls(&ir, &cfg, &opts, v.document());
                             &v.candidate().exploration
-                        }
-                        Outcome::NativeHolds(_)
-                        | Outcome::NativeViolation(_)
-                        | Outcome::NativePrefixViolation(_) => {
-                            panic!("explicit reference API must retain its legacy result type")
-                        }
-                        Outcome::PrefixViolation(_) => {
-                            panic!("explicit Final cannot return a prefix")
                         }
                         Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
                     };

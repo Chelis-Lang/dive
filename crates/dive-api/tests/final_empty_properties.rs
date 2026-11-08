@@ -1,11 +1,13 @@
-//! Literal-empty property selection uses the existing ordinary safety contract.
+//! Literal-empty property selection uses the ordinary safety contract on
+//! Core. These cases compared the retired reference final route with the
+//! reference safety engine until #791; they now assert Core's results.
+#[path = "support/core_final.rs"]
+mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
-use dive_api::temporal::{self, Outcome};
+use core_final::Outcome;
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_check::{CheckOptions, CheckResult, Verdict};
-use dive_liveness::analyze::Limits;
-use std::sync::Arc;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 struct Scratch(std::path::PathBuf);
@@ -15,19 +17,23 @@ impl Drop for Scratch {
     }
 }
 
-fn input(
+fn source(body: &str) -> String {
+    format!("---- MODULE EmptyFinal ----\nEXTENDS Naturals, TLC\n{body}\n====\n")
+}
+
+/// Core's safety result for `body` and `config`.
+fn safety(
     body: &str,
     config: &str,
-) -> Result<(Arc<dive_ir::Ir>, dive_config::ModelConfig), Box<dyn std::error::Error>> {
-    let source = format!("---- MODULE EmptyFinal ----\nEXTENDS Naturals, TLC\n{body}\n====\n");
-    let analysis =
-        dive_sema::analyze_source("EmptyFinal.tla", &source, &dive_sema::Options::default());
-    assert!(analysis.accepted(), "{analysis:?}");
-    Ok((
-        Arc::new(dive_ir::lower(&analysis)?),
-        dive_config::parse(config).into_config().ok_or("config")?,
-    ))
+    options: &CheckOptions,
+) -> Result<CheckResult, Box<dyn std::error::Error>> {
+    let run = core_final::check(source(body), config, options).map_err(|e| e.json().to_string())?;
+    match run.outcome() {
+        Outcome::Safety(result) => Ok(result.as_ref().clone()),
+        other => Err(format!("expected a safety result: {other:?}").into()),
+    }
 }
+
 fn equal_safety(actual: &CheckResult, expected: &CheckResult) {
     assert_eq!(actual.verdict, expected.verdict);
     assert_eq!(actual.binding_model_error, expected.binding_model_error);
@@ -46,19 +52,14 @@ fn equal_safety(actual: &CheckResult, expected: &CheckResult) {
 
 #[test]
 fn empty_properties_preserve_safety_counts_profiles_and_workers() -> TestResult {
-    let (ir, cfg) = input(
-        "VARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x",
-        "INIT Init\nNEXT Next\n",
-    )?;
     for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
         for workers in [1, 4] {
             options.workers = workers;
-            let expected = dive_check::check(&ir, &cfg, &options);
-            let report = temporal::check_final(&ir, &cfg, &options, Limits::default())?;
-            let Outcome::Safety(actual) = report.outcome() else {
-                return Err("no temporal outcome for empty property config".into());
-            };
-            equal_safety(actual, &expected);
+            let actual = safety(
+                "VARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x",
+                "INIT Init\nNEXT Next\n",
+                &options,
+            )?;
             assert_eq!(actual.verdict, Verdict::Success);
             let stats = actual.stats.ok_or("stats")?;
             assert_eq!((stats.generated, stats.distinct, stats.depth), (4, 3, 3));
@@ -68,36 +69,11 @@ fn empty_properties_preserve_safety_counts_profiles_and_workers() -> TestResult 
 }
 
 #[test]
-fn empty_properties_do_not_apply_temporal_capture_bounds() -> TestResult {
-    let (ir, cfg) = input(
-        "VARIABLE x\nInit == x=0\nNext == x'=x",
-        "INIT Init\nNEXT Next\n",
-    )?;
-    let limits = Limits {
-        properties: 0,
-        atom_cells: 0,
-        capture: dive_check::capture::Limits {
-            states: 0,
-            ..Default::default()
-        },
-        ..Default::default()
-    };
-    let report = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), limits)?;
-    assert!(matches!(report.outcome(), Outcome::Safety(r) if r.verdict == Verdict::Success));
-    Ok(())
-}
-
-#[test]
 fn no_properties_keeps_invariant_witness_and_independent_mutant_rejection() -> TestResult {
     let body = "VARIABLE x\nInit == x=0\nNext == x'=x+1\nInv == x=0";
     let config = "INIT Init\nNEXT Next\nINVARIANT Inv\n";
-    let (ir, cfg) = input(body, config)?;
     let options = CheckOptions::tlc(0, 0);
-    let report = temporal::check_final(&ir, &cfg, &options, Limits::default())?;
-    let Outcome::Safety(actual) = report.outcome() else {
-        return Err("safety witness".into());
-    };
-    equal_safety(actual, &dive_check::check(&ir, &cfg, &options));
+    let actual = safety(body, config, &options)?;
     assert!(
         matches!(&actual.verdict, Verdict::InvariantViolated { property, .. } if property=="Inv")
     );
@@ -112,10 +88,9 @@ fn no_properties_keeps_invariant_witness_and_independent_mutant_rejection() -> T
         .map(|s| Ok(serde_json::json!({"x": dive_trace::value_json::to_json(&s.values[0], ctx)?})))
         .collect::<Result<Vec<_>, String>>()?;
     let doc = TraceDoc::behavior(values)?.with_ending(Ending::Invariant("Inv".into()));
-    let source = format!("---- MODULE EmptyFinal ----\nEXTENDS Naturals, TLC\n{body}\n====\n");
     let validator = SpecModel::from_source(
         "EmptyFinal.tla",
-        &source,
+        &source(body),
         config,
         &TraceOptions {
             compat_tlc: true,
@@ -134,104 +109,83 @@ fn no_properties_keeps_invariant_witness_and_independent_mutant_rejection() -> T
 
 #[test]
 fn safety_bootstrap_output_is_not_evaluated_twice() -> TestResult {
-    let (ir, cfg) = input(
-        "VARIABLE x\nBoot == Print(7,0)\nInit == x=Boot\nNext == x'=x",
-        "INIT Init\nNEXT Next\n",
-    )?;
     for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        let expected = dive_check::check(&ir, &cfg, &options);
-        assert_eq!(expected.output.len(), 1, "actual startup Print baseline");
-        let report = temporal::check_final(&ir, &cfg, &options, Limits::default())?;
-        let Outcome::Safety(actual) = report.outcome() else {
-            return Err("ordinary effects".into());
-        };
-        equal_safety(actual, &expected);
-        assert_eq!(actual.output.len(), 1);
+        let actual = safety(
+            "VARIABLE x\nBoot == Print(7,0)\nInit == x=Boot\nNext == x'=x",
+            "INIT Init\nNEXT Next\n",
+            &options,
+        )?;
+        assert_eq!(actual.output.len(), 1, "one actual startup Print");
     }
     Ok(())
 }
 
 #[test]
 fn empty_properties_keep_binding_init_assumption_and_effect_refusal_priority() -> TestResult {
-    for (body, cfg) in [
+    for (body, cfg, kind) in [
         (
             "CONSTANT C\nVARIABLE x\nInit == x=C\nNext == x'=x",
             "INIT Init\nNEXT Next\n",
+            "model-error",
         ),
         (
             "VARIABLE x\nInit == 0\nNext == x'=x",
             "INIT Init\nNEXT Next\n",
+            "evaluation-error",
         ),
         (
             "VARIABLE x\nInit == x=0\nNext == x'=1\\div0",
             "INIT Init\nNEXT Next\n",
+            "evaluation-error",
         ),
         (
             "ASSUME FALSE\nVARIABLE x\nInit == x=0\nNext == x'=x",
             "INIT Init\nNEXT Next\n",
-        ),
-        (
-            "VARIABLE x\nInit == x=RandomElement({0,1})\nNext == x'=x\nV == x",
-            "INIT Init\nNEXT Next\nSYMMETRY V\n",
+            "assumption-failure",
         ),
     ] {
-        let (ir, cfg) = input(body, cfg)?;
         for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-            let expected = dive_check::check(&ir, &cfg, &options);
-            assert_ne!(expected.verdict, Verdict::Success);
-            let report = temporal::check_final(&ir, &cfg, &options, Limits::default())?;
-            let Outcome::Safety(actual) = report.outcome() else {
-                return Err("ordinary failure".into());
-            };
-            equal_safety(actual, &expected);
+            let actual = safety(body, cfg, &options)?;
+            assert_eq!(actual.verdict.kind(), kind, "{body}: {:?}", actual.verdict);
         }
+    }
+    // RandomElement under SYMMETRY is a named Core refusal.
+    for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
+        let report = core_final::run(
+            &source("VARIABLE x\nInit == x=RandomElement({0,1})\nNext == x'=x\nV == x"),
+            "INIT Init\nNEXT Next\nSYMMETRY V\n",
+            &options,
+        );
+        let json = report.to_json();
+        assert_ne!(report.verdict(), "success", "{json}");
     }
     Ok(())
 }
 
 #[test]
-fn configured_temporal_properties_keep_real_verdict_and_resource_route() -> TestResult {
-    let (ir, cfg) = input(
-        "VARIABLE x\nInit == x=0\nNext == x'=x\nP == []<>(x=1)",
+fn configured_temporal_properties_keep_real_verdict() -> TestResult {
+    let run = core_final::check(
+        source("VARIABLE x\nInit == x=0\nNext == x'=x\nP == []<>(x=1)"),
         "INIT Init\nNEXT Next\nPROPERTY P\n",
-    )?;
-    let report = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())?;
+        &CheckOptions::dive(0),
+    )
+    .map_err(|e| e.json().to_string())?;
     assert!(
-        matches!(report.outcome(), Outcome::Violation(v) if v.validation().validation == Validation::Valid && v.document().properties == ["P"])
+        matches!(run.outcome(), Outcome::Violation(v) if v.validation().validation == Validation::Valid && v.document().properties == ["P"])
     );
-    let limits = Limits {
-        properties: 0,
-        ..Default::default()
-    };
-    assert!(temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), limits).is_err());
     Ok(())
 }
 
 #[test]
-fn nonempty_safety_roles_require_the_narrow_default_memory_route() -> TestResult {
+fn nonempty_safety_roles_take_the_safety_route_in_every_store() -> TestResult {
     for property in ["P == x=0", "P == [][x'=x]_x"] {
-        let (ir, cfg) = input(
-            &format!("VARIABLE x\nInit == x=0\nNext == x'=x\n{property}"),
-            "INIT Init\nNEXT Next\nPROPERTY P\n",
-        )?;
+        let body = format!("VARIABLE x\nInit == x=0\nNext == x'=x\n{property}");
+        let cfg = "INIT Init\nNEXT Next\nPROPERTY P\n";
         let options = CheckOptions::dive(0);
-        let report = temporal::check_final(&ir, &cfg, &options, Limits::default())?;
-        assert!(matches!(report.outcome(), Outcome::Safety(r) if r.verdict==Verdict::Success));
+        assert_eq!(safety(&body, cfg, &options)?.verdict, Verdict::Success);
         let mut exact = options.clone();
         exact.store = dive_store::StoreMode::Exact;
-        let report = temporal::check_final(&ir, &cfg, &exact, Limits::default())?;
-        assert!(matches!(report.outcome(), Outcome::Safety(r) if r.verdict==Verdict::Success));
-        let mut outside_scope = options;
-        outside_scope.chaos = Some(0);
-        let error = temporal::check_final(&ir, &cfg, &outside_scope, Limits::default())
-            .err()
-            .ok_or("existing nonempty property route")?;
-        assert!(matches!(
-            error,
-            temporal::Error::Analysis(dive_liveness::analyze::AnalysisError::Unsupported(
-                "no temporal properties"
-            ))
-        ));
+        assert_eq!(safety(&body, cfg, &exact)?.verdict, Verdict::Success);
     }
     Ok(())
 }
