@@ -1,7 +1,12 @@
 //! Pure VIEW normalization keeps concrete recovery and independent witness semantics.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/view_normalization.json");
 #[path = "support/memory_observations.rs"]
 mod memory_observations;
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, checkpoint};
@@ -95,9 +100,14 @@ fn verify(
                         fp: Some(0),
                         ..CheckRequest::default()
                     };
-                    let full = dive_api::check_file_engine(&request, dive_api::Engine::Reference)
-                        .expect("full run")
-                        .to_json();
+                    let run = dive_api::check_file_engine(&request, dive_api::Engine::Core)
+                        .expect("full run");
+                    let full = run.to_json();
+                    // Only the retired reference engine ran --chaos (#791).
+                    if chaos.is_some() {
+                        refused::assert_refused(&full, run.exit_code(), refused::CHAOS);
+                        continue;
+                    }
                     assert_eq!(full["verdict"], "invariant-violation", "{full}");
                     assert_eq!(
                         full["options"]["profile"],
@@ -129,7 +139,7 @@ fn verify(
                         let pause = dive_api::check_file_checkpoint_engine(
                             &request,
                             &cp,
-                            dive_api::Engine::Reference,
+                            dive_api::Engine::Core,
                         )
                         .expect("pause")
                         .to_json();
@@ -141,7 +151,7 @@ fn verify(
                                 action: checkpoint::Action::Recover,
                                 ..cp.clone()
                             },
-                            dive_api::Engine::Reference,
+                            dive_api::Engine::Core,
                         )
                         .expect("recover")
                         .to_json();
@@ -150,7 +160,12 @@ fn verify(
                             if compat_tlc { "tlc+overrides" } else { "dive" }
                         );
                         assert_eq!(observables(recovered.clone()), observables(full.clone()));
-                        assert_eq!(recovered["options"]["workers"]["used"], workers);
+                        agreed::check_eq(
+                            AGREED,
+                            "verify/0",
+                            &(workers),
+                            &(recovered["options"]["workers"]["used"]),
+                        );
                         assert_eq!(
                             recovered["options"]["checkpoint"]["independent_certificate"],
                             false
@@ -170,7 +185,7 @@ fn verify(
                                 counters: checkpoint::Counters::Tlc,
                                 ..cp
                             },
-                            dive_api::Engine::Reference,
+                            dive_api::Engine::Core,
                         )
                         .expect("reset recovery")
                         .to_json();
@@ -333,7 +348,7 @@ fn ignored_invalid_value_cannot_produce_a_public_verdict_or_archive() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let full = dive_api::check_file_engine(&request, dive_api::Engine::Reference)
+                let full = dive_api::check_file_engine(&request, dive_api::Engine::Core)
                     .expect("explicit refusal")
                     .to_json();
                 assert_eq!(full["verdict"], "unsupported", "{full}");
@@ -345,13 +360,10 @@ fn ignored_invalid_value_cannot_produce_a_public_verdict_or_archive() {
                     counters: checkpoint::Counters::Tlc,
                     config_source_sha256: None,
                 };
-                let pause = dive_api::check_file_checkpoint_engine(
-                    &request,
-                    &cp,
-                    dive_api::Engine::Reference,
-                )
-                .expect("explicit checkpoint refusal")
-                .to_json();
+                let pause =
+                    dive_api::check_file_checkpoint_engine(&request, &cp, dive_api::Engine::Core)
+                        .expect("explicit checkpoint refusal")
+                        .to_json();
                 assert_eq!(pause["verdict"], "unsupported", "{pause}");
                 assert!(pause["counterexample"].is_null());
                 assert_eq!(pause["output"], serde_json::json!([]));
