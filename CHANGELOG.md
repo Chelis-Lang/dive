@@ -26,6 +26,13 @@ published. Earlier pre-release development entries remain in git history.
   times faster: `MCMajority` over two workers takes about 2.7 s instead of
   18 s. Results are unchanged; distributed checking is still slower than local
   checking.
+- `dive-eval` no longer has the coverage collectors the reference engine
+  fed (issue #791): `SourceCoverage` and its snapshot/row/pause types,
+  `TlcCoverageSnapshot`, `TlcCoverageRow`, `TlcActionCoverage`,
+  `Evaluator::new_source_covered`, `pause_source_coverage` and
+  `coverage_discovered`. Core never built them. `--coverage 0`,
+  `--source-coverage` and the `CheckRequest` coverage fields still refuse by
+  name; verdicts and counts are unchanged.
 - The binder's start-up evaluation now also evaluates a repeated pure call
   once when the operator comes from an instantiated module or calls other
   operators, in the default profile. The instance's substitutions count as

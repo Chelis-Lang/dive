@@ -24,7 +24,7 @@
 //!   inputs, so `P(Succ)!ExistsPath(m, n)` is kept for each `Succ`
 //!   (`MCReachabilityTestRandomGraphs`, issue #939);
 //! - the evaluation runs in the default profile (canonical sets, so a value
-//!   carries no normalization history), outside coverage, diagnostics and
+//!   carries no normalization history), outside diagnostics and
 //!   foreign cache domains.
 //!
 //! Inputs match by identity (a scalar's value, a compound value's
@@ -169,7 +169,6 @@ impl Core {
             || !st.is(control::PRECOMPUTE)
             || st.is(control::DIAGNOSTIC)
             || self.opts.comparisons != Comparisons::Tla
-            || self.source_coverage.is_some()
             || self.expression_cache() != 0
         {
             return None;
