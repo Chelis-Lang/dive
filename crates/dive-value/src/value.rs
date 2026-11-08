@@ -590,6 +590,14 @@ impl Set {
         Arc::ptr_eq(&self.0, &other.0)
     }
 
+    /// The address of the shared allocation: while both handles are alive,
+    /// two handles have the same address exactly when they are
+    /// [`ptr_eq`](Self::ptr_eq).
+    #[must_use]
+    pub fn addr(&self) -> usize {
+        Arc::as_ptr(&self.0).addr()
+    }
+
     /// The evaluator-driven source, if this is a deferred set.
     #[must_use]
     pub fn as_deferred(&self) -> Option<&Arc<dyn DeferredSet>> {
@@ -1083,6 +1091,14 @@ impl Fcn {
     #[must_use]
     pub fn ptr_eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
+    }
+
+    /// The address of the shared allocation: while both handles are alive,
+    /// two handles have the same address exactly when they are
+    /// [`ptr_eq`](Self::ptr_eq).
+    #[must_use]
+    pub fn addr(&self) -> usize {
+        Arc::as_ptr(&self.0).addr()
     }
 }
 

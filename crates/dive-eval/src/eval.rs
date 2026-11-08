@@ -976,7 +976,7 @@ impl Core {
             && !self.ir.module(def.module).instantiated
             && !def.effects.intersects(dive_ir::Effects::IMPURE)
             && (self.open_ok || !def.effects.intersects(dive_ir::Effects::OPEN))
-            && *self.constant_cache_safe[d.index()].get_or_init(|| self.state_free(d, false))
+            && *self.constant_cache_safe[d.index()].get_or_init(|| self.state_free(d, false, None))
     }
 
     /// A bounded, non-evaluating guard for the optional empty-state cache.
@@ -985,20 +985,47 @@ impl Core {
     /// disable this cache; the binder's explicit startup processing is unchanged.
     /// With `params`, `d`'s own parameters are inputs too (the start-up call
     /// results, `crate::startup_calls`, bind them to the call's values).
-    pub(crate) fn state_free(&self, d: dive_ir::DefId, params: bool) -> bool {
+    /// With `substs`, so is the value of every constant an instance
+    /// substitutes that the body reads (an unprimed `SubstRef` of a
+    /// declaration that is not a variable), and those declarations are
+    /// collected there, each once.
+    pub(crate) fn state_free(
+        &self,
+        d: dive_ir::DefId,
+        params: bool,
+        mut substs: Option<&mut Vec<dive_ir::DeclId>>,
+    ) -> bool {
         const WORK: usize = 4096;
-        let mut todo = vec![(self.ir.def(d).body, d)];
+        // With `substs`, each item also carries the declarations substituted
+        // around it within the walk (an index into `scopes`): a use of one of
+        // those reads that substitution, not the call's dynamic context.
+        // Substitutions are dynamically scoped, so a callee's body inherits
+        // its call's.
+        let mut scopes: Vec<Vec<dive_ir::DeclId>> = vec![Vec::new()];
+        let mut todo = vec![(self.ir.def(d).body, d, 0_usize)];
         let mut seen = std::collections::HashSet::new();
         let mut remaining = WORK;
-        while let Some((e, frame)) = todo.pop() {
+        while let Some((e, frame, scope)) = todo.pop() {
             let Some(left) = remaining.checked_sub(1) else {
                 return false;
             };
             remaining = left;
-            if !seen.insert((e, frame)) {
+            if !seen.insert((e, frame, scope)) {
                 continue;
             }
             let node = self.ir.node(e);
+            if let Expr::SubstRef {
+                decl,
+                primed: false,
+            } = node.expr
+                && let Some(substs) = substs.as_deref_mut()
+                && node.level == dive_ir::Level::Constant
+            {
+                if !self.substituted_input(decl, &scopes[scope], substs) {
+                    return false;
+                }
+                continue;
+            }
             if node.level != dive_ir::Level::Constant
                 || node.effects.intersects(dive_ir::Effects::IMPURE)
                 || matches!(
@@ -1038,51 +1065,93 @@ impl Core {
                     return false;
                 };
                 remaining = left;
-                let target = match op {
-                    OpRef::Def(d) => Some(d),
-                    OpRef::Const(c) => match self.consts.get(c.index()).and_then(Option::as_ref) {
-                        Some(ConstBinding::Value(_)) => None,
-                        Some(ConstBinding::Def(d)) => Some(*d),
-                        None => return false,
-                    },
-                    OpRef::Std(op) => {
-                        if op.impure() {
-                            return false;
-                        }
-                        self.std_redirects.get(&op).copied()
-                    }
-                    OpRef::Builtin(_) => None,
-                    OpRef::Param(_) | OpRef::Subst(_) | OpRef::Unbound(_) => return false,
-                };
-                if let Some(target) = target {
-                    let target = self.redirect(target);
-                    if self.def_values.contains_key(&target) {
-                        continue;
-                    }
-                    let def = self.ir.def(target);
-                    if def.recursive || def.effects.intersects(dive_ir::Effects::IMPURE) {
-                        return false;
-                    }
-                    if let Some(op) = def.std {
-                        if op.impure() || self.std_redirects.contains_key(&op) {
-                            return false;
-                        }
-                    } else {
-                        todo.push((def.body, target));
+                match self.state_free_target(&op) {
+                    Err(()) => return false,
+                    Ok(Some(target)) => todo.push((self.ir.def(target).body, target, scope)),
+                    Ok(None) => {}
+                }
+            }
+            if substs.is_some()
+                && let Expr::Subst { bindings, body } = &node.expr
+            {
+                // The substitutes are evaluated outside the substitution.
+                for binding in bindings {
+                    if let Arg::Expr { expr, .. } = binding.value {
+                        todo.push((expr, frame, scope));
                     }
                 }
+                let inner = substituted_scope(&mut scopes, scope, bindings);
+                todo.push((*body, frame, inner));
+                continue;
             }
             if node
                 .expr
                 .try_for_each_child(|child| {
                     remaining = remaining.checked_sub(1).ok_or(())?;
-                    todo.push((child, frame));
+                    todo.push((child, frame, scope));
                     Ok::<(), ()>(())
                 })
                 .is_err()
             {
                 return false;
             }
+        }
+        true
+    }
+
+    /// The definition whose body [`Self::state_free`] walks for a reference
+    /// to `op`: `None` when there is none to walk, `Err` when the reference
+    /// is not state-free.
+    fn state_free_target(&self, op: &OpRef) -> std::result::Result<Option<dive_ir::DefId>, ()> {
+        let target = match op {
+            OpRef::Def(d) => Some(*d),
+            OpRef::Const(c) => match self.consts.get(c.index()).and_then(Option::as_ref) {
+                Some(ConstBinding::Value(_)) => None,
+                Some(ConstBinding::Def(d)) => Some(*d),
+                None => return Err(()),
+            },
+            OpRef::Std(op) => {
+                if op.impure() {
+                    return Err(());
+                }
+                self.std_redirects.get(op).copied()
+            }
+            OpRef::Builtin(_) => None,
+            OpRef::Param(_) | OpRef::Subst(_) | OpRef::Unbound(_) => return Err(()),
+        };
+        let Some(target) = target else {
+            return Ok(None);
+        };
+        let target = self.redirect(target);
+        if self.def_values.contains_key(&target) {
+            return Ok(None);
+        }
+        let def = self.ir.def(target);
+        if def.recursive || def.effects.intersects(dive_ir::Effects::IMPURE) {
+            return Err(());
+        }
+        match def.std {
+            Some(op) if op.impure() || self.std_redirects.contains_key(&op) => Err(()),
+            Some(_) => Ok(None),
+            None => Ok(Some(target)),
+        }
+    }
+
+    /// Records the substituted constant `decl` that [`Self::state_free`]
+    /// found used outside the substitutions in `scope` as an input of the
+    /// call; `false` for a variable, which is not one.
+    fn substituted_input(
+        &self,
+        decl: dive_ir::DeclId,
+        scope: &[dive_ir::DeclId],
+        substs: &mut Vec<dive_ir::DeclId>,
+    ) -> bool {
+        let info = self.ir.decl(decl);
+        if info.variable || info.var.is_some() {
+            return false;
+        }
+        if !scope.contains(&decl) && !substs.contains(&decl) {
+            substs.push(decl);
         }
         true
     }
@@ -1105,7 +1174,13 @@ impl Core {
                 Some(dive_ir::SlotInfo {
                     kind: dive_ir::SlotKind::Param,
                     ..
-                }) => own == Some(frame),
+                }) => {
+                    // A parameter of a top-level definition the walk reached
+                    // through a call is bound to one of that call's
+                    // arguments, which the walk visits in the caller's frame.
+                    own == Some(frame)
+                        || (own.is_some() && self.ir.def(frame).scope == DefScope::TopLevel)
+                }
                 _ => false,
             }
     }
@@ -3169,3 +3244,25 @@ pub(crate) fn odometer(columns: &[Arc<[Value]>]) -> Vec<Vec<Value>> {
 #[cfg(test)]
 #[path = "choose_stream_tests.rs"]
 mod choose_stream_tests;
+
+/// The index in `scopes` of the declarations substituted inside a `Subst`
+/// with `bindings` in the scope `outer` ([`Core::state_free`]).
+fn substituted_scope(
+    scopes: &mut Vec<Vec<dive_ir::DeclId>>,
+    outer: usize,
+    bindings: &[dive_ir::SubstBinding],
+) -> usize {
+    let mut inner = scopes[outer].clone();
+    for binding in bindings {
+        if !inner.contains(&binding.decl) {
+            inner.push(binding.decl);
+        }
+    }
+    inner.sort_unstable();
+    if let Some(i) = scopes.iter().position(|s| *s == inner) {
+        i
+    } else {
+        scopes.push(inner);
+        scopes.len() - 1
+    }
+}
