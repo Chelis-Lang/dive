@@ -5,6 +5,10 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- A temporal check whose configured properties all bind to safety roles (for
+  example `PROPERTY [](x >= 0)`) no longer runs a reference-engine safety
+  search, whose result was discarded, before Core checks the model (issue
+  #791). Verdicts and counts are unchanged; such runs take less time.
 - `dive_api::temporal::Outcome` no longer has the reference engine's
   `Holds`, `Violation` and `PrefixViolation` variants, and the
   `ValidatedCounterexample` and `ValidatedPrefix` types are removed (issue

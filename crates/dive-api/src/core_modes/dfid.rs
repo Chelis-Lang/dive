@@ -4,7 +4,7 @@
 
 use std::collections::BTreeMap;
 
-use dive_check::dfid::{Options, Outcome, Report};
+use crate::dfid_admission::{Options, Outcome, Report};
 use dive_core::{Error, ErrorKind, Handle};
 use dive_stdlib::random::{JavaRandom, RandomSource, fresh_seed};
 
@@ -130,7 +130,7 @@ fn complete(state: &[Handle], initial: bool) -> Result<(), Outcome> {
 
 impl Native {
     pub(crate) fn dfid(&mut self, model: &dive_model::Model, options: &Options) -> Report {
-        if let Some(result) = dive_check::dfid::preflight(model, options) {
+        if let Some(result) = crate::dfid_admission::preflight(model, options) {
             return empty(result);
         }
         let mut search = Search {
@@ -708,11 +708,8 @@ mod tests {
             )
             .map_err(|_| "native preparation")?;
             let actual = native.dfid(model.model(), &options);
-            let reference = dive_check::dfid::check(model.model(), &options);
-            assert_eq!(actual.outcome, reference.outcome);
-            assert_eq!(actual.distinct, reference.distinct);
-            assert_eq!(actual.generated, reference.generated);
-            assert_eq!(actual.level, reference.level);
+            // The figures the retired reference DFID reported (#791).
+            assert_eq!((actual.distinct, actual.generated, actual.level), (1, 2, 2));
             assert_eq!(actual.outcome, Outcome::Complete);
         }
         Ok(())
