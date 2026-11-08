@@ -2,6 +2,8 @@
 #![allow(clippy::expect_used, reason = "regression assertions")]
 #[path = "support/memory_observations.rs"]
 mod memory_observations;
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, TemporalMode};
@@ -67,18 +69,27 @@ fn zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos() {
                         req.store = store;
                         req.workers = Some(workers);
                         req.chaos = chaos;
-                        let reference =
-                            dive_api::check_file_engine(&req, dive_api::Engine::Reference)
-                                .expect("memory")
-                                .to_json();
+                        let report = dive_api::check_file_engine(&req, dive_api::Engine::Core)
+                            .expect("memory");
+                        let reference = report.to_json();
+                        if chaos.is_some() {
+                            // Only the retired reference engine ran --chaos (#791, #910).
+                            refused::assert_refused(&reference, report.exit_code(), refused::CHAOS);
+                            continue;
+                        }
+                        if name == "TmRandom" {
+                            // Only the retired reference engine drew RandomSubset
+                            // in Next (#791, #910); core_random pins the refusal.
+                            refused::assert_refused(&reference, report.exit_code(), "RandomSubset");
+                            continue;
+                        }
                         assert_ne!(reference["verdict"], "unsupported", "{name}");
                         assert_ne!(reference["verdict"], "internal-error", "{name}");
                         for budget in [0, 24, 256] {
                             req.predecessor_memory_bytes = Some(budget);
-                            let actual =
-                                dive_api::check_file_engine(&req, dive_api::Engine::Reference)
-                                    .expect("bounded")
-                                    .to_json();
+                            let actual = dive_api::check_file_engine(&req, dive_api::Engine::Core)
+                                .expect("bounded")
+                                .to_json();
                             assert_eq!(
                                 observable(actual.clone()),
                                 observable(reference.clone()),
@@ -127,7 +138,16 @@ fn concrete_spilled_symmetry_witnesses_remain_independently_valid() {
                 for workers in [1, 4, 8] {
                     req.workers = Some(workers);
                     req.chaos = Some(13);
-                    let json = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                    // Only the retired reference engine ran --chaos (#791, #910).
+                    let chaotic =
+                        dive_api::check_file_engine(&req, dive_api::Engine::Core).expect("check");
+                    refused::assert_refused(
+                        &chaotic.to_json(),
+                        chaotic.exit_code(),
+                        refused::CHAOS,
+                    );
+                    req.chaos = None;
+                    let json = dive_api::check_file_engine(&req, dive_api::Engine::Core)
                         .expect("check")
                         .to_json();
                     let trace = TraceDoc::from_json(&json).expect("witness");
@@ -147,14 +167,14 @@ fn early_admission_and_failed_creation_never_certify_success() {
         predecessor_directory: Some("nonexistent-log-parent".into()),
         ..CheckRequest::default()
     };
-    let error = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+    let error = dive_api::check_file_engine(&req, dive_api::Engine::Core)
         .expect_err("orphan directory refused before file access")
         .to_string();
     assert!(error.contains("DIVE-A0101"), "{error}");
     req.predecessor_memory_bytes = Some(0);
     req.temporal = TemporalMode::FinalShort;
     assert!(
-        dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+        dive_api::check_file_engine(&req, dive_api::Engine::Core)
             .expect_err("capture refused early")
             .to_string()
             .contains("predecessor spill")
@@ -164,7 +184,7 @@ fn early_admission_and_failed_creation_never_certify_success() {
     req.workers = Some(8);
     req.predecessor_memory_bytes = Some(0);
     req.predecessor_directory = Some(req.file.clone());
-    let json = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+    let json = dive_api::check_file_engine(&req, dive_api::Engine::Core)
         .expect("failure reported")
         .to_json();
     assert_eq!(json["verdict"], "resource-limit");
@@ -219,12 +239,21 @@ fn combined_frontier_and_predecessor_spill_preserves_order_and_witnesses() {
                     req.store = store;
                     req.workers = Some(workers);
                     req.chaos = Some(13);
-                    let reference = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                    // Only the retired reference engine ran --chaos (#791, #910).
+                    let chaotic =
+                        dive_api::check_file_engine(&req, dive_api::Engine::Core).expect("memory");
+                    refused::assert_refused(
+                        &chaotic.to_json(),
+                        chaotic.exit_code(),
+                        refused::CHAOS,
+                    );
+                    req.chaos = None;
+                    let reference = dive_api::check_file_engine(&req, dive_api::Engine::Core)
                         .expect("memory")
                         .to_json();
                     req.frontier_memory_bytes = Some(0);
                     req.predecessor_memory_bytes = Some(0);
-                    let bounded = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                    let bounded = dive_api::check_file_engine(&req, dive_api::Engine::Core)
                         .expect("both bounded")
                         .to_json();
                     assert_eq!(

@@ -1,5 +1,7 @@
 //! User-facing disk-frontier evidence and independent concrete witnesses.
 #![allow(clippy::expect_used, reason = "test assertions")]
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store};
 
@@ -20,7 +22,7 @@ fn a_frontier_directory_without_a_budget_rejects_before_file_access() {
                     temporal,
                     ..CheckRequest::default()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )
             .expect_err("the directory must not be silently ignored");
             assert!(matches!(error, dive_api::ApiError::Rejected { message }
@@ -49,22 +51,29 @@ fn spilled_counterexamples_validate_and_corruptions_are_rejected() {
             .expect("model");
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
-                    let r = dive_api::check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(config.clone()),
-                            compat_tlc,
-                            store,
-                            workers: Some(workers),
-                            seed: Some(7),
-                            fp: Some(0),
-                            chaos: Some(13),
-                            frontier_memory_bytes: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        dive_api::Engine::Reference,
-                    )
-                    .expect("check");
+                    let mut request = CheckRequest {
+                        file: file.clone(),
+                        config: Some(config.clone()),
+                        compat_tlc,
+                        store,
+                        workers: Some(workers),
+                        seed: Some(7),
+                        fp: Some(0),
+                        chaos: Some(13),
+                        frontier_memory_bytes: Some(0),
+                        ..CheckRequest::default()
+                    };
+                    // Only the retired reference engine ran --chaos (#791, #910).
+                    let chaotic = dive_api::check_file_engine(&request, dive_api::Engine::Core)
+                        .expect("check");
+                    refused::assert_refused(
+                        &chaotic.to_json(),
+                        chaotic.exit_code(),
+                        refused::CHAOS,
+                    );
+                    request.chaos = None;
+                    let r = dive_api::check_file_engine(&request, dive_api::Engine::Core)
+                        .expect("check");
                     let json = r.to_json();
                     assert_eq!(json["frontier_storage"]["retained_bytes"], 0);
                     assert!(
@@ -99,7 +108,7 @@ fn disk_creation_failure_has_no_success_and_truthful_worker_evidence() {
             fp: Some(0),
             ..CheckRequest::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )
     .expect("check");
     let j = r.to_json();
