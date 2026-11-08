@@ -70,7 +70,9 @@ for a Rust application's own specifications and recorded behaviors.
 
 `CheckRequest.source_coverage` and `CheckRequest.tlc_coverage` are named
 refusals (`ApiError::Unsupported`): source and TLC logical coverage ran only on
-the removed reference engine (#791, #910).
+the removed reference engine (#791, #910). `dive-eval`'s collectors for them
+(`SourceCoverage`, `TlcCoverageSnapshot` and `Evaluator::new_source_covered`)
+were removed with it.
 
 Low-level callers may supply predicate and action scopes. Scope ownership and
 expression references are checked before backend startup. Parallel graph capture
