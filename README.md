@@ -5,9 +5,11 @@ TLA+ toolchain. It parses and analyzes specifications, checks supported models,
 translates supported PlusCal algorithms, and independently validates
 counterexamples. Checking needs no JVM.
 
-**Status: pre-release.** Core-only coverage, performance acceptance and the
-engine cutover remain open; see the [scoreboard](docs/scoreboard.md) and
-[release gates](docs/RELEASE.md).
+**Status: pre-release.** Core is the only checking engine. On the pinned
+tlaplus/Examples corpus it has no unregistered disagreement with TLC and is
+faster than TLC on the geometric mean; the remaining release gates are listed
+in the [release gates](docs/RELEASE.md), with current numbers in the
+[scoreboard](docs/scoreboard.md).
 
 ## Install
 
