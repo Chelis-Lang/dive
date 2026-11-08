@@ -111,7 +111,7 @@ fn absolute_root_relative_config_and_existing_aliases_transport_options() -> Tes
         ..Default::default()
     };
     assert!(matches!(
-        dive_api::check_file_engine(&request, dive_api::Engine::Reference),
+        dive_api::check_file_engine(&request, dive_api::Engine::Core),
         Err(dive_api::ApiError::Io { .. })
     ));
     Ok(())
@@ -186,7 +186,7 @@ fn configuration_errors_precede_module_errors_on_each_tlc_entrypoint() -> TestRe
                 ..Default::default()
             };
             let Err(dive_api::ApiError::Io { path, .. }) =
-                dive_api::check_file_engine(&request, dive_api::Engine::Reference)
+                dive_api::check_file_engine(&request, dive_api::Engine::Core)
             else {
                 return Err("file API must read the module first".into());
             };

@@ -63,20 +63,14 @@ the checkout's own `target/` and needs Cargo and Python only while preparing the
 test executable. Checking success and independently validated violations, seeded
 constructive samples, DFID completion versus bounds, implementation trace
 acceptance/rejection, translation followed by checking and real safety recovery
-are exercised through public library calls. Both Reference and Core run where
-supported; the tests inspect actual results rather than treating `Ok(report)` as
-a proof. The independent project is in
+are exercised through public library calls on Core; the tests inspect actual
+results rather than treating `Ok(report)` as a proof. The independent project is in
 `crates/dive-api/tests/fixtures/rust-consumer/`; its tests are examples to adapt
 for a Rust application's own specifications and recorded behaviors.
 
-Set `CheckRequest.source_coverage = true` for opt-in native producer source-work
-rows through the ordinary Reference safety route
-(`check_file_engine(&request, Engine::Reference)`); Core, the default of
-`check_file`, and temporal/checkpoint combinations refuse by name. The exact
-source positions and actual expression/generator counters are available in the
-optional `source_coverage` JSON field and typed `CheckReport::source_coverage()`
-snapshot. They are not TLC logical costs or proof
-receipts. See [native source work](checking.md#native-source-work).
+`CheckRequest.source_coverage` and `CheckRequest.tlc_coverage` are named
+refusals (`ApiError::Unsupported`): source and TLC logical coverage ran only on
+the removed reference engine (#791, #910).
 
 Low-level callers may supply predicate and action scopes. Scope ownership and
 expression references are checked before backend startup. Parallel graph capture
@@ -196,10 +190,10 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
 | `analyze_source` / `analyze_file` | Resolved semantic analysis |
 | `parse_config_source` / `parse_config_file` | Configuration reading |
-| `check_file` | On Core, the default engine (`check_file_engine` selects `Engine::Reference` explicitly): ordinary safety, eligible ordinary dive-profile deterministic level checks, TLC-profile final analysis, or explicit `TemporalMode::FinalShort`; inspect actual route/completion |
+| `check_file` | On Core, the only engine (`Engine::Core`; `check_file_engine` takes it explicitly): ordinary safety and ordinary temporal checking; `TemporalMode::FinalShort` is a named refusal; inspect actual route/completion |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
-| `CheckRequest::host_access` | Explicit env/files/exec permissions; bounded Reference startup env/TXT capture |
+| `CheckRequest::host_access` | Explicit env/files/exec permissions; a named refusal on Core (external inputs ran only on the removed reference engine) |
 | `host_inputs::inputs_from_report` / `TraceOptions::inputs` | Explicit external assumptions for fresh offline source replay |
 | `translate_source` / `translate_file` | Admitted in-memory PlusCal artifact |
 | `prepare_translation_file` / `write_translation_file` | Explicit admitted module, backup and merged cfg publication; prepared publication checks concurrent edits |
@@ -264,8 +258,7 @@ retained-state serialization checkpoints and fresh finite-word validation.
 See the mode guides for the after-loading scope and uninterruptible value units.
 
 `simulate_file` and `dfid_file` run compiled finite execution on Core, the
-default engine; `simulate_file_engine(&request, Engine::Reference)` and
-`dfid_file_engine(&request, Engine::Reference)` select the reference engine
-explicitly. A reached native refusal is never retried; there is no
-`Engine::Auto`. Reports name the engine that actually ran. Seeded
+only engine; `Engine::Reference` was removed with the reference checking
+runtime (#791). A reached refusal is never retried. Reports name the engine
+that ran. Seeded
 reproduction includes that engine and the same request settings.

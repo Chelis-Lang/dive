@@ -365,37 +365,20 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
     Ok(())
 }
 
-fn admit_checkpoint_storage(
-    req: &CheckRequest,
-    engine: crate::Engine,
-) -> Result<(), crate::ApiError> {
-    if req.seen_disk.is_some() && engine == crate::Engine::Reference {
-        return Err(crate::ApiError::Unsupported {
-            feature:
-                "disk seen-state retention with Reference checkpoint/recovery is not implemented"
-                    .into(),
-        });
-    }
-    Ok(())
-}
-
 /// Loads, binds and checks the request on the default engine, the compiled
 /// Core ([`crate::Engine::Core`]). What Core does not implement is an
-/// `unsupported` verdict naming it; use [`check_file_engine`] with
-/// [`crate::Engine::Reference`] to run the reference checker explicitly.
+/// `unsupported` verdict naming it.
 ///
 /// # Errors
 /// [`crate::ApiError`] if the root file or the configuration cannot be read.
 pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false, crate::Engine::default(), None)
+    check_file_in(req, None, false, None)
 }
 
 /// Loads and checks files as [`check_file`] does, with the given engine.
 ///
-/// [`crate::Engine::Core`], the default, runs the compiled execution core;
-/// what it does not implement is an `unsupported` verdict naming the
-/// construct, and it never falls back to the reference engine.
-/// [`crate::Engine::Reference`] runs the reference checker.
+/// [`crate::Engine::Core`] is the only engine; what it does not implement is
+/// an `unsupported` verdict naming the construct.
 ///
 /// ```no_run
 /// use dive_api::{CheckRequest, Engine, check_file_engine};
@@ -410,7 +393,8 @@ pub fn check_file_engine(
     req: &CheckRequest,
     engine: crate::Engine,
 ) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false, engine, None)
+    let crate::Engine::Core = engine;
+    check_file_in(req, None, false, None)
 }
 
 /// Checks with the core engine under explicit strategy switches, as
@@ -424,7 +408,7 @@ pub fn check_file_core_opts(
     req: &CheckRequest,
     switches: &str,
 ) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false, crate::Engine::Core, Some(switches))
+    check_file_in(req, None, false, Some(switches))
 }
 
 /// Loads and checks files with TLC's configuration-first input error priority.
@@ -456,7 +440,7 @@ pub fn check_file_tlc_inputs(req: &CheckRequest) -> Result<CheckReport, crate::A
 /// ```no_run
 /// use dive_api::{CheckRequest, Engine, check_file_tlc_inputs_engine};
 /// let request = CheckRequest { file: "Counter.tla".into(), compat_tlc: true, ..CheckRequest::default() };
-/// let report = check_file_tlc_inputs_engine(&request, Engine::Reference)?;
+/// let report = check_file_tlc_inputs_engine(&request, Engine::Core)?;
 /// # Ok::<(), dive_api::ApiError>(())
 /// ```
 ///
@@ -466,7 +450,8 @@ pub fn check_file_tlc_inputs_engine(
     req: &CheckRequest,
     engine: crate::Engine,
 ) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, true, engine, None)
+    let crate::Engine::Core = engine;
+    check_file_in(req, None, true, None)
 }
 
 /// Runs the native pure-safety checkpoint/recovery slice on the default
@@ -500,9 +485,8 @@ pub fn check_file_checkpoint(
     check_file_checkpoint_engine(req, checkpoint, crate::Engine::default())
 }
 
-/// Runs a checkpoint transaction on an explicitly selected whole backend.
-/// Recovery requires the backend encoded in the archive: recovering a
-/// Reference archive on Core (or the reverse) is rejected before the model
+/// Runs a checkpoint transaction on the given engine, Core. Recovering an
+/// archive the removed reference engine wrote is rejected before the model
 /// loads.
 ///
 /// ```no_run
@@ -525,7 +509,8 @@ pub fn check_file_checkpoint_engine(
             feature: "native checkpoint with temporal checking is not implemented".into(),
         });
     }
-    check_file_in(req, Some(checkpoint), false, engine, None)
+    let crate::Engine::Core = engine;
+    check_file_in(req, Some(checkpoint), false, None)
 }
 
 #[allow(
@@ -536,7 +521,6 @@ fn check_file_in(
     req: &CheckRequest,
     checkpoint: Option<&dive_check::checkpoint::Request>,
     config_first: bool,
-    engine: crate::Engine,
     core_switches: Option<&str>,
 ) -> Result<CheckReport, crate::ApiError> {
     if req.debugger.is_some() {
@@ -559,8 +543,7 @@ fn check_file_in(
     }
     admit_storage_request(req)?;
     if req.debugger.is_some()
-        && (engine != crate::Engine::Core
-            || checkpoint.is_some()
+        && (checkpoint.is_some()
             || req.temporal != TemporalMode::Ordinary
             || req.core_sample.is_some())
     {
@@ -577,8 +560,7 @@ fn check_file_in(
         });
     }
     if req.distributed.is_some()
-        && (engine != crate::Engine::Core
-            || checkpoint.is_some()
+        && (checkpoint.is_some()
             || req.temporal != TemporalMode::Ordinary
             || req.core_sample.is_some()
             || !req.host_access.is_empty()
@@ -592,11 +574,6 @@ fn check_file_in(
     {
         return Err(crate::ApiError::Unsupported{feature:"distributed safety requires explicit Core/seed/fp and pure ordinary BFS; checkpoint, sampling, host effects, sequential, disk seen and candidate spill combinations are not implemented".into()});
     }
-    if req.store_compact_bytes.is_some() && engine != crate::Engine::Core {
-        return Err(crate::ApiError::Unsupported {
-            feature: "Store reclamation requires the explicit Core engine".into(),
-        });
-    }
     if req.store_compact_bytes.is_some()
         && checkpoint
             .is_some_and(|request| request.action != dive_check::checkpoint::Action::Recover)
@@ -606,29 +583,15 @@ fn check_file_in(
                 .into(),
         });
     }
-    if req.candidate_memory_bytes.is_some() && engine != crate::Engine::Core {
-        return Err(crate::ApiError::Unsupported {
-            feature: "candidate spill requires the explicit Core engine".into(),
-        });
-    }
     if req.source_coverage && req.tlc_coverage {
         return Err(crate::ApiError::Unsupported {
             feature: "request native source work or TLC logical coverage separately".into(),
         });
     }
-    if (req.source_coverage || req.tlc_coverage)
-        && (engine == crate::Engine::Core
-            || checkpoint.is_some()
-            || req.temporal != TemporalMode::Ordinary
-            || req.core_sample.is_some())
-    {
+    if req.source_coverage || req.tlc_coverage {
         return Err(crate::ApiError::Unsupported { feature: "source coverage and TLC logical coverage (--source-coverage, --coverage) are not implemented on Core".into() });
     }
-    if !req.host_access.is_empty()
-        && (checkpoint.is_some()
-            || engine == crate::Engine::Core
-            || req.temporal != TemporalMode::Ordinary)
-    {
+    if !req.host_access.is_empty() {
         return Err(crate::ApiError::Unsupported {
             feature: "external inputs (--allow-io, IOUtils/IOEnv) are not implemented on Core, nor with temporal checking or checkpoint/recovery"
                 .into(),
@@ -639,35 +602,21 @@ fn check_file_in(
     } else {
         Profile::Dive
     };
-    if checkpoint.is_some() {
-        // A statically known unsupported storage/backend combination must not
-        // open a recovery archive or load the model to discover that refusal.
-        admit_checkpoint_storage(req, engine)?;
-    }
     let recovered_defaults = if let Some(request) = checkpoint
         && request.action == dive_check::checkpoint::Action::Recover
     {
-        let (encoded, seed, fp) =
-            crate::core_checkpoint::metadata(&request.path).map_err(|message| {
-                crate::ApiError::Rejected {
-                    message: format!("DIVE-S0400: {message}"),
-                }
-            })?;
-        if engine != encoded {
+        let defaults = crate::core_checkpoint::metadata(&request.path).map_err(|message| {
+            crate::ApiError::Rejected {
+                message: format!("DIVE-S0400: {message}"),
+            }
+        })?;
+        let Some((seed, fp)) = defaults else {
             return Err(crate::ApiError::Rejected {
-                message: if encoded == crate::Engine::Reference {
-                    "DIVE-S0400: the archive was written by the reference engine, which dive \
-                     no longer runs; Core cannot recover it"
-                        .to_owned()
-                } else {
-                    format!(
-                        "DIVE-S0400: archive backend {} does not match requested {}",
-                        encoded.name(),
-                        engine.name(),
-                    )
-                },
+                message: "DIVE-S0400: the archive was written by the reference engine, which dive \
+                          no longer runs; Core cannot recover it"
+                    .to_owned(),
             });
-        }
+        };
         Some((seed, fp))
     } else {
         None
@@ -773,7 +722,7 @@ fn check_file_in(
         candidate_error_endpoint: None,
         view_error_endpoint: None,
         partial_terminal_endpoint: None,
-        engine,
+        engine: crate::Engine::Core,
     };
     // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
     // (tlaplus 94d0c50). Keep the file API's existing module-first order.
@@ -866,22 +815,12 @@ fn check_file_in(
         request.config_source_sha256 = Some(dive_check::checkpoint::config_source_hash(
             cfg.source_bytes(),
         ));
-        let native = if engine == crate::Engine::Core {
-            let (native, run) = crate::core_checkpoint::check(
-                &ir,
-                &model,
-                &armed,
-                &request,
-                profile == Profile::Tlc,
-            );
-            report.core = Some(Box::new(run));
-            native
-        } else {
-            dive_check::checkpoint::check(&ir, &model, &armed, &request)
-        };
+        let (native, run) =
+            crate::core_checkpoint::check(&ir, &model, &armed, &request, profile == Profile::Tlc);
+        report.core = Some(Box::new(run));
         report.checkpoint_receipt = native.receipt;
         Phase::Checked(Box::new(native.check))
-    } else if engine == crate::Engine::Core {
+    } else {
         let config_hash = dive_check::checkpoint::config_source_hash(cfg.source_bytes());
         let (result, run) = crate::core_engine::check(
             &ir,
@@ -898,8 +837,6 @@ fn check_file_in(
         );
         report.core = Some(Box::new(run));
         result.into()
-    } else {
-        check_backend(&ir, &model, &armed, req.temporal, req.periodic)
     };
     if let Some(coverage) = &report.opts.source_coverage {
         coverage.stop();
@@ -1195,59 +1132,6 @@ fn certify_next_receiver(
             "Next function receiver diagnostic proof stopped; the original cause, class and counts are retained: {error}"
         )),
     }
-}
-
-fn check_backend(
-    ir: &Arc<dive_ir::Ir>,
-    config: &dive_config::ModelConfig,
-    options: &CheckOptions,
-    temporal: TemporalMode,
-    periodic: PeriodicSchedule,
-) -> Phase {
-    if options.source_coverage.is_some() {
-        // Observe one actual safety producer, never isolated temporal admission
-        // or independent proof/replay evaluators. Genuine temporal obligations
-        // retain the safety checker's explicit unsupported result.
-        return Phase::Checked(Box::new(dive_check::check(ir, config, options)));
-    }
-    if temporal == TemporalMode::Ordinary
-        && let Some(result) = crate::temporal::check_ordinary_final(ir, config, options, periodic)
-    {
-        return match result {
-            Ok(report) => match report.outcome() {
-                crate::temporal::Outcome::Safety(result) => Phase::Checked(result.clone()),
-                _ => Phase::Temporal(Box::new(report)),
-            },
-            Err(failure) => Phase::TemporalError(Box::new(failure)),
-        };
-    }
-    if temporal == TemporalMode::FinalShort {
-        let configuration = crate::temporal::file_configuration();
-        return match crate::temporal::check_final_with_policies(
-            ir,
-            config,
-            options,
-            configuration.limits,
-            configuration.acceptance,
-            configuration.graph_labels,
-        ) {
-            Ok(r) => match r.outcome() {
-                crate::temporal::Outcome::Safety(s) => Phase::Checked(s.clone()),
-                _ => Phase::Temporal(Box::new(r)),
-            },
-            Err(e) => Phase::TemporalError(Box::new(e)),
-        };
-    }
-    let mut result = dive_check::check(ir, config, options);
-    if temporal == TemporalMode::Ordinary
-        && let dive_check::Verdict::Unsupported { feature } = &mut result.verdict
-        && feature.contains("temporal properties (liveness checking)")
-        && let Some(reason) = dive_check::final_roles::route_exclusion(ir, config, options)
-    {
-        feature.push_str("; temporal checking does not yet support ");
-        feature.push_str(reason);
-    }
-    Phase::Checked(Box::new(result))
 }
 
 impl CheckReport {
@@ -3028,7 +2912,7 @@ mod evidence_controls {
             candidate_error_endpoint: None,
             view_error_endpoint: None,
             partial_terminal_endpoint: None,
-            engine: crate::Engine::Reference,
+            engine: crate::Engine::Core,
         }
     }
 

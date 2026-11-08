@@ -172,11 +172,10 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     simulate_file_engine(req, crate::Engine::default())
 }
 
-/// Samples with an explicitly selected execution engine.
+/// Samples on the given engine, Core (the only engine).
 ///
-/// `Core` (the default) never falls back: what it does not implement is a
-/// named refusal, and a reached refusal never reruns effects. `Reference`
-/// runs the reference simulator. The report names the engine.
+/// What Core does not implement is a named refusal, and a reached refusal
+/// never reruns effects. The report names the engine.
 ///
 /// # Errors
 /// The same load, budget and ownership failures as [`simulate_file`].
@@ -243,7 +242,8 @@ pub fn simulate_file_engine(
             })?;
     let mut native = None;
     let mut setup_failure = None;
-    if engine != crate::Engine::Reference && req.workers.is_none_or(|workers| workers == 1) {
+    let crate::Engine::Core = engine;
+    if req.workers.is_none_or(|workers| workers == 1) {
         if let Some(outcome) = dive_sim::preflight(model.model(), &options) {
             setup_failure = Some(outcome);
         } else {
@@ -282,7 +282,9 @@ pub fn simulate_file_engine(
                     if let Some(native) = &mut native {
                         native.simulate(model.model(), &options, &runtime, &poll)
                     } else {
-                        runtime.simulate_with_poll(model.model(), &poll)
+                        crate::core_modes::preflight_report(Outcome::Internal(
+                            "Core simulation was neither prepared nor refused".to_owned(),
+                        ))
                     }
                 })
                 .map_err(|e| (0_u8, format!("cannot start simulation worker: {e}")))?

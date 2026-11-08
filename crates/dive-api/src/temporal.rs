@@ -14,7 +14,9 @@ use std::time::{Duration, Instant};
 use dive_check::{CheckOptions, CheckResult, capture};
 use dive_config::ModelConfig;
 use dive_ir::Ir;
-use dive_liveness::analyze::periodic::{Checks, PeriodicAnalysis, PrefixCandidate, Schedule};
+use dive_liveness::analyze::periodic::{Checks, PeriodicAnalysis, PrefixCandidate};
+#[cfg(test)]
+use dive_liveness::analyze::periodic::Schedule;
 use dive_liveness::analyze::{Analysis, AnalysisError, Candidate, GraphLabelPolicy, Limits};
 use dive_liveness::product::AcceptancePolicy;
 use dive_model::{BindOptions, Model};
@@ -1501,27 +1503,6 @@ fn run_periodic(
     )
 }
 
-fn run_periodic_owned(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    model: dive_liveness::analyze::owned::OwnedTemporal,
-    schedule: Schedule,
-    configuration: Configuration,
-) -> Result<(Outcome, Checks), Failure> {
-    finish_periodic(
-        ir,
-        config,
-        options,
-        model.periodic_analysis(
-            configuration.limits,
-            configuration.acceptance,
-            configuration.graph_labels,
-            schedule,
-        ),
-    )
-}
-
 fn finish_periodic(
     ir: &Arc<Ir>,
     config: &ModelConfig,
@@ -1602,108 +1583,6 @@ pub(crate) fn core_report(
                 failure.periodic = None;
             }
             Err(failure)
-        }
-    }
-}
-
-// Ordinary requests use only the accepted default-memory role dispatch. Keep
-// its original model/host through analysis, and its complete safety results.
-// This is private source/configuration dispatch, never a prebound caller API.
-pub(crate) fn check_ordinary_final(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    schedule: Schedule,
-) -> Option<Result<Report, Failure>> {
-    if config.properties.is_empty() {
-        return None;
-    }
-    let started = Instant::now();
-    let outcome = std::thread::scope(|scope| {
-        std::thread::Builder::new()
-            .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn_scoped(scope, || {
-                let Ok(control) = dive_check::budget::EvaluationControl::new(
-                    &options.budget,
-                    dive_check::budget::Phase::Binding,
-                ) else {
-                    return Some(Err(Failure::before(
-                        Error::Analysis(AnalysisError::Inconsistent("binding control identity")),
-                        Stage::Binding,
-                    )));
-                };
-                dive_liveness::analyze::owned::dispatch_ordinary_controlled(
-                    ir,
-                    config,
-                    options,
-                    control.clone(),
-                )
-                .map(|result| {
-                    let bound =
-                        result.map_err(|failure| controlled_binding_failure(failure, &control))?;
-                    match bound {
-                        dive_liveness::analyze::owned::Dispatch::Safety(result) => {
-                            let symmetry = result.symmetry_liveness.clone();
-                            Ok((Outcome::Safety(result), None, symmetry))
-                        }
-                        dive_liveness::analyze::owned::Dispatch::Temporal(model) => {
-                            let symmetry = Some(model.symmetry_liveness().clone());
-                            let result = if options.profile == dive_eval::Profile::Dive {
-                                run_periodic_owned(
-                                    ir,
-                                    config,
-                                    options,
-                                    *model,
-                                    schedule,
-                                    file_configuration(),
-                                )
-                                .map(|(outcome, checks)| (outcome, Some(checks)))
-                            } else {
-                                run_bound_owned(ir, config, options, *model, file_configuration())
-                                    .map(|outcome| (outcome, None))
-                            };
-                            result
-                                .map(|(outcome, checks)| (outcome, checks, symmetry.clone()))
-                                .map_err(|mut failure| {
-                                    failure.symmetry_liveness = symmetry.map(Box::new);
-                                    failure
-                                })
-                        }
-                    }
-                })
-            })
-            .map_err(|error| Failure::before(Error::Thread(error.to_string()), Stage::Unknown))?
-            .join()
-            .map_err(|_| {
-                Failure::before(
-                    Error::Thread("the evaluation thread panicked".into()),
-                    Stage::Unknown,
-                )
-            })
-    });
-    match outcome {
-        Ok(None) => None,
-        Ok(Some(result)) => Some(
-            result
-                .map(|(outcome, periodic, symmetry_liveness)| Report {
-                    outcome,
-                    symmetry_liveness,
-                    options: options.clone(),
-                    elapsed: started.elapsed(),
-                    periodic,
-                    configuration: Some(file_configuration()),
-                    memory_samples: options.budget.memory_samples(),
-                })
-                .map_err(|mut failure| {
-                    failure.elapsed = started.elapsed();
-                    failure.configuration = Some(Box::new(file_configuration()));
-                    failure
-                }),
-        ),
-        Err(mut failure) => {
-            failure.elapsed = started.elapsed();
-            failure.configuration = Some(Box::new(file_configuration()));
-            Some(Err(failure))
         }
     }
 }
