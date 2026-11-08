@@ -31,6 +31,11 @@ use crate::core_native_values::NativeValues;
 /// (`--compat=tlc`).
 pub(crate) type Route = Option<Schedule>;
 
+/// The refusal of a temporal validation failure, whose report Core does not
+/// build (TLC's start-up and planning errors among them).
+pub(crate) const VALIDATION_FAILURE: &str =
+    "a temporal validation failure (core): its report is not implemented on Core";
+
 fn refused(feature: impl Into<String>, options: &CheckOptions, ir: &Ir) -> CoreOutcome {
     CoreOutcome::Checked(Box::new(crate::core_engine::result(
         Verdict::Unsupported {
@@ -605,11 +610,7 @@ fn report_outcome(
         {
             CoreOutcome::TemporalFailure(Box::new(failure))
         }
-        Err(_) => refused(
-            "a temporal validation failure (core): its report is not implemented on Core",
-            options,
-            ir,
-        ),
+        Err(_) => refused(VALIDATION_FAILURE, options, ir),
     }
 }
 

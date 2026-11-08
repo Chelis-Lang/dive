@@ -1635,6 +1635,79 @@ fn startup_normalization(
     }
 }
 
+/// TLC's start-up normalization of the temporal roles: a formula whose
+/// normalization has no solutions is TLC's tautology error (2253).
+fn startup_normalization_check(
+    model: &Model,
+    limits: Limits,
+    control: &dive_runtime::budget::EvaluationControl,
+) -> Result<(), AnalysisError> {
+    // TLC's startup input is the actual temporal role sequence after binding,
+    // not the original configured roots retained for later attribution.
+    let claims = model
+        .implied_temporals
+        .iter()
+        .map(|p| p.pred.clone())
+        .collect::<Vec<_>>();
+    let converted = plan::lower_claims(model, &claims, limits.formula)
+        .map_err(|error| planning_failure(control, error))?;
+    if crate::budget::exhausted() {
+        return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+    }
+    let inputs = converted
+        .iter()
+        .map(|p| (&p.formula, p.atoms.len()))
+        .collect::<Vec<_>>();
+    let normalized = startup_normalization(&inputs, model.temporals.len(), limits.formula)?;
+    if crate::budget::exhausted() {
+        return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
+    }
+    if normalized
+        .as_ref()
+        .is_some_and(crate::tlc_plan::demand::Normalized::zero_solutions)
+    {
+        return Err(AnalysisError::StartupTautology {
+            output: model.output.clone(),
+        });
+    }
+    Ok(())
+}
+
+/// Whether TLC's start-up normalization of `model`'s temporal properties
+/// has no solutions, its tautology error (2253,
+/// `TLC_LIVE_FORMULA_TAUTOLOGY`). TLC decides this before it evaluates the
+/// ASSUMEs, so a caller that checks ASSUMEs first asks here beforehand.
+///
+/// Planning is effect-free: it refuses effects before they can execute.
+/// Any other planning outcome, failures included, is `false` and is left to
+/// the ordinary analysis, in its own order.
+///
+/// ```
+/// # fn ask(model: &dive_model::Model) {
+/// let options = dive_runtime::CheckOptions::tlc(0, 0);
+/// let limits = dive_liveness::analyze::Limits::default();
+/// if dive_liveness::analyze::startup_tautology(model, &options, limits) {
+///     // Report TLC's start-up error, or refuse it, before any ASSUME.
+/// }
+/// # }
+/// ```
+#[must_use]
+pub fn startup_tautology(model: &Model, opts: &CheckOptions, limits: Limits) -> bool {
+    if model.implied_temporals.is_empty() || validate_analysis_context(model).is_err() {
+        return false;
+    }
+    let Ok(control) = evaluator_control(opts) else {
+        return false;
+    };
+    let Ok(_entered) = control.enter(&model.evaluator) else {
+        return false;
+    };
+    matches!(
+        startup_normalization_check(model, limits, &control),
+        Err(AnalysisError::StartupTautology { .. })
+    )
+}
+
 fn prepare(
     model: &Model,
     limits: Limits,
@@ -1651,36 +1724,7 @@ fn prepare(
     if model.property_claims().len() > limits.properties {
         return Err(AnalysisError::Limit("properties"));
     }
-    {
-        // TLC's startup input is the actual temporal role sequence after binding,
-        // not the original configured roots retained for later attribution.
-        let claims = model
-            .implied_temporals
-            .iter()
-            .map(|p| p.pred.clone())
-            .collect::<Vec<_>>();
-        let converted = plan::lower_claims(model, &claims, limits.formula)
-            .map_err(|error| planning_failure(control, error))?;
-        if crate::budget::exhausted() {
-            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
-        }
-        let inputs = converted
-            .iter()
-            .map(|p| (&p.formula, p.atoms.len()))
-            .collect::<Vec<_>>();
-        let normalized = startup_normalization(&inputs, model.temporals.len(), limits.formula)?;
-        if crate::budget::exhausted() {
-            return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
-        }
-        if normalized
-            .as_ref()
-            .is_some_and(crate::tlc_plan::demand::Normalized::zero_solutions)
-        {
-            return Err(AnalysisError::StartupTautology {
-                output: model.output.clone(),
-            });
-        }
-    }
+    startup_normalization_check(model, limits, control)?;
     // These are different semantic inputs: original configured claims carry
     // initial/safety roles needed for attribution. No scope-cycle identity or
     // expression equality permits replacing them with the temporal-role plans.
