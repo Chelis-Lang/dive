@@ -178,6 +178,7 @@ dependencies = [
  "dive-ir",
  "dive-model",
  "dive-runtime",
+ "dive-stdlib",
  "dive-value",
 ]
 
