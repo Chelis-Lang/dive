@@ -13,7 +13,7 @@ use dive_runtime::{CheckOptions, CheckResult, capture};
 
 use crate::formula::{self, AtomKind, CycleConditions, Tableau};
 use crate::plan::{self, Plan, PlanningError};
-use crate::product::{self, AcceptancePolicy, CompactProduct, PackedTruth};
+use crate::product::{self, AcceptancePolicy, ImplicitProduct, PackedTruth};
 
 mod fairness;
 mod finish;
@@ -1927,11 +1927,12 @@ fn analyze_graph(
                 };
             *stage = Stage::Product;
             for group in &prepared.groups {
-                let product = CompactProduct::with_policy_and_edges(
+                // ADR 0018 §3: the product's vertices are retained and its
+                // edges are recomputed by each search walk, never stored.
+                let product = ImplicitProduct::new(
                     graph,
                     &group.tableau,
                     &labels,
-                    &[],
                     limits.product,
                     policy,
                     behavior_edges,

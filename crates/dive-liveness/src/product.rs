@@ -7,14 +7,18 @@
 use crate::Graph;
 use crate::formula::{AtomKind, CycleConditions, Recurrence, Tableau};
 use crate::graph::GraphAccess;
-use crate::search::{
-    Acceptance, AcceptanceAccess, Lasso, SearchError, Step, find_lasso, find_lasso_view,
-};
+#[cfg(test)]
+use crate::search::find_lasso_view;
+use crate::search::{Acceptance, AcceptanceAccess, Lasso, SearchError, Step, find_lasso};
 use std::collections::{BTreeSet, HashMap};
 
 mod csr;
-use csr::{CsrGraph, FlatRows, OwnedRows, ProductRows, RowStorage};
+#[cfg(test)]
+use csr::{CsrGraph, FlatRows};
+use csr::{OwnedRows, ProductRows, RowStorage};
+mod implicit;
 mod pair_order;
+pub(crate) use implicit::ImplicitProduct;
 
 mod behavior;
 pub(crate) use behavior::BehaviorView;
@@ -110,11 +114,12 @@ struct Parts<A, G> {
 }
 
 // Borrowed only while finalizing one builder; both routes retain the same
-// renumbering, adjacency order and original-edge projection.
+// renumbering, adjacency order and original-edge projection. An on-the-fly
+// product stores no rows; only recurrence conditions read them.
 struct Ordered<'a> {
     pairs: &'a [(usize, usize)],
     order: &'a [usize],
-    graph: &'a dyn ProductRows,
+    graph: Option<&'a dyn ProductRows>,
     edge_count: usize,
     scratch_len: usize,
 }
@@ -267,7 +272,7 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
         let acceptance = acceptance(Ordered {
             pairs: &self.pairs,
             order: &ordered,
-            graph: &graph,
+            graph: Some(&graph),
             edge_count: self.edge_count,
             scratch_len: self.scratch_len,
         })?;
@@ -414,6 +419,7 @@ impl Product {
             limits,
             (AcceptancePolicy::Legacy, 0),
             |input| {
+                let graph = input.graph.ok_or_else(rowless)?;
                 let states = (0..tableau.promise_count)
                     .map(|p| {
                         input
@@ -423,8 +429,8 @@ impl Product {
                             .collect()
                     })
                     .collect();
-                let recurrent = (0..input.graph.vertex_count())
-                    .map(|v| vec![true; input.graph.successors(v).len()])
+                let recurrent = (0..graph.vertex_count())
+                    .map(|v| vec![true; graph.successors(v).len()])
                     .collect();
                 let actions = conditions
                     .iter()
@@ -435,8 +441,7 @@ impl Product {
                             .enumerate()
                             .map(|(id, &old)| {
                                 let v = input.pairs[old].0;
-                                input
-                                    .graph
+                                graph
                                     .original_edges(id)
                                     .iter()
                                     .map(|&e| condition.evaluate(|atom| labels.truth(atom, v, e)))
@@ -535,12 +540,20 @@ fn build<A, R: RowStorage>(
     builder.finish(roots, acceptance)
 }
 
+fn rowless() -> ProductError {
+    ProductError::Shape("recurrence conditions need stored product rows".into())
+}
+
 // Each column packs one Boolean per product vertex or flattened product edge.
 // Recurrent-edge truth is uniformly true for constructed products.
 struct CompactAcceptance {
     states: Vec<Vec<u64>>,
     actions: Vec<Vec<u64>>,
     edge_offsets: Vec<usize>,
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "read only by the materialized reference product")
+    )]
     behavior_actions: bool,
     /// Actual covered work already spent by the buffer-policy materializer.
     materialization_work: usize,
@@ -582,7 +595,7 @@ impl CompactAcceptance {
         tableau: &Tableau,
         labels: &impl TruthAccess,
         conditions: &[Recurrence],
-    ) -> Self {
+    ) -> Result<Self, ProductError> {
         let states = (0..tableau.promise_count)
             .map(|p| {
                 let mut words = vec![0; input.order.len().div_ceil(64)];
@@ -598,11 +611,16 @@ impl CompactAcceptance {
             .collect();
         let mut edge_offsets = Vec::new();
         let mut edges = 0;
-        if !conditions.is_empty() {
-            edge_offsets.reserve_exact(input.graph.vertex_count() + 1);
+        let graph = if conditions.is_empty() {
+            None
+        } else {
+            Some(input.graph.ok_or_else(rowless)?)
+        };
+        if let Some(graph) = graph {
+            edge_offsets.reserve_exact(graph.vertex_count() + 1);
             edge_offsets.push(0);
-            for v in 0..input.graph.vertex_count() {
-                let row = input.graph.successors(v);
+            for v in 0..graph.vertex_count() {
+                let row = graph.successors(v);
                 // The shared builder already checked every retained-edge addition.
                 edges += row.len();
                 edge_offsets.push(edges);
@@ -615,7 +633,8 @@ impl CompactAcceptance {
                 let mut words = vec![0; edges.div_ceil(64)];
                 for (id, &old) in input.order.iter().enumerate() {
                     let v = input.pairs[old].0;
-                    for (position, &e) in input.graph.original_edges(id).iter().enumerate() {
+                    let rows = graph.map_or(&[][..], |graph| graph.original_edges(id));
+                    for (position, &e) in rows.iter().enumerate() {
                         let truth = condition
                             .evaluate_with_scratch(|atom| labels.truth(atom, v, e), &mut scratch);
                         set_bit(&mut words, edge_offsets[id] + position, truth);
@@ -624,18 +643,20 @@ impl CompactAcceptance {
                 words
             })
             .collect();
-        Self {
+        Ok(Self {
             states,
             actions,
             edge_offsets,
             behavior_actions: false,
             materialization_work: 0,
-        }
+        })
     }
 }
 
-/// Coordinator-only product with flat acceptance bits. All legacy construction
+/// Materialized product with flat acceptance bits, retained as the reference
+/// for [`ImplicitProduct`] and the acceptance-budget controls. All legacy construction
 /// guards run before materializing acceptance, just as for public owned products.
+#[cfg(test)]
 pub(crate) struct CompactProduct {
     parts: Parts<CompactAcceptance, CsrGraph>,
     limits: Limits,
@@ -644,6 +665,7 @@ pub(crate) struct CompactProduct {
     solution_setup_work: std::cell::Cell<usize>,
 }
 
+#[cfg(test)]
 impl CompactProduct {
     #[cfg(test)]
     fn with_recurrences(
@@ -696,7 +718,7 @@ impl CompactProduct {
             (policy, behavior_edges),
             |input| match policy {
                 AcceptancePolicy::Legacy => {
-                    Ok(CompactAcceptance::new(&input, tableau, labels, conditions))
+                    CompactAcceptance::new(&input, tableau, labels, conditions)
                 }
                 AcceptancePolicy::Buffers { bytes, work } => budget::materialize(
                     &input,
@@ -732,86 +754,35 @@ impl CompactProduct {
         if conditions.always.is_empty() && conditions.recurring.is_empty() {
             return self.find_lasso();
         }
-        for atom in conditions
-            .always
-            .iter()
-            .chain(&conditions.recurring)
-            .flat_map(Recurrence::atoms)
-        {
-            if !labels.contains(atom) {
-                return Err(ProductError::Shape(
-                    "cycle predicate outside label table".into(),
-                ));
-            }
-        }
-        let scratch_len = conditions
-            .always
-            .iter()
-            .chain(&conditions.recurring)
-            .map(Recurrence::scratch_len)
-            .max()
-            .unwrap_or(0);
-        let check_bytes = |scratch: usize| -> Result<(), ProductError> {
-            if let AcceptancePolicy::Buffers { bytes, .. } = self.policy {
-                self.parts
-                    .acceptance
-                    .buffer_bytes()
-                    .and_then(|held| held.checked_add(scratch))
-                    .filter(|needed| *needed <= bytes)
-                    .ok_or(ProductError::Limit("acceptance buffer bytes"))?;
-            }
-            Ok(())
-        };
-        if self.policy == AcceptancePolicy::Legacy {
-            let edges = (0..self.parts.graph.vertex_count())
-                .try_fold(0_usize, |n, v| {
-                    n.checked_add(self.parts.graph.successors(v).len())
-                })
-                .ok_or(ProductError::Limit("acceptance cells"))?;
-            self.state_count()
-                .checked_mul(self.parts.graph.vertex_count())
-                .and_then(|states| {
-                    self.action_count()
-                        .checked_add(conditions.recurring.len())
-                        .and_then(|actions| actions.checked_add(1))
-                        .and_then(|actions| actions.checked_mul(edges))
-                        .and_then(|actions| states.checked_add(actions))
-                })
-                .filter(|cells| *cells <= self.limits.acceptance_cells)
-                .ok_or(ProductError::Limit("acceptance cells"))?;
-        }
-        check_bytes(scratch_len)?;
-        let next_setup_work = if let AcceptancePolicy::Buffers { work, .. } = self.policy {
-            // Each condition's scratch metadata was inspected above. The
-            // scratch entries are initialized below and coexist with the
-            // base acceptance buffers, so both setup costs share its budget.
-            // Boolean evaluation during lasso search is not materialization.
-            let setup = self
-                .solution_setup_work
-                .get()
-                .checked_add(conditions.always.len())
-                .and_then(|used| used.checked_add(conditions.recurring.len()))
-                .and_then(|used| used.checked_add(scratch_len))
-                .ok_or(ProductError::Limit("acceptance materialization work"))?;
-            self.parts
-                .acceptance
-                .materialization_work
-                .checked_add(setup)
-                .filter(|used| *used <= work)
-                .ok_or(ProductError::Limit("acceptance materialization work"))?;
-            Some(setup)
-        } else {
-            None
-        };
-        let mut scratch = Vec::new();
-        scratch
-            .try_reserve_exact(scratch_len)
-            .map_err(|_| ProductError::Limit("solution scratch allocation"))?;
-        check_bytes(scratch.capacity())?;
-        scratch.resize(scratch_len, false);
-        if let Some(work) = next_setup_work {
-            self.solution_setup_work.set(work);
-        }
+        let scratch = solution_scratch(
+            &self.parts.acceptance,
+            labels,
+            conditions,
+            self.policy,
+            || {
+                if self.policy != AcceptancePolicy::Legacy {
+                    return Ok(());
+                }
+                let edges = (0..self.parts.graph.vertex_count())
+                    .try_fold(0_usize, |n, v| {
+                        n.checked_add(self.parts.graph.successors(v).len())
+                    })
+                    .ok_or(ProductError::Limit("acceptance cells"))?;
+                self.state_count()
+                    .checked_mul(self.parts.graph.vertex_count())
+                    .and_then(|states| {
+                        self.action_count()
+                            .checked_add(conditions.recurring.len())
+                            .and_then(|actions| actions.checked_add(1))
+                            .and_then(|actions| actions.checked_mul(edges))
+                            .and_then(|actions| states.checked_add(actions))
+                    })
+                    .filter(|cells| *cells <= self.limits.acceptance_cells)
+                    .ok_or(ProductError::Limit("acceptance cells"))?;
+                Ok(())
+            },
+            &self.solution_setup_work,
+        )?;
         let conditioned = Conditioned {
             product: self,
             labels,
@@ -826,6 +797,7 @@ impl CompactProduct {
     }
 }
 
+#[cfg(test)]
 impl AcceptanceAccess for CompactProduct {
     fn state_count(&self) -> usize {
         self.parts.acceptance.states.len()
@@ -860,19 +832,107 @@ impl AcceptanceAccess for CompactProduct {
     }
 }
 
+/// Checks one alternative's cycle predicates and secures its Boolean scratch
+/// under the product's acceptance policy. `legacy` applies the representation's
+/// logical-cell admission after the predicate references are checked.
+fn solution_scratch(
+    acceptance: &CompactAcceptance,
+    labels: &impl TruthAccess,
+    conditions: &CycleConditions,
+    policy: AcceptancePolicy,
+    legacy: impl FnOnce() -> Result<(), ProductError>,
+    setup_work: &std::cell::Cell<usize>,
+) -> Result<Vec<bool>, ProductError> {
+    for atom in conditions
+        .always
+        .iter()
+        .chain(&conditions.recurring)
+        .flat_map(Recurrence::atoms)
+    {
+        if !labels.contains(atom) {
+            return Err(ProductError::Shape(
+                "cycle predicate outside label table".into(),
+            ));
+        }
+    }
+    let scratch_len = conditions
+        .always
+        .iter()
+        .chain(&conditions.recurring)
+        .map(Recurrence::scratch_len)
+        .max()
+        .unwrap_or(0);
+    let check_bytes = |scratch: usize| -> Result<(), ProductError> {
+        if let AcceptancePolicy::Buffers { bytes, .. } = policy {
+            acceptance
+                .buffer_bytes()
+                .and_then(|held| held.checked_add(scratch))
+                .filter(|needed| *needed <= bytes)
+                .ok_or(ProductError::Limit("acceptance buffer bytes"))?;
+        }
+        Ok(())
+    };
+    legacy()?;
+    check_bytes(scratch_len)?;
+    let next_setup_work = if let AcceptancePolicy::Buffers { work, .. } = policy {
+        // Each condition's scratch metadata was inspected above. The
+        // scratch entries are initialized below and coexist with the
+        // base acceptance buffers, so both setup costs share its budget.
+        // Boolean evaluation during lasso search is not materialization.
+        let setup = setup_work
+            .get()
+            .checked_add(conditions.always.len())
+            .and_then(|used| used.checked_add(conditions.recurring.len()))
+            .and_then(|used| used.checked_add(scratch_len))
+            .ok_or(ProductError::Limit("acceptance materialization work"))?;
+        acceptance
+            .materialization_work
+            .checked_add(setup)
+            .filter(|used| *used <= work)
+            .ok_or(ProductError::Limit("acceptance materialization work"))?;
+        Some(setup)
+    } else {
+        None
+    };
+    let mut scratch = Vec::new();
+    scratch
+        .try_reserve_exact(scratch_len)
+        .map_err(|_| ProductError::Limit("solution scratch allocation"))?;
+    check_bytes(scratch.capacity())?;
+    scratch.resize(scratch_len, false);
+    if let Some(work) = next_setup_work {
+        setup_work.set(work);
+    }
+    Ok(scratch)
+}
+
+/// The behavior state and original edge of a product edge label.
+trait BehaviorEdges {
+    fn behavior_edge(&self, source: usize, edge: usize) -> (usize, usize);
+}
+
+#[cfg(test)]
+impl BehaviorEdges for CompactProduct {
+    fn behavior_edge(&self, source: usize, edge: usize) -> (usize, usize) {
+        (
+            self.parts.behavior_states[source],
+            self.parts.graph.original_edges(source)[edge],
+        )
+    }
+}
+
 // One possible-error model borrows its group's shared temporal product. FG
 // conditions restrict only the recurring walk; GF conditions add visit duties.
-struct Conditioned<'a, T: TruthAccess> {
-    product: &'a CompactProduct,
+struct Conditioned<'a, P, T: TruthAccess> {
+    product: &'a P,
     labels: &'a T,
     conditions: &'a CycleConditions,
     scratch: std::cell::RefCell<Vec<bool>>,
 }
 
-impl<T: TruthAccess> Conditioned<'_, T> {
+impl<P: BehaviorEdges, T: TruthAccess> Conditioned<'_, P, T> {
     fn truth(&self, condition: &Recurrence, source: usize, edge: usize) -> bool {
-        let state = self.product.parts.behavior_states[source];
-        let edge = self.product.parts.graph.original_edges(source)[edge];
+        let (state, edge) = self.product.behavior_edge(source, edge);
         condition.evaluate_with_scratch(
             |atom| self.labels.truth(atom, state, edge),
             &mut self.scratch.borrow_mut(),
@@ -880,7 +940,9 @@ impl<T: TruthAccess> Conditioned<'_, T> {
     }
 }
 
-impl<T: TruthAccess> AcceptanceAccess for Conditioned<'_, T> {
+impl<P: AcceptanceAccess + BehaviorEdges, T: TruthAccess> AcceptanceAccess
+    for Conditioned<'_, P, T>
+{
     fn state_count(&self) -> usize {
         self.product.state_count()
     }
@@ -926,6 +988,7 @@ fn project_lasso(
     })
 }
 
+#[cfg(test)]
 fn project_lasso_rows(
     lasso: &Lasso,
     behavior_states: &[usize],
