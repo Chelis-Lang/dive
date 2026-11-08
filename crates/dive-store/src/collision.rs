@@ -58,7 +58,10 @@ mod tests {
         words.iter().map(|w| u64::from_le_bytes(*w)).collect()
     }
 
-    /// TLC's printed "actual" figure: `1 / gap` to two significant digits.
+    /// `1 / gap` to two significant digits, for comparing gaps with TLC's
+    /// printed "actual" figures. Rust rounds the binary double half-to-even,
+    /// not with TLC's `BigDecimal` `HALF_UP`, so these tests check the gap
+    /// computation, not TLC's figure formatting.
     #[allow(clippy::cast_precision_loss, reason = "a printed two-digit estimate")]
     fn figure(gap: u64) -> String {
         format!("{:.1E}", 1.0 / gap as f64)

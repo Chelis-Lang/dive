@@ -42,13 +42,14 @@ This is same-process transient storage, not a value snapshot or recovery format.
   that hash in the current level.
 - Claims use compare-and-swap on a packed 64-bit position word, so no lock is
   needed. This is safe Rust using `AtomicU64`.
-- **Collision reporting.** It is computed as `crates/dive-store/src/fpset.rs`
-  does today.
+- **Collision reporting.** Core prints no fingerprint collision estimate
+  (`collision: None` in `crates/dive-api/src/core_engine.rs`). Only TLC's
+  minimum-gap scan remains, as `dive_store::seen::DiskSeen::tlc_min_gap`.
 - **Growth.** The table grows at level boundaries. Within a level, sizing
   uses the level's upper bound or a resize protocol, decided in M1.
 
-**Exact store.** `--store exact` keeps full canonical keys, via the existing
-`dive_store::ExactSet` or a handle-array variant of it.
+**Exact store.** `--store exact` keeps complete mathematical state identities
+in Core's exact collision index (`crates/dive-explore/src/storage.rs`).
 
 **Predecessor log.** `dive_store::PredecessorLog`
 (`crates/dive-store/src/predecessor.rs:57`) records parent id and successor

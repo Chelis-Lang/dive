@@ -118,7 +118,7 @@ whole, whichever engine runs.
 | Error classes and precedence | partial | ✓ |
 | Sequential BFS safety, invariants and deadlock | implemented | ✓ |
 | Deterministic parallel checking | implemented | ✓ |
-| Fingerprint/exact stores and collision accounting | implemented | ✓ |
+| Fingerprint/exact stores and collision accounting (Core prints no collision estimate) | partial | ✓ |
 | State/action constraints and action-property split | implemented | ✓ |
 | VIEW identity and temporal lifting | partial | ✓ |
 | Symmetry declaration binding, warnings and closure | partial | ✓ |
@@ -144,4 +144,4 @@ whole, whichever engine runs.
 | Complete corpus, harness and release certification | partial | ✓ |
 | Global TLC profile and approved better defaults | partial | ✓ |
 
-Totals: 8 implemented, 30 partial, 0 missing.
+Totals: 7 implemented, 31 partial, 0 missing.
