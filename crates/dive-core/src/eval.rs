@@ -1105,9 +1105,12 @@ impl Machine {
     }
 
     /// `Node::Beta`: TLC's `FcnLambdaValue.apply` on a function constructor
-    /// with one bound variable. The function's domain is evaluated first
-    /// (TLC builds the lazy function before evaluating the argument), then
-    /// the argument; the argument must be in the domain.
+    /// whose bound variables have no tuple pattern. The function's domains
+    /// are evaluated first, in order (TLC builds the lazy function before
+    /// evaluating the argument), then the argument. With one bound variable
+    /// the argument must be in the domain; with several it is a tuple of
+    /// their number whose components, in order, must be in their domains.
+    /// The body is then evaluated for that argument alone.
     fn beta(&mut self, code: &Code, chain: P, fc: P, arg: P) -> Result<Handle, Error> {
         match code.nodes.get(chain as usize) {
             Some(Node::Lazy { slot, body }) => {
@@ -1127,28 +1130,97 @@ impl Machine {
             }
             Some(Node::Spec(b)) => self.beta(code, *b, fc, arg),
             Some(Node::FcnCons { binds, body }) if chain == fc => {
-                let (Some(bind), Some(&slot)) =
-                    (binds.first(), binds.first().and_then(|b| b.slots.first()))
-                else {
-                    return Err(Error::internal(
-                        "a lazy application without a bound variable",
-                    ));
-                };
-                let dom = self.eval(code, bind.domain)?;
-                let x = self.eval_norm(code, arg)?;
-                if !self.member(x, dom)? {
+                if let [bind] = &binds[..]
+                    && let [slot] = bind.slots[..]
+                {
+                    return self.beta_one(code, bind.domain, slot, arg, *body);
+                }
+                self.beta_many(code, chain, binds, arg, *body)
+            }
+            _ => Err(Error::internal("a lazy application of a non-function node")),
+        }
+    }
+
+    fn beta_one(
+        &mut self,
+        code: &Code,
+        domain: P,
+        slot: u32,
+        arg: P,
+        body: P,
+    ) -> Result<Handle, Error> {
+        let dom = self.eval(code, domain)?;
+        let x = self.eval_norm(code, arg)?;
+        if !self.member(x, dom)? {
+            return Err(general(
+                "In applying the function\na function, the argument is not in its domain",
+            ));
+        }
+        let old = self.slot(slot);
+        self.set_slot(slot, x);
+        let out = self.eval(code, body);
+        self.set_slot(slot, old);
+        out
+    }
+
+    /// [`Machine::beta`] with several bound variables. An argument that is
+    /// not a tuple of their number takes the constructor's speculative
+    /// eager build and ordinary application instead, unchanged.
+    fn beta_many(
+        &mut self,
+        code: &Code,
+        fc: P,
+        binds: &[Bind],
+        arg: P,
+        body: P,
+    ) -> Result<Handle, Error> {
+        if binds.iter().any(|b| b.tuple || b.slots.is_empty()) {
+            return Err(Error::internal(
+                "a lazy application with a tuple pattern or no bound variable",
+            ));
+        }
+        let mut doms = Vec::with_capacity(binds.len());
+        for b in binds {
+            doms.push(self.eval(code, b.domain)?);
+        }
+        let x = self.eval_norm(code, arg)?;
+        let arity: usize = binds.iter().map(|b| b.slots.len()).sum();
+        let parts = if x.is_compound() {
+            let v = self.heap.view(x);
+            (v.kind == Kind::IntFcn && v.lo == 1 && v.data.len() == arity).then(|| v.data.to_vec())
+        } else {
+            None
+        };
+        let Some(parts) = parts else {
+            let f = self.eval(code, fc).map_err(speculative)?;
+            return self.apply(f, x);
+        };
+        let mut k = 0;
+        for (b, &dom) in binds.iter().zip(&doms) {
+            for _ in &b.slots {
+                if !self.member(parts[k], dom)? {
                     return Err(general(
                         "In applying the function\na function, the argument is not in its domain",
                     ));
                 }
-                let old = self.slot(slot);
-                self.set_slot(slot, x);
-                let out = self.eval(code, *body);
-                self.set_slot(slot, old);
-                out
+                k += 1;
             }
-            _ => Err(Error::internal("a lazy application of a non-function node")),
         }
+        let mark = self.saved.len();
+        for &s in binds.iter().flat_map(|b| b.slots.iter()) {
+            let v = self.slot(s);
+            self.saved.push(v);
+        }
+        for (&s, &p) in binds.iter().flat_map(|b| b.slots.iter()).zip(&parts) {
+            self.set_slot(s, p);
+        }
+        let out = self.eval(code, body);
+        for (k, &s) in binds.iter().flat_map(|b| b.slots.iter()).enumerate() {
+            let v = self.saved.get(mark + k).copied().unwrap_or(Handle::EMPTY);
+            self.set_slot(s, v);
+        }
+        self.saved.truncate(mark);
+        out
     }
 
     /// Membership in a set node TLC keeps lazy (`Node::InLazy`), without

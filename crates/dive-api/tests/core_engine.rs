@@ -175,6 +175,42 @@ fn lazy_values_are_applied_without_being_built() {
     assert_eq!(counts(&core), counts(&run("Lazy", Engine::Core)));
 }
 
+/// A function constructor of several bound variables is applied without
+/// being built (`FcnLambdaValue.apply`): over `Nat`, and past entries whose
+/// bodies fail. Pinned TLC: success, 3 generated, 3 distinct, depth 3.
+#[test]
+fn lazy_functions_of_several_variables_are_applied_without_being_built() {
+    // Kept out of `core-m0`, whose fixtures other tests sweep in order.
+    let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/core-lazy-functions/LazyPair.tla");
+    let core = check_file_engine(
+        &CheckRequest {
+            config: Some(file.with_extension("cfg")),
+            file,
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        },
+        Engine::Core,
+    )
+    .expect("check runs")
+    .to_json();
+    assert_eq!(core["engine"], "core", "{core:#}");
+    assert_eq!(
+        counts(&core),
+        (
+            Value::from("success"),
+            Value::from(3),
+            Value::from(3),
+            Value::from(3)
+        ),
+        "{core:#}"
+    );
+    let plan = &core["core"]["metrics"]["plan"];
+    assert!(plan["beta"].as_u64().is_some_and(|b| b >= 4), "{plan:#}");
+}
+
 /// Operator arguments, constant operators and nested operator
 /// substitutions (`04-plan-compiler.md` §5.4).
 #[test]

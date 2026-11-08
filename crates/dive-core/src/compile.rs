@@ -1512,9 +1512,10 @@ impl Compiler<'_> {
     /// constructor reached directly, or through a definition, stays lazy,
     /// and so does one over a non-reducible domain. One reached through a
     /// `LET` value or an operator argument (a `LazyValue`) over reducible
-    /// domains is built eagerly (fixture `LzApplyDef`). A lazy one with one
-    /// bound variable is applied without being built (`Node::Beta`); a
-    /// lazy one of several is built speculatively.
+    /// domains is built eagerly (fixture `LzApplyDef`). A lazy one whose
+    /// bound variables have no tuple pattern is applied without being built
+    /// (`Node::Beta`); a lazy one with a tuple pattern is built
+    /// speculatively.
     fn apply_value(&mut self, f: P, a: P) -> Result<P, Error> {
         let Some(fc) = self.lambda(f) else {
             return self.push(Node::Apply(f, a));
@@ -1522,7 +1523,10 @@ impl Compiler<'_> {
         let Some(Node::FcnCons { binds, .. }) = self.code.nodes.get(fc as usize) else {
             return self.push(Node::Apply(f, a));
         };
-        let single = binds.len() == 1 && binds[0].slots.len() == 1 && !binds[0].tuple;
+        // Bound variables without tuple patterns: TLC's `FcnLambdaValue.apply`
+        // binds each from its argument (several from a tuple) and evaluates
+        // the body for that argument alone.
+        let plain = binds.iter().all(|b| !b.tuple && !b.slots.is_empty());
         let non_reducible = binds.iter().any(|b| self.red(b.domain) == Red::No);
         let mut thunk = false;
         let mut p = f;
@@ -1540,7 +1544,7 @@ impl Compiler<'_> {
             // its domains may not be reducible: `push_lazy`).
             return self.push(Node::Apply(f, a));
         }
-        if single {
+        if plain {
             self.stats.beta += 1;
             return self.push(Node::Beta {
                 chain: f,

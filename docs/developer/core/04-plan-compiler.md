@@ -355,11 +355,13 @@ call, is `Maybe`. Folding keeps the expression's value.
   top-level definition stays lazy. So does one over a `No` domain. One
   reached through a `LET` value or an operator argument (TLC's `LazyValue`)
   over reducible domains is built eagerly (probe `LzApplyDef` below). A lazy
-  constructor with one bound variable is applied without being built
-  (`Node::Beta`): its domain, then the argument, a domain check, then the body
-  for that argument alone (`FcnLambdaValue.apply`). The plan statistic `beta`
-  counts these. A lazy one with several bound variables is built
-  speculatively.
+  constructor whose bound variables have no tuple pattern is applied without
+  being built (`Node::Beta`): its domains in order, then the argument, a
+  domain check (with several bound variables, of each component of an
+  argument tuple of their number), then the body for that argument alone
+  (`FcnLambdaValue.apply`). The plan statistic `beta` counts these. An
+  argument that is not such a tuple, and a lazy constructor with a tuple
+  pattern, take the speculative eager build.
 - **`DOMAIN`.** `DOMAIN f` of a constructor over a `No` domain is its domain,
   without building it (`FcnLambdaValue.getDomain`). `EXCEPT` bases and
   `DOMAIN` are not `KEEP_LAZY` positions (`crates/dive-eval/src/eval.rs`,
