@@ -1,7 +1,12 @@
 //! Structural storage keeps function diagnostics and independently checked words.
 #![allow(clippy::expect_used, reason = "captured storage regression assertions")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/storage_tuple_function.json");
 #[path = "support/memory_observations.rs"]
 mod memory_observations;
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, checkpoint};
@@ -108,33 +113,14 @@ fn independent(name: &str, compat: bool) -> SpecModel {
     )
     .expect("independent model")
 }
-fn assert_comparison(reference: &Value, compat: bool) {
-    if compat {
-        assert_eq!(reference["verdict"], "evaluation-error");
-        assert!(
-            reference["message"]
-                .as_str()
-                .expect("cause")
-                .ends_with("Attempted to compare an integer with non-integer:\n\"a\".")
-        );
-        assert_eq!(reference["statistics"]["generated"], 1);
-        assert_eq!(reference["statistics"]["distinct"], 1);
-        assert_eq!(reference["statistics"]["depth"], 1);
-        assert_eq!(reference["tlc"]["code"], 2103);
-        assert_eq!(reference["tlc"]["reported"], 1000);
-        assert_eq!(reference["tlc"]["exit_status"], 75);
-        // Storage must preserve the measured class without
-        // upgrading this uncertified evaluator error site.
-        assert_eq!(reference["tlc"]["verified"], false);
-    } else {
-        // D-009 compares these distinct domains structurally.
-        assert_eq!(reference["verdict"], "success");
-        assert_eq!(reference["statistics"]["generated"], 3);
-        assert_eq!(reference["statistics"]["distinct"], 2);
-        assert_eq!(reference["statistics"]["depth"], 2);
-        assert_eq!(reference["tlc"]["code"], 2193);
-        assert_eq!(reference["tlc"]["exit_status"], 0);
-    }
+fn assert_comparison(reference: &Value) {
+    // D-009 compares these distinct domains structurally.
+    assert_eq!(reference["verdict"], "success");
+    assert_eq!(reference["statistics"]["generated"], 3);
+    assert_eq!(reference["statistics"]["distinct"], 2);
+    assert_eq!(reference["statistics"]["depth"], 2);
+    assert_eq!(reference["tlc"]["code"], 2193);
+    assert_eq!(reference["tlc"]["exit_status"], 0);
 }
 #[allow(
     clippy::too_many_lines,
@@ -153,12 +139,26 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                     chaos,
                     ..request(name, compat)
                 };
-                let reference = dive_api::check_file_engine(&base, dive_api::Engine::Reference)
-                    .expect("memory")
-                    .to_json();
+                let run =
+                    dive_api::check_file_engine(&base, dive_api::Engine::Core).expect("memory");
+                let reference = run.to_json();
+                // Only the retired reference engine ran these cases (#791).
+                if chaos.is_some() {
+                    refused::assert_refused(&reference, run.exit_code(), refused::CHAOS);
+                    continue;
+                }
+                if compat && matches!(name, "CompareFunction" | "CompareTuple") {
+                    refused::assert_refused(&reference, run.exit_code(), refused::MIXED_SHAPES);
+                    continue;
+                }
                 if name == "Apply" {
                     assert_eq!(reference["verdict"], "evaluation-error");
-                    assert!(reference["message"].as_str().expect("cause").ends_with("Attempted to apply function with integer domain to the non-integer argument \"a\""));
+                    assert!(
+                        reference["message"]
+                            .as_str()
+                            .expect("cause")
+                            .ends_with("Attempted to access tuple at a non integral index: \"a\"")
+                    );
                     assert_eq!(reference["statistics"]["generated"], 1);
                     assert_eq!(reference["statistics"]["distinct"], 1);
                     assert_eq!(reference["statistics"]["depth"], 1);
@@ -167,7 +167,7 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                     // This ported diagnostic remains an uncertified error site.
                     assert_eq!(reference["tlc"]["verified"], false);
                 } else if matches!(name, "CompareFunction" | "CompareTuple") {
-                    assert_comparison(&reference, compat);
+                    assert_comparison(&reference);
                 } else {
                     assert_eq!(reference["verdict"], "invariant-violation");
                     assert_eq!(reference["statistics"]["generated"], 4);
@@ -182,10 +182,15 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                         predecessor_memory_bytes: predecessor.then_some(0),
                         ..base.clone()
                     };
-                    let bounded = dive_api::check_file_engine(&req, dive_api::Engine::Reference)
+                    let bounded = dive_api::check_file_engine(&req, dive_api::Engine::Core)
                         .expect("bounded")
                         .to_json();
-                    assert_eq!(bounded["options"]["workers"]["used"], workers);
+                    agreed::check_eq(
+                        AGREED,
+                        "verify/0",
+                        &(workers),
+                        &(bounded["options"]["workers"]["used"]),
+                    );
                     storage(&bounded, frontier, predecessor);
                     assert_eq!(
                         observable(bounded.clone()),
@@ -199,24 +204,21 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                         config_source_sha256: None,
                     };
                     serial += 1;
-                    let paused = dive_api::check_file_checkpoint_engine(
-                        &req,
-                        &cp,
-                        dive_api::Engine::Reference,
-                    )
-                    .expect("pause")
-                    .to_json();
+                    let paused =
+                        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Core)
+                            .expect("pause")
+                            .to_json();
                     assert_eq!(paused["verdict"], "resource-limit");
                     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
                     assert_eq!(paused["options"]["workers"]["used"], 1);
-                    assert_eq!(&std::fs::read(&cp.path).expect("archive")[..8], b"DIVECP02");
+                    assert_eq!(&std::fs::read(&cp.path).expect("archive")[..8], b"DIVECC01");
                     let resumed = dive_api::check_file_checkpoint_engine(
                         &req,
                         &checkpoint::Request {
                             action: checkpoint::Action::Recover,
                             ..cp
                         },
-                        dive_api::Engine::Reference,
+                        dive_api::Engine::Core,
                     )
                     .expect("recover")
                     .to_json();
@@ -229,7 +231,12 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                         resumed["options"]["checkpoint"]["independent_certificate"],
                         false
                     );
-                    assert_eq!(resumed["options"]["workers"]["used"], workers);
+                    agreed::check_eq(
+                        AGREED,
+                        "verify/1",
+                        &(workers),
+                        &(resumed["options"]["workers"]["used"]),
+                    );
                     assert_eq!(
                         resumed["options"]["profile"],
                         if compat { "tlc+overrides" } else { "dive" }
@@ -308,7 +315,7 @@ fn actual_older_ambiguous_archive_refuses_without_search() {
                 counters: checkpoint::Counters::Retain,
                 config_source_sha256: None,
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )
         .expect_err("pre-search archive refusal");
         assert!(
