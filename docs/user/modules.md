@@ -56,10 +56,11 @@ can be selected as `F[0]` without demanding entries 1 and 2, whether the functio
 is named or written inline. Selecting `F[1]` or materializing the whole function
 still raises division by zero. Successful startup values remain cached; genuine
 resource failures and interruptions propagate instead of retrying. This rule is
-the same in both profiles. A pinned runnable regression is:
+the same in both profiles. A pinned runnable regression, which succeeds with 2
+distinct states, is:
 
 ```sh
-dive check conformance/corpus/constant-retry-lazy/specifications/Named/Named.tla --config conformance/corpus/constant-retry-lazy/specifications/Named/Named.cfg --engine reference --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check conformance/corpus/constant-retry-lazy/specifications/Named/Named.tla --config conformance/corpus/constant-retry-lazy/specifications/Named/Named.cfg --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 `Len` accepts a function with an empty domain as the empty sequence, including
@@ -68,7 +69,7 @@ must have domain `1..n`; an empty set or scalar remains an error. This checked
 example runs without core fallback:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-len-empty/EmptyInterval.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-len-empty/EmptyInterval.tla --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
 `Seq(S)` keeps an original Cartesian-product range on Core. An empty sequence
@@ -78,7 +79,7 @@ non-tuple errors, including when that Product is empty. Both profiles run this
 state-dependent example without fallback:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-receiver-consumers/SeqProduct.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-receiver-consumers/SeqProduct.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 `IsFiniteSet(Seq(P))` checks the original Product's finiteness, then its
@@ -89,7 +90,7 @@ other unproved compound finiteness demands and malformed factors refuse. This
 checked example succeeds with one distinct state, two generated and depth one:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-receiver-consumers/SeqProductFiniteEmpty.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-receiver-consumers/SeqProductFiniteEmpty.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 Nested `SUBSET` membership can enumerate an owned raw literal query, preserving
@@ -99,7 +100,7 @@ mixed-kind comparisons remain explicit refusals. This also holds with the
 internal symbolic-membership optimization disabled. The checked example is:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-receiver-consumers/MappedSubsets.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-receiver-consumers/MappedSubsets.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 Under `--compat=tlc`, an outer mapped collection containing multiple raw sets
@@ -137,18 +138,18 @@ comparison needed by that diagnostic. The minimal state-dependent example now
 succeeds in either profile:
 
 ```sh
-dive check conformance/corpus/graph-demand/specifications/SelfDemand/SelfDemand.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+dive check conformance/corpus/graph-demand/specifications/SelfDemand/SelfDemand.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
 Normalized Java set conversions, including `SequencesExt!SetToSeq` and
 `SetToSeqs`, check concrete Product emptiness before normalizing axes. This
 follows the override's conversion-then-normalization order: an empty converted
-collection leaves unused axes and their aliases untouched. Both engines run this
-state-dependent control in either profile with three distinct/generated states,
-depth three and success exit 0:
+collection leaves unused axes and their aliases untouched. Under `--compat=tlc`,
+Core refuses this mixed-shape control by name (TLC's checked comparison of a
+set of values of different shapes is not ported):
 
 ```sh
-dive check conformance/corpus/set-conversion-demand/specifications/NormalizedProjectionSkipRaw/NormalizedProjectionSkipRaw.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine reference --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check conformance/corpus/set-conversion-demand/specifications/NormalizedProjectionSkipRaw/NormalizedProjectionSkipRaw.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 Nonempty conversions still demand axis normalization. Later sizing of an
@@ -164,13 +165,12 @@ error-parity credit.
 `LongestCommonPrefix` rejects an empty converted set after rendering its original
 argument. For `{x, TRUE} \X {}`, that rendering still demands the mixed axis's
 comparison and reports its error. An empty first axis, or a nested Product that
-is already empty, prints `{}` without demanding unused axes. These diagnostics
-run on Reference in both profiles; Core retains its Product conversion refusal.
-The errors' native source classification remains unverified. This checked
-example exits 75 with the demanded boolean comparison:
+is already empty, prints `{}` without demanding unused axes. TLC exits 75 on this
+example with the demanded boolean comparison; Core refuses the mixed-shape set
+under `--compat=tlc` by name:
 
 ```sh
-dive check conformance/corpus/set-diagnostic-demand/specifications/PrefixReverse/PrefixReverse.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine reference --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check conformance/corpus/set-diagnostic-demand/specifications/PrefixReverse/PrefixReverse.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 Graph conversion also recognizes an empty Cartesian product before enumerating
@@ -185,7 +185,7 @@ named refusals. This model runs on Core in both profiles with three distinct and
 generated states, depth three and success exit 0:
 
 ```sh
-dive check conformance/corpus/graph-empty-product/specifications/LazyEmptyProduct/LazyEmptyProduct.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check conformance/corpus/graph-empty-product/specifications/LazyEmptyProduct/LazyEmptyProduct.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 Empty enumeration does not turn the original Product into an ordinary empty-set
@@ -199,7 +199,7 @@ function keys, state handoff and other unproved operator consumers retain explic
 refusals. This checked receiver control errors on Core in both profiles:
 
 ```sh
-dive check conformance/corpus/product-receivers/specifications/BaseValidIntervals/BaseValidIntervals.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check conformance/corpus/product-receivers/specifications/BaseValidIntervals/BaseValidIntervals.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 `Cardinality` and `IsFiniteSet` accept complete concrete finite Product factor
@@ -216,7 +216,7 @@ available for later receiver checks. Unknown demanded factors and sizes beyond
 the proved signed 32-bit range retain named refusals. For example:
 
 ```sh
-dive check conformance/corpus/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check conformance/corpus/product-operations/specifications/OrdinaryProductCardinality/OrdinaryProductCardinality.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 Reference's `IsFiniteSet` also stops compound emptiness checks at the first
@@ -237,7 +237,7 @@ The simpler `IsFiniteSet({} \X x)` already worked before this correction.
 This state-dependent example exercises every override on Core:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-graphs/GraphsStep.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-graphs/GraphsStep.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
 The exact pinned Examples Hanoi `Bits.class` has a native override for
@@ -287,13 +287,13 @@ status. This consumed fixture calls `BagOfAll` in an `ASSUME`, so it reports
 Its CommunityModules fixture sources require an explicit library path.
 
 ```sh
-dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine reference --compat=tlc --seed 0 --fp 0 --workers 1 --output json
+dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --seed 0 --fp 0 --workers 1 --output json
 ```
 
 ## Sequence replacement on the core
 
 `SequencesExt!ReplaceFirstSubSeq(r, s, t)` and `ReplaceAllSubSeqs(r, s, t)`
-run with `--engine core` on strings and on pure, materialized sequences whose
+run on Core on strings and on pure, materialized sequences whose
 combined elements are all integers, all booleans or all strings. Empty
 sequences are allowed. This holds in both profiles and at any worker count.
 For sequence arguments, ReplaceFirst finds the earliest occurrence, including
@@ -313,17 +313,15 @@ repeated-demand effects are unproved. In particular, the
 TLA+ fallback can evaluate a sequence argument more than once; replacing it
 with a single evaluation would change `PrintT` or checker-register behavior.
 Existing effectful string arguments retain their single evaluation. Inputs and
-materialized outputs are bounded at 2^24 elements. Core, the default engine,
-refuses the remaining cases by name; `--engine reference` runs the frozen
-reference engine explicitly. For effectful sequence arguments, that engine has a
-known reevaluation-order difference from TLC (issue #612); equal output counts do
-not establish argument-order parity. The core continues to refuse those calls.
+materialized outputs are bounded at 2^24 elements. Core refuses the remaining
+cases by name, including effectful sequence arguments, whose TLC reevaluation
+order is unproved (issue #612).
 
 This checked fixture needs the CommunityModules source path and completes with
 success, 1 distinct state, 2 generated states, depth 1 and exit 0:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-replace/SeqReplacePure.tla --library-path crates/dive-eval/tests/fixtures/community-modules --engine core --compat=tlc --seed 0 --fp 0 --workers 4 --output json
+dive check crates/dive-api/tests/fixtures/core-replace/SeqReplacePure.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --seed 0 --fp 0 --workers 4 --output json
 ```
 
 The Rust API uses the same `CheckRequest.library_paths` and
@@ -390,126 +388,13 @@ nothing checked uses does not need `--allow-io=env`. `--compat=tlc` still
 refuses it: TLC's evaluation creates strings that change TLC's later value
 order.
 
-Ordinary Reference safety checking supports source-binding `IOUtils!IOEnv` and
-successful `IOUtils!Deserialize(path, [format |-> "TXT", charset |-> "UTF-8"])`.
-Use a constant-level definition to capture the input before assumptions and
-state generation. For example:
-
-```tla
-Environment == IOEnv
-Payload == Deserialize("input.txt", [format |-> "TXT", charset |-> "UTF-8"])
-```
-
-The file result has `exitValue = 0`, the exact text in `stdout`, and empty
-`stderr`. Relative paths use the process working directory. Captured values can
-be used throughout Init, Next and properties. Reads reached after binding,
-non-UTF-8 input, file-error records, other serializers, writes and process
-execution remain named refusals. An empty environment also refuses until its
-empty native record representation is implemented. `exec` is accepted as a
-category spelling but does not enable an executable kernel.
-Only one reached TXT Deserialize request per fresh binding is admitted; reuse
-its captured result. TLC shares mutable result-field names between calls, so
-normalizing the first result can change later fields. Subsequent requests
-refuse before arguments and callbacks in both profiles until that history is
-proved (#761).
-
-Auto selects the whole Reference backend before these effects. Explicit Core,
-temporal-input production and checkpoint/recovery are not implemented. Simulation
-and DFID do not expose input grants in this slice. A random seed alone cannot
-recover external inputs.
-
-Run this Bash example from a dive checkout. It builds the CLI, uses the checked-in
-CommunityModules sources, and exercises both profiles in temporary directories.
-Each check intentionally exits 12 with an `Inv` violation after three generated
-and distinct states, at depth three. Each replay reports `"result":"valid"`
-after the file is deleted and the environment values are changed.
-
-```sh
-CARGO_TARGET_DIR=target CARGO_BUILD_JOBS=4 cargo build -p dive-cli --bin dive --locked
-dive_example_bin="$PWD/target/debug/dive"
-dive_example_modules="$PWD/crates/dive-eval/tests/fixtures/community-modules"
-dive_example_dir="$(mktemp -d)"
-
-for dive_example_profile in default tlc; do
-  (
-    mkdir "$dive_example_dir/$dive_example_profile"
-    cd "$dive_example_dir/$dive_example_profile" || exit 1
-    cat > Settings.tla <<'TLA'
----- MODULE Settings ----
-EXTENDS Naturals, IOUtils
-Environment == IOEnv
-Payload == Deserialize("input.txt", [format |-> "TXT", charset |-> "UTF-8"])
-VARIABLE x
-Init == /\ x = atoi(Environment["DIVE_COUNT"])
-        /\ Environment["DIVE_LABEL"] = "outside"
-        /\ Payload.exitValue = 0
-        /\ Payload.stdout = "hello\n"
-        /\ Payload.stderr = ""
-Next == x' = x + 1
-Inv == x < 4
-====
-TLA
-    cat > Settings.cfg <<'CFG'
-INIT Init
-NEXT Next
-INVARIANT Inv
-CFG
-    printf 'hello\n' > input.txt
-    set --
-    if test "$dive_example_profile" = tlc; then
-      set -- --compat=tlc
-    fi
-    dive_example_status=0
-    env -i DIVE_COUNT=2 DIVE_LABEL=outside "$dive_example_bin" check Settings.tla \
-      --config Settings.cfg --library-path "$dive_example_modules" \
-      --engine reference --allow-io=env,files --workers 1 --seed 7 --fp 0 \
-      --time-limit none --max-memory none --output json "$@" > run.json \
-      || dive_example_status=$?
-    test "$dive_example_status" -eq 12 || exit 1
-    cat run.json
-
-    rm input.txt
-    env -i DIVE_COUNT=99 DIVE_LABEL=changed "$dive_example_bin" validate-trace Settings.tla \
-      --config Settings.cfg --library-path "$dive_example_modules" \
-      --inputs run.json --seed 7 --fp 0 --output json "$@"
-  ) || exit 1
-done
-rm -r -- "$dive_example_dir"
-```
-
-Repeat the original compatibility, configuration and module-path options. With
-`--inputs`, the validator reads the report's native counterexample by default;
-`--trace TRACE.json` selects a separate word. Replay uses fresh source bindings
-and exact operation/path/order checks. Missing, mismatched and extra records
-refuse. It performs no specification I/O, even if the original file was removed
-or the environment changed. Reports identify external values as explicit
-assumptions; validation proves their source use and word validity, not past host
-authenticity. Native trace versions and report schema 3 retain their meanings.
-
-The optional `external_inputs` report field records grants and raw inputs.
-An `env` grant records the entire UTF-8 environment, including any secret values
-it contains. One context permits at most 256 source operations, 1 MiB of total
-UTF-8 input/path/name bytes, and 4,096 environment entries. The CLI admits input
-reports up to 8 MiB. Individual operating-system reads are not cooperatively
-interrupted; these are input bounds, not a hard wall-clock or process-heap cap.
-
-TLC's IOEnv override interns keys and values in Java map order. Compatibility
-mode therefore refuses a snapshot introducing more than one previously unknown
-string (keys and values both count). It also refuses the first IOEnv reached
-after a TXT request, because TLC constructs its static environment before file
-results. A first IOEnv also conservatively refuses if startup evaluation has
-created new strings since source planning; an earlier native call can change
-ENV's initialization order. Capture the environment before constructing new
-startup strings or requesting files. The canonical
-default retains its existing deterministic order. The minimal `EnvironmentOrder`
-and `TextBeforeEnvOrder` controls demonstrate verdict changes from unproved
-construction order; broader demand-scoped ordering support remains open in #758.
-
-Rust callers set `CheckRequest::host_access` using
-`HostAccess::parse("env,files")`. For offline replay, call
-`host_inputs::inputs_from_report(&report.to_json())` and supply the result through
-`trace::TraceOptions::inputs`. Each `Session` attempt creates its own replay
-cursor and evaluator; producer values and warmed caches are never proof.
+Core does not implement external inputs. A specification that reaches
+`IOUtils!IOEnv` or `IOUtils!Deserialize` refuses without a grant, naming the
+`--allow-io` category it needs; with the grant, Core refuses the run by name
+("external inputs ... are not implemented on Core", exit 3) before any host
+operation. `dive validate-trace --inputs RUN.json` still replays the
+`external_inputs` records of an existing report offline, with exact
+operation, path and order checks and no specification I/O.
 
 For coverage details, see the [scoreboard](../scoreboard.md) and the
 reference inventory in `conformance/parity-surfaces.json`. The

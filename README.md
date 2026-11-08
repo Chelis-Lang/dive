@@ -68,9 +68,8 @@ automation. See [getting started](docs/user/getting-started.md) and
 | Core values | Finite sets use canonical mathematical identity; unsupported symbolic identities refuse. |
 | TLC compatibility | `--compat=tlc` selects existing compatibility switches; [known gaps](docs/tlc-differences.md) remain documented. |
 
-Core is the default engine of `dive check`, `dive simulate`, `dive dfid` and
+Core is the engine of `dive check`, `dive simulate`, `dive dfid` and
 `dive tlc`; what it does not implement is a named refusal, never a fallback.
-`--engine reference` runs the reference checker explicitly until it is retired.
 A result is never
 reported as proved when its required checking or validation is unsupported.
 The first release is governed by R1–R6, not complete coverage of every TLC mode.

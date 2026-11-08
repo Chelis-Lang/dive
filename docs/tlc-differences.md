@@ -38,12 +38,11 @@ retain their original reproducers; their closed issues were folded into
   violated names are known only at run time; finite simulation and DFID that
   reach random or register runtime effects Core does not replay; source and TLC
   logical coverage (`--source-coverage`, `--coverage 0`, `dive tlc -coverage 0`);
-  external inputs (`--allow-io`); and recovery of a Reference checkpoint
-  archive. The coverage, input and archive refusals name `--engine reference`,
-  which runs the reference engine explicitly until it is retired
-  ([cutover](https://github.com/Chelis-Lang/dive/issues/791)). TLC-profile
-  agreements the reference engine reached and Core does not are nominal gaps
-  under ADR 0153.
+  external inputs (`--allow-io`); and recovery of a reference-engine
+  checkpoint archive. The reference engine was removed from the command line
+  ([cutover](https://github.com/Chelis-Lang/dive/issues/791)), so these have no
+  alternative route. TLC-profile agreements the reference engine reached and
+  Core does not are nominal gaps under ADR 0153.
 - Boolean recursive predicate guards keep their
   [D-029](#d-029-predicate-witness-counts) successor counts under
   `--compat=tlc` on Core. `byzpaxos/VoteProof` succeeds with TLC's 6962

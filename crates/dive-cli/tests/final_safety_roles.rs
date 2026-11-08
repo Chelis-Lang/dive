@@ -13,9 +13,8 @@ fn run(file: &Path, profile: &str, workers: usize, final_mode: bool) -> std::io:
     let binary =
         std::env::var_os("DIVE_TEST_CLI").unwrap_or_else(|| env!("CARGO_BIN_EXE_dive").into());
     let mut command = Command::new(binary);
-    // Bounded final checking runs on the reference engine only.
     command
-        .env("DIVE_ENGINE", "reference")
+        .env_remove("DIVE_ENGINE")
         .arg("check")
         .arg(file)
         .args(["--output=json", "--seed=0", "--fp=0"])
@@ -64,7 +63,8 @@ fn real_configured_role_exits_observables_and_error_origins_match_ordinary()
         (
             "Init == x=0\nNext == x'=x\nP == x=0\nPost == TRUE",
             "POSTCONDITION Post\n",
-            255,
+            // Core refuses POSTCONDITION by name in either mode.
+            3,
             "capture",
         ),
     ] {

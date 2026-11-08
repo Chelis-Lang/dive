@@ -13,10 +13,10 @@ pub(super) fn command(command: &str) -> Option<&'static str> {
             "USAGE: dive worker FILE.tla --seed N --fp N --worker-key FILE\n                        [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                        [--config FILE.cfg] [--compat=tlc] [--store fp|exact]\n                        [--output human|json]\n\nServe supported Core checking work; starting a worker proves no model.\n"
         }
         "simulate" => {
-            "USAGE: dive simulate FILE.tla --traces N [--generate] [--depth N]\n                          [--seed N] [--aril N] [--workers N] [--stats none|basic]\n                          [--engine core|reference] [--compat=tlc]\n                          [--exit-codes native|tlc] [--output human|json]\n                          [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun bounded traces. Successful sampling does not prove exhaustive correctness.\n"
+            "USAGE: dive simulate FILE.tla --traces N [--generate] [--depth N]\n                          [--seed N] [--aril N] [--workers N] [--stats none|basic]\n                          [--compat=tlc]\n                          [--exit-codes native|tlc] [--output human|json]\n                          [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun bounded traces. Successful sampling does not prove exhaustive correctness.\n"
         }
         "dfid" => {
-            "USAGE: dive dfid FILE.tla --max-level N [--config FILE.cfg] [--workers N]\n                      [--seed N] [--worker-seeds S,...] [--engine core|reference]\n                      [--compat=tlc] [--output human|json]\n                      [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun supported bounded iterative deepening; incomplete exploration gives no proof.\n"
+            "USAGE: dive dfid FILE.tla --max-level N [--config FILE.cfg] [--workers N]\n                      [--seed N] [--worker-seeds S,...]\n                      [--compat=tlc] [--output human|json]\n                      [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun supported bounded iterative deepening; incomplete exploration gives no proof.\n"
         }
         "validate-trace" => {
             "USAGE: dive validate-trace FILE.tla [--trace TRACE.json] [--inputs RUN.json]\n                                [--config FILE.cfg] [--claim ENDING] [--sample]\n                                [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc]\n                                [--seed N] [--fp N] [-deadlock] [--output human|json]\n                                [--library-path DIR]... [--module-path DIR]...\n\nIndependently validate a counterexample against its specification.\n"
@@ -27,7 +27,6 @@ pub(super) fn command(command: &str) -> Option<&'static str> {
 
 const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     --config FILE.cfg       configuration (default FILE.cfg beside the source)\n\
-    --engine core|reference execution engine (default core)\n\
     --compat=tlc            select existing TLC-compatible behavior\n\
     --workers N|auto        worker count; --sequential forces sequential search\n\
     --seed N --fp N         replay seed and fingerprint polynomial\n\

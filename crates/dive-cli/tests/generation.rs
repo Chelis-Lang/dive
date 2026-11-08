@@ -12,7 +12,7 @@ fn fixture() -> PathBuf {
 
 #[test]
 fn generate_flag_and_tlc_spelling_preserve_physical_exits() -> Result {
-    for engine in ["reference", "core"] {
+    for engine in ["core"] {
         for (prefix, exit) in [
             (vec!["simulate", "--generate", "--traces", "1"], 10),
             (vec!["tlc", "-generate", "num=1"], 12),

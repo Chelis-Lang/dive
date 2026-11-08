@@ -45,7 +45,7 @@ invalidate certification and retain explicit storage diagnostics.
 Explicit pure Core safety BFS accepts `--store-compact-bytes N`:
 
 ```sh
-dive check docs/user/examples/Counter.tla --engine core --store-compact-bytes 0 --frontier-memory-bytes 0 --predecessor-memory-bytes 0 --output json
+dive check docs/user/examples/Counter.tla --store-compact-bytes 0 --frontier-memory-bytes 0 --predecessor-memory-bytes 0 --output json
 ```
 
 The matching `CheckRequest` and `CheckOptions` field is
@@ -82,8 +82,8 @@ encoding refuse by name. Disk seen still uses one actual worker. Core recovery
 may enable or change this trigger after restoring a checked archive:
 
 ```sh
-dive check docs/user/examples/CheckpointCounter.tla --engine core --seed 7 --fp 0 --checkpoint counter.core.cp --checkpoint-after-levels 2 --checkpoint-counters retain --output json
-dive check docs/user/examples/CheckpointCounter.tla --engine core --recover counter.core.cp --store-compact-bytes 0 --checkpoint-counters retain --output json
+dive check docs/user/examples/CheckpointCounter.tla --seed 7 --fp 0 --checkpoint counter.core.cp --checkpoint-after-levels 2 --checkpoint-counters retain --output json
+dive check docs/user/examples/CheckpointCounter.tla --recover counter.core.cp --store-compact-bytes 0 --checkpoint-counters retain --output json
 ```
 
 Checkpoint pause with reclamation, temporal capture, runtime effects, sampling,
@@ -110,11 +110,11 @@ certification; cancellation remains an incomplete resource stop. See
 
 ## Candidate payload spill
 
-Explicit `--engine core` pure safety BFS also accepts
+Core pure safety BFS also accepts
 `--candidate-memory-bytes N` and `--candidate-directory DIR`:
 
 ```sh
-dive check docs/user/examples/Counter.tla --engine core --workers 8 --candidate-memory-bytes 0 --output json
+dive check docs/user/examples/Counter.tla --workers 8 --candidate-memory-bytes 0 --output json
 ```
 
 Zero forces disk; omission retains resident execution in either profile. The
@@ -201,17 +201,15 @@ correctness.
 
 ## Native checkpoints
 
-Checkpoints are a separate, bounded, safety-only feature. Core, the default
-engine, owns its checkpoints; the Reference wrapper remains available with
-`--engine reference`. A backend that disagrees with the archive rejects with
-`DIVE-S0400` before evaluation: a Reference archive recovers only with
-`--engine reference`.
+Checkpoints are a separate, bounded, safety-only feature owned by Core. An
+archive written by the removed reference engine is rejected with `DIVE-S0400`
+before evaluation.
 Core recovery supports both profiles, fingerprint/exact, VIEW, safety symmetry,
 changed requested worker widths, transient spill and disk membership (one actual
 worker). It resumes the saved frontier without re-enumerating Init as search work.
 
 ```sh
-dive check docs/user/examples/CheckpointCounter.tla --engine core --compat=tlc --seed 7 --fp 0 --workers 4 --checkpoint counter.core.cp --checkpoint-after-levels 2 --checkpoint-counters retain --output json
+dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0 --workers 4 --checkpoint counter.core.cp --checkpoint-after-levels 2 --checkpoint-counters retain --output json
 dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --workers 8 --recover counter.core.cp --checkpoint-counters retain --output json
 ```
 

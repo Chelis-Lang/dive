@@ -8,8 +8,7 @@ fields, and low-level checking uses `CheckOptions::tlc(fp_index, seed)`.
 Core compatibility is nominal under [ADR 0153](../decisions/0153-core-is-the-product.md):
 known gaps are documented, and unsupported features refuse by name. Exact TLC
 fidelity is not promised. Core is the default engine, so
-`dive check Spec.tla --compat=tlc` runs on Core; `--engine reference` selects the
-reference engine explicitly.
+`dive check Spec.tla --compat=tlc` runs on Core.
 See the [compatibility gaps and their reproducers](../tlc-differences.md#compat-gaps).
 
 | Behavior | Dive default | TLC counterpart |
@@ -49,7 +48,7 @@ composition relation.
 ```sh
 dive check crates/dive-api/tests/fixtures/core-composition/specs/Reduction/Reduction.tla \
   --config crates/dive-api/tests/fixtures/core-composition/specs/Reduction/Reduction.cfg \
-  --engine core --workers 1 --seed 0 --fp 0
+  --workers 1 --seed 0 --fp 0
 ```
 
 This example succeeds with 3 distinct states, 7 generated states and depth 2.

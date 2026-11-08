@@ -3,10 +3,8 @@
 use std::process::Command;
 
 fn dive(args: &[&str]) -> std::process::Output {
-    // The reference engine these tests were written for; Core, the default,
-    // is covered by explicit `--engine core` tests and the default-engine tests.
     match Command::new(env!("CARGO_BIN_EXE_dive"))
-        .env("DIVE_ENGINE", "reference")
+        .env_remove("DIVE_ENGINE")
         .args(args)
         .output()
     {
@@ -438,7 +436,7 @@ fn check_refuses_and_rejects_with_distinct_codes() {
         "--sequential",
     ]);
     assert_eq!(out.status.code(), Some(13));
-    // An option outside the final temporal route keeps the named refusal.
+    // An option Core does not implement keeps a named refusal.
     let out = dive(&[
         "check",
         &tla.to_string_lossy(),
@@ -449,19 +447,14 @@ fn check_refuses_and_rejects_with_distinct_codes() {
     ]);
     assert_eq!(out.status.code(), Some(3));
     let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.contains("unsupported: temporal"));
-    assert!(stdout.contains("temporal checking does not yet support --chaos"));
+    assert!(stdout.contains("--chaos under the core engine"), "{stdout}");
     let bad = temp_file("CheckBad.tla", "---- MODULE CheckBad ----\nx == y\n====\n");
     let out = dive(&["check", &bad.to_string_lossy(), "--compat=tlc"]);
     assert_eq!(out.status.code(), Some(150));
 }
 
 #[test]
-#[allow(
-    clippy::too_many_lines,
-    reason = "end-to-end profile/store/replay matrix"
-)]
-fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
+fn bounded_final_temporal_check_is_a_named_core_refusal() {
     let spec = temp_file(
         "FinalTemporal.tla",
         "---- MODULE FinalTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>[]x\nQ == []<>x\n====\n",
@@ -469,8 +462,8 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
     let cfg = spec.with_extension("cfg");
     assert!(std::fs::write(&cfg, "SPECIFICATION Spec\nPROPERTY P Q\n").is_ok());
     let path = spec.to_string_lossy();
-    // A nonzero polynomial selects the same ordinary TLC final route: temporal
-    // capture keeps concrete states, so the polynomial cannot change the result.
+    // Ordinary checking finds the validated lasso; a nonzero polynomial cannot
+    // change the result because temporal capture keeps concrete states.
     let ordinary = dive(&[
         "check",
         &path,
@@ -484,17 +477,16 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
     let ordinary: serde_json::Value = serde_json::from_slice(&ordinary.stdout).unwrap_or_default();
     assert_eq!(ordinary["verdict"], "liveness-violation");
     assert_eq!(ordinary["counterexample"]["validation"], "valid");
-    for (profile, code) in [("tlc", 13), ("dive", 13)] {
-        let run = |store: &str, workers: &str| {
-            dive(&[
+    // Core has no bounded final route: it refuses the mode by name.
+    for profile in ["tlc", "dive"] {
+        for workers in ["1", "8"] {
+            let output = dive(&[
                 "check",
                 &path,
                 "--lncheck=final",
                 "--lasso=short",
                 "--compat",
                 profile,
-                "--store",
-                store,
                 "--workers",
                 workers,
                 "--seed",
@@ -502,97 +494,19 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
                 "--fp",
                 "0",
                 "--output=json",
-            ])
-        };
-        for store in ["fp", "exact"] {
-            let first = run(store, "1");
-            let many = run(store, "8");
-            assert_eq!(
-                first.status.code(),
-                Some(code),
-                "{}",
-                String::from_utf8_lossy(&first.stderr)
-            );
-            assert_eq!(many.status.code(), Some(code));
-            let a: serde_json::Value = serde_json::from_slice(&first.stdout).unwrap_or_default();
-            let b: serde_json::Value = serde_json::from_slice(&many.stdout).unwrap_or_default();
-            assert_eq!(a["schema_version"], 3);
-            assert_eq!(a["verdict"], "liveness-violation");
-            assert_eq!(a["properties"], serde_json::json!(["P"]));
-            assert_eq!(a["counterexample"]["validation"], "valid");
-            assert_eq!(a["counterexample"], b["counterexample"]);
-            assert_eq!(a["statistics"], b["statistics"]);
-            assert_eq!(
-                a["options"]["profile"],
-                if profile == "tlc" {
-                    "tlc+overrides"
-                } else {
-                    "dive"
-                }
-            );
-            assert_eq!(a["options"]["tlc_exact_temporal"], false);
-            assert_eq!(a["options"]["lncheck"], "final");
-            assert_eq!(a["options"]["lasso"], "short");
-            assert_eq!(a["options"]["seed"], 17);
-            assert_eq!(b["options"]["workers"]["used"], 8);
-            assert_eq!(b["options"]["temporal_bounds"]["max_expansion_units"], 8);
-            assert_eq!(
-                b["options"]["temporal_bounds"]["successors_per_unit"],
-                65_536
-            );
-            assert!(a["tlc"].is_null(), "unverified TLC class cannot be claimed");
-            let trace_path = temp_file(
-                &format!("temporal-{profile}-{store}.json"),
-                &a["counterexample"]["trace"].to_string(),
-            );
-            let trace_path = trace_path.to_string_lossy();
-            let validated = dive(&[
-                "validate-trace",
-                &path,
-                "--trace",
-                &trace_path,
-                "--compat",
-                profile,
-                "--output",
-                "json",
             ]);
-            assert!(
-                validated.status.success(),
-                "{}",
-                String::from_utf8_lossy(&validated.stdout)
+            assert_eq!(output.status.code(), Some(3));
+            let report: serde_json::Value =
+                serde_json::from_slice(&output.stdout).unwrap_or_default();
+            assert_eq!(report["verdict"], "unsupported");
+            assert_eq!(
+                report["message"],
+                "temporal properties (liveness checking): P, Q; bounded final checking (--lncheck final --lasso short) is not implemented on Core"
             );
+            assert!(report["counterexample"].is_null());
+            assert!(report["tlc"].is_null());
         }
     }
-    let human = dive(&[
-        "check",
-        &path,
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "--seed",
-        "17",
-        "--store",
-        "exact",
-    ]);
-    assert_eq!(human.status.code(), Some(13));
-    assert!(
-        String::from_utf8_lossy(&human.stdout).contains("Independently validated counterexample")
-    );
-    // A true fair temporal property succeeds through the same backend.
-    assert!(std::fs::write(&cfg, "SPECIFICATION Spec\nPROPERTY Q\n").is_ok());
-    let held = dive(&[
-        "check",
-        &path,
-        "--lncheck=final",
-        "--lasso=short",
-        "--output=json",
-    ]);
-    assert!(held.status.success());
-    let held: serde_json::Value = serde_json::from_slice(&held.stdout).unwrap_or_default();
-    assert_eq!(held["verdict"], "success");
-    assert!(held["counterexample"].is_null());
-    assert_eq!(held["statistics"]["distinct"], 2);
 }
 
 #[test]
@@ -676,9 +590,10 @@ fn final_binding_errors_preserve_primary_periodic_classes_and_exits() {
 }
 
 #[test]
-fn numeric_temporal_operand_reports_pinned_evaluation_class_and_exit() {
+fn numeric_temporal_operand_is_a_named_core_refusal() {
     // Pinned TLC 2026.10.06.014338 reports 2215 / TLC_EXPECTED_VALUE and
     // exits 255 for this complete input, before generating initial states.
+    // Core does not build that temporal failure report yet and refuses it.
     let spec = temp_file(
         "BadTemporal.tla",
         "---- MODULE BadTemporal ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nBad == <>1\n====\n",
@@ -690,31 +605,24 @@ fn numeric_temporal_operand_reports_pinned_evaluation_class_and_exit() {
         )
         .is_ok()
     );
-    for (profile, exit) in [("--compat=dive", 255), ("--compat=tlc", 255)] {
+    for profile in ["--compat=dive", "--compat=tlc"] {
         let output = dive(&[
             "check",
             &spec.to_string_lossy(),
-            "--lncheck=final",
-            "--lasso=short",
             "--output=json",
             "--seed=0",
             profile,
         ]);
-        assert_eq!(output.status.code(), Some(exit));
+        assert_eq!(output.status.code(), Some(3));
         let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
-        assert_eq!(report["verdict"], "evaluation-error");
-        assert_eq!(report["tlc"]["code"], 2215);
-        assert_eq!(report["tlc"]["name"], "TLC_EXPECTED_VALUE");
-        assert_eq!(report["tlc"]["exit_status"], 255);
-        assert_eq!(report["tlc"]["verified"], true);
-        assert_eq!(report["execution"]["stage"], "planning");
-        assert_eq!(report["execution"]["capture_completed"], false);
-        assert_eq!(report["output"], serde_json::json!([]));
+        assert_eq!(report["verdict"], "unsupported");
+        assert_eq!(
+            report["message"],
+            "a temporal validation failure (core): its report is not implemented on Core"
+        );
+        assert!(report["tlc"].is_null());
         assert!(report["statistics"].is_null());
         assert!(report["counterexample"].is_null());
-        assert!(report["message"].as_str().is_some_and(|message| {
-            message.contains("TLC expected a boolean value, but did not find one.")
-        }));
     }
 }
 
@@ -732,7 +640,15 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         .is_ok()
     );
     let path = spec.to_string_lossy();
-    let base = dive(&[
+    // Ordinary checking stops at the invariant violation.
+    let base = dive(&["check", &path, "--output=json", "--seed=0"]);
+    assert_eq!(base.status.code(), Some(12));
+    let base: serde_json::Value = serde_json::from_slice(&base.stdout).unwrap_or_default();
+    assert_eq!(base["verdict"], "invariant-violation");
+    assert_eq!(base["counterexample"]["ending"], "finite");
+    assert_eq!(base["statistics"]["distinct"], 2);
+    // Core refuses the bounded final mode by name.
+    let refused = dive(&[
         "check",
         &path,
         "--lncheck=final",
@@ -740,11 +656,12 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         "--output=json",
         "--seed=0",
     ]);
-    assert_eq!(base.status.code(), Some(12));
-    let base: serde_json::Value = serde_json::from_slice(&base.stdout).unwrap_or_default();
-    assert_eq!(base["verdict"], "invariant-violation");
-    assert_eq!(base["counterexample"]["ending"], "finite");
-    assert_eq!(base["statistics"]["distinct"], 2);
+    assert_eq!(refused.status.code(), Some(3));
+    let refused: serde_json::Value = serde_json::from_slice(&refused.stdout).unwrap_or_default();
+    assert_eq!(
+        refused["message"],
+        "temporal properties (liveness checking): P; bounded final checking (--lncheck final --lasso short) is not implemented on Core"
+    );
     for flags in [
         ["--lncheck", "final"],
         ["--lasso", "short"],
@@ -756,8 +673,8 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
             Some(2)
         );
     }
-    // Preserve the former known-user forwarding fixture as a real supported
-    // liveness violation: the allowed initial stutter falsifies []<>x.
+    // The former known-user forwarding fixture is a real supported liveness
+    // violation: the allowed initial stutter falsifies []<>x.
     let opaque = temp_file(
         "OpaqueTemporal.tla",
         "---- MODULE OpaqueTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nT(p) == []<>p\nH(F(_),p) == F(p)\nP == H(T,x)\n====\n",
@@ -773,8 +690,6 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         "check",
         &opaque.to_string_lossy(),
         "--seed=0",
-        "--lncheck=final",
-        "--lasso=short",
         "--output=json",
     ]);
     assert_eq!(supported.status.code(), Some(13));
@@ -789,8 +704,7 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         supported["counterexample"]["states"][0]["values"]["x"],
         false
     );
-    // A genuinely temporal recursive operator actual stays a named planning
-    // refusal. A state-only PROPERTY follows the ordinary safety engine below.
+    // A genuinely temporal recursive operator actual stays a named refusal.
     let higher = temp_file(
         "HigherTemporal.tla",
         "---- MODULE HigherTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nRECURSIVE T(_)\nT(p) == IF p THEN p ELSE T(p)\nH(F(_),p) == F(p)\nP == []<>H(T,x)\n====\n",
@@ -807,8 +721,6 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         &higher.to_string_lossy(),
         "--seed=0",
         "--workers=1",
-        "--lncheck=final",
-        "--lasso=short",
         "--output=json",
     ]);
     assert_eq!(rejected.status.code(), Some(3));
@@ -816,13 +728,10 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
     assert_eq!(rejected["verdict"], "unsupported");
     assert!(rejected["counterexample"].is_null());
     assert!(rejected["statistics"].is_null());
-    assert_eq!(rejected["diagnostics"][0]["code"], "DIVE-L0020");
-    assert!(rejected["message"].as_str().is_some_and(|message| {
-        message.contains("opaque/recursive/higher-order operator capture")
-    }));
-    assert_eq!(rejected["execution"]["stage"], "planning");
-    assert_eq!(rejected["execution"]["capture_completed"], false);
-    assert_eq!(rejected["options"]["workers"]["used"], 0);
+    assert_eq!(
+        rejected["message"],
+        "a temporal validation failure (core): its report is not implemented on Core"
+    );
 }
 
 #[test]
@@ -1263,26 +1172,30 @@ fn translate_rejects_multiple_fairness_flags_before_loading() {
 #[test]
 fn composition_modes_and_jvm_alias_override_profile_in_either_order()
 -> Result<(), Box<dyn std::error::Error>> {
+    // The flags resolve the composition mode in either order; Core refuses
+    // each resolved mode of this model by name (TLC's results are in the
+    // cdot goldens).
+    const TLA: &str = "action composition without a fully assigning deterministic tail";
+    const TLC: &str = "--action-composition=tlc under the core engine";
+    const OFF: &str = "action composition is disabled";
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-eval/tests/fixtures/cdot/specs/CdDeadlock/CdDeadlock.tla");
-    let controls: &[(&[&str], &str, i32, u64)] = &[
-        (&[], "tla", 11, 1),
-        (&["--compat=tlc"], "off", 75, 1),
-        (&["--compat=tlc", "--action-composition=tlc"], "tlc", 0, 2),
-        (&["--action-composition=tlc", "--compat=tlc"], "tlc", 0, 2),
-        (&["--compat=tlc", "--action-composition=tla"], "tla", 11, 1),
-        (&["--action-composition=tla", "--compat=tlc"], "tla", 11, 1),
+    let controls: &[(&[&str], &str, &str)] = &[
+        (&[], "tla", TLA),
+        (&["--compat=tlc"], "off", OFF),
+        (&["--compat=tlc", "--action-composition=tlc"], "tlc", TLC),
+        (&["--action-composition=tlc", "--compat=tlc"], "tlc", TLC),
+        (&["--compat=tlc", "--action-composition=tla"], "tla", TLA),
+        (&["--action-composition=tla", "--compat=tlc"], "tla", TLA),
         (
             &["--compat=tlc", "-Dtlc2.tool.impl.Tool.cdot=true"],
             "tlc",
-            0,
-            2,
+            TLC,
         ),
         (
             &["-Dtlc2.tool.impl.Tool.cdot=true", "--compat=tlc"],
             "tlc",
-            0,
-            2,
+            TLC,
         ),
         (
             &[
@@ -1290,8 +1203,7 @@ fn composition_modes_and_jvm_alias_override_profile_in_either_order()
                 "-Dtlc2.tool.impl.Tool.cdot=true",
             ],
             "tlc",
-            0,
-            2,
+            TLC,
         ),
         (
             &[
@@ -1299,37 +1211,19 @@ fn composition_modes_and_jvm_alias_override_profile_in_either_order()
                 "--action-composition=off",
             ],
             "off",
-            75,
-            1,
-        ),
-        (
-            &[
-                "-Dtlc2.tool.impl.Tool.cdot=true",
-                "--action-composition=off",
-                "--exit-codes=native",
-            ],
-            "off",
-            13,
-            1,
+            OFF,
         ),
     ];
-    for (flags, mode, exit, generated) in controls {
+    for (flags, mode, message) in controls {
         let path = path.to_string_lossy();
         let mut args = vec!["check", &path, "--seed=0", "--fp=0", "--output=json"];
         args.extend_from_slice(flags);
         let output = dive(&args);
         let report: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-        assert_eq!(output.status.code(), Some(*exit), "{flags:?}: {report}");
+        assert_eq!(output.status.code(), Some(3), "{flags:?}: {report}");
         assert_eq!(report["options"]["action_composition"], *mode);
-        assert_eq!(report["statistics"]["generated"], *generated);
-        assert_eq!(report["statistics"]["distinct"], 1);
-        assert_eq!(report["tlc"]["verified"], true, "{report}");
-        if *mode == "off" {
-            assert_eq!(report["verdict"], "evaluation-error");
-            assert_eq!(report["tlc"]["code"], 2103);
-            assert_eq!(report["tlc"]["reported"], 1000);
-            assert_eq!(report["tlc"]["exit_status"], 75);
-        }
+        assert_eq!(report["verdict"], "unsupported");
+        assert_eq!(report["message"], *message, "{flags:?}");
     }
     Ok(())
 }
@@ -1410,9 +1304,9 @@ fn recursive_state_property_final_mode_matches_ordinary_evaluation()
             let mut args = base.to_vec();
             args.extend(["--lncheck=final", "--lasso=short"]);
             let final_mode = dive(&args);
-            let expected = if initial { 0 } else { 3 };
-            assert_eq!(ordinary.status.code(), Some(expected));
-            assert_eq!(final_mode.status.code(), Some(expected));
+            // Core refuses the operator-argument binding in both modes.
+            assert_eq!(ordinary.status.code(), Some(3));
+            assert_eq!(final_mode.status.code(), Some(3));
             let a: serde_json::Value = serde_json::from_slice(&ordinary.stdout)?;
             let b: serde_json::Value = serde_json::from_slice(&final_mode.stdout)?;
             for key in [
@@ -1428,36 +1322,14 @@ fn recursive_state_property_final_mode_matches_ordinary_evaluation()
             ] {
                 assert_eq!(a[key], b[key], "{initial}/{profile}/{key}");
             }
+            assert_eq!(b["verdict"], "unsupported");
+            assert_eq!(b["message"], "a split binding the M0 core cannot read");
             assert_eq!(b["execution"]["stage"], "capture");
             assert_eq!(b["execution"]["capture_completed"], false);
             assert_eq!(b["options"]["workers"]["requested"], 1);
             assert_eq!(b["options"]["seed"], 0);
-            assert_eq!(b["statistics"]["initial_generated"], 1);
             assert!(b["property"].is_null());
-            assert_eq!(b["diagnostics"], serde_json::json!([]));
-            if initial {
-                assert_eq!(b["verdict"], "success");
-                assert!(b["message"].is_null());
-                assert!(b["counterexample"].is_null());
-                assert_eq!(b["statistics"]["generated"], 3);
-                assert_eq!(b["statistics"]["distinct"], 2);
-                assert_eq!(b["statistics"]["depth"], 2);
-                assert_eq!(b["statistics"]["left_on_queue"], 0);
-            } else {
-                assert_eq!(b["verdict"], "resource-limit");
-                assert_eq!(
-                    b["message"],
-                    "evaluation nested more than 400 levels deep (recursion at line 6, col 28 to line 6, col 28 of module RecursiveState)"
-                );
-                assert_eq!(b["statistics"]["generated"], 1);
-                assert_eq!(b["statistics"]["distinct"], 1);
-                assert_eq!(b["statistics"]["depth"], 1);
-                assert_eq!(b["statistics"]["left_on_queue"], 1);
-                assert_eq!(b["counterexample"]["ending"], "finite");
-                assert_eq!(b["counterexample"]["length"], 1);
-                assert_eq!(b["counterexample"]["states"][0]["values"]["x"], false);
-                assert!(b["tlc"].is_null());
-            }
+            assert!(b["counterexample"].is_null());
         }
     }
     Ok(())

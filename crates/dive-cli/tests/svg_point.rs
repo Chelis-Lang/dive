@@ -1,4 +1,4 @@
-//! Public checking and independent replay of the bounded numeric override.
+//! Core refuses the bounded numeric `SVG!PointOnLine` override by name.
 #![allow(clippy::expect_used, reason = "functional assertions")]
 use std::{path::Path, path::PathBuf, process::Command, process::Output};
 
@@ -11,9 +11,8 @@ fn run(
     native_status: bool,
 ) -> Output {
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_dive"));
-    // The reference engine; Core refuses `SVG!PointOnLine` by name.
     cmd.env_remove("DIVE_COMPAT")
-        .env("DIVE_ENGINE", "reference")
+        .env_remove("DIVE_ENGINE")
         .arg(command)
         .arg(file)
         .arg("--output")
@@ -31,7 +30,9 @@ fn run(
 }
 
 #[test]
-fn point_check_and_trace_validation_in_both_profiles() {
+fn point_check_is_a_named_core_refusal_in_both_profiles() {
+    // Independent validation of `SVG!PointOnLine` traces is covered by
+    // `dive-trace`'s own tests; Core does not implement the operator.
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-api/tests/fixtures/svg-point/Point.tla");
     let modules =
@@ -42,58 +43,18 @@ fn point_check_and_trace_validation_in_both_profiles() {
                 &file,
                 &modules,
                 "check",
-                &[
-                    "--store",
-                    "exact",
-                    "--workers",
-                    "1",
-                    "--seed",
-                    "0",
-                    "--fp",
-                    "0",
-                ],
+                &["--workers", "1", "--seed", "0", "--fp", "0"],
                 compat,
                 native_status,
             );
-            let expected = if native_status { 10 } else { 12 };
-            assert_eq!(
-                checked.status.code(),
-                Some(expected),
-                "{}",
-                String::from_utf8_lossy(&checked.stdout)
-            );
+            assert_eq!(checked.status.code(), Some(3));
             let json: serde_json::Value = serde_json::from_slice(&checked.stdout).expect("report");
-            assert_eq!(json["exit_code"], expected);
-            assert_eq!(json["tlc"]["code"], 2110);
-            assert_eq!(json["property"], "Inv");
-            let trace = std::env::temp_dir().join(format!(
-                "dive-svg-point-{}-{compat}-{native_status}.json",
-                std::process::id()
-            ));
-            std::fs::write(&trace, &checked.stdout).expect("native trace");
-            let valid = run(
-                &file,
-                &modules,
-                "validate-trace",
-                &["--trace", trace.to_str().expect("path")],
-                compat,
-                native_status,
+            assert_eq!(json["verdict"], "unsupported");
+            assert_eq!(
+                json["message"],
+                "the standard operator SVG!PointOnLine (M0 core)"
             );
-            assert_eq!(valid.status.code(), Some(0));
-            let mut doc = dive_api::trace::TraceDoc::from_json(&json).expect("trace transport");
-            doc.states[0]["p"]["record"]["x"] = serde_json::json!(-1);
-            std::fs::write(&trace, serde_json::to_vec(&doc.to_json()).expect("JSON"))
-                .expect("forged trace");
-            let invalid = run(
-                &file,
-                &modules,
-                "validate-trace",
-                &["--trace", trace.to_str().expect("path")],
-                compat,
-                native_status,
-            );
-            assert_eq!(invalid.status.code(), Some(1));
-            std::fs::remove_file(trace).expect("cleanup");
+            assert!(json["counterexample"].is_null());
         }
     }
 }

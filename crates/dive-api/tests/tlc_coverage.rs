@@ -35,7 +35,7 @@ fn logical_action_costs_match_pinned_rows_and_preserve_lazy_demand_in_both_profi
         request.tlc_coverage = true;
         assert!(matches!(
             dive_api::check_file(&request),
-            Err(dive_api::ApiError::Unsupported { feature }) if feature.contains("--engine reference")
+            Err(dive_api::ApiError::Unsupported { feature }) if feature.contains("not implemented on Core")
         ));
         let report = check_file_engine(&request, Engine::Reference)?;
         let typed = report.tlc_coverage().ok_or("missing typed coverage")?;
