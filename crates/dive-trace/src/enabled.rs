@@ -270,6 +270,18 @@ impl Host for ComposeGuardHost {
         self.inner.as_ref().and_then(|h| h.level())
     }
 
+    fn successor_level(&self) -> Result<i64, HostError> {
+        self.inner.as_ref().map_or_else(
+            || {
+                Err(HostError {
+                    code: 0,
+                    message: dive_eval::PRIMED_LEVEL_UNSUPPORTED.to_owned(),
+                })
+            },
+            |h| h.successor_level(),
+        )
+    }
+
     fn counter(&self, counter: Counter) -> Option<i64> {
         self.inner.as_ref().and_then(|h| h.counter(counter))
     }
