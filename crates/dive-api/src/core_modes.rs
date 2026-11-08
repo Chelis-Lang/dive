@@ -4,6 +4,8 @@
 //! the same plan/frame rules as the BFS core. Report conversion is a boundary.
 
 pub(crate) mod dfid;
+#[cfg(test)]
+mod sim_tests;
 
 use std::sync::Arc;
 
@@ -654,6 +656,9 @@ impl Native {
                         });
                         if failed.is_some() {
                             if retained >= options.max_retained {
+                                // As at Init: the observed violation stays
+                                // pending evidence of the retained-state stop.
+                                report.pending_violation = failed.as_ref().and_then(pending);
                                 failed =
                                     Some(Outcome::Limit("simulation retained-state bound".into()));
                             } else {
@@ -803,6 +808,7 @@ mod tests {
             assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
             assert_eq!(report.generated, 13);
             assert_eq!(report.traces.len(), 3);
+            assert!(report.traces.iter().all(|trace| trace.states.len() == 5));
             options.max_generated = 3;
             let mut native = prepare(source.model())?;
             let stopped = native.simulate(
@@ -861,9 +867,16 @@ mod tests {
     #[test]
     fn producer_output_bounds_cover_assumptions_init_and_native_steps() -> Result {
         let text = "---- MODULE M ----\nEXTENDS Naturals,TLC\nVARIABLE x\nASSUME PrintT(\"assume\")\nInit == x = 0 /\\ PrintT(\"init\")\nNext == x' = x + 1 /\\ PrintT(\"next\")\n====\n";
-        for events in [0, 1, 2, 3] {
+        // The figures the retired reference simulator reported (#791): the
+        // printed lines, initial candidates and generated states at each bound.
+        let pinned: [(&[&str], u64, u64); 4] = [
+            (&[], 0, 0),
+            (&["\"assume\""], 0, 0),
+            (&["\"assume\"", "\"init\""], 1, 1),
+            (&["\"assume\"", "\"init\"", "\"next\""], 1, 2),
+        ];
+        for (events, (lines, initial, generated)) in pinned.into_iter().enumerate() {
             let native_model = model(text, "INIT Init\nNEXT Next\n")?;
-            let reference_model = model(text, "INIT Init\nNEXT Next\n")?;
             let mut options =
                 dive_sim::Options::new(7, dive_stdlib::random::RandomMode::Dive, 2, 1);
             options.max_output_events = events;
@@ -873,12 +886,16 @@ mod tests {
                 &dive_sim::Runtime::new(options.clone()),
                 &|| false,
             );
-            let reference = dive_sim::simulate(reference_model.model(), &options);
             assert!(matches!(native.outcome, Outcome::Limit(_)));
-            assert!(matches!(reference.outcome, Outcome::Limit(_)));
-            assert_eq!(native.runtime_output, reference.runtime_output);
-            assert_eq!(native.initial_candidates, reference.initial_candidates);
-            assert_eq!(native.generated, reference.generated);
+            let printed = native
+                .runtime_output
+                .iter()
+                .map(|line| line.text.as_str())
+                .collect::<Vec<_>>();
+            assert_eq!(printed, lines);
+            assert!(native.runtime_output.iter().all(|line| !line.warning));
+            assert_eq!(native.initial_candidates, initial);
+            assert_eq!(native.generated, generated);
         }
         Ok(())
     }

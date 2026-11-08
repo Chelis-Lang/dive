@@ -19,6 +19,14 @@ published. Earlier pre-release development entries remain in git history.
   successor's level (issue #895). Replay used to read the source's level
   there and could accept a wrong action-property counterexample. Core's
   checker and simulator already refuse such specs.
+- The `dive-sim` crate no longer has the reference simulator
+  (`dive_sim::simulate`, `simulate_with_poll`, `simulate_with_backend`,
+  `Runtime::simulate` and `Runtime::simulate_with_poll`; issue #791).
+  Simulation runs on Core through `dive_api::simulate_file`; low-level callers
+  run a backend with `Runtime::simulate_with_backend`. When `dive simulate`
+  stops at the retained-state bound after a successor violates an invariant or
+  action property, the report now keeps that violation as
+  `pending_violation`, as it already did for an initial state.
 - `dive_api::temporal::Outcome` no longer has the reference engine's
   `Holds`, `Violation` and `PrefixViolation` variants, and the
   `ValidatedCounterexample` and `ValidatedPrefix` types are removed (issue

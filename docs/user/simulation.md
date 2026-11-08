@@ -156,16 +156,14 @@ support boundaries. Native trace versions and report schemas are unchanged.
 
 The file API creates the host automatically. Low-level callers that bind source
 should create `dive_sim::Runtime::new(options)`, install `runtime.host()` in
-`BindOptions`, then call `runtime.simulate(&model)` or its controlled/backend
-variant. A runtime admits one execution and preserves startup RNG consumption.
-The legacy `dive_sim::simulate(&model, options)` still refuses reached randomness
-when a foreign host is installed; it cannot recover that host's startup history.
-Removing the host cannot erase consumed draws.
+`BindOptions`, then run a backend with `runtime.simulate_with_backend`. A
+runtime admits one execution and preserves startup RNG consumption. The
+reference simulator (`dive_sim::simulate` and `Runtime::simulate`) was removed
+with the reference engine (issue #791).
 
 `TLCGet("config")` is available after binding with the actual seed and settings.
-Print/output bounds and evaluator ownership remain in force. Explicit Core may
-still refuse unsupported random effects; Auto may select Reference before
-execution and reports that selection. Broader simulation, parallel workers and
+Print/output bounds and evaluator ownership remain in force. Core refuses
+reached random effects, such as `RandomElement` in `Init` or `Next`, by name. Broader simulation, parallel workers and
 remaining effects are not complete.
 
 ## Constructive successors

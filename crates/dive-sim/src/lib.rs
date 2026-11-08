@@ -1,21 +1,21 @@
-//! Seeded finite safety simulation (ADR 0020).
+//! The seeded finite safety simulation contract (ADR 0020): its options,
+//! report, static admission and the run host that owns one simulation.
 //!
-//! Implements the pinned TLC's ordinary, single-worker `Simulator` and
-//! `SimulationWorker` selection loop. A finished sample is explicitly not a
-//! model-checking proof. Temporal checking, unsupported runtime effects, and unsupported options
-//! refuse by name. The independent trace validator remains outside this crate.
+//! Core's finite simulation is the backend (`dive-api`), run through
+//! [`Runtime::simulate_with_backend`]. A finished sample is explicitly not a
+//! model-checking proof. Temporal checking, unsupported runtime effects, and
+//! unsupported options refuse by name. The independent trace validator remains
+//! outside this crate.
 #![forbid(unsafe_code)]
 
 mod statistics;
 
 pub use statistics::{ActionFlow, ActionGroup};
 
-use dive_eval::next::{Flow, StateVals};
-use dive_eval::{AssumptionOutcome, ErrorClass, EvalError, St};
+use dive_eval::next::StateVals;
 mod host;
-use dive_model::{Model, Named};
-use dive_stdlib::random::{RandomMode, RandomSource, Stream, Streams};
-use dive_value::Value;
+use dive_model::Model;
+use dive_stdlib::random::RandomMode;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -166,7 +166,8 @@ pub struct Report {
 /// let runtime = Runtime::new(Options::new(7, RandomMode::Dive, 100, 10));
 /// let binding = dive_model::BindOptions { host: Some(runtime.host()), ..Default::default() };
 /// assert!(binding.host.is_some());
-/// // Bind the source with `binding`, then call `runtime.simulate(&model)`.
+/// // Bind the source with `binding`, then run a backend with
+/// // `runtime.simulate_with_backend`.
 /// ```
 #[derive(Debug)]
 pub struct Runtime {
@@ -198,18 +199,6 @@ impl Runtime {
     /// Configuration remains unavailable during binding, as in ordinary TLC.
     pub fn set_config(&self, config: Option<dive_eval::RunConfig>) {
         self.host.set_config(config);
-    }
-
-    /// Executes the reference simulation with the run's original options.
-    #[must_use]
-    pub fn simulate(&self, model: &Model) -> Report {
-        self.simulate_with_poll(model, &|| false)
-    }
-
-    /// Executes with caller-owned cancellation, retaining the reached prefix.
-    #[must_use]
-    pub fn simulate_with_poll(&self, model: &Model, poll: &dyn Fn() -> bool) -> Report {
-        self.run(model, |_| simulate_inner(model, &self.options, poll))
     }
 
     /// Runs an alternate finite backend under this same binding/runtime host.
@@ -244,58 +233,6 @@ fn refused_runtime(reason: &str) -> Report {
         action_flow: None,
         runtime_output: Vec::new(),
     }
-}
-
-/// Simulates a bound model with TLC's default (non-probabilistic) enumerator.
-/// Run on a thread with [`dive_eval::RECOMMENDED_STACK`]. A shared evaluator core,
-/// including clones, admits one simulation at a time. Overlap or reentry refuses
-/// before evaluation; separate bound cores may run concurrently. Callers must
-/// not mix foreign evaluator or host operations with an active simulation.
-/// `RandomElement` requires an absent caller host and no previous startup
-/// random draws. Use [`Runtime`] to own binding and execution together. A foreign
-/// caller host yields a reached-call refusal because
-/// its consumed startup stream cannot be continued by this simulation host.
-#[must_use]
-#[allow(
-    clippy::too_many_lines,
-    reason = "keep the pinned simulator selection and callback ordering together"
-)]
-pub fn simulate(model: &Model, opts: &Options) -> Report {
-    simulate_with_poll(model, opts, &|| false)
-}
-
-/// Simulates with a caller-owned cancellation checkpoint.
-///
-/// The callback returns true to stop without a simulation conclusion. It runs
-/// before Init, at emitted candidates, and at trace/step boundaries. The caller
-/// owns the reason and resource measurement; cancellation retains prefix work.
-#[must_use]
-pub fn simulate_with_poll(model: &Model, opts: &Options, poll: &dyn Fn() -> bool) -> Report {
-    with_runtime(model, opts, |_| simulate_inner(model, opts, poll))
-}
-
-/// Runs a finite simulation backend under the ordinary simulation host.
-///
-/// This shares exclusive run ownership, captured producer output and reached
-/// effect/output policies with the reference driver. The callback reports the
-/// remaining event/byte admission budget after evaluator-backed assumptions;
-/// an alternate generator must enforce it for its own Print events.
-#[must_use]
-pub fn simulate_with_backend(
-    model: &Model,
-    opts: &Options,
-    driver: impl FnOnce(&dyn Fn() -> (usize, usize)) -> Report,
-) -> Report {
-    with_runtime(model, opts, |host| driver(&|| host.remaining_output()))
-}
-
-fn with_runtime(
-    model: &Model,
-    opts: &Options,
-    driver: impl FnOnce(&host::SimulationHost) -> Report,
-) -> Report {
-    let host = host::SimulationHost::new(opts);
-    with_host(model, opts, &host, driver)
 }
 
 fn with_host(
@@ -346,320 +283,6 @@ fn with_host(
         report.outcome = Outcome::Unsupported(reason);
     }
     report
-}
-
-#[allow(
-    clippy::too_many_lines,
-    reason = "keep the pinned simulator selection and callback ordering together"
-)]
-fn simulate_inner(model: &Model, opts: &Options, poll: &dyn Fn() -> bool) -> Report {
-    let mut report = Report {
-        stage: "preflight",
-        outcome: Outcome::Sampled,
-        generated: 0,
-        initial_candidates: 0,
-        pending_violation: None,
-        traces_started: 0,
-        traces: Vec::new(),
-        action_flow: None,
-        runtime_output: Vec::new(),
-    };
-    if let Some(outcome) = preflight(model, opts) {
-        report.outcome = outcome;
-        return report;
-    }
-    if poll() {
-        report.outcome = Outcome::Cancelled;
-        return report;
-    }
-    if opts.action_stats {
-        match ActionFlow::new(model) {
-            Ok(flow) => report.action_flow = Some(flow),
-            Err(error) => {
-                report.outcome = classify(&error, None);
-                return report;
-            }
-        }
-    }
-    report.stage = "assumptions";
-    match model.check_assumptions() {
-        AssumptionOutcome::AllTrue => {}
-        AssumptionOutcome::False { message, .. } => {
-            report.outcome = Outcome::Error {
-                code: 2104,
-                message,
-            };
-            return report;
-        }
-        AssumptionOutcome::Error { error, message, .. } => {
-            report.outcome = classify(&error, Some((2105, message)));
-            return report;
-        }
-    }
-    report.stage = "initialization";
-    let mut inits = Vec::new();
-    let mut failure = None;
-    let enumeration = {
-        model.evaluator.init_states(&model.init_actions, &mut |s| {
-            if poll() {
-                failure = Some(Outcome::Cancelled);
-                return Flow::Stop;
-            }
-            if inits.len() >= opts.max_candidates || report.initial_candidates >= opts.max_generated
-            {
-                failure = Some(Outcome::Limit("simulation initial-state bound".to_owned()));
-                return Flow::Stop;
-            }
-            report.initial_candidates += 1;
-            inits.push((StateVals::from(s.state), s.action.id()));
-            Flow::Continue
-        })
-    };
-    if let Err(e) = enumeration {
-        // Simulator assigns numOfGenStates only after getInitStates completes.
-        // A failure here has no current state and is reported as GENERAL.
-        report.outcome = classify(&e.error, Some((1000, e.error.tool_text())));
-        return report;
-    }
-    if let Some(failure) = failure {
-        report.outcome = failure;
-        return report;
-    }
-    report.generated = report.initial_candidates;
-    let mut selected_inits = Vec::new();
-    for (init, action_id) in &inits {
-        if init.iter().any(Option::is_none) {
-            report.outcome = Outcome::Error {
-                code: 2106,
-                message: "incomplete initial state".to_owned(),
-            };
-            return report;
-        }
-        let st = St::state(init.clone());
-        if let Some(failure) = check_roles(model, &model.invariants, &st, "invariant", 2107, 2102) {
-            if opts.max_retained == 0 {
-                report.pending_violation = pending(&failure);
-                report.outcome = Outcome::Limit("simulation retained-state bound".to_owned());
-                return report;
-            }
-            report.traces.push(Trace {
-                id: 0,
-                states: vec![init.clone()],
-            });
-            report.outcome = failure;
-            return report;
-        }
-        match allowed(model, &model.constraints, &st) {
-            Ok(true) => selected_inits.push((init.clone(), *action_id)),
-            Ok(false) => {}
-            Err(e) => {
-                report.outcome = classify(&e, None);
-                return report;
-            }
-        }
-    }
-    if selected_inits.is_empty() {
-        report.outcome = Outcome::Error {
-            code: if inits.is_empty() { 2118 } else { 2256 },
-            message: "no initial state satisfies the specification and constraints".to_owned(),
-        };
-        return report;
-    }
-    // TLC's Simulator.deepNormalize only changes which random draw selects a
-    // successor. That draw sequence is not a parity obligation (ADR 0116), and
-    // compound values keep their semantics without it.
-    let streams = Streams::new(opts.seed, opts.mode);
-    let mut worker = Stream::Java(dive_stdlib::random::JavaRandom::new(
-        streams.tlc_simulation_worker_seeds(opts.aril, 1)[0],
-    ));
-    let mut retained = 0usize;
-    report.stage = "sampling";
-    for id in 0..opts.traces {
-        if poll() {
-            report.outcome = Outcome::Cancelled;
-            return report;
-        }
-        let mut rng = match opts.mode {
-            RandomMode::Tlc => worker,
-            RandomMode::Dive => streams.simulation_trace(id),
-        };
-        report.traces_started += 1;
-        let (init, mut previous_action) =
-            selected_inits[index(&mut rng, selected_inits.len())].clone();
-        let mut states = vec![init];
-        if retained >= opts.max_retained {
-            report.outcome = Outcome::Limit("simulation retained-state bound".to_owned());
-            return report;
-        }
-        retained += 1;
-        for _ in 0..opts.depth {
-            if poll() {
-                report.traces.push(Trace { id, states });
-                report.outcome = Outcome::Cancelled;
-                return report;
-            }
-            let current = states[states.len() - 1].clone();
-            let mut candidates = Vec::new();
-            let mut action_index = index(&mut rng, model.actions.len());
-            let sampled_prime = usize::try_from(rng.next_prime()).unwrap_or(0);
-            let prime = if opts.generation { 1 } else { sampled_prime };
-            let mut failed = None;
-            for _ in 0..model.actions.len() {
-                let action = &model.actions[action_index];
-                let mut emit = |s: &dive_eval::next::Successor<'_>| {
-                    if poll() {
-                        failed = Some(Outcome::Cancelled);
-                        return Flow::Stop;
-                    }
-                    if candidates.len() >= opts.max_candidates
-                        || report.generated >= opts.max_generated
-                    {
-                        failed = Some(Outcome::Limit("simulation successor bound".to_owned()));
-                        return Flow::Stop;
-                    }
-                    if !s.complete() {
-                        failed = Some(Outcome::Error {
-                            code: 2109,
-                            message: "incomplete successor state".to_owned(),
-                        });
-                        return Flow::Stop;
-                    }
-                    // SimulationWorker.collectPreSuccessor precedes properties and constraints.
-                    report.generated += 1;
-                    let next = StateVals::from(s.state);
-                    let next_st = St::state(next.clone());
-                    failed =
-                        check_roles(model, &model.invariants, &next_st, "invariant", 2110, 2111)
-                            .or_else(|| {
-                                check_roles(
-                                    model,
-                                    &model.implied_actions,
-                                    &St::action(current.clone(), next.clone()),
-                                    "property",
-                                    2112,
-                                    2113,
-                                )
-                            });
-                    if let Some(outcome) = &failed {
-                        if retained >= opts.max_retained {
-                            report.pending_violation = pending(outcome);
-                            failed =
-                                Some(Outcome::Limit("simulation retained-state bound".to_owned()));
-                        } else {
-                            retained += 1;
-                            states.push(next);
-                        }
-                        return Flow::Stop;
-                    }
-                    match allowed(model, &model.constraints, &next_st).and_then(|yes| {
-                        if yes {
-                            allowed(
-                                model,
-                                &model.action_constraints,
-                                &St::action(current.clone(), next.clone()),
-                            )
-                        } else {
-                            Ok(false)
-                        }
-                    }) {
-                        Ok(true) => {
-                            candidates.push(next);
-                            if opts.generation {
-                                return Flow::Stop;
-                            }
-                        }
-                        Ok(false) => {}
-                        Err(e) => {
-                            failed = Some(classify(&e, None));
-                            return Flow::Stop;
-                        }
-                    }
-                    Flow::Continue
-                };
-                let enumeration = if opts.generation {
-                    model.evaluator.next_states_generation(
-                        action,
-                        &current,
-                        0,
-                        &mut |bound| rng.next_index(bound),
-                        &mut emit,
-                    )
-                } else {
-                    model.evaluator.next_states(action, &current, 0, &mut emit)
-                };
-                if let Err(e) = enumeration {
-                    failed = Some(classify(&e.error, None));
-                }
-                if failed.is_some() || !candidates.is_empty() {
-                    break;
-                }
-                action_index = (action_index + prime) % model.actions.len();
-            }
-            if let Some(mut outcome) = failed {
-                if let Outcome::Violation { trace, .. } = &mut outcome {
-                    *trace = report.traces.len();
-                }
-                report.traces.push(Trace { id, states });
-                report.outcome = outcome;
-                return report;
-            }
-            if candidates.is_empty() {
-                if model.settings.check_deadlock {
-                    report.outcome = Outcome::Violation {
-                        kind: "deadlock",
-                        name: None,
-                        code: 2114,
-                        trace: report.traces.len(),
-                    };
-                    report.traces.push(Trace { id, states });
-                    return report;
-                }
-                break;
-            }
-            if retained >= opts.max_retained {
-                report.outcome = Outcome::Limit("simulation retained-state bound".to_owned());
-                return report;
-            }
-            retained += 1;
-            let choice = if opts.generation {
-                0
-            } else {
-                index(&mut rng, candidates.len())
-            };
-            states.push(candidates[choice].clone());
-            let chosen_action = model.actions[action_index].id();
-            if let Some(flow) = &mut report.action_flow
-                && let Err(error) = flow.record(previous_action, chosen_action)
-            {
-                report.traces.push(Trace { id, states });
-                report.outcome = classify(&error, None);
-                return report;
-            }
-            previous_action = chosen_action;
-        }
-        worker = rng;
-        report.traces.push(Trace { id, states });
-    }
-    report
-}
-
-fn pending(outcome: &Outcome) -> Option<PendingViolation> {
-    if let Outcome::Violation {
-        kind, name, code, ..
-    } = outcome
-    {
-        Some(PendingViolation {
-            kind,
-            name: name.clone(),
-            code: *code,
-        })
-    } else {
-        None
-    }
-}
-
-fn index(rng: &mut Stream, len: usize) -> usize {
-    usize::try_from(rng.next_index(u64::try_from(len).unwrap_or(u64::MAX))).unwrap_or(0)
 }
 
 /// Checks finite-mode options and statically unsupported combinations without evaluation.
@@ -737,64 +360,4 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
         ));
     }
     None
-}
-
-fn allowed(model: &Model, roles: &[Named], st: &St) -> Result<bool, EvalError> {
-    for role in roles {
-        match model.eval(&role.pred, st)? {
-            Value::Bool(true) => {}
-            Value::Bool(false) => return Ok(false),
-            _ => {
-                return Err(EvalError::unsupported(
-                    "nonboolean simulation role diagnostic",
-                ));
-            }
-        }
-    }
-    Ok(true)
-}
-
-fn check_roles(
-    model: &Model,
-    roles: &[Named],
-    st: &St,
-    kind: &'static str,
-    code: u32,
-    error_code: u32,
-) -> Option<Outcome> {
-    for role in roles {
-        match model.eval(&role.pred, st) {
-            Ok(Value::Bool(true)) => {}
-            Ok(Value::Bool(false)) => {
-                return Some(Outcome::Violation {
-                    kind,
-                    name: Some(role.name.clone()),
-                    code,
-                    trace: 0,
-                });
-            }
-            Ok(_) => {
-                return Some(Outcome::Unsupported(
-                    "nonboolean simulation property diagnostic".to_owned(),
-                ));
-            }
-            Err(e) => return Some(classify(&e, Some((error_code, e.message().to_owned())))),
-        }
-    }
-    None
-}
-
-fn classify(error: &EvalError, wrapper: Option<(u32, String)>) -> Outcome {
-    match error.class() {
-        ErrorClass::Unsupported => Outcome::Unsupported(error.message().to_owned()),
-        ErrorClass::ResourceLimit => Outcome::Limit(error.message().to_owned()),
-        ErrorClass::Bug | ErrorClass::Interrupted => Outcome::Internal(error.message().to_owned()),
-        ErrorClass::Eval => match wrapper {
-            Some((code, message)) => Outcome::Error { code, message },
-            None => Outcome::Unsupported(format!(
-                "unverified simulation evaluation-error context: {}",
-                error.message()
-            )),
-        },
-    }
 }
