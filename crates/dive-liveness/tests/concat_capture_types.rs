@@ -1,4 +1,6 @@
-//! New primary words/counts are separate from the unchanged 19 capture cases.
+//! TLC's actual `CapturedConcatFails` word replays independently; invalid claims
+//! are rejected. The final-analysis checks of these models run on Core in
+//! `crates/dive-api/tests/liveness_concat_capture_types.rs` (#791).
 #![allow(
     clippy::expect_used,
     clippy::panic,
@@ -7,7 +9,6 @@
 
 use std::{path::Path, sync::Arc};
 
-use dive_liveness::analyze::{Analysis, Limits, analyze_final};
 use dive_model::Model;
 use dive_runtime::CheckOptions;
 use dive_trace::{Ending, TraceDoc, Validation};
@@ -45,85 +46,6 @@ fn primary(name: &str) -> Value {
         .join(name)
         .join(format!("{name}.cfg.json"));
     serde_json::from_slice(&std::fs::read(path).expect("generated reference")).expect("JSON")
-}
-
-#[test]
-fn captured_hold_fail_and_empty_callback_keep_primary_counts_with_cold_and_warm_evaluators() {
-    for tlc in [true, false] {
-        let options = if tlc {
-            CheckOptions::tlc(0, 0)
-        } else {
-            CheckOptions::dive(0)
-        };
-        for name in [
-            "CapturedConcatHolds",
-            "CapturedConcatFails",
-            "EmptySkipsCallbackError",
-        ] {
-            let expected = primary(name);
-            let model = bind(name, &options);
-            for iteration in 0..2 {
-                let analysis =
-                    analyze_final(&model, &options, Limits::default()).unwrap_or_else(|error| {
-                        panic!("{name}/tlc={tlc}/iteration={iteration}: {error}")
-                    });
-                let counts = match &analysis {
-                    Analysis::Holds(complete) => complete.stats,
-                    Analysis::Candidate(candidate) => candidate.exploration.stats,
-                };
-                assert_eq!(
-                    json!(counts.distinct),
-                    expected["result"]["counts"]["distinct_states"],
-                    "{name}"
-                );
-                assert_eq!(
-                    json!(counts.generated),
-                    expected["result"]["counts"]["states_generated"],
-                    "{name}"
-                );
-                assert_eq!(
-                    json!(counts.left_on_queue),
-                    expected["result"]["counts"]["states_left_on_queue"],
-                    "{name}"
-                );
-                assert_eq!(
-                    json!(counts.depth),
-                    expected["result"]["counts"]["depth"],
-                    "{name}"
-                );
-                match analysis {
-                    Analysis::Holds(_) => assert_eq!(expected["result"]["verdict"], "success"),
-                    Analysis::Candidate(candidate) => {
-                        assert_eq!(expected["result"]["verdict"], "liveness-violation");
-                        assert_eq!(candidate.target_property, "P");
-                        let states = candidate
-                            .states
-                            .iter()
-                            .map(|state| {
-                                let Some(dive_value::Value::Int(x)) = state[0] else {
-                                    panic!("integer state")
-                                };
-                                json!({"x":x})
-                            })
-                            .collect();
-                        let word = TraceDoc::behavior(states)
-                            .expect("candidate word")
-                            .with_ending(Ending::Lasso {
-                                back_to: candidate.back_to,
-                            })
-                            .with_properties(candidate.properties);
-                        assert_eq!(
-                            dive_trace::validate_doc(&bind(name, &options), &word, &[])
-                                .0
-                                .validation,
-                            Validation::Valid
-                        );
-                    }
-                }
-            }
-            assert_eq!(model.take_output(), [] as [std::string::String; 0]);
-        }
-    }
 }
 
 #[test]
@@ -169,28 +91,5 @@ fn actual_pinned_stuttering_word_replays_independently_and_rejects_invalid_claim
             ),
             "a holding property cannot validate the same counterexample claim"
         );
-    }
-}
-
-#[test]
-fn string_only_native_name_creation_stays_a_named_refusal_after_the_type_change() {
-    for tlc in [true, false] {
-        let options = if tlc {
-            CheckOptions::tlc(0, 0)
-        } else {
-            CheckOptions::dive(0)
-        };
-        let model = bind("StringConcatNames", &options);
-        assert_eq!(primary("StringConcatNames")["result"]["verdict"], "success");
-        let error = analyze_final(&model, &options, Limits::default())
-            .expect_err("string creation remains conservative");
-        let dive_liveness::analyze::AnalysisError::Planning(
-            dive_liveness::plan::PlanningError::Unsupported(refusal),
-        ) = error
-        else {
-            panic!("named planning refusal")
-        };
-        assert!(refusal.detail.contains("effect/provider/native"));
-        assert_eq!(model.take_output(), [] as [std::string::String; 0]);
     }
 }
