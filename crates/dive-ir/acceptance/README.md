@@ -123,7 +123,10 @@ against TLC's own list.
 It reimplements nothing. TLC's coverage report (`-coverage`) cannot replace it: the report
 merges actions that share a location, so it loses their count and parameters.
 `dump_actions.sh` runs one JVM per model, in the model's directory, with the harness
-classpath. The pinned JRE has no compiler, so it needs a JDK 11+ `javac`.
+classpath. The pinned JRE is Temurin 17 and has no compiler, so it needs a JDK 17 or
+later `javac`; it compiles with `javac --release 17`, because the pinned JRE cannot
+load class files built for a newer release (a JDK 21 `javac` without `--release 17`
+fails with `UnsupportedClassVersionError`).
 
 ```sh
 python3 -I acceptance/models.py goldens <repository> <examples-checkout> > examples.tsv
@@ -209,7 +212,8 @@ prints `SpecProcessor.getVariablesNodes()`, checking that each variable's
 does and prints the root module's `getVariableDecls()`. It also prints the number of
 keys in the root context (`keys`), read by reflection, for diagnosis.
 `dump_var_order.sh` runs one JVM per module, in the module's directory, from a TSV of
-`id`, directory, module and optional cfg.
+`id`, directory, module and optional cfg. Like `dump_actions.sh`, it compiles with
+`javac --release 17` (JDK 17 or later) so that the pinned JRE 17 can load the classes.
 
 ```sh
 python3 -I acceptance/var_order_specs.py tests/fixtures/var-order/specs
