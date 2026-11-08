@@ -1,0 +1,24 @@
+{
+ "print_domains_preserve_every_existing_seeded_choice_and_count": {
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#0": "Number(31)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#1": "Number(31)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#2": "Number(29)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#3": "Number(33)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#4": "Number(29)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#5": "Number(29)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#6": "Number(35)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#7": "Number(39)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#8": "Number(29)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/0#9": "Number(29)",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#0": "Array [Array [Number(1), Number(2), Number(3), Number(4), Number(5), Number(6)], Array [Number(0), Number(2), Number(4), Number(5), Number(0)], Array [Number(0), Number(1), Number(2), Number(0), Number(1), Number(4)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#1": "Array [Array [Number(1), Number(2), Number(3), Number(4), Number(5), Number(0)], Array [Number(1), Number(4), Number(5), Number(0), Number(2)], Array [Number(0), Number(1), Number(0), Number(1), Number(4), Number(5)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#2": "Array [Array [Number(1), Number(2), Number(3), Number(4), Number(5), Number(6)], Array [Number(0), Number(1), Number(0), Number(4), Number(5), Number(4)], Array [Number(0), Number(4), Number(5), Number(6), Number(0)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#3": "Array [Array [Number(0), Number(1), Number(2), Number(3), Number(4), Number(2)], Array [Number(0), Number(4), Number(5), Number(4), Number(0)], Array [Number(1), Number(4), Number(5), Number(6), Number(0), Number(4)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#4": "Array [Array [Number(1), Number(2), Number(3), Number(4), Number(5), Number(6)], Array [Number(1), Number(2), Number(0), Number(1), Number(0)], Array [Number(1), Number(2), Number(4), Number(5), Number(6), Number(0)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#5": "Array [Array [Number(1), Number(2), Number(3), Number(4), Number(5), Number(4)], Array [Number(0), Number(1), Number(0), Number(1)], Array [Number(0), Number(4), Number(5), Number(6), Number(0), Number(1)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#6": "Array [Array [Number(1), Number(2), Number(4), Number(0), Number(4)], Array [Number(0), Number(1), Number(2), Number(3), Number(0), Number(2)], Array [Number(1), Number(2), Number(3), Number(4), Number(5), Number(2)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#7": "Array [Array [Number(1), Number(4), Number(0), Number(4)], Array [Number(0), Number(2), Number(3), Number(0), Number(2), Number(0)], Array [Number(0), Number(1), Number(2), Number(3), Number(2), Number(0)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#8": "Array [Array [Number(1), Number(4), Number(5), Number(6), Number(7), Number(2)], Array [Number(0), Number(1), Number(2), Number(3), Number(4), Number(2)], Array [Number(1), Number(2), Number(3), Number(2), Number(4), Number(5)]]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/1#9": "Array [Array [Number(1), Number(2), Number(3), Number(4), Number(2), Number(3)], Array [Number(1), Number(2), Number(3), Number(4), Number(2)], Array [Number(1), Number(2), Number(4), Number(5), Number(4)]]"
+ }
+}

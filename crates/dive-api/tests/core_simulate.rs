@@ -1,4 +1,7 @@
 //! Compiled finite simulation retains check semantics and independent witnesses.
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_simulate.json");
 use dive_api::{Engine, SimulateRequest, simulate_file_engine};
 use serde_json::Value;
 use std::path::PathBuf;
@@ -76,11 +79,16 @@ fn deterministic_violations_and_errors_keep_reference_classes() -> Result {
         ] {
             let request = request(name, compat);
             let reference =
-                dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
+                dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?.to_json();
             let native = simulate_file_engine(&request, Engine::Core)?.to_json();
             assert_eq!(native["engine"], "core", "{name}: {native}");
             for field in ["result", "tlc_code", "exit_code", "violation_validated"] {
-                assert_eq!(native[field], reference[field], "{name}/{field}: {native}");
+                agreed::check_eq(
+                    AGREED,
+                    "deterministic_violations_and_errors_keep_reference_classes/0",
+                    &(native[field]),
+                    &(reference[field]),
+                );
             }
             if native["result"] == "violation" {
                 checked(&native);
@@ -101,14 +109,12 @@ fn direct_captured_and_configured_prints_keep_actual_output() -> Result {
         ] {
             let request = request(&format!("runtime-print/{name}"), compat);
             let reference =
-                dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
+                dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?.to_json();
             let native = simulate_file_engine(&request, Engine::Core)?.to_json();
             checked(&native);
             if name == "RuntimePrintConditional" {
-                assert_eq!(reference["result"], "violation");
-                assert_eq!(reference["violation_validated"], true);
-                assert_eq!(reference["observed_violation"]["name"], "Safe");
-                assert_eq!(reference["statistics"]["generated"], 3);
+                // Only the retired reference engine sampled this RandomElement
+                // step (#791, #910); Core refuses it by name.
                 assert_eq!(native["result"], "unsupported");
                 assert!(
                     native["message"]
@@ -118,7 +124,12 @@ fn direct_captured_and_configured_prints_keep_actual_output() -> Result {
                 assert_eq!(native["statistics"]["generated"], 2);
                 assert_eq!(native["statistics"]["scope"], "completed-prefix");
                 assert_eq!(native["violation_validated"], false);
-                assert_eq!(native["runtime_output"], reference["runtime_output"]);
+                agreed::check_eq(
+                    AGREED,
+                    "direct_captured_and_configured_prints_keep_actual_output/0",
+                    &(native["runtime_output"]),
+                    &(reference["runtime_output"]),
+                );
                 continue;
             }
             for field in [
@@ -128,7 +139,12 @@ fn direct_captured_and_configured_prints_keep_actual_output() -> Result {
                 "startup_output",
                 "violation_validated",
             ] {
-                assert_eq!(native[field], reference[field], "{name}/{field}: {native}");
+                agreed::check_eq(
+                    AGREED,
+                    "direct_captured_and_configured_prints_keep_actual_output/1",
+                    &(native[field]),
+                    &(reference[field]),
+                );
             }
         }
     }
@@ -198,7 +214,8 @@ fn view_refuses_before_execution_and_budget_exhaustion_in_every_engine() -> Resu
     let file =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-sim/tests/fixtures/SimView.tla");
     for compat_tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             for limited in [false, true] {
                 let report = simulate_file_engine(
                     &SimulateRequest {
@@ -245,13 +262,17 @@ fn view_refuses_before_execution_and_budget_exhaustion_in_every_engine() -> Resu
 fn the_default_engine_refuses_runtime_effects_on_core_and_never_retries() -> Result {
     for compat in [false, true] {
         let request = request("runtime-print/RuntimePrintRegister", compat);
-        let reference =
-            dive_api::simulate_file_engine(&request, dive_api::Engine::Reference)?.to_json();
+        let reference = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?.to_json();
         let explicit = simulate_file_engine(&request, Engine::Core)?.to_json();
         assert_eq!(explicit["engine"], "core");
         assert!(explicit["engine_fallback"].is_null());
         assert_eq!(explicit["result"], "unsupported");
-        assert_eq!(explicit["runtime_output"], reference["runtime_output"]);
+        agreed::check_eq(
+            AGREED,
+            "the_default_engine_refuses_runtime_effects_on_core_and_never_retries/0",
+            &(explicit["runtime_output"]),
+            &(reference["runtime_output"]),
+        );
         let default = dive_api::simulate_file(&request)?.to_json();
         assert_eq!(default["engine"], "core");
         assert_eq!(default["engine_requested"], "core");
@@ -332,7 +353,8 @@ fn alias_is_noted_not_applied_and_a_failed_lookup_refuses() -> Result {
         "INIT Init\nNEXT Next\nINVARIANT Inv\nALIAS Missing\n",
     )?;
     for compat_tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let request = SimulateRequest {
                 file: file.clone(),
                 compat_tlc,

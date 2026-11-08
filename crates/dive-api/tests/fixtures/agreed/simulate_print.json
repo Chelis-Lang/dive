@@ -1,0 +1,24 @@
+{
+ "direct_captured_and_configured_prints_match_genuine_primary_words": {
+  "direct_captured_and_configured_prints_match_genuine_primary_words/0#0": "Number(0)",
+  "direct_captured_and_configured_prints_match_genuine_primary_words/0#1": "Number(12)",
+  "direct_captured_and_configured_prints_match_genuine_primary_words/0#2": "Number(0)",
+  "direct_captured_and_configured_prints_match_genuine_primary_words/0#3": "Number(12)",
+  "direct_captured_and_configured_prints_match_genuine_primary_words/0#4": "Number(0)",
+  "direct_captured_and_configured_prints_match_genuine_primary_words/0#5": "Number(12)",
+  "direct_captured_and_configured_prints_match_genuine_primary_words/0#6": "Number(0)",
+  "direct_captured_and_configured_prints_match_genuine_primary_words/0#7": "Number(12)"
+ },
+ "print_domains_preserve_every_existing_seeded_choice_and_count": {
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#0": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#1": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#2": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#3": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#4": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#5": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#6": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#7": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#8": "[]",
+  "print_domains_preserve_every_existing_seeded_choice_and_count/2#9": "[]"
+ }
+}
