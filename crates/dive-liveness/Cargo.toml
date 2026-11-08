@@ -20,9 +20,6 @@ dive-runtime.workspace = true
 dive-config.workspace = true
 
 [dev-dependencies]
-# The reference graph capture plays the graph producer in the analyzer's
-# unit tests only (ADR 0155); retired with the reference engine.
-dive-check.workspace = true
 dive-sema.workspace = true
 serde_json.workspace = true
 dive-trace.workspace = true
