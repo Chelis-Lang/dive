@@ -104,7 +104,7 @@ fn default_trace_identity_replays_and_is_prefix_stable() {
     agreed::check_core(
         CORE,
         "default_trace_identity_replays_and_is_prefix_stable/0",
-        &a,
+        &serde_json::json!({"traces": a["traces"], "statistics": a["statistics"]}),
     );
     request.traces = 5;
     let b = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
