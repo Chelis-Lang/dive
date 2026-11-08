@@ -5,6 +5,10 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- A JSON report whose run stops before Core starts (a parse error, say) no
+  longer labels its `options.checkpoint` with `"backend": "reference"` and a
+  1 MiB `max_state_bytes` (issue #791). It names `core` and reports
+  `max_state_bytes: null`, as every Core run already did.
 - The binder's start-up evaluation now also evaluates a repeated pure call
   once when the operator comes from an instantiated module or calls other
   operators, in the default profile. The instance's substitutions count as

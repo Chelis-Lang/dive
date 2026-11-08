@@ -489,3 +489,36 @@ fn backend_disk_policy_admits_before_archive_or_model_loading() {
     ));
     assert!(!missing.exists());
 }
+
+#[test]
+fn checkpoint_options_name_core_even_when_the_run_stops_before_core_starts() {
+    let dir = path();
+    std::fs::create_dir_all(&dir).expect("temp dir");
+    let file = dir.join("Rejected.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE Rejected ----\nVARIABLE x\nInit == x =\nNext == x' = x\n====\n",
+    )
+    .expect("spec");
+    std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n").expect("cfg");
+    let rejected = CheckRequest {
+        config: Some(file.with_extension("cfg")),
+        file,
+        ..CheckRequest::default()
+    };
+    let cp = checkpoint::Request {
+        path: dir.join("counter.cp"),
+        action: checkpoint::Action::PauseAfterLevels(1),
+        counters: checkpoint::Counters::Tlc,
+        config_source_sha256: None,
+    };
+    for req in [rejected, req()] {
+        let report = check_file_checkpoint_engine(&req, &cp, Engine::Core)
+            .expect("report")
+            .to_json();
+        let options = &report["options"]["checkpoint"];
+        assert_eq!(options["backend"], "core", "{report}");
+        assert!(options["max_state_bytes"].is_null(), "{report}");
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}

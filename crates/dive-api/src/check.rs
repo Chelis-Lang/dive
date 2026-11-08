@@ -1490,8 +1490,10 @@ impl CheckReport {
                 "counters": request.counters,
                 "max_payload_bytes": dive_runtime::checkpoint::MAX_PAYLOAD_BYTES,
                 "max_states": dive_runtime::checkpoint::MAX_STATES,
-                "max_state_bytes": self.core.is_none().then_some(dive_runtime::checkpoint::MAX_STATE_BYTES),
-                "backend": if self.core.is_some() {"core"} else {"reference"},
+                // Core has no separate state-image limit, also when the run
+                // stops before Core starts (a parse error, say).
+                "max_state_bytes": Value::Null,
+                "backend": self.engine.name(),
                 "archive_bounds_scope": "archive admission only; ordinary search, Store, codec workspaces and process memory are separate",
                 "max_level": dive_runtime::checkpoint::MAX_LEVEL,
                 "max_counter": dive_runtime::checkpoint::MAX_COUNTER,
