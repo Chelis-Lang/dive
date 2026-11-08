@@ -25,8 +25,8 @@ COMMANDS:
     dive explain <CODE> [--output human|json]
     dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)
     dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]
-               [--workers N|auto] [--sequential] [--source-coverage] [-deadlock] [--action-composition off|tlc|tla]
-               [--symmetry-liveness unreduced|refuse|tlc] [--allow-io=env,files,exec]
+               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tla]
+               [--symmetry-liveness unreduced|refuse]
                [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]
                [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
@@ -36,7 +36,7 @@ COMMANDS:
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
                [--distributed-worker IP:port]... [--worker-key FILE] [--worker-timeout-ms N] [--distributed-retries N]
-               [--lncheck final --lasso short] [--core-sample N] [--library-path DIR]... [--module-path DIR]...
+               [--core-sample N] [--library-path DIR]... [--module-path DIR]...
     dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]
                 [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]
     dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]
@@ -56,8 +56,8 @@ COMMANDS:
     implement is a named refusal, never a fallback. --core-sample N
     also compares the successors of N sampled states with the reference evaluator's, in the JSON
     report (core.sample); it is diagnostic and changes no result.
-    --coverage 0, --source-coverage, --allow-io grants and --lncheck final are not implemented
-    on Core and refuse by name.
+    Options Core does not implement are not listed; they still parse and refuse by name
+    (exit 3).
 
 === dive check --help ===
 USAGE: dive check FILE.tla [OPTIONS]
@@ -72,10 +72,8 @@ USAGE: dive check FILE.tla [OPTIONS]
 -deadlock               disable deadlock checking
 --time-limit DURATION|none --max-memory BYTES|auto|none
 --max-states N|none --max-depth N|none
---lncheck final --lasso short
---action-composition off|tlc|tla --symmetry-liveness unreduced|refuse|tlc
---allow-io=env,files,exec
---source-coverage --coverage 0 --core-sample N
+--action-composition off|tla --symmetry-liveness unreduced|refuse
+--core-sample N         compare N sampled states' successors (diagnostic)
 --library-path DIR --module-path DIR (repeatable)
 
 Supported storage options:
@@ -91,8 +89,8 @@ Supported distributed options:
 --distributed-worker IP:port (repeatable) --worker-key FILE
 --worker-timeout-ms N --distributed-retries N
 
-Unsupported combinations refuse by name. Reference is currently the default;
-Core runs supported requests directly, while Auto may rerun through Reference.
+Core is the only engine. Options it does not implement are not listed here;
+they and unsupported combinations refuse by name (exit 3).
 The default time limit is 30m (none under --compat=tlc); the default memory
 limit is half of physical memory. Native process statuses are 0 success,
 1 rejected input, 10 property violation, 11 deadlock, 12 assumption failure,
@@ -118,26 +116,24 @@ USAGE: dive tlc [OPTIONS] SPEC[.tla]
     -seed N             signed 64-bit replay seed (always reported)
     -fp N               fingerprint polynomial, 0..130
     -deadlock           disable deadlock checking
-    -coverage 0        final Init/Next logical coverage (refused: not on Core)
     -modelcheck         explicit checking mode
     -simulate num=N     finite enumerating simulation
     -generate num=N     finite constructive simulation
     -depth N            finite simulation depth
-    -lncheck final      bounded final checking (refused: not on Core)
     -lncheck default    ordinary; eligible pure requests with -fp 0 use final
     -XmxSIZE            memory ceiling, as for the JVM heap (default: half of memory)
     -h, -help           this supported-subset help
 
 The adapter selects TLC evaluation and TLC verdict statuses on the Core engine.
 Dive extensions:
---output human|json; --symmetry-liveness unreduced|refuse|tlc (TLC quotient currently refuses); --max-memory SIZE|auto|none; --max-states N|none; --max-depth N|none; --config/--workers/--seed/--fp/--lncheck aliases. Native
-dive check defaults and its explicit final/short flags are unchanged.
+--output human|json; --symmetry-liveness unreduced|refuse; --max-memory SIZE|auto|none; --max-states N|none; --max-depth N|none; --config/--workers/--seed/--fp/--lncheck aliases. Native
+dive check defaults are unchanged.
 
 -tool output, unbounded/file simulation, DFID, checkpoint/storage and debugger TLC protocols
 are not implemented here and refuse by name. This is not full TLC CLI parity.
 
 === dive dfid --help ===
-USAGE: dive dfid FILE.tla --max-level N [--config FILE.cfg] [--workers N]
+USAGE: dive dfid FILE.tla --max-level N [--config FILE.cfg]
                       [--seed N] [--worker-seeds S,...]
                       [--compat=tlc] [--output human|json]
                       [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
@@ -146,7 +142,7 @@ Run supported bounded iterative deepening; incomplete exploration gives no proof
 
 === dive simulate --help ===
 USAGE: dive simulate FILE.tla --traces N [--generate] [--depth N]
-                          [--seed N] [--aril N] [--workers N] [--stats none|basic]
+                          [--seed N] [--aril N] [--stats none|basic]
                           [--compat=tlc]
                           [--exit-codes native|tlc] [--output human|json]
                           [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
