@@ -19,6 +19,20 @@ fn bounded(n: u64) -> Result<u64, Error> {
 }
 
 impl Machine {
+    /// Whether an empty factor may decide finiteness before later factors
+    /// are proved. TLC's `isFinite` stops at the first empty factor it meets,
+    /// so a later non-set factor answers TRUE or fails by encounter order.
+    /// Product and function-set operands are met in source order in both
+    /// profiles, the order TLC uses, and the goldens pin those answers
+    /// (`IsFiniteSet({} \X 0)` is TRUE). Record fields are met in TLC's
+    /// intern order only under token string order; canonical field order
+    /// would make `[a : {}, b : 0]` answer TRUE where TLC may fail, so there
+    /// every field is proved first and an unproved one refuses.
+    fn source_factor_order(&self, kind: Kind) -> bool {
+        kind != Kind::RecSet
+            || self.heap.store().semantics().string_order == crate::strings::StringOrder::Token
+    }
+
     pub(super) fn symbolic_finiteness(&mut self, h: Handle) -> Result<bool, Error> {
         if matches!(
             self.heap.kind(h),
@@ -71,19 +85,23 @@ impl Machine {
                 if (kind == Kind::Product && len >= 2)
                     || (kind == Kind::RecSet && len.is_multiple_of(2)) =>
             {
-                let mut all_finite = true;
+                let tlc_order = self.source_factor_order(kind);
+                let (mut all_finite, mut any_empty) = (true, false);
                 let start = if kind == Kind::RecSet { len / 2 } else { 0 };
                 for index in start..len {
                     let child = self.heap.view(h).data[index];
                     if self.factor_finiteness(child, depth + 1)? {
-                        if self.finite_empty(child, depth + 1)? {
-                            return Ok(true);
+                        if !any_empty && self.finite_empty(child, depth + 1)? {
+                            if tlc_order {
+                                return Ok(true);
+                            }
+                            any_empty = true;
                         }
                     } else {
                         all_finite = false;
                     }
                 }
-                Ok(all_finite)
+                Ok(any_empty || all_finite)
             }
             Kind::FcnSet if len == 2 => {
                 let (domain, range) = (view.data[0], view.data[1]);
@@ -354,6 +372,27 @@ mod tests {
         assert!(m.finite_product(valid).is_err());
         assert!(m.product_cardinality(valid).is_err());
         assert!(!m.heap.poisoned());
+    }
+
+    #[test]
+    fn source_order_factors_keep_the_empty_first_answer_in_both_profiles() {
+        for semantics in [Semantics::default(), Semantics::tlc()] {
+            let mut m = Machine::new(
+                Arc::new(Store::with_semantics(true, semantics)),
+                0,
+                Opts::default(),
+                Memo::new(&[]),
+            );
+            let zero = Handle::int(0).unwrap();
+            let empty = m.heap.empty_set();
+            let empty_first = m.heap.symbolic(Kind::Product, 0, &[empty, zero]);
+            let functions = m.heap.symbolic(Kind::FcnSet, 0, &[empty, zero]);
+            assert_eq!(m.symbolic_finiteness(empty_first), Ok(true));
+            assert_eq!(m.symbolic_finiteness(functions), Ok(true));
+            let scalar_first = m.heap.symbolic(Kind::Product, 0, &[zero, empty]);
+            assert!(m.symbolic_finiteness(scalar_first).is_err());
+            assert!(!m.heap.poisoned());
+        }
     }
 
     #[test]

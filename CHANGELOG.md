@@ -5,6 +5,14 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- In the default profile, `IsFiniteSet` of a record set with an empty field
+  and a field that is not a proved set (for example
+  `IsFiniteSet([a : {}, b : 0])`) now refuses with "Cardinality/IsFiniteSet
+  of a Product with an unproved factor shape or size" (exit 3). Core
+  answered `TRUE` when the empty field came first in canonical field order,
+  where TLC, which checks fields in its own order, can report an error.
+  Products and function sets still stop at the first empty factor in source
+  order, as TLC does, and `--compat=tlc` is unchanged.
 - Core now checks TLC's start-up normalization of the temporal properties
   before it evaluates the ASSUMEs, as TLC does. A spec whose temporal
   properties normalize to no solutions (TLC's tautology error 2253, exit 77)
