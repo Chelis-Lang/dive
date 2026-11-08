@@ -5,8 +5,10 @@
 `dive simulate Spec.tla --compat=tlc --traces 3 --depth 100 --seed 7 --aril 3 --output json`
 
 Rust callers use `dive_api::simulate_file` and `SimulateRequest`. The backend
-consumes the existing bound model through `dive_sim::simulate`; it does not
-call the exhaustive checker or the trace validator.
+is Core's finite simulation in `dive-api`, run on the bound model through
+`Runtime::simulate_with_backend`; it does not call the exhaustive checker or
+the trace validator. This crate holds the options, report, static admission
+(`preflight`) and run host. The reference simulator was removed (#791).
 
 ## Implemented contract
 
@@ -184,12 +186,11 @@ source bindings.
 ## Owned runtime and finite RandomElement relations
 
 `Runtime::new(options)` owns the simulation host before binding. Install its
-`host()` in `BindOptions`, bind the source, then invoke `runtime.simulate(model)`
-(or its controlled/backend variant). The same run stream continues through
-startup, assumptions, repeated/nested Init draws and Next. A runtime admits one
-execution and the existing shared-evaluator lease still excludes overlap.
-Foreign installed hosts remain a reached-call refusal in legacy `simulate`;
-print-only caller-host operation and restoration are unchanged.
+`host()` in `BindOptions`, bind the source, then run a backend with
+`runtime.simulate_with_backend(model, ...)`. The same run stream continues
+through startup and assumptions. A runtime admits one execution and the
+shared-evaluator lease excludes overlap and reentry; the caller's installed
+host is restored afterwards.
 
 File/API simulation uses this owned context automatically and supplies the actual
 post-binding `TLCGet("config")`. Every returned sample/violation is independently
