@@ -6,9 +6,6 @@ use dive_store::StoreMode;
 /// How to run a check.
 #[derive(Clone, Debug)]
 pub struct CheckOptions {
-    /// Opt-in native source work or admitted TLC logical action costs, attached
-    /// before producer startup. None is TLC's ordinary coverage-disabled setting.
-    pub source_coverage: Option<std::sync::Arc<dive_eval::SourceCoverage>>,
     /// Optional owned external inputs for source binding. Runtime reads and
     /// checkpoint/recovery are not implemented; evaluator grants stay explicit.
     pub inputs: Option<std::sync::Arc<dyn dive_eval::inputs::InputSource>>,
@@ -109,7 +106,6 @@ impl CheckOptions {
     #[must_use]
     pub const fn tlc(fp_index: usize, seed: i64) -> Self {
         Self {
-            source_coverage: None,
             inputs: None,
             seen_disk: None,
             frontier_memory_bytes: None,
@@ -142,7 +138,6 @@ impl CheckOptions {
     #[must_use]
     pub const fn dive(seed: i64) -> Self {
         Self {
-            source_coverage: None,
             inputs: None,
             seen_disk: None,
             frontier_memory_bytes: None,

@@ -29,7 +29,6 @@ pub fn initial_value_method_replay(
     state: &[Option<Value>],
     initial_context: Option<(u64, &crate::budget::EvaluationControl)>,
 ) -> Option<EvalError> {
-    let _source_coverage = m.evaluator.pause_source_coverage();
     let Verdict::EvaluationError {
         site: ErrorSite::Invariant,
         cause,
@@ -116,7 +115,6 @@ fn receiver_replay_state(
 /// in TLC's variable order (`x = v` for a single variable), `null` for an
 /// unassigned one.
 pub fn state_text(m: &Model, s: &[Option<Value>], ctx: Ctx) -> String {
-    let _source_coverage = m.evaluator.pause_source_coverage();
     let order = m.ir.tlc_var_order();
     let single = order.len() == 1;
     let mut out = String::new();
