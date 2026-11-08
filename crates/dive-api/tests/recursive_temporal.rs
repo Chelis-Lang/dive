@@ -4,6 +4,8 @@
 //! independent validator; recursive operators outside the rule keep the named
 //! planning refusal. Expected results are the pinned TLC's.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::CheckRequest;
 
 const SPEC: &str = include_str!("fixtures/recursive-temporal/Rec.tla");
@@ -27,7 +29,7 @@ fn check(directory: &std::path::Path, property: &str, compat_tlc: bool) -> serde
             workers: Some(1),
             ..CheckRequest::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )
     .expect("checked")
     .to_json()
@@ -75,12 +77,15 @@ fn state_level_recursive_calls_are_evaluation_leaves() {
         // An unbounded CHOOSE reaches the evaluator unchanged. The existing
         // liveness-atom error boundary remains an explicit refusal, never a
         // successful verdict (TLC reports an evaluation error there).
+        // Core reaches the evaluation error and refuses to build its report
+        // (#910); the retired reference engine named the unbounded CHOOSE.
         let doc = check(&directory, "Opaque", compat_tlc);
         assert_eq!(doc["verdict"], "unsupported", "{doc}");
+        assert!(doc["counterexample"].is_null(), "{doc}");
         assert!(
             doc["message"]
                 .as_str()
-                .is_some_and(|m| m.contains("unbounded CHOOSE")),
+                .is_some_and(|m| m.contains(refused::TEMPORAL_FAILURE_REPORT)),
             "{doc}"
         );
     }

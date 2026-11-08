@@ -1,6 +1,8 @@
 //! Run budgets (ADR 0107): `--time-limit` and `--max-memory` stop a run with
 //! a structured `stopped` result in both profiles, at every worker count and
 //! in every phase, and never with a verdict.
+#[path = "support/refused.rs"]
+mod refused;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
@@ -81,18 +83,16 @@ fn explicit_search_caps_report_actual_prefixes_and_never_temporal_completion()
                             max_depth: depth,
                             ..request(&file, compat_tlc, workers)
                         },
-                        dive_api::Engine::Reference,
+                        dive_api::Engine::Core,
                     )?;
                     let json = report.to_json();
-                    assert_stopped(
-                        &json,
-                        resource,
-                        if temporal {
-                            "graph-capture"
-                        } else {
-                            "safety-search"
-                        },
-                    );
+                    if temporal {
+                        // Only the retired reference engine stopped a temporal
+                        // capture at a search cap (#791, #910).
+                        refused::assert_refused(&json, report.exit_code(), refused::TEMPORAL_CAP);
+                        continue;
+                    }
+                    assert_stopped(&json, resource, "safety-search");
                     assert_eq!(json["stopped"]["limit"], limit);
                     assert_eq!(json["stopped"]["observed"], limit + 1);
                     assert_eq!(json["statistics"]["exhaustive"], false);
@@ -131,7 +131,7 @@ fn an_exhausted_time_limit_stops_safety_search_in_both_profiles_and_widths()
                     time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
                     ..request(&file, compat_tlc, workers)
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?;
             let json = report.to_json();
             assert_stopped(&json, "time", "safety-search");
@@ -170,10 +170,21 @@ fn an_exhausted_time_limit_stops_graph_capture_with_no_temporal_claim()
                 time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
                 ..request(&file, compat_tlc, 1)
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?;
         let json = report.to_json();
-        assert_stopped(&json, "time", "graph-capture");
+        // Core explores the liveness product while it captures the graph
+        // (#913), so the stop lands in either phase depending on the
+        // machine; neither claims a temporal result.
+        let phase = json["stopped"]["phase"]
+            .as_str()
+            .unwrap_or_default()
+            .to_owned();
+        assert!(
+            ["graph-capture", "temporal-analysis"].contains(&phase.as_str()),
+            "{json}"
+        );
+        assert_stopped(&json, "time", &phase);
         assert_eq!(report.exit_code(), exit::STOPPED);
     }
     Ok(())
@@ -193,7 +204,7 @@ fn a_memory_ceiling_below_the_footprint_stops_the_run() -> Result<(), Box<dyn st
                 time_limit: BudgetSetting::Explicit(Duration::from_secs(120)),
                 ..request(&file, compat_tlc, 1)
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?;
         let json = report.to_json();
         assert_stopped(&json, "memory", "check-startup");
@@ -222,7 +233,7 @@ fn an_exhausted_time_limit_stops_a_long_initial_state_enumeration()
                 time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
                 ..request(&file, compat_tlc, 1)
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?
         .to_json();
         assert_stopped(&json, "time", "safety-search");
@@ -267,7 +278,7 @@ fn a_budget_either_stops_or_reports_exactly_the_unbudgeted_result()
                 time_limit: BudgetSetting::Unlimited,
                 ..request(&file, compat_tlc, 1)
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?
         .to_json();
         assert_eq!(reference["verdict"], "invariant-violation", "{reference}");
@@ -276,15 +287,16 @@ fn a_budget_either_stops_or_reports_exactly_the_unbudgeted_result()
             .into_iter()
             .enumerate()
         {
-            let json = dive_api::check_file_engine(
-                &CheckRequest {
-                    time_limit: BudgetSetting::Explicit(Duration::from_millis(ms)),
-                    chaos: Some(i as u64),
-                    ..request(&file, compat_tlc, 4)
-                },
-                dive_api::Engine::Reference,
-            )?
-            .to_json();
+            let mut budgeted = CheckRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(ms)),
+                chaos: Some(i as u64),
+                ..request(&file, compat_tlc, 4)
+            };
+            // Only the retired reference engine ran --chaos (#791, #910).
+            let chaotic = dive_api::check_file_engine(&budgeted, dive_api::Engine::Core)?;
+            refused::assert_refused(&chaotic.to_json(), chaotic.exit_code(), refused::CHAOS);
+            budgeted.chaos = None;
+            let json = dive_api::check_file_engine(&budgeted, dive_api::Engine::Core)?.to_json();
             if json["verdict"] == "stopped" {
                 stopped += 1;
             } else {
@@ -314,7 +326,7 @@ fn profiles_resolve_their_default_budgets_and_generous_budgets_change_nothing()
     for compat_tlc in [false, true] {
         let mut req = request(&spec, compat_tlc, 1);
         req.no_deadlock = true;
-        let json = dive_api::check_file_engine(&req, dive_api::Engine::Reference)?.to_json();
+        let json = dive_api::check_file_engine(&req, dive_api::Engine::Core)?.to_json();
         assert_eq!(json["verdict"], "success", "{json}");
         let budget = &json["options"]["budget"];
         if compat_tlc {
@@ -340,7 +352,7 @@ fn profiles_resolve_their_default_budgets_and_generous_budgets_change_nothing()
                 max_memory: BudgetSetting::Unlimited,
                 ..req.clone()
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?
         .to_json();
         assert_eq!(unlimited["verdict"], "success");
@@ -368,7 +380,7 @@ fn a_large_interval_reaches_the_initial_state_budget_without_materialization()
                 max_memory: BudgetSetting::Explicit(1 << 30),
                 ..request(&file, compat_tlc, 1)
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?;
         let json = report.to_json();
         assert_stopped(&json, "time", "safety-search");
@@ -402,7 +414,7 @@ fn a_large_interval_reaches_the_successor_budget_at_each_worker_width()
                     max_memory: BudgetSetting::Explicit(1 << 30),
                     ..request(&file, compat_tlc, workers)
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?;
             let json = report.to_json();
             assert_stopped(&json, "time", "safety-search");
@@ -450,7 +462,7 @@ fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
                         temporal,
                         ..request(&file, compat, workers)
                     },
-                    dive_api::Engine::Reference,
+                    dive_api::Engine::Core,
                 )?;
                 let json = report.to_json();
                 assert_stopped(&json, "memory", "check-startup");
@@ -490,18 +502,18 @@ fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
                 time_limit: BudgetSetting::Unlimited,
                 ..request(&file, compat, 1)
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?
         .to_json();
-        assert_eq!(ordinary["verdict"], "assumption-failure");
+        // Without the cut, startup reaches the printing ASSUME. Only the
+        // retired reference engine reported its failure with the output
+        // (#791, #910); Core refuses that report by name.
+        assert_eq!(ordinary["verdict"], "unsupported", "{ordinary}");
         assert!(
-            ordinary["output"]
-                .as_array()
-                .ok_or("output array")?
-                .iter()
-                .any(|line| line
-                    .as_str()
-                    .is_some_and(|text| text.contains("binding-ran")))
+            ordinary["message"]
+                .as_str()
+                .is_some_and(|message| message.contains("ASSUME")),
+            "{ordinary}"
         );
     }
     Ok(())
@@ -521,11 +533,11 @@ fn loading_errors_remain_before_initial_memory_sampling() -> Result<(), Box<dyn 
         ..request(&file, false, 1)
     };
     assert!(matches!(
-        dive_api::check_file_engine(&req, dive_api::Engine::Reference),
+        dive_api::check_file_engine(&req, dive_api::Engine::Core),
         Err(dive_api::ApiError::Io { .. })
     ));
     std::fs::write(file.with_extension("cfg"), "INIT\n")?;
-    let rejected = dive_api::check_file_engine(&req, dive_api::Engine::Reference)?.to_json();
+    let rejected = dive_api::check_file_engine(&req, dive_api::Engine::Core)?.to_json();
     assert_eq!(rejected["verdict"], "rejected");
     assert_eq!(rejected["resources"]["memory"]["status"], "not-started");
     assert_eq!(rejected["resources"]["memory"]["samples"], 0);
@@ -551,7 +563,7 @@ fn evaluator_loops_stop_next_even_when_no_successor_is_emitted()
                     max_memory: BudgetSetting::Unlimited,
                     ..request(&file, compat_tlc, workers)
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?;
             let json = report.to_json();
             assert_stopped(&json, "time", "safety-search");
@@ -563,7 +575,12 @@ fn evaluator_loops_stop_next_even_when_no_successor_is_emitted()
             assert_eq!(json["statistics"]["initial_generated"], 32, "{json}");
             assert_eq!(json["statistics"]["distinct"], 32, "{json}");
             assert_eq!(json["statistics"]["depth"], 1, "{json}");
-            assert_eq!(json["statistics"]["left_on_queue"], 32, "{json}");
+            // The 50 ms stop lands while some initial state is expanding:
+            // those already expanded (no successors) leave the queue, and the
+            // interrupted one stays on it. How many finish first depends on
+            // the machine.
+            let left = json["statistics"]["left_on_queue"].as_u64();
+            assert!(left.is_some_and(|left| (1..=32).contains(&left)), "{json}");
             assert_ne!(json["execution"]["capture_completed"], true, "{json}");
             assert_eq!(report.exit_code(), exit::STOPPED);
         }
@@ -585,15 +602,23 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
         "INIT Init\nNEXT Next\nPROPERTY P\n",
     )?;
     for compat_tlc in [false, true] {
-        let report = dive_api::check_file_engine(
-            &CheckRequest {
-                temporal: dive_api::TemporalMode::FinalShort,
-                time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
-                max_memory: BudgetSetting::Unlimited,
-                ..request(&file, compat_tlc, 1)
-            },
-            dive_api::Engine::Reference,
-        )?;
+        let mut budgeted = CheckRequest {
+            temporal: dive_api::TemporalMode::FinalShort,
+            time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
+            max_memory: BudgetSetting::Unlimited,
+            ..request(&file, compat_tlc, 1)
+        };
+        // Only the retired reference engine ran bounded final checking
+        // (#791, #910); Core refuses it and checks the property in its
+        // ordinary temporal mode.
+        let final_short = dive_api::check_file_engine(&budgeted, dive_api::Engine::Core)?;
+        refused::assert_refused(
+            &final_short.to_json(),
+            final_short.exit_code(),
+            refused::FINAL_SHORT,
+        );
+        budgeted.temporal = dive_api::TemporalMode::Ordinary;
+        let report = dive_api::check_file_engine(&budgeted, dive_api::Engine::Core)?;
         let json = report.to_json();
         assert_stopped(&json, "time", "temporal-analysis");
         assert_eq!(json["execution"]["stage"], "atoms", "{json}");

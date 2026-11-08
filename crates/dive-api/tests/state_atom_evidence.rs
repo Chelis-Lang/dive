@@ -5,6 +5,8 @@
     clippy::panic,
     reason = "failure transport assertions"
 )]
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::temporal;
 use dive_check::CheckOptions;
@@ -66,27 +68,17 @@ fn ordinary_file_reports_require_certified_error_and_actual_source_row_counts() 
                 fp: Some(0),
                 ..dive_api::CheckRequest::default()
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )
         .expect("ordinary check");
-        assert_eq!(report.verdict(), "evaluation-error");
-        assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 255);
-        let json = report.to_json();
-        assert_eq!(json["schema_version"], 3);
-        assert_eq!(json["verdict"], "evaluation-error");
-        assert_eq!(json["diagnostics"][0]["code"], "DIVE-L0033");
-        assert_eq!(json["execution"]["capture_completed"], false);
-        assert_eq!(json["statistics"]["generated"], 2);
-        assert_eq!(json["statistics"]["distinct"], 2);
-        assert_eq!(json["statistics"]["left_on_queue"], 1);
-        assert_eq!(json["statistics"]["depth"], 2);
-        assert!(json["property"].is_null());
-        assert_eq!(json["tlc"]["code"], 2179);
-        assert_eq!(json["tlc"]["verified"], true);
-        assert_eq!(json["error_site"], "temporal-state-row");
-        assert_eq!(json["counterexample"]["ending"], "finite");
-        assert_eq!(json["counterexample"]["validation"], "valid");
-        assert_eq!(json["counterexample"]["length"], 1);
-        assert!(json.get("state_evaluation").is_none());
+        // Only the retired reference engine reported this liveness-atom
+        // error (TLC 2179 from a temporal state row, exit 255, a certified
+        // one-state word) (#791, #910); Core refuses to build the report rather than
+        // claim the property.
+        refused::assert_refused(
+            &report.to_json(),
+            report.exit_code(),
+            refused::TEMPORAL_FAILURE_REPORT,
+        );
     }
 }
