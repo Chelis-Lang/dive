@@ -20,6 +20,12 @@ published. Earlier pre-release development entries remain in git history.
   `dive_conformance::tlc::result::RunMode` and the unauthenticated
   `dive_core::owned_exchange::Exchange::receive_request` (use
   `receive_request_with_startup`). Behaviour is unchanged.
+- A `dive worker` picks up the coordinator's next connection within about
+  50 microseconds instead of up to 10 ms (issue #953). Distributed checks
+  spend most of their time waiting for these connections, so they run several
+  times faster: `MCMajority` over two workers takes about 2.7 s instead of
+  18 s. Results are unchanged; distributed checking is still slower than local
+  checking.
 - The binder's start-up evaluation now also evaluates a repeated pure call
   once when the operator comes from an instantiated module or calls other
   operators, in the default profile. The instance's substitutions count as
