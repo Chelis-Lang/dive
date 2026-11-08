@@ -32,6 +32,31 @@ const DOMAIN: &[u8] = b"dive worker HMAC-SHA256 v1\0";
 /// Shortest and longest wait between accept polls on an idle worker listener.
 const ACCEPT_POLL_MIN: Duration = Duration::from_micros(50);
 const ACCEPT_POLL_MAX: Duration = Duration::from_millis(10);
+/// Wait between accept polls: starts at [`ACCEPT_POLL_MIN`] after a session
+/// and doubles on each empty poll up to [`ACCEPT_POLL_MAX`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct AcceptBackoff(Duration);
+
+impl Default for AcceptBackoff {
+    fn default() -> Self {
+        Self(ACCEPT_POLL_MIN)
+    }
+}
+
+impl AcceptBackoff {
+    /// Returns the wait for this empty poll and doubles the next one, capped.
+    fn next_wait(&mut self) -> Duration {
+        let wait = self.0;
+        self.0 = (wait * 2).min(ACCEPT_POLL_MAX);
+        wait
+    }
+
+    /// Restarts from the shortest wait after a session arrives.
+    fn reset(&mut self) {
+        self.0 = ACCEPT_POLL_MIN;
+    }
+}
+
 const PING: u8 = 1;
 const PONG: u8 = 2;
 const WORK: u8 = 3;
@@ -849,7 +874,7 @@ impl Worker {
         // The coordinator opens one session per source unit, so the next one
         // usually arrives within a millisecond of the last. Poll quickly after
         // a session and back off to the idle interval while nothing arrives.
-        let mut idle = ACCEPT_POLL_MIN;
+        let mut idle = AcceptBackoff::default();
         while !stop()
             && max_units.is_none_or(|n| {
                 usage
@@ -861,12 +886,11 @@ impl Worker {
         {
             let stream = match listener.accept() {
                 Ok((s, _)) => {
-                    idle = ACCEPT_POLL_MIN;
+                    idle.reset();
                     s
                 }
                 Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
-                    std::thread::sleep(idle);
-                    idle = (idle * 2).min(ACCEPT_POLL_MAX);
+                    std::thread::sleep(idle.next_wait());
                     continue;
                 }
                 Err(e) => return Err(io(e)),
@@ -1025,6 +1049,21 @@ mod tests {
         fn drop(&mut self) {
             self.0.store(true, Ordering::Relaxed);
         }
+    }
+
+    #[test]
+    fn accept_backoff_doubles_to_the_cap_and_resets_after_a_session() {
+        let mut backoff = AcceptBackoff::default();
+        let waits: Vec<Duration> = (0..12).map(|_| backoff.next_wait()).collect();
+        assert_eq!(waits[0], ACCEPT_POLL_MIN);
+        assert_eq!(waits[1], ACCEPT_POLL_MIN * 2);
+        assert!(waits.windows(2).all(|w| w[1] >= w[0]));
+        assert!(waits.iter().all(|w| *w <= ACCEPT_POLL_MAX));
+        // 50 us doubled eight times exceeds 10 ms, so the cap holds from there on.
+        assert_eq!(waits[8], ACCEPT_POLL_MAX);
+        assert_eq!(waits[11], ACCEPT_POLL_MAX);
+        backoff.reset();
+        assert_eq!(backoff.next_wait(), ACCEPT_POLL_MIN);
     }
 
     #[test]
