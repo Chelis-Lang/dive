@@ -399,11 +399,3 @@ pub fn postcondition_error(e: &EvalError, name: &str, location: &str) -> Verdict
         None,
     )
 }
-
-/// TLC's `GENERAL` report of a non-`EvalException` caught by its outermost
-/// handler (`MP.printError(EC.GENERAL, Throwable)`), around `inner`.
-#[must_use]
-#[doc(hidden)]
-pub fn general_text(inner: &str) -> String {
-    format!("{GENERAL_PREFIX}{inner}")
-}

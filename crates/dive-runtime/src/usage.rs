@@ -121,26 +121,3 @@ pub struct SeenReplay {
     /// Further error/refusal, when replay did not finish normally.
     pub halted_by: Option<Verdict>,
 }
-
-impl SeenUsage {
-    /// The usage of a disk seen store that failed to be created.
-    #[doc(hidden)]
-    #[must_use]
-    pub fn creation_failure(request: Option<&SeenOptions>, error: &SeenError) -> Self {
-        Self {
-            limits: request.map_or_else(Limits::default, |r| r.limits),
-            admitted_keys: 0,
-            before_cleanup: None,
-            after_cleanup: None,
-            first_failure: Some(SeenFailure {
-                phase: SeenPhase::Creation,
-                error: error.clone(),
-                generated: None,
-                predecessor: None,
-                successor_ordinal: None,
-            }),
-            deciding_event_before_failure: None,
-            replay: None,
-        }
-    }
-}

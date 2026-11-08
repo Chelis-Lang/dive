@@ -15,15 +15,8 @@ use dive_model::{Model, UnsupportedKind};
 use crate::admission as engine;
 use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 
-mod checkpoints;
 mod csr;
 mod evidence;
-pub use checkpoints::{
-    CheckpointDecision, CheckpointExploration, CheckpointObserver, CheckpointPhase,
-    ReachedCheckpoint,
-};
-#[doc(hidden)]
-pub use checkpoints::{DECISION as CHECKPOINT_DECISION, Hooks as CheckpointHooks};
 pub use csr::{CsrCapture, CsrCaptureInput, CsrComplete, CsrPrefix};
 pub use evidence::{CompleteEvidence, PrefixEvidence};
 
@@ -467,50 +460,6 @@ impl From<Exploration> for ControlledExploration {
     }
 }
 impl ControlledExploration {
-    /// A driver's outcome after a successful search that returned `graph`:
-    /// a prefix stopped after `prefix_level`, or a complete graph that passes
-    /// the completion checks. Never weaker than [`GraphBuilder`]'s checks.
-    #[doc(hidden)]
-    #[must_use]
-    pub fn from_successful_search(
-        graph: BehaviorGraph,
-        mut result: CheckResult,
-        options: CheckOptions,
-        stats: Stats,
-        prefix_level: Option<u64>,
-        limits: Limits,
-    ) -> Self {
-        if let Some(level) = prefix_level {
-            if stats.left_on_queue == 0 {
-                result.verdict = bug("prefix has exhausted frontier");
-                return Self::Stopped(Box::new(result));
-            }
-            return Self::Prefix(Box::new(Prefix::from_producer(
-                graph, result, options, stats, level,
-            )));
-        }
-        let completion = match GraphCompletion::finalize(&graph, stats, limits) {
-            Ok(completion) => completion,
-            Err(verdict) => {
-                result.verdict = verdict;
-                return Self::Stopped(Box::new(result));
-            }
-        };
-        Self::Complete(Box::new(Complete::from_producer(
-            graph, result, options, stats, completion,
-        )))
-    }
-
-    /// Records the producer's wall-clock time on the outcome.
-    #[doc(hidden)]
-    pub fn set_elapsed(&mut self, duration: std::time::Duration) {
-        match self {
-            Self::Complete(c) => c.evidence.set_elapsed(duration),
-            Self::Stopped(s) => s.elapsed = duration,
-            Self::Prefix(p) => p.evidence.set_elapsed(duration),
-        }
-    }
-
     #[doc(hidden)]
     #[must_use]
     pub fn legacy(self) -> Exploration {
@@ -553,7 +502,6 @@ pub struct Collector<K> {
     graph: BehaviorGraph,
     limits: Limits,
     count: usize,
-    concrete_pool: bool,
 }
 
 impl<K: Ord> Collector<K> {
@@ -570,21 +518,7 @@ impl<K: Ord> Collector<K> {
             },
             limits,
             count: 0,
-            concrete_pool: false,
         }
-    }
-
-    #[doc(hidden)]
-    #[must_use]
-    pub fn with_concrete_pool(mut self, concrete_pool: bool) -> Self {
-        self.concrete_pool = concrete_pool;
-        self
-    }
-
-    #[doc(hidden)]
-    #[must_use]
-    pub fn concrete_pool(&self) -> bool {
-        self.concrete_pool
     }
 
     #[doc(hidden)]

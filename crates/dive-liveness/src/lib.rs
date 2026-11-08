@@ -7,8 +7,8 @@
 //! kernel over supplied atoms. [`plan::lower`] retains pure bound predicates
 //! and scopes and expands WF/SF with checker-side enabledness.
 //! [`analyze::periodic::external::GraphCheck`] checks a producer's behavior
-//! graph at committed level boundaries, using the deterministic
-//! [`periodic_backend`] growth trigger, and once it is complete, and finds
+//! graph at committed level boundaries, on the deterministic
+//! [`analyze::periodic::Schedule`], and once it is complete, and finds
 //! candidates with their complete attributed property set. Independent
 //! validation is required. [`tlc_plan::classify`] reproduces TLC's
 //! liveness formula refusals for `--compat=tlc`; dive does not emulate TLC's
@@ -33,6 +33,3 @@ pub mod analyze;
 
 /// TLC's 2213/2214 liveness formula refusals, for `--compat=tlc`.
 pub mod tlc_plan;
-
-/// Growth-gated scheduling for checks over a growing graph.
-pub mod periodic_backend;

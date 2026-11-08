@@ -82,3 +82,12 @@ home of the run contract, and `xtask/src/layering.rs` no longer lists
 `dive-runtime`'s CSR and evidence factories against actual captures moved to
 `dive-liveness` (`tests/capture_csr.rs`, `tests/capture_evidence.rs`), and
 the tests of the reference engine itself were removed with it.
+
+With `dive-check` gone, its remaining hooks leave `dive-runtime` too: the
+reached-checkpoint observer (`capture::CheckpointObserver` and its types),
+`ControlledExploration::from_successful_search` and the `test-hooks` feature
+(issue #791). Capture evidence is now built only by `GraphBuilder` and the
+checked CSR producers (`CsrComplete::from_producer`,
+`CsrPrefix::from_producer`), which run the completion checks themselves.
+`dive-liveness` drops its unused `dive-store` dev-dependency. The permitted
+edges in `xtask/src/layering.rs` are unchanged.

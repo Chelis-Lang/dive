@@ -281,7 +281,6 @@ dependencies = [
  "dive-runtime",
  "dive-sema",
  "dive-stdlib",
- "dive-store",
  "dive-trace",
  "dive-value",
  "serde_json",

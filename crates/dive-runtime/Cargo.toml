@@ -23,10 +23,6 @@ sha2.workspace = true
 [target.'cfg(target_os = "macos")'.dependencies]
 memory-stats.workspace = true
 
-[features]
-# Test-only synchronization hooks for the reference engine's unit tests.
-test-hooks = []
-
 [dev-dependencies]
 # Doctests and unit tests lower small specifications; dev-dependencies are
 # outside the layering (`xtask/src/layering.rs`).

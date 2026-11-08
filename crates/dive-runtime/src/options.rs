@@ -94,11 +94,6 @@ pub struct CheckOptions {
     /// Maximum breadth-first discovery depth; initial states have depth one.
     /// `None` is TLC-equivalent; TLC's simulation `-depth` is unrelated.
     pub max_depth: Option<u64>,
-    /// Synchronizes a budget/event race in tests that enable the
-    /// `test-hooks` feature; absent otherwise.
-    #[cfg(feature = "test-hooks")]
-    #[doc(hidden)]
-    pub parallel_budget_test: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
 }
 
 impl CheckOptions {
@@ -129,8 +124,6 @@ impl CheckOptions {
             budget: crate::budget::Budget::unlimited(),
             max_states: None,
             max_depth: None,
-            #[cfg(feature = "test-hooks")]
-            parallel_budget_test: None,
         }
     }
 
@@ -161,8 +154,6 @@ impl CheckOptions {
             budget: crate::budget::Budget::unlimited(),
             max_states: None,
             max_depth: None,
-            #[cfg(feature = "test-hooks")]
-            parallel_budget_test: None,
         }
     }
 }

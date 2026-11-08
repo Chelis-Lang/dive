@@ -148,11 +148,6 @@ impl PrefixEvidence {
     }
 
     #[doc(hidden)]
-    pub fn set_elapsed(&mut self, elapsed: Duration) {
-        self.result.elapsed = elapsed;
-    }
-
-    #[doc(hidden)]
     #[must_use]
     pub fn into_result(self) -> Box<CheckResult> {
         self.result
