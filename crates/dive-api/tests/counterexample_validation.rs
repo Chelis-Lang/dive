@@ -39,7 +39,7 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 /// the validator reads.
 const FAST_SEEDS: &[&str] = &[
     // deadlock
-    "crates/dive-check/tests/fixtures/tlc-probes/specs/DeadlockMidLevel/DeadlockMidLevel.tla",
+    "crates/dive-api/tests/fixtures/checker/tlc-probes/specs/DeadlockMidLevel/DeadlockMidLevel.tla",
     "crates/dive-conformance/tests/fixtures/specs/Deadlock/Deadlock.tla",
     // temporal state error
     "conformance/corpus/liveness-atom-error-timing/specifications/DelayedSiblingStateError/DelayedSiblingStateError.tla",
@@ -52,17 +52,17 @@ const FAST_SEEDS: &[&str] = &[
     "conformance/corpus/fairness-replay/specifications/FairStrong/FairStrong.tla",
     "conformance/corpus/configured-temporal-operators/specifications/ConfiguredReplyFails/ConfiguredReplyFails.tla",
     // action and initial properties
-    "crates/dive-check/tests/fixtures/tlc-probes/specs/ImpliedActionSeen/ImpliedActionSeen.tla",
+    "crates/dive-api/tests/fixtures/checker/tlc-probes/specs/ImpliedActionSeen/ImpliedActionSeen.tla",
     "crates/dive-conformance/tests/fixtures/specs/ActionProperty/ActionProperty.tla",
     "crates/dive-conformance/tests/fixtures/specs/InitProperty/InitProperty.tla",
     // Terminal invariant error and action property outside constraints (#499).
-    "crates/dive-check/tests/fixtures/errors/specs/ErInvConstrained/ErInvConstrained.tla",
-    "crates/dive-check/tests/fixtures/dfid/DfidActionConstrained.tla",
+    "crates/dive-api/tests/fixtures/checker/errors/specs/ErInvConstrained/ErInvConstrained.tla",
+    "crates/dive-api/tests/fixtures/checker/dfid/DfidActionConstrained.tla",
     // Named invariant evaluation error (#490).
-    "crates/dive-check/tests/fixtures/errors/specs/ErInvDivZero/ErInvDivZero.tla",
-    "crates/dive-check/tests/fixtures/errors/specs/ErConstrDivZero/ErConstrDivZero.tla",
-    "crates/dive-check/tests/fixtures/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla",
-    "crates/dive-check/tests/fixtures/errors/specs/ErPropDivZero/ErPropDivZero.tla",
+    "crates/dive-api/tests/fixtures/checker/errors/specs/ErInvDivZero/ErInvDivZero.tla",
+    "crates/dive-api/tests/fixtures/checker/errors/specs/ErConstrDivZero/ErConstrDivZero.tla",
+    "crates/dive-api/tests/fixtures/checker/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla",
+    "crates/dive-api/tests/fixtures/checker/errors/specs/ErPropDivZero/ErPropDivZero.tla",
 ];
 
 /// States explored per run; a stopped run has no counterexample to check.

@@ -171,7 +171,7 @@ fn rust_consumers_use_two_processes_with_exact_words_and_owned_construction_hist
     check_cases(&[
         "tests/fixtures/core-m0/Bag.tla",
         "tests/fixtures/core-m0/CompoundTrace.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErNextAfterDomain/ErNextAfterDomain.tla",
+        "tests/fixtures/checker/errors/specs/ErNextAfterDomain/ErNextAfterDomain.tla",
     ])
 }
 #[test]

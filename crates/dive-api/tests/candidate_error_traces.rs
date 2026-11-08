@@ -21,7 +21,7 @@ fn actual_candidate_errors_require_exact_word_source_site_and_both_identities() 
     for (site, kind) in cases {
         let name = format!("Er{site}{kind}");
         let file = root.join(format!(
-            "crates/dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
+            "crates/dive-api/tests/fixtures/checker/errors/specs/{name}/{name}.tla"
         ));
         for compat_tlc in [false, true] {
             let model = SpecModel::load(
@@ -148,7 +148,7 @@ fn direct_module_errors_and_assertions_replay_actual_candidate_and_diagnostic() 
             }
             let name = format!("Er{site}{kind}");
             let file = root.join(format!(
-                "crates/dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
+                "crates/dive-api/tests/fixtures/checker/errors/specs/{name}/{name}.tla"
             ));
             for compat_tlc in [false, true] {
                 if kind == "Overflow" && !compat_tlc {
@@ -265,7 +265,7 @@ fn top_level_nonboolean_role_proofs_do_not_admit_the_old_anonymous_word() -> Tes
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     for name in ["ErConstrNonBool", "ErActConstrNonBool"] {
         let file = root.join(format!(
-            "crates/dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
+            "crates/dive-api/tests/fixtures/checker/errors/specs/{name}/{name}.tla"
         ));
         for compat_tlc in [false, true] {
             let model = SpecModel::load(

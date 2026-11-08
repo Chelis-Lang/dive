@@ -2,7 +2,7 @@
 //! counterexamples available without a corpus checkout:
 //! - the TLC golden counterexamples of the small-tier Examples models whose
 //!   files are vendored in `dive-eval`'s fixtures;
-//! - the TLC probes in `dive-check`'s fixtures that carry a `-dumpTrace
+//! - the TLC probes in `tests/fixtures/checker` that carry a `-dumpTrace
 //!   json` document.
 //!
 //! Every one must validate under `--compat=tlc` (deadlocks: every check but
@@ -87,7 +87,7 @@ fn golden_controls() -> Vec<(String, Result<Controls, String>)> {
 /// The probes with a `-dumpTrace json` document, with the claim read from
 /// TLC's message stream.
 fn probe_controls() -> Vec<(String, Result<Controls, String>)> {
-    let root = crate_dir().join("../dive-check/tests/fixtures/tlc-probes");
+    let root = crate_dir().join("tests/fixtures/checker/tlc-probes");
     let runs = root.join("tlc-2026.10.06.014338");
     let mut names: Vec<String> = std::fs::read_dir(&runs)
         .expect("probe dir")

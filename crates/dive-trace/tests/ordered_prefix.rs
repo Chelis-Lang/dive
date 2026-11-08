@@ -14,7 +14,7 @@ fn fixture(
     run_metadata: bool,
 ) -> Result<(Session, dive_model::Model), Box<dyn std::error::Error>> {
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
-        "../dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
+        "../dive-api/tests/fixtures/checker/errors/specs/{name}/{name}.tla"
     ));
     let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default())?;
     let ir = Arc::new(dive_ir::lower(&analysis)?);

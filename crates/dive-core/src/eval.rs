@@ -168,7 +168,7 @@ fn eval_err(what: &str) -> Error {
 
 /// An `Assert.fail(EC.GENERAL, ...)` error the core raises exactly where
 /// TLC does. Messages that begin like TLC's keep TLC's beginning, which the
-/// engine's replay rule reads (`dive-check` `class.rs`).
+/// engine's replay rule reads (the retired reference engine's `class.rs`).
 fn general(what: &str) -> Error {
     Error::eval_class(crate::TlcClass::GENERAL, what)
 }

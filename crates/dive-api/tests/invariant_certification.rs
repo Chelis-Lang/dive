@@ -24,16 +24,19 @@ fn prior_agreements_keep_multi_init_records_instances_and_print_values() -> Test
         ),
         ("dive-api/core-liveness/GenError/GenError", "InvariantError"),
         (
-            "dive-check/disk-seen/ReplayLaterViolation/ReplayLaterViolation",
+            "dive-api/checker/disk-seen/ReplayLaterViolation/ReplayLaterViolation",
             "ReplayLaterViolation",
         ),
         (
-            "dive-check/disk-seen/ReplayMembership/ReplayMembership",
+            "dive-api/checker/disk-seen/ReplayMembership/ReplayMembership",
             "ReplayMembership",
         ),
-        ("dive-check/disk-seen/ReplayNew/ReplayNew", "ReplayNew"),
         (
-            "dive-check/disk-seen/ReplayPrintWrapper/ReplayPrintWrapper",
+            "dive-api/checker/disk-seen/ReplayNew/ReplayNew",
+            "ReplayNew",
+        ),
+        (
+            "dive-api/checker/disk-seen/ReplayPrintWrapper/ReplayPrintWrapper",
             "ReplayPrintWrapper",
         ),
         ("dive-sim/SimInvariantError", "SimInvariantError"),
@@ -116,7 +119,7 @@ fn genuine_primary_wrappers_include_later_sources_and_value_method_causes() -> T
             ][..],
         ),
         (
-            "../dive-check/tests/fixtures/errors",
+            "tests/fixtures/checker/errors",
             &[
                 "ErInvAssert",
                 "ErInvChoose",

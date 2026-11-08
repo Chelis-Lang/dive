@@ -32,7 +32,7 @@ def goldens(repo, corpus):
 def repo_models(repo):
     for pattern in [
         "crates/dive-ir/tests/fixtures/actions/specs/*/*.cfg",
-        "crates/dive-check/tests/fixtures/tlc-probes/specs/*/*.cfg",
+        "crates/dive-api/tests/fixtures/checker/tlc-probes/specs/*/*.cfg",
         "crates/dive-conformance/tests/fixtures/specs/*/*.cfg",
     ]:
         for cfg in sorted(glob.glob(os.path.join(repo, pattern))):

@@ -35,7 +35,7 @@ Order is observable, not only counts:
 1. **Counts at a stop.** When a successor decides the run (a violation, an
    incomplete state or an evaluation error), the counts include everything
    emitted up to and including it, and nothing after it (probe
-   `MidLevelViolation` in `crates/dive-check/tests/fixtures/tlc-probes/`). A
+   `MidLevelViolation` in `crates/dive-api/tests/fixtures/checker/tlc-probes/`). A
    different order gives different counts.
 2. **Which violation is reported.** When two successors at the same depth
    violate different invariants, the one emitted first is reported (probes
@@ -805,7 +805,7 @@ engine on any path:
   verdict, generated, distinct, queue, depth, trace length and warnings. The
   three `-nowarning` transcripts must pass with warnings off
   (`no_warnings_matches_tlc`).
-- **TLC probes.** The 19 probes in `crates/dive-check/tests/fixtures/tlc-probes/`
+- **TLC probes.** The 19 probes in `crates/dive-api/tests/fixtures/checker/tlc-probes/`
   (`probes_match_tlc`). These cover counts at a stop, constraints, deadlock,
   stuttering, duplicates, `\E` order, set order and implied actions on seen
   states.

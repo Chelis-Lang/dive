@@ -396,7 +396,7 @@ pub(super) fn reported_matches(verdict: &str, deciding: u64, reported: u64) -> b
 }
 
 // `dive-eval::Ec` codes are the table rows with an evaluation verdict, excluding
-// the site wrappers introduced by dive-check's class constructors.
+// the site wrappers introduced by the retired reference engine's class constructors.
 fn evaluator_code(code: u64) -> bool {
     !matches!(code, 2103 | 2105 | 2111 | 2113 | 2405)
         && class(code).is_some_and(|entry| {

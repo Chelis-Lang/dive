@@ -61,7 +61,7 @@ fn every_accepted_fixture_lowers() {
     let mut files = Vec::new();
     for dir in [
         "dive-sema/tests",
-        "dive-check/tests/fixtures",
+        "dive-api/tests/fixtures/checker",
         "dive-conformance/tests/fixtures",
         "dive-config/tests/fixtures",
     ] {

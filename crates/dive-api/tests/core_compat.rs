@@ -263,14 +263,14 @@ fn compat_fixtures_pin_each_component() {
 #[test]
 fn rule_fixtures_and_probes_match_the_reference_under_compat() {
     let (rules, _) = check_all(specs("crates/dive-eval/tests/fixtures/next"));
-    let (probes, _) = check_all(specs("crates/dive-check/tests/fixtures/tlc-probes"));
+    let (probes, _) = check_all(specs("crates/dive-api/tests/fixtures/checker/tlc-probes"));
     assert!(rules >= 16, "only {rules} rule fixtures agreed");
     assert!(probes >= 18, "only {probes} probes agreed");
 }
 
 #[test]
 fn error_fixtures_match_the_reference_under_compat() {
-    let (agreed, _) = check_all(specs("crates/dive-check/tests/fixtures/errors"));
+    let (agreed, _) = check_all(specs("crates/dive-api/tests/fixtures/checker/errors"));
     assert!(agreed >= 130, "only {agreed} error fixtures agreed");
 }
 
@@ -290,8 +290,8 @@ fn parallel_compat_runs_give_the_one_worker_result() {
     let mut all = flat("tests/fixtures/core-compat");
     all.extend(flat("tests/fixtures/core-m1"));
     all.extend(specs("crates/dive-eval/tests/fixtures/next"));
-    all.extend(specs("crates/dive-check/tests/fixtures/tlc-probes"));
-    all.extend(specs("crates/dive-check/tests/fixtures/errors"));
+    all.extend(specs("crates/dive-api/tests/fixtures/checker/tlc-probes"));
+    all.extend(specs("crates/dive-api/tests/fixtures/checker/errors"));
     let mut ran = 0;
     for (name, spec, _) in all {
         let one = run_at(&spec, Engine::Core, true, 1);

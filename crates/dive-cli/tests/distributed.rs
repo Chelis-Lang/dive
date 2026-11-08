@@ -192,7 +192,7 @@ fn two_process_workers_match_local_safety_in_both_profiles_and_stores() -> TestR
         "../../docs/user/examples/Counter.tla",
         "../dive-api/tests/fixtures/core-m0/CompoundTrace.tla",
         "../dive-api/tests/fixtures/core-m0/Dead.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.tla",
+        "../dive-api/tests/fixtures/checker/errors/specs/ErInvReplayError/ErInvReplayError.tla",
     ] {
         let file = root.join(relative);
         for profile in ["dive", "tlc"] {

@@ -69,7 +69,7 @@ fn an_invariant_counterexample_is_validated_by_the_harness() {
 
 #[test]
 fn finite_deadlocks_validate_independently_and_false_claims_are_rejected() {
-    let probes = repo().join("crates/dive-check/tests/fixtures/tlc-probes");
+    let probes = repo().join("crates/dive-api/tests/fixtures/checker/tlc-probes");
     let dir = probes.join("specs/DeadlockMidLevel");
     let spec = SpecModel::load(
         &dir.join("DeadlockMidLevel.tla"),

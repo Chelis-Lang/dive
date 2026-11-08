@@ -3,7 +3,7 @@
 //!
 //! The explorer records where an evaluation error was raised, with the
 //! states involved, and stops. It does not classify the error: the caller
-//! does, by the site, as TLC does (`dive_check`'s `class.rs`).
+//! does, by the site, as TLC does (the retired reference engine's `class.rs`).
 //!
 //! An invariant that fails to evaluate on a new successor inside the model
 //! is followed by TLC's call-stack replay (`ModelChecker.modelCheckImpl`,

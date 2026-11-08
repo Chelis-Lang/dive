@@ -1,5 +1,5 @@
 //! The successor generator against the TLC probes of
-//! `crates/dive-check/tests/fixtures/tlc-probes/` (milestone CM0's probes).
+//! `crates/dive-api/tests/fixtures/checker/tlc-probes/` (milestone CM0's probes).
 //!
 //! Each probe runs through the test-only binding and single-worker search of
 //! `harness::model` under `--compat=tlc`, and its verdict, violated property,
@@ -19,7 +19,7 @@ use harness::model::{Checked, Verdict, bfs, bind_model, on_big_stack};
 const ORACLE: &str = "tlc-2026.10.06.014338";
 
 fn probes() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/tlc-probes")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-api/tests/fixtures/checker/tlc-probes")
 }
 
 /// What TLC's `-tool` transcript reports.

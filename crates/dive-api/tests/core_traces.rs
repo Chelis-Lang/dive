@@ -136,8 +136,8 @@ fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
     let mut all = Vec::new();
     for dir in [
         "crates/dive-eval/tests/fixtures/next/specs",
-        "crates/dive-check/tests/fixtures/tlc-probes/specs",
-        "crates/dive-check/tests/fixtures/errors/specs",
+        "crates/dive-api/tests/fixtures/checker/tlc-probes/specs",
+        "crates/dive-api/tests/fixtures/checker/errors/specs",
         "crates/dive-api/tests/fixtures/core-m0",
         "crates/dive-api/tests/fixtures/core-m1",
     ] {

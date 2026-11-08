@@ -548,7 +548,7 @@ fn symmetry(h: &Handoff<'_>, m: &Machine) -> Result<Option<crate::symmetry::Symm
     let sym = crate::symmetry::Symmetry::new(maps);
     // TLC's order (`--compat=tlc`): TLC's comparison, in TLC's variable
     // order, as the reference engine canonicalizes
-    // (`dive_check::engine::state_key_of`).
+    // (the retired reference engine's `state_key_of`).
     Ok(Some(if h.ctx.order == dive_value::ValueOrder::Tlc {
         sym.tlc(h.ir.tlc_var_order().iter().map(|v| v.index()).collect())
     } else {

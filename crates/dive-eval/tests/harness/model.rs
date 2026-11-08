@@ -1,4 +1,4 @@
-//! A test-only stand-in for `dive-check` (WP-D2): binds the model with
+//! A test-only stand-in for the retired reference checker (WP-D2): binds the model with
 //! `dive-model`, the binding stage, and runs TLC's single-worker
 //! breadth-first search with no store and no parallelism, to check the
 //! successor generator's counts against TLC's.

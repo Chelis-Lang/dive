@@ -664,7 +664,7 @@ fn incomplete_diagnostic_replay_refuses_an_uncertified_error_class() -> Result<(
     use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 
     let spec = workspace_root().join(
-        "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.tla",
+        "crates/dive-api/tests/fixtures/checker/errors/specs/ErInvReplayError/ErInvReplayError.tla",
     );
     for compat_tlc in [false, true] {
         let mut req = request(&spec);

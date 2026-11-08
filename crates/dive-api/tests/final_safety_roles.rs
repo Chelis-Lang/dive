@@ -231,7 +231,7 @@ fn unassigned_constants_fail_binding_before_startup_effects() {
 #[test]
 fn imported_and_lexical_property_roles_retain_their_real_scopes() -> TestResult {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-check/tests/fixtures/disk-seen-roles");
+        .join("tests/fixtures/checker/disk-seen-roles");
     for name in ["InstanceProperty", "LetProperty", "PropertyAlias"] {
         let file = root.join(name).join(format!("{name}.tla"));
         for opts in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)] {

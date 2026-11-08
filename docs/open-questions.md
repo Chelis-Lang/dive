@@ -18,7 +18,7 @@ Each question is open until it is answered here or recorded in an ADR.
    - **What canonical order changes.** Under the approved canonical value order, sets of strings and model values are also *enumerated* canonically: in `\E`, `x' \in S`, filters and maps.
      - Complete searches are unaffected: the same states, totals and depth.
      - At a violation, the default profile can stop at a different event than TLC. It may report a different violated property among violations at the same depth, different counts at the stop, or a different shortest counterexample of the same length.
-     - Probe `StringOrderViolation` in `crates/dive-check/tests/fixtures/tlc-probes/`: TLC reports `InvZeta`, and canonical order would report `InvAlpha`.
+     - Probe `StringOrderViolation` in `crates/dive-api/tests/fixtures/checker/tlc-probes/`: TLC reports `InvZeta`, and canonical order would report `InvAlpha`.
    - **The options:**
      - **(a)** Exploration follows the canonical order, keeping the default profile text-independent, which is D-006's purpose. dive flags runs where the two orders disagreed on an enumerated set, and the harness treats at-violation differences on flagged runs as expected divergences under D-006.
      - **(b)** Keep TLC's order for exploration in both profiles, and use canonical order only for `CHOOSE`. Then adding an unused definition can again change which violation is reported.

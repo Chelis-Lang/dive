@@ -2,8 +2,8 @@
 //! every producer shares (ADR 0155).
 //!
 //! A complete graph is exploration evidence, not a temporal verdict. A
-//! producer (the reference engine's drivers in `dive_check::capture`, or a
-//! native producer through [`GraphBuilder`] and [`CsrCapture`]) retains every
+//! producer (the execution core, through [`GraphBuilder`] and [`CsrCapture`])
+//! retains every
 //! accepted generated edge, including duplicates, and adds explicit implicit
 //! stutters.
 
@@ -252,12 +252,9 @@ impl GraphCompletion {
 /// A failed or partial level emits no edge or level event. Callback errors stop
 /// exploration without a completed graph. These hooks establish no temporal verdict.
 ///
-/// The reference engine's `dive_runtime::capture::explore_observed_with_evidence`
-/// documents a complete example.
 pub trait Observer: Send {
     /// Requests a prefix stop after a successful completed-level callback.
-    /// Use `dive_check::capture::explore_controlled_with_evidence`; exhausted frontiers cannot stop
-    /// as prefixes. The default preserves all existing observation behavior.
+    /// Exhausted frontiers cannot stop as prefixes. The default preserves all existing observation behavior.
     fn stop_after_level(&self) -> bool {
         false
     }

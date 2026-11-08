@@ -22,7 +22,7 @@ checks the actual callable and refuses before output or exploration. Pure
 captured operator scopes remain supported. Callers use `DfidRequest` and `dfid_file`; `to_json()` carries the completion evidence
 and `exit_status()` the process disposition.
 
-See [DFID reference controls](../../crates/dive-check/tests/fixtures/dfid/README.md),
+See [DFID reference controls](../../crates/dive-api/tests/fixtures/checker/dfid/README.md),
 [ADR 0021](../decisions/0083-storage-and-checkpoint.md) and [report interpretation](reports-and-errors.md).
 
 ## Run budgets

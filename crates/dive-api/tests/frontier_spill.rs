@@ -95,7 +95,7 @@ fn spilled_counterexamples_validate_and_corruptions_are_rejected() {
 #[test]
 fn disk_creation_failure_has_no_success_and_truthful_worker_evidence() {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(
-        "../dive-check/tests/fixtures/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.tla",
+        "tests/fixtures/checker/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.tla",
     );
     let r = dive_api::check_file_engine(
         &CheckRequest {

@@ -1,14 +1,14 @@
 # TLC probes for breadth-first search semantics
 
-Minimal specs that pin down how the pinned TLC counts, orders and stops its breadth-first search. They are the evidence for ADRs 0014 and 0015 and the first conformance target of `dive-check` (milestone CM0 in `docs/design/m5-plan.md`). `crates/dive-check/tests/probes.rs` checks every probe, and the harness's TLC fixtures, against these transcripts under `--compat=tlc` in both stores: deciding code, property, counts, depth, and every counterexample state and label.
+Minimal specs that pin down how the pinned TLC counts, orders and stops its breadth-first search. They are the evidence for ADRs 0014 and 0015 and the first conformance target of the retired reference checker (milestone CM0 in `docs/design/m5-plan.md`). Core's tests in `crates/dive-api/tests` (for example `core_default.rs` and `core_compat.rs`) check the probes against these transcripts.
 
 - `specs/<Name>/<Name>.tla` and `.cfg` are the probes. Each module's header comment states the question it asks.
 - `tlc-2026.10.06.014338/` holds the transcripts, captured with the conformance harness:
 
   ```sh
   dive-conformance dev capture --oracle tlc-2026.10.06.014338 \
-      --specs crates/dive-check/tests/fixtures/tlc-probes/specs \
-      --out crates/dive-check/tests/fixtures/tlc-probes <Name>...
+      --specs crates/dive-api/tests/fixtures/checker/tlc-probes/specs \
+      --out crates/dive-api/tests/fixtures/checker/tlc-probes <Name>...
   ```
 
   `dev capture` runs TLC exactly as golden generation does: `-workers 1 -fp 0 -seed 0 -tool`, deadlock checking as the cfg says. Each probe has `.stdout`, `.stderr`, `.exit`, `.command`, the `-dumpTrace` JSON where TLC writes one, and SANY's output. The transcripts are generated, never edited.

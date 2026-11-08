@@ -142,10 +142,10 @@ value. Logical `length` includes the partial candidate: `ErNextIncomplete` has
 three complete rows plus its partial `x = 3`, `y` unassigned, so length four.
 
 ```sh
-dive check crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.tla --workers 1 --seed 0 --fp 0 --output json > partial-result.json
+dive check crates/dive-api/tests/fixtures/checker/errors/specs/ErNextIncomplete/ErNextIncomplete.tla --workers 1 --seed 0 --fp 0 --output json > partial-result.json
 # The expected incomplete successor exits 75; retain its actual document.
 python3 -c 'import json; r=json.load(open("partial-result.json")); json.dump(r["counterexample"]["trace"], open("partial-trace.json", "w"))'
-dive validate-trace crates/dive-check/tests/fixtures/errors/specs/ErNextIncomplete/ErNextIncomplete.tla --trace partial-trace.json --seed 0 --fp 0 --output json
+dive validate-trace crates/dive-api/tests/fixtures/checker/errors/specs/ErNextIncomplete/ErNextIncomplete.tla --trace partial-trace.json --seed 0 --fp 0 --output json
 ```
 
 Validation separately reconstructs the complete prefix and terminal generator
