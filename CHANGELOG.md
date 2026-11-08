@@ -14,6 +14,11 @@ published. Earlier pre-release development entries remain in git history.
   example `PROPERTY [](x >= 0)`) no longer runs a reference-engine safety
   search, whose result was discarded, before Core checks the model (issue
   #791). Verdicts and counts are unchanged; such runs take less time.
+- Independent trace validation (`dive-trace`) now refuses by name a word
+  whose checks evaluate a primed `TLCGet("level")`, which TLC evaluates at the
+  successor's level (issue #895). Replay used to read the source's level
+  there and could accept a wrong action-property counterexample. Core's
+  checker and simulator already refuse such specs.
 - `dive_api::temporal::Outcome` no longer has the reference engine's
   `Holds`, `Violation` and `PrefixViolation` variants, and the
   `ValidatedCounterexample` and `ValidatedPrefix` types are removed (issue

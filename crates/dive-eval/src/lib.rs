@@ -87,8 +87,8 @@ pub use crate::error::{
 };
 pub use crate::host::{
     Counter, Host, HostBinding, HostBindingScope, HostBindingStamp, HostControl,
-    HostControlConflict, HostControlScope, HostError, Interrupted, NativeHooks, RunConfig,
-    TLCGET_NAMES,
+    HostControlConflict, HostControlScope, HostError, Interrupted, NativeHooks,
+    PRIMED_LEVEL_UNSUPPORTED, RunConfig, TLCGET_NAMES,
 };
 pub use crate::lazy::{LazyFcn, deferred_filter_normalization_operand};
 pub use crate::named_state::NamedState;
