@@ -55,7 +55,31 @@ fn replace_component(text: &str, prefix: &str, placeholder: &str) -> String {
     out
 }
 
-/// A rendering without machine-specific paths.
+/// Replaces the default memory budget, half of this machine's physical
+/// memory, with a placeholder. An explicitly requested budget stays.
+fn replace_default_memory(text: &str) -> String {
+    const FIELD: &str = "\"max_memory_bytes\": Number(";
+    const DEFAULT: &str = "), \"max_memory_requested_source\": String(\"default\")";
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(at) = rest.find(FIELD) {
+        let after = &rest[at + FIELD.len()..];
+        let digits = after.len() - after.trim_start_matches(|c: char| c.is_ascii_digit()).len();
+        out.push_str(&rest[..at]);
+        if digits > 0 && after[digits..].starts_with(DEFAULT) {
+            out.push_str("\"max_memory_bytes\": String(\"<default>\"");
+            rest = &after[digits..];
+        } else {
+            out.push_str(FIELD);
+            rest = after;
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+/// A rendering without machine-specific paths or the machine's default
+/// memory budget.
 #[must_use]
 pub fn normalize(rendering: &str) -> String {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -80,7 +104,7 @@ pub fn normalize(rendering: &str) -> String {
             text = replace_component(&text, &format!("{temp}/"), "<tmp>");
         }
     }
-    text
+    replace_default_memory(&text)
 }
 
 /// The recorded form of a rendering: itself when short, else its digest.
