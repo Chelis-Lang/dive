@@ -1,4 +1,6 @@
 //! Literal-empty property selection uses the existing ordinary safety contract.
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::temporal::{self, Outcome};
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_check::{CheckOptions, CheckResult, Verdict};
@@ -293,14 +295,26 @@ fn final_safety_reports_actual_binding_origin_not_model_error_class() -> TestRes
                 fp: Some(0),
                 ..Default::default()
             };
-            let ordinary = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+            let ordinary = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
             let selected = dive_api::check_file_engine(
                 &dive_api::CheckRequest {
                     temporal: dive_api::TemporalMode::FinalShort,
                     ..request
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?;
+            if cfg.contains("POSTCONDITION") {
+                // Only the retired reference engine bound POSTCONDITION
+                // (#791, #910); Core refuses it before binding.
+                for report in [&ordinary, &selected] {
+                    refused::assert_refused(
+                        &report.to_json(),
+                        report.exit_code(),
+                        refused::POSTCONDITION,
+                    );
+                }
+                continue;
+            }
             let result = selected.result().ok_or("safety result")?;
             equal_safety(result, ordinary.result().ok_or("ordinary result")?);
             assert!(

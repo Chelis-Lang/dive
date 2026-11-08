@@ -1,4 +1,6 @@
 //! Ordinary row errors require demand, actual prefix facts and fresh validation.
+#[path = "support/refused.rs"]
+mod refused;
 
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -26,7 +28,7 @@ fn report(corpus: &str, name: &str, tlc: bool) -> Result<Value, Box<dyn std::err
             fp: Some(0),
             ..CheckRequest::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )?;
     Ok(result.to_json_with_exit_convention(ExitConvention::Tlc))
 }
@@ -70,6 +72,10 @@ fn final_no_cells(
 
 #[test]
 fn the_five_pinned_row_errors_match_original_cause_prefix_and_finite_word() -> TestResult {
+    // Only the retired reference engine reported these liveness-atom errors
+    // (#791, #910); Core refuses to build the report rather than claim the
+    // property. Every case Core does report must match the pinned TLC row.
+    let mut refusals = Vec::new();
     for (corpus, name) in [
         ("selectseq-concat-type-capability", "ConcatFirstTypeError"),
         ("selectseq-concat-type-capability", "ConcatSecondTypeError"),
@@ -84,6 +90,12 @@ fn the_five_pinned_row_errors_match_original_cause_prefix_and_finite_word() -> T
         let expected = &oracle["result"];
         for tlc in [false, true] {
             let actual = report(corpus, name, tlc)?;
+            if actual["verdict"] == "unsupported" {
+                let exit = u8::try_from(actual["exit_code"].as_u64().unwrap_or(255))?;
+                refused::assert_refused(&actual, exit, refused::TEMPORAL_FAILURE_REPORT);
+                refusals.push(format!("{name}/{tlc}"));
+                continue;
+            }
             assert_eq!(
                 actual["verdict"], expected["verdict"],
                 "{name}/{tlc}: {actual}"
@@ -125,6 +137,8 @@ fn the_five_pinned_row_errors_match_original_cause_prefix_and_finite_word() -> T
             assert!(actual["counterexample"]["trace"]["properties"].is_null());
         }
     }
+    // Today Core refuses all five in both profiles.
+    assert_eq!(refusals.len(), 10, "{refusals:?}");
     Ok(())
 }
 
@@ -137,18 +151,15 @@ fn tautology_startup_and_tableau_init_are_not_relabelled_as_certified_rows() -> 
         for tlc in [false, true] {
             let actual = report(corpus, name, tlc)?;
             if name == "UnusedDemandTautology" {
-                let expected = golden(corpus, name)?;
-                assert_eq!(actual["verdict"], expected["result"]["verdict"]);
-                assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
-                assert_eq!(
-                    actual["tlc"]["exit_status"],
-                    expected["result"]["exit_code"]
-                );
-                assert!(actual["statistics"]["distinct"].is_null());
-            } else {
-                assert_eq!(actual["verdict"], "unsupported", "{name}/{tlc}: {actual}");
-                assert!(actual["tlc"].is_null());
+                // Only the retired reference engine reported TLC's startup
+                // error here (2253, exit 77) (#791, #910); Core refuses.
+                let exit = u8::try_from(actual["exit_code"].as_u64().unwrap_or(255))?;
+                refused::assert_refused(&actual, exit, refused::TEMPORAL_VALIDATION_FAILURE_REPORT);
+                assert!(actual["error_site"].is_null());
+                continue;
             }
+            assert_eq!(actual["verdict"], "unsupported", "{name}/{tlc}: {actual}");
+            assert!(actual["tlc"].is_null());
             assert!(actual["error_site"].is_null());
             assert!(actual["counterexample"].is_null());
         }

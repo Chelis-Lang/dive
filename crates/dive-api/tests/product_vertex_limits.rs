@@ -1,5 +1,7 @@
 //! File capacity and caller-supplied product vertex ceilings have distinct owners.
 #![allow(clippy::expect_used, clippy::panic, reason = "finite test assertions")]
+#[path = "support/refused.rs"]
+mod refused;
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -148,7 +150,7 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
                         workers: Some(1),
                         ..CheckRequest::default()
                     },
-                    dive_api::Engine::Reference,
+                    dive_api::Engine::Core,
                 )
                 .expect("real file report");
                 let json = report.to_json();
@@ -169,19 +171,35 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
                     assert!(json["counterexample"].is_null());
                     continue;
                 }
+                if config == CONFIG && matches!(temporal, TemporalMode::FinalShort) {
+                    // Only the retired reference engine ran bounded final
+                    // checking (#791, #910).
+                    refused::assert_refused(&json, report.exit_code(), refused::FINAL_SHORT);
+                }
                 let bounds = &json["options"]["temporal_bounds"];
+                // Core's ordinary temporal checking has no product or
+                // acceptance caps of its own; the file-route caps remain on
+                // the final-mode route.
+                let (edges, steps) = if matches!(temporal, TemporalMode::Ordinary) {
+                    (serde_json::json!(usize::MAX), serde_json::json!(usize::MAX))
+                } else {
+                    (serde_json::json!(8_000_000), serde_json::json!(32_000_000))
+                };
                 assert_eq!(
                     bounds["product_vertices"],
                     serde_json::json!(usize::MAX),
                     "config={config:?}, compat_tlc={compat_tlc}, temporal={temporal:?}"
                 );
-                assert_eq!(bounds["product_edges"], 8_000_000);
-                assert_eq!(bounds["product_steps"], 32_000_000);
-                assert_eq!(bounds["acceptance_buffer_bytes"], 8_000_000);
-                assert_eq!(bounds["acceptance_materialization_work"], 32_000_000);
+                assert_eq!(bounds["product_edges"], edges);
+                assert_eq!(bounds["product_steps"], steps);
+                assert_eq!(bounds["acceptance_buffer_bytes"], edges);
+                assert_eq!(bounds["acceptance_materialization_work"], steps);
                 assert_eq!(bounds["cell_limits"]["graph_labels"]["kind"], "run-budgets");
                 for owner in ["attribution_rows", "word_truth"] {
-                    assert_eq!(bounds["cell_limits"][owner]["cells"], 8_000_000);
+                    assert_eq!(bounds["cell_limits"][owner]["cells"], edges);
+                }
+                if config == CONFIG && matches!(temporal, TemporalMode::FinalShort) {
+                    continue;
                 }
                 if config == CONFIG {
                     assert_eq!(
