@@ -370,6 +370,14 @@ impl NativeAtoms {
         if let Some(after) = after {
             self.machine.s1.copy_from_slice(after);
         }
+        // `inputs_closed` just proved both rows materialized, and admission
+        // proved the bound scope parameters (`admit_plan`): the machine's
+        // identity tests need not prove those exact handles again.
+        self.machine.set_proven_materialized(
+            before,
+            after.unwrap_or(&[]),
+            compiled.plan.bound_preset.iter().map(|&(_, value)| value),
+        );
         self.machine.set_fuel(self.fuel);
         let predicate = &compiled.plan.implied_actions[0];
         let frame = self.machine.enter(predicate.frame);
