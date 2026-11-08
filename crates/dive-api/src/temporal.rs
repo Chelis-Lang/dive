@@ -14,9 +14,9 @@ use std::time::{Duration, Instant};
 use dive_check::{CheckOptions, CheckResult, capture};
 use dive_config::ModelConfig;
 use dive_ir::Ir;
-use dive_liveness::analyze::periodic::{Checks, PeriodicAnalysis, PrefixCandidate};
 #[cfg(test)]
 use dive_liveness::analyze::periodic::Schedule;
+use dive_liveness::analyze::periodic::{Checks, PeriodicAnalysis, PrefixCandidate};
 use dive_liveness::analyze::{Analysis, AnalysisError, Candidate, GraphLabelPolicy, Limits};
 use dive_liveness::product::AcceptancePolicy;
 use dive_model::{BindOptions, Model};
