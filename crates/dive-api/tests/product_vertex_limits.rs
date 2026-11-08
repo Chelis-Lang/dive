@@ -8,7 +8,7 @@ mod refused;
 use std::path::PathBuf;
 
 use dive_api::{CheckRequest, TemporalMode};
-use dive_check::CheckOptions;
+use dive_runtime::CheckOptions;
 
 const SOURCE: &str = "---- MODULE VertexLimit ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
 const CONFIG: &str = "INIT Init\nNEXT Next\nPROPERTY P\n";

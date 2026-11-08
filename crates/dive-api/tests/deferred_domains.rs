@@ -8,8 +8,8 @@ mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 use core_final::Outcome;
-use dive_check::CheckOptions;
 use dive_model::{BindOptions, Pred};
+use dive_runtime::CheckOptions;
 use dive_store::StoreMode;
 use dive_trace::Validation;
 use dive_trace::temporal::evaluate_lasso;

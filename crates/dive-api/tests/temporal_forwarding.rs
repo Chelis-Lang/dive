@@ -8,9 +8,9 @@ mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 use core_final::Outcome;
-use dive_check::CheckOptions;
 use dive_liveness::analyze::Limits;
 use dive_model::{BindOptions, Pred};
+use dive_runtime::CheckOptions;
 use dive_store::StoreMode;
 use dive_trace::Validation;
 use std::sync::Arc;
@@ -427,20 +427,20 @@ fn state_only_forwarded_enabled_controls_preserve_safety_classification() {
         let exit =
             std::fs::read_to_string(root.join("tlc").join(format!("{name}.exit"))).expect("exit");
         assert_eq!(exit.trim(), if holds { "0" } else { "12" });
-        let (ir, cfg) = input(&source, &cfg);
         for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            let result = dive_check::check(&ir, &cfg, &options);
+            let report = core_final::run(&source, &cfg, &options);
+            let json = report.to_json();
+            assert_eq!(
+                report.exit_code_for(dive_api::ExitConvention::Tlc),
+                if holds { 0 } else { 12 },
+                "{name}: {json}"
+            );
             if holds {
-                assert!(matches!(result.verdict, dive_check::Verdict::Success));
+                assert_eq!(json["verdict"], "success", "{name}: {json}");
             } else {
-                assert!(
-                    matches!(
-                        result.verdict,
-                        dive_check::Verdict::InvariantViolated { initial: true, .. }
-                    ),
-                    "{result:?}"
-                );
-                assert!(!result.tlc_prints_stats);
+                // TLC: "Invariant Saved is violated by the initial state".
+                assert_eq!(json["property"], "Saved", "{name}: {json}");
+                assert_eq!(json["statistics"]["depth"], 1, "{name}: {json}");
             }
         }
     }

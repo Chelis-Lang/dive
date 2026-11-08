@@ -5,8 +5,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
-use dive_check::{CheckOptions, CheckResult, Verdict};
 use dive_eval::Profile;
+use dive_runtime::{CheckOptions, CheckResult, Verdict};
 use dive_sema::{Options, SearchPath};
 use dive_store::StoreMode;
 use serde_json::{Value, json};
@@ -101,8 +101,8 @@ pub enum Store {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum BudgetSetting<T> {
     /// The profile's default: for the time limit
-    /// [`dive_check::budget::DEFAULT_TIME_LIMIT`] in the dive profile and none
-    /// under `--compat=tlc`; for memory [`dive_check::budget::default_memory`]
+    /// [`dive_runtime::budget::DEFAULT_TIME_LIMIT`] in the dive profile and none
+    /// under `--compat=tlc`; for memory [`dive_runtime::budget::default_memory`]
     /// in both.
     #[default]
     Default,
@@ -175,7 +175,7 @@ pub struct CheckRequest {
     pub host_access: crate::HostAccess,
     /// Explicit bounded transient disk seen-state route. None keeps the memory
     /// reference; disk uses reported inline fallback and is not a total-RAM budget.
-    pub seen_disk: Option<dive_check::SeenOptions>,
+    pub seen_disk: Option<dive_runtime::SeenOptions>,
     /// Opt-in encoded frontier budget per current/next queue, in bytes. This
     /// does not bound seen sets, candidates, traces, graphs or process memory.
     pub frontier_memory_bytes: Option<usize>,
@@ -236,7 +236,7 @@ pub struct CheckRequest {
     /// sequential mode does (ADR 0015 §6). Results are identical.
     pub sequential: bool,
     /// Test-only chaos scheduling (`--chaos SEED`, or `DIVE_CHAOS`); see
-    /// `dive_check::CheckOptions::chaos`. Results must be identical.
+    /// `dive_runtime::CheckOptions::chaos`. Results must be identical.
     pub chaos: Option<u64>,
     /// Temporal checking strategy. `FinalShort` selects bounded final-only
     /// analysis and labels TLC profiles `tlc+overrides`.
@@ -266,7 +266,7 @@ pub use dive_liveness::analyze::periodic::Schedule as PeriodicSchedule;
 #[derive(Debug)]
 enum Phase {
     /// Resource exhaustion observed before model binding begins.
-    BudgetStopped(dive_check::budget::Stopped),
+    BudgetStopped(dive_runtime::budget::Stopped),
     /// The specification was rejected by the front end.
     SpecRejected(Box<AnalyzeReport>),
     /// The configuration was rejected.
@@ -284,8 +284,8 @@ enum Phase {
 /// The outcome of `dive check`.
 #[derive(Debug)]
 pub struct CheckReport {
-    checkpoint_request: Option<dive_check::checkpoint::Request>,
-    checkpoint_receipt: Option<dive_check::checkpoint::Receipt>,
+    checkpoint_request: Option<dive_runtime::checkpoint::Request>,
+    checkpoint_receipt: Option<dive_runtime::checkpoint::Receipt>,
     file: String,
     config: String,
     profile: Profile,
@@ -299,7 +299,7 @@ pub struct CheckReport {
     /// or `none`.
     budget_sources: (&'static str, &'static str),
     memory_requested_source: &'static str,
-    memory_samples: Option<dive_check::budget::MemorySamples>,
+    memory_samples: Option<dive_runtime::budget::MemorySamples>,
     temporal_configuration: crate::temporal::Configuration,
     phase: Phase,
     /// The core engine's run, when `--engine=core` ran the check.
@@ -480,7 +480,7 @@ pub fn check_file_tlc_inputs_engine(
 /// File I/O or malformed native request/metadata, without a model verdict.
 pub fn check_file_checkpoint(
     req: &CheckRequest,
-    checkpoint: &dive_check::checkpoint::Request,
+    checkpoint: &dive_runtime::checkpoint::Request,
 ) -> Result<CheckReport, crate::ApiError> {
     check_file_checkpoint_engine(req, checkpoint, crate::Engine::default())
 }
@@ -501,7 +501,7 @@ pub fn check_file_checkpoint(
 /// File loading, backend mismatch, unsupported request or archive framing failure.
 pub fn check_file_checkpoint_engine(
     req: &CheckRequest,
-    checkpoint: &dive_check::checkpoint::Request,
+    checkpoint: &dive_runtime::checkpoint::Request,
     engine: crate::Engine,
 ) -> Result<CheckReport, crate::ApiError> {
     if req.temporal != TemporalMode::Ordinary {
@@ -519,7 +519,7 @@ pub fn check_file_checkpoint_engine(
 )]
 fn check_file_in(
     req: &CheckRequest,
-    checkpoint: Option<&dive_check::checkpoint::Request>,
+    checkpoint: Option<&dive_runtime::checkpoint::Request>,
     config_first: bool,
     core_switches: Option<&str>,
 ) -> Result<CheckReport, crate::ApiError> {
@@ -576,7 +576,7 @@ fn check_file_in(
     }
     if req.store_compact_bytes.is_some()
         && checkpoint
-            .is_some_and(|request| request.action != dive_check::checkpoint::Action::Recover)
+            .is_some_and(|request| request.action != dive_runtime::checkpoint::Action::Recover)
     {
         return Err(crate::ApiError::Unsupported {
             feature: "Store reclamation with checkpoint pause (discovery residency is unsupported)"
@@ -603,7 +603,7 @@ fn check_file_in(
         Profile::Dive
     };
     let recovered_defaults = if let Some(request) = checkpoint
-        && request.action == dive_check::checkpoint::Action::Recover
+        && request.action == dive_runtime::checkpoint::Action::Recover
     {
         let defaults = crate::core_checkpoint::metadata(&request.path).map_err(|message| {
             crate::ApiError::Rejected {
@@ -686,16 +686,16 @@ fn check_file_in(
     let (time, time_source) = req.time_limit.resolve(if req.compat_tlc {
         None
     } else {
-        Some(dive_check::budget::DEFAULT_TIME_LIMIT)
+        Some(dive_runtime::budget::DEFAULT_TIME_LIMIT)
     });
-    let memory_resolution = resolve_memory(req.max_memory, dive_check::budget::default_memory);
+    let memory_resolution = resolve_memory(req.max_memory, dive_runtime::budget::default_memory);
     let memory_requested_source = match req.max_memory {
         BudgetSetting::Default => "default",
         BudgetSetting::Explicit(_) => "explicit",
         BudgetSetting::Unlimited => "none",
     };
     let (memory, memory_source) = memory_resolution.unwrap_or((None, "unavailable"));
-    opts.budget = dive_check::budget::Budget::new(time, memory);
+    opts.budget = dive_runtime::budget::Budget::new(time, memory);
     let cfg_path = req
         .config
         .clone()
@@ -795,11 +795,11 @@ fn check_file_in(
     memory_resolution.map_err(crate::ApiError::BudgetMeasurement)?;
     let checking_started = std::time::Instant::now();
     let (mut watchdog, armed) =
-        dive_check::budget::arm(&report.opts).map_err(|error| match error {
-            dive_check::budget::StartError::Measurement(error) => {
+        dive_runtime::budget::arm(&report.opts).map_err(|error| match error {
+            dive_runtime::budget::StartError::Measurement(error) => {
                 crate::ApiError::BudgetMeasurement(error)
             }
-            error @ dive_check::budget::StartError::Thread(_) => {
+            error @ dive_runtime::budget::StartError::Thread(_) => {
                 crate::ApiError::BudgetStartup(error)
             }
         })?;
@@ -809,10 +809,10 @@ fn check_file_in(
         .poll()
         .map_err(crate::ApiError::BudgetMeasurement)?
     {
-        Phase::BudgetStopped(exhausted.during(dive_check::budget::Phase::Startup))
+        Phase::BudgetStopped(exhausted.during(dive_runtime::budget::Phase::Startup))
     } else if let Some(request) = checkpoint {
         let mut request = request.clone();
-        request.config_source_sha256 = Some(dive_check::checkpoint::config_source_hash(
+        request.config_source_sha256 = Some(dive_runtime::checkpoint::config_source_hash(
             cfg.source_bytes(),
         ));
         let (native, run) =
@@ -821,7 +821,7 @@ fn check_file_in(
         report.checkpoint_receipt = native.receipt;
         Phase::Checked(Box::new(native.check))
     } else {
-        let config_hash = dive_check::checkpoint::config_source_hash(cfg.source_bytes());
+        let config_hash = dive_runtime::checkpoint::config_source_hash(cfg.source_bytes());
         let (result, run) = crate::core_engine::check(
             &ir,
             &model,
@@ -866,7 +866,7 @@ fn check_file_in(
     }
     if let Phase::Checked(result) = &report.phase
         && let Verdict::EvaluationError {
-            site: dive_check::ErrorSite::Next,
+            site: dive_runtime::ErrorSite::Next,
             cause,
             reported,
             code,
@@ -899,11 +899,11 @@ fn check_file_in(
         )
     {
         let site = match site {
-            dive_check::ErrorSite::Constraint => Some(dive_trace::CandidateErrorSite::Constraint),
-            dive_check::ErrorSite::ActionConstraint => {
+            dive_runtime::ErrorSite::Constraint => Some(dive_trace::CandidateErrorSite::Constraint),
+            dive_runtime::ErrorSite::ActionConstraint => {
                 Some(dive_trace::CandidateErrorSite::ActionConstraint)
             }
-            dive_check::ErrorSite::ImpliedAction => {
+            dive_runtime::ErrorSite::ImpliedAction => {
                 Some(dive_trace::CandidateErrorSite::ImpliedAction)
             }
             _ => None,
@@ -915,7 +915,7 @@ fn check_file_in(
     }
     if let Phase::Checked(result) = &report.phase
         && let Verdict::EvaluationError {
-            site: dive_check::ErrorSite::View,
+            site: dive_runtime::ErrorSite::View,
             cause,
             reported,
             code,
@@ -1036,12 +1036,12 @@ impl From<crate::core_engine::CoreOutcome> for Phase {
 pub(crate) fn resolve_memory(
     setting: BudgetSetting<u64>,
     default: impl FnOnce() -> Option<u64>,
-) -> Result<(Option<u64>, &'static str), dive_check::budget::MeasurementError> {
+) -> Result<(Option<u64>, &'static str), dive_runtime::budget::MeasurementError> {
     match setting {
         BudgetSetting::Default => default()
             .filter(|bytes| *bytes != 0)
             .map(|bytes| (Some(bytes), "default"))
-            .ok_or_else(dive_check::budget::MeasurementError::default_ceiling_unavailable),
+            .ok_or_else(dive_runtime::budget::MeasurementError::default_ceiling_unavailable),
         BudgetSetting::Explicit(bytes) => Ok((Some(bytes), "explicit")),
         BudgetSetting::Unlimited => Ok((None, "none")),
     }
@@ -1056,7 +1056,7 @@ fn certify_next_receiver(
     result: &mut CheckResult,
 ) {
     let Verdict::EvaluationError {
-        site: dive_check::ErrorSite::Next,
+        site: dive_runtime::ErrorSite::Next,
         cause,
         reported,
         verified: false,
@@ -1096,9 +1096,9 @@ fn certify_next_receiver(
     let Ok(document) = request else {
         return;
     };
-    let control = match dive_check::budget::EvaluationControl::new(
+    let control = match dive_runtime::budget::EvaluationControl::new(
         &options.budget,
-        dive_check::budget::Phase::Validation,
+        dive_runtime::budget::Phase::Validation,
     ) {
         Ok(control) => control,
         Err(error) => {
@@ -1138,18 +1138,18 @@ impl CheckReport {
     fn finish_budget(
         &mut self,
         finished: Result<
-            Option<dive_check::budget::Exhausted>,
-            dive_check::budget::MeasurementError,
+            Option<dive_runtime::budget::Exhausted>,
+            dive_runtime::budget::MeasurementError,
         >,
         elapsed: Duration,
     ) {
         match &mut self.phase {
             Phase::Checked(result) => {
                 result.elapsed = elapsed;
-                dive_check::budget::finish_result(
+                dive_runtime::budget::finish_result(
                     result,
                     finished,
-                    dive_check::budget::Phase::Finalization,
+                    dive_runtime::budget::Phase::Finalization,
                 );
             }
             Phase::Temporal(report) => {
@@ -1232,7 +1232,7 @@ impl CheckReport {
     /// Separate original initial-state diagnostic context. This is not a formal
     /// counterexample; its named cause and deciding replay need independent proof.
     #[must_use]
-    pub fn diagnostic_witness(&self) -> Option<&dive_check::DiagnosticWitness> {
+    pub fn diagnostic_witness(&self) -> Option<&dive_runtime::DiagnosticWitness> {
         self.result()
             .and_then(|result| result.diagnostic_witness.as_ref())
     }
@@ -1336,7 +1336,7 @@ impl CheckReport {
                             failure
                                 .error
                                 .code()
-                                .map_or(exit::INTERNAL, dive_check::tlc_exit_status)
+                                .map_or(exit::INTERNAL, dive_runtime::tlc_exit_status)
                         } else {
                             exit::INTERNAL
                         }
@@ -1347,12 +1347,12 @@ impl CheckReport {
                 "evaluation-error" => {
                     if tlc {
                         if temporal_startup_tautology(e) {
-                            dive_check::tlc_exit_status(
+                            dive_runtime::tlc_exit_status(
                                 dive_model::Ec::TlcLiveFormulaTautology.code(),
                             )
                         } else {
                             temporal_evaluation(e).map_or(exit::INTERNAL, |error| {
-                                dive_check::tlc_exit_status(error.ec().code())
+                                dive_runtime::tlc_exit_status(error.ec().code())
                             })
                         }
                     } else {
@@ -1380,7 +1380,7 @@ impl CheckReport {
                     Verdict::Deadlock => exit::DEADLOCK,
                     Verdict::AssumptionFalse { .. }
                     | Verdict::EvaluationError {
-                        site: dive_check::ErrorSite::Assumption,
+                        site: dive_runtime::ErrorSite::Assumption,
                         ..
                     } => exit::ASSUMPTION,
                     Verdict::ModelError { .. } => exit::REJECTED,
@@ -1398,7 +1398,7 @@ impl CheckReport {
                 if self.temporal == TemporalMode::FinalShort
                     || self.opts.eval.action_composition == dive_eval::ActionComposition::Tla
                     || self.checkpoint_request.as_ref().is_some_and(|r| {
-                        r.counters == dive_check::checkpoint::Counters::Retain
+                        r.counters == dive_runtime::checkpoint::Counters::Retain
                     })
                     // TLC has no time limit (D-026). A memory ceiling is
                     // TLC's `-Xmx` counterpart, a host resource (ADR 0107).
@@ -1500,7 +1500,7 @@ impl CheckReport {
         let fingerprint = (o.store == StoreMode::Fingerprint).then(|| {
             json!({
                 "polynomial_index": o.fp_index,
-                "polynomial_source": if self.fp_given { "flag" } else if self.checkpoint_request.as_ref().is_some_and(|r| r.action == dive_check::checkpoint::Action::Recover) { "checkpoint" } else if self.profile == Profile::Tlc { "random" } else { "default" },
+                "polynomial_source": if self.fp_given { "flag" } else if self.checkpoint_request.as_ref().is_some_and(|r| r.action == dive_runtime::checkpoint::Action::Recover) { "checkpoint" } else if self.profile == Profile::Tlc { "random" } else { "default" },
                 "scheme": if o.tlc_fingerprints { "tlc" } else { "dive" },
             })
         });
@@ -1522,7 +1522,7 @@ impl CheckReport {
             "store": o.store.name(),
             "fingerprint": fingerprint,
             "seed": o.seed,
-            "seed_source": if self.seed_given { "flag" } else if self.checkpoint_request.as_ref().is_some_and(|r| r.action == dive_check::checkpoint::Action::Recover) { "checkpoint" } else { "fresh" },
+            "seed_source": if self.seed_given { "flag" } else if self.checkpoint_request.as_ref().is_some_and(|r| r.action == dive_runtime::checkpoint::Action::Recover) { "checkpoint" } else { "fresh" },
             "deadlock_flag": o.no_deadlock,
             "workers": self.workers_json(),
             "candidate_memory_bytes_per_worker": o.candidate_memory_bytes,
@@ -1567,16 +1567,16 @@ impl CheckReport {
         if let Some(request) = &self.checkpoint_request {
             options["checkpoint"] = json!({
                 "path": request.path,
-                "action": match request.action { dive_check::checkpoint::Action::Recover => "recover", dive_check::checkpoint::Action::PauseAfterLevels(_) => "pause" },
-                "pause_after_levels": match request.action { dive_check::checkpoint::Action::PauseAfterLevels(n) => Some(n), dive_check::checkpoint::Action::Recover => None },
+                "action": match request.action { dive_runtime::checkpoint::Action::Recover => "recover", dive_runtime::checkpoint::Action::PauseAfterLevels(_) => "pause" },
+                "pause_after_levels": match request.action { dive_runtime::checkpoint::Action::PauseAfterLevels(n) => Some(n), dive_runtime::checkpoint::Action::Recover => None },
                 "counters": request.counters,
-                "max_payload_bytes": dive_check::checkpoint::MAX_PAYLOAD_BYTES,
-                "max_states": dive_check::checkpoint::MAX_STATES,
-                "max_state_bytes": self.core.is_none().then_some(dive_check::checkpoint::MAX_STATE_BYTES),
+                "max_payload_bytes": dive_runtime::checkpoint::MAX_PAYLOAD_BYTES,
+                "max_states": dive_runtime::checkpoint::MAX_STATES,
+                "max_state_bytes": self.core.is_none().then_some(dive_runtime::checkpoint::MAX_STATE_BYTES),
                 "backend": if self.core.is_some() {"core"} else {"reference"},
                 "archive_bounds_scope": "archive admission only; ordinary search, Store, codec workspaces and process memory are separate",
-                "max_level": dive_check::checkpoint::MAX_LEVEL,
-                "max_counter": dive_check::checkpoint::MAX_COUNTER,
+                "max_level": dive_runtime::checkpoint::MAX_LEVEL,
+                "max_counter": dive_runtime::checkpoint::MAX_COUNTER,
                 "trusted_local_archive": true,
                 "independent_certificate": false,
                 "parallel_recovery": true,
@@ -1618,7 +1618,7 @@ impl CheckReport {
                     .and_then(temporal_evidence)
                     .map(|c| c.workers)
             })
-            .unwrap_or_else(|| dive_check::Workers {
+            .unwrap_or_else(|| dive_runtime::Workers {
                 requested: self.workers_requested,
                 used: 0,
                 sequential: false,
@@ -1731,7 +1731,7 @@ impl CheckReport {
             "status": if self.opts.budget.memory.is_none() { if self.budget_sources.1 == "unavailable" { "unavailable" } else { "disabled" } } else if samples.unavailable.is_some() { "unavailable" } else if self.memory_samples.is_some() { "sampled" } else { "not-started" },
             "samples": samples.count, "observed_max_bytes": samples.maximum,
             "initial_sampled": samples.initial, "final_sampled": samples.final_sample,
-            "unavailable_at": samples.unavailable.map(dive_check::budget::SamplePoint::name),
+            "unavailable_at": samples.unavailable.map(dive_runtime::budget::SamplePoint::name),
             "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible"
         }});
         match &self.phase {
@@ -1815,14 +1815,14 @@ impl CheckReport {
                     doc["tlc"] = json!({
                         "code": class.code(), "name": class.name(),
                         "reported": class.code(), "verified": true,
-                        "exit_status": dive_check::tlc_exit_status(class.code()),
+                        "exit_status": dive_runtime::tlc_exit_status(class.code()),
                     });
                 } else if let Some(error) = temporal_evaluation(e) {
                     let code = error.ec().code();
                     doc["tlc"] = json!({
                         "code": code,
                         "name": error.ec().name(),
-                        "exit_status": dive_check::tlc_exit_status(code),
+                        "exit_status": dive_runtime::tlc_exit_status(code),
                         "verified": if e.capture_row_error().is_some() { true } else if temporal_action_evaluation(e).is_some() {
                             error.ec() == dive_eval::Ec::General && !error.is_eval_exception()
                         } else { error.ec() == dive_eval::Ec::ExpectedValue },
@@ -1918,7 +1918,7 @@ impl CheckReport {
                 });
                 if self.temporal != TemporalMode::Ordinary {
                     let stage = if r.binding_model_error
-                        || matches!(&r.verdict, Verdict::Stopped(stop) if stop.phase == dive_check::budget::Phase::Binding)
+                        || matches!(&r.verdict, Verdict::Stopped(stop) if stop.phase == dive_runtime::budget::Phase::Binding)
                     {
                         "binding"
                     } else {
@@ -1959,7 +1959,7 @@ impl CheckReport {
                     _ => Value::Null,
                 };
                 if let Verdict::BudgetMeasurement { error } = v {
-                    doc["diagnostics"] = json!([{"code": dive_check::budget::MEASUREMENT_FAILURE_CODE, "message": error.to_string(), "cause": error.to_string(), "span": null, "help": crate::diagnostics::explain(dive_check::budget::MEASUREMENT_FAILURE_CODE).map(|entry| entry.remediation)}]);
+                    doc["diagnostics"] = json!([{"code": dive_runtime::budget::MEASUREMENT_FAILURE_CODE, "message": error.to_string(), "cause": error.to_string(), "span": null, "help": crate::diagnostics::explain(dive_runtime::budget::MEASUREMENT_FAILURE_CODE).map(|entry| entry.remediation)}]);
                 }
                 if let Verdict::Stopped(stopped) = v {
                     doc["stopped"] = stopped_json(stopped);
@@ -2012,7 +2012,7 @@ impl CheckReport {
                                 "label": s.label,
                                 "action": s.action,
                                 "values": values,
-                                "text": dive_check::format_trace_state(r, s, ctx),
+                                "text": dive_runtime::format_trace_state(r, s, ctx),
                             })
                         })
                         .collect();
@@ -2109,7 +2109,7 @@ impl CheckReport {
         doc
     }
 
-    /// The TLC-style text report (see `dive_check::render_human`), preceded
+    /// The TLC-style text report (see `dive_runtime::render_human`), preceded
     /// by the run's options and the `Print` output.
     #[must_use]
     pub fn render_human(&self) -> String {
@@ -2236,7 +2236,7 @@ impl CheckReport {
                 for line in &r.output {
                     let _ = writeln!(out, "{line}");
                 }
-                out.push_str(&dive_check::render_human(r, o.eval.ctx));
+                out.push_str(&dive_runtime::render_human(r, o.eval.ctx));
             }
         }
         if let Some(coverage) = &self.opts.source_coverage {
@@ -2347,15 +2347,15 @@ fn source_coverage_json(snapshot: &dive_eval::SourceCoverageSnapshot) -> Value {
 /// `counterexample.trace`. `null` when a value has no JSON form or the
 /// verdict has no ending the format names.
 fn trace_doc(
-    r: &dive_check::CheckResult,
-    recorded: &[dive_check::TraceState],
+    r: &dive_runtime::CheckResult,
+    recorded: &[dive_runtime::TraceState],
     ctx: dive_value::Ctx,
     next_endpoint: Option<&dive_trace::NextStateEndpoint>,
     partial_endpoint: Option<&dive_trace::PartialNextEndpoint>,
     candidate_endpoint: Option<&dive_trace::CandidateStateEndpoint>,
     view_endpoint: Option<&dive_trace::ViewSourceEndpoint>,
 ) -> Result<Value, String> {
-    use dive_check::Verdict as V;
+    use dive_runtime::Verdict as V;
     use dive_trace::Ending;
     let ending = match &r.verdict {
         V::InvariantViolated { property, .. } => Ending::Invariant(property.clone()),
@@ -2374,7 +2374,7 @@ fn trace_doc(
         // must separately prove the initial2147/2102 diagnostic relationship;
         // the successor2111 relationship retains its existing checks.
         V::EvaluationError {
-            site: dive_check::ErrorSite::Invariant,
+            site: dive_runtime::ErrorSite::Invariant,
             code,
             reported,
             verified: true,
@@ -2391,7 +2391,7 @@ fn trace_doc(
             }
         }
         V::EvaluationError {
-            site: dive_check::ErrorSite::Next,
+            site: dive_runtime::ErrorSite::Next,
             cause,
             ..
         } if next_endpoint.is_some() => Ending::NextStateError {
@@ -2460,17 +2460,17 @@ fn trace_doc(
 }
 
 /// The `stopped` block of a run its budget stopped (ADR 0107).
-pub(crate) fn stopped_json(stopped: &dive_check::budget::Stopped) -> Value {
+pub(crate) fn stopped_json(stopped: &dive_runtime::budget::Stopped) -> Value {
     json!({
         "resource": stopped.resource.name(),
         "limit": stopped.limit,
         "observed": stopped.observed,
         "elapsed_ms": stopped.elapsed_ms,
         "unit": match stopped.resource {
-            dive_check::budget::Resource::Time => "ms",
-            dive_check::budget::Resource::Memory => "bytes",
-            dive_check::budget::Resource::States => "states",
-            dive_check::budget::Resource::Depth => "levels",
+            dive_runtime::budget::Resource::Time => "ms",
+            dive_runtime::budget::Resource::Memory => "bytes",
+            dive_runtime::budget::Resource::States => "states",
+            dive_runtime::budget::Resource::Depth => "levels",
         },
         "phase": stopped.phase.name(),
         "hint": stopped.hint(),
@@ -2590,7 +2590,7 @@ fn temporal_failure_kind(failure: &crate::temporal::Failure) -> &'static str {
 
 fn temporal_native_complete(
     report: &crate::temporal::Report,
-) -> Option<&dive_check::capture::CompleteEvidence> {
+) -> Option<&dive_runtime::capture::CompleteEvidence> {
     match report.outcome() {
         crate::temporal::Outcome::NativeHolds(evidence) => Some(evidence),
         crate::temporal::Outcome::NativeViolation(word) => Some(word.evidence()),
@@ -2600,7 +2600,7 @@ fn temporal_native_complete(
 
 fn producer_facts(
     result: &CheckResult,
-    stats: dive_check::Stats,
+    stats: dive_runtime::Stats,
 ) -> dive_liveness::analyze::ExplorationEvidence {
     dive_liveness::analyze::ExplorationEvidence {
         stats,
@@ -2803,7 +2803,7 @@ fn temporal_limits_json(configuration: crate::temporal::Configuration) -> Value 
         "kind": "entry-work-counts-and-acceptance-buffers", "states": limits.capture.states,
         "edges": limits.capture.edges, "generated": limits.capture.generated,
         "successors_per_unit": limits.capture.successors_per_unit,
-        "max_expansion_units": dive_check::capture::MAX_EXPANSION_UNITS,
+        "max_expansion_units": dive_runtime::capture::MAX_EXPANSION_UNITS,
         "properties": limits.properties,
         "cell_limits": {
             "graph_labels": graph_labels,
@@ -2862,11 +2862,11 @@ mod evidence_controls {
     fn terminal_sampling_preserves_completed_progress_without_a_proof() {
         let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>(x \\/ ~x)\n====\n";
         for finished in [
-            Err(dive_check::budget::MeasurementError::unavailable(
-                dive_check::budget::SamplePoint::Final,
+            Err(dive_runtime::budget::MeasurementError::unavailable(
+                dive_runtime::budget::SamplePoint::Final,
             )),
-            Ok(Some(dive_check::budget::Exhausted {
-                resource: dive_check::budget::Resource::Memory,
+            Ok(Some(dive_runtime::budget::Exhausted {
+                resource: dive_runtime::budget::Resource::Memory,
                 limit: 100,
                 observed: 101,
                 elapsed_ms: 2,
@@ -2892,7 +2892,7 @@ mod evidence_controls {
                 assert_eq!(json["verdict"], "internal-error");
                 assert_eq!(
                     json["diagnostics"][0]["code"],
-                    dive_check::budget::MEASUREMENT_FAILURE_CODE
+                    dive_runtime::budget::MEASUREMENT_FAILURE_CODE
                 );
                 assert!(json["stopped"].is_null());
             } else {
@@ -2912,8 +2912,8 @@ mod evidence_controls {
         );
         assert_eq!(report.verdict(), "success", "{}", report.to_json());
         report.finish_budget(
-            Err(dive_check::budget::MeasurementError::unavailable(
-                dive_check::budget::SamplePoint::Final,
+            Err(dive_runtime::budget::MeasurementError::unavailable(
+                dive_runtime::budget::SamplePoint::Final,
             )),
             Duration::from_millis(2),
         );
@@ -2921,7 +2921,7 @@ mod evidence_controls {
         assert_eq!(json["verdict"], "internal-error");
         assert_eq!(
             json["diagnostics"][0]["code"],
-            dive_check::budget::MEASUREMENT_FAILURE_CODE
+            dive_runtime::budget::MEASUREMENT_FAILURE_CODE
         );
         assert_eq!(json["diagnostics"][0]["cause"], json["message"]);
         assert!(
@@ -2939,7 +2939,7 @@ mod evidence_controls {
 
     #[test]
     fn default_ceiling_resolution_failure_is_distinct_and_never_unlimited() {
-        use dive_check::budget::{MeasurementKind, SamplePoint};
+        use dive_runtime::budget::{MeasurementKind, SamplePoint};
         let error = resolve_memory(BudgetSetting::Default, || None).expect_err("RAM unknown");
         assert_eq!(error.kind, MeasurementKind::DefaultCeiling);
         assert_eq!(error.point, SamplePoint::Initial);

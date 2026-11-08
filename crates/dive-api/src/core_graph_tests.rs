@@ -1,6 +1,6 @@
-//! The core's behavior graph equals the reference capture's
-//! (`docs/developer/core/11-liveness.md` §8), at every worker count and in
-//! both profiles.
+//! The core's behavior graph has the shape the retired reference capture
+//! had (`docs/developer/core/11-liveness.md` §8), and is the same graph at
+//! every worker count and in both profiles.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 
 use std::sync::Arc;
@@ -44,7 +44,15 @@ fn conversion_stops_require_this_captures_actual_budget_evidence() {
     );
 }
 
-/// Specifications (body, configuration) with temporal properties.
+/// Specifications (body, configuration) with temporal properties, and the
+/// shape of the retired reference capture of each in both profiles: (roots,
+/// states, edges including stutters, concrete successor rows).
+const SHAPES: &[(usize, usize, usize, usize)] = &[
+    (1, 8, 22, 14),
+    (4, 9, 27, 18),
+    (1, 9, 17, 8),
+    (1, 24_000, 72_000, 48_000),
+];
 const SPECS: &[(&str, &str)] = &[
     // Two actions, seen states and a stutter-only end.
     (
@@ -74,30 +82,6 @@ fn ir(body: &str) -> Arc<dive_ir::Ir> {
     let analysis = dive_sema::analyze_source("G.tla", &source, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{analysis:?}");
     Arc::new(dive_ir::lower(&analysis).expect("IR"))
-}
-
-fn reference(
-    ir: &Arc<dive_ir::Ir>,
-    cfg: &dive_config::ModelConfig,
-    options: &CheckOptions,
-) -> BehaviorGraph {
-    let model = dive_model::bind(
-        Arc::clone(ir),
-        cfg,
-        &dive_model::BindOptions {
-            eval: options.eval,
-            symmetry_liveness: options.symmetry_liveness,
-            no_deadlock: options.no_deadlock,
-            host: None,
-        },
-    )
-    .expect("model");
-    match dive_check::capture::explore(&model, options, capture::Limits::default()) {
-        capture::Exploration::Complete(c) => c.graph,
-        other @ capture::Exploration::Stopped(_) => {
-            panic!("reference capture did not complete: {other:?}")
-        }
-    }
 }
 
 fn core(
@@ -158,9 +142,19 @@ fn same(a: &BehaviorGraph, b: &BehaviorGraph, what: &str) {
     assert_eq!(rows(a), rows(b), "{what}: concrete rows");
 }
 
+fn shape(graph: &BehaviorGraph) -> (usize, usize, usize, usize) {
+    (
+        graph.roots.len(),
+        graph.states.len(),
+        graph.edges.iter().map(Vec::len).sum(),
+        graph.concrete.iter().map(Vec::len).sum(),
+    )
+}
+
 #[test]
-fn the_core_graph_is_the_reference_capture() {
-    for (body, cfg) in SPECS {
+fn the_core_graph_has_the_reference_shape_at_every_width() {
+    assert_eq!(SPECS.len(), SHAPES.len());
+    for ((body, cfg), pinned) in SPECS.iter().zip(SHAPES) {
         let ir = ir(body);
         let cfg = dive_config::parse(cfg).into_config().expect("config");
         for profile_tlc in [false, true] {
@@ -169,9 +163,9 @@ fn the_core_graph_is_the_reference_capture() {
             } else {
                 CheckOptions::dive(0)
             };
-            let expected = reference(&ir, &cfg, &base);
-            assert!(expected.states.len() > 3, "{body}");
-            for workers in [1, 2, 3, 8] {
+            let expected = core(&ir, &cfg, &base, profile_tlc);
+            assert_eq!(&shape(&expected), pinned, "{body} tlc={profile_tlc}");
+            for workers in [2, 3, 8] {
                 let options = CheckOptions {
                     workers,
                     ..base.clone()

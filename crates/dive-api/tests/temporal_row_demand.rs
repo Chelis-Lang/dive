@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use dive_api::{CheckRequest, ExitConvention};
-use dive_check::CheckOptions;
+use dive_runtime::CheckOptions;
 use serde_json::Value;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -203,7 +203,7 @@ fn initial_invariant_and_next_errors_keep_priority_before_any_row_decision() -> 
             };
             assert_eq!(
                 result.verdict,
-                dive_check::Verdict::InvariantViolated {
+                dive_runtime::Verdict::InvariantViolated {
                     property: "Inv".into(),
                     initial: true
                 }

@@ -200,7 +200,7 @@ pub fn dfid_file_engine(
     );
     let mut run_budget = crate::mode_budget::ModeBudget::start(
         req.compat_tlc,
-        dive_check::budget::Phase::Dfid,
+        dive_runtime::budget::Phase::Dfid,
         req.time_limit,
         req.max_memory,
     )?;
@@ -212,9 +212,9 @@ pub fn dfid_file_engine(
                 message: error.to_string(),
             })?;
     let mut check = if req.compat_tlc {
-        dive_check::CheckOptions::tlc(req.fp, seed)
+        dive_runtime::CheckOptions::tlc(req.fp, seed)
     } else {
-        dive_check::CheckOptions::dive(seed)
+        dive_runtime::CheckOptions::dive(seed)
     };
     check.budget = run_budget.budget.clone();
     check.fp_index = req.fp;
@@ -412,7 +412,7 @@ fn witness(
     states: &[dive_eval::next::StateVals],
     kind: &str,
     name: Option<&str>,
-    budget: &dive_check::budget::Budget,
+    budget: &dive_runtime::budget::Budget,
     control: std::sync::Arc<dyn dive_eval::HostControl>,
 ) -> Result<(TraceDoc, crate::trace::Report), String> {
     let mut objects = Vec::new();

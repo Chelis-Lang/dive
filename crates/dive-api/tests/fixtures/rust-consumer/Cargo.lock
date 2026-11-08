@@ -84,7 +84,6 @@ dependencies = [
 name = "dive-api"
 version = "0.0.0"
 dependencies = [
- "dive-check",
  "dive-config",
  "dive-core",
  "dive-eval",

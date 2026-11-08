@@ -18,7 +18,6 @@ dive-value = { workspace = true }
 dive-eval = { workspace = true }
 dive-stdlib = { workspace = true }
 dive-store = { workspace = true }
-dive-check = { workspace = true }
 # The shared run contract Core uses (ADR 0155).
 dive-runtime = { workspace = true }
 dive-core = { workspace = true }

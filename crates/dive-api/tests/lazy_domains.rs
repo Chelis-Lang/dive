@@ -6,8 +6,8 @@
 #[path = "support/core_final.rs"]
 mod core_final;
 use core_final::Outcome;
-use dive_check::CheckOptions;
 use dive_model::{BindOptions, Pred};
+use dive_runtime::CheckOptions;
 use dive_store::StoreMode;
 use dive_trace::Validation;
 use dive_trace::temporal::evaluate_lasso;

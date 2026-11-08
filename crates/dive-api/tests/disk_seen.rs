@@ -219,7 +219,7 @@ fn creation_failure_reports_no_initial_search_or_success() {
 fn resident_and_disk(
     source: &str,
     cfg: &str,
-    opts: &dive_check::CheckOptions,
+    opts: &dive_runtime::CheckOptions,
 ) -> (serde_json::Value, serde_json::Value) {
     let files = core_final::Files::new(source, cfg);
     let resident = files.request(opts);
@@ -239,8 +239,8 @@ fn resident_and_disk(
 fn disk_seen_storage_with_temporal_properties_refuses_before_startup_prints_or_assumptions() {
     let source = "---- MODULE M ----\nEXTENDS TLC\nVARIABLE x\nUnused == PrintT(\"must not bind\")\nASSUME PrintT(\"must not assume\")\nInit == x=0\nNext == x'=x\nP == []<>(x=0)\n====\n";
     for options in [
-        dive_check::CheckOptions::tlc(0, 7),
-        dive_check::CheckOptions::dive(7),
+        dive_runtime::CheckOptions::tlc(0, 7),
+        dive_runtime::CheckOptions::dive(7),
     ] {
         let (resident, disk) =
             resident_and_disk(source, "INIT Init\nNEXT Next\nPROPERTY P\n", &options);
@@ -267,8 +267,8 @@ fn disk_seen_storage_with_temporal_properties_refuses_before_startup_prints_or_a
 fn effectful_specification_role_matches_resident_storage() {
     let source = "---- MODULE M ----\nEXTENDS TLC\nVARIABLE x\nUnused == PrintT(\"must not bind\")\nASSUME PrintT(\"must not assume\")\nInit == x=0\nNext == x'=x\nSpec == Init /\\ [][Next]_x\n====\n";
     for options in [
-        dive_check::CheckOptions::tlc(0, 7),
-        dive_check::CheckOptions::dive(7),
+        dive_runtime::CheckOptions::tlc(0, 7),
+        dive_runtime::CheckOptions::dive(7),
     ] {
         let (resident, disk) = resident_and_disk(source, "SPECIFICATION Spec\n", &options);
         assert_eq!(disk["verdict"], "success", "{disk}");

@@ -6,7 +6,7 @@ mod refused;
 use std::path::{Path, PathBuf};
 
 use dive_api::{CheckRequest, ExitConvention, TemporalMode};
-use dive_check::CheckOptions;
+use dive_runtime::CheckOptions;
 use serde_json::Value;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;

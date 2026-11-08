@@ -43,7 +43,7 @@ impl SetupError {
 pub(crate) struct Native {
     machine: Machine,
     plan: Plan,
-    budget: dive_check::budget::Budget,
+    budget: dive_runtime::budget::Budget,
 }
 
 impl Native {
@@ -51,7 +51,7 @@ impl Native {
         model: &crate::trace::SpecModel,
         seed: i64,
         mode: dive_stdlib::random::RandomMode,
-        budget: &dive_check::budget::Budget,
+        budget: &dive_runtime::budget::Budget,
         control: Arc<dyn dive_eval::HostControl>,
     ) -> Result<Self, SetupError> {
         let fresh = model.preparation_model(seed, mode, control);
@@ -64,7 +64,7 @@ impl Native {
     /// Preparation does not check assumptions, generate states or emit output.
     pub(crate) fn prepare(
         model: &Model,
-        budget: &dive_check::budget::Budget,
+        budget: &dive_runtime::budget::Budget,
     ) -> Result<Self, SetupError> {
         if model.runtime_name_order {
             return Err(SetupError::Unsupported(
@@ -100,7 +100,7 @@ impl Native {
 
     fn prepare_with_options(
         model: &Model,
-        budget: &dive_check::budget::Budget,
+        budget: &dive_runtime::budget::Budget,
         opts: Opts,
     ) -> Result<Self, SetupError> {
         let opts = Opts {
@@ -775,7 +775,7 @@ mod tests {
         )?)
     }
     fn prepare(model: &Model) -> Result<Native> {
-        Native::prepare(model, &dive_check::budget::Budget::unlimited())
+        Native::prepare(model, &dive_runtime::budget::Budget::unlimited())
             .map_err(|_| "native preparation".into())
     }
 
@@ -823,10 +823,10 @@ mod tests {
             "---- MODULE M ----\nEXTENDS Naturals,TLC\nVARIABLE x\nASSUME PrintT(\"assume\")\nInit == x = 0\nNext == x' = x + 1\n====\n",
             "INIT Init\nNEXT Next\n",
         )?;
-        let budget = dive_check::budget::Budget::unlimited();
-        let control = dive_check::budget::EvaluationControl::new(
+        let budget = dive_runtime::budget::Budget::unlimited();
+        let control = dive_runtime::budget::EvaluationControl::new(
             &budget,
-            dive_check::budget::Phase::Simulation,
+            dive_runtime::budget::Phase::Simulation,
         )?;
         let captured = dive_eval::capture::PrintCapture::start();
         let fresh =
@@ -993,7 +993,8 @@ mod tests {
                 &format!("---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\n{body}====\n"),
                 config,
             )?;
-            let refused = Native::prepare(source.model(), &dive_check::budget::Budget::unlimited());
+            let refused =
+                Native::prepare(source.model(), &dive_runtime::budget::Budget::unlimited());
             assert!(
                 matches!(&refused, Err(SetupError::Unsupported(why)) if why.contains("TLCGet(\"level\") under a prime")),
                 "{body}: {}",
