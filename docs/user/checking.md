@@ -510,15 +510,15 @@ fallback between these directories. Native file APIs keep their explicit path
 semantics. Configurations embedded in `.tla` files retain their named refusal.
 
 `-lncheck final` is not listed in the adapter's help: Core does not implement
-bounded final checking, so with temporal properties it refuses by name
-(exit 3). `-lncheck default` retains ordinary checking.
-With profile-default resident-memory settings and `-fp 0`, eligible pure temporal
-obligations use the same bounded final analyzer, reported as profile `tlc` with
-actual final/short metadata and independent word validation. Other TLC-profile
-temporal combinations retain named refusals; see [ordinary TLC-profile temporal
-checking](temporal.md#ordinary-checking-in-the-tlc-profile) for exact eligibility.
-Other strategies refuse by name, as does the unlisted native
-`dive check --lncheck final --lasso short`.
+the explicit bounded final mode, so with temporal properties it refuses by
+name (exit 3), as does the unlisted native
+`dive check --lncheck final --lasso short`. `-lncheck default` retains
+ordinary checking: Core checks eligible temporal properties once at
+exhaustion, reports profile `tlc` with final/short metadata, and validates
+the reported word independently. Other TLC-profile temporal combinations
+retain named refusals; see [ordinary TLC-profile temporal
+checking](temporal.md#ordinary-checking-in-the-tlc-profile) for exact
+eligibility.
 
 Every counterexample emitted by this adapter is independently replayed from
 fresh source/configuration inputs. JSON records `counterexample.validation` as

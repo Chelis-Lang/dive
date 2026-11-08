@@ -36,7 +36,7 @@ const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     -deadlock               disable deadlock checking\n\
     --time-limit DURATION|none --max-memory BYTES|auto|none\n\
     --max-states N|none --max-depth N|none\n\
-    --action-composition off|tla --symmetry-liveness unreduced|refuse\n\
+    --action-composition off|tla --symmetry-liveness unreduced|refuse|tlc\n\
     --core-sample N         compare N sampled states' successors (diagnostic)\n\
     --library-path DIR --module-path DIR (repeatable)\n\n\
 Supported storage options:\n\
@@ -51,7 +51,9 @@ Supported distributed options:\n\
     --distributed-worker IP:port (repeatable) --worker-key FILE\n\
     --worker-timeout-ms N --distributed-retries N\n\n\
 Core is the only engine. Options it does not implement are not listed here;\n\
-they and unsupported combinations refuse by name (exit 3).\n\
+they and unsupported combinations refuse by name (exit 3), for example\n\
+--symmetry-liveness tlc (the --compat=tlc default) with SYMMETRY and temporal\n\
+properties.\n\
 The default time limit is 30m (none under --compat=tlc); the default memory\n\
 limit is half of physical memory. Native process statuses are 0 success,\n\
 1 rejected input, 10 property violation, 11 deadlock, 12 assumption failure,\n\

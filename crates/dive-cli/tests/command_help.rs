@@ -114,7 +114,9 @@ fn human_header_names_requested_engine_and_actual_workers() -> Result<(), Box<dy
     Ok(())
 }
 
-/// Each hidden option, with the feature its refusal names.
+/// Each hidden option, with the feature its refusal names. The listed
+/// `--symmetry-liveness tlc` (the TLC-profile default) is included for its
+/// refused combination with `SYMMETRY` and temporal properties.
 const HIDDEN: &[(&[&str], &str)] = &[
     (
         &[
@@ -256,12 +258,14 @@ fn hidden_options_still_parse_and_refuse_by_name() -> Result<(), Box<dyn std::er
         "--source-coverage",
         "coverage 0",
         "off|tlc|tla",
-        "unreduced|refuse|tlc",
         "--workers N]",
         "--workers N ",
     ] {
         assert!(!help.contains(hidden), "help still shows {hidden}");
     }
+    // `--symmetry-liveness tlc` runs whenever SYMMETRY and temporal
+    // properties do not meet, so it stays listed.
+    assert!(help.contains("--symmetry-liveness unreduced|refuse|tlc"));
     for (arguments, feature) in HIDDEN {
         let (command, rest) = arguments.split_first().ok_or("empty case")?;
         let mut arguments = vec![*command, "--output", "json"];
