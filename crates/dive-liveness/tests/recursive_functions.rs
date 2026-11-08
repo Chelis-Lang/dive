@@ -1,10 +1,10 @@
-//! Actual primary `RecFcn` fairness outcomes/counts and independently checked words.
+//! Primary `RecFcn` lassos validate independently and recursive boundaries refuse.
+//! The primary outcomes and counts run on Core (`dive-api/tests/liveness_recursive_functions.rs`).
 #![allow(
     clippy::expect_used,
     clippy::panic,
     reason = "tiny generated oracle controls"
 )]
-use dive_liveness::analyze::{Analysis, Limits, analyze_final};
 use dive_runtime::CheckOptions;
 use dive_trace::{Ending, TraceDoc, Validation};
 use serde_json::{Value, json};
@@ -36,90 +36,6 @@ fn oracle() -> Value {
         &std::fs::read(fixture().join("oracle.json")).expect("generated primary"),
     )
     .expect("JSON")
-}
-fn word(
-    model: &dive_model::Model,
-    states: &[dive_trace::State],
-    back: usize,
-    properties: Vec<String>,
-) -> TraceDoc {
-    let names = dive_trace::variables(model);
-    let states = states
-        .iter()
-        .map(|state| {
-            Value::Object(
-                names
-                    .iter()
-                    .zip(state.iter())
-                    .map(|(name, value)| {
-                        (
-                            name.clone(),
-                            dive_trace::value_json::to_json(
-                                value.as_ref().expect("complete"),
-                                model.evaluator.options().ctx,
-                            )
-                            .expect("finite JSON"),
-                        )
-                    })
-                    .collect(),
-            )
-        })
-        .collect();
-    TraceDoc::behavior(states)
-        .expect("word")
-        .with_ending(Ending::Lasso { back_to: back })
-        .with_properties(properties)
-}
-#[test]
-fn seven_actual_primary_outcomes_counts_and_native_words_match() {
-    let oracle = oracle();
-    assert_eq!(oracle["primary_before_production_implementation"], true);
-    assert_eq!(oracle["observations"].as_array().expect("rows").len(), 7);
-    for row in oracle["observations"].as_array().expect("rows") {
-        let module = row["module"].as_str().expect("module");
-        let config =
-            std::fs::read_to_string(fixture().join(row["config"].as_str().expect("config")))
-                .expect("configuration");
-        for tlc in [true, false] {
-            let opts = if tlc {
-                CheckOptions::tlc(0, 0)
-            } else {
-                CheckOptions::dive(0)
-            };
-            let model = bound(module, &config, &opts);
-            let result = analyze_final(&model, &opts, Limits::default())
-                .expect("supported recursive fairness");
-            let stats = match &result {
-                Analysis::Holds(c) => c.stats,
-                Analysis::Candidate(c) => c.exploration.stats,
-            };
-            assert_eq!(json!(stats.generated), row["generated"], "{row}");
-            assert_eq!(json!(stats.distinct), row["distinct"], "{row}");
-            assert_eq!(json!(stats.depth), row["depth"], "{row}");
-            match result {
-                Analysis::Holds(_) => assert_eq!(row["physical_exit"], 0),
-                Analysis::Candidate(candidate) => {
-                    assert_eq!(row["physical_exit"], 13);
-                    assert_eq!(row["error_codes"][0], 2116);
-                    assert_eq!(json!(candidate.target_property), row["violated_property"]);
-                    let fresh = bound(module, &config, &opts);
-                    let document = word(
-                        &fresh,
-                        &candidate.states,
-                        candidate.back_to,
-                        candidate.properties,
-                    );
-                    assert_eq!(
-                        dive_trace::validate_doc(&fresh, &document, &[])
-                            .0
-                            .validation,
-                        Validation::Valid,
-                        "native {row}"
-                    );
-                }
-            }
-        }
-    }
 }
 #[test]
 fn genuine_primary_lassos_and_init_edge_loop_property_mutations_are_independent() {
