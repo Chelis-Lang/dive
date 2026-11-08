@@ -15,8 +15,7 @@ impl DiveImplementation {
         req: &ModelRequest<'_>,
         traces: u64,
     ) -> Result<ImplResult<OracleResult>> {
-        if self.core_sample.is_some()
-            || self.symmetry_policy().is_some()
+        if self.symmetry_policy().is_some()
             || req
                 .model
                 .features
@@ -550,16 +549,12 @@ mod tests {
                 format!("INIT Init\nNEXT Next\nINVARIANT {case}\n"),
             )?;
         }
-        for (engine, selected) in [
-            (Engine::Core, DiveEngine::Core),
-            (Engine::Reference, DiveEngine::Reference),
-        ] {
+        for (engine, selected) in [(Engine::Core, DiveEngine::Core)] {
             for tlc in [false, true] {
                 let implementation = DiveImplementation {
                     options: Vec::new(),
                     engine: selected,
                     profile: if tlc { Profile::Tlc } else { Profile::Dive },
-                    core_sample: None,
                     bin: PathBuf::new(),
                     module_path: Vec::new(),
                     provenance: None,
@@ -790,16 +785,12 @@ mod tests {
     -> std::result::Result<(), Box<dyn std::error::Error>> {
         let root =
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-api/tests/fixtures/generation");
-        for (engine, selected) in [
-            (Engine::Core, DiveEngine::Core),
-            (Engine::Reference, DiveEngine::Reference),
-        ] {
+        for (engine, selected) in [(Engine::Core, DiveEngine::Core)] {
             for tlc in [false, true] {
                 let implementation = DiveImplementation {
                     options: Vec::new(),
                     engine: selected,
                     profile: if tlc { Profile::Tlc } else { Profile::Dive },
-                    core_sample: None,
                     bin: PathBuf::new(),
                     module_path: Vec::new(),
                     provenance: None,
