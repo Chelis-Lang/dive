@@ -149,12 +149,11 @@ edge, generated-state, product-work, acceptance or attribution/word count ceilin
 Checked machine layouts, 32-bit native row/vertex ids and fallible growth remain;
 parallel capture still expands at most eight sources per wave. Budget stops
 retain actual statistics, stage and capture-completion truth and never trigger
-an automatic retry on the reference engine. Explicit Rust limits, reference
-routes, final/short selection and formula/tableau/property planning bounds retain
+an automatic retry. Explicit Rust limits, final/short selection and formula/tableau/property planning bounds retain
 their existing policies. Existing core admission refusals remain.
 VIEW/symmetry quotient semantics, effects and temporal error-demand order are
-separate limitations. A core refusal is explicit and never falls back to the
-reference route. This implementation establishes no larger TLC-relative capacity
+separate limitations. A core refusal is explicit and never falls back to
+another engine. This implementation establishes no larger TLC-relative capacity
 or throughput improvement. Complete
 memory accounting and original-workload qualification remain open.
 
