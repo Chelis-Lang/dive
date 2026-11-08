@@ -6,6 +6,23 @@
 )]
 use super::*;
 use dive_eval::HostControl;
+use dive_liveness::analyze::Analysis;
+use dive_liveness::analyze::periodic::PeriodicAnalysis;
+
+/// A validation-binding failure carrying a complete capture's evidence.
+fn final_binding_validation_failure(failure: Failure, capture: &capture::Complete) -> Failure {
+    let mut failure = validation_binding_failure(failure);
+    failure.exploration = Some(Box::new(capture.into()));
+    failure
+}
+
+/// A validation-binding failure carrying an incomplete prefix's evidence.
+fn prefix_binding_validation_failure(failure: Failure, capture: &capture::Prefix) -> Failure {
+    let mut failure = validation_binding_failure(failure);
+    failure.exploration = Some(Box::new(capture.into()));
+    failure.incomplete = true;
+    failure
+}
 
 fn input() -> (Arc<Ir>, ModelConfig) {
     let source = "---- MODULE Binding ----\nEXTENDS Naturals\nVARIABLE x\nInit==x=0\nNext==x'=IF x<2 THEN x+1 ELSE x\nP==<>(x=3)\n====\n";

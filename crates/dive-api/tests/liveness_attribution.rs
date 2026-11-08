@@ -53,8 +53,6 @@ fn actual_word_names_agree_in_rust_json_and_human_reports() {
                     .expect("check");
                     let temporal = report.temporal_result().expect("temporal report");
                     let word = match temporal.outcome() {
-                        Outcome::Violation(w) => w.document(),
-                        Outcome::PrefixViolation(w) => w.document(),
                         Outcome::NativeViolation(w) => w.document(),
                         Outcome::NativePrefixViolation(w) => w.document(),
                         other => panic!("expected violation, got {other:?}"),

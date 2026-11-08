@@ -7,8 +7,8 @@ retains an ordinary safety result or performs temporal analysis, with one
 startup binding and separate independent validation. Both use report schema 3;
 `check_kind` distinguishes the safety/temporal report family without claiming
 that checking ran or that capture completed.
-A deciding prefix returns `Outcome::PrefixViolation` with actual incomplete
-capture evidence; only exhaustion can return `Outcome::Holds`. Both typed and
+A deciding prefix returns `Outcome::NativePrefixViolation` with actual
+incomplete capture evidence; only exhaustion can return `Outcome::NativeHolds`. Both typed and
 serialized words must pass fresh independent validation.
 `CheckRequest::periodic` (`dive_api::PeriodicSchedule`) selects the completed
 levels to check; the default checks once the graph has at least 2^16 states and
