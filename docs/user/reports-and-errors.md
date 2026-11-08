@@ -20,6 +20,10 @@ memory metric; semantic counts, names, error codes and trace content remain
 checked. See the [fixture guide](../../crates/dive-cli/tests/fixtures/report-schema/README.md)
 and the [compatibility policy](#report-compatibility).
 
+`core.metrics.store.memory.construction_history_view_bytes` is deprecated and
+always 0: Core no longer keeps construction history (issue #791). Schema 3
+keeps the field; a later schema version will remove it.
+
 A whole-function failure inside a pure initial invariant can report
 `TLC_FINGERPRINT_EXCEPTION` (2147) after diagnostic replay constructs the actual
 source-bearing function receiver. The underlying error remains unchanged.

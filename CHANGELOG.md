@@ -46,7 +46,9 @@ published. Earlier pre-release development entries remain in git history.
   (`DIVEST01`) and worker exchanges (`DIVEOW01`) keep their byte layout with
   that table always empty; an archive that records construction history is
   rejected with `DIVE-S0400` ("legacy construction history") instead of being
-  restored. The report's `construction_history_view_bytes` is always 0.
+  restored. The report field
+  `core.metrics.store.memory.construction_history_view_bytes` is deprecated
+  and always 0; schema 3 keeps it, and a later schema version will remove it.
   Verdicts and counts are unchanged.
 - `dive_api::temporal::Outcome` no longer has the reference engine's
   `Holds`, `Violation` and `PrefixViolation` variants, and the
