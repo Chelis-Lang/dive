@@ -24,6 +24,12 @@ retain their original reproducers; their closed issues were folded into
   after canonical function construction: [enumerated-domain repro](https://github.com/Chelis-Lang/dive/issues/346).
 - Random operators require an admitted draw placement and replayable stream;
   general TLC draw-order matching is not claimed: [random and VIEW cases](https://github.com/Chelis-Lang/dive/issues/178).
+- Seeded simulation under `--compat=tlc` does not reproduce TLC's choice
+  stream: for a given seed and aril, Core samples different traces and reports
+  a different generated count than the pinned TLC (for example 31 rather than
+  29 for `SimChoice` at seed 0, aril 0). Every sampled trace is still
+  independently validated:
+  [refused features after the reference engine](https://github.com/Chelis-Lang/dive/issues/910).
 - Temporal checking uses the admitted native policy and independently validated
   words; full `-lncheck off/final` fidelity remains incomplete:
   [observable-mode cases](https://github.com/Chelis-Lang/dive/issues/233).

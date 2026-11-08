@@ -1,0 +1,30 @@
+{
+ "basic_action_statistics_preserve_replay_and_independent_safety_validation": {
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#0": "String(\"sampled\")",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#1": "String(\"sampled\")",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#10": "Object {\"generated\": Number(3), \"initial_candidates\": Number(1), \"scope\": String(\"completed-prefix\"), \"traces_started\": Number(1)}",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#11": "fnv1a64:c73bbfc8978caded:578",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#2": "Null",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#3": "Number(0)",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#4": "Object {\"generated\": Number(29), \"initial_candidates\": Number(2), \"scope\": String(\"complete-request\"), \"traces_started\": Number(3)}",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#5": "fnv1a64:b749af72418243d5:2645",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#6": "String(\"violation\")",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#7": "String(\"violation\")",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#8": "Number(2110)",
+  "basic_action_statistics_preserve_replay_and_independent_safety_validation/0#9": "Number(10)"
+ },
+ "simulation_error_sites_match_pinned_messages_and_statuses": {
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#0": "13",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#1": "10",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#10": "12",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#11": "76",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#2": "12",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#3": "11",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#4": "255",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#5": "255",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#6": "75",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#7": "255",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#8": "12",
+  "simulation_error_sites_match_pinned_messages_and_statuses/0#9": "255"
+ }
+}

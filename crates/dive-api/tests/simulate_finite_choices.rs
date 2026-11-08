@@ -1,5 +1,7 @@
 //! File simulation retains independent validity for executed native choices.
 #![allow(clippy::expect_used, reason = "fixture setup and exact report checks")]
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::{Engine, SimulateRequest, simulate_file_engine};
 
@@ -23,20 +25,9 @@ fn native_random_steps_and_startup_have_reproducible_validated_samples() {
             traces: 2,
             ..Default::default()
         };
-        let first = simulate_file_engine(&request, Engine::Reference)
-            .expect("simulation")
-            .to_json();
-        assert_eq!(first["result"], "sampled", "{first}");
-        assert_eq!(first["exhaustive"], false);
-        assert_eq!(first["model_proved"], false);
-        assert_eq!(first["statistics"]["generated"], 201);
-        for trace in first["traces"].as_array().expect("samples") {
-            assert_eq!(trace["validation"]["result"], "valid", "{trace}");
-        }
-        let repeated = simulate_file_engine(&request, Engine::Reference)
-            .expect("same seed")
-            .to_json();
-        assert_eq!(first["traces"], repeated["traces"]);
+        // Only the retired reference engine sampled RandomElement (#791, #910).
+        let first = simulate_file_engine(&request, Engine::Core).expect("simulation");
+        refused::assert_refused(&first.to_json(), first.exit_code(), refused::FINITE_RANDOM);
     }
     check_action_contexts(&file);
     std::fs::write(&file,"---- MODULE Choices ----\nEXTENDS TLC\nVARIABLE x\nInit==x=TLCGet(\"config\").seed\nNext==UNCHANGED x\n====\n").expect("configuration source");
@@ -52,15 +43,14 @@ fn native_random_steps_and_startup_have_reproducible_validated_samples() {
                 traces: 1,
                 ..Default::default()
             },
-            Engine::Reference,
+            Engine::Core,
         )
-        .expect("actual runtime config")
-        .to_json();
-        assert_eq!(report["result"], "sampled", "{report}");
-        assert_eq!(report["traces"][0]["validation"]["result"], "valid");
-        assert_eq!(
-            report["traces"][0]["document"]["states"][0]["values"]["x"],
-            "7"
+        .expect("actual runtime config");
+        // Only the retired reference engine read TLCGet here (#791, #910).
+        refused::assert_refused(
+            &report.to_json(),
+            report.exit_code(),
+            refused::FINITE_HOST_ACCESS,
         );
     }
     std::fs::remove_dir_all(root).expect("fixture cleanup");
@@ -96,6 +86,30 @@ fn check_action_contexts(file: &std::path::Path) {
             include_str!("../../dive-sim/tests/fixtures/finite-choices/bound-action/Choices.cfg")
         };
         std::fs::write(file.with_extension("cfg"), config).expect("action configuration");
+        if case == "let-action" {
+            // Only the retired reference engine sampled this LET-bound draw
+            // (#791, #910); Core refuses it by name.
+            for compat_tlc in [false, true] {
+                let report = simulate_file_engine(
+                    &SimulateRequest {
+                        file: file.to_path_buf(),
+                        compat_tlc,
+                        seed: Some(7),
+                        depth: Some(4),
+                        traces: 2,
+                        ..Default::default()
+                    },
+                    Engine::Core,
+                )
+                .expect("captured Next");
+                refused::assert_refused(
+                    &report.to_json(),
+                    report.exit_code(),
+                    refused::EFFECT_REUSED_IN_CONJUNCTS,
+                );
+            }
+            continue;
+        }
         for compat_tlc in [false, true] {
             let report = simulate_file_engine(
                 &SimulateRequest {
@@ -106,7 +120,7 @@ fn check_action_contexts(file: &std::path::Path) {
                     traces: 2,
                     ..Default::default()
                 },
-                Engine::Reference,
+                Engine::Core,
             )
             .expect("captured Next")
             .to_json();
