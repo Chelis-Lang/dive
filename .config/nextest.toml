@@ -28,7 +28,6 @@ not (
     | binary_id(dive-api::nested_procedure_checksum)
     | binary_id(dive-api::multiline)
     | binary_id(dive-api::material_capture)
-    | (binary_id(dive-store::properties) & test(=chaos_runs_at_eight_threads_are_identical))
     | (binary_id(dive-api::configured_random) & (
         test(=property_bearing_final_routes_do_not_return_configured_rng_false_verdicts)
         | test(=configured_random_corrects_both_wrong_verdicts_and_matches_direct_api_reports)

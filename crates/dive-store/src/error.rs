@@ -23,19 +23,6 @@ pub enum StoreError {
     },
     /// A value could not be fingerprinted, encoded or decoded.
     Value(ValueError),
-    /// Two candidates in one resolve had the same key and the same position. Positions
-    /// must be unique within a level for the merge to be deterministic (ADR 0015 §2).
-    DuplicatePosition {
-        /// The shard in which the duplicate was found.
-        shard: usize,
-    },
-    /// A candidate buffer built for a set with another number of shards.
-    ShardMismatch {
-        /// The set's shard count.
-        expected: usize,
-        /// The buffer's shard count.
-        found: usize,
-    },
     /// A trace-log parent that is not an earlier state.
     BadParent {
         /// The state being recorded.
@@ -45,8 +32,6 @@ pub enum StoreError {
     },
     /// A state id that the trace log does not contain.
     UnknownState(u64),
-    /// A frontier state larger than a frontier chunk can hold (1 GiB).
-    StateTooLarge(usize),
     /// A state fingerprinted with a variable order over another number of
     /// variables.
     VarCount {
@@ -64,11 +49,8 @@ impl StoreError {
         match self {
             Self::Predecessor { .. } => "DIVE-S0300",
             Self::Value(_) => "DIVE-S0001",
-            Self::DuplicatePosition { .. } => "DIVE-S0100",
-            Self::ShardMismatch { .. } => "DIVE-S0104",
             Self::BadParent { .. } => "DIVE-S0101",
             Self::UnknownState(_) => "DIVE-S0102",
-            Self::StateTooLarge(_) => "DIVE-S0103",
             Self::VarCount { .. } => "DIVE-S0105",
         }
     }
@@ -81,16 +63,6 @@ impl fmt::Display for StoreError {
                 write!(f, "{}: predecessor {operation}: {message}", self.code())
             }
             Self::Value(e) => write!(f, "{e}"),
-            Self::DuplicatePosition { shard } => write!(
-                f,
-                "{}: internal error: two candidates share a key and a position (shard {shard})",
-                self.code()
-            ),
-            Self::ShardMismatch { expected, found } => write!(
-                f,
-                "{}: internal error: a candidate buffer for {found} shards was resolved into a set of {expected}",
-                self.code()
-            ),
             Self::BadParent { id, parent } => write!(
                 f,
                 "{}: internal error: state {id} recorded with parent {parent}, which is not an earlier state",
@@ -99,11 +71,6 @@ impl fmt::Display for StoreError {
             Self::UnknownState(id) => write!(
                 f,
                 "{}: internal error: state {id} is not in the trace log",
-                self.code()
-            ),
-            Self::StateTooLarge(n) => write!(
-                f,
-                "{}: internal error: an encoded state of {n} bytes exceeds the frontier chunk size",
                 self.code()
             ),
             Self::VarCount { expected, found } => write!(

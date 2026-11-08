@@ -33,6 +33,14 @@ published. Earlier pre-release development entries remain in git history.
   `coverage_discovered`. Core never built them. `--coverage 0`,
   `--source-coverage` and the `CheckRequest` coverage fields still refuse by
   name; verdicts and counts are unchanged.
+- `dive-store` no longer has the reference checker's in-memory stores
+  (issue #791): `StateSet`, `FpSet`, `ExactSet`, `Candidates`/`Resolved`,
+  `ResolveOptions`, `shard_bits_for`, `key_hash`, the `frontier` module,
+  `trace::TraceLog`, `state::{encode_state, StateDecoder}`, the public
+  `collision` module and the `StoreError` variants only they raised. Core
+  never used them; `StateFingerprinter`, `state_key`, `StoreMode`, `seen`,
+  `spill` and `predecessor` are unchanged, and so are verdicts, counts and
+  checkpoint archives.
 - The binder's start-up evaluation now also evaluates a repeated pure call
   once when the operator comes from an instantiated module or calls other
   operators, in the default profile. The instance's substitutions count as

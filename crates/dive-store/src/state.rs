@@ -1,34 +1,18 @@
-//! States as bytes, and state fingerprints.
+//! State fingerprints and exact-store keys.
 //!
-//! A state is the tuple of its variables' values in the IR's variable order. Its
-//! encodings are the concatenation of the variables' value encodings
-//! ([`dive_value::codec`]):
-//!
-//! - [`encode_state`] is lossless: frontier blocks, disk spill and checkpoints use it,
-//!   because TLC's behaviour depends on how values are represented (`1..3` prints as
-//!   an interval, an unnormalized set keeps TLC's membership rules).
-//! - [`state_key`] is the canonical exact-store key: within one run, two states have
-//!   equal keys exactly when they are equal.
+//! A state is the tuple of its variables' values in the IR's variable order.
+//! [`state_key`] concatenates the variables' canonical value encodings
+//! ([`dive_value::codec`]): within one run, two states have equal keys exactly when
+//! they are equal.
 //!
 //! [`StateFingerprinter`] computes the state fingerprint of ADR 0015 §5: dive's
 //! two-level fingerprint (FP64 value fingerprints combined by [`combine`]), or
 //! TLC's own.
 
 use dive_value::fp64::{Fingerprinter, TlcFingerprint};
-use dive_value::{Atom, Ctx, Interner, Value, codec};
+use dive_value::{Ctx, Value, codec};
 
 use crate::error::StoreError;
-
-/// Appends the lossless encoding of a state (its variables' values in order).
-///
-/// # Errors
-/// Only from enumerating an evaluator-driven lazy set held by a variable.
-pub fn encode_state(vars: &[Value], ctx: Ctx, out: &mut Vec<u8>) -> Result<(), StoreError> {
-    for v in vars {
-        codec::encode(v, ctx, out)?;
-    }
-    Ok(())
-}
 
 /// Appends the canonical exact-store key of a state.
 ///
@@ -40,77 +24,6 @@ pub fn state_key(vars: &[Value], ctx: Ctx, out: &mut Vec<u8>) -> Result<(), Stor
         codec::encode_canonical(v, ctx, out)?;
     }
     Ok(())
-}
-
-/// Decodes states for one worker, resolving names through the run's [`Interner`]
-/// with a private cache, so hot decoding never takes the interner's lock.
-///
-/// ```
-/// use dive_store::state::{StateDecoder, encode_state};
-/// use dive_value::{Ctx, Interner, Value};
-///
-/// let names = Interner::new();
-/// let ctx = Ctx::tlc();
-/// let state = vec![Value::Int(3), Value::string(&names, "idle")];
-/// let mut bytes = Vec::new();
-/// encode_state(&state, ctx, &mut bytes)?;
-/// let mut decoder = StateDecoder::new(&names);
-/// assert_eq!(decoder.decode(&bytes)?, state);
-/// # Ok::<(), dive_store::StoreError>(())
-/// ```
-#[derive(Debug)]
-pub struct StateDecoder<'a> {
-    names: &'a Interner,
-    atoms: Vec<Option<Atom>>,
-}
-
-impl<'a> StateDecoder<'a> {
-    /// A decoder for states whose names live in `names`.
-    #[must_use]
-    pub fn new(names: &'a Interner) -> Self {
-        Self {
-            names,
-            atoms: Vec::new(),
-        }
-    }
-
-    /// Decodes a whole encoded state.
-    ///
-    /// # Errors
-    /// [`StoreError::Value`] with [`dive_value::ErrorKind::Codec`] when `bytes` is not
-    /// an encoded state of this run.
-    pub fn decode(&mut self, bytes: &[u8]) -> Result<Vec<Value>, StoreError> {
-        let mut out = Vec::new();
-        self.decode_into(bytes, &mut out)?;
-        Ok(out)
-    }
-
-    /// Decodes a whole encoded state into `out`, which is cleared first.
-    ///
-    /// # Errors
-    /// As [`StateDecoder::decode`].
-    pub fn decode_into(&mut self, bytes: &[u8], out: &mut Vec<Value>) -> Result<(), StoreError> {
-        out.clear();
-        let mut input = bytes;
-        let names = self.names;
-        let atoms = &mut self.atoms;
-        let mut resolve = |tok: u32| -> Option<Atom> {
-            let i = usize::try_from(tok).ok()?;
-            if let Some(Some(a)) = atoms.get(i) {
-                return Some(a.clone());
-            }
-            let a = names.resolve(tok)?;
-            if atoms.len() <= i {
-                atoms.resize(i + 1, None);
-            }
-            atoms[i] = Some(a.clone());
-            Some(a)
-        };
-        while !input.is_empty() {
-            out.push(codec::decode(&mut input, &mut resolve)?);
-        }
-        Ok(())
-    }
 }
 
 /// The state fingerprint (ADR 0015 §5), in one of two schemes.
