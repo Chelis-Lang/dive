@@ -95,9 +95,10 @@ pub(crate) struct Core {
     /// SANY levels can ignore native arguments (`Naturals` defines `a*b` as
     /// `TRUE`); explicit binding-stage startup values do not use this guard.
     pub(crate) constant_cache_safe: Vec<OnceLock<bool>>,
-    /// Whether a call of each definition depends only on its arguments
-    /// (`Core::state_free` with its parameters as inputs).
-    pub(crate) call_cache_safe: Vec<OnceLock<bool>>,
+    /// Whether a call of each definition depends only on its arguments and
+    /// the substituted constants it reads, which are listed
+    /// (`Core::state_free` with its parameters and substitutions as inputs).
+    pub(crate) call_cache_safe: Vec<OnceLock<Option<Arc<[dive_ir::DeclId]>>>>,
     /// The pure calls kept during the current start-up evaluation
     /// (`crate::startup_calls`); `None` outside one.
     pub(crate) startup_calls: Mutex<Option<crate::startup_calls::StartupCalls>>,
