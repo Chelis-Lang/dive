@@ -80,6 +80,7 @@ pub use core_engine::Engine;
 /// Native safety checkpoint request and format API (ADR0033).
 pub use dive_check::checkpoint;
 mod dfid;
+mod dfid_admission;
 pub use dfid::{DFID_SCHEMA_VERSION, DfidReport, DfidRequest, dfid_file, dfid_file_engine};
 mod simulate;
 pub use simulate::{

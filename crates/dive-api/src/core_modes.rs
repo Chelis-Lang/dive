@@ -23,11 +23,11 @@ pub(crate) enum SetupError {
 }
 
 impl SetupError {
-    pub(crate) fn dfid(self) -> dive_check::dfid::Outcome {
+    pub(crate) fn dfid(self) -> crate::dfid_admission::Outcome {
         match self {
-            Self::Unsupported(message) => dive_check::dfid::Outcome::Unsupported(message),
-            Self::Internal(message) => dive_check::dfid::Outcome::Internal(message),
-            Self::Stopped => dive_check::dfid::Outcome::Cancelled,
+            Self::Unsupported(message) => crate::dfid_admission::Outcome::Unsupported(message),
+            Self::Internal(message) => crate::dfid_admission::Outcome::Internal(message),
+            Self::Stopped => crate::dfid_admission::Outcome::Cancelled,
         }
     }
 

@@ -57,24 +57,18 @@ This is a pure move. No verdict, count, message or exit status changes.
 ## Consequences
 
 `dive-liveness` and Core now import the shared contract from `dive-runtime`.
-They still use these reference-runtime pieces of `dive-check`, which part B
-must replace or delete:
-- `dive-liveness`:
-  - the reference capture drivers `capture::explore_with_native_hooks`,
-    `explore_controlled_with_native_hooks` and
-    `explore_checkpoints_with_native_hooks`, behind `analyze_final*`,
-    `analyze_periodic*` and row-demand capture;
-  - `final_roles::dispatch_controlled`, whose safety continuation runs the
-    reference search.
-- Core in `dive-api`:
-  - `dive_check::check` in `core_engine`'s binding-failure path;
-  - `dfid::{preflight, check, Outcome}` in `core_modes`;
-  - `checkpoint::recovery_seed_fp` for reference archives in
-    `core_checkpoint`.
-
-  `core_engine.rs` and `core_modes.rs` still import shared items through
-  `dive-check`'s re-exports. They move to `dive-runtime` with part A
-  (#791), which edits those files.
+Core no longer runs any `dive-check` code: the source-binding dispatch
+(`dive_liveness::analyze::owned::dispatch_controlled`) binds the model
+itself and no longer runs the reference search for safety-only properties,
+DFID's request types and static admission live in `dive-api`, and Core frames
+reference archives itself for their DIVE-S0400 rejection. These
+reference-runtime pieces of `dive-check` remain, which part B must delete:
+- in `dive-liveness`, the reference capture drivers
+  `capture::explore_with_native_hooks`, `explore_controlled_with_native_hooks`
+  and `explore_checkpoints_with_native_hooks`, behind `analyze_final*`,
+  `analyze_periodic*` and row-demand capture, which only tests reach;
+- in `dive-api`, the shared items still imported through `dive-check`'s
+  re-exports, and tests that compare Core with the reference drivers.
 
 When those uses are gone, the `dive-liveness -> dive-check` edge is removed
 and `dive-api` drops `dive-check`. The re-exports go when `dive-check` does.

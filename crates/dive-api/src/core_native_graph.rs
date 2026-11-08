@@ -42,7 +42,7 @@ impl SourceRowSetup {
             Ok(Dispatch::Temporal(runtime)) => runtime
                 .source_row_driver(self.limits, self.graph_labels)
                 .map_err(source_error),
-            Ok(Dispatch::Safety(_)) => Ok(None),
+            Ok(Dispatch::Safety) => Ok(None),
             Err(dive_model::ControlledBindError::Interrupted { error, .. }) => Err(control
                 .verdict(&error)
                 .unwrap_or_else(|| bug("native source-row foreign binding interruption"))),

@@ -11,6 +11,9 @@ use dive_runtime::{CheckOptions, Verdict};
 use crate::core_engine::{self, CoreRun, Prepared, Search};
 
 const MAGIC: &[u8; 8] = b"DIVECC01";
+/// The framing of archives the removed reference engine wrote. Recovery
+/// rejects them by name (DIVE-S0400).
+const REFERENCE_MAGIC: &[u8; 8] = b"DIVECP02";
 const PARTS: usize = 4;
 type Parts<'a> = [&'a [u8]; PARTS];
 
@@ -67,9 +70,9 @@ pub(crate) fn metadata(path: &Path) -> Result<Option<(i64, usize)>, String> {
         let (seed, fp) = checkpoint::owned_identity_seed_fp(parts[0])?;
         Ok(Some((seed, fp)))
     } else {
-        // Frames the reference archive as before, so a damaged file still
-        // reports its framing error rather than the engine.
-        dive_check::checkpoint::recovery_seed_fp(path)?;
+        // Frames the reference archive (bounds, length and checksum), so a
+        // damaged file still reports its framing error rather than the engine.
+        checkpoint::read_payload(path, REFERENCE_MAGIC)?;
         Ok(None)
     }
 }

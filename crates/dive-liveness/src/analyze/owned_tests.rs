@@ -202,12 +202,11 @@ fn one_binding_and_frozen_constructor_options_survive_the_consuming_run() {
 }
 
 #[test]
-fn no_bind_fallback_and_the_two_binding_failure_contracts_stay_distinct() {
+fn no_bind_fallback_binding_failure_and_safety_roles_stay_distinct() {
     let (ir, config) = input("Init == x=0\nNext == UNCHANGED x\nP == []<>(x=0)", "P");
     let mut options = CheckOptions::tlc(0, 0);
     options.chaos = Some(0);
     assert!(dispatch_controlled(&ir, &config, &options, control(&options)).is_none());
-    assert!(dispatch_ordinary_controlled(&ir, &config, &options, control(&options)).is_none());
     let options = CheckOptions::tlc(0, 0);
     let invalid = dive_config::parse("INIT Missing\nNEXT Next\nPROPERTY P\n")
         .into_config()
@@ -216,13 +215,14 @@ fn no_bind_fallback_and_the_two_binding_failure_contracts_stay_distinct() {
         dispatch_controlled(&ir, &invalid, &options, control(&options)),
         Some(Err(ControlledBindError::Binding(_)))
     ));
-    let Some(Ok(Dispatch::Safety(result))) =
-        dispatch_ordinary_controlled(&ir, &invalid, &options, control(&options))
-    else {
-        panic!("ordinary binding failure is still a safety result")
-    };
-    assert!(result.binding_model_error);
-    assert_ne!(result.verdict, dive_runtime::Verdict::Success);
+    let (ir, config) = input("Init == x=0\nNext == UNCHANGED x\nP == [](x=0)", "P");
+    assert!(
+        matches!(
+            dispatch_controlled(&ir, &config, &options, control(&options)),
+            Some(Ok(Dispatch::Safety))
+        ),
+        "a safety-only property is dispatched without being checked"
+    );
 }
 
 fn legacy_model(ir: &Arc<Ir>, config: &ModelConfig, options: &CheckOptions) -> Model {
