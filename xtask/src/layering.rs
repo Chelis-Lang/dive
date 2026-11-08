@@ -113,7 +113,6 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-model",
             "dive-store",
             "dive-runtime",
-            "dive-check",
             "dive-liveness",
             "dive-sim",
             "dive-trace",

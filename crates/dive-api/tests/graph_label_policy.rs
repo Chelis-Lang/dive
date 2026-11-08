@@ -11,9 +11,9 @@ use std::sync::Arc;
 #[path = "support/core_final.rs"]
 mod core_final;
 
-use dive_check::CheckOptions;
 use dive_liveness::analyze::{self, AnalysisError, GraphLabelPolicy, Limits};
 use dive_liveness::product::AcceptancePolicy;
+use dive_runtime::CheckOptions;
 
 const CFG: &str = "INIT Init\nNEXT Next\nPROPERTY P\n";
 

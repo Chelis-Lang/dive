@@ -11,7 +11,6 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use dive_check::{CheckOptions, CheckResult, capture};
 use dive_config::ModelConfig;
 use dive_ir::Ir;
 #[cfg(test)]
@@ -20,6 +19,7 @@ use dive_liveness::analyze::periodic::{Checks, PrefixCandidate};
 use dive_liveness::analyze::{AnalysisError, Candidate, GraphLabelPolicy, Limits};
 use dive_liveness::product::AcceptancePolicy;
 use dive_model::{BindOptions, Model};
+use dive_runtime::{CheckOptions, CheckResult, capture};
 use dive_trace::{
     Ending, Report as ValidationReport, Trace, TraceDoc, Validation, ValidationProgress,
     ValidationRunError,
@@ -102,7 +102,7 @@ pub struct Report {
     options: CheckOptions,
     elapsed: Duration,
     periodic: Option<Checks>,
-    memory_samples: Option<dive_check::budget::MemorySamples>,
+    memory_samples: Option<dive_runtime::budget::MemorySamples>,
     configuration: Option<Configuration>,
 }
 impl Report {
@@ -123,7 +123,7 @@ impl Report {
     /// calls return a snapshot; the enclosing file report includes its owner's
     /// later terminal observation.
     #[must_use]
-    pub const fn memory_samples(&self) -> Option<dive_check::budget::MemorySamples> {
+    pub const fn memory_samples(&self) -> Option<dive_runtime::budget::MemorySamples> {
         self.memory_samples
     }
 
@@ -161,13 +161,16 @@ impl Report {
 /// Applies the outer owner's terminal observation after independent replay.
 pub(crate) fn finish_report(
     report: &mut Report,
-    finished: Result<Option<dive_check::budget::Exhausted>, dive_check::budget::MeasurementError>,
+    finished: Result<
+        Option<dive_runtime::budget::Exhausted>,
+        dive_runtime::budget::MeasurementError,
+    >,
     elapsed: Duration,
 ) -> Option<Failure> {
     report.elapsed = elapsed;
     let error = match finished {
         Ok(Some(exhausted)) => Error::Analysis(AnalysisError::Stopped(Box::new(
-            exhausted.during(dive_check::budget::Phase::Finalization),
+            exhausted.during(dive_runtime::budget::Phase::Finalization),
         ))),
         Err(error) => Error::Analysis(AnalysisError::BudgetMeasurement(error)),
         Ok(None) => return None,
@@ -189,10 +192,10 @@ pub(crate) fn finish_report(
             Some(failure)
         }
         Outcome::Safety(result) => {
-            dive_check::budget::finish_result(
+            dive_runtime::budget::finish_result(
                 result,
                 finished,
-                dive_check::budget::Phase::Finalization,
+                dive_runtime::budget::Phase::Finalization,
             );
             None
         }
@@ -508,11 +511,11 @@ impl Failure {
     /// Actual execution width where known. Pre-search refusals prove zero;
     /// unobserved thread failures do not.
     #[must_use]
-    pub fn workers(&self, requested: usize) -> Option<dive_check::Workers> {
+    pub fn workers(&self, requested: usize) -> Option<dive_runtime::Workers> {
         if let Some(evidence) = &self.exploration {
             Some(evidence.workers.clone())
         } else if self.capture_completed() == Some(false) {
-            Some(dive_check::Workers {
+            Some(dive_runtime::Workers {
                 requested,
                 used: 0,
                 sequential: false,
@@ -565,15 +568,15 @@ fn bind(ir: &Arc<Ir>, config: &ModelConfig, options: &CheckOptions) -> Result<Mo
 
 fn controlled_binding_failure(
     failure: dive_model::ControlledBindError,
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Failure {
     let output = failure.output().to_vec();
     let error = match failure {
         dive_model::ControlledBindError::Binding(failure) => Error::Binding(failure),
         dive_model::ControlledBindError::Interrupted { error, .. } => {
             Error::Analysis(match control.verdict(&error) {
-                Some(dive_check::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),
-                Some(dive_check::Verdict::BudgetMeasurement { error }) => {
+                Some(dive_runtime::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),
+                Some(dive_runtime::Verdict::BudgetMeasurement { error }) => {
                     AnalysisError::BudgetMeasurement(error)
                 }
                 _ => AnalysisError::Inconsistent(
@@ -598,7 +601,7 @@ fn bind_controlled(
     ir: &Arc<Ir>,
     config: &ModelConfig,
     options: &CheckOptions,
-    control: &Arc<dive_check::budget::EvaluationControl>,
+    control: &Arc<dive_runtime::budget::EvaluationControl>,
 ) -> Result<Model, Failure> {
     if options.seen_disk.is_some() {
         return Err(Failure::before(
@@ -648,16 +651,16 @@ fn validation_binding_failure(mut failure: Failure) -> Failure {
 
 fn validation_control(
     options: &CheckOptions,
-) -> Result<Arc<dive_check::budget::EvaluationControl>, Error> {
-    dive_check::budget::EvaluationControl::new(
+) -> Result<Arc<dive_runtime::budget::EvaluationControl>, Error> {
+    dive_runtime::budget::EvaluationControl::new(
         &options.budget,
-        dive_check::budget::Phase::Validation,
+        dive_runtime::budget::Phase::Validation,
     )
     .map_err(|_| Error::Analysis(AnalysisError::Inconsistent("validation control identity")))
 }
 
 fn validation_checkpoint(
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
 ) -> Result<(), ValidationRunError> {
     dive_eval::HostControl::check(control).map_err(|interrupted| ValidationRunError::Interrupted {
         error: dive_eval::EvalError::interrupted(interrupted),
@@ -670,7 +673,7 @@ fn validation_checkpoint(
 }
 
 fn validation_run_error(
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
     error: ValidationRunError,
 ) -> (Error, Option<ValidationProgress>) {
     let (error, progress) = match error {
@@ -701,8 +704,8 @@ fn validation_run_error(
         }
     };
     let error = match control.verdict(&error) {
-        Some(dive_check::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),
-        Some(dive_check::Verdict::BudgetMeasurement { error }) => {
+        Some(dive_runtime::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),
+        Some(dive_runtime::Verdict::BudgetMeasurement { error }) => {
             AnalysisError::BudgetMeasurement(error)
         }
         _ => {
@@ -717,7 +720,7 @@ fn validation_run_error(
 fn validate_native_document(
     model: &Model,
     document: &TraceDoc,
-    control: &Arc<dive_check::budget::EvaluationControl>,
+    control: &Arc<dive_runtime::budget::EvaluationControl>,
 ) -> Result<ValidationReport, ValidationRunError> {
     validation_checkpoint(control)?;
     let trace = match Trace::decode(model, document) {
@@ -928,7 +931,7 @@ mod validation_controls {
     #[test]
     fn an_unarmed_validation_identity_is_not_resource_authority() {
         let mut options = CheckOptions::tlc(0, 0);
-        options.budget = dive_check::budget::Budget::new(Some(Duration::from_secs(3600)), None);
+        options.budget = dive_runtime::budget::Budget::new(Some(Duration::from_secs(3600)), None);
         let control = validation_control(&options).expect("unarmed control");
         assert!(dive_eval::HostControl::check(control.as_ref()).is_ok());
         // Unarmed contexts carry the public no-owner identity zero. A matching
@@ -952,7 +955,7 @@ mod validation_controls {
 
     #[test]
     fn foreign_interruption_cannot_borrow_an_exhausted_validation_budget() {
-        let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+        let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)
             .start()
             .expect("thread")
             .expect("watchdog");
@@ -1100,15 +1103,15 @@ mod evidence_controls {
         assert!(matches!(report.outcome(), Outcome::NativeHolds(_)));
         let failure = finish_report(
             &mut report,
-            Err(dive_check::budget::MeasurementError::unavailable(
-                dive_check::budget::SamplePoint::Final,
+            Err(dive_runtime::budget::MeasurementError::unavailable(
+                dive_runtime::budget::SamplePoint::Final,
             )),
             Duration::from_millis(2),
         )
         .expect("holding cannot escape");
         assert_eq!(
             failure.error().code(),
-            dive_check::budget::MEASUREMENT_FAILURE_CODE
+            dive_runtime::budget::MEASUREMENT_FAILURE_CODE
         );
         assert_eq!(failure.capture_completed(), Some(true));
         assert_eq!(failure.stage().name(), "finalization");
@@ -1127,8 +1130,8 @@ mod evidence_controls {
     #[test]
     fn terminal_memory_excess_has_completed_capture_at_finalization() {
         let mut report = sampled_report(r"[]<>(x \/ ~x)");
-        let stop = dive_check::budget::Exhausted {
-            resource: dive_check::budget::Resource::Memory,
+        let stop = dive_runtime::budget::Exhausted {
+            resource: dive_runtime::budget::Resource::Memory,
             limit: 100,
             observed: 101,
             elapsed_ms: 2,
@@ -1140,7 +1143,7 @@ mod evidence_controls {
         let Error::Analysis(AnalysisError::Stopped(stopped)) = failure.error() else {
             panic!("actual resource stop");
         };
-        assert_eq!(stopped.phase, dive_check::budget::Phase::Finalization);
+        assert_eq!(stopped.phase, dive_runtime::budget::Phase::Finalization);
         let evidence = failure.exploration().expect("actual completed capture");
         assert_eq!(
             (
@@ -1162,8 +1165,8 @@ mod evidence_controls {
         assert!(
             finish_report(
                 &mut report,
-                Err(dive_check::budget::MeasurementError::unavailable(
-                    dive_check::budget::SamplePoint::Final
+                Err(dive_runtime::budget::MeasurementError::unavailable(
+                    dive_runtime::budget::SamplePoint::Final
                 )),
                 Duration::from_millis(2),
             )

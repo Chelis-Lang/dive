@@ -3,10 +3,10 @@
 use std::sync::Arc;
 use std::time::Instant;
 
-use dive_check::{CheckOptions, CheckResult, capture};
 use dive_config::ModelConfig;
 use dive_ir::Ir;
 use dive_liveness::analyze::periodic::Checks;
+use dive_runtime::{CheckOptions, CheckResult, capture};
 use dive_trace::{
     Ending, Report as ValidationReport, Trace, TraceDoc, Validation, ValidationRunError,
 };
@@ -89,7 +89,7 @@ impl ValidatedNativePrefix {
     }
 }
 
-pub(super) fn facts(result: &CheckResult, stats: dive_check::Stats) -> ExplorationEvidence {
+pub(super) fn facts(result: &CheckResult, stats: dive_runtime::Stats) -> ExplorationEvidence {
     ExplorationEvidence {
         stats,
         workers: result.workers.clone(),
@@ -100,7 +100,7 @@ pub(super) fn facts(result: &CheckResult, stats: dive_check::Stats) -> Explorati
 }
 
 fn interrupted(
-    control: &dive_check::budget::EvaluationControl,
+    control: &dive_runtime::budget::EvaluationControl,
     error: ValidationRunError,
 ) -> Failure {
     let (error, progress) = validation_run_error(control, error);
@@ -263,23 +263,25 @@ pub(crate) fn core_native_report(
 /// Retains the actual producer boundary when a checked capture factory is
 /// interrupted. No completion evidence is manufactured by this failure path.
 pub(crate) fn core_capture_stop(
-    verdict: dive_check::Verdict,
+    verdict: dive_runtime::Verdict,
     safety: &CheckResult,
     completed: bool,
     started: Instant,
     checks: Option<Checks>,
 ) -> Failure {
     let error = match verdict {
-        dive_check::Verdict::Stopped(stopped) => {
+        dive_runtime::Verdict::Stopped(stopped) => {
             dive_liveness::analyze::AnalysisError::Stopped(stopped)
         }
-        dive_check::Verdict::BudgetMeasurement { error } => {
+        dive_runtime::Verdict::BudgetMeasurement { error } => {
             dive_liveness::analyze::AnalysisError::BudgetMeasurement(error)
         }
-        dive_check::Verdict::ResourceLimit { .. } => dive_liveness::analyze::AnalysisError::Limit(
-            "native source-row allocation or evaluation resources",
-        ),
-        dive_check::Verdict::Unsupported { feature } => {
+        dive_runtime::Verdict::ResourceLimit { .. } => {
+            dive_liveness::analyze::AnalysisError::Limit(
+                "native source-row allocation or evaluation resources",
+            )
+        }
+        dive_runtime::Verdict::Unsupported { feature } => {
             dive_liveness::analyze::AnalysisError::UnsupportedValue(feature)
         }
         _ => dive_liveness::analyze::AnalysisError::Inconsistent("non-budget capture stop"),
@@ -447,7 +449,7 @@ mod tests {
     fn expired_validation_cannot_certify_a_native_word() {
         for prefix in [false, true] {
             let (ir, config, mut options, analysis) = input(true, false, prefix);
-            let watch = dive_check::budget::Budget::new(Some(std::time::Duration::ZERO), None)
+            let watch = dive_runtime::budget::Budget::new(Some(std::time::Duration::ZERO), None)
                 .start()
                 .expect("watchdog")
                 .expect("armed");

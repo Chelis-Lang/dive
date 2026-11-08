@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- `dive_api::checkpoint` no longer exports the reference engine's
+  `checkpoint::check` and `checkpoint::recovery_seed_fp` (issue #791). Check
+  or recover with `dive_api::check_file_checkpoint`. The archive request,
+  receipt and format items are unchanged, and `dive-api` no longer depends on
+  the `dive-check` crate.
 - A temporal check whose configured properties all bind to safety roles (for
   example `PROPERTY [](x >= 0)`) no longer runs a reference-engine safety
   search, whose result was discarded, before Core checks the model (issue

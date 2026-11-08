@@ -9,10 +9,10 @@ use std::{path::Path, sync::Arc};
 mod core_final;
 
 use core_final::Outcome;
-use dive_check::CheckOptions;
 use dive_eval::{St, StateRef};
 use dive_liveness::{formula::Limits as FormulaLimits, plan};
 use dive_model::{BindOptions, Model, Pred};
+use dive_runtime::CheckOptions;
 use dive_trace::{Ending, Validation, temporal::evaluate_lasso};
 use dive_value::Value;
 

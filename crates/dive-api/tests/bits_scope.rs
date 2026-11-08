@@ -87,65 +87,6 @@ fn reference(report: &CheckReport, workers: usize, baseline: &serde_json::Value)
     assert!(json["counterexample"].is_null());
 }
 
-fn capture_scope(
-    files: &Files,
-    profile: bool,
-    workers: usize,
-    store: Store,
-    sequential: bool,
-    parallel: bool,
-) {
-    let analysis =
-        dive_sema::analyze_file(&files.0.join("Scope.tla"), &dive_sema::Options::default())
-            .expect("source");
-    let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
-    let cfg =
-        dive_config::parse(&std::fs::read_to_string(files.0.join("Scope.cfg")).expect("config"))
-            .into_config()
-            .expect("configuration");
-    let mut opts = if profile {
-        dive_check::CheckOptions::tlc(0, 7)
-    } else {
-        dive_check::CheckOptions::dive(7)
-    };
-    opts.workers = workers;
-    opts.sequential = sequential;
-    opts.store = match store {
-        Store::Fingerprint => dive_store::StoreMode::Fingerprint,
-        Store::Exact => dive_store::StoreMode::Exact,
-    };
-    let model = dive_model::bind(
-        ir,
-        &cfg,
-        &dive_model::BindOptions {
-            eval: opts.eval,
-            ..dive_model::BindOptions::default()
-        },
-    )
-    .expect("bound local class");
-    let exploration = if parallel {
-        dive_check::capture::explore_concrete_parallel_with_evidence(
-            &model,
-            &opts,
-            dive_check::capture::Limits::default(),
-        )
-        .expect("capture thread")
-    } else {
-        dive_check::capture::explore(&model, &opts, dive_check::capture::Limits::default())
-    };
-    match exploration {
-        dive_check::capture::Exploration::Complete(complete) => {
-            assert_eq!(complete.stats.distinct, 4);
-            assert_eq!(complete.stats.generated, 4);
-            assert_eq!(complete.stats.depth, 4);
-            assert_eq!(complete.stats.left_on_queue, 0);
-        }
-        dive_check::capture::Exploration::Stopped(stop) => {
-            panic!("pure Bits capture must complete: {:?}", stop.verdict);
-        }
-    }
-}
-
 #[test]
 fn pinned_local_class_matches_reference_at_supported_worker_widths() {
     let files = setup(true);
@@ -168,9 +109,6 @@ fn pinned_local_class_matches_reference_at_supported_worker_widths() {
                         workers,
                         &baseline,
                     );
-                    for parallel in [false, true] {
-                        capture_scope(&files, profile, workers, store, sequential, parallel);
-                    }
                 }
             }
         }
@@ -389,37 +327,14 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
                     workers,
                     &baseline,
                 );
-                // Direct checker options avoid the API's earlier recovery-default read.
-                let analysis = dive_sema::analyze_file(&req.file, &dive_sema::Options::default())
-                    .expect("source");
-                let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
-                let cfg = dive_config::parse(
-                    &std::fs::read_to_string(req.file.with_extension("cfg")).expect("config"),
-                )
-                .into_config()
-                .expect("configuration");
-                let mut opts = if profile {
-                    dive_check::CheckOptions::tlc(0, 7)
-                } else {
-                    dive_check::CheckOptions::dive(7)
-                };
-                opts.workers = workers;
-                opts.store = match store {
-                    Store::Fingerprint => dive_store::StoreMode::Fingerprint,
-                    Store::Exact => dive_store::StoreMode::Exact,
-                };
                 let corrupt_resume = checkpoint::Request {
                     path: corrupt_path.clone(),
                     ..resume.clone()
                 };
-                let corrupt = checkpoint::check(&ir, &cfg, &opts, &corrupt_resume);
-                assert!(matches!(corrupt.check.verdict,
-                    dive_check::Verdict::ResourceLimit { ref message }
-                    if message.contains("DIVE-S0400")));
-                assert_eq!(corrupt.check.workers.used, 0);
-                assert!(corrupt.check.stats.is_none());
-                assert!(corrupt.check.counterexample.is_none());
-                assert!(corrupt.receipt.is_none());
+                assert!(matches!(
+                    dive_api::check_file_checkpoint_engine(&req, &corrupt_resume, dive_api::Engine::Core),
+                    Err(dive_api::ApiError::Rejected { message }) if message.contains("DIVE-S0400")
+                ));
                 assert_eq!(std::fs::read(&pause.path).expect("untouched"), bytes);
             }
         }

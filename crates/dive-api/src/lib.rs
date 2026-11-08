@@ -78,7 +78,13 @@ mod core_temporal;
 mod mode_budget;
 pub use core_engine::Engine;
 /// Native safety checkpoint request and format API (ADR0033).
-pub use dive_check::checkpoint;
+pub mod checkpoint {
+    pub use dive_runtime::checkpoint::{
+        Action, Counters, MAX_COUNTER, MAX_LEVEL, MAX_PAYLOAD_BYTES, MAX_STATE_BYTES, MAX_STATES,
+        Receipt, Request, Result, config_source_hash, owned_identity, owned_identity_seed_fp,
+        read_payload, write_payload,
+    };
+}
 mod dfid;
 mod dfid_admission;
 pub use dfid::{DFID_SCHEMA_VERSION, DfidReport, DfidRequest, dfid_file, dfid_file_engine};
@@ -137,9 +143,9 @@ pub struct ParseReport {
 #[derive(Debug)]
 pub enum ApiError {
     /// A requested run budget could not be enforced; no check ran.
-    BudgetStartup(dive_check::budget::StartError),
+    BudgetStartup(dive_runtime::budget::StartError),
     /// Required memory observation failed; no verdict is produced.
-    BudgetMeasurement(dive_check::budget::MeasurementError),
+    BudgetMeasurement(dive_runtime::budget::MeasurementError),
     /// The file could not be read.
     Io {
         /// The file.
@@ -415,10 +421,10 @@ pub use dive_syntax;
 /// Re-exported so API users can work with the semantic model directly.
 pub use dive_sema;
 
-/// Bounded transient disk seen-state safety options.
-pub use dive_check::SeenOptions;
 /// Action composition modes (`--action-composition`, D-022).
 pub use dive_eval::ActionComposition;
+/// Bounded transient disk seen-state safety options.
+pub use dive_runtime::SeenOptions;
 /// Limits for full disk keys, entries, probes and collision summaries.
 pub use dive_store::seen::Limits as SeenLimits;
 

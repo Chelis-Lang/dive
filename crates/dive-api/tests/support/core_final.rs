@@ -10,9 +10,9 @@
 
 use dive_api::temporal::{Error, Failure, Outcome as Core};
 use dive_api::{CheckReport, CheckRequest, Engine, Store};
-use dive_check::{CheckOptions, CheckResult};
 use dive_eval::Profile;
 use dive_eval::next::StateVals;
+use dive_runtime::{CheckOptions, CheckResult};
 use dive_trace::{Report as ValidationReport, TraceDoc};
 use serde_json::Value;
 use std::path::PathBuf;
@@ -223,7 +223,7 @@ impl Run {
 
 fn exploration(
     report: &CheckReport,
-    stats: dive_check::Stats,
+    stats: dive_runtime::Stats,
     options: &CheckOptions,
 ) -> Exploration {
     let workers = &report.to_json()["options"]["workers"];

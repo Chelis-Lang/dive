@@ -40,14 +40,14 @@ fn input() -> (Arc<Ir>, ModelConfig) {
 fn initial_binding_stop_has_actual_no_search_evidence() {
     let (ir, cfg) = input();
     for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+        let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)
             .start()
             .expect("thread")
             .expect("watchdog");
         options.budget = watchdog.budget().clone();
-        let control = dive_check::budget::EvaluationControl::new(
+        let control = dive_runtime::budget::EvaluationControl::new(
             &options.budget,
-            dive_check::budget::Phase::Binding,
+            dive_runtime::budget::Phase::Binding,
         )
         .expect("owner");
         let failure =
@@ -58,7 +58,7 @@ fn initial_binding_stop_has_actual_no_search_evidence() {
         assert_eq!(failure.workers(4).expect("actual no search").used, 0);
         assert!(failure.validation_progress().is_none());
         assert!(
-            matches!(failure.error(),Error::Analysis(AnalysisError::Stopped(stop)) if stop.phase==dive_check::budget::Phase::Binding)
+            matches!(failure.error(),Error::Analysis(AnalysisError::Stopped(stop)) if stop.phase==dive_runtime::budget::Phase::Binding)
         );
     }
 }
@@ -78,7 +78,7 @@ fn fresh_candidate_binding_stop_retains_complete_capture_and_cannot_certify_a_wo
             panic!("candidate");
         };
         let actual = candidate.exploration.stats;
-        let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+        let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)
             .start()
             .expect("thread")
             .expect("watchdog");
@@ -93,7 +93,7 @@ fn fresh_candidate_binding_stop_retains_complete_capture_and_cannot_certify_a_wo
         assert_eq!(failure.capture_completed(), Some(true));
         assert_eq!(failure.exploration().expect("real capture").stats, actual);
         assert!(
-            matches!(failure.error(),Error::Analysis(AnalysisError::Stopped(stop)) if stop.phase==dive_check::budget::Phase::Validation)
+            matches!(failure.error(),Error::Analysis(AnalysisError::Stopped(stop)) if stop.phase==dive_runtime::budget::Phase::Validation)
         );
         let progress = failure
             .validation_progress()
@@ -106,13 +106,13 @@ fn fresh_candidate_binding_stop_retains_complete_capture_and_cannot_certify_a_wo
 
 #[test]
 fn binding_error_transport_preserves_output_and_rejects_foreign_or_unarmed_authority() {
-    let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+    let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)
         .start()
         .expect("thread")
         .expect("watchdog");
-    let control = dive_check::budget::EvaluationControl::new(
+    let control = dive_runtime::budget::EvaluationControl::new(
         watchdog.budget(),
-        dive_check::budget::Phase::Binding,
+        dive_runtime::budget::Phase::Binding,
     )
     .expect("owner");
     let error = dive_eval::EvalError::interrupted(control.check().expect_err("expired"));
@@ -127,9 +127,9 @@ fn binding_error_transport_preserves_output_and_rejects_foreign_or_unarmed_autho
         failure.error(),
         Error::Analysis(AnalysisError::Stopped(_))
     ));
-    let other = dive_check::budget::EvaluationControl::new(
-        &dive_check::budget::Budget::unlimited(),
-        dive_check::budget::Phase::Binding,
+    let other = dive_runtime::budget::EvaluationControl::new(
+        &dive_runtime::budget::Budget::unlimited(),
+        dive_runtime::budget::Phase::Binding,
     )
     .expect("unarmed owner");
     let foreign = controlled_binding_failure(make_failure(), &other);
@@ -160,7 +160,7 @@ fn fresh_prefix_binding_stop_retains_incomplete_capture() {
             panic!("real prefix expected");
         };
         let actual = candidate.exploration.stats;
-        let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+        let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)
             .start()
             .expect("thread")
             .expect("watchdog");
@@ -186,7 +186,7 @@ fn fresh_prefix_binding_stop_retains_incomplete_capture() {
             0
         );
         assert!(
-            matches!(failure.error(),Error::Analysis(AnalysisError::Stopped(stop)) if stop.phase==dive_check::budget::Phase::Validation)
+            matches!(failure.error(),Error::Analysis(AnalysisError::Stopped(stop)) if stop.phase==dive_runtime::budget::Phase::Validation)
         );
     }
 }
@@ -207,7 +207,7 @@ pub(crate) fn writer_failure(tlc: bool, capture: Option<bool>) -> (CheckOptions,
     #[derive(Debug)]
     struct ArmOnPrint {
         printed: AtomicBool,
-        owner: Arc<dive_check::budget::EvaluationControl>,
+        owner: Arc<dive_runtime::budget::EvaluationControl>,
     }
     impl dive_eval::Host for ArmOnPrint {
         fn print_output(&self, text: &str) -> Result<bool, dive_eval::HostError> {
@@ -290,18 +290,18 @@ P == <>(x=3)
             WriterExploration::Prefix(Box::new(candidate.exploration))
         }
     });
-    let watchdog = dive_check::budget::Budget::new(Some(Duration::ZERO), None)
+    let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)
         .start()
         .expect("thread")
         .expect("watchdog");
     options.budget = watchdog.budget().clone();
     let phase = if capture.is_some() {
-        dive_check::budget::Phase::Validation
+        dive_runtime::budget::Phase::Validation
     } else {
-        dive_check::budget::Phase::Binding
+        dive_runtime::budget::Phase::Binding
     };
     let owner =
-        dive_check::budget::EvaluationControl::new(&options.budget, phase).expect("actual owner");
+        dive_runtime::budget::EvaluationControl::new(&options.budget, phase).expect("actual owner");
     let adapter = Arc::new(ArmOnPrint {
         printed: AtomicBool::new(false),
         owner: owner.clone(),

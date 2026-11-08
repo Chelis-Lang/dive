@@ -123,7 +123,7 @@ fn constructor_effects_refuse_before_evaluation() {
 #[test]
 fn pinned_constructor_fairness_runs_have_independently_valid_counterexamples() {
     use core_final::Outcome;
-    use dive_check::CheckOptions;
+    use dive_runtime::CheckOptions;
     use dive_store::StoreMode;
     use dive_trace::Validation;
     let root =

@@ -156,10 +156,10 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
 
 /// What pinned TLC reports for `COUNTER` with `P` as its only property:
 /// the verdict and the generated, distinct and depth counts.
-fn expected_safety(property: &str) -> (dive_check::Verdict, u64, u64, u64) {
+fn expected_safety(property: &str) -> (dive_runtime::Verdict, u64, u64, u64) {
     if property == "[](x<2)" {
         (
-            dive_check::Verdict::InvariantViolated {
+            dive_runtime::Verdict::InvariantViolated {
                 property: "P".into(),
                 initial: false,
             },
@@ -168,11 +168,11 @@ fn expected_safety(property: &str) -> (dive_check::Verdict, u64, u64, u64) {
             3,
         )
     } else {
-        (dive_check::Verdict::Success, 4, 3, 3)
+        (dive_runtime::Verdict::Success, 4, 3, 3)
     }
 }
 
-fn assert_safety(actual: &dive_check::CheckResult, property: &str, workers: usize) {
+fn assert_safety(actual: &dive_runtime::CheckResult, property: &str, workers: usize) {
     let (verdict, generated, distinct, depth) = expected_safety(property);
     let stats = actual
         .stats
@@ -184,7 +184,7 @@ fn assert_safety(actual: &dive_check::CheckResult, property: &str, workers: usiz
     assert!(actual.output.is_empty(), "{property}");
     assert_eq!(
         actual.counterexample.is_some(),
-        verdict != dive_check::Verdict::Success,
+        verdict != dive_runtime::Verdict::Success,
         "{property}"
     );
 }
@@ -248,7 +248,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
     assert!(
         matches!(
             &actual.verdict,
-            dive_check::Verdict::ModelError { code: 2222, .. }
+            dive_runtime::Verdict::ModelError { code: 2222, .. }
         ),
         "{:?}",
         actual.verdict

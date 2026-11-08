@@ -190,7 +190,7 @@ fn time_and_memory_limits_stop_the_core() {
     );
     // A ceiling just above what the process holds now: the search grows
     // past it.
-    let rss = dive_check::budget::resident_bytes().expect("resident memory is readable");
+    let rss = dive_runtime::budget::resident_bytes().expect("resident memory is readable");
     let ceiling = rss + (64 << 20);
     let core = run(&spec, Engine::Core, |r| {
         r.max_memory = BudgetSetting::Explicit(ceiling);

@@ -11,8 +11,8 @@ mod core_final;
 mod refused;
 
 use core_final::Outcome;
-use dive_check::{CheckOptions, Verdict};
 use dive_liveness::analyze::Limits;
+use dive_runtime::{CheckOptions, Verdict};
 use dive_store::StoreMode;
 use dive_trace::Validation;
 use std::sync::Arc;

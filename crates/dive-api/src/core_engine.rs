@@ -11,10 +11,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 
-use dive_check::{CheckOptions, CheckResult, Stats, Verdict, Workers};
 use dive_core::compile::{ConstBinding, Handoff, Role, RoleSubst};
 use dive_eval::{SlotView, St};
 use dive_ir::{DefId, ExprId, Ir, LocalRef, Slot};
+use dive_runtime::{CheckOptions, CheckResult, Stats, Verdict, Workers};
 use dive_value::Value;
 use serde_json::{Value as Json, json};
 
@@ -98,8 +98,8 @@ pub(crate) fn result(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckRes
     CheckResult {
         symmetry_liveness: None,
         seen: None,
-        frontier: dive_check::FrontierUsage::default(),
-        predecessor: dive_check::PredecessorUsage::default(),
+        frontier: dive_runtime::FrontierUsage::default(),
+        predecessor: dive_runtime::PredecessorUsage::default(),
         verdict,
         binding_model_error: false,
         stats: None,
@@ -1022,7 +1022,7 @@ pub(crate) fn safety_result(
         dive_explore::Verdict::Unsupported { feature } => unsupported(feature),
         dive_explore::Verdict::Budget => match budget.poll() {
             Ok(Some(exhausted)) => Verdict::Stopped(Box::new(
-                exhausted.during(dive_check::budget::Phase::Search),
+                exhausted.during(dive_runtime::budget::Phase::Search),
             )),
             Err(error) => Verdict::BudgetMeasurement { error },
             Ok(None) => Verdict::InternalError {
@@ -1033,15 +1033,15 @@ pub(crate) fn safety_result(
             limit,
             max,
             observed,
-        } => Verdict::Stopped(Box::new(dive_check::budget::Stopped {
+        } => Verdict::Stopped(Box::new(dive_runtime::budget::Stopped {
             resource: match limit {
-                dive_explore::Limit::States => dive_check::budget::Resource::States,
-                dive_explore::Limit::Depth => dive_check::budget::Resource::Depth,
+                dive_explore::Limit::States => dive_runtime::budget::Resource::States,
+                dive_explore::Limit::Depth => dive_runtime::budget::Resource::Depth,
             },
             limit: max,
             observed,
             elapsed_ms: u64::try_from(explore_started.elapsed().as_millis()).unwrap_or(u64::MAX),
-            phase: dive_check::budget::Phase::Search,
+            phase: dive_runtime::budget::Phase::Search,
         })),
         dive_explore::Verdict::Internal { message } if storage_failed => {
             Verdict::ResourceLimit { message }
@@ -1128,14 +1128,14 @@ pub(crate) fn safety_result(
     }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
     let mut r = result(verdict, options, ir);
-    r.predecessor = dive_check::PredecessorUsage {
+    r.predecessor = dive_runtime::PredecessorUsage {
         storage: out.metrics.storage.predecessor,
         failures: out.metrics.storage.predecessor_failures.clone(),
         deciding_event_before_failure: out.metrics.storage.predecessor_deciding_event.clone(),
         cleanup_completed: out.metrics.storage.predecessor_cleanup_completed,
     };
     let frontier = &out.metrics.storage.frontier;
-    r.frontier = dive_check::FrontierUsage {
+    r.frontier = dive_runtime::FrontierUsage {
         memory_bytes_per_queue: frontier.memory_bytes_per_queue,
         max_record_bytes: frontier
             .memory_bytes_per_queue
@@ -1149,7 +1149,7 @@ pub(crate) fn safety_result(
     if matches!(
         &r.verdict,
         Verdict::EvaluationError {
-            site: dive_check::ErrorSite::Invariant,
+            site: dive_runtime::ErrorSite::Invariant,
             code: 2103,
             reported: 2102,
             verified: false,
@@ -1219,8 +1219,8 @@ pub(crate) fn safety_result(
             }
         }
     }
-    // The reference engine does not apply ALIAS yet: it shows the states
-    // themselves and says so (`dive_check::finish_bound_check`).
+    // ALIAS is not applied: the counterexample shows the states
+    // themselves and the report says so.
     if r.counterexample.is_some()
         && let Some(alias) = &config.alias
     {
@@ -1230,7 +1230,7 @@ pub(crate) fn safety_result(
         ));
     }
     // The reference engine's D-010 qualification of a stop in the default
-    // profile (`dive_check::note_canonical_stop`); under `--compat=tlc`
+    // profile (`dive_runtime::note_canonical_stop`); under `--compat=tlc`
     // TLC's order needs no note.
     if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
         r.notes.push(CANONICAL_STOP_NOTE.to_owned());
@@ -1544,7 +1544,7 @@ pub(crate) fn check(
         r.workers.used = usize::from(!creation_failed);
         r.workers.reason = Some("fallible Core disk membership executes inline; the requested worker width is retained separately".into());
         if r.stats.is_none() && !creation_failed {
-            r.stats = Some(dive_check::Stats {
+            r.stats = Some(dive_runtime::Stats {
                 generated: observed_stats.generated,
                 distinct: observed_stats.distinct,
                 left_on_queue: observed_stats.left_on_queue,
@@ -1568,9 +1568,11 @@ pub(crate) fn check(
     (finish(r), run)
 }
 
-pub(crate) fn native_seen_usage(usage: &dive_explore::storage::DiskUsage) -> dive_check::SeenUsage {
-    use dive_check::SeenPhase;
-    dive_check::SeenUsage {
+pub(crate) fn native_seen_usage(
+    usage: &dive_explore::storage::DiskUsage,
+) -> dive_runtime::SeenUsage {
+    use dive_runtime::SeenPhase;
+    dive_runtime::SeenUsage {
         limits: usage.limits,
         admitted_keys: usage.admitted_keys,
         before_cleanup: usage.before_cleanup,
@@ -1578,7 +1580,7 @@ pub(crate) fn native_seen_usage(usage: &dive_explore::storage::DiskUsage) -> div
         first_failure: usage
             .first_failure
             .as_ref()
-            .map(|failure| dive_check::SeenFailure {
+            .map(|failure| dive_runtime::SeenFailure {
                 phase: match failure.phase {
                     "Creation" => SeenPhase::Creation,
                     "Insertion" | "RecoveryInsertion" => SeenPhase::Insertion,
@@ -1661,7 +1663,7 @@ pub(crate) fn counterexample(
     model: &dive_model::Model,
     store: &Arc<dive_core::Store>,
     trace: &[dive_explore::TraceState],
-) -> Result<dive_check::Counterexample, String> {
+) -> Result<dive_runtime::Counterexample, String> {
     let ctx = model.evaluator.options().ctx;
     let mut heap = dive_core::Heap::new(Arc::clone(store), false, false);
     let mut states = Vec::with_capacity(trace.len());
@@ -1693,24 +1695,24 @@ pub(crate) fn counterexample(
                 (a.label().to_owned(), action_name(model, a))
             }
         };
-        states.push(dive_check::TraceState {
+        states.push(dive_runtime::TraceState {
             label,
             action,
             values,
             text,
             partial: if incomplete {
-                t.action
-                    .and_then(|i| model.actions.get(i))
-                    .map(|action| dive_check::PartialState {
+                t.action.and_then(|i| model.actions.get(i)).map(|action| {
+                    dive_runtime::PartialState {
                         values: partial,
                         expression: action.expr(),
-                    })
+                    }
+                })
             } else {
                 None
             },
         });
     }
-    Ok(dive_check::Counterexample { states })
+    Ok(dive_runtime::Counterexample { states })
 }
 
 /// The action's name in traces, as the reference engine gives it.
@@ -1841,10 +1843,10 @@ pub(crate) fn metrics_json(
 /// Existing armed budget shared by history work; reporting keeps the actual
 /// Search/Capture owner at the ordinary explorer/temporal boundaries.
 pub(crate) fn search_work_control(
-    budget: &dive_check::budget::Budget,
+    budget: &dive_runtime::budget::Budget,
 ) -> Arc<dyn dive_core::eval::WorkControl> {
     #[derive(Debug)]
-    struct Control(dive_check::budget::Budget);
+    struct Control(dive_runtime::budget::Budget);
     impl dive_core::eval::WorkControl for Control {
         fn proceed(&self) -> bool {
             matches!(self.0.poll(), Ok(None))
