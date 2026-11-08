@@ -705,20 +705,16 @@ throughput or capacity credit.
 
 ### 7.1 Implemented first dependency: borrowed CSR topology
 
-`dive_liveness::product::CsrTopology` validates borrowed offset, 32-bit target
-and root slices without constructing a nested adjacency copy.
-`Product::from_csr` and `with_csr_recurrences` use the same product builder as
-the existing dense input. The internal compact product uses that topology view
-too. The input view retains root/edge order and duplicates; product construction
-keeps its existing canonical root handling. Empty rows stay dead ends, and
-witness edge numbers remain original per-row positions. Existing
-product limits and acceptance-buffer policies retain their dense-input results.
-This view validates references, not producer completion or temporal acceptance.
-
-The native checker now supplies this same product builder with topology
-borrowed from checked `CsrCapture`, without constructing nested adjacency or a
-`BehaviorGraph`. The standalone product API still accepts caller-supplied
-labels; it grants neither producer completion nor model-validation authority.
+The private `product::CsrTopology` borrows the offset, 32-bit target and root
+slices of a checked `CsrCapture` without constructing nested adjacency or a
+`BehaviorGraph`. The view retains root/edge order and duplicates; product
+construction keeps its canonical root handling. Empty rows stay dead ends, and
+witness edge numbers remain original per-row positions. Product limits and
+acceptance-buffer policies give the same results as for dense input. The view
+grants topology access only, not producer completion or temporal acceptance.
+Unit tests compare it with dense graphs through the owned and compact reference
+products, which exist only under `cfg(test)`. There is no public
+materialized-product API.
 
 The analysis product is not stored (ADR 0018 §3, issue #909). The private
 `product::ImplicitProduct` discovers the reachable `(behavior vertex, tableau

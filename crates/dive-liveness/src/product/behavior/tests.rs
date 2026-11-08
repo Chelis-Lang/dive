@@ -61,7 +61,7 @@ fn tableau() -> Tableau {
 }
 
 fn conditions() -> Vec<crate::formula::Recurrence> {
-    Formula::new(
+    let formula = Formula::new(
         vec![
             Node::Atom(Atom {
                 kind: AtomKind::Action,
@@ -72,10 +72,9 @@ fn conditions() -> Vec<crate::formula::Recurrence> {
         ],
         2,
     )
-    .expect("formula")
-    .factor_recurrences(100)
-    .expect("recurrence")
-    .1
+    .expect("formula");
+    // The body of `[]<>A`, as solution decomposition extracts it.
+    vec![crate::formula::Recurrence::condition(&formula, &[0]).expect("recurrence")]
 }
 
 #[derive(Debug, PartialEq, Eq)]

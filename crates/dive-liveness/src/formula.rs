@@ -9,7 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 mod recurrence;
 mod solution;
-pub use recurrence::Recurrence;
+pub(crate) use recurrence::Recurrence;
 pub(crate) use solution::{CycleConditions, decompose};
 
 /// The evaluation domain of an atomic predicate.
@@ -630,6 +630,9 @@ pub(crate) fn compile_residual(formula: &Formula, limits: Limits) -> Result<Tabl
         roots,
     })
 }
+
+#[cfg(test)]
+mod tableau_tests;
 
 #[cfg(test)]
 mod resource_tests {

@@ -240,18 +240,11 @@ For exact type signatures and compiled examples run `cargo doc -p dive-api --no-
 and consult [the API root](../../crates/dive-api/src/lib.rs),
 [trace guide](traces.md) and [temporal guide](temporal.md).
 
-For supplied low-level graph studies, `dive_liveness::product::CsrTopology`
-borrows checked CSR offsets, 32-bit targets and roots. `Product::from_csr` and
-`Product::with_csr_recurrences` build the same ordered product as their dense
-`Graph` counterparts, retaining parallel edges and witness positions. The
-compiled example is in the `from_csr` rustdoc. Arrays must describe every
-intended edge, including stutters; empty rows remain dead ends. Invalid CSR
-layout/references, label shape and product resource bounds return errors.
-This API consumes caller-supplied labels and does not enumerate a specification,
-certify graph completion or replace independent trace validation. Ordinary core
-temporal capture now uses checked native CSR, while its fixed capture limits
-remain unchanged. This standalone topology API supplies no
-capacity or memory-bound certificate.
+`dive-liveness` has no public API for building a temporal product from a
+supplied graph and labels. Temporal properties are checked through `CheckRequest`, which
+explores the product on the fly. The removed study API was
+`product::{Product, Labels, CsrTopology}`, `search::{find_lasso, Acceptance,
+Lasso, Step}`, `formula::Recurrence` and `Formula::factor_recurrences`.
 
 The [fair procedure guide](../pluscal-translation.md) includes a compiled
 Rust caller using `TranslationRequest.limits.fairness`. Shared finite process

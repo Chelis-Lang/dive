@@ -3,8 +3,8 @@
 
 use std::collections::{BTreeSet, VecDeque};
 
-use dive_liveness::Graph;
-use dive_liveness::search::{Acceptance, Lasso, find_lasso};
+use crate::Graph;
+use crate::search::{Acceptance, Lasso, find_lasso};
 
 // This reference explores (vertex, accumulated visit mask) directly. It
 // uses no SCCs, component acceptance test or covering-walk heuristic.
@@ -308,4 +308,20 @@ fn components_compete_by_prefix_distance_then_entry_id() {
     assert_eq!(lasso.entry, 3); // Conditions cannot be split between SCCs.
     assert_eq!(lasso.cycle.len(), 1);
     check_witness(&edges, &[0], &labels, &lasso);
+}
+
+#[test]
+fn documented_prefix_then_two_cycle_witness() {
+    let graph = Graph::new(vec![vec![1], vec![2], vec![1]], vec![0]).expect("graph");
+    let labels = Acceptance {
+        recurrent: vec![vec![false], vec![true], vec![true]],
+        states: vec![vec![false, true, false], vec![false, false, true]],
+        actions: vec![],
+    };
+    let lasso = find_lasso(&graph, &labels)
+        .expect("search")
+        .expect("accepting loop");
+    assert_eq!((lasso.root, lasso.entry), (0, 1));
+    assert_eq!(lasso.prefix.len(), 1);
+    assert_eq!(lasso.cycle.iter().map(|e| e.to).collect::<Vec<_>>(), [2, 1]);
 }

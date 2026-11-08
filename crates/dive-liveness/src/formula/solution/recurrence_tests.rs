@@ -1,11 +1,51 @@
-//! Factored recurrence versus direct periodic words and bounded products.
+//! Recurrence and persistence split from temporal memory, versus direct
+//! periodic words and bounded on-the-fly products.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
-use dive_liveness::Graph;
-use dive_liveness::formula::{
-    Atom, AtomKind, Formula, FormulaError, Limits as FormulaLimits, Node, compile,
+use super::{CycleConditions, decompose};
+use crate::Graph;
+use crate::formula::{
+    Atom, AtomKind, Formula, FormulaError, Limits as FormulaLimits, Node, compile_residual,
 };
-use dive_liveness::product::{Labels, Limits, Product, ProductError};
+use crate::product::{AcceptancePolicy, ImplicitProduct, Labels, Limits, ProductError};
+
+fn none() -> CycleConditions {
+    CycleConditions {
+        always: vec![],
+        recurring: vec![],
+    }
+}
+
+// Whether any alternative of any solution group of `formula` accepts a lasso
+// of `graph`, searched as the temporal route searches.
+fn accepts(
+    formula: &Formula,
+    graph: &Graph,
+    labels: &Labels,
+    limits: Limits,
+) -> Result<bool, ProductError> {
+    let groups = decompose(formula, FormulaLimits::default()).expect("decompose");
+    let edges = graph.edges.iter().map(Vec::len).sum();
+    let mut found = false;
+    for group in &groups {
+        let tableau =
+            compile_residual(&group.core, FormulaLimits::default()).expect("residual tableau");
+        let product = ImplicitProduct::new(
+            graph,
+            &tableau,
+            labels,
+            limits,
+            AcceptancePolicy::Legacy,
+            edges,
+        )?;
+        for conditions in &group.alternatives {
+            found |= product
+                .find_lasso_with_conditions(labels, conditions)?
+                .is_some();
+        }
+    }
+    Ok(found)
+}
 
 fn cases() -> Vec<Formula> {
     let base = vec![
@@ -67,10 +107,8 @@ fn cases() -> Vec<Formula> {
 }
 
 #[test]
-fn every_factored_short_word_matches_original_temporal_truth() {
+fn every_decomposed_short_word_matches_original_temporal_truth() {
     for formula in cases() {
-        let (core, conditions) = formula.factor_recurrences(4096).expect("factor");
-        let tableau = compile(&core, FormulaLimits::default()).expect("tableau");
         for len in 1..=4 {
             for bits in 0..(1_u32 << (2 * len)) {
                 let states: Vec<Vec<bool>> =
@@ -92,16 +130,8 @@ fn every_factored_short_word_matches_original_temporal_truth() {
                     let expected = formula
                         .evaluate_word(&states, &actions, back, 100_000)
                         .expect("direct word")[0];
-                    let product = Product::with_recurrences(
-                        &graph,
-                        &tableau,
-                        &labels,
-                        &conditions,
-                        Limits::default(),
-                    )
-                    .expect("factored product");
                     assert_eq!(
-                        product.find_lasso().expect("search").is_some(),
+                        accepts(&formula, &graph, &labels, Limits::default()).expect("search"),
                         expected,
                         "{formula:?} bits={bits} len={len} back={back}"
                     );
@@ -125,10 +155,29 @@ fn closing_edge_fulfills_recurrence_but_prefix_alone_does_not() {
         2,
     )
     .expect("recurrence");
-    let (core, conditions) = formula.factor_recurrences(4096).expect("factor");
-    assert_eq!(conditions.len(), 1);
-    let tableau = compile(&core, FormulaLimits::default()).expect("tableau");
+    let groups = decompose(&formula, FormulaLimits::default()).expect("decompose");
+    assert_eq!(groups.len(), 1);
+    assert_eq!(groups[0].alternatives.len(), 1);
+    let conditions = &groups[0].alternatives[0];
+    assert_eq!(
+        (conditions.always.len(), conditions.recurring.len()),
+        (0, 1)
+    );
+    let tableau =
+        compile_residual(&groups[0].core, FormulaLimits::default()).expect("residual tableau");
     let graph = Graph::new(vec![vec![1], vec![1]], vec![0]).expect("prefix and closing self-loop");
+    let product = |labels: &Labels| {
+        ImplicitProduct::new(
+            &graph,
+            &tableau,
+            labels,
+            Limits::default(),
+            AcceptancePolicy::Legacy,
+            2,
+        )
+        .expect("product")
+        .find_lasso_with_conditions(labels, &none())
+    };
     for (bits, expected) in [
         (vec![vec![false], vec![true]], true),
         (vec![vec![true], vec![false]], false),
@@ -137,48 +186,45 @@ fn closing_edge_fulfills_recurrence_but_prefix_alone_does_not() {
             states: vec![],
             actions: vec![bits],
         };
-        let p =
-            Product::with_recurrences(&graph, &tableau, &labels, &conditions, Limits::default())
-                .expect("product");
-        assert_eq!(p.find_lasso().expect("search").is_some(), expected);
+        assert_eq!(
+            accepts(&formula, &graph, &labels, Limits::default()).expect("search"),
+            expected
+        );
         // Dropping recurrence is a planted bug: it incorrectly accepts the
         // second word, where the action occurs only in the finite prefix.
-        assert!(
-            Product::new(&graph, &tableau, &labels, Limits::default())
-                .expect("planted omission")
-                .find_lasso()
-                .expect("search")
-                .is_some()
-        );
+        assert!(product(&labels).expect("planted omission").is_some());
     }
     let labels = Labels {
         states: vec![],
         actions: vec![vec![vec![false], vec![true]]],
     };
-    assert_eq!(
-        Product::with_recurrences(
+    assert!(matches!(
+        accepts(
+            &formula,
             &graph,
-            &tableau,
             &labels,
-            &conditions,
             Limits {
                 acceptance_cells: 3,
                 ..Limits::default()
             }
         ),
         Err(ProductError::Limit("acceptance cells"))
-    );
+    ));
+    let empty = Labels {
+        states: vec![],
+        actions: vec![],
+    };
     assert!(matches!(
-        Product::with_recurrences(
+        ImplicitProduct::new(
             &graph,
             &tableau,
-            &Labels {
-                states: vec![],
-                actions: vec![]
-            },
-            &conditions,
-            Limits::default()
-        ),
+            &empty,
+            Limits::default(),
+            AcceptancePolicy::Legacy,
+            2,
+        )
+        .expect("product")
+        .find_lasso_with_conditions(&empty, conditions),
         Err(ProductError::Shape(_))
     ));
 }
@@ -203,14 +249,27 @@ fn shared_conjunctions_and_disjunctions_have_explicit_work_bounds() {
             });
         }
         let f = Formula::new(nodes.clone(), nodes.len() - 1).expect("small shared DAG");
-        assert!(matches!(
-            f.factor_recurrences(4096),
-            Err(FormulaError::Limit(_))
-        ));
+        let result = decompose(&f, FormulaLimits::default());
+        if and {
+            // Unshared conjunct expansion is bounded, never silently truncated.
+            assert!(matches!(result, Err(FormulaError::Limit(_))));
+        } else {
+            // Normalization shares the repeated disjunct: one `[]<>S` solution.
+            let groups = result.expect("shared disjunction");
+            assert_eq!(groups.len(), 1);
+            assert_eq!(groups[0].alternatives.len(), 1);
+            assert_eq!(groups[0].alternatives[0].recurring.len(), 1);
+        }
     }
     let f = Formula::new(vec![Node::Bool(true)], 0).expect("constant");
-    assert_eq!(
-        f.factor_recurrences(0),
+    assert!(matches!(
+        decompose(
+            &f,
+            FormulaLimits {
+                formula_nodes: 0,
+                ..FormulaLimits::default()
+            }
+        ),
         Err(FormulaError::Limit("formula nodes"))
-    );
+    ));
 }

@@ -2123,6 +2123,9 @@ fn lower_frozen_claims(
 }
 
 #[cfg(test)]
+mod planning_tests;
+
+#[cfg(test)]
 mod atom_error_tests {
     use super::*;
     use std::sync::Arc;

@@ -1,12 +1,15 @@
 //! Private product row storage. Lookup, admission and traversal are shared;
 //! only the coordinator's adjacency uses ranges over flat discovery buffers.
 
-use super::{Graph, GraphAccess, ProductError};
+#[cfg(test)]
+use super::Graph;
+use super::{GraphAccess, ProductError};
 
 pub(super) trait ProductRows: GraphAccess {
     fn original_edges(&self, source: usize) -> &[usize];
 }
 
+#[cfg(test)]
 pub(super) trait RowStorage: Default {
     type Graph: ProductRows;
 
@@ -26,19 +29,22 @@ pub(super) trait RowStorage: Default {
     ) -> Result<Self::Graph, ProductError>;
 }
 
-// This is the original owned representation, retained for public products and
-// as the finite-test reference. Its row allocations and order are unchanged.
+// The original owned representation, retained as the finite-test reference
+// for the flat rows. Its row allocations and order are unchanged.
+#[cfg(test)]
 #[derive(Default)]
 pub(super) struct OwnedRows {
     edges: Vec<Vec<usize>>,
     original_edges: Vec<Vec<usize>>,
 }
 
+#[cfg(test)]
 pub(super) struct OwnedGraph {
     pub(super) graph: Graph,
     pub(super) original_edges: Vec<Vec<usize>>,
 }
 
+#[cfg(test)]
 impl GraphAccess for OwnedGraph {
     fn vertex_count(&self) -> usize {
         self.graph.edges.len()
@@ -51,12 +57,14 @@ impl GraphAccess for OwnedGraph {
     }
 }
 
+#[cfg(test)]
 impl ProductRows for OwnedGraph {
     fn original_edges(&self, source: usize) -> &[usize] {
         &self.original_edges[source]
     }
 }
 
+#[cfg(test)]
 impl RowStorage for OwnedRows {
     type Graph = OwnedGraph;
 

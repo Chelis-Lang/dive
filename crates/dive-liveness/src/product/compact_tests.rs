@@ -34,7 +34,7 @@ fn tableau(nodes: Vec<Node>) -> Tableau {
 }
 
 fn recurrences() -> Vec<Recurrence> {
-    Formula::new(
+    let formula = Formula::new(
         vec![
             state(),
             Node::Eventually(0),
@@ -46,10 +46,11 @@ fn recurrences() -> Vec<Recurrence> {
         ],
         6,
     )
-    .expect("recurring formula")
-    .factor_recurrences(4096)
-    .expect("recurrences")
-    .1
+    .expect("recurring formula");
+    // The bodies of `[]<>S /\ []<>A`, as solution decomposition extracts them.
+    [0, 3]
+        .map(|body| Recurrence::condition(&formula, &[body]).expect("recurrence"))
+        .to_vec()
 }
 
 fn compare(
@@ -341,10 +342,8 @@ fn compact_preserves_custom_limit_boundaries_and_shape_error_priority() {
         ],
         2,
     )
-    .expect("formula")
-    .factor_recurrences(4096)
-    .expect("recurrence")
-    .1;
+    .expect("formula");
+    let invalid = vec![Recurrence::condition(&invalid, &[0]).expect("recurrence")];
     assert_eq!(
         compare(&graph, &t, &labels, &invalid, zero),
         Err(ProductError::Shape(

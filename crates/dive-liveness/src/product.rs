@@ -2,20 +2,28 @@
 //!
 //! State labels describe vertices; action labels describe each original edge.
 //! A tableau node constrains the edge leaving its word position, including
-//! loop closure. These APIs do not enumerate states or evaluate predicates.
+//! loop closure. This module does not enumerate states or evaluate predicates.
+//! Only its limits, errors and acceptance policy are public; the temporal route
+//! builds the private on-the-fly product.
 
+#[cfg(test)]
 use crate::Graph;
-use crate::formula::{AtomKind, CycleConditions, Recurrence, Tableau};
+#[cfg(test)]
+use crate::formula::AtomKind;
+use crate::formula::{CycleConditions, Recurrence, Tableau};
 use crate::graph::GraphAccess;
 #[cfg(test)]
-use crate::search::find_lasso_view;
-use crate::search::{Acceptance, AcceptanceAccess, Lasso, SearchError, Step, find_lasso};
+use crate::search::{Acceptance, Lasso, Step, find_lasso, find_lasso_view};
+use crate::search::{AcceptanceAccess, SearchError};
+#[cfg(test)]
 use std::collections::{BTreeSet, HashMap};
 
 mod csr;
+use csr::ProductRows;
 #[cfg(test)]
 use csr::{CsrGraph, FlatRows};
-use csr::{OwnedRows, ProductRows, RowStorage};
+#[cfg(test)]
+use csr::{OwnedRows, RowStorage};
 mod implicit;
 mod pair_order;
 pub(crate) use implicit::ImplicitProduct;
@@ -23,7 +31,7 @@ pub(crate) use implicit::ImplicitProduct;
 mod behavior;
 pub(crate) use behavior::BehaviorView;
 mod topology;
-pub use topology::CsrTopology;
+pub(crate) use topology::CsrTopology;
 
 mod budget;
 pub use budget::AcceptancePolicy;
@@ -31,9 +39,11 @@ mod truth;
 pub(crate) use truth::PackedTruth;
 use truth::TruthAccess;
 
-/// Truth values of all supplied atomic predicates.
+/// Dense truth values of all supplied atomic predicates, the tests' reference
+/// representation beside the temporal route's [`PackedTruth`].
+#[cfg(test)]
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Labels {
+pub(crate) struct Labels {
     /// One vertex-shaped row per state predicate.
     pub states: Vec<Vec<bool>>,
     /// One adjacency-shaped table per action predicate. Parallel edges retain
@@ -97,16 +107,19 @@ impl ProductError {
     }
 }
 
-/// An explicit product, in `(behavior vertex, tableau node)` order.
+/// An explicit owned product, in `(behavior vertex, tableau node)` order, the
+/// unit tests' independent reference for the compact and on-the-fly products.
 /// Input graph edge positions are retained for witness projection.
+#[cfg(test)]
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Product {
+pub(crate) struct Product {
     graph: Graph,
     acceptance: Acceptance,
     behavior_states: Vec<usize>,
     original_edges: Vec<Vec<usize>>,
 }
 
+#[cfg(test)]
 struct Parts<A, G> {
     graph: G,
     acceptance: A,
@@ -124,6 +137,7 @@ struct Ordered<'a> {
     scratch_len: usize,
 }
 
+#[cfg(test)]
 struct Builder<'a, T: TruthAccess, R: RowStorage> {
     graph: BehaviorView<'a>,
     tableau: &'a Tableau,
@@ -140,6 +154,7 @@ struct Builder<'a, T: TruthAccess, R: RowStorage> {
     steps: usize,
 }
 
+#[cfg(test)]
 impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
     fn inspect(&mut self) -> Result<(), ProductError> {
         if crate::budget::exhausted() {
@@ -317,6 +332,7 @@ fn validate(
     labels.validate_dimensions(graph)
 }
 
+#[cfg(test)]
 impl Product {
     /// Constructs the synchronous product with validated labels. Callers must
     /// supply all behavior edges, including the intended stuttering edges.
@@ -324,7 +340,7 @@ impl Product {
     ///
     /// # Errors
     /// Malformed references, label dimensions or an explicit resource limit.
-    pub fn new(
+    pub(crate) fn new(
         graph: &Graph,
         tableau: &Tableau,
         labels: &Labels,
@@ -334,14 +350,14 @@ impl Product {
     }
 
     /// Constructs the reachable product with additional infinitely-recurring
-    /// boolean conditions extracted by [`crate::formula::Formula::factor_recurrences`].
+    /// boolean conditions.
     /// Conditions constrain the recurrent walk, including closing edges; they
     /// never filter a finite prefix. Each condition contributes one acceptance
     /// cell per retained edge, subject to the same explicit resource budget.
     ///
     /// # Errors
     /// Malformed inputs/condition atom references or explicit resource limits.
-    pub fn with_recurrences(
+    pub(crate) fn with_recurrences(
         graph: &Graph,
         tableau: &Tableau,
         labels: &Labels,
@@ -361,24 +377,9 @@ impl Product {
     /// The caller supplies state/action labels and all intended stutters.
     /// This does not check a bound specification or certify graph completion.
     ///
-    /// ```
-    /// use dive_liveness::formula::{self, Formula, Node};
-    /// use dive_liveness::product::{CsrTopology, Labels, Limits, Product};
-    /// let offsets = [0, 1];
-    /// let targets = [0];
-    /// let roots = [0];
-    /// let topology = CsrTopology::new(&offsets, &targets, &roots)?;
-    /// let formula = Formula::new(vec![Node::Bool(true)], 0)?;
-    /// let tableau = formula::compile(&formula, formula::Limits::default())?;
-    /// let labels = Labels { states: vec![], actions: vec![] };
-    /// let product = Product::from_csr(topology, &tableau, &labels, Limits::default())?;
-    /// assert!(product.find_lasso()?.is_some());
-    /// # Ok::<(), Box<dyn std::error::Error>>(())
-    /// ```
-    ///
     /// # Errors
     /// Malformed tableau/label dimensions or an explicit product resource limit.
-    pub fn from_csr(
+    pub(crate) fn from_csr(
         graph: CsrTopology<'_>,
         tableau: &Tableau,
         labels: &Labels,
@@ -394,7 +395,7 @@ impl Product {
     ///
     /// # Errors
     /// Malformed tableau/labels, condition atom references or product limits.
-    pub fn with_csr_recurrences(
+    pub(crate) fn with_csr_recurrences(
         graph: CsrTopology<'_>,
         tableau: &Tableau,
         labels: &Labels,
@@ -473,7 +474,7 @@ impl Product {
     ///
     /// # Errors
     /// An internal acceptance or witness-construction inconsistency.
-    pub fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
+    pub(crate) fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
         let Some(lasso) =
             find_lasso(&self.graph, &self.acceptance).map_err(ProductError::search)?
         else {
@@ -487,6 +488,7 @@ impl Product {
     }
 }
 
+#[cfg(test)]
 fn build<A, R: RowStorage>(
     graph: BehaviorView<'_>,
     tableau: &Tableau,
@@ -978,6 +980,7 @@ impl<P: AcceptanceAccess + BehaviorEdges, T: TruthAccess> AcceptanceAccess
     }
 }
 
+#[cfg(test)]
 fn project_lasso(
     lasso: &Lasso,
     behavior_states: &[usize],
@@ -999,6 +1002,7 @@ fn project_lasso_rows(
     })
 }
 
+#[cfg(test)]
 fn project_lasso_with(
     lasso: &Lasso,
     behavior_states: &[usize],
@@ -1028,3 +1032,5 @@ fn project_lasso_with(
 
 #[cfg(test)]
 mod compact_tests;
+#[cfg(test)]
+mod semantics_tests;
