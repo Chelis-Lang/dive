@@ -755,6 +755,23 @@ fn prepare_observed(
     if let Some(feature) = refusal(&model, temporal) {
         return Err(Box::new(result(unsupported(feature), options, ir)));
     }
+    // TLC normalizes the temporal properties before it evaluates any ASSUME,
+    // and stops with its tautology error (2253) when the normalization has no
+    // solutions. Core does not build that report; it refuses here, before an
+    // ASSUME could report another error first. Planning is effect-free.
+    if temporal
+        && dive_liveness::analyze::startup_tautology(
+            &model,
+            options,
+            crate::temporal::core_file_configuration().limits,
+        )
+    {
+        return Err(Box::new(result(
+            unsupported(crate::core_temporal::VALIDATION_FAILURE),
+            options,
+            ir,
+        )));
+    }
     // The core compiles its plan, evaluating the pure ASSUMEs the binding
     // left to it (`Model::deferred_assumptions`, issue #846), before the
     // remaining ASSUMEs are checked. Compiling is pure start-up work (it
