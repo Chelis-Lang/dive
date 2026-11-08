@@ -122,6 +122,17 @@ fn every_worker_count_gives_the_one_worker_result() {
                     // A specification that prints or draws runs one worker,
                     // so that its output and draws are in TLC's order.
                     Value::from(1)
+                } else if many["options"]["workers"]["reason"]
+                    .as_str()
+                    .is_some_and(|r| r.contains("ended in Init"))
+                {
+                    // Init runs on one worker; a run that ends there starts
+                    // no parallel level and generated no successor.
+                    assert_eq!(
+                        many["statistics"]["generated"], many["statistics"]["initial_generated"],
+                        "{name}"
+                    );
+                    Value::from(1)
                 } else {
                     Value::from(workers)
                 };

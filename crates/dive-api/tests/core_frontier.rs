@@ -72,7 +72,21 @@ fn spilled_frontiers_preserve_both_profiles_stores_worker_widths_and_words() {
                             baseline.exit_code_for(ExitConvention::Tlc)
                         );
                         assert_eq!(doc["engine"], "core");
-                        assert_eq!(doc["options"]["workers"]["used"], workers);
+                        // Init runs on one worker; a run that ends there
+                        // starts no parallel level and generated no successor.
+                        let ended_in_init = doc["options"]["workers"]["reason"]
+                            .as_str()
+                            .is_some_and(|r| r.contains("ended in Init"));
+                        if ended_in_init {
+                            assert_eq!(
+                                doc["statistics"]["generated"],
+                                doc["statistics"]["initial_generated"]
+                            );
+                        }
+                        assert_eq!(
+                            doc["options"]["workers"]["used"],
+                            if ended_in_init { 1 } else { workers }
+                        );
                         assert_eq!(doc["frontier_storage"]["failures"], json!([]));
                         assert_eq!(doc["frontier_storage"]["retained_bytes"], 0);
                         assert_eq!(doc["frontier_storage"]["write_accounting_complete"], true);
