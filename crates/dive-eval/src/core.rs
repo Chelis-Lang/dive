@@ -56,7 +56,6 @@ impl PrintSink for CollectSink {
 
 /// The shared evaluator state.
 pub(crate) struct Core {
-    pub(crate) source_coverage: Option<Arc<crate::SourceCoverage>>,
     pub(crate) input_refusal: Mutex<Option<String>>,
     /// Only the first TXT request has a proved native result representation.
     pub(crate) text_input_used: std::sync::atomic::AtomicBool,
@@ -226,7 +225,6 @@ impl Core {
             }
         }
         Self {
-            source_coverage: None,
             input_refusal: Mutex::new(None),
             text_input_used: std::sync::atomic::AtomicBool::new(false),
             environment_initialized: std::sync::atomic::AtomicBool::new(false),

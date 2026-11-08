@@ -78,9 +78,9 @@ use ::std::sync::Arc;
 use dive_ir::{DefId, DefKind, ExprId, Ir};
 use dive_value::{Interner, Value};
 
+use crate::core::Core;
 pub use crate::core::{CollectSink, PrintSink};
-mod coverage;
-mod logical_coverage;
+use crate::env::{Dyn, Env, Ev};
 pub use crate::env::{St, StateRef};
 pub use crate::error::{
     Ec, ErrorClass, EvalError, ExceptionKind, Result, ValueMethod, ValueMethodFailure,
@@ -99,14 +99,6 @@ pub use crate::options::{
 pub use crate::scope::{Scope, SlotView};
 pub use crate::stability::ProducerStability;
 pub use crate::tuple_names::TupleConcatSources;
-pub use coverage::{
-    SourceCounts, SourceCoverage, SourceCoveragePause, SourceCoverageRow, SourceCoverageSnapshot,
-    SourceLocation,
-};
-pub use logical_coverage::{TlcActionCoverage, TlcCoverageRow, TlcCoverageSnapshot};
-
-use crate::core::Core;
-use crate::env::{Dyn, Env, Ev};
 
 /// Exclusive simulation entry on a shared evaluator core. Dropping the lease
 /// permits the next simulation. The driver must restore its host before drop.
@@ -222,52 +214,6 @@ impl Evaluator {
         let mut ev = Self::with_sink(model, opts, sink.clone())?;
         ev.collected = Some(sink);
         Ok(ev)
-    }
-
-    /// Constructs a producer evaluator with native source work or admitted TLC
-    /// logical costs. The observer must belong to this exact immutable IR.
-    /// Ordinary construction remains unobserved; counts never certify a model.
-    ///
-    /// # Errors
-    /// The ordinary context failures, or a foreign collector/IR association.
-    pub fn new_source_covered(
-        mut model: Model,
-        opts: Options,
-        coverage: Arc<SourceCoverage>,
-    ) -> ::std::result::Result<Self, ContextError> {
-        if !coverage.is_for(&model.ir) {
-            return Err(ContextError::new(
-                ContextErrorKind::ForeignContext,
-                "source coverage belongs to a different IR",
-            ));
-        }
-        context::validate(&mut model)?;
-        let sink = Arc::new(CollectSink::default());
-        let mut core = Core::new(model, opts, sink.clone());
-        core.source_coverage = Some(coverage);
-        Ok(Self {
-            core: Arc::new(core),
-            collected: Some(sink),
-        })
-    }
-
-    /// Pauses source-work observation on this thread during diagnostic replay.
-    /// Ordinary evaluators return None. The guard retains only the collector;
-    /// it does not change evaluation, host ownership or run budgets.
-    #[must_use]
-    pub fn pause_source_coverage(&self) -> Option<SourceCoveragePause> {
-        self.core
-            .source_coverage
-            .as_ref()
-            .map(SourceCoverage::pause)
-    }
-
-    /// Attributes a newly admitted state identity to its producing logical action.
-    /// Ordinary and native source-work evaluators perform no logical callback.
-    pub fn coverage_discovered(&self, action: usize) {
-        if let Some(coverage) = &self.core.source_coverage {
-            coverage.discovered(action);
-        }
     }
 
     /// Takes the `Print` output collected so far (empty with a custom sink).
