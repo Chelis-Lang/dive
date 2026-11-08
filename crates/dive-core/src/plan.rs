@@ -347,7 +347,7 @@ pub enum Node {
     Beta {
         /// The function expression.
         chain: P,
-        /// The `FcnCons` node, with one bound variable.
+        /// The `FcnCons` node, whose bound variables have no tuple pattern.
         fc: P,
         /// The argument.
         arg: P,
