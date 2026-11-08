@@ -544,6 +544,19 @@ pub fn enumerate_manifest(
         .map(|m| &m.path)
         .chain(index.models.iter().map(|m| &m.id))
     {
+        // The corpus identity covers only the pinned commit and the manifest,
+        // so every listed path must stay inside the checkout.
+        if path.starts_with('/')
+            || path.contains('\\')
+            || path
+                .split('/')
+                .any(|c| c == ".." || c == "." || c.is_empty())
+        {
+            return Err(Error::Config(format!(
+                "corpus `{}`: manifest lists `{path}`, which is not a plain relative path inside the checkout",
+                corpus.id
+            )));
+        }
         if !root.join(path).is_file() {
             return Err(Error::Config(format!(
                 "corpus `{}`: manifest lists `{path}`, which is not a file in the checkout",
@@ -747,8 +760,22 @@ mod tests {
         let bad = toml(&excl.replace("tla/Big.cfg", "tla/None.cfg"));
         let file = crate::config::CorporaFile::parse(&bad)?;
         assert!(enumerate_manifest(&file.corpus[0], dir.path(), &manifest).is_err());
-        std::fs::remove_file(dir.path().join("tla/M.cfg"))?;
+        std::fs::write(dir.path().join("Outside.cfg"), "x")?;
         let file = crate::config::CorporaFile::parse(&toml(""))?;
+        for escape in [
+            "tla/../Outside.cfg",
+            "/etc/hostname",
+            "tla//M.cfg",
+            "./tla/M.cfg",
+        ] {
+            let mut escaping = manifest.clone();
+            escaping.modules[0].models[0].path = escape.to_owned();
+            assert!(
+                enumerate_manifest(&file.corpus[0], dir.path(), &escaping).is_err(),
+                "{escape} must be refused"
+            );
+        }
+        std::fs::remove_file(dir.path().join("tla/M.cfg"))?;
         assert!(enumerate_manifest(&file.corpus[0], dir.path(), &manifest).is_err());
         Ok(())
     }
