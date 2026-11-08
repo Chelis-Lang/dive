@@ -95,8 +95,9 @@ pub mod flags {
     pub const NESTED_VIEW: u8 = 16;
     /// The view bits: a node carrying one is a lazy view, so it is
     /// interned apart from identities (`03-value-model.md` §11.3).
-    /// An actual owned construction snapshot; never inferred from set layout.
-    /// Its origin and phase are retained apart from extensional identity (ADR0131).
+    /// Retired: the construction-history bit of older Store images, worker
+    /// exchanges and candidate records (ADR0131). Nothing sets it; every
+    /// decoder refuses it by name ("legacy construction history").
     pub const HISTORY: u8 = 32;
     /// All observable representation bits.
     pub const VIEW: u8 = UNNORM | RECORD | TUPLE | NESTED_VIEW | HISTORY;

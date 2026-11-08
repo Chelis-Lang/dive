@@ -1,15 +1,15 @@
 //! Quiescent reclamation of unreachable persistent values.
 //!
 //! Compiled handles retain their exact startup coordinates. Every other handle
-//! must cross the explicit remapping transaction, including actual constructor
-//! origins. A new owner is committed only after every live root has been copied.
+//! must cross the explicit remapping transaction. A new owner is committed only
+//! after every live root has been copied.
 
 use std::collections::{HashMap, HashSet};
-use std::sync::{Arc, PoisonError};
+use std::sync::Arc;
 
 use super::{InternCache, Store, snapshot};
 use crate::handle::Tag;
-use crate::node::{Kind, flags};
+use crate::node::flags;
 use crate::{Error, Handle};
 
 fn invalid(message: impl Into<String>) -> Error {
@@ -48,8 +48,8 @@ impl Permanent {
 
     /// Starts a replacement owner at a joined, completed-level boundary.
     ///
-    /// The source remains live until all roots and their actual raw/normalized
-    /// companions are copied. Dynamic name tokens retain their encounter order.
+    /// The source remains live until all roots are copied. Dynamic name tokens
+    /// retain their encounter order.
     ///
     /// # Errors
     /// A changed prefix, effectful/poisoned Store, allocation or cancellation.
@@ -98,47 +98,14 @@ impl Permanent {
             node.flags = v.flags;
             mapped.insert(handle, handle);
         }
-        let mut origins = HashMap::new();
-        origins
-            .try_reserve(image.history.len())
-            .map_err(|_| invalid("permanent origin index allocation"))?;
-        let mut companions = Vec::new();
-        let authority = source
-            .history_views
-            .read()
-            .unwrap_or_else(PoisonError::into_inner);
-        for (i, before) in image.history.iter().enumerate() {
-            let after = authority
-                .get(i)
-                .ok_or_else(|| invalid("compiled origin missing"))?;
-            if before
-                .iter()
-                .zip(after)
-                .any(|(a, b)| !a.is_empty() && a != b)
-            {
-                return Err(invalid("compiled origin changed"));
-            }
-            let id = i64::try_from(i + 1).map_err(|_| invalid("origin address space"))?;
-            origins.insert(id, id);
-            companions
-                .try_reserve(2)
-                .map_err(|_| invalid("permanent companion allocation"))?;
-            companions.extend(after.iter().copied().filter(|h| !h.is_empty()));
-        }
-        drop(authority);
         image.names = names.iter().map(ToString::to_string).collect();
-        let target = snapshot::install(source, image, proceed)?;
-        let mut remap = Remap {
+        let target = snapshot::install(source, &image, proceed)?;
+        Ok(Remap {
             source: Arc::clone(source),
             target,
             mapped,
-            origins,
             cache: InternCache::default(),
-        };
-        for h in companions {
-            remap.copy(h, proceed)?;
-        }
-        Ok(remap)
+        })
     }
 }
 
@@ -147,7 +114,6 @@ pub struct Remap {
     source: Arc<Store>,
     target: Arc<Store>,
     mapped: HashMap<Handle, Handle>,
-    origins: HashMap<i64, i64>,
     cache: InternCache,
 }
 
@@ -158,13 +124,14 @@ impl Remap {
         &self.target
     }
 
-    /// Copies a closed persistent root and all owned representation history.
+    /// Copies a closed persistent root.
     ///
-    /// Shared nodes and origins remain shared, independent equal constructors
-    /// remain independent, and no normalization/evaluation demand is introduced.
+    /// Shared nodes remain shared and no normalization/evaluation demand is
+    /// introduced.
     ///
     /// # Errors
-    /// A stale/transient/unowned value, new deferred provider, allocation or cancellation.
+    /// A stale/transient/legacy-history value, new deferred provider, allocation
+    /// or cancellation.
     #[allow(
         clippy::too_many_lines,
         reason = "one iterative child-first owned remapping transaction"
@@ -207,17 +174,12 @@ impl Remap {
             if v.is_lazy() || v.kind.is_lazy() {
                 return Err(invalid("deferred provider added after startup"));
             }
-            let origin = if v.flags & flags::HISTORY != 0 {
-                if !self.source.owns_history(h) {
-                    return Err(invalid("unregistered construction history"));
-                }
-                Some(v.lo)
-            } else {
-                active
-                    .try_reserve(1)
-                    .map_err(|_| invalid("active traversal allocation"))?;
-                None
-            };
+            if v.flags & flags::HISTORY != 0 {
+                return Err(invalid("legacy construction history"));
+            }
+            active
+                .try_reserve(1)
+                .map_err(|_| invalid("active traversal allocation"))?;
             if leaving {
                 active.remove(&h);
                 let mut children = Vec::new();
@@ -234,28 +196,17 @@ impl Remap {
                         child
                     });
                 }
-                let lo = match origin {
-                    Some(origin) => *self
-                        .origins
-                        .get(&origin)
-                        .ok_or_else(|| invalid("unmapped live origin"))?,
-                    None => v.lo,
-                };
                 let mapped = self.target.intern(
                     &mut self.cache,
                     v.kind,
                     v.flags,
-                    lo,
+                    v.lo,
                     v.hash,
                     v.sum,
                     &children,
                 );
                 if mapped.is_empty() || self.target.poisoned() {
                     return Err(invalid("replacement node allocation"));
-                }
-                if origin.is_some() {
-                    self.target
-                        .retain_history(lo, v.kind == Kind::Set, mapped)?;
                 }
                 self.mapped
                     .try_reserve(1)
@@ -265,32 +216,9 @@ impl Remap {
                 if !active.insert(h) {
                     return Err(invalid("cyclic live values"));
                 }
-                let mut companions = [Handle::EMPTY; 2];
-                if let Some(origin) = origin
-                    && !self.origins.contains_key(&origin)
-                {
-                    self.origins
-                        .try_reserve(1)
-                        .map_err(|_| invalid("live origin index allocation"))?;
-                    let new = self.target.history_origin()?;
-                    self.origins.insert(origin, new);
-                    companions = self
-                        .source
-                        .history_views
-                        .read()
-                        .unwrap_or_else(PoisonError::into_inner)
-                        [usize::try_from(origin - 1).map_err(|_| invalid("live origin"))?];
-                }
                 stack
-                    .try_reserve(v.data.len() + 3)
+                    .try_reserve(v.data.len() + 1)
                     .map_err(|_| invalid("live traversal allocation"))?;
-                // Companions run after this value, preserving its alias while
-                // avoiding a history-table edge being mistaken for a value cycle.
-                for companion in companions {
-                    if !companion.is_empty() && companion != h {
-                        stack.push((companion, false));
-                    }
-                }
                 stack.push((h, true));
                 stack.extend(v.data.iter().rev().map(|&child| (child, false)));
             }
@@ -324,7 +252,6 @@ mod tests {
         );
         assert_eq!(remap.store().view(raw).data, &[one, two]);
         assert_eq!(remap.store().view(normalized).data, &[one, two]);
-        assert_eq!(remap.store().memory_usage().history_view_bytes, 0);
     }
 
     #[test]
@@ -377,7 +304,6 @@ mod tests {
             assert_eq!(view.data[3], constant);
             assert_eq!(target.view(view.data[0]).data, &[one, two]);
             assert_eq!(target.view(view.data[2]).data, &[one, two]);
-            assert_eq!(target.memory_usage().history_view_bytes, 0);
             assert!(old_count > target.stats().nodes + 1900);
             assert!(remap.copy(raw, &|| false).is_err());
         }

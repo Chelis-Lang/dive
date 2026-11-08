@@ -24,7 +24,7 @@
 //! the engine reports as a bug, never as a verdict.
 
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::{Arc, Mutex, OnceLock, PoisonError, RwLock, Weak};
+use std::sync::{Arc, Mutex, OnceLock, PoisonError, Weak};
 
 use crate::handle::{CLASSES, Handle, LAZY_CLASS, MAX_CLASS_INDEX, mix2};
 use crate::node::{Kind, View, flags};
@@ -66,13 +66,13 @@ fn class_of(len: usize, fl: u8) -> u8 {
     }
 }
 
-/// A retained history and its parents have an extensional value hash, but
-/// exact interning must distinguish origins and retained child handles. Using
-/// only the value hash puts all equal independent constructions in one probe
-/// cluster, making ordinary state handoff quadratic. Keep that representation
-/// key private to the index: value hashes and canonical interning stay intact.
+/// A view parent has an extensional value hash, but exact interning must
+/// distinguish its retained child handles. Using only the value hash puts all
+/// equal independent representations in one probe cluster, making ordinary
+/// state handoff quadratic. Keep that representation key private to the
+/// index: value hashes and canonical interning stay intact.
 fn interning_hash(kind: Kind, fl: u8, lo: i64, hash: u64, data: &[Handle]) -> u64 {
-    if fl & (flags::HISTORY | flags::NESTED_VIEW) == 0 {
+    if fl & flags::NESTED_VIEW == 0 {
         return hash;
     }
     let header = u64::from(kind as u8) | (u64::from(fl & !flags::CONCRETE) << 8);
@@ -529,8 +529,6 @@ pub struct StoreStats {
 
 /// The persistent store.
 pub struct Store {
-    // Exact snapshot registration is exclusive; ownership probes never mutate it.
-    history_views: RwLock<Vec<[Handle; 2]>>,
     cols: Box<[Columns]>,
     shards: Box<[Shard]>,
     generations: Box<[Generation]>,
@@ -623,7 +621,6 @@ impl Store {
     #[must_use]
     pub fn with_semantics(hashcons: bool, semantics: Semantics) -> Self {
         Self {
-            history_views: RwLock::new(Vec::new()),
             cols: (0..SHARDS).map(|_| Columns::new()).collect(),
             shards: (0..SHARDS)
                 .map(|_| Shard {
@@ -641,90 +638,6 @@ impl Store {
             draws: OnceLock::new(),
             registers: OnceLock::new(),
         }
-    }
-
-    /// Allocates an origin only for an actual arena-owned construction escape.
-    pub(crate) fn history_origin(&self) -> Result<i64, crate::Error> {
-        let mut views = self
-            .history_views
-            .write()
-            .unwrap_or_else(PoisonError::into_inner);
-        let origin = i64::try_from(views.len())
-            .ok()
-            .and_then(|n| n.checked_add(1))
-            .ok_or_else(|| crate::Error::unsupported("construction identity address space"))?;
-        views
-            .try_reserve(1)
-            .map_err(|_| crate::Error::unsupported("construction origin allocation"))?;
-        views.push([Handle::EMPTY; 2]);
-        Ok(origin)
-    }
-
-    pub(crate) fn retain_history(
-        &self,
-        origin: i64,
-        normalized: bool,
-        handle: Handle,
-    ) -> Result<(), crate::Error> {
-        let mut views = self
-            .history_views
-            .write()
-            .unwrap_or_else(PoisonError::into_inner);
-        let index = usize::try_from(origin)
-            .ok()
-            .and_then(|n| n.checked_sub(1))
-            .ok_or_else(|| crate::Error::internal("invalid construction origin"))?;
-        let slot = views
-            .get_mut(index)
-            .ok_or_else(|| crate::Error::internal("missing construction origin"))?;
-        slot[usize::from(normalized)] = handle;
-        Ok(())
-    }
-
-    pub(crate) fn owns_history(&self, handle: Handle) -> bool {
-        if !handle.is_persistent() {
-            return false;
-        }
-        let view = self.view(handle);
-        let Some(index) = usize::try_from(view.lo).ok().and_then(|n| n.checked_sub(1)) else {
-            return false;
-        };
-        self.history_views
-            .read()
-            .unwrap_or_else(PoisonError::into_inner)
-            .get(index)
-            .is_some_and(|slot| slot.contains(&handle))
-    }
-
-    /// Read-only snapshots of an actual registered constructor owner.
-    pub(crate) fn history_snapshots(&self, origin: i64) -> Result<[Handle; 2], crate::Error> {
-        let index = usize::try_from(origin)
-            .ok()
-            .and_then(|n| n.checked_sub(1))
-            .ok_or_else(|| crate::Error::internal("invalid construction origin"))?;
-        let pair = self
-            .history_views
-            .read()
-            .unwrap_or_else(PoisonError::into_inner)
-            .get(index)
-            .copied()
-            .ok_or_else(|| crate::Error::internal("missing construction origin"))?;
-        for (phase, &handle) in pair.iter().enumerate() {
-            if !handle.is_empty() {
-                let node = self
-                    .retained_view(handle)
-                    .ok_or_else(|| crate::Error::internal("unissued history snapshot"))?;
-                if node.flags & flags::HISTORY == 0
-                    || node.lo != origin
-                    || (node.kind == Kind::SetEnum) != (phase == 0)
-                {
-                    return Err(crate::Error::internal(
-                        "history snapshot authority mismatch",
-                    ));
-                }
-            }
-        }
-        Ok(pair)
     }
 
     /// Sets the model's name table and value semantics, which printing
@@ -1008,12 +921,6 @@ impl Store {
                 + std::mem::size_of_val(self.generations.as_ref())
                 + std::mem::size_of_val(self.hits.as_ref()),
             strings: self.strings.memory_usage(),
-            history_view_bytes: self
-                .history_views
-                .read()
-                .unwrap_or_else(PoisonError::into_inner)
-                .capacity()
-                * std::mem::size_of::<[Handle; 2]>(),
             has_printer: self.printer.get().is_some(),
             has_draws: self.draws.get().is_some(),
             has_registers: self.registers.get().is_some(),

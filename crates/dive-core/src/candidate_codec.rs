@@ -492,7 +492,6 @@ mod tests {
             assert_eq!(roots[0], roots[1]);
             assert_eq!(heap.view(roots[0]).data, &[Handle::TRUE, one]);
             assert_eq!(codec.origin_index_bytes(), 0);
-            assert_eq!(store.memory_usage().history_view_bytes, 0);
         }
     }
 
@@ -520,7 +519,6 @@ mod tests {
                 assert!(error.message().contains("legacy construction history"));
                 assert_eq!(store.stats().nodes, before.nodes);
                 assert_eq!(store.stats().handles, before.handles);
-                assert_eq!(store.memory_usage().history_view_bytes, 0);
             }
             let roots = codec.decode(&mut heap, &bytes, 4096).unwrap();
             let row = heap.view(roots[0]);

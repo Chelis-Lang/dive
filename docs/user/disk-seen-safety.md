@@ -10,7 +10,7 @@ policy, in either semantic profile and either store mode. It supports the
 existing pure VIEW, safety symmetry, constraints and transient frontier/predecessor
 spill combinations. Requested widths are retained, but disk search uses one
 actual worker. Core exact keys encode closed mathematical values directly;
-original receiver classes and construction history stay with the live Store and
+original receiver classes stay with the live Store and
 concrete trace, rather than being reconstructed through reference values.
 
 ```sh

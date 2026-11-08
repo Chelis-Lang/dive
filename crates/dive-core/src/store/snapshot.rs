@@ -1,7 +1,9 @@
 //! Bounded quiescent Store images for completed-level native recovery.
 //!
-//! These trusted local images preserve issued coordinates, names and explicit
-//! construction authority. They are not value interchange or reachability proofs.
+//! These trusted local images preserve issued coordinates and names. They are
+//! not value interchange or reachability proofs. The image keeps its retired
+//! construction-history table as an empty count; an image with a history entry
+//! or a history-flagged node is refused ("legacy construction history").
 //! A fresh startup must match before a restored owner can be constructed.
 //!
 //! ```
@@ -112,7 +114,6 @@ pub(super) struct Image {
     pub(super) names: Vec<String>,
     pub(super) lens: Vec<[u64; CLASSES]>,
     pub(super) nodes: Vec<Node>,
-    pub(super) history: Vec<[Handle; 2]>,
 }
 
 fn copied<T: Copy>(values: &[T]) -> Result<Vec<T>, Error> {
@@ -170,7 +171,6 @@ impl Image {
             names: copy_names(self.names.iter().map(String::as_str), proceed)?,
             lens: copied(&self.lens)?,
             nodes,
-            history: copied(&self.history)?,
         })
     }
 }
@@ -201,12 +201,6 @@ pub(super) fn memory_image(
         .ok_or_else(|| invalid("node count overflow"))?;
     let texts = store.strings.texts_from(0);
     let names = copy_names(texts.iter().map(AsRef::as_ref), proceed)?;
-    let history = copied(
-        &store
-            .history_views
-            .read()
-            .unwrap_or_else(PoisonError::into_inner),
-    )?;
     let mut nodes = Vec::new();
     nodes
         .try_reserve_exact(count)
@@ -274,16 +268,7 @@ pub(super) fn memory_image(
             }
         }
     }
-    validate_history(&nodes, &history, proceed)?;
-    if nodes.len() != count
-        || lengths(store) != lens
-        || store.strings.texts_from(0) != texts
-        || *store
-            .history_views
-            .read()
-            .unwrap_or_else(PoisonError::into_inner)
-            != history
-    {
+    if nodes.len() != count || lengths(store) != lens || store.strings.texts_from(0) != texts {
         return Err(invalid("owner changed during owned capture"));
     }
     Ok(Image {
@@ -292,7 +277,6 @@ pub(super) fn memory_image(
         names,
         lens,
         nodes,
-        history,
     })
 }
 
@@ -365,8 +349,8 @@ pub(crate) fn issued(
 
 /// Captures an owned Store at a quiescent boundary without normalizing values.
 ///
-/// The caller must have joined all evaluating workers. Issued coordinates and
-/// exact raw/normalized origin registrations are retained; runtime hosts are not.
+/// The caller must have joined all evaluating workers. Issued coordinates are
+/// retained; runtime hosts are not.
 ///
 /// # Errors
 /// Cancellation, a byte bound, foreign hosts, invalid ownership or concurrent growth.
@@ -400,15 +384,6 @@ pub fn capture(
         return Err(invalid("name admission bound"));
     }
     let names = store.strings.texts_from(0);
-    let authority = store
-        .history_views
-        .read()
-        .unwrap_or_else(PoisonError::into_inner);
-    if authority.len() > max_bytes / 16 {
-        return Err(invalid("origin admission bound"));
-    }
-    let history = authority.clone();
-    drop(authority);
     let mut out = Write {
         bytes: Vec::new(),
         limit: max_bytes,
@@ -451,6 +426,9 @@ pub fn capture(
                         .retained_view(h)
                         .ok_or_else(|| invalid("unissued node"))?;
                     if leaving {
+                        if v.flags & flags::HISTORY != 0 {
+                            return Err(invalid("legacy construction history"));
+                        }
                         active.remove(&h.bits());
                         done.insert(h.bits());
                         out.word(h.bits())?;
@@ -480,19 +458,9 @@ pub fn capture(
             }
         }
     }
-    out.word(history.len() as u64)?;
-    for pair in &history {
-        out.word(pair[0].bits())?;
-        out.word(pair[1].bits())?;
-    }
-    if lengths(store) != lens
-        || store.strings.texts_from(0) != names
-        || *store
-            .history_views
-            .read()
-            .unwrap_or_else(PoisonError::into_inner)
-            != history
-    {
+    // The retired construction-history table, always empty (format DIVEST01).
+    out.word(0)?;
+    if lengths(store) != lens || store.strings.texts_from(0) != names {
         return Err(invalid("owner changed during snapshot"));
     }
     Ok(out.bytes)
@@ -547,6 +515,9 @@ fn validate_node(
         node.data.as_slice(),
     );
     let len = children.len();
+    if bits & flags::HISTORY != 0 {
+        return Err(invalid("legacy construction history"));
+    }
     if children
         .iter()
         .any(|&handle_value| !scalar(handle_value, names, seen))
@@ -596,54 +567,8 @@ fn validate_node(
     if bits & flags::TUPLE != 0 && (kind != Kind::IntFcn || low != 1)
         || bits & flags::RECORD != 0 && kind != Kind::Fcn
         || bits & flags::UNNORM != 0 && kind != Kind::SetEnum
-        || bits & flags::HISTORY != 0 && !matches!(kind, Kind::Set | Kind::SetEnum)
     {
-        return Err(invalid("receiver/history flags"));
-    }
-    Ok(())
-}
-
-fn validate_history(
-    nodes: &[Node],
-    history: &[[Handle; 2]],
-    proceed: &(dyn Fn() -> bool + Sync),
-) -> Result<(), Error> {
-    let mut by_handle = HashMap::new();
-    by_handle
-        .try_reserve(nodes.len())
-        .map_err(|_| invalid("origin index allocation"))?;
-    by_handle.extend(nodes.iter().map(|n| (n.handle, n)));
-    for (origin, pair) in history.iter().enumerate() {
-        if origin.is_multiple_of(128) && !proceed() {
-            return Err(Error::stop());
-        }
-        for (phase, h) in pair.iter().enumerate() {
-            if !h.is_empty() {
-                let node = by_handle
-                    .get(&h.bits())
-                    .ok_or_else(|| invalid("unknown owned-history node"))?;
-                if node.flags & flags::HISTORY == 0
-                    || node.lo != i64::try_from(origin + 1).map_err(|_| invalid("origin bound"))?
-                    || (node.kind == Kind::SetEnum) != (phase == 0)
-                {
-                    return Err(invalid("origin/phase authority mismatch"));
-                }
-            }
-        }
-    }
-    for (i, node) in nodes.iter().enumerate() {
-        if i.is_multiple_of(128) && !proceed() {
-            return Err(Error::stop());
-        }
-        if node.flags & flags::HISTORY != 0 {
-            let origin = usize::try_from(node.lo)
-                .ok()
-                .and_then(|n| n.checked_sub(1))
-                .and_then(|i| history.get(i));
-            if !origin.is_some_and(|pair| pair.iter().any(|h| h.bits() == node.handle)) {
-                return Err(invalid("unregistered history authority"));
-            }
-        }
+        return Err(invalid("receiver flags"));
     }
     Ok(())
 }
@@ -741,15 +666,9 @@ pub(super) fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result
         validate_node(&node, &lens, names.len(), &mut seen)?;
         nodes.push(node);
     }
-    let count = input.count(16)?;
-    let mut history = Vec::new();
-    history
-        .try_reserve_exact(count)
-        .map_err(|_| invalid("origin allocation"))?;
-    for _ in 0..count {
-        history.push([Handle(input.word()?), Handle(input.word()?)]);
+    if input.word()? != 0 {
+        return Err(invalid("legacy construction history"));
     }
-    validate_history(&nodes, &history, proceed)?;
     if input.at != bytes.len() {
         return Err(invalid("trailing image bytes"));
     }
@@ -759,7 +678,6 @@ pub(super) fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result
         names,
         lens,
         nodes,
-        history,
     })
 }
 
@@ -800,17 +718,8 @@ fn extension(
         .iter()
         .zip(&after.lens)
         .any(|(a, b)| a.iter().zip(b).any(|(a, b)| a > b))
-        || before.history.len() > after.history.len()
     {
         return Err(invalid("startup prefix shrank"));
-    }
-    if before
-        .history
-        .iter()
-        .zip(&after.history)
-        .any(|(a, b)| a.iter().zip(b).any(|(a, b)| !a.is_empty() && a != b))
-    {
-        return Err(invalid("startup history authority changed"));
     }
     for node in &after.nodes {
         if !old.contains_key(&node.handle) && (node.kind.is_lazy() || node.flags & flags::LAZY != 0)
@@ -825,8 +734,7 @@ fn extension(
 ///
 /// The compiled startup's issued handles remain valid because their complete
 /// prefix is checked byte-for-byte and all stored coordinates are preserved.
-/// Raw/normalized ownership registrations are restored explicitly. Providers
-/// added after startup refuse rather than being reconstructed from flags.
+/// Providers added after startup refuse rather than being reconstructed from flags.
 ///
 /// # Errors
 /// Invalid structure/identity, bounds, cancellation, or unrepresented providers.
@@ -848,12 +756,12 @@ pub fn restore(
         return Err(invalid("compiled startup prefix mismatch"));
     }
     let after = extension(expected_startup, image, proceed)?;
-    install(startup, after, proceed)
+    install(startup, &after, proceed)
 }
 
 pub(super) fn install(
     startup: &Store,
-    after: Image,
+    after: &Image,
     proceed: &(dyn Fn() -> bool + Sync),
 ) -> Result<Arc<Store>, Error> {
     let store = Arc::new(Store::with_semantics(startup.hashcons, startup.semantics));
@@ -944,17 +852,13 @@ pub(super) fn install(
             .lock()
             .unwrap_or_else(PoisonError::into_inner) = index;
     }
-    *store
-        .history_views
-        .write()
-        .unwrap_or_else(PoisonError::into_inner) = after.history;
     Ok(store)
 }
 
 /// Resolves a saved row through the newly validated owner without forging handles.
 ///
 /// # Errors
-/// Unknown/scalar-invalid coordinates, deferred values or unowned history.
+/// Unknown/scalar-invalid coordinates, deferred values or legacy history.
 pub fn row(
     store: &Store,
     bits: &[u64],
@@ -985,7 +889,7 @@ pub fn row(
                 if v.is_lazy()
                     || v.kind.is_lazy()
                     || canonical && v.flags & flags::VIEW != 0
-                    || v.flags & flags::HISTORY != 0 && !store.owns_history(value)
+                    || v.flags & flags::HISTORY != 0
                 {
                     return Err(invalid("row provider/canonical/ownership mismatch"));
                 }
@@ -1037,13 +941,11 @@ mod tests {
         let normalized = heap.norm(local).expect("canonical");
         let normalized = heap.intern_exact(normalized).expect("owned normalized");
         assert_eq!(startup.view(raw).data, &[one, two]);
-        assert_eq!(startup.memory_usage().history_view_bytes, 0);
         let identity = heap.intern(normalized).expect("canonical");
         let image = capture(&startup, 1 << 20, &|| true).expect("image");
         let fresh = owner();
         let restored = restore(&fresh, &prefix, &image, 1 << 20, &|| true).expect("restore");
         assert!(!Arc::ptr_eq(&restored, &startup));
-        assert_eq!(restored.memory_usage().history_view_bytes, 0);
         assert_eq!(
             row(
                 &restored,
@@ -1070,6 +972,33 @@ mod tests {
         let new_bytes = new_codec.encode(&[identity], &[raw]).expect("new frontier");
         assert!(new_codec.decode(&new_bytes).is_ok());
     }
+    #[test]
+    fn legacy_construction_history_is_refused_by_name() {
+        let startup = owner();
+        let mut heap = Heap::new(Arc::clone(&startup), true, false);
+        let one = Handle::int(1).expect("one");
+        let set = heap.canonical_test_set(&[one]).expect("set");
+        heap.intern_exact(set).expect("persistent set");
+        let image = capture(&startup, 1 << 20, &|| true).expect("image");
+        assert_eq!(
+            image[image.len() - 8..],
+            [0; 8],
+            "empty retired history table"
+        );
+        let mut legacy = image.clone();
+        let last = legacy.len() - 8;
+        legacy[last] = 1;
+        let error = parse(&legacy, &|| true).err().expect("legacy table");
+        assert!(error.message().contains("legacy construction history"));
+        let mut parsed = parse(&image, &|| true).expect("image");
+        let node = parsed.nodes.last_mut().expect("node");
+        node.flags |= flags::HISTORY;
+        let mut seen = HashSet::new();
+        let error = validate_node(node, &parsed.lens, parsed.names.len(), &mut seen)
+            .expect_err("legacy flag");
+        assert!(error.message().contains("legacy construction history"));
+    }
+
     #[test]
     fn unknown_post_startup_provider_refuses_before_archive_commit() {
         let startup = owner();

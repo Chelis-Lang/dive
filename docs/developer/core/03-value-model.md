@@ -93,7 +93,7 @@ all constants.
 - **Hash-consing.** A canonical compound is interned once. Interning looks up
   the private index key, compares candidates structurally, and inserts if none
   matches. Equal canonical values share a handle; retained representations can
-  differ by their actual construction origin or phase (§8).
+  differ by their receiver class (§8).
 - **Intern after claim.** A successor's values are interned only after its
   state fingerprint wins the seen-set claim (`07-engine.md`). Duplicate
   successors, 74% of them on MCLamportMutex, never touch the store. Interning
