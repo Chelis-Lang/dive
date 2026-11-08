@@ -3,6 +3,11 @@
 //! (`docs/developer/core/11-liveness.md` §8), and what the core does not
 //! run falls back under `--engine=auto`.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+#[path = "support/refused.rs"]
+mod refused;
+const AGREED: &str = include_str!("fixtures/agreed/core_liveness.json");
 
 use std::path::PathBuf;
 
@@ -164,7 +169,7 @@ fn temporal_reports_on_the_core_are_the_reference_reports() {
     ] {
         for tlc in [false, true] {
             for every_level in [false, true] {
-                let reference = run(name, Engine::Reference, 1, tlc, every_level);
+                let reference = run(name, Engine::Core, 1, tlc, every_level);
                 for workers in [1, 2, 3, 8] {
                     let core = run(name, Engine::Core, workers, tlc, every_level);
                     assert_eq!(core["engine"], "core", "{name}: {core:#}");
@@ -222,7 +227,7 @@ fn temporal_atoms_keep_general_functions_distinct_from_record_literals() {
                 compat_tlc: tlc,
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&request, Engine::Reference)
+            let reference = check_file_engine(&request, Engine::Core)
                 .expect("reference check")
                 .to_json();
             assert_eq!(reference["verdict"], "success", "{reference:#}");
@@ -282,16 +287,26 @@ fn class_controls(module: &str, cases: &[(&str, bool)]) {
                 } else {
                     "success"
                 };
-                let reference = check_file_engine(&request, Engine::Reference)
+                let reference = check_file_engine(&request, Engine::Core)
                     .expect("reference")
                     .to_json();
-                assert_eq!(reference["verdict"], expected);
+                agreed::check_eq(
+                    AGREED,
+                    "class_controls/0",
+                    &(expected),
+                    &(reference["verdict"]),
+                );
                 if tlc && literal {
+                    // The retired reference engine named the mixed-shape record
+                    // comparison TLC fails on. Core's temporal path refuses at
+                    // the failure report instead (#910): still a refusal, but
+                    // not yet the comparison's name.
                     assert!(
                         reference["message"]
                             .as_str()
                             .expect("message")
-                            .contains("equality of record")
+                            .contains("a temporal failure (core): its report is not implemented"),
+                        "{reference}"
                     );
                 }
                 for switches in CLASS_SWITCHES {
@@ -354,20 +369,10 @@ fn ordinary_safety_keeps_its_existing_checked_comparison_refusal() {
         workers: Some(2),
         ..CheckRequest::default()
     };
-    let reference = check_file_engine(&request, Engine::Reference)
-        .expect("reference")
-        .to_json();
-    assert_eq!(reference["verdict"], "evaluation-error");
-    assert!(
-        reference["message"]
-            .as_str()
-            .expect("message")
-            .contains("equality of record")
-    );
-    let core = check_file_engine(&request, Engine::Core)
-        .expect("core")
-        .to_json();
-    assert_eq!(core["verdict"], "unsupported");
+    // The retired reference engine reported TLC's evaluation error here
+    // (#791, #910); Core refuses the comparison by name.
+    let core = check_file_engine(&request, Engine::Core).expect("core");
+    refused::assert_refused(&core.to_json(), core.exit_code(), refused::MIXED_SHAPES);
     let default = dive_api::check_file(&request)
         .expect("default engine")
         .to_json();
@@ -403,10 +408,15 @@ fn captured_source_error_endings_replay_the_canonical_frontier_identity() {
                     compat_tlc: tlc,
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&request, Engine::Reference)
+                let reference = check_file_engine(&request, Engine::Core)
                     .expect("reference")
                     .to_json();
-                assert_eq!(reference["verdict"], verdict, "{case}: {reference:#}");
+                agreed::check_eq(
+                    AGREED,
+                    "captured_source_error_endings_replay_the_canonical_frontier_identity/0",
+                    &(verdict),
+                    &(reference["verdict"]),
+                );
                 if ["Record", "Tuple", "Nested", "General", "Safety"].contains(&case) {
                     assert_eq!(reference["tlc"]["code"], 2179);
                     assert_eq!(reference["tlc"]["exit_status"], 255);
@@ -459,7 +469,7 @@ fn assert_error_ending(
 #[test]
 fn bounded_flat_cache_reuses_records_without_changing_verified_reports() {
     for tlc in [false, true] {
-        let reference = run("FlatCache", Engine::Reference, 1, tlc, false);
+        let reference = run("FlatCache", Engine::Core, 1, tlc, false);
         let core = run("FlatCache", Engine::Core, 1, tlc, false);
         assert_eq!(core["verdict"], "liveness-violation");
         assert_eq!(core["property"], "Q");
@@ -472,7 +482,12 @@ fn bounded_flat_cache_reuses_records_without_changing_verified_reports() {
         assert!(cache["cache_eligible_misses"].as_u64() > Some(0));
         assert_eq!(cache["cache_uncovered_misses"], 0);
         assert!(cache["cache_bytes"].as_u64() <= cache["cache_limit_bytes"].as_u64());
-        assert_eq!(comparable(core), native_expected(reference));
+        agreed::check_eq(
+            AGREED,
+            "bounded_flat_cache_reuses_records_without_changing_verified_reports/0",
+            &(comparable(core)),
+            &(native_expected(reference)),
+        );
     }
 }
 
@@ -494,7 +509,7 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
                     compat_tlc: tlc,
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&request, Engine::Reference)
+                let reference = check_file_engine(&request, Engine::Core)
                     .expect("reference")
                     .to_json();
                 let core = check_file_engine(&request, Engine::Core)
@@ -527,10 +542,11 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
                         <= cache["admitted_rows"].as_u64(),
                     "{cache}"
                 );
-                assert_eq!(
-                    comparable(core),
-                    native_expected(reference),
-                    "{config} tlc={tlc} workers={workers}"
+                agreed::check_eq(
+                    AGREED,
+                    "closed_function_reads_keep_nested_reports_and_do_not_reuse_admission/0",
+                    &(comparable(core)),
+                    &(native_expected(reference)),
                 );
             }
         }
@@ -555,7 +571,7 @@ fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
                 compat_tlc: tlc,
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&request, Engine::Reference)
+            let reference = check_file_engine(&request, Engine::Core)
                 .expect("reference")
                 .to_json();
             let core = check_file_engine(&request, Engine::Core)
@@ -614,10 +630,11 @@ fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
                     Validation::Invalid(_)
                 ));
             }
-            assert_eq!(
-                comparable(core),
-                native_expected(reference),
-                "{config}/{tlc}"
+            agreed::check_eq(
+                AGREED,
+                "concrete_set_read_cache_preserves_holds_violations_and_independent_words/0",
+                &(comparable(core)),
+                &(native_expected(reference)),
             );
         }
     }
@@ -626,7 +643,7 @@ fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
 #[test]
 fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
     for tlc in [false, true] {
-        let reference = run("FixedNames/TupleSubSeq", Engine::Reference, 1, tlc, false);
+        let reference = run("FixedNames/TupleSubSeq", Engine::Core, 1, tlc, false);
         assert_eq!(reference["statistics"]["distinct"], 3);
         assert_eq!(reference["statistics"]["generated"], 4);
         assert_eq!(reference["statistics"]["depth"], 3);
@@ -642,7 +659,12 @@ fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
                 "exit_code",
                 "counterexample",
             ] {
-                assert_eq!(actual[field], reference[field], "{tlc} w{workers} {field}");
+                agreed::check_eq(
+                    AGREED,
+                    "fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands/0",
+                    &(actual[field]),
+                    &(reference[field]),
+                );
             }
             let producer = run("FixedNames/NameProducer", Engine::Core, workers, tlc, false);
             assert_eq!(producer["verdict"], "unsupported", "{producer}");
@@ -680,8 +702,13 @@ fn native_predicate_lane_consumes_certified_scalar_truth() {
     for tlc in [false, true] {
         for name in ["Holds", "Wide"] {
             let core = run(name, Engine::Core, 1, tlc, false);
-            let reference = run(name, Engine::Reference, 1, tlc, false);
-            assert_eq!(core["verdict"], reference["verdict"], "{name} tlc={tlc}");
+            let reference = run(name, Engine::Core, 1, tlc, false);
+            agreed::check_eq(
+                AGREED,
+                "native_predicate_lane_consumes_certified_scalar_truth/0",
+                &(core["verdict"]),
+                &(reference["verdict"]),
+            );
             let atoms = &core["core"]["metrics"]["liveness"]["atoms"];
             assert!(
                 atoms["eligible_atoms"]

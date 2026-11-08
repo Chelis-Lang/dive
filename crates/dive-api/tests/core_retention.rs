@@ -344,13 +344,6 @@ fn unsupported_owners_refuse_before_opening_source() {
     let mut req = chain(false, Store::Fingerprint, 1);
     req.store_compact_bytes = Some(0);
     req.file = PathBuf::from("missing-source.tla");
-    {
-        let engine = Engine::Reference;
-        assert!(matches!(
-            check_file_engine(&req, engine),
-            Err(dive_api::ApiError::Unsupported { .. })
-        ));
-    }
     let cp = checkpoint::Request {
         path: temp(),
         action: checkpoint::Action::PauseAfterLevels(0),
