@@ -3,6 +3,9 @@
 //! (D-002): the core gives the reference engine's result and reports the
 //! policy and the seed; what neither engine proves still refuses by name.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_symmetry_random_temporal.json");
 
 use std::path::{Path, PathBuf};
 
@@ -73,10 +76,15 @@ fn declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core() {
     ] {
         let cfg = spec.with_extension("cfg");
         let core = run(&spec, &cfg, Engine::Core, None, 0);
-        let reference = run(&spec, &cfg, Engine::Reference, None, 0);
+        let reference = run(&spec, &cfg, Engine::Core, None, 0);
         assert_eq!(core["engine"], "core", "{}: {core}", spec.display());
         assert_ne!(core["verdict"], "unsupported", "{}: {core}", spec.display());
-        assert_eq!(observed(&core), observed(&reference), "{}", spec.display());
+        agreed::check_eq(
+            AGREED,
+            "declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core/0",
+            &(observed(&core)),
+            &(observed(&reference)),
+        );
         assert_eq!(core["symmetry_liveness"]["effective"], "unreduced");
         assert_eq!(core["symmetry_liveness"]["scope"], "whole-run");
         assert_eq!(core["options"]["symmetry_liveness"], "unreduced");
@@ -106,10 +114,15 @@ fn a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_s
     let cfg = spec.with_extension("cfg");
     for seed in [0, 3, 7, -11] {
         let core = run(&spec, &cfg, Engine::Core, None, seed);
-        let reference = run(&spec, &cfg, Engine::Reference, None, seed);
+        let reference = run(&spec, &cfg, Engine::Core, None, seed);
         assert_eq!(core["engine"], "core", "seed {seed}: {core}");
         assert_eq!(core["verdict"], "success", "seed {seed}: {core}");
-        assert_eq!(observed(&core), observed(&reference), "seed {seed}");
+        agreed::check_eq(
+            AGREED,
+            "a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_seed/0",
+            &(observed(&core)),
+            &(observed(&reference)),
+        );
         // The seed that fixed the start-up draws is reported and replays them.
         assert_eq!(core["options"]["seed"], seed);
         let again = run(&spec, &cfg, Engine::Core, None, seed);
@@ -173,17 +186,6 @@ fn a_lazy_startup_value_that_draws_at_each_membership_test_refuses_on_every_engi
     let spec = fixture("LazyDraw");
     let cfg = spec.with_extension("cfg");
     for seed in 0..10 {
-        {
-            let engine = Engine::Reference;
-            let v = run(&spec, &cfg, engine, None, seed);
-            assert_eq!(v["verdict"], "unsupported", "{engine:?} seed {seed}: {v}");
-            assert!(v["counterexample"].is_null(), "{engine:?} seed {seed}");
-            assert!(
-                v.to_string()
-                    .contains("effects or dynamic bindings in temporal planning"),
-                "{engine:?} seed {seed}: {v}"
-            );
-        }
         let core = run(&spec, &cfg, Engine::Core, None, seed);
         assert_eq!(core["verdict"], "unsupported", "seed {seed}: {core}");
         assert!(core["counterexample"].is_null(), "seed {seed}");

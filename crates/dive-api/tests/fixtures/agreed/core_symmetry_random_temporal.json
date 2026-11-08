@@ -1,0 +1,14 @@
+{
+ "a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_seed": {
+  "a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_seed/0#0": "Object {\"depth\": Number(4), \"distinct\": Number(8), \"exit\": Number(0), \"generated\": Number(21), \"property\": Null, \"trace\": Null, \"verdict\": String(\"success\")}",
+  "a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_seed/0#1": "Object {\"depth\": Number(4), \"distinct\": Number(8), \"exit\": Number(0), \"generated\": Number(21), \"property\": Null, \"trace\": Null, \"verdict\": String(\"success\")}",
+  "a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_seed/0#2": "Object {\"depth\": Number(4), \"distinct\": Number(7), \"exit\": Number(0), \"generated\": Number(17), \"property\": Null, \"trace\": Null, \"verdict\": String(\"success\")}",
+  "a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_seed/0#3": "Object {\"depth\": Number(4), \"distinct\": Number(7), \"exit\": Number(0), \"generated\": Number(17), \"property\": Null, \"trace\": Null, \"verdict\": String(\"success\")}"
+ },
+ "declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core": {
+  "declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core/0#0": "Object {\"depth\": Number(2), \"distinct\": Number(2), \"exit\": Number(0), \"generated\": Number(3), \"property\": Null, \"trace\": Null, \"verdict\": String(\"success\")}",
+  "declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core/0#1": "fnv1a64:38fb9a14d7b04458:530",
+  "declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core/0#2": "Object {\"depth\": Number(2), \"distinct\": Number(2), \"exit\": Number(0), \"generated\": Number(3), \"property\": Null, \"trace\": Null, \"verdict\": String(\"success\")}",
+  "declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core/0#3": "Object {\"depth\": Number(2), \"distinct\": Number(2), \"exit\": Number(0), \"generated\": Number(3), \"property\": Null, \"trace\": Null, \"verdict\": String(\"success\")}"
+ }
+}

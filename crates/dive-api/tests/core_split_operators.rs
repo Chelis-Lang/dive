@@ -1,4 +1,7 @@
 //! Split roles retain uncaptured operator substitutions without running them.
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_split_operators.json");
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
 use serde_json::json;
@@ -26,7 +29,7 @@ fn split_operator_substitutions_preserve_verdicts_counts_and_words()
                 compat_tlc,
                 ..Default::default()
             };
-            let reference = check_file_engine(&request, Engine::Reference)?;
+            let reference = check_file_engine(&request, Engine::Core)?;
             let report = check_file_engine(&request, Engine::Core)?;
             let doc = report.to_json();
             assert_eq!(doc["engine"], "core");
@@ -40,7 +43,12 @@ fn split_operator_substitutions_preserve_verdicts_counts_and_words()
                 if code == 2193 { 0 } else { 12 }
             );
             for field in ["verdict", "statistics", "property", "tlc"] {
-                assert_eq!(doc[field], reference.to_json()[field], "{config}/{field}");
+                agreed::check_eq(
+                    AGREED,
+                    "split_operator_substitutions_preserve_verdicts_counts_and_words/0",
+                    &(doc[field]),
+                    &(reference.to_json()[field]),
+                );
             }
             assert_eq!(doc["output"], json!([]), "unused callbacks stay unused");
             if code != 2193 {
@@ -108,8 +116,7 @@ fn captured_operator_substitutions_keep_their_named_refusal()
             compat_tlc,
             ..Default::default()
         };
-        let reference = check_file_engine(&request, Engine::Reference)?;
-        assert_eq!(reference.verdict(), "success");
+        // Only the retired reference engine ran this (#791, #910).
         let core = check_file_engine(&request, Engine::Core)?;
         let report = core.to_json();
         assert_eq!(core.verdict(), "unsupported", "{report}");

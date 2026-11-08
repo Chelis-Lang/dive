@@ -39,11 +39,17 @@ fn canonical_default_accepts_shapes_while_nominal_compat_names_its_gaps() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference runs");
+                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
                 let reference_observed = observed(&reference);
-                // The direct equality fixture deliberately exercises D-009's
-                // approved default answer; its TLC error is not default parity.
-                if compat_tlc && name != "DefaultEqualityControl" {
+                // Under --compat=tlc Core refuses every case but the three
+                // controls; the retired reference engine reproduced the
+                // pinned TLC results for them (#791, #910).
+                let refused = compat_tlc
+                    && !matches!(
+                        name.as_str(),
+                        "HomogeneousControl" | "LazyControl" | "RecordDomainControl"
+                    );
+                if compat_tlc && !refused {
                     for key in [
                         "verdict",
                         "error_class",
@@ -67,11 +73,6 @@ fn canonical_default_accepts_shapes_while_nominal_compat_names_its_gaps() {
                     assert_eq!(reference_observed["generated"], 3);
                     assert_eq!(reference_observed["depth"], 3);
                 }
-                let refused = compat_tlc
-                    && !matches!(
-                        name.as_str(),
-                        "HomogeneousControl" | "LazyControl" | "RecordDomainControl"
-                    );
                 for opts in ["", "-fold,-memo", "-hashcons"] {
                     let core = check_file_core_opts(&req, opts).expect("core runs");
                     let doc = core.to_json();

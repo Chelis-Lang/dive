@@ -1,0 +1,28 @@
+{
+ "split_operator_substitutions_preserve_verdicts_counts_and_words": {
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#0": "String(\"success\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#1": "Object {\"depth\": Number(3), \"distinct\": Number(3), \"generated\": Number(4), \"initial_generated\": Number(1), \"left_on_queue\": Number(0), \"reported_by_tlc\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#10": "String(\"WrongInitially\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#11": "Object {\"code\": Number(2107), \"exit_status\": Number(12), \"name\": String(\"TLC_INVARIANT_VIOLATED_INITIAL\"), \"reported\": Number(2107), \"verified\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#12": "String(\"success\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#13": "Object {\"depth\": Number(3), \"distinct\": Number(3), \"generated\": Number(4), \"initial_generated\": Number(1), \"left_on_queue\": Number(0), \"reported_by_tlc\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#14": "Null",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#15": "Object {\"code\": Number(2193), \"exit_status\": Number(0), \"name\": String(\"TLC_SUCCESS\"), \"reported\": Number(2193), \"verified\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#16": "String(\"invariant-violation\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#17": "Object {\"depth\": Number(2), \"distinct\": Number(2), \"generated\": Number(2), \"initial_generated\": Number(1), \"left_on_queue\": Number(0), \"reported_by_tlc\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#18": "String(\"Wrong\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#19": "Object {\"code\": Number(2110), \"exit_status\": Number(12), \"name\": String(\"TLC_INVARIANT_VIOLATED_BEHAVIOR\"), \"reported\": Number(2110), \"verified\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#2": "Null",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#20": "String(\"invariant-violation\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#21": "Object {\"depth\": Number(1), \"distinct\": Number(1), \"generated\": Number(1), \"initial_generated\": Number(1), \"left_on_queue\": Number(1), \"reported_by_tlc\": Bool(false)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#22": "String(\"WrongInitially\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#23": "Object {\"code\": Number(2107), \"exit_status\": Number(12), \"name\": String(\"TLC_INVARIANT_VIOLATED_INITIAL\"), \"reported\": Number(2107), \"verified\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#3": "Object {\"code\": Number(2193), \"exit_status\": Number(0), \"name\": String(\"TLC_SUCCESS\"), \"reported\": Number(2193), \"verified\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#4": "String(\"invariant-violation\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#5": "Object {\"depth\": Number(2), \"distinct\": Number(2), \"generated\": Number(2), \"initial_generated\": Number(1), \"left_on_queue\": Number(0), \"reported_by_tlc\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#6": "String(\"Wrong\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#7": "Object {\"code\": Number(2110), \"exit_status\": Number(12), \"name\": String(\"TLC_INVARIANT_VIOLATED_BEHAVIOR\"), \"reported\": Number(2110), \"verified\": Bool(true)}",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#8": "String(\"invariant-violation\")",
+  "split_operator_substitutions_preserve_verdicts_counts_and_words/0#9": "Object {\"depth\": Number(1), \"distinct\": Number(1), \"generated\": Number(1), \"initial_generated\": Number(1), \"left_on_queue\": Number(1), \"reported_by_tlc\": Bool(false)}"
+ }
+}

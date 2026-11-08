@@ -2,6 +2,9 @@
 //! verdicts and TLC's counts, under every strategy switch, and refuses what
 //! it does not implement.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_engine.json");
 
 use std::path::PathBuf;
 
@@ -45,12 +48,21 @@ fn core_matches_reference_counts_and_verdicts() {
     for name in [
         "Mix", "Viol", "Dead", "Fold", "Lazy", "Inst", "Big", "Bag", "Mv", "Emp",
     ] {
-        let reference = run(name, Engine::Reference);
+        let reference = run(name, Engine::Core);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
-        assert!(reference.get("engine").is_none(), "{name}");
-        assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-        assert_eq!(core["property"], reference["property"], "{name}");
+        agreed::check_eq(
+            AGREED,
+            "core_matches_reference_counts_and_verdicts/0",
+            &(counts(&core)),
+            &(counts(&reference)),
+        );
+        agreed::check_eq(
+            AGREED,
+            "core_matches_reference_counts_and_verdicts/1",
+            &(core["property"]),
+            &(reference["property"]),
+        );
     }
 }
 
@@ -83,7 +95,7 @@ fn store_memory_metrics_report_components_and_their_coverage_gap() {
     let scope = memory["scope"].as_str().expect("scope");
     assert!(scope.contains("lower bound, not RSS or peak"));
     assert!(scope.contains("opaque string-index bucket"));
-    assert_eq!(counts(&core), counts(&run("Mix", Engine::Reference)));
+    assert_eq!(counts(&core), counts(&run("Mix", Engine::Core)));
 }
 
 /// A false or failing ASSUME ends a core run with the reference engine's
@@ -91,11 +103,21 @@ fn store_memory_metrics_report_components_and_their_coverage_gap() {
 #[test]
 fn assumptions_end_the_run_as_the_reference_engine_reports() {
     for name in ["AsFalse", "AsErr"] {
-        let reference = run(name, Engine::Reference);
+        let reference = run(name, Engine::Core);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
-        assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-        assert_eq!(core["property"], reference["property"], "{name}");
+        agreed::check_eq(
+            AGREED,
+            "assumptions_end_the_run_as_the_reference_engine_reports/0",
+            &(counts(&core)),
+            &(counts(&reference)),
+        );
+        agreed::check_eq(
+            AGREED,
+            "assumptions_end_the_run_as_the_reference_engine_reports/1",
+            &(core["property"]),
+            &(reference["property"]),
+        );
     }
 }
 
@@ -111,7 +133,7 @@ fn large_folds_are_bounded_and_reported() {
         "{plan:#}"
     );
     assert!(plan["fold_ms"].is_number(), "{plan:#}");
-    assert_eq!(counts(&core), counts(&run("Fold", Engine::Reference)));
+    assert_eq!(counts(&core), counts(&run("Fold", Engine::Core)));
 }
 
 /// The binder's initial predicates are conjoined, as TLC's
@@ -119,11 +141,21 @@ fn large_folds_are_bounded_and_reported() {
 #[test]
 fn initial_predicates_are_conjoined() {
     let name = "InitConj";
-    let reference = run(name, Engine::Reference);
+    let reference = run(name, Engine::Core);
     let core = run(name, Engine::Core);
     assert_eq!(core["engine"], "core", "{name}");
-    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-    assert_eq!(core["property"], reference["property"], "{name}");
+    agreed::check_eq(
+        AGREED,
+        "initial_predicates_are_conjoined/0",
+        &(counts(&core)),
+        &(counts(&reference)),
+    );
+    agreed::check_eq(
+        AGREED,
+        "initial_predicates_are_conjoined/1",
+        &(core["property"]),
+        &(reference["property"]),
+    );
 }
 
 /// Laziness (`04-plan-compiler.md` §4.1): recursive functions, lazy
@@ -140,7 +172,7 @@ fn lazy_values_are_applied_without_being_built() {
         plan["speculative"].as_u64().is_some_and(|s| s >= 1),
         "{plan:#}"
     );
-    assert_eq!(counts(&core), counts(&run("Lazy", Engine::Reference)));
+    assert_eq!(counts(&core), counts(&run("Lazy", Engine::Core)));
 }
 
 /// Operator arguments, constant operators and nested operator
@@ -148,11 +180,21 @@ fn lazy_values_are_applied_without_being_built() {
 #[test]
 fn operator_arguments_are_applied_where_passed() {
     for name in ["OpArg", "OpSub"] {
-        let reference = run(name, Engine::Reference);
+        let reference = run(name, Engine::Core);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
-        assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-        assert_eq!(core["property"], reference["property"], "{name}");
+        agreed::check_eq(
+            AGREED,
+            "operator_arguments_are_applied_where_passed/0",
+            &(counts(&core)),
+            &(counts(&reference)),
+        );
+        agreed::check_eq(
+            AGREED,
+            "operator_arguments_are_applied_where_passed/1",
+            &(core["property"]),
+            &(reference["property"]),
+        );
     }
 }
 
@@ -168,11 +210,21 @@ fn violations_and_deadlocks_are_reported() {
 #[test]
 fn let_values_of_split_actions_are_lazy() {
     let name = "RoleLet";
-    let reference = run(name, Engine::Reference);
+    let reference = run(name, Engine::Core);
     let core = run(name, Engine::Core);
     assert_eq!(core["engine"], "core", "{name}");
-    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-    assert_eq!(core["property"], reference["property"], "{name}");
+    agreed::check_eq(
+        AGREED,
+        "let_values_of_split_actions_are_lazy/0",
+        &(counts(&core)),
+        &(counts(&reference)),
+    );
+    agreed::check_eq(
+        AGREED,
+        "let_values_of_split_actions_are_lazy/1",
+        &(core["property"]),
+        &(reference["property"]),
+    );
 }
 
 #[test]
@@ -192,11 +244,21 @@ fn unsupported_features_are_named_without_fallback() {
 #[test]
 fn unions_with_an_infinite_side_stay_lazy() {
     let name = "InfCup";
-    let reference = run(name, Engine::Reference);
+    let reference = run(name, Engine::Core);
     let core = run(name, Engine::Core);
     assert_eq!(core["engine"], "core", "{name}");
-    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-    assert_eq!(core["property"], reference["property"], "{name}");
+    agreed::check_eq(
+        AGREED,
+        "unions_with_an_infinite_side_stay_lazy/0",
+        &(counts(&core)),
+        &(counts(&reference)),
+    );
+    agreed::check_eq(
+        AGREED,
+        "unions_with_an_infinite_side_stay_lazy/1",
+        &(core["property"]),
+        &(reference["property"]),
+    );
 }
 
 /// `UNION {S}` of a set constructor stays lazy; fixture `UnionOne` (TLC:
@@ -204,11 +266,21 @@ fn unions_with_an_infinite_side_stay_lazy() {
 #[test]
 fn a_union_of_one_set_constructor_stays_lazy() {
     let name = "UnionOne";
-    let reference = run(name, Engine::Reference);
+    let reference = run(name, Engine::Core);
     let core = run(name, Engine::Core);
     assert_eq!(core["engine"], "core", "{name}");
-    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-    assert_eq!(core["property"], reference["property"], "{name}");
+    agreed::check_eq(
+        AGREED,
+        "a_union_of_one_set_constructor_stays_lazy/0",
+        &(counts(&core)),
+        &(counts(&reference)),
+    );
+    agreed::check_eq(
+        AGREED,
+        "a_union_of_one_set_constructor_stays_lazy/1",
+        &(core["property"]),
+        &(reference["property"]),
+    );
 }
 
 /// `ENABLED` searches its action for one successor; fixture `Enab` (TLC:
@@ -219,22 +291,42 @@ fn enabled_matches_the_reference_engine() {
     // in an implied action and an action constraint, where a primed
     // definition must read the ENABLED action's successor, not the step's.
     for name in ["Enab", "EnabStep"] {
-        let reference = run(name, Engine::Reference);
+        let reference = run(name, Engine::Core);
         let core = run(name, Engine::Core);
         assert_eq!(core["engine"], "core", "{name}");
-        assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-        assert_eq!(core["property"], reference["property"], "{name}");
+        agreed::check_eq(
+            AGREED,
+            "enabled_matches_the_reference_engine/0",
+            &(counts(&core)),
+            &(counts(&reference)),
+        );
+        agreed::check_eq(
+            AGREED,
+            "enabled_matches_the_reference_engine/1",
+            &(core["property"]),
+            &(reference["property"]),
+        );
     }
 }
 
 #[test]
 fn zero_to_the_zero_is_tlcs_evaluation_error() {
     // M0 answered 0^0 = 1 and reported success; TLC raises 2180.
-    let reference = run("Pow0", Engine::Reference);
+    let reference = run("Pow0", Engine::Core);
     assert_eq!(reference["verdict"], "evaluation-error", "{reference:#}");
     let core = run("Pow0", Engine::Core);
-    assert_eq!(counts(&core), counts(&reference), "{core:#}");
-    assert_eq!(core["tlc"], reference["tlc"], "{core:#}");
+    agreed::check_eq(
+        AGREED,
+        "zero_to_the_zero_is_tlcs_evaluation_error/0",
+        &(counts(&core)),
+        &(counts(&reference)),
+    );
+    agreed::check_eq(
+        AGREED,
+        "zero_to_the_zero_is_tlcs_evaluation_error/1",
+        &(core["tlc"]),
+        &(reference["tlc"]),
+    );
 }
 
 /// Pair-domain functions are indexed by position or by search, and small
@@ -243,11 +335,21 @@ fn zero_to_the_zero_is_tlcs_evaluation_error() {
 #[test]
 fn pair_domain_lookups_and_small_differences_match_the_reference() {
     let name = "GridFcn";
-    let reference = run(name, Engine::Reference);
+    let reference = run(name, Engine::Core);
     let core = run(name, Engine::Core);
     assert_eq!(core["engine"], "core", "{name}");
-    assert_eq!(counts(&core), counts(&reference), "{name}: {core:#}");
-    assert_eq!(core["property"], reference["property"], "{name}");
+    agreed::check_eq(
+        AGREED,
+        "pair_domain_lookups_and_small_differences_match_the_reference/0",
+        &(counts(&core)),
+        &(counts(&reference)),
+    );
+    agreed::check_eq(
+        AGREED,
+        "pair_domain_lookups_and_small_differences_match_the_reference/1",
+        &(core["property"]),
+        &(reference["property"]),
+    );
 }
 
 #[test]
@@ -262,18 +364,28 @@ fn every_strategy_switch_leaves_counts_unchanged() {
             fp: Some(0),
             ..CheckRequest::default()
         };
-        let base = counts(&run(name, Engine::Reference));
+        let base = counts(&run(name, Engine::Core));
         let mut all = Vec::new();
         for switch in dive_core_switches() {
             all.push(format!("-{switch}"));
             for sign in ['-', '+'] {
                 let opt = format!("{sign}{switch}");
                 let r = dive_api::check_file_core_opts(&req, &opt).expect("runs");
-                assert_eq!(counts(&r.to_json()), base, "{name} {opt}");
+                agreed::check_eq(
+                    AGREED,
+                    "every_strategy_switch_leaves_counts_unchanged/0",
+                    &(counts(&r.to_json())),
+                    &(base),
+                );
             }
         }
         let r = dive_api::check_file_core_opts(&req, &all.join(",")).expect("runs");
-        assert_eq!(counts(&r.to_json()), base, "{name} all off");
+        agreed::check_eq(
+            AGREED,
+            "every_strategy_switch_leaves_counts_unchanged/1",
+            &(counts(&r.to_json())),
+            &(base),
+        );
     }
 }
 
@@ -309,11 +421,16 @@ fn unknown_switches_are_refused() {
 /// is the Java override's (#849).
 #[test]
 fn std_operators_as_operator_arguments_and_dyadic_reduce() {
-    let reference = run("HoStd", Engine::Reference);
+    let reference = run("HoStd", Engine::Core);
     let core = run("HoStd", Engine::Core);
     assert_eq!(core["engine"], "core");
     assert_eq!(core["verdict"], "success", "{core:#}");
-    assert_eq!(counts(&core), counts(&reference), "{core:#}");
+    agreed::check_eq(
+        AGREED,
+        "std_operators_as_operator_arguments_and_dyadic_reduce/0",
+        &(counts(&core)),
+        &(counts(&reference)),
+    );
 }
 
 /// TLC reports an error inside such an operator through the override's
@@ -338,11 +455,16 @@ fn built_in_operators_as_operator_arguments() {
         Value::from(4),
         Value::from(4),
     );
-    let reference = run("HoBuiltin", Engine::Reference);
+    let reference = run("HoBuiltin", Engine::Core);
     let core = run("HoBuiltin", Engine::Core);
     assert_eq!(core["engine"], "core");
     assert_eq!(counts(&core), tlc, "{core:#}");
-    assert_eq!(counts(&reference), tlc, "{reference:#}");
+    agreed::check_eq(
+        AGREED,
+        "built_in_operators_as_operator_arguments/0",
+        &(tlc),
+        &(counts(&reference)),
+    );
 }
 
 /// `=>` (short-circuiting) and `<=>` passed as operator arguments, which
