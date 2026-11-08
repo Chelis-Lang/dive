@@ -188,7 +188,7 @@ scripts/        small helpers used by hooks and CI
 
 **Layering.** `xtask/src/layering.rs` is the single table of permitted internal
 dependency edges; `cargo xtask check-layering` enforces it. `dive-trace`, the
-independent trace validator, must not depend on `dive-check`, `dive-liveness`,
+independent trace validator, must not depend on `dive-runtime`, `dive-liveness`,
 `dive-sim` or `dive-store`. It shares the core evaluator, including `ENABLED`
 (ADR 0103). Both gates build `dive-trace` alone in a dedicated target so
 workspace feature unification cannot hide a violation. `dive-model`

@@ -84,7 +84,7 @@ A Cargo workspace with small crates and strict dependency direction. Names and b
 | `dive-stdlib` | Standard modules and TLC's overrides, each with a reference to the Java implementation it matches |
 | `dive-config` | The TLC configuration format |
 | `dive-store` | State storage: fingerprint sets, exact sets, queues, disk-backed spill |
-| `dive-check` | Breadth-first safety checking, deadlock detection, constraints, symmetry, `VIEW` |
+| `dive-check` | Breadth-first safety checking, deadlock detection, constraints, symmetry, `VIEW` (retired; see appendix item 16) |
 | `dive-liveness` | Temporal properties, fairness, tableau construction and SCC analysis |
 | `dive-sim` | Simulation mode |
 | `dive-trace` | Trace format, independent trace validator, and the trace-validation API for checking implementation traces against a spec |
@@ -176,3 +176,5 @@ Each item was verified against primary sources on 2026-10-08. Details and conseq
     - The first release is the first point of real user value, defined by measurable gates in RELEASE.md. Aim for 100% coverage, with named refusal for what Core does not yet cover rather than a costly fallback tier.
     - No dates or effort estimates appear in plans or status.
     - Item 13 is made concrete. "Milestone" means a release candidate or an engine-cutover candidate. The full gate, census and corpus/worker campaigns run only for those. Between them, required CI and focused checks are the only evidence.
+
+16. **Reference checking runtime retired (2026-11-08).** Item 15's condition was met: Core alone covers more of the full Examples tier than the Reference engine did, with 0 disagreements (#791, RELEASE.md R1). The Reference checking runtime has been removed, and the `dive-check` crate no longer exists. Checking is done by `dive-core` (the execution engine), `dive-explore` (search) and `dive-runtime` (the shared run contract, ADR 0155), with `dive-liveness` and `dive-sim` on top. `dive-trace` stays independent of all of them except the core evaluator.
