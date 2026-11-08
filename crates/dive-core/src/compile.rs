@@ -337,6 +337,91 @@ struct EnvFrame {
     parent: Option<usize>,
 }
 
+/// Pushes every value operand of `n` (not the bodies of called functions
+/// or the generators of `ENABLED` and composition queries).
+fn push_operands(n: &Node, out: &mut Vec<P>) {
+    match n {
+        Node::Const(_)
+        | Node::Slot(_)
+        | Node::Var(_)
+        | Node::Primed(_)
+        | Node::Enabled { .. }
+        | Node::Composition { .. } => {}
+        Node::Lazy { body, .. }
+        | Node::Scope { body, .. }
+        | Node::Memo { body, .. }
+        | Node::SameVars { eq: body, .. }
+        | Node::Spec(body)
+        | Node::Not(body)
+        | Node::Neg(body)
+        | Node::Powerset(body)
+        | Node::BigUnion(body)
+        | Node::Domain(body)
+        | Node::Select(body, _) => out.push(*body),
+        Node::And(xs)
+        | Node::Or(xs)
+        | Node::SetEnum(xs)
+        | Node::Product(xs)
+        | Node::Tuple(xs)
+        | Node::Std(_, xs)
+        | Node::Lib { args: xs, .. }
+        | Node::Call { args: xs, .. } => out.extend(xs.iter().copied()),
+        Node::Implies(a, b)
+        | Node::Equiv(a, b)
+        | Node::Eq(a, b)
+        | Node::Neq(a, b)
+        | Node::In(a, b)
+        | Node::NotIn(a, b)
+        | Node::Subseteq(a, b)
+        | Node::Arith(_, a, b)
+        | Node::Cmp(_, a, b)
+        | Node::Range(a, b)
+        | Node::SetBin(_, a, b)
+        | Node::FcnSet(a, b)
+        | Node::Apply(a, b)
+        | Node::InLazy {
+            elem: a, set: b, ..
+        }
+        | Node::DomCheck {
+            domain: a, body: b, ..
+        } => out.extend([*a, *b]),
+        Node::If(a, b, c)
+        | Node::Beta {
+            chain: a,
+            fc: b,
+            arg: c,
+        } => out.extend([*a, *b, *c]),
+        Node::Case(arms, other) => {
+            for &(g, v) in arms {
+                out.extend([g, v]);
+            }
+            out.extend(*other);
+        }
+        Node::RecSet(fs) | Node::Record(fs) => out.extend(fs.iter().map(|&(_, x)| x)),
+        Node::Filter { bind, pred, subset } => {
+            out.extend([bind.domain, *pred]);
+            out.extend(*subset);
+        }
+        Node::Map { binds, body }
+        | Node::FcnCons { binds, body }
+        | Node::Quant { binds, body, .. } => {
+            out.extend(binds.iter().map(|b| b.domain));
+            out.push(*body);
+        }
+        Node::Except { base, updates } => {
+            out.push(*base);
+            for u in updates {
+                out.extend(u.path.iter().copied());
+                out.push(u.value);
+            }
+        }
+        Node::LibHo(_, args) => out.extend(args.iter().map(|a| match a {
+            LibArg::Value(p) => *p,
+            LibArg::Op { body, .. } => *body,
+        })),
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 #[allow(
     clippy::struct_excessive_bools,
@@ -607,6 +692,7 @@ fn compile_inner(
         next_funs: std::collections::HashSet::new(),
         open_funs: std::collections::HashSet::new(),
         reentered_funs: std::collections::HashSet::new(),
+        fun_reads: HashMap::new(),
         recursive_action_predicate: false,
         instance_query_calls: false,
         composition: composition::State::Absent,
@@ -806,6 +892,10 @@ struct Compiler<'a> {
     /// The open functions called from inside their own compilation, before
     /// their body's reads were known.
     reentered_funs: std::collections::HashSet<u32>,
+    /// The unprimed variables a call of a completed function reads through
+    /// its body ([`Self::fun_summary`]), beyond those its arguments read.
+    /// A function without an entry is assumed to read every variable.
+    fun_reads: HashMap<u32, u64>,
     /// Whether an applied recursive function became a Boolean action guard.
     recursive_action_predicate: bool,
     /// Whether an `ENABLED` query in an instance reads a compiled call
@@ -1214,7 +1304,13 @@ impl Compiler<'_> {
                     add(a, &mut i);
                 }
                 i.calls = true;
-                i.vars = u64::MAX;
+                // A completed function's body reads only its own frame (the
+                // arguments and captures passed here) and the variables of
+                // its summary. An open one's reads are not known yet.
+                match self.fun_reads.get(fun) {
+                    Some(&vars) if !self.open_funs.contains(fun) => i.vars |= vars,
+                    _ => i.vars = u64::MAX,
+                }
                 if self.next_funs.contains(fun) {
                     i.primed = u64::MAX;
                 }
@@ -1637,10 +1733,7 @@ impl Compiler<'_> {
             domain: dom,
             body: b,
         })?;
-        if let Some(f) = self.code.funs.get_mut(id as usize) {
-            f.body = checked;
-            f.frame = frame;
-        }
+        self.complete_fun(id, checked, frame);
         Ok(id)
     }
 
@@ -4430,11 +4523,64 @@ impl Compiler<'_> {
                 "an effectful recursive operator under a prime (M1 core)",
             ));
         }
-        if let Some(f) = self.code.funs.get_mut(id as usize) {
+        self.complete_fun(id, body, frame);
+        Ok(id)
+    }
+
+    /// Records the completed body and frame size of `fun`, and its
+    /// [`Self::fun_summary`].
+    fn complete_fun(&mut self, fun: u32, body: P, frame: u32) {
+        if let Some(f) = self.code.funs.get_mut(fun as usize) {
             f.body = body;
             f.frame = frame;
         }
-        Ok(id)
+        if let Some(vars) = self.fun_summary(fun, body) {
+            self.fun_reads.insert(fun, vars);
+        }
+    }
+
+    /// The unprimed variables that evaluating `body`, the completed body of
+    /// `fun`, can read, when that is provably a function of the call's
+    /// frame and those variables alone; `None` otherwise.
+    ///
+    /// A node without calls contributes its own read set. A recursive call
+    /// of `fun` itself contributes only its arguments: the reads of `fun`
+    /// are the least set closed under its body, and a self-call adds
+    /// nothing beyond that set. A call of another completed function
+    /// contributes that function's summary. Anything else (an effect, a
+    /// nested `ENABLED` or composition query, a call of an open or
+    /// unsummarized function) gives `None`, and calls of `fun` keep reading
+    /// every variable.
+    fn fun_summary(&self, fun: u32, body: P) -> Option<u64> {
+        let mut vars = 0u64;
+        let mut seen = std::collections::HashSet::new();
+        let mut stack = vec![body];
+        while let Some(p) = stack.pop() {
+            if !seen.insert(p) {
+                continue;
+            }
+            let info = self.info.get(p as usize)?;
+            if info.effect || info.nested_query {
+                return None;
+            }
+            if !info.calls {
+                vars |= info.vars;
+                continue;
+            }
+            let node = self.code.nodes.get(p as usize)?;
+            match node {
+                Node::Call { fun: g, .. } if *g != fun => {
+                    if self.open_funs.contains(g) {
+                        return None;
+                    }
+                    vars |= *self.fun_reads.get(g)?;
+                }
+                Node::Enabled { .. } | Node::Composition { .. } => return None,
+                _ => {}
+            }
+            push_operands(node, &mut stack);
+        }
+        Some(vars)
     }
 
     /// A call of `fun` found compiled: notes a call from inside its own

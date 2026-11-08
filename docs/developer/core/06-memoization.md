@@ -356,8 +356,21 @@ The compiler computes read sets during the pass that records reads and purity
 - every free local;
 - every constant that is not folded.
 
-Calls to operators that are not inlined contribute their callees' read sets.
-Recursive operators contribute a fixed point.
+A compiled call (`Node::Call`, a recursive operator or function) reads its
+arguments plus its callee's summary (`Compiler::fun_summary`), computed once
+the callee's body is complete: the unprimed variables its body reads, where a
+call of the callee itself adds only its arguments (the least fixed point) and
+a call of another completed function adds that function's summary. A body
+that reaches an effect, a nested `ENABLED` or composition query, or a call of
+a function still being compiled has no summary, and a call of it reads every
+variable, as does a call made while its callee is open. Primed reads still
+follow `next_funs`. A call remains `Info::calls`, so folding, start-up
+evaluation, step and primed memo sites and LET caching keep excluding it; the
+summary only narrows invariant and constraint keys and the parent-delta skip.
+`crates/dive-api/tests/core_call_reads.rs` covers a variable read only inside
+a recursive body, and an effect inside one. On Examples `MCKVsnap`, whose
+`SnapshotIsolation` reaches recursive `Util` definitions, the conjunct becomes
+a site keyed on `ops` and is skipped when `ops` is unchanged.
 
 A read set that mentions a whole variable is conservative. A body that reads
 only `pc[i]` still keys on all of `pc`, plus `i`. Finer keys that read a field
