@@ -15,8 +15,7 @@ use dive_runtime::{CheckOptions, budget::EvaluationControl};
 use dive_stdlib::host::RunHost;
 use dive_stdlib::random::{RandomMode, Streams};
 
-use super::{Analysis, DetailedFailure, GraphLabelPolicy, Limits, periodic};
-use crate::product::AcceptancePolicy;
+use super::{GraphLabelPolicy, Limits};
 
 pub use super::row_demand::SourceRowDriver;
 
@@ -36,8 +35,8 @@ pub enum Dispatch {
 
 /// A fresh source-bound runtime whose model and evaluator cannot escape.
 ///
-/// The consuming analysis methods retain the constructor's options and binding
-/// control. This is not a lease on public caller-owned evaluators. No model,
+/// The consuming source-row driver retains the constructor's options and
+/// binding control. This is not a lease on public caller-owned evaluators. No model,
 /// scope, host or arbitrary callback is accepted or exposed by this bridge.
 /// It must be constructed and consumed on the dedicated evaluator stack.
 ///
@@ -45,11 +44,9 @@ pub enum Dispatch {
 /// # fn run(ir: &std::sync::Arc<dive_ir::Ir>, config: &dive_config::ModelConfig,
 /// # options: &dive_runtime::CheckOptions, control: std::sync::Arc<dive_runtime::budget::EvaluationControl>) {
 /// use dive_liveness::analyze::{owned, Limits, GraphLabelPolicy};
-/// use dive_liveness::product::AcceptancePolicy;
 /// if let Some(Ok(owned::Dispatch::Temporal(runtime))) =
 ///     owned::dispatch_controlled(ir, config, options, control) {
-///     let _result = runtime.final_analysis(Limits::default(),
-///         AcceptancePolicy::Legacy, GraphLabelPolicy::Cells(1000));
+///     let _driver = runtime.source_row_driver(Limits::default(), GraphLabelPolicy::Cells(1000));
 /// }
 /// # }
 /// ```
@@ -76,19 +73,6 @@ pub(super) struct Authority<'a> {
 impl Authority<'_> {
     pub(super) fn owns(&self, model: &Model) -> bool {
         std::ptr::eq(self.model, model)
-    }
-}
-
-// Only this private Model identity selects the source-owned driver route.
-// An operative public binding cannot manufacture this authority.
-pub(super) fn native_hooks(
-    authority: Option<&Authority<'_>>,
-    model: &Model,
-) -> dive_eval::NativeHooks {
-    if authority.is_some_and(|authority| authority.owns(model)) {
-        dive_eval::NativeHooks::Unrestricted
-    } else {
-        dive_eval::NativeHooks::Callback
     }
 }
 
@@ -137,50 +121,6 @@ impl OwnedTemporal {
     #[must_use]
     pub fn symmetry_liveness(&self) -> &SymmetryLivenessResolution {
         self.model.symmetry_liveness()
-    }
-
-    /// Consumes this runtime for the existing final analysis and owner policies.
-    ///
-    /// # Errors
-    /// Existing detailed analysis failures, including unqualified legacy stops.
-    pub fn final_analysis(
-        self,
-        limits: Limits,
-        policy: AcceptancePolicy,
-        graph_labels: GraphLabelPolicy,
-    ) -> Result<Analysis, DetailedFailure> {
-        let authority = Authority { model: &self.model };
-        super::analyze_final_bound(
-            &self.model,
-            &self.options,
-            limits,
-            policy,
-            graph_labels,
-            Some(&authority),
-        )
-    }
-
-    /// Consumes this runtime for the existing completed-level schedule.
-    ///
-    /// # Errors
-    /// Existing periodic failures and actual prefix/check evidence.
-    pub fn periodic_analysis(
-        self,
-        limits: Limits,
-        policy: AcceptancePolicy,
-        graph_labels: GraphLabelPolicy,
-        schedule: periodic::Schedule,
-    ) -> Result<(periodic::PeriodicAnalysis, periodic::Checks), periodic::PeriodicFailure> {
-        let authority = Authority { model: &self.model };
-        periodic::analyze_periodic_bound(
-            &self.model,
-            &self.options,
-            limits,
-            policy,
-            graph_labels,
-            schedule,
-            Some(&authority),
-        )
     }
 }
 

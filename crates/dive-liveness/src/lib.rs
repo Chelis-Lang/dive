@@ -5,11 +5,12 @@
 //! constructs a deterministic witness over a supplied product graph.
 //! [`formula::compile`] provides a bounded boolean/always/eventually tableau
 //! kernel over supplied atoms. [`plan::lower`] retains pure bound predicates
-//! and scopes and expands WF/SF with checker-side enabledness. The bounded
-//! final-only [`analyze::analyze_final`] coordinator captures model graphs and
-//! finds candidates with their complete attributed property set. Independent
-//! validation is required. [`analyze::periodic`] checks committed level boundaries
-//! using the deterministic [`periodic_backend`] growth trigger. [`tlc_plan::classify`] reproduces TLC's
+//! and scopes and expands WF/SF with checker-side enabledness.
+//! [`analyze::periodic::external::GraphCheck`] checks a producer's behavior
+//! graph at committed level boundaries, using the deterministic
+//! [`periodic_backend`] growth trigger, and once it is complete, and finds
+//! candidates with their complete attributed property set. Independent
+//! validation is required. [`tlc_plan::classify`] reproduces TLC's
 //! liveness formula refusals for `--compat=tlc`; dive does not emulate TLC's
 //! tableau numbering or SCC and lasso choice.
 #![forbid(unsafe_code)]

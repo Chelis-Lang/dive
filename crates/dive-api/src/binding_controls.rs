@@ -6,22 +6,63 @@
 )]
 use super::*;
 use dive_eval::HostControl;
-use dive_liveness::analyze::Analysis;
-use dive_liveness::analyze::periodic::PeriodicAnalysis;
+use dive_liveness::analyze::periodic::external::{NativeAnalysis, NativeFinal};
 
 /// A validation-binding failure carrying a complete capture's evidence.
-fn final_binding_validation_failure(failure: Failure, capture: &capture::Complete) -> Failure {
+fn final_binding_validation_failure(
+    failure: Failure,
+    capture: &capture::CompleteEvidence,
+) -> Failure {
     let mut failure = validation_binding_failure(failure);
-    failure.exploration = Some(Box::new(capture.into()));
+    failure.exploration = Some(Box::new(native::facts(
+        capture.safety_result(),
+        capture.stats(),
+    )));
     failure
 }
 
 /// A validation-binding failure carrying an incomplete prefix's evidence.
-fn prefix_binding_validation_failure(failure: Failure, capture: &capture::Prefix) -> Failure {
+fn prefix_binding_validation_failure(
+    failure: Failure,
+    capture: &capture::PrefixEvidence,
+) -> Failure {
     let mut failure = validation_binding_failure(failure);
-    failure.exploration = Some(Box::new(capture.into()));
+    failure.exploration = Some(Box::new(native::facts(
+        capture.safety_result(),
+        capture.stats(),
+    )));
     failure.incomplete = true;
     failure
+}
+
+/// Core's complete evidence for a final candidate of `ir`.
+fn core_candidate(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    options: &CheckOptions,
+    tlc: bool,
+) -> capture::CompleteEvidence {
+    let NativeAnalysis::Final(NativeFinal::Candidate(_, evidence)) =
+        crate::temporal::core_analysis(ir, cfg, options, tlc, false)
+    else {
+        panic!("Core final candidate");
+    };
+    evidence
+}
+
+/// Core's evidence for a due-prefix candidate of `ir`.
+fn core_prefix(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    options: &CheckOptions,
+    tlc: bool,
+) -> capture::PrefixEvidence {
+    let NativeAnalysis::Prefix(prefix) =
+        crate::temporal::core_analysis(ir, cfg, options, tlc, true)
+    else {
+        panic!("Core prefix candidate");
+    };
+    prefix.exploration
 }
 
 fn input() -> (Arc<Ir>, ModelConfig) {
@@ -66,18 +107,12 @@ fn initial_binding_stop_has_actual_no_search_evidence() {
 #[test]
 fn fresh_candidate_binding_stop_retains_complete_capture_and_cannot_certify_a_word() {
     let (ir, cfg) = input();
-    for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        let model = bind(&ir, &cfg, &options).expect("original model");
-        let Analysis::Candidate(candidate) = dive_liveness::analyze::analyze_final_with_policy(
-            &model,
-            &options,
-            Limits::default(),
-            AcceptancePolicy::compact_default(),
-        )
-        .expect("actual candidate") else {
-            panic!("candidate");
-        };
-        let actual = candidate.exploration.stats;
+    for (tlc, mut options) in [
+        (false, CheckOptions::dive(0)),
+        (true, CheckOptions::tlc(0, 0)),
+    ] {
+        let candidate = core_candidate(&ir, &cfg, &options, tlc);
+        let actual = candidate.stats();
         let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)
             .start()
             .expect("thread")
@@ -88,7 +123,7 @@ fn fresh_candidate_binding_stop_retains_complete_capture_and_cannot_certify_a_wo
         // owner, isolating the new binding boundary from admission checkpoints.
         let failure =
             bind_controlled(&ir, &cfg, &options, &control).expect_err("fresh binding interrupted");
-        let failure = final_binding_validation_failure(failure, &candidate.exploration);
+        let failure = final_binding_validation_failure(failure, &candidate);
         assert_eq!(failure.stage(), Stage::Validation);
         assert_eq!(failure.capture_completed(), Some(true));
         assert_eq!(failure.exploration().expect("real capture").stats, actual);
@@ -143,23 +178,12 @@ fn binding_error_transport_preserves_output_and_rejects_foreign_or_unarmed_autho
 #[test]
 fn fresh_prefix_binding_stop_retains_incomplete_capture() {
     let (ir, cfg) = input();
-    for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        let model = bind(&ir, &cfg, &options).expect("original model");
-        let (analysis, _) = dive_liveness::analyze::periodic::analyze_periodic(
-            &model,
-            &options,
-            Limits::default(),
-            AcceptancePolicy::compact_default(),
-            Schedule {
-                min_states: 2,
-                growth_factor: 1,
-            },
-        )
-        .expect("actual periodic prefix");
-        let PeriodicAnalysis::Prefix(candidate) = analysis else {
-            panic!("real prefix expected");
-        };
-        let actual = candidate.exploration.stats;
+    for (tlc, mut options) in [
+        (false, CheckOptions::dive(0)),
+        (true, CheckOptions::tlc(0, 0)),
+    ] {
+        let candidate = core_prefix(&ir, &cfg, &options, tlc);
+        let actual = candidate.stats();
         let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)
             .start()
             .expect("thread")
@@ -168,7 +192,7 @@ fn fresh_prefix_binding_stop_retains_incomplete_capture() {
         let control = validation_control(&options).expect("validation owner");
         let failure =
             bind_controlled(&ir, &cfg, &options, &control).expect_err("fresh binding interrupted");
-        let failure = prefix_binding_validation_failure(failure, &candidate.exploration);
+        let failure = prefix_binding_validation_failure(failure, &candidate);
         assert_eq!(failure.stage(), Stage::Validation);
         assert_eq!(failure.capture_completed(), Some(false));
         assert_eq!(
@@ -192,8 +216,8 @@ fn fresh_prefix_binding_stop_retains_incomplete_capture() {
 }
 
 enum WriterExploration {
-    Complete(Box<capture::Complete>),
-    Prefix(Box<capture::Prefix>),
+    Complete(Box<capture::CompleteEvidence>),
+    Prefix(Box<capture::PrefixEvidence>),
 }
 
 /// Produces a real interrupted binder result for the report projection controls.
@@ -260,34 +284,10 @@ P == <>(x=3)
         let ir = Arc::new(dive_ir::lower(&sema).expect("capture IR"));
         let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
             .into_config().expect("capture configuration");
-        let model = bind(&ir, &cfg, &options).expect("actual pure capture model");
         if complete {
-            let Analysis::Candidate(candidate) = dive_liveness::analyze::analyze_final_with_policy(
-                &model,
-                &options,
-                Limits::default(),
-                AcceptancePolicy::compact_default(),
-            )
-            .expect("actual candidate") else {
-                panic!("candidate");
-            };
-            WriterExploration::Complete(Box::new(candidate.exploration))
+            WriterExploration::Complete(Box::new(core_candidate(&ir, &cfg, &options, tlc)))
         } else {
-            let (analysis, _) = dive_liveness::analyze::periodic::analyze_periodic(
-                &model,
-                &options,
-                Limits::default(),
-                AcceptancePolicy::compact_default(),
-                Schedule {
-                    min_states: 2,
-                    growth_factor: 1,
-                },
-            )
-            .expect("actual prefix");
-            let PeriodicAnalysis::Prefix(candidate) = analysis else {
-                panic!("prefix");
-            };
-            WriterExploration::Prefix(Box::new(candidate.exploration))
+            WriterExploration::Prefix(Box::new(core_prefix(&ir, &cfg, &options, tlc)))
         }
     });
     let watchdog = dive_runtime::budget::Budget::new(Some(Duration::ZERO), None)

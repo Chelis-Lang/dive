@@ -155,7 +155,6 @@ fn run(
         &mut Stage::Unknown,
         &mut EvaluationErrors::default(),
         &control,
-        None,
     )
 }
 
@@ -446,7 +445,7 @@ fn original_word_reads_only_selected_representatives_and_preserves_edge_position
         }],
     };
     let mut lazy = Lazy::new(&graph);
-    let (states, ids, edges) = original_word(&graph, &mut lazy, None, &lasso).expect("word");
+    let (states, ids, edges) = original_word(&graph, &mut lazy, &lasso).expect("word");
     assert_eq!(states, vec![state(0), state(1)]);
     assert_eq!(ids, [0, 1]);
     assert_eq!(
@@ -457,37 +456,10 @@ fn original_word_reads_only_selected_representatives_and_preserves_edge_position
         lazy.reads,
         [Read::Representative(0), Read::Representative(1)]
     );
-    let projection = row_demand::Projection {
-        graph: crate::Graph::new(vec![vec![0], vec![0, 0, 1]], vec![1]).expect("projection"),
-        sources: vec![1, 0],
-        edges: vec![vec![0], vec![0, 1, 2]],
-    };
-    let projected = crate::search::Lasso {
-        root: 1,
-        entry: 0,
-        prefix: vec![crate::search::Step {
-            from: 1,
-            edge: 1,
-            to: 0,
-        }],
-        cycle: vec![crate::search::Step {
-            from: 0,
-            edge: 0,
-            to: 0,
-        }],
-    };
-    lazy.reads.clear();
-    let actual =
-        original_word(&graph, &mut lazy, Some(&projection), &projected).expect("projected word");
-    assert_eq!(actual, (states, ids, edges));
-    assert_eq!(
-        lazy.reads,
-        [Read::Representative(0), Read::Representative(1)]
-    );
     lazy.reads.clear();
     lazy.fail = Some(1);
     assert!(matches!(
-        original_word(&graph, &mut lazy, None, &lasso),
+        original_word(&graph, &mut lazy, &lasso),
         Err(AnalysisError::Limit("lazy source control"))
     ));
 }

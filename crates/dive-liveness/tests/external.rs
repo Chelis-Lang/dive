@@ -1,6 +1,6 @@
 //! A graph built by an outside producer ([`GraphBuilder`]) and checked by
-//! [`GraphCheck`] gives exactly the results of the reference capture and
-//! analysis (`docs/developer/core/11-liveness.md` §5).
+//! [`GraphCheck`] gives the same verdict on every schedule and on a
+//! final-only check (`docs/developer/core/11-liveness.md` §5).
 #![allow(
     clippy::expect_used,
     clippy::panic,
@@ -25,14 +25,14 @@ const EVERY_LEVEL: Schedule = Schedule {
 
 /// Specifications over `x` and `y`, each with its properties.
 const SPECS: &[(&str, &str)] = &[
-    // Holds.
+    // Fails: without fairness the behavior may stutter at x = 1.
     (
         "Init == x = 0 /\\ y = 0\nNext == x' = (x + 1) % 3 /\\ y' = y\nP == []<>(x = 0)",
         "PROPERTY P\n",
     ),
     // Fails on a prefix: the chain stutters at 2.
     (
-        "Init == x = 0 /\\ y = 0\nNext == x' = IF x < 2 THEN x + 1 ELSE x /\\ y' = y\nP == <>(x = 3)",
+        "Init == x = 0 /\\ y = 0\nNext == x' = (IF x < 2 THEN x + 1 ELSE x) /\\ y' = y\nP == <>(x = 3)",
         "PROPERTY P\n",
     ),
     // Weak fairness makes the progress property hold; without it, it fails.
@@ -244,60 +244,44 @@ fn external(
     }
 }
 
-#[test]
-fn external_graphs_check_as_the_reference_capture_does() {
-    for (body, properties) in SPECS {
-        for options in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)] {
-            for schedule in [EVERY_LEVEL, Schedule::DEFAULT] {
-                let m = model(body, properties, &options);
-                let reference = analyze::periodic::analyze_periodic(
-                    &m,
-                    &options,
-                    Limits::default(),
-                    AcceptancePolicy::compact_default(),
-                    schedule,
-                );
-                let m = model(body, properties, &options);
-                let ours = external(&m, &options, Some(schedule));
-                assert_eq!(summary(&ours), summary(&reference), "{body}");
-            }
-        }
+/// The verdict alone: `None` holds, `Some(p)` names the reported property.
+fn verdict(r: &Result<(PeriodicAnalysis, Checks), PeriodicFailure>) -> Option<String> {
+    match r {
+        Ok((PeriodicAnalysis::Final(Analysis::Holds(_)), _)) => None,
+        Ok((PeriodicAnalysis::Final(Analysis::Candidate(c)), _)) => Some(c.target_property.clone()),
+        Ok((PeriodicAnalysis::Prefix(c), _)) => Some(c.target_property.clone()),
+        Err(f) => panic!(
+            "unexpected failure {}: {}",
+            f.failure.failure().error,
+            summary(r)
+        ),
     }
 }
 
+/// The verdict of each of [`SPECS`], in order.
+const VERDICTS: &[Option<&str>] = &[Some("P"), Some("P"), None, Some("P"), Some("P"), Some("Q")];
+
 #[test]
-fn final_only_checks_equal_the_final_analysis() {
-    for (body, properties) in SPECS {
+fn external_graphs_give_the_same_verdict_on_every_schedule_and_final_only() {
+    for ((body, properties), expected) in SPECS.iter().zip(VERDICTS) {
         for options in [CheckOptions::dive(7), CheckOptions::tlc(0, 7)] {
-            let m = model(body, properties, &options);
-            let reference = analyze::analyze_final_with_policy(
-                &m,
-                &options,
-                Limits::default(),
-                AcceptancePolicy::compact_default(),
-            );
-            let m = model(body, properties, &options);
-            let ours = external(&m, &options, None);
-            let reference = match reference {
-                Ok(a) => summary(&Ok((
-                    PeriodicAnalysis::Final(a),
-                    Checks {
-                        exhausted: true,
-                        final_check: true,
-                        ..Checks::default()
-                    },
-                ))),
-                Err(f) => format!("failure {} {:?}", f.failure().error, f.failure().stage),
-            };
-            let ours = match ours {
-                Ok(r) => summary(&Ok(r)),
-                Err(f) => format!(
-                    "failure {} {:?}",
-                    f.failure.failure().error,
-                    f.failure.failure().stage
-                ),
-            };
-            assert_eq!(ours, reference, "{body}");
+            for schedule in [Some(EVERY_LEVEL), Some(Schedule::DEFAULT), None] {
+                let m = model(body, properties, &options);
+                let ours = external(&m, &options, schedule);
+                assert_eq!(
+                    verdict(&ours).as_deref(),
+                    *expected,
+                    "{body} {schedule:?}: {}",
+                    summary(&ours)
+                );
+                if schedule.is_none() {
+                    let Ok((PeriodicAnalysis::Final(_), checks)) = &ours else {
+                        panic!("a final-only check decides only on the complete graph");
+                    };
+                    assert!(checks.exhausted && checks.final_check);
+                    assert_eq!(checks.prefixes, 0);
+                }
+            }
         }
     }
 }
