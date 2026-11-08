@@ -769,7 +769,7 @@ fn endpoints_that_never_answer_or_stall_hit_the_deadline_by_name() -> TestResult
         "dive",
         &key,
         &[&silent_address, &b.address],
-        &["--worker-timeout-ms=200"],
+        &["--worker-timeout-ms=2000"],
     )?;
     refused(&run, "did not answer the authenticated handshake");
     refused(&run, "no reply within the --worker-timeout-ms deadline");
@@ -778,6 +778,9 @@ fn endpoints_that_never_answer_or_stall_hit_the_deadline_by_name() -> TestResult
     // A worker reachable only through a relay that forwards the startup
     // session and then stalls every unit session.
     let a = ready(&file, "dive", &key, &[])?;
+    // The relay's held sessions only end at the coordinator's deadline. It is
+    // generous so that the healthy worker b, bound by the same deadline, is
+    // never mistaken for a stalled one on a loaded host.
     for (retries, recovered) in [
         ("--distributed-retries=2", true),
         ("--distributed-retries=0", false),
@@ -794,7 +797,7 @@ fn endpoints_that_never_answer_or_stall_hit_the_deadline_by_name() -> TestResult
                 "dive",
                 &key,
                 &[&relay_address, &b.address],
-                &["--worker-timeout-ms=200", retries],
+                &["--worker-timeout-ms=5000", retries],
             )?;
             if recovered {
                 assert_eq!(
@@ -822,24 +825,28 @@ fn a_unit_longer_than_the_worker_deadline_is_reported_by_the_worker() -> TestRes
     let file = scratch.0.join("SlowUnit.tla");
     std::fs::write(
         &file,
-        "---- MODULE SlowUnit ----\nEXTENDS Naturals, FiniteSets\nVARIABLE x\nInit == x = 0\nNext == x < 2 /\\ x' = x + 1 + 0 * Cardinality({s \\in SUBSET (1..20) : Cardinality(s) = 10})\nInv == x < 9\n====\n",
+        "---- MODULE SlowUnit ----\nEXTENDS Naturals, FiniteSets\nVARIABLE x\nInit == x = 0\nNext == x < 2 /\\ x' = x + 1 + 0 * Cardinality({s \\in SUBSET (1..24) : Cardinality(s) = 12})\nInv == x < 9\n====\n",
     )?;
     std::fs::write(
         file.with_extension("cfg"),
         "INIT Init\nNEXT Next\nINVARIANT Inv\n",
     )?;
-    let a = ready(&file, "dive", &key, &["--worker-timeout-ms=50"])?;
-    let b = ready(&file, "dive", &key, &["--worker-timeout-ms=50"])?;
+    // The unit filters 2^24 subsets, far beyond any deadline here (the
+    // evaluator polls the deadline while enumerating);
+    // the worker's 3 s deadline leaves its handshake ample time on a loaded
+    // host, and the coordinator's own deadline is far longer.
+    let a = ready(&file, "dive", &key, &["--worker-timeout-ms=3000"])?;
+    let b = ready(&file, "dive", &key, &["--worker-timeout-ms=3000"])?;
     let run = coordinate(
         &file,
         "dive",
         &key,
         &[&a.address, &b.address],
-        &["--worker-timeout-ms=30000"],
+        &["--worker-timeout-ms=60000"],
     )?;
     refused(
         &run,
-        "worker refused incomplete unit: the unit did not finish within the worker's --worker-timeout-ms of 50 ms",
+        "worker refused incomplete unit: the unit did not finish within the worker's --worker-timeout-ms of 3000 ms",
     );
     Ok(())
 }
@@ -1047,6 +1054,34 @@ fn unsupported_models_and_options_refuse_by_name_on_both_roles() -> TestResult {
                 assert!(message.contains("worker preparation"), "{message}");
                 assert!(message.contains(needle), "{message}");
                 assert!(!message.contains("Unsupported {"), "{message}");
+            }
+        }
+    }
+    // A worker whose own start-up ends in a model verdict names the verdict
+    // and its message, not a Debug dump labelled unsupported.
+    for (file, kind, needle) in [
+        (
+            model("AssFalse", "ASSUME FALSE", "")?,
+            "assumption-failure",
+            "Assumption",
+        ),
+        (
+            model("AssDiv", "ASSUME 1 \\div 0 = 0", "")?,
+            "evaluation-error",
+            "The second argument of \\div is 0",
+        ),
+    ] {
+        match spawn_worker(exe, &file, "dive", &key, &[])? {
+            Started::Ready(_) => return Err(format!("worker admitted {}", file.display()).into()),
+            Started::Refused(code, message) => {
+                assert_eq!(code, Some(3), "{message}");
+                assert!(
+                    message.contains(&format!("worker preparation stopped with {kind}")),
+                    "{message}"
+                );
+                assert!(message.contains(needle), "{message}");
+                assert!(!message.contains("unsupported"), "{message}");
+                assert!(!message.contains(" {"), "{message}");
             }
         }
     }

@@ -43,7 +43,10 @@ These refuse by name with exit 3, before any worker is contacted:
 | `--sequential`, `--checkpoint`/`--recover`, `--core-sample`, `--allow-io` grants, disk seen, candidate spill, Store reclamation, coverage, `dive debug` | `distributed safety with <option> is not implemented` (for `dive debug`: `compiled debugger with distributed safety checking is not implemented`) |
 
 A `dive worker` refuses the same models with `worker preparation with ... is
-not implemented` and exits 3 before it listens. Workers do not take run budgets
+not implemented` and exits 3 before it listens. A worker whose own start-up
+ends in a verdict, such as a false or failing `ASSUME`, exits 3 with `worker
+preparation stopped with <verdict> before serving units` and the message
+`dive check` would print. Workers do not take run budgets
 (`--max-states`, `--time-limit` and so on) or `--workers N`; give those to the
 coordinator.
 
@@ -148,7 +151,7 @@ reaches a budget, but no verdict, property or counterexample.
 | An endpoint has no listener | `resource-limit`, exit 3, `Connection refused`. |
 | An endpoint accepts but never answers, or answers too slowly | After `--worker-timeout-ms`: `... no reply within the --worker-timeout-ms deadline`. During the search the unit is retried first. |
 | A unit takes longer than the worker's own `--worker-timeout-ms` | The worker reports it: `worker refused incomplete unit: the unit did not finish within the worker's --worker-timeout-ms of N ms`. Not retried. Raise the worker's timeout. |
-| Coordinator and worker keys differ | `worker ... closed or did not answer the authenticated handshake (check that every role reads the same --worker-key file ...)`. |
+| Coordinator and worker keys differ, or the worker is stalled | `worker ... closed or did not answer the authenticated handshake (check that every role reads the same --worker-key file and that the worker is running and not stalled ...)`. A different build is reported as an identity mismatch instead (below). |
 | Key file missing or not exactly 32 bytes | The coordinator stops with `worker key file PATH: ...`; a worker exits 3 before it listens. |
 | `--distributed-worker` without `--worker-key` | Usage error, exit 2. |
 | Different build, source, configuration, seed, fingerprint, profile, store or `-deadlock` | `worker source/config/executable/policy/startup identity mismatch`, before the search. |

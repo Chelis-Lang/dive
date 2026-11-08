@@ -47,7 +47,8 @@ published. Earlier pre-release development entries remain in git history.
   are usage errors (exit 2) before the model is loaded. A wrong key names the
   key as a likely cause; a socket timeout names `--worker-timeout-ms`; a unit
   longer than the worker's own deadline is reported by the worker; a missing
-  key file is named; and refusals say which option or model feature
+  key file is named; a worker whose own start-up fails (a false `ASSUME`, say)
+  names the verdict and its message; and refusals say which option or model feature
   (temporal properties, `SYMMETRY`, `VIEW`, runtime effects, missing `--seed`
   or `--fp`, `--sequential`, ...) is not supported. Results are unchanged.
   The `check` and `worker` help describe each option, and the

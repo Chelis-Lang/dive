@@ -155,21 +155,53 @@ fn admit_request(request: &CheckRequest) -> Result<(), ApiError> {
 }
 
 fn preparation_refusal(verdict: dive_runtime::Verdict) -> ApiError {
-    ApiError::Unsupported {
-        feature: match verdict {
-            dive_runtime::Verdict::Unsupported { feature }
-                if feature.starts_with("temporal properties") =>
-            {
-                format!(
+    match verdict {
+        dive_runtime::Verdict::Unsupported { feature }
+            if feature.starts_with("temporal properties") =>
+        {
+            ApiError::Unsupported {
+                feature: format!(
                     "worker preparation with temporal properties is not implemented ({feature})"
-                )
+                ),
             }
-            dive_runtime::Verdict::Unsupported { feature } => {
-                format!("worker preparation: {feature}")
-            }
-            verdict => format!("worker preparation: {verdict:?}"),
+        }
+        dive_runtime::Verdict::Unsupported { feature } => ApiError::Unsupported {
+            feature: format!("worker preparation: {feature}"),
         },
+        verdict => stopped_before_serving("worker preparation", &verdict),
     }
+}
+
+/// A worker whose own start-up (assumptions, constants, admission) ended in
+/// something other than a refusal cannot serve units: name the verdict and its
+/// message the way `dive check` would, rather than labelling it unsupported.
+fn stopped_before_serving(stage: &str, verdict: &dive_runtime::Verdict) -> ApiError {
+    use dive_runtime::Verdict as V;
+    let detail = match verdict {
+        V::AssumptionFalse { message, .. }
+        | V::PostconditionFalse { message, .. }
+        | V::ModelError { message, .. }
+        | V::NotCompletelySpecified { message, .. }
+        | V::EvaluationError { message, .. }
+        | V::ResourceLimit { message }
+        | V::InternalError { message } => Some(message.clone()),
+        V::Unsupported { feature } => Some(feature.clone()),
+        V::Stopped(stopped) => Some(stopped.to_string()),
+        V::BudgetMeasurement { error } => Some(error.to_string()),
+        V::InvariantViolated { property, .. }
+        | V::PropertyViolatedInitially { property }
+        | V::ActionPropertyViolated { property } => Some(property.clone()),
+        V::Success | V::Deadlock => None,
+    };
+    let kind = verdict.kind();
+    rejected(match detail {
+        Some(detail) => format!(
+            "{stage} stopped with {kind} before serving units (run `dive check` on the model \
+             to see the full report): {}",
+            detail.trim_end()
+        ),
+        None => format!("{stage} stopped with {kind} before serving units"),
+    })
 }
 
 fn prepare_inner(
@@ -190,7 +222,7 @@ fn prepare_inner(
     }
     let ir = Arc::new(
         dive_ir::lower(analysis.analysis())
-            .map_err(|e| rejected(format!("worker lowering: {e:?}")))?,
+            .map_err(|e| rejected(format!("worker lowering: {e}")))?,
     );
     let config_path = request
         .config
@@ -250,13 +282,11 @@ fn prepare_inner(
         &dive_runtime::checkpoint::config_source_hash(config.source_bytes()),
         opts,
     )
-    .map_err(|v| ApiError::Unsupported {
-        feature: match v {
-            dive_runtime::Verdict::Unsupported { feature } => {
-                format!("worker identity admission: {feature}")
-            }
-            verdict => format!("worker identity admission: {verdict:?}"),
+    .map_err(|v| match v {
+        dive_runtime::Verdict::Unsupported { feature } => ApiError::Unsupported {
+            feature: format!("worker identity admission: {feature}"),
         },
+        verdict => stopped_before_serving("worker identity admission", &verdict),
     })?;
     let inner = dive_explore::distributed::Worker::new(
         prepared.plan,

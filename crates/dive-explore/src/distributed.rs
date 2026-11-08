@@ -421,8 +421,9 @@ fn connect(
         .map_err(|error| {
             io(format!(
                 "worker {address} closed or did not answer the authenticated handshake \
-                 (check that every role reads the same --worker-key file and runs the \
-                 same dive build, and that the worker is running): {}",
+                 (check that every role reads the same --worker-key file and that the \
+                 worker is running and not stalled; a different dive build answers \
+                 with an identity mismatch instead): {}",
                 error
                     .message()
                     .trim_start_matches("DIVE-S0502: distributed I/O: ")
