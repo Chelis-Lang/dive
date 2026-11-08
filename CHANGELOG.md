@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core liveness checking no longer stores the product of the state graph and
+  a property's tableau; each search recomputes product edges from the state
+  graph (issue #909). Results and counterexamples are unchanged. Product
+  memory now grows with product vertices only: `bcastFolklore` no longer
+  exceeds 24 GB on `ReliableChan`, whose product has 2.6 billion edges.
 - `dive check`, `dive simulate`, `dive dfid` and the `dive tlc` adapter run
   only on Core (issue #791). `--engine reference` and `DIVE_ENGINE=reference`
   are usage errors (exit 2) that say the reference engine was removed;

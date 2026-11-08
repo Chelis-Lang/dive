@@ -418,13 +418,19 @@ pub(super) fn materialize(
     let vertices = if layout.domain.behavior {
         behavior.0.vertex_count()
     } else {
-        input.graph.vertex_count()
+        input.order.len()
+    };
+    // Only recurrence conditions read product rows; an on-the-fly product has none.
+    let rows = if conditions.is_empty() || layout.domain.behavior {
+        None
+    } else {
+        Some(input.graph.ok_or_else(super::rowless)?)
     };
     let row_len = |source| {
         if layout.domain.behavior {
             behavior.0.row_len(source)
         } else {
-            input.graph.successors(source).len()
+            rows.map_or(0, |rows| rows.successors(source).len())
         }
     };
     let mut edge_offsets = requests.reserve(layout.offsets)?;
@@ -461,10 +467,9 @@ pub(super) fn materialize(
                 if position.is_multiple_of(1024) {
                     super::csr::poll()?;
                 }
-                let e = if layout.domain.behavior {
-                    position
-                } else {
-                    input.graph.original_edges(id)[position]
+                let e = match rows {
+                    Some(rows) if !layout.domain.behavior => rows.original_edges(id)[position],
+                    _ => position,
                 };
                 let truth = condition
                     .evaluate_bounded(
