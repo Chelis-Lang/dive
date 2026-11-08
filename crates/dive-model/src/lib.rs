@@ -321,7 +321,7 @@ pub fn bind_deferring_constants(
     cfg: &ModelConfig,
     opts: &BindOptions,
 ) -> Result<Model, Box<Failure>> {
-    bind_in_source_covered_deferring(ir, cfg, opts, None, false, None, false, None, true)
+    bind_in_deferring(ir, cfg, opts, None, false, None, false, true)
         .map_err(ControlledBindError::legacy)
 }
 
@@ -389,43 +389,6 @@ pub fn bind_with_names_controlled(
     bind_in(ir, cfg, opts, Some(restored), false, Some(control), false)
 }
 
-/// Binds a producer with native source counters attached before startup.
-/// Independent recipe/replay entry points remain unobserved by default.
-///
-/// # Errors
-/// Ordinary binding/context failures, including a foreign collector IR.
-pub fn bind_source_covered(
-    ir: Arc<Ir>,
-    cfg: &ModelConfig,
-    opts: &BindOptions,
-    coverage: Arc<dive_eval::SourceCoverage>,
-) -> Result<Model, Box<Failure>> {
-    bind_in_source_covered(ir, cfg, opts, None, false, None, false, Some(coverage))
-        .map_err(ControlledBindError::legacy)
-}
-/// Binds a source-observed producer with the existing typed run control.
-///
-/// # Errors
-/// The ordinary controlled binding failures and foreign collector association.
-pub fn bind_controlled_source_covered(
-    ir: Arc<Ir>,
-    cfg: &ModelConfig,
-    opts: &BindOptions,
-    control: Arc<dyn dive_eval::HostControl>,
-    coverage: Arc<dive_eval::SourceCoverage>,
-) -> Result<Model, ControlledBindError> {
-    bind_in_source_covered(
-        ir,
-        cfg,
-        opts,
-        None,
-        false,
-        Some(control),
-        false,
-        Some(coverage),
-    )
-}
-
 fn bind_in(
     ir: Arc<Ir>,
     cfg: &ModelConfig,
@@ -435,7 +398,7 @@ fn bind_in(
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
 ) -> Result<Model, ControlledBindError> {
-    bind_in_source_covered(
+    bind_in_deferring(
         ir,
         cfg,
         opts,
@@ -443,42 +406,15 @@ fn bind_in(
         predicates_only,
         control,
         fallible_errors,
-        None,
-    )
-}
-
-#[allow(
-    clippy::too_many_arguments,
-    reason = "existing binder ownership inputs plus opt-in source observation; replay wrappers retain None"
-)]
-fn bind_in_source_covered(
-    ir: Arc<Ir>,
-    cfg: &ModelConfig,
-    opts: &BindOptions,
-    restored: Option<&[String]>,
-    predicates_only: bool,
-    control: Option<Arc<dyn dive_eval::HostControl>>,
-    fallible_errors: bool,
-    coverage: Option<Arc<dive_eval::SourceCoverage>>,
-) -> Result<Model, ControlledBindError> {
-    bind_in_source_covered_deferring(
-        ir,
-        cfg,
-        opts,
-        restored,
-        predicates_only,
-        control,
-        fallible_errors,
-        coverage,
         false,
     )
 }
 
 #[allow(
     clippy::too_many_arguments,
-    reason = "bind_in_source_covered plus the core route's deferral switch"
+    reason = "existing binder ownership inputs plus the core route's deferral switch"
 )]
-fn bind_in_source_covered_deferring(
+fn bind_in_deferring(
     ir: Arc<Ir>,
     cfg: &ModelConfig,
     opts: &BindOptions,
@@ -486,7 +422,6 @@ fn bind_in_source_covered_deferring(
     predicates_only: bool,
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
-    coverage: Option<Arc<dive_eval::SourceCoverage>>,
     defer: bool,
 ) -> Result<Model, ControlledBindError> {
     dive_eval::validate_ir(&ir).map_err(|error| {
@@ -566,7 +501,6 @@ fn bind_in_source_covered_deferring(
     };
     let mut b = bind::Binder::new(ir, cfg, opts, names, control, fallible_errors)
         .map_err(|error| error.with_output(Vec::new()))?;
-    b.source_coverage = coverage;
     if defer && !predicates_only {
         b.defer = Some(defer::Deferral {
             skip: std::collections::HashSet::new(),
@@ -582,36 +516,7 @@ fn bind_in_source_covered_deferring(
     }
 }
 
-fn prepare_source_coverage(
-    b: &bind::Binder<'_>,
-    init_actions: &[dive_eval::next::Action],
-    actions: &[dive_eval::next::Action],
-) -> bind::R<()> {
-    if let Some(coverage) = &b.source_coverage {
-        if coverage.is_tlc()
-            && (b.cfg.specification.is_some()
-                || b.cfg.view.is_some()
-                || b.cfg.symmetry.is_some()
-                || !b.cfg.invariants.is_empty()
-                || !b.cfg.properties.is_empty()
-                || !b.cfg.constraints.is_empty()
-                || !b.cfg.action_constraints.is_empty()
-                || !b.cfg.postconditions.is_empty()
-                || !b.cfg.constants.is_empty())
-        {
-            return Err(BindError::unsupported("TLC coverage currently supports explicit INIT/NEXT without property, constraint, view, symmetry or configured-constant roles").into());
-        }
-        coverage
-            .prepare_actions(init_actions, actions)
-            .map_err(BindError::unsupported)?;
-    }
-    Ok(())
-}
-
-#[allow(
-    clippy::too_many_lines,
-    reason = "ordered binding phases; source preparation must follow actual action expansion"
-)]
+#[allow(clippy::too_many_lines, reason = "ordered binding phases")]
 fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
     b.process_spec()?;
     // SpecProcessor snapshots defns immediately after processSpec, before
@@ -660,7 +565,6 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
     } else {
         (b.init_actions()?, b.expand_actions()?)
     };
-    prepare_source_coverage(b, &init_actions, &actions)?;
     b.drain_prints();
     let ir = b.t.ir.clone();
     let assumptions = non_axiom_assumptions(&ir);

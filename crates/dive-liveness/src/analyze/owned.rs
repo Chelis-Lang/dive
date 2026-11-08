@@ -162,17 +162,7 @@ fn bind(
         no_deadlock: options.no_deadlock,
         host: Some(Arc::new(run_host(options))),
     };
-    let model = if let Some(coverage) = &options.source_coverage {
-        dive_model::bind_controlled_source_covered(
-            ir.clone(),
-            config,
-            &bind_options,
-            control,
-            coverage.clone(),
-        )
-    } else {
-        dive_model::bind_controlled(ir.clone(), config, &bind_options, control)
-    }?;
+    let model = dive_model::bind_controlled(ir.clone(), config, &bind_options, control)?;
     if let Some(feature) = model.evaluator.external_input_refusal() {
         return Err(unsupported(feature, model.output));
     }
