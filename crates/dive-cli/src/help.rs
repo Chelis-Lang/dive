@@ -13,10 +13,10 @@ pub(super) fn command(command: &str) -> Option<&'static str> {
             "USAGE: dive worker FILE.tla --seed N --fp N --worker-key FILE\n                        [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                        [--config FILE.cfg] [--compat=tlc] [--store fp|exact]\n                        [--output human|json]\n\nServe supported Core checking work; starting a worker proves no model.\n"
         }
         "simulate" => {
-            "USAGE: dive simulate FILE.tla --traces N [--generate] [--depth N]\n                          [--seed N] [--aril N] [--workers N] [--stats none|basic]\n                          [--compat=tlc]\n                          [--exit-codes native|tlc] [--output human|json]\n                          [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun bounded traces. Successful sampling does not prove exhaustive correctness.\n"
+            "USAGE: dive simulate FILE.tla --traces N [--generate] [--depth N]\n                          [--seed N] [--aril N] [--stats none|basic]\n                          [--compat=tlc]\n                          [--exit-codes native|tlc] [--output human|json]\n                          [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun bounded traces. Successful sampling does not prove exhaustive correctness.\n"
         }
         "dfid" => {
-            "USAGE: dive dfid FILE.tla --max-level N [--config FILE.cfg] [--workers N]\n                      [--seed N] [--worker-seeds S,...]\n                      [--compat=tlc] [--output human|json]\n                      [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun supported bounded iterative deepening; incomplete exploration gives no proof.\n"
+            "USAGE: dive dfid FILE.tla --max-level N [--config FILE.cfg]\n                      [--seed N] [--worker-seeds S,...]\n                      [--compat=tlc] [--output human|json]\n                      [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun supported bounded iterative deepening; incomplete exploration gives no proof.\n"
         }
         "validate-trace" => {
             "USAGE: dive validate-trace FILE.tla [--trace TRACE.json] [--inputs RUN.json]\n                                [--config FILE.cfg] [--claim ENDING] [--sample]\n                                [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc]\n                                [--seed N] [--fp N] [-deadlock] [--output human|json]\n                                [--library-path DIR]... [--module-path DIR]...\n\nIndependently validate a counterexample against its specification.\n"
@@ -36,10 +36,8 @@ const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     -deadlock               disable deadlock checking\n\
     --time-limit DURATION|none --max-memory BYTES|auto|none\n\
     --max-states N|none --max-depth N|none\n\
-    --lncheck final --lasso short\n\
-    --action-composition off|tlc|tla --symmetry-liveness unreduced|refuse|tlc\n\
-    --allow-io=env,files,exec\n\
-    --source-coverage --coverage 0 --core-sample N\n\
+    --action-composition off|tla --symmetry-liveness unreduced|refuse|tlc\n\
+    --core-sample N         compare N sampled states' successors (diagnostic)\n\
     --library-path DIR --module-path DIR (repeatable)\n\n\
 Supported storage options:\n\
     --frontier-memory-bytes N --frontier-directory DIR\n\
@@ -52,8 +50,10 @@ Supported storage options:\n\
 Supported distributed options:\n\
     --distributed-worker IP:port (repeatable) --worker-key FILE\n\
     --worker-timeout-ms N --distributed-retries N\n\n\
-Unsupported combinations refuse by name. Reference is currently the default;\n\
-Core runs supported requests directly, while Auto may rerun through Reference.\n\
+Core is the only engine. Options it does not implement are not listed here;\n\
+they and unsupported combinations refuse by name (exit 3), for example\n\
+--symmetry-liveness tlc (the --compat=tlc default) with SYMMETRY and temporal\n\
+properties.\n\
 The default time limit is 30m (none under --compat=tlc); the default memory\n\
 limit is half of physical memory. Native process statuses are 0 success,\n\
 1 rejected input, 10 property violation, 11 deadlock, 12 assumption failure,\n\

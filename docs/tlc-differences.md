@@ -935,8 +935,8 @@ BFS-level boundaries. A check is due once the graph has at least 2^16 distinct
 states and at least twice as many as at the previous check (ADR 0018 §7), so
 all prefix checks together cost about one final check, and smaller models are
 checked once, at the end. Workers join and the level commits first. Exhausted frontiers
-receive only the final check. Ordinary TLC-profile requests and explicit
-`--lncheck final --lasso short` keep final checking. The implementation does not
+receive only the final check. Ordinary TLC-profile requests keep final checking;
+Core refuses explicit `--lncheck final --lasso short` by name. The implementation does not
 provide TLC's wall-clock controller or a `--lncheck default` timing emulation.
 
 A prefix never proves `Holds`. A deciding periodic word must pass fresh
