@@ -2,13 +2,13 @@
 
 use dive_eval::{Ec, ErrorClass, EvalError, ExceptionKind, St};
 use dive_model::Model;
-use dive_runtime::{CheckOptions, CheckResult, capture};
+use dive_runtime::{CheckOptions, CheckResult};
 use dive_value::Value;
 
-use super::{BorrowedObserver, Failed, stable_producers};
+use super::{Failed, stable_producers};
 use crate::analyze::{
-    AnalysisError, EvaluationErrors, ExplorationEvidence, GraphLabelPolicy, PreparedProperty,
-    SourceRowEvidence, StateEvaluation, StateEvaluationSite,
+    AnalysisError, GraphLabelPolicy, PreparedProperty, SourceRowEvidence, StateEvaluation,
+    StateEvaluationSite,
 };
 use crate::formula::{AtomKind, FormulaError};
 use crate::tlc_plan::demand::{self, SourceProgram};
@@ -146,7 +146,6 @@ fn scalar(state: &[Option<Value>]) -> bool {
 struct SourceFailure {
     failed: Failed,
     primary: EvalError,
-    next_error: Option<EvalError>,
     diagnostic: EvalError,
 }
 
@@ -155,8 +154,6 @@ pub(crate) struct SourceObserve<'a> {
     plans: &'a [PreparedProperty],
     program: &'a SourceProgram,
     failed: Option<SourceFailure>,
-    active: bool,
-    initial_roots: usize,
 }
 
 impl<'a> SourceObserve<'a> {
@@ -170,8 +167,6 @@ impl<'a> SourceObserve<'a> {
             plans,
             program,
             failed: None,
-            active: true,
-            initial_roots: 0,
         }
     }
 
@@ -196,135 +191,6 @@ impl<'a> SourceObserve<'a> {
                     cause: failure.into_error(),
                 })
         })
-    }
-
-    fn error(
-        &mut self,
-        result: &CheckResult,
-        decision: Option<&capture::CheckpointDecision>,
-        errors: &mut EvaluationErrors,
-    ) -> Option<AnalysisError> {
-        let SourceFailure {
-            failed,
-            primary,
-            next_error,
-            diagnostic,
-        } = self.failed.take()?;
-        let decision = decision?;
-        let phase = if next_error.is_some() {
-            capture::CheckpointPhase::TerminalSourceRow
-        } else {
-            capture::CheckpointPhase::SourceRow
-        };
-        if decision.phase() != phase
-            || decision.cause() != &failed.cause
-            || decision.next_error() != next_error.as_ref()
-            || result.stats != Some(decision.stats())
-            || result
-                .counterexample
-                .as_ref()
-                .is_none_or(|path| path.states.is_empty())
-        {
-            return Some(AnalysisError::Inconsistent(
-                "terminal row decision lost its actual source event",
-            ));
-        }
-        let slot = self.program.slots[failed.global];
-        let atom = &self.plans[slot.property].plan.atoms[slot.atom];
-        let property = self.model.property_claims()[slot.property].name.clone();
-        let source = Box::new(crate::plan::Source::new(self.model, atom.pred.location));
-        let error = AnalysisError::Atom {
-            property: property.clone(),
-            source: source.clone(),
-            detail: failed.cause.to_string(),
-        };
-        errors.state = Some(Box::new(StateEvaluation {
-            cause: failed.cause,
-            property,
-            source,
-            core: true,
-            site: StateEvaluationSite::CaptureSourceRow,
-            row: None,
-            source_row: Some(Box::new(SourceRowEvidence {
-                source: decision.source(),
-                result: Box::new(result.clone()),
-                primary,
-                diagnostic,
-                _proof: self.program.certificate()?,
-            })),
-        }));
-        Some(error)
-    }
-
-    pub(crate) fn explore(
-        mut self,
-        options: &CheckOptions,
-        limits: capture::Limits,
-        observer: Option<&mut dyn capture::Observer>,
-        errors: &mut EvaluationErrors,
-        exploration: &mut Option<Box<ExplorationEvidence>>,
-        native_hooks: dive_eval::NativeHooks,
-    ) -> Result<capture::ControlledExploration, AnalysisError> {
-        let model = self.model;
-        let run = {
-            let mut forwarded = observer.map(BorrowedObserver);
-            let observer = forwarded
-                .as_mut()
-                .map(|observer| observer as &mut dyn capture::Observer);
-            dive_check::capture::explore_checkpoints_with_native_hooks(
-                model,
-                options,
-                limits,
-                observer,
-                &mut self,
-                native_hooks,
-            )
-        }
-        .map_err(AnalysisError::CaptureThread)?;
-        let (outcome, decision) = run.into_parts();
-        if let capture::ControlledExploration::Stopped(result) = &outcome
-            && let Some(error) = self.error(result, decision.as_deref(), errors)
-        {
-            let stats = result.stats.ok_or(AnalysisError::Inconsistent(
-                "terminal row lost actual counters",
-            ))?;
-            *exploration = Some(Box::new(ExplorationEvidence {
-                stats,
-                workers: result.workers.clone(),
-                collision: result.collision.clone(),
-                output: result.output.clone(),
-                warnings: result.warnings.clone(),
-            }));
-            return Err(error);
-        }
-        Ok(outcome)
-    }
-}
-
-impl capture::CheckpointObserver for SourceObserve<'_> {
-    fn reached(&mut self, event: capture::ReachedCheckpoint<'_>) -> Result<(), EvalError> {
-        if event.phase() == capture::CheckpointPhase::Init {
-            self.initial_roots = self.initial_roots.saturating_add(1);
-            return Ok(());
-        }
-        if !self.active {
-            return Ok(());
-        }
-        // No earlier unproved row or opaque residual may be skipped in order
-        // to certify a later failure. This first slice attempts one source.
-        self.active = false;
-        if self.initial_roots != 1
-            || event.source() != 0
-            || event.stats().initial_generated != 1
-            || !scalar(event.state())
-            || event
-                .concrete_successors()
-                .iter()
-                .any(|target| target.state != *event.state())
-        {
-            return Ok(());
-        }
-        self.observe_row(event.state(), event.next_error())
     }
 }
 
@@ -383,7 +249,6 @@ impl SourceObserve<'_> {
         let cause = failed.cause.clone();
         self.failed = Some(SourceFailure {
             primary: primary.clone(),
-            next_error: next_error.cloned(),
             diagnostic,
             failed,
         });

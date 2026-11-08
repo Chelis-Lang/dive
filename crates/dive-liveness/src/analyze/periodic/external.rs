@@ -1,10 +1,9 @@
-//! Checks of a behavior graph built outside `dive-check`'s capture, such as
-//! by the execution core (`docs/developer/core/11-liveness.md`).
+//! Checks of a behavior graph built by its producer, the execution core
+//! (`docs/developer/core/11-liveness.md`).
 //!
 //! The producer explores and builds the graph with
-//! [`dive_runtime::capture::GraphBuilder`]; [`GraphCheck`] runs the same
-//! planning, completed-level checks and final check as
-//! [`super::analyze_periodic`], on the same graph, with the same results.
+//! [`dive_runtime::capture::GraphBuilder`] or its native rows; [`GraphCheck`]
+//! runs the planning, completed-level checks and final check.
 
 use dive_model::Model;
 use dive_runtime::{CheckOptions, CheckResult, Stats, capture};
@@ -159,11 +158,14 @@ mod native;
 /// exploration is complete, or [`Self::stopped`] after a safety stop. With
 /// [`Schedule`] `None` (`--compat=tlc`), only the final check runs.
 ///
+/// Core's behavior-graph producer drives these calls; planning needs only
+/// the bound model.
+///
 /// ```
 /// use std::sync::Arc;
-/// use dive_runtime::{CheckOptions, capture::{self, GraphBuilder}};
-/// use dive_liveness::analyze::{Analysis, GraphLabelPolicy, Limits};
-/// use dive_liveness::analyze::periodic::{PeriodicAnalysis, external::GraphCheck};
+/// use dive_runtime::CheckOptions;
+/// use dive_liveness::analyze::{GraphLabelPolicy, Limits};
+/// use dive_liveness::analyze::periodic::external::GraphCheck;
 /// use dive_liveness::product::AcceptancePolicy;
 /// let src = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nP == <>(~x)\n====\n";
 /// let analysis = dive_sema::analyze_source("M.tla", src, &Default::default());
@@ -174,21 +176,7 @@ mod native;
 /// let check = GraphCheck::prepare(&model, &options, Limits::default(),
 ///     AcceptancePolicy::compact_default(), GraphLabelPolicy::NoCellLimit, None)
 ///     .map_err(|_| "planning failed")?;
-/// // Here the reference capture plays the producer: one state, its step to
-/// // itself, then its stutter.
-/// let capture::Exploration::Complete(reference) =
-///     dive_check::capture::explore(&model, &options, capture::Limits::default()) else { unreachable!() };
-/// let s = reference.graph.states[0].clone();
-/// let mut graph = GraphBuilder::new(capture::Limits::default());
-/// let built = (|| {
-///     graph.record(1, s.clone(), Some(0), None, 0, "Init")?;
-///     graph.record(1, s, None, Some(0), 0, "Next")?;
-///     graph.stutter(0)?;
-///     graph.complete(reference.safety_result().clone(), options.clone())
-/// })();
-/// let complete = built.map_err(|v| format!("{v:?}"))?;
-/// let (result, _) = check.finish(complete).map_err(|_| "analysis failed")?;
-/// assert!(matches!(result, PeriodicAnalysis::Final(Analysis::Candidate(_))));
+/// assert_eq!(check.options().workers, options.workers);
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 pub struct GraphCheck<'m> {
@@ -216,13 +204,11 @@ impl std::fmt::Debug for GraphCheck<'_> {
 
 impl<'m> GraphCheck<'m> {
     /// Arms the run budget (unless the caller already did) and plans every
-    /// configured property of `model`, as [`super::analyze_periodic`] does
-    /// before its capture. `schedule` selects the completed levels to check;
+    /// configured property of `model` before the search. `schedule` selects the completed levels to check;
     /// `None` checks only the complete graph.
     ///
     /// # Errors
-    /// The planning failures of [`super::analyze_periodic`], with incomplete
-    /// capture.
+    /// Planning failures, with incomplete capture.
     pub fn prepare(
         model: &'m Model,
         options: &CheckOptions,
@@ -379,8 +365,7 @@ impl<'m> GraphCheck<'m> {
     /// The final check of the complete exploration `complete`.
     ///
     /// # Errors
-    /// The final check's failures, as [`super::analyze_periodic`] reports
-    /// them.
+    /// The final check's failures.
     pub fn finish(
         self,
         complete: capture::Complete,
@@ -408,7 +393,7 @@ impl<'m> GraphCheck<'m> {
             graph_labels,
         };
         let result = d
-            .complete(inputs, complete, None)
+            .complete(inputs, complete)
             .map_err(|failure| budget_failure(failure, &options.budget));
         close_budget(watchdog.as_mut(), result).map_err(Box::new)
     }

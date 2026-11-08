@@ -68,10 +68,9 @@ imports the shared contract from `dive-runtime` and no longer depends on
 `dive-runtime`, without the reference engine's `check` and
 `recovery_seed_fp`.
 
-One reference-runtime piece of `dive-check` remains, which part B must
-delete: in `dive-liveness`, the reference capture drivers
-`capture::explore_with_native_hooks`, `explore_controlled_with_native_hooks`
-and `explore_checkpoints_with_native_hooks`, behind `analyze_final*`,
-`analyze_periodic*` and row-demand capture, which only tests reach. When they
-are gone, the `dive-liveness -> dive-check` edge is removed and `dive-check`
-is deleted.
+`dive-liveness` no longer contains the reference temporal analyses
+(`analyze_final*`, `analyze_periodic*` and the row-demand capture) and no
+longer depends on `dive-check`; `xtask/src/layering.rs` no longer permits
+that edge. Its analyzer unit tests still use the reference graph capture as
+their graph producer, through a dev-dependency, until `dive-check` is
+deleted.

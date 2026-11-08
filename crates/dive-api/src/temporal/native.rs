@@ -332,6 +332,52 @@ pub(crate) fn core_source_row_failure(
     failure
 }
 
+/// Core's own temporal analysis of a model, recovered from its validated
+/// report: the final analysis, or with `prefix` the first due prefix of an
+/// every-level schedule. Test inputs replay the validation boundary on it.
+#[cfg(test)]
+#[allow(clippy::panic, reason = "test fixture producer")]
+pub(crate) fn core_analysis(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    tlc: bool,
+    prefix: bool,
+) -> NativeAnalysis {
+    use dive_liveness::analyze::periodic::Schedule;
+    use dive_liveness::analyze::periodic::external::NativePrefix;
+    let opts = dive_core::Opts::default();
+    let prepared = crate::core_engine::prepare(ir, config, options, tlc, opts, true)
+        .unwrap_or_else(|r| panic!("core refused: {:?}", r.verdict));
+    let route = prefix.then_some(Schedule {
+        min_states: 2,
+        growth_factor: 1,
+    });
+    let outcome = crate::core_temporal::check(
+        ir,
+        config,
+        options,
+        (tlc, opts),
+        prepared,
+        route,
+        &mut crate::core_engine::CoreRun::default(),
+    );
+    let crate::core_engine::CoreOutcome::Temporal(report) = outcome else {
+        panic!("core temporal report: {outcome:?}")
+    };
+    match report.outcome {
+        Outcome::NativeHolds(evidence) => NativeAnalysis::Final(NativeFinal::Holds(*evidence)),
+        Outcome::NativeViolation(word) => {
+            NativeAnalysis::Final(NativeFinal::Candidate(word.word, word.exploration))
+        }
+        Outcome::NativePrefixViolation(word) => NativeAnalysis::Prefix(NativePrefix {
+            word: word.word,
+            exploration: word.exploration,
+        }),
+        Outcome::Safety(result) => panic!("native outcome: {result:?}"),
+    }
+}
+
 #[cfg(test)]
 #[allow(
     clippy::expect_used,
@@ -340,10 +386,10 @@ pub(crate) fn core_source_row_failure(
 )]
 mod tests {
     use super::*;
-    use dive_liveness::analyze::periodic::{Schedule, analyze_periodic};
-    use dive_liveness::analyze::{AnalysisError, Limits};
-    use dive_liveness::product::AcceptancePolicy;
+    use dive_liveness::analyze::AnalysisError;
 
+    /// Core's own analysis of a two-state model, so the validation boundary
+    /// can be replayed on it (or on a forged copy of it).
     fn input(
         tlc: bool,
         holds: bool,
@@ -360,34 +406,13 @@ mod tests {
         let config = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
             .into_config()
             .expect("config");
-        let options = if tlc {
+        let mut options = if tlc {
             CheckOptions::tlc(0, 0)
         } else {
             CheckOptions::dive(0)
         };
-        let control = validation_control(&options).expect("control");
-        let model = bind_controlled(&ir, &config, &options, &control).expect("model");
-        let analysis = if prefix {
-            analyze_periodic(
-                &model,
-                &options,
-                Limits::default(),
-                AcceptancePolicy::compact_default(),
-                Schedule {
-                    min_states: 2,
-                    growth_factor: 1,
-                },
-            )
-            .expect("real prefix analysis")
-            .0
-            .into_native()
-        } else {
-            NativeAnalysis::Final(
-                dive_liveness::analyze::analyze_final(&model, &options, Limits::default())
-                    .expect("real final analysis")
-                    .into_native(),
-            )
-        };
+        options.workers = 1;
+        let analysis = core_analysis(&ir, &config, &options, tlc, prefix);
         (ir, config, options, analysis)
     }
 
