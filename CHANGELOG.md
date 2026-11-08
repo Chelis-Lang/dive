@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- A Core safety run with several workers that ends in `Init` (an initial
+  invariant violation, error or spill failure, for example) now reports one
+  worker used, with the reason, instead of the requested width. `Init` runs
+  on one worker and no parallel level started. Verdicts and counts are
+  unchanged.
 - Core liveness checking no longer stores the product of the state graph and
   a property's tableau; each search recomputes product edges from the state
   graph (issue #909). Results and counterexamples are unchanged. Product
