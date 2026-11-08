@@ -224,7 +224,7 @@ pub(crate) fn core_native_report(
                 ir,
                 config,
                 options,
-                Err(failure),
+                failure,
                 periodic,
                 symmetry_liveness,
                 started,

@@ -269,7 +269,7 @@ fn outcome(report: &CheckReport) -> Outcome {
             validation: v.validation().clone(),
         })),
         Core::Safety(r) => Outcome::Safety(r.clone()),
-        other => panic!("Core final checking returned {other:?}"),
+        Core::NativePrefixViolation(v) => panic!("Core final checking returned a prefix: {v:?}"),
     }
 }
 
