@@ -920,6 +920,7 @@ pub(crate) fn safety_result(
     start: Startup,
     out: dive_explore::Outcome,
 ) -> CheckResult {
+    let expanded = out.expanded;
     let Search {
         ir,
         config,
@@ -1159,6 +1160,11 @@ pub(crate) fn safety_result(
         } else {
             "the specification uses TLCSet or TLCGet: the core keeps TLC's order of their effects with one worker".into()
         });
+    } else if workers > 1 && !expanded {
+        r.workers.used = 1;
+        r.workers.reason = Some(
+            "the run ended in Init, which one worker evaluates, before any parallel level".into(),
+        );
     } else {
         r.workers.used = workers;
         r.workers.reason = None;

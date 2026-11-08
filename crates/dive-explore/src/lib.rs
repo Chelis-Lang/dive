@@ -204,6 +204,9 @@ pub struct Outcome {
     pub failure: Option<Failure>,
     /// Whether the run stopped while generating the initial states.
     pub in_init: bool,
+    /// Whether the run expanded a level after `Init`. `Init` runs on one
+    /// worker; only later levels use the requested width.
+    pub expanded: bool,
     /// What TLC's call-stack replay changed after an invariant failed to
     /// evaluate on a new successor.
     pub replayed: Option<Replayed>,
@@ -519,6 +522,9 @@ struct Explorer<'p> {
     changed: u64,
     /// The BFS level of the states being emitted (initial states are 1).
     level: u64,
+    /// Whether this run expanded a level after `Init`, the only phase that
+    /// runs more than one worker.
+    expanded: bool,
     opts: Opts,
     stop: Option<Verdict>,
     /// The index of the action being run (`None` for initial predicates).
@@ -1668,6 +1674,7 @@ fn explore_inner<'p>(
         initial: true,
         changed: u64::MAX,
         level: 1,
+        expanded: false,
         opts: config.opts,
         stop: None,
         action: None,
@@ -1889,6 +1896,7 @@ fn explore_inner<'p>(
         trace,
         failure: ex.failure,
         in_init: ex.initial,
+        expanded: ex.expanded,
         replayed,
         sampled: reservoir.map(|r| r.states).unwrap_or_default(),
         printed: std::mem::take(&mut m.printed),
@@ -2120,6 +2128,7 @@ fn run(
             ));
         }
         ex.level += 1;
+        ex.expanded = true;
         // Claims are sized from the previous level's successors.
         let estimate = usize::try_from(ex.stats.generated - generated_before).unwrap_or(1 << 20);
         generated_before = ex.stats.generated;

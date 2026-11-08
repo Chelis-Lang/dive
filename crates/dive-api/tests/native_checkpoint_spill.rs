@@ -456,9 +456,8 @@ fn storage_failures_do_not_create_a_pause_or_certify_recovery() {
                     assert!(result["counterexample"].is_null());
                     assert!(result["collision"].is_null());
                     assert_eq!(result["output"], serde_json::json!([]));
-                    // Core keeps its requested width; the retired reference
-                    // engine reported one worker here.
-                    assert_eq!(result["options"]["workers"]["used"], 8);
+                    // The failure is in Init, which one worker evaluates.
+                    assert_eq!(result["options"]["workers"]["used"], 1);
                     let frontier = result["frontier_storage"]["failures"]
                         .as_array()
                         .is_some_and(|v| !v.is_empty());
