@@ -1,11 +1,11 @@
 //! Tableau language versus direct periodic-word temporal semantics.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
-use dive_liveness::Graph;
-use dive_liveness::formula::{
+use crate::Graph;
+use crate::formula::{
     Atom, AtomKind, Formula, FormulaError, Limits, Literal, Node, Tableau, TableauNode, compile,
 };
-use dive_liveness::search::{Acceptance, find_lasso};
+use crate::search::{Acceptance, find_lasso};
 
 fn truth(nodes: &[Node], root: usize, word: &[u8], back: usize) -> bool {
     let mut table: Vec<Vec<bool>> = Vec::new();

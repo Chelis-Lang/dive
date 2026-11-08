@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Breaking: `dive-liveness` no longer has its public materialized-product
+  study API (issue #791): `product::{Product, Labels, CsrTopology}`,
+  `search::{find_lasso, Acceptance, Lasso, Step}`, `formula::Recurrence` and
+  `Formula::factor_recurrences`. Core builds the temporal product on the fly and
+  never used them. Verdicts, counts and counterexamples are unchanged.
 - A JSON report whose run stops before Core starts (a parse error, say) no
   longer labels its `options.checkpoint` with `"backend": "reference"` and a
   1 MiB `max_state_bytes` (issue #791). It names `core` and reports

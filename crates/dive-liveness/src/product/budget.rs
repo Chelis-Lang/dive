@@ -5,7 +5,7 @@ use crate::formula::{Recurrence, Tableau};
 use std::mem::size_of;
 
 /// Admission policy for the coordinator's compact acceptance buffers.
-/// Existing owned product and analysis entrypoints retain [`Self::Legacy`].
+/// [`Self::Legacy`] keeps the logical acceptance-cell bound.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AcceptancePolicy {
     /// Preserve [`Limits::acceptance_cells`] and existing materialization behavior.

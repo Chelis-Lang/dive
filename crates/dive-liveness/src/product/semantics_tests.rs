@@ -1,13 +1,55 @@
-//! Products preserve edge semantics and agree with direct word truth.
+//! The on-the-fly product preserves edge semantics and agrees with direct
+//! word truth. Limit controls use the legacy logical-cell policy; the word
+//! sweeps also check Core's buffer policy.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
-use dive_liveness::Graph;
-use dive_liveness::formula::{
-    Atom, AtomKind, Formula, Limits as FormulaLimits, Literal, Node, Tableau, TableauNode, compile,
+use super::{AcceptancePolicy, ImplicitProduct, Labels, Limits, ProductError};
+use crate::Graph;
+use crate::formula::{
+    Atom, AtomKind, CycleConditions, Formula, Limits as FormulaLimits, Literal, Node, Tableau,
+    TableauNode, compile,
 };
-use dive_liveness::product::{Labels, Limits, Product, ProductError};
+use crate::search::Lasso;
 
-fn formula(nodes: Vec<Node>) -> dive_liveness::formula::Tableau {
+/// The temporal route's product of a dense test graph, searched with no
+/// cycle conditions.
+struct OnTheFly<'a> {
+    product: ImplicitProduct<'a, Labels>,
+    labels: &'a Labels,
+}
+
+impl<'a> OnTheFly<'a> {
+    fn new(
+        graph: &'a Graph,
+        tableau: &'a Tableau,
+        labels: &'a Labels,
+        limits: Limits,
+    ) -> Result<Self, ProductError> {
+        Self::with_policy(graph, tableau, labels, limits, AcceptancePolicy::Legacy)
+    }
+
+    fn with_policy(
+        graph: &'a Graph,
+        tableau: &'a Tableau,
+        labels: &'a Labels,
+        limits: Limits,
+        policy: AcceptancePolicy,
+    ) -> Result<Self, ProductError> {
+        let edges = graph.edges.iter().map(Vec::len).sum();
+        let product = ImplicitProduct::new(graph, tableau, labels, limits, policy, edges)?;
+        Ok(Self { product, labels })
+    }
+
+    fn find_lasso(&self) -> Result<Option<Lasso>, ProductError> {
+        let none = CycleConditions {
+            always: vec![],
+            recurring: vec![],
+        };
+        self.product.find_lasso_with_conditions(self.labels, &none)
+    }
+}
+
+fn formula(nodes: Vec<Node>) -> Tableau {
     let root = nodes.len() - 1;
     compile(
         &Formula::new(nodes, root).expect("formula"),
@@ -28,7 +70,7 @@ fn action_truth_is_per_edge_and_includes_the_closing_transition() {
         actions: vec![vec![vec![true, false], vec![true]]],
     };
     let tableau = formula(vec![atom(AtomKind::Action), Node::Always(0)]);
-    let product = Product::new(&graph, &tableau, &labels, Limits::default()).expect("product");
+    let product = OnTheFly::new(&graph, &tableau, &labels, Limits::default()).expect("product");
     let lasso = product
         .find_lasso()
         .expect("search")
@@ -45,7 +87,7 @@ fn action_truth_is_per_edge_and_includes_the_closing_transition() {
     let mut broken = labels.clone();
     broken.actions[0][1][0] = false;
     assert!(
-        Product::new(&graph, &tableau, &broken, Limits::default())
+        OnTheFly::new(&graph, &tableau, &broken, Limits::default())
             .expect("product")
             .find_lasso()
             .expect("search")
@@ -61,7 +103,7 @@ fn parallel_edge_positions_are_preserved_and_dead_ends_are_not_stutters() {
         actions: vec![vec![vec![false, true]]],
     };
     let tableau = formula(vec![atom(AtomKind::Action), Node::Always(0)]);
-    let lasso = Product::new(&graph, &tableau, &labels, Limits::default())
+    let lasso = OnTheFly::new(&graph, &tableau, &labels, Limits::default())
         .expect("product")
         .find_lasso()
         .expect("search")
@@ -69,7 +111,7 @@ fn parallel_edge_positions_are_preserved_and_dead_ends_are_not_stutters() {
     assert_eq!(lasso.cycle[0].edge, 1);
     let dead = Graph::new(vec![vec![]], vec![0]).expect("dead end");
     assert!(
-        Product::new(
+        OnTheFly::new(
             &dead,
             &formula(vec![Node::Bool(true)]),
             &Labels {
@@ -110,7 +152,7 @@ fn reachable_pairs_fit_small_budgets_without_ignoring_invalid_inputs() {
         acceptance_cells: 2,
         steps: 4,
     };
-    let lasso = Product::new(&graph, &tableau, &labels, limits)
+    let lasso = OnTheFly::new(&graph, &tableau, &labels, limits)
         .expect("one reachable pair, not two million Cartesian pairs")
         .find_lasso()
         .expect("search")
@@ -130,7 +172,7 @@ fn reachable_pairs_fit_small_budgets_without_ignoring_invalid_inputs() {
     );
     tableau.nodes[199].successors = vec![200];
     assert!(matches!(
-        Product::new(&graph, &tableau, &labels, limits),
+        OnTheFly::new(&graph, &tableau, &labels, limits),
         Err(ProductError::Shape(_))
     ));
     tableau.nodes[199].successors = vec![199];
@@ -142,7 +184,7 @@ fn reachable_pairs_fit_small_budgets_without_ignoring_invalid_inputs() {
         positive: true,
     });
     assert!(matches!(
-        Product::new(&graph, &tableau, &labels, limits),
+        OnTheFly::new(&graph, &tableau, &labels, limits),
         Err(ProductError::Shape(_))
     ));
 }
@@ -173,7 +215,7 @@ fn pair_discovery_order_does_not_choose_the_projected_witness() {
         states: vec![],
         actions: vec![vec![vec![false, true], vec![false, true]]],
     };
-    let lasso = Product::new(&graph, &tableau, &labels, Limits::default())
+    let lasso = OnTheFly::new(&graph, &tableau, &labels, Limits::default())
         .expect("product")
         .find_lasso()
         .expect("search")
@@ -220,12 +262,12 @@ fn reachable_growth_cannot_exceed_vertices_or_promise_cells_silently() {
             "acceptance cells",
         ),
     ] {
-        assert_eq!(
-            Product::new(&graph, &tableau, &labels, limits),
-            Err(ProductError::Limit(kind))
-        );
+        assert!(matches!(
+            OnTheFly::new(&graph, &tableau, &labels, limits),
+            Err(ProductError::Limit(found)) if found == kind
+        ));
     }
-    let lasso = Product::new(
+    let lasso = OnTheFly::new(
         &graph,
         &tableau,
         &labels,
@@ -286,7 +328,7 @@ fn every_short_two_atom_word_agrees_with_direct_semantics() {
                         states: vec![state.clone()],
                         actions: vec![action.iter().map(|b| vec![*b]).collect()],
                     };
-                    let product = Product::new(&graph, &tableau, &labels, Limits::default())
+                    let product = OnTheFly::new(&graph, &tableau, &labels, Limits::default())
                         .expect("product");
                     let expected = match case {
                         0 => state.iter().all(|b| *b),
@@ -296,6 +338,20 @@ fn every_short_two_atom_word_agrees_with_direct_semantics() {
                         _ => state[back..].iter().any(|b| *b) && action[back..].iter().any(|b| *b),
                     };
                     let lasso = product.find_lasso().expect("search");
+                    // Core's buffer policy finds the same witness.
+                    assert_eq!(
+                        OnTheFly::with_policy(
+                            &graph,
+                            &tableau,
+                            &labels,
+                            Limits::default(),
+                            AcceptancePolicy::compact_default(),
+                        )
+                        .expect("buffered product")
+                        .find_lasso()
+                        .expect("buffered search"),
+                        lasso
+                    );
                     assert_eq!(
                         lasso.is_some(),
                         expected,
@@ -365,26 +421,26 @@ fn malformed_labels_and_limits_are_errors_never_absence_of_acceptance() {
         },
     ] {
         assert!(matches!(
-            Product::new(&graph, &tableau, &labels, limits),
+            OnTheFly::new(&graph, &tableau, &labels, limits),
             Err(ProductError::Limit(_))
         ));
     }
     let mut bad = labels.clone();
     bad.actions[0][0].clear();
     assert!(matches!(
-        Product::new(&graph, &tableau, &bad, Limits::default()),
+        OnTheFly::new(&graph, &tableau, &bad, Limits::default()),
         Err(ProductError::Shape(_))
     ));
     let mut bad = tableau.clone();
     bad.roots.push(bad.nodes.len());
     assert!(matches!(
-        Product::new(&graph, &bad, &labels, Limits::default()),
+        OnTheFly::new(&graph, &bad, &labels, Limits::default()),
         Err(ProductError::Shape(_))
     ));
     let mut bad = tableau.clone();
     bad.nodes[0].fulfilled.push(true);
     assert!(matches!(
-        Product::new(&graph, &bad, &labels, Limits::default()),
+        OnTheFly::new(&graph, &bad, &labels, Limits::default()),
         Err(ProductError::Shape(_))
     ));
 }
@@ -482,12 +538,22 @@ fn all_two_vertex_branching_graphs_match_independent_path_closure() {
                 ];
                 for (t, want) in tableaux.iter().zip(expected) {
                     let product =
-                        Product::new(&graph, t, &labels, Limits::default()).expect("product");
+                        OnTheFly::new(&graph, t, &labels, Limits::default()).expect("product");
+                    let lasso = product.find_lasso().expect("search");
                     assert_eq!(
-                        product.find_lasso().expect("search").is_some(),
+                        lasso.is_some(),
                         want,
                         "edges {edge_bits}, actions {action_bits}, states {state_bits}"
                     );
+                    let buffered = OnTheFly::with_policy(
+                        &graph,
+                        t,
+                        &labels,
+                        Limits::default(),
+                        AcceptancePolicy::compact_default(),
+                    )
+                    .expect("buffered product");
+                    assert_eq!(buffered.find_lasso().expect("buffered search"), lasso);
                 }
             }
         }
@@ -503,7 +569,7 @@ fn empty_language_and_promise_memory_are_distinguished() {
     };
     let eventuality = formula(vec![atom(AtomKind::State), Node::Eventually(0)]);
     assert!(matches!(
-        Product::new(
+        OnTheFly::new(
             &graph,
             &eventuality,
             &labels,
@@ -516,10 +582,42 @@ fn empty_language_and_promise_memory_are_distinguished() {
     ));
     let false_tableau = formula(vec![Node::Bool(false)]);
     assert!(
-        Product::new(&graph, &false_tableau, &labels, Limits::default())
+        OnTheFly::new(&graph, &false_tableau, &labels, Limits::default())
             .expect("empty-language product")
             .find_lasso()
             .expect("search")
             .is_none()
+    );
+}
+
+#[test]
+fn borrowed_csr_self_loop_accepts_the_true_formula() {
+    let offsets = [0, 1];
+    let targets = [0];
+    let roots = [0];
+    let topology = super::CsrTopology::new(&offsets, &targets, &roots).expect("topology");
+    let tableau = formula(vec![Node::Bool(true)]);
+    let labels = Labels {
+        states: vec![],
+        actions: vec![],
+    };
+    let product = ImplicitProduct::new(
+        &topology,
+        &tableau,
+        &labels,
+        Limits::default(),
+        AcceptancePolicy::Legacy,
+        1,
+    )
+    .expect("product");
+    let none = CycleConditions {
+        always: vec![],
+        recurring: vec![],
+    };
+    assert!(
+        product
+            .find_lasso_with_conditions(&labels, &none)
+            .expect("search")
+            .is_some()
     );
 }

@@ -215,4 +215,6 @@ pub(crate) fn decompose(
 }
 
 #[cfg(test)]
+mod recurrence_tests;
+#[cfg(test)]
 mod tests;
