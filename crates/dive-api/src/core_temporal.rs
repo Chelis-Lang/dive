@@ -556,7 +556,7 @@ fn check_configured_inner(
         )
     }) {
         return refused(
-            "a temporal failure (core): its report is the reference engine's for now",
+            "a temporal failure (core): its report is not implemented on Core",
             options,
             ir,
         );
@@ -606,7 +606,7 @@ fn report_outcome(
             CoreOutcome::TemporalFailure(Box::new(failure))
         }
         Err(_) => refused(
-            "a temporal validation failure (core): its report is the reference engine's for now",
+            "a temporal validation failure (core): its report is not implemented on Core",
             options,
             ir,
         ),

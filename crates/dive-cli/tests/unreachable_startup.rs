@@ -38,9 +38,7 @@ fn check(defs: &str, cfg: &str, tlc: bool, extra: &[&str]) -> (Option<i32>, serd
     run.env_clear()
         .env("BF", "{1}")
         .current_dir(&dir.0)
-        // External inputs run on the reference engine only (Core refuses).
         .args(["check", "M.tla", "--output", "json", "--workers", "1"])
-        .args(["--engine", "reference"])
         .arg("--library-path")
         .arg(modules)
         .args(extra);
@@ -66,6 +64,14 @@ fn assert_success((code, report): (Option<i32>, serde_json::Value)) {
     assert_eq!(report["statistics"]["distinct"], 3, "{report}");
 }
 
+/// Core implements no external inputs: a granted read is refused by name.
+fn assert_core_io_refusal((code, report): (Option<i32>, serde_json::Value)) {
+    assert_eq!(code, Some(3), "{report}");
+    let stderr = report["stderr"].as_str().expect("refusal on stderr");
+    assert!(stderr.contains("external inputs"), "{report}");
+    assert!(stderr.contains("not implemented on Core"), "{report}");
+}
+
 fn assert_env_refusal((code, report): (Option<i32>, serde_json::Value)) {
     assert_eq!(code, Some(3), "{report}");
     assert_eq!(report["verdict"], "unsupported", "{report}");
@@ -76,7 +82,7 @@ fn assert_env_refusal((code, report): (Option<i32>, serde_json::Value)) {
 #[test]
 fn an_unreachable_environment_read_does_not_refuse_the_model() {
     assert_success(check(READ, CFG, false, &[]));
-    assert_success(check(READ, CFG, false, &["--allow-io=env"]));
+    assert_core_io_refusal(check(READ, CFG, false, &["--allow-io=env"]));
 }
 
 #[test]
@@ -93,8 +99,7 @@ fn a_reachable_environment_read_still_needs_the_grant() {
     for tlc in [false, true] {
         assert_env_refusal(check(&defs, cfg, tlc, &[]));
     }
-    // `--compat=tlc` refuses this IOEnv construction order separately.
-    assert_success(check(&defs, cfg, false, &["--allow-io=env"]));
+    assert_core_io_refusal(check(&defs, cfg, false, &["--allow-io=env"]));
     let live = format!("{READ}\nLive == <>(x \\in BF)");
     for tlc in [false, true] {
         assert_env_refusal(check(

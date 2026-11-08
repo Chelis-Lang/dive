@@ -17,8 +17,7 @@ fn run(binary: &str, args: &[String], cwd: &Path) -> std::io::Result<Output> {
         .current_dir(cwd)
         .env("DIVE_COMPAT", "dive")
         .env("DIVE_CHAOS", "99")
-        // The reference engine these adapter tests were written for.
-        .env("DIVE_ENGINE", "reference")
+        .env_remove("DIVE_ENGINE")
         .output()
 }
 
@@ -198,20 +197,21 @@ fn configuration_errors_precede_module_errors_on_each_tlc_entrypoint() -> TestRe
 }
 
 #[test]
-fn final_spelling_uses_existing_qualified_backend_without_extra_policy_flag() -> TestResult {
-    for (config, exit, verdict) in [
-        ("FailLive", 13, "liveness-violation"),
-        ("HoldLive", 0, "success"),
-    ] {
+fn final_spelling_reaches_the_same_named_core_refusal() -> TestResult {
+    // Core has no bounded final route; `-lncheck final` and the native
+    // spelling give the same named refusal.
+    for config in ["FailLive", "HoldLive"] {
         let args = words(&[
             "Temporal", "-config", config, "-lncheck", "final", "-seed", "0", "-fp", "0",
             "--output", "json",
         ]);
         let output = adapter(&args, &fixtures())?;
-        assert_eq!(output.status.code(), Some(exit), "{output:?}");
+        assert_eq!(output.status.code(), Some(3), "{output:?}");
         let actual: Value = serde_json::from_slice(&output.stdout)?;
-        assert_eq!(actual["verdict"], verdict);
+        assert_eq!(actual["verdict"], "unsupported");
         assert_eq!(actual["options"]["profile"], "tlc+overrides");
+        assert!(actual["message"].as_str().is_some_and(|message| message
+            .ends_with("bounded final checking (--lncheck final --lasso short) is not implemented on Core")));
         let native = run(
             env!("CARGO_BIN_EXE_dive"),
             &words(&[
@@ -235,16 +235,11 @@ fn final_spelling_uses_existing_qualified_backend_without_extra_policy_flag() ->
             ]),
             &fixtures(),
         )?;
-        let reference: Value = serde_json::from_slice(&native.stdout)?;
-        for key in ["verdict", "property", "statistics", "execution"] {
-            assert_eq!(actual[key], reference[key]);
-        }
-        if exit == 13 {
-            assert_eq!(actual["counterexample"]["validation"], "valid");
-            assert_eq!(
-                actual["counterexample"]["trace"],
-                reference["counterexample"]["trace"]
-            );
+        assert_eq!(native.status.code(), Some(3));
+        let native: Value = serde_json::from_slice(&native.stdout)?;
+        // DIVE_CHAOS makes the native run refuse --chaos first.
+        for key in ["verdict", "property", "statistics"] {
+            assert_eq!(actual[key], native[key], "{config}/{key}");
         }
     }
     let output = adapter(

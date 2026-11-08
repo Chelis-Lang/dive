@@ -30,9 +30,8 @@ fn run(
     let binary =
         std::env::var_os("DIVE_TEST_CLI").unwrap_or_else(|| env!("CARGO_BIN_EXE_dive").into());
     let mut command = Command::new(binary);
-    // Bounded final checking runs on the reference engine only.
     command
-        .env("DIVE_ENGINE", "reference")
+        .env_remove("DIVE_ENGINE")
         .arg("check")
         .arg(file)
         .args(["--output=json", "--seed=0", "--fp=0"])
@@ -127,7 +126,8 @@ fn genuine_temporal_property_keeps_explicit_and_ordinary_profile_contracts()
         let ordinary = run(&file, profile, 1, false)?;
         let selected = run(&file, profile, 1, true)?;
         assert_eq!(ordinary.status.code(), Some(13));
-        assert_eq!(selected.status.code(), Some(13));
+        // Core has no bounded final route for a genuine temporal property.
+        assert_eq!(selected.status.code(), Some(3));
         let a: serde_json::Value = serde_json::from_slice(&ordinary.stdout)?;
         let b: serde_json::Value = serde_json::from_slice(&selected.stdout)?;
         let validator = SpecModel::load(
@@ -170,11 +170,13 @@ fn genuine_temporal_property_keeps_explicit_and_ordinary_profile_contracts()
             let document = TraceDoc::from_json(&a["counterexample"]["trace"])?;
             assert_eq!(validator.read(&document).0.validation, Validation::Valid);
         }
-        assert_eq!(b["verdict"], "liveness-violation");
-        assert_eq!(b["property"], "P");
-        assert!(b["counterexample"].is_object());
-        let document = TraceDoc::from_json(&b["counterexample"]["trace"])?;
-        assert_eq!(validator.read(&document).0.validation, Validation::Valid);
+        assert_eq!(b["verdict"], "unsupported");
+        assert_eq!(
+            b["message"],
+            "temporal properties (liveness checking): P; bounded final checking \
+             (--lncheck final --lasso short) is not implemented on Core"
+        );
+        assert!(b["counterexample"].is_null());
     }
     Ok(())
 }

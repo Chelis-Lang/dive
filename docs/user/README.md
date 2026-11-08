@@ -4,8 +4,8 @@ Dive currently provides parsing, semantic analysis, bounded native PlusCal
 translation, explicit safety checking, finite simulation, DFID, independent
 trace validation and bounded temporal checking with deterministic level checks
 or explicit final/short analysis. Full TLC parity is
-still in progress. Core is the default engine; `--engine reference` runs the
-reference engine explicitly. Native capacity and TLC-relative performance
+still in progress. Core is the only engine; what it does not implement is a
+named refusal. Native capacity and TLC-relative performance
 qualification remain open. A named refusal or
 resource stop does not establish safety.
 

@@ -622,14 +622,17 @@ fn check_file_in(
             || req.temporal != TemporalMode::Ordinary
             || req.core_sample.is_some())
     {
-        return Err(crate::ApiError::Unsupported { feature: "source coverage is implemented only for ordinary safety checking on the Reference engine (--engine reference); Core, temporal, checkpoint and core-sample combinations are not implemented".into() });
+        return Err(crate::ApiError::Unsupported { feature: "source coverage and TLC logical coverage (--source-coverage, --coverage) are not implemented on Core".into() });
     }
     if !req.host_access.is_empty()
         && (checkpoint.is_some()
             || engine == crate::Engine::Core
             || req.temporal != TemporalMode::Ordinary)
     {
-        return Err(crate::ApiError::Unsupported { feature: "external inputs are implemented only for ordinary safety checking on the Reference engine (--engine reference); Core, temporal and checkpoint/recovery inputs are not implemented".into() });
+        return Err(crate::ApiError::Unsupported {
+            feature: "external inputs (--allow-io, IOUtils/IOEnv) are not implemented on Core, nor with temporal checking or checkpoint/recovery"
+                .into(),
+        });
     }
     let profile = if req.compat_tlc {
         Profile::Tlc
@@ -652,12 +655,17 @@ fn check_file_in(
             })?;
         if engine != encoded {
             return Err(crate::ApiError::Rejected {
-                message: format!(
-                    "DIVE-S0400: archive backend {} does not match requested {}; recover it with --engine {}",
-                    encoded.name(),
-                    engine.name(),
-                    encoded.name()
-                ),
+                message: if encoded == crate::Engine::Reference {
+                    "DIVE-S0400: the archive was written by the reference engine, which dive \
+                     no longer runs; Core cannot recover it"
+                        .to_owned()
+                } else {
+                    format!(
+                        "DIVE-S0400: archive backend {} does not match requested {}",
+                        encoded.name(),
+                        engine.name(),
+                    )
+                },
             });
         }
         Some((seed, fp))
@@ -903,6 +911,18 @@ fn check_file_in(
     }
     if report.core.is_some() && req.temporal == TemporalMode::Ordinary {
         report.temporal_configuration = crate::temporal::core_file_configuration();
+    }
+    // Core has no bounded final temporal route: name the requested mode in
+    // its temporal refusal.
+    if report.core.is_some()
+        && req.temporal == TemporalMode::FinalShort
+        && let Phase::Checked(result) = &mut report.phase
+        && let Verdict::Unsupported { feature } = &mut result.verdict
+        && feature.contains("temporal properties (liveness checking)")
+    {
+        feature.push_str(
+            "; bounded final checking (--lncheck final --lasso short) is not implemented on Core",
+        );
     }
     if let Phase::Checked(result) = &mut report.phase {
         certify_next_receiver(&ir, &model, &armed, result);

@@ -1,26 +1,9 @@
-//! Ordinary temporal errors carry independently replayable finite endpoints.
+//! Ordinary temporal state-row errors: TLC's report, Core's named refusal.
 use serde_json::Value;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::{Command, Output};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
-struct Scratch(PathBuf);
-impl Drop for Scratch {
-    fn drop(&mut self) {
-        let _ = std::fs::remove_dir_all(&self.0);
-    }
-}
-fn scratch() -> Result<Scratch, Box<dyn std::error::Error>> {
-    let path = std::env::temp_dir().join(format!(
-        "dive-row-endpoint-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)?
-            .as_nanos()
-    ));
-    std::fs::create_dir(&path)?;
-    Ok(Scratch(path))
-}
 fn command(
     operation: &str,
     file: &Path,
@@ -38,14 +21,15 @@ fn command(
         .args(extra)
         .env_remove("DIVE_COMPAT")
         .env_remove("DIVE_CHAOS")
-        // The reference engine's row-error reports; Core refuses them by name.
-        .env("DIVE_ENGINE", "reference")
+        .env_remove("DIVE_ENGINE")
         .output()
 }
 #[test]
-fn pinned_row_errors_keep_physical_status_counts_and_standalone_trace_validation() -> TestResult {
+fn pinned_row_errors_are_named_core_refusals() -> TestResult {
+    // TLC reports each of these as a temporal state-row evaluation error
+    // (exit 255, see the goldens). Core does not build that report yet and
+    // refuses by name instead of approximating it.
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let temporary = scratch()?;
     for (corpus, name) in [
         ("selectseq-concat-type-capability", "ConcatFirstTypeError"),
         ("selectseq-concat-type-capability", "ConcatSecondTypeError"),
@@ -60,6 +44,7 @@ fn pinned_row_errors_keep_physical_status_counts_and_standalone_trace_validation
             "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
         ));
         let oracle:Value=serde_json::from_slice(&std::fs::read(root.join(format!("conformance/golden/tlc-2026.10.06.014338/{corpus}/specifications/{name}/{name}.cfg.json")))?)?;
+        assert_eq!(oracle["result"]["exit_code"], 255, "{name}");
         for profile in ["dive", "tlc"] {
             let extra = [
                 "--workers=1",
@@ -77,56 +62,17 @@ fn pinned_row_errors_keep_physical_status_counts_and_standalone_trace_validation
                     String::from_utf8_lossy(&output.stderr)
                 )
             })?;
-            assert_eq!(
-                output.status.code(),
-                Some(255),
+            assert_eq!(output.status.code(), Some(3), "{name}/{profile}: {report}");
+            assert_eq!(report["schema_version"], 3);
+            assert_eq!(report["verdict"], "unsupported", "{name}/{profile}");
+            assert!(
+                report["message"].as_str().is_some_and(
+                    |message| message.ends_with("its report is not implemented on Core")
+                ),
                 "{name}/{profile}: {report}"
             );
-            assert_eq!(report["schema_version"], 3);
-            assert_eq!(report["check_kind"], "temporal");
-            assert_eq!(report["verdict"], oracle["result"]["verdict"]);
-            assert_eq!(report["tlc"]["code"], oracle["result"]["verdict_code"]);
-            assert_eq!(report["tlc"]["name"], oracle["result"]["error_class"]);
-            assert_eq!(report["exit_code"], oracle["result"]["exit_code"]);
-            for (field, original) in [
-                ("distinct", "distinct_states"),
-                ("generated", "states_generated"),
-                ("left_on_queue", "states_left_on_queue"),
-                ("depth", "depth"),
-            ] {
-                assert_eq!(
-                    report["statistics"][field], oracle["result"]["counts"][original],
-                    "{name}/{profile}/{field}"
-                );
-            }
-            assert_eq!(report["execution"]["capture_completed"], false);
-            assert!(report["property"].is_null());
-            assert_eq!(report["error_site"], "temporal-state-row");
-            assert_eq!(report["counterexample"]["validation"], "valid");
-            let document = &report["counterexample"]["trace"];
-            assert_eq!(document["ending"]["kind"], "error");
-            assert_eq!(
-                document["ending"]["endpoint"]["stage"],
-                "temporal-state-row"
-            );
-            assert!(document["properties"].is_null());
-            let trace = temporary.0.join("trace.json");
-            std::fs::write(&trace, serde_json::to_vec(document)?)?;
-            let validation = command(
-                "validate-trace",
-                &file,
-                profile,
-                &[std::ffi::OsStr::new("--trace"), trace.as_os_str()],
-            )?;
-            let report: Value = serde_json::from_slice(&validation.stdout).map_err(|error| {
-                format!(
-                    "{name}/{profile}/validate-trace: invalid JSON: {error}; status={}; stderr={:?}",
-                    validation.status,
-                    String::from_utf8_lossy(&validation.stderr)
-                )
-            })?;
-            assert!(validation.status.success(), "{name}/{profile}: {report}");
-            assert_eq!(report["result"], "valid", "{name}/{profile}: {report}");
+            assert!(report["counterexample"].is_null());
+            assert!(report["tlc"].is_null());
         }
     }
     Ok(())

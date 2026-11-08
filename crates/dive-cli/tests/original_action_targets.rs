@@ -1,4 +1,6 @@
-//! Physical exit follows the actual selected-action typed error, not its text.
+//! The selected original action decides the outcome: TLC reports a typed
+//! temporal-action error (exit 255), which Core refuses by name; the
+//! function-first action succeeds.
 use std::path::PathBuf;
 use std::process::Command;
 const SOURCE: &str = include_str!("../../dive-liveness/tests/fixtures/constructor-alias.tla");
@@ -9,7 +11,7 @@ impl Drop for Spec {
     }
 }
 #[test]
-fn selected_original_action_has_physical255_and_function_first_has_zero()
+fn selected_original_action_error_is_refused_and_function_first_has_zero()
 -> Result<(), Box<dyn std::error::Error>> {
     let directory = std::env::temp_dir().join(format!(
         "dive-selected-action-cli-{}-{}",
@@ -25,8 +27,8 @@ fn selected_original_action_has_physical255_and_function_first_has_zero()
     let binary =
         std::env::var_os("DIVE_TEST_CLI").unwrap_or_else(|| env!("CARGO_BIN_EXE_dive").into());
     for (next, property, status) in [
-        ("Next", "ActionCheck", 255),
-        ("NextRecordFirst", "ActionCheck", 255),
+        ("Next", "ActionCheck", 3),
+        ("NextRecordFirst", "ActionCheck", 3),
         ("NextFunctionFirst", "ActionCheck", 0),
         ("Next", "StateControl", 0),
         ("Next", "EliminatedAction", 0),
@@ -36,8 +38,7 @@ fn selected_original_action_has_physical255_and_function_first_has_zero()
             format!("INIT Init\nNEXT {next}\nPROPERTY {property}\n"),
         )?;
         let output = Command::new(&binary)
-            // The reference engine this test was written for.
-            .env("DIVE_ENGINE", "reference")
+            .env_remove("DIVE_ENGINE")
             .arg("check")
             .arg(&file)
             .args([
@@ -52,9 +53,11 @@ fn selected_original_action_has_physical255_and_function_first_has_zero()
         let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
         assert_eq!(output.status.code(), Some(status), "{value}");
         assert_eq!(value["exit_code"], status);
-        if status == 255 {
-            assert_eq!(value["tlc"]["code"], 1000);
-            assert_eq!(value["error_site"], "temporal-action");
+        if status == 3 {
+            assert_eq!(
+                value["message"],
+                "a temporal failure (core): its report is not implemented on Core"
+            );
         } else {
             assert_eq!(value["verdict"], "success");
         }

@@ -74,7 +74,7 @@ source-map and debugging breadth are post-v0.1 work, frozen under
 
 For explicit authenticated pure Core workers on independently initialized
 processes, see [distributed safety](distributed-safety.md). Repeat
-`--distributed-worker IP:port` with `--engine core`, explicit seed/fingerprint
+`--distributed-worker IP:port` on Core, explicit seed/fingerprint
 and a local `--worker-key FILE`. Omission preserves local checking in both
 profiles. Remote source evaluation and ordered coordinator commit do not provide
 source coverage or an aggregate memory/performance guarantee.
@@ -82,19 +82,12 @@ source coverage or an aggregate memory/performance guarantee.
 ## Native source work
 
 ```sh
-dive check docs/user/examples/Counter.tla --source-coverage --engine reference --seed 7 --output json
-dive check docs/user/examples/Counter.tla --source-coverage --compat=tlc --engine reference --workers 4 --seed 7 --fp 0
+dive check docs/user/examples/Counter.tla --source-coverage --seed 7 --output json
 ```
 
-This option reports actual producer expression evaluations, Init/Next walker
-visits and generator emissions at original source locations. The example succeeds
-with five distinct states on the reference engine, with one actual worker even
-when more were requested. Source coverage is implemented only by the reference
-engine: on Core, the default engine, it is a named refusal (exit 3) that
-names `--engine reference`. The default is off, which
-is the TLC-equivalent setting. Both semantic profiles can request these native
-metrics explicitly; they are **not TLC's logical coverage costs**. Pinned TLC
-`-coverage 0` has the separate supported logical-cost route described above.
+`--source-coverage` (native source work) and `--coverage 0` (TLC logical
+costs) are not implemented on Core: either is a named refusal (exit 3). The
+default is off, which is the TLC-equivalent setting.
 
 JSON adds `source_coverage` with `metric: "native-source-work"`, exact file/module,
 UTF-8 byte ranges and JavaCC line/column positions, static instance-definition
@@ -161,12 +154,11 @@ EWD998ChanID remains unsupported. Other temporal restrictions also remain.
 State substitutions through `INSTANCE` retain their caller's state when a
 native arithmetic operator reads them. For example, an instantiated
 `Double == 2 * v` with `v <- x` reads the current `x`, in both semantic
-profiles. The reference engine previously misclassified this expression as
-constant and raised an undefined-variable error (#515). This minimal example
-now succeeds with 1 distinct state, 2 generated states, depth 1 and exit 0:
+profiles (#515). This minimal example succeeds with 1 distinct state, 2
+generated states, depth 1 and exit 0:
 
 ```sh
-dive check conformance/corpus/reference-instance-naturals/specifications/RefSubstDouble/RefSubstDouble.tla --engine reference --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+dive check conformance/corpus/reference-instance-naturals/specifications/RefSubstDouble/RefSubstDouble.tla --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
 Actual constant definitions still retain their startup values, including
@@ -182,10 +174,10 @@ controls do not establish general INSTANCE completion.
 Try the same small specification through four ordinary checking outcomes:
 
 ```sh
-dive check docs/user/examples/Counter.tla --engine core --seed 0 --fp 0 --workers 1 --output json
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --engine core --seed 0 --fp 0 --workers 1 --output json
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --engine core --seed 0 --fp 0 --workers 1 --output json
-dive check docs/user/examples/Counter.tla --engine core --seed 0 --fp 0 --workers 1 --max-states 2 --output json
+dive check docs/user/examples/Counter.tla --seed 0 --fp 0 --workers 1 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --seed 0 --fp 0 --workers 1 --output json
+dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --seed 0 --fp 0 --workers 1 --output json
+dive check docs/user/examples/Counter.tla --seed 0 --fp 0 --workers 1 --max-states 2 --output json
 ```
 
 These return safety success, a `StrictBound` invariant violation, an
@@ -206,15 +198,13 @@ the supported library interfaces.
 
 ```sh
 dive check Spec.tla --workers 4 --output json
-dive check Spec.tla --engine reference
-DIVE_ENGINE=reference dive check Spec.tla --output json
 ```
 
-Core, the compiled execution core (ADR 0117), is the default engine of
-`dive check`, `dive simulate`, `dive dfid` and `dive tlc` (ADR 0153), in both
-profiles. `--engine reference` (or `DIVE_ENGINE=reference`) runs the reference
-engine explicitly until it is retired; there is no automatic fallback between
-them, and `--engine auto` was removed. The core currently covers:
+Core, the compiled execution core (ADR 0117), is the engine of `dive check`,
+`dive simulate`, `dive dfid` and `dive tlc` (ADR 0153), in both profiles. There
+is no fallback: `--engine reference` (or `DIVE_ENGINE=reference`) and
+`--engine auto` were removed and are usage errors (exit 2); `--engine core`
+is still accepted. The core currently covers:
 
 - the default profile and `--compat=tlc` (below). Safety checks support
   `--store fp|exact`, ordered frontier spill and predecessor-log spill under
@@ -279,7 +269,7 @@ property. This example checks both contexts and returns success with 3
 distinct states, 4 generated states and depth 3:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-m0/EnabStepCache.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-m0/EnabStepCache.tla --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
 Split Init/Next roles retain uncaptured top-level operator substitutions, as in
@@ -294,7 +284,7 @@ same name. This includes nested instances. For example, the following returns
 success with 4 distinct states, 5 generated states and depth 4 in both profiles:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-m0/EnabConstInstance.tla --engine core --compat=tlc --workers 1 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-m0/EnabConstInstance.tla --compat=tlc --workers 1 --seed 0 --fp 0 --output json
 ```
 
 A query body may call recursive operators and functions when the whole
@@ -314,7 +304,7 @@ now succeeds with 3 distinct states, 4 generated states, depth 3 and exit 0 in
 both profiles:
 
 ```sh
-dive check conformance/corpus/core-instance-scopes/specifications/ScopeHolding/ScopeHolding.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+dive check conformance/corpus/core-instance-scopes/specifications/ScopeHolding/ScopeHolding.tla --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
 The adjacent `ScopeViolation` model fails its invariant immediately with exit
@@ -408,7 +398,7 @@ For a small refinement example, this command completes with 3 distinct states,
 4 generated states, depth 3 and exit 0:
 
 ```sh
-dive check crates/dive-api/tests/fixtures/core-primed-selectseq/PureInstance.tla --engine core --compat=tlc --workers 4 --seed 0 --fp 0 --output json
+dive check crates/dive-api/tests/fixtures/core-primed-selectseq/PureInstance.tla --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
 The original pinned `EWD998Chan` model also enters core search with its original
@@ -419,11 +409,11 @@ dependency module-library roots, as well as its adjacent `EWD998` module.
 
 On Core, anything the core does not implement yields an `unsupported` verdict
 (exit 3) that names it, and the run never falls back. The JSON report adds
-`"engine": "core"` and a `core` object with strategy metrics. Features
-implemented only by the reference engine, such as source and TLC logical
-coverage and external inputs (`--allow-io`), are named refusals on Core that
-point to `--engine reference`. A Reference checkpoint archive recovers only with
-`--engine reference`; Core rejects it with `DIVE-S0400` before loading the model.
+`"engine": "core"` and a `core` object with strategy metrics. Source and TLC
+logical coverage, granted external inputs (`--allow-io`) and bounded final
+checking (`--lncheck final --lasso short`) are named refusals on Core. A
+checkpoint archive written by the removed reference engine is rejected with
+`DIVE-S0400` before the model is loaded.
 
 `--core-sample N` (with the core) is a diagnostic for the core's
 developers. After the search, it takes `N` of the expanded states, chosen
@@ -460,7 +450,7 @@ symbolic identity, checking returns `unsupported`. It does not infer inequality
 from the symbolic expression or report an implementation limit as a specification
 error; independent counterexample replay follows the same rule.
 
-`--engine core --compat=tlc` selects the existing TLC integer, name and
+`--compat=tlc` on Core selects the existing TLC integer, name and
 exploration switches. Compatibility is nominal: unsupported comparison shapes
 are named refusals, and Core does not reproduce TLC's per-object construction
 history. See [the compat gaps](../tlc-differences.md#compat-gaps).
@@ -770,7 +760,7 @@ context, not a formal counterexample: schema 3 exposes it separately through
 named cause and the diagnostic wrapper. For example:
 
 ```sh
-dive check conformance/corpus/comparison-receiver-primary/specifications/InitialStateLeft/InitialStateLeft.tla --engine reference --compat=tlc --seed 19 --fp 0
+dive check conformance/corpus/comparison-receiver-primary/specifications/InitialStateLeft/InitialStateLeft.tla --compat=tlc --seed 19 --fp 0
 ```
 
 For source-qualified errors during Init, `tlc.code` can remain GENERAL (1000)

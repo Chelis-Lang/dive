@@ -49,14 +49,14 @@ rather than restarting the clock for each trace or iteration.
 
 ## Execution engines
 
-`--engine core|reference` and `DIVE_ENGINE` also select DFID execution.
+DFID runs on Core; `--engine reference` was removed.
 Core is the default of `dive dfid` and `dfid_file`. The core runs the supported pure
 finite slice through compiled Init/Next and predicate plans in both profiles,
 with fingerprint-plus-exact-collision-guard or exact membership. Actual
 normalization/view demand stays separate from canonical membership keys.
 
 ```sh
-dive dfid docs/user/examples/Counter.tla --max-level 8 --seed 7 --engine core --output json
+dive dfid docs/user/examples/Counter.tla --max-level 8 --seed 7 --output json
 ```
 
 Reports name `engine`, `engine_requested` and `engine_fallback`, which is always
