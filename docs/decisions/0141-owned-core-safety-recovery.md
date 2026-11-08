@@ -44,6 +44,9 @@ arenas, caches and runtime hosts are never serialized or reused. Fresh private
 frontier files bind restored coordinates to a newly checked owner. No reference
 `Value` conversion or authority inferred solely from history flags is permitted.
 New evaluator-driven deferred providers after startup refuse explicitly.
+Amendment (#791): the raw/normalized origin table is retired. `DIVEST01` keeps
+its layout with an always-empty table; a nonempty table or a history-flagged
+node is refused as legacy construction history.
 
 The initial workflow admits currently supported pure Core safety, fingerprint or
 exact membership, VIEW, safety symmetry, requested worker widths and optional

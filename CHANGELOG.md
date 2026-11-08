@@ -46,6 +46,15 @@ published. Earlier pre-release development entries remain in git history.
   `CONSTRAINT TLCGet("level") < N`. `dive check` is unchanged: there a state
   with constrained-out successors is not a deadlock. Rust callers can run
   the check with `dive_trace::Session::read_sampled_deadlock`.
+- Core no longer keeps the retired construction-history table in its Store
+  (issue #791). Checkpoint archives (`DIVECC01`), their Store images
+  (`DIVEST01`) and worker exchanges (`DIVEOW01`) keep their byte layout with
+  that table always empty; an archive that records construction history is
+  rejected with `DIVE-S0400` ("legacy construction history") instead of being
+  restored. The report field
+  `core.metrics.store.memory.construction_history_view_bytes` is deprecated
+  and always 0; schema 3 keeps it, and a later schema version will remove it.
+  Verdicts and counts are unchanged.
 - `dive_api::temporal::Outcome` no longer has the reference engine's
   `Holds`, `Violation` and `PrefixViolation` variants, and the
   `ValidatedCounterexample` and `ValidatedPrefix` types are removed (issue

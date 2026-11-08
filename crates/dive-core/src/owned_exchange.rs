@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::handle::Tag;
-use crate::node::{Kind, flags};
+use crate::node::flags;
 use crate::{Error, Handle, Heap, Store};
 
 const MAGIC: &[u8; 8] = b"DIVEOW01";
@@ -20,7 +20,11 @@ fn invalid(message: impl std::fmt::Display) -> Error {
     Error::internal(format!("DIVE-S0501: owned worker exchange: {message}"))
 }
 
-/// One request's native input-node and constructor-origin authority.
+/// One request's native input-node authority.
+///
+/// The packet keeps the retired construction-origin count and per-node origin
+/// fields at zero (format DIVEOW01); a nonzero one or a history-flagged node
+/// is refused ("legacy construction history").
 ///
 /// This owner is process-local and is never serialized. Wire references are
 /// indexes into the matching authenticated request, not raw handles or tokens.
@@ -28,9 +32,7 @@ pub struct Exchange {
     store: Arc<Store>,
     names: usize,
     nodes: Vec<Handle>,
-    origins: Vec<i64>,
     by_node: HashMap<Handle, u64>,
-    by_origin: HashMap<i64, u64>,
     startup: Option<Arc<Exchange>>,
 }
 
@@ -39,7 +41,7 @@ pub struct Exchange {
 #[derive(Clone)]
 pub struct Startup(Arc<Exchange>);
 impl Startup {
-    /// Captures issued startup nodes and constructor owners without mutation.
+    /// Captures issued startup nodes without mutation.
     ///
     /// # Errors
     /// Invalid owned nodes, the private index limit or interruption.
@@ -49,8 +51,6 @@ impl Startup {
         proceed: &(dyn Fn() -> bool + Sync),
     ) -> Result<Self, Error> {
         let nodes = crate::store::snapshot::issued(heap.store(), limit / NODE, proceed)?;
-        let mut origins = Vec::new();
-        let mut by_origin = HashMap::new();
         let mut by_node = HashMap::new();
         by_node.try_reserve(nodes.len()).map_err(invalid)?;
         for (index, &handle) in nodes.iter().enumerate() {
@@ -58,25 +58,16 @@ impl Startup {
                 .store()
                 .retained_view(handle)
                 .ok_or_else(|| invalid("unissued startup node"))?;
-            by_node.insert(handle, index as u64);
-            if node.flags & flags::HISTORY != 0 && !by_origin.contains_key(&node.lo) {
-                if !heap.store().owns_history(handle) {
-                    return Err(invalid("unowned startup history"));
-                }
-                heap.store().history_snapshots(node.lo)?;
-                by_origin.try_reserve(1).map_err(invalid)?;
-                origins.try_reserve(1).map_err(invalid)?;
-                by_origin.insert(node.lo, origins.len() as u64);
-                origins.push(node.lo);
+            if node.flags & flags::HISTORY != 0 {
+                return Err(invalid("legacy construction history"));
             }
+            by_node.insert(handle, index as u64);
         }
         Ok(Self(Arc::new(Exchange {
             store: Arc::clone(heap.store()),
             names: heap.store().strings().len(),
             nodes,
-            origins,
             by_node,
-            by_origin,
             startup: None,
         })))
     }
@@ -124,9 +115,7 @@ impl Exchange {
             store: Arc::clone(heap.store()),
             names: heap.store().strings().len(),
             nodes: writer.nodes,
-            origins: writer.origins,
             by_node: writer.by_node,
-            by_origin: writer.by_origin,
             startup,
         };
         Ok((bytes, exchange))
@@ -167,23 +156,17 @@ impl Exchange {
         proceed: &(dyn Fn() -> bool + Sync),
         startup: Option<Arc<Exchange>>,
     ) -> Result<(Vec<Handle>, Self), Error> {
-        let (roots, nodes, origins) =
-            decode(heap, bytes, limit, None, startup.as_deref(), proceed)?;
+        let (roots, nodes) = decode(heap, bytes, limit, None, startup.as_deref(), proceed)?;
         let mut by_node = HashMap::new();
-        let mut by_origin = HashMap::new();
         by_node.try_reserve(nodes.len()).map_err(invalid)?;
-        by_origin.try_reserve(origins.len()).map_err(invalid)?;
         by_node.extend(nodes.iter().enumerate().map(|(i, &h)| (h, i as u64)));
-        by_origin.extend(origins.iter().enumerate().map(|(i, &o)| (o, i as u64)));
         Ok((
             roots,
             Self {
                 store: Arc::clone(heap.store()),
                 names: heap.store().strings().len(),
                 nodes,
-                origins,
                 by_node,
-                by_origin,
                 startup,
             },
         ))
@@ -224,7 +207,7 @@ impl Exchange {
             self.startup.as_deref(),
             proceed,
         )
-        .map(|(roots, _, _)| roots)
+        .map(|(roots, _)| roots)
     }
 
     fn owner(&self, heap: &Heap) -> Result<(), Error> {
@@ -255,9 +238,7 @@ struct Writer<'a> {
     bytes: Vec<u8>,
     scratch: usize,
     nodes: Vec<Handle>,
-    origins: Vec<i64>,
     by_node: HashMap<Handle, u64>,
-    by_origin: HashMap<i64, u64>,
 }
 
 impl<'a> Writer<'a> {
@@ -283,9 +264,7 @@ impl<'a> Writer<'a> {
             bytes: Vec::new(),
             scratch: 0,
             nodes: Vec::new(),
-            origins: Vec::new(),
             by_node: HashMap::new(),
-            by_origin: HashMap::new(),
         })
     }
     fn put(&mut self, bytes: &[u8]) -> Result<(), Error> {
@@ -318,64 +297,12 @@ impl<'a> Writer<'a> {
         for &root in roots {
             refs.push(self.visit(root, 0)?);
         }
-        // Constructor companions carry actual registered phase authority, even
-        // when only the other phase occurs in the root row.
-        if let Some(input) = self.input {
-            for &origin in &input.origins {
-                for h in self.heap.store().history_snapshots(origin)? {
-                    if !h.is_empty() {
-                        self.visit(h, 0)?;
-                    }
-                }
-            }
-        }
-        if let Some(startup) = self.startup {
-            for &origin in &startup.origins {
-                for h in self.heap.store().history_snapshots(origin)? {
-                    if !h.is_empty() {
-                        self.visit(h, 0)?;
-                    }
-                }
-            }
-        }
-        let mut index = 0;
-        while index < self.origins.len() {
-            for h in self.heap.store().history_snapshots(self.origins[index])? {
-                if !h.is_empty() {
-                    self.visit(h, 0)?;
-                }
-            }
-            index += 1;
-        }
         for reference in refs {
             self.reference(reference)?;
         }
+        // Bytes 17..25 keep the retired construction-origin count at zero.
         self.bytes[9..17].copy_from_slice(&(self.nodes.len() as u64).to_le_bytes());
-        self.bytes[17..25].copy_from_slice(&(self.origins.len() as u64).to_le_bytes());
         Ok(std::mem::take(&mut self.bytes))
-    }
-    fn origin(&mut self, origin: i64) -> Result<(u8, u64), Error> {
-        if let Some(id) = self
-            .startup
-            .and_then(|startup| startup.by_origin.get(&origin))
-        {
-            return Ok((3, *id));
-        }
-        if let Some(id) = self.input.and_then(|input| input.by_origin.get(&origin)) {
-            return Ok((2, *id));
-        }
-        if let Some(&id) = self.by_origin.get(&origin) {
-            return Ok((1, id));
-        }
-        if self.origins.len() >= self.limit / NODE {
-            return Err(invalid("origin limit"));
-        }
-        let id = self.origins.len() as u64;
-        self.by_origin.try_reserve(1).map_err(invalid)?;
-        self.origins.try_reserve(1).map_err(invalid)?;
-        self.origins.push(origin);
-        self.by_origin.insert(origin, id);
-        Ok((1, id))
     }
     fn visit(&mut self, value: Handle, depth: usize) -> Result<Ref, Error> {
         if !(self.proceed)() {
@@ -407,8 +334,8 @@ impl<'a> Writer<'a> {
         if view.is_lazy() || view.kind.is_lazy() {
             return Err(Error::unsupported("distributed deferred value provider"));
         }
-        if view.flags & flags::HISTORY != 0 && !self.heap.store().owns_history(value) {
-            return Err(invalid("unregistered history"));
+        if view.flags & flags::HISTORY != 0 {
+            return Err(invalid("legacy construction history"));
         }
         let (kind, fl, lo, hash, sum) = (
             view.kind,
@@ -444,18 +371,14 @@ impl<'a> Writer<'a> {
             refs.push(self.visit(child, depth + 1)?);
         }
         self.scratch -= scratch;
-        let origin = if fl & flags::HISTORY != 0 {
-            self.origin(lo)?
-        } else {
-            (0, 0)
-        };
         self.byte(kind as u8)?;
         self.byte(fl)?;
-        self.word(if origin.0 == 0 { lo.cast_unsigned() } else { 0 })?;
+        self.word(lo.cast_unsigned())?;
         self.word(hash)?;
         self.word(sum)?;
-        self.byte(origin.0)?;
-        self.word(origin.1)?;
+        // The retired construction-origin tag and index, always zero.
+        self.byte(0)?;
+        self.word(0)?;
         self.word(refs.len() as u64)?;
         for reference in refs {
             self.reference(reference)?;
@@ -602,7 +525,7 @@ impl<'a> Reader<'a> {
     }
 }
 
-type Decoded = (Vec<Handle>, Vec<Handle>, Vec<i64>);
+type Decoded = (Vec<Handle>, Vec<Handle>);
 #[allow(
     clippy::too_many_lines,
     reason = "one bounded authenticated owned DAG import"
@@ -627,8 +550,10 @@ fn decode(
     let count = usize::try_from(read.word()?).map_err(invalid)?;
     let origin_count = usize::try_from(read.word()?).map_err(invalid)?;
     let roots = usize::try_from(read.word()?).map_err(invalid)?;
+    if origin_count != 0 {
+        return Err(invalid("legacy construction history"));
+    }
     if count > limit / NODE
-        || origin_count > count
         || roots > limit / size_of::<Handle>()
         || count
             .checked_mul(NODE)
@@ -636,11 +561,6 @@ fn decode(
             .is_none_or(|n| n > bytes.len() - HEADER)
     {
         return Err(invalid("packet admission"));
-    }
-    let mut origins = Vec::new();
-    origins.try_reserve_exact(origin_count).map_err(invalid)?;
-    for _ in 0..origin_count {
-        origins.push(heap.store().history_origin()?);
     }
     let mut nodes = Vec::new();
     nodes.try_reserve_exact(count).map_err(invalid)?;
@@ -650,28 +570,11 @@ fn decode(
         }
         let kind = crate::candidate_codec::kind(read.byte()?)?;
         let fl = read.byte()?;
-        let mut lo = read.word()?.cast_signed();
+        let lo = read.word()?.cast_signed();
         let hash = read.word()?;
         let sum = read.word()?;
-        let origin_tag = read.byte()?;
-        let origin_id = usize::try_from(read.word()?).map_err(invalid)?;
-        let origin = match (origin_tag, origin_id) {
-            (0, 0) => None,
-            (1, n) => Some(*origins.get(n).ok_or_else(|| invalid("local origin"))?),
-            (2, n) => Some(
-                *input
-                    .and_then(|i| i.origins.get(n))
-                    .ok_or_else(|| invalid("input origin"))?,
-            ),
-            (3, n) => Some(
-                *startup
-                    .and_then(|i| i.origins.get(n))
-                    .ok_or_else(|| invalid("startup origin"))?,
-            ),
-            _ => return Err(invalid("origin tag")),
-        };
-        if origin_tag != 0 && lo != 0 {
-            return Err(invalid("origin authority"));
+        if read.byte()? != 0 || read.word()? != 0 {
+            return Err(invalid("legacy construction history"));
         }
         let len = read.count(1)?;
         if len > limit / size_of::<Handle>() {
@@ -685,52 +588,11 @@ fn decode(
             }
             children.push(read.reference(heap, &nodes, input, startup)?);
         }
-        crate::candidate_codec::shape(kind, fl, lo, u64::from(origin.is_some()), &children)?;
-        if let Some(origin) = origin {
-            lo = origin;
-        }
-        let existing = origin
-            .map(|origin| heap.store().history_snapshots(origin))
-            .transpose()?
-            .map(|pair| pair[usize::from(kind == Kind::Set)])
-            .filter(|h| !h.is_empty());
-        let h = if let Some(existing) = existing {
-            let view = heap
-                .store()
-                .retained_view(existing)
-                .ok_or_else(|| invalid("unissued existing phase"))?;
-            if (
-                view.kind,
-                view.flags & !flags::CONCRETE,
-                view.lo,
-                view.hash,
-                view.sum,
-            ) != (kind, fl & !flags::CONCRETE, lo, hash, sum)
-                || view.data != children
-            {
-                return Err(invalid(
-                    "attempted replacement of an actual constructor phase",
-                ));
-            }
-            existing
-        } else {
-            heap.store
-                .intern(&mut heap.cache, kind, fl, lo, hash, sum, &children)
-        };
-        if let Some(origin) = origin {
-            heap.store().retain_history(origin, kind == Kind::Set, h)?;
-        }
+        crate::candidate_codec::shape(kind, fl, lo, 0, &children)?;
+        let h = heap
+            .store
+            .intern(&mut heap.cache, kind, fl, lo, hash, sum, &children);
         nodes.push(h);
-    }
-    for &origin in &origins {
-        if heap
-            .store()
-            .history_snapshots(origin)?
-            .iter()
-            .all(|h| h.is_empty())
-        {
-            return Err(invalid("unused origin authority"));
-        }
     }
     let mut values = Vec::new();
     values.try_reserve_exact(roots).map_err(invalid)?;
@@ -743,7 +605,7 @@ fn decode(
     if read.at != bytes.len() || heap.poisoned() {
         return Err(invalid("trailing data or poisoned import"));
     }
-    Ok((values, nodes, origins))
+    Ok((values, nodes))
 }
 
 #[cfg(test)]
@@ -794,7 +656,6 @@ mod tests {
                 assert!(worker.view(roots[0]).is_tuple_literal());
                 assert_eq!(worker.view(row[0]).data, &[one, two]);
                 assert_eq!(worker.view(row[2]).data, &[one, two]);
-                assert_eq!(worker.store().memory_usage().history_view_bytes, 0);
                 let bytes = remote
                     .reply(&worker, &roots, 1 << 20, &|| true)
                     .expect("unchanged reply");
@@ -820,7 +681,6 @@ mod tests {
                 assert_eq!(values[0], tuple);
                 assert_eq!(values[2], raw);
                 assert_eq!(sender.view(values[1]).data, &[one, two]);
-                assert_eq!(sender.store().memory_usage().history_view_bytes, 0);
             }
         }
     }
@@ -833,6 +693,22 @@ mod tests {
         let tuple = sender.intern_exact(tuple).expect("tuple");
         let (bytes, authority) =
             Exchange::request(&sender, &[tuple], 1 << 20, &|| true).expect("request");
+        // The retired origin count (17) and the first node's origin tag (59)
+        // are zero; a legacy nonzero value is refused by name.
+        assert_eq!((bytes[17], bytes[59]), (0, 0));
+        for at in [17, 59] {
+            let mut legacy = bytes.clone();
+            legacy[at] = 1;
+            let error =
+                Exchange::receive_request(&mut heap(false, true), &legacy, 1 << 20, &|| true)
+                    .err()
+                    .expect("legacy origin");
+            assert!(
+                error.message().contains("legacy construction history"),
+                "byte {at}: {}",
+                error.message()
+            );
+        }
         assert!(Exchange::request(&sender, &[tuple], 16, &|| true).is_err());
         assert!(Exchange::request(&sender, &[tuple], 1 << 20, &|| false).is_err());
         for at in [0, 9, 17, 25, 34, 59, 60] {
@@ -927,7 +803,6 @@ mod tests {
                     .expect("reply import");
                 assert_eq!(roots[0], raw);
                 assert_eq!(sender.view(roots[1]).lo, sender.view(raw).lo);
-                assert_eq!(sender.store().memory_usage().history_view_bytes, 0);
                 assert_eq!(sender.view(roots[1]).data, &[one, two]);
             }
         }

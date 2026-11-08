@@ -25,8 +25,7 @@ and recovery with these storage choices. Temporal exact/spill/disk combinations
 remain unsupported.
 
 The core frontier stores paired canonical and original opaque handle rows under
-one retained live Store. Original receiver classes and construction history are
-preserved; values are not reconstructed through the reference value codec. Its
+one retained live Store. Original receiver classes are preserved; values are not reconstructed through the reference value codec. Its
 private files cannot be recovered after restart or decoded by another run.
 Each decoded chunk contains at most 1,024 state pairs and is outside the encoded
 queue budgets. Retained Store/history allocations, seen sets, candidates, arenas
@@ -215,9 +214,12 @@ dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --workers 8 --r
 
 The additive Rust API is `check_file_checkpoint_engine(request, checkpoint,
 Engine::Core)`; `check_file_checkpoint` uses the default engine, Core. Core's
-`DIVECC01` archive retains the compiled startup prefix, owned Store DAG and
-registered raw/normalized construction authority, complete original/canonical
-discovery rows, keys, parents/ordinals and ordered frontier. New transient files
+`DIVECC01` archive retains the compiled startup prefix, owned Store DAG,
+complete original/canonical discovery rows, keys, parents/ordinals and ordered
+frontier. Its Store image keeps the retired construction-history table as an
+empty count, so the byte layout is unchanged; an archive whose image records
+construction history is rejected with `DIVE-S0400` ("legacy construction
+history") rather than restored. New transient files
 receive fresh run ownership; old live frontier bytes cannot be reused. It does
 not convert state values through the reference codec. Source, executable, config
 bytes, semantic policy, seed/fingerprint and Core strategy switches must match.
