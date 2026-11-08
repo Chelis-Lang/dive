@@ -154,6 +154,24 @@ fn admit_request(request: &CheckRequest) -> Result<(), ApiError> {
     Ok(())
 }
 
+fn preparation_refusal(verdict: dive_runtime::Verdict) -> ApiError {
+    ApiError::Unsupported {
+        feature: match verdict {
+            dive_runtime::Verdict::Unsupported { feature }
+                if feature.starts_with("temporal properties") =>
+            {
+                format!(
+                    "worker preparation with temporal properties is not implemented ({feature})"
+                )
+            }
+            dive_runtime::Verdict::Unsupported { feature } => {
+                format!("worker preparation: {feature}")
+            }
+            verdict => format!("worker preparation: {verdict:?}"),
+        },
+    }
+}
+
 fn prepare_inner(
     request: &CheckRequest,
     key_file: &Path,
@@ -214,6 +232,17 @@ fn prepare_inner(
     if let Some(feature) = crate::core_engine::option_refusal(&options, request.compat_tlc) {
         return Err(ApiError::Unsupported { feature });
     }
+    let prepared =
+        crate::core_engine::prepare(&ir, model, &options, request.compat_tlc, opts, false)
+            .map_err(|r| preparation_refusal(r.verdict))?;
+
+    if let Some(feature) =
+        crate::core_engine::distributed_model_refusal(&prepared.plan, &prepared.model)
+    {
+        return Err(ApiError::Unsupported {
+            feature: feature.replacen("distributed safety", "worker preparation", 1),
+        });
+    }
     let identity = identity(
         &ir,
         model,
@@ -222,13 +251,13 @@ fn prepare_inner(
         opts,
     )
     .map_err(|v| ApiError::Unsupported {
-        feature: format!("worker identity admission: {v:?}"),
+        feature: match v {
+            dive_runtime::Verdict::Unsupported { feature } => {
+                format!("worker identity admission: {feature}")
+            }
+            verdict => format!("worker identity admission: {verdict:?}"),
+        },
     })?;
-    let prepared =
-        crate::core_engine::prepare(&ir, model, &options, request.compat_tlc, opts, false)
-            .map_err(|r| ApiError::Unsupported {
-                feature: format!("worker preparation: {:?}", r.verdict),
-            })?;
     let inner = dive_explore::distributed::Worker::new(
         prepared.plan,
         prepared.store,

@@ -10,7 +10,13 @@ pub(super) fn command(command: &str) -> Option<&'static str> {
         }
         "check" => CHECK,
         "worker" => {
-            "USAGE: dive worker FILE.tla --seed N --fp N --worker-key FILE\n                        [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                        [--config FILE.cfg] [--compat=tlc] [--store fp|exact]\n                        [--output human|json]\n\nServe supported Core checking work; starting a worker proves no model.\n"
+            "USAGE: dive worker FILE.tla --seed N --fp N --worker-key FILE\n                        [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                        [--config FILE.cfg] [--compat=tlc] [--store fp|exact]\n                        [--output human|json]\n\nServe pure Core safety work for `dive check --distributed-worker`; starting a\n\
+worker proves no model. Give it the same build, FILE.tla, configuration,\n\
+--seed, --fp, --compat, --store and -deadlock as the coordinator.\n\n\
+    --worker-key FILE       local file holding the shared 32-byte secret\n\
+    --listen IP:port        listening endpoint (default 127.0.0.1:0, printed)\n\
+    --worker-timeout-ms N   per-operation and per-unit deadline, 1..60000 (5000)\n\
+    --worker-max-units N    exit after N completed units (default: serve until killed)\n"
         }
         "simulate" => {
             "USAGE: dive simulate FILE.tla --traces N [--generate] [--depth N]\n                          [--seed N] [--aril N] [--stats none|basic]\n                          [--compat=tlc]\n                          [--exit-codes native|tlc] [--output human|json]\n                          [--time-limit DURATION|none] [--max-memory BYTES|auto|none]\n\nRun bounded traces. Successful sampling does not prove exhaustive correctness.\n"
@@ -47,9 +53,13 @@ Supported storage options:\n\
     --seen-probe-steps N --seen-summary-pairs N\n\
     --checkpoint FILE --checkpoint-after-levels N | --recover FILE\n\
     --checkpoint-counters tlc|retain\n\n\
-Supported distributed options:\n\
-    --distributed-worker IP:port (repeatable) --worker-key FILE\n\
-    --worker-timeout-ms N --distributed-retries N\n\n\
+Supported distributed options (pure safety; see docs/user/distributed-safety.md):\n\
+    --distributed-worker IP:port  a running `dive worker` endpoint; repeat, 2..64\n\
+    --worker-key FILE       local file holding the shared 32-byte secret\n\
+    --worker-timeout-ms N   per-operation and per-unit deadline, 1..60000 (5000)\n\
+    --distributed-retries N retries of a lost source unit, 0..8 (2)\n\
+    Requires --seed and --fp; temporal properties, SYMMETRY, VIEW and runtime\n\
+    effects refuse by name. Worker loss past the retries stops with exit 3.\n\n\
 Core is the only engine. Options it does not implement are not listed here;\n\
 they and unsupported combinations refuse by name (exit 3), for example\n\
 --symmetry-liveness tlc (the --compat=tlc default) with SYMMETRY and temporal\n\

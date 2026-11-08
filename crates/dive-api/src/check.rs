@@ -314,6 +314,47 @@ pub struct CheckReport {
     engine: crate::Engine,
 }
 
+/// Names the first coordinator option that distributed safety does not admit,
+/// before the model, configuration or key file is read.
+fn distributed_refusal(req: &CheckRequest, checkpoint: bool) -> Option<String> {
+    let missing = if req.seed.is_none() {
+        Some("--seed")
+    } else if req.fp.is_none() {
+        Some("--fp")
+    } else {
+        None
+    };
+    if let Some(flag) = missing {
+        return Some(format!(
+            "distributed safety without an explicit {flag} is not implemented; give the same {flag} to the coordinator and every worker"
+        ));
+    }
+    let feature = if checkpoint {
+        "checkpoint or recovery"
+    } else if req.temporal != TemporalMode::Ordinary {
+        "bounded final temporal analysis"
+    } else if req.core_sample.is_some() {
+        "--core-sample"
+    } else if !req.host_access.is_empty() {
+        "spec host-access grants"
+    } else if req.sequential {
+        "--sequential"
+    } else if req.chaos.is_some() {
+        "chaos scheduling"
+    } else if req.source_coverage {
+        "source coverage"
+    } else if req.seen_disk.is_some() {
+        "disk-backed seen storage"
+    } else if req.candidate_memory_bytes.is_some() {
+        "candidate spill"
+    } else {
+        return None;
+    };
+    Some(format!(
+        "distributed safety with {feature} is not implemented"
+    ))
+}
+
 fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
     if req.store_compact_bytes.is_some()
         && (req.temporal != TemporalMode::Ordinary || req.core_sample.is_some())
@@ -559,19 +600,9 @@ fn check_file_in(
         });
     }
     if req.distributed.is_some()
-        && (checkpoint.is_some()
-            || req.temporal != TemporalMode::Ordinary
-            || req.core_sample.is_some()
-            || !req.host_access.is_empty()
-            || req.seed.is_none()
-            || req.fp.is_none()
-            || req.sequential
-            || req.chaos.is_some()
-            || req.source_coverage
-            || req.seen_disk.is_some()
-            || req.candidate_memory_bytes.is_some())
+        && let Some(feature) = distributed_refusal(req, checkpoint.is_some())
     {
-        return Err(crate::ApiError::Unsupported{feature:"distributed safety requires explicit Core/seed/fp and pure ordinary BFS; checkpoint, sampling, host effects, sequential, disk seen and candidate spill combinations are not implemented".into()});
+        return Err(crate::ApiError::Unsupported { feature });
     }
     if req.store_compact_bytes.is_some()
         && checkpoint

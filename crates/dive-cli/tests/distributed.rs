@@ -136,9 +136,14 @@ fn validate(file: &Path, profile: &str, report: &Value, scratch: &Path) -> TestR
         ending.insert("kind".into(), "invariant".into());
         ending.insert("name".into(), "absent-property".into());
         std::fs::write(&path, serde_json::to_vec(&changed)?)?;
+        // Rejected either as an invalid word or, for error endings, as an
+        // inadmissible claim; neither may succeed.
         let result = run()?;
-        let doc: Value = serde_json::from_slice(&result.stdout)?;
-        assert!(!result.status.success(), "mutated claim: {doc}");
+        assert!(
+            !result.status.success(),
+            "mutated claim: {}",
+            String::from_utf8_lossy(&result.stdout)
+        );
     }
     Ok(())
 }
@@ -441,5 +446,661 @@ fn a_later_lost_process_result_cannot_replace_an_earlier_valid_model_error() -> 
             })?;
         }
     }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Robustness controls (#953). Every outcome is the local result or a named,
+// non-success refusal without statistics or a counterexample. Synchronization
+// is explicit: finite worker lifetimes, listeners that never accept, and
+// relays that stop forwarding after a fixed number of sessions.
+
+enum Started {
+    Ready(Worker),
+    Refused(Option<i32>, String),
+}
+fn spawn_worker(
+    exe: &Path,
+    file: &Path,
+    profile: &str,
+    key: &Path,
+    extra: &[&str],
+) -> Result<Started, Box<dyn std::error::Error>> {
+    let mut child = Command::new(exe)
+        .arg("worker")
+        .arg(file)
+        .args(["--seed=0", "--fp=0", "--output=json", "--store=fp"])
+        .arg(format!("--compat={profile}"))
+        .arg("--worker-key")
+        .arg(key)
+        .args(extra)
+        .env_remove("DIVE_COMPAT")
+        .env_remove("DIVE_CORE_OPT")
+        .env_remove("DIVE_CHAOS")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+    let stdout = child.stdout.take().ok_or("worker stdout")?;
+    let mut stderr = child.stderr.take().ok_or("worker stderr")?;
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let mut line = String::new();
+        let result = BufReader::new(stdout).read_line(&mut line).map(|_| line);
+        let _ = tx.send(result);
+    });
+    let line = rx.recv_timeout(Duration::from_secs(30))??;
+    if line.is_empty() {
+        let mut message = String::new();
+        stderr.read_to_string(&mut message)?;
+        let status = child.wait()?;
+        return Ok(Started::Refused(status.code(), message));
+    }
+    let ready: Value = serde_json::from_str(&line)?;
+    assert_eq!(ready["status"], "ready", "{ready}");
+    assert_eq!(ready["model_proved"], false);
+    Ok(Started::Ready(Worker {
+        child,
+        address: ready["address"].as_str().ok_or("worker address")?.into(),
+    }))
+}
+fn ready(
+    file: &Path,
+    profile: &str,
+    key: &Path,
+    extra: &[&str],
+) -> Result<Worker, Box<dyn std::error::Error>> {
+    match spawn_worker(
+        Path::new(env!("CARGO_BIN_EXE_dive")),
+        file,
+        profile,
+        key,
+        extra,
+    )? {
+        Started::Ready(worker) => Ok(worker),
+        Started::Refused(code, message) => {
+            Err(format!("worker refused ({code:?}): {message}").into())
+        }
+    }
+}
+struct Run {
+    code: Option<i32>,
+    report: Value,
+    stderr: String,
+}
+fn coordinate(
+    file: &Path,
+    profile: &str,
+    key: &Path,
+    endpoints: &[&str],
+    extra: &[&str],
+) -> Result<Run, Box<dyn std::error::Error>> {
+    let mut run = command(file, profile, "fp", "check");
+    run.arg("--worker-key").arg(key);
+    for endpoint in endpoints {
+        run.args(["--distributed-worker", endpoint]);
+    }
+    let output = run.args(extra).output()?;
+    let report = if output.stdout.is_empty() {
+        Value::Null
+    } else {
+        serde_json::from_slice(&output.stdout)?
+    };
+    Ok(Run {
+        code: output.status.code(),
+        report,
+        stderr: String::from_utf8(output.stderr)?,
+    })
+}
+// A failed distributed run never carries a verdict or a word. Statistics, when
+// present, are the committed progress of a stopped run, as for a local budget.
+fn refused(run: &Run, needle: &str) {
+    assert_eq!(run.code, Some(3), "{} {}", run.report, run.stderr);
+    assert_eq!(run.report["verdict"], "resource-limit", "{}", run.report);
+    assert!(run.report["tlc"].is_null(), "{}", run.report);
+    assert!(run.report["property"].is_null(), "{}", run.report);
+    assert!(run.report["counterexample"].is_null(), "{}", run.report);
+    let message = run.report["message"].as_str().unwrap_or_default();
+    assert!(message.contains(needle), "expected `{needle}` in {message}");
+}
+fn usage(run: &Run, needle: &str) {
+    assert_eq!(run.code, Some(2), "{}", run.stderr);
+    assert!(run.report.is_null());
+    assert!(
+        run.stderr.contains(needle),
+        "expected `{needle}` in {}",
+        run.stderr
+    );
+}
+fn wide(scratch: &Path) -> std::io::Result<PathBuf> {
+    let file = scratch.join("Wide.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE Wide ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..31\nNext == x' = IF x < 32 THEN x + 32 ELSE x\nInv == x < 64\n====\n",
+    )?;
+    std::fs::write(
+        file.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+    )?;
+    Ok(file)
+}
+
+// Relays the first `forward` sessions to `target`; later sessions are accepted
+// and held without a byte, so the coordinator's deadline is the only way out.
+fn relay(listener: &TcpListener, target: &str, forward: usize, stop: &AtomicBool) {
+    listener.set_nonblocking(true).expect("relay listener");
+    let mut held = Vec::new();
+    let mut sessions = 0;
+    std::thread::scope(|scope| {
+        while !stop.load(Ordering::Relaxed) {
+            let incoming = match listener.accept() {
+                Ok((stream, _)) => stream,
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                    std::thread::sleep(Duration::from_millis(1));
+                    continue;
+                }
+                Err(_) => return,
+            };
+            incoming
+                .set_nonblocking(false)
+                .expect("blocking relay stream");
+            sessions += 1;
+            if sessions > forward {
+                held.push(incoming);
+                continue;
+            }
+            let outgoing = TcpStream::connect(target).expect("relay target");
+            let (mut a, mut b) = (
+                incoming.try_clone().expect("clone"),
+                outgoing.try_clone().expect("clone"),
+            );
+            scope.spawn(move || {
+                let _ = std::io::copy(&mut a, &mut b);
+                let _ = b.shutdown(Shutdown::Both);
+            });
+            let (mut a, mut b) = (outgoing, incoming);
+            scope.spawn(move || {
+                let _ = std::io::copy(&mut a, &mut b);
+                let _ = b.shutdown(Shutdown::Both);
+            });
+        }
+        for stream in &held {
+            let _ = stream.shutdown(Shutdown::Both);
+        }
+    });
+}
+
+#[test]
+fn four_process_workers_match_local_results_deterministically_across_verdicts() -> TestResult {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    for (relative, verdict) in [
+        ("../../docs/user/examples/Counter.tla", "success"),
+        (
+            "../dive-api/tests/fixtures/core-m0/CompoundTrace.tla",
+            "invariant-violation",
+        ),
+        ("../dive-api/tests/fixtures/core-m0/Dead.tla", "deadlock"),
+        (
+            "../dive-api/tests/fixtures/checker/dfid/DfidConstrained.tla",
+            "success",
+        ),
+        (
+            "../dive-api/tests/fixtures/checker/dfid/DfidActionConstrained.tla",
+            "action-property-violation",
+        ),
+        (
+            "../dive-api/tests/fixtures/checker/errors/specs/ErActConstrDivZero/ErActConstrDivZero.tla",
+            "evaluation-error",
+        ),
+    ] {
+        let file = root.join(relative);
+        // The two-worker control above covers both stores; here both profiles
+        // run for the violation and error models only, keeping the test fast.
+        let profiles: &[&str] = if matches!(verdict, "invariant-violation" | "evaluation-error") {
+            &["dive", "tlc"]
+        } else {
+            &["dive"]
+        };
+        for &profile in profiles {
+            let local = command(&file, profile, "fp", "check").output()?;
+            let expected: Value = serde_json::from_slice(&local.stdout)?;
+            assert_eq!(expected["verdict"], verdict, "{relative}: {expected}");
+            let workers = (0..4)
+                .map(|_| ready(&file, profile, &key, &[]))
+                .collect::<Result<Vec<_>, _>>()?;
+            let endpoints: Vec<&str> = workers.iter().map(|w| w.address.as_str()).collect();
+            let first = coordinate(&file, profile, &key, &endpoints, &[])?;
+            let second = coordinate(&file, profile, &key, &endpoints, &[])?;
+            for run in [&first, &second] {
+                assert_eq!(
+                    observable(&run.report),
+                    observable(&expected),
+                    "{relative}, {profile}: {}",
+                    run.stderr
+                );
+                assert_eq!(run.code, local.status.code());
+                let facts = &run.report["core"]["metrics"]["distributed"];
+                assert_eq!(facts["configured_workers"], 4, "{facts}");
+                assert_eq!(facts["failures"], json!([]));
+                assert_eq!(facts["retries"], 0);
+            }
+            validate(&file, profile, &first.report, &scratch.0)?;
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn a_worker_that_exits_mid_run_is_retried_elsewhere_or_the_run_fails_by_name() -> TestResult {
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    let file = wide(&scratch.0)?;
+    let local = command(&file, "dive", "fp", "check").output()?;
+    let expected: Value = serde_json::from_slice(&local.stdout)?;
+    assert_eq!(expected["verdict"], "success");
+    // The finite worker serves its startup ping and three units, then exits.
+    let a = ready(&file, "dive", &key, &["--worker-max-units=3"])?;
+    let b = ready(&file, "dive", &key, &[])?;
+    let run = coordinate(&file, "dive", &key, &[&a.address, &b.address], &[])?;
+    assert_eq!(
+        observable(&run.report),
+        observable(&expected),
+        "{}",
+        run.stderr
+    );
+    assert_eq!(run.code, Some(0));
+    let facts = &run.report["core"]["metrics"]["distributed"];
+    assert!(facts["retries"].as_u64().ok_or("retries")? > 0, "{facts}");
+    assert_eq!(facts["failures"], json!([]));
+    assert_eq!(facts["completed_units"], facts["assigned_units"]);
+
+    let a = ready(&file, "dive", &key, &["--worker-max-units=3"])?;
+    let b = ready(&file, "dive", &key, &[])?;
+    let run = coordinate(
+        &file,
+        "dive",
+        &key,
+        &[&a.address, &b.address],
+        &["--distributed-retries=0"],
+    )?;
+    refused(&run, "DIVE-S0502: distributed I/O");
+    assert_eq!(run.report["core"]["metrics"]["distributed"]["retries"], 0);
+
+    // Every endpoint gone: the bounded retries are exhausted.
+    let a = ready(&file, "dive", &key, &["--worker-max-units=2"])?;
+    let b = ready(&file, "dive", &key, &["--worker-max-units=2"])?;
+    let run = coordinate(
+        &file,
+        "dive",
+        &key,
+        &[&a.address, &b.address],
+        &["--distributed-retries=3"],
+    )?;
+    refused(&run, "DIVE-S0502: distributed I/O");
+    assert!(
+        run.report["core"]["metrics"]["distributed"]["retries"]
+            .as_u64()
+            .ok_or("retries")?
+            >= 3
+    );
+    Ok(())
+}
+
+#[test]
+fn endpoints_that_never_answer_or_stall_hit_the_deadline_by_name() -> TestResult {
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/user/examples/Counter.tla");
+    let local = command(&file, "dive", "fp", "check").output()?;
+    let expected: Value = serde_json::from_slice(&local.stdout)?;
+    let b = ready(&file, "dive", &key, &[])?;
+
+    // No listener at all.
+    let closed = TcpListener::bind("127.0.0.1:0")?.local_addr()?.to_string();
+    let run = coordinate(&file, "dive", &key, &[&closed, &b.address], &[])?;
+    refused(&run, "DIVE-S0502: distributed I/O");
+
+    // A listener that never accepts: TCP connects, nothing ever answers.
+    let silent = TcpListener::bind("127.0.0.1:0")?;
+    let silent_address = silent.local_addr()?.to_string();
+    let run = coordinate(
+        &file,
+        "dive",
+        &key,
+        &[&silent_address, &b.address],
+        &["--worker-timeout-ms=200"],
+    )?;
+    refused(&run, "did not answer the authenticated handshake");
+    refused(&run, "no reply within the --worker-timeout-ms deadline");
+    drop(silent);
+
+    // A worker reachable only through a relay that forwards the startup
+    // session and then stalls every unit session.
+    let a = ready(&file, "dive", &key, &[])?;
+    for (retries, recovered) in [
+        ("--distributed-retries=2", true),
+        ("--distributed-retries=0", false),
+    ] {
+        let listener = TcpListener::bind("127.0.0.1:0")?;
+        let relay_address = listener.local_addr()?.to_string();
+        let stop = Arc::new(AtomicBool::new(false));
+        std::thread::scope(|scope| -> TestResult {
+            let _guard = Stop(Arc::clone(&stop));
+            let (listener, target, stop) = (&listener, a.address.as_str(), &stop);
+            scope.spawn(move || relay(listener, target, 1, stop));
+            let run = coordinate(
+                &file,
+                "dive",
+                &key,
+                &[&relay_address, &b.address],
+                &["--worker-timeout-ms=200", retries],
+            )?;
+            if recovered {
+                assert_eq!(
+                    observable(&run.report),
+                    observable(&expected),
+                    "{}",
+                    run.stderr
+                );
+                assert_eq!(run.code, Some(0));
+                let facts = &run.report["core"]["metrics"]["distributed"];
+                assert!(facts["retries"].as_u64().ok_or("retries")? > 0, "{facts}");
+            } else {
+                refused(&run, "no reply within the --worker-timeout-ms deadline");
+            }
+            Ok(())
+        })?;
+    }
+    Ok(())
+}
+
+#[test]
+fn a_unit_longer_than_the_worker_deadline_is_reported_by_the_worker() -> TestResult {
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    let file = scratch.0.join("SlowUnit.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE SlowUnit ----\nEXTENDS Naturals, FiniteSets\nVARIABLE x\nInit == x = 0\nNext == x < 2 /\\ x' = x + 1 + 0 * Cardinality({s \\in SUBSET (1..20) : Cardinality(s) = 10})\nInv == x < 9\n====\n",
+    )?;
+    std::fs::write(
+        file.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+    )?;
+    let a = ready(&file, "dive", &key, &["--worker-timeout-ms=50"])?;
+    let b = ready(&file, "dive", &key, &["--worker-timeout-ms=50"])?;
+    let run = coordinate(
+        &file,
+        "dive",
+        &key,
+        &[&a.address, &b.address],
+        &["--worker-timeout-ms=30000"],
+    )?;
+    refused(
+        &run,
+        "worker refused incomplete unit: the unit did not finish within the worker's --worker-timeout-ms of 50 ms",
+    );
+    Ok(())
+}
+
+#[test]
+fn keys_must_be_present_exact_and_shared() -> TestResult {
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    let other = scratch.0.join("other-key");
+    std::fs::write(&other, [7; 32])?;
+    let short = scratch.0.join("short-key");
+    std::fs::write(&short, [7; 31])?;
+    let absent = scratch.0.join("absent-key");
+    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/user/examples/Counter.tla");
+    let a = ready(&file, "dive", &key, &[])?;
+    let b = ready(&file, "dive", &key, &[])?;
+    let endpoints = [a.address.as_str(), b.address.as_str()];
+    let run = coordinate(
+        &file,
+        "dive",
+        &other,
+        &endpoints,
+        &["--worker-timeout-ms=2000"],
+    )?;
+    refused(
+        &run,
+        "check that every role reads the same --worker-key file",
+    );
+    let run = coordinate(&file, "dive", &short, &endpoints, &[])?;
+    refused(&run, "must contain exactly 32 bytes");
+    let run = coordinate(&file, "dive", &absent, &endpoints, &[])?;
+    refused(&run, "absent-key");
+    let output = command(&file, "dive", "fp", "check")
+        .args([
+            "--distributed-worker",
+            endpoints[0],
+            "--distributed-worker",
+            endpoints[1],
+        ])
+        .output()?;
+    assert_eq!(output.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("requires --worker-key FILE"));
+
+    let c = ready(&file, "dive", &other, &[])?;
+    let run = coordinate(&file, "dive", &key, &[&a.address, &c.address], &[])?;
+    refused(
+        &run,
+        "check that every role reads the same --worker-key file",
+    );
+    let exe = Path::new(env!("CARGO_BIN_EXE_dive"));
+    for (bad, needle) in [
+        (&short, "must contain exactly 32 bytes"),
+        (&absent, "absent-key"),
+    ] {
+        match spawn_worker(exe, &file, "dive", bad, &[])? {
+            Started::Ready(_) => return Err("worker started without a valid key".into()),
+            Started::Refused(code, message) => {
+                assert_eq!(code, Some(3), "{message}");
+                assert!(message.contains(needle), "{message}");
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn a_worker_from_another_build_refuses_by_identity() -> TestResult {
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/user/examples/Counter.tla");
+    let other = scratch.0.join("dive-other-build");
+    std::fs::copy(env!("CARGO_BIN_EXE_dive"), &other)?;
+    std::fs::OpenOptions::new()
+        .append(true)
+        .open(&other)?
+        .write_all(b"different build")?;
+    let a = match spawn_worker(&other, &file, "dive", &key, &[])? {
+        Started::Ready(worker) => worker,
+        Started::Refused(code, message) => {
+            return Err(format!("other build refused ({code:?}): {message}").into());
+        }
+    };
+    let b = ready(&file, "dive", &key, &[])?;
+    let run = coordinate(&file, "dive", &key, &[&a.address, &b.address], &[])?;
+    refused(&run, "identity mismatch");
+    Ok(())
+}
+
+#[test]
+fn endpoint_and_listener_policy_refuse_before_loading_the_model() -> TestResult {
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    let missing = scratch.0.join("Missing.tla");
+    let run = coordinate(&missing, "dive", &key, &["127.0.0.1:1"], &[])?;
+    usage(&run, "requires 2..64 --distributed-worker endpoints");
+    let run = coordinate(&missing, "dive", &key, &["127.0.0.1:1", "127.0.0.1:1"], &[])?;
+    usage(&run, "endpoints must be distinct");
+    let many: Vec<String> = (1..=65).map(|port| format!("127.0.0.1:{port}")).collect();
+    let many: Vec<&str> = many.iter().map(String::as_str).collect();
+    let run = coordinate(&missing, "dive", &key, &many, &[])?;
+    usage(&run, "requires 2..64 --distributed-worker endpoints");
+    for (flag, needle) in [
+        ("--worker-timeout-ms=0", "1..60000"),
+        ("--worker-timeout-ms=60001", "1..60000"),
+        ("--distributed-retries=9", "0..8"),
+    ] {
+        let run = coordinate(
+            &missing,
+            "dive",
+            &key,
+            &["127.0.0.1:1", "127.0.0.1:2"],
+            &[flag],
+        )?;
+        usage(&run, needle);
+    }
+    assert!(!missing.exists());
+
+    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/user/examples/Counter.tla");
+    let busy = TcpListener::bind("127.0.0.1:0")?;
+    let busy_address = busy.local_addr()?.to_string();
+    let exe = Path::new(env!("CARGO_BIN_EXE_dive"));
+    match spawn_worker(
+        exe,
+        &file,
+        "dive",
+        &key,
+        &[&format!("--listen={busy_address}")],
+    )? {
+        Started::Ready(_) => return Err("worker listened on a port in use".into()),
+        Started::Refused(code, message) => {
+            assert_eq!(code, Some(2), "{message}");
+            assert!(message.contains("worker listener"), "{message}");
+        }
+    }
+
+    // Two endpoints that reach one worker process are one worker.
+    let a = ready(&file, "dive", &key, &[])?;
+    let listener = TcpListener::bind("127.0.0.1:0")?;
+    let alias = listener.local_addr()?.to_string();
+    let stop = Arc::new(AtomicBool::new(false));
+    std::thread::scope(|scope| -> TestResult {
+        let _guard = Stop(Arc::clone(&stop));
+        let (listener, target, stop) = (&listener, a.address.as_str(), &stop);
+        scope.spawn(move || relay(listener, target, usize::MAX, stop));
+        let run = coordinate(&file, "dive", &key, &[&a.address, &alias], &[])?;
+        refused(&run, "two independently initialized workers required");
+        Ok(())
+    })?;
+    Ok(())
+}
+
+#[test]
+fn unsupported_models_and_options_refuse_by_name_on_both_roles() -> TestResult {
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    let model = |name: &str, extra: &str, cfg: &str| -> std::io::Result<PathBuf> {
+        let file = scratch.0.join(format!("{name}.tla"));
+        std::fs::write(
+            &file,
+            format!(
+                "---- MODULE {name} ----\nEXTENDS Naturals, TLC\nCONSTANT P\nVARIABLE x\nInit == x = 0\nNext == x' = (x + 1) % 3\n{extra}\n====\n"
+            ),
+        )?;
+        std::fs::write(
+            file.with_extension("cfg"),
+            format!("CONSTANT P = {{p1, p2}}\nINIT Init\nNEXT Next\n{cfg}\n"),
+        )?;
+        Ok(file)
+    };
+    let cases = [
+        (
+            model("Sym", "Perms == Permutations(P)", "SYMMETRY Perms")?,
+            "with SYMMETRY is not implemented",
+        ),
+        (
+            model(
+                "Live",
+                "Spec == Init /\\ [][Next]_x /\\ WF_x(Next)\nLive == <>(x = 2)",
+                "PROPERTY Live",
+            )?,
+            "temporal properties",
+        ),
+        (
+            model("Eff", "Inv == PrintT(x)", "INVARIANT Inv")?,
+            "with runtime effects",
+        ),
+        (
+            model("Vw", "V == x % 2", "VIEW V")?,
+            "with VIEW is not implemented",
+        ),
+    ];
+    let exe = Path::new(env!("CARGO_BIN_EXE_dive"));
+    for (file, needle) in &cases {
+        // Unreachable endpoints prove the refusal precedes any connection.
+        let run = coordinate(file, "dive", &key, &["127.0.0.1:1", "127.0.0.1:2"], &[])?;
+        assert_eq!(run.code, Some(3), "{} {}", run.report, run.stderr);
+        assert_eq!(run.report["verdict"], "unsupported", "{}", run.report);
+        let message = run.report["message"].as_str().unwrap_or_default();
+        assert!(message.contains(needle), "{message}");
+        assert!(run.report["statistics"].is_null());
+        match spawn_worker(exe, file, "dive", &key, &[])? {
+            Started::Ready(_) => return Err(format!("worker admitted {}", file.display()).into()),
+            Started::Refused(code, message) => {
+                assert_eq!(code, Some(3), "{message}");
+                assert!(message.contains("worker preparation"), "{message}");
+                assert!(message.contains(needle), "{message}");
+                assert!(!message.contains("Unsupported {"), "{message}");
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn unsupported_coordinator_options_refuse_by_name() -> TestResult {
+    let scratch = Scratch::new()?;
+    let key = scratch.0.join("key");
+    let counter =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/user/examples/Counter.tla");
+    for (flags, needle) in [
+        (
+            &["--sequential"][..],
+            "with --sequential is not implemented",
+        ),
+        (
+            &[
+                "--workers=1",
+                "--checkpoint",
+                "x.ckpt",
+                "--checkpoint-after-levels=1",
+            ][..],
+            "checkpoint",
+        ),
+    ] {
+        let run = coordinate(
+            &counter,
+            "dive",
+            &key,
+            &["127.0.0.1:1", "127.0.0.1:2"],
+            flags,
+        )?;
+        assert_ne!(run.code, Some(0), "{}", run.stderr);
+        assert!(
+            run.stderr.contains(needle) || run.report.to_string().contains(needle),
+            "{needle}: {} {}",
+            run.report,
+            run.stderr
+        );
+    }
+    let output = Command::new(env!("CARGO_BIN_EXE_dive"))
+        .arg("check")
+        .arg(&counter)
+        .args(["--output=json", "--worker-key"])
+        .arg(&key)
+        .args([
+            "--distributed-worker=127.0.0.1:1",
+            "--distributed-worker=127.0.0.1:2",
+        ])
+        .env_remove("DIVE_COMPAT")
+        .output()?;
+    assert_eq!(output.status.code(), Some(3));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("without an explicit --seed"));
     Ok(())
 }

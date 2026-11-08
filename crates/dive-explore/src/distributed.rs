@@ -88,6 +88,17 @@ fn remaining(deadline: Instant) -> Result<Duration, Error> {
             ))
         })
 }
+// A socket timeout surfaces as WouldBlock on Unix; name the deadline instead.
+fn timed_out(error: &std::io::Error) -> String {
+    if matches!(
+        error.kind(),
+        std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut
+    ) {
+        "no reply within the --worker-timeout-ms deadline".into()
+    } else {
+        error.to_string()
+    }
+}
 // Refresh the remaining absolute deadline for every syscall. A peer trickling
 // bytes cannot extend a unit by repeatedly resetting a relative socket timeout.
 fn read_until(
@@ -108,7 +119,7 @@ fn read_until(
             }
             Ok(n) => bytes = &mut bytes[n..],
             Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}
-            Err(e) => return Err(io(e)),
+            Err(e) => return Err(io(timed_out(&e))),
         }
     }
     Ok(())
@@ -127,7 +138,7 @@ fn write_until(stream: &mut TcpStream, mut bytes: &[u8], deadline: Instant) -> R
             }
             Ok(n) => bytes = &bytes[n..],
             Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}
-            Err(e) => return Err(io(e)),
+            Err(e) => return Err(io(timed_out(&e))),
         }
     }
     Ok(())
@@ -146,14 +157,18 @@ struct Secret([u8; 32]);
 impl Secret {
     fn read(path: &Path) -> Result<Self, Error> {
         let mut bytes = Vec::new();
+        let named = |e: std::io::Error| io(format!("worker key file {}: {e}", path.display()));
         std::fs::File::open(path)
-            .map_err(io)?
+            .map_err(named)?
             .take(33)
             .read_to_end(&mut bytes)
-            .map_err(io)?;
-        let key = bytes
-            .try_into()
-            .map_err(|_| failure("worker key file must contain exactly 32 bytes"))?;
+            .map_err(named)?;
+        let key = bytes.try_into().map_err(|_| {
+            failure(format!(
+                "worker key file {} must contain exactly 32 bytes",
+                path.display()
+            ))
+        })?;
         Ok(Self(key))
     }
     fn mac(&self, parts: &[&[u8]]) -> Result<Hmac<Sha256>, Error> {
@@ -399,8 +414,20 @@ fn connect(
     write_until(&mut stream, &tag, deadline)?;
     let mut ack = [0; 69];
     let mut mac = [0; 32];
-    read_until(&mut stream, &mut ack, deadline)?;
-    read_until(&mut stream, &mut mac, deadline)?;
+    // A worker drops a session whose HELLO fails authentication without an
+    // authenticated reply, so name the likely causes of that silence.
+    read_until(&mut stream, &mut ack, deadline)
+        .and_then(|()| read_until(&mut stream, &mut mac, deadline))
+        .map_err(|error| {
+            io(format!(
+                "worker {address} closed or did not answer the authenticated handshake \
+                 (check that every role reads the same --worker-key file and runs the \
+                 same dive build, and that the worker is running): {}",
+                error
+                    .message()
+                    .trim_start_matches("DIVE-S0502: distributed I/O: ")
+            ))
+        })?;
     key.verify(&[b"ack", &hello, &ack], &mac)?;
     if ack[0] != 0 {
         return Err(failure(
@@ -991,7 +1018,18 @@ impl Worker {
                     facts.failures.push(error.message().into());
                 }
                 drop(facts);
-                channel.write(&self.key, FAILED, error.message().as_bytes())
+                // The unit deadline may already have passed; give the bounded
+                // FAILED report its own deadline so the coordinator learns why.
+                channel.deadline = Instant::now() + self.timeout;
+                let message = if Instant::now() >= deadline {
+                    format!(
+                        "the unit did not finish within the worker's --worker-timeout-ms of {} ms",
+                        self.timeout.as_millis()
+                    )
+                } else {
+                    error.message().to_owned()
+                };
+                channel.write(&self.key, FAILED, message.as_bytes())
             }
         }
     }

@@ -41,6 +41,18 @@ published. Earlier pre-release development entries remain in git history.
   never used them; `StateFingerprinter`, `state_key`, `StoreMode`, `seen`,
   `spill` and `predecessor` are unchanged, and so are verdicts, counts and
   checkpoint archives.
+- Distributed safety workers (`dive check --distributed-worker`, `dive worker`)
+  now report failures by name (issue #953). Fewer than two or repeated
+  endpoints, and out-of-range `--worker-timeout-ms` or `--distributed-retries`,
+  are usage errors (exit 2) before the model is loaded. A wrong key names the
+  key as a likely cause; a socket timeout names `--worker-timeout-ms`; a unit
+  longer than the worker's own deadline is reported by the worker; a missing
+  key file is named; and refusals say which option or model feature
+  (temporal properties, `SYMMETRY`, `VIEW`, runtime effects, missing `--seed`
+  or `--fp`, `--sequential`, ...) is not supported. Results are unchanged.
+  The `check` and `worker` help describe each option, and the
+  [distributed safety guide](docs/user/distributed-safety.md) covers setup,
+  supported checks and failure behaviour.
 - The binder's start-up evaluation now also evaluates a repeated pure call
   once when the operator comes from an instantiated module or calls other
   operators, in the default profile. The instance's substitutions count as
