@@ -3,6 +3,8 @@
 //! `enabled-false-prefix` corpus controls; their goldens come from the pinned
 //! TLC through the harness.
 #![allow(clippy::expect_used, reason = "test fixture construction")]
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, ExitConvention, TemporalMode};
@@ -38,7 +40,7 @@ fn check(
             workers: Some(1),
             ..Default::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )?
     .to_json_with_exit_convention(ExitConvention::Tlc))
 }
@@ -72,6 +74,13 @@ fn false_enabled_prefix_reports_the_violation_with_a_validated_word() -> TestRes
             // Pinned TLC: temporal property `Prop` violated, 2116, exit 13,
             // 2 generated, 1 distinct, depth 1, no division error.
             let report = check("StartupFilterUnreachedError", compat_tlc, temporal)?;
+            if temporal == TemporalMode::FinalShort {
+                // Only the retired reference engine ran bounded final
+                // checking (#791, #910).
+                let exit = u8::try_from(report["exit_code"].as_u64().unwrap_or(255))?;
+                refused::assert_refused(&report, exit, refused::FINAL_SHORT);
+                continue;
+            }
             assert_eq!(report["verdict"], "liveness-violation", "{report}");
             assert_eq!(report["exit_code"], 13);
             assert_eq!(report["property"], "Prop");
@@ -155,11 +164,15 @@ fn reached_filter_equality_reaches_the_division_error_in_the_tlc_profile() -> Te
                 workers: Some(1),
                 ..Default::default()
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )?
         .to_json_with_exit_convention(ExitConvention::Tlc);
         assert_ne!(report["verdict"], "success", "{report}");
-        assert!(report.to_string().contains("2179"), "{report}");
+        // Only the retired reference engine reported the division error
+        // (2179) from a liveness atom (#791, #910); Core refuses to build
+        // that report rather than skip the equality.
+        let exit = u8::try_from(report["exit_code"].as_u64().unwrap_or(255))?;
+        refused::assert_refused(&report, exit, refused::TEMPORAL_FAILURE_REPORT);
         Ok(())
     })();
     std::fs::remove_dir_all(&dir)?;

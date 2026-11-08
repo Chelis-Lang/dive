@@ -1,6 +1,8 @@
 //! Sequential graph capture combines name ordering and TLC composition.
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{ActionComposition, CheckRequest, ExitConvention, TemporalMode};
+use dive_api::{ActionComposition, CheckRequest, TemporalMode};
 use serde_json::json;
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -28,54 +30,15 @@ fn check_primary_cases(temporal: TemporalMode) -> TestResult {
             if temporal == TemporalMode::FinalShort {
                 request.temporal = TemporalMode::FinalShort;
             }
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
-            let doc = report.to_json_with_exit_convention(ExitConvention::Tlc);
-            assert_eq!(doc["execution"]["capture_completed"], true, "{doc}");
-            assert_eq!(doc["options"]["action_composition"], "tlc");
-            assert_eq!(doc["options"]["lncheck"], "final");
-            assert_eq!(doc["options"]["lasso"], "short");
-            if temporal == TemporalMode::Ordinary {
-                assert_eq!(doc["options"]["profile"], "tlc");
-            }
-            for field in ["generated", "distinct", "depth"] {
-                assert_eq!(doc["statistics"][field], case[field]);
-            }
-            assert_eq!(doc["options"]["workers"]["requested"], workers);
-            assert_eq!(doc["options"]["workers"]["used"], 1);
-            assert_eq!(doc["options"]["workers"]["sequential"], true);
-            if case["case"] == "hold" {
-                assert_eq!(report.verdict(), "success", "{doc}");
-                assert_eq!(doc["exit_code"], case["physical_exit"]);
-                let dive_api::temporal::Outcome::Holds(captured) =
-                    report.temporal_result().ok_or("temporal result")?.outcome()
-                else {
-                    return Err("holding graph is required".into());
-                };
-                let actual = captured
-                    .graph
-                    .states
-                    .iter()
-                    .map(|state| match &state[0] {
-                        Some(dive_value::Value::Str(value)) => Ok(value.as_str()),
-                        _ => Err("expected string state"),
-                    })
-                    .collect::<Result<Vec<_>, _>>()?;
-                assert_eq!(
-                    serde_json::to_value(actual)?,
-                    oracle["word"],
-                    "actual primary values"
-                );
-            } else {
-                assert_eq!(report.verdict(), "unsupported", "{doc}");
-                assert_eq!(doc["execution"]["stage"], "validation");
-                assert_eq!(doc["exit_code"], 3);
-                assert!(
-                    doc["message"]
-                        .as_str()
-                        .is_some_and(|message| !message.is_empty())
-                );
-            }
-            assert!(doc["counterexample"].is_null() && doc["property"].is_null());
+            // Only the retired reference engine ran TLC action composition
+            // (#791, #910). Pinned TLC holds `hold` with the oracle's counts
+            // and primary values; the other case was a named refusal.
+            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            refused::assert_refused(
+                &report.to_json(),
+                report.exit_code(),
+                refused::ACTION_COMPOSITION,
+            );
         }
     }
     Ok(())
@@ -183,14 +146,14 @@ fn original_short_fragment_matches_the_pinned_success() -> TestResult {
             workers: Some(1),
             ..Default::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )?;
-    let doc = report.to_json();
-    assert_eq!(doc["verdict"], "success", "{doc}");
-    assert_eq!(doc["execution"]["capture_completed"], true);
-    assert_eq!(doc["statistics"]["generated"], 5);
-    assert_eq!(doc["statistics"]["distinct"], 2);
-    assert_eq!(doc["statistics"]["depth"], 2);
-    assert!(doc["counterexample"].is_null());
+    // Only the retired reference engine ran TLC action composition (#791,
+    // #910); Core refuses it by name.
+    refused::assert_refused(
+        &report.to_json(),
+        report.exit_code(),
+        refused::ACTION_COMPOSITION,
+    );
     Ok(())
 }

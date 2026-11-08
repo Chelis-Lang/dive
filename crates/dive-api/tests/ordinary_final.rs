@@ -1,6 +1,7 @@
 //! Ordinary compat requests reuse final checking without changing safety startup.
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+#[path = "support/refused.rs"]
+mod refused;
+use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, ExitConvention, TemporalMode};
@@ -53,12 +54,16 @@ const CONFIG: &str = "INIT Init\nNEXT Next\nPROPERTY P\n";
 const COUNTER: &str = "VARIABLE x\nInit == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\n";
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "one matrix checks both properties against the pinned counts"
+)]
 fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -> TestResult {
     for (property, violation) in [("[]<>(x<=2)", false), ("<>(x=3)", true)] {
         let spec = Spec::new(&format!("{COUNTER}P == {property}"), CONFIG)?;
         for workers in [1, 4] {
             let request = spec.request(workers);
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert!(report.result().is_none());
             assert!(report.temporal_result().is_some());
@@ -104,17 +109,19 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             }
             let mut explicit = request.clone();
             explicit.temporal = TemporalMode::FinalShort;
-            let original =
-                dive_api::check_file_engine(&explicit, dive_api::Engine::Reference)?.to_json();
-            assert_eq!(original["options"]["profile"], "tlc+overrides");
-            assert_eq!(original["verdict"], value["verdict"]);
-            assert_eq!(original["statistics"], value["statistics"]);
+            // Only the retired reference engine ran bounded final checking
+            // (#791, #910).
+            let original = dive_api::check_file_engine(&explicit, dive_api::Engine::Core)?;
+            refused::assert_refused(
+                &original.to_json(),
+                original.exit_code(),
+                refused::FINAL_SHORT,
+            );
             let mut native = request;
             native.compat_tlc = false;
             // Below the default schedule's minimum, the default profile checks
             // once at exhaustion and reports the final truth and counts.
-            let default =
-                dive_api::check_file_engine(&native, dive_api::Engine::Reference)?.to_json();
+            let default = dive_api::check_file_engine(&native, dive_api::Engine::Core)?.to_json();
             assert_eq!(default["options"]["profile"], "dive");
             assert_eq!(default["options"]["lncheck"], "deterministic");
             assert_eq!(default["periodic"]["min_states"], 65_536);
@@ -122,10 +129,10 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             assert_eq!(default["periodic"]["prefix_checks"], 0);
             assert_eq!(default["periodic"]["final_check"], true);
             assert_eq!(default["execution"]["exhausted"], true);
-            assert_eq!(default["verdict"], value["verdict"]);
-            assert_eq!(default["statistics"], value["statistics"]);
+            assert_eq!(value["verdict"], default["verdict"]);
+            assert_eq!(value["statistics"], default["statistics"]);
             native.periodic = EVERY_LEVEL;
-            let native = dive_api::check_file_engine(&native, dive_api::Engine::Reference)?;
+            let native = dive_api::check_file_engine(&native, dive_api::Engine::Core)?;
             let value = native.to_json();
             assert_eq!(value["schema_version"], 3);
             assert_eq!(value["options"]["lncheck"], "deterministic");
@@ -147,19 +154,39 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
     Ok(())
 }
 
-fn direct(
-    file: &Path,
-    workers: usize,
-    seed: i64,
-) -> Result<dive_check::CheckResult, Box<dyn std::error::Error>> {
-    let analysis = dive_sema::analyze_file(file, &dive_sema::Options::default())?;
-    let ir = Arc::new(dive_ir::lower(&analysis)?);
-    let cfg = dive_config::parse(&std::fs::read_to_string(file.with_extension("cfg"))?)
-        .into_config()
-        .ok_or("configuration")?;
-    let mut options = dive_check::CheckOptions::tlc(0, seed);
-    options.workers = workers;
-    Ok(dive_check::check(&ir, &cfg, &options))
+/// What pinned TLC reports for `COUNTER` with `P` as its only property:
+/// the verdict and the generated, distinct and depth counts.
+fn expected_safety(property: &str) -> (dive_check::Verdict, u64, u64, u64) {
+    if property == "[](x<2)" {
+        (
+            dive_check::Verdict::InvariantViolated {
+                property: "P".into(),
+                initial: false,
+            },
+            3,
+            3,
+            3,
+        )
+    } else {
+        (dive_check::Verdict::Success, 4, 3, 3)
+    }
+}
+
+fn assert_safety(actual: &dive_check::CheckResult, property: &str, workers: usize) {
+    let (verdict, generated, distinct, depth) = expected_safety(property);
+    let stats = actual
+        .stats
+        .as_ref()
+        .map(|s| (s.generated, s.distinct, s.depth));
+    assert_eq!(actual.verdict, verdict, "{property}");
+    assert_eq!(stats, Some((generated, distinct, depth)), "{property}");
+    assert_eq!(actual.workers.requested, workers, "{property}");
+    assert!(actual.output.is_empty(), "{property}");
+    assert_eq!(
+        actual.counterexample.is_some(),
+        verdict != dive_check::Verdict::Success,
+        "{property}"
+    );
 }
 
 #[test]
@@ -173,23 +200,12 @@ fn configured_initial_invariant_action_and_mixed_safety_roles_keep_the_full_tail
         let spec = Spec::new(&format!("{COUNTER}P == {property}"), CONFIG)?;
         for workers in [1, 4] {
             let report =
-                dive_api::check_file_engine(&spec.request(workers), dive_api::Engine::Reference)?;
+                dive_api::check_file_engine(&spec.request(workers), dive_api::Engine::Core)?;
+            // TLC also warns (2255) that a state-level `P` is used as a
+            // PROPERTY; Core does not report that warning (#910).
             let actual = report.result().ok_or("ordinary safety result")?;
-            let expected = direct(&spec.0, workers, 7)?;
-            assert_eq!(actual.verdict, expected.verdict);
-            assert_eq!(actual.stats, expected.stats);
-            assert_eq!(actual.workers, expected.workers);
-            assert_eq!(actual.output, expected.output);
-            assert_eq!(actual.warnings, expected.warnings);
-            assert_eq!(actual.notes, expected.notes);
-            assert_eq!(actual.var_names, expected.var_names);
-            assert_eq!(actual.tlc_var_order, expected.tlc_var_order);
-            assert_eq!(actual.tlc_prints_stats, expected.tlc_prints_stats);
-            assert_eq!(actual.binding_model_error, expected.binding_model_error);
-            assert_eq!(
-                format!("{:?}", actual.counterexample),
-                format!("{:?}", expected.counterexample)
-            );
+            assert_safety(actual, property, workers);
+            assert!(!actual.binding_model_error);
             assert_eq!(report.to_json()["schema_version"], 3);
             assert_eq!(report.to_json()["check_kind"], "safety");
         }
@@ -203,30 +219,21 @@ fn configured_safety_roles_keep_safety_family_and_the_original_print_rng_stream(
         "VARIABLE x\nBoot == Print(\"one-startup\",RandomElement(1..32))\nInit == x=RandomElement(1..32)\nNext == x'=IF x<Boot THEN x+1 ELSE x\nP == [](x<=32)",
         CONFIG,
     )?;
-    let mut later_draw = false;
     for seed in 0..16 {
         let mut request = spec.request(4);
         request.seed = Some(seed);
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
-        let actual = report.result().ok_or("ordinary safety result")?;
-        let reference = direct(&spec.0, 4, seed)?;
-        assert_eq!(actual.verdict, reference.verdict);
-        assert_eq!(actual.stats, reference.stats);
-        assert_eq!(actual.workers, reference.workers);
-        assert_eq!(actual.output, reference.output);
-        assert_eq!(actual.warnings, reference.warnings);
-        assert_eq!(actual.notes, reference.notes);
-        assert_eq!(actual.output.len(), 1);
-        later_draw |= actual.stats.ok_or("counts")?.distinct > 1;
+        // Only the retired reference engine continued TLC's start-up random
+        // stream into Init (#791, #910); Core refuses it by name.
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
         let value = report.to_json();
+        refused::assert_refused(
+            &value,
+            report.exit_code(),
+            "RandomElement in Init after constant definitions or ASSUMEs drew",
+        );
         assert_eq!(value["schema_version"], 3);
         assert!(value.get("execution").is_none());
-        assert!(value["options"].get("lncheck").is_none());
     }
-    assert!(
-        later_draw,
-        "a reset would redraw Boot at Init for every seed"
-    );
     Ok(())
 }
 
@@ -236,12 +243,18 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
         "CONSTANT C\nBoot == Print(\"must-not-start\",0)\nVARIABLE x\nInit == x=C\nNext == x'=x\nP == x=0",
         CONFIG,
     )?;
-    let report = dive_api::check_file_engine(&failed.request(1), dive_api::Engine::Reference)?;
+    let report = dive_api::check_file_engine(&failed.request(1), dive_api::Engine::Core)?;
     let actual = report.result().ok_or("ordinary binding result")?;
-    let expected = direct(&failed.0, 1, 7)?;
-    assert_eq!(actual.verdict, expected.verdict);
-    assert_eq!(actual.output, expected.output);
-    assert_eq!(actual.binding_model_error, expected.binding_model_error);
+    assert!(
+        matches!(
+            &actual.verdict,
+            dive_check::Verdict::ModelError { code: 2222, .. }
+        ),
+        "{:?}",
+        actual.verdict
+    );
+    assert_eq!(actual.output.len(), 0, "{:?}", actual.output);
+    assert!(actual.binding_model_error);
     assert_eq!(report.to_json()["schema_version"], 3);
     assert_eq!(report.to_json()["check_kind"], "safety");
     let temporal = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
@@ -256,15 +269,21 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
     request.predecessor_memory_bytes = Some(0);
     requests.push(request);
     for request in requests {
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
         assert_eq!(report.verdict(), "unsupported");
         assert!(report.result().is_some());
         assert_eq!(report.to_json()["schema_version"], 3);
         assert_eq!(report.to_json()["check_kind"], "safety");
+        let message = report.to_json()["message"].clone();
         assert!(
-            report.to_json()["message"]
+            message
                 .as_str()
-                .is_some_and(|s| s.contains("temporal"))
+                .is_some_and(|s| s.contains(if request.chaos.is_some() {
+                    refused::CHAOS
+                } else {
+                    "temporal"
+                })),
+            "{message}"
         );
     }
     Ok(())
@@ -273,7 +292,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
 #[test]
 fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() -> TestResult {
     let spec = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
-    let baseline = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Reference)?
+    let baseline = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Core)?
         .to_json_with_exit_convention(ExitConvention::Tlc);
     assert_eq!(baseline["verdict"], "liveness-violation");
     let mut requests = Vec::new();
@@ -290,7 +309,17 @@ fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() 
     request.sequential = true;
     requests.push(request);
     for request in requests {
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        if request.store == dive_api::Store::Exact {
+            // Only the retired reference engine kept exact seen storage with
+            // temporal properties (#791, #910).
+            refused::assert_refused(
+                &report.to_json(),
+                report.exit_code(),
+                refused::TEMPORAL_EXACT_STORE,
+            );
+            continue;
+        }
         let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
         assert!(report.temporal_result().is_some(), "{request:?}");
         assert_eq!(value["check_kind"], "temporal");
@@ -306,12 +335,12 @@ fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() 
         "VARIABLE x\nInit == x=0\nNext == x<2 /\\ x'=x+1\nP == <>(x=2)",
         CONFIG,
     )?;
-    let checked = dive_api::check_file_engine(&dead.request(1), dive_api::Engine::Reference)?;
+    let checked = dive_api::check_file_engine(&dead.request(1), dive_api::Engine::Core)?;
     assert_eq!(checked.verdict(), "deadlock");
     assert_eq!(checked.exit_code_for(ExitConvention::Tlc), 11);
     let mut request = dead.request(1);
     request.no_deadlock = true;
-    let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
     let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
     assert_eq!(value["verdict"], "liveness-violation");
     assert_eq!(value["property"], "P");
@@ -320,30 +349,26 @@ fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() 
     assert_eq!(report.exit_code_for(ExitConvention::Tlc), 13);
     let mut request = spec.request(1);
     request.chaos = Some(0);
-    let refused = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
-    assert_eq!(refused.verdict(), "unsupported");
-    assert!(
-        refused.to_json()["message"]
-            .as_str()
-            .is_some_and(|s| s.contains("temporal checking does not yet support --chaos")),
-        "{}",
-        refused.to_json()["message"]
-    );
+    let chaotic = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+    refused::assert_refused(&chaotic.to_json(), chaotic.exit_code(), refused::CHAOS);
     Ok(())
 }
 
 #[test]
 fn ordinary_temporal_planning_errors_never_turn_into_holds() -> TestResult {
     let spec = Spec::new(&format!("{COUNTER}P == <>1"), CONFIG)?;
-    let report = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Reference)?;
-    let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-    assert_eq!(report.verdict(), "evaluation-error");
-    assert_eq!(report.exit_code_for(ExitConvention::Tlc), 255);
+    let report = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Core)?;
+    // TLC reports its planning error (2215, exit 255). Only the retired
+    // reference engine built that report (#791, #910); Core refuses it and
+    // never reports a hold.
+    let value = report.to_json();
+    refused::assert_refused(
+        &value,
+        report.exit_code(),
+        refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
+    );
     assert_eq!(value["schema_version"], 3);
-    assert_eq!(value["execution"]["capture_completed"], false);
-    assert_eq!(value["tlc"]["code"], 2215);
     assert!(value["statistics"].is_null());
-    assert!(value["counterexample"].is_null());
     Ok(())
 }
 
@@ -356,13 +381,28 @@ fn file_final_requests_report_compact_acceptance_defaults() -> TestResult {
                 let mut request = spec.request(workers);
                 request.compat_tlc = compat_tlc;
                 request.temporal = mode;
-                let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+                let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
                 let json = report.to_json();
                 let bounds = &json["options"]["temporal_bounds"];
-                assert_eq!(bounds["acceptance_buffer_bytes"], 8_000_000);
-                assert_eq!(bounds["acceptance_materialization_work"], 32_000_000);
                 assert_eq!(bounds["total_memory_budget"], false);
                 assert!(bounds.get("acceptance_cells").is_none());
+                if mode == TemporalMode::FinalShort {
+                    // The file route's caps; only the retired reference
+                    // engine ran it (#791, #910).
+                    assert_eq!(bounds["acceptance_buffer_bytes"], 8_000_000);
+                    assert_eq!(bounds["acceptance_materialization_work"], 32_000_000);
+                    refused::assert_refused(&json, report.exit_code(), refused::FINAL_SHORT);
+                    continue;
+                }
+                // Core's ordinary temporal checking has no acceptance caps.
+                assert_eq!(
+                    bounds["acceptance_buffer_bytes"],
+                    serde_json::json!(usize::MAX)
+                );
+                assert_eq!(
+                    bounds["acceptance_materialization_work"],
+                    serde_json::json!(usize::MAX)
+                );
                 assert_eq!(report.verdict(), "liveness-violation");
                 let document = TraceDoc::from_json(&json["counterexample"]["trace"])?;
                 let model = SpecModel::load(
@@ -388,7 +428,7 @@ fn default_periodic_reports_actual_boundary_and_fresh_word_at_all_widths() -> Te
         let mut request = spec.request(workers);
         request.compat_tlc = false;
         request.periodic = EVERY_LEVEL;
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
         let value = report.to_json();
         assert_eq!(value["verdict"], "liveness-violation");
         assert_eq!(value["schema_version"], 3);
@@ -425,12 +465,14 @@ fn default_periodic_reports_actual_boundary_and_fresh_word_at_all_widths() -> Te
             Validation::Invalid(_)
         ));
         request.temporal = TemporalMode::FinalShort;
-        let final_report =
-            dive_api::check_file_engine(&request, dive_api::Engine::Reference)?.to_json();
-        assert_eq!(final_report["options"]["lncheck"], "final");
-        assert_eq!(final_report["execution"]["capture_completed"], true);
-        assert_eq!(final_report["statistics"]["generated"], 4);
-        assert_eq!(final_report["statistics"]["distinct"], 3);
+        // Only the retired reference engine ran bounded final checking
+        // (#791, #910).
+        let final_report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        refused::assert_refused(
+            &final_report.to_json(),
+            final_report.exit_code(),
+            refused::FINAL_SHORT,
+        );
     }
     Ok(())
 }
@@ -442,20 +484,10 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
         for workers in [1, 4, 8] {
             let mut request = spec.request(workers);
             request.compat_tlc = false;
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
-            let source = dive_sema::analyze_file(&spec.0, &dive_sema::Options::default())?;
-            let ir = Arc::new(dive_ir::lower(&source)?);
-            let cfg = dive_config::parse(CONFIG).into_config().ok_or("config")?;
-            let options = dive_check::CheckOptions {
-                workers,
-                ..dive_check::CheckOptions::dive(7)
-            };
-            let expected = dive_check::check(&ir, &cfg, &options);
+            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
             let actual = report.result().ok_or("ordinary safety route")?;
-            assert_eq!(actual.verdict, expected.verdict);
-            assert_eq!(actual.stats, expected.stats);
-            assert_eq!(actual.output, expected.output);
-            assert_eq!(actual.workers, expected.workers);
+            assert_safety(actual, property, workers);
+            assert_eq!(actual.workers.used, workers);
             assert_eq!(report.to_json()["schema_version"], 3);
             assert_eq!(report.to_json()["check_kind"], "safety");
         }
@@ -466,15 +498,16 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
     )?;
     let mut request = spec.request(4);
     request.compat_tlc = false;
-    let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
-    let actual = report.result().ok_or("initial safety stop")?;
-    assert!(matches!(
-        actual.verdict,
-        dive_check::Verdict::InvariantViolated { initial: true, .. }
-    ));
-    assert_eq!(actual.output.len(), 1);
+    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+    // TLC reports the initial `Safe` violation after printing once. Only the
+    // retired reference engine reached it (#791, #910): Core refuses a
+    // temporal capture whose start-up has an effect.
+    refused::assert_refused(
+        &report.to_json(),
+        report.exit_code(),
+        "temporal properties: concrete pool capture with effects or runtime names",
+    );
     assert_eq!(report.to_json()["schema_version"], 3);
-    assert_eq!(report.to_json()["check_kind"], "safety");
     assert!(report.temporal_result().is_none());
     Ok(())
 }

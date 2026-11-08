@@ -1,5 +1,7 @@
 //! D-005 uses full concrete identities and independently checked literal words.
 #![allow(clippy::expect_used, clippy::panic, reason = "finite primary controls")]
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{BudgetSetting, CheckRequest, ExitConvention, SymmetryLiveness, TemporalMode};
@@ -41,7 +43,7 @@ fn token() -> PathBuf {
     )
 }
 fn check(request: &CheckRequest) -> Value {
-    dive_api::check_file_engine(request, dive_api::Engine::Reference)
+    dive_api::check_file_engine(request, dive_api::Engine::Core)
         .expect("file check")
         .to_json_with_exit_convention(ExitConvention::Tlc)
 }
@@ -92,27 +94,31 @@ fn declared_symmetry_true_temporal_runs_match_both_unreduced_primary_references(
     }
 }
 
+fn assert_symmetry_refused(report: &Value) {
+    assert_eq!(report["verdict"], "unsupported", "{report}");
+    assert_eq!(report["exit_code"], 3, "{report}");
+    assert!(report["counterexample"].is_null(), "{report}");
+    assert!(
+        report["message"]
+            .as_str()
+            .is_some_and(|message| message.contains("SYMMETRY")),
+        "{report}"
+    );
+}
+
 #[test]
 fn explicit_refusal_tlc_default_and_view_never_silently_use_unreduced_symmetry() {
     for tlc in [false, true] {
         for mode in [SymmetryLiveness::Refuse, SymmetryLiveness::Tlc] {
             let report = check(&request(p4(), Some(mode), tlc, 4));
-            assert_eq!(report["verdict"], "unsupported");
-            assert!(report["counterexample"].is_null());
-            assert_eq!(report["symmetry_liveness"]["requested"], mode.as_str());
-            assert_eq!(
-                report["symmetry_liveness"]["effective"],
-                if mode == SymmetryLiveness::Refuse {
-                    "refused"
-                } else {
-                    "unsupported-tlc-quotient"
-                }
-            );
-            assert!(report["symmetry_liveness"]["scope"].is_null());
+            // Core refuses symmetry with temporal properties by name; the
+            // retired reference engine's `symmetry_liveness` policy block
+            // (#791, #910) is not part of Core's report.
+            assert_symmetry_refused(&report);
         }
     }
     let report = check(&request(p4(), None, true, 1));
-    assert_eq!(report["verdict"], "unsupported");
+    assert_symmetry_refused(&report);
     assert_eq!(report["options"]["symmetry_liveness"], "tlc");
     assert_eq!(report["options"]["profile"], "tlc");
     for mode in [
@@ -280,11 +286,10 @@ fn limits_are_not_verdicts_and_startup_metadata_is_not_a_bound_policy() {
     let mut req = request(p4(), None, false, 8);
     req.max_states = Some(1);
     let report = check(&req);
-    assert_eq!(report["verdict"], "stopped");
-    assert_eq!(report["exit_code"], 5);
-    assert_eq!(report["symmetry_liveness"]["effective"], "unreduced");
-    assert_eq!(report["statistics"]["exhaustive"], false);
-    assert!(report["counterexample"].is_null());
+    // Only the retired reference engine stopped a temporal run at a search
+    // cap (#791, #910).
+    let exit = u8::try_from(report["exit_code"].as_u64().unwrap_or(255)).unwrap_or(255);
+    refused::assert_refused(&report, exit, refused::TEMPORAL_CAP);
     req.max_states = None;
     req.max_memory = BudgetSetting::Explicit(1);
     let report = check(&req);
@@ -293,6 +298,11 @@ fn limits_are_not_verdicts_and_startup_metadata_is_not_a_bound_policy() {
     assert_eq!(report["options"]["symmetry_liveness"], "unreduced");
     req.max_memory = BudgetSetting::Unlimited;
     req.temporal = TemporalMode::FinalShort;
+    let report = check(&req);
+    // Only the retired reference engine ran bounded final checking.
+    let exit = u8::try_from(report["exit_code"].as_u64().unwrap_or(255)).unwrap_or(255);
+    refused::assert_refused(&report, exit, refused::FINAL_SHORT);
+    req.temporal = TemporalMode::Ordinary;
     let report = check(&req);
     assert_eq!(report["verdict"], "success");
     assert_eq!(report["symmetry_liveness"]["scope"], "whole-run");

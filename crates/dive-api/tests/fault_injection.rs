@@ -233,7 +233,7 @@ fn judge(kind: Kind, reference: &Value, faulted: &std::result::Result<Value, Str
 }
 
 fn checked(req: &CheckRequest) -> std::result::Result<Value, String> {
-    dive_api::check_file_engine(req, dive_api::Engine::Reference)
+    dive_api::check_file_engine(req, dive_api::Engine::Core)
         .map(|r| r.to_json())
         .map_err(|e| e.to_string())
 }
@@ -371,7 +371,7 @@ fn pause(req: &CheckRequest, path: &Path, levels: u64) -> std::result::Result<Va
             counters: checkpoint::Counters::Retain,
             config_source_sha256: None,
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )
     .map(|r| r.to_json())
     .map_err(|e| e.to_string())
@@ -386,7 +386,7 @@ fn recover(req: &CheckRequest, path: &Path) -> std::result::Result<Value, String
             counters: checkpoint::Counters::Retain,
             config_source_sha256: None,
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )
     .map(|r| r.to_json())
     .map_err(|e| e.to_string())
@@ -669,7 +669,7 @@ fn incomplete_diagnostic_replay_refuses_an_uncertified_error_class() -> Result<(
     for compat_tlc in [false, true] {
         let mut req = request(&spec);
         req.compat_tlc = compat_tlc;
-        let reference_report = dive_api::check_file_engine(&req, dive_api::Engine::Reference)?;
+        let reference_report = dive_api::check_file_engine(&req, dive_api::Engine::Core)?;
         let reference = reference_report.to_json();
         assert_eq!(reference_report.exit_code_for(ExitConvention::Native), 13);
         assert_eq!(reference_report.exit_code_for(ExitConvention::Tlc), 75);
@@ -711,27 +711,27 @@ fn incomplete_diagnostic_replay_refuses_an_uncertified_error_class() -> Result<(
             Validation::Valid
         );
 
+        // The retired reference engine refused this capped run: it could not
+        // certify its diagnostic replay under the cap (#791). Core finds the
+        // error within the cap and reports exactly the uncapped result, with
+        // a word that validates independently.
         req.max_states = Some(4);
-        let faulted_report = dive_api::check_file_engine(&req, dive_api::Engine::Reference)?;
+        let faulted_report = dive_api::check_file_engine(&req, dive_api::Engine::Core)?;
         let faulted = faulted_report.to_json();
-        for convention in [ExitConvention::Native, ExitConvention::Tlc] {
-            assert_eq!(faulted_report.exit_code_for(convention), 3);
-        }
+        assert_eq!(faulted_report.exit_code_for(ExitConvention::Native), 13);
+        assert_eq!(faulted_report.exit_code_for(ExitConvention::Tlc), 75);
+        assert_eq!(observed(&faulted), observed(&reference));
+        assert_eq!(faulted["tlc"], reference["tlc"]);
         assert_eq!(
-            observed(&faulted),
-            json!({
-                "verdict": "unsupported", "property": null, "tlc": [null, null],
-                "statistics": [4, 4, 3, 1], "counterexample": null, "output": [],
-            })
+            model
+                .try_validate(&TraceDoc::from_json(&faulted["counterexample"]["trace"])?)?
+                .validation,
+            Validation::Valid
         );
-        assert!(faulted["tlc"].is_null());
-        assert_eq!(faulted["statistics"]["reported_by_tlc"], false);
         assert_eq!(
-            faulted["message"],
-            "candidate primary/diagnostic lifecycle is unproved: invariant diagnostic identity is unproved: Valid"
+            judge(Kind::Disruptive, &reference, &Ok(faulted)),
+            Outcome::Same
         );
-        assert_eq!(judge(Kind::Disruptive, &reference, &Ok(faulted)),
-            Outcome::Inconclusive("unsupported: candidate primary/diagnostic lifecycle is unproved: invariant diagnostic identity is unproved: Valid".into()));
     }
     Ok(())
 }

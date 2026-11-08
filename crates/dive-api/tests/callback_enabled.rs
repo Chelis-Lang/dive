@@ -1,8 +1,15 @@
 //! Native callbacks preserve ENABLED lookup context through INSTANCE scopes.
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, ExitConvention, Store};
 use serde_json::Value;
 use std::path::Path;
+
+/// Cutoff runs Core refuses; a change means Core gained or lost the feature.
+/// Today Core refuses all of them: both fixtures, both profiles, both stores
+/// and both worker counts.
+const REFUSED_CUTOFF_RUNS: usize = 16;
 
 #[test]
 fn callback_enabled_cutoff_keeps_initial_invariant_and_real_enabled_control()
@@ -22,6 +29,7 @@ fn callback_enabled_cutoff_keeps_initial_invariant_and_real_enabled_control()
     assert_eq!(primary["seed"], 0);
     assert_eq!(primary["fingerprint"], 0);
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/callback-enabled");
+    let mut refusals = 0;
     for name in ["disabled", "enabled"] {
         let expected = &primary["cases"][name];
         let file = root.join(name).join("CallbackEnabled.tla");
@@ -40,9 +48,18 @@ fn callback_enabled_cutoff_keeps_initial_invariant_and_real_enabled_control()
                             fp: Some(0),
                             ..Default::default()
                         },
-                        dive_api::Engine::Reference,
+                        dive_api::Engine::Core,
                     )?;
                     let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
+                    if instance_enabled_refused(&value) {
+                        refusals += 1;
+                        // The independent validator still rejects the
+                        // disabled case's word against the enabled spec.
+                        if name == "enabled" {
+                            reject_forged_invariant_word(&file, &config, compat_tlc)?;
+                        }
+                        continue;
+                    }
                     assert_eq!(
                         value["exit_code"], expected["physical_exit"],
                         "{name}: {value}"
@@ -83,7 +100,25 @@ fn callback_enabled_cutoff_keeps_initial_invariant_and_real_enabled_control()
             }
         }
     }
+    assert_eq!(refusals, REFUSED_CUTOFF_RUNS);
     Ok(())
+}
+
+/// Core refuses ENABLED through an INSTANCE whose variables are substituted
+/// or hidden (#910); only the retired reference engine evaluated it (#791).
+fn instance_enabled_refused(value: &Value) -> bool {
+    if value["verdict"] != "unsupported" {
+        return false;
+    }
+    let exit = u8::try_from(value["exit_code"].as_u64().unwrap_or(255)).unwrap_or(255);
+    refused::assert_refused(value, exit, "INSTANCE variable");
+    assert!(
+        value["message"]
+            .as_str()
+            .is_some_and(|message| message.starts_with("ENABLED with a")),
+        "{value}"
+    );
+    true
 }
 
 fn validate_counterexample(
@@ -170,6 +205,10 @@ fn reject_forged_invariant_word(
 /// word of the disabled case and reject the same word for the enabled case,
 /// where `Inv` holds, through the document and typed APIs.
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "one matrix checks both profiles against the golden"
+)]
 fn issue_312_primed_let_capture_words_replay_in_both_profiles()
 -> Result<(), Box<dyn std::error::Error>> {
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
@@ -199,13 +238,16 @@ fn issue_312_primed_let_capture_words_replay_in_both_profiles()
                     fp: Some(0),
                     ..Default::default()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?
             .to_json_with_exit_convention(ExitConvention::Tlc);
-            assert_eq!(value["exit_code"], expected["exit_code"], "{name}: {value}");
-            assert_eq!(value["tlc"]["code"], expected["verdict_code"], "{name}");
-            assert_eq!(value["property"], expected["violated_property"], "{name}");
-            if violated {
+            let refused = instance_enabled_refused(&value);
+            if !refused {
+                assert_eq!(expected["exit_code"], value["exit_code"], "{name}: {value}");
+                assert_eq!(expected["verdict_code"], value["tlc"]["code"], "{name}");
+                assert_eq!(expected["violated_property"], value["property"], "{name}");
+            }
+            if !refused && violated {
                 assert_eq!(value["tlc"]["verified"], true, "{name}");
                 let genuine = TraceDoc::from_json(&value["counterexample"]["trace"])?;
                 assert_eq!(
@@ -226,7 +268,7 @@ fn issue_312_primed_let_capture_words_replay_in_both_profiles()
                 assert_eq!(document.validation, Validation::Valid, "{name}");
                 let typed = typed.ok_or("decoded genuine word")?;
                 assert_eq!(model.validate_trace(&typed).validation, Validation::Valid);
-            } else {
+            } else if !refused {
                 assert!(value["counterexample"].is_null(), "{name}");
                 for (native, oracle) in [
                     ("generated", "states_generated"),
@@ -235,7 +277,7 @@ fn issue_312_primed_let_capture_words_replay_in_both_profiles()
                     ("left_on_queue", "states_left_on_queue"),
                 ] {
                     assert_eq!(
-                        value["statistics"][native], expected["counts"][oracle],
+                        expected["counts"][oracle], value["statistics"][native],
                         "{name}: {native}"
                     );
                 }
@@ -313,8 +355,11 @@ fn query_callback_replay_keeps_renamed_and_nested_scopes_and_rejects_unassigned_
                         fp: Some(0),
                         ..Default::default()
                     };
-                    let value = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?
+                    let value = dive_api::check_file_engine(&request, dive_api::Engine::Core)?
                         .to_json_with_exit_convention(ExitConvention::Tlc);
+                    if instance_enabled_refused(&value) {
+                        continue;
+                    }
                     assert_eq!(
                         value["exit_code"],
                         if name == "disabled" { 12 } else { 0 },

@@ -86,21 +86,29 @@ impl Profile {
 }
 
 fn run(spec: &Path, profile: Profile) -> Result<Value> {
-    let report = dive_api::check_file_engine(
-        &CheckRequest {
-            file: spec.to_path_buf(),
-            config: Some(spec.with_extension("cfg")),
-            compat_tlc: profile == Profile::Tlc,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            max_states: Some(MAX_STATES),
-            time_limit: BudgetSetting::Explicit(TIME_LIMIT),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Reference,
-    )?;
-    Ok(report.to_json())
+    let mut request = CheckRequest {
+        file: spec.to_path_buf(),
+        config: Some(spec.with_extension("cfg")),
+        compat_tlc: profile == Profile::Tlc,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        max_states: Some(MAX_STATES),
+        time_limit: BudgetSetting::Explicit(TIME_LIMIT),
+        ..CheckRequest::default()
+    };
+    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?.to_json();
+    // Core refuses a state cap with temporal properties; the time limit
+    // still bounds the run.
+    if report["verdict"] == "unsupported"
+        && report["message"].as_str().is_some_and(|message| {
+            message.contains("--max-states or --max-depth with temporal properties")
+        })
+    {
+        request.max_states = None;
+        return Ok(dive_api::check_file_engine(&request, dive_api::Engine::Core)?.to_json());
+    }
+    Ok(report)
 }
 
 /// Whether the trace's ending is the one the report's verdict and property
@@ -174,11 +182,18 @@ enum Outcome {
     Unchecked(String),
     Known(&'static str),
     Refuted(String),
+    /// Core's named refusal, with its message.
+    Refused(String),
 }
 
 fn check_run(spec: &Path, profile: Profile) -> Result<Outcome> {
     let report = run(spec, profile)?;
     let cx = &report["counterexample"];
+    if report["verdict"] == "unsupported" && cx.is_null() {
+        return Ok(Outcome::Refused(first_line(
+            report["message"].as_str().unwrap_or_default(),
+        )));
+    }
     if cx.is_null() {
         return Ok(Outcome::NoCounterexample);
     }
@@ -311,6 +326,7 @@ struct Tally {
     unchecked: BTreeMap<String, Vec<String>>,
     known: BTreeMap<&'static str, Vec<String>>,
     refuted: Vec<Value>,
+    refused: BTreeMap<String, Vec<String>>,
 }
 
 fn check_seeds(seeds: &[String]) -> Result<Tally> {
@@ -326,6 +342,7 @@ fn check_seeds(seeds: &[String]) -> Result<Tally> {
                 Outcome::Valid(kind) => tally.valid.entry(kind).or_default().push(at),
                 Outcome::Unchecked(why) => tally.unchecked.entry(why).or_default().push(at),
                 Outcome::Known(issue) => tally.known.entry(issue).or_default().push(at),
+                Outcome::Refused(why) => tally.refused.entry(why).or_default().push(at),
                 Outcome::Refuted(detail) => {
                     tally
                         .refuted
@@ -358,6 +375,9 @@ fn summary(tally: &Tally) -> String {
     for (issue, at) in &tally.known {
         let _ = writeln!(out, "  known ({}): {issue}", at.len());
     }
+    for (why, at) in &tally.refused {
+        let _ = writeln!(out, "  refused ({}): {why}: {at:?}", at.len());
+    }
     for r in &tally.refuted {
         let _ = writeln!(
             out,
@@ -368,12 +388,19 @@ fn summary(tally: &Tally) -> String {
     out
 }
 
+/// Fixed-seed runs Core refuses by name; a change means Core gained or lost one.
+const REFUSED_RUNS: usize = 4;
+
 #[test]
 fn fixed_seeds_validate() -> Result<()> {
     let seeds: Vec<String> = FAST_SEEDS.iter().map(|s| (*s).to_owned()).collect();
     let tally = check_seeds(&seeds)?;
     let valid: usize = tally.valid.values().map(Vec::len).sum();
-    assert_eq!(valid, tally.runs, "{}", summary(&tally));
+    // The runs only the retired reference engine checked are Core's named
+    // refusals (#791, #910); every counterexample Core reports validates.
+    let refused: usize = tally.refused.values().map(Vec::len).sum();
+    assert_eq!(valid + refused, tally.runs, "{}", summary(&tally));
+    assert_eq!(refused, REFUSED_RUNS, "{}", summary(&tally));
     Ok(())
 }
 

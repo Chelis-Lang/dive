@@ -1,4 +1,6 @@
 //! Real original action targets retain typed errors without alias-state checking.
+#[path = "support/refused.rs"]
+mod refused;
 use dive_api::{CheckRequest, ExitConvention, TemporalMode};
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -55,6 +57,26 @@ impl Spec {
         .ok_or_else(|| "expected typed failure".into())
     }
 }
+/// Core's report for `request` in ordinary temporal mode, after asserting
+/// that Core refuses the requested bounded final mode, which only the
+/// retired reference engine ran (#791, #910).
+fn core_ordinary(
+    mut request: CheckRequest,
+) -> Result<dive_api::CheckReport, Box<dyn std::error::Error>> {
+    if request.temporal == TemporalMode::FinalShort {
+        let final_short = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        refused::assert_refused(
+            &final_short.to_json(),
+            final_short.exit_code(),
+            refused::FINAL_SHORT,
+        );
+        request.temporal = TemporalMode::Ordinary;
+    }
+    Ok(dive_api::check_file_engine(
+        &request,
+        dive_api::Engine::Core,
+    )?)
+}
 impl Drop for Spec {
     fn drop(&mut self) {
         if let Some(directory) = self.0.parent() {
@@ -73,40 +95,28 @@ fn required_action_error_is_general255_while_state_and_selected_function_succeed
     ] {
         let spec = Spec::new(next, property, "")?;
         for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-            let report = dive_api::check_file_engine(
-                &spec.request(true, mode),
-                dive_api::Engine::Reference,
-            )?;
+            let report = core_ordinary(spec.request(true, mode))?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-            assert_eq!(
-                report.exit_code_for(ExitConvention::Tlc),
-                status,
-                "{next}/{property}: {value}"
-            );
+            if status == 255 {
+                // TLC reports the selected action's error (1000, exit 255).
+                // Only the retired reference engine built that temporal
+                // failure report (#791, #910).
+                refused::assert_refused(
+                    &report.to_json(),
+                    report.exit_code(),
+                    refused::TEMPORAL_FAILURE_REPORT,
+                );
+                continue;
+            }
+            assert_eq!(report.exit_code_for(ExitConvention::Tlc), status, "{value}");
             assert_eq!(value["statistics"]["generated"], generated);
             assert_eq!(value["statistics"]["distinct"], 1);
             assert_eq!(value["statistics"]["depth"], 1);
             assert_eq!(value["execution"]["capture_completed"], true);
             assert!(value["counterexample"].is_null());
-            if status == 255 {
-                assert_eq!(value["verdict"], "evaluation-error");
-                assert_eq!(value["tlc"]["code"], 1000);
-                assert_eq!(value["tlc"]["exit_status"], 255);
-                assert_eq!(value["tlc"]["verified"], true);
-                assert_eq!(value["error_site"], "temporal-action");
-                assert_eq!(value["execution"]["stage"], "atoms");
-                assert_eq!(
-                    report.exit_code_for(ExitConvention::Native),
-                    dive_api::exit::EVALUATION
-                );
-            } else {
-                assert_eq!(value["verdict"], "success");
-            }
+            assert_eq!(value["verdict"], "success");
         }
-        let default = dive_api::check_file_engine(
-            &spec.request(false, TemporalMode::FinalShort),
-            dive_api::Engine::Reference,
-        )?;
+        let default = core_ordinary(spec.request(false, TemporalMode::FinalShort))?;
         assert_eq!(default.exit_code_for(ExitConvention::Tlc), 0);
     }
     Ok(())
@@ -114,14 +124,13 @@ fn required_action_error_is_general255_while_state_and_selected_function_succeed
 #[test]
 fn residual_state_error_remains_validation_refusal_without_a_false_word() -> TestResult {
     let spec = Spec::new("Next", "EventuallyEqual", "")?;
-    let report = dive_api::check_file_engine(
-        &spec.request(true, TemporalMode::FinalShort),
-        dive_api::Engine::Reference,
-    )?;
+    let report = core_ordinary(spec.request(true, TemporalMode::FinalShort))?;
     let value = report.to_json();
-    assert_eq!(report.verdict(), "unsupported");
-    assert_eq!(value["execution"]["stage"], "validation");
-    assert_eq!(value["diagnostics"][0]["code"], "DIVE-A0032");
+    refused::assert_refused(
+        &value,
+        report.exit_code(),
+        refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
+    );
     assert!(value["tlc"].is_null());
     assert!(value["counterexample"].is_null());
     Ok(())
@@ -134,16 +143,11 @@ fn state_nonboolean_and_uncertain_multi_property_errors_are_not_verified_tlc_err
         ("ActionCheck Other", "Other == <>[](FALSE)"),
     ] {
         let spec = Spec::new("Next", property, extra)?;
-        let report = dive_api::check_file_engine(
-            &spec.request(true, TemporalMode::FinalShort),
-            dive_api::Engine::Reference,
-        )?;
+        let report = core_ordinary(spec.request(true, TemporalMode::FinalShort))?;
         let value = report.to_json();
-        assert_eq!(report.verdict(), "unsupported", "{value}");
+        refused::assert_refused(&value, report.exit_code(), refused::TEMPORAL_FAILURE_REPORT);
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
         assert!(value["tlc"].is_null());
-        assert!(value["counterexample"].is_null());
-        assert_eq!(value["execution"]["stage"], "atoms");
         let failure = spec.failure()?;
         assert_eq!(failure.stage().name(), "atoms");
         if property == "NonBoolean" {
@@ -182,18 +186,17 @@ fn eliminated_false_action_candidate_still_refuses_attribution_without_a_word() 
     for store in [dive_api::Store::Fingerprint, dive_api::Store::Exact] {
         let mut request = spec.request(true, TemporalMode::FinalShort);
         request.store = store;
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+        let report = core_ordinary(request)?;
         let value = report.to_json();
         assert_eq!(report.verdict(), "unsupported", "{value}");
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
-        assert_eq!(value["execution"]["stage"], "attribution");
-        assert_eq!(value["execution"]["capture_completed"], true);
-        assert_eq!(value["statistics"]["generated"], 2);
-        assert_eq!(value["statistics"]["distinct"], 1);
-        assert_eq!(value["statistics"]["depth"], 1);
-        assert_eq!(value["diagnostics"][0]["code"], "DIVE-L0033");
         assert!(value["tlc"].is_null());
         assert!(value["counterexample"].is_null());
+        if store == dive_api::Store::Exact {
+            refused::assert_refused(&value, report.exit_code(), refused::TEMPORAL_EXACT_STORE);
+        } else {
+            refused::assert_refused(&value, report.exit_code(), refused::TEMPORAL_FAILURE_REPORT);
+        }
     }
     // Failure evidence must not misattribute candidate attribution to labeling.
     let failure = spec.failure()?;

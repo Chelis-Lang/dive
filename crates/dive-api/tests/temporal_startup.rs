@@ -1,4 +1,6 @@
 //! Startup zero solutions use actual bound temporal roles, before exploration.
+#[path = "support/refused.rs"]
+mod refused;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -31,21 +33,22 @@ fn oracle(name: &str) -> Result<Value, Box<dyn std::error::Error>> {
         "conformance/golden/tlc-2026.10.06.014338/{CORPUS}/specifications/{name}/{name}.cfg.json"
     )))?)?)
 }
-fn zero_document(actual: &Value, expected: &Value) {
+/// Asserts Core's named refusal for `request`: bounded final checking for
+/// `FinalShort`, which only the retired reference engine ran (#791, #910),
+/// and otherwise `ordinary`.
+fn assert_core_refusal(request: &CheckRequest, ordinary: &str) -> TestResult {
+    let report = dive_api::check_file_engine(request, dive_api::Engine::Core)?;
+    let actual = report.to_json();
+    let feature = if request.temporal == TemporalMode::FinalShort {
+        refused::FINAL_SHORT
+    } else {
+        ordinary
+    };
+    refused::assert_refused(&actual, report.exit_code(), feature);
     assert_eq!(actual["schema_version"], 3);
-    assert_eq!(actual["verdict"], expected["verdict"]);
-    assert_eq!(actual["tlc"]["code"], expected["verdict_code"]);
-    assert_eq!(actual["tlc"]["name"], expected["error_class"]);
-    assert_eq!(actual["tlc"]["exit_status"], expected["exit_code"]);
-    assert_eq!(actual["exit_code"], 77);
-    assert_eq!(actual["tlc"]["verified"], true);
-    assert!(actual["property"].is_null());
-    assert!(actual["counterexample"].is_null());
-    assert!(actual["error_site"].is_null());
     assert!(actual["statistics"].is_null(), "{actual}");
-    assert_eq!(actual["options"]["workers"]["used"], 0);
-    assert_eq!(actual["execution"]["capture_completed"], false);
-    assert_eq!(actual["output"], serde_json::json!([]));
+    assert!(report.temporal_result().is_none());
+    Ok(())
 }
 
 #[test]
@@ -59,20 +62,18 @@ fn pinned_zero_solution_startup_precedes_assumptions_init_and_invariants() -> Te
         "StartupRoleSplitInitial",
         "StartupRoleSplitBeforeFalseAssume",
     ] {
+        // TLC reports its start-up tautology (2253, exit 77) before ASSUMEs,
+        // Init and invariants. Core runs the same start-up check first (#918)
+        // but does not build that report: it refuses by name.
         let expected = oracle(name)?;
+        assert_eq!(expected["result"]["exit_code"], 77);
         for tlc in [false, true] {
             for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
                 for workers in [1, 4] {
-                    let report = dive_api::check_file_engine(
+                    assert_core_refusal(
                         &request(name, tlc, mode, workers),
-                        dive_api::Engine::Reference,
+                        refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
                     )?;
-                    assert!(report.result().is_none());
-                    assert!(report.temporal_result().is_none());
-                    zero_document(
-                        &report.to_json_with_exit_convention(ExitConvention::Tlc),
-                        &expected["result"],
-                    );
                 }
             }
         }
@@ -86,40 +87,16 @@ fn semantically_true_temporal_forms_keep_their_actual_nonzero_startup_route() ->
         "EventuallyTrueNotSyntacticZero",
         "EventuallyAlwaysTrueNotSyntacticZero",
     ] {
+        // TLC succeeds and prints INIT_SEEN; Core refuses the Print with
+        // temporal properties, never a zero-solution verdict.
         let expected = oracle(name)?;
+        assert_eq!(expected["result"]["verdict"], "success");
         for tlc in [false, true] {
             for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-                let report = dive_api::check_file_engine(
+                assert_core_refusal(
                     &request(name, tlc, mode, 1),
-                    dive_api::Engine::Reference,
+                    "Print or PrintT with temporal properties (core)",
                 )?;
-                let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
-                assert_eq!(actual["verdict"], expected["result"]["verdict"]);
-                if mode == TemporalMode::Ordinary {
-                    assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
-                } else {
-                    // Explicit final/short preserves its existing report contract:
-                    // native completion does not claim an ordinary TLC verdict.
-                    assert!(actual["tlc"].is_null());
-                }
-                assert_eq!(actual["exit_code"], 0);
-                for (field, original) in [
-                    ("distinct", "distinct_states"),
-                    ("generated", "states_generated"),
-                    ("depth", "depth"),
-                ] {
-                    assert_eq!(
-                        actual["statistics"][field],
-                        expected["result"]["counts"][original]
-                    );
-                }
-                assert!(
-                    actual["output"]
-                        .as_array()
-                        .ok_or("output")?
-                        .iter()
-                        .any(|line| line.as_str().is_some_and(|s| s.contains("INIT_SEEN")))
-                );
             }
         }
     }
@@ -132,10 +109,8 @@ fn earlier_binding_errors_keep_the_original_code_and_never_become_tautology() ->
     let expected = oracle(name)?;
     for tlc in [false, true] {
         for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-            let report = dive_api::check_file_engine(
-                &request(name, tlc, mode, 1),
-                dive_api::Engine::Reference,
-            )?;
+            let report =
+                dive_api::check_file_engine(&request(name, tlc, mode, 1), dive_api::Engine::Core)?;
             let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
             assert_eq!(actual["tlc"]["name"], expected["result"]["error_class"]);
@@ -184,7 +159,7 @@ fn an_expired_run_budget_is_a_typed_stop_not_a_zero_solution_verdict() -> TestRe
         for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
             let mut req = request("UnusedDemandTautology", tlc, mode, 1);
             req.time_limit = dive_api::BudgetSetting::Explicit(std::time::Duration::ZERO);
-            let report = dive_api::check_file_engine(&req, dive_api::Engine::Reference)?;
+            let report = dive_api::check_file_engine(&req, dive_api::Engine::Core)?;
             let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(actual["verdict"], "stopped");
             assert_eq!(actual["stopped"]["resource"], "time");

@@ -1,6 +1,8 @@
 //! The existing TLC composition option retains bounded final and replay limits.
-use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{ActionComposition, CheckRequest, ExitConvention, TemporalMode};
+#[path = "support/refused.rs"]
+mod refused;
+use dive_api::trace::{TraceDoc, Validation};
+use dive_api::{ActionComposition, CheckRequest, TemporalMode};
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -54,40 +56,21 @@ fn actual_primary_hold_retains_intermediate_counts_and_fail_retains_replay_refus
         let holds = case["case"] == "hold";
         let spec = Spec::new(SOURCE, if holds { HOLD } else { FAIL })?;
         for workers in [1, 4] {
+            // Only the retired reference engine ran TLC action composition
+            // (#791, #910). Pinned TLC: `hold` succeeds (2193) with the
+            // oracle's counts; `fail` was a named replay refusal.
             let request = spec.request(workers);
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
-            let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-            assert_eq!(value["schema_version"], 3);
-            assert_eq!(value["options"]["profile"], "tlc");
-            assert_eq!(value["execution"]["capture_completed"], true);
-            for field in ["generated", "distinct", "depth"] {
-                assert_eq!(value["statistics"][field], case[field], "{value}");
-            }
-            assert_eq!(value["options"]["workers"]["requested"], workers);
-            assert_eq!(value["options"]["workers"]["used"], 1);
-            assert_eq!(value["options"]["workers"]["sequential"], true);
-            if holds {
-                assert_eq!(report.verdict(), "success");
-                assert_eq!(value["exit_code"], case["physical_exit"]);
-                assert_eq!(value["tlc"]["code"], 2193);
-            } else {
-                assert_eq!(report.verdict(), "unsupported");
-                assert_eq!(value["execution"]["stage"], "validation");
-                assert_eq!(value["exit_code"], 3);
-                assert!(
-                    value["message"]
-                        .as_str()
-                        .is_some_and(|m| m.contains("composition"))
-                );
-            }
-            assert!(value["counterexample"].is_null());
-            assert!(value["property"].is_null());
+            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            refused::assert_refused(
+                &report.to_json(),
+                report.exit_code(),
+                refused::ACTION_COMPOSITION,
+            );
             let mut explicit = request;
             explicit.temporal = TemporalMode::FinalShort;
-            let direct =
-                dive_api::check_file_engine(&explicit, dive_api::Engine::Reference)?.to_json();
-            assert_eq!(direct["verdict"], value["verdict"]);
-            assert_eq!(direct["statistics"], value["statistics"]);
+            let direct = dive_api::check_file_engine(&explicit, dive_api::Engine::Core)?;
+            assert_eq!(direct.verdict(), "unsupported");
+            assert_eq!(direct.exit_code(), 3);
         }
     }
     Ok(())
@@ -101,46 +84,23 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
             source,
             &format!("INIT Init\nNEXT Next\nPROPERTY {property}\n"),
         )?;
+        // Only the retired reference engine ran TLC action composition
+        // (#791, #910): it held `Hold` and violated `Fail` after 4
+        // generated, 3 distinct states, depth 3, with a validated word.
         let request = spec.request(4);
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
-        let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-        assert_eq!(value["schema_version"], 3);
-        assert_eq!(value["statistics"]["generated"], 4);
-        assert_eq!(value["statistics"]["distinct"], 3);
-        assert_eq!(value["statistics"]["depth"], 3);
-        assert_eq!(
-            report.verdict(),
-            if property == "Hold" {
-                "success"
-            } else {
-                "liveness-violation"
-            }
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        refused::assert_refused(
+            &report.to_json(),
+            report.exit_code(),
+            refused::ACTION_COMPOSITION,
         );
-        if property == "Fail" {
-            let model = SpecModel::load(
-                &spec.0,
-                &spec.0.with_extension("cfg"),
-                &TraceOptions {
-                    compat_tlc: true,
-                    run: Some((0, 0)),
-                    ..TraceOptions::default()
-                },
-            )?;
-            let mut document = TraceDoc::from_json(&value["counterexample"]["trace"])?;
-            assert_eq!(model.read(&document).0.validation, Validation::Valid);
-            document.states[0].insert("x".into(), 99.into());
-            assert!(matches!(
-                model.read(&document).0.validation,
-                Validation::Invalid(_)
-            ));
-        }
         for change in 0..2 {
             let mut excluded = request.clone();
             match change {
                 0 => excluded.action_composition = Some(ActionComposition::Tla),
                 _ => excluded.compat_tlc = false,
             }
-            let refused = dive_api::check_file_engine(&excluded, dive_api::Engine::Reference)?;
+            let refused = dive_api::check_file_engine(&excluded, dive_api::Engine::Core)?;
             assert_eq!(refused.verdict(), "unsupported");
             assert_eq!(refused.to_json()["schema_version"], 3);
         }
@@ -154,11 +114,12 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
                 2 => admitted.store = dive_api::Store::Exact,
                 _ => admitted.no_deadlock = true,
             }
-            let actual =
-                dive_api::check_file_engine(&admitted, dive_api::Engine::Reference)?.to_json();
-            assert_eq!(actual["verdict"], value["verdict"], "{admitted:?}");
-            assert_eq!(actual["property"], value["property"]);
-            assert_eq!(actual["statistics"], value["statistics"]);
+            let actual = dive_api::check_file_engine(&admitted, dive_api::Engine::Core)?;
+            refused::assert_refused(
+                &actual.to_json(),
+                actual.exit_code(),
+                refused::ACTION_COMPOSITION,
+            );
         }
     }
     Ok(())
@@ -168,31 +129,21 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
 fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResult {
     let source = "---- MODULE CompositionFinal ----\nEXTENDS Naturals,TLC\nVARIABLE x\nBoot==Print(\"one-startup\",RandomElement(1..32))\nInit==x=RandomElement(1..32)\nNext==x'=IF x<Boot THEN x+1 ELSE x\nHold==[](x<=32)\n====\n";
     let spec = Spec::new(source, "INIT Init\nNEXT Next\nPROPERTY Hold\n")?;
-    let analysis = dive_sema::analyze_file(&spec.0, &dive_sema::Options::default())?;
-    let ir = Arc::new(dive_ir::lower(&analysis)?);
-    let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Hold\n")
-        .into_config()
-        .ok_or("cfg")?;
     for seed in 0..4 {
         let mut request = spec.request(4);
         request.seed = Some(seed);
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
-        let actual = report.result().ok_or("ordinary safety result")?;
-        let mut options = dive_check::CheckOptions::tlc(0, seed);
-        options.eval.action_composition = ActionComposition::Tlc;
-        options.workers = 4;
-        let direct = dive_check::check(&ir, &cfg, &options);
-        assert_eq!(actual.verdict, direct.verdict);
-        assert_eq!(actual.stats, direct.stats);
-        assert_eq!(actual.output, direct.output);
-        assert_eq!(actual.output.len(), 1);
-        assert_eq!(report.to_json()["schema_version"], 3);
+        // Only the retired reference engine ran TLC action composition
+        // (#791, #910); Core refuses it before start-up prints.
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let json = report.to_json();
+        refused::assert_refused(&json, report.exit_code(), refused::ACTION_COMPOSITION);
+        assert_eq!(json["schema_version"], 3);
     }
     let missing = Spec::new(
         "---- MODULE CompositionFinal ----\nEXTENDS TLC\nCONSTANT C\nBoot==Print(\"must-not-start\",0)\nVARIABLE x\nInit==x=C\nNext==x'=x\nHold==<>(x=1)\n====\n",
         "INIT Init\nNEXT Next\nPROPERTY Hold\n",
     )?;
-    let failure = dive_api::check_file_engine(&missing.request(1), dive_api::Engine::Reference)?;
+    let failure = dive_api::check_file_engine(&missing.request(1), dive_api::Engine::Core)?;
     assert_eq!(failure.to_json()["schema_version"], 3);
     assert_eq!(failure.to_json()["output"], serde_json::json!([]));
     assert_ne!(failure.verdict(), "success");
@@ -202,8 +153,7 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
 #[test]
 fn composed_fairness_and_custom_generated_bound_keep_their_original_limits() -> TestResult {
     let spec = Spec::new(&SOURCE.replace("WF_x(Fair)", "WF_x(Next)"), HOLD)?;
-    let refused =
-        dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Reference)?.to_json();
+    let refused = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Core)?.to_json();
     assert_eq!(refused["verdict"], "unsupported");
     assert!(
         refused["message"]
