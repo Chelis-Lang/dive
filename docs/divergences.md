@@ -345,6 +345,11 @@ TLC exit status while exposing the incomplete termination; the default uses an
 explicit incomplete disposition. ADR 0021; clean controls under
 `crates/dive-api/tests/fixtures/checker/dfid/`.
 
+**Refusals:** TLC rejects `-dfid` with several workers or with temporal
+properties as general error 1000 (exit 255). `dive dfid` refuses both by name
+(`DFID multiple workers`, `DFID temporal properties and fairness`) with exit 3
+in both profiles; `crates/dive-cli/tests/mode_refusals.rs`.
+
 **D-002 DFID replay finding:** the same seed 7/aril 3/fingerprint 0 yields
 both `0,1,3` and `0,2,4` on `DfidBranch`. `DFIDWorker` self-seeds its Java
 generator instead of using the CLI seed. Native default replay is implemented;

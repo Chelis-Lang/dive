@@ -149,16 +149,10 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
             message: "Error: at least one worker required.".to_owned(),
         });
     }
+    // TLC rejects these with a general error (exit 255); dive refuses them by
+    // name with the refusal exit in both profiles (D-018 in docs/divergences.md).
     if opts.check.workers != 1 {
-        return Some(if opts.check.profile == dive_eval::Profile::Tlc {
-            Outcome::Error {
-                code: 1000,
-                message: "Depth-First Iterative Deepening mode does not support multiple workers"
-                    .to_owned(),
-            }
-        } else {
-            Outcome::Unsupported("DFID multiple workers".to_owned())
-        });
+        return refusal("DFID multiple workers");
     }
     if opts.max_level > 10_000 {
         return Some(Outcome::Limit("DFID iterative level bound".to_owned()));
@@ -167,11 +161,7 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
         return refusal("DFID fingerprint bit width outside 1..64");
     }
     if !model.temporals.is_empty() || !model.implied_temporals.is_empty() {
-        return Some(if opts.check.profile == dive_eval::Profile::Tlc {
-            Outcome::Error { code: 1000, message: "Depth-First Iterative Deepening mode does not support checking liveness properties".to_owned() }
-        } else {
-            Outcome::Unsupported("DFID temporal properties and fairness".to_owned())
-        });
+        return refusal("DFID temporal properties and fairness");
     }
     if let Some(u) = model.unsupported.first() {
         return refusal(&u.feature);

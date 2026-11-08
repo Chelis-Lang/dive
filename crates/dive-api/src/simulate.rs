@@ -140,6 +140,13 @@ impl SimulateReport {
             self.document["statistics"]["generated"],
             self.document["options"]["seed"]
         );
+        // A refusal, limit or error names its reason, as in the JSON `message`.
+        if let (Some(result), Some(message)) = (
+            self.document["result"].as_str(),
+            self.document["message"].as_str(),
+        ) {
+            let _ = writeln!(text, "{result}: {message}");
+        }
         if let Some(transitions) = self.document["action_flow"]["transitions"].as_array() {
             text.push_str("action flow (chosen transitions):\n");
             for edge in transitions {

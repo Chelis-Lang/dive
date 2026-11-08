@@ -1700,6 +1700,11 @@ check will carry a separate visitation-completion certificate. Clean primary
 transcripts are under `crates/dive-api/tests/fixtures/checker/dfid/`; no RNG or trace
 instrumentation changes the oracle in these controls.
 
+TLC rejects `-dfid` with more than one worker, or with temporal properties to
+check, as a general error and exits 255. `dive dfid` refuses both by name,
+`DFID multiple workers` and `DFID temporal properties and fairness`, with the
+refusal exit 3, under `--compat=tlc` as in the default profile.
+
 **D-002 replay extension:** even with seed 7, aril 3 and fingerprint index 0,
 `DfidBranch` produces both `0,1,3` and `0,2,4` counterexamples. Each
 `DFIDWorker` seeds a new Java generator from its own fresh `nextLong()`;
