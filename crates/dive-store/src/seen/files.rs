@@ -99,7 +99,7 @@ impl DiskSeen {
         if let Some(hash) = self.forced_hash {
             return hash;
         }
-        crate::key_hash(bytes)
+        key_hash(bytes)
     }
 
     fn read(&mut self, file: &mut File, buffer: &mut [u8]) -> Result<(), SeenError> {
@@ -491,4 +491,26 @@ impl DiskSeen {
         }
         Ok(true)
     }
+}
+
+/// A deterministic 64-bit hash of a key's bytes, used only to place keys in shards
+/// and slots. Equality is always decided by comparing the bytes, so the quality of
+/// this hash affects speed, never results.
+fn key_hash(bytes: &[u8]) -> u64 {
+    const K: u64 = 0x51_7c_c1_b7_27_22_0a_95;
+    let mut h = 0x243f_6a88_85a3_08d3 ^ (bytes.len() as u64);
+    let (words, rest) = bytes.as_chunks::<8>();
+    for w in words {
+        h = (h.rotate_left(5) ^ u64::from_le_bytes(*w)).wrapping_mul(K);
+    }
+    if !rest.is_empty() {
+        let mut w = [0u8; 8];
+        w[..rest.len()].copy_from_slice(rest);
+        h = (h.rotate_left(5) ^ u64::from_le_bytes(w)).wrapping_mul(K);
+    }
+    // The `splitmix64` finalizer spreads every input bit over the top bits, which
+    // choose the shard and the slot.
+    h = (h ^ (h >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
+    h = (h ^ (h >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
+    h ^ (h >> 31)
 }
