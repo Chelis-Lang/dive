@@ -96,14 +96,12 @@ fn every_solution_union_matches_original_short_lassos() {
                         let tableau =
                             crate::formula::compile_residual(&group.core, Limits::default())
                                 .expect("residual tableau");
-                        let product = CompactProduct::with_policy_and_edges(
+                        let product = CompactProduct::with_policy(
                             &graph,
                             &tableau,
                             &labels,
-                            &[],
                             product::Limits::default(),
                             AcceptancePolicy::Legacy,
-                            len,
                         )
                         .expect("product");
                         for conditions in &group.alternatives {
@@ -184,17 +182,15 @@ fn solution_scratch_and_logical_cells_keep_existing_budget_boundaries() {
     let conditions = &groups[0].alternatives[0];
     let scratch = conditions.recurring[0].scratch_len();
     for (bytes, fits) in [(scratch - 1, false), (scratch, true)] {
-        let product = CompactProduct::with_policy_and_edges(
+        let product = CompactProduct::with_policy(
             &graph,
             &tableau,
             &labels,
-            &[],
             product::Limits::default(),
             AcceptancePolicy::Buffers {
                 bytes,
                 work: 10_000,
             },
-            1,
         )
         .expect("empty core acceptance");
         let result = product.find_lasso_with_conditions(&labels, conditions);
@@ -208,17 +204,15 @@ fn solution_scratch_and_logical_cells_keep_existing_budget_boundaries() {
         }
     }
     for (cells, fits) in [(1, false), (2, true)] {
-        let product = CompactProduct::with_policy_and_edges(
+        let product = CompactProduct::with_policy(
             &graph,
             &tableau,
             &labels,
-            &[],
             product::Limits {
                 acceptance_cells: cells,
                 ..product::Limits::default()
             },
             AcceptancePolicy::Legacy,
-            1,
         )
         .expect("core acceptance cells");
         let result = product.find_lasso_with_conditions(&labels, conditions);

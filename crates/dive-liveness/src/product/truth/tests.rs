@@ -121,76 +121,37 @@ fn actual_domains_cross_word_boundaries_without_allocating_false_domains() {
     }
 }
 
-fn compare_formula(
-    graph: &Graph,
-    formula: &Formula,
-    labels: &Labels,
-    packed: &PackedTruth,
-    edge_count: usize,
-) {
-    let recurring = Formula::new(
-        vec![
-            Node::Atom(state(0)),
-            Node::Eventually(0),
-            Node::Always(1),
-            Node::Atom(action(1)),
-            Node::Eventually(3),
-            Node::Always(4),
-            Node::And(vec![2, 5]),
-        ],
-        6,
-    )
-    .expect("recurrences");
-    // The bodies of `[]<>S0 /\ []<>A1`, as solution decomposition extracts them.
-    let recurring = [0, 3].map(|body| {
-        crate::formula::Recurrence::condition(&recurring, &[body]).expect("recurrence")
-    });
+fn compare_formula(graph: &Graph, formula: &Formula, labels: &Labels, packed: &PackedTruth) {
     for group in formula::decompose(formula, formula::Limits::default()).expect("groups") {
         let tableau =
             formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");
-        for recurrences in [&[][..], &recurring[..]] {
-            for policy in [
-                AcceptancePolicy::Legacy,
-                AcceptancePolicy::Buffers {
-                    bytes: 1_000_000,
-                    work: 1_000_000,
-                },
-            ] {
-                let original = CompactProduct::with_policy_and_edges(
-                    graph,
-                    &tableau,
-                    labels,
-                    recurrences,
-                    Limits::default(),
-                    policy,
-                    edge_count,
-                )
-                .expect("original product");
-                let actual = CompactProduct::with_policy_and_edges(
-                    graph,
-                    &tableau,
-                    packed,
-                    recurrences,
-                    Limits::default(),
-                    policy,
-                    edge_count,
-                )
-                .expect("packed product");
+        for policy in [
+            AcceptancePolicy::Legacy,
+            AcceptancePolicy::Buffers {
+                bytes: 1_000_000,
+                work: 1_000_000,
+            },
+        ] {
+            let original =
+                CompactProduct::with_policy(graph, &tableau, labels, Limits::default(), policy)
+                    .expect("original product");
+            let actual =
+                CompactProduct::with_policy(graph, &tableau, packed, Limits::default(), policy)
+                    .expect("packed product");
+            assert_eq!(
+                actual.parts.graph.owned_graph(),
+                original.parts.graph.owned_graph()
+            );
+            assert_eq!(actual.parts.behavior_states, original.parts.behavior_states);
+            assert_eq!(
+                actual.parts.graph.owned_original_edges(),
+                original.parts.graph.owned_original_edges()
+            );
+            for conditions in &group.alternatives {
                 assert_eq!(
-                    actual.parts.graph.owned_graph(),
-                    original.parts.graph.owned_graph()
+                    actual.find_lasso_with_conditions(packed, conditions),
+                    original.find_lasso_with_conditions(labels, conditions)
                 );
-                assert_eq!(actual.parts.behavior_states, original.parts.behavior_states);
-                assert_eq!(
-                    actual.parts.graph.owned_original_edges(),
-                    original.parts.graph.owned_original_edges()
-                );
-                for conditions in &group.alternatives {
-                    assert_eq!(
-                        actual.find_lasso_with_conditions(packed, conditions),
-                        original.find_lasso_with_conditions(labels, conditions)
-                    );
-                }
             }
         }
     }
@@ -257,7 +218,7 @@ fn every_small_original_truth_assignment_keeps_products_and_conditioned_witnesse
             };
             let packed = copy(&graph, &[AtomKind::State, AtomKind::Action], &labels);
             for formula in &formulas {
-                compare_formula(&graph, formula, &labels, &packed, edge_count);
+                compare_formula(&graph, formula, &labels, &packed);
             }
         }
     }

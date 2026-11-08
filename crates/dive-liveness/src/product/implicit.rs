@@ -76,7 +76,6 @@ struct Discovery<'a, T: TruthAccess> {
     labels: &'a T,
     limits: Limits,
     policy: AcceptancePolicy,
-    behavior_edges: usize,
     seen: Seen,
     pairs: Vec<(usize, usize)>,
     edge_count: usize,
@@ -96,19 +95,11 @@ impl<T: TruthAccess> Discovery<'_, T> {
         Ok(())
     }
 
-    // The materialized builder's acceptance admission with no recurrence
-    // conditions: promise columns plus one logical cell per retained edge.
+    // The materialized builder's acceptance admission: promise columns plus
+    // one logical cell per retained edge.
     fn acceptance_cells(&self, size: usize, edges: usize) -> Result<(), ProductError> {
         if let AcceptancePolicy::Buffers { bytes, .. } = self.policy {
-            return budget::fits_layout(
-                size,
-                edges,
-                self.tableau.promise_count,
-                0,
-                0,
-                budget::ActionDomain::behavior(self.graph.vertex_count(), self.behavior_edges),
-                bytes,
-            );
+            return budget::fits_layout(size, self.tableau.promise_count, bytes);
         }
         size.checked_mul(self.tableau.promise_count)
             .and_then(|n| n.checked_add(edges))
@@ -204,15 +195,14 @@ pub(crate) struct ImplicitProduct<'a, T: TruthAccess> {
 }
 
 impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
-    /// Discovers the reachable product of `graph` and `tableau` without
-    /// recurrence conditions, as the materialized `CompactProduct` does with none.
+    /// Discovers the reachable product of `graph` and `tableau`, as the
+    /// materialized `CompactProduct` does.
     pub(crate) fn new(
         graph: impl Into<BehaviorView<'a>>,
         tableau: &'a Tableau,
         labels: &'a T,
         limits: Limits,
         policy: AcceptancePolicy,
-        behavior_edges: usize,
     ) -> Result<Self, ProductError> {
         let graph = graph.into();
         super::validate(graph, tableau, labels)?;
@@ -222,7 +212,6 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             labels,
             limits,
             policy,
-            behavior_edges,
             seen: Seen::new(graph.vertex_count(), tableau.nodes.len())?,
             pairs: Vec::new(),
             edge_count: 0,
@@ -258,7 +247,6 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             labels,
             limits,
             policy,
-            behavior_edges,
             seen,
             pairs,
             edge_count,
@@ -272,21 +260,12 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
         let input = Ordered {
             pairs: &pairs,
             order: &ordered,
-            graph: None,
-            edge_count,
-            scratch_len: 0,
         };
         let acceptance = match policy {
-            AcceptancePolicy::Legacy => CompactAcceptance::new(&input, tableau, labels, &[])?,
-            AcceptancePolicy::Buffers { bytes, work } => budget::materialize(
-                &input,
-                tableau,
-                labels,
-                &[],
-                bytes,
-                work,
-                (graph, behavior_edges),
-            )?,
+            AcceptancePolicy::Legacy => CompactAcceptance::new(&input, tableau),
+            AcceptancePolicy::Buffers { bytes, work } => {
+                budget::materialize(&input, tableau, bytes, work)?
+            }
         };
         let mut states = csr::reserve(ordered.len())?;
         let mut nodes = csr::reserve(ordered.len())?;
@@ -401,11 +380,10 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             .len()
             .checked_mul(self.states.len())
             .and_then(|states| {
-                self.acceptance
-                    .actions
+                conditions
+                    .recurring
                     .len()
-                    .checked_add(conditions.recurring.len())
-                    .and_then(|actions| actions.checked_add(1))
+                    .checked_add(1)
                     .and_then(|actions| actions.checked_mul(self.edge_count))
                     .and_then(|actions| states.checked_add(actions))
             })
@@ -487,8 +465,8 @@ impl<T: TruthAccess> Adjacency for ImplicitProduct<'_, T> {
     }
 }
 
-// Labels are original behavior edges; with no recurrence conditions every
-// product edge may recur and only promises label vertices.
+// Labels are original behavior edges; every product edge may recur and only
+// promises label vertices. Cycle conditions are added by `Conditioned`.
 impl<T: TruthAccess> AcceptanceAccess for ImplicitProduct<'_, T> {
     fn state_count(&self) -> usize {
         self.acceptance.states.len()

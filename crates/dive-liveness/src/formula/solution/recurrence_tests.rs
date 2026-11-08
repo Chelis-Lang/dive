@@ -36,12 +36,11 @@ fn accepts_with(
     policy: AcceptancePolicy,
 ) -> Result<bool, ProductError> {
     let groups = decompose(formula, FormulaLimits::default()).expect("decompose");
-    let edges = graph.edges.iter().map(Vec::len).sum();
     let mut found = false;
     for group in &groups {
         let tableau =
             compile_residual(&group.core, FormulaLimits::default()).expect("residual tableau");
-        let product = ImplicitProduct::new(graph, &tableau, labels, limits, policy, edges)?;
+        let product = ImplicitProduct::new(graph, &tableau, labels, limits, policy)?;
         for conditions in &group.alternatives {
             found |= product
                 .find_lasso_with_conditions(labels, conditions)?
@@ -183,7 +182,6 @@ fn closing_edge_fulfills_recurrence_but_prefix_alone_does_not() {
             labels,
             Limits::default(),
             AcceptancePolicy::Legacy,
-            2,
         )
         .expect("product")
         .find_lasso_with_conditions(labels, &none())
@@ -231,7 +229,6 @@ fn closing_edge_fulfills_recurrence_but_prefix_alone_does_not() {
             &empty,
             Limits::default(),
             AcceptancePolicy::Legacy,
-            2,
         )
         .expect("product")
         .find_lasso_with_conditions(&empty, conditions),

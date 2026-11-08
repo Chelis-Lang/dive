@@ -914,7 +914,7 @@ fn labels<'a>(
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     evaluations: &mut EvaluationErrors,
     control: &dive_runtime::budget::EvaluationControl,
-) -> Result<(PackedTruth, usize), AnalysisError> {
+) -> Result<PackedTruth, AnalysisError> {
     let mut reuse = fairness::Cache::new(false, 0);
     labels_with_reuse(
         model,
@@ -950,7 +950,7 @@ fn labels_with_reuse<'a>(
     control: &dive_runtime::budget::EvaluationControl,
     frozen_prefix: Option<plan::FrozenPrefix>,
     reuse: &mut fairness::Cache,
-) -> Result<(PackedTruth, usize), AnalysisError> {
+) -> Result<PackedTruth, AnalysisError> {
     let graph = graph.into();
     let edges = (0..graph.states())
         .try_fold(0_usize, |total, source| {
@@ -1090,7 +1090,7 @@ fn labels_with_reuse<'a>(
         }
         reuse.complete(recipe, index, &labels, fully_native && consumed)?;
     }
-    Ok((labels, edges))
+    Ok(labels)
 }
 
 fn attribute(
@@ -1522,7 +1522,7 @@ fn analyze_graph(
             } else {
                 (std::collections::BTreeSet::new(), None)
             };
-            let (labels, behavior_edges) = labels_with_reuse(
+            let labels = labels_with_reuse(
                 model,
                 plan,
                 captured,
@@ -1540,15 +1540,9 @@ fn analyze_graph(
             for group in &prepared.groups {
                 // ADR 0018 §3: the product's vertices are retained and its
                 // edges are recomputed by each search walk, never stored.
-                let product = ImplicitProduct::new(
-                    graph,
-                    &group.tableau,
-                    &labels,
-                    limits.product,
-                    policy,
-                    behavior_edges,
-                )
-                .map_err(AnalysisError::Product)?;
+                let product =
+                    ImplicitProduct::new(graph, &group.tableau, &labels, limits.product, policy)
+                        .map_err(AnalysisError::Product)?;
                 for conditions in &group.alternatives {
                     if let Some(lasso) = product
                         .find_lasso_with_conditions(&labels, conditions)

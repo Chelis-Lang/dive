@@ -1,10 +1,11 @@
 //! Private product row storage. Lookup, admission and traversal are shared;
 //! only the coordinator's adjacency uses ranges over flat discovery buffers.
 
+use super::ProductError;
 #[cfg(test)]
-use super::Graph;
-use super::{GraphAccess, ProductError};
+use super::{Graph, GraphAccess};
 
+#[cfg(test)]
 pub(super) trait ProductRows: GraphAccess {
     fn original_edges(&self, source: usize) -> &[usize];
 }

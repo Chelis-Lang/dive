@@ -157,7 +157,6 @@ fn on_the_fly_products_match_materialized_products_and_witnesses() {
     let mut empty = 0;
     for _ in 0..400 {
         let (graph, labels) = random_case(&mut rng);
-        let behavior_edges = graph.edges.iter().map(Vec::len).sum();
         for formula in &formulas {
             let groups =
                 formula::decompose(formula, formula::Limits::default()).expect("solution groups");
@@ -165,25 +164,17 @@ fn on_the_fly_products_match_materialized_products_and_witnesses() {
                 let tableau = formula::compile_residual(&group.core, formula::Limits::default())
                     .expect("tableau");
                 for policy in policies() {
-                    let compact = CompactProduct::with_policy_and_edges(
+                    let compact = CompactProduct::with_policy(
                         &graph,
                         &tableau,
                         &labels,
-                        &[],
                         Limits::default(),
                         policy,
-                        behavior_edges,
                     )
                     .expect("materialized product");
-                    let implicit = ImplicitProduct::new(
-                        &graph,
-                        &tableau,
-                        &labels,
-                        Limits::default(),
-                        policy,
-                        behavior_edges,
-                    )
-                    .expect("on-the-fly product");
+                    let implicit =
+                        ImplicitProduct::new(&graph, &tableau, &labels, Limits::default(), policy)
+                            .expect("on-the-fly product");
                     let rows = &compact.parts.graph;
                     let edges = (0..rows.vertex_count())
                         .map(|v| rows.successors(v).len())
@@ -218,7 +209,6 @@ fn on_the_fly_products_report_the_same_named_construction_limits() {
     let mut refusals = 0;
     for _ in 0..60 {
         let (graph, labels) = random_case(&mut rng);
-        let behavior_edges = graph.edges.iter().map(Vec::len).sum();
         for formula in &formulas {
             for group in
                 formula::decompose(formula, formula::Limits::default()).expect("solution groups")
@@ -251,23 +241,11 @@ fn on_the_fly_products_report_the_same_named_construction_limits() {
                                 work: bound * 4,
                             },
                         ] {
-                            let compact = CompactProduct::with_policy_and_edges(
-                                &graph,
-                                &tableau,
-                                &labels,
-                                &[],
-                                limits,
-                                policy,
-                                behavior_edges,
+                            let compact = CompactProduct::with_policy(
+                                &graph, &tableau, &labels, limits, policy,
                             );
-                            let implicit = ImplicitProduct::new(
-                                &graph,
-                                &tableau,
-                                &labels,
-                                limits,
-                                policy,
-                                behavior_edges,
-                            );
+                            let implicit =
+                                ImplicitProduct::new(&graph, &tableau, &labels, limits, policy);
                             assert_eq!(implicit.as_ref().err(), compact.as_ref().err());
                             if let (Ok(compact), Ok(implicit)) = (compact, implicit) {
                                 for alternative in &group.alternatives {
@@ -302,7 +280,6 @@ fn an_expired_run_budget_stops_discovery_and_search() {
         &labels,
         Limits::default(),
         AcceptancePolicy::Legacy,
-        1,
     )
     .expect("product");
     let watchdog = crate::budget::expired_for_test();
@@ -324,7 +301,6 @@ fn an_expired_run_budget_stops_discovery_and_search() {
             &labels,
             Limits::default(),
             AcceptancePolicy::Legacy,
-            1
         )
         .err(),
         Some(crate::product::ProductError::Limit(

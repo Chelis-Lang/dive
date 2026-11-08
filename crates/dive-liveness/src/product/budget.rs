@@ -1,7 +1,7 @@
 //! Requested acceptance-buffer layouts; excludes every other product owner.
 
 use super::{CompactAcceptance, Limits, Ordered, ProductError, set_bit};
-use crate::formula::{Recurrence, Tableau};
+use crate::formula::Tableau;
 use std::mem::size_of;
 
 /// Admission policy for the coordinator's compact acceptance buffers.
@@ -13,14 +13,15 @@ pub enum AcceptancePolicy {
     /// Replace only logical acceptance cells with covered buffer bytes and
     /// independent materialization work. Other product bounds retain their units.
     Buffers {
-        /// Requested column headers, words, optional offsets and maximum live
-        /// Boolean scratch. Actual capacities are checked after reservation.
+        /// Requested promise-column headers and words, plus the maximum live
+        /// Boolean scratch of one cycle-condition alternative. Actual
+        /// capacities are checked after reservation.
         /// Allocator excess/overhead, runtime and all other owners are excluded;
         /// this is not a process-memory ceiling.
         bytes: usize,
-        /// Metadata inspections, initialized entries, promise assignments,
-        /// offsets, action rows/projections/writes, executed Boolean nodes and
-        /// actually visited child references. This does not bound search work.
+        /// Promise assignments, initialized headers, words and scratch entries,
+        /// and inspected cycle conditions. Evaluating conditions during the
+        /// search is not counted; this does not bound search work.
         work: usize,
     },
 }
@@ -43,100 +44,24 @@ const BYTES: ProductError = ProductError::Limit("acceptance buffer bytes");
 const ALLOCATION: ProductError = ProductError::Limit("acceptance buffer allocation");
 const WORK: ProductError = ProductError::Limit("acceptance materialization work");
 
-#[derive(Clone, Copy)]
-pub(super) struct ActionDomain {
-    vertices: usize,
-    edges: usize,
-    behavior: bool,
-}
-
-impl ActionDomain {
-    pub(super) fn behavior(vertices: usize, edges: usize) -> Self {
-        Self {
-            vertices,
-            edges,
-            behavior: true,
-        }
-    }
-}
-
+// Covered bytes of the promise columns: one header and one packed word row
+// per promise. On-the-fly products carry no action columns or offsets.
 pub(super) struct Layout {
     bytes: usize,
     state_words: usize,
-    action_words: usize,
-    offsets: usize,
-    scratch: usize,
-    domain: ActionDomain,
 }
 
 impl Layout {
-    pub(super) fn new(
-        vertices: usize,
-        edges: usize,
-        promises: usize,
-        conditions: usize,
-        scratch: usize,
-    ) -> Result<Self, ProductError> {
-        Self::with_domain(
-            vertices,
-            promises,
-            conditions,
-            scratch,
-            ActionDomain {
-                vertices,
-                edges,
-                behavior: false,
-            },
-        )
-    }
-
-    fn with_domain(
-        vertices: usize,
-        promises: usize,
-        conditions: usize,
-        scratch: usize,
-        domain: ActionDomain,
-    ) -> Result<Self, ProductError> {
+    pub(super) fn new(vertices: usize, promises: usize) -> Result<Self, ProductError> {
         let state_words = vertices.div_ceil(64);
-        let action_words = domain.edges.div_ceil(64);
-        let offsets = if conditions == 0 {
-            0
-        } else {
-            domain.vertices.checked_add(1).ok_or(BYTES)?
-        };
-        let scratch = if domain.edges == 0 || conditions == 0 {
-            0
-        } else {
-            scratch
-        };
-        let mut bytes = 0_usize;
-        for (count, width) in [
-            (
-                promises.checked_add(conditions).ok_or(BYTES)?,
-                size_of::<Vec<u64>>(),
-            ),
-            (
-                promises.checked_mul(state_words).ok_or(BYTES)?,
-                size_of::<u64>(),
-            ),
-            (
-                conditions.checked_mul(action_words).ok_or(BYTES)?,
-                size_of::<u64>(),
-            ),
-            (offsets, size_of::<usize>()),
-            (scratch, size_of::<bool>()),
-        ] {
-            bytes = bytes
-                .checked_add(count.checked_mul(width).ok_or(BYTES)?)
-                .ok_or(BYTES)?;
-        }
+        let headers = promises.checked_mul(size_of::<Vec<u64>>()).ok_or(BYTES)?;
+        let words = promises
+            .checked_mul(state_words)
+            .and_then(|n| n.checked_mul(size_of::<u64>()))
+            .ok_or(BYTES)?;
         Ok(Self {
-            bytes,
+            bytes: headers.checked_add(words).ok_or(BYTES)?,
             state_words,
-            action_words,
-            offsets,
-            scratch,
-            domain,
         })
     }
 
@@ -147,26 +72,25 @@ impl Layout {
             Ok(())
         }
     }
+
+    // One unit per promise assignment, initialized header and zeroed word.
+    fn work(&self, vertices: usize, promises: usize) -> Option<usize> {
+        vertices
+            .checked_mul(promises)?
+            .checked_add(promises)?
+            .checked_add(promises.checked_mul(self.state_words)?)
+    }
 }
 
-// During discovery either final representation may fit. No evaluation or
-// speculative allocation selects a mode here; vertex/edge/inspection guards
-// retain their positions. Mode selection occurs once on the complete product.
+// During discovery the final promise columns must still fit. No evaluation or
+// speculative allocation happens here; vertex/edge/inspection guards retain
+// their positions.
 pub(super) fn fits_layout(
     vertices: usize,
-    edges: usize,
     promises: usize,
-    conditions: usize,
-    scratch: usize,
-    behavior: ActionDomain,
     bytes: usize,
 ) -> Result<(), ProductError> {
-    if Layout::new(vertices, edges, promises, conditions, scratch)
-        .is_ok_and(|layout| layout.bytes <= bytes)
-    {
-        return Ok(());
-    }
-    Layout::with_domain(vertices, promises, conditions, scratch, behavior)?.check(bytes)
+    Layout::new(vertices, promises)?.check(bytes)
 }
 
 // No covered buffer grows after one reservation. Check requested bytes before
@@ -203,169 +127,6 @@ fn allocation_error(_: std::collections::TryReserveError) -> ProductError {
     ALLOCATION
 }
 
-struct Programs {
-    nodes: usize,
-    references: usize,
-    scratch: usize,
-    inspected: usize,
-}
-
-impl Programs {
-    fn inspect(conditions: &[Recurrence], edges: usize, work: usize) -> Result<Self, ProductError> {
-        // Include the builder's existing maximum-scratch column inspection.
-        let mut result = Self {
-            nodes: 0,
-            references: 0,
-            scratch: 0,
-            inspected: conditions.len(),
-        };
-        if edges == 0 {
-            return Ok(result);
-        }
-        for condition in conditions {
-            super::csr::poll()?;
-            let nodes = condition.scratch_len();
-            result.inspected = result
-                .inspected
-                .checked_add(1)
-                .and_then(|n| n.checked_add(nodes))
-                .filter(|n| *n <= work)
-                .ok_or(WORK)?;
-            let (nodes, references) = condition.work_metadata().ok_or(WORK)?;
-            result.nodes = result.nodes.checked_add(nodes).ok_or(WORK)?;
-            result.references = result.references.checked_add(references).ok_or(WORK)?;
-            result.scratch = result.scratch.max(nodes);
-        }
-        Ok(result)
-    }
-}
-
-struct Plan {
-    layout: Layout,
-    base: usize,
-    minimum: usize,
-    maximum: Option<usize>,
-}
-
-impl Plan {
-    fn new(
-        layout: Layout,
-        vertices: usize,
-        promises: usize,
-        conditions: usize,
-        programs: &Programs,
-    ) -> Result<Self, ProductError> {
-        let mut base = programs.inspected;
-        // One unit per initialized header/word/scratch entry, promise assignment,
-        // offset entry, inspected action row, projected edge and written truth bit.
-        for cost in [
-            vertices.checked_mul(promises),
-            Some(layout.offsets),
-            promises.checked_add(conditions),
-            promises.checked_mul(layout.state_words),
-            conditions.checked_mul(layout.action_words),
-            Some(layout.scratch),
-            conditions.checked_mul(layout.domain.vertices),
-            conditions
-                .checked_mul(layout.domain.edges)
-                .and_then(|n| n.checked_mul(2)),
-        ] {
-            base = base.checked_add(cost.ok_or(WORK)?).ok_or(WORK)?;
-        }
-        let minimum = layout
-            .domain
-            .edges
-            .checked_mul(programs.nodes)
-            .and_then(|n| base.checked_add(n))
-            .ok_or(WORK)?;
-        let maximum = programs
-            .nodes
-            .checked_add(programs.references)
-            .and_then(|n| n.checked_mul(layout.domain.edges))
-            .and_then(|n| base.checked_add(n));
-        Ok(Self {
-            layout,
-            base,
-            minimum,
-            maximum,
-        })
-    }
-}
-
-fn choose(
-    input: &Ordered<'_>,
-    tableau: &Tableau,
-    conditions: &[Recurrence],
-    behavior: ActionDomain,
-    bytes: usize,
-    work: usize,
-) -> Result<Plan, ProductError> {
-    let vertices = input.order.len();
-    let scratch = input.scratch_len;
-    let product = Layout::new(
-        vertices,
-        input.edge_count,
-        tableau.promise_count,
-        conditions.len(),
-        scratch,
-    )
-    .ok()
-    .filter(|l| l.bytes <= bytes);
-    let original = if conditions.is_empty() || input.edge_count == 0 {
-        None
-    } else {
-        Layout::with_domain(
-            vertices,
-            tableau.promise_count,
-            conditions.len(),
-            scratch,
-            behavior,
-        )
-        .ok()
-        .filter(|l| l.bytes <= bytes)
-    };
-    if product.is_none() && original.is_none() {
-        return Err(BYTES);
-    }
-    let programs = Programs::inspect(conditions, input.edge_count, work)?;
-    let product = product.and_then(|l| {
-        Plan::new(
-            l,
-            vertices,
-            tableau.promise_count,
-            conditions.len(),
-            &programs,
-        )
-        .ok()
-    });
-    let original = original.and_then(|l| {
-        Plan::new(
-            l,
-            vertices,
-            tableau.promise_count,
-            conditions.len(),
-            &programs,
-        )
-        .ok()
-    });
-    let selected = match (product, original) {
-        (Some(p), Some(b))
-            if b.maximum.is_some_and(|n| n <= work)
-                && (p.maximum.is_none() || b.maximum < p.maximum) =>
-        {
-            b
-        }
-        (Some(p), Some(b)) if p.minimum > work && b.minimum < p.minimum => b,
-        (Some(p), _) => p,
-        (None, Some(b)) => b,
-        (None, None) => return Err(WORK),
-    };
-    if selected.minimum > work {
-        return Err(WORK);
-    }
-    Ok(selected)
-}
-
 fn promise_columns(
     input: &Ordered<'_>,
     tableau: &Tableau,
@@ -394,101 +155,26 @@ fn promise_columns(
 pub(super) fn materialize(
     input: &Ordered<'_>,
     tableau: &Tableau,
-    labels: &impl super::TruthAccess,
-    conditions: &[Recurrence],
     bytes: usize,
     work: usize,
-    behavior: (super::BehaviorView<'_>, usize),
 ) -> Result<CompactAcceptance, ProductError> {
-    let plan = choose(
-        input,
-        tableau,
-        conditions,
-        ActionDomain::behavior(behavior.0.vertex_count(), behavior.1),
-        bytes,
-        work,
-    )?;
-    let layout = plan.layout;
-    let mut remaining = work.checked_sub(plan.base).ok_or(WORK)?;
+    let vertices = input.order.len();
+    let layout = Layout::new(vertices, tableau.promise_count)
+        .ok()
+        .filter(|layout| layout.bytes <= bytes)
+        .ok_or(BYTES)?;
+    let materialization_work = layout
+        .work(vertices, tableau.promise_count)
+        .filter(|used| *used <= work)
+        .ok_or(WORK)?;
     let mut requests = Requests {
         used: 0,
         limit: bytes,
     };
     let states = promise_columns(input, tableau, &layout, &mut requests)?;
-    let vertices = if layout.domain.behavior {
-        behavior.0.vertex_count()
-    } else {
-        input.order.len()
-    };
-    // Only recurrence conditions read product rows; an on-the-fly product has none.
-    let rows = if conditions.is_empty() || layout.domain.behavior {
-        None
-    } else {
-        Some(input.graph.ok_or_else(super::rowless)?)
-    };
-    let row_len = |source| {
-        if layout.domain.behavior {
-            behavior.0.row_len(source)
-        } else {
-            rows.map_or(0, |rows| rows.successors(source).len())
-        }
-    };
-    let mut edge_offsets = requests.reserve(layout.offsets)?;
-    if layout.offsets != 0 {
-        edge_offsets.push(0);
-        let mut offset = 0_usize;
-        for v in 0..vertices {
-            if v.is_multiple_of(1024) {
-                super::csr::poll()?;
-            }
-            offset = offset.checked_add(row_len(v)).ok_or(BYTES)?;
-            edge_offsets.push(offset);
-        }
-        if offset != layout.domain.edges {
-            return Err(ProductError::Shape("acceptance edge count".into()));
-        }
-    }
-    let mut scratch = requests.reserve(layout.scratch)?;
-    initialize(&mut scratch, layout.scratch, false)?;
-    let mut actions = requests.reserve(conditions.len())?;
-    for condition in conditions {
-        let mut words = requests.reserve(layout.action_words)?;
-        initialize(&mut words, layout.action_words, 0)?;
-        for (id, offset) in edge_offsets.iter().copied().take(vertices).enumerate() {
-            if id.is_multiple_of(1024) {
-                super::csr::poll()?;
-            }
-            let v = if layout.domain.behavior {
-                id
-            } else {
-                input.pairs[input.order[id]].0
-            };
-            for position in 0..row_len(id) {
-                if position.is_multiple_of(1024) {
-                    super::csr::poll()?;
-                }
-                let e = match rows {
-                    Some(rows) if !layout.domain.behavior => rows.original_edges(id)[position],
-                    _ => position,
-                };
-                let truth = condition
-                    .evaluate_bounded(
-                        |atom| labels.truth(atom, v, e),
-                        &mut scratch,
-                        &mut remaining,
-                    )
-                    .ok_or(WORK)?;
-                set_bit(&mut words, offset + position, truth);
-            }
-        }
-        actions.push(words);
-    }
     Ok(CompactAcceptance {
         states,
-        actions,
-        edge_offsets,
-        behavior_actions: layout.domain.behavior,
-        materialization_work: work - remaining,
+        materialization_work,
     })
 }
 
