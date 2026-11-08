@@ -5,6 +5,12 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core now checks TLC's start-up normalization of the temporal properties
+  before it evaluates the ASSUMEs, as TLC does. A spec whose temporal
+  properties normalize to no solutions (TLC's tautology error 2253, exit 77)
+  and that also has a false ASSUME was reported as an assumption failure
+  (2104, exit 10); it now gets the same named refusal (exit 3) as the other
+  start-up tautologies. A false ASSUME without that error still reports 2104.
 - A Core safety run with several workers that ends in `Init` (an initial
   invariant violation, error or spill failure, for example) now reports one
   worker used, with the reason, instead of the requested width. `Init` runs
