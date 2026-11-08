@@ -1,7 +1,8 @@
 //! Print budgets are fallible runtime checks, not purity admission proofs.
 #![allow(clippy::expect_used, reason = "test setup and assertions")]
 
-use dive_sim::{Options, Outcome, simulate};
+use super::simulate;
+use dive_sim::{Options, Outcome};
 use dive_stdlib::random::RandomMode;
 use std::sync::Arc;
 

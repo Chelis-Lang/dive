@@ -1,6 +1,7 @@
 //! Bounds and unsupported features never become sampled successes.
 #![allow(clippy::unwrap_used, reason = "test setup failures must fail the test")]
-use dive_sim::{Options, Outcome, simulate};
+use super::simulate;
+use dive_sim::{Options, Outcome};
 use dive_stdlib::random::RandomMode;
 use std::sync::Arc;
 
@@ -49,8 +50,8 @@ fn configured_view_refuses_without_assumption_init_or_step_effects() {
     for mode in [RandomMode::Tlc, RandomMode::Dive] {
         let report = run_with_name(
             "SimView.tla",
-            include_str!("fixtures/SimView.tla"),
-            include_str!("fixtures/SimView.cfg"),
+            include_str!("../../../../dive-sim/tests/fixtures/SimView.tla"),
+            include_str!("../../../../dive-sim/tests/fixtures/SimView.cfg"),
             &Options::new(7, mode, 1, 1),
             |_| {},
         );
@@ -371,7 +372,8 @@ fn basic_action_flows_refuse_caller_collisions_before_evaluation() {
 fn basic_action_flows_keep_unused_value_bound_invocations_separate() {
     // The pinned SharedFalse production DOT has Init, both invocation
     // locations and Step. Neither unused invocation receives a chosen edge.
-    let source = include_str!("../../dive-model/tests/fixtures/action-inventory/SharedFalse.tla");
+    let source =
+        include_str!("../../../../dive-model/tests/fixtures/action-inventory/SharedFalse.tla");
     let mut options = Options::new(0, RandomMode::Tlc, 2, 1);
     options.action_stats = true;
     for mode in [RandomMode::Tlc, RandomMode::Dive] {
@@ -401,7 +403,7 @@ fn basic_action_flows_keep_unused_value_bound_invocations_separate() {
 #[test]
 fn basic_action_flows_keep_standard_operator_action_names() {
     let source = include_str!(
-        "../../dive-model/tests/fixtures/action-inventory/FailedConstantEvaluation.tla"
+        "../../../../dive-model/tests/fixtures/action-inventory/FailedConstantEvaluation.tla"
     );
     let mut options = Options::new(0, RandomMode::Tlc, 0, 1);
     options.action_stats = true;
@@ -423,20 +425,20 @@ fn basic_action_flows_keep_standard_operator_action_names() {
 }
 
 #[test]
-fn reached_randomness_is_seeded_during_actual_sampling() {
+fn reached_randomness_is_a_named_refusal_when_sampling_reaches_it() {
+    // The retired reference simulator seeded RandomElement here (4 generated,
+    // 3 sampled successors in {1, 2}); Core refuses it by name when reached.
     let source = "---- MODULE M ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x = 0\nNext == x' = RandomElement({1, 2})\n====\n";
     let report = run(
         source,
         "INIT Init\nNEXT Next\n",
         &Options::new(0, RandomMode::Tlc, 3, 1),
     );
-    assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
+    assert!(
+        matches!(report.outcome, Outcome::Unsupported(ref feature) if feature.contains("RandomElement")),
+        "{report:?}"
+    );
     assert_eq!(report.stage, "sampling");
-    assert_eq!(report.traces_started, 1);
-    assert_eq!(report.generated, 4);
+    assert_eq!(report.generated, 1);
     assert_eq!(report.runtime_output.len(), 0);
-    assert_eq!(report.traces[0].states.len(), 4);
-    for row in &report.traces[0].states[1..] {
-        assert!(matches!(row[0], Some(dive_value::Value::Int(1 | 2))));
-    }
 }

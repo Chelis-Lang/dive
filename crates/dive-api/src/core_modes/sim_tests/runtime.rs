@@ -1,15 +1,18 @@
 //! An owned run context continues startup and restores its own installed host.
+//! The retired reference simulator then sampled this model's reached
+//! `RandomElement` reproducibly per seed; Core refuses it by name (#791, #910).
 #![allow(clippy::expect_used, reason = "bounded fixture and assertions")]
 
 use std::sync::Arc;
 
+use super::simulate_in;
 use dive_sim::{Options, Outcome, Runtime};
 use dive_stdlib::random::RandomMode;
 
-fn run(mode: RandomMode, seed: i64) -> Vec<Vec<dive_eval::next::StateVals>> {
+fn run(mode: RandomMode, seed: i64) {
     let mut options = Options::new(seed, mode, 3, 2);
     options.max_output_events = 0;
-    let runtime = Runtime::new(options);
+    let runtime = Runtime::new(options.clone());
     let source = "---- MODULE Owned ----\nEXTENDS Naturals,TLC\nCONSTANT C\nVARIABLES x,y\nBindingPrint==Print(\"binding\",1)\nPick==RandomElement({1,2})\nInit==x=C /\\ y=RandomElement({x,x+1})\nNext==x'=RandomElement({1,2}) /\\ y'=RandomElement({x',x'+1})\n====\n";
     let analysis = dive_sema::analyze_source("Owned.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted());
@@ -34,37 +37,37 @@ fn run(mode: RandomMode, seed: i64) -> Vec<Vec<dive_eval::next::StateVals>> {
         !model.output.is_empty(),
         "actual binding Print remains startup output"
     );
-    let report = runtime.simulate(&model);
+    let report = simulate_in(&model, &options, &runtime);
     assert_eq!(
         report.runtime_output,
         [] as [dive_eval::capture::Captured; 0]
     );
-    assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
-    assert_eq!(report.generated, 7);
-    assert_eq!(report.traces_started, 2);
+    assert!(
+        matches!(report.outcome, Outcome::Unsupported(ref feature) if feature.contains("RandomElement")),
+        "{report:?}"
+    );
+    assert!(report.traces.is_empty());
     assert!(Arc::ptr_eq(
         &host,
         &model.evaluator.host().expect("owned host restored")
     ));
-    let repeated = runtime.simulate(&model);
-    assert!(matches!(repeated.outcome, Outcome::Unsupported(_)));
+    let repeated = simulate_in(&model, &options, &runtime);
+    assert!(
+        matches!(repeated.outcome, Outcome::Unsupported(ref reason) if reason.contains("already used")),
+        "{repeated:?}"
+    );
     assert_eq!(repeated.generated, 0);
-    report
-        .traces
-        .into_iter()
-        .map(|trace| trace.states)
-        .collect()
 }
 
 #[test]
-fn complete_owned_runs_are_seed_reproducible_after_startup_draws() {
+fn owned_runs_restore_their_host_and_refuse_reuse() {
     std::thread::scope(|scope| {
         std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
             .spawn_scoped(scope, || {
                 for mode in [RandomMode::Dive, RandomMode::Tlc] {
                     for seed in [0, 7] {
-                        assert_eq!(run(mode, seed), run(mode, seed));
+                        run(mode, seed);
                     }
                 }
             })
