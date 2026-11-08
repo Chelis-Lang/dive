@@ -223,10 +223,82 @@ fn actual_history_handoff_words_replay_and_reject_mutated_middle_states() {
     }
 }
 
-#[test]
-fn printed_and_register_effects_do_not_erase_an_actual_bulk_budget_stop() {
+/// Checks one effect case under a time limit that must stop it inside the bulk
+/// evaluation, after the effect. Every run must stop on its time budget. A
+/// loaded host can spend a short limit before the run reaches the effect: that
+/// run is still asserted to be a real stop, and the case reruns with a doubled
+/// limit until the stop lands in the bulk, up to 1.6 s.
+fn bulk_budget_stop(
+    file: &std::path::Path,
+    initial: bool,
+    print: bool,
+    compat: bool,
+    workers: usize,
+) {
     use dive_api::BudgetSetting;
     use std::time::Duration;
+    let mut limit = Duration::from_millis(100);
+    loop {
+        let req = CheckRequest {
+            file: file.to_path_buf(),
+            config: Some(file.with_extension("cfg")),
+            compat_tlc: compat,
+            workers: Some(workers),
+            time_limit: BudgetSetting::Explicit(limit),
+            max_memory: BudgetSetting::Explicit(1024 * 1024 * 1024),
+            ..CheckRequest::default()
+        };
+        let case = format!("{initial}/{print}/{compat}/{workers}/{limit:?}");
+        let report = check_file_core_opts(&req, "").expect("actual file route");
+        let doc = report.to_json();
+        assert_eq!(doc["verdict"], "stopped", "{case}: {doc}");
+        assert_eq!(report.exit_code(), 5, "{case}");
+        assert!(doc["tlc"].is_null(), "{case}");
+        assert_eq!(doc["stopped"]["resource"], "time", "{case}: {doc}");
+        assert_eq!(doc["options"]["workers"]["requested"], workers, "{case}");
+        let output = doc["output"].as_array().expect("output");
+        let expected_states = u64::from(!initial);
+        // Nothing observable happened yet, although the case expects a
+        // state or a printed effect: the limit ran out before the effect.
+        let early = doc["statistics"]["distinct"] == 0
+            && doc["statistics"]["generated"] == 0
+            && output.is_empty()
+            && (expected_states == 1 || print);
+        if early {
+            assert!(
+                limit < Duration::from_millis(1600),
+                "{case}: never reached the bulk evaluation: {doc}"
+            );
+            limit *= 2;
+            continue;
+        }
+        assert_eq!(doc["stopped"]["phase"], "safety-search", "{case}: {doc}");
+        assert_eq!(doc["options"]["workers"]["used"], 1, "{case}");
+        assert_eq!(
+            doc["statistics"]["distinct"], expected_states,
+            "{case}: {doc}"
+        );
+        assert_eq!(
+            doc["statistics"]["generated"], expected_states,
+            "{case}: {doc}"
+        );
+        assert_eq!(doc["statistics"]["depth"], expected_states, "{case}: {doc}");
+        if print {
+            assert_eq!(output.len(), 1, "{case}: {doc}");
+            assert!(
+                output[0]
+                    .as_str()
+                    .expect("printed text")
+                    .contains("owned-budget-effect"),
+                "{case}: {doc}"
+            );
+        }
+        return;
+    }
+}
+
+#[test]
+fn printed_and_register_effects_do_not_erase_an_actual_bulk_budget_stop() {
     let dir =
         std::env::temp_dir().join(format!("dive-effect-history-budget-{}", std::process::id()));
     std::fs::create_dir_all(&dir).expect("temporary directory");
@@ -238,16 +310,19 @@ fn printed_and_register_effects_do_not_erase_an_actual_bulk_budget_stop() {
                 "TLCSet(0,42)"
             };
             let file = dir.join("Effects.tla");
-            let bulk = "Cardinality({<<i,j>>:i \\in 1..10000,j \\in 1..10000})";
+            // The bulk set has 10^8 elements and cannot be built within any
+            // limit used here. In Next it depends on `x`, so start-up constant
+            // folding cannot spend the time limit before the search (#942).
+            let bulk = |n: &str| format!("Cardinality({{<<i,j>>:i \\in 1..10000,j \\in 1..{n}}})");
             let init = if initial {
-                format!("{effect} /\\ x={bulk}")
+                format!("{effect} /\\ x={}", bulk("10000"))
             } else {
                 "x=0".into()
             };
             let next = if initial {
                 "UNCHANGED x".into()
             } else {
-                format!("x=0 /\\ {effect} /\\ {bulk}>0 /\\ x'=1")
+                format!("x=0 /\\ {effect} /\\ {}>0 /\\ x'=1", bulk("(10000+x)"))
             };
             std::fs::write(&file,format!("---- MODULE Effects ----\nEXTENDS Naturals,FiniteSets,TLC\nVARIABLE x\nInit == {init}\nNext == {next}\n====\n")).expect("source");
             std::fs::write(
@@ -257,39 +332,7 @@ fn printed_and_register_effects_do_not_erase_an_actual_bulk_budget_stop() {
             .expect("config");
             for compat in [false, true] {
                 for workers in [1, 8] {
-                    let req = CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc: compat,
-                        workers: Some(workers),
-                        time_limit: BudgetSetting::Explicit(Duration::from_millis(100)),
-                        max_memory: BudgetSetting::Explicit(1024 * 1024 * 1024),
-                        ..CheckRequest::default()
-                    };
-                    let report = check_file_core_opts(&req, "").expect("actual file route");
-                    let doc = report.to_json();
-                    assert_eq!(
-                        doc["verdict"], "stopped",
-                        "{initial}/{print}/{compat}/{workers}: {doc}"
-                    );
-                    assert_eq!(report.exit_code(), 5);
-                    assert!(doc["tlc"].is_null());
-                    assert_eq!(doc["stopped"]["resource"], "time", "{doc}");
-                    assert_eq!(doc["stopped"]["phase"], "safety-search", "{doc}");
-                    assert_eq!(doc["options"]["workers"]["requested"], workers);
-                    assert_eq!(doc["options"]["workers"]["used"], 1);
-                    assert_eq!(doc["statistics"]["distinct"], u64::from(!initial));
-                    assert_eq!(doc["statistics"]["generated"], u64::from(!initial));
-                    assert_eq!(doc["statistics"]["depth"], u64::from(!initial));
-                    if print {
-                        assert_eq!(doc["output"].as_array().expect("output").len(), 1);
-                        assert!(
-                            doc["output"][0]
-                                .as_str()
-                                .expect("printed text")
-                                .contains("owned-budget-effect")
-                        );
-                    }
+                    bulk_budget_stop(&file, initial, print, compat, workers);
                 }
             }
         }
