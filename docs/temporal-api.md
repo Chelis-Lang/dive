@@ -167,35 +167,30 @@ edge and transition inspections retain their limits and ordering. JSON reports
 `acceptance_buffer_bytes`, `acceptance_materialization_work` and
 `total_memory_budget: false` under `options.temporal_bounds`.
 
-Covered allocations are outer column headers, packed words, optional edge offsets
-and maximum simultaneously live Boolean recurrence scratch. Layout arithmetic is
-checked before fallible exact reservations; actual Vec capacities are charged
-and no covered buffer subsequently grows. Allocator-provided excess capacity can
-exist transiently before refusal. Allocator metadata/rounding, runtime/stack,
-input labels/tableaux, graph capture, product construction/renumbering, search
-and witness allocations are excluded. **This is not a process-memory ceiling.**
-Materialization work counts metadata-node/column inspections, initialized
-headers/words/scratch, promise assignments, offsets, action rows, edge projections
-and bit writes, executed recurrence nodes and actually inspected child references. It does not count search work. Eager atom
-order remains unchanged. Header/scratch costs can refuse even a tiny product;
-exhaustion never means the temporal language is empty or a property holds.
-TLC has no equivalent fixed acceptance-buffer bound.
+Covered allocations are the promise columns' outer header buffer and packed
+words, and the maximum simultaneously live Boolean scratch of one cycle-condition
+alternative. Layout arithmetic is checked before fallible exact reservations;
+actual Vec capacities are charged and no covered buffer subsequently grows.
+Allocator-provided excess capacity can exist transiently before refusal.
+Allocator metadata/rounding, runtime/stack, input labels/tableaux, graph capture,
+product construction/renumbering, search and witness allocations are excluded.
+**This is not a process-memory ceiling.** Materialization work counts promise
+assignments, initialized headers, words and scratch entries, and inspected cycle
+conditions. It does not count search work. Eager atom order remains unchanged.
+Header/scratch costs can refuse even a tiny product; exhaustion never means the
+temporal language is empty or a property holds. TLC has no equivalent fixed
+acceptance-buffer bound.
 
-Byte mode can store recurrence truth once per original behavior-source/edge
-position and condition, then project through existing product maps. Parallel edge
-positions and properties stay separate. It chooses the behavior domain only from
-checked layout and work metadata before evaluation; a product-domain fallback
-avoids expanding a sparse reachable product to a large behavior graph. It does
-not evaluate a candidate mode and retry another. Word/offset storage for the
-selected domain and all temporary Boolean scratch remain inside the same byte
-allowance. Base acceptance columns provide constant-time truth lookup. Extracted
-conditions reuse maximum-sized Boolean scratch; its live bytes share the
-acceptance byte ceiling. Condition inspections and scratch initialization consume
-the remaining materialization work cumulatively across sequential alternatives.
-Boolean evaluation during search remains outside that work bound. No specification
-predicate is recomputed.
+The product stores only promise columns, which give constant-time truth lookup.
+Extracted `[]<>` and `<>[]` conditions are evaluated during the search on the
+original behavior source and edge position, so parallel edge positions and
+properties stay separate. They reuse maximum-sized Boolean scratch; its live
+bytes share the acceptance byte ceiling. Condition inspections and scratch
+initialization consume the remaining materialization work cumulatively across
+sequential alternatives. Boolean evaluation during search remains outside that
+work bound. No specification predicate is recomputed.
 All state/action labels and their selected graph admission/error checks are
-computed before this representation choice.
+computed before the promise columns are built.
 
 Graph labels have a separate `analyze::GraphLabelPolicy`. Existing final,
 periodic and acceptance-policy APIs retain `Cells(limits.atom_cells)`, even when

@@ -368,9 +368,8 @@ fn lazy_labels_and_full_candidates_equal_reference_in_both_profiles() {
                     )
                     .expect("labels")
                 };
-                let (expected, expected_edges) = label(&mut CapturedStates(&graph));
-                let (actual, actual_edges) = label(&mut Lazy::new(&graph));
-                assert_eq!(actual_edges, expected_edges);
+                let expected = label(&mut CapturedStates(&graph));
+                let actual = label(&mut Lazy::new(&graph));
                 assert_eq!(actual, expected);
             }
             let expected = run(&model, &options, &graph, &mut CapturedStates(&graph));
@@ -610,7 +609,7 @@ fn reference_rows_borrow_and_action_atoms_evaluate_once_per_destination() {
         let shape = BehaviorView::checked_captured(&graph).expect("topology");
         let label = |states: &mut dyn StateSource| {
             calls.store(0, Ordering::Relaxed);
-            let (truth, _) = labels(
+            let truth = labels(
                 &model,
                 plan,
                 &graph,
@@ -781,7 +780,7 @@ fn frozen_wf_reuse_retains_every_reference_demand_and_declines_cap_fallback_and_
                     ));
                     return (truths, states, cache);
                 }
-                truths.push(result.expect("labels").0);
+                truths.push(result.expect("labels"));
             }
             (truths, states, cache)
         };
@@ -995,7 +994,6 @@ fn every_frozen_behavior_prefix_atom_is_reused_with_identical_truth() {
                         &mut cache,
                     )
                     .expect("labels")
-                    .0
                 })
                 .collect::<Vec<_>>();
             (truths, states, cache)
@@ -1082,8 +1080,7 @@ fn admitted_sources_read_rows_only_for_reference_fallbacks() {
                         None,
                         &mut cache,
                     )
-                    .expect("labels")
-                    .0,
+                    .expect("labels"),
                 );
             }
             (truths, states.inner.reads, state_atoms)

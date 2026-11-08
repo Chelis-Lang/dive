@@ -136,7 +136,7 @@ fn label_path(
     );
     calls.lock().expect("calls").clear();
     let result = (|| {
-        let (truth, edges) = labels(
+        let truth = labels(
             &model,
             &prepared.plan,
             &graph,
@@ -157,7 +157,6 @@ fn label_path(
                 &truth,
                 limits.product,
                 AcceptancePolicy::Legacy,
-                edges,
             )
             .map_err(|error| format!("{error:?}"))?;
             for conditions in &group.alternatives {

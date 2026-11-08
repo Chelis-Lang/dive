@@ -5,9 +5,13 @@
     reason = "finite product assertions"
 )]
 
-use super::{AcceptancePolicy, CompactProduct, Labels, Limits, Product, ProductError};
+use super::{
+    AcceptancePolicy, CompactProduct, ImplicitProduct, Labels, Limits, Product, ProductError,
+};
 use crate::Graph;
-use crate::formula::{self, Atom, AtomKind, Formula, Node, Recurrence, Tableau, TableauNode};
+use crate::formula::{
+    self, Atom, AtomKind, CycleConditions, Formula, Node, Recurrence, Tableau, TableauNode,
+};
 use crate::search::{AcceptanceAccess, Lasso};
 
 fn state() -> Node {
@@ -57,11 +61,10 @@ fn compare(
     graph: &Graph,
     tableau: &Tableau,
     labels: &Labels,
-    conditions: &[Recurrence],
     limits: Limits,
 ) -> Result<Option<Lasso>, ProductError> {
-    let owned = Product::with_recurrences(graph, tableau, labels, conditions, limits);
-    let view = CompactProduct::with_recurrences(graph, tableau, labels, conditions, limits);
+    let owned = Product::new(graph, tableau, labels, limits);
+    let view = CompactProduct::new(graph, tableau, labels, limits);
     assert_eq!(owned.as_ref().map(|_| ()), view.as_ref().map(|_| ()));
     let owned = owned?;
     let view = view?;
@@ -69,7 +72,6 @@ fn compare(
         graph,
         tableau,
         labels,
-        conditions,
         limits,
         AcceptancePolicy::compact_default(),
     )?;
@@ -78,16 +80,6 @@ fn compare(
         view.parts.acceptance.states,
         buffered.parts.acceptance.states
     );
-    for (v, row) in view.parts.graph.owned_graph().edges.iter().enumerate() {
-        for e in 0..row.len() {
-            for condition in 0..conditions.len() {
-                assert_eq!(
-                    view.action(condition, v, e),
-                    buffered.action(condition, v, e)
-                );
-            }
-        }
-    }
     assert_eq!(owned.graph, view.parts.graph.owned_graph());
     assert_eq!(owned.behavior_states, view.parts.behavior_states);
     assert_eq!(
@@ -104,9 +96,6 @@ fn compare(
     for (v, row) in owned.graph.edges.iter().enumerate() {
         for e in 0..row.len() {
             assert_eq!(owned.acceptance.recurrent[v][e], view.recurrent(v, e));
-            for (condition, rows) in owned.acceptance.actions.iter().enumerate() {
-                assert_eq!(rows[v][e], view.action(condition, v, e));
-            }
         }
     }
     let expected = owned.find_lasso()?;
@@ -120,7 +109,6 @@ fn compact_truth_and_witness_match_all_two_vertex_labelled_graphs() {
         tableau(vec![Node::Bool(true)]),
         tableau(vec![state(), Node::Eventually(0), Node::Always(1)]),
     ];
-    let conditions = recurrences();
     for edge_bits in 0..16 {
         let edges: Vec<Vec<usize>> = (0..2)
             .map(|v| {
@@ -146,10 +134,8 @@ fn compact_truth_and_witness_match_all_two_vertex_labelled_graphs() {
                     actions: vec![actions.clone()],
                 };
                 for t in &tableaux {
-                    for count in 0..=conditions.len() {
-                        compare(&graph, t, &labels, &conditions[..count], Limits::default())
-                            .expect("admitted finite product");
-                    }
+                    compare(&graph, t, &labels, Limits::default())
+                        .expect("admitted finite product");
                 }
             }
         }
@@ -169,16 +155,18 @@ fn compact_preserves_prefix_parallel_and_closing_edges() {
             vec![true],
         ]],
     };
-    let conditions = recurrences();
-    let lasso = compare(
-        &graph,
-        &tableau(vec![Node::Bool(true)]),
-        &labels,
-        &conditions[1..],
-        Limits::default(),
-    )
-    .expect("product")
-    .expect("accepting cycle");
+    let t = tableau(vec![Node::Bool(true)]);
+    compare(&graph, &t, &labels, Limits::default()).expect("product");
+    // `[]<>A` is a cycle condition of the solution, evaluated during the search.
+    let solution = CycleConditions {
+        always: vec![],
+        recurring: recurrences()[1..].to_vec(),
+    };
+    let view = CompactProduct::new(&graph, &t, &labels, Limits::default()).expect("view");
+    let lasso = view
+        .find_lasso_with_conditions(&labels, &solution)
+        .expect("search")
+        .expect("accepting cycle");
     assert_eq!(lasso.prefix.len(), 1);
     assert_eq!((lasso.prefix[0].from, lasso.prefix[0].to), (0, 1));
     assert_eq!(lasso.cycle.len(), 2);
@@ -187,18 +175,20 @@ fn compact_preserves_prefix_parallel_and_closing_edges() {
         (1, 1, 2)
     );
     assert_eq!((lasso.cycle[1].from, lasso.cycle[1].to), (2, 1));
-    let t = tableau(vec![Node::Bool(true)]);
-    let view =
-        CompactProduct::with_recurrences(&graph, &t, &labels, &conditions[1..], Limits::default())
-            .expect("view");
-    assert_eq!(view.find_lasso(), Ok(Some(lasso.clone())));
-    let capacity = view.parts.acceptance.actions[0].capacity();
-    assert!(capacity > 0);
-    assert_eq!(view.find_lasso(), Ok(Some(lasso)));
-    assert_eq!(view.parts.acceptance.actions[0].capacity(), capacity);
-    eprintln!(
-        "recurrence_bit_capacity_bytes={}",
-        capacity * size_of::<u64>()
+    for policy in [
+        AcceptancePolicy::Legacy,
+        AcceptancePolicy::compact_default(),
+    ] {
+        let implicit = ImplicitProduct::new(&graph, &t, &labels, Limits::default(), policy)
+            .expect("on-the-fly product");
+        assert_eq!(
+            implicit.find_lasso_with_conditions(&labels, &solution),
+            Ok(Some(lasso.clone()))
+        );
+    }
+    assert_eq!(
+        view.find_lasso_with_conditions(&labels, &solution),
+        Ok(Some(lasso))
     );
 }
 
@@ -246,7 +236,7 @@ fn hashed_pair_discovery_keeps_exact_cartesian_rows_and_original_edge_positions(
         assert_eq!(owned.behavior_states, [0, 0, 0, 1, 1, 1, 2, 2, 2]);
         assert_eq!(owned.original_edges, expected_originals);
         assert!(owned.acceptance.states.iter().flatten().all(|value| *value));
-        compare(&graph, &t, &labels, &[], Limits::default()).expect("matching compact product");
+        compare(&graph, &t, &labels, Limits::default()).expect("matching compact product");
     }
 }
 
@@ -268,10 +258,7 @@ fn compact_empty_dead_end_and_unreachable_languages_match_owned() {
             tableau(vec![Node::Bool(false)]),
             tableau(vec![state(), Node::Eventually(0)]),
         ] {
-            assert_eq!(
-                compare(&graph, &t, &labels, &[], Limits::default()),
-                Ok(None)
-            );
+            assert_eq!(compare(&graph, &t, &labels, Limits::default()), Ok(None));
         }
     }
 }
@@ -284,7 +271,6 @@ fn compact_preserves_custom_limit_boundaries_and_shape_error_priority() {
         actions: vec![vec![vec![false, true], vec![true]]],
     };
     let t = tableau(vec![state(), Node::Eventually(0)]);
-    let conditions = recurrences();
     for value in 0..=64 {
         for limits in [
             Limits {
@@ -304,7 +290,7 @@ fn compact_preserves_custom_limit_boundaries_and_shape_error_priority() {
                 ..Limits::default()
             },
         ] {
-            let _ = compare(&graph, &t, &labels, &conditions, limits);
+            let _ = compare(&graph, &t, &labels, limits);
         }
     }
     let zero = Limits {
@@ -314,40 +300,21 @@ fn compact_preserves_custom_limit_boundaries_and_shape_error_priority() {
         steps: 0,
     };
     assert_eq!(
-        compare(&graph, &t, &labels, &conditions, zero),
+        compare(&graph, &t, &labels, zero),
         Err(ProductError::Limit("transition steps"))
     );
     let mut bad = labels.clone();
     bad.states[0].clear();
     assert_eq!(
-        compare(&graph, &t, &bad, &conditions, zero),
+        compare(&graph, &t, &bad, zero),
         Err(ProductError::Shape("state predicate dimensions".into()))
     );
     let mut bad = t.clone();
     bad.roots.push(bad.nodes.len());
     assert_eq!(
-        compare(&graph, &bad, &labels, &conditions, zero),
+        compare(&graph, &bad, &labels, zero),
         Err(ProductError::Shape(
             "tableau root outside node table".into()
-        ))
-    );
-    let invalid = Formula::new(
-        vec![
-            Node::Atom(Atom {
-                kind: AtomKind::Action,
-                index: 1,
-            }),
-            Node::Eventually(0),
-            Node::Always(1),
-        ],
-        2,
-    )
-    .expect("formula");
-    let invalid = vec![Recurrence::condition(&invalid, &[0]).expect("recurrence")];
-    assert_eq!(
-        compare(&graph, &t, &labels, &invalid, zero),
-        Err(ProductError::Shape(
-            "recurrence predicate outside label table".into()
         ))
     );
     let dead = Graph::new(vec![vec![]], vec![0]).expect("dead end");
@@ -360,7 +327,6 @@ fn compact_preserves_custom_limit_boundaries_and_shape_error_priority() {
             &dead,
             &t,
             &labels,
-            &[],
             Limits {
                 acceptance_cells: 0,
                 ..Limits::default()
@@ -368,6 +334,51 @@ fn compact_preserves_custom_limit_boundaries_and_shape_error_priority() {
         ),
         Err(ProductError::Limit("acceptance cells"))
     );
+}
+
+#[test]
+fn cycle_predicates_outside_the_label_table_are_shape_errors() {
+    let graph = Graph::new(vec![vec![1, 1], vec![0]], vec![0]).expect("graph");
+    let labels = Labels {
+        states: vec![vec![true, false]],
+        actions: vec![vec![vec![false, true], vec![true]]],
+    };
+    let t = tableau(vec![state(), Node::Eventually(0)]);
+    let invalid = Formula::new(
+        vec![
+            Node::Atom(Atom {
+                kind: AtomKind::Action,
+                index: 1,
+            }),
+            Node::Eventually(0),
+            Node::Always(1),
+        ],
+        2,
+    )
+    .expect("formula");
+    let invalid = CycleConditions {
+        always: vec![],
+        recurring: vec![Recurrence::condition(&invalid, &[0]).expect("recurrence")],
+    };
+    let cycle_shape = Err(ProductError::Shape(
+        "cycle predicate outside label table".into(),
+    ));
+    let view = CompactProduct::new(&graph, &t, &labels, Limits::default()).expect("view");
+    assert_eq!(
+        view.find_lasso_with_conditions(&labels, &invalid),
+        cycle_shape
+    );
+    for policy in [
+        AcceptancePolicy::Legacy,
+        AcceptancePolicy::compact_default(),
+    ] {
+        let implicit = ImplicitProduct::new(&graph, &t, &labels, Limits::default(), policy)
+            .expect("on-the-fly product");
+        assert_eq!(
+            implicit.find_lasso_with_conditions(&labels, &invalid),
+            cycle_shape
+        );
+    }
 }
 
 #[test]
@@ -388,8 +399,7 @@ fn compact_capacity_packs_promises_without_recurrent_matrices() {
             promise_count: promises,
         };
         let owned = Product::new(&graph, &t, &labels, Limits::default()).expect("owned");
-        let view = CompactProduct::with_recurrences(&graph, &t, &labels, &[], Limits::default())
-            .expect("compact");
+        let view = CompactProduct::new(&graph, &t, &labels, Limits::default()).expect("compact");
         let packed_bytes = view
             .parts
             .acceptance
@@ -397,8 +407,6 @@ fn compact_capacity_packs_promises_without_recurrent_matrices() {
             .iter()
             .map(|row| row.capacity() * size_of::<u64>())
             .sum::<usize>();
-        assert_eq!(view.parts.acceptance.edge_offsets, [] as [usize; 0]);
-        assert_eq!(view.parts.acceptance.actions, [] as [Vec<u64>; 0]);
         let promise_bytes: usize = owned
             .acceptance
             .states
@@ -459,11 +467,9 @@ fn compact_bits_cross_word_boundaries_with_empty_rows_and_parallel_edges() {
                 .collect(),
         ],
     };
-    let conditions = recurrences();
-    compare(&graph, &t, &labels, &conditions, Limits::default()).expect("equivalent");
-    let view =
-        CompactProduct::with_recurrences(&graph, &t, &labels, &conditions, Limits::default())
-            .expect("view");
+    compare(&graph, &t, &labels, Limits::default()).expect("equivalent");
+    let view = CompactProduct::new(&graph, &t, &labels, Limits::default()).expect("view");
+    let vertices = view.parts.graph.owned_graph().edges.len();
     let edges: usize = view
         .parts
         .graph
@@ -472,24 +478,12 @@ fn compact_bits_cross_word_boundaries_with_empty_rows_and_parallel_edges() {
         .iter()
         .map(Vec::len)
         .sum();
-    assert_eq!(
-        view.parts.acceptance.edge_offsets.len(),
-        view.parts.graph.owned_graph().edges.len() + 1
-    );
-    assert_eq!(view.parts.acceptance.edge_offsets.last(), Some(&edges));
-    assert!(view.parts.graph.owned_graph().edges.len() > 64 && edges > 128);
+    assert!(vertices > 64 && edges > 128);
     assert!(
         view.parts
             .acceptance
             .states
             .iter()
-            .all(|row| row.len() == view.parts.graph.owned_graph().edges.len().div_ceil(64))
-    );
-    assert!(
-        view.parts
-            .acceptance
-            .actions
-            .iter()
-            .all(|row| row.len() == edges.div_ceil(64))
+            .all(|row| row.len() == vertices.div_ceil(64))
     );
 }
