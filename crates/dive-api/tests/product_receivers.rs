@@ -47,7 +47,7 @@ fn empty_products_keep_their_non_tuple_membership_demand() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&req, Engine::Reference).expect("Reference run");
+            let reference = check_file_engine(&req, Engine::Core).expect("Reference run");
             let doc = reference.to_json();
             assert_eq!(doc["verdict"], "evaluation-error");
             assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);

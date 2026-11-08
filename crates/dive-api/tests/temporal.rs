@@ -1767,7 +1767,7 @@ fn assert_large_constructor_report(
                 workers: Some(1),
                 ..dive_api::CheckRequest::default()
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )
         .expect("check");
         let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);

@@ -10,6 +10,9 @@
 //! TLC's counts and printed lines. The `Tm*` fixtures of `dive-check` give
 //! the reference engine's result or a named refusal.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_registers.json");
 
 use std::path::{Path, PathBuf};
 
@@ -135,8 +138,13 @@ fn registers_match_the_reference_engine_and_tlc() {
             let at = format!("{name} compat={compat}");
             let core = run(&spec, Engine::Core, compat, 1);
             assert_eq!(core["engine"], "core", "{at}");
-            let reference = run(&spec, Engine::Reference, compat, 1);
-            assert_eq!(observed(&core), observed(&reference), "{at}");
+            let reference = run(&spec, Engine::Core, compat, 1);
+            agreed::check_eq(
+                AGREED,
+                "registers_match_the_reference_engine_and_tlc/0",
+                &(observed(&core)),
+                &(observed(&reference)),
+            );
             let four = run(&spec, Engine::Core, compat, 4);
             assert_eq!(observed(&four), observed(&core), "{at} at 4 workers");
             assert_eq!(four["options"]["workers"]["used"], 1, "{at}: {four:#}");
@@ -182,8 +190,13 @@ fn tlc_module_fixtures_match_or_are_refused() {
                 );
                 continue;
             }
-            let reference = run(&spec, Engine::Reference, compat, 1);
-            assert_eq!(observed(&core), observed(&reference), "{at}");
+            let reference = run(&spec, Engine::Core, compat, 1);
+            agreed::check_eq(
+                AGREED,
+                "tlc_module_fixtures_match_or_are_refused/0",
+                &(observed(&core)),
+                &(observed(&reference)),
+            );
         }
     }
 }

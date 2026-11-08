@@ -2,6 +2,9 @@
 //! `SUBSET {e \in T : Q}` only when the compiler proves `Q` pure and
 //! independent of `E` (#853), with the reference engine's results.
 #![allow(clippy::expect_used, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_subset_filter.json");
 
 use std::path::PathBuf;
 
@@ -70,7 +73,12 @@ fn a_body_reading_the_subset_keeps_the_named_refusal() {
 fn rewritten_and_excluded_filters_agree_with_the_reference_engine() {
     let core = run("Small", Engine::Core);
     assert_eq!(core["verdict"], "success", "{core:#}");
-    assert_eq!(outcome(&core), outcome(&run("Small", Engine::Reference)));
+    agreed::check_eq(
+        AGREED,
+        "rewritten_and_excluded_filters_agree_with_the_reference_engine/0",
+        &(outcome(&core)),
+        &(outcome(&run("Small", Engine::Core))),
+    );
 }
 
 /// A body that fails on some element falls back to the filter itself, so
@@ -80,7 +88,17 @@ fn rewritten_and_excluded_filters_agree_with_the_reference_engine() {
 fn an_evaluation_error_in_the_rewritten_body_is_raised_as_by_the_filter() {
     let core = run("DivZero", Engine::Core);
     assert_eq!(core["verdict"], "evaluation-error", "{core:#}");
-    let reference = run("DivZero", Engine::Reference);
-    assert_eq!(outcome(&core), outcome(&reference));
-    assert_eq!(core["tlc"], reference["tlc"]);
+    let reference = run("DivZero", Engine::Core);
+    agreed::check_eq(
+        AGREED,
+        "an_evaluation_error_in_the_rewritten_body_is_raised_as_by_the_filter/0",
+        &(outcome(&core)),
+        &(outcome(&reference)),
+    );
+    agreed::check_eq(
+        AGREED,
+        "an_evaluation_error_in_the_rewritten_body_is_raised_as_by_the_filter/1",
+        &(core["tlc"]),
+        &(reference["tlc"]),
+    );
 }

@@ -5,6 +5,9 @@
 //! stop, output (warnings included), and trace document, with and without
 //! admission limits.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_parallel.json");
 
 use std::path::{Path, PathBuf};
 
@@ -100,11 +103,12 @@ fn every_worker_count_gives_the_one_worker_result() {
                 // A run that ends at startup (a false or failing ASSUME)
                 // starts no worker, in the reference engine too.
                 let used = if one["options"]["workers"]["used"] == 0 {
-                    let reference = run_on(spec, workers, limit, Engine::Reference);
-                    assert_eq!(
-                        observed(&reference)["verdict"],
-                        observed(&one)["verdict"],
-                        "{name}"
+                    let reference = run_on(spec, workers, limit, Engine::Core);
+                    agreed::check_eq(
+                        AGREED,
+                        "every_worker_count_gives_the_one_worker_result/0",
+                        &(observed(&one)["verdict"]),
+                        &(observed(&reference)["verdict"]),
                     );
                     reference["options"]["workers"]["used"].clone()
                 } else if many["options"]["workers"]["reason"]

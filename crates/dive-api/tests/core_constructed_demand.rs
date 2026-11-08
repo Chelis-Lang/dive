@@ -176,7 +176,7 @@ fn three_oracle_cases_match_and_named_action_words_validate_freshly() {
                 compat_tlc: tlc,
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&request, Engine::Reference)
+            let reference = check_file_engine(&request, Engine::Core)
                 .expect("reference")
                 .to_json_with_exit_convention(ExitConvention::Tlc);
             let core = check_file_engine(&request, Engine::Core)

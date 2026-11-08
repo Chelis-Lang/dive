@@ -1,0 +1,20 @@
+{
+ "sampled_level_operators_match_actual_search_at_every_depth": {
+  "sampled_level_operators_match_actual_search_at_every_depth/0#0": "fnv1a64:3bedeba57813740b:280",
+  "sampled_level_operators_match_actual_search_at_every_depth/0#1": "fnv1a64:3bedeba57813740b:280",
+  "sampled_level_operators_match_actual_search_at_every_depth/0#2": "fnv1a64:cbf3647ecabfbc77:282",
+  "sampled_level_operators_match_actual_search_at_every_depth/0#3": "fnv1a64:cbf3647ecabfbc77:282",
+  "sampled_level_operators_match_actual_search_at_every_depth/0#4": "fnv1a64:007278ba795ab89c:1901",
+  "sampled_level_operators_match_actual_search_at_every_depth/0#5": "fnv1a64:007278ba795ab89c:1901",
+  "sampled_level_operators_match_actual_search_at_every_depth/0#6": "fnv1a64:64019c9e564146b7:280",
+  "sampled_level_operators_match_actual_search_at_every_depth/0#7": "fnv1a64:64019c9e564146b7:280",
+  "sampled_level_operators_match_actual_search_at_every_depth/1#0": "0",
+  "sampled_level_operators_match_actual_search_at_every_depth/1#1": "0",
+  "sampled_level_operators_match_actual_search_at_every_depth/1#2": "0",
+  "sampled_level_operators_match_actual_search_at_every_depth/1#3": "0",
+  "sampled_level_operators_match_actual_search_at_every_depth/1#4": "12",
+  "sampled_level_operators_match_actual_search_at_every_depth/1#5": "12",
+  "sampled_level_operators_match_actual_search_at_every_depth/1#6": "0",
+  "sampled_level_operators_match_actual_search_at_every_depth/1#7": "0"
+ }
+}

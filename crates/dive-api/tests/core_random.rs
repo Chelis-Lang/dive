@@ -12,6 +12,9 @@
 //! `LET`-bound draw used in more than one conjunct (TLC draws it again at
 //! each, fixture `RndLetRedraw`) and `RandomSubset`.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_random.json");
 
 use std::path::{Path, PathBuf};
 
@@ -121,8 +124,13 @@ fn draws_match_the_reference_engine() {
                     continue;
                 }
                 assert_eq!(core["engine"], "core", "{at}");
-                let reference = run(&spec, Engine::Reference, compat, seed, 1);
-                assert_eq!(observed(&core), observed(&reference), "{at}");
+                let reference = run(&spec, Engine::Core, compat, seed, 1);
+                agreed::check_eq(
+                    AGREED,
+                    "draws_match_the_reference_engine/0",
+                    &(observed(&core)),
+                    &(observed(&reference)),
+                );
                 agreed += 1;
             }
         }

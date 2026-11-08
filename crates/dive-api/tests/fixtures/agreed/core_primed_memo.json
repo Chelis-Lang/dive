@@ -1,0 +1,22 @@
+{
+ "a_primed_definition_independent_of_the_enumerated_variable_is_reused": {
+  "compare/0#0": "fnv1a64:2ae18ab6b6278006:282",
+  "compare/0#1": "fnv1a64:2ae18ab6b6278006:282"
+ },
+ "a_primed_site_read_before_its_variable_is_assigned_raises_the_read_error": {
+  "compare/0#0": "fnv1a64:2dd9a7fcbc6ce6e6:1223",
+  "compare/0#1": "fnv1a64:2dd9a7fcbc6ce6e6:1223"
+ },
+ "an_error_in_a_primed_site_is_raised_as_without_it": {
+  "compare/0#0": "fnv1a64:c289ba0e952b898c:1239",
+  "compare/0#1": "fnv1a64:c289ba0e952b898c:1239"
+ },
+ "membership_in_a_primed_filter_does_not_build_it": {
+  "compare/0#0": "fnv1a64:2e33ef6d708815da:1259",
+  "compare/0#1": "fnv1a64:2e33ef6d708815da:1259"
+ },
+ "primed_values_used_without_being_built_stay_unbuilt": {
+  "compare/0#0": "fnv1a64:3866ca7e81b9648b:1126",
+  "compare/0#1": "fnv1a64:3866ca7e81b9648b:1126"
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "deterministic_reduction_counts_only_final_successors": {
+  "deterministic_reduction_counts_only_final_successors/0#0": "Object {\"depth\": Number(2), \"distinct\": Number(3), \"exit\": Number(0), \"generated\": Number(7), \"property\": Null, \"verdict\": String(\"success\")}",
+  "deterministic_reduction_counts_only_final_successors/0#1": "Object {\"depth\": Number(2), \"distinct\": Number(3), \"exit\": Number(0), \"generated\": Number(7), \"property\": Null, \"verdict\": String(\"success\")}",
+  "deterministic_reduction_counts_only_final_successors/0#2": "Object {\"depth\": Number(2), \"distinct\": Number(3), \"exit\": Number(0), \"generated\": Number(7), \"property\": Null, \"verdict\": String(\"success\")}",
+  "deterministic_reduction_counts_only_final_successors/0#3": "Object {\"depth\": Number(2), \"distinct\": Number(3), \"exit\": Number(0), \"generated\": Number(7), \"property\": Null, \"verdict\": String(\"success\")}"
+ },
+ "primed_step_thunks_are_not_reused_across_first_stage_rows": {
+  "primed_step_thunks_are_not_reused_across_first_stage_rows/0#0": "Object {\"depth\": Number(3), \"distinct\": Number(3), \"exit\": Number(0), \"generated\": Number(4), \"property\": Null, \"verdict\": String(\"success\")}",
+  "primed_step_thunks_are_not_reused_across_first_stage_rows/0#1": "Object {\"depth\": Number(3), \"distinct\": Number(3), \"exit\": Number(0), \"generated\": Number(4), \"property\": Null, \"verdict\": String(\"success\")}",
+  "primed_step_thunks_are_not_reused_across_first_stage_rows/0#2": "Object {\"depth\": Number(3), \"distinct\": Number(3), \"exit\": Number(0), \"generated\": Number(4), \"property\": Null, \"verdict\": String(\"success\")}",
+  "primed_step_thunks_are_not_reused_across_first_stage_rows/0#3": "Object {\"depth\": Number(3), \"distinct\": Number(3), \"exit\": Number(0), \"generated\": Number(4), \"property\": Null, \"verdict\": String(\"success\")}"
+ }
+}

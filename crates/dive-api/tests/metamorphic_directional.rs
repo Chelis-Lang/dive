@@ -97,7 +97,7 @@ fn run(file: &Path, config: &Path) -> Result<Value> {
             time_limit: BudgetSetting::Explicit(TIME_LIMIT),
             ..CheckRequest::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )?;
     Ok(report.to_json())
 }

@@ -34,7 +34,7 @@ fn operation_reports_share_version_three_without_changing_trace_payloads() -> Re
             workers: Some(1),
             ..Default::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )?
     .to_json();
     envelope(&check, "check");
@@ -51,7 +51,7 @@ fn operation_reports_share_version_three_without_changing_trace_payloads() -> Re
             depth: Some(2),
             ..Default::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )?
     .to_json();
     envelope(&simulation, "simulate");
@@ -64,7 +64,7 @@ fn operation_reports_share_version_three_without_changing_trace_payloads() -> Re
             max_level: 2,
             ..Default::default()
         },
-        dive_api::Engine::Reference,
+        dive_api::Engine::Core,
     )?
     .to_json();
     envelope(&dfid, "dfid");

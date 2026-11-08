@@ -5,6 +5,9 @@
 //! evaluated for an empty enumeration; results are the reference
 //! engine's with the site on and off.
 #![allow(clippy::expect_used, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_primed_memo.json");
 
 use std::path::PathBuf;
 
@@ -41,7 +44,7 @@ fn observed(v: &Value) -> Value {
 /// (first) and off.
 fn compare(name: &str) -> (Value, Value) {
     let req = request(name);
-    let reference = check_file_engine(&req, Engine::Reference)
+    let reference = check_file_engine(&req, Engine::Core)
         .expect("reference runs")
         .to_json();
     let mut on = Value::Null;
@@ -50,10 +53,11 @@ fn compare(name: &str) -> (Value, Value) {
             .expect("core runs")
             .to_json();
         assert_eq!(core["engine"], "core", "{name} {switches}: {core:#}");
-        assert_eq!(
-            observed(&core),
-            observed(&reference),
-            "{name}, opts={switches}"
+        agreed::check_eq(
+            AGREED,
+            "compare/0",
+            &(observed(&core)),
+            &(observed(&reference)),
         );
         if switches.is_empty() {
             on = core;

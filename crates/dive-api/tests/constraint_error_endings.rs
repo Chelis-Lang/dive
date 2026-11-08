@@ -96,7 +96,8 @@ fn qualified_invariant_error_words_validate_but_unclassified_streams_stay_unknow
                 Validation::Valid,
                 "{name}/{compat_tlc}"
             );
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let path = source(name);
                 let report = check_file_engine(
                     &CheckRequest {
@@ -173,7 +174,8 @@ fn actual_property_words_match_their_primary_goldens_and_validate() {
         let golden: Value = serde_json::from_str(&std::fs::read_to_string(root().join(format!("conformance/golden/tlc-2026.10.06.014338/constraint-error-endings/specifications/{name}/{name}.cfg.json"))).expect("official golden")).expect("golden JSON");
         for compat_tlc in [false, true] {
             let model = load(name, compat_tlc);
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {

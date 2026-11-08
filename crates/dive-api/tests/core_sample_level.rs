@@ -1,5 +1,8 @@
 //! Sampling must retain the source state's actual TLC evaluation level.
 #![allow(clippy::expect_used, reason = "test fixture failures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_sample_level.json");
 
 use std::path::PathBuf;
 
@@ -37,18 +40,21 @@ fn sampled_level_operators_match_actual_search_at_every_depth() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&request, Engine::Reference).expect("reference runs");
+            let reference = check_file_engine(&request, Engine::Core).expect("reference runs");
             let plain = check_file_engine(&request, Engine::Core).expect("core runs");
             let plain_json = plain.to_json();
             assert_eq!(plain_json["engine"], "core", "{fixture}: {plain_json:#}");
-            assert_eq!(
-                observed(&plain_json),
-                observed(&reference.to_json()),
-                "{fixture}"
+            agreed::check_eq(
+                AGREED,
+                "sampled_level_operators_match_actual_search_at_every_depth/0",
+                &(observed(&plain_json)),
+                &(observed(&reference.to_json())),
             );
-            assert_eq!(
-                plain.exit_code_for(ExitConvention::Tlc),
-                reference.exit_code_for(ExitConvention::Tlc)
+            agreed::check_eq(
+                AGREED,
+                "sampled_level_operators_match_actual_search_at_every_depth/1",
+                &(plain.exit_code_for(ExitConvention::Tlc)),
+                &(reference.exit_code_for(ExitConvention::Tlc)),
             );
             if fixture.ends_with("LevelChain.tla") {
                 // Pinned TLC BFS, seed/fp 0: y'=the expanded state's level

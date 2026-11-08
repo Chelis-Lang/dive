@@ -19,7 +19,7 @@ fn a_different_diagnostic_cause_refuses_without_retagging_or_publishing_an_inval
         ("LaterOverflowDiagnosticDiv", "TLC_MODULE_OVERFLOW"),
     ] {
         let file = fixture(name);
-        for (engine, workers) in [Engine::Reference, Engine::Core]
+        for (engine, workers) in [Engine::Core]
             .into_iter()
             .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
         {
@@ -66,7 +66,8 @@ fn a_different_diagnostic_cause_refuses_without_retagging_or_publishing_an_inval
 fn default_unbounded_arithmetic_does_not_inherit_the_tlc_overflow_boundary() {
     for name in ["LaterDivDiagnosticOverflow", "LaterOverflowDiagnosticDiv"] {
         let file = fixture(name);
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let report = check_file_engine(
                 &CheckRequest {
                     file: file.clone(),

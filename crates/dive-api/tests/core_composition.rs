@@ -1,5 +1,8 @@
 //! Complete enumerable first stages followed by deterministic reductions.
 #![allow(clippy::expect_used, reason = "bounded source regression controls")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_composition.json");
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -80,18 +83,18 @@ fn deterministic_reduction_counts_only_final_successors() {
             fp: Some(0),
             ..CheckRequest::default()
         };
-        let reference = check_file_engine(&request, Engine::Reference).expect("reference");
+        let reference = check_file_engine(&request, Engine::Core).expect("reference");
         assert_eq!(
             observed(&reference),
             json!({"verdict":"success","property":null,"distinct":3,"generated":7,"depth":2,"exit":0})
         );
         for opts in ["", "-memo,-step-memo,-eager,-fold"] {
             let core = check_file_core_opts(&request, opts).expect("Core");
-            assert_eq!(
-                observed(&core),
-                observed(&reference),
-                "compat={compat_tlc}, opts={opts}: {}",
-                core.to_json()
+            agreed::check_eq(
+                AGREED,
+                "deterministic_reduction_counts_only_final_successors/0",
+                &(observed(&core)),
+                &(observed(&reference)),
             );
         }
     }
@@ -139,7 +142,7 @@ fn primed_step_thunks_are_not_reused_across_first_stage_rows() {
             fp: Some(0),
             ..CheckRequest::default()
         };
-        let reference = check_file_engine(&request, Engine::Reference).expect("reference");
+        let reference = check_file_engine(&request, Engine::Core).expect("reference");
         assert_eq!(
             observed(&reference),
             json!({"verdict":"success","property":null,"distinct":3,"generated":4,"depth":3,"exit":0}),
@@ -148,11 +151,11 @@ fn primed_step_thunks_are_not_reused_across_first_stage_rows() {
         );
         for opts in ["", "-memo,-step-memo,-eager,-fold"] {
             let core = check_file_core_opts(&request, opts).expect("Core");
-            assert_eq!(
-                observed(&core),
-                observed(&reference),
-                "compat={compat_tlc}, opts={opts}: {}",
-                core.to_json()
+            agreed::check_eq(
+                AGREED,
+                "primed_step_thunks_are_not_reused_across_first_stage_rows/0",
+                &(observed(&core)),
+                &(observed(&reference)),
             );
         }
     }

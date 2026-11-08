@@ -1,0 +1,18 @@
+{
+ "registers_match_the_reference_engine_and_tlc": {
+  "registers_match_the_reference_engine_and_tlc/0#0": "fnv1a64:9427245b499fb46a:341",
+  "registers_match_the_reference_engine_and_tlc/0#1": "fnv1a64:9427245b499fb46a:341",
+  "registers_match_the_reference_engine_and_tlc/0#2": "fnv1a64:d524cdf7d20c025a:311",
+  "registers_match_the_reference_engine_and_tlc/0#3": "fnv1a64:d524cdf7d20c025a:311",
+  "registers_match_the_reference_engine_and_tlc/0#4": "Object {\"depth\": Number(4), \"distinct\": Number(14), \"exit\": Number(0), \"generated\": Number(29), \"message\": Null, \"output\": Array [], \"property\": Null, \"queue\": Number(0), \"trace\": Null, \"verdict\": String(\"success\")}",
+  "registers_match_the_reference_engine_and_tlc/0#5": "Object {\"depth\": Number(4), \"distinct\": Number(14), \"exit\": Number(0), \"generated\": Number(29), \"message\": Null, \"output\": Array [], \"property\": Null, \"queue\": Number(0), \"trace\": Null, \"verdict\": String(\"success\")}",
+  "registers_match_the_reference_engine_and_tlc/0#6": "fnv1a64:665fa5e2d6a7e591:978",
+  "registers_match_the_reference_engine_and_tlc/0#7": "fnv1a64:438cd827d751d99f:978"
+ },
+ "tlc_module_fixtures_match_or_are_refused": {
+  "tlc_module_fixtures_match_or_are_refused/0#0": "fnv1a64:fdf597017a9d3716:417",
+  "tlc_module_fixtures_match_or_are_refused/0#1": "fnv1a64:81e7004e6906e3b2:417",
+  "tlc_module_fixtures_match_or_are_refused/0#2": "fnv1a64:dccb2d0da2816937:841",
+  "tlc_module_fixtures_match_or_are_refused/0#3": "fnv1a64:b607fd7b73693ee4:851"
+ }
+}
