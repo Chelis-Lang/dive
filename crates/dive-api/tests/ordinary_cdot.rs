@@ -151,7 +151,7 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
 }
 
 #[test]
-fn composed_fairness_and_custom_generated_bound_keep_their_original_limits() -> TestResult {
+fn composed_fairness_is_a_named_refusal() -> TestResult {
     let spec = Spec::new(&SOURCE.replace("WF_x(Fair)", "WF_x(Next)"), HOLD)?;
     let refused = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Core)?.to_json();
     assert_eq!(refused["verdict"], "unsupported");
@@ -161,22 +161,8 @@ fn composed_fairness_and_custom_generated_bound_keep_their_original_limits() -> 
             .is_some_and(|m| m.contains("composition"))
     );
     assert!(refused["counterexample"].is_null());
-    let analysis = dive_sema::analyze_source(
-        "CompositionFinal.tla",
-        SOURCE,
-        &dive_sema::Options::default(),
-    );
-    assert!(analysis.accepted());
-    let ir = Arc::new(dive_ir::lower(&analysis)?);
-    let cfg = dive_config::parse(HOLD).into_config().ok_or("cfg")?;
-    let mut options = dive_check::CheckOptions::tlc(0, 0);
-    options.eval.action_composition = ActionComposition::Tlc;
-    let mut limits = dive_liveness::analyze::Limits::default();
-    limits.capture.generated = 1;
-    let failure = dive_api::temporal::check_final_with_evidence(&ir, &cfg, &options, limits)?;
-    assert!(
-        matches!(failure.outcome(), dive_api::temporal::Outcome::Safety(result) if matches!(result.verdict, dive_check::Verdict::ResourceLimit { .. }))
-    );
+    // The custom generated-state bound belonged to the retired reference
+    // final route (#791); Core refuses TLC composition before any search.
     Ok(())
 }
 

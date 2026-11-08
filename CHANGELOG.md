@@ -5,6 +5,14 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- The Rust API no longer has the reference engine's in-memory final temporal
+  route (`dive_api::temporal::check_final`, `check_final_with_evidence`,
+  `check_final_with_policy` and `check_final_with_policies`; issue #791).
+  Check a file on Core with `TemporalMode::FinalShort` and read
+  `CheckReport::temporal_result`. The new `CheckReport::temporal_failure`
+  returns the typed failure of a temporal check that stopped without a
+  verdict. Caller-set analysis limits and graph or acceptance policies are no
+  longer settable; Core uses its file configuration.
 - The Rust API no longer has `Engine::Reference` (issue #791). `Engine` has
   the single variant `Engine::Core`, `Engine::parse("reference")` returns
   `None`, and the `*_engine` entry points accept only Core. Requests that

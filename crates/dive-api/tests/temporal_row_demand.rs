@@ -1,4 +1,6 @@
 //! Ordinary row errors require demand, actual prefix facts and fresh validation.
+#[path = "support/core_final.rs"]
+mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 
@@ -7,7 +9,6 @@ use std::sync::Arc;
 
 use dive_api::{CheckRequest, ExitConvention};
 use dive_check::CheckOptions;
-use dive_liveness::analyze::{Limits, StateEvaluationSite};
 use serde_json::Value;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -39,35 +40,25 @@ fn golden(corpus: &str, name: &str) -> Result<Value, Box<dyn std::error::Error>>
     )))?)?)
 }
 
-fn source_input(
-    body: &str,
-    extra_config: &str,
-) -> Result<(Arc<dive_ir::Ir>, dive_config::ModelConfig), Box<dyn std::error::Error>> {
-    let source = format!(
+fn row_source(body: &str) -> String {
+    format!(
         "---- MODULE RowControl ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLE x\n{body}\n====\n"
-    );
-    let analysis =
-        dive_sema::analyze_source("RowControl.tla", &source, &dive_sema::Options::default());
-    assert!(analysis.accepted(), "{analysis:?}");
-    let config = dive_config::parse(&format!("INIT Init\nNEXT Next\nPROPERTY P\n{extra_config}"))
-        .into_config()
-        .ok_or("configuration")?;
-    Ok((Arc::new(dive_ir::lower(&analysis)?), config))
+    )
 }
 
-fn final_no_cells(
-    ir: &Arc<dive_ir::Ir>,
-    config: &dive_config::ModelConfig,
-    options: &CheckOptions,
-) -> Result<dive_api::temporal::Report, dive_api::temporal::Failure> {
-    dive_api::temporal::check_final_with_policies(
-        ir,
-        config,
-        options,
-        Limits::default(),
-        dive_liveness::product::AcceptancePolicy::Legacy,
-        dive_liveness::analyze::GraphLabelPolicy::NoCellLimit,
-    )
+fn row_config(extra_config: &str) -> String {
+    format!("INIT Init\nNEXT Next\nPROPERTY P\n{extra_config}")
+}
+
+/// A temporal source row whose first error is in `Next`.
+const UNCERTIFIED_SOURCE_ROW: &str =
+    "singleton temporal source-row primary constructor is not certified";
+/// An effect inside a lazily evaluated constructor.
+const LAZY_EFFECT: &str = "Print, PrintT, RandomElement, TLCSet or TLCGet inside a function constructor, set filter, set map or operator argument";
+
+/// Asserts that `report` is Core's named refusal of `feature`.
+fn assert_core_refused(report: &dive_api::CheckReport, feature: &str) {
+    refused::assert_refused(&report.to_json(), report.exit_code(), feature);
 }
 
 #[test]
@@ -191,80 +182,32 @@ fn existing_holding_and_lasso_controls_keep_independent_validation() -> TestResu
 }
 
 #[test]
-fn a_source_bound_api_failure_retains_the_original_typed_cause_and_real_row() -> TestResult {
-    let name = "CurrentStateBinPriority";
-    let directory = root().join(format!(
-        "conformance/corpus/temporal-demand-primary-probes/specifications/{name}"
-    ));
-    let source = std::fs::read_to_string(directory.join(format!("{name}.tla")))?;
-    let analysis = dive_sema::analyze_source(
-        &format!("{name}.tla"),
-        &source,
-        &dive_sema::Options::default(),
-    );
-    assert!(analysis.accepted(), "{analysis:?}");
-    let ir = Arc::new(dive_ir::lower(&analysis)?);
-    let config = dive_config::parse(&std::fs::read_to_string(
-        directory.join(format!("{name}.cfg")),
-    )?)
-    .into_config()
-    .ok_or("configuration")?;
-    for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        let failure = final_no_cells(&ir, &config, &options)
-            .err()
-            .ok_or("expected original row error")?;
-        let state = failure.state_evaluation().ok_or("typed row cause")?;
-        assert_eq!(state.site(), StateEvaluationSite::CaptureRow);
-        assert_eq!(
-            state.core_cause().map(|cause| cause.ec().code()),
-            Some(2179)
-        );
-        assert!(state.cause().origin().is_some());
-        let row = state.capture_row().ok_or("opaque row evidence")?;
-        assert_eq!(row.source(), 0);
-        assert_eq!(
-            row.result().stats.map(|stats| (
-                stats.distinct,
-                stats.generated,
-                stats.left_on_queue,
-                stats.depth
-            )),
-            Some((2, 2, 1, 2))
-        );
-        assert!(matches!(
-            &row.result().verdict,
-            dive_check::Verdict::Unsupported { .. }
-        ));
-        assert_eq!(failure.capture_completed(), Some(false));
-        assert!(failure.action_evaluation().is_none());
-    }
-    Ok(())
-}
-
-#[test]
 fn initial_invariant_and_next_errors_keep_priority_before_any_row_decision() -> TestResult {
     for (next, invariant) in [("x'=1", true), ("x'=1 \\div 0", false)] {
-        let (ir, config) = source_input(
-            &format!("Init == x=0\nNext == {next}\nInv == x=1\nP == []<>(1 \\div (x-x)=0)"),
-            if invariant { "INVARIANT Inv\n" } else { "" },
-        )?;
+        let source = row_source(&format!(
+            "Init == x=0\nNext == {next}\nInv == x=1\nP == []<>(1 \\div (x-x)=0)"
+        ));
+        let config = row_config(if invariant { "INVARIANT Inv\n" } else { "" });
         for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-            let report = final_no_cells(&ir, &config, &options)?;
-            let dive_api::temporal::Outcome::Safety(result) = report.outcome() else {
+            if !invariant {
+                // TLC reports the Next evaluation error (2179). Core refuses
+                // this uncertified source row by name, never a verdict.
+                let report = core_final::run(&source, &config, &options);
+                assert_core_refused(&report, UNCERTIFIED_SOURCE_ROW);
+                continue;
+            }
+            let run =
+                core_final::check(&source, &config, &options).map_err(|e| e.json().to_string())?;
+            let core_final::Outcome::Safety(result) = run.outcome() else {
                 return Err("earlier safety stop must not become a temporal decision".into());
             };
-            if invariant {
-                assert_eq!(
-                    result.verdict,
-                    dive_check::Verdict::InvariantViolated {
-                        property: "Inv".into(),
-                        initial: true
-                    }
-                );
-            } else {
-                assert_eq!(result.verdict.kind(), "evaluation-error");
-                assert_eq!(result.verdict.tlc().map(|class| class.code), Some(2179));
-            }
+            assert_eq!(
+                result.verdict,
+                dive_check::Verdict::InvariantViolated {
+                    property: "Inv".into(),
+                    initial: true
+                }
+            );
         }
     }
     Ok(())
@@ -299,152 +242,43 @@ fn assert_real_filter_callback(ir: &Arc<dive_ir::Ir>, options: &CheckOptions) ->
     Ok(())
 }
 
-fn assert_stateful_filter_refusal(result: &dive_check::CheckResult) {
-    assert_eq!(
-        result.verdict,
-        dive_check::Verdict::Unsupported {
-            feature: "graph capture with stateful checking: side effects inside a set filter TLC evaluates lazily".into(),
-        }
-    );
-    assert!(result.stats.is_none(), "no search counters fabricated");
-    assert!(
-        result.counterexample.is_none(),
-        "no capture word fabricated"
-    );
-    assert_eq!(result.workers.used, 0);
-    assert_eq!(result.output, Vec::<String>::new());
-}
-
 #[test]
-fn uncertified_future_provider_uses_the_legacy_route_without_extra_callbacks() -> TestResult {
-    let (ir, config) = source_input(
+fn uncertified_future_provider_is_refused_without_extra_callbacks() -> TestResult {
+    let source = row_source(
         "Init == x={p \\in ({0} \\X {0}): PrintT(p[1]=0)}\nNext == UNCHANGED x\nP == []<>(<<0,0>> \\in x)",
-        "",
-    )?;
+    );
+    let analysis =
+        dive_sema::analyze_source("RowControl.tla", &source, &dive_sema::Options::default());
+    assert!(analysis.accepted(), "{analysis:?}");
+    let ir = Arc::new(dive_ir::lower(&analysis)?);
     for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        // A separate direct Core proves the provider genuinely prints. It and
-        // its retained value are dropped before either graph-capture route.
+        // A separate direct evaluator proves the provider genuinely prints.
         assert_real_filter_callback(&ir, &options)?;
-        let model = dive_model::bind(
-            ir.clone(),
-            &config,
-            &dive_model::BindOptions {
-                eval: options.eval,
-                symmetry_liveness: options.symmetry_liveness,
-                no_deadlock: options.no_deadlock,
-                host: None,
-            },
-        )?;
-        let reference = dive_liveness::analyze::analyze_final_with_policies(
-            &model,
-            &options,
-            Limits::default(),
-            dive_liveness::product::AcceptancePolicy::Legacy,
-            dive_liveness::analyze::GraphLabelPolicy::Cells(Limits::default().atom_cells),
-        )
-        .err()
-        .ok_or("legacy capture must retain its presearch effect refusal")?;
-        let dive_liveness::analyze::AnalysisError::Exploration(reference_result) =
-            &reference.failure().error
-        else {
-            return Err("legacy graph capture refusal".into());
-        };
-        assert_stateful_filter_refusal(reference_result);
-        assert!(reference.failure().exploration.is_none());
-        assert!(reference.state_evaluation().is_none());
-        assert!(reference.action_evaluation().is_none());
-        // The public API has always transported capture refusals as an Ok
-        // report containing Outcome::Safety, while the analyzer returns Err.
-        let actual = final_no_cells(&ir, &config, &options)?;
-        let dive_api::temporal::Outcome::Safety(actual_result) = actual.outcome() else {
-            return Err(format!(
-                "unknown producer must retain its presearch effect refusal: {:?}",
-                actual.outcome()
-            )
-            .into());
-        };
-        assert_stateful_filter_refusal(actual_result);
-        assert_eq!(actual_result.verdict, reference_result.verdict);
-        assert_eq!(actual_result.output, reference_result.output);
-        assert_eq!(actual_result.stats, reference_result.stats);
+        let report = core_final::run(&source, &row_config(""), &options);
+        assert_core_refused(&report, LAZY_EFFECT);
+        assert_eq!(report.to_json()["output"], serde_json::json!([]));
     }
     Ok(())
 }
 
 #[test]
 fn an_owned_budget_stop_never_becomes_a_semantic_row_error() -> TestResult {
-    let (ir, config) = source_input(
-        "Init == x=0\nNext == x'=1-x\nP == []<>(1 \\div (x-x)=0)",
-        "",
-    )?;
-    for mut options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        options.budget = dive_check::budget::Budget::new(Some(std::time::Duration::ZERO), None);
-        let failure = final_no_cells(&ir, &config, &options)
-            .err()
-            .ok_or("owned stop required")?;
-        assert!(matches!(
-            failure.error(),
-            dive_api::temporal::Error::Analysis(dive_liveness::analyze::AnalysisError::Stopped(_))
-        ));
-        assert!(failure.state_evaluation().is_none());
-        assert!(failure.action_evaluation().is_none());
-    }
-    Ok(())
-}
-
-#[test]
-fn all_finite_label_policies_keep_legacy_admission_before_label_errors() -> TestResult {
-    use dive_liveness::analyze::{AnalysisError, GraphLabelPolicy};
-    let (ir, config) = source_input(
-        "Init == x=0\nNext == x'=1-x\nP == []<>(1 \\div (x-x)=0)",
-        "",
-    )?;
+    let source = row_source("Init == x=0\nNext == x'=1-x\nP == []<>(1 \\div (x-x)=0)");
     for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        for cells in [0, usize::MAX] {
-            let failure = dive_api::temporal::check_final_with_policies(
-                &ir,
-                &config,
-                &options,
-                Limits::default(),
-                dive_liveness::product::AcceptancePolicy::Legacy,
-                GraphLabelPolicy::Cells(cells),
-            )
-            .err()
-            .ok_or("legacy postcapture failure")?;
-            assert_eq!(failure.capture_completed(), Some(true));
-            let capture = failure.exploration().ok_or("whole legacy capture")?;
-            assert_eq!(
-                (
-                    capture.stats.distinct,
-                    capture.stats.generated,
-                    capture.stats.left_on_queue
-                ),
-                (2, 3, 0)
-            );
-            if cells == 0 {
-                assert!(matches!(
-                    failure.error(),
-                    dive_api::temporal::Error::Analysis(AnalysisError::Limit(_))
-                ));
-                assert!(
-                    failure.state_evaluation().is_none(),
-                    "bound stops before label evaluation"
-                );
-            } else {
-                let state = failure.state_evaluation().ok_or("legacy typed cause")?;
-                assert_eq!(state.site(), StateEvaluationSite::FinalLabels);
-                assert!(state.capture_row().is_none());
-            }
-        }
-        let row = final_no_cells(&ir, &config, &options)
-            .err()
-            .ok_or("real source-row error")?;
-        assert_eq!(row.capture_completed(), Some(false));
-        assert!(
-            row.state_evaluation()
-                .and_then(|state| state.capture_row())
-                .is_some()
-        );
+        let files = core_final::Files::new(&source, &row_config(""));
+        let request = CheckRequest {
+            time_limit: dive_api::BudgetSetting::Explicit(std::time::Duration::ZERO),
+            ..files.request(&options)
+        };
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let json = report.to_json();
+        assert_eq!(json["verdict"], "stopped", "{json}");
+        assert!(json["error_site"].is_null(), "{json}");
+        assert!(json["counterexample"].is_null(), "{json}");
+        // Without a budget the label error is a temporal failure, whose
+        // report Core does not build.
+        let report = core_final::run(&source, &row_config(""), &options);
+        assert_core_refused(&report, refused::TEMPORAL_FAILURE_REPORT);
     }
     Ok(())
 }

@@ -1,9 +1,14 @@
 //! Deferred finite filters/maps: pinned complete counts and independently validated
-//! temporal counterexamples. These are final/short checks, not strict TLC lassos.
+//! temporal counterexamples on Core. These are final/short checks, not strict
+//! TLC lassos. They ran on the retired reference final route until #791;
+//! exact seen storage with temporal properties is a named Core refusal.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
-use dive_api::temporal::{self, Outcome};
+#[path = "support/core_final.rs"]
+mod core_final;
+#[path = "support/refused.rs"]
+mod refused;
+use core_final::Outcome;
 use dive_check::CheckOptions;
-use dive_liveness::analyze::Limits;
 use dive_model::{BindOptions, Pred};
 use dive_store::StoreMode;
 use dive_trace::Validation;
@@ -56,15 +61,15 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
             let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
             let cfg = dive_config::parse(&config).into_config().expect("cfg");
             for profile in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-                for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                {
+                    let store = StoreMode::Fingerprint;
                     for workers in [1, 4, 8] {
                         let options = CheckOptions {
                             store,
                             workers,
                             ..profile.clone()
                         };
-                        let report = temporal::check_final(&ir, &cfg, &options, Limits::default())
-                            .expect(&name);
+                        let report = core_final::check(&source, &config, &options).expect(&name);
                         let capture = match report.outcome() {
                             Outcome::Holds(c) => {
                                 assert!(holds, "{name}");
@@ -74,14 +79,6 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
                                 assert!(!holds, "{name}");
                                 assert_eq!(v.validation().validation, Validation::Valid);
                                 &v.candidate().exploration
-                            }
-                            Outcome::NativeHolds(_)
-                            | Outcome::NativeViolation(_)
-                            | Outcome::NativePrefixViolation(_) => {
-                                panic!("explicit reference API must retain its legacy result type")
-                            }
-                            Outcome::PrefixViolation(_) => {
-                                panic!("explicit Final cannot return a prefix")
                             }
                             Outcome::Safety(s) => panic!("{name}: {:?}", s.verdict),
                         };
@@ -127,11 +124,10 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
 /// as a constant, though the recursive local function itself would be an
 /// unknown. The holding property is decided; the failing one finds a
 /// candidate the independent validator cannot yet decide (it still treats the
-/// recursive domain conservatively), so no violation is claimed.
+/// recursive domain conservatively), so no violation is claimed: Core refuses
+/// the temporal validation failure by name.
 #[test]
 fn startup_fixed_recursive_domains_plan_and_never_claim_unvalidated_words() {
-    use dive_api::temporal::{Error, Stage};
-
     let root =
         Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/finite-deferred-audit/specs");
     for suffix in ["Holds", "Fails"] {
@@ -140,65 +136,22 @@ fn startup_fixed_recursive_domains_plan_and_never_claim_unvalidated_words() {
             std::fs::read_to_string(root.join(&name).join(format!("{name}.tla"))).expect("source");
         let config =
             std::fs::read_to_string(root.join(&name).join(format!("{name}.cfg"))).expect("config");
-        let a = dive_sema::analyze_source(
-            &format!("{name}.tla"),
-            &source,
-            &dive_sema::Options::default(),
-        );
-        assert!(a.accepted(), "{a:?}");
-        let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
-        let cfg = dive_config::parse(&config).into_config().expect("cfg");
-        for profile in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
-            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
-                let options = CheckOptions {
-                    store,
-                    ..profile.clone()
-                };
-                let legacy = temporal::check_final(&ir, &cfg, &options, Limits::default());
-                let evidence =
-                    temporal::check_final_with_evidence(&ir, &cfg, &options, Limits::default());
-                if suffix == "Holds" {
-                    let legacy = legacy.expect("the fixed domain is planned");
-                    let evidence = evidence.expect("the fixed domain is planned");
-                    for outcome in [legacy.outcome(), evidence.outcome()] {
-                        assert!(
-                            matches!(outcome, Outcome::Holds(_) | Outcome::NativeHolds(_)),
-                            "{name}: {outcome:?}"
-                        );
-                    }
-                } else {
-                    let legacy = legacy.expect_err("an unvalidated word is not a violation");
-                    let failure = evidence.expect_err("an unvalidated word is not a violation");
-                    for error in [&legacy, failure.error()] {
-                        // Exactly the validator's named refusal of the
-                        // recursive domain, for the planned property's word.
-                        let Error::Validation { candidate, report } = error else {
-                            panic!("{name}: expected the validation refusal, got {error:?}");
-                        };
-                        assert_eq!(candidate.target_property, "Live", "{name}");
-                        assert_eq!(candidate.properties, ["Live"], "{name}");
-                        assert_eq!(
-                            report.validation,
-                            Validation::Unsupported(
-                                "nonconstant predicate quantifier domain".into()
-                            ),
-                            "{name}"
-                        );
-                        assert_eq!(error.code(), "DIVE-A0032", "{name}");
-                    }
-                    assert_eq!(failure.error().to_string(), legacy.to_string());
-                    // Refused at validation after a complete capture: no
-                    // action evaluation is claimed, and the one requested
-                    // worker is the one used.
-                    assert_eq!(failure.stage(), Stage::Validation, "{name}");
-                    assert_eq!(failure.capture_completed(), Some(true), "{name}");
-                    assert!(failure.action_evaluation().is_none(), "{name}");
-                    assert_eq!(
-                        failure.workers(options.workers).expect("known width").used,
-                        1,
-                        "{name}"
-                    );
-                }
+        for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            let result = core_final::check(&source, &config, &options);
+            if suffix == "Holds" {
+                let run = result.expect("the fixed domain is planned");
+                assert!(
+                    matches!(run.outcome(), Outcome::Holds(_)),
+                    "{name}: {:?}",
+                    run.outcome()
+                );
+            } else {
+                let stop = result.expect_err("an unvalidated word is not a violation");
+                refused::assert_refused(
+                    &stop.json(),
+                    stop.exit_code(),
+                    refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
+                );
             }
         }
     }

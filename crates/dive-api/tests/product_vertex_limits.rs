@@ -1,108 +1,41 @@
-//! File capacity and caller-supplied product vertex ceilings have distinct owners.
+//! Core's product vertex capacity and the file routes' reported bounds.
 #![allow(clippy::expect_used, clippy::panic, reason = "finite test assertions")]
+#[path = "support/core_final.rs"]
+mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 
 use std::path::PathBuf;
-use std::sync::Arc;
 
-use dive_api::temporal::{self, Error, Outcome, Stage};
 use dive_api::{CheckRequest, TemporalMode};
 use dive_check::CheckOptions;
-use dive_liveness::analyze::{AnalysisError, GraphLabelPolicy, Limits};
-use dive_liveness::product::{AcceptancePolicy, ProductError};
 
 const SOURCE: &str = "---- MODULE VertexLimit ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
 const CONFIG: &str = "INIT Init\nNEXT Next\nPROPERTY P\n";
 
+/// Core's product has no vertex ceiling of its own: the two-state base
+/// product of this word is built and its violation validated. Caller-supplied
+/// vertex ceilings belonged to the retired reference final route (#791).
 #[test]
-fn every_final_entrypoint_preserves_custom_vertex_boundaries_and_default() {
-    let analysis =
-        dive_sema::analyze_source("VertexLimit.tla", SOURCE, &dive_sema::Options::default());
-    assert!(analysis.accepted());
-    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-    let config = dive_config::parse(CONFIG).into_config().expect("config");
-    assert_eq!(Limits::default().product.vertices, 1_000_000);
+fn core_product_has_no_vertex_ceiling_and_validates_the_word() {
     for options in [CheckOptions::dive(0), CheckOptions::tlc(0, 0)] {
-        // FG extraction leaves this two-state behavior graph in the base product.
-        for vertices in [0, 1, 2, 1_000_000] {
-            let mut limits = Limits::default();
-            limits.product.vertices = vertices;
-            let results = [
-                temporal::check_final_with_evidence(&ir, &config, &options, limits),
-                temporal::check_final_with_policy(
-                    &ir,
-                    &config,
-                    &options,
-                    limits,
-                    AcceptancePolicy::compact_default(),
-                ),
-                temporal::check_final_with_policies(
-                    &ir,
-                    &config,
-                    &options,
-                    limits,
-                    AcceptancePolicy::compact_default(),
-                    GraphLabelPolicy::NoCellLimit,
-                ),
-            ];
-            for result in results {
-                if vertices < 2 {
-                    let failure = result.expect_err("exact supplied ceiling must refuse");
-                    assert!(matches!(
-                        failure.error(),
-                        Error::Analysis(AnalysisError::Product(ProductError::Limit("vertices")))
-                    ));
-                    assert_eq!(
-                        failure.stage(),
-                        Stage::Analysis(dive_liveness::analyze::Stage::Product)
-                    );
-                    assert_eq!(failure.capture_completed(), Some(true));
-                    assert_eq!(failure.exploration().expect("capture").stats.distinct, 2);
-                    assert_eq!(
-                        failure
-                            .configuration()
-                            .expect("configured refusal")
-                            .limits
-                            .product
-                            .vertices,
-                        vertices
-                    );
-                } else {
-                    let report = result.expect("exact two vertices fit");
-                    assert_eq!(
-                        report
-                            .configuration()
-                            .expect("actual configuration")
-                            .limits
-                            .product
-                            .vertices,
-                        vertices
-                    );
-                    let Outcome::Violation(word) = report.outcome() else {
-                        panic!("implicit FALSE stuttering violates GF x");
-                    };
-                    assert_eq!(
-                        word.validation().validation,
-                        dive_api::trace::Validation::Valid
-                    );
-                }
-            }
-            let legacy = temporal::check_final(&ir, &config, &options, limits);
-            if vertices < 2 {
-                assert!(matches!(
-                    legacy,
-                    Err(Error::Analysis(AnalysisError::Product(
-                        ProductError::Limit("vertices")
-                    )))
-                ));
-            } else {
-                assert!(matches!(
-                    legacy.expect("legacy exact boundary").outcome(),
-                    Outcome::Violation(_)
-                ));
-            }
-        }
+        let run = core_final::check(SOURCE, CONFIG, &options).expect("verdict");
+        let core_final::Outcome::Violation(word) = run.outcome() else {
+            panic!(
+                "implicit FALSE stuttering violates GF x: {:?}",
+                run.outcome()
+            );
+        };
+        assert_eq!(
+            word.validation().validation,
+            dive_api::trace::Validation::Valid
+        );
+        assert_eq!(word.candidate().exploration.stats.distinct, 2);
+        let json = run.report().to_json();
+        assert_eq!(
+            json["options"]["temporal_bounds"]["product_vertices"],
+            serde_json::json!(usize::MAX)
+        );
     }
 }
 

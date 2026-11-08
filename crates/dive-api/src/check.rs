@@ -1248,6 +1248,17 @@ impl CheckReport {
         }
     }
 
+    /// The typed temporal failure, when temporal checking stopped without a
+    /// verdict: its [`crate::temporal::Error`], stage and available evidence.
+    #[must_use]
+    pub fn temporal_failure(&self) -> Option<&crate::temporal::Failure> {
+        if let Phase::TemporalError(failure) = &self.phase {
+            Some(failure)
+        } else {
+            None
+        }
+    }
+
     /// The verdict's name in the JSON document.
     #[must_use]
     pub fn verdict(&self) -> &'static str {
@@ -2864,205 +2875,39 @@ fn temporal_limits_json(configuration: crate::temporal::Configuration) -> Value 
 mod evidence_controls {
     use super::*;
 
-    fn limited_report(stage: dive_liveness::analyze::Stage) -> CheckReport {
-        let source = "---- MODULE M ----\nEXTENDS TLC\nASSUME PrintT(\"boot\")\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
-        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
-            .into_config()
-            .expect("configuration");
-        let mut opts = CheckOptions::tlc(0, 0);
-        opts.workers = 4;
-        let mut limits = dive_liveness::analyze::Limits::default();
-        match stage {
-            dive_liveness::analyze::Stage::Product => limits.product.acceptance_cells = 0,
-            dive_liveness::analyze::Stage::Capture => limits.capture.states = 1,
-            _ => limits.properties = 0,
-        }
-        let phase = match crate::temporal::check_final_with_evidence(&ir, &cfg, &opts, limits) {
-            Err(failure) => Phase::TemporalError(Box::new(failure)),
-            Ok(report) => match report.outcome() {
-                crate::temporal::Outcome::Safety(stop) => Phase::Checked(stop.clone()),
-                _ => panic!("a resource bound cannot produce a temporal verdict"),
+    /// A Core report for `source` and `cfg` under `--compat=tlc`, from files
+    /// in a fresh directory.
+    fn core_check(source: &str, cfg: &str, req: CheckRequest) -> CheckReport {
+        static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        let directory = std::env::temp_dir().join(format!(
+            "dive-evidence-controls-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+        ));
+        std::fs::create_dir_all(&directory).expect("directory");
+        let file = directory.join("M.tla");
+        std::fs::write(&file, source).expect("module");
+        std::fs::write(file.with_extension("cfg"), cfg).expect("configuration");
+        let report = check_file_in(
+            &CheckRequest {
+                file,
+                compat_tlc: true,
+                seed: Some(0),
+                workers: Some(1),
+                ..req
             },
-        };
-        CheckReport {
-            checkpoint_request: None,
-            checkpoint_receipt: None,
-            file: "M.tla".into(),
-            config: "M.cfg".into(),
-            profile: Profile::Tlc,
-            opts,
-            seed_given: true,
-            symmetry_liveness_explicit: false,
-            fp_given: true,
-            workers_requested: 4,
-            temporal: TemporalMode::FinalShort,
-            budget_sources: ("none", "none"),
-            memory_requested_source: "none",
-            memory_samples: None,
-            temporal_configuration: crate::temporal::Configuration {
-                limits,
-                acceptance: dive_liveness::product::AcceptancePolicy::Legacy,
-                graph_labels: dive_liveness::analyze::GraphLabelPolicy::Cells(limits.atom_cells),
-            },
-            phase,
-            core: None,
-            next_error_endpoint: None,
-            candidate_error_endpoint: None,
-            view_error_endpoint: None,
-            partial_terminal_endpoint: None,
-            engine: crate::Engine::Core,
-        }
-    }
-
-    #[test]
-    fn owner_bounds_serialize_actual_custom_configuration_even_before_capture() {
-        use dive_liveness::{
-            analyze::{GraphLabelPolicy, Limits},
-            product::AcceptancePolicy,
-        };
-        let mut report = limited_report(dive_liveness::analyze::Stage::Product);
-        let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
-        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
-            .into_config()
-            .expect("config");
-        let limits = Limits {
-            properties: 0,
-            atom_cells: 31,
-            capture: dive_check::capture::Limits {
-                states: 17,
-                ..dive_check::capture::Limits::default()
-            },
-            ..Limits::default()
-        };
-        let failure = crate::temporal::check_final_with_policies(
-            &ir,
-            &cfg,
-            &report.opts,
-            limits,
-            AcceptancePolicy::Buffers {
-                bytes: 73,
-                work: 79,
-            },
-            GraphLabelPolicy::Cells(19),
+            None,
+            false,
+            None,
         )
-        .expect_err("configured planning refusal");
-        assert_eq!(failure.capture_completed(), Some(false));
-        report.phase = Phase::TemporalError(Box::new(failure));
-        let document = report.to_json();
-        assert_eq!(document["schema_version"], 3);
-        let bounds = &document["options"]["temporal_bounds"];
-        assert!(bounds.get("atom_cells").is_none());
-        assert_eq!(bounds["states"], 17);
-        assert_eq!(bounds["properties"], 0);
-        assert_eq!(
-            bounds["cell_limits"],
-            json!({"graph_labels":{"kind":"cells","cells":19},"attribution_rows":{"kind":"cells","cells":31},"word_truth":{"kind":"cells","cells":31}})
-        );
-        assert_eq!(bounds["acceptance_buffer_bytes"], 73);
-        assert_eq!(bounds["acceptance_materialization_work"], 79);
-        assert_eq!(
-            bounds["acceptance_policy"],
-            json!({"kind":"buffers","bytes":73,"materialization_work":79})
-        );
-        assert_eq!(document["execution"]["capture_completed"], false);
-    }
-
-    #[test]
-    fn completed_reports_serialize_actual_zero_and_custom_owner_policies() {
-        use dive_liveness::{
-            analyze::{GraphLabelPolicy, Limits},
-            product::AcceptancePolicy,
-        };
-        let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>(x \\in {FALSE,TRUE})\n====\n";
-        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
-        assert!(analysis.accepted());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
-            .into_config()
-            .expect("config");
-        for graph_labels in [GraphLabelPolicy::Cells(6), GraphLabelPolicy::NoCellLimit] {
-            for acceptance in [
-                AcceptancePolicy::Legacy,
-                AcceptancePolicy::Buffers {
-                    bytes: 1_000_003,
-                    work: 1_000_019,
-                },
-            ] {
-                let mut report = limited_report(dive_liveness::analyze::Stage::Product);
-                let mut limits = Limits {
-                    atom_cells: 0,
-                    ..Limits::default()
-                };
-                limits.product.acceptance_cells = 64;
-                let actual = crate::temporal::check_final_with_policies(
-                    &ir,
-                    &cfg,
-                    &report.opts,
-                    limits,
-                    acceptance,
-                    graph_labels,
-                )
-                .expect("holding result within custom policies");
-                assert!(matches!(
-                    actual.outcome(),
-                    crate::temporal::Outcome::Holds(_)
-                ));
-                report.phase = Phase::Temporal(Box::new(actual));
-                let document = report.to_json();
-                assert_eq!(document["schema_version"], 3);
-                assert_eq!(document["verdict"], "success");
-                assert_eq!(document["execution"]["capture_completed"], true);
-                assert_eq!(document["statistics"]["distinct"], 2);
-                let bounds = &document["options"]["temporal_bounds"];
-                let graph = match graph_labels {
-                    GraphLabelPolicy::Cells(cells) => json!({"kind":"cells","cells":cells}),
-                    GraphLabelPolicy::NoCellLimit => json!({"kind":"run-budgets"}),
-                };
-                assert_eq!(bounds["cell_limits"]["graph_labels"], graph);
-                for owner in ["attribution_rows", "word_truth"] {
-                    assert_eq!(
-                        bounds["cell_limits"][owner],
-                        json!({"kind":"cells","cells":0})
-                    );
-                }
-                match acceptance {
-                    AcceptancePolicy::Legacy => {
-                        assert_eq!(
-                            bounds["acceptance_policy"],
-                            json!({"kind":"cells","cells":64})
-                        );
-                        assert_eq!(bounds.get("acceptance_buffer_bytes"), Some(&Value::Null));
-                        assert_eq!(
-                            bounds.get("acceptance_materialization_work"),
-                            Some(&Value::Null)
-                        );
-                    }
-                    AcceptancePolicy::Buffers { bytes, work } => {
-                        assert_eq!(
-                            bounds["acceptance_policy"],
-                            json!({"kind":"buffers","bytes":bytes,"materialization_work":work})
-                        );
-                        assert_eq!(bounds["acceptance_buffer_bytes"], bytes);
-                        assert_eq!(bounds["acceptance_materialization_work"], work);
-                    }
-                }
-            }
-        }
+        .expect("report");
+        let _ = std::fs::remove_dir_all(&directory);
+        report
     }
 
     #[test]
     fn terminal_sampling_preserves_completed_progress_without_a_proof() {
         let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>(x \\/ ~x)\n====\n";
-        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
-        assert!(analysis.accepted());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
-            .into_config()
-            .expect("cfg");
         for finished in [
             Err(dive_check::budget::MeasurementError::unavailable(
                 dive_check::budget::SamplePoint::Final,
@@ -3074,19 +2919,12 @@ mod evidence_controls {
                 elapsed_ms: 2,
             })),
         ] {
-            let temporal = crate::temporal::check_final(
-                &ir,
-                &cfg,
-                &CheckOptions::tlc(0, 0),
-                dive_liveness::analyze::Limits::default(),
-            )
-            .expect("actual holding result");
-            assert!(matches!(
-                temporal.outcome(),
-                crate::temporal::Outcome::Holds(_)
-            ));
-            let mut report = limited_report(dive_liveness::analyze::Stage::Product);
-            report.phase = Phase::Temporal(Box::new(temporal));
+            let mut report = core_check(
+                source,
+                "INIT Init\nNEXT Next\nPROPERTY P\n",
+                CheckRequest::default(),
+            );
+            assert_eq!(report.verdict(), "success", "{}", report.to_json());
             report.finish_budget(finished, Duration::from_millis(2));
             let json = report.to_json();
             assert_eq!(json["execution"]["stage"], "finalization", "{json}");
@@ -3114,20 +2952,12 @@ mod evidence_controls {
 
     #[test]
     fn a_safety_measurement_error_has_actionable_help_without_an_invented_span() {
-        let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\n====\n";
-        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
-            .into_config()
-            .expect("cfg");
-        let opts = CheckOptions::tlc(0, 0);
-        let result = dive_check::check(&ir, &cfg, &opts);
-        assert_eq!(result.verdict, Verdict::Success);
-        let mut report = limited_report(dive_liveness::analyze::Stage::Product);
-        report.temporal = TemporalMode::Ordinary;
-        report.opts = opts;
-        report.workers_requested = 1;
-        report.phase = Phase::Checked(Box::new(result));
+        let mut report = core_check(
+            "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\n====\n",
+            "INIT Init\nNEXT Next\n",
+            CheckRequest::default(),
+        );
+        assert_eq!(report.verdict(), "success", "{}", report.to_json());
         report.finish_budget(
             Err(dive_check::budget::MeasurementError::unavailable(
                 dive_check::budget::SamplePoint::Final,
@@ -3154,112 +2984,6 @@ mod evidence_controls {
         assert!(json["counterexample"].is_null());
     }
 
-    #[test]
-    fn an_already_exhausted_temporal_request_reports_startup_stop() {
-        let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
-        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
-            .into_config()
-            .expect("configuration");
-        let watchdog =
-            dive_check::budget::Budget::new(Some(std::time::Duration::from_millis(1)), None)
-                .start()
-                .expect("watchdog thread starts")
-                .expect("watchdog");
-        let started = std::time::Instant::now();
-        while watchdog.budget().poll().expect("measurement").is_none()
-            && started.elapsed() < std::time::Duration::from_secs(10)
-        {
-            std::thread::sleep(std::time::Duration::from_millis(1));
-        }
-        let opts = CheckOptions {
-            budget: watchdog.budget().clone(),
-            ..CheckOptions::tlc(0, 0)
-        };
-        let limits = dive_liveness::analyze::Limits::default();
-        let Err(failure) = crate::temporal::check_final_with_evidence(&ir, &cfg, &opts, limits)
-        else {
-            panic!("an exhausted budget cannot produce a temporal result");
-        };
-        let mut report = limited_report(dive_liveness::analyze::Stage::Product);
-        report.phase = Phase::TemporalError(Box::new(failure));
-        let json = report.to_json();
-        assert_eq!(json["schema_version"], TEMPORAL_CHECK_SCHEMA_VERSION);
-        assert_eq!(json["verdict"], "stopped", "{json}");
-        assert_eq!(json["stopped"]["resource"], "time");
-        assert_eq!(json["stopped"]["phase"], "check-startup");
-        assert_eq!(json["execution"]["stage"], "check-startup");
-        assert_eq!(json["execution"]["capture_completed"], false);
-        assert!(json["statistics"].is_null());
-        assert!(json["tlc"].is_null());
-        assert_eq!(report.exit_code_for(ExitConvention::Tlc), exit::STOPPED);
-        assert_eq!(report.exit_code_for(ExitConvention::Native), exit::STOPPED);
-    }
-
-    #[test]
-    fn failed_product_report_retains_capture_but_never_a_verdict() {
-        let report = limited_report(dive_liveness::analyze::Stage::Product);
-        let json = report.to_json();
-        assert_eq!(json["schema_version"], TEMPORAL_CHECK_SCHEMA_VERSION);
-        assert_eq!(json["verdict"], "resource-limit");
-        assert_eq!(json["options"]["profile"], "tlc+overrides");
-        assert_eq!(json["options"]["workers"]["used"], 4);
-        assert_eq!(json["options"]["workers"]["requested"], 4);
-        assert_eq!(
-            json["options"]["temporal_bounds"]["successors_per_unit"],
-            65_536
-        );
-        assert_eq!(json["options"]["temporal_bounds"]["max_expansion_units"], 8);
-        assert_eq!(json["execution"]["stage"], "product");
-        assert_eq!(json["execution"]["capture_completed"], true);
-        assert_eq!(json["statistics"]["generated"], 3);
-        assert_eq!(json["statistics"]["distinct"], 2);
-        assert_eq!(json["statistics"]["depth"], 2);
-        assert_eq!(json["statistics"]["reported_by_tlc"], false);
-        assert_eq!(json["output"], json!(["\"boot\""]));
-        assert!(json["counterexample"].is_null());
-        assert!(json["tlc"].is_null());
-        assert_eq!(report.exit_code(), exit::UNSUPPORTED);
-        let human = report.render_human();
-        assert!(human.contains("4 worker(s) requested, 4 used"));
-        assert!(
-            human.contains(
-                "Capture completed: 3 generated, 2 distinct, depth 2; no temporal verdict."
-            )
-        );
-        assert!(!human.contains("no search ran"));
-    }
-
-    #[test]
-    fn planning_report_proves_no_capture_without_statistics() {
-        let report = limited_report(dive_liveness::analyze::Stage::Planning);
-        let json = report.to_json();
-        assert_eq!(json["options"]["workers"]["used"], 0);
-        assert_eq!(json["options"]["workers"]["reason"], "no search ran");
-        assert_eq!(json["execution"]["stage"], "planning");
-        assert_eq!(json["execution"]["capture_completed"], false);
-        assert!(json["statistics"].is_null());
-        assert!(json["collision"].is_null());
-        assert_eq!(json["verdict"], "resource-limit");
-    }
-    #[test]
-    fn capture_stop_report_retains_partial_work_and_stage() {
-        let report = limited_report(dive_liveness::analyze::Stage::Capture);
-        let json = report.to_json();
-        assert_eq!(json["execution"]["stage"], "capture");
-        assert_eq!(json["execution"]["capture_completed"], false);
-        assert!(!report.render_human().contains("Capture completed:"));
-        assert_eq!(json["options"]["workers"]["used"], 4);
-        assert_eq!(json["verdict"], "resource-limit");
-        assert!(!json["statistics"].is_null());
-        // A resource stop retains its finite diagnostic prefix, not a
-        // certified counterexample claim.
-        assert_eq!(json["counterexample"]["ending"], "finite");
-        assert!(json["counterexample"]["trace"].is_null());
-        assert!(json["tlc"].is_null());
-        assert_eq!(report.exit_code(), exit::UNSUPPORTED);
-    }
     #[test]
     fn default_ceiling_resolution_failure_is_distinct_and_never_unlimited() {
         use dive_check::budget::{MeasurementKind, SamplePoint};

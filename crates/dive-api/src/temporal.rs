@@ -398,9 +398,8 @@ impl Stage {
     }
 }
 
-/// A temporal failure with retained execution facts, never a verdict.
-/// Existing [`check_final`] callers keep their original [`Error`] interface;
-/// [`check_final_with_evidence`] exposes these additional facts.
+/// A temporal failure with retained execution facts, never a verdict, as
+/// [`crate::CheckReport::temporal_failure`] returns it.
 #[derive(Clone, Debug)]
 pub struct Failure {
     symmetry_liveness: Option<Box<dive_model::SymmetryLivenessResolution>>,
@@ -481,7 +480,7 @@ impl Failure {
     pub fn configuration(&self) -> Option<Configuration> {
         self.configuration.as_deref().copied()
     }
-    fn before(error: Error, stage: Stage) -> Self {
+    pub(crate) fn before(error: Error, stage: Stage) -> Self {
         Self {
             error: Box::new(error),
             stage,
@@ -751,97 +750,6 @@ fn prefix_binding_validation_failure(failure: Failure, capture: &capture::Prefix
     failure.exploration = Some(Box::new(capture.into()));
     failure.incomplete = true;
     failure
-}
-
-fn run(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    configuration: Configuration,
-) -> Result<(Outcome, Option<dive_model::SymmetryLivenessResolution>), Failure> {
-    let control = dive_check::budget::EvaluationControl::new(
-        &options.budget,
-        dive_check::budget::Phase::Binding,
-    )
-    .map_err(|_| {
-        Failure::before(
-            Error::Analysis(AnalysisError::Inconsistent("binding control identity")),
-            Stage::Binding,
-        )
-    })?;
-    let (result, symmetry) = match dive_liveness::analyze::owned::dispatch_controlled(
-        ir,
-        config,
-        options,
-        control.clone(),
-    ) {
-        Some(Ok(dive_liveness::analyze::owned::Dispatch::Safety(result))) => {
-            let symmetry = result.symmetry_liveness.clone();
-            return Ok((Outcome::Safety(result), symmetry));
-        }
-        Some(Ok(dive_liveness::analyze::owned::Dispatch::Temporal(model))) => {
-            let symmetry = Some(model.symmetry_liveness().clone());
-            (
-                run_bound_owned(ir, config, options, *model, configuration),
-                symmetry,
-            )
-        }
-        Some(Err(error)) => return Err(controlled_binding_failure(error, &control)),
-        None => {
-            let model = bind_controlled(ir, config, options, &control)?;
-            let symmetry = Some(model.symmetry_liveness().clone());
-            (
-                run_bound(ir, config, options, &model, configuration),
-                symmetry,
-            )
-        }
-    };
-    result
-        .map(|outcome| (outcome, symmetry.clone()))
-        .map_err(|mut failure| {
-            failure.symmetry_liveness = symmetry.map(Box::new);
-            failure
-        })
-}
-
-fn run_bound(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    model: &Model,
-    configuration: Configuration,
-) -> Result<Outcome, Failure> {
-    finish_final(
-        ir,
-        config,
-        options,
-        dive_liveness::analyze::analyze_final_with_policies(
-            model,
-            options,
-            configuration.limits,
-            configuration.acceptance,
-            configuration.graph_labels,
-        ),
-    )
-}
-
-fn run_bound_owned(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    model: dive_liveness::analyze::owned::OwnedTemporal,
-    configuration: Configuration,
-) -> Result<Outcome, Failure> {
-    finish_final(
-        ir,
-        config,
-        options,
-        model.final_analysis(
-            configuration.limits,
-            configuration.acceptance,
-            configuration.graph_labels,
-        ),
-    )
 }
 
 fn validation_control(
@@ -1587,226 +1495,6 @@ pub(crate) fn core_report(
     }
 }
 
-/// Binds and checks a lowered specification's pure temporal properties after
-/// complete exploration, returning only independently validated violations.
-/// The run uses [`dive_liveness::analyze::Limits`] and the supplied profile,
-/// store, seed and worker request. Capture uses the ordered parallel engine
-/// with bounded source waves and reports its actual pool width. Selection is
-/// always `short`, including when `options`
-/// requests TLC value semantics: this API does not claim byte-identical TLC
-/// lassos, error timing or full TLC compatibility.
-///
-/// ```
-/// use std::sync::Arc;
-/// use dive_api::temporal::{check_final, Outcome};
-/// use dive_check::CheckOptions;
-/// use dive_liveness::analyze::Limits;
-/// let src = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nP == []<>(~x)\n====\n";
-/// let analysis = dive_sema::analyze_source("M.tla", src, &dive_sema::Options::default());
-/// let ir = Arc::new(dive_ir::lower(&analysis)?);
-/// let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n").into_config().unwrap();
-/// let report = check_final(&ir, &cfg, &CheckOptions::dive(17), Limits::default())?;
-/// let Outcome::Violation(violation) = report.outcome() else { panic!("P is false") };
-/// assert_eq!(violation.document().properties, ["P"]);
-/// assert_eq!(violation.validation().validation, dive_trace::Validation::Valid);
-/// # Ok::<(), Box<dyn std::error::Error>>(())
-/// ```
-///
-/// # Errors
-/// Explicitly unsupported temporal scopes/features, entry-count resource bounds,
-/// binding/evaluation failures, failed independent validation or internal errors.
-/// Safety stops are retained as [`Outcome::Safety`], never a temporal verdict.
-/// With no configured `PROPERTY` entries, the ordinary safety checker runs
-/// directly and its complete result is returned as [`Outcome::Safety`]. Temporal
-/// analysis limits do not apply to that route; safety settings remain unchanged.
-/// Configured properties also return ordinary safety results when their actual
-/// bound roles contain no temporal obligations and the request meets
-/// [`dive_check::final_roles::dispatch`]'s default-memory scope. Binding runs once
-/// under the original startup host and retains every initial/invariant/action
-/// obligation. Excluded options and genuine temporal roles keep their existing
-/// analysis route; no ordinary result issues a temporal holding/capture claim.
-pub fn check_final(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    limits: Limits,
-) -> Result<Report, Error> {
-    check_final_with_evidence(ir, config, options, limits).map_err(|failure| *failure.error)
-}
-
-/// Like [`check_final`], preserving execution-stage, worker, statistics and
-/// elapsed-time evidence on failures. Capture statistics never certify a
-/// temporal verdict when a later stage fails.
-///
-/// # Errors
-/// The same failures as [`check_final`], with available execution evidence.
-pub fn check_final_with_evidence(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    limits: Limits,
-) -> Result<Report, Failure> {
-    check_final_with_policy(ir, config, options, limits, AcceptancePolicy::Legacy)
-}
-
-/// Like [`check_final_with_evidence`], explicitly selecting compact acceptance
-/// byte/work admission. Existing `check_final*` entrypoints retain legacy logical
-/// cells, including caller-supplied custom limits. Buffer mode bounds only the
-/// named acceptance owners; it is not a process-memory or search-work limit.
-///
-/// ```no_run
-/// # fn example(ir: &std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig) {
-/// use dive_liveness::{analyze::Limits, product::AcceptancePolicy};
-/// let _report = dive_api::temporal::check_final_with_policy(
-///     ir, cfg, &dive_check::CheckOptions::tlc(7, 0), Limits::default(),
-///     AcceptancePolicy::compact_default());
-/// # }
-/// ```
-///
-/// # Errors
-/// The same failures as [`check_final_with_evidence`], plus named buffer byte,
-/// allocation and materialization-work refusals for the selected policy.
-pub fn check_final_with_policy(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-) -> Result<Report, Failure> {
-    check_final_with_policies(
-        ir,
-        config,
-        options,
-        limits,
-        policy,
-        GraphLabelPolicy::Cells(limits.atom_cells),
-    )
-}
-
-/// Like [`check_final_with_policy`], explicitly selecting graph-label admission.
-/// Every existing entrypoint retains its supplied graph cell ceiling, including
-/// zero and an explicitly supplied default value. No other owner is changed.
-///
-/// ```no_run
-/// # fn example(ir: &std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig) {
-/// use dive_liveness::{analyze::{GraphLabelPolicy, Limits}, product::AcceptancePolicy};
-/// let result = dive_api::temporal::check_final_with_policies(ir, cfg,
-///     &dive_check::CheckOptions::tlc(0, 0), Limits::default(),
-///     AcceptancePolicy::compact_default(), GraphLabelPolicy::NoCellLimit);
-/// // Violations, if any, have passed both independent native validations.
-/// # let _ = result;
-/// # }
-/// ```
-///
-/// # Errors
-/// The same typed failures and retained execution facts as [`check_final_with_policy`].
-pub fn check_final_with_policies(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    limits: Limits,
-    policy: AcceptancePolicy,
-    graph_labels: GraphLabelPolicy,
-) -> Result<Report, Failure> {
-    let configuration = Configuration {
-        limits,
-        acceptance: policy,
-        graph_labels,
-    };
-    check_final_configured(ir, config, options, configuration)
-        .map(|mut report| {
-            report.configuration = Some(configuration);
-            report
-        })
-        .map_err(|mut failure| {
-            failure.configuration = Some(Box::new(configuration));
-            failure
-        })
-}
-
-fn check_final_configured(
-    ir: &Arc<Ir>,
-    config: &ModelConfig,
-    options: &CheckOptions,
-    configuration: Configuration,
-) -> Result<Report, Failure> {
-    let started = Instant::now();
-    let report_options = options.clone();
-    let (mut watchdog, armed) = dive_check::budget::arm(options).map_err(|error| {
-        Failure::before(
-            Error::Analysis(match error {
-                dive_check::budget::StartError::Measurement(error) => {
-                    AnalysisError::BudgetMeasurement(error)
-                }
-                error @ dive_check::budget::StartError::Thread(_) => {
-                    AnalysisError::BudgetStartup(error.to_string())
-                }
-            }),
-            Stage::Startup,
-        )
-    })?;
-    let options = armed.as_ref();
-    match options.budget.poll() {
-        Ok(Some(exhausted)) => {
-            return Err(Failure::before(
-                Error::Analysis(AnalysisError::Stopped(Box::new(
-                    exhausted.during(dive_check::budget::Phase::Startup),
-                ))),
-                Stage::Startup,
-            ));
-        }
-        Err(error) => {
-            return Err(Failure::before(
-                Error::Analysis(AnalysisError::BudgetMeasurement(error)),
-                Stage::Startup,
-            ));
-        }
-        Ok(None) => {}
-    }
-    let (outcome, symmetry_liveness) = if config.properties.is_empty() {
-        // No temporal claim requested; retain the ordinary startup host.
-        let result = dive_check::check(ir, config, options);
-        let symmetry = result.symmetry_liveness.clone();
-        (Outcome::Safety(Box::new(result)), symmetry)
-    } else {
-        std::thread::scope(|s| {
-            std::thread::Builder::new()
-                .stack_size(dive_eval::RECOMMENDED_STACK)
-                .spawn_scoped(s, || run(ir, config, options, configuration))
-                .map_err(|e| Failure::before(Error::Thread(e.to_string()), Stage::Unknown))?
-                .join()
-                .map_err(|_| {
-                    Failure::before(
-                        Error::Thread("the evaluation thread panicked".into()),
-                        Stage::Unknown,
-                    )
-                })?
-        })
-        .map_err(|mut failure| {
-            failure.elapsed = started.elapsed();
-            failure
-        })?
-    };
-    let mut report = Report {
-        outcome,
-        symmetry_liveness,
-        options: report_options,
-        elapsed: started.elapsed(),
-        periodic: None,
-        configuration: None,
-        memory_samples: None,
-    };
-    if let Some(watchdog) = &mut watchdog {
-        let finished = watchdog.finish();
-        if let Some(failure) = finish_report(&mut report, finished, started.elapsed()) {
-            return Err(failure);
-        }
-    }
-    report.memory_samples = options.budget.memory_samples();
-    report.elapsed = started.elapsed();
-    Ok(report)
-}
-
 #[cfg(test)]
 #[allow(
     clippy::expect_used,
@@ -1816,25 +1504,47 @@ fn check_final_configured(
 mod evidence_controls {
     use super::*;
 
+    /// Core's temporal report for `P == property`, under `--compat=tlc`.
     fn sampled_report(property: &str) -> Report {
-        let source = format!(
-            "---- MODULE Boundaries ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == {property}\n====\n"
-        );
-        let analysis =
-            dive_sema::analyze_source("Boundaries.tla", &source, &dive_sema::Options::default());
-        assert!(analysis.accepted());
-        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
-        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
-            .into_config()
-            .expect("cfg");
-        check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
+        static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        let directory = std::env::temp_dir().join(format!(
+            "dive-temporal-boundaries-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+        ));
+        std::fs::create_dir_all(&directory).expect("directory");
+        let file = directory.join("Boundaries.tla");
+        std::fs::write(
+            &file,
+            format!(
+                "---- MODULE Boundaries ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == {property}\n====\n"
+            ),
+        )
+        .expect("module");
+        std::fs::write(
+            file.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nPROPERTY P\n",
+        )
+        .expect("configuration");
+        let report = crate::check_file(&crate::CheckRequest {
+            file,
+            compat_tlc: true,
+            seed: Some(0),
+            workers: Some(1),
+            ..crate::CheckRequest::default()
+        })
+        .expect("report");
+        let _ = std::fs::remove_dir_all(&directory);
+        report
+            .temporal_result()
             .expect("real temporal result")
+            .clone()
     }
 
     #[test]
     fn a_terminal_measurement_failure_never_publishes_holds() {
         let mut report = sampled_report("[]<>(x \\/ ~x)");
-        assert!(matches!(report.outcome(), Outcome::Holds(_)));
+        assert!(matches!(report.outcome(), Outcome::NativeHolds(_)));
         let failure = finish_report(
             &mut report,
             Err(dive_check::budget::MeasurementError::unavailable(
@@ -1892,7 +1602,7 @@ mod evidence_controls {
     #[test]
     fn a_terminal_failure_keeps_an_already_validated_witness() {
         let mut report = sampled_report("<>[]x");
-        let Outcome::Violation(before) = report.outcome() else {
+        let Outcome::NativeViolation(before) = report.outcome() else {
             panic!("real validated witness");
         };
         let document = before.document().to_json();
@@ -1906,7 +1616,7 @@ mod evidence_controls {
             )
             .is_none()
         );
-        let Outcome::Violation(after) = report.outcome() else {
+        let Outcome::NativeViolation(after) = report.outcome() else {
             panic!("witness retained");
         };
         assert_eq!(after.document().to_json(), document);
