@@ -218,13 +218,14 @@ is still accepted. The core currently covers:
   specification is of this kind), `SYMMETRY` (under `--compat=tlc`, with
   TLC's comparison; a comparison TLC could fail on is refused),
   `VIEW` (with `SYMMETRY` too, evaluated on the canonical state as TLC
-  does), and `ALIAS` (not applied yet, with a note). `POSTCONDITION` is reported as unsupported, naming the
-  feature;
+  does), and `ALIAS` (not applied yet, with a note). `POSTCONDITION` is
+  reported as unsupported, naming the feature;
 - liveness: a `PROPERTY` that needs liveness checking, with fairness. The
   core explores the states and builds the behavior graph, and
   `dive-liveness` checks it (in the default profile, at completed levels,
   D-014; under `--compat=tlc`, once the search is complete). A
-  counterexample is validated independently before it is reported. A temporal property together with
+  counterexample is validated independently before it is reported. A
+  temporal property together with
   `VIEW`, `SYMMETRY`, `Print`, `RandomElement`, `TLCSet`, `TLCGet`,
   `--max-states` or `--max-depth` is reported as unsupported. So, for now,
   is a run whose liveness check fails rather than answers (a planning or

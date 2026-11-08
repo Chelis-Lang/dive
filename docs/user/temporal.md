@@ -240,9 +240,9 @@ requests with excluded dive-profile options retain their existing routes and nam
 refusals. Real unsupported language features and resource limits remain explicit;
 a refusal, bound or external timeout is never a holding result.
 
-Reference file-based temporal checking and explicit final/short selection use
-8,000,000 covered acceptance-buffer bytes and
-32,000,000 independent acceptance materialization work units, in both profiles.
+File-based temporal checking and explicit final/short selection use 8,000,000
+covered acceptance-buffer bytes and 32,000,000 independent acceptance
+materialization work units, in both profiles.
 Packed words, column headers, optional edge offsets and Boolean scratch count;
 capture, labels, graph construction, search, runtime and allocator overhead do
 not. This is not a total memory or search-work limit. Other evaluator,

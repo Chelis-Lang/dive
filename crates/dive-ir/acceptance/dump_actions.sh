@@ -7,7 +7,8 @@
 # <classpath-libraries> is the rest of the harness classpath after tla2tools.jar
 # (the CommunityModules jars, the Apalache and TLAPS library directories),
 # colon-separated. <javac> must be a JDK 17+ compiler (the pinned JRE 17 has
-# none; classes are compiled with --release 17 so it can load them); <java> should be the pinned JRE. Check the jar's SHA-256 against
+# none; classes are compiled with --release 17 so that it can load them);
+# <java> should be the pinned JRE. Check the jar's SHA-256 against
 # conformance/oracles.toml first. Each model runs in its own JVM, in its own
 # directory, as the harness runs TLC.
 set -euo pipefail

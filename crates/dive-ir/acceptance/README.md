@@ -212,8 +212,8 @@ prints `SpecProcessor.getVariablesNodes()`, checking that each variable's
 does and prints the root module's `getVariableDecls()`. It also prints the number of
 keys in the root context (`keys`), read by reflection, for diagnosis.
 `dump_var_order.sh` runs one JVM per module, in the module's directory, from a TSV of
-`id`, directory, module and optional cfg. Like `dump_actions.sh`, it compiles with `javac --release 17`
-(JDK 17 or later) so that the pinned JRE 17 can load the classes.
+`id`, directory, module and optional cfg. Like `dump_actions.sh`, it compiles with
+`javac --release 17` (JDK 17 or later) so that the pinned JRE 17 can load the classes.
 
 ```sh
 python3 -I acceptance/var_order_specs.py tests/fixtures/var-order/specs

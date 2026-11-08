@@ -29,8 +29,8 @@ It needs no Java. It also checks:
 The pinned JRE is Temurin 17 and has no compiler, so `regenerate.sh` needs a JDK 17 or
 later `javac`; it compiles with `javac --release 17`, because the pinned JRE cannot
 load class files built for a newer release (a JDK 21 `javac` without `--release 17`
-fails with `UnsupportedClassVersionError`). Use, for example, a
-Temurin 17 JDK checked against Adoptium's published SHA-256. Check the jar's SHA-256 first.
+fails with `UnsupportedClassVersionError`). Use, for example, a Temurin 17 JDK
+checked against Adoptium's published SHA-256. Check the jar's SHA-256 first.
 
 ```sh
 crates/dive-config/acceptance/regenerate.sh \

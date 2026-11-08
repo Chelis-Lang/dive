@@ -21,10 +21,11 @@ holding either TLC's error (code, class and message) or:
 `dump_models.sh` runs one JVM per model, from the model's directory, with the harness
 classpath, and stops a model after `DUMP_TIMEOUT` seconds (TLC evaluates constant
 definitions at start-up, and a few test models define sets too big to evaluate). With
-`dumptrace`, TLC is set up as `-dumpTrace json <file>` sets it up. The pinned JRE is Temurin 17 and has no compiler, so the script needs a JDK 17 or
-later `javac`; it compiles with `javac --release 17`, because the pinned JRE cannot
-load class files built for a newer release (a JDK 21 `javac` without `--release 17`
-fails with `UnsupportedClassVersionError`).
+`dumptrace`, TLC is set up as `-dumpTrace json <file>` sets it up. The pinned JRE is
+Temurin 17 and has no compiler, so the script needs a JDK 17 or later `javac`; it
+compiles with `javac --release 17`, because the pinned JRE cannot load class files
+built for a newer release (a JDK 21 `javac` without `--release 17` fails with
+`UnsupportedClassVersionError`).
 
 ```sh
 python3 -I ../../dive-ir/acceptance/models.py goldens <repository> <examples-checkout> > examples.tsv
