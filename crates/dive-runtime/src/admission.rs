@@ -1,5 +1,5 @@
-//! Pure admission analysis of a bound model, shared by the reference
-//! engine, graph capture and Core (ADR 0155). Nothing here evaluates an
+//! Pure admission analysis of a bound model, shared by graph capture and
+//! Core (ADR 0155). Nothing here evaluates an
 //! expression.
 
 use std::sync::Arc;
@@ -23,21 +23,17 @@ fn random_op(op: dive_ir::StdOp) -> bool {
     )
 }
 
-/// Whether a definition outside the embedded standard modules, or a node that
-/// belongs to no definition, can reach a random operator through the
-/// definitions it references. A standard module that merely defines a random
-/// helper, such as `Randomization`'s `TestRandomSetOfSubsets`, does not make
-/// a specification that never calls it random. Any reference counts, used or
-/// not, so an unused random helper in a user module still does. A native
-/// definition itself is not a reference: `INSTANCE` of a module that extends
-/// `TLC` copies `RandomElement` into the instantiating module without calling it.
-#[must_use]
-pub fn uses_random(ir: &dive_ir::Ir) -> bool {
-    uses_random_except(ir, |_| false, |_| None, |_| None)
-}
-
-/// Whether a bound model can draw a random value after start-up: as
-/// [`uses_random`], except that a definition whose value the binder fixed at
+/// Whether a bound model can draw a random value after start-up: whether a
+/// definition outside the embedded standard modules, or a node that belongs to
+/// no definition, can reach a random operator through the definitions it
+/// references. A standard module that merely defines a random helper, such as
+/// `Randomization`'s `TestRandomSetOfSubsets`, does not make a specification
+/// that never calls it random. Any reference counts, used or not, so an unused
+/// random helper in a user module still does. A native definition itself is
+/// not a reference: `INSTANCE` of a module that extends `TLC` copies
+/// `RandomElement` into the instantiating module without calling it.
+///
+/// A definition whose value the binder fixed at
 /// start-up (a precomputed constant-level definition, or a configured
 /// `Op = v` value) is never evaluated again, so neither its body nor what
 /// it references can draw. The start-up draws themselves come from the run's
@@ -58,7 +54,8 @@ pub fn uses_random_after_startup(model: &Model) -> bool {
     )
 }
 
-/// [`uses_random`], treating each definition `fixed` accepts as a value that
+/// Whether the specification can reach a random operator, treating each
+/// definition `fixed` accepts as a value that
 /// is never evaluated again, each definition as referencing its `redirect`
 /// target, and each constant as referencing its bound definition.
 fn uses_random_except(

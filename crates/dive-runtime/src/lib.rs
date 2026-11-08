@@ -106,15 +106,6 @@ pub fn eval_code_name(code: u32) -> &'static str {
     }
 }
 
-/// The refusal of a model whose context the evaluator does not accept.
-#[doc(hidden)]
-#[must_use]
-pub fn context_verdict(error: &dive_eval::ContextError) -> Verdict {
-    Verdict::Unsupported {
-        feature: error.to_string(),
-    }
-}
-
 /// A result with `verdict` and no search: the run's metadata only.
 #[doc(hidden)]
 #[must_use]
