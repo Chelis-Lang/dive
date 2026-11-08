@@ -26,7 +26,7 @@ fn sampled_level_operators_match_actual_search_at_every_depth() {
         "tests/fixtures/core-sample/LevelChain.tla",
         "tests/fixtures/core-lib/specs/RgLevel/RgLevel.tla",
         "tests/fixtures/core-lib/specs/RgLevelViol/RgLevelViol.tla",
-        "../dive-check/tests/fixtures/dfid/DfidLiveGet.tla",
+        "tests/fixtures/checker/dfid/DfidLiveGet.tla",
     ];
     for fixture in fixtures {
         for compat_tlc in [false, true] {

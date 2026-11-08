@@ -7,7 +7,7 @@
 //!
 //! The `Rg*` fixtures (`tests/fixtures/core-lib`) give the reference
 //! engine's result in both profiles at 1 and 4 workers, and the pinned
-//! TLC's counts and printed lines. The `Tm*` fixtures of `dive-check` give
+//! TLC's counts and printed lines. The `Tm*` fixtures in `tests/fixtures/checker` give
 //! the reference engine's result or a named refusal.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
@@ -178,7 +178,7 @@ fn registers_match_the_reference_engine_and_tlc() {
 
 #[test]
 fn tlc_module_fixtures_match_or_are_refused() {
-    for (name, spec) in specs("crates/dive-check/tests/fixtures/tlc-module", "Tm") {
+    for (name, spec) in specs("crates/dive-api/tests/fixtures/checker/tlc-module", "Tm") {
         for compat in [false, true] {
             let at = format!("{name} compat={compat}");
             let core = run(&spec, Engine::Core, compat, 1);

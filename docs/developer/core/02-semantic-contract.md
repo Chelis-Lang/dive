@@ -90,7 +90,7 @@ included.** The generator never deduplicates, filters or reorders.
 - Profile: both.
 - Evidence: `tlc2/tool/Worker.java:418-420` (`statesGenerated++` first);
   `crates/dive-eval/src/next.rs:6-8`, `:38-41`; probe `DuplicateSuccessors`
-  (`crates/dive-check/tests/fixtures/tlc-probes/specs/`).
+  (`crates/dive-api/tests/fixtures/checker/tlc-probes/specs/`).
 - Core: counting is one increment per emitted successor. Deduplication before
   materialization must not skip the increment.
 
@@ -420,7 +420,7 @@ outcome decides the exit status.
   reported as `GENERAL` and decided as 2103 with exit 75 (`ErNextTypeErr`).
 - Profile: both.
 - Evidence: `class.rs:176-184`, `:186-246`; ModelChecker lines as in E1;
-  fixtures under `crates/dive-check/tests/fixtures/errors/`.
+  fixtures under `crates/dive-api/tests/fixtures/checker/errors/`.
 - Core: errors carry typed provenance: the `EC` code, and whether the error is
   an `EvalException` or an override. Provenance is never parsed from text
   (`class.rs:36-40`).
@@ -482,7 +482,7 @@ harness treats unverified classes as `unsupported`. TLC-core comparison refusals
 remain unchanged for these selected tuple/record controls.
 - Profile: both.
 - Evidence: `ModelChecker.java:302-305`; `class.rs:26-31`, `:86-99`; fixtures
-  `ErWrap*`; `crates/dive-check/tests/fixtures/errors/README.md`.
+  `ErWrap*`; `crates/dive-api/tests/fixtures/checker/errors/README.md`.
 - Core: existing diagnostics must remain sound. Do not add receiver provenance
   or error-site certificates to emulate TLC construction artifacts (ADR 0153).
   Unimplemented diagnostic cases remain named refusals.

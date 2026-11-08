@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- The `dive-check` crate, the reference checker, is deleted (issue #791).
+  Core is the only checking engine; check with `dive_api::check_file` and the
+  run contract in `dive-runtime`. Its shared test fixtures now live in
+  `crates/dive-api/tests/fixtures/checker/`. Verdicts and counts are
+  unchanged.
 - `dive-liveness` no longer has the reference engine's temporal analyses
   (`analyze::analyze_final*`, `analyze::analyze_observed`,
   `analyze::periodic::analyze_periodic*` and the `OwnedTemporal`

@@ -1,6 +1,5 @@
 //! Native checkpoint framing, requests, receipts and the owned Core
-//! backend's identity, shared by the reference snapshot format in
-//! `dive_check::checkpoint` and Core's (ADR 0155).
+//! backend's identity (ADR 0155).
 //!
 //! Checksums detect corruption, not malicious rewriting.
 
@@ -202,8 +201,8 @@ pub fn executable_hash() -> Fallible<String> {
     Ok(hex(&digest.finalize()))
 }
 
-/// Conservative pre-binding reachability admission (see
-/// `dive_check::checkpoint`); `allow_temporal` admits temporal effects.
+/// Conservative pre-binding reachability admission; `allow_temporal` admits
+/// temporal effects.
 ///
 /// # Errors
 /// The named refusal of the first unrecoverable definition or operator.

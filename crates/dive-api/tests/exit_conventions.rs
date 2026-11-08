@@ -212,8 +212,7 @@ fn frontend_config_and_unverified_errors_remain_distinct() -> Result<(), Box<dyn
     assert_eq!(report.exit_code_for(ExitConvention::Native), 1);
     assert_eq!(report.exit_code_for(ExitConvention::Tlc), 151);
     assert!(report.to_json_with_exit_convention(ExitConvention::Tlc)["tlc"].is_null());
-    let root =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/errors/specs");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checker/errors/specs");
     for (name, native, tlc) in [("ErNextAssert", 13, 14), ("ErNextDivZero", 13, 255)] {
         let report = dive_api::check_file_engine(
             &request(&root.join(name).join(format!("{name}.tla")), false),

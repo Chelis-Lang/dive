@@ -16,7 +16,7 @@ Three things are still open:
 - how the validator stays independent *inside* `dive-eval`, since successor enumeration also lives there (ADR 0014 §3);
 - who computes the flag the harness consumes.
 
-TLC facts that decide what a valid counterexample is (probes in `crates/dive-check/tests/fixtures/tlc-probes/`):
+TLC facts that decide what a valid counterexample is (probes in `crates/dive-api/tests/fixtures/checker/tlc-probes/`):
 - **The last state can be outside the model.** A successor that fails `CONSTRAINT` is still invariant-checked and can be the last state of a counterexample (probe `ConstrainedViolation`). Every *earlier* state was explored, so it satisfies the constraints.
 - **Invariants are reported in cfg order.** TLC checks them in cfg order on each new state and reports the first that fails.
 - **Action properties apply to every step**, including steps into states already seen (probe `ImpliedActionSeen`).
@@ -172,7 +172,7 @@ The charter's `dive validate-trace` checks *implementation* traces, which may be
 - **Valid (12 of the 15 safety violations):** `MCCheckpointCoordinationFailure`, `DieHard`, `MCDieHarder`, `MissionariesAndCannibals`, both `FourQueens`, `SlidingPuzzles`, `SlidingPuzzles_anim` (from its `ALIAS` fields), `ACP_NB_WRONG_TLC`, `MC_spanning`, `Hanoi` and `Hanoi_anim` (from its `ALIAS` fields).
 - **Refused by name, none invalid:** `MCDieHardest` (the evaluator does not implement `TLCGet` yet), `SDP_Attack_Spec` (`Bitwise!Xor`), `EWD840_anim` (its `ALIAS` record does not contain the variables), and the two liveness traces (`MCDistributedReplicatedLog`, `MCRealTimeHourClock`), whose steps validate.
 - **Mutants:** every mutant of every trace that validates, or whose steps validate, is rejected. The mutants of the three refused safety traces stop at the same refusal, and none validates.
-- **Probes** (`crates/dive-check/tests/fixtures/tlc-probes/`): the 12 with a document validate, `DeadlockMidLevel` and `StutterSpec` up to the deadlock claim, and all their mutants are rejected. `StringOrderPreinterned`'s document is unavailable (issue #35) and is skipped.
+- **Probes** (`crates/dive-api/tests/fixtures/checker/tlc-probes/`): the 12 with a document validate, `DeadlockMidLevel` and `StutterSpec` up to the deadlock claim, and all their mutants are rejected. `StringOrderPreinterned`'s document is unavailable (issue #35) and is skipped.
 
 **Harness, `run --impl dive --impl-profile tlc --tier small`.** Before E1 (main at `8dde457`): 59 `agree`, 9 `agree-pending-trace-validation`, 72 `unsupported`, 0 `disagree`. After: 68 `agree`, 0 pending, 72 `unsupported`, 0 `disagree`. All nine pending violations validate: `DieHard`, `MCDieHarder`, `MissionariesAndCannibals`, `Queens` `FourQueens`, `SlidingPuzzles`, `SlidingPuzzles_anim`, `ACP_NB_WRONG_TLC`, `MC_spanning` and `Hanoi_anim`. An `agree-pending-trace-validation` outcome now means the validator could not confirm the counterexample (a refusal by name, or no document); an invalid counterexample is a `disagree` on `trace.invalid`. `scripts/conformance-gate.sh` accepts only `agree`.
 

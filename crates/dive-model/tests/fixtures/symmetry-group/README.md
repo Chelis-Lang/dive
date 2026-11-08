@@ -134,7 +134,6 @@ cargo run --release -p dive-conformance -- dev capture --repo-root . \
   --oracle tlc-2026.10.06.014338 --specs "$DIVE_SYM_FIXTURES/specs" \
   --out "$DIVE_SYM_FIXTURES" --timeout 30 \
   SyWarnConditional SyWarnOverride SyWarnNonModel
-cargo test -p dive-check --test symmetry --locked
 cargo test -p dive-api --test symmetry_trace --locked
 ```
 

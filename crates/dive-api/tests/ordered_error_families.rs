@@ -20,7 +20,7 @@ fn ten_retained_cases_validate_in_both_engines_profiles_and_worker_counts() -> T
         "ErActConstrNonBool",
     ] {
         let file = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
-            "../dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
+            "tests/fixtures/checker/errors/specs/{name}/{name}.tla"
         ));
         for compat_tlc in [false, true] {
             let model = SpecModel::load(
@@ -101,7 +101,7 @@ fn view_module_errors_require_actual_primary_and_diagnostic_execution() -> TestR
     for kind in ["Assert", "DivZero", "Enabled", "Overflow"] {
         let name = format!("ErView{kind}");
         let file = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!(
-            "../dive-check/tests/fixtures/errors/specs/{name}/{name}.tla"
+            "tests/fixtures/checker/errors/specs/{name}/{name}.tla"
         ));
         for compat_tlc in [false, true] {
             if kind == "Overflow" && !compat_tlc {

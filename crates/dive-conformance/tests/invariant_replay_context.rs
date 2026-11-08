@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 fn fixtures() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/errors")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-api/tests/fixtures/checker/errors")
 }
 
 fn native(file: &Path, engine: Engine, compat: bool) -> (Value, i32) {

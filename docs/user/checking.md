@@ -947,9 +947,8 @@ The CLI prints `DIVE-R0001` and exits 4; this is a runtime failure, not a verdic
 a refusal or exhausted time/memory budget. It is an admission error on stderr,
 like an input-loading failure, rather than a completed JSON check report. Free
 host resources and retry, or explicitly choose `--time-limit none --max-memory none`.
-Managed `dive_api::check_file` callers receive `ApiError::BudgetStartup`;
-`dive_check::check` returns an internal-error result, and liveness analysis returns
-`AnalysisError::BudgetStartup`. Lower-level `Budget::start` and `budget::arm`
+Managed `dive_api::check_file` callers receive `ApiError::BudgetStartup`,
+and liveness analysis returns `AnalysisError::BudgetStartup`. Lower-level `Budget::start` and `budget::arm`
 return `Result` so this failure cannot look like an unlimited budget. Already
 armed or unlimited budgets still need no new thread.
 

@@ -9,7 +9,7 @@ and the latest results.
 `tests/corpus.rs` lowers every `.tla` fixture in the repository that `dive-sema`
 accepts:
 - the SANY cases and SANY's error corpus (`crates/dive-sema/tests/`);
-- the TLC probes (`crates/dive-check/tests/fixtures/`);
+- the TLC probes (`crates/dive-api/tests/fixtures/checker/`);
 - the harness and configuration fixtures.
 
 For each one it checks:
@@ -223,7 +223,7 @@ acceptance/dump_var_order.sh ... "$LIBS" < examples.tsv > tests/fixtures/var-ord
 
 `$LIBS` is the rest of the harness classpath (the CommunityModules jars, the Apalache and
 TLAPS library directories). `repo.jsonl` covers the `.tla` files under
-`crates/dive-sema/tests`, `crates/dive-check/tests/fixtures`,
+`crates/dive-sema/tests`, `crates/dive-api/tests/fixtures/checker`,
 `crates/dive-conformance/tests/fixtures` (without `UsesCommunityModules`, as for the
 action split), `crates/dive-config/tests/fixtures`, `crates/dive-ir/tests/fixtures/actions`
 and `crates/dive-value/tests/fixtures/specs`. The dumps are generated, never edited.

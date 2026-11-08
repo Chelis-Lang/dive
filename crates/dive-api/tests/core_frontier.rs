@@ -38,7 +38,7 @@ fn spilled_frontiers_preserve_both_profiles_stores_worker_widths_and_words() {
         "tests/fixtures/core-m1/ViewMerge.tla",
         "tests/fixtures/core-m1/SymView.tla",
         "tests/fixtures/core-m1/SymSets.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.tla",
+        "tests/fixtures/checker/errors/specs/ErInvReplayError/ErInvReplayError.tla",
         "../../conformance/corpus/construction-set-history/specifications/ExceptSetHandoff/ExceptSetHandoff.tla",
         "../../conformance/corpus/constant-retry-lazy/specifications/WholeFunctionError/WholeFunctionError.tla",
         "../../conformance/corpus/constant-retry-lazy/specifications/Named/Named.tla",

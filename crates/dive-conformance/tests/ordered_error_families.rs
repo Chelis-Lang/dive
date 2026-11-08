@@ -22,7 +22,7 @@ fn error_family_shadows_preserve_the_pinned_oracle_classification() -> TestResul
     let agreed: serde_json::Map<String, serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/agreed/ordered-error-families.json"))?;
     let root =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/errors");
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-api/tests/fixtures/checker/errors");
     for name in [
         "ErViewChoose",
         "ErViewDomain",

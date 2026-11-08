@@ -21,7 +21,7 @@ fn real_next_errors_retain_source_cause_and_independently_validate() -> TestResu
         ),
         (
             "ErWrapFcnGuard",
-            "crates/dive-check/tests/fixtures/errors/specs/ErWrapFcnGuard/ErWrapFcnGuard.tla",
+            "crates/dive-api/tests/fixtures/checker/errors/specs/ErWrapFcnGuard/ErWrapFcnGuard.tla",
             2103,
             75,
             5,

@@ -23,7 +23,7 @@ fn repo() -> PathBuf {
 
 fn raw(kind: &str) -> String {
     std::fs::read_to_string(repo().join(format!(
-        "crates/dive-check/tests/fixtures/errors/tlc-2026.10.06.014338/ErProp{kind}.stdout"
+        "crates/dive-api/tests/fixtures/checker/errors/tlc-2026.10.06.014338/ErProp{kind}.stdout"
     )))
     .expect("pinned clean stream")
 }
@@ -261,7 +261,7 @@ fn model(file: &Path, compat: bool) -> SpecModel {
 
 #[test]
 fn candidate_words_require_actual_replay_and_ambiguous_oracles_cannot_earn_agreement() {
-    let root = repo().join("crates/dive-check/tests/fixtures/errors");
+    let root = repo().join("crates/dive-api/tests/fixtures/checker/errors");
     let mut disagreements = Vec::new();
     for site in ["Constr", "ActConstr", "Prop"] {
         for kind in ["Assert", "DivZero", "Enabled", "Overflow", "Seen"] {

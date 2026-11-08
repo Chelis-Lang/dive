@@ -9,7 +9,7 @@ type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 fn request(name: &str, compat_tlc: bool, exact: bool, seed: i64) -> DfidRequest {
     DfidRequest {
         file: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join(format!("../dive-check/tests/fixtures/dfid/{name}.tla")),
+            .join(format!("tests/fixtures/checker/dfid/{name}.tla")),
         compat_tlc,
         seed: Some(7),
         max_level: 6,

@@ -19,7 +19,7 @@ fn assert_chaos_refused_then_clear(request: &mut CheckRequest) {
 #[test]
 fn invariant_error_replay_reports_actual_continuation_and_verified_known_class() {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-check/tests/fixtures/disk-seen/ReplayNew/ReplayNew.tla");
+        .join("tests/fixtures/checker/disk-seen/ReplayNew/ReplayNew.tla");
     for compat_tlc in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             for width in [1, 4, 8] {
@@ -177,13 +177,13 @@ fn symmetry_counterexample_has_independent_original_and_mutant_controls() {
 }
 #[test]
 fn invariant_counterexample_has_independent_original_and_mutant_controls() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/disk-seen");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checker/disk-seen");
     witness_case("EarlyInvariant", &root);
 }
 #[test]
 fn creation_failure_reports_no_initial_search_or_success() {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../dive-check/tests/fixtures/disk-seen/DuplicateNext/DuplicateNext.tla");
+        .join("tests/fixtures/checker/disk-seen/DuplicateNext/DuplicateNext.tla");
     let report = dive_api::check_file_engine(
         &CheckRequest {
             file: file.clone(),
@@ -281,7 +281,7 @@ fn effectful_specification_role_matches_resident_storage() {
 
 #[test]
 fn actual_print_events_refuse_unproved_disk_error_output() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/disk-seen");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checker/disk-seen");
     for name in [
         "ReplayPrint",
         "ReplayPrintInit",

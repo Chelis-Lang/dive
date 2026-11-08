@@ -11,7 +11,7 @@ use std::path::Path;
 
 fn request(name: &str) -> CheckRequest {
     let file = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
-        "../dive-check/tests/fixtures/tlc-probes/specs/{name}/{name}.tla"
+        "tests/fixtures/checker/tlc-probes/specs/{name}/{name}.tla"
     ));
     CheckRequest {
         file: file.clone(),

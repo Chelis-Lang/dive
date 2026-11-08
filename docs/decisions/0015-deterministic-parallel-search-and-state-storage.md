@@ -15,7 +15,7 @@ ADR 0010 makes deterministic parallel search the default. The owner confirmed pa
 
 ADR 0004's harness rule enforces this: dive is compared with the `-workers 1` golden on every field at every worker count. Any variance is a `disagree`.
 
-TLC paths are relative to `tlatools/org.lamport.tlatools/src/` at tlaplus `94d0c50`. Probes are in `crates/dive-check/tests/fixtures/tlc-probes/` (see its README for the transcripts).
+TLC paths are relative to `tlatools/org.lamport.tlatools/src/` at tlaplus `94d0c50`. Probes are in `crates/dive-api/tests/fixtures/checker/tlc-probes/` (see its README for the transcripts).
 
 ### TLC's single-worker search, exactly
 

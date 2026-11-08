@@ -71,7 +71,7 @@ fn observed(v: &Value) -> Value {
 fn admission_limits_stop_as_the_reference_engine_does() {
     let mut all = Vec::new();
     for dir in [
-        "crates/dive-check/tests/fixtures/tlc-probes/specs",
+        "crates/dive-api/tests/fixtures/checker/tlc-probes/specs",
         "crates/dive-api/tests/fixtures/core-m0",
         "crates/dive-api/tests/fixtures/core-m1",
     ] {

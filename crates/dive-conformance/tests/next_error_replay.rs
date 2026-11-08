@@ -103,7 +103,7 @@ fn pinned_direct_cause_requires_the_real_independent_word() {
 
 #[test]
 fn next_word_validity_does_not_waive_an_unknown_or_mismatched_wrapper() {
-    let root = repo().join("crates/dive-check/tests/fixtures/errors");
+    let root = repo().join("crates/dive-api/tests/fixtures/checker/errors");
     let file = root.join("specs/ErWrapFcnGuard/ErWrapFcnGuard.tla");
     let clean = std::fs::read_to_string(root.join("tlc-2026.10.06.014338/ErWrapFcnGuard.stdout"))
         .expect("pinned clean stream");
@@ -184,7 +184,7 @@ fn next_word_validity_does_not_waive_an_unknown_or_mismatched_wrapper() {
 
 #[test]
 fn pinned_partial_candidate_requires_the_exact_independent_terminal() {
-    let root = repo().join("crates/dive-check/tests/fixtures/errors");
+    let root = repo().join("crates/dive-api/tests/fixtures/checker/errors");
     let file = root.join("specs/ErNextIncomplete/ErNextIncomplete.tla");
     let clean = std::fs::read_to_string(root.join("tlc-2026.10.06.014338/ErNextIncomplete.stdout"))
         .expect("pinned clean BFS stream");
@@ -236,7 +236,7 @@ fn pinned_partial_candidate_requires_the_exact_independent_terminal() {
 
 #[test]
 fn candidate_wrapper_replay_preserves_pinned_primary_headers_and_strict_report_checks() {
-    let root = repo().join("crates/dive-check/tests/fixtures/errors");
+    let root = repo().join("crates/dive-api/tests/fixtures/checker/errors");
     let cases = ["Constr", "ActConstr", "Prop"]
         .into_iter()
         .flat_map(|site| {

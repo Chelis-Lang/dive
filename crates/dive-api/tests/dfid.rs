@@ -9,7 +9,7 @@ use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 fn request(name: &str, level: u32, seed: i64) -> DfidRequest {
     DfidRequest {
         file: std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join(format!("../dive-check/tests/fixtures/dfid/{name}.tla")),
+            .join(format!("tests/fixtures/checker/dfid/{name}.tla")),
         compat_tlc: true,
         max_level: level,
         seed: Some(7),

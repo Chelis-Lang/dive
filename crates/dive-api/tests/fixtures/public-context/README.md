@@ -27,5 +27,5 @@ zero-effects assertions.
 
 Current controls live in `dive-eval/tests/contexts.rs`,
 `dive-trace/tests/contexts.rs`, `dive-api/tests/temporal_forwarding.rs`,
-`dive-eval/tests/bounded_domains.rs` and `dive-check/tests/dfid.rs`.
+`dive-eval/tests/bounded_domains.rs` and `dive-api/tests/dfid.rs`.
 See ADR 0028 for API migration and the limitation of bare numeric IDs.

@@ -37,7 +37,7 @@ fn disk_matches_core_identity_constraints_views_symmetry_and_pure_error_replay()
         "tests/fixtures/core-m1/ViewMerge.tla",
         "tests/fixtures/core-m1/SymView.tla",
         "tests/fixtures/core-m1/SymSets.tla",
-        "../dive-check/tests/fixtures/errors/specs/ErInvReplayError/ErInvReplayError.tla",
+        "tests/fixtures/checker/errors/specs/ErInvReplayError/ErInvReplayError.tla",
         "../../conformance/corpus/construction-set-history/specifications/ExceptSetHandoff/ExceptSetHandoff.tla",
     ] {
         for tlc in [false, true] {
@@ -195,7 +195,7 @@ fn replay_entry_failure_retains_its_actual_ordinal_and_frozen_source_prefix() {
     for tlc in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             let mut req = request(
-                "../dive-check/tests/fixtures/disk-seen/ReplayNew/ReplayNew.tla",
+                "tests/fixtures/checker/disk-seen/ReplayNew/ReplayNew.tla",
                 tlc,
                 store,
                 8,

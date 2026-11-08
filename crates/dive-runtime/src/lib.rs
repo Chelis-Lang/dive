@@ -1,8 +1,7 @@
 //! `dive-runtime`: the run contract every checking engine shares (ADR 0155).
 //!
-//! The reference engine (`dive-check`), the execution core and temporal
-//! analysis (`dive-liveness`) agree on these pieces, so none of them needs the
-//! others' search runtime:
+//! The execution core and temporal analysis (`dive-liveness`) agree on these
+//! pieces, so neither needs the other's search runtime:
 //!
 //! - [`CheckOptions`] and the [`CheckResult`] it produces, with its
 //!   [`Verdict`], statistics, counterexample and storage evidence;
@@ -14,9 +13,7 @@
 //! - the run host's configuration and counters ([`run`]) and pure model
 //!   admission analysis ([`admission`]).
 //!
-//! The searches themselves (the reference breadth-first, parallel and DFID
-//! drivers and their stores) stay in `dive-check`, which re-exports this
-//! crate's items at their historical paths.
+//! The searches themselves belong to the execution core.
 //!
 //! # Example
 //!

@@ -23,15 +23,15 @@ provide JDK17's compiler separately. The environment variables below name those
 executables/jar; no system Java is assumed.
 
 ```sh
-python3 -I crates/dive-check/tests/fixtures/dfid/capture.py \
+python3 -I crates/dive-api/tests/fixtures/checker/dfid/capture.py \
   --java "$DIVE_JAVA" --jar "$DIVE_JAR" --reason "documented regeneration reason"
-python3 -I crates/dive-check/tests/fixtures/dfid/capture-secondary.py \
+python3 -I crates/dive-api/tests/fixtures/checker/dfid/capture-secondary.py \
   --java "$DIVE_JAVA" --javac "$DIVE_JAVAC" --jar "$DIVE_JAR" \
   --reason "documented secondary regeneration reason"
 cargo build -p dive-cli --locked
-python3 -I crates/dive-check/tests/fixtures/dfid/compare.py \
+python3 -I crates/dive-api/tests/fixtures/checker/dfid/compare.py \
   --dive target/debug/dive --report conformance/reports/dfid-primary-controls.json
-cargo test -p dive-check --test dfid -p dive-api --test dfid --locked
+cargo test -p dive-api --test dfid --test core_dfid --locked
 ```
 
 The report accounts every primary control; it does not turn unstable references

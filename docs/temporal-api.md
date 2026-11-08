@@ -356,7 +356,7 @@ keep initial discovery order and each source ends with an implicit stutter,
 including when generated transitions are filtered by constraints. The graph is
 collected while expanding the safety search, without re-enumeration.
 
-`dive_check::capture::Limits::successors_per_unit` is a separate scratch
+`dive_runtime::capture::Limits::successors_per_unit` is a separate scratch
 admission limit, default **65,536 emitted successors per expanded source**.
 Existing retained-state (1,000,000), retained-edge (8,000,000), and logical
 generated-state (32,000,000) defaults are unchanged. Every source's actions
