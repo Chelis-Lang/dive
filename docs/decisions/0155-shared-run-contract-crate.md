@@ -91,3 +91,10 @@ checked CSR producers (`CsrComplete::from_producer`,
 `CsrPrefix::from_producer`), which run the completion checks themselves.
 `dive-liveness` drops its unused `dive-store` dev-dependency. The permitted
 edges in `xtask/src/layering.rs` are unchanged.
+
+## Amendment (2026-11-08): `dive-liveness` no longer may depend on `dive-store`
+
+No normal dependency used the permitted `dive-liveness -> dive-store` edge after
+`dive-check` was deleted, so `xtask/src/layering.rs` drops it (issue #791).
+`dive-liveness` reaches storage only through `dive-runtime`'s capture
+evidence. A future liveness need for `dive-store` restores the edge with an ADR.
