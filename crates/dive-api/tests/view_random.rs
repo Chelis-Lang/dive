@@ -1,5 +1,7 @@
 //! The public checker exposes the VIEW/RNG no-work refusal in both profiles.
 #![allow(clippy::expect_used, reason = "test assertions")]
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::{CheckRequest, Store};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -52,10 +54,16 @@ fn public_view_random_refusal_never_claims_workers_output_or_witness() {
                                 chaos,
                                 ..CheckRequest::default()
                             },
-                            dive_api::Engine::Reference,
+                            dive_api::Engine::Core,
                         )
                         .expect("well-formed request");
                         let json = report.to_json();
+                        if chaos.is_some() {
+                            // Only the retired reference engine ran --chaos
+                            // (#791, #910).
+                            refused::assert_refused(&json, report.exit_code(), refused::CHAOS);
+                            continue;
+                        }
                         assert_eq!(json["verdict"], "unsupported");
                         assert_eq!(report.exit_code(), 3);
                         assert_eq!(json["options"]["workers"]["used"], 0);

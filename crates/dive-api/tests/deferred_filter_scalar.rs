@@ -2,6 +2,8 @@
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, ExitConvention, Store, TemporalMode};
 use std::path::PathBuf;
+#[path = "support/refused.rs"]
+mod refused;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 const SOURCE: &str = include_str!("fixtures/deferred-filter-scalar/FilterWF.tla");
 struct Files(PathBuf);
@@ -38,25 +40,40 @@ fn filtered_wf_matches_two_primary_outcomes_and_validates_the_primary_word() -> 
         std::fs::write(files.0.with_extension("cfg"), cfg)?;
         for compat_tlc in [true, false] {
             for store in [Store::Fingerprint, Store::Exact] {
-                let report = dive_api::check_file_engine(
-                    &CheckRequest {
-                        file: files.0.clone(),
-                        compat_tlc,
-                        store,
-                        temporal: TemporalMode::FinalShort,
-                        workers: Some(1),
-                        seed: Some(0),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    dive_api::Engine::Reference,
-                )?;
+                let mut request = CheckRequest {
+                    file: files.0.clone(),
+                    compat_tlc,
+                    store,
+                    temporal: TemporalMode::FinalShort,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                };
+                // Only the retired reference engine ran bounded final
+                // checking (#791, #910). Core refuses it by name, and its
+                // ordinary temporal mode must reach TLC's final-mode truth.
+                let final_short = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                refused::assert_refused(
+                    &final_short.to_json(),
+                    final_short.exit_code(),
+                    refused::FINAL_SHORT,
+                );
+                request.temporal = TemporalMode::Ordinary;
+                let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                if store == Store::Exact {
+                    refused::assert_refused(
+                        &report.to_json(),
+                        report.exit_code(),
+                        refused::TEMPORAL_EXACT_STORE,
+                    );
+                    continue;
+                }
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(value["exit_code"], case["physical_exit"], "{value}");
                 for field in ["generated", "distinct", "depth"] {
                     assert_eq!(value["statistics"][field], case[field], "{value}");
                 }
-                assert_eq!(value["execution"]["capture_completed"], true);
                 if property == "Hold" {
                     assert_eq!(report.verdict(), "success");
                     assert!(value["counterexample"].is_null());

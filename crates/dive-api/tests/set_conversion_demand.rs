@@ -1,5 +1,7 @@
 //! Canonical conversions, real argument errors and nominal compatibility gaps.
 #![allow(clippy::expect_used, reason = "pinned fixtures and model results")]
+#[path = "support/refused.rs"]
+mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckReport, CheckRequest, Engine, ExitConvention, check_file_engine};
@@ -61,7 +63,8 @@ fn concrete_conversions_preserve_raw_axes_and_nonempty_order_in_both_profiles() 
             "distinct":r["counts"]["distinct_states"],"generated":r["counts"]["states_generated"],
             "depth":r["counts"]["depth"],"exit":r["exit_code"]});
         for compat in [false, true] {
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let report =
                     check_file_engine(&request(name, compat), engine).expect("model check");
                 if compat
@@ -89,27 +92,19 @@ fn concrete_conversions_preserve_raw_axes_and_nonempty_order_in_both_profiles() 
 fn conversion_does_not_erase_receiver_or_later_error_demand() {
     for compat in [false, true] {
         let req = request("ReceiverAfterProjection", compat);
-        let reference = check_file_engine(&req, Engine::Reference).expect("Reference receiver");
-        let expected = reference.to_json();
-        assert_eq!(expected["verdict"], "evaluation-error");
-        assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
-        assert_eq!(expected["tlc"]["verified"], false);
-        assert!(
-            expected["message"]
-                .as_str()
-                .is_some_and(|s| s.contains("non-tuple"))
-        );
         let core = check_file_engine(&req, Engine::Core).expect("Core receiver");
         let d = core.to_json();
         if compat {
-            assert_eq!(d["verdict"], "unsupported");
-            assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
-            assert_eq!(d["message"], MIXED_COMPAT);
+            refused::assert_refused(&d, core.exit_code(), MIXED_COMPAT);
         } else {
-            assert_eq!(d["verdict"], expected["verdict"]);
-            assert_eq!(d["message"], expected["message"]);
-            assert_eq!(d["tlc"], expected["tlc"]);
+            assert_eq!(d["verdict"], "evaluation-error");
             assert_eq!(core.exit_code_for(ExitConvention::Tlc), 75);
+            assert_eq!(d["tlc"]["verified"], false);
+            assert!(
+                d["message"]
+                    .as_str()
+                    .is_some_and(|s| s.contains("non-tuple"))
+            );
         }
 
         for (name, cause) in [
@@ -122,39 +117,32 @@ fn conversion_does_not_erase_receiver_or_later_error_demand() {
         ] {
             assert!(!root().join(format!("conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/{name}/{name}.cfg.json")).exists());
             let req = request(name, compat);
-            let reference = check_file_engine(&req, Engine::Reference).expect("demanded error");
-            let d = reference.to_json();
-            if !compat && matches!(name, "AliasSizeAfterProjection" | "NonemptyMixedProjection") {
-                let expected = json!({"verdict":"success", "code":2193, "class":"TLC_SUCCESS",
-                    "distinct":3, "generated":3, "depth":3, "exit":0});
-                assert_eq!(facts(&reference), expected, "{name}");
-                let core = check_file_engine(&req, Engine::Core).expect("canonical Core check");
-                assert_eq!(facts(&core), expected, "{name}");
+            let core = check_file_engine(&req, Engine::Core).expect("demanded error");
+            let d = core.to_json();
+            if name != "UnknownFirstProjection" {
+                if compat {
+                    // TLC's unverified demanded error; Core refuses the
+                    // mixed-shape set under --compat=tlc.
+                    refused::assert_refused(&d, core.exit_code(), MIXED_COMPAT);
+                } else {
+                    assert_eq!(
+                        facts(&core),
+                        json!({"verdict":"success", "code":2193, "class":"TLC_SUCCESS",
+                            "distinct":3, "generated":3, "depth":3, "exit":0}),
+                        "{name}"
+                    );
+                }
                 continue;
             }
             assert_eq!(d["verdict"], "evaluation-error", "{name}/{compat}");
-            assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);
+            assert_eq!(core.exit_code_for(ExitConvention::Tlc), 75);
             assert_eq!(d["tlc"]["verified"], false);
             let message = d["message"].as_str().expect("error message");
             assert!(message.contains(cause), "{name}/{message}");
-            if name == "AliasSizeAfterProjection" {
-                assert!(!message.contains("SequencesExt.SetToSeq"));
-            }
-            let core = check_file_engine(&req, Engine::Core).expect("Core argument error");
-            if name == "UnknownFirstProjection" {
-                same_argument_error(
-                    &req,
-                    &reference,
-                    &core,
-                    "TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE",
-                );
-            } else {
-                assert_eq!(core.verdict(), "unsupported");
-                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
-                assert_eq!(core.to_json()["message"], MIXED_COMPAT);
-            }
+            same_argument_error(&req, &core, "TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE");
         }
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let req = request("ProjectionOperandError", compat);
             let report = check_file_engine(&req, engine).expect("operand error");
             let d = report.to_json();
@@ -175,49 +163,16 @@ fn conversion_does_not_erase_receiver_or_later_error_demand() {
 
 #[test]
 fn caller_order_distinguishes_receiver_normalization_from_conversion() {
+    let name = "OtherConvertedConsumers";
+    let path = root().join(format!("conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/{name}/{name}.cfg.json"));
+    let golden: Value =
+        serde_json::from_slice(&std::fs::read(path).expect("primary golden")).expect("golden JSON");
+    let r = &golden["result"];
+    assert_eq!(r["verdict"], "success");
+    let pinned = json!({"verdict":r["verdict"],"code":r["verdict_code"],"class":r["error_class"],
+        "distinct":r["counts"]["distinct_states"],"generated":r["counts"]["states_generated"],
+        "depth":r["counts"]["depth"],"exit":r["exit_code"]});
     for compat in [false, true] {
-        let report = check_file_engine(&request("AntiFunctionRawEmpty", compat), Engine::Reference)
-            .expect("normalization-first error");
-        let d = report.to_json();
-        assert_eq!(d["verdict"], "evaluation-error");
-        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
-        assert_eq!(d["tlc"]["verified"], false);
-        let message = d["message"].as_str().expect("normalization message");
-        if compat {
-            assert!(message.contains("Functions.antiFunction"));
-            assert!(message.contains("Attempted to compare boolean TRUE with non-boolean"));
-            assert!(!message.contains("The argument of AntiFunction"));
-        } else {
-            assert!(message.contains("STARTMSG 2283:"));
-            assert!(message.contains("The argument of AntiFunction"));
-            assert!(message.contains("\n{}\n"));
-            assert!(!message.contains("Attempted to compare boolean"));
-        }
-
-        let report = check_file_engine(&request("PrefixRawEmpty", compat), Engine::Reference)
-            .expect("conversion-first error");
-        let d = report.to_json();
-        assert_eq!(d["verdict"], "evaluation-error");
-        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
-        assert_eq!(d["tlc"]["verified"], false);
-        let message = d["message"].as_str().expect("argument message");
-        assert!(message.contains("The argument of LongestCommonPrefix"));
-        assert!(!message.contains("Attempted to compare boolean"));
-
-        let name = "OtherConvertedConsumers";
-        let report = check_file_engine(&request(name, compat), Engine::Reference)
-            .expect("conversion-first consumers");
-        let path = root().join(format!("conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/{name}/{name}.cfg.json"));
-        let golden: Value = serde_json::from_slice(&std::fs::read(path).expect("primary golden"))
-            .expect("golden JSON");
-        let r = &golden["result"];
-        assert_eq!(r["verdict"], "success");
-        assert_eq!(
-            facts(&report),
-            json!({"verdict":r["verdict"],"code":r["verdict_code"],"class":r["error_class"],
-            "distinct":r["counts"]["distinct_states"],"generated":r["counts"]["states_generated"],
-            "depth":r["counts"]["depth"],"exit":r["exit_code"]})
-        );
         for name in [
             "OtherConvertedConsumers",
             "AntiFunctionRawEmpty",
@@ -226,23 +181,28 @@ fn caller_order_distinguishes_receiver_normalization_from_conversion() {
             let req = request(name, compat);
             let core = check_file_engine(&req, Engine::Core).expect("Core conversion consumer");
             if compat {
-                assert_eq!(core.verdict(), "unsupported");
-                assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
-                assert_eq!(core.to_json()["message"], MIXED_COMPAT);
-            } else {
-                let reference =
-                    check_file_engine(&req, Engine::Reference).expect("canonical reference");
-                if name == "OtherConvertedConsumers" {
-                    assert_eq!(facts(&core), facts(&reference));
-                    assert_eq!(core.verdict(), "success");
-                    assert_eq!(core.to_json()["statistics"]["distinct"], 3);
-                    assert_eq!(core.to_json()["statistics"]["generated"], 3);
-                    assert_eq!(core.to_json()["statistics"]["depth"], 3);
-                    rejects_false_claims(&req);
-                } else {
-                    same_argument_error(&req, &reference, &core, "TLC_MODULE_ONE_ARGUMENT_ERROR");
-                }
+                // TLC's normalization-first comparison error (AntiFunction)
+                // and its conversion-first argument error (prefix) were
+                // reported only by the retired reference engine (#791, #910).
+                refused::assert_refused(&core.to_json(), core.exit_code(), MIXED_COMPAT);
+                continue;
             }
+            if name == "OtherConvertedConsumers" {
+                assert_eq!(facts(&core), pinned);
+                rejects_false_claims(&req);
+                continue;
+            }
+            let d = core.to_json();
+            let message = d["message"].as_str().expect("argument message");
+            assert!(message.contains("STARTMSG 2283:"), "{message}");
+            assert!(!message.contains("Attempted to compare boolean"));
+            if name == "AntiFunctionRawEmpty" {
+                assert!(message.contains("The argument of AntiFunction"));
+                assert!(message.contains("\n{}\n"));
+            } else {
+                assert!(message.contains("The argument of LongestCommonPrefix"));
+            }
+            same_argument_error(&req, &core, "TLC_MODULE_ONE_ARGUMENT_ERROR");
         }
     }
 }
@@ -262,9 +222,18 @@ fn prefix_diagnostic_preserves_selective_original_product_demand() {
             } else {
                 diagnostic_request(name, compat)
             };
-            let report = check_file_engine(&request, Engine::Reference)
-                .expect("empty projection argument error");
+            let report =
+                check_file_engine(&request, Engine::Core).expect("empty projection argument error");
             let d = report.to_json();
+            if compat
+                && matches!(
+                    name,
+                    "PrefixRawEmpty" | "PrefixNestedReverse" | "PrefixNestedUnknown"
+                )
+            {
+                refused::assert_refused(&d, report.exit_code(), MIXED_COMPAT);
+                continue;
+            }
             assert_eq!(d["verdict"], "evaluation-error", "{name}/{compat}");
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
             assert_eq!(d["tlc"]["verified"], false);
@@ -275,31 +244,12 @@ fn prefix_diagnostic_preserves_selective_original_product_demand() {
             );
         }
 
-        let report = check_file_engine(
-            &diagnostic_request("PrefixReverse", compat),
-            Engine::Reference,
-        )
-        .expect("original fallback comparison");
-        let d = report.to_json();
-        assert_eq!(d["verdict"], "evaluation-error");
-        assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
-        assert_eq!(d["tlc"]["verified"], false);
-        let message = d["message"].as_str().expect("comparison error");
-        if compat {
-            assert!(message.contains("SequencesExt.longestCommonPrefix"));
-            assert!(message.contains("Attempted to compare boolean TRUE with non-boolean:\n0"));
-            assert!(!message.contains("The argument of LongestCommonPrefix"));
-        } else {
-            assert!(message.contains("STARTMSG 2283:"));
-            assert!(message.contains("The argument of LongestCommonPrefix"));
-            assert!(message.contains("\n{}\n"));
-            assert!(!message.contains("Attempted to compare boolean"));
-        }
-        assert!(!message.contains("<unprintable"));
+        // PrefixReverse is covered by `core_prefix_results`: TLC's fallback
+        // comparison error under --compat=tlc refuses by name on Core.
 
         let report = check_file_engine(
             &diagnostic_request("PrefixUnknownFirst", compat),
-            Engine::Reference,
+            Engine::Core,
         )
         .expect("earlier unknown operand error");
         let d = report.to_json();
@@ -314,7 +264,7 @@ fn prefix_diagnostic_preserves_selective_original_product_demand() {
 
         let report = check_file_engine(
             &diagnostic_request("PrefixInfiniteFirst", compat),
-            Engine::Reference,
+            Engine::Core,
         )
         .expect("retained infinite conversion refusal");
         let d = report.to_json();
@@ -362,13 +312,12 @@ fn core_prefix_results(compat: bool) {
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
             assert_eq!(report.to_json()["message"], MIXED_COMPAT);
         } else {
-            let reference = check_file_engine(&req, Engine::Reference).expect("prefix reference");
             let ec = if name == "PrefixUnknownFirst" {
                 "TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE"
             } else {
                 "TLC_MODULE_ONE_ARGUMENT_ERROR"
             };
-            same_argument_error(&req, &reference, &report, ec);
+            same_argument_error(&req, &report, ec);
         }
     }
 }
@@ -378,7 +327,8 @@ fn ordinary_prefix_matches_golden(compat: bool) {
     let golden: Value = serde_json::from_slice(&std::fs::read(path).expect("ordinary golden"))
         .expect("golden JSON");
     let r = &golden["result"];
-    for engine in [Engine::Reference, Engine::Core] {
+    {
+        let engine = Engine::Core;
         let report = check_file_engine(&diagnostic_request("PrefixOrdinary", compat), engine)
             .expect("ordinary prefix");
         assert_eq!(
@@ -393,14 +343,11 @@ fn ordinary_prefix_matches_golden(compat: bool) {
 
 // These initial diagnostics intentionally remain unclassified in the report;
 // independent replay proves their underlying error, not a TLC receiver class.
-fn same_argument_error(req: &CheckRequest, reference: &CheckReport, core: &CheckReport, ec: &str) {
+fn same_argument_error(req: &CheckRequest, core: &CheckReport, ec: &str) {
     let d = core.to_json();
     assert_eq!(core.verdict(), "evaluation-error");
     assert_eq!(core.exit_code_for(ExitConvention::Tlc), 75);
-    assert_eq!(facts(core), facts(reference));
-    assert_eq!(d["message"], reference.to_json()["message"]);
-    assert_eq!(d["property"], reference.to_json()["property"]);
-    assert_eq!(d["tlc"], reference.to_json()["tlc"]);
+    assert_eq!(d["tlc"]["code"], 2103);
     assert_eq!(d["tlc"]["verified"], false);
     assert_eq!(d["statistics"]["generated"], 1);
     assert_eq!(d["statistics"]["distinct"], 1);
@@ -489,12 +436,9 @@ fn empty_product_consumers_cannot_turn_a_false_invariant_into_success() {
             };
             let core = check_file_engine(&req, Engine::Core).expect("paired conversion check");
             if compat_tlc {
-                assert_eq!(core.verdict(), "unsupported");
-                assert_eq!(core.to_json()["message"], MIXED_COMPAT);
+                refused::assert_refused(&core.to_json(), core.exit_code(), MIXED_COMPAT);
                 continue;
             }
-            let reference = check_file_engine(&req, Engine::Reference).expect("paired reference");
-            assert_eq!(facts(&core), facts(&reference));
             if holds {
                 assert_eq!(
                     facts(&core),
