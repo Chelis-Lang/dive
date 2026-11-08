@@ -741,7 +741,7 @@ mod tests {
                     max_memory: BudgetSetting::Explicit(1),
                     ..CheckRequest::default()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?;
             let value = report.to_json();
             assert_eq!(value["check_kind"], "temporal");

@@ -93,7 +93,8 @@ fn coordinated_primary_wrapper_and_exit_forgeries_cannot_borrow_a_valid_word() {
                 },
             )
             .expect("model");
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let (report, exit) = native(&file, engine, compat);
                 let actual = mapped_source(&report, exit, compat, &spec);
                 for forged_exit in [76, 12] {
@@ -202,7 +203,8 @@ fn independent_named_cause_does_not_certify_the_deciding_wrapper() {
             },
         )
         .expect("model");
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let (report, exit) = native(&file, engine, compat);
             let actual = mapped_source(&report, exit, compat, &spec);
             assert!(matches!(
@@ -304,7 +306,7 @@ fn secondary_replay_context_is_not_proven_by_the_invariant_word() {
         )
         .expect("original model");
         let original = mapped_source(&original_report, exit, compat, &original_spec);
-        let (mut changed_report, exit) = native(&changed_file, Engine::Reference, compat);
+        let (mut changed_report, exit) = native(&changed_file, Engine::Core, compat);
         let changed_spec = SpecModel::load(
             &changed_file,
             &changed_file.with_extension("cfg"),
@@ -385,7 +387,8 @@ fn qualified_next_word_preserves_legacy_refusal_and_unclassified_oracle() {
             },
         )
         .expect("model");
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let (report, exit) = native(&file, engine, compat);
             let actual = mapped(&report, exit, compat);
             let doc = TraceDoc::from_json(&report["counterexample"]["trace"]).expect("trace");

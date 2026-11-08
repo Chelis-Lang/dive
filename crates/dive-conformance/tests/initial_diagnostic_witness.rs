@@ -74,7 +74,7 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
                     ..TraceOptions::default()
                 },
             )?;
-            for (engine, workers) in [Engine::Reference, Engine::Core]
+            for (engine, workers) in [Engine::Core]
                 .into_iter()
                 .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
             {
@@ -169,7 +169,31 @@ fn outcome(report: &Value) -> ProcessOutcome {
         elapsed: Duration::ZERO,
     }
 }
+/// The report for `file` under `--compat=tlc`. Core refuses the equality
+/// between values of different shapes by name; for those models this returns
+/// the report the retired reference engine produced (#791), which remains the
+/// real producer output these mapping checks exercise.
 fn actual(file: &std::path::Path) -> Result<Value, Box<dyn std::error::Error>> {
+    let core = core_report(file)?;
+    if core["verdict"] != "unsupported" {
+        return Ok(core);
+    }
+    assert!(
+        core["message"].as_str().is_some_and(
+            |message| message.contains("values of different shapes under --compat=tlc")
+        ),
+        "{core}"
+    );
+    let recorded: Value = serde_json::from_str(include_str!(
+        "fixtures/retired-reference/initial-diagnostic-witness.json"
+    ))?;
+    let stem = file.file_stem().ok_or("stem")?.to_string_lossy();
+    Ok(recorded
+        .get(format!("{stem}-true"))
+        .ok_or_else(|| format!("no recorded report for {stem}"))?
+        .clone())
+}
+fn core_report(file: &std::path::Path) -> Result<Value, Box<dyn std::error::Error>> {
     Ok(check_file_engine(
         &CheckRequest {
             file: file.to_path_buf(),
@@ -180,7 +204,7 @@ fn actual(file: &std::path::Path) -> Result<Value, Box<dyn std::error::Error>> {
             fp: Some(0),
             ..CheckRequest::default()
         },
-        Engine::Reference,
+        Engine::Core,
     )?
     .to_json())
 }
