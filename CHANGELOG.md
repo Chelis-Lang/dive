@@ -12,6 +12,11 @@ published. Earlier pre-release development entries remain in git history.
   `--workers N` option, and the adapter's `-coverage 0` and `-lncheck final`. They still parse and refuse by name with exit 3, as
   before. The `check` help no longer says that Reference is the default
   engine. See the [command-line surface](docs/user/README.md#command-line-surface).
+- The conformance harness pins a real-world holdout corpus (issue #854):
+  seven public repositories outside tlaplus/Examples (CCF, etcd raft, TiDB,
+  BlockingQueue, JGroups PlusCal, BookKeeper, Kafka), each by commit, with a
+  dive-owned manifest under `conformance/holdout/` and the new `manifest` key
+  in `corpora.toml` (ADR 0005, amendment 2). Sources stay upstream.
 - The `dive-check` crate, the reference checker, is deleted (issue #791).
   Core is the only checking engine; check with `dive_api::check_file` and the
   run contract in `dive-runtime`. Its shared test fixtures now live in

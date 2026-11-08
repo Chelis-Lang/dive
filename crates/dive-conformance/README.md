@@ -146,6 +146,19 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
   - A job copies only the files of the module's own directory into its scratch directory, since SANY never looks into subdirectories. An Examples job copies the whole spec directory.
 - `tbd`: not yet enumerated.
 
+**Holdout corpora** (ADR 0005, amendment 2) pin an upstream repository by
+`repo` and `commit` and add `manifest = "conformance/holdout/<id>.json"`: a
+dive-owned manifest in Examples' schema that lists the selected modules and
+models by plain corpus-relative path (no `..`, `.`, empty or absolute
+segments). Every listed file must exist at the commit;
+unlisted upstream files are not reported as uncovered. `[[corpus.exclude]]`
+names model ids (`.cfg` paths) reported as `out-of-scope` with their reason.
+The identity goldens record is `<commit>+manifest-sha256:<hex>`. Sources stay
+upstream; `corpus fetch` checks them out like any pinned corpus.
+A plain `corpus fetch` with no `--corpus` clones every pinned corpus,
+including the seven holdout repositories (microsoft/CCF is large); pass
+`--corpus examples` (as CI and the gate do) to fetch only Examples.
+
 Finite Simulate entries with feature `constructive generation` invoke pinned TLC
 `-generate num=N` and native `simulate --generate`; the feature refuses outside
 Simulate. Native sampling admission checks actual request/profile/algorithm,

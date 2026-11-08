@@ -1,0 +1,38 @@
+{
+  "sources": [
+    "https://github.com/Vanlightly/bookkeeper-tlaplus/tree/fe199dc717b5723f5308aca74eda6ab3b03917e5"
+  ],
+  "authors": [
+    "Jack Vanlightly"
+  ],
+  "tags": [
+    "holdout",
+    "industrial"
+  ],
+  "modules": [
+    {
+      "path": "BookKeeperProtocol.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "BookKeeperProtocol.cfg",
+          "runtime": "00:00:04",
+          "mode": "exhaustive search",
+          "result": "deadlock failure"
+        }
+      ]
+    },
+    {
+      "path": "LedgerChaining.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "LedgerChaining.cfg",
+          "runtime": "00:00:12",
+          "mode": "exhaustive search",
+          "result": "success"
+        }
+      ]
+    }
+  ]
+}

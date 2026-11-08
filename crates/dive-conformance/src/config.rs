@@ -149,6 +149,13 @@ pub struct Corpus {
     pub license: String,
     /// Layout.
     pub layout: Layout,
+    /// Repository-pinned `examples-manifest` corpus whose upstream has no
+    /// Examples manifests: a dive-owned manifest (Examples schema) in this
+    /// repository, relative to its root (under `conformance/`), that
+    /// enumerates the modules and models of the checkout. Its SHA-256 joins
+    /// the commit in the corpus identity that goldens record.
+    #[serde(default)]
+    pub manifest: Option<String>,
     /// `modules-only`: globs over corpus-relative paths selecting the
     /// modules; empty means every `.tla` file.
     #[serde(default)]
@@ -408,9 +415,30 @@ impl CorporaFile {
                 }
                 None | Some(_) => {}
             }
-            if c.layout != Layout::ModulesOnly && (!c.include.is_empty() || !c.exclude.is_empty()) {
+            if let Some(m) = &c.manifest {
+                if c.path.is_some() || c.layout != Layout::ExamplesManifest {
+                    return Err(Error::Config(format!(
+                        "corpus `{}`: `manifest` applies to repository-pinned examples-manifest corpora only",
+                        c.id
+                    )));
+                }
+                if !m.starts_with("conformance/")
+                    || std::path::Path::new(m)
+                        .extension()
+                        .is_none_or(|e| e != "json")
+                    || m.split('/').any(|c| c == ".." || c == "." || c.is_empty())
+                {
+                    return Err(Error::Config(format!(
+                        "corpus `{}`: manifest `{m}` must be a plain relative .json path under conformance/",
+                        c.id
+                    )));
+                }
+            }
+            if c.layout != Layout::ModulesOnly
+                && (!c.include.is_empty() || (!c.exclude.is_empty() && c.manifest.is_none()))
+            {
                 return Err(Error::Config(format!(
-                    "corpus `{}`: `include` and `exclude` apply to the modules-only layout only",
+                    "corpus `{}`: `include` applies to the modules-only layout only, and `exclude` also to corpora with a `manifest`",
                     c.id
                 )));
             }
@@ -530,6 +558,28 @@ mod tests {
             ok.replace("conformance/corpus/p", "/abs/conformance/p"),
             ok.replace("conformance/corpus/p", "elsewhere/p"),
             ok.replace("path = \"conformance/corpus/p\"\n", ""),
+        ] {
+            assert!(CorporaFile::parse(&bad).is_err(), "{bad}");
+        }
+    }
+
+    #[test]
+    fn dive_owned_manifest_over_a_pinned_repository() {
+        let sha = "0".repeat(40);
+        let ok = format!(
+            "[[corpus]]\nid = \"h\"\nrepo = \"https://x\"\ncommit = \"{sha}\"\nlicense = \"MIT\"\nlayout = \"examples-manifest\"\nmanifest = \"conformance/holdout/h.json\"\n"
+        );
+        let file = CorporaFile::parse(&ok);
+        assert!(file.is_ok_and(|f| f.corpus[0].manifest.is_some()));
+        for bad in [
+            ok.replace("examples-manifest", "modules-only"),
+            ok.replace("conformance/holdout/h.json", "conformance/../h.json"),
+            ok.replace("conformance/holdout/h.json", "elsewhere/h.json"),
+            ok.replace("conformance/holdout/h.json", "conformance/holdout/h.toml"),
+            ok.replace(
+                &format!("repo = \"https://x\"\ncommit = \"{sha}\"\n"),
+                "path = \"conformance/corpus/h\"\n",
+            ),
         ] {
             assert!(CorporaFile::parse(&bad).is_err(), "{bad}");
         }

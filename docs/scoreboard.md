@@ -31,6 +31,31 @@ Full Examples selects 233 rows: 48 are out of scope (Apalache models and
 similar). The full-tier runs use one worker and TLC-derived budgets capped at
 900 seconds per model. The nine missing goldens are listed in #338.
 
+## Real-world holdout (#854)
+
+The holdout pins seven public repositories outside tlaplus/Examples, written by
+industrial teams and practitioners: microsoft/CCF, etcd-io/raft, pingcap/tla-plus,
+lemmy/BlockingQueue, belaban/pluscal, Vanlightly/bookkeeper-tlaplus and
+Vanlightly/kafka-tlaplus. Their manifests in `conformance/holdout/` select 30
+models with the upstream `.cfg` files. Five models are out of scope: the pinned
+TLC does not finish four of them within 600 seconds at one worker (both etcd
+models, `BlockingQueuePoisonApple` and Kafka `kip_996/model_liveness`), and
+CCF's `MCccfraft` needs a TLC JVM property for action composition. The other 25
+have TLC goldens, and 26 modules have SANY goldens. These corpora are measured,
+not developed against.
+
+Core alone, in the default profile at one worker, agrees on 23 of the 25 models
+(12 safety successes, 3 liveness checks that hold, 3 safety violations, 4 deadlocks and
+1 evaluation error), refuses 2, and disagrees on none. All 26 modules agree
+with SANY. Each refusal reason covers one model: `TLCExt!PickSuccessor`
+(`BlockingQueueDebug`) and the difference of an infinite set (TiDB
+`DistributedTransaction/Test3`). Measured on 2026-11-08 with `--tlc-budgets`.
+
+Run it with `--impl dive:core --impl-profile dive --tier all` and
+`--corpus holdout-ccf --corpus holdout-etcd-raft --corpus holdout-tidb
+--corpus holdout-blocking-queue --corpus holdout-jgroups-pluscal
+--corpus holdout-bookkeeper --corpus holdout-kafka`.
+
 ## Core refusals and stops (full Examples, default profile)
 
 **Bold** models are covered by Reference; they are the remaining R1 gap. Every

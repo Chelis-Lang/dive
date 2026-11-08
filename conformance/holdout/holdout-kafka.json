@@ -1,0 +1,50 @@
+{
+  "sources": [
+    "https://github.com/Vanlightly/kafka-tlaplus/tree/823615e8a0962d0160c11d9affb2576c56b7c054"
+  ],
+  "authors": [
+    "Jack Vanlightly"
+  ],
+  "tags": [
+    "holdout",
+    "industrial"
+  ],
+  "modules": [
+    {
+      "path": "transactions/diary/01_InitPidRequest/tlaplus/kafka_transactions.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "transactions/diary/01_InitPidRequest/tlaplus/kafka_transactions.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "deadlock failure"
+        }
+      ]
+    },
+    {
+      "path": "kraft/kip_853/kraft_kip_853.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "kraft/kip_853/model_liveness.cfg",
+          "runtime": "00:00:02",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    },
+    {
+      "path": "kraft/kip_996/kraft_kip_996.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "kraft/kip_996/model_liveness.cfg",
+          "runtime": "unknown",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}
