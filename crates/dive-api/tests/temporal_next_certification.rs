@@ -23,7 +23,8 @@ fn primitive_temporal_next_words_require_fresh_execution_of_both_sources() -> Te
                     ..TraceOptions::default()
                 },
             )?;
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let report = check_file_engine(
                     &CheckRequest {
                         file: file.clone(),

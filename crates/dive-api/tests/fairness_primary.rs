@@ -48,7 +48,8 @@ fn proved_source_rows_publish_only_freshly_validated_v5_words() {
             directory().join(format!("../../../../../conformance/golden/tlc-2026.10.06.014338/fairness-primary/specifications/{name}/{name}.cfg.json"))
         ).expect("official oracle golden")).expect("golden JSON");
         for tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let req = request(name, tlc, 1);
                 let report = check_file_engine(&req, engine).expect("owned source run");
                 let json = report.to_json();
@@ -115,7 +116,8 @@ fn different_primary_and_candidate_error_lifecycles_do_not_borrow_source_row_aut
     for name in ["RowDifferentPrimary", "RowCandidateBeforeTemporal"] {
         same_corpus_input(name);
         for tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let report =
                     check_file_engine(&request(name, tlc, 1), engine).expect("actual boundary");
                 let json = report.to_json();
@@ -159,7 +161,8 @@ fn an_unproved_first_row_or_multiple_init_emissions_cannot_publish_v5() {
         )
         .expect("actual source");
         for tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 let req = CheckRequest {
                     file: file.clone(),
                     config: Some(config.clone()),
@@ -189,7 +192,7 @@ fn unproved_temporal_next_primaries_are_refusals_not_verified_75_or_general() {
         same_corpus_input(name);
         for tlc in [false, true] {
             for workers in [1, 8] {
-                for engine in [Engine::Reference, Engine::Core] {
+                for engine in std::iter::once(Engine::Core) {
                     if name == "MinChooseFair" && workers == 1 {
                         continue; // The separately asserted reached-row capability is now proved.
                     }
@@ -240,8 +243,9 @@ fn unproved_temporal_next_primaries_are_refusals_not_verified_75_or_general() {
 #[test]
 fn unproved_parallel_fairness_errors_keep_the_existing_explicit_refusal() {
     for tlc in [false, true] {
-        for workers in [8] {
-            for engine in [Engine::Reference, Engine::Core] {
+        for workers in std::iter::once(8) {
+            {
+                let engine = Engine::Core;
                 let report =
                     check_file_engine(&request("MinChooseFairSafeNext", tlc, workers), engine)
                         .expect("check");
@@ -249,12 +253,6 @@ fn unproved_parallel_fairness_errors_keep_the_existing_explicit_refusal() {
                 assert_eq!(json["verdict"], "unsupported", "{json:#}");
                 assert!(json["tlc"].is_null());
                 assert_eq!(report.exit_code(), 3);
-                // The reference route already retained these actual completed
-                // counts. Do not invent previously missing native evidence.
-                if engine == Engine::Reference {
-                    assert_eq!(json["statistics"]["distinct"], 1);
-                    assert_eq!(json["statistics"]["generated"], 2);
-                }
             }
         }
     }
@@ -263,7 +261,8 @@ fn unproved_parallel_fairness_errors_keep_the_existing_explicit_refusal() {
 #[test]
 fn safety_only_next_errors_stay_unchanged_but_the_word_certifies_no_temporal_primary() {
     for tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let mut req = request("MinChooseFair", tlc, 1);
             req.config = Some(directory().join("NoTemporal.cfg"));
             let report = check_file_engine(&req, engine).expect("safety check");

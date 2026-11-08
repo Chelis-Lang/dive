@@ -1,0 +1,10 @@
+{
+ "empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences": {
+  "empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences/0#0": "Object {\"code\": Number(2103), \"depth\": Number(1), \"distinct\": Number(1), \"error_class\": String(\"TLC_NESTED_EXPRESSION\"), \"exit\": Number(75), \"generated\": Number(1), \"property\": Null, \"verdict\": String(\"evaluation-error\")}",
+  "empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences/0#1": "Object {\"code\": Number(2103), \"depth\": Number(1), \"distinct\": Number(1), \"error_class\": String(\"TLC_NESTED_EXPRESSION\"), \"exit\": Number(75), \"generated\": Number(1), \"property\": Null, \"verdict\": String(\"evaluation-error\")}",
+  "empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences/0#2": "Object {\"code\": Number(2103), \"depth\": Number(1), \"distinct\": Number(1), \"error_class\": String(\"TLC_NESTED_EXPRESSION\"), \"exit\": Number(75), \"generated\": Number(1), \"property\": Null, \"verdict\": String(\"evaluation-error\")}",
+  "empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences/0#3": "Object {\"code\": Number(2103), \"depth\": Number(1), \"distinct\": Number(1), \"error_class\": String(\"TLC_NESTED_EXPRESSION\"), \"exit\": Number(75), \"generated\": Number(1), \"property\": Null, \"verdict\": String(\"evaluation-error\")}",
+  "empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences/0#4": "Object {\"code\": Number(2103), \"depth\": Number(1), \"distinct\": Number(1), \"error_class\": String(\"TLC_NESTED_EXPRESSION\"), \"exit\": Number(75), \"generated\": Number(1), \"property\": Null, \"verdict\": String(\"evaluation-error\")}",
+  "empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences/0#5": "Object {\"code\": Number(2103), \"depth\": Number(1), \"distinct\": Number(1), \"error_class\": String(\"TLC_NESTED_EXPRESSION\"), \"exit\": Number(75), \"generated\": Number(1), \"property\": Null, \"verdict\": String(\"evaluation-error\")}"
+ }
+}

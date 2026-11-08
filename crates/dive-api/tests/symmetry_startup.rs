@@ -45,7 +45,7 @@ fn symmetry_errors_precede_assumptions_and_preserve_general_exit_class() {
                         workers: Some(1),
                         ..CheckRequest::default()
                     },
-                    dive_api::Engine::Reference,
+                    dive_api::Engine::Core,
                 )
                 .unwrap();
                 assert_eq!(report.verdict(), "model-error", "{name}");

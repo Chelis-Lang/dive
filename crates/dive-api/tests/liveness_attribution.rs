@@ -35,7 +35,8 @@ fn actual_word_names_agree_in_rust_json_and_human_reports() {
             ))
         };
         for compat_tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {

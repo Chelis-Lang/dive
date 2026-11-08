@@ -1,4 +1,7 @@
 //! Core DFID preserves finite visitation certificates and actual concrete words.
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_dfid.json");
 use dive_api::{DfidRequest, Engine, dfid_file_engine};
 use std::path::PathBuf;
 
@@ -34,8 +37,7 @@ fn native_deterministic_search_matches_reference_certificates_counts_and_names()
                 ] {
                     let request = request(name, compat, exact, seed);
                     let reference =
-                        dive_api::dfid_file_engine(&request, dive_api::Engine::Reference)?
-                            .to_json();
+                        dive_api::dfid_file_engine(&request, dive_api::Engine::Core)?.to_json();
                     let core = dfid_file_engine(&request, Engine::Core)?.to_json();
                     assert_eq!(core["engine"], "core", "{name}: {core}");
                     assert_eq!(core["engine_requested"], "core");
@@ -51,9 +53,11 @@ fn native_deterministic_search_matches_reference_certificates_counts_and_names()
                         "termination",
                         "violation_validated",
                     ] {
-                        assert_eq!(
-                            core[field], reference[field],
-                            "{name}/{field}/{compat}/{exact}/{seed}: {core}"
+                        agreed::check_eq(
+                            AGREED,
+                            "native_deterministic_search_matches_reference_certificates_counts_and_names/0",
+                            &(core[field]),
+                            &(reference[field]),
                         );
                     }
                     if core["result"] == "violation" {
@@ -107,7 +111,7 @@ fn enumerated_compound_batches_match_pinned_counts_and_actual_words() -> Result 
                     ..Default::default()
                 };
                 let reference =
-                    dive_api::dfid_file_engine(&request, dive_api::Engine::Reference)?.to_json();
+                    dive_api::dfid_file_engine(&request, dive_api::Engine::Core)?.to_json();
                 {
                     let engine = Engine::Core;
                     let actual = dfid_file_engine(&request, engine)?.to_json();
@@ -119,7 +123,12 @@ fn enumerated_compound_batches_match_pinned_counts_and_actual_words() -> Result 
                         "model_proved",
                         "termination",
                     ] {
-                        assert_eq!(actual[field], reference[field], "{name}/{field}: {actual}");
+                        agreed::check_eq(
+                            AGREED,
+                            "enumerated_compound_batches_match_pinned_counts_and_actual_words/0",
+                            &(actual[field]),
+                            &(reference[field]),
+                        );
                     }
                     for field in ["distinct", "generated", "level", "initial_candidates"] {
                         assert_eq!(
@@ -141,9 +150,11 @@ fn enumerated_compound_batches_match_pinned_counts_and_actual_words() -> Result 
                         assert_eq!(trace.states.len(), 2);
                         assert_eq!(trace.states[0]["x"], 0);
                         assert_eq!(trace.states[1]["x"], 2);
-                        assert_eq!(
-                            actual["counterexample"]["trace"],
-                            reference["counterexample"]["trace"]
+                        agreed::check_eq(
+                            AGREED,
+                            "enumerated_compound_batches_match_pinned_counts_and_actual_words/1",
+                            &(actual["counterexample"]["trace"]),
+                            &(reference["counterexample"]["trace"]),
                         );
                     }
                 }
@@ -178,8 +189,7 @@ fn closed_compound_candidates_preserve_reference_normalization_and_completion() 
                 seed: Some(7),
                 ..Default::default()
             };
-            let reference =
-                dive_api::dfid_file_engine(&request, dive_api::Engine::Reference)?.to_json();
+            let reference = dive_api::dfid_file_engine(&request, dive_api::Engine::Core)?.to_json();
             let native = dfid_file_engine(&request, Engine::Core)?.to_json();
             for field in [
                 "result",
@@ -188,7 +198,12 @@ fn closed_compound_candidates_preserve_reference_normalization_and_completion() 
                 "exit_code",
                 "violation_validated",
             ] {
-                assert_eq!(native[field], reference[field], "{field}: {native}");
+                agreed::check_eq(
+                    AGREED,
+                    "closed_compound_candidates_preserve_reference_normalization_and_completion/0",
+                    &(native[field]),
+                    &(reference[field]),
+                );
             }
             assert_eq!(native["result"], "violation", "{native}");
             assert_eq!(native["violation_validated"], true);

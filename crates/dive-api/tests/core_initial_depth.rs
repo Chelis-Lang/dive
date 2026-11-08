@@ -1,11 +1,14 @@
 //! Initial-state generation sets TLC's depth even when constraints exclude
 //! every candidate; an initial predicate emitting nothing leaves depth zero.
 #![allow(clippy::expect_used, reason = "test fixture failures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_initial_depth.json");
 
 use std::path::PathBuf;
 
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
-use serde_json::{Value, json};
+use serde_json::json;
 
 #[test]
 fn initial_depth_counts_emitted_states_instead_of_retained_states() {
@@ -33,8 +36,8 @@ fn initial_depth_counts_emitted_states_instead_of_retained_states() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let mut reference = Value::Null;
-                for engine in [Engine::Reference, Engine::Core] {
+                {
+                    let engine = Engine::Core;
                     let report = check_file_engine(&request, engine).expect("check runs");
                     assert_eq!(report.exit_code_for(ExitConvention::Tlc), 0);
                     let document = report.to_json();
@@ -51,10 +54,8 @@ fn initial_depth_counts_emitted_states_instead_of_retained_states() {
                         "tlc": document["tlc"],
                         "property": document["property"],
                     });
-                    if engine == Engine::Reference {
-                        reference = observed;
-                    } else {
-                        assert_eq!(observed, reference, "{fixture}: {document:#}");
+                    agreed::check(AGREED, "cross/0", &(observed));
+                    {
                         assert_eq!(document["engine"], "core");
                     }
                 }

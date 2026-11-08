@@ -122,7 +122,8 @@ fn named_invariant_word_survives_a_different_diagnostic_replay_error() {
             },
         )
         .expect("model");
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             for workers in [1, 4] {
                 let report = check_file_engine(
                     &CheckRequest {
@@ -197,7 +198,8 @@ fn oracle_backed_invariant_errors_validate_for_both_engines_and_profiles() {
     ] {
         let file = root.join(name).join(format!("{name}.tla"));
         for compat_tlc in [false, true] {
-            for engine in [Engine::Reference, Engine::Core] {
+            {
+                let engine = Engine::Core;
                 for workers in [1, 4] {
                     let report = check_file_engine(
                         &CheckRequest {

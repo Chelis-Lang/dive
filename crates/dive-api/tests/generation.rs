@@ -32,7 +32,8 @@ fn words(report: &Value) -> Vec<Value> {
 fn thousand_way_actions_emit_only_the_requested_sample_and_replay()
 -> Result<(), Box<dyn std::error::Error>> {
     for tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let req = request("Wide", tlc);
             let a = simulate_file_engine(&req, engine)?.to_json();
             assert_eq!(a["result"], "sampled", "{a}");
@@ -61,7 +62,8 @@ fn thousand_way_actions_emit_only_the_requested_sample_and_replay()
 fn disabled_or_constraint_rejected_choices_do_not_create_a_false_deadlock()
 -> Result<(), Box<dyn std::error::Error>> {
     for tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             for case in ["Guarded", "Constrained", "Multi", "Tuple", "Stored"] {
                 let report = simulate_file_engine(&request(case, tlc), engine)?.to_json();
                 assert_eq!(
@@ -81,7 +83,8 @@ fn disabled_or_constraint_rejected_choices_do_not_create_a_false_deadlock()
 fn ordinary_queries_do_not_inherit_the_generation_stream() -> Result<(), Box<dyn std::error::Error>>
 {
     for tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let wide = simulate_file_engine(&request("Wide", tlc), engine)?.to_json();
             for case in ["Quantified", "Queried", "Universal"] {
                 let report = simulate_file_engine(&request(case, tlc), engine)?.to_json();
@@ -114,7 +117,8 @@ fn generation_violation_is_freshly_proved_and_a_forged_edge_is_rejected()
 -> Result<(), Box<dyn std::error::Error>> {
     use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
     for tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let req = request("Violation", tlc);
             let report = simulate_file_engine(&req, engine)?.to_json();
             assert_eq!(report["result"], "violation", "{report}");
@@ -148,7 +152,8 @@ fn generation_violation_is_freshly_proved_and_a_forged_edge_is_rejected()
 fn unknown_domains_and_partial_rows_never_become_completed_samples()
 -> Result<(), Box<dyn std::error::Error>> {
     for tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             for case in ["Unknown", "Partial"] {
                 let report = simulate_file_engine(&request(case, tlc), engine)?.to_json();
                 assert_ne!(report["result"], "sampled", "{case}: {report}");
@@ -172,7 +177,8 @@ fn unknown_domains_and_partial_rows_never_become_completed_samples()
 #[test]
 fn indexed_intervals_keep_tlc_cardinality_admission_before_the_body()
 -> Result<(), Box<dyn std::error::Error>> {
-    for engine in [Engine::Reference, Engine::Core] {
+    {
+        let engine = Engine::Core;
         let report = simulate_file_engine(&request("LargeTlc", true), engine)?.to_json();
         // Finite mode still refuses unowned Next error wrappers. The original
         // cardinality demand must occur before any sampled assignment.
@@ -193,7 +199,8 @@ fn process_conventions_and_budget_stops_do_not_change_generation_semantics()
 -> Result<(), Box<dyn std::error::Error>> {
     use dive_api::{BudgetSetting, ExitConvention};
     for tlc in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        {
+            let engine = Engine::Core;
             let report = simulate_file_engine(&request("Violation", tlc), engine)?;
             assert_eq!(report.exit_code_for(ExitConvention::Native), 10);
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 12);

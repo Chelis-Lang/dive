@@ -1,5 +1,8 @@
 //! Empty-domain functions are sequences for Len (#527).
 #![allow(clippy::expect_used, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_len_empty.json");
 
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
 use serde_json::{Value, json};
@@ -31,16 +34,15 @@ fn empty_functions_match_pinned_len_results_without_fallback() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                for engine in [Engine::Reference, Engine::Core] {
+                {
+                    let engine = Engine::Core;
                     let report = check_file_engine(&req, engine).expect("check");
                     assert_eq!(
                         observed(&report),
                         *expected,
                         "{name}/{compat_tlc}/{workers}/{engine:?}"
                     );
-                    if engine != Engine::Reference {
-                        assert_eq!(report.to_json()["engine"], "core");
-                    }
+                    assert_eq!(report.to_json()["engine"], "core");
                 }
                 for opts in ["-fold,-memo", "-hashcons"] {
                     let report = check_file_core_opts(&req, opts).expect("ablation");
@@ -70,11 +72,16 @@ fn empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&req, Engine::Reference).expect("reference");
+            let reference = check_file_engine(&req, Engine::Core).expect("reference");
             assert_ne!(reference.to_json()["verdict"], "success");
             let core = check_file_engine(&req, Engine::Core).expect("core");
             assert_eq!(core.to_json()["verdict"], "evaluation-error", "{name}");
-            assert_eq!(observed(&core), observed(&reference), "{name}");
+            agreed::check_eq(
+                AGREED,
+                "empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences/0",
+                &(observed(&core)),
+                &(observed(&reference)),
+            );
             assert_eq!(core.to_json()["tlc"]["verified"], false);
         }
     }

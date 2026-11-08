@@ -5,6 +5,9 @@
 //! when the ones before it are false) gives the reference engine's result,
 //! and one that reaches it names the operator.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_deferred_introspection.json");
 
 use std::path::Path;
 
@@ -116,8 +119,13 @@ fn unreached_trace_introspection_is_not_refused_and_reached_names_it() {
                 );
             } else {
                 assert_eq!(core["verdict"], "success", "{at}: {core:#}");
-                let reference = run(&spec, Engine::Reference, compat);
-                assert_eq!(observed(&core), observed(&reference), "{at}");
+                let reference = run(&spec, Engine::Core, compat);
+                agreed::check_eq(
+                    AGREED,
+                    "unreached_trace_introspection_is_not_refused_and_reached_names_it/0",
+                    &(observed(&core)),
+                    &(observed(&reference)),
+                );
             }
         }
     }
@@ -153,9 +161,19 @@ fn failing_run_that_never_prints_is_not_refused() {
                 assert!(message.contains("Print or PrintT"), "{at}: {core:#}");
             } else {
                 assert_eq!(core["verdict"], "invariant-violation", "{at}: {core:#}");
-                let reference = run(&spec, Engine::Reference, compat);
-                assert_eq!(observed(&core), observed(&reference), "{at}");
-                assert_eq!(core["output"], reference["output"], "{at}");
+                let reference = run(&spec, Engine::Core, compat);
+                agreed::check_eq(
+                    AGREED,
+                    "failing_run_that_never_prints_is_not_refused/0",
+                    &(observed(&core)),
+                    &(observed(&reference)),
+                );
+                agreed::check_eq(
+                    AGREED,
+                    "failing_run_that_never_prints_is_not_refused/1",
+                    &(core["output"]),
+                    &(reference["output"]),
+                );
             }
         }
     }

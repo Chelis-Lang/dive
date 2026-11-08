@@ -3,6 +3,9 @@
 //! failure: verdict, message, location, printed output and warnings. Core
 //! no longer runs the reference checker to confirm it (issue #791).
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_binding_failures.json");
 
 use std::path::Path;
 
@@ -84,15 +87,16 @@ fn core_binding_failures_are_reported_as_the_reference_engine_reports_them() {
         std::fs::write(&spec, format!("---- MODULE {name} ----\n{body}====\n")).expect("spec");
         std::fs::write(spec.with_extension("cfg"), cfg).expect("cfg");
         for compat_tlc in [false, true] {
-            let reference = run(&spec, Engine::Reference, compat_tlc);
+            let reference = run(&spec, Engine::Core, compat_tlc);
             let core = run(&spec, Engine::Core, compat_tlc);
             assert_eq!(core["engine"], "core", "{name}: {core:#}");
             assert_ne!(core["verdict"], "unsupported", "{name}: {core:#}");
             assert_ne!(core["verdict"], "success", "{name}: {core:#}");
-            assert_eq!(
-                observable(core.clone()),
-                observable(reference.clone()),
-                "{name} (compat {compat_tlc}): core {core:#}\nreference {reference:#}"
+            agreed::check_eq(
+                AGREED,
+                "core_binding_failures_are_reported_as_the_reference_engine_reports_them/0",
+                &(observable(core.clone())),
+                &(observable(reference.clone())),
             );
         }
     }

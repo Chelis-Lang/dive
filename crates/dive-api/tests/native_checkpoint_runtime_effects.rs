@@ -43,7 +43,7 @@ fn mixed_effects_refuse_before_work_output_or_archive() {
                         counters: checkpoint::Counters::Retain,
                         config_source_sha256: None,
                     },
-                    dive_api::Engine::Reference,
+                    dive_api::Engine::Core,
                 )
                 .expect("admission")
                 .to_json();

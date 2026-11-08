@@ -1,11 +1,14 @@
 //! Missing next-state actions have a different TLC ending from an action
 //! that is defined but disabled, and from an empty initial frontier.
 #![allow(clippy::expect_used, reason = "test fixture failures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_no_next.json");
 
 use std::path::PathBuf;
 
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
-use serde_json::{Value, json};
+use serde_json::json;
 
 #[test]
 fn missing_next_actions_keep_tlcs_model_error_and_precedence() {
@@ -61,8 +64,8 @@ fn missing_next_actions_keep_tlcs_model_error_and_precedence() {
                         fp: Some(0),
                         ..CheckRequest::default()
                     };
-                    let mut reference = Value::Null;
-                    for engine in [Engine::Reference, Engine::Core] {
+                    {
+                        let engine = Engine::Core;
                         let report = check_file_engine(&request, engine).expect("check runs");
                         assert_eq!(report.exit_code_for(ExitConvention::Tlc), expected_exit);
                         let document = report.to_json();
@@ -85,10 +88,8 @@ fn missing_next_actions_keep_tlcs_model_error_and_precedence() {
                             "trace_length": document["counterexample"]["length"],
                             "trace_ending": document["counterexample"]["ending"],
                         });
-                        if engine == Engine::Reference {
-                            reference = observed;
-                        } else {
-                            assert_eq!(observed, reference, "{fixture}: {document:#}");
+                        agreed::check(AGREED, "cross/0", &(observed));
+                        {
                             assert_eq!(document["engine"], "core");
                         }
                     }
