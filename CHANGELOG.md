@@ -24,6 +24,17 @@ published. Earlier pre-release development entries remain in git history.
   already refuses `--coverage 0` and `--source-coverage` by name, so no report
   carried coverage; the requests and their refusals are unchanged. The safety
   checking guide no longer describes coverage as available.
+- `dive-runtime` and `dive-liveness` no longer export run-contract items
+  that only the deleted reference checker used (issue #791): the
+  `capture::CheckpointObserver` reached-checkpoint hooks and their
+  `CheckpointPhase`, `ReachedCheckpoint`, `CheckpointDecision` and
+  `CheckpointExploration` types; `ControlledExploration::from_successful_search`
+  and `set_elapsed`; `Collector::with_concrete_pool`; `admission::uses_random`
+  (use `uses_random_after_startup`); `budget::memory_readable`;
+  `context_verdict`; `class::general_text`; `SeenUsage::creation_failure`;
+  the `test-hooks` feature; and `dive_liveness::periodic_backend`, TLC's
+  growth trigger, which Core never used (it checks on
+  `analyze::periodic::Schedule`). Verdicts and counts are unchanged.
 - `dive-liveness` no longer has the reference engine's temporal analyses
   (`analyze::analyze_final*`, `analyze::analyze_observed`,
   `analyze::periodic::analyze_periodic*` and the `OwnedTemporal`

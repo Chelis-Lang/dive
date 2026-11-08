@@ -471,8 +471,8 @@ pub struct Budget {
 
 impl Budget {
     /// Trips an armed budget deterministically while a test expansion is in
-    /// flight (this crate's tests and the `test-hooks` feature only).
-    #[cfg(any(test, feature = "test-hooks"))]
+    /// flight (this crate's tests only).
+    #[cfg(test)]
     #[doc(hidden)]
     pub fn trip_for_test(&self) {
         if let Some(inner) = &self.signal {
@@ -825,24 +825,6 @@ fn native_resident_bytes() -> Option<u64> {
 #[cfg(not(target_os = "macos"))]
 fn native_resident_bytes() -> Option<u64> {
     None
-}
-
-/// Whether this platform can read the process's memory, checked once per
-/// process without starting another process. A ceiling is claimed only
-/// where it is.
-#[must_use]
-pub fn memory_readable() -> bool {
-    static READABLE: OnceLock<bool> = OnceLock::new();
-    *READABLE.get_or_init(|| {
-        if cfg!(target_os = "linux") {
-            std::fs::read_to_string("/proc/self/status")
-                .is_ok_and(|text| linux_process_bytes(&text).is_some())
-        } else if cfg!(target_os = "macos") {
-            resident_bytes().is_some()
-        } else {
-            false
-        }
-    })
 }
 
 /// The machine's physical memory, where the platform reports it; read once
