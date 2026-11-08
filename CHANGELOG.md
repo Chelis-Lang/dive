@@ -367,84 +367,45 @@ published. Earlier pre-release development entries remain in git history.
 ## 0.1.0
 
 This is the curated draft for the first release, **not a published release**.
-The [release gates](docs/RELEASE.md) must pass before it is tagged.
+The [release gates](docs/RELEASE.md) must pass before it is tagged; the
+Unreleased entries above are folded into it at the release candidate.
 
 ### Added
 
 - Native TLA+ parsing and semantic analysis, supported PlusCal translation,
-  and explicit-state checking without a JVM.
-- Safety and supported temporal checking, including fairness, with clear
-  refusals for unimplemented features and explicit run-budget stops.
-- Counterexamples independently validated against their specifications.
-- Core evaluates pure bounded action composition with complete enumerable
-  intermediates and deterministic tails assigning every final variable.
-  Duplicate witnesses count as final candidates; state-dependent expressions
-  follow each intermediate source and unproved shapes keep named refusals.
-- Schema-3 JSON operation reports, pinned by fixtures for seven Core checking
-  outcomes, with one shared API version constant for validation errors.
-- Per-command help without input files, source revision information in
-  `--version`, and human checking headers naming engine and workers. The
-  unimplemented `lsp` command is omitted from help.
-- Embedded standard modules, TLAPS and CommunityModules, with local modules and
-  explicit search paths taking precedence. Analysis JSON identifies bundled
-  sources; ordinary imports need no extra library flags.
-- Linux x86_64/aarch64 archives with checksums, both command entrypoints, and
-  the bundled libraries' license and provenance notices.
+  and explicit-state model checking with no JVM.
+- One checking engine, Core, behind `dive check`, `dive simulate`, `dive dfid`
+  and the `dive tlc` shim.
+- Safety and temporal checking, including weak and strong fairness, with
+  symmetry, VIEW, CONSTRAINT and ACTION_CONSTRAINT support.
+- Counterexamples independently validated against their specifications by
+  `dive-trace`, which shares no search code with the checker.
+- Schema-3 JSON operation reports, per-command help without input files, and
+  source revision information in `--version`.
+- Embedded standard modules, TLAPS and CommunityModules, with local modules
+  and explicit search paths taking precedence; ordinary imports need no extra
+  library flags.
+- Linux x86_64 and aarch64 archives with checksums, both command entrypoints,
+  and the bundled libraries' license and provenance notices.
 
-### Changed
+### Differences from TLC
 
-- Merge already canonical Core union operands in order, preserving complete
-  identity/class checks, symbolic fallbacks and cooperative interruption.
+- The default profile uses canonical TLA+ semantics where TLC's behaviour is
+  an implementation artifact: unbounded integers, canonical CHOOSE and print
+  order, canonical exploration order, and mathematical comparisons of values
+  TLC rejects. Each difference is registered in
+  [docs/divergences.md](docs/divergences.md) and described in
+  [docs/tlc-differences.md](docs/tlc-differences.md).
+- `--compat=tlc` selects the inexpensive TLC-compatible switches; exact
+  reproduction of TLC implementation artifacts is not promised, and its known
+  gaps are listed in docs/tlc-differences.md.
 
-- Core builds finite sets canonically, removing TLC construction-history and
-  receiver-authority tracking. Default mixed structured sets have consistent
-  mathematical identity; unproved symbolic identities still refuse (D-028).
-- Generate admitted scalar function-space `CHOOSE` candidates incrementally
-  during model startup, preserving choice order, errors and resource controls
-  without retaining the complete function space.
-- Core evaluates applied LET-recursive functions with lexical captures and pure
-  recursive applications under prime. Separate callee frames preserve INSTANCE
-  substitutions; escapes, unproved captures and effectful primed functions refuse.
-- Applied recursive functions resolve enclosing pure operator callbacks, including
-  lambdas and forwarded parameters, in their lexical context. Unreachable
-  captures, effects and unproved recursive calls retain named refusals.
-- Restore top-level mutually recursive operators used by Nano's balance
-  calculations. Key recursive compilation by lexical activation and INSTANCE
-  bindings, preserving holding and violated invariants; mutually recursive
-  captured local definitions retain their named refusal.
-- Effect-safe recursive Boolean action guards avoid duplicate predicate witnesses
-  and unnecessary Boolean alternatives (D-029). Default differences are precisely
-  registered; nominal TLC retains documented count and short-circuit gaps.
-  Recursive calls and arguments stop safely at 64 activations and poll budgets.
-- Native words after empty product/record Init branches validate through actual
-  pure Init emissions. Forged first states reject; earlier errors, partial states
-  and interrupted replay cannot prove membership. Partial-Init witnesses and
-  existing trace versions keep their meanings.
-- Core temporal reads reuse fully materialized finite-set conversions within
-  the existing bounded cache. Compound membership reuses its materialized-element
-  admission proof while retaining query and interruption checks. These changes
-  establish no release speed result.
-- Sequential `ENABLED` assignments and `UNCHANGED` checks avoid repeatedly
-  copying unshared partial query states while preserving retained alternatives
-  and lazy evaluation snapshots.
-- Benchmark runs stop before a later arm after an invalid or incomplete sample,
-  retain physical process output and report actual worker use. Core selection is
-  explicit; incomplete runs cannot supply a complete-suite performance result.
+### Limits
 
-- Resolve configured constants through INSTANCE. Keep failed startup register
-  writes from becoming cached successes, including lazy field forces; preserve
-  ordinary Print/RNG startup values.
-
-### Compatibility and limits
-
-- Reference remains the default checker; `--engine core` selects Core without
-  fallback. First-release Core coverage and speed must meet the release gates.
-  Unimplemented requests refuse by name; budget stops are not success.
-- `--compat=tlc` retains inexpensive compatibility switches and documents its
-  gaps; exact reproduction of TLC implementation artifacts is not promised.
-- EWD998ChanID imports resolve, but checking may retain its specific named
-  VIEW/liveness or recursive LET refusal. The bare-use smoke requires the other
-  nine original Examples to check successfully; this gives no Core parity credit.
-- Distributed workers, debugging, recovery breadth, coverage and LSP are outside
-  the first release's acceptance scope. Existing bounded implementations do not
-  imply complete support for those modes.
+- Unimplemented requests refuse by name (verdict `unsupported`, exit 3);
+  budget stops are reported as stops, never as success.
+- Not in the first release: distributed workers, the debugger, checkpoint and
+  recovery breadth, TLC coverage and logical costs, spec I/O beyond explicit
+  grants, simulation with a temporal PROPERTY, VIEW with liveness, and LSP.
+- EWD998ChanID imports resolve, but checking gives its named VIEW/liveness
+  refusal.
