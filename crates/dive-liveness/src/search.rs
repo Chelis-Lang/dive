@@ -164,6 +164,8 @@ impl Acceptance {
 
 /// Internal truth access for owned labels and the coordinator's compact view.
 /// Inputs have already passed their representation's shape validation.
+/// `edge` is the label an [`Adjacency`] yields with the edge: its row position
+/// for stored adjacency, or the original behavior edge for an on-the-fly product.
 pub(crate) trait AcceptanceAccess {
     fn state_count(&self) -> usize;
     fn action_count(&self) -> usize;
@@ -173,7 +175,7 @@ pub(crate) trait AcceptanceAccess {
 
     fn accepts(
         &self,
-        graph: &(impl GraphAccess + ?Sized),
+        graph: &(impl Adjacency + ?Sized),
         component: &[usize],
         members: &[usize],
         stamp: usize,
@@ -186,12 +188,17 @@ pub(crate) trait AcceptanceAccess {
         }
         for condition in 0..self.action_count() {
             let mut found = false;
-            for &v in component {
-                if poll.any(graph.successors(v).iter().enumerate(), |(e, t)| {
-                    members[*t] == stamp && self.recurrent(v, e) && self.action(condition, v, e)
-                })? {
-                    found = true;
-                    break;
+            'members: for &v in component {
+                let mut edges = Edges::new(graph, v);
+                while let Some((_, t, label)) = edges.next()? {
+                    poll.step()?;
+                    if members[t] == stamp
+                        && self.recurrent(v, label)
+                        && self.action(condition, v, label)
+                    {
+                        found = true;
+                        break 'members;
+                    }
                 }
             }
             if !found {
@@ -200,6 +207,100 @@ pub(crate) trait AcceptanceAccess {
         }
         Ok(true)
     }
+}
+
+/// Out-edges in row order, possibly computed on demand. A cursor resumes a
+/// row without storing it; each edge carries its target and the label that
+/// [`AcceptanceAccess`] receives. Its position is the number of earlier edges.
+pub(crate) trait Adjacency {
+    type Cursor: Copy;
+    fn vertex_count(&self) -> usize;
+    fn roots(&self) -> &[usize];
+    fn cursor(&self, source: usize) -> Self::Cursor;
+    /// The next `(target, label)` of `source`, or `None` at the end of its row.
+    ///
+    /// # Errors
+    /// An internal inconsistency of a computed row, never an absent edge.
+    fn advance(
+        &self,
+        source: usize,
+        cursor: &mut Self::Cursor,
+    ) -> Result<Option<(usize, usize)>, SearchError>;
+}
+
+// Stored rows label each edge with its own row position.
+impl<G: GraphAccess + ?Sized> Adjacency for G {
+    type Cursor = usize;
+
+    fn vertex_count(&self) -> usize {
+        GraphAccess::vertex_count(self)
+    }
+
+    fn roots(&self) -> &[usize] {
+        GraphAccess::roots(self)
+    }
+
+    fn cursor(&self, _: usize) -> usize {
+        0
+    }
+
+    fn advance(
+        &self,
+        source: usize,
+        cursor: &mut usize,
+    ) -> Result<Option<(usize, usize)>, SearchError> {
+        let Some(&target) = self.successors(source).get(*cursor) else {
+            return Ok(None);
+        };
+        let label = *cursor;
+        *cursor += 1;
+        Ok(Some((target, label)))
+    }
+}
+
+/// One row walk yielding `(position, target, label)`.
+pub(crate) struct Edges<'g, G: Adjacency + ?Sized> {
+    graph: &'g G,
+    source: usize,
+    cursor: G::Cursor,
+    position: usize,
+}
+
+impl<'g, G: Adjacency + ?Sized> Edges<'g, G> {
+    pub(crate) fn new(graph: &'g G, source: usize) -> Self {
+        Self {
+            graph,
+            source,
+            cursor: graph.cursor(source),
+            position: 0,
+        }
+    }
+
+    pub(crate) fn next(&mut self) -> Result<Option<(usize, usize, usize)>, SearchError> {
+        let Some((target, label)) = self.graph.advance(self.source, &mut self.cursor)? else {
+            return Ok(None);
+        };
+        let position = self.position;
+        self.position += 1;
+        Ok(Some((position, target, label)))
+    }
+}
+
+/// The target and label of the edge at `position` in `source`'s row.
+pub(crate) fn edge_at(
+    graph: &(impl Adjacency + ?Sized),
+    source: usize,
+    position: usize,
+    poll: &mut Poll,
+) -> Result<(usize, usize), SearchError> {
+    let mut edges = Edges::new(graph, source);
+    while let Some((at, target, label)) = edges.next()? {
+        poll.step()?;
+        if at == position {
+            return Ok((target, label));
+        }
+    }
+    Err(SearchError::Invariant("witness edge is outside its row"))
 }
 
 impl AcceptanceAccess for Acceptance {
@@ -256,67 +357,55 @@ pub fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<Lasso>, S
 }
 
 pub(crate) fn find_lasso_view(
-    graph: &(impl GraphAccess + ?Sized),
+    graph: &(impl Adjacency + ?Sized),
     labels: &impl AcceptanceAccess,
 ) -> Result<Option<Lasso>, SearchError> {
     let mut poll = Poll::default();
     poll.step()?;
     let prefix = Paths::new(graph, graph.roots(), |_, _, _| true, &mut poll)?;
-    let mut edges = Vec::new();
-    grow(&mut edges, graph.vertex_count())?;
-    for (v, targets) in (0..graph.vertex_count()).map(|v| (v, graph.successors(v))) {
-        let mut row = Vec::new();
-        for (e, &target) in targets.iter().enumerate() {
-            poll.step()?;
-            if labels.recurrent(v, e) {
-                grow(&mut row, 1)?;
-                row.push(target);
-            }
-        }
-        edges.push(row);
-    }
     // A finite prefix may cross edges that fail EA. Such destinations must
-    // remain candidates for a recurrent component.
-    let mut roots = Vec::new();
-    for (v, distance) in prefix.distance.iter().enumerate() {
-        poll.step()?;
-        if distance.is_some() {
-            grow(&mut roots, 1)?;
-            roots.push(v);
-        }
-    }
-    let restricted = Graph { edges, roots };
+    // remain candidates for a recurrent component, so every reachable vertex
+    // is a root of the EA-restricted decomposition, in vertex order.
     let mut selected: Option<(usize, usize, Vec<usize>)> = None;
     let mut membership = initialized(graph.vertex_count(), 0, &mut poll)?;
-    for (i, component) in restricted
-        .try_components(|| poll.step(), Some(|| SearchError::Allocation))?
-        .into_iter()
-        .enumerate()
-    {
-        poll.step()?;
-        if component.len() == 1
-            && !poll.any(&restricted.edges[component[0]], |&to| to == component[0])?
-        {
-            continue;
+    let mut stamp = 0_usize;
+    restricted_components(graph, labels, &prefix, &mut poll, |component, poll| {
+        if component.len() == 1 {
+            let v = component[0];
+            let mut edges = Edges::new(graph, v);
+            let mut cyclic = false;
+            while let Some((_, to, label)) = edges.next()? {
+                poll.step()?;
+                if to == v && labels.recurrent(v, label) {
+                    cyclic = true;
+                    break;
+                }
+            }
+            if !cyclic {
+                return Ok(());
+            }
         }
-        let stamp = i + 1;
+        // Components are disjoint, so a fresh stamp never matches a stale one.
+        stamp += 1;
         for &v in &component {
             poll.step()?;
             membership[v] = stamp;
         }
-        if !labels.accepts(graph, &component, &membership, stamp, &mut poll)? {
-            continue;
+        if !labels.accepts(graph, &component, &membership, stamp, poll)? {
+            return Ok(());
         }
         let mut best = None;
         for &v in &component {
             poll.step()?;
-            let Some(d) = prefix.distance[v] else {
+            let Some(d) = prefix.distance(v) else {
                 return Err(SearchError::Invariant("component is not reachable"));
             };
             if best.is_none_or(|b| (d, v) < b) {
                 best = Some((d, v));
             }
         }
+        // `(distance, vertex)` is a strict total order over disjoint
+        // components, so the selection is independent of emission order.
         if let Some((d, v)) = best
             && selected
                 .as_ref()
@@ -324,7 +413,9 @@ pub(crate) fn find_lasso_view(
         {
             selected = Some((d, v, component));
         }
-    }
+        Ok(())
+    })?;
+    drop(membership);
     let Some((_, entry, component)) = selected else {
         if crate::budget::exhausted() {
             return Err(SearchError::Budget);
@@ -337,6 +428,7 @@ pub(crate) fn find_lasso_view(
         inside[v] = true;
     }
     let steps = prefix.path(entry, &mut poll)?;
+    drop(prefix);
     let root = steps.first().map_or(entry, |s| s.from);
     let cycle = covering_cycle(graph, labels, &inside, entry, &mut poll)?;
     // Catch a trip during the final bounded unit before returning a witness.
@@ -351,20 +443,99 @@ pub(crate) fn find_lasso_view(
     }))
 }
 
+const NONE: usize = usize::MAX;
+
+// Iterative Tarjan decomposition of the EA-restricted graph (recurrent edges
+// only), rooted at every prefix-reachable vertex in vertex order. Restricted
+// edges are filtered while walking the rows; no restricted copy is stored.
+// Each component is passed on with its members in vertex order.
+fn restricted_components<G: Adjacency + ?Sized>(
+    graph: &G,
+    labels: &impl AcceptanceAccess,
+    prefix: &Paths,
+    poll: &mut Poll,
+    mut visit: impl FnMut(Vec<usize>, &mut Poll) -> Result<(), SearchError>,
+) -> Result<(), SearchError> {
+    let n = graph.vertex_count();
+    let mut index = initialized(n, NONE, poll)?;
+    let mut low = initialized(n, 0, poll)?;
+    let mut active = initialized(n, false, poll)?;
+    let mut stack = Vec::new();
+    let mut dfs: Vec<(usize, G::Cursor)> = Vec::new();
+    let mut next_index = 0;
+    for root in 0..n {
+        poll.step()?;
+        if prefix.distance(root).is_none() || index[root] != NONE {
+            continue;
+        }
+        index[root] = next_index;
+        low[root] = next_index;
+        next_index += 1;
+        active[root] = true;
+        grow(&mut stack, 1)?;
+        grow(&mut dfs, 1)?;
+        stack.push(root);
+        dfs.push((root, graph.cursor(root)));
+        while let Some((v, cursor)) = dfs.last_mut() {
+            poll.step()?;
+            let v = *v;
+            if let Some((target, label)) = graph.advance(v, cursor)? {
+                if !labels.recurrent(v, label) {
+                    continue;
+                }
+                if index[target] == NONE {
+                    index[target] = next_index;
+                    low[target] = next_index;
+                    next_index += 1;
+                    active[target] = true;
+                    grow(&mut stack, 1)?;
+                    grow(&mut dfs, 1)?;
+                    stack.push(target);
+                    dfs.push((target, graph.cursor(target)));
+                } else if active[target] {
+                    low[v] = low[v].min(index[target]);
+                }
+                continue;
+            }
+            dfs.pop();
+            if index[v] == low[v] {
+                let mut component = Vec::new();
+                while let Some(member) = stack.pop() {
+                    poll.step()?;
+                    active[member] = false;
+                    grow(&mut component, 1)?;
+                    component.push(member);
+                    if member == v {
+                        break;
+                    }
+                }
+                component.sort_unstable();
+                visit(component, poll)?;
+            }
+            if let Some(&(parent, _)) = dfs.last() {
+                low[parent] = low[parent].min(low[v]);
+            }
+        }
+    }
+    poll.step()
+}
+
+// Breadth-first distances and canonical parents. `NONE` marks an unreached
+// vertex; a parent is its `(source, row position)`.
 struct Paths {
-    distance: Vec<Option<usize>>,
-    parent: Vec<Option<Step>>,
+    distance: Vec<usize>,
+    parent: Vec<(usize, usize)>,
 }
 
 impl Paths {
-    fn new(
-        graph: &(impl GraphAccess + ?Sized),
+    fn new<G: Adjacency + ?Sized>(
+        graph: &G,
         roots: &[usize],
         mut keep: impl FnMut(usize, usize, usize) -> bool,
         poll: &mut Poll,
     ) -> Result<Self, SearchError> {
-        let mut distance = initialized(graph.vertex_count(), None, poll)?;
-        let mut parent = initialized(graph.vertex_count(), None, poll)?;
+        let mut distance = initialized(graph.vertex_count(), NONE, poll)?;
+        let mut parent = initialized(graph.vertex_count(), (NONE, NONE), poll)?;
         let mut frontier = Vec::new();
         grow(&mut frontier, roots.len())?;
         frontier.extend_from_slice(roots);
@@ -372,17 +543,18 @@ impl Paths {
         frontier.dedup();
         for &v in &frontier {
             poll.step()?;
-            distance[v] = Some(0);
+            distance[v] = 0;
         }
         let mut depth = 0;
         while !frontier.is_empty() {
             let mut next = Vec::new();
             for v in frontier {
-                for (edge, &to) in graph.successors(v).iter().enumerate() {
+                let mut edges = Edges::new(graph, v);
+                while let Some((edge, to, label)) = edges.next()? {
                     poll.step()?;
-                    if keep(v, edge, to) && distance[to].is_none() {
-                        distance[to] = Some(depth + 1);
-                        parent[to] = Some(Step { from: v, edge, to });
+                    if keep(v, label, to) && distance[to] == NONE {
+                        distance[to] = depth + 1;
+                        parent[to] = (v, edge);
                         grow(&mut next, 1)?;
                         next.push(to);
                     }
@@ -395,17 +567,25 @@ impl Paths {
         Ok(Self { distance, parent })
     }
 
+    fn distance(&self, v: usize) -> Option<usize> {
+        Some(self.distance[v]).filter(|d| *d != NONE)
+    }
+
     fn path(&self, target: usize, poll: &mut Poll) -> Result<Vec<Step>, SearchError> {
-        if self.distance[target].is_none() {
+        if self.distance[target] == NONE {
             return Err(SearchError::Invariant("witness target is unreachable"));
         }
         let mut path = Vec::new();
         let mut v = target;
-        while let Some(step) = self.parent[v] {
+        while self.distance[v] != 0 {
+            let (from, edge) = self.parent[v];
+            if from == NONE {
+                return Err(SearchError::Invariant("witness parent is missing"));
+            }
             poll.step()?;
             grow(&mut path, 1)?;
-            path.push(step);
-            v = step.from;
+            path.push(Step { from, edge, to: v });
+            v = from;
         }
         path.reverse();
         Ok(path)
@@ -433,15 +613,17 @@ impl Outstanding {
 
     fn traverse(
         &mut self,
+        graph: &(impl Adjacency + ?Sized),
         labels: &impl AcceptanceAccess,
         steps: &[Step],
         poll: &mut Poll,
     ) -> Result<(), SearchError> {
         for s in steps {
             self.visit(labels, s.to, poll)?;
+            let (_, label) = edge_at(graph, s.from, s.edge, poll)?;
             for (condition, missing) in self.actions.iter_mut().enumerate() {
                 poll.step()?;
-                *missing &= !labels.action(condition, s.from, s.edge);
+                *missing &= !labels.action(condition, s.from, label);
             }
         }
         Ok(())
@@ -457,7 +639,7 @@ impl Outstanding {
     reason = "explicit deterministic covering-walk construction"
 )]
 fn covering_cycle(
-    graph: &(impl GraphAccess + ?Sized),
+    graph: &(impl Adjacency + ?Sized),
     labels: &impl AcceptanceAccess,
     inside: &[bool],
     entry: usize,
@@ -465,15 +647,16 @@ fn covering_cycle(
 ) -> Result<Vec<Step>, SearchError> {
     // A self-loop that discharges everything is the canonical first choice.
     // The caller decides whether it projects to physical stuttering.
-    for (edge, &to) in graph.successors(entry).iter().enumerate() {
+    let mut edges = Edges::new(graph, entry);
+    while let Some((edge, to, label)) = edges.next()? {
         poll.step()?;
         if to == entry
-            && labels.recurrent(entry, edge)
+            && labels.recurrent(entry, label)
             && !poll.any(0..labels.state_count(), |condition| {
                 !labels.state(condition, entry)
             })?
             && !poll.any(0..labels.action_count(), |condition| {
-                !labels.action(condition, entry, edge)
+                !labels.action(condition, entry, label)
             })?
         {
             return Ok(vec![Step {
@@ -490,32 +673,33 @@ fn covering_cycle(
     missing.visit(labels, entry, poll)?;
     let mut current = entry;
     let mut cycle = Vec::new();
-    let keep = |v: usize, edge: usize, to: usize| inside[to] && labels.recurrent(v, edge);
+    let keep = |v: usize, label: usize, to: usize| inside[to] && labels.recurrent(v, label);
     while !missing.done() {
         let paths = Paths::new(graph, &[current], keep, poll)?;
         // (distance to discharge, source/node id, optional edge position).
         let mut best = None;
-        for (v, distance) in paths.distance.iter().enumerate() {
+        for v in 0..graph.vertex_count() {
             poll.step()?;
-            let Some(distance) = distance else {
+            let Some(distance) = paths.distance(v) else {
                 continue;
             };
             if poll.any(missing.states.iter().enumerate(), |(condition, m)| {
                 *m && labels.state(condition, v)
             })? {
-                let candidate = (*distance, v, None);
+                let candidate = (distance, v, None);
                 if best.is_none_or(|b| candidate < b) {
                     best = Some(candidate);
                 }
             }
-            for (edge, &to) in graph.successors(v).iter().enumerate() {
+            let mut edges = Edges::new(graph, v);
+            while let Some((edge, to, label)) = edges.next()? {
                 poll.step()?;
-                if keep(v, edge, to)
+                if keep(v, label, to)
                     && poll.any(missing.actions.iter().enumerate(), |(condition, m)| {
-                        *m && labels.action(condition, v, edge)
+                        *m && labels.action(condition, v, label)
                     })?
                 {
-                    let candidate = (*distance + 1, v, Some(edge));
+                    let candidate = (distance + 1, v, Some(edge));
                     if best.is_none_or(|b| candidate < b) {
                         best = Some(candidate);
                     }
@@ -529,15 +713,12 @@ fn covering_cycle(
         };
         let mut steps = paths.path(v, poll)?;
         if let Some(edge) = edge {
+            let (to, _) = edge_at(graph, v, edge, poll)?;
             grow(&mut steps, 1)?;
-            steps.push(Step {
-                from: v,
-                edge,
-                to: graph.successors(v)[edge],
-            });
+            steps.push(Step { from: v, edge, to });
         }
         current = steps.last().map_or(v, |s| s.to);
-        missing.traverse(labels, &steps, poll)?;
+        missing.traverse(graph, labels, &steps, poll)?;
         grow(&mut cycle, steps.len())?;
         cycle.extend(steps);
     }
@@ -550,25 +731,28 @@ fn covering_cycle(
             edges: initialized(graph.vertex_count(), Vec::new(), poll)?,
             roots: vec![entry],
         };
-        for (v, targets) in (0..graph.vertex_count()).map(|v| (v, graph.successors(v))) {
+        for (v, &within) in inside.iter().enumerate() {
             poll.step()?;
-            if !inside[v] {
+            if !within {
                 continue;
             }
-            for (edge, &to) in targets.iter().enumerate() {
+            let mut edges = Edges::new(graph, v);
+            while let Some((_, to, label)) = edges.next()? {
                 poll.step()?;
-                if keep(v, edge, to) {
+                if keep(v, label, to) {
                     grow(&mut reverse.edges[to], 1)?;
                     reverse.edges[to].push(v);
                 }
             }
         }
         let back = Paths::new(&reverse, &[entry], |_, _, _| true, poll)?;
+        drop(reverse);
         let mut best = None;
-        for (edge, &to) in graph.successors(entry).iter().enumerate() {
+        let mut edges = Edges::new(graph, entry);
+        while let Some((edge, to, label)) = edges.next()? {
             poll.step()?;
-            if keep(entry, edge, to)
-                && let Some(distance) = back.distance[to]
+            if keep(entry, label, to)
+                && let Some(distance) = back.distance(to)
             {
                 let candidate = (distance, edge, to);
                 if best.is_none_or(|old| candidate < old) {

@@ -739,7 +739,7 @@ fn actual_budget_stops_acceptance_materialization_without_a_count_ceiling() {
     let input = Ordered {
         pairs: &pairs,
         order: &order,
-        graph: &retained,
+        graph: Some(&retained),
         edge_count: 1,
         scratch_len: 0,
     };

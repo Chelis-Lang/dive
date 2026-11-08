@@ -152,11 +152,10 @@ fn label_path(
         .map_err(|error| format!("{error:?}"))?;
         let mut words = vec![];
         for group in &prepared.groups {
-            let product = CompactProduct::with_policy_and_edges(
+            let product = ImplicitProduct::new(
                 shape,
                 &group.tableau,
                 &truth,
-                &[],
                 limits.product,
                 AcceptancePolicy::Legacy,
                 edges,

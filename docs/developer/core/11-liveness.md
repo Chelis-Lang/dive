@@ -720,16 +720,27 @@ borrowed from checked `CsrCapture`, without constructing nested adjacency or a
 `BehaviorGraph`. The standalone product API still accepts caller-supplied
 labels; it grants neither producer completion nor model-validation authority.
 
-Reachable-product construction now looks up exact `(behavior vertex, tableau
-node)` pairs in a private hash table. Bucket order never selects a witness:
-after discovery, the table is released and a fallible, budget-polled merge
-orders retained discovery IDs in the existing Cartesian order. Its scratch
-becomes the existing renumber vector. Roots, duplicate edges, original edge
-positions, acceptance conditions and explicit product limits keep their
-existing semantics. Index growth uses checked logical entry sizes and fallible
-reservation; opaque hash bucket/allocator overhead is not a whole-process
-memory metric. This optimization alone does not establish original ABA
-completion or capacity acceptance.
+The analysis product is not stored (ADR 0018 §3, issue #909). The private
+`product::ImplicitProduct` discovers the reachable `(behavior vertex, tableau
+node)` pairs once, applying the vertex, edge, inspection and acceptance guards
+of the materialized builder, then keeps only each vertex's behavior state and
+tableau node in Cartesian order, plus one offset per behavior vertex. Every
+search walk recomputes a vertex's row from the behavior graph, the tableau and
+the labels: behavior edges in row order, then tableau successors in
+construction order, which is the order the materialized builder stored. Edge
+labels passed to acceptance are original behavior edges. The lasso search
+filters EA-failing edges while walking instead of copying a restricted graph,
+streams Tarjan components instead of collecting them, and keeps
+breadth-first parents as `(source, position)` pairs. Discovery uses a dense
+pair bitset while the tableau has at most 512 nodes and an exact hash set
+beyond that. The materialized `CompactProduct` remains as the test reference:
+controls compare dimensions, roots, named limits and every alternative's
+witness with it.
+
+On `bcastFolklore` (N = 4), `ReliableChan`'s 33-node tableau gives 8,828,594
+product vertices and 2,583,460,887 product edges over 501,552 states. Storing
+them took over 24 GB. On the fly the whole check peaks at about 1.1 GB RSS,
+roughly 120 bytes per product vertex and nothing per product edge.
 
 ### 7.2 Implemented state-value access prerequisite
 

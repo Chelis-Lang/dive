@@ -143,6 +143,7 @@ pub(super) fn poll() -> Result<(), ProductError> {
 
 /// Root/pair discovery can precede row expansion. `vertices` counts admitted
 /// pairs; offsets are appended only after each cursor's expansion completes.
+#[cfg(test)]
 #[derive(Default)]
 pub(super) struct FlatRows {
     vertices: usize,
@@ -151,6 +152,7 @@ pub(super) struct FlatRows {
     original_edges: Vec<usize>,
 }
 
+#[cfg(test)]
 pub(super) struct CsrGraph {
     ranges: Vec<std::ops::Range<usize>>,
     targets: Vec<usize>,
@@ -158,6 +160,7 @@ pub(super) struct CsrGraph {
     roots: Vec<usize>,
 }
 
+#[cfg(test)]
 impl CsrGraph {
     fn dimensions(
         offsets: &[usize],
@@ -274,6 +277,7 @@ impl CsrGraph {
     }
 }
 
+#[cfg(test)]
 impl GraphAccess for CsrGraph {
     fn vertex_count(&self) -> usize {
         self.ranges.len()
@@ -286,12 +290,14 @@ impl GraphAccess for CsrGraph {
     }
 }
 
+#[cfg(test)]
 impl ProductRows for CsrGraph {
     fn original_edges(&self, source: usize) -> &[usize] {
         &self.original_edges[self.range(source)]
     }
 }
 
+#[cfg(test)]
 impl RowStorage for FlatRows {
     type Graph = CsrGraph;
 
