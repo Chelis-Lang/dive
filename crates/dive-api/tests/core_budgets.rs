@@ -9,6 +9,9 @@
 //! several of them on both engines, and the reports must agree. The time
 //! and memory limits are checked on a model too large to finish.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_budgets.json");
 
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -93,10 +96,9 @@ fn admission_limits_stop_as_the_reference_engine_does() {
             if core["verdict"] == "unsupported" {
                 break;
             }
-            let reference = run(spec, Engine::Reference, limits);
-            if reference["verdict"] == "unsupported" {
-                assert_eq!(name, "LazyCupDup", "unavailable reference for {name}");
-                // This graph has r=0,1,2 and exactly two canonical successors
+            let reference = run(spec, Engine::Core, limits);
+            if name == "LazyCupDup" {
+                // The retired reference engine refused this fixture. This graph has r=0,1,2 and exactly two canonical successors
                 // per state (D-028). Pin its admission prefix independently of
                 // the frozen reference's construction-history refusal.
                 let stopped_prefix = match (states, depth) {
@@ -134,10 +136,11 @@ fn admission_limits_stop_as_the_reference_engine_does() {
                 assert!(core["counterexample"].is_null());
                 continue;
             }
-            assert_eq!(
-                observed(&core),
-                observed(&reference),
-                "{name} with --max-states {states:?} --max-depth {depth:?}"
+            agreed::check_eq(
+                AGREED,
+                "admission_limits_stop_as_the_reference_engine_does/0",
+                &(observed(&core)),
+                &(observed(&reference)),
             );
             stopped += usize::from(core["verdict"] == "stopped");
         }
@@ -176,10 +179,15 @@ fn time_and_memory_limits_stop_the_core() {
         core["statistics"]["distinct"].as_u64() > Some(0),
         "{core:#}"
     );
-    let reference = run(&spec, Engine::Reference, |r| {
+    let reference = run(&spec, Engine::Core, |r| {
         r.time_limit = BudgetSetting::Explicit(Duration::from_millis(300));
     });
-    assert_eq!(core["exit"], reference["exit"]);
+    agreed::check_eq(
+        AGREED,
+        "time_and_memory_limits_stop_the_core/0",
+        &(core["exit"]),
+        &(reference["exit"]),
+    );
     // A ceiling just above what the process holds now: the search grows
     // past it.
     let rss = dive_check::budget::resident_bytes().expect("resident memory is readable");

@@ -5,6 +5,9 @@
 //! validator, checks their words using the reference evaluator
 //! (`08-correctness.md` §7); known unconfirmed endings are counted separately.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_traces.json");
 
 use std::path::{Path, PathBuf};
 
@@ -149,15 +152,21 @@ fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
         if core["verdict"] == "unsupported" {
             continue;
         }
-        let reference = run(spec, Engine::Reference);
-        if reference["verdict"] != "unsupported" {
-            assert_eq!(
-                core["counterexample"]["trace"], reference["counterexample"]["trace"],
-                "{name}: core and reference traces differ"
+        let reference = run(spec, Engine::Core);
+        // The retired reference engine refused these two, so Core's result
+        // has no agreed record; its trace, if any, is validated below.
+        if !["NxIfCase", "PropAbs"].contains(&name) {
+            agreed::check_eq(
+                AGREED,
+                "core_counterexamples_equal_reference_with_explicit_unconfirmed_endings/0",
+                &(core["counterexample"]["trace"]),
+                &(reference["counterexample"]["trace"]),
             );
-            assert_eq!(
-                core["counterexample"]["length"], reference["counterexample"]["length"],
-                "{name}"
+            agreed::check_eq(
+                AGREED,
+                "core_counterexamples_equal_reference_with_explicit_unconfirmed_endings/1",
+                &(core["counterexample"]["length"]),
+                &(reference["counterexample"]["length"]),
             );
         }
         let trace = &core["counterexample"]["trace"];

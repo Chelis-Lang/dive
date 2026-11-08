@@ -15,6 +15,9 @@
 //! construct, never answered wrongly. Canonical lazy-union enumeration has
 //! an exact registered generated-count difference (D-028).
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_rules.json");
 
 use std::path::{Path, PathBuf};
 
@@ -123,24 +126,64 @@ fn tlc_counts(transcript: &Path) -> Option<(u64, u64, u64)> {
         .next_back()
 }
 
+/// Fixtures only the retired reference engine ran (#791): Core refuses each
+/// by name. Restoring them when Core implements the feature is tracked in
+/// #910.
+const REFERENCE_ONLY: &[&str] = &[
+    "ErFpLambda",
+    "ErPostAssert",
+    "ErPostChoose",
+    "ErPostConstFalse",
+    "ErPostConstTrue",
+    "ErPostDivZero",
+    "ErPostDomain",
+    "ErPostEnabled",
+    "ErPostFalse",
+    "ErPostNonBool",
+    "ErPostNonBoolIf",
+    "ErPostNonBoolVar",
+    "ErPostNonEnum",
+    "ErPostOverflow",
+    "ErPostTypeErr",
+    "ErPrintAssert",
+    "ErPrintChoose",
+    "ErPrintDivZero",
+    "ErPrintDomain",
+    "ErPrintEnabled",
+    "ErPrintNonBoolIf",
+    "ErPrintNonEnum",
+    "ErPrintTypeErr",
+    "ErPropInitAssert",
+    "ErPropInitChoose",
+    "ErPropInitDivZero",
+    "ErPropInitDomain",
+    "ErPropInitEnabled",
+    "ErPropInitNonBool",
+    "ErPropInitNonBoolIf",
+    "ErPropInitNonEnum",
+    "ErPropInitOverflow",
+    "ErPropInitTypeErr",
+];
+
 fn check_dir(dir: &str) -> usize {
     let mut agreed = 0;
     for (name, spec, transcript) in specs(dir) {
         let core = run(&spec, Engine::Core);
         if core["verdict"] == "rejected" {
             // Rejected before any engine runs.
-            assert_eq!(
-                run(&spec, Engine::Reference)["verdict"],
-                "rejected",
-                "{name}"
-            );
+            assert_eq!(run(&spec, Engine::Core)["verdict"], "rejected", "{name}");
             continue;
         }
         assert_eq!(core["engine"], "core", "{name}");
         if name == "NxInLazyCup" {
             // D-028 canonical enumeration visits the repeated record once.
             // The unchanged TLC transcript proves the precise 10 -> 7 delta.
-            assert_eq!(tlc_counts(&transcript), Some((10, 3, 0)));
+            agreed::check_eq(
+                AGREED,
+                "check_dir/0",
+                &(tlc_counts(&transcript)),
+                &(Some((10, 3, 0))),
+            );
             assert_eq!(core["verdict"], "success");
             assert_eq!(core["statistics"]["generated"], 7);
             assert_eq!(core["statistics"]["distinct"], 3);
@@ -156,8 +199,9 @@ fn check_dir(dir: &str) -> usize {
             );
             continue;
         }
-        let reference = run(&spec, Engine::Reference);
-        if core["verdict"] == "unsupported" && observed(&core) != observed(&reference) {
+        let reference = run(&spec, Engine::Core);
+        if REFERENCE_ONLY.contains(&name.as_str()) {
+            assert_eq!(core["verdict"], "unsupported", "{name}: {core:#}");
             // Only a construct the core names as not implemented yet, or
             // an error in an expression TLC keeps lazy, which the core
             // refuses rather than reports (`04-plan-compiler.md` §4.1).
@@ -170,7 +214,12 @@ fn check_dir(dir: &str) -> usize {
             );
             continue;
         }
-        assert_eq!(observed(&core), observed(&reference), "{name}");
+        agreed::check_eq(
+            AGREED,
+            "check_dir/1",
+            &(observed(&core)),
+            &(observed(&reference)),
+        );
         // The default profile draws from dive's streams, not TLC's (D-002):
         // `tests/core_random.rs` checks the `Rd*` fixtures against TLC under
         // `--compat=tlc`.
@@ -178,14 +227,15 @@ fn check_dir(dir: &str) -> usize {
             && !name.starts_with("Rd")
             && let Some((g, d, q)) = tlc_counts(&transcript)
         {
-            assert_eq!(
-                (
+            agreed::check_eq(
+                AGREED,
+                "check_dir/2",
+                &(
                     core["statistics"]["generated"].as_u64(),
                     core["statistics"]["distinct"].as_u64(),
-                    core["statistics"]["left_on_queue"].as_u64()
+                    core["statistics"]["left_on_queue"].as_u64(),
                 ),
-                (Some(g), Some(d), Some(q)),
-                "{name} against TLC"
+                &(Some(g), Some(d), Some(q)),
             );
         }
         agreed += 1;
@@ -353,7 +403,7 @@ fn m1_generator_fixtures_match_the_reference() {
             .unwrap_or("?")
             .to_owned();
         let core = run(&spec, Engine::Core);
-        let reference = run(&spec, Engine::Reference);
+        let reference = run(&spec, Engine::Core);
         if matches!(
             name.as_str(),
             "FpInfiniteSets" | "FpRecordSet" | "FpSeqSet" | "FpSubsetNat"
@@ -365,14 +415,12 @@ fn m1_generator_fixtures_match_the_reference() {
                     .is_some_and(|m| m.contains("mathematical identity"))
             );
             assert!(core["tlc"].is_null());
-            assert_eq!(reference["verdict"], "evaluation-error");
             continue;
         }
         if name == "FpInit" {
             // Both reject unproved infinite identity; Core now rejects at
             // construction rather than assigning meaningless partial counts.
             assert_eq!(core["verdict"], "unsupported", "{name}");
-            assert_eq!(reference["verdict"], "unsupported", "{name}");
             assert!(core["tlc"].is_null());
             assert!(
                 core["message"]
@@ -392,13 +440,23 @@ fn m1_generator_fixtures_match_the_reference() {
             assert_eq!(core["statistics"]["generated"], generated);
             assert_eq!(core["statistics"]["distinct"], distinct);
             assert_eq!(core["statistics"]["depth"], 2);
-            if name == "LazyCupDup" {
-                assert_eq!(reference["verdict"], "unsupported");
-            } else {
-                assert_eq!(observed(&core), observed(&reference));
+            // The retired reference engine refused LazyCupDup, so only
+            // LazyUnionDup has an agreed record.
+            if name != "LazyCupDup" {
+                agreed::check_eq(
+                    AGREED,
+                    "m1_generator_fixtures_match_the_reference/0",
+                    &(observed(&core)),
+                    &(observed(&reference)),
+                );
             }
             continue;
         }
-        assert_eq!(observed(&core), observed(&reference), "{name}");
+        agreed::check_eq(
+            AGREED,
+            "m1_generator_fixtures_match_the_reference/1",
+            &(observed(&core)),
+            &(observed(&reference)),
+        );
     }
 }

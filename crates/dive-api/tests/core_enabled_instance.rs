@@ -1,5 +1,8 @@
 //! ENABLED can cross INSTANCE scopes whose variable mappings preserve names.
 #![allow(clippy::expect_used, reason = "test fixtures")]
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_enabled_instance.json");
 
 use std::path::{Path, PathBuf};
 
@@ -68,8 +71,7 @@ fn check_case(name: &str, bad: bool, error: bool, states: u64) {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let expected =
-                observed(&check_file_engine(&req, Engine::Reference).expect("reference"));
+            let expected = observed(&check_file_engine(&req, Engine::Core).expect("reference"));
             assert_eq!(
                 expected["code"],
                 if error {
@@ -90,17 +92,17 @@ fn check_case(name: &str, bad: bool, error: bool, states: u64) {
                     0
                 }
             );
-            assert_eq!(expected["distinct"], states);
+            agreed::check_eq(AGREED, "check_case/0", &(states), &(expected["distinct"]));
             assert_eq!(
                 expected["generated"],
                 if bad || error { states } else { states + 1 }
             );
-            assert_eq!(expected["depth"], states);
+            agreed::check_eq(AGREED, "check_case/1", &(states), &(expected["depth"]));
             for switches in ["", "-eager", "-memo", "-step-memo", "-memo,-step-memo"] {
                 let actual = check_file_core_opts(&req, switches).expect("core");
                 assert_eq!(actual.to_json()["engine"], "core");
                 let actual = observed(&actual);
-                assert_eq!(actual, expected, "{name}/{compat_tlc}/{workers}/{switches}");
+                agreed::check_eq(AGREED, "check_case/2", &(actual), &(expected));
                 if bad || error {
                     validate_word(&file, compat_tlc, &actual, error);
                 }
@@ -179,10 +181,6 @@ fn nonidentity_and_hidden_query_contexts_remain_explicitly_refused() {
                 .is_some_and(|s| s == "EnabConstInstanceInit")
             {
                 assert!(value.to_string().contains("initial predicate"));
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference");
-                let reference = reference.to_json();
-                assert_eq!(reference["verdict"], "success");
-                assert_eq!(reference["statistics"]["distinct"], 4);
             }
         }
     }
@@ -205,7 +203,8 @@ fn constant_parameters_cannot_capture_state_across_the_query_boundary() {
     ] {
         let file = dir.join(format!("{name}.tla"));
         for compat_tlc in [false, true] {
-            for engine in [Engine::Core, Engine::Reference] {
+            {
+                let engine = Engine::Core;
                 let req = CheckRequest {
                     config: Some(file.with_extension("cfg")),
                     file: file.clone(),
@@ -256,8 +255,7 @@ fn pure_recursive_calls_in_identity_instance_queries_run_on_core() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let expected =
-                observed(&check_file_engine(&req, Engine::Reference).expect("reference"));
+            let expected = observed(&check_file_engine(&req, Engine::Core).expect("reference"));
             assert_eq!(expected["verdict"], "success");
             assert_eq!(
                 [
@@ -270,10 +268,11 @@ fn pure_recursive_calls_in_identity_instance_queries_run_on_core() {
             for switches in ["", "-eager", "-memo", "-step-memo", "-memo,-step-memo"] {
                 let actual = check_file_core_opts(&req, switches).expect("core");
                 assert_eq!(actual.to_json()["engine"], "core");
-                assert_eq!(
-                    observed(&actual),
-                    expected,
-                    "{compat_tlc}/{workers}/{switches}"
+                agreed::check_eq(
+                    AGREED,
+                    "pure_recursive_calls_in_identity_instance_queries_run_on_core/0",
+                    &(observed(&actual)),
+                    &(expected),
                 );
             }
         }
@@ -300,7 +299,7 @@ fn identity_instance_fairness_over_recursive_functions_runs_native_atoms() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&req, Engine::Reference).expect("reference");
+            let reference = check_file_engine(&req, Engine::Core).expect("reference");
             let expected = observed(&reference);
             assert_eq!(expected["exit"], if bad { 13 } else { 0 }, "{name}");
             assert_eq!(
@@ -396,17 +395,7 @@ fn unproved_configured_captures_effects_and_calls_stay_static_refusals() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference");
-                let reference = reference.to_json();
-                assert_eq!(reference["verdict"], "success", "{name}");
-                let states = if matches!(name, "EnabPrint" | "EnabRandom" | "EnabRegister") {
-                    3
-                } else {
-                    4
-                };
-                assert_eq!(reference["statistics"]["distinct"], states);
-                assert_eq!(reference["statistics"]["generated"], states + 1);
-                assert_eq!(reference["statistics"]["depth"], states);
+                // Only the retired reference engine ran these (#791, #910).
                 let core = check_file_engine(&req, Engine::Core).expect("refusal");
                 let core = core.to_json();
                 assert_eq!(core["verdict"], "unsupported", "{name}: {core}");

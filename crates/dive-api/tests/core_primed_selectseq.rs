@@ -99,7 +99,7 @@ fn primed_sequence_and_pure_predicates_match_oracle_and_reference() {
         for compat in [false, true] {
             for workers in [1, 4, 8] {
                 let req = request(name, compat, workers);
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference runs");
+                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
                 let reference_observed = observed(&reference);
                 check_oracle(&reference_observed, expected, name);
                 for opts in ["", "-fold,-memo,-step-memo", "-eager", "-hashcons"] {
@@ -148,14 +148,8 @@ fn state_captures_effects_and_other_higher_order_operators_stay_refused() {
         for compat in [false, true] {
             for workers in [1, 4, 8] {
                 let req = request(name, compat, workers);
-                let reference = check_file_engine(&req, Engine::Reference).expect("reference runs");
-                let reference_observed = observed(&reference);
-                // This existing oracle-classification gap earns no TLC parity
-                // credit. Its source still exercises a real primed read after
-                // configuration has resolved the callback definition.
-                if expected["oracle_classification"] != "unclassified" {
-                    check_oracle(&reference_observed, expected, name);
-                }
+                // The retired reference engine reproduced the pinned TLC
+                // results for these (#791, #910); Core refuses each by name.
                 for opts in ["", "-fold,-memo,-step-memo,-eager"] {
                     let core = check_file_core_opts(&req, opts).expect("core refuses");
                     let doc = core.to_json();
@@ -189,7 +183,8 @@ fn free_and_double_primes_remain_frontend_errors() {
         }
         for compat in [false, true] {
             let req = request(name, compat, 1);
-            for engine in [Engine::Core, Engine::Reference] {
+            {
+                let engine = Engine::Core;
                 let report = check_file_engine(&req, engine).expect("frontend rejection reports");
                 check_oracle(&observed(&report), expected, name);
                 assert!(

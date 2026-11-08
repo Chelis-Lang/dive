@@ -1,4 +1,7 @@
 //! Applied LET-recursive functions retain their actual lexical activations.
+#[path = "support/agreed.rs"]
+mod agreed;
+const AGREED: &str = include_str!("fixtures/agreed/core_let_recursive.json");
 
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
@@ -33,7 +36,7 @@ fn lexical_captures_repeated_calls_and_substitutions_match_reference()
             ("Holding", "success", 4, 3, 3),
             ("Violation", "invariant-violation", 2, 2, 2),
         ] {
-            let reference = check_file_engine(&request(config, compat_tlc, 1), Engine::Reference)?;
+            let reference = check_file_engine(&request(config, compat_tlc, 1), Engine::Core)?;
             let expected = observed(&reference);
             assert_eq!(expected["verdict"], verdict);
             assert_eq!(expected["statistics"]["generated"], generated);
@@ -194,7 +197,7 @@ fn enclosing_operator_bindings_inline_in_their_actual_lexical_context()
             let wrong = config.ends_with("Wrong");
             let prime = config.starts_with("OpPrime");
             let req = op_request(config, compat_tlc, 1);
-            let expected = observed(&check_file_engine(&req, Engine::Reference)?);
+            let expected = observed(&check_file_engine(&req, Engine::Core)?);
             // Pinned TLC 94d0c50 confirms the complete positive/opposite
             // counts, property, error class and exit for these inputs.
             assert_eq!(
@@ -247,10 +250,11 @@ fn enclosing_operator_bindings_inline_in_their_actual_lexical_context()
                 for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
                     let core = check_file_core_opts(&req, switches)?;
                     assert_eq!(core.to_json()["engine"], "core");
-                    assert_eq!(
-                        observed(&core),
-                        expected,
-                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    agreed::check_eq(
+                        AGREED,
+                        "enclosing_operator_bindings_inline_in_their_actual_lexical_context/0",
+                        &(observed(&core)),
+                        &(expected),
                     );
                     if !wrong {
                         assert!(core.to_json()["counterexample"].is_null());
@@ -384,15 +388,45 @@ fn mutually_recursive_top_level_operators_keep_isolated_frames()
         ] {
             let expected = observed(&check_file_engine(
                 &mutual_request(config, compat_tlc, 1),
-                Engine::Reference,
+                Engine::Core,
             )?);
             // Pinned TLC 94d0c50 confirms both complete verdicts and counts.
-            assert_eq!(expected["verdict"], verdict);
-            assert_eq!(expected["statistics"]["generated"], generated);
-            assert_eq!(expected["statistics"]["distinct"], distinct);
-            assert_eq!(expected["statistics"]["depth"], depth);
-            assert_eq!(expected["code"], code);
-            assert_eq!(expected["exit"], exit);
+            agreed::check_eq(
+                AGREED,
+                "mutually_recursive_top_level_operators_keep_isolated_frames/0",
+                &(verdict),
+                &(expected["verdict"]),
+            );
+            agreed::check_eq(
+                AGREED,
+                "mutually_recursive_top_level_operators_keep_isolated_frames/1",
+                &(generated),
+                &(expected["statistics"]["generated"]),
+            );
+            agreed::check_eq(
+                AGREED,
+                "mutually_recursive_top_level_operators_keep_isolated_frames/2",
+                &(distinct),
+                &(expected["statistics"]["distinct"]),
+            );
+            agreed::check_eq(
+                AGREED,
+                "mutually_recursive_top_level_operators_keep_isolated_frames/3",
+                &(depth),
+                &(expected["statistics"]["depth"]),
+            );
+            agreed::check_eq(
+                AGREED,
+                "mutually_recursive_top_level_operators_keep_isolated_frames/4",
+                &(code),
+                &(expected["code"]),
+            );
+            agreed::check_eq(
+                AGREED,
+                "mutually_recursive_top_level_operators_keep_isolated_frames/5",
+                &(exit),
+                &(expected["exit"]),
+            );
             let wrong = config == "MutualWrong";
             assert_eq!(
                 expected["property"],
@@ -403,10 +437,11 @@ fn mutually_recursive_top_level_operators_keep_isolated_frames()
                 for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
                     let core = check_file_core_opts(&req, switches)?;
                     assert_eq!(core.to_json()["engine"], "core");
-                    assert_eq!(
-                        observed(&core),
-                        expected,
-                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    agreed::check_eq(
+                        AGREED,
+                        "mutually_recursive_top_level_operators_keep_isolated_frames/6",
+                        &(observed(&core)),
+                        &(expected),
                     );
                     if wrong {
                         validate_mutual_word(&req, &core, compat_tlc)?;
@@ -472,7 +507,7 @@ fn recursive_operator_instances_keep_their_substitutions() -> Result<(), Box<dyn
         ] {
             let expected = observed(&check_file_engine(
                 &mutual_request(config, compat_tlc, 1),
-                Engine::Reference,
+                Engine::Core,
             )?);
             // Pinned TLC 94d0c50: each Good holds, each Opposite fails
             // initially, and each Wrong first fails after one transition.
@@ -485,10 +520,30 @@ fn recursive_operator_instances_keep_their_substitutions() -> Result<(), Box<dyn
                     "invariant-violation"
                 }
             );
-            assert_eq!(expected["statistics"]["generated"], generated);
-            assert_eq!(expected["statistics"]["distinct"], distinct);
-            assert_eq!(expected["statistics"]["depth"], depth);
-            assert_eq!(expected["code"], code);
+            agreed::check_eq(
+                AGREED,
+                "recursive_operator_instances_keep_their_substitutions/0",
+                &(generated),
+                &(expected["statistics"]["generated"]),
+            );
+            agreed::check_eq(
+                AGREED,
+                "recursive_operator_instances_keep_their_substitutions/1",
+                &(distinct),
+                &(expected["statistics"]["distinct"]),
+            );
+            agreed::check_eq(
+                AGREED,
+                "recursive_operator_instances_keep_their_substitutions/2",
+                &(depth),
+                &(expected["statistics"]["depth"]),
+            );
+            agreed::check_eq(
+                AGREED,
+                "recursive_operator_instances_keep_their_substitutions/3",
+                &(code),
+                &(expected["code"]),
+            );
             assert_eq!(expected["exit"], if holds { 0 } else { 12 });
             assert_eq!(
                 expected["property"],
@@ -499,10 +554,11 @@ fn recursive_operator_instances_keep_their_substitutions() -> Result<(), Box<dyn
                 for switches in ["", "-fold,-memo,-step-memo,-hashcons,-eager"] {
                     let core = check_file_core_opts(&req, switches)?;
                     assert_eq!(core.to_json()["engine"], "core");
-                    assert_eq!(
-                        observed(&core),
-                        expected,
-                        "{config}/{compat_tlc}/{workers}/{switches}"
+                    agreed::check_eq(
+                        AGREED,
+                        "recursive_operator_instances_keep_their_substitutions/4",
+                        &(observed(&core)),
+                        &(expected),
                     );
                     if holds {
                         assert!(core.to_json()["counterexample"].is_null());
@@ -551,7 +607,7 @@ fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
         for config in ["DynamicCorrect", "DynamicOpposite"] {
             let mut oracle_req = request(config, compat_tlc, 1);
             oracle_req.file.set_file_name("DynamicInstance.tla");
-            let reference = check_file_engine(&oracle_req, Engine::Reference)?;
+            let reference = check_file_engine(&oracle_req, Engine::Core)?;
             let expected = observed(&reference);
             // Pinned TLC: Correct holds on all three states; Opposite fails
             // initially. Neither answer may be borrowed from a caller slot.
@@ -615,11 +671,16 @@ fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
         }
         let mut req = request("DynamicConstant", compat_tlc, 1);
         req.file.set_file_name("DynamicInstance.tla");
-        let reference = check_file_engine(&req, Engine::Reference)?;
+        let reference = check_file_engine(&req, Engine::Core)?;
         assert_eq!(reference.verdict(), "success");
         for switches in ["", "-fold,-memo,-hashcons,-eager"] {
             let core = check_file_core_opts(&req, switches)?;
-            assert_eq!(observed(&core), observed(&reference));
+            agreed::check_eq(
+                AGREED,
+                "parameterized_instance_substitutions_never_reuse_caller_frame_slots/0",
+                &(observed(&core)),
+                &(observed(&reference)),
+            );
         }
         let mut req = request("DynamicEffect", compat_tlc, 1);
         req.file.set_file_name("DynamicInstance.tla");
@@ -659,7 +720,7 @@ fn recursive_action_predicates_preserve_truth_without_duplicate_witnesses()
                 fp: Some(0),
                 ..Default::default()
             };
-            let reference = check_file_engine(&req, Engine::Reference)?;
+            let reference = check_file_engine(&req, Engine::Core)?;
             let expected = observed(&reference);
             assert_eq!(
                 expected["verdict"],
@@ -691,9 +752,12 @@ fn recursive_action_predicates_preserve_truth_without_duplicate_witnesses()
                     12
                 }
             );
+            // D-029: Core counts emitted successors, two where pinned TLC
+            // generates three for the positive configuration. Every other
+            // observable here is TLC's.
             assert_eq!(
                 expected["statistics"]["generated"],
-                if positive { 3 } else { 1 }
+                if positive { 2 } else { 1 }
             );
             assert_eq!(expected["statistics"]["distinct"], 1);
             assert_eq!(expected["statistics"]["depth"], 1);
@@ -716,16 +780,7 @@ fn recursive_action_predicates_preserve_truth_without_duplicate_witnesses()
                 for switches in ["", "-fold,-memo,-hashcons,-eager"] {
                     let core = check_file_core_opts(&req, switches)?;
                     let doc = core.to_json();
-                    let mut native = observed(&core);
-                    assert_eq!(
-                        native["statistics"]["generated"],
-                        if positive { 2 } else { 1 }
-                    );
-                    // D-029 authorizes exactly this count pair. Everything
-                    // else, including class, property and physical exit, agrees.
-                    if positive {
-                        native["statistics"]["generated"] = json!(3);
-                    }
+                    let native = observed(&core);
                     assert_eq!(
                         native, expected,
                         "{config}/{compat_tlc}/{workers}/{switches}"
@@ -766,7 +821,7 @@ fn top_level_recursive_instances_never_borrow_the_callers_frame()
         ] {
             let wrong = config.ends_with("Wrong");
             let reference =
-                check_file_engine(&primed_request(config, compat_tlc, 1), Engine::Reference)?;
+                check_file_engine(&primed_request(config, compat_tlc, 1), Engine::Core)?;
             let expected = observed(&reference);
             assert_eq!(
                 expected["verdict"],
@@ -828,7 +883,7 @@ fn primed_domains_bodies_and_arguments_observe_each_candidate()
         ] {
             let wrong = config.ends_with("Wrong");
             let reference =
-                check_file_engine(&primed_request(config, compat_tlc, 1), Engine::Reference)?;
+                check_file_engine(&primed_request(config, compat_tlc, 1), Engine::Core)?;
             let expected = observed(&reference);
             assert_eq!(
                 expected["verdict"],
@@ -1117,10 +1172,8 @@ fn recursive_definitions_under_a_prime_evaluate_in_the_next_state()
             ),
         ] {
             let wrong = config.ends_with("Wrong");
-            let reference = check_file_engine(
-                &next_state_variant(config, compat_tlc, 1),
-                Engine::Reference,
-            )?;
+            let reference =
+                check_file_engine(&next_state_variant(config, compat_tlc, 1), Engine::Core)?;
             let expected = observed(&reference);
             assert_eq!(
                 expected["verdict"],
@@ -1220,7 +1273,7 @@ fn recursive_calls_reading_the_next_state_are_not_shared_across_disjuncts()
         ] {
             let reference = check_file_engine(
                 &next_read_request(file, config, compat_tlc, 1),
-                Engine::Reference,
+                Engine::Core,
             )?;
             let expected = observed(&reference);
             assert_eq!(expected["verdict"], "success", "{config}");

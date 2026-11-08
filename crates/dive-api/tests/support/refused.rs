@@ -28,6 +28,25 @@ pub const FINITE_HOST_ACCESS: &str = "native finite mode TLCGet/TLCSet host acce
 /// conjunct, which TLC evaluates again in each.
 pub const EFFECT_REUSED_IN_CONJUNCTS: &str =
     "with an effect (Print, PrintT, RandomElement) used in more than one conjunct";
+/// Bounded final temporal checking (`--lncheck final --lasso short`).
+pub const FINAL_SHORT: &str =
+    "bounded final checking (--lncheck final --lasso short) is not implemented on Core";
+/// `--max-states` or `--max-depth` with temporal properties.
+pub const TEMPORAL_CAP: &str = "--max-states or --max-depth with temporal properties";
+/// Exact or spilled seen storage with temporal properties.
+pub const TEMPORAL_EXACT_STORE: &str =
+    "exact or spilled native temporal storage under the core engine";
+/// TLC action composition (`--action-composition=tlc`, TLC's `cdot`).
+pub const ACTION_COMPOSITION: &str = "--action-composition=tlc under the core engine";
+/// A configured `POSTCONDITION`.
+pub const POSTCONDITION: &str = "POSTCONDITION (M0 core engine)";
+/// A temporal validation failure (an error while checking temporal
+/// properties at start-up) whose report Core does not build.
+pub const TEMPORAL_VALIDATION_FAILURE_REPORT: &str =
+    "a temporal validation failure (core): its report is not implemented";
+/// A temporal failure whose report Core does not build.
+pub const TEMPORAL_FAILURE_REPORT: &str =
+    "a temporal failure (core): its report is not implemented";
 /// An evaluation error whose TLC context Core does not reproduce.
 pub const UNREPRODUCED_ERROR: &str =
     "an evaluation error the reference evaluator does not reproduce";
