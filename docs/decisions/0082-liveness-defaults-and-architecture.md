@@ -85,7 +85,10 @@ total-run work/byte budget or speedup claim.
   classifier (`dive_liveness::tlc_plan::classify`, errors 2213 and 2214, for
   `--compat=tlc`) and TLC's size-based growth trigger
   (`dive_liveness::periodic_backend::Growth`). Deterministic periodic checks use
-  `dive_liveness::analyze::periodic::Schedule` instead.
+  `dive_liveness::analyze::periodic::Schedule` instead. Amended 2026-11-08:
+  Core never used the growth trigger, so `periodic_backend` was deleted with the
+  reference checker's remaining hooks (issue #791, ADR 0155); only the classifier
+  remains.
   `plan.rs` keeps one lowering entry point, `lower`, for final/short checking
   and the classifier. It follows TLC's conversion rules for `IF`, `~ENABLED`,
   numeric operands and evaluation errors; unsupported scopes and effects remain

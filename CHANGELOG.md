@@ -29,8 +29,9 @@ published. Earlier pre-release development entries remain in git history.
   `capture::CheckpointObserver` reached-checkpoint hooks and their
   `CheckpointPhase`, `ReachedCheckpoint`, `CheckpointDecision` and
   `CheckpointExploration` types; `ControlledExploration::from_successful_search`
-  and `set_elapsed`; `Collector::with_concrete_pool`; `admission::uses_random`
-  (use `uses_random_after_startup`); `budget::memory_readable`;
+  and `set_elapsed`; `Collector::with_concrete_pool` and
+  `Collector::concrete_pool`; `admission::uses_random` (use
+  `uses_random_after_startup`); `budget::memory_readable`;
   `context_verdict`; `class::general_text`; `SeenUsage::creation_failure`;
   the `test-hooks` feature; and `dive_liveness::periodic_backend`, TLC's
   growth trigger, which Core never used (it checks on
