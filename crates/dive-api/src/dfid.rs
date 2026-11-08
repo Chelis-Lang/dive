@@ -100,8 +100,8 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
     dfid_file_engine(req, crate::Engine::default())
 }
 
-/// Runs DFID with an explicit execution engine and common independent witnesses.
-/// `Core` (the default) never falls back; a reached native refusal stops.
+/// Runs DFID on the given engine, Core (the only engine), with common
+/// independent witnesses. A reached refusal stops; there is no fallback.
 /// `Reference` runs the reference DFID backend.
 ///
 /// # Errors
@@ -227,7 +227,8 @@ pub fn dfid_file_engine(
     options.worker_seeds.clone_from(&req.worker_seeds);
     let mut native = None;
     let mut setup_failure = None;
-    if engine != crate::Engine::Reference {
+    let crate::Engine::Core = engine;
+    {
         if let Some(outcome) = dive_check::dfid::preflight(model.model(), &options) {
             setup_failure = Some(outcome);
         } else {
@@ -264,7 +265,9 @@ pub fn dfid_file_engine(
                 } else if let Some(native) = &mut native {
                     native.dfid(model.model(), &options)
                 } else {
-                    dive_check::dfid::check(model.model(), &options)
+                    crate::core_modes::dfid::empty(Outcome::Internal(
+                        "Core DFID was neither prepared nor refused".to_owned(),
+                    ))
                 }
             })
             .map_err(|e| (0u8, format!("cannot start DFID worker: {e}")))?

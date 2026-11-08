@@ -4,9 +4,9 @@
 mod distributed;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{
-    CheckRequest, DfidRequest, Engine, RewriteRequest, SimulateRequest, TranslationRequest,
-    check_file_checkpoint_engine, check_file_engine, checkpoint, dfid_file_engine,
-    simulate_file_engine, translate_source, write_translation_file,
+    ApiError, CheckRequest, DfidRequest, Engine, RewriteRequest, SimulateRequest,
+    TranslationRequest, check_file_checkpoint_engine, check_file_engine, checkpoint,
+    dfid_file_engine, simulate_file_engine, translate_source, write_translation_file,
 };
 use serde_json::{Value, json};
 use std::{
@@ -75,7 +75,7 @@ fn checking_reports_real_success_and_independently_validated_violations() -> Res
         FINITE.replace("Inv == x<=2", "Inv == x<=2\nBad == x<2"),
     )?;
     for compat in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        for engine in [Engine::Core] {
             let report = check_file_engine(&safe.request(compat), engine)?;
             assert_eq!(report.verdict(), "success", "{}", report.to_json());
             assert_eq!(report.exit_code(), 0);
@@ -118,7 +118,7 @@ fn seeded_generation_is_reproducible_and_samples_remain_non_exhaustive() -> Resu
         CONFIG,
     )?;
     for compat in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        for engine in [Engine::Core] {
             let request = SimulateRequest {
                 file: project.file.clone(),
                 compat_tlc: compat,
@@ -160,7 +160,7 @@ fn dfid_completion_requires_evidence_even_when_the_compatibility_exit_is_zero() 
         "INIT Init\nNEXT Next\n",
     )?;
     for compat in [false, true] {
-        for engine in [Engine::Reference, Engine::Core] {
+        for engine in [Engine::Core] {
             let request = DfidRequest {
                 file: finite.file.clone(),
                 compat_tlc: compat,
@@ -192,26 +192,19 @@ fn dfid_completion_requires_evidence_even_when_the_compatibility_exit_is_zero() 
 }
 
 #[test]
-fn tlc_logical_coverage_is_available_to_an_independent_rust_consumer() -> Result {
+fn tlc_logical_coverage_is_a_named_refusal_for_an_independent_rust_consumer() -> Result {
     let source = "---- MODULE Costs ----\nEXTENDS Naturals\nVARIABLE x,y\nH(n)==n+1\nInit==/\\ x=0 /\\ y=0\nA==/\\ x<2 /\\ x'=H(x) /\\ y'=H(y)\nB==/\\ x=2 /\\ x'=x /\\ y'=y\nNext==A \\/ B\n====\n";
     let project = Project::new("Costs", source, "INIT Init\nNEXT Next\n")?;
     for compat in [false, true] {
         let mut request = project.request(compat);
         request.tlc_coverage = true;
-        let report = check_file_engine(&request, Engine::Reference)?;
-        assert_eq!(report.verdict(), "success");
-        let costs = report.tlc_coverage().ok_or("logical coverage missing")?;
-        assert!(!costs.active);
-        assert!(costs.unsupported.is_none());
-        assert_eq!(costs.actions.len(), 3);
-        assert_eq!(costs.actions[1].generated, 2);
-        assert!(
-            costs.actions[1]
-                .rows
-                .iter()
-                .any(|row| row.location.module == "Costs" && row.invocations > 0)
-        );
-        assert!(report.source_coverage().is_none());
+        // TLC logical coverage ran only on the removed reference engine.
+        match check_file_engine(&request, Engine::Core) {
+            Err(ApiError::Unsupported { feature }) => {
+                assert!(feature.contains("TLC logical coverage"), "{feature}")
+            }
+            other => return Err(format!("expected a named refusal, got {other:?}").into()),
+        }
     }
     Ok(())
 }
@@ -237,7 +230,7 @@ fn implementation_traces_accept_real_steps_and_reject_skipped_states() -> Result
 #[test]
 fn native_checkpoint_recovery_resumes_a_saved_frontier_with_truthful_counts() -> Result {
     let project = Project::new("Finite", FINITE, CONFIG)?;
-    for (index, engine) in [Engine::Reference, Engine::Core].into_iter().enumerate() {
+    for (index, engine) in [Engine::Core].into_iter().enumerate() {
         let request = project.request(false);
         let full = check_file_engine(&request, engine)?.to_json();
         let pause = checkpoint::Request {
