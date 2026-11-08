@@ -1630,7 +1630,7 @@ mod tests {
                     max_memory: BudgetSetting::Unlimited,
                     ..CheckRequest::default()
                 },
-                dive_api::Engine::Reference,
+                dive_api::Engine::Core,
             )?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             let status = i32::from(report.exit_code_for(ExitConvention::Tlc));
@@ -1718,7 +1718,7 @@ mod tests {
                         temporal,
                         ..CheckRequest::default()
                     },
-                    dive_api::Engine::Reference,
+                    dive_api::Engine::Core,
                 )?;
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(value["verdict"], "stopped");
@@ -2079,7 +2079,7 @@ mod symmetry_policy_transport_tests {
                 max_memory: dive_api::BudgetSetting::Unlimited,
                 ..Default::default()
             },
-            dive_api::Engine::Reference,
+            dive_api::Engine::Core,
         )
         .expect("real finite writer")
         .to_json_with_exit_convention(dive_api::ExitConvention::Tlc)

@@ -13,6 +13,26 @@ use dive_conformance::util::TempDir;
 use serde_json::{Value, json};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
+
+/// A temporal report the retired reference engine produced (#791) for a run
+/// Core now refuses by name; it remains real producer output for the mapping
+/// checks. `core` is Core's report of the same run, which must be a refusal
+/// that publishes no word.
+fn recorded_after_core_refusal(
+    core: &Value,
+    key: &str,
+) -> Result<Value, Box<dyn std::error::Error>> {
+    assert_eq!(core["verdict"], "unsupported", "{core}");
+    assert_eq!(core["exit_code"], 3, "{core}");
+    assert!(core["counterexample"].is_null() && core["property"].is_null());
+    let recorded: Value = serde_json::from_str(include_str!(
+        "fixtures/retired-reference/ordinary-temporal-refusals.json"
+    ))?;
+    Ok(recorded
+        .get(key)
+        .ok_or_else(|| format!("no recorded report for {key}"))?
+        .clone())
+}
 struct Spec {
     file: PathBuf,
     _directory: TempDir,
@@ -44,7 +64,7 @@ impl Spec {
             ..CheckRequest::default()
         };
         Ok(
-            dive_api::check_file_engine(&request, dive_api::Engine::Reference)?
+            dive_api::check_file_engine(&request, dive_api::Engine::Core)?
                 .to_json_with_exit_convention(ExitConvention::Tlc),
         )
     }
@@ -237,7 +257,7 @@ fn actual_pure_state_property_dispatch_has_no_unused_temporal_policy() -> TestRe
             workers: Some(1),
             ..CheckRequest::default()
         };
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?
+        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?
             .to_json_with_exit_convention(ExitConvention::Tlc);
         assert_eq!(report["schema_version"], 3);
         assert_eq!(report["check_kind"], "safety");
@@ -304,7 +324,7 @@ fn actual_error_transport_keeps_null_counts_and_cannot_claim_success() -> TestRe
     let spec = Spec::new()?;
     let source = std::fs::read_to_string(&spec.file)?.replace("P == <>(x=3)", "P == <>1");
     std::fs::write(&spec.file, source)?;
-    let report = spec.report()?;
+    let report = recorded_after_core_refusal(&spec.report()?, "final-planning-true")?;
     assert!(report["statistics"].is_null());
     let CheckMapping::Result(result) = mapped(&report, Some(255), true) else {
         return Err("classified planning evaluation error".into());
@@ -396,7 +416,7 @@ fn ordinary_route_matches_read_historical_pinned_final_controls() -> TestResult 
                 workers: Some(workers),
                 ..CheckRequest::default()
             };
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Reference)?;
+            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             let CheckMapping::Result(result) = mapped(
                 &value,
