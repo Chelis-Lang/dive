@@ -54,7 +54,6 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-stdlib",
             "dive-config",
             "dive-model",
-            "dive-store",
             "dive-runtime",
         ],
     ),
