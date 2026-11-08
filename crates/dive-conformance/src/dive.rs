@@ -100,22 +100,24 @@ pub enum DiveEngine {
     /// what it does not implement.
     #[default]
     Core,
-    /// The reference checker, an explicit opt-in.
-    Reference,
 }
 
 impl DiveEngine {
-    /// Parses `core` or `reference`.
+    /// Parses `core`, the only engine.
     ///
     /// # Errors
-    /// A usage error naming the accepted engines (`auto` was removed with
-    /// the Reference fallback).
+    /// A usage error: `reference` was retired with the reference engine
+    /// (#791), and `auto` with the Reference fallback.
     pub fn parse(s: &str) -> Result<Self> {
         match s {
-            "reference" => Ok(Self::Reference),
             "core" => Ok(Self::Core),
+            "reference" => Err(Error::Usage(
+                "dive engine `reference` was retired with the reference engine (#791); \
+                 Core is the only dive engine"
+                    .to_owned(),
+            )),
             _ => Err(Error::Usage(format!(
-                "unknown dive engine `{s}`: expected core or reference"
+                "unknown dive engine `{s}`: expected core"
             ))),
         }
     }
@@ -135,7 +137,6 @@ impl DiveEngine {
     #[must_use]
     pub const fn name(self) -> &'static str {
         match self {
-            Self::Reference => "reference",
             Self::Core => "core",
         }
     }
@@ -187,8 +188,6 @@ pub struct DiveImplementation {
     pub engine: DiveEngine,
     /// The profile (`--impl-profile`, or `DIVE_COMPAT=tlc`).
     pub profile: Profile,
-    /// `--core-sample N` for a core run (the shadow comparison).
-    pub core_sample: Option<usize>,
     bin: PathBuf,
     module_path: Vec<ClasspathEntry>,
     provenance: Option<DiveProvenance>,
@@ -278,7 +277,6 @@ impl DiveImplementation {
             options: Vec::new(),
             engine: DiveEngine::default(),
             profile: Profile::default(),
-            core_sample: None,
             bin: executable,
             module_path,
             provenance: Some(provenance),
@@ -316,10 +314,6 @@ impl DiveImplementation {
         } else {
             ("none".to_owned(), "none".to_owned())
         };
-        let sample = self
-            .core_sample
-            .filter(|_| self.engine != DiveEngine::Reference)
-            .map(|n| n.to_string());
         // TLC's goldens run with `-fp 0 -seed 0` (`oracle::run_tlc`).
         let mut extra: Vec<&std::ffi::OsStr> = vec![
             "--config".as_ref(),
@@ -354,9 +348,6 @@ impl DiveImplementation {
         }
         // Always explicit: the binary's default engine is not assumed.
         extra.extend::<[&std::ffi::OsStr; 2]>(["--engine".as_ref(), self.engine.name().as_ref()]);
-        if let Some(n) = &sample {
-            extra.extend::<[&std::ffi::OsStr; 2]>(["--core-sample".as_ref(), n.as_ref()]);
-        }
         if final_short {
             extra.extend::<[&std::ffi::OsStr; 4]>([
                 "--lncheck".as_ref(),

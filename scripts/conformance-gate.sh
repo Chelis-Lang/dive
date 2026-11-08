@@ -4,7 +4,7 @@
 #
 #   scripts/conformance-gate.sh conformance/gates/cm1.txt [--workers 1,4,8] [extra run args...]
 # Set DIVE_GATE_CORPUS for another registered corpus (default: examples),
-# DIVE_GATE_IMPL for another dive engine (default: dive:core, e.g. dive:reference) and
+# DIVE_GATE_IMPL for another implementation (default: dive:core) and
 # DIVE_GATE_PROFILE for the dive profile (`tlc` by default, or `dive`). A
 # registered `expected-divergence` outcome (an approved `dive` divergence or a
 # registered `tlc` compat gap) also passes.

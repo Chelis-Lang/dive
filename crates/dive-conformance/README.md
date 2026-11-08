@@ -190,23 +190,10 @@ golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--n
 run --impl tlc|tlc:<oracle-id>|dive|dive:<engine>|adapter:<file.toml>
     [--corpus ID]... [--golden-oracle ID] [--workers 1,4] [--crosscheck-manifest] [--tier T] [--filter GLOB]...
     [--sany-phase full|parse] [--dive-bin PATH] [--impl-profile P] [--impl-option N[=V]]...
-shadow [--corpus ID]... [--tier T] [--filter GLOB]... [--workers 1,4] [--dive-bin PATH] [--report-dir DIR] [--strict] [--sample N] [--impl-profile dive|tlc]
 ```
 
-`shadow` compares dive's new core with its reference engine, in the default profile (or both under `--compat=tlc` with `--impl-profile tlc`), on every selected model the core accepts. No golden is involved. Both must give the same verdict, error class and code, exit and violated property, plus the same counts and depth at one worker or for a complete search. The core's counterexamples must validate with `dive-trace`. Different liveness name lists require fresh independent validation of both words and exact reported-to-word attribution on both sides (ADR 0126); proof-free shadow comparison remains strict. Each core run also samples `--sample N` expanded states (default 32, 0 for none) and compares their successors, action by action, with the reference evaluator's (`dive check --core-sample`). A difference, a refuted trace, an unconfirmed trace or a successor difference is a finding (exit 1). A required counterexample that is absent, unreadable or refused by the validator is `trace-unconfirmed`, even without `--strict`; it never earns agreement. With `--strict`, an engine refusal or a timeout is a finding too. See `docs/developer/core/08-correctness.md` §4. Since Core became the default engine it is a by-hand census tool; no gate runs it.
-
-An `unclassified` or `oracle-error` result from either engine is a `differ`
-finding, even when both reports match. Its detail names the engine and retains
-the classification reason. Classified evaluation errors can agree normally;
-time and memory stops remain `timeout` outcomes.
-
-For the repository's complete configuration-fixture census, use
-`python3 scripts/fixture-shadow-census.py --out /tmp/dive-fixture-shadow --profile both`
-from the repository root after building the release harness and CLI. It stages
-inputs in that fresh external directory, records all exclusions and ambiguous
-module pairings, and runs this same shadow command with seed/fingerprint 0,
-explicit budgets and raw process capture. See the fixture-census subsection of
-`docs/developer/core/08-correctness.md` for options and accounting boundaries.
+The `shadow` command, which compared Core with the reference engine, was
+retired with the reference engine (#791): golden agreement is the evidence.
 
 `run` takes several `--corpus`, into one report and one summary (default: `examples`).
 
@@ -409,7 +396,7 @@ pub trait Implementation: Sync {
 **Profiles, options and expected divergences (ADR 0010).**
 - **Options.** `--impl-option NAME[=VALUE]` runs `dive` or an adapter under an option, and is recorded in the report. An option the implementation does not declare result-preserving (`result_preserving_options`) turns every would-be `agree` into `divergence-mode`.
 - **Profiles.** `dive` also has a profile, set with `--impl-profile dive|tlc|tlc+overrides=<features>`, or `DIVE_COMPAT=tlc`. Every report records it, plus `strict_tier`, which is true only for pure `tlc`.
-- **Engines.** `dive` also has an engine (ADR 0117): `--impl dive:core|reference`. Plain `--impl dive` takes `DIVE_ENGINE`, or else Core, the default engine (ADR 0153). The harness removes `DIVE_ENGINE` from the child's environment and always passes `--engine`. The report records the request in `settings.impl_engine`. Each run row records the engine that ran (`engine`). Reports from before the cutover may also carry an `auto` run's refusal (`engine_fallback`), which the harness still reads; `summary.by_engine` counts models by `core`, `reference`, `static-fallback`, `dynamic-fallback` and `none` (the run named no engine: refused, or ended before the search). Reference baselines can compare other engines by observable results; a Core-only baseline requires Core. A baseline records a non-reference engine (`engine`), and a run against a baseline of another engine says so in its first line.
+- **Engines.** `dive` also has an engine (ADR 0117): `--impl dive:core`. `dive:reference` was retired with the reference engine (#791) and is a usage error. Plain `--impl dive` takes `DIVE_ENGINE`, or else Core (ADR 0153). The harness removes `DIVE_ENGINE` from the child's environment and always passes `--engine`. The report records the request in `settings.impl_engine`. Each run row records the engine that ran (`engine`). Reports from before the cutover may also carry an `auto` run's refusal (`engine_fallback`), which the harness still reads; `summary.by_engine` counts models by `core`, `reference`, `static-fallback`, `dynamic-fallback` and `none` (the run named no engine: refused, or ended before the search). Reference baselines can compare other engines by observable results; a Core-only baseline requires Core. A baseline records a non-reference engine (`engine`), and a run against a baseline of another engine says so in its first line.
 - **Core-only baselines.** A baseline recorded with `engine: core` requires an explicit Core run and rejects fallback, other checking runtimes and unconfirmed counterexamples. Named refusals and frontend parse/semantic/configuration errors can precede runtime startup. Existing agreeing fixture identities and registered-divergence results must remain covered; gaining another model cannot compensate for losing one. The scheduled/manual small-tier CI job and `cargo xtask gate --full` use `small-core-dive-w1.json` and `small-core-tlc-w1.json`. Required PR CI runs the Core smoke and Core golden gates; it does not repeat the whole small tier.
 - **Expected divergences.** Under the `dive` profile, a disagreement listed in `conformance/expected-divergences.toml` is reported as `expected-divergence`. It is never `agree`. The registry never applies under `tlc` or `tlc+overrides`.
   - An entry names the model or module glob, dive's verdict, the `fields` that may differ, and optional exact `exit_code_pair` or `generated_count_pair` values. Field globs cannot cover exits or a generated count that already has an exact pair. Every declared exit pair must appear exactly in the diffs. A generated pair requires that difference at one worker; when native multi-worker policy omits generated counts, the worker-aware matcher instead requires the exact pair in the complete observed results. Every other differing field must be listed, so counts never hide a different verdict or property. Trace validation can never be excused.

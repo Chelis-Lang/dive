@@ -43,7 +43,6 @@ pub mod process;
 pub mod r2;
 pub mod report;
 pub mod sany;
-pub mod shadow;
 pub mod tlc;
 pub mod trace_check;
 pub mod upstream;

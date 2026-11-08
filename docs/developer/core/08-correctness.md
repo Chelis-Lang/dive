@@ -1,8 +1,9 @@
 # Correctness net
 
-Status: implemented shadow harness, sampled successor checks and repeatable
-fixture census. Acceptance is still open; the current findings and source-bound
-qualification are in `m1-status.md`.
+Status: golden comparison and independent trace validation gate Core. The
+shadow comparison against the reference engine was retired with that engine
+(#791). The current findings and source-bound qualification are in
+`m1-status.md`.
 
 A rewrite of the core is safe only if every behaviour is checked mechanically
 against independent references. This repository already has those references.
@@ -14,16 +15,14 @@ This document says how the new core uses them.
 |---|---|---|
 | Pinned TLC goldens | Observable contract (ADR 0086) | `conformance/golden/`, compared by `crates/dive-conformance/src/compare.rs` |
 | Conformance baselines | No regression per tier | `conformance/baselines/` (small and full tiers, both profiles) |
-| Reference engine | Every observable, plus intermediate results on any specification, including those with no golden | Frozen `dive-eval`, `dive-model`, `dive-check` |
 | Independent validator | Every counterexample is a real behaviour | `dive-trace`, running on the reference evaluator |
 | Fixture suites | Fine-grained TLC semantics (laziness, order, errors) | `crates/dive-eval/tests/fixtures/`, the `crates/dive-check/tests/` probes and errors |
 
 ## 2. Engine selection
 
-- `dive check --engine=core|reference`, or `DIVE_ENGINE`. Core is the
-  default of `dive check`, `dive simulate`, `dive dfid` and `dive tlc`
-  (ADR 0153). The same choice is available through
-  `dive_api::check_file_engine`; `dive_api::check_file` runs Core.
+- Core is the only engine of `dive check`, `dive simulate`, `dive dfid` and
+  `dive tlc` (ADR 0153). `--engine core` is accepted; `--engine reference`
+  and `--engine auto` are usage errors. `dive_api::check_file` runs Core.
 - **JSON report.** A check that ran on Core names it (`engine: core`).
   Simulation and DFID reports keep `engine_requested` and a `null`
   `engine_fallback` in schema 3.
@@ -37,160 +36,22 @@ This document says how the new core uses them.
   feature, so tests and benchmarks cannot be satisfied by the reference
   engine. The former `--engine=auto`, which reran a refused check on the
   reference engine, was removed with the cutover; `--engine auto` is a usage
-  error. What Auto selected the reference engine for before the search is a
-  named Core refusal: source and TLC coverage, external inputs (`--allow-io`)
-  and Reference checkpoint archives, which recover only with
-  `--engine reference`. Disk seen sets, checkpoint pause and finite-mode
+  error. What only the reference engine implemented is a named Core refusal:
+  source and TLC coverage, granted external inputs (`--allow-io`), bounded
+  final checking and reference-engine checkpoint archives. Disk seen sets, checkpoint pause and finite-mode
   random/register effects run on Core or refuse there by name.
 - **Implementation.** `crates/dive-api/src/check.rs` (the dispatch).
   `crates/dive-api/tests/core_default.rs` runs every core fixture on the
   default engine: each run must equal the explicit Core result, and every
   refusal must be named.
 
-## 4. Shadow comparison
+## 4. Shadow comparison (retired)
 
-**Built (M1, `core/engine-shadow`).** `dive-conformance shadow` runs both
-engines on a corpus selection in the default profile and compares them.
-It needs no golden, so any corpus model can be shadowed
-(`crates/dive-conformance/src/shadow.rs`).
-
-For every selected model and worker count (default 1 and 4):
-
-- `dive check --engine core` runs first. A model the core refuses
-  (`unsupported`, with the feature named) is counted as `refused` and not
-  run on the reference engine.
-- Otherwise `dive check --engine reference` runs the same model, and the
-  two must agree on the verdict, error class and code, exit code and
-  violated property. The distinct and generated counts and the depth must
-  agree too, at one worker or when the search is complete. At a stop with
-  several workers, which state ends the search depends on scheduling, so
-  the counts are not compared there.
-  Liveness name lists may differ only when both actual words independently
-  validate with complete attribution and their reported names match those words
-  exactly (ADR 0126). The proof-free field comparison stays strict.
-- The core's counterexample, if any, must validate with `dive-trace`
-  against the reference result's ending, as the harness validates dive's
-  counterexamples against a golden.
-- Successor sampling (`core/engine-sample`). The core run gets
-  `--core-sample N` (`shadow --sample N`, default 32; 0 turns it off). The
-  explorer keeps a uniform reservoir sample of `N` expanded states, seeded
-  by the run's seed, so it picks the same states at any worker count
-  (`dive-explore/src/sample.rs`). Each sample also retains the expanded
-  source's actual TLC level (initial states are level 1), supplied to both
-  regenerated evaluators for `TLCGet("level")`. The reference host's previous
-  level, including its absence, is restored afterward; its other capabilities
-  and the reservoir's selection algorithm are unchanged. `LevelChain` pins
-  the varying-level convention against normal TLC execution, while direct
-  regeneration controls reject a shared wrong constant level (#600).
-  After the search, `dive-api`
-  (`core_sample.rs`) regenerates each sampled state's successors on the
-  core, action by action, and compares them with the reference evaluator's
-  `next_states` on the same state. They are compared as multisets of
-  canonical state keys (`dive_store::state::state_key`, with a marker for
-  an unassigned variable), so multiplicities must agree too. When both
-  raise an error, that agrees: classifying it is the ending's job. The
-  frozen Reference engine can refuse a route Core now supports. A typed
-  Reference refusal is reported as an unavailable, skipped comparison, with its
-  reason; it contributes no comparison or agreement credit. Supported Reference
-  results still require the same successor multiset. The
-  report's `core.sample` gives the counts and the first eight differences.
-  A difference makes the row `successors-differ`. Sampling changes no
-  result.
-
-Statuses are `agree`, `refused`, `differ`, `trace-refuted`,
-`trace-unconfirmed`, `successors-differ` and `timeout`. `differ`,
-`trace-refuted`, `trace-unconfirmed` and `successors-differ` are findings: the command exits 1 and prints
-one line per finding. With `--strict`, `refused` and `timeout` are findings
-too, for a fixed list of models the core is expected to run. The JSON
-report (`schema: 1`) is written only with `--report-dir`. The summary,
-printed as JSON, counts each status.
-
-An unclassified or internally contradictory report from either engine is a
-`differ` finding, naming the engine and preserving its reason. Matching unusable
-reports cannot establish agreement. Classified evaluation errors still compare
-normally, and time or memory stops retain their separate `timeout` status.
-
-An absent mandatory counterexample, a missing/unreadable word, or a named
-validator refusal is `trace-unconfirmed`, never agreement, even if both engines
-report identical observables. Safety/action/liveness violations and deadlocks
-require a word; an error ending also requires one when the reference reports a
-counterexample. An existing observable or successor difference keeps its status
-and additionally records the validation detail. This closes issue #590; earlier
-shadow measurements were not rerun by this change.
-
-How to run it:
-
-```sh
-cargo build --release -p dive-cli -p dive-conformance
-target/release/dive-conformance shadow --corpus examples --tier small \
-  --workers 1,4 --tlc-budgets --budget-cap 900 --jobs 2
-```
-
-Where it runs: by hand, for a Reference-vs-Core census. Since Core became the
-default engine, neither CI nor `cargo xtask gate --full` runs the shadow
-comparison; their gates compare Core with the TLC goldens and the Core
-baselines.
-- Results on the small tier (2026-10-27, after model values, #533; 156
-  models at 1 and 4 workers): 50 models agree at both worker counts and
-  106 are refused by the core. There is no difference, refuted trace,
-  successor difference or timeout. The sample covered 1,642 states, 27,010
-  (state, action) pairs and 6,498 successors.
-- The sample found one core bug on its first run (#540): integers outside
-  the core's inline range were reported as `<<>>` in counterexamples and
-  wherever a core state is converted to the reference engine's values.
-
-- `--impl-profile tlc` shadows the two engines under `--compat=tlc` (M2):
-  the core runs one worker, the sample compares successors with the
-  reference evaluator bound in TLC's profile, and the report's `profile`
-  says which profile ran. Small tier at one worker (2026-10-27, M2 first
-  piece): 49 models agree and 107 are refused, with no finding. The one
-  model that agrees in the default profile but not under compat is
-  `P1Overflow`, whose numeral `2147483648` fails TLC's start-up. The
-  binding failure is refused instead of being reported as the reference
-  engine reports it.
-
-Not built yet: sampling from the initial-state predicate (only expanded
-states are sampled).
-
-### Fixture census
-
-`scripts/fixture-shadow-census.py` stages the complete `crates/*/tests/fixtures`
-population outside the checkout and runs the same shadow command. Its fixed
-seed and fingerprint are both 0, supplied by the harness to both engines.
-It compares ordinary checking of each configuration, even when a fixture's
-other tests exercise simulation or DFID. It does not claim those mode tests ran.
-
-```sh
-python3 scripts/fixture-shadow-census.py --out /tmp/dive-fixture-shadow \
-  --harness target/release/dive-conformance --dive-bin target/release/dive \
-  --profile both --workers 1 --jobs 2 --timeout 20 --max-memory 3g
-```
-
-The output directory must be fresh and outside the checkout. Selection prefers
-the `.tla` matching the configuration's stem, then the sole adjacent `.tla`.
-Missing or ambiguous modules are explicitly skipped; `dive-config` parser
-fixtures are explicitly excluded. Every config has exactly one outcome per
-worker count and profile, including these unrun cases. Missing, duplicate or
-extra report rows fail accounting. No filter or implicit retry narrows the
-population, and no oracle golden is generated or edited.
-
-The existing harness supplies the observable comparison, successor sampling
-and independent trace validation. The recorder preserves every child command,
-stdout, stderr and physical exit under `raw/`, with the harness logs and JSON
-reports alongside them. `census.json` names native `stopped` and `resource-limit`
-runs, their phases and exits separately from processes that never completed.
-Neither timeout nor refusal earns agreement credit. The true candidate binary
-hash and the fixture checkout's revision/dirty status are in `census.json`; the
-shadow report's executable hash names the recording wrapper. The timeout is the
-native time budget; the harness permits its existing 30-second termination grace.
-Runtime measurement through this recorder earns no performance credit.
-
-Preparation at source `e2183389` finds 1,450 configurations: 99 parser exclusions,
-1,337 selected models and 14 ambiguous skips. These are selection counts, not
-new agreement results. The handover's 845 agreements, 493 refusals and ten
-differences sum to 1,348, rather than its stated 1,269 fixtures; that historical
-summary remains unreconciled without its original report. A fresh run records
-its own complete population and does not retroactively repair that measurement.
+`dive-conformance shadow` compared Core with the reference engine, and
+`scripts/fixture-shadow-census.py` ran it over every test fixture. Both were
+retired with the reference engine (#791). Core is measured against the TLC
+goldens; `dive check --core-sample N` still compares sampled successors with
+the evaluator's.
 
 ## 5. Differential fuzzing
 
