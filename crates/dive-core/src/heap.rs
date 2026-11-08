@@ -14,6 +14,16 @@ use crate::store::Store;
 /// The largest set the core materializes.
 pub const MAX_MATERIALIZE: usize = 1 << 24;
 
+/// The most elements of a constant quantifier domain whose enumeration a
+/// heap keeps ([`Heap::enumerate_constant`]).
+pub const MAX_CONSTANT_DOMAIN: usize = 1 << 16;
+
+/// The most transient handle words (node headers plus data) the kept
+/// enumeration of one constant quantifier domain may add to a heap's store
+/// ([`Heap::enumerate_constant`]): elements that are large compounds are
+/// enumerated afresh instead of being retained.
+pub const MAX_CONSTANT_DOMAIN_WORDS: usize = 1 << 20;
+
 /// Maximum successful source nodes remembered by one local identity closure.
 pub const MAX_LOCAL_CLOSE_ENTRIES: usize = 65_536;
 /// Maximum aggregate live child-copy workspace in one local identity closure.
@@ -64,6 +74,9 @@ pub struct Heap {
     /// Interned enumerations of persistent finite symbolic sets, for
     /// [`Heap::materialize_cached`].
     materialized: std::collections::HashMap<Handle, Handle>,
+    /// Persistent enumerations of constant quantifier domains, for
+    /// [`Heap::enumerate_constant`]; `None` for one that is not kept.
+    constant_domains: std::collections::HashMap<Handle, Option<Handle>>,
     /// Interned images of persistent values under one reduction's maps
     /// (`symmetry.rs`), keyed by map index and value, with the reduction
     /// they belong to.
@@ -155,6 +168,7 @@ impl Heap {
             full_hash,
             int_mode,
             materialized: std::collections::HashMap::new(),
+            constant_domains: std::collections::HashMap::new(),
             sym_images: crate::symmetry::ImageCache::default(),
             work_control: None,
             work_steps: std::cell::Cell::new(0),
@@ -1072,6 +1086,75 @@ impl Heap {
             return Ok(m);
         }
         self.materialize_fresh(h)
+    }
+
+    /// [`Heap::norm`] of a constant quantifier domain (a plan constant)
+    /// that is enumerated once per evaluation of its quantifier. A
+    /// persistent finite symbolic set of at most [`MAX_CONSTANT_DOMAIN`]
+    /// elements (and [`MAX_CONSTANT_DOMAIN_WORDS`] new store words) is
+    /// materialized once per heap and kept, when its
+    /// enumeration is already in canonical persistent form (interning it
+    /// exactly and canonically give the same handle; a read-only canonical
+    /// form check runs first, so most rejected domains intern nothing). Its
+    /// elements are then
+    /// persistent, equal and identical to the ones a fresh enumeration
+    /// builds. Any other set is normalized as [`Heap::norm`] does.
+    ///
+    /// # Errors
+    /// As [`Heap::norm`].
+    pub fn enumerate_constant(&mut self, h: Handle) -> Result<Handle, Error> {
+        if !h.is_compound() || !h.is_persistent() || self.speculative {
+            return self.norm(h);
+        }
+        let kept = self.constant_domains.get(&h).copied();
+        if let Some(Some(m)) = kept {
+            return Ok(m);
+        }
+        let v = self.view(h);
+        if !v.kind.is_symbolic() || v.is_lazy() || !self.is_finite(h) {
+            return Ok(h);
+        }
+        let m = self.materialize_fresh(h)?;
+        if kept.is_some() {
+            return Ok(m);
+        }
+        // Check, without interning, that the enumeration is small and
+        // already in canonical form, so that a domain that will not be kept
+        // leaves no interned copies behind in the store.
+        let exact = if self.view(m).data.len() > MAX_CONSTANT_DOMAIN
+            || !self.within_transient_words(m, MAX_CONSTANT_DOMAIN_WORDS)
+            || !crate::compare::materialized(self, m, 0)?
+        {
+            None
+        } else {
+            match (self.intern_exact(m), self.intern(m)) {
+                (Ok(exact), Ok(canonical)) if exact == canonical => Some(exact),
+                _ => None,
+            }
+        };
+        self.constant_domains.insert(h, exact);
+        Ok(exact.unwrap_or(m))
+    }
+
+    /// Whether the transient nodes reachable from `h` (counted once per
+    /// path, so shared nodes count more than once) hold at most `budget`
+    /// handle words, headers included. Persistent children are not counted:
+    /// interning reuses them.
+    fn within_transient_words(&self, h: Handle, budget: usize) -> bool {
+        let mut left = budget;
+        let mut stack = vec![h];
+        while let Some(n) = stack.pop() {
+            if !n.is_compound() || !n.is_transient() {
+                continue;
+            }
+            let data = self.view(n).data;
+            let Some(rest) = left.checked_sub(1 + data.len()) else {
+                return false;
+            };
+            left = rest;
+            stack.extend(data.iter().copied().filter(|d| d.is_transient()));
+        }
+        true
     }
 
     fn materialize_fresh(&mut self, h: Handle) -> Result<Handle, Error> {
@@ -2468,6 +2551,50 @@ mod tests {
         for w in elems.windows(2) {
             assert_eq!(h.cmp(w[0], w[1]), Ordering::Less);
         }
+    }
+
+    #[test]
+    fn constant_domains_are_enumerated_once_into_equal_persistent_elements() {
+        let mut h = heap(false);
+        let ints = h.interval(1, 2);
+        let names = h.set_from(&mut vec![int(7), int(8)]);
+        let product = h.symbolic(Kind::Product, 0, &[ints, names]);
+        let subset = h.symbolic(Kind::Subset, 0, &[product]);
+        let domain = h.intern_exact(subset).unwrap_or(Handle::EMPTY);
+        assert!(domain.is_persistent());
+        let fresh = h.norm(domain).unwrap_or(Handle::EMPTY);
+        let kept = h.enumerate_constant(domain).unwrap_or(Handle::EMPTY);
+        assert!(kept.is_persistent());
+        assert_eq!(h.enumerate_constant(domain).ok(), Some(kept));
+        let fresh_elems = h.elements(fresh).unwrap_or_default();
+        let kept_elems = h.elements(kept).unwrap_or_default();
+        assert_eq!(kept_elems.len(), 16);
+        assert_eq!(fresh_elems.len(), kept_elems.len());
+        for (&a, &b) in fresh_elems.iter().zip(&kept_elems) {
+            assert!(b.is_persistent());
+            assert_eq!(h.cmp(a, b), Ordering::Equal);
+            assert_eq!(h.intern(a).ok(), Some(b));
+        }
+        // An enumeration above the bound is built afresh every time.
+        let big = h.interval(1, 17);
+        let big = h.symbolic(Kind::Subset, 0, &[big]);
+        let big = h.intern_exact(big).unwrap_or(Handle::EMPTY);
+        for _ in 0..2 {
+            let m = h.enumerate_constant(big).unwrap_or(Handle::EMPTY);
+            assert!(m.is_transient());
+            assert_eq!(h.view(m).data.len(), 1 << 17);
+        }
+        // The word budget counts transient headers and data, not
+        // persistent children.
+        let fresh = h.norm(domain).unwrap_or(Handle::EMPTY);
+        assert!(h.within_transient_words(fresh, 1 << 12));
+        // The top node alone holds 1 + 16 words.
+        assert!(!h.within_transient_words(fresh, 16));
+        assert!(h.within_transient_words(kept, 0));
+        // Non-symbolic and transient sets are normalized as `norm` does.
+        let set = h.set_from(&mut vec![int(1)]);
+        assert_eq!(h.enumerate_constant(set).ok(), Some(set));
+        assert!(!h.poisoned());
     }
 
     /// A persistent copy of a transient node without [`flags::CONCRETE`], as

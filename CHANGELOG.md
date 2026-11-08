@@ -5,6 +5,10 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- Core enumerates a constant quantifier domain, such as bosco's
+  `\E r \in SUBSET (P \X M)`, once per worker instead of once per state, and
+  its cached guards on the bound variable now apply (issue #937). Verdicts
+  and counts are unchanged; such checks run faster.
 - `dive --help` and the `check`, `simulate`, `dfid` and `tlc` help no longer
   list options that Core always refuses (issue #941): `--lncheck final
   --lasso short`, `--action-composition tlc`, `--allow-io`,

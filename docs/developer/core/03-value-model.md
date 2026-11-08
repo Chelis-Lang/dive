@@ -674,6 +674,7 @@ worker (and the compiler, while folding) owns exactly one `Heap`; it is not
 | `cursor` + `Cursor::next`, `elements` | enumerate a finite set in run order | yes | yes | yes |
 | `norm`, `materialize` | normalize, or force a set's enumeration | yes | yes | yes |
 | `materialize_cached` | membership in a persistent symbolic set, once per worker | yes | no | no |
+| `enumerate_constant` | the enumeration of a plan-constant quantifier domain, kept once per worker as persistent elements (at most 2^16 elements and 2^20 new store words, and only when the enumeration is already canonical: a read-only check, then exact and canonical interning must agree) so memo sites keyed on the bound variable apply | yes | no | no |
 | `set_from`, `set_sorted`, `empty_set` | build a set (unsorted with duplicates, or sorted distinct) | yes | yes | yes |
 | `int_fcn`, `tuple`, `fcn_sorted`, `fcn_from_pairs` | build a function, record or tuple | yes | yes | yes |
 | `fcn_with` | `EXCEPT` at an entry index, O(1) hash update | yes | no | yes |

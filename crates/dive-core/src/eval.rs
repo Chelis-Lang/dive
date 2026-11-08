@@ -1897,8 +1897,17 @@ impl Machine {
     ) -> Result<Vec<(Unit, Vec<Handle>)>, Error> {
         let mut out = Vec::new();
         for (bi, b) in binds.iter().enumerate() {
-            let d = self.eval(code, b.domain)?;
-            let d = self.work_norm(d)?;
+            let d = match code.nodes.get(b.domain as usize) {
+                // A plan constant's enumeration is built once (bosco's
+                // `\E r \in SUBSET (P \X M)`, #937).
+                Some(Node::Const(h)) if self.fuel == u64::MAX => {
+                    self.heap.enumerate_constant(*h)?
+                }
+                _ => {
+                    let d = self.eval(code, b.domain)?;
+                    self.work_norm(d)?
+                }
+            };
             let elems = self.work_elements(d)?;
             if b.tuple {
                 out.push((
