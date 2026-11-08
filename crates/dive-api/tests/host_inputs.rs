@@ -7,9 +7,7 @@
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use dive_api::host_inputs::{
-    InputRecord, InputRequest, InputResponse, RecordedInputs, inputs_from_report,
-};
+use dive_api::host_inputs::{InputRecord, InputRequest, InputResponse, RecordedInputs};
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Engine, HostAccess, check_file_engine};
 use serde_json::json;
@@ -54,6 +52,16 @@ impl Drop for Fixture {
 fn modules() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-eval/tests/fixtures/community-modules")
 }
+/// Core's named refusal of granted external inputs; only the retired
+/// reference engine captured them (#791, #910).
+fn assert_io_refused(request: &CheckRequest) {
+    let result = check_file_engine(request, Engine::Core);
+    assert!(
+        matches!(&result, Err(dive_api::ApiError::Unsupported { feature })
+            if feature.contains("external inputs (--allow-io, IOUtils/IOEnv) are not implemented on Core")),
+        "expected the external-input refusal, got {result:?}"
+    );
+}
 fn options(tlc: bool, inputs: RecordedInputs) -> TraceOptions {
     TraceOptions {
         compat_tlc: tlc,
@@ -68,7 +76,7 @@ fn options(tlc: bool, inputs: RecordedInputs) -> TraceOptions {
 fn actual_file_capture_replays_after_the_file_is_removed_and_rejects_forgery() {
     for tlc in [false, true] {
         {
-            let engine = Engine::Reference;
+            let engine = Engine::Core;
             let fixture = Fixture::new();
             let input = fixture.file("input.txt");
             std::fs::write(&input, "hello\n").expect("input");
@@ -83,22 +91,17 @@ fn actual_file_capture_replays_after_the_file_is_removed_and_rejects_forgery() {
                 library_paths: vec![modules()],
                 ..Default::default()
             };
-            let report = check_file_engine(&request, engine)
-                .expect("check")
-                .to_json();
-            assert_eq!(
-                report["verdict"], "invariant-violation",
-                "{}",
-                report["message"]
-            );
-            assert_eq!(report["statistics"]["generated"], 3);
-            assert_eq!(report["property"], "Inv");
-            let inputs = inputs_from_report(&report).expect("captured inputs");
-            assert_eq!(inputs.records.len(), 1);
-            assert_eq!(
-                inputs.records[0].request,
-                InputRequest::TextFile(input.display().to_string())
-            );
+            assert_eq!(engine, Engine::Core);
+            assert_io_refused(&request);
+            // The independent validator still binds a recorded capture of
+            // this file offline and rejects forged words and records.
+            let inputs = RecordedInputs {
+                grants: HostAccess::parse("files").expect("grant"),
+                records: vec![InputRecord {
+                    request: InputRequest::TextFile(input.display().to_string()),
+                    response: InputResponse::Text("hello\n".into()),
+                }],
+            };
             std::fs::remove_file(&input).expect("remove live source input");
             let model = SpecModel::load(
                 &file,
@@ -106,7 +109,9 @@ fn actual_file_capture_replays_after_the_file_is_removed_and_rejects_forgery() {
                 &options(tlc, inputs.clone()),
             )
             .expect("offline source binding");
-            let word = TraceDoc::from_json(&report).expect("reported word");
+            let word = TraceDoc::behavior(vec![json!({"x":2}), json!({"x":3}), json!({"x":4})])
+                .expect("word")
+                .with_ending(Ending::Invariant("Inv".into()));
             assert_eq!(model.validate(&word).validation, Validation::Valid);
             assert!(matches!(
                 dive_trace::validate_doc(model.model(), &word, &[])
@@ -233,26 +238,7 @@ fn reached_runtime_reads_and_unsupported_backends_do_not_gain_input_authority() 
             library_paths: vec![modules()],
             ..Default::default()
         };
-        let report = check_file_engine(&request, Engine::Reference)
-            .expect("check")
-            .to_json();
-        assert_eq!(report["verdict"], "unsupported");
-        assert!(
-            report["message"]
-                .as_str()
-                .expect("refusal")
-                .contains("runtime host reads")
-        );
-        assert_eq!(
-            inputs_from_report(&report)
-                .expect("empty captured context")
-                .records,
-            [] as [InputRecord; 0]
-        );
-        assert!(matches!(
-            check_file_engine(&request, Engine::Core),
-            Err(dive_api::ApiError::Unsupported { .. })
-        ));
+        assert_io_refused(&request);
     }
 }
 
@@ -292,34 +278,7 @@ fn file_limits_missing_inputs_and_exec_grants_keep_named_refusals() {
                 library_paths: vec![modules()],
                 ..Default::default()
             };
-            let report = check_file_engine(&request, Engine::Reference)
-                .expect("refused check")
-                .to_json();
-            assert_eq!(
-                report["verdict"], "unsupported",
-                "{case}: {}",
-                report["message"]
-            );
-            let expected = match case {
-                "large" => "byte limit",
-                "utf8" => "non-UTF-8",
-                "missing" => "file-open",
-                _ => "IOExec",
-            };
-            assert!(
-                report["message"]
-                    .as_str()
-                    .expect("refusal")
-                    .contains(expected),
-                "{case}: {}",
-                report["message"]
-            );
-            assert_eq!(
-                inputs_from_report(&report)
-                    .expect("captured prefix")
-                    .records,
-                [] as [InputRecord; 0]
-            );
+            assert_io_refused(&request);
             assert!(!fixture.file("must-not-exist").exists());
         }
     }
@@ -340,7 +299,7 @@ fn external_inputs_refuse_recovery_before_loading_an_archive_or_specification() 
         config_source_sha256: None,
     };
     assert!(
-        matches!(dive_api::check_file_checkpoint_engine(&request,&checkpoint,Engine::Reference),Err(dive_api::ApiError::Unsupported { feature }) if feature.contains("checkpoint/recovery"))
+        matches!(dive_api::check_file_checkpoint_engine(&request,&checkpoint,Engine::Core),Err(dive_api::ApiError::Unsupported { feature }) if feature.contains("checkpoint/recovery"))
     );
     assert!(!checkpoint.path.exists());
 }
@@ -398,14 +357,19 @@ fn recorded_inputs_do_not_authorize_unproved_next_register_prefixes() {
             library_paths: vec![modules()],
             ..Default::default()
         };
-        let report = check_file_engine(&request, Engine::Reference)
-            .expect("producer")
-            .to_json();
-        assert_eq!(report["verdict"], "invariant-violation");
-        let inputs = inputs_from_report(&report).expect("inputs");
+        assert_io_refused(&request);
+        let inputs = RecordedInputs {
+            grants: HostAccess::parse("files").expect("grant"),
+            records: vec![InputRecord {
+                request: InputRequest::TextFile(input.display().to_string()),
+                response: InputResponse::Text("hello\n".into()),
+            }],
+        };
         let model = SpecModel::load(&file, &fixture.file("Host.cfg"), &options(tlc, inputs))
             .expect("source replay");
-        let word = TraceDoc::from_json(&report).expect("word");
+        let word = TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])
+            .expect("word")
+            .with_ending(Ending::Invariant("Inv".into()));
         assert!(
             matches!(model.validate(&word).validation,Validation::Unsupported(feature) if feature.contains("register"))
         );
