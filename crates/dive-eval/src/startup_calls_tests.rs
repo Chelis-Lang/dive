@@ -18,6 +18,18 @@ Show(x) == PrintT(x)
 Repeated == {Cardinality(Pairs(N)) : i \in 1..50}
 Forms == <<Id(A), Id(B), Id(A)>>
 Printed == Show(N) /\ Show(N)
+Double(y) == y * 2
+Outer(x) == Double(x) + 1
+Chain == <<Outer(3), Outer(3)>>
+---- MODULE Lib ----
+EXTENDS Naturals
+CONSTANT K
+Plus(x) == x + K
+Twice(x) == Plus(x) + Plus(x)
+====
+L(k) == INSTANCE Lib WITH K <- k
+Instances == <<L(1)!Plus(5), L(2)!Plus(5), L(1)!Plus(5), L(2)!Plus(5)>>
+Inherited == <<L(1)!Twice(5), L(2)!Twice(5)>>
 ====
 ";
 
@@ -25,14 +37,21 @@ fn evaluator(options: Options) -> Evaluator {
     let analysis = dive_sema::analyze_source("Startup.tla", MODULE, &dive_sema::Options::default());
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
-    let mut model = Model::new(ir);
+    let mut model = Model::new(ir.clone());
     let ctx = options.ctx;
     let n = Value::set(vec![1.into(), 2.into(), 3.into()], ctx).expect("N");
     let a = Value::interval(Int::from(1), Int::from(3), ctx);
     let b = Value::set(vec![1.into(), 2.into(), 3.into()], ctx).expect("B");
-    model.constants[0] = Some(ConstBinding::Value(n));
-    model.constants[1] = Some(ConstBinding::Value(a));
-    model.constants[2] = Some(ConstBinding::Value(b));
+    for (i, &decl) in ir.consts().iter().enumerate() {
+        let value = match ir.decl(decl).name.as_str() {
+            "N" => n.clone(),
+            "A" => a.clone(),
+            "B" => b.clone(),
+            // `Lib`'s `K` is substituted by the instance.
+            _ => continue,
+        };
+        model.constants[i] = Some(ConstBinding::Value(value));
+    }
     Evaluator::new(model, options).expect("evaluator")
 }
 
@@ -86,4 +105,42 @@ fn impure_calls_are_evaluated_at_every_use() {
     assert_eq!(value, Value::Bool(true));
     assert_eq!(ev.take_output().len(), 2);
     assert_eq!(hits(&ev), 0);
+}
+
+#[test]
+fn a_call_through_a_definition_with_parameters_is_kept() {
+    for (options, kept) in [(Options::dive(), 1), (Options::tlc(), 0)] {
+        let ev = evaluator(options);
+        let value = precompute(&ev, "Chain");
+        assert_eq!(value, Value::tuple(vec![7.into(), 7.into()]));
+        // The second `Outer(3)`; `Double(3)` is called once.
+        assert_eq!(hits(&ev), kept);
+    }
+}
+
+#[test]
+fn instance_substitutions_are_inputs_of_a_kept_call() {
+    for (options, kept) in [(Options::dive(), 2), (Options::tlc(), 0)] {
+        let ev = evaluator(options);
+        let value = precompute(&ev, "Instances");
+        // `L(1)!Plus(5)` and `L(2)!Plus(5)` have the same argument but
+        // different substitutions for `K`: each is kept on its own.
+        assert_eq!(
+            value,
+            Value::tuple(vec![6.into(), 7.into(), 6.into(), 7.into()])
+        );
+        assert_eq!(hits(&ev), kept);
+    }
+}
+
+#[test]
+fn a_substitution_read_from_the_calling_context_is_an_input() {
+    for (options, kept) in [(Options::dive(), 2), (Options::tlc(), 0)] {
+        let ev = evaluator(options);
+        let value = precompute(&ev, "Inherited");
+        // Inside `L(k)!Twice`, `Plus(5)` reads `K` from the dynamic context:
+        // the second call in each is kept, and `L(2)` does not reuse `L(1)`'s.
+        assert_eq!(value, Value::tuple(vec![12.into(), 14.into()]));
+        assert_eq!(hits(&ev), kept);
+    }
 }
