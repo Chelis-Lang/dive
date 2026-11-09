@@ -21,7 +21,7 @@ See the [compatibility gaps and their reproducers](../tlc-differences.md#compat-
 | Symmetry with genuine temporal properties | Whole-run unreduced checking (D-005) | `--symmetry-liveness=tlc` requests quotient semantics, currently refused; explicit `unreduced` under compat is `tlc+overrides` |
 | Explicit bounded final temporal mode | Deterministic short selection | Same short selection, labeled `tlc+overrides`; TLC's exact lasso is not reproduced (`--lasso tlc` is a usage error) |
 | Ordinary temporal checking | Deterministic completed-level boundaries on admitted routes | Bounded final analysis on admitted routes; TLC's wall-clock schedule is not reproduced |
-| Wall-clock budget (`--time-limit`) | 30 minutes (provisional), then `stopped`, exit 5 | None, as TLC has none (D-026) |
+| Wall-clock budget (`--time-limit`) | None unless set; a set limit ends in `stopped`, exit 5 | None, as TLC has none (D-026) |
 | Memory budget (`--max-memory`) | Half of physical memory, then `stopped`, exit 5 | Same ceiling; TLC itself dies with `SYSTEM_OUT_OF_MEMORY` |
 
 Named opt-ins can produce `tlc+overrides`. For example, final/short temporal

@@ -14,13 +14,11 @@ pub(crate) struct ModeBudget {
 
 impl ModeBudget {
     pub(crate) fn start(
-        compat: bool,
         phase: Phase,
         time: crate::BudgetSetting<Duration>,
         memory: crate::BudgetSetting<u64>,
     ) -> Result<Self, crate::ApiError> {
-        let (time, time_source) =
-            time.resolve((!compat).then_some(dive_runtime::budget::DEFAULT_TIME_LIMIT));
+        let (time, time_source) = time.resolve(None);
         let (memory, memory_source) =
             crate::check::resolve_memory(memory, dive_runtime::budget::default_memory)
                 .map_err(crate::ApiError::BudgetMeasurement)?;

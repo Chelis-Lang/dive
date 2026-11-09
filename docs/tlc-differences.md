@@ -3032,9 +3032,8 @@ every `dive check` by two budgets ([ADR 0107](decisions/0107-run-budgets.md)):
 dive check Spec.tla --time-limit 10m --max-memory 8g --output json
 ```
 
-- `--time-limit` defaults to 30 minutes in the default profile and to `none`
-  under `--compat=tlc`, which matches TLC. The default is provisional; the
-  release value is set from benchmark measurements.
+- `--time-limit` defaults to `none` in both profiles, which matches TLC. Set
+  it to bound a run.
 - `--max-memory` defaults to `auto`, half of physical memory, in both
   profiles, including `--compat=tlc`. That is at least the footprint TLC gets
   by default (a quarter of memory for its heap, plus off-heap fingerprints).
@@ -3062,7 +3061,7 @@ when the budget ran out; `elapsed_ms` is when dive actually stopped, which can
 be later because binding, `ASSUME` evaluation and a single long evaluation
 (for example an `Init` whose domain must first be built) are not interrupted. A stop is never a
 success, a violation or `unsupported`: nothing was proved about the model. To
-get TLC's unbounded behaviour, pass `--time-limit none --max-memory none`.
+get TLC's unbounded behaviour, pass `--max-memory none`.
 
 `dive simulate` and `dive dfid` also accept these time/memory flags, with the
 same defaults and TLC-equivalent settings. They report `result: stopped`, mode

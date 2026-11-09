@@ -329,16 +329,13 @@ fn profiles_resolve_their_default_budgets_and_generous_budgets_change_nothing()
         let json = dive_api::check_file_engine(&req, dive_api::Engine::Core)?.to_json();
         assert_eq!(json["verdict"], "success", "{json}");
         let budget = &json["options"]["budget"];
-        if compat_tlc {
-            assert!(budget["time_limit_ms"].is_null());
-            assert_eq!(budget["time_limit_source"], "none");
-        } else {
-            assert_eq!(
-                budget["time_limit_ms"],
-                u64::try_from(dive_runtime::budget::DEFAULT_TIME_LIMIT.as_millis())?
-            );
-            assert_eq!(budget["time_limit_source"], "default");
-        }
+        // Neither profile has a default time limit, as in TLC: only a
+        // user-set --time-limit arms the wall-clock budget.
+        assert!(budget["time_limit_ms"].is_null(), "{compat_tlc}: {budget}");
+        assert_eq!(
+            budget["time_limit_source"], "none",
+            "{compat_tlc}: {budget}"
+        );
         match known_memory {
             Some(bytes) => {
                 assert_eq!(budget["max_memory_bytes"], bytes);
