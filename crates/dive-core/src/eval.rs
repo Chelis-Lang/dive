@@ -174,7 +174,7 @@ fn eval_err(what: &str) -> Error {
 
 /// An `Assert.fail(EC.GENERAL, ...)` error the core raises exactly where
 /// TLC does. Messages that begin like TLC's keep TLC's beginning, which the
-/// engine's replay rule reads (the retired reference engine's `class.rs`).
+/// engine's replay rule reads (`dive_runtime::classify`).
 fn general(what: &str) -> Error {
     Error::eval_class(crate::TlcClass::GENERAL, what)
 }
@@ -2446,7 +2446,7 @@ impl Machine {
         Ok(self.heap.view(s).data.to_vec())
     }
 
-    /// Bags (`tlc2.module.Bags`; the reference engine's
+    /// Bags (`tlc2.module.Bags`; `dive-eval`'s
     /// `crates/dive-eval/src/community.rs`).
     fn bag(&mut self, op: StdFn, args: &[Handle]) -> Result<Handle, Error> {
         let arg = |i: usize| {

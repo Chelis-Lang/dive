@@ -1,6 +1,6 @@
 //! Counterexamples of the new core (`--engine=core`): rebuilt from the
 //! predecessor log by replay (`docs/developer/core/07-engine.md` §4), they
-//! equal the reference engine's at one worker (both are minimal-depth BFS
+//! equal the agreed record at one worker (both are minimal-depth BFS
 //! traces over the same successor order). `dive-trace`, the independent
 //! validator, checks their words using the reference evaluator
 //! (`08-correctness.md` §7); known unconfirmed endings are counted separately.
@@ -52,7 +52,7 @@ fn run(spec: &Path, engine: Engine) -> Value {
 }
 
 /// The validator's known refutations of correct error endings (the
-/// reference engine's counterexamples are refuted the same way; see
+/// retired Reference engine's counterexamples were refuted the same way; see
 /// `counterexample_validation.rs`): #490, an evaluation error re-raised by a
 /// check of the last state, and #499, a last state outside `CONSTRAINT`.
 fn known(ending: Option<&Ending>, f: &Failure, last: usize) -> bool {
@@ -173,7 +173,7 @@ fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
         if trace.is_null() {
             // No trace document: no counterexample, or one with a state
             // only TLC's text describes (an incomplete state), exactly as
-            // the reference engine reports it (compared above).
+            // the agreed record reports it (compared above).
             continue;
         }
         let checked = validate(spec, trace).unwrap_or_else(|e| panic!("{name}: {e}"));

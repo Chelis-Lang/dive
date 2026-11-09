@@ -1,7 +1,7 @@
-//! Temporal properties on the core engine (`--engine=core`) report what the
-//! reference engine reports, at every worker count and in both profiles
-//! (`docs/developer/core/11-liveness.md` §8), and what the core does not
-//! run falls back under `--engine=auto`.
+//! Temporal properties on the core engine report the result Core and the
+//! retired Reference engine agreed on (`support/agreed.rs`), at every worker
+//! count and in both profiles (`docs/developer/core/11-liveness.md` §8), and
+//! what the core does not run is a named refusal.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
 mod agreed;
@@ -131,7 +131,7 @@ fn native_expected(mut v: Value) -> Value {
 }
 
 /// The report without what legitimately differs: timings, memory samples,
-/// the engine's own fields, and the reference engine's fingerprint
+/// the engine's own fields, and the retired Reference engine's fingerprint
 /// collision estimate, which the core does not report (on safety runs
 /// either).
 fn comparable(mut v: Value) -> Value {

@@ -1,11 +1,11 @@
-//! The core's behavior graph in the reference engine's form
+//! The core's behavior graph as a `dive_runtime::capture::BehaviorGraph`
 //! (`docs/developer/core/11-liveness.md` §3–§4).
 //!
 //! [`Graph`] receives the explorer's graph events ([`GraphSink`]), converts
-//! each new state's handles to reference values and builds the
-//! `BehaviorGraph` with the reference capture's own collector
-//! ([`GraphBuilder`]), so its limits, messages and layout are the
-//! reference's. Compound values are converted once per handle: equal
+//! each new state's handles to `dive_value::Value`s and builds the
+//! `BehaviorGraph` with `dive-runtime`'s capture collector
+//! ([`GraphBuilder`]), so its limits, messages and layout are that
+//! collector's. Compound values are converted once per handle: equal
 //! persistent handles are equal values, so the memo shares the converted
 //! value between states.
 
@@ -34,7 +34,7 @@ pub(crate) struct GraphMetrics {
     pub(crate) memo_entries: usize,
 }
 
-/// Builds the reference `BehaviorGraph` from the core's graph events.
+/// Builds a `dive_runtime::capture::BehaviorGraph` from the core's graph events.
 pub(crate) struct Graph<'a> {
     model: &'a dive_model::Model,
     ctx: dive_value::Ctx,

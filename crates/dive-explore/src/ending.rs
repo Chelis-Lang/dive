@@ -3,11 +3,11 @@
 //!
 //! The explorer records where an evaluation error was raised, with the
 //! states involved, and stops. It does not classify the error: the caller
-//! does, by the site, as TLC does (the retired reference engine's `class.rs`).
+//! does, by the site, as TLC does (`dive-runtime`'s `class.rs`).
 //!
 //! An invariant that fails to evaluate on a new successor inside the model
 //! is followed by TLC's call-stack replay (`ModelChecker.modelCheckImpl`,
-//! `keepCallStack`; the reference engine's `Search::replay_after`). The
+//! `keepCallStack`). The
 //! replay expands the parent again, each action in full before its
 //! successors are checked. Past the failing successor, it inserts new states
 //! (counted as distinct, not as generated), checks them and queues them,
@@ -331,7 +331,7 @@ fn replay_invariants(
 
 /// The implied actions on the replayed step from `m.s0` to `m.s1`: whether
 /// the replay goes on. A violation ends it quietly; an error ends it with
-/// the error recorded (the reference engine's `record_error`).
+/// the error recorded.
 fn replay_implied(
     m: &mut Machine,
     ex: &mut Explorer<'_>,

@@ -83,7 +83,7 @@ pub const SETTLE_FUEL: u64 = 1 << 22;
 /// may spend together.
 pub const SETTLE_BUDGET: u64 = 1 << 24;
 
-/// A role as the reference binder split it: an expression evaluated in a
+/// A role as `dive-model`'s binder split it: an expression evaluated in a
 /// definition's frame, with some of that frame's slots bound to values.
 #[derive(Clone, Debug)]
 pub struct Role {
@@ -166,7 +166,7 @@ pub trait StartupEvaluator: std::fmt::Debug {
 /// issue #846.
 pub const STARTUP_TRANSIENT_BYTES: usize = 256 << 20;
 
-/// What the reference binder hands to the core (`04-plan-compiler.md` §2).
+/// What `dive-model`'s binder hands to the core (`04-plan-compiler.md` §2).
 #[derive(Clone, Debug)]
 pub struct Handoff<'a> {
     /// The lowered specification.
@@ -547,8 +547,7 @@ fn symmetry(h: &Handoff<'_>, m: &Machine) -> Result<Option<crate::symmetry::Symm
     }
     let sym = crate::symmetry::Symmetry::new(maps);
     // TLC's order (`--compat=tlc`): TLC's comparison, in TLC's variable
-    // order, as the reference engine canonicalizes
-    // (the retired reference engine's `state_key_of`).
+    // order, as `TLCStateMut` canonicalizes.
     Ok(Some(if h.ctx.order == dive_value::ValueOrder::Tlc {
         sym.tlc(h.ir.tlc_var_order().iter().map(|v| v.index()).collect())
     } else {

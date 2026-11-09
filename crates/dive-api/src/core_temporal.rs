@@ -1,16 +1,16 @@
 //! Temporal properties on the core engine
 //! (`docs/developer/core/11-liveness.md` §6).
 //!
-//! The core replaces only the producer: it explores and reports its
-//! native rows and CSR ([`crate::core_native_graph::NativeSink`]), and the reference engine's
-//! own planning, completed-level and final checks
+//! The core explores and reports its native rows and CSR
+//! ([`crate::core_native_graph::NativeSink`]); `dive-liveness`'s planning,
+//! completed-level and final checks
 //! ([`dive_liveness::analyze::periodic::external::GraphCheck`]), validation
 //! and report finish the run. A safety ending is reported as the safety
-//! route reports it. What the core does not reproduce exactly is refused,
-//! so that `--engine auto` runs the reference engine: the reference
-//! capture's own refusals, the options its route excludes, and, for now,
-//! any temporal failure (planning, capture limits, evaluation errors,
-//! validation), whose reporting the core does not take over yet.
+//! route reports it. What the core does not reproduce exactly is refused by
+//! name: `dive_runtime::capture`'s refusals, the options its route
+//! excludes, other behavior-graph stops, and temporal failures whose report
+//! Core does not build (planning, evaluation and validation failures).
+//! Budget and resource stops in temporal analysis are reported as stops.
 
 use std::sync::Arc;
 use std::time::Instant;
@@ -511,8 +511,8 @@ fn check_configured_inner(
                 graph_check.periodic_checks(),
             )));
         }
-        // A safety ending, a stop or a refusal: reported as the reference
-        // engine's temporal route reports it, never a temporal verdict, with
+        // A safety ending, a stop or a refusal: reported as a safety
+        // result, never a temporal verdict, with
         // the bound model's symmetry resolution.
         safety.symmetry_liveness = Some(model.symmetry_liveness().clone());
         return CoreOutcome::Checked(Box::new(safety));

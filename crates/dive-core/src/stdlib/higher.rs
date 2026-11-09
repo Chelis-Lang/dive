@@ -45,7 +45,7 @@ pub(super) fn implements(op: StdOp) -> bool {
 
 /// Whether TLC's override takes the operator as an `OpValue`. Passed an
 /// operator whose body is a constant such as `LAMBDA x : 0`, TLC fails
-/// with error 2154 or 2266 while the reference engine applies it
+/// with error 2154 or 2266 while `dive-eval` applies it
 /// (`04-plan-compiler.md` §8, fixtures `ErHoConst*`); the core refuses
 /// such a call.
 pub(super) fn takes_op_value(op: StdOp) -> bool {
@@ -188,7 +188,7 @@ fn tuple(m: &mut Machine, op: StdOp, h: Handle) -> Result<Option<Vec<Handle>>, E
 }
 
 /// A one-argument test. A non-boolean result is TLC's error naming the
-/// operator, which the reference engine refuses; so does the core.
+/// operator, which `dive-eval` refuses; so does the core.
 fn test_bool(m: &mut Machine, op: StdOp, test: &OpFn<'_>, x: Handle) -> Result<bool, Error> {
     match test.apply(m, &[x])?.as_bool() {
         Some(b) => Ok(b),

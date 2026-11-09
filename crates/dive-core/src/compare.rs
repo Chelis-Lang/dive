@@ -1,5 +1,5 @@
 //! Equality, membership and set-construction rules of the default profile
-//! (`02-semantic-contract.md` C1–C3, D-009), as the reference engine applies
+//! (`02-semantic-contract.md` C1–C3, D-009), as `dive-eval` applies
 //! them (`crates/dive-eval/src/tla_cmp.rs`).
 //!
 //! - Two values of the same class (boolean, integer, string, set, function)

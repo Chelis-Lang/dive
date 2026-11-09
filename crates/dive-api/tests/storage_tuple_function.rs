@@ -124,7 +124,7 @@ fn assert_comparison(reference: &Value) {
 }
 #[allow(
     clippy::too_many_lines,
-    reason = "one storage matrix against the explicit reference engine"
+    reason = "one storage matrix against the agreed records"
 )]
 fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedules: &[Option<u64>]) {
     let directory = directory();

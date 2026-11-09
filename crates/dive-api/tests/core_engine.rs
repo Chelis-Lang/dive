@@ -1,6 +1,6 @@
-//! The M0 core engine (`--engine=core`) agrees with the reference engine on
-//! verdicts and TLC's counts, under every strategy switch, and refuses what
-//! it does not implement.
+//! The core engine gives the results Core and the retired Reference engine
+//! agreed on (`support/agreed.rs`) for verdicts and TLC's counts, under every
+//! strategy switch, and refuses what it does not implement.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
 mod agreed;
@@ -98,7 +98,7 @@ fn store_memory_metrics_report_components_and_their_coverage_gap() {
     assert_eq!(counts(&core), counts(&run("Mix", Engine::Core)));
 }
 
-/// A false or failing ASSUME ends a core run with the reference engine's
+/// A false or failing ASSUME ends a core run with the agreed
 /// verdict (`04-plan-compiler.md` §2).
 #[test]
 fn assumptions_end_the_run_as_the_reference_engine_reports() {
@@ -161,7 +161,7 @@ fn initial_predicates_are_conjoined() {
 /// Laziness (`04-plan-compiler.md` §4.1): recursive functions, lazy
 /// functions over `Nat` applied without being built, structural membership
 /// in lazy sets, and recursive operators run in the core, with the
-/// reference engine's counts.
+/// agreed counts.
 #[test]
 fn lazy_values_are_applied_without_being_built() {
     let core = run("Lazy", Engine::Core);
@@ -504,7 +504,7 @@ fn built_in_operators_as_operator_arguments() {
 }
 
 /// `=>` (short-circuiting) and `<=>` passed as operator arguments, which
-/// the reference engine refuses; the counts are the pinned TLC's.
+/// `dive-eval` refuses; the counts are the pinned TLC's.
 #[test]
 fn implication_and_equivalence_as_operator_arguments() {
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -549,7 +549,7 @@ fn a_built_in_operator_argument_applied_as_an_action_is_refused() {
     );
 }
 
-/// `Reduce` keeps the reference engine's refusal of operands beyond 32 bits.
+/// `Reduce` refuses operands beyond 32 bits, as `dive-eval` does.
 #[test]
 fn dyadic_reduce_refuses_operands_beyond_32_bits() {
     let core = run("DyadicBig", Engine::Core);

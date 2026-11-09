@@ -273,7 +273,7 @@ impl<'m> GraphCheck<'m> {
         self.plans.iter().flat_map(|property| &property.plan.atoms)
     }
 
-    /// Whether the reference engine may evaluate this run's atoms during its
+    /// Whether a graph producer may evaluate this run's atoms during its
     /// search, in TLC's row order (one worker, uncapped labels, only
     /// state-predicate atoms). Holding and violated results do not depend on
     /// it, but which atom error is reported first can: a producer that

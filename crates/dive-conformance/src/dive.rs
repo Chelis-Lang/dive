@@ -106,7 +106,7 @@ impl DiveEngine {
     /// Parses `core`, the only engine.
     ///
     /// # Errors
-    /// A usage error: `reference` was retired with the reference engine
+    /// A usage error: `reference` was retired with the Reference engine
     /// (#791), and `auto` with the Reference fallback.
     pub fn parse(s: &str) -> Result<Self> {
         match s {
@@ -143,7 +143,7 @@ impl DiveEngine {
 }
 
 /// The engine `dive check` reports in its JSON (`engine`,
-/// `engine_fallback`). The reference engine reports none.
+/// `engine_fallback`). Reports of the retired Reference engine name none.
 fn engine_run(v: &Value) -> Option<crate::tlc::result::EngineRun> {
     let engine = v["engine"].as_str()?;
     let fallback = v["engine_fallback"].as_object().map(|f| {

@@ -1,7 +1,7 @@
 //! The successor-multiset sample of the shadow comparison
 //! (`docs/developer/core/08-correctness.md` §4): for each sampled state, the
 //! core's successors under each action, as canonical state keys, must be
-//! the reference evaluator's, with the same multiplicities.
+//! `dive-eval`'s value evaluator's, with the same multiplicities.
 
 use std::sync::Arc;
 
@@ -27,7 +27,7 @@ impl std::fmt::Display for ReferenceError {
 /// At most this many mismatches are described in the report.
 const SHOWN: usize = 8;
 
-/// A state as the reference engine's canonical key: a marker per variable
+/// A state as a canonical key: a marker per variable
 /// (assigned or not), then the canonical encoding of the value.
 fn key(model: &Model, s: &[Option<Value>]) -> Result<Vec<u8>, String> {
     let ctx = model.evaluator.options().ctx;
@@ -45,7 +45,7 @@ fn key(model: &Model, s: &[Option<Value>]) -> Result<Vec<u8>, String> {
     Ok(out)
 }
 
-/// The reference evaluator's successors of `s0` under action `i`: sorted
+/// The value evaluator's successors of `s0` under action `i`: sorted
 /// keys, or its error.
 fn reference(
     (model, host): (&Model, &dive_stdlib::host::RunHost),
@@ -187,8 +187,8 @@ pub(crate) fn compare(
                         );
                     }
                 }
-                // Both raise an error: which one is the reference
-                // engine's to classify (`core_ending.rs`).
+                // Both raise an error: `core_ending.rs` classifies the
+                // core's by reproducing it with the evaluator.
                 (Err(_), Err(_)) => {}
                 (Err(e), Ok(w)) => {
                     mismatches += 1;

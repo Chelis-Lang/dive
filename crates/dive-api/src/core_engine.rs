@@ -1,11 +1,11 @@
-//! `--engine=core`: the M0 spike of the new execution core (ADR 0117,
+//! The Core execution engine behind `dive check` (ADR 0117, ADR 0153,
 //! `docs/developer/core/`).
 //!
-//! The reference binder builds the model (constants, overrides, split
+//! `dive-model`'s binder builds the model (constants, overrides, split
 //! actions and startup values); the core compiles it into a plan and
 //! explores it, level by level, on `--workers` threads. Anything the core does not implement is an
-//! `unsupported` verdict naming it; there is no fallback to the reference
-//! engine.
+//! `unsupported` verdict naming it; there is no other engine to fall back
+//! to.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -20,7 +20,7 @@ use serde_json::{Value as Json, json};
 
 /// Which execution engine runs a checking or finite-mode request.
 ///
-/// The compiled Core is the only engine (ADR 0153, #791): the reference
+/// The compiled Core is the only engine (ADR 0153, #791): the Reference
 /// checking runtime was removed. What Core does not implement is a named
 /// refusal.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -77,7 +77,7 @@ pub(crate) enum CoreOutcome {
     /// A safety result (also a refusal, or the safety ending of a temporal
     /// run).
     Checked(Box<CheckResult>),
-    /// A temporal report, finished by the reference engine's path.
+    /// A temporal report, finished by `crate::temporal`'s report path.
     Temporal(Box<crate::temporal::Report>),
     /// A real temporal resource stop with actual execution facts.
     TemporalFailure(Box<crate::temporal::Failure>),
@@ -440,9 +440,10 @@ pub(crate) fn handoff<'a>(
     })
 }
 
-/// The reference engine's note on a stop in the default profile (D-010).
-/// `core_rules.rs` checks that the core's notes equal the reference
-/// engine's on every fixture.
+/// The note on a stop in the default profile (D-010): the same text as
+/// `dive_runtime::note_canonical_stop`'s, kept in step by hand. The
+/// report-schema fixtures in `crates/dive-cli/tests/fixtures/report-schema/`
+/// pin this copy, which is the one Core reports.
 const CANONICAL_STOP_NOTE: &str = "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.";
 
 /// The core's value semantics for the run's evaluation options: each of
@@ -464,7 +465,7 @@ pub(crate) fn semantics(eval: &dive_eval::Options) -> dive_core::Semantics {
 }
 
 /// A store with the run's semantics. Under TLC's string order its table is
-/// first fed the reference binder's start-up names, in TLC's encounter
+/// first fed the binder's start-up names, in TLC's encounter
 /// order, and then sealed: a name TLC meets later gets a token that depends
 /// on evaluation order, which the core refuses rather than guess.
 pub(crate) fn store_for(
@@ -520,7 +521,7 @@ fn binding_failure(
     r
 }
 
-/// `SYMMETRY`, prepared as the reference engine prepares it: its maps by
+/// `SYMMETRY`, prepared by `dive-model`'s binder: its maps by
 /// model-value name, its start-up warnings and the default profile's
 /// D-010 note.
 #[derive(Default)]
@@ -607,7 +608,7 @@ fn symmetry(
 }
 
 /// Gives the store the run's random streams: the startup stream where the
-/// binder left it, and states keyed by the reference engine's seeder.
+/// binder left it, and states keyed by `dive-store`'s TLC fingerprinter.
 fn arm_draws(
     store: &dive_core::Store,
     host: &dive_stdlib::host::RunHost,
@@ -691,12 +692,12 @@ fn prepare_observed(
     temporal: bool,
     debugger: Option<Arc<dyn dive_core::debug::Observer>>,
 ) -> Result<Prepared, Box<CheckResult>> {
-    // The reference engine's refusal of random streams under VIEW or
-    // SYMMETRY, before binding runs start-up draws.
+    // The binder's refusal of random streams under VIEW or SYMMETRY,
+    // before binding runs start-up draws.
     if let Some(feature) = dive_model::transformed_randomness(ir, config) {
         return Err(Box::new(result(unsupported(feature), options, ir)));
     }
-    // The reference engine's host: constant definitions and `ASSUME`s
+    // The binder's host: constant definitions and `ASSUME`s
     // draw from the startup stream, which `Init` continues
     // (`03-value-model.md` §6.1).
     let mode = if profile_tlc {
@@ -713,8 +714,8 @@ fn prepare_observed(
         eval: options.eval,
         no_deadlock: options.no_deadlock,
         host: Some(Arc::clone(host) as Arc<dyn dive_eval::Host>),
-        // The temporal route reports the requested policy, as the reference
-        // engine binds it; it only matters with temporal properties.
+        // The temporal route reports the requested policy, as the binder
+        // binds it; it only matters with temporal properties.
         symmetry_liveness: if temporal {
             options.symmetry_liveness
         } else {
@@ -737,8 +738,8 @@ fn prepare_observed(
     // On the temporal route the binder still evaluates the start-up
     // definitions the temporal properties and their checking reach
     // (`dive_model::bind_deferring_constants`); the core keeps the others.
-    // TLC creates its model checker after binding, as the reference engine
-    // does: `TLCGet("config")` and the checker's names exist from here on,
+    // TLC creates its model checker after binding, and so does the core:
+    // `TLCGet("config")` and the checker's names exist from here on,
     // and the ASSUMEs read the start-up counters.
     model.evaluator.intern_checker_names();
     let run_config = dive_runtime::run::run_config(options, model.settings.check_deadlock);
@@ -802,7 +803,7 @@ fn prepare_observed(
     };
     // The other ASSUMEs are startup evaluation (the binder's,
     // `04-plan-compiler.md` §2): a false or failing one ends the run as the
-    // reference engine reports it, before any search.
+    // binder reports it, before any search.
     let outcome = match refuted {
         Some(a) => model.evaluator.false_assumption(a),
         None => model.check_assumptions_except(proved),
@@ -816,13 +817,12 @@ fn prepare_observed(
             Some(dive_runtime::classify::assumption_error(&error, message))
         }
     };
-    // From `Init` on the live counters are not provided, as in the
-    // reference engine's search: reading one is refused rather than
-    // answered with a count the core does not keep.
+    // From `Init` on the live counters are not provided: reading one is
+    // refused rather than answered with a count the core does not keep.
     dive_runtime::run::search_counters(&host);
     if let Some(v) = assumed {
-        // Output printed while evaluating the ASSUMEs is the reference
-        // engine's to order; the core does not report it.
+        // Output printed while evaluating the ASSUMEs has an order the core
+        // does not reproduce, so the core does not report it.
         let printed = !model.take_output().is_empty()
             || model
                 .output
@@ -836,7 +836,7 @@ fn prepare_observed(
         return Err(Box::new(result(v, options, ir)));
     }
     // What the binder printed at start-up (constant definitions, then the
-    // ASSUMEs) comes first, as the reference engine reports it.
+    // ASSUMEs) comes first.
     let mut startup: Vec<String> = model
         .output
         .iter()
@@ -938,7 +938,7 @@ pub(crate) struct Startup {
     startup: Vec<String>,
 }
 
-/// The safety result of a core search, in the reference engine's form.
+/// The safety result of a core search, as a `dive_runtime::CheckResult`.
 #[allow(
     clippy::too_many_lines,
     reason = "the endings of a core search, in order"
@@ -1093,8 +1093,7 @@ pub(crate) fn safety_result(
         && out.in_init);
     let mut trace = out.trace.clone();
     let mut stats = out.stats;
-    // Whether the trace ends in the successor a check failed on (the
-    // reference engine's `Stop::then`).
+    // Whether the trace ends in the successor a check failed on.
     let mut then = matches!(
         verdict,
         Verdict::InvariantViolated { initial: false, .. } | Verdict::ActionPropertyViolated { .. }
@@ -1127,11 +1126,11 @@ pub(crate) fn safety_result(
             Err(refusal) => verdict = refusal,
         }
     }
-    // The reference engine's boundary for a plan that draws: TLC rebuilds
+    // The boundary for a plan that draws: TLC rebuilds
     // a trace whose predecessor is initial from the original state object,
     // whose stream is already consumed, so its last state can go missing
-    // (`docs/tlc-differences.md`, D-002). The reference engine refuses it
-    // with the statistics of the stop.
+    // (`docs/tlc-differences.md`, D-002). The core refuses it by name,
+    // with the stop's statistics and a D-002 note, and drops the trace.
     let mut draw_note = None;
     if plan.effects.draws
         && then
@@ -1247,7 +1246,7 @@ pub(crate) fn safety_result(
             alias.text
         ));
     }
-    // The reference engine's D-010 qualification of a stop in the default
+    // The D-010 qualification of a stop in the default
     // profile (`dive_runtime::note_canonical_stop`); under `--compat=tlc`
     // TLC's order needs no note.
     if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
@@ -1404,8 +1403,7 @@ pub(crate) fn check(
         compile_time,
     } = prepared;
     // The armed budget (time and memory, ADR 0107) is polled once per
-    // expanded state and per initial state, as the reference engine polls
-    // it; `--max-states` and `--max-depth` are admission limits.
+    // expanded state and per initial state; `--max-states` and `--max-depth` are admission limits.
     let budget = &options.budget;
     // Every observable result is the one-worker result
     // (`docs/developer/core/07-engine.md` §3), in both profiles: under
@@ -1619,8 +1617,7 @@ pub(crate) fn native_seen_usage(
     }
 }
 
-/// Runs the temporal route on a thread with the evaluator's stack, as the
-/// reference engine runs its temporal checks.
+/// Runs the temporal route on a thread with the evaluator's stack.
 fn temporal_on_stack(
     ir: &Arc<Ir>,
     config: &dive_config::ModelConfig,
@@ -1665,7 +1662,7 @@ fn temporal_on_stack(
     }
 }
 
-/// The counterexample of a core run, in the reference engine's form, so
+/// The counterexample of a core run, as a `dive_runtime` counterexample, so
 /// that the report and its `dive-trace` document are built the same way.
 pub(crate) fn counterexample(
     model: &dive_model::Model,
@@ -1723,7 +1720,7 @@ pub(crate) fn counterexample(
     Ok(dive_runtime::Counterexample { states })
 }
 
-/// The action's name in traces, as the reference engine gives it.
+/// The action's name in traces.
 pub(crate) fn action_name(
     model: &dive_model::Model,
     a: &dive_eval::next::Action,
@@ -1737,7 +1734,7 @@ pub(crate) fn action_name(
     }
 }
 
-/// Converts a persistent handle to a reference value (the reverse of the
+/// Converts a persistent handle to a `dive_value::Value` (the reverse of the
 /// binder boundary, `dive_core::convert`), for reports and validation.
 pub(crate) fn to_value(
     heap: &mut dive_core::Heap,

@@ -1,6 +1,6 @@
 //! Results Core and the retired reference engine agreed on (#791).
 //!
-//! A test that compared Core with the reference engine now compares Core with
+//! A test that compared Core with the Reference engine now compares Core with
 //! the result both engines produced when they still ran side by side. Each
 //! comparison site has a key made of the running test's name and the site; a
 //! site reached more than once gets one entry per pass, in order. A record is
@@ -147,7 +147,7 @@ pub fn check<T: Debug + ?Sized>(records: &str, site: &str, actual: &T) {
 
 /// Asserts that `actual` equals `other` and renders as the agreed record.
 ///
-/// `other` is the value the test compared with when the reference engine
+/// `other` is the value the test compared with when the Reference engine
 /// still ran. It is now computed by Core, or derived from the same run, so
 /// the equality keeps any relation within Core while the record keeps the
 /// agreed result.

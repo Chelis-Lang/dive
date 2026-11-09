@@ -1,6 +1,6 @@
 //! The Core enumerates `{E \in SUBSET T : \A e \in E : Q}` as
 //! `SUBSET {e \in T : Q}` only when the compiler proves `Q` pure and
-//! independent of `E` (#853), with the reference engine's results.
+//! independent of `E` (#853), with the agreed results (`support/agreed.rs`).
 #![allow(clippy::expect_used, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
 mod agreed;

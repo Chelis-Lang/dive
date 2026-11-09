@@ -222,12 +222,12 @@ pub struct OmittedTrace {
 }
 
 /// Which `dive check` engine ran a model (`--engine`, ADR 0117), and why
-/// `--engine auto` fell back to the reference engine.
+/// `--engine auto` fell back to the retired Reference engine (older reports).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EngineRun {
     /// `reference` or `core`.
     pub engine: String,
-    /// The core's refusal, when `auto` ran the reference engine.
+    /// The core's refusal, when `auto` ran the retired Reference engine.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fallback: Option<EngineFallback>,
     /// The core's successor sample (`dive check --core-sample`).
@@ -252,7 +252,7 @@ pub struct CoreSample {
     pub shown: Vec<String>,
 }
 
-/// An `--engine auto` fallback to the reference engine.
+/// An `--engine auto` fallback to the retired Reference engine.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EngineFallback {
     /// `static` (refused before the search) or `dynamic` (during it).

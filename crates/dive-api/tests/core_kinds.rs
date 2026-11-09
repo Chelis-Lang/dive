@@ -1,5 +1,5 @@
-//! Comparisons across kinds in the new core (`--engine=core`), against the
-//! reference engine in the default profile (`--comparisons=tla`, D-009;
+//! Comparisons across kinds in the core, against the results Core and the
+//! retired Reference engine agreed on in the default profile (`--comparisons=tla`, D-009;
 //! `crates/dive-eval/src/tla_cmp.rs`).
 //!
 //! A direct comparison of values of different classes (scalars of different
@@ -7,9 +7,9 @@
 //! so is membership of a value of the wrong class in a set. The core must
 //! never answer such a comparison: before this test it answered `FALSE`, so
 //! that a run TLC stops with an error reported success or a deadlock. Each
-//! case runs on both engines; the core must give the reference's verdict,
-//! counts and exit (its error endings are classified as the reference
-//! engine classifies them, `crates/dive-api/src/core_ending.rs`). Mixed sets
+//! case runs on Core; the core must give the agreed verdict, counts and exit
+//! (its error endings are classified by `dive_runtime::classify`,
+//! `crates/dive-api/src/core_ending.rs`). Mixed sets
 //! use canonical construction under D-028; their consumers still preserve
 //! undefined scalar comparisons.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
@@ -23,7 +23,7 @@ use dive_api::{CheckRequest, Engine, check_file_engine};
 use serde_json::Value;
 
 /// Invariants over `x \in 0..2`, each either an error or a plain answer in
-/// the reference engine.
+/// the agreed result.
 const CASES: &[&str] = &[
     r#"x # "a""#,
     r#""a" \notin {x, 5}"#,

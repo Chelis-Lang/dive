@@ -101,7 +101,7 @@ fn every_worker_count_gives_the_one_worker_result() {
                     "{name} at {workers} workers, --max-states {limit:?}"
                 );
                 // A run that ends at startup (a false or failing ASSUME)
-                // starts no worker, in the reference engine too.
+                // starts no worker.
                 let used = if one["options"]["workers"]["used"] == 0 {
                     let reference = run_on(spec, workers, limit, Engine::Core);
                     agreed::check_eq(

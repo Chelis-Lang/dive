@@ -1,6 +1,6 @@
 //! `--compat=tlc` on the new core (M2, `docs/developer/core/07-engine.md`
 //! §8): every fixture the core runs under `--engine=core --compat=tlc` must
-//! give the reference engine's compat result: verdict, violated property,
+//! give the agreed compat result (`support/agreed.rs`): verdict, violated property,
 //! counts, depth, queue, exit, output and the counterexample's states. A
 //! run TLC completes must also give TLC's counts. A fixture the core does
 //! not run must be refused, naming the construct.
@@ -253,7 +253,7 @@ fn compat_fixtures_pin_each_component() {
         "invariant-violation"
     );
     assert_eq!(run(&spec, Engine::Core, false)["verdict"], "success");
-    // A binding failure is reported as the reference engine reports it.
+    // A binding failure is reported as the agreed record reports it.
     let spec = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/core-compat/CompatBigNumeral.tla");
     assert_eq!(run(&spec, Engine::Core, true)["verdict"], "model-error");
