@@ -634,3 +634,82 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
     }
     Ok(())
 }
+
+/// A time budget spent by start-up work (Core's constant evaluation while it
+/// compiles the plan, or the binder's, which also evaluates a printing
+/// constant and every constant under `--compat=tlc`) stops the run in
+/// `check-startup`, before `Init`, with no statistics and the start-up output
+/// printed so far, in the safety and temporal envelopes (#968).
+#[test]
+fn a_time_budget_spent_at_startup_stops_in_check_startup() -> Result<(), Box<dyn std::error::Error>>
+{
+    let scratch = scratch()?;
+    let file = scratch.0.join("Startup.tla");
+    for print in [false, true] {
+        // `Big` is a constant definition: start-up evaluates it once, building
+        // a 250 000-pair set, far longer than the 10 ms limit. The model is
+        // endless afterwards, so a later stop is never mistaken for a verdict.
+        let effect = if print {
+            "PrintT(\"startup-print\") /\\ "
+        } else {
+            ""
+        };
+        std::fs::write(
+            &file,
+            format!(
+                "---- MODULE Startup ----\nEXTENDS Naturals,FiniteSets,TLC\nVARIABLE x\nBig == {effect}Cardinality({{<<i,j>>:i \\in 1..500,j \\in 1..500}}) > 0\nInit == x = 0\nNext == Big /\\ x' = x + 1\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nLive == <>(x = 1000000000)\n====\n"
+            ),
+        )?;
+        for (cfg, temporal) in [
+            ("INIT Init\nNEXT Next\n", false),
+            ("SPECIFICATION Spec\nPROPERTY Live\n", true),
+        ] {
+            std::fs::write(scratch.0.join("Startup.cfg"), cfg)?;
+            for compat_tlc in [false, true] {
+                let case = format!("print={print} temporal={temporal} compat_tlc={compat_tlc}");
+                let report = dive_api::check_file_engine(
+                    &CheckRequest {
+                        time_limit: BudgetSetting::Explicit(Duration::from_millis(10)),
+                        max_memory: BudgetSetting::Explicit(1 << 34),
+                        ..request(&file, compat_tlc, 1)
+                    },
+                    dive_api::Engine::Core,
+                )?;
+                let json = report.to_json();
+                assert_stopped(&json, "time", "check-startup");
+                assert_eq!(report.exit_code(), exit::STOPPED, "{case}");
+                assert!(json["statistics"].is_null(), "{case}: {json}");
+                // Binding ran: this is not the stop before checking starts.
+                assert!(
+                    json["resources"]["checking_started"].is_null(),
+                    "{case}: {json}"
+                );
+                let output = if print {
+                    vec!["\"startup-print\""]
+                } else {
+                    vec![]
+                };
+                assert_eq!(json["output"], serde_json::json!(output), "{case}: {json}");
+                assert_eq!(
+                    json["check_kind"],
+                    if temporal { "temporal" } else { "safety" },
+                    "{case}"
+                );
+                if temporal {
+                    assert_eq!(
+                        json["execution"]["stage"], "check-startup",
+                        "{case}: {json}"
+                    );
+                    assert_eq!(
+                        json["execution"]["capture_completed"], false,
+                        "{case}: {json}"
+                    );
+                    assert!(json["execution"]["started"].is_null(), "{case}: {json}");
+                } else {
+                    assert!(json["execution"].is_null(), "{case}: {json}");
+                }
+            }
+        }
+    }
+    Ok(())
+}

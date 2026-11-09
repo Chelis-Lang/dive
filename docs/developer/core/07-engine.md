@@ -342,7 +342,10 @@ the incremental hash before any interning, so only new states are interned.
   never refused.
 - The stop is the reference engine's structured `stopped` verdict: the
   resource, limit and observation, the phase `safety-search`, the
-  statistics at the stop, and the exit code. TLC's statistics are not
+  statistics at the stop, and the exit code. A budget already spent when
+  start-up (binding, compile, folding, the ASSUMEs) finishes is polled once
+  before the search or the temporal route and stops in `check-startup`
+  instead, with no statistics. TLC's statistics are not
   printed for a stop in the initial states. The report's `options` and
   `resources` sections, which `dive-bench` reads, are unchanged.
 - `crates/dive-api/tests/core_budgets.rs`:

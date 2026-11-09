@@ -299,6 +299,34 @@ pub(crate) fn core_capture_stop(
     failure
 }
 
+/// A budget stop of Core's start-up work, found before the temporal route
+/// plans or captures (#968): stage and phase `check-startup`, no capture,
+/// and the start-up output printed so far.
+pub(crate) fn core_startup_stop(
+    verdict: dive_runtime::Verdict,
+    started: Instant,
+    checks: Option<Checks>,
+    symmetry_liveness: dive_model::SymmetryLivenessResolution,
+    output: Vec<dive_model::Message>,
+) -> Failure {
+    let error = match verdict {
+        dive_runtime::Verdict::Stopped(stopped) => {
+            dive_liveness::analyze::AnalysisError::Stopped(stopped)
+        }
+        dive_runtime::Verdict::BudgetMeasurement { error } => {
+            dive_liveness::analyze::AnalysisError::BudgetMeasurement(error)
+        }
+        _ => dive_liveness::analyze::AnalysisError::Inconsistent("non-budget start-up stop"),
+    };
+    let mut failure = Failure::before(Error::Analysis(error), Stage::Startup);
+    failure.elapsed = started.elapsed();
+    failure.periodic = checks.map(Box::new);
+    failure.configuration = Some(Box::new(core_file_configuration()));
+    failure.symmetry_liveness = Some(Box::new(symmetry_liveness));
+    failure.binding_output = output;
+    failure
+}
+
 #[allow(
     clippy::too_many_arguments,
     reason = "same native producer and source-validation boundary"

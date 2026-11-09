@@ -189,6 +189,9 @@ pub(crate) fn check(
         {
             return Err(failure("local Java class identity changed during startup"));
         }
+        if let Some(verdict) = core_engine::startup_stop(options) {
+            return Err(verdict);
+        }
         let poll = || !matches!(options.budget.poll(), Ok(None));
         let proceed = || !poll();
         let startup =

@@ -556,7 +556,10 @@ disables memory enforcement. `dive tlc` accepts the JVM spelling `-Xmx8g`, or
 A finite memory budget takes a native observation before model binding and a
 terminal observation before publishing a holding result, plus periodic samples.
 An initial known excess returns `stopped` at `check-startup`, with no search
-statistics or capture claim. Source/configuration loading errors remain earlier;
+statistics or capture claim. A budget found spent once start-up work (constant
+evaluation, Core's plan compile and constant folding, the ASSUMEs) has finished
+also returns `stopped` at `check-startup`, before `Init`, rather than at the
+search's first poll. Source/configuration loading errors remain earlier;
 future binding effects, assumptions and initial predicates are not evaluated
 after that cut. A terminal resource excess reports phase `finalization`,
 retaining completed capture and progress without publishing a holding result.

@@ -27,7 +27,9 @@ mod native;
 #[cfg(test)]
 pub(crate) use native::core_analysis;
 pub use native::{ValidatedNativeCounterexample, ValidatedNativePrefix};
-pub(crate) use native::{core_capture_stop, core_native_report, core_source_row_failure};
+pub(crate) use native::{
+    core_capture_stop, core_native_report, core_source_row_failure, core_startup_stop,
+};
 
 /// The outcome of a bounded temporal run on Core, distinguishing real prefixes.
 #[derive(Clone, Debug)]

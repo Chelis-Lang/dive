@@ -8,6 +8,11 @@ published. Earlier pre-release development entries remain in git history.
 - `dive --version` describes the build only from release tags (`v<digit>…`)
   (issue #969). An untagged build names its abbreviated commit hash instead of
   the nearest internal archive tag such as `keep/…`.
+- A time or memory budget spent by start-up work (constant evaluation, Core's
+  plan compile and constant folding, the ASSUMEs) now reports phase
+  `check-startup` instead of `safety-search` or `temporal-analysis`, in both
+  profiles (issue #968). The start-up output printed so far is retained. The
+  verdict (`stopped`) and exit code 5 are unchanged.
 - Breaking: `dive-liveness` no longer has its public materialized-product
   study API (issue #791): `product::{Product, Labels, CsrTopology}`,
   `search::{find_lasso, Acceptance, Lasso, Step}`, `formula::Recurrence` and
