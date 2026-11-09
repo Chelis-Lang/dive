@@ -14,86 +14,53 @@ reset. Plans give no dates or effort estimates.
 
 GitHub milestones:
 - `v0.1: first value`, the release work;
-- `Reference retirement`, removing the old checking runtime;
+- `Reference retirement`, the remaining cleanup after the old checking runtime's removal;
 - `post-v0.1`, everything frozen or deferred.
 
 ## Where we are
 
-- **Core has its first full Examples measurement.** At one worker, the default
-  profile records 126 agreements, two registered expected divergences, 42 named
-  refusals, six declared budget stops and nine missing goldens, with zero
-  disagreements among 185 in-scope models (233 selected, 48 excluded). The TLC
-  profile records 128 agreements and the same remaining outcome counts. These
-  2026-11-05 measurements predate canonical sets, now merged; subsequent
-  focused gains are not folded into this full-tier result.
-- **The Reference engine is still the default.** Its same-source measurement
-  completed on 2026-11-06: default 146 agreements plus four expected divergences,
-  13 refusals and 13 stops; TLC profile 150 agreements, 15 refusals and 11 stops.
-  Both retain nine missing goldens and zero disagreements. Core covers seven
-  models Reference cannot finish, but misses 29 Reference-covered models: a net
-  coverage gap of 22. The historical 151 Examples agreements and 182 agreements
-  across four corpora describe different measurements.
-- **Core's small-tier floor is enforced in CI.** Default: 122 agreements, four
-  registered divergences and 30 named refusals. TLC profile: 126 agreements and
-  30 named refusals, projected from the completed full and auxiliary runs. Both
-  have zero disagreements, budget stops or missing goldens; the TLC projection
-  reports no internal errors.
-- **Bare use, nominal compat and the public surface are delivered (R3–R5).**
-  Libraries are bundled, the ten-spec bare-use smoke meets its checked/refused
-  contract, and help/version and schema-3 JSON are pinned. Bare-use checks are
-  Reference-backed and do not increase Core coverage.
-- **Configured-helper and INSTANCE repairs are delivered.** Merged #835 fixes
-  the startup-register false success (#831); the optimized original MCParReach
-  succeeds with pinned observables. The recursive INSTANCE ownership fix (#832)
-  is also merged. These focused gains do not update the full-tier count.
-- **Release speed is not established (R2).** Matched local one-worker runs
-  confirm SDP, NanoMedium and EWD startup exceed twice TLC (#820–#822).
-  The bounded-cache SDP, canonical-union Nano and EWD memory improvements are
-  delivered, but all three remain blockers. Nano's clean pair improves 2.26x
-  and remains 8.2x TLC; EWD user CPU is essentially unchanged.
-  MCInnerSerial still stops at 300 seconds (#787); the rejected filter experiment
-  is not delivered. Exact timings and qualifications are in the scoreboard.
-- **There is no release.** Packaging preparation is delivered (#805); R1, R2 and
-  R6 remain open. Version/tag, native ARM verification and one RC qualification
-  remain. [scoreboard.md](scoreboard.md) lists exact refusal reasons,
-  model IDs, unmeasured cases and timing qualifications.
+- **Core is dive's only checking engine.** `dive check`, `dive simulate`,
+  `dive dfid` and `dive tlc` run on Core. The Reference checking runtime, the
+  `--engine=auto` fallback and the `dive-check` crate are removed; shared
+  start-up (`dive-model`) and the independent trace validator (`dive-trace`, on
+  `dive-eval`) remain. Features Core does not implement are named refusals
+  (#910). The remaining retirement cleanup is tracked in #791.
+- **Coverage and speed (R1, R2) are being measured on the release candidate.**
+  The [scoreboard](scoreboard.md) holds the current full-tier numbers, the
+  refusal-reason histogram and the speed blockers.
+- **Core's small-tier floor is enforced.** The committed baselines record 141
+  agreements, nine registered divergences and six named refusals in the default
+  profile, and 141 agreements, one registered divergence and 14 named refusals
+  in the TLC profile, with zero disagreements, budget stops or missing goldens
+  ([conformance snapshot](conformance.md)). The full gate and the nightly job
+  ratchet against them.
+- **Bare use, nominal compat and the public surface are met on Core (R3–R5).**
+  Libraries are bundled; the ten-spec bare-use smoke checks nine and refuses
+  EWD998ChanID by name, including from the release archive with an empty
+  `PATH`. `cargo xtask gate --full` passes, and help, `--version` and schema-3
+  JSON are pinned.
+- **There is no release.** Packaging and a release dry-run workflow exist
+  (#805). The version is `0.0.0` and there is no tag (R6, #794).
 
 ## Path to v0.1
 
 Remaining work follows the [release gates](RELEASE.md), using measured reason
 buckets rather than model-by-model history fixes:
 
-1. Close the remaining demonstrated Reference-covered gaps by reason bucket,
-   with focused checks on current Core. The completed comparison identifies
-   29 such baseline refusals, led by recursive functions (10), quiet nested
-   equality (4), lazy
-   operator successor domains (3) and action composition (2). Canonical sets
-   have since landed; retain verified focused results separately rather than
-   adding them to the old census. Address the remaining recursive-helper/operator
-   and substitution gaps. The owner resolved #813 in favor of precise registered
-   Boolean-predicate bookkeeping differences; effect safety and bounded calls
-   remain required.
+1. Confirm R1 and R2 with the quiet-node full-tier measurement on the release
+   candidate, and work any remaining refusal or speed blocker by reason bucket.
 2. Resolve the nine absent oracle facts through targeted pinned-oracle work on
    the original configurations. Keep them unmeasured until a legitimate golden
-   exists; snapshots do not turn unknowns into native results.
-3. Resolve the confirmed matched performance blockers and MCInnerSerial's
-   300-second stop; retain verdict, trace and observable-count obligations.
-   Capacity tracking (#788) is consolidated into R1 (#338): the measurement
-   contains no capture-capacity refusal bucket.
-4. Refresh the integrated Core measurement at the weekly or cutover boundary.
-   Once R1 holds, remove the Auto fallback and Reference checking runtime from
-   the product path with obsolete compatibility scaffolding (#791), retaining
-   shared startup and independent validation. Repeat the bare-use checks on
-   Core before cutover.
-5. With packaging preparation delivered (#805), finish R1/R2, set the release
-   version and run one integrated release-candidate qualification. Verify the
-   native ARM release and tag/publish `v0.1.0` when all gates hold.
+   exists.
+3. Set the release version, fold in the change log, run `cargo xtask gate
+   --full` on the tagged source and tag `v0.1.0` when all gates hold (#794).
 
 Delivered release work: canonical sets and history removal (#786, #807, #815),
 lexically scoped applied LET-recursive functions (#811), the Core-only small-tier
 ratchet (#806), bundled TLAPS and CommunityModules with bare-use smoke (#803),
-nominal compatibility and its known gaps (#810), CLI help/version (#802), and
-schema-3 report goldens (#804).
+nominal compatibility and its known gaps (#810), CLI help/version (#802),
+schema-3 report goldens (#804), Core as the only engine (#879) and removal of
+the `dive-check` crate (#935).
 
 ## After v0.1
 
