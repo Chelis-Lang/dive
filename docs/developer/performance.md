@@ -7,6 +7,104 @@ evaluator work. Instruction counts assess individual optimizations; wall time
 against the pinned TLC assesses the release goal. Neither substitutes for the
 other, and incomplete or refused runs earn no credit.
 
+## R2 measurement procedure
+
+This is how the R2 speed gate (`docs/RELEASE.md`) is measured. A ratio is
+Core/TLC, so below 1 means Core is faster. A run that breaks a rule here is
+triage: it may be posted as triage, and it never counts for the gate.
+
+### What is measured
+
+- End-to-end wall time of one fresh process per run, at `--workers 1`, seed 0,
+  fingerprint 0, on models whose result agrees with the golden (`agree` or
+  `expected-divergence`, counterexamples independently validated).
+- `elapsed_ms` is the harness clock around `run_with_timeout`
+  (`crates/dive-conformance/src/process.rs`), the same for both sides. It
+  includes process start-up (the JVM for TLC), parsing and checking, two
+  `/bin/ps` snapshots and exit polling at a 25 ms pulse. It excludes the
+  corpus copy into TLC's scratch directory, TLC's untimed `-dumpTrace` pass and
+  validation of Core's counterexample. The fixed overhead pulls small-model
+  ratios toward 1x; it is never subtracted.
+
+### Host and binaries
+
+- One dedicated node of the reference type (AWS c7i.metal-24xl), running
+  nothing else while timing. SMT off, turbo off, the performance governor and
+  minimum = maximum frequency (2.4 GHz).
+- The harness runs under `numactl --cpunodebind=0 --membind=0`, the same for
+  both sides. A narrower CPU list is triage, because the JVM sizes its GC and
+  JIT threads from the CPUs it sees.
+- `--xmx 24g`. `$DIVE_CACHE_DIR`, which holds TLC's `-metadir`, is on local
+  NVMe or a gp3 volume provisioned at 16000 IOPS and 1000 MiB/s: a
+  default-throughput volume slows only TLC's disk-backed queue.
+- The harness starts under `env -i` with only `PATH`, `HOME` and
+  `DIVE_CACHE_DIR` (`GH_TOKEN` for fetches only).
+- Core is the release dry-run archive's `dive`, or a build with the release
+  command (`cargo build --release --locked -p dive-cli --bins --target
+  <triple>`) with no `RUSTFLAGS`, passed with `--dive-bin`.
+
+### No warm-state advantage
+
+- **TLC:** a fresh JVM per run with exactly the harness flags
+  (`-XX:+UseParallelGC -Xmx<xmx> -Xss8m` and properties; the harness scrubs
+  `JAVA_TOOL_OPTIONS`, `_JAVA_OPTIONS`, `JDK_JAVA_OPTIONS` and `CLASSPATH`).
+  Only the stock JRE CDS archive is used: no AppCDS or dynamic archive, no
+  daemon or reused JVM, no JIT cache. Each run gets an empty `-metadir`, with
+  `-cleanup` and never `-recover`.
+- **Core:** a fresh `dive check` per run, never `--checkpoint` or `--recover`.
+  `dive check` keeps no on-disk state between processes; a future on-disk
+  cache is disabled for timed runs.
+- **Page cache, warm for both sides on purpose.** Before timing, read every
+  input into the page cache: the corpus checkout, module libraries, JRE tree,
+  `tla2tools.jar` and the dive binary. Dropping caches before each run would
+  measure the disk, not either checker.
+- **One checker at a time** (`--jobs 1`). With several jobs a model's
+  neighbours differ between the TLC and Core passes, and a TLC JVM's GC and
+  JIT threads compete for cores, which favours Core. A full tier may be
+  sharded across nodes of the reference type by a fixed rule (manifest order,
+  round-robin); each node times TLC and Core on its shard.
+
+### Size classes and repetitions
+
+- Classes come from one named `--jobs 1` TLC report on the reference host
+  type, recorded before any Core run and never changed after results are seen.
+  **Small:** TLC under 10 s. **Large:** 10 s or more.
+- **Small models:** six repetitions on one host in one session, no cached TLC
+  times. Each repetition times TLC and then Core over the small class, with
+  the order reversed in alternate repetitions. A model's ratio is the median of
+  its six ratios. Every repetition is reported; never the minimum, and never
+  repeat only the models above 1x.
+- **Large models:** one pass. A ratio in [0.9, 1.1] or [1.8, 2.0], or a Core
+  budget stop, triggers three fresh back-to-back TLC/Core pairs (order
+  alternating) with Core's budget at 2.5x that pair's TLC time; the median of
+  the three is the ratio, and the first pass is reported beside it.
+
+### Cached TLC times
+
+A cached TLC time is valid only for a large model and only when the instance
+type, CPU and storage controls, `--xmx`, `--jobs 1`, oracle, JRE, corpus and
+manifest commits and the harness's TLC command line all match the Core run.
+On each launch that reuses a cache, re-time three fixed canaries (the three
+shortest large models) three times each before any Core run. If a canary's
+median differs from its cached time by more than 5 %, or the mean signed
+difference exceeds 2 %, re-take the whole cache on that launch.
+
+### Attempts and reporting
+
+- The gate number is the first complete conforming attempt for a source and
+  pin set. Every attempt is listed; one may be discarded only for a recorded
+  host fault.
+- The record (compact JSON under `conformance/reports/perf/` plus the status
+  issue post) gives every model by name with its category (agreeing, stopped,
+  excluded, untimed, out of scope), class and ratio; the geomean over agreeing
+  models and a fixed-set geomean over every model with a TLC time (stops at
+  max(2, lower bound), excluded rows at 2); models above 1x and 2x; every
+  repetition with its order; the sources, binary SHA-256, oracle and JRE; the
+  host, controls and binding; and the provenance of any cached TLC time.
+- The harness does not yet automate repetitions, the cache checks, the clean
+  environment or the full record (#983). Until it does, those rules are
+  carried out by a driver script and the record says so.
+
 ## AWS rebaseline, 2026-10-26
 
 This is the Day-0 rebaseline of the core reboot (#498,
