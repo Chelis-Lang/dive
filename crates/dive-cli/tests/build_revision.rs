@@ -13,6 +13,11 @@ fn setup(directory: &Path, arguments: &[&str]) -> Result<String, Box<dyn std::er
         .current_dir(directory)
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
         .env("GIT_CONFIG_NOSYSTEM", "1")
+        .env_remove("GIT_DIR")
+        .env_remove("GIT_WORK_TREE")
+        .env_remove("GIT_INDEX_FILE")
+        .env_remove("GIT_CONFIG_PARAMETERS")
+        .env_remove("GIT_CONFIG_COUNT")
         .args(["-c", "user.name=t", "-c", "user.email=t@example.invalid"])
         .args(["-c", "commit.gpgsign=false", "-c", "tag.gpgsign=false"])
         .args(arguments)
@@ -47,7 +52,8 @@ fn describe_ignores_internal_tags_and_names_release_tags() -> Result<(), Box<dyn
     let directory = scratch.0.as_path();
     setup(directory, &["init", "-q"])?;
     setup(directory, &["commit", "-q", "--allow-empty", "-m", "first"])?;
-    let first = setup(directory, &["rev-parse", "--short", "HEAD"])?;
+    // Abbreviate through the production helper so both sides share `core.abbrev`.
+    let first = revision::git(directory, &["rev-parse", "--short", "HEAD"]).ok_or("rev-parse")?;
     for tag in ["keep/archive-1", "pre-rescue", "oracle-tlc-1.8.0", "vendor"] {
         setup(directory, &["tag", tag])?;
     }
@@ -65,8 +71,12 @@ fn describe_ignores_internal_tags_and_names_release_tags() -> Result<(), Box<dyn
         &["commit", "-q", "--allow-empty", "-m", "second"],
     )?;
     setup(directory, &["tag", "keep/archive-2"])?;
-    let second = setup(directory, &["rev-parse", "--short", "HEAD"])?;
+    let second = revision::git(directory, &["rev-parse", "--short", "HEAD"]).ok_or("rev-parse")?;
     assert_eq!(revision::revision(directory), format!("v0.1.0-1-g{second}"));
+
+    // An annotated release tag is described the same way.
+    setup(directory, &["tag", "-a", "v0.2.0", "-m", "release"])?;
+    assert_eq!(revision::revision(directory), format!("v0.2.0-0-g{second}"));
 
     // Outside a repository there is no revision to name.
     let outside = scratch.0.join("not-a-repository");
