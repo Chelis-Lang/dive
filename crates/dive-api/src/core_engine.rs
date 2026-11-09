@@ -1451,6 +1451,18 @@ pub(crate) fn check(
         plan,
         compile_time,
     } = prepared;
+    // A distributed run's worker identity, and its refusals (state-variable
+    // arity, source admission, local Java classes), hold at any budget, so
+    // they precede the start-up stop (#973).
+    let identity = match &distributed {
+        Some((_, config_hash)) => {
+            match crate::core_worker::identity(ir, config, options, config_hash, core_opts) {
+                Ok(identity) => Some(identity),
+                Err(verdict) => return (finish(result(verdict, options, ir)), run),
+            }
+        }
+        None => None,
+    };
     if let Some(verdict) = startup_stop(options) {
         // The start-up output and symmetry diagnostics are retained, as a
         // stop in the search retains them.
@@ -1480,13 +1492,8 @@ pub(crate) fn check(
         seed: options.seed.cast_unsigned(),
         states,
     });
-    let coordinator = if let Some((remote, config_hash)) = &distributed {
-        let identity =
-            match crate::core_worker::identity(ir, config, options, config_hash, core_opts) {
-                Ok(identity) => identity,
-                Err(verdict) => return (finish(result(verdict, options, ir)), run),
-            };
-        match dive_explore::distributed::Coordinator::new((*remote).clone(), &identity, &store) {
+    let coordinator = if let (Some((remote, _)), Some(identity)) = (&distributed, &identity) {
+        match dive_explore::distributed::Coordinator::new((*remote).clone(), identity, &store) {
             Ok(coordinator) => Some(coordinator),
             Err(error) => {
                 return (

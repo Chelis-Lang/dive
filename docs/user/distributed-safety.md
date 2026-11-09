@@ -155,6 +155,7 @@ reaches a budget, but no verdict, property or counterexample.
 | Key file missing or not exactly 32 bytes | The coordinator stops with `worker key file PATH: ...`; a worker exits 3 before it listens. |
 | `--distributed-worker` without `--worker-key` | Usage error, exit 2. |
 | Different build, source, configuration, seed, fingerprint, profile, store or `-deadlock` | `worker source/config/executable/policy/startup identity mismatch`, before the search. |
+| A model the session identity cannot admit (for example a user definition with a runtime effect such as `PrintT`, even unused) | `unsupported`, exit 3, naming the feature, before any worker is contacted and before a time or memory budget already spent at start-up would stop the run. |
 | Two endpoints reach the same worker process | `two independently initialized workers required`. |
 | Corrupted, replayed, stale or oversized messages | Rejected by authentication or admission checks; the unit fails and the run stops. |
 | The coordinator is killed | The run is lost. There is no distributed checkpoint; start again. |
