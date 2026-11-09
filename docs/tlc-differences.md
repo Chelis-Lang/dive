@@ -862,7 +862,7 @@ and independently checked; omitted or extra claims are rejected. Capture now
 uses ordered parallel source waves with reported pool width and a separate
 scratch admission bound. TLC-exact planning/selection, phase-L error
 accounting and periodic capture remain pending. Ordinary
-`dive check` still refuses temporal model checking.
+`dive check` checks temporal properties on Core.
 
 The [Rust API](temporal-api.md) returns a
 periodic violation only after both its in-memory word and lossless trace
@@ -1140,7 +1140,6 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - cases of implemented overrides whose TLC result depends on something dive does not track: `BagsExt!FoldBag` on a bag of two or more elements, `Bags!BagOfAll` with an operator that has side effects, and the error a few `Bags`, `Functions` and `IsInjective`/`AntiFunction` cases raise when values TLC cannot compare meet in an order dive does not know;
   - `TLCGet` keys that read TLC's internal description of the run (`"spec"`, `"action"`, `"revision"`) or its JVM (`"-D..."`), the live counters (`"generated"`, `"distinct"`, `"queue"`, `"diameter"`, `"stats"`, `"duration"`) while states are being checked (they are provided while assumptions are checked), and `TLCSet("pause", TRUE)`;
   - the random operators when the evaluator runs without a model checker providing a random stream (for example `ASSUME`s evaluated on their own);
-  - `ENABLED` in a build without the successor generator (the independent trace validator, `dive-trace`);
   - a function that TLC keeps unevaluated (`[x \in S |-> e]` over an infinite domain, or a recursive function) stored inside another value, when computing it could fail or has side effects;
   - enumerating `S \X T` or `[a : S]` with an infinite component, a set too large to count when it is enumerated lazily, and `IsFiniteSet` of a lazily evaluated set;
   - applying a function of 32 or more arguments to a value TLC cannot compare with its domain.
@@ -1151,18 +1150,17 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - applying, as an action, a lazily evaluated function that has pending `EXCEPT`s or an argument outside its domain;
   - a built-in operator passed as an operator argument and applied as an action (`Op(\/)`);
   - `x' \subseteq S` where `S` is not a set.
-- **`dive check` refusals.** The checker refuses, naming the feature, rather than give an answer it cannot vouch for:
-  - temporal properties (liveness checking is not implemented yet) and `SYMMETRY`;
-  - simulation mode;
-  - action composition (`\cdot`) with conjuncts after it or variables assigned before it, in the default mode (D-022);
+- **`dive check` refusals.** Core checks invariants, deadlock, temporal properties with fairness, and `SYMMETRY`. With a genuine temporal property, `SYMMETRY` is checked on the unreduced state space in the default profile (D-005). TLC's symmetry-quotient liveness (`--symmetry-liveness=tlc`) is refused, and it is the `--compat=tlc` default, so under `--compat=tlc` a temporal property with `SYMMETRY` is refused unless `--symmetry-liveness=unreduced` is passed. Core refuses, naming the feature, rather than give an answer it cannot vouch for:
+  - `POSTCONDITION`;
+  - `--chaos`, `--action-composition=tlc`, and action composition (`\cdot`) with conjuncts after it or variables assigned before it in the default mode (D-022);
+  - with temporal properties: the explicit bounded final mode (`--lncheck final --lasso short`), and `--max-states` or `--max-depth`;
   - anything the binding stage or the evaluator refuses (for example `IOUtils`, Json file operations and the CommunityModules operators listed above);
-  - evaluation errors whose exact TLC error class depends on value-source metadata not yet retained by dive. The 175-model error matrix identifies ten such cases explicitly; dive reports their messages but marks the deciding class as unverified, and the conformance harness refuses agreement.
+  - evaluation errors whose exact TLC error class depends on value-source metadata dive does not retain. dive reports their messages but marks the deciding class as unverified, and the conformance harness refuses agreement.
 
-  Also: `ALIAS` is not yet applied to printed counterexamples or simulation traces (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
+  The features Core refuses since the Reference engine was retired, with the tests that will cover them once implemented, are listed in [#910](https://github.com/Chelis-Lang/dive/issues/910). Also: `ALIAS` is not yet applied to printed counterexamples or simulation traces (dive prints the states themselves, and says so). `dive simulate` runs on Core with one worker; parallel simulation workers are refused.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
   - deadlock endings whose successor absence cannot be decided by the independent finite-cover check. A concrete successor refutes the ending, complete finite-cover exhaustion validates it, and missing covers remain unsupported;
-  - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with bounded ordered parallel capture; ordinary schedules and wider recovery remain refused;
-  - liveness claims that lack a complete named-property list or need unestablished fairness, `ENABLED`, effects or VIEW/symmetry closing evidence. Pure concrete periodic words are checked through their closing edge and complete property set;
+  - liveness claims that lack a complete named-property list or need fairness or `ENABLED` facts the shared evaluator cannot decide on the trace's states, effects, or VIEW/symmetry closing evidence. Pure concrete periodic words are checked through their closing edge and complete property set. `ENABLED` is decided by the core evaluator that `dive-trace` shares (ADR 0103);
   - the final claim of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
   - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;
   - traces whose states leave variables unassigned (partial implementation traces), which need a search;
@@ -1184,8 +1182,6 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - TLC's undocumented `_PERIODIC`, `_RL_REWARD` and `_POSSIBLE` sections. A `_PERIODIC` entry is bound first, with TLC's errors for an undefined name (2229) or an operator with parameters (2228), and then refused: dive does not run the hook on TLC's wall-clock timer (D-014);
   - a definition TLC evaluates at start-up that dive's evaluator refuses, when the result decides how the model is bound (it is named in the configuration, it is a conjunct of the behavior specification, or it prints or draws), or when the refused construct splits the next-state relation;
   - the few messages whose text depends on Java objects dive does not have (a Java override used as a configuration name, a state variable used as a conjunct of `SPECIFICATION`).
-
-  Models that check temporal properties, or use `SYMMETRY`, bind, but checking them is refused until liveness checking and symmetry are implemented.
 
 ---
 
