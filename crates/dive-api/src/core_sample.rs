@@ -1,7 +1,7 @@
 //! The successor-multiset sample of the shadow comparison
 //! (`docs/developer/core/08-correctness.md` §4): for each sampled state, the
 //! core's successors under each action, as canonical state keys, must be
-//! the reference evaluator's, with the same multiplicities.
+//! `dive-eval`'s value evaluator's, with the same multiplicities.
 
 use std::sync::Arc;
 
@@ -45,7 +45,7 @@ fn key(model: &Model, s: &[Option<Value>]) -> Result<Vec<u8>, String> {
     Ok(out)
 }
 
-/// The reference evaluator's successors of `s0` under action `i`: sorted
+/// The value evaluator's successors of `s0` under action `i`: sorted
 /// keys, or its error.
 fn reference(
     (model, host): (&Model, &dive_stdlib::host::RunHost),

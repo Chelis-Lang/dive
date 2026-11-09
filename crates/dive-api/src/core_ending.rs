@@ -5,13 +5,13 @@
 //! the parent state, the state checked), but its errors carry no TLC class.
 //! The class is TLC's, by the site where the error is raised, and it depends
 //! on the error's own code and on whether it is an `EvalException`. So the
-//! ending is reproduced with the reference evaluator, on the same states:
+//! ending is reproduced with `dive-eval`'s value evaluator, on the same states:
 //! the failing action, or the failing check, is evaluated again, and the
 //! `dive-runtime`'s table (`dive_runtime::classify`) classifies the error it
 //! raises. The search itself, its counts and TLC's call-stack replay are the
 //! core's.
 //!
-//! The reproduction is also a cross-check. If the reference evaluator does
+//! The reproduction is also a cross-check. If the value evaluator does
 //! not raise an error there, or its action emits a different number of
 //! states before the error, the run is refused rather than reported.
 
@@ -34,7 +34,7 @@ pub(crate) struct Ending {
     pub in_init: bool,
 }
 
-/// A state of handles as the reference evaluator's values.
+/// A state of handles as `dive-eval`'s values.
 pub(crate) fn state(
     model: &Model,
     store: &Arc<dive_core::Store>,
@@ -102,7 +102,7 @@ fn check_of(model: &Model, site: Site) -> Option<(&Named, ErrorSite)> {
 }
 
 /// Counts the emissions of `run` until its error; the error, or why the
-/// reference evaluator disagrees. The replay stops at the first emission
+/// value evaluator disagrees. The replay stops at the first emission
 /// past the core's count: the two already disagree there, so the rest of
 /// the initial states or successors is never enumerated.
 fn reproduce_actions(
@@ -130,7 +130,7 @@ fn reproduce_actions(
     }
 }
 
-/// The reference evaluator's error at the failure: its own code and
+/// The value evaluator's error at the failure: its own code and
 /// provenance, which decide TLC's class.
 fn reproduce(
     model: &Model,

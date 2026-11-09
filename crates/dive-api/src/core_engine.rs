@@ -440,7 +440,10 @@ pub(crate) fn handoff<'a>(
     })
 }
 
-/// `dive-runtime`'s note on a stop in the default profile (D-010).
+/// The note on a stop in the default profile (D-010): the same text as
+/// `dive_runtime::note_canonical_stop`'s, kept in step by hand. The
+/// report-schema fixtures in `crates/dive-cli/tests/fixtures/report-schema/`
+/// pin this copy, which is the one Core reports.
 const CANONICAL_STOP_NOTE: &str = "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.";
 
 /// The core's value semantics for the run's evaluation options: each of
@@ -1126,8 +1129,8 @@ pub(crate) fn safety_result(
     // The boundary for a plan that draws: TLC rebuilds
     // a trace whose predecessor is initial from the original state object,
     // whose stream is already consumed, so its last state can go missing
-    // (`docs/tlc-differences.md`, D-002). The core reports the stop's
-    // statistics with a note instead of a certified trace.
+    // (`docs/tlc-differences.md`, D-002). The core refuses it by name,
+    // with the stop's statistics and a D-002 note, and drops the trace.
     let mut draw_note = None;
     if plan.effects.draws
         && then

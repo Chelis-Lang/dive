@@ -187,7 +187,7 @@ tokens affect comparisons, set order and `CHOOSE`
 nondeterministic.
 
 The Reference engine handled this by forcing a single worker
-(`crates/dive-model/src/reach.rs:248`).
+(the runtime-names rule in `crates/dive-model/src/reach.rs`).
 
 - **M1.** Same rule: the plan records whether runtime names are reachable
   under TLC order, and if so the run uses one worker.
