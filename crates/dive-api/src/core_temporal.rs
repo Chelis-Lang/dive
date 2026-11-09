@@ -67,7 +67,7 @@ fn fixed_name_domain(prepared: &Prepared) -> bool {
 }
 
 /// Why the core does not run this temporal check before its search.
-fn static_refusal(
+pub(crate) fn static_refusal(
     ir: &Arc<Ir>,
     config: &dive_config::ModelConfig,
     options: &CheckOptions,

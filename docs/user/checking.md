@@ -558,7 +558,12 @@ terminal observation before publishing a holding result, plus periodic samples.
 An initial known excess returns `stopped` at `check-startup`, with no search
 statistics or capture claim. Source/configuration loading errors remain earlier;
 future binding effects, assumptions and initial predicates are not evaluated
-after that cut. A terminal resource excess reports phase `finalization`,
+after that cut.
+A budget that `dive check` finds spent once start-up work (constant
+evaluation, Core's plan compile and constant folding, the ASSUMEs) has
+finished also returns `stopped` at `check-startup`, before `Init`, rather than
+at the search's first poll. Refusals that hold at any budget come first.
+A terminal resource excess reports phase `finalization`,
 retaining completed capture and progress without publishing a holding result.
 The owner checks its elapsed clock at that boundary even if the watchdog was
 delayed. macOS uses a native RSS query instead of launching `ps`.
