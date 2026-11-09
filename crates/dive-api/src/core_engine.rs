@@ -1395,19 +1395,37 @@ pub(crate) fn check(
     if let Some(route) = route
         && !prepared.model.implied_temporals.is_empty()
     {
-        // A start-up stop is reported before the temporal route plans (#968).
+        // A start-up stop is reported before the temporal route plans
+        // (#968), but after its refusals, which hold at any budget.
+        if let Some(feature) = crate::core_temporal::static_refusal(ir, config, options, &prepared)
+        {
+            return (finish(result(unsupported(feature), options, ir)), run);
+        }
         if let Some(verdict) = startup_stop(options) {
             let checks = route.map(|schedule| dive_liveness::analyze::periodic::Checks {
                 schedule,
                 ..Default::default()
             });
+            // The binder's messages, then what Core's start-up printed after
+            // them (`Startup::startup` holds both, as plain text).
+            let mut output = prepared.model.output.clone();
+            let binder = output
+                .iter()
+                .filter(|m| matches!(m, dive_model::Message::Print(_)))
+                .count();
+            output.extend(
+                prepared.start.startup[binder.min(prepared.start.startup.len())..]
+                    .iter()
+                    .cloned()
+                    .map(dive_model::Message::Print),
+            );
             return (
                 CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_startup_stop(
                     verdict,
                     started,
                     checks,
                     prepared.model.symmetry_liveness().clone(),
-                    prepared.model.output.clone(),
+                    output,
                 ))),
                 run,
             );
@@ -1435,9 +1453,13 @@ pub(crate) fn check(
         compile_time,
     } = prepared;
     if let Some(verdict) = startup_stop(options) {
-        // The output printed at start-up so far is retained.
+        // The start-up output and symmetry diagnostics are retained, as a
+        // stop in the search retains them.
+        let Startup { mut sym, startup } = start;
         let mut stopped = result(verdict, options, ir);
-        stopped.output = start.startup;
+        stopped.warnings.append(&mut sym.warnings);
+        stopped.notes.extend(sym.note.take());
+        stopped.output = startup;
         return (finish(stopped), run);
     }
     // The armed budget (time and memory, ADR 0107) is polled once per

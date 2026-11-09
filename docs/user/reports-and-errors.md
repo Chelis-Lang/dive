@@ -503,7 +503,8 @@ envelopes also report `execution.started: false` and `capture_completed: false`.
 A time or memory budget that start-up work spends after binding begins
 (evaluating constant definitions, folding constants while Core compiles its
 plan, the ASSUMEs) also stops in phase `check-startup`, before `Init`, with no
-statistics and the start-up output printed so far. `resources.checking_started`
+statistics and the start-up output printed so far; refusals that hold at any
+budget are reported first. `resources.checking_started`
 is omitted, as binding started; temporal envelopes report `execution.stage:
 check-startup` and `capture_completed: false` without `started`.
 An unavailable observation or default/auto RAM lookup

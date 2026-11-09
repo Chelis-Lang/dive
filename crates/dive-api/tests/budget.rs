@@ -711,5 +711,24 @@ fn a_time_budget_spent_at_startup_stops_in_check_startup() -> Result<(), Box<dyn
             }
         }
     }
+    // A refusal that holds at any budget still precedes the start-up stop.
+    std::fs::write(
+        scratch.0.join("Startup.cfg"),
+        "SPECIFICATION Spec\nPROPERTY Live\n",
+    )?;
+    for compat_tlc in [false, true] {
+        let report = dive_api::check_file_engine(
+            &CheckRequest {
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(10)),
+                max_memory: BudgetSetting::Explicit(1 << 34),
+                max_states: Some(5),
+                ..request(&file, compat_tlc, 1)
+            },
+            dive_api::Engine::Core,
+        )?;
+        let json = report.to_json();
+        assert_eq!(json["verdict"], "unsupported", "{json}");
+        assert_eq!(report.exit_code(), exit::UNSUPPORTED, "{json}");
+    }
     Ok(())
 }
