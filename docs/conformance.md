@@ -55,9 +55,10 @@ The nightly job in `.github/workflows/conformance.yml` and
 
 ```sh
 dive-conformance run --impl dive:core --impl-profile dive --workers 1 --tier small \
-  --corpus examples --corpus probes --corpus configured-temporal-operators \
+  --no-sany --corpus examples --corpus probes --corpus configured-temporal-operators \
   --corpus validation-smoke --jobs 2 --tlc-budgets --budget-cap 900 \
-  --baseline conformance/baselines/small-core-dive-w1.json
+  --baseline conformance/baselines/small-core-dive-w1.json \
+  --report-dir <dir> --no-summary
 ```
 
 and the same with `--impl-profile tlc` against `small-core-tlc-w1.json`. A model
@@ -65,9 +66,9 @@ that agreed in the baseline and no longer does, or a changed observable, fails
 the run. Refresh a baseline with `report baseline <report.json> --out <path>` in
 the PR that improves it.
 
-The harness writes its generated summary to this path unless `--no-summary` or
-`--summary <path>` is given. Pass one of them: this compact page is maintained
-by hand from the baselines and stays under the 100 KB evidence limit.
+Keep `--no-summary` (or `--summary <path>`): without it the harness overwrites
+this page with its generated summary, and this compact page is maintained by
+hand from the baselines to stay under the 100 KB evidence limit.
 
 `small-dive-w1.json` and `small-tlc-w1.json` in `conformance/baselines/` are
 the retired Reference engine's floors. They are historical and no gate reads

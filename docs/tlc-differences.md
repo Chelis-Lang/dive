@@ -1150,7 +1150,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - applying, as an action, a lazily evaluated function that has pending `EXCEPT`s or an argument outside its domain;
   - a built-in operator passed as an operator argument and applied as an action (`Op(\/)`);
   - `x' \subseteq S` where `S` is not a set.
-- **`dive check` refusals.** Core checks invariants, deadlock, temporal properties with fairness, and `SYMMETRY`. With a genuine temporal property, `SYMMETRY` is checked on the unreduced state space (D-005), and `--symmetry-liveness=tlc` is refused. Core refuses, naming the feature, rather than give an answer it cannot vouch for:
+- **`dive check` refusals.** Core checks invariants, deadlock, temporal properties with fairness, and `SYMMETRY`. With a genuine temporal property, `SYMMETRY` is checked on the unreduced state space in the default profile (D-005). TLC's symmetry-quotient liveness (`--symmetry-liveness=tlc`) is refused, and it is the `--compat=tlc` default, so under `--compat=tlc` a temporal property with `SYMMETRY` is refused unless `--symmetry-liveness=unreduced` is passed. Core refuses, naming the feature, rather than give an answer it cannot vouch for:
   - `POSTCONDITION`;
   - `--chaos`, `--action-composition=tlc`, and action composition (`\cdot`) with conjuncts after it or variables assigned before it in the default mode (D-022);
   - with temporal properties: the explicit bounded final mode (`--lncheck final --lasso short`), and `--max-states` or `--max-depth`;
