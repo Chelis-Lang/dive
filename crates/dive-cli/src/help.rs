@@ -64,7 +64,7 @@ Core is the only engine. Options it does not implement are not listed here;\n\
 they and unsupported combinations refuse by name (exit 3), for example\n\
 --symmetry-liveness tlc (the --compat=tlc default) with SYMMETRY and temporal\n\
 properties.\n\
-The default time limit is 30m (none under --compat=tlc); the default memory\n\
+There is no default time limit, as in TLC; the default memory\n\
 limit is half of physical memory. Native process statuses are 0 success,\n\
 1 rejected input, 10 property violation, 11 deadlock, 12 assumption failure,\n\
 13 evaluation error; both conventions retain 2 usage, 3 unsupported/resource\n\

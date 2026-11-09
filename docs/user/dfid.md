@@ -28,8 +28,8 @@ See [DFID reference controls](../../crates/dive-api/tests/fixtures/checker/dfid/
 ## Run budgets
 
 `dive dfid Spec.tla --max-level 100 --time-limit 10s --max-memory 2g`
-uses the same budget settings as checking: 30 minutes by default in the dive
-profile, no time limit under `--compat=tlc`, and half physical memory in both.
+uses the same budget settings as checking: no default time limit and half
+physical memory in both profiles.
 `none` removes a limit; memory also accepts `auto`. An explicit TLC-profile
 time limit labels the profile `tlc+overrides`.
 

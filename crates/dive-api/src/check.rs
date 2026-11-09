@@ -100,10 +100,8 @@ pub enum Store {
 /// explicit value.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum BudgetSetting<T> {
-    /// The profile's default: for the time limit
-    /// [`dive_runtime::budget::DEFAULT_TIME_LIMIT`] in the dive profile and none
-    /// under `--compat=tlc`; for memory [`dive_runtime::budget::default_memory`]
-    /// in both.
+    /// The profile's default: for the time limit none in both profiles, as in
+    /// TLC; for memory [`dive_runtime::budget::default_memory`] in both.
     #[default]
     Default,
     /// No limit (`none`).
@@ -713,11 +711,7 @@ fn check_file_in(
     opts.max_depth = req.max_depth;
     opts.predecessor_directory
         .clone_from(&req.predecessor_directory);
-    let (time, time_source) = req.time_limit.resolve(if req.compat_tlc {
-        None
-    } else {
-        Some(dive_runtime::budget::DEFAULT_TIME_LIMIT)
-    });
+    let (time, time_source) = req.time_limit.resolve(None);
     let memory_resolution = resolve_memory(req.max_memory, dive_runtime::budget::default_memory);
     let memory_requested_source = match req.max_memory {
         BudgetSetting::Default => "default",

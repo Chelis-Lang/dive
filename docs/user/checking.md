@@ -468,8 +468,7 @@ Every `dive check` runs under two budgets (ADR 0107):
 
 - `--time-limit DURATION|none` bounds wall-clock time for the whole check.
   Durations are seconds by default, or take a unit: `500ms`, `90s`, `10m`,
-  `2h`. The default profile defaults to 30 minutes, a provisional value until
-  release; `--compat=tlc` has no time limit, as TLC has none.
+  `2h`. There is no default time limit in either profile, as TLC has none.
 - `--max-memory BYTES|auto|none` guards sampled memory of the whole process. Sizes take `-Xmx` units: `512m`, `8g`. `auto`, the default in both
   profiles, is half of physical memory.
 

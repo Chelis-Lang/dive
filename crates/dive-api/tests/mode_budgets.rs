@@ -148,6 +148,37 @@ fn bulk_initial_predicate_is_interrupted_before_emitting_a_state() -> Result {
 }
 
 #[test]
+fn default_time_limit_is_none_in_both_profiles() -> Result {
+    // Neither profile arms a wall-clock budget unless the user sets one, as in TLC.
+    let (_scratch, file) = model("0")?;
+    for compat in [false, true] {
+        let sampled = dive_api::simulate_file_engine(
+            &SimulateRequest {
+                traces: 2,
+                depth: Some(4),
+                ..simulation(&file, compat)
+            },
+            dive_api::Engine::Core,
+        )?
+        .to_json();
+        let iterative = dive_api::dfid_file_engine(
+            &DfidRequest {
+                max_level: 4,
+                ..dfid(&file, compat)
+            },
+            dive_api::Engine::Core,
+        )?
+        .to_json();
+        for document in [&sampled, &iterative] {
+            let budget = &document["options"]["budget"];
+            assert!(budget["time_limit_ms"].is_null(), "{compat}: {document}");
+            assert_eq!(budget["time_limit_source"], "none", "{compat}: {document}");
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn unlimited_and_generous_budgets_preserve_seeded_samples() -> Result {
     let (_scratch, file) = model("0")?;
     for compat in [false, true] {
