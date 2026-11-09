@@ -32,8 +32,10 @@ oracle separately; it is not the checker runtime.
 Use `dive --help` to list available commands and `dive check --help` (or another
 command's `--help`) for its options. Help needs no input files. Unimplemented
 commands are omitted from the list and still give a named refusal if invoked.
-`dive --version` includes the build's `git describe --always --tags --long` revision;
-source archives built without Git report `unknown` instead. Human checking
+`dive --version` names the build's commit: the nearest release tag in
+`git describe` form (`v0.1.0-0-g<hash>` on a tagged release), or the
+abbreviated commit hash when no `v*` release tag precedes it. Source archives
+built without Git report `unknown` instead. Human checking
 reports name the requested engine (Core by default) and requested/used worker
 counts.
 
