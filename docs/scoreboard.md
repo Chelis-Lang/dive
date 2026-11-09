@@ -8,7 +8,7 @@ a measurement is repeated; history is in git.
 | Gate | Status | Evidence |
 |---|---|---|
 | R1 Coverage | **Met on main `ce227b36`.** Core alone, default profile, one worker, full Examples tier including the long tier: 169 covered (162 agree, 7 registered expected divergences), 0 disagreements, 7 named refusals and no stops. The frozen Reference count on the same selection rule is 140. 48 models are out of scope and 9 have no TLC golden. | Quiet-node run in #784; #338 |
-| R2 Speed | **Met on the measured set, main `ce227b36`.** Geomean 0.206x TLC over the 153 covered models timed on the same host, and no model is above 2x. Sixteen small covered models that end in an error were left out of that host's TLC timing by a selection bug; on the earlier quiet node's TLC times for the same instance type all sixteen are below 1x (geomean over 169: 0.202x). They need same-host timing before a tag. | Speed table below; #784 |
+| R2 Speed | **Pending the procedure run.** Single-pass triage on main `ce227b36` with four models run concurrently: geomean 0.202x TLC over all 169 covered models (153 from the release-candidate run, 16 small error-ending models re-timed on one host), and no model above 2x. Concurrent runs probably favour Core, so the gate number comes from the [R2 measurement procedure](developer/performance.md) (one checker at a time). | Speed table below; #784 |
 | R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass, on main `ce227b36`. | #803; #784 |
 | R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main `ce227b36`. In that run Core in the TLC profile ran the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors; the committed TLC-profile baseline (141 agreements, 14 refusals) is the ratchet floor and has not been refreshed from it. | #810; #784 |
 | R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-3 JSON-report golden tests pass on main `ce227b36`. | #802, #804; #784 |
@@ -86,8 +86,8 @@ nested TLC run through `IOUtils!IOEnvExec` and names its output file with
 
 Quiet node (c7i.metal-24xl, SMT off, fixed 2.4 GHz), one worker, seed and
 fingerprint 0, original configurations, pinned TLC timed on the same node, on
-main `ce227b36`. The geomean over the 153 same-host-timed covered models is
-0.206x TLC; total wall time is 20,310 s for Core against 41,286 s for TLC. No
+main `ce227b36`, four models at a time (triage; see the R2 row). The geomean
+over the 153 same-host-timed covered models is 0.206x TLC; total wall time is 20,310 s for Core against 41,286 s for TLC. No
 model is above 2x. Models above 1x:
 
 | Model | Core / TLC | Issue |
