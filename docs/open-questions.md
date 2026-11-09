@@ -74,7 +74,9 @@ retain a named refusal.
   yes.*
 - **R3 checking requirement (#789), answered.** The owner requested a bounded solution attempt, then a named refusal if it could not be solved. All ten original Examples must resolve; nine must check successfully. Only EWD998ChanID may retain its specific named refusal. Report checked/refused counts separately; no Core coverage credit follows. #428 remains deferred.
 - **Default `--time-limit`.** *Recommended and default:* none in either profile,
-  matching TLC. A user-set limit prints a prominent stop notice.
+  matching TLC. A user-set limit prints a prominent stop notice. The code does
+  not implement this yet: the dive profile still defaults to 30 minutes (see
+  *Run-budget default values* below).
 - **v0.1 platforms.** *Recommended and default:* Linux x86_64 and aarch64
   required; macOS arm64 best effort. Distribution is GitHub releases plus
   `cargo install --git`. crates.io comes later.
@@ -124,10 +126,11 @@ The owner approved shipping a default time limit in the dive profile, on
 condition that it never becomes a fixed overhead of the development loop.
 Tests, the gate and the harness pass explicit budgets.
 
-- **Default `--time-limit` (open, provisional):** 30 minutes in the dive
-  profile, none under `--compat=tlc`. Recommendation: set the release value
-  from the benchmark campaign, for example a multiple of the slowest in-scope
-  corpus model's runtime on the reference machine.
+- **Default `--time-limit`:** the implemented default is 30 minutes in the
+  dive profile and none under `--compat=tlc`
+  (`DEFAULT_TIME_LIMIT` in `crates/dive-runtime/src/budget.rs`). The
+  2026-11-05 entry above recommends none in either profile; the code and the
+  user guide have not changed to match.
 - **Default `--max-memory` (answered by the owner, 2026-10-20):** half of
   physical memory in both profiles, rather than the JVM's quarter. TLC's
   default footprint is its heap plus off-heap fingerprint storage and its disk

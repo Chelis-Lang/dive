@@ -9,9 +9,9 @@ a measurement is repeated; history is in git.
 |---|---|---|
 | R1 Coverage | **Count met, cutover run pending.** Core alone covers 153 of 185 in-scope full Examples models (148 agree, 5 expected divergences), 0 disagreements, on main `5f3f0249`. Reference covered 150 on the 2026-11-05 source. R1 is confirmed by the same-source cutover census. | [Core snapshot](../conformance/baselines/full-examples-core-dive-w1.json); #338 |
 | R2 Speed | **Open.** No same-host full-tier timing yet. Known blockers over 2x TLC: SDP, NanoMedium, EWD shiviz, MCInnerSerial. | Blocker table below; #787, #820, #821, #822 |
-| R3 Bare use | **Done on Reference.** All ten smoke models resolve with no library flags; nine check, EWD998ChanID refuses by name. Re-run on Core at cutover. | #803 |
-| R4 Compat exists | **Done.** Core in the TLC profile runs the small tier with named refusals and no internal errors. Re-run at cutover. | #810 |
-| R5 Stable surface | **Done.** Command help, source version, hidden unimplemented commands; help and schema-3 JSON goldens. | #802, #804 |
+| R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass, on main `ce227b36`. | #803; #784 |
+| R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main `ce227b36`. Core in the TLC profile runs the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors. | #810; #784 |
+| R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-3 JSON-report golden tests pass on main `ce227b36`. | #802, #804; #784 |
 | R6 Shipped | **Open.** Packaging and a release dry-run workflow exist; version is `0.0.0`, no tag. | #794 |
 
 Required CI compares Core alone with the TLC goldens on 29 smoke models (#840)
@@ -22,14 +22,21 @@ and ratchets the Core-only small tier nightly (#806).
 | Tier | Profile | Engine | Agree | Expected divergence | Refused | Budget stop | Missing golden | Disagree | Measured |
 |---|---|---|---:|---:|---:|---:|---:|---:|---|
 | Full Examples (185 in scope) | default | Core alone | 148 | 5 | 17 | 6 | 9 | 0 | 2026-11-06, `5f3f0249` |
-| Full Examples (185 in scope) | default | Reference | 146 | 4 | 13 | 13 | 9 | 0 | 2026-11-06, `f16a52f5` |
-| Full Examples (185 in scope) | TLC | Reference | 150 | 0 | 15 | 11 | 9 | 0 | 2026-11-06, `f16a52f5` |
-| Small (156) | default | Core alone | 138 | 7 | 11 | 0 | 0 | 0 | 2026-11-06, `5f3f0249` plus #842 |
-| SANY front end | | | 458/458 | | | | | 0 | 2026-11-04 |
+| Full Examples (185 in scope) | TLC | Core alone | 128 | 0 | 42 | 6 | 9 | 0 | 2026-11-05 |
+| Full Examples (185 in scope) | default | Reference (retired) | 146 | 4 | 13 | 13 | 9 | 0 | 2026-11-06, `f16a52f5` |
+| Full Examples (185 in scope) | TLC | Reference (retired) | 150 | 0 | 15 | 11 | 9 | 0 | 2026-11-06, `f16a52f5` |
+| Small (156) | default | Core | 141 | 9 | 6 | 0 | 0 | 0 | 2026-11-07, committed baseline |
+| Small (156) | TLC | Core | 141 | 1 | 14 | 0 | 0 | 0 | 2026-11-07, committed baseline |
+| SANY front end | | | 458/458 | | | | | 0 | 2026-11-07, committed baseline |
 
 Full Examples selects 233 rows: 48 are out of scope (Apalache models and
 similar). The full-tier runs use one worker and TLC-derived budgets capped at
-900 seconds per model. The nine missing goldens are listed in #338.
+900 seconds per model. The nine missing goldens are listed in #338. The Core
+rows come from the committed baselines in `conformance/baselines/`
+(`full-examples-core-*-w1.json` and `small-core-*-w1.json`); the small-tier
+baselines are the floor the full gate and the nightly job ratchet against
+([conformance snapshot](conformance.md)). The Reference rows are the retired
+engine's last measurement.
 
 ## Real-world holdout (#854)
 
@@ -58,7 +65,7 @@ Run it with `--impl dive:core --impl-profile dive --tier all` and
 
 ## Core refusals and stops (full Examples, default profile)
 
-**Bold** models are covered by Reference; they are the remaining R1 gap. Every
+**Bold** models were covered by the retired Reference engine; they are the remaining R1 gap. Every
 reason covers one or two models, so work them in any order.
 
 | Reason | Models |
@@ -77,7 +84,7 @@ Out of scope: `ewd998/SmokeEWD998_SC` is a host script, not a model. It
 launches a nested TLC run through `IOUtils!IOEnvExec` (`java -jar ...`) and
 names its output file with `TLC!JavaTime`, so it gets no refusal bucket.
 
-Core covers ten models that Reference refuses or stops on, including
+Core covers ten models that the retired Reference engine refused or stopped on, including
 `bosco`, `ElevatorSafetyMedium`, `DijkstraMutex Safety-4-processors`,
 `EWD998Chan` and `PConProof`.
 
@@ -96,8 +103,8 @@ Same host, one worker, seed and fingerprint 0, original configurations.
 ## Feature families
 
 This is the reference inventory of TLC and SANY surfaces
-(`conformance/parity-surfaces.json`). Status describes the dive product as a
-whole, whichever engine runs.
+(`conformance/parity-surfaces.json`). Status describes the dive product, which
+runs on Core.
 - `implemented` means the feature works for the supported corpus. It does not
   mean full parity.
 - **v0.1** marks the families the first-value bar depends on. The others are
