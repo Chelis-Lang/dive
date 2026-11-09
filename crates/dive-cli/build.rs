@@ -2,27 +2,19 @@
 
 #![forbid(unsafe_code)]
 
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::path::PathBuf;
 
-fn git(directory: &Path, arguments: &[&str]) -> Option<String> {
-    let output = Command::new("git")
-        .current_dir(directory)
-        .args(arguments)
-        .output()
-        .ok()?;
-    output
-        .status
-        .success()
-        .then(|| String::from_utf8_lossy(&output.stdout).trim().to_owned())
-}
+#[path = "build/revision.rs"]
+mod revision;
+
+use revision::git;
 
 fn main() {
     let directory = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap_or_default());
-    let revision = git(&directory, &["describe", "--always", "--tags", "--long"])
-        .unwrap_or_else(|| "unknown".into());
+    let revision = revision::revision(&directory);
     println!("cargo::rustc-env=DIVE_GIT_DESCRIBE={revision}");
     println!("cargo::rerun-if-changed=build.rs");
+    println!("cargo::rerun-if-changed=build/revision.rs");
     let mut paths = vec![
         "HEAD".to_owned(),
         "packed-refs".to_owned(),
