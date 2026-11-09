@@ -552,3 +552,52 @@ fn per_unit_successor_admission_does_not_cap_ordinary_local_checking() -> TestRe
     );
     Ok(())
 }
+
+/// A refusal of the distributed worker identity holds at any budget, so it
+/// precedes a time budget spent by start-up work (#973). Source admission
+/// refuses every user definition with a runtime effect, even one Core never
+/// evaluates, so the run is refused, not stopped, in both profiles.
+#[test]
+fn identity_refusal_precedes_a_startup_budget_stop() -> TestResult {
+    use dive_api::BudgetSetting;
+    let scratch = Scratch::new()?;
+    let file = scratch.0.join("Effectful.tla");
+    // `Big` is start-up work far longer than the 10 ms limit; `Log` is never
+    // used, so only the identity's source admission sees its effect.
+    std::fs::write(
+        &file,
+        "---- MODULE Effectful ----\nEXTENDS Naturals,FiniteSets,TLC\nVARIABLE x\nBig == Cardinality({<<i,j>>:i \\in 1..500,j \\in 1..500}) > 0\nLog(n) == PrintT(n)\nInit == x = 0\nNext == Big /\\ x' = (x + 1) % 3\n====\n",
+    )?;
+    std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n")?;
+    // No worker is reached: the refusal comes before any connection.
+    let policy = DistributedOptions::new(
+        vec!["127.0.0.1:1".parse()?, "127.0.0.1:2".parse()?],
+        scratch.0.join("key"),
+    );
+    for tlc in [false, true] {
+        let mut req = request(&file, tlc, false);
+        req.time_limit = BudgetSetting::Explicit(Duration::from_millis(10));
+        req.distributed = Some(policy.clone());
+        let report = check_file_engine(&req, Engine::Core)?;
+        let doc = report.to_json();
+        assert_eq!(doc["verdict"], "unsupported", "tlc={tlc}: {doc}");
+        assert!(
+            doc["message"]
+                .as_str()
+                .ok_or("message")?
+                .contains("runtime effects or temporal effects in Log"),
+            "tlc={tlc}: {doc}"
+        );
+        assert_eq!(report.exit_code(), 3, "tlc={tlc}");
+        assert!(doc["stopped"].is_null(), "tlc={tlc}: {doc}");
+        // Without distribution the same budget stops at start-up.
+        req.distributed = None;
+        let local = check_file_engine(&req, Engine::Core)?.to_json();
+        assert_eq!(local["verdict"], "stopped", "tlc={tlc}: {local}");
+        assert_eq!(
+            local["stopped"]["phase"], "check-startup",
+            "tlc={tlc}: {local}"
+        );
+    }
+    Ok(())
+}
