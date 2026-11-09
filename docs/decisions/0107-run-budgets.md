@@ -1,8 +1,8 @@
 # 0107: Run budgets instead of fixed counts
 
 - **Status:** accepted (owner, 2026-10-20, including the half-of-memory
-  default). The default time-limit value is provisional until the benchmark
-  campaign sets it.
+  default). Amended by the 2026-11-05 ADR 0153 batch in
+  `docs/open-questions.md`: there is no default time limit in either profile.
 - **Date:** 2026-10-20
 
 ## Context
@@ -69,12 +69,10 @@ than TLC, and 30-minute runaway jobs in any regular loop.
      override. Where the platform cannot measure the process, no ceiling is
      claimed (`max_memory_source: "unavailable"`).
    - **`--time-limit DURATION|none`** limits wall-clock time. Its TLC setting
-     is `none`, which `--compat=tlc` selects. The dive profile ships a default
-     (`dive_check::budget::DEFAULT_TIME_LIMIT`, provisionally 30 minutes) that
-     is a single release-time constant, chosen from the benchmark campaign
-     before release. This is D-026. (Amended by the 2026-11-05 ADR 0153 batch in
-     `docs/open-questions.md`: neither profile has a default time limit.) TLC has no time limit, so an explicit one
-     under `--compat=tlc` labels the profile `tlc+overrides`.
+     is `none`, which both profiles default to (amended 2026-11-05; this ADR
+     originally gave the dive profile a provisional 30-minute default). This
+     is D-026. TLC has no time limit, so an explicit one under `--compat=tlc`
+     labels the profile `tlc+overrides`.
 3. **Exhaustion is a structured stop, never a verdict.** A stopped run reports
    `verdict: "stopped"` and a `stopped` block with the resource, the limit,
    the observed value, the time from arming to the stop (`elapsed_ms`, at or
@@ -126,8 +124,7 @@ than TLC, and 30-minute runaway jobs in any regular loop.
    `--tlc-budgets`, the harness
    keeps its historical timeouts and runs `dive check` with
    `--time-limit none --max-memory none`. The harness and the gate never
-   depend on the default time limit; library tests that keep the default
-   finish far below it.
+   depend on a default time limit.
 
 ## Consequences
 
