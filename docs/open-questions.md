@@ -135,3 +135,14 @@ Tests, the gate and the harness pass explicit budgets.
   `--timeout 1800` moves to the TLC-derived budgets in a follow-up PR opened
   right after this policy merges. Each model that exceeds its budget is filed
   as a performance issue.
+
+## R2 fixed-set geomean
+
+The R2 procedure (`docs/developer/performance.md`) reports two geomeans: the
+gate's mean over agreeing models, and a fixed-set mean over every model with a
+TLC time that counts a stop at max(2, its lower bound) and a refused or
+excluded model at 2. Dropping a slow model lowers only the first.
+
+- **Recommended:** report both; only the agreeing-model mean gates, as
+  `docs/RELEASE.md` says now. Open for the owner: should the fixed-set mean
+  also have to be below 1x?

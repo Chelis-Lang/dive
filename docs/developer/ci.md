@@ -353,7 +353,9 @@ on dive's default budgets.
 ## R2 speed measurement
 
 R2 (`docs/RELEASE.md`) compares Core with pinned TLC on one host at one
-worker. Time TLC once, then reuse that report instead of re-timing TLC:
+worker. A gate number follows the
+[R2 measurement procedure](performance.md#r2-measurement-procedure); the
+commands below are its building blocks. Time TLC once, then reuse that report instead of re-timing TLC:
 
 ```sh
 dive-conformance run --impl tlc --corpus examples --tier all --workers 1 \
