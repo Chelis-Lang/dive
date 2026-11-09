@@ -7,8 +7,8 @@ a measurement is repeated; history is in git.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| R1 Coverage | **Met on main `8033ebe4`; release-candidate run pending.** Core alone, default profile, one worker, full Examples tier including the long tier, capped at 2x the same-host TLC time: 167 covered (161 agree, 6 registered expected divergences), 0 disagreements, 7 named refusals and 2 stops. The frozen Reference count on the same selection rule is 140. 48 models are out of scope and 9 have no TLC golden. | Quiet-node run in #784; #338 |
-| R2 Speed | **Open until the release-candidate run.** On main `8033ebe4` the geomean is 0.205x TLC over the 167 covered models. Five models are over 1x and one, `MCKVsnap`, stopped at 2.01x; #908 has since fixed `MCKVsnap` (1.01x on a loaded host, not yet re-measured on the quiet node). | Speed table below; #784 |
+| R1 Coverage | **Met on main `ce227b36`.** Core alone, default profile, one worker, full Examples tier including the long tier: 169 covered (162 agree, 7 registered expected divergences), 0 disagreements, 7 named refusals and no stops. The frozen Reference count on the same selection rule is 140. 48 models are out of scope and 9 have no TLC golden. | Quiet-node run in #784; #338 |
+| R2 Speed | **Met on the measured set, main `ce227b36`.** Geomean 0.206x TLC over the 153 covered models timed on the same host, and no model is above 2x. Sixteen small covered models that end in an error were left out of that host's TLC timing by a selection bug; on the earlier quiet node's TLC times for the same instance type all sixteen are below 1x (geomean over 169: 0.202x). They need same-host timing before a tag. | Speed table below; #784 |
 | R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass, on main `ce227b36`. | #803; #784 |
 | R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main `ce227b36`. In that run Core in the TLC profile ran the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors; the committed TLC-profile baseline (141 agreements, 14 refusals) is the ratchet floor and has not been refreshed from it. | #810; #784 |
 | R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-3 JSON-report golden tests pass on main `ce227b36`. | #802, #804; #784 |
@@ -36,8 +36,8 @@ rows come from the committed baselines in `conformance/baselines/`
 (`full-examples-core-*-w1.json` and `small-core-*-w1.json`); the small-tier
 baselines are the floor the full gate and the nightly job ratchet against
 ([conformance snapshot](conformance.md)). The Reference rows are the retired
-engine's last measurement. The R1 and R2 rows above come from the later
-quiet-node run on `8033ebe4` (#784), which caps each model at 2x the same-host
+engine's last measurement. The R1 and R2 rows above come from the
+quiet-node run on `ce227b36` (#784), which caps each model at 2x the same-host
 TLC time instead of 900 seconds and includes the long tier, so its counts
 differ from the committed full-tier baselines.
 
@@ -66,10 +66,10 @@ Run it with `--impl dive:core --impl-profile dive --tier all` and
 --corpus holdout-blocking-queue --corpus holdout-jgroups-pluscal
 --corpus holdout-bookkeeper --corpus holdout-kafka`.
 
-## Core refusals and stops (full Examples, default profile)
+## Core refusals (full Examples, default profile)
 
-Measured on main `8033ebe4` on the quiet node (#784). Every reason covers one
-or two models, so work them in any order.
+Measured on main `ce227b36` on the quiet node (#784). There are no stops. Every
+reason covers one or two models, and each is an owner ruling or policy.
 
 | Reason | Models |
 |---|---|
@@ -77,8 +77,6 @@ or two models, so work them in any order.
 | simulation with a liveness `PROPERTY` (deferred by owner ruling, 2026-11-06) | `ewd998/SmokeEWD998`, `ewd687a/EWD687a_anim` |
 | `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/EWD998ChanTrace` |
 | `TLC!JavaTime` | `ewd998/SmokeEWD998_SC` |
-| 2x-TLC time stop in graph capture, unreduced under symmetry with liveness (D-005); fixed by #908, not yet re-measured | `KeyValueStore/MCKVsnap` |
-| 24 GB memory stop in temporal analysis after 457 s (TLC takes 2181 s) | `bcastFolklore/bcastFolklore` |
 
 `ewd998/SmokeEWD998_SC` is a host script rather than a model: it launches a
 nested TLC run through `IOUtils!IOEnvExec` and names its output file with
@@ -88,19 +86,20 @@ nested TLC run through `IOUtils!IOEnvExec` and names its output file with
 
 Quiet node (c7i.metal-24xl, SMT off, fixed 2.4 GHz), one worker, seed and
 fingerprint 0, original configurations, pinned TLC timed on the same node, on
-main `8033ebe4`. The geomean over the 167 covered models is 0.205x TLC.
+main `ce227b36`. The geomean over the 153 same-host-timed covered models is
+0.206x TLC; total wall time is 20,310 s for Core against 41,286 s for TLC. No
+model is above 2x. Models above 1x:
 
 | Model | Core / TLC | Issue |
 |---|---:|---|
-| `KeyValueStore/MCKVsnap` | at least 2.01x (stop); 1.01x after #908 on a loaded host | #908 |
-| `bosco/bosco` | 1.74x | #937 |
-| `MisraReachability/MCReachabilityTestRandomGraphs` | 1.59x (fixed by #939, not yet re-measured) | #939 |
-| `allocator/AllocatorImplementation` | 1.18x | #940 |
-| `MultiCarElevator/ElevatorSafetyLarge` | 1.15x | #938 |
-| `MultiCarElevator/ElevatorSafetyMedium` | 1.11x | #938 |
+| `KeyValueStore/MCKVsnap` | 1.20x (17 s against 14 s; unreduced under symmetry with liveness, D-005) | #979 |
+| `allocator/AllocatorImplementation` | 1.17x (12 s against 10 s) | #940 |
+| `ewd998/EWD998Chan` | 1.03x (966 s against 940 s) | #980 |
 
-The long tier runs well under TLC: `MCInnerSerial`, `LCSMedium` and
-`MCReachable` are each at 0.01x (#855).
+The largest models: `SlushProtocol/SlushLarge` 0.53x (6,574 s against
+12,483 s), `NanoBlockchain/MCNanoLarge` 0.43x, `MultiPaxos-SMR/MultiPaxos_MC`
+0.55x, `MultiCarElevator/ElevatorSafetyLarge` 0.59x, `ElevatorSafetyMedium`
+0.67x, `bosco/bosco` 0.47x and `bcastFolklore/bcastFolklore` 0.30x.
 
 ## Feature families
 
