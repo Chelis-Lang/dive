@@ -189,12 +189,6 @@ pub struct MemorySamples {
     pub unavailable: Option<SamplePoint>,
 }
 
-/// The dive profile's default wall-clock limit. Provisional: the release
-/// value is chosen from the benchmark campaign before release (ADR 0107).
-/// The harness and the gate pass explicit limits; library tests that keep
-/// the default finish far below it, and no test depends on its value.
-pub const DEFAULT_TIME_LIMIT: Duration = Duration::from_mins(30);
-
 /// How often the watchdog wakes to compare elapsed time with the limit.
 const TICK: Duration = Duration::from_millis(50);
 

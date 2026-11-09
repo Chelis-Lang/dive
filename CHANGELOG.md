@@ -10,6 +10,11 @@ published. Earlier pre-release development entries remain in git history.
   `unsupported` refusal (exit 3) even when start-up work has already spent the
   time or memory budget, instead of `stopped` in `check-startup` (issue #973).
   Local runs are unchanged.
+- `dive check`, `dive simulate` and `dive dfid` have no default time limit in
+  either profile, matching TLC (issue #976). The default profile used to stop a
+  run after 30 minutes with exit 5. A user-set `--time-limit` still stops the
+  run with a `stopped` notice naming the limit and exit 5. Breaking for Rust
+  callers: `dive_runtime::budget::DEFAULT_TIME_LIMIT` is removed.
 - `dive --version` describes the build only from release tags (`v<digit>…`)
   (issue #969). An untagged build names its abbreviated commit hash instead of
   the nearest internal archive tag such as `keep/…`.

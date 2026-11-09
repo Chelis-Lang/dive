@@ -50,8 +50,8 @@ COMMANDS:
     --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,
     12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource
     limit, 4 internal error and 5 stopped by a run budget (no verdict).
-    --time-limit defaults to 30m in the dive profile and none under --compat=tlc; --max-memory
-    defaults to half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.
+    --time-limit defaults to none in both profiles, as in TLC; --max-memory defaults to
+    half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.
     The compiled Core is the engine of check, simulate, dfid and tlc; what it does not
     implement is a named refusal, never a fallback. --core-sample N
     also compares the successors of N sampled states with the reference evaluator's, in the JSON
@@ -97,7 +97,7 @@ Core is the only engine. Options it does not implement are not listed here;
 they and unsupported combinations refuse by name (exit 3), for example
 --symmetry-liveness tlc (the --compat=tlc default) with SYMMETRY and temporal
 properties.
-The default time limit is 30m (none under --compat=tlc); the default memory
+There is no default time limit, as in TLC; the default memory
 limit is half of physical memory. Native process statuses are 0 success,
 1 rejected input, 10 property violation, 11 deadlock, 12 assumption failure,
 13 evaluation error; both conventions retain 2 usage, 3 unsupported/resource

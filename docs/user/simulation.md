@@ -220,8 +220,8 @@ TLC dispositions. Rust callers use `SimulateReport::exit_code_for` and
 ## Run budgets
 
 `dive simulate Spec.tla --traces 100 --depth 100 --time-limit 10s --max-memory 2g`
-uses the same budget settings as checking: 30 minutes by default in the dive
-profile, no time limit under `--compat=tlc`, and half physical memory in both.
+uses the same budget settings as checking: no default time limit and half
+physical memory in both profiles.
 `none` removes a limit; memory also accepts `auto`. An explicit TLC-profile
 time limit labels the profile `tlc+overrides`.
 

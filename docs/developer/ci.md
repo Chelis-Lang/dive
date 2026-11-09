@@ -348,7 +348,7 @@ The model gates and nightly runs pass `--tlc-budgets --budget-cap 900`
 time and memory budgets, and the harness allows a further 30 s only for
 uninterruptible work before killing the process. A budget stop is a resource
 finding, never agreement or an unsupported feature. These runs do not depend
-on the release-time default limit.
+on dive's default budgets.
 
 ## R2 speed measurement
 

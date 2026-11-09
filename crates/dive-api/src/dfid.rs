@@ -210,7 +210,6 @@ pub fn dfid_file_engine(
             .collect::<Vec<_>>()
     );
     let mut run_budget = crate::mode_budget::ModeBudget::start(
-        req.compat_tlc,
         dive_runtime::budget::Phase::Dfid,
         req.time_limit,
         req.max_memory,

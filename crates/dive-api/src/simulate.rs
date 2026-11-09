@@ -235,7 +235,6 @@ pub fn simulate_file_engine(
     )?;
     runtime.set_config(Some(crate::trace::make_run_config(model.model(), seed, 0)));
     let mut run_budget = crate::mode_budget::ModeBudget::start(
-        req.compat_tlc,
         dive_runtime::budget::Phase::Simulation,
         req.time_limit,
         req.max_memory,
