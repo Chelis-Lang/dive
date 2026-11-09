@@ -30,7 +30,7 @@ GitHub milestones:
   refusal-reason histogram and the speed blockers.
 - **Core's small-tier floor is enforced.** The committed baselines record 141
   agreements, nine registered divergences and six named refusals in the default
-  profile, and 141 agreements, one registered divergence and 14 named refusals
+  profile, and 142 agreements, one registered divergence and 13 named refusals
   in the TLC profile, with zero disagreements, budget stops or missing goldens
   ([conformance snapshot](conformance.md)). The full gate and the nightly job
   ratchet against them.

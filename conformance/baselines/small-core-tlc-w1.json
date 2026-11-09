@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_run_id": "20261107T172208656-dive-small",
+  "source_run_id": "20261109T211314385-dive-small",
   "implementation": "dive",
   "profile": "tlc",
   "engine": "core",
@@ -129,7 +129,7 @@
     "examples:specifications/echo/MCEcho.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":75,"states_generated":116,"depth":16}]},
     "examples:specifications/ewd426/TokenRing.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":46656,"states_generated":248832,"depth":1}]},
     "examples:specifications/ewd840/EWD840.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":302,"states_generated":2001,"depth":9}]},
-    "examples:specifications/ewd840/EWD840_json.cfg": {"outcome":"unsupported","runs":[{"workers":1}]},
+    "examples:specifications/ewd840/EWD840_json.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":1566,"states_generated":15986,"depth":12}]},
     "examples:specifications/ewd840/SyncTerminationDetection.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":129,"states_generated":3722,"depth":1}]},
     "examples:specifications/ewd998/AsyncTerminationDetection.cfg": {"outcome":"agree","runs":[{"workers":1,"verdict":"success","verdict_code":2193,"error_class":"TLC_SUCCESS","exit_code":0,"distinct_states":4097,"states_generated":53271,"depth":14}]},
     "examples:specifications/ewd998/EWD998ChanID.cfg": {"outcome":"unsupported","runs":[{"workers":1}]},
