@@ -438,7 +438,7 @@ fn view_key(
         ));
     }
     // Under SYMMETRY, TLC evaluates the VIEW on the canonical image
-    // (`TLCStateMut.fingerPrint`, the reference engine's `state_key_of`).
+    // (`TLCStateMut.fingerPrint`).
     let image = match &plan.symmetry {
         Some(sym) => {
             let mut out = Vec::with_capacity(m.s1.len());
@@ -956,8 +956,8 @@ impl Explorer<'_> {
     }
 
     /// Stops before a new state inside the model that would exceed
-    /// `--max-states` or `--max-depth` (the reference engine's
-    /// `admission_stop`); a state already seen is never refused.
+    /// `--max-states` or `--max-depth`; a state already seen is never
+    /// refused.
     fn admit_new(&mut self) -> Result<(), Error> {
         let states = self.stats.distinct + 1;
         let stop = if let Some(max) = self.max_states

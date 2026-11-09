@@ -2,7 +2,7 @@
 //! its canonical image, the least of its images under the closure's
 //! permutations of model values, compared variable by variable in the
 //! run's value order. The explored state stays the concrete one; only keys
-//! change, as in the reference engine
+//! change, as in `dive-model`'s symmetry reduction
 //! (`crates/dive-model/src/symmetry/prepare.rs`, `Reduction::canonical_values`).
 //!
 //! The default profile's canonicalization (D-010) compares in the canonical

@@ -1,7 +1,8 @@
 //! A model that fails to bind ends a Core run with the Core's own binding
-//! failure, reported exactly as the reference engine reports the same
-//! failure: verdict, message, location, printed output and warnings. Core
-//! no longer runs the reference checker to confirm it (issue #791).
+//! failure, reported exactly as the agreed record of that failure
+//! (`support/agreed.rs`): verdict, message, location, printed output and
+//! warnings. Core no longer runs the retired Reference checker to confirm it
+//! (issue #791).
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
 mod agreed;
@@ -103,9 +104,8 @@ fn core_binding_failures_are_reported_as_the_reference_engine_reports_them() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// Under an option only Core implements, the reference engine refuses the
-/// run, so a confirming reference check could only refuse; Core reports the
-/// binding failure itself.
+/// Under an option only Core implements, Core reports the binding failure
+/// itself.
 #[test]
 fn core_reports_a_binding_failure_under_a_core_only_option() {
     let dir = std::env::temp_dir().join(format!("dive-core-binding-only-{}", std::process::id()));

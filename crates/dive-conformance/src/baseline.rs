@@ -153,7 +153,7 @@ pub struct Baseline {
     /// The implementation's profile (`dive`, `tlc`, ...), if it has one.
     #[serde(default)]
     pub profile: Option<String>,
-    /// The `dive check` engine requested, when not the reference engine
+    /// The `dive check` engine requested, when not the retired Reference engine
     /// (`core` or `auto`). Engines must agree, so it is recorded but never
     /// allows an `auto` run against the reference baseline. A Core-only
     /// baseline requires Core so fallback cannot hide a coverage regression.
@@ -872,7 +872,7 @@ mod tests {
         assert_eq!(back?, b);
         let text = text?;
         assert!(text.contains("\n    \"e:A\": {\"outcome\":\"agree\""));
-        // The reference engine's baselines carry no engine key.
+        // The retired Reference engine's baselines carry no engine key.
         assert!(!text.contains("\"engine\""));
         Ok(())
     }

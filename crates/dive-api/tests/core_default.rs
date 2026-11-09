@@ -1,6 +1,6 @@
 //! The default engine is the compiled Core (ADR 0153): `check_file` reports
 //! exactly what explicit Core reports, and what Core does not implement is a
-//! named refusal (exit 3), never a fallback to the reference engine.
+//! named refusal (exit 3), never a fallback to another engine.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
 mod agreed;

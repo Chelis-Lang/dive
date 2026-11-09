@@ -14,8 +14,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 const CLASS: &[u8] = include_bytes!("../../dive-model/tests/fixtures/bits/Bits.class");
 
-/// The reference engine, explicitly; `check_file` and `check_file_tlc_inputs`
-/// run the default engine (Core).
+/// Core, explicitly (the retired Reference engine's former slot);
+/// `check_file` and `check_file_tlc_inputs` run the default engine, also Core.
 fn reference_engine(req: &CheckRequest) -> Result<CheckReport, dive_api::ApiError> {
     dive_api::check_file_engine(req, dive_api::Engine::Core)
 }

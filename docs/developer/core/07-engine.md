@@ -1,16 +1,20 @@
 # Exploration engine
 
-Status: M1 stream 3. BFS in `crates/dive-explore`, with the predecessor log
-and replayed traces (§4, `core/engine-traces`), TLC's error endings (§4,
-`core/engine-errors`), budgets (`core/engine-budgets`), the parallel level
-(§3, `core/engine-parallel`) and `--engine=auto` (`core/engine-auto`,
-`08-correctness.md` §3). This document covers strategies S3 and S9 from
-`01-motivation.md`. The new engine lives in `dive-explore`.
+Status: Core's exploration engine lives in `crates/dive-explore` and is
+dive's only checking engine. The Reference engine, the `--engine=auto`
+fallback and the `dive-check` crate are removed (#879, #935). This document
+covers strategies S3 and S9 from `01-motivation.md`.
+
+Sections 1 to 7 describe the design. Section 8 is the build log: its
+comparisons with "the reference engine", its fallback counts and its
+`crates/dive-check/` paths are historical measurements from when that
+engine ran beside Core. Current coverage is in the
+[scoreboard](../../scoreboard.md).
 
 ## 1. Contract
 
-The determinism contract is the one the current engine already meets
-(ADR 0015; `crates/dive-check/src/parallel.rs:1-48`).
+The determinism contract is ADR 0015's, which the Reference engine met
+before Core replaced it.
 
 - **1 worker.** Distinct and generated counts, depth, the violated property,
   the error class and the trace match TLC under `--compat=tlc`, and match the
@@ -142,13 +146,13 @@ An evaluation error at a position is an event like a violation. The minimum
 event wins.
 
 The trace is rebuilt from the predecessor log by replaying the recorded
-ordinals with the new core's generator, as `crates/dive-check/src/engine.rs`
-`replay` does now. The replay runs with memoization off. The call-stack replay
+ordinals with the core's generator (`dive_explore::trace::replay`). The
+replay runs with memoization off. The call-stack replay
 that classifies certain errors follows `02-semantic-contract.md`; its effect on
 counts is reproduced.
 
 Every counterexample is emitted in the dive-trace format. In both profiles it
-is validated by `dive-trace`, which runs on the reference evaluator
+is validated by `dive-trace`, which runs on the `dive-eval` evaluator
 (`08-correctness.md`).
 
 ## 5. Parallelism without contention (S9)
@@ -182,9 +186,8 @@ tokens affect comparisons, set order and `CHOOSE`
 (`02-semantic-contract.md`). With several workers the encounter order is
 nondeterministic.
 
-The reference engine handles this by forcing a single worker
-(`crates/dive-model/src/reach.rs:248`;
-`crates/dive-check/src/engine.rs:2247`).
+The Reference engine handled this by forcing a single worker
+(`crates/dive-model/src/reach.rs:248`).
 
 - **M1.** Same rule: the plan records whether runtime names are reachable
   under TLC order, and if so the run uses one worker.
@@ -213,10 +216,9 @@ property into TLC's roles (`dive_model::Model`): `[]P` joins the
 invariants, a state-level part becomes an implied initial predicate
 (`implied_inits`), and `[][A]_v` becomes an implied action
 (`implied_actions`). Only what is left is a temporal property for
-`dive-liveness` (`implied_temporals`). The reference engine checks the first
-three in its safety search (`crates/dive-check/src/engine.rs`,
-`check_implied_actions`), and reports `"check_kind": "safety"` for such a
-model. Both bench models the lead routed to the liveness adapter are of this
+`dive-liveness` (`implied_temporals`). The Reference engine checked the
+first three in its safety search and reported `"check_kind": "safety"` for
+such a model; Core does the same. Both bench models the lead routed to the liveness adapter are of this
 kind: EWD998PCal (`PROPERTIES EWD998Spec`, a refinement whose only roles are
 implied initial predicates and actions) and BufferedRandomAccessFile (nine
 properties, all `[]P` or `[][A]_v`). Their time is spent in those checks,
@@ -234,14 +236,14 @@ no graph or adapter for them, only the two roles in its own search:
 - An evaluation error in either is reported at `ErrorSite::ImpliedInit` or
   `ErrorSite::ImpliedAction`, reproduced by the reference evaluator as other
   check errors are.
-- A model that also has a genuine temporal property still falls back. So do
-  TLC's replay after an invariant error and SYMMETRY, until each is shown to
-  agree.
+- A model that also has a genuine temporal property takes the temporal
+  route (`crates/dive-api/src/core_temporal.rs`).
 
 **Liveness.**
-- In M3 the engine gains a graph-capture mode. It records states and edges
-  with labels, as `dive_check::capture::BehaviorGraph` does
-  (`crates/dive-check/src/capture.rs:253`).
+- The engine has a graph-capture mode. It records states and edges with
+  labels into `dive_runtime::capture::BehaviorGraph`
+  (`crates/dive-api/src/core_graph.rs`), or into native rows and CSR
+  (`crates/dive-api/src/core_native_graph.rs`).
 - Captured states are converted to `dive_value::Value` arrays by an adapter,
   so that the existing `dive-liveness` tableau and search work unchanged.
 - A native port of the liveness atoms to the new evaluator follows only if the
@@ -249,12 +251,15 @@ no graph or adapter for them, only the two roles in its own search:
 
 **Other modes.**
 - Simulation reuses the compiled generator with a random choice of successor.
-- DFID, checkpoints, budgets, spill and the disk seen set are ported in M3
-  from their current designs (ADRs 0021, 0033, 0107, 0024, 0063).
-- Until then, these modes use the reference engine through the static
-  fallback.
+- DFID, checkpoints, budgets, spill and the disk seen set follow their
+  designs (ADRs 0021, 0033, 0107, 0024, 0063) on Core. What Core does not
+  implement in these modes is a named refusal (#910).
 
-## 8. Next step
+## 8. Build log (historical)
+
+The entries below record how Core was built and measured against the
+Reference engine. They are kept as history; they do not describe a
+fallback or a comparison that runs today.
 
 **Done (M0).** A single-thread breadth-first search in TLC's `ModelChecker`
 order of counting, constraint, seen and invariant checks. It uses an

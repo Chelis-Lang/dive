@@ -27,7 +27,7 @@ impl std::fmt::Display for ReferenceError {
 /// At most this many mismatches are described in the report.
 const SHOWN: usize = 8;
 
-/// A state as the reference engine's canonical key: a marker per variable
+/// A state as a canonical key: a marker per variable
 /// (assigned or not), then the canonical encoding of the value.
 fn key(model: &Model, s: &[Option<Value>]) -> Result<Vec<u8>, String> {
     let ctx = model.evaluator.options().ctx;
@@ -187,8 +187,8 @@ pub(crate) fn compare(
                         );
                     }
                 }
-                // Both raise an error: which one is the reference
-                // engine's to classify (`core_ending.rs`).
+                // Both raise an error: `core_ending.rs` classifies the
+                // core's by reproducing it with the evaluator.
                 (Err(_), Err(_)) => {}
                 (Err(e), Ok(w)) => {
                     mismatches += 1;

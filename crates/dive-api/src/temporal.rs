@@ -1017,7 +1017,7 @@ fn finish_periodic_failure(
 
 /// The report of a temporal check whose graph the core engine produced
 /// (`docs/developer/core/11-liveness.md` §6): the analysis result goes
-/// through the reference engine's own validation and report path, with
+/// through this module's validation and report path, with
 /// the file configuration. `periodic` says whether the default profile's
 /// completed-level schedule ran.
 pub(crate) fn core_report(

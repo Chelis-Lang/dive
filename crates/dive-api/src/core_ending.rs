@@ -7,7 +7,7 @@
 //! on the error's own code and on whether it is an `EvalException`. So the
 //! ending is reproduced with the reference evaluator, on the same states:
 //! the failing action, or the failing check, is evaluated again, and the
-//! reference engine's table (`dive_runtime::classify`) classifies the error it
+//! `dive-runtime`'s table (`dive_runtime::classify`) classifies the error it
 //! raises. The search itself, its counts and TLC's call-stack replay are the
 //! core's.
 //!
@@ -24,7 +24,7 @@ use dive_model::{Model, Named};
 use dive_runtime::{ErrorSite, Verdict, classify};
 use dive_value::Value;
 
-/// How a core run that failed ends, as the reference engine reports it.
+/// How a core run that failed ends: its verdict and where its trace ends.
 pub(crate) struct Ending {
     /// The verdict.
     pub verdict: Verdict,
@@ -53,8 +53,7 @@ pub(crate) fn state(
     Ok(out.into())
 }
 
-/// TLC's text of a state (`TLCStateMut.toString`), as the reference engine
-/// prints it.
+/// TLC's text of a state (`TLCStateMut.toString`).
 pub(crate) fn state_text(model: &Model, s: &[Option<Value>]) -> String {
     use std::fmt::Write as _;
     let ctx = model.evaluator.options().ctx;
@@ -81,7 +80,7 @@ pub(crate) fn state_text(model: &Model, s: &[Option<Value>]) -> String {
     out
 }
 
-/// The check at a site, with its reference-engine site.
+/// The check at a site, with its `dive_runtime::ErrorSite`.
 fn check_of(model: &Model, site: Site) -> Option<(&Named, ErrorSite)> {
     match site {
         Site::Constraint(i) => model.constraints.get(i).map(|c| (c, ErrorSite::Constraint)),
@@ -223,7 +222,7 @@ fn reproduce(
 }
 
 /// TLC's verdict for a state that leaves variables unassigned
-/// (`ModelChecker.doNextSetErr`; the reference engine's `incomplete`).
+/// (`ModelChecker.doNextSetErr`).
 fn incomplete(model: &Model, f: &Failure, t: &[Option<Value>]) -> Verdict {
     let variables: Vec<String> = t
         .iter()
@@ -294,7 +293,7 @@ fn classified(model: &Model, f: &Failure, e: &EvalError) -> Verdict {
     }
 }
 
-/// How the failed core run ends: the verdict as the reference engine
+/// How the failed core run ends: the verdict as `dive_runtime::classify`
 /// classifies it, and whether its trace ends with the state checked.
 ///
 /// # Errors

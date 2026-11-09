@@ -1,7 +1,7 @@
 //! Budgets of the new core (`--engine=core`): `--max-states` and
 //! `--max-depth` stop it before the admission they would exceed, and
 //! `--time-limit` and `--max-memory` stop it at the next poll, with the
-//! reference engine's structured stop (verdict `stopped`, the resource,
+//! structured stop (verdict `stopped`, the resource,
 //! limit and observation, the statistics at the stop and the exit code;
 //! ADR 0107, `docs/developer/core/07-engine.md` §8).
 //!

@@ -105,7 +105,7 @@ impl Strings {
     /// [`StringOrder::Token`] they compare in that order. Call it before
     /// anything else is interned: TLC's tokens are assigned in its startup
     /// encounter order (configuration, built-ins, lexer tokens, semantic
-    /// names), and the reference binder records that order.
+    /// names), and `dive-model`'s binder records that order.
     ///
     /// # Errors
     /// `texts` repeats a string, or the table already holds strings that are

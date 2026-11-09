@@ -1,6 +1,6 @@
 //! Named Core refusals of cases only the retired reference engine ran (#791).
 //!
-//! A test that measured the reference engine on a feature Core does not
+//! A test that measured the retired Reference engine on a feature Core does not
 //! implement now asserts that Core refuses that case by name: verdict
 //! `unsupported`, exit 3 and the feature in the message. The features and
 //! the tests they came from are listed on the issue that tracks restoring

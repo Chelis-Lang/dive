@@ -8,9 +8,9 @@
 //! operator application (`TRUE`, `-1`, `1 + 1`, a constant) is passed as an
 //! operator, and a TLA+ operator that applies the argument gets the value.
 //!
-//! For each fixture of `tests/fixtures/op-literal`, the reference engine
-//! gives the pinned TLC's exit status (under `--compat=tlc`) and the text of its first error, in
-//! both profiles. The new core gives the same, or refuses the call.
+//! For each fixture of `tests/fixtures/op-literal`, the pinned TLC's exit
+//! status (under `--compat=tlc`) and the text of its first error are
+//! recorded, in both profiles. The core gives the same, or refuses the call.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 
 use std::path::{Path, PathBuf};

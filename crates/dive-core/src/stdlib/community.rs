@@ -129,8 +129,8 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
 }
 
 /// `DyadicRationals.reduce`: the record `[num |-> n, den |-> d]` divided
-/// by `gcd(n, d)`, or the argument itself when the gcd is 1. Like the
-/// reference engine, the core refuses the cases where TLC fails with a
+/// by `gcd(n, d)`, or the argument itself when the gcd is 1. Like
+/// `dive-eval`, the core refuses the cases where TLC fails with a
 /// Java exception (an operand outside 32 bits, a zero or minimal
 /// numerator and denominator); it also refuses an argument that is not a
 /// record literal or lacks a field, whose TLC error it does not reproduce.
@@ -612,8 +612,8 @@ fn is_injective(m: &mut Machine, op: StdOp, f: Handle) -> Result<Handle, Error> 
 
 /// `AntiFunction(f)`: `[y \in Range(f) |-> x]`, keeping for each value the
 /// first argument in the order of a stable sort of `f`'s entries by value
-/// (TLC's `Arrays.sort`). Values TLC cannot compare are refused, as the
-/// reference engine refuses them.
+/// (TLC's `Arrays.sort`). Values TLC cannot compare are refused, as
+/// `dive-eval` refuses them.
 fn anti_function(m: &mut Machine, op: StdOp, f: Handle) -> Result<Handle, Error> {
     let pairs: Vec<(Handle, Handle)> = if f.is_compound() {
         let v = m.heap.view(f);

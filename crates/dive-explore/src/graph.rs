@@ -3,7 +3,7 @@
 //!
 //! A [`GraphSink`] passed to [`crate::explore_with`] receives, in the
 //! one-worker commit order at any worker count, the events from which the
-//! reference engine's capture builds its `BehaviorGraph`:
+//! `dive-runtime`'s capture collector builds its `BehaviorGraph`:
 //!
 //! - [`GraphSink::emitted`] for every generated state, before its checks;
 //! - [`GraphSink::state`] for every state inside the model that passed its

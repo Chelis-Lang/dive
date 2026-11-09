@@ -40,8 +40,8 @@ fn observed(v: &Value) -> Value {
     })
 }
 
-/// The reference engine's observables, and the Core's with the sites on
-/// (first) and off.
+/// Core's observables with default options, and with the sites on (first)
+/// and off.
 fn compare(name: &str) -> (Value, Value) {
     let req = request(name);
     let reference = check_file_engine(&req, Engine::Core)

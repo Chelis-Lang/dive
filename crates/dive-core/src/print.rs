@@ -1,8 +1,8 @@
 //! Printing core values as TLC prints them (`ToString`, `Print`, `PrintT`).
 //!
-//! A value is converted to the reference engine's [`Value`] and printed by
+//! A value is converted to a `dive-value` [`Value`] and printed by
 //! `dive_value::print`, the port of TLC's `toString`, so that the core and
-//! the reference engine print alike. The conversion is the reverse of the
+//! the evaluator (`dive-eval`) print alike. The conversion is the reverse of the
 //! binder boundary ([`crate::convert`]).
 //!
 //! TLC prints some sets by their representation: an interval as `1..3`, a
@@ -23,7 +23,7 @@ use crate::handle::Handle;
 use crate::heap::Heap;
 use crate::node::{Kind, flags};
 
-/// The run's name table and value semantics, as the reference engine
+/// The run's name table and value semantics, as `dive_value::print`
 /// prints with them ([`crate::Store::set_printer`]).
 #[derive(Clone)]
 pub struct Printer {
@@ -64,7 +64,7 @@ pub enum Conversion {
 /// Converts a handle to a reference value.
 ///
 /// # Errors
-/// A value the reference engine cannot represent, and (for
+/// A value `dive-value` cannot represent, and (for
 /// [`Conversion::Print`]) a set whose printed form the core cannot know.
 pub fn to_value(
     heap: &mut Heap,
@@ -111,7 +111,7 @@ pub fn to_value(
         let b = heap.big(h).ok_or("a malformed integer")?;
         return Ok(Value::int(dive_value::Int::from_big(b)));
     }
-    // An infinite set is the reference engine's lazy set, as TLC keeps it:
+    // An infinite set is `dive-value`'s lazy set, as TLC keeps it:
     // a state may hold one until it is fingerprinted.
     let keep = conv != Conversion::Report
         && matches!(
@@ -207,7 +207,7 @@ mod tests;
 /// Failure in cooperative graph conversion.
 #[derive(Debug)]
 pub enum ConversionError {
-    /// The persistent value cannot be represented by the reference engine.
+    /// The persistent value cannot be represented as a `dive-value` value.
     Unsupported(String),
     /// Normalization, scratch storage, or cooperative interruption failed.
     Construction(dive_value::ConstructionError),
@@ -397,7 +397,7 @@ fn ambiguous(heap: &Heap, h: Handle) -> Option<String> {
     None
 }
 
-/// The reference engine's value of a symbolic set of the core's.
+/// The `dive-value` value of a symbolic set of the core's.
 fn symbolic_value(
     heap: &mut Heap,
     names: &Interner,
@@ -472,7 +472,7 @@ pub fn tlc_string(heap: &mut Heap, h: Handle) -> Result<String, Error> {
 }
 
 /// The text `Print` and `PrintT` print for a value: TLC's pretty-printed
-/// form (`tlc2.pprint`, as the reference engine prints it).
+/// form (`tlc2.pprint`, as `dive-value` prints it).
 ///
 /// # Errors
 /// As [`tlc_string`].
