@@ -5,6 +5,9 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- `dive --version` describes the build only from release tags (`v<digit>…`)
+  (issue #969). An untagged build names its abbreviated commit hash instead of
+  the nearest internal archive tag such as `keep/…`.
 - Breaking: `dive-liveness` no longer has its public materialized-product
   study API (issue #791): `product::{Product, Labels, CsrTopology}`,
   `search::{find_lasso, Acceptance, Lasso, Step}`, `formula::Recurrence` and
