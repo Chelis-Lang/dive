@@ -73,16 +73,27 @@ impl DfidReport {
         self.exit
     }
     /// Concise human description with the completion claim stated explicitly.
+    /// A refusal, limit or error names its reason, as in the JSON `message`.
     #[must_use]
     pub fn render_human(&self) -> String {
-        format!(
+        let mut text = format!(
             "DFID: {}; model proved: {}; generated {}, distinct {}; seed {}\n",
             self.document["result"],
             self.document["model_proved"],
             self.document["statistics"]["generated"],
             self.document["statistics"]["distinct"],
             self.document["options"]["seed"]
-        )
+        );
+        if let (Some(result), Some(message)) = (
+            self.document["result"].as_str(),
+            self.document["message"].as_str(),
+        ) {
+            text.push_str(result);
+            text.push_str(": ");
+            text.push_str(message);
+            text.push('\n');
+        }
+        text
     }
 }
 
