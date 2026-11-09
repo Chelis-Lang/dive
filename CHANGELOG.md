@@ -5,6 +5,11 @@ published. Earlier pre-release development entries remain in git history.
 
 ## Unreleased
 
+- A distributed `dive check` whose model the worker session identity refuses
+  (for example a user definition with `PrintT`, even unused) reports that
+  `unsupported` refusal (exit 3) even when start-up work has already spent the
+  time or memory budget, instead of `stopped` in `check-startup` (issue #973).
+  Local runs are unchanged.
 - `dive --version` describes the build only from release tags (`v<digit>…`)
   (issue #969). An untagged build names its abbreviated commit hash instead of
   the nearest internal archive tag such as `keep/…`.
