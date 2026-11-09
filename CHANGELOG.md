@@ -59,6 +59,11 @@ published. Earlier pre-release development entries remain in git history.
   The `check` and `worker` help describe each option, and the
   [distributed safety guide](docs/user/distributed-safety.md) covers setup,
   supported checks and failure behaviour.
+- `dive simulate` and `dive dfid` refusals now name the refused feature in
+  human output too, for example `unsupported: DFID multiple workers`, as the
+  JSON `message` already did (issue #956). Under `--compat=tlc`, `dive dfid`
+  with `--workers N` (N > 1) or with temporal properties now refuses with
+  exit 3, as in the default profile, instead of TLC's general error exit 255.
 - The binder's start-up evaluation now also evaluates a repeated pure call
   once when the operator comes from an instantiated module or calls other
   operators, in the default profile. The instance's substitutions count as
