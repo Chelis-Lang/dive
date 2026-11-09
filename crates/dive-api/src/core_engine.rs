@@ -879,6 +879,20 @@ fn prepare_observed(
     })
 }
 
+/// The stop of a budget that start-up work (binding, constant folding,
+/// compiling the plan, the ASSUMEs) has already spent: phase
+/// `check-startup`, before `Init` is evaluated, rather than at the search's
+/// first poll (#968). `None` while the budget holds.
+pub(crate) fn startup_stop(options: &CheckOptions) -> Option<Verdict> {
+    match options.budget.poll() {
+        Ok(None) => None,
+        Ok(Some(exhausted)) => Some(Verdict::Stopped(Box::new(
+            exhausted.during(dive_runtime::budget::Phase::Startup),
+        ))),
+        Err(error) => Some(Verdict::BudgetMeasurement { error }),
+    }
+}
+
 /// The hand-off, the store and the compiled plan, with the compile time; the
 /// `Err` is the run's result, reported after the ASSUMEs pass.
 fn compile_plan(
@@ -1380,6 +1394,41 @@ pub(crate) fn check(
     if let Some(route) = route
         && !prepared.model.implied_temporals.is_empty()
     {
+        // A start-up stop is reported before the temporal route plans
+        // (#968), but after its refusals, which hold at any budget.
+        if let Some(feature) = crate::core_temporal::static_refusal(ir, config, options, &prepared)
+        {
+            return (finish(result(unsupported(feature), options, ir)), run);
+        }
+        if let Some(verdict) = startup_stop(options) {
+            let checks = route.map(|schedule| dive_liveness::analyze::periodic::Checks {
+                schedule,
+                ..Default::default()
+            });
+            // The binder's messages, then what Core's start-up printed after
+            // them (`Startup::startup` holds both, as plain text).
+            let mut output = prepared.model.output.clone();
+            let binder = output
+                .iter()
+                .filter(|m| matches!(m, dive_model::Message::Print(_)))
+                .count();
+            output.extend(
+                prepared.start.startup[binder.min(prepared.start.startup.len())..]
+                    .iter()
+                    .cloned()
+                    .map(dive_model::Message::Print),
+            );
+            return (
+                CoreOutcome::TemporalFailure(Box::new(crate::temporal::core_startup_stop(
+                    verdict,
+                    started,
+                    checks,
+                    prepared.model.symmetry_liveness().clone(),
+                    output,
+                ))),
+                run,
+            );
+        }
         let outcome = temporal_on_stack(
             ir,
             config,
@@ -1402,6 +1451,16 @@ pub(crate) fn check(
         plan,
         compile_time,
     } = prepared;
+    if let Some(verdict) = startup_stop(options) {
+        // The start-up output and symmetry diagnostics are retained, as a
+        // stop in the search retains them.
+        let Startup { mut sym, startup } = start;
+        let mut stopped = result(verdict, options, ir);
+        stopped.warnings.append(&mut sym.warnings);
+        stopped.notes.extend(sym.note.take());
+        stopped.output = startup;
+        return (finish(stopped), run);
+    }
     // The armed budget (time and memory, ADR 0107) is polled once per
     // expanded state and per initial state; `--max-states` and `--max-depth` are admission limits.
     let budget = &options.budget;

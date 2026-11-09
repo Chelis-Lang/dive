@@ -500,6 +500,13 @@ A known initial excess uses the existing `stopped` outcome and exit 5, phase
 `check-startup`, no statistics and `resources.checking_started: false`; binding
 and graph capture have not started. Safety envelopes omit `execution`; temporal
 envelopes also report `execution.started: false` and `capture_completed: false`.
+A time or memory budget that start-up work spends after binding begins
+(evaluating constant definitions, folding constants while Core compiles its
+plan, the ASSUMEs) also stops in phase `check-startup`, before `Init`, with no
+statistics and the start-up output printed so far; refusals that hold at any
+budget are reported first. `resources.checking_started`
+is omitted, as binding started; temporal envelopes report `execution.stage:
+check-startup` and `capture_completed: false` without `started`.
 An unavailable observation or default/auto RAM lookup
 fails with `DIVE-R0002` using the existing internal-error/no-verdict transport,
 exit 4. It has no invented `stopped.observed` byte count or TLC class.
