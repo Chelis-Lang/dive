@@ -5,10 +5,10 @@
 //! level in state checks, the expanded state's in the next-state relation
 //! and action checks.
 //!
-//! The `Rg*` fixtures (`tests/fixtures/core-lib`) give the reference
-//! engine's result in both profiles at 1 and 4 workers, and the pinned
+//! The `Rg*` fixtures (`tests/fixtures/core-lib`) give the agreed result
+//! (`support/agreed.rs`) in both profiles at 1 and 4 workers, and the pinned
 //! TLC's counts and printed lines. The `Tm*` fixtures in `tests/fixtures/checker` give
-//! the reference engine's result or a named refusal.
+//! the agreed result or a named refusal.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
 mod agreed;

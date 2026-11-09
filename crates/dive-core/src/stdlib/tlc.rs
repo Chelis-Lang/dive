@@ -124,7 +124,7 @@ fn register(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error
     crate::convert::from_value(&mut m.heap, &out, p.ctx)
 }
 
-/// `RandomElement(S)`, drawn by the reference engine's operator from the
+/// `RandomElement(S)`, drawn by `dive-stdlib`'s operator from the
 /// machine's stream, on `S` converted with its lazy form
 /// (`03-value-model.md` §6.1).
 fn random_element(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {

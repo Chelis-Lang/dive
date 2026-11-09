@@ -3,9 +3,11 @@
 Core is the product engine under [ADR 0153](../../decisions/0153-core-is-the-product.md).
 The [release gates](../../RELEASE.md) define the work and acceptance criteria;
 the [scoreboard](../../scoreboard.md) holds the current measurements.
-The Reference checking runtime is retained until Core meets R1. Its only
-permitted changes are fixes for wrong user-visible results; shared startup and
-independent trace validation remain supported.
+Core is dive's only checking engine. The Reference checking runtime, the
+`--engine=auto` fallback and the `dive-check` crate are removed (#879, #935);
+what Core does not implement is a named refusal (#910). Shared start-up
+(`dive-model`'s binder) and independent trace validation (`dive-trace`, on the
+`dive-eval` evaluator) remain.
 
 ## How to resume
 
@@ -28,7 +30,10 @@ listed in ADR 0153.
 These documents explain the implementation. Their older workstream plans,
 performance targets and compatibility proposals do not override ADR 0153 or
 [RELEASE.md](../../RELEASE.md). Update behavior descriptions with the code;
-keep historical measurements in git and their existing reports.
+keep historical measurements in git and their existing reports. The design
+was built and measured against the Reference engine, so the documents still
+compare with it: those comparisons and the `crates/dive-check/` paths they
+cite are historical, and the code they name is in git history before #935.
 
 | Document | Contents |
 |---|---|

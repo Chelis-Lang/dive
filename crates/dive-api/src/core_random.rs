@@ -1,8 +1,8 @@
 //! The core's random streams (`docs/developer/core/03-value-model.md` §6.1)
 //! and `TLCSet`/`TLCGet` registers (§6.2):
-//! the reference engine's seeding and state fingerprint behind
-//! `dive_core::random::Draws`, so that the core draws what the reference
-//! engine draws.
+//! `dive-stdlib`'s seeded streams and `dive-store`'s TLC state fingerprint
+//! behind `dive_core::random::Draws`, so that the core's draws continue the
+//! streams start-up evaluation drew from.
 
 use std::sync::Arc;
 
@@ -87,7 +87,7 @@ impl DrawStream for CoreStream {
     }
 }
 
-/// TLC's error of a draw, as the reference engine's host reports it.
+/// TLC's error of a draw, as `dive-stdlib`'s random operators report it.
 fn draw_error(e: &RandomError) -> Error {
     match e {
         RandomError::Value(v) if v.kind() == dive_value::ErrorKind::DiveLimit => {

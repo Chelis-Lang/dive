@@ -2,7 +2,7 @@
 //! operators (issue #883) on the new core: a call the
 //! core does not implement compiles to a node that refuses only when it is
 //! evaluated, so a run that never reaches it (TLC evaluates a disjunct only
-//! when the ones before it are false) gives the reference engine's result,
+//! when the ones before it are false) gives the agreed result,
 //! and one that reaches it names the operator.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
@@ -136,7 +136,7 @@ fn unreached_trace_introspection_is_not_refused_and_reached_names_it() {
 }
 
 /// A failing run whose `Print` (here, a trace export's) is never reached
-/// gives the reference engine's result; one that prints still refuses.
+/// gives the agreed result; one that prints still refuses.
 #[test]
 fn failing_run_that_never_prints_is_not_refused() {
     let dir = std::env::temp_dir().join(format!("dive-core-unprinted-{}", std::process::id()));

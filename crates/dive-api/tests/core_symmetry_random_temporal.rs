@@ -1,7 +1,8 @@
 //! Core temporal runs under the default whole-run unreduced symmetry policy
 //! (D-005), and temporal runs whose only `RandomElement` is fixed at start-up
-//! (D-002): the core gives the reference engine's result and reports the
-//! policy and the seed; what neither engine proves still refuses by name.
+//! (D-002): the core gives the agreed result (`support/agreed.rs`) and
+//! reports the policy and the seed; what Core does not prove still refuses
+//! by name.
 #![allow(clippy::expect_used, clippy::panic, reason = "test fixtures")]
 #[path = "support/agreed.rs"]
 mod agreed;

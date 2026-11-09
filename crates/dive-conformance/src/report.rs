@@ -96,7 +96,7 @@ pub struct RunRecord {
     /// run named one (`--impl dive:core|auto`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub engine: Option<String>,
-    /// Why `--engine auto` ran the reference engine.
+    /// Why `--engine auto` ran the retired Reference engine (older reports).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub engine_fallback: Option<crate::tlc::result::EngineFallback>,
 }
@@ -245,7 +245,7 @@ pub struct Summary {
     pub by_corpus: BTreeMap<String, CorpusCounts>,
     /// Models by the engine that ran their first run, when the runs name
     /// one: `core`, `reference`, `static-fallback`, `dynamic-fallback`
-    /// (`--engine auto` ran the reference engine), or `none` (no engine
+    /// (`--engine auto` ran the retired Reference engine), or `none` (no engine
     /// reported: refused, or ended before the search).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub by_engine: BTreeMap<String, usize>,
@@ -882,7 +882,7 @@ mod tests {
             ],
             [1, 2, 1, 1]
         );
-        // The reference engine names no engine: nothing is counted.
+        // A run that names no engine (the retired Reference engine's): nothing is counted.
         assert!(by_engine(&[engine_model(None, None)]).is_empty());
     }
 

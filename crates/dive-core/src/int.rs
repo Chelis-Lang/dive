@@ -7,7 +7,7 @@
 //! a digit for a child). The form is canonical, so equal integers have equal
 //! node contents and an inline and a big handle are never equal.
 //!
-//! Arithmetic follows the reference engine's `dive_value::Int` (a port of
+//! Arithmetic follows `dive_value::Int` (a port of
 //! `tlc2.module.Naturals` and `tlc2.module.Integers`, tlaplus `94d0c50`):
 //! in [`IntMode::Big`] (the default profile) results are exact; in
 //! [`IntMode::Tlc`] (`--int=tlc`) operands and results are Java `int`s, and
@@ -54,8 +54,8 @@ pub enum IntOp {
     Pow,
 }
 
-/// The largest result of `^` computed in big mode, in bits (as the
-/// reference engine).
+/// The largest result of `^` computed in big mode, in bits (as
+/// `dive_value::Int`).
 const MAX_POW_BITS: u64 = 1 << 26;
 
 /// `EC.TLC_MODULE_OVERFLOW`, an `EvalException` (stream 2's error classes,

@@ -1,8 +1,8 @@
 //! `RandomElement` on the new core (`docs/developer/core/03-value-model.md`
-//! §6.1): the core draws from the reference engine's streams, the start-up
+//! §6.1): the core draws from `dive-stdlib`'s streams, the start-up
 //! stream for `Init` and, for each expanded state, the stream TLC seeds with
 //! the state's fingerprint. So at every seed and in both profiles a run the
-//! core completes gives the reference engine's result: verdict, counts,
+//! core completes gives the agreed result (`support/agreed.rs`): verdict, counts,
 //! output and the counterexample's states; `--seed` replays it; and under
 //! `--compat=tlc` the `Rd*` fixtures (`tests/fixtures/core-lib`) give the
 //! pinned TLC's counts and printed lines at `-seed 0`.
@@ -33,7 +33,7 @@ const REFUSED: &[(&str, &str)] = &[
     ("RndStartup", "ASSUMEs drew"),
     ("RndTraceAssume", "ASSUMEs drew"),
     ("TmRandom", "RandomSubset"),
-    // The reference engine refuses random streams under VIEW or SYMMETRY.
+    // The binder refuses random streams under VIEW or SYMMETRY.
     ("RdView", "randomness under VIEW is not supported"),
 ];
 
@@ -106,7 +106,7 @@ fn all() -> Vec<(String, PathBuf)> {
 }
 
 /// Every random fixture, at four seeds and in both profiles: the core's
-/// result is the reference engine's, or a named refusal.
+/// result is the agreed record, or a named refusal.
 #[test]
 fn draws_match_the_reference_engine() {
     let mut agreed = 0;

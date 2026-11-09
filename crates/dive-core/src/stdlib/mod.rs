@@ -4,10 +4,10 @@
 //! The compiler asks [`implements`] for a standard operator it does not
 //! compile itself and emits `Node::Lib`; the evaluator evaluates
 //! the arguments (normalized) and calls [`call`]. Semantics, error points
-//! and error classes are the reference engine's
+//! and error classes are `dive-eval`'s
 //! (`crates/dive-eval/src/community.rs`, `std.rs`), which follow TLC's Java
-//! overrides (`docs/provenance.md`). Where the reference refuses a case,
-//! so does the core.
+//! overrides (`docs/provenance.md`). Where `dive-eval` refuses a case, so
+//! does the core.
 //!
 //! Every operator here is pure except `Print` and `PrintT` ([`effectful`]),
 //! whose calls the compiler never folds, memoizes or skips.
@@ -232,7 +232,7 @@ fn arg_error(which: &str, op: &str, what: &str) -> Error {
     )
 }
 
-/// A case of `op` the core refuses, as the reference engine does.
+/// A case of `op` the core refuses, as `dive-eval` does.
 fn refuse(op: StdOp, why: &str) -> Error {
     Error::unsupported(format!("{} ({why})", op.qualified_name()))
 }

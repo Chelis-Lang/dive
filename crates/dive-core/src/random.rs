@@ -1,9 +1,10 @@
 //! Random draws (`TLC!RandomElement`): the run's streams, which the engine
 //! supplies (`03-value-model.md` §6.1, `02-semantic-contract.md` B6).
 //!
-//! The core defines the interface only. `dive-api` implements it with the
-//! reference engine's seeding and state fingerprint, so that the core draws
-//! what the reference engine draws.
+//! The core defines the interface only. `dive-api` implements it with
+//! `dive-stdlib`'s seeded streams and `dive-store`'s TLC state fingerprint,
+//! so that the core's draws continue the streams start-up evaluation drew
+//! from.
 
 use dive_ir::StdOp;
 use dive_value::{Ctx, Value};

@@ -3,12 +3,12 @@
 //! `crates/dive-eval/tests/fixtures/next/`) and the TLC probes of
 //! `crates/dive-api/tests/fixtures/checker/tlc-probes/`.
 //!
-//! Each fixture runs under `--engine=core` and the reference engine in the
-//! default profile at one worker. Where the core runs it, its verdict,
-//! violated property, generated and distinct counts, depth, queue and exit
-//! must equal the reference engine's, and, for a run TLC completes, the
-//! counts must equal TLC's transcript. Counts at a stop depend on the
-//! value order (D-010), so for those the reference engine is the oracle;
+//! Each fixture runs on Core in the default profile at one worker. Where
+//! the core runs it, its verdict, violated property, generated and distinct
+//! counts, depth, queue and exit must equal the result Core and the retired
+//! Reference engine agreed on (`support/agreed.rs`), and, for a run TLC
+//! completes, the counts must equal TLC's transcript. Counts at a stop depend
+//! on the value order (D-010), so for those the agreed record is the oracle;
 //! the TLC transcript is checked where the two profiles agree.
 //!
 //! Fixtures the core does not run yet must be refused, naming the
@@ -32,7 +32,7 @@ const REFUSED: &[(&str, &str)] = &[
     // Refuse before the legacy fingerprint error, without an error certificate.
     ("ErFpInfinite", "mathematical identity"),
     // TLC cannot apply an operator with a constant body passed as an
-    // `OpValue`; the reference engine applies it (`04-plan-compiler.md` §8).
+    // `OpValue`; `dive-eval` applies it (`04-plan-compiler.md` §8).
     ("ErHoConstBagOfAll", "body is constant"),
     ("ErHoConstFoldLeft", "body is constant"),
     // A set of consecutive integers may be TLC's interval, which TLC prints
@@ -72,7 +72,7 @@ fn specs(dir: &str) -> Vec<(String, PathBuf, PathBuf)> {
 }
 
 fn run(spec: &Path, engine: Engine) -> Value {
-    // The CommunityModules the reference engine's fixtures use.
+    // The CommunityModules `dive-eval`'s fixtures use.
     let community = repo().join("crates/dive-eval/tests/fixtures/community-modules");
     let report = check_file_engine(
         &CheckRequest {
@@ -259,7 +259,7 @@ fn tlc_probes_match_the_reference_and_tlc() {
 
 /// The error-class fixtures (`crates/dive-api/tests/fixtures/checker/errors/`):
 /// the core's error endings (class, exit, counts after TLC's call-stack
-/// replay, trace length) equal the reference engine's.
+/// replay, trace length) equal the agreed record.
 #[test]
 fn error_fixtures_match_the_reference() {
     let agreed = check_dir("crates/dive-api/tests/fixtures/checker/errors");
@@ -384,7 +384,7 @@ fn print_fixtures_print_as_tlc() {
 }
 
 /// The M1 generator fixtures (`tests/fixtures/core-m1`): each agrees with
-/// the reference engine, or has an exact D-028 canonical-enumeration control.
+/// the agreed record, or has an exact D-028 canonical-enumeration control.
 /// The `Fp*` fixtures are states holding a set TLC cannot fingerprint.
 #[test]
 fn m1_generator_fixtures_match_the_reference() {

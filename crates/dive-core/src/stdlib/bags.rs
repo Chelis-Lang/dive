@@ -5,7 +5,7 @@
 //!
 //! A bag is a function from elements to positive counts. TLC walks a bag's
 //! entries comparing elements with `equals`; the core walks them in the
-//! function's canonical order, as the reference engine does, and raises the
+//! function's canonical order, as `dive-eval` does, and raises the
 //! comparison errors it raises.
 
 use std::cmp::Ordering;
@@ -103,7 +103,7 @@ pub(super) fn counts(m: &Machine, op: StdOp, vals: &[Handle]) -> Result<(), Erro
 }
 
 /// `a + b` or `a - b` on counts. TLC adds Java `int`s and wraps on
-/// overflow, which the reference engine refuses; so does the core.
+/// overflow, which `dive-eval` refuses; so does the core.
 fn count_op(
     m: &mut Machine,
     op: StdOp,

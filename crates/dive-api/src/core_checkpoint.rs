@@ -1,4 +1,5 @@
-//! Consumed owned Core safety recovery, retaining the public Reference wrapper.
+//! Core safety checkpoints and recovery, behind the public
+//! `dive_runtime::checkpoint` request and result types.
 
 use std::path::Path;
 use std::sync::Arc;

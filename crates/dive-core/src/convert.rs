@@ -1,5 +1,5 @@
 //! The binder boundary (`04-plan-compiler.md` §2): converts startup values of
-//! the reference binder (`dive_value::Value`) to persistent handles.
+//! `dive-model`'s binder (`dive_value::Value`) to persistent handles.
 //!
 //! Lazy set classes that the core represents symbolically (`a..b`, `Nat`,
 //! `Int`, `Seq(S)`, `SUBSET S`, `[D -> R]`, record sets, products) stay

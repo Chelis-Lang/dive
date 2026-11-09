@@ -1,10 +1,10 @@
 //! TLC's error classes for another engine's error endings.
 //!
-//! The new execution core (`--engine=core`, `docs/developer/core/07-engine.md`
-//! §5) finds where an evaluation error ends a search and reproduces the error
-//! with the reference evaluator. It then classifies the error by its site
-//! with the reference engine's table (`class.rs`), so both engines report the
-//! same class, message and exit. These are thin public views of that table;
+//! The Core execution engine (`docs/developer/core/07-engine.md` §5) finds
+//! where an evaluation error ends a search and reproduces the error with the
+//! evaluator (`dive-eval`). It then classifies the error by its site with
+//! this crate's table (`class.rs`), so that Core reports TLC's class, message
+//! and exit. These are thin public views of that table;
 //! the rules and their evidence are documented there.
 
 use dive_eval::EvalError;
