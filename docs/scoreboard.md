@@ -8,7 +8,7 @@ a measurement is repeated; history is in git.
 | Gate | Status | Evidence |
 |---|---|---|
 | R1 Coverage | **Met on main `ce227b36`.** Core alone, default profile, one worker, full Examples tier including the long tier: 169 covered (162 agree, 7 registered expected divergences), 0 disagreements, 7 named refusals and no stops. The frozen Reference count on the same selection rule is 140. 48 models are out of scope and 9 have no TLC golden. | Quiet-node run in #784; #338 |
-| R2 Speed | **Pending the procedure run.** Single-pass triage on main `ce227b36` with four models run concurrently: geomean 0.202x TLC over all 169 covered models (153 from the release-candidate run, 16 small error-ending models re-timed on one host), and no model above 2x. Concurrent runs probably favour Core, so the gate number comes from the [R2 measurement procedure](developer/performance.md) (one checker at a time). | Speed table below; #784 |
+| R2 Speed | **Met on main `e3835968`** under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure): one checker at a time on quiet nodes, small models as the median of six alternating repetitions. Geomean 0.195x TLC over the 169 agreeing models (fixed-set geomean 0.211x, counting the six refused models at 2x); no model above 2x. Above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `conformance/reports/perf/2026-11-10-r2-procedure-e3835968.json`; #784 |
 | R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass, on main `ce227b36`. | #803; #784 |
 | R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main `ce227b36`. In that run Core in the TLC profile ran the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors; the committed TLC-profile baseline, refreshed from a later run with the same counts, records them as the ratchet floor. | #810; #784 |
 | R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-3 JSON-report golden tests pass on main `ce227b36`. | #802, #804; #784 |
@@ -84,22 +84,25 @@ nested TLC run through `IOUtils!IOEnvExec` and names its output file with
 
 ## Speed
 
-Quiet node (c7i.metal-24xl, SMT off, fixed 2.4 GHz), one worker, seed and
-fingerprint 0, original configurations, pinned TLC timed on the same node, on
-main `ce227b36`, four models at a time (triage; see the R2 row). The geomean
-over the 153 same-host-timed covered models is 0.206x TLC; total wall time is 20,310 s for Core against 41,286 s for TLC. No
-model is above 2x. Models above 1x:
+Measured under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure)
+on main `e3835968`: five c7i.metal-24xl nodes (SMT off, fixed 2.4 GHz, one NUMA
+node, provisioned storage), one checker at a time, one worker, seed and
+fingerprint 0, pinned TLC timed on the same node as Core. The 127 models where
+TLC takes under 10 s are the median of six alternating repetitions (largest
+spread between repetitions 1.31x); larger models are one pass, with three fresh
+pairs for `KeyValueStore/MCKVSSafetyMedium` (0.89x) and `ewd998/EWD998Chan`
+(0.98x), which landed near 1x. The geomean over the 169 agreeing models is
+0.195x TLC. No model is above 2x. Models above 1x:
 
 | Model | Core / TLC | Issue |
 |---|---:|---|
-| `KeyValueStore/MCKVsnap` | 1.20x (17 s against 14 s; unreduced under symmetry with liveness, D-005) | #979 |
-| `allocator/AllocatorImplementation` | 1.17x (12 s against 10 s) | #940 |
-| `ewd998/EWD998Chan` | 1.03x (966 s against 940 s) | #980 |
+| `KeyValueStore/MCKVsnap` | 1.20x (unreduced under symmetry with liveness, D-005) | #979 |
+| `allocator/AllocatorImplementation` | 1.17x | #940 |
 
-The largest models: `SlushProtocol/SlushLarge` 0.53x (6,574 s against
-12,483 s), `NanoBlockchain/MCNanoLarge` 0.43x, `MultiPaxos-SMR/MultiPaxos_MC`
-0.55x, `MultiCarElevator/ElevatorSafetyLarge` 0.59x, `ElevatorSafetyMedium`
-0.67x, `bosco/bosco` 0.47x and `bcastFolklore/bcastFolklore` 0.30x.
+The largest models: `SlushProtocol/SlushLarge` 0.53x, `NanoBlockchain/MCNanoLarge`
+0.42x, `MultiPaxos-SMR/MultiPaxos_MC` 0.54x, `MultiCarElevator/ElevatorSafetyLarge`
+0.58x, `ElevatorSafetyMedium` 0.67x, `bosco/bosco` 0.47x and
+`bcastFolklore/bcastFolklore` 0.30x.
 
 ## Feature families
 
