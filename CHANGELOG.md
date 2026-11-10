@@ -44,10 +44,10 @@ itself.
   matches a registered difference on 7 and refuses 7 by name, with no
   disagreements. Seven public real-world specification repositories also show
   no disagreements.
-- At one worker Core takes about a fifth of TLC's time on the geometric mean,
-  and no model takes more than twice TLC's time, in a single-pass measurement
-  with four models run concurrently. The gate measurement under the
-  [R2 procedure](docs/developer/performance.md) is pending.
+- At one worker, end to end including TLC's JVM start-up, Core takes about a
+  fifth of TLC's time on the geometric mean (0.195x over 169 models), and no
+  model takes more than twice TLC's time, measured under the
+  [R2 procedure](docs/developer/performance.md#r2-measurement-procedure).
 
 ### Differences from TLC
 
