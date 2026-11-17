@@ -10,8 +10,8 @@ Running depth-first search Model-Checking with fp 0 and seed 7 with 2 workers on
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
 @!@!@ENDMSG 2220 @!@!@
-Parsing file /Users/jeff/code/dive-dfid-work/crates/dive-check/tests/fixtures/dfid/DfidLive.tla
-Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-13907032520741796133/Naturals.tla (jar:file:/Users/jeff/code/dive-dfid-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $CWD/DfidLive.tla
+Parsing file $TMP/tlc-13907032520741796133/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
 Semantic processing of module Naturals
 Semantic processing of module DfidLive
 Linting of module DfidLive

@@ -1,8 +1,8 @@
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
 @!@!@ENDMSG 2220 @!@!@
-Parsing file /Users/jeff/code/dive-dfid-work/crates/dive-check/tests/fixtures/dfid/DfidInitialOnly.tla
-Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-18172292312581672363/Naturals.tla (jar:file:/Users/jeff/code/dive-dfid-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $CWD/DfidInitialOnly.tla
+Parsing file $TMP/tlc-17490469371381307072/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
 Semantic processing of module Naturals
 Semantic processing of module DfidInitialOnly
 Linting of module DfidInitialOnly
@@ -10,7 +10,7 @@ Linting of module DfidInitialOnly
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2026-10-10 12:30:23)
+Starting... (2026-11-17 23:08:59)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2208:0 @!@!@
 Finished computing initial states: 1 states generated, with 1 of them distinct.
@@ -23,7 +23,7 @@ Model checking completed. No error has been found.
   based on the actual fingerprints:  val = 1.1E-19
 @!@!@ENDMSG 2193 @!@!@
 @!@!@STARTMSG 2206:0 @!@!@
-Progress(-1) at 2026-10-10 12:30:23: 1 states generated, 1 distinct states found, -1 states left on queue.
+Progress(-1) at 2026-11-17 23:08:59: 1 states generated, 1 distinct states found, -1 states left on queue.
 @!@!@ENDMSG 2206 @!@!@
 @!@!@STARTMSG 2204:0 @!@!@
 1 states generated, 1 distinct states found.
