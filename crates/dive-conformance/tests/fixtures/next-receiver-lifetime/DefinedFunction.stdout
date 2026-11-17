@@ -10,9 +10,9 @@ Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker o
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
 @!@!@ENDMSG 2220 @!@!@
-Parsing file /home/jeff/Documents/scratch/dive-worktrees/phase2-next-receiver/crates/dive-api/tests/fixtures/next-receiver-lifetime/DefinedFunction.tla
-Parsing file /tmp/tlc-12194708885493022402/Integers.tla (jar:file:/home/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
-Parsing file /tmp/tlc-12194708885493022402/Naturals.tla (jar:file:/home/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $CWD/DefinedFunction.tla
+Parsing file /tmp/tlc-12194708885493022402/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-12194708885493022402/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
 Semantic processing of module Naturals
 Semantic processing of module Integers
 Semantic processing of module DefinedFunction

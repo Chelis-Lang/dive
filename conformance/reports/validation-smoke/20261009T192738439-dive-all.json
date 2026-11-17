@@ -11,7 +11,7 @@
   "implementation_oracle_role": null,
   "reference": false,
   "implementation_dive": {
-    "binary": "/Users/jeff/code/dive-perf-work/target/release/dive",
+    "binary": "target/release/dive",
     "sha256": "b29c9437f3f6cdf84d61bbff9231076a7b79a0108a1dc91a7c73cedbec2627d2",
     "version": "dive 0.0.0",
     "module_path": [

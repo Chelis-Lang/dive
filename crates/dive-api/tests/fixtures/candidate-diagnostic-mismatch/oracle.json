@@ -8,7 +8,7 @@
     "LaterDivDiagnosticOverflow": {
       "tla_sha256": "b3adb061bfbade3625828d070301f40c0d0c5488fc64c6393029653457f3bf57",
       "cfg_sha256": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
-      "normal_stdout_sha256": "f0ccb938f24662c4b84dfe2473a7ebbb96487fb30866c0b8202a6bd98613383d",
+      "normal_stdout_sha256": "35851bcc2813304892983e527deb29d745b5774a46daefd617bc0d403ba28924",
       "normal_physical_exit": 255,
       "primary_none_code": 2179,
       "diagnostic_bridge_code": 2178,
@@ -17,7 +17,7 @@
     "LaterOverflowDiagnosticDiv": {
       "tla_sha256": "417eae55d991402440af08c079aa8e1eac3c53f506af118addd1b2b080fe5e19",
       "cfg_sha256": "99f088222d2008ac89341820db852adc0d0e7d1f75704622c3491f4e24d85375",
-      "normal_stdout_sha256": "42ae41b1c415352273b68c5a5c7510322f568783583af0e0466ea1c5d7e2e5c3",
+      "normal_stdout_sha256": "5c388969699460d567a138f0b36d65881f2a1ca3a6e4864adee325da114e79fb",
       "normal_physical_exit": 255,
       "primary_none_code": 2178,
       "diagnostic_bridge_code": 2179,

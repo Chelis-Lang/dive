@@ -5,7 +5,6 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import shutil
 import subprocess
 import tempfile
 from datetime import datetime, timezone
@@ -14,10 +13,29 @@ PIN = "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
 ORACLE = "tlc-2026.10.06.014338"
 
 
+def redactor(fixture, temp, jar):
+    """Replace host paths with the harness placeholders ($TMP, $DIVE_CACHE_DIR, $CWD)."""
+    replacements = [(str(Path(temp).resolve()), "$TMP"), (str(temp), "$TMP")]
+    if jar.parent.parent.name == "sha256":
+        replacements.append((str(jar.parents[2]), "$DIVE_CACHE_DIR"))
+    else:
+        replacements.append((str(jar.parent), "$JAR_DIR"))
+    replacements.append((str(fixture), "$CWD"))
+
+    def redact(text):
+        for path, placeholder in replacements:
+            text = text.replace(path, placeholder)
+        return text
+    return redact
+
+
 def run(java, jar, fixture, model, flags, temp):
-    command = [str(java), "-cp", str(jar), "tlc2.TLC", "-tool", "-workers", "1", *flags,
-               "-config", str(fixture / f"{model}.cfg"), str(fixture / f"{model}.tla")]
-    return subprocess.run(command, cwd=temp, text=True, capture_output=True, timeout=30)
+    command = [str(java), f"-Djava.io.tmpdir={Path(temp).resolve()}", "-cp", str(jar), "tlc2.TLC",
+               "-tool", "-workers", "1", *flags, "-config", f"{model}.cfg", f"{model}.tla"]
+    result = subprocess.run(command, cwd=fixture, text=True, capture_output=True, timeout=30)
+    redact = redactor(fixture, temp, jar)
+    result.stdout, result.stderr = redact(result.stdout), redact(result.stderr)
+    return result
 
 
 def main():
@@ -26,6 +44,7 @@ def main():
     parser.add_argument("--jar", type=Path, required=True)
     parser.add_argument("--reason", required=True)
     args = parser.parse_args()
+    args.jar = args.jar.resolve()
     if hashlib.sha256(args.jar.read_bytes()).hexdigest() != PIN:
         raise SystemExit("pinned jar SHA-256 mismatch")
     java_version = subprocess.run([str(args.java), "-version"], text=True, capture_output=True, check=True)
@@ -36,6 +55,7 @@ def main():
     traces_dir.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="dive-simulation-oracle-") as directory:
         temp = Path(directory)
+        redact = redactor(fixture, temp, args.jar)
         for seed in (0, 1, 7, 2147483647, -1):
             for aril in (0, 3):
                 prefix = temp / f"s{seed}-a{aril}"
@@ -49,7 +69,7 @@ def main():
                     raise SystemExit(f"{stem} did not capture three complete traces")
                 states = []
                 for number, file in enumerate(files):
-                    shutil.copyfile(file, traces_dir / f"{stem}.trace{number}.tla")
+                    (traces_dir / f"{stem}.trace{number}.tla").write_text(redact(file.read_text()))
                     states.append([int(s) for s in re.findall(r"^x = (-?\d+)$", file.read_text(), re.M)])
                 generated = int(re.search(r"The number of states generated: (\d+)", result.stdout)[1])
                 choices.append(dict(seed=seed, aril=aril, exit=result.returncode, traces=states, generated=generated))

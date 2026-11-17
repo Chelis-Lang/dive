@@ -8,7 +8,7 @@
   "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
   "base_profile": "tlc",
   "implementation": {
-    "binary": "/Users/jeff/code/dive-perf-work/target/release/dive",
+    "binary": "target/release/dive",
     "sha256": "b29c9437f3f6cdf84d61bbff9231076a7b79a0108a1dc91a7c73cedbec2627d2",
     "version": "dive 0.0.0",
     "module_path": [
@@ -48,7 +48,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -152,7 +152,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -256,7 +256,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -360,7 +360,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -464,7 +464,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -568,7 +568,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -672,7 +672,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -776,7 +776,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -880,7 +880,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -984,7 +984,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1088,7 +1088,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1192,7 +1192,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1296,7 +1296,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1400,7 +1400,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1504,7 +1504,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1608,7 +1608,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1712,7 +1712,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1816,7 +1816,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1920,7 +1920,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2024,7 +2024,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2128,7 +2128,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2232,7 +2232,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2336,7 +2336,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2440,7 +2440,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2544,7 +2544,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2648,7 +2648,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2752,7 +2752,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2856,7 +2856,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2960,7 +2960,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3064,7 +3064,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3168,7 +3168,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3272,7 +3272,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3376,7 +3376,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3480,7 +3480,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "action-property-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3584,7 +3584,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "action-property-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3688,7 +3688,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "action-property-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3792,7 +3792,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3896,7 +3896,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4000,7 +4000,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4104,7 +4104,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4208,7 +4208,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4312,7 +4312,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4416,7 +4416,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4520,7 +4520,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4624,7 +4624,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4728,7 +4728,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "action-property-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4832,7 +4832,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "action-property-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4936,7 +4936,7 @@
       "detail": "unsupported: unsupported liveness analysis: no temporal properties",
       "golden_verdict": "action-property-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",

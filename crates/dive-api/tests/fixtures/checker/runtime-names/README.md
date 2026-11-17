@@ -9,7 +9,9 @@ Clean primary captures are under `tlc-2026.10.06.014338/`. They use the pinned
 jar (SHA-256 `7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d`),
 Temurin 17.0.20.1, `-tool -workers 1 -seed SEED -fp 0 -cleanup`, and a separate
 metadata directory. There is no `-dumpTrace` pass. JSON sidecars record the
-source/config hashes, flags and exit status; stdout/stderr are unmodified.
+source/config hashes, flags and exit status. stdout/stderr are unmodified except
+that host paths are replaced by the harness placeholders `$CWD`, `$TMP` and
+`$DIVE_CACHE_DIR`.
 
 TLC reports exit 12, depth 2, 15 queued states, with generated/distinct counts
 30/30 at seeds 0 and 14, and 23/23 at seed 7. At seed 7, the violating transition

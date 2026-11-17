@@ -2,8 +2,8 @@
 
 `ReplayNames` completes safely on the clean pinned oracle (seed 0, fp 0,
 one worker): 3 generated, 2 distinct states, depth 2. There is no dumpTrace
-pass. The raw stdout/stderr and source/config hashes are retained in the
-oracle directory. These are regression fixtures, not edited harness goldens.
+pass. The raw stdout/stderr (host paths replaced by the harness placeholders)
+and source/config hashes are retained in the oracle directory. These are regression fixtures, not edited harness goldens.
 
 `bad.json` claims a transition from `s = "unset"` to `s = "7"` and an
 invariant violation. The old independent validator accepted it: decoding the
