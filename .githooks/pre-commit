@@ -2,14 +2,24 @@
 {
 # Tracked pre-commit hook. Install with `cargo xtask install-hooks`, which
 # copies it into the common hooks directory shared by every worktree.
-# It enforces the repository budget (ADR 0086) on the staged tree.
-# Branches that predate the guard have no checker and are not blocked.
+# It enforces the repository budget (ADR 0086) on the staged tree, then
+# checks the prose of staged user documentation.
+# Branches that predate a checker have no copy of it and are not blocked.
 set -eu
 repo_root=$(git rev-parse --show-toplevel)
-checker="$repo_root/scripts/check-repo-budget.py"
-if [ ! -f "$checker" ]; then
-    exit 0
-fi
 cd "$repo_root"
-exec python3 -I "$checker" --quiet
+budget="$repo_root/scripts/check-repo-budget.py"
+if [ -f "$budget" ]; then
+    python3 -I "$budget" --quiet
+fi
+prose="$repo_root/scripts/check-docs-prose.py"
+if [ -f "$prose" ]; then
+    staged_docs=$(git diff --cached --name-only --diff-filter=ACMR -- \
+        README.md CHANGELOG.md 'docs/user/*.md' docs/tlc-differences.md)
+    if [ -n "$staged_docs" ]; then
+        # Warn-only until the user documentation is clean.
+        # shellcheck disable=SC2086
+        python3 -I "$prose" --warn-only --quiet $staged_docs
+    fi
+fi
 }
