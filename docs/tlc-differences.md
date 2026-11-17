@@ -1541,8 +1541,8 @@ EXTENDS Integers
 ```
 
 The pinned translator emits pcal checksum **`7c28162a`** for
-initial values 0, 1 and 9 in both C and P syntax. Their TLA-body CRCs are respectively
-**`64f9cea5`, `7faa8ba4`, `a530a3ac`** (checksums). Editing just the algorithm initializer in
+initial values 0, 1 and 9 in both C and P syntax.
+Their TLA-body CRCs are **`64f9cea5`, `7faa8ba4`, `a530a3ac`** respectively. Editing just the algorithm initializer in
 the original translated file from 0 to 9 still gives **`NO_DIVERGENCE`** in all
 four original/edited C/P validator controls. This is a missed source edit, not
 an admitted algorithm-equivalence claim: `trans.performTranslation` and
