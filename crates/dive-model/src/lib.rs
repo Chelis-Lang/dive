@@ -1,5 +1,4 @@
-//! `dive-model`: binding a specification to its TLC model configuration
-//! (ADR 0013 §8).
+//! `dive-model`: binding a specification to its TLC model configuration.
 //!
 //! This is a port of TLC's `tlc2.tool.impl.SpecProcessor` (tlaplus
 //! `94d0c50`), with the parts of `Spec` and `Tool` that finish setting up a
@@ -145,7 +144,7 @@ impl Recipe {
     }
 
     /// Retains an explicit independent binding policy for temporal symmetry.
-    /// The legacy constructor refuses periodic symmetry unless this is selected.
+    /// The plain constructor refuses periodic symmetry unless this is selected.
     ///
     /// ```
     /// # fn example(recipe: dive_model::Recipe) {
@@ -222,7 +221,7 @@ impl Recipe {
     /// Reconstructs a fresh predicate-only model with fallible error transport.
     /// Intrinsic evaluator resource/internal errors retain their original type
     /// and startup output. No synthetic control or resource policy is installed
-    /// when `control` is absent; legacy binding methods remain unchanged.
+    /// when `control` is absent; the plain binding methods remain unchanged.
     ///
     /// # Errors
     /// Ordinary binding failures, original evaluator failures/interruption, or
@@ -298,7 +297,7 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
     bind_in(ir, cfg, opts, false, None, false).map_err(ControlledBindError::legacy)
 }
 
-/// Binds `ir` to `cfg` for the core engine: as [`bind`], except that the pure
+/// Binds `ir` to `cfg` for Core: as [`bind`], except that the pure
 /// constant-level definitions used only as values by the roles the core
 /// compiles are not evaluated at start-up. They are listed in
 /// [`Model::deferred_constants`], for the core to evaluate when it compiles
@@ -309,7 +308,7 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
 /// others. With genuine temporal properties, the definitions those
 /// properties, the specification's fairness and the configured properties
 /// reach are evaluated at start-up as [`bind`] evaluates them, for the
-/// reference evaluator that checks them; the core keeps the others.
+/// dive-eval evaluator that checks them; the core keeps the others.
 ///
 /// # Errors
 /// As [`bind`].
@@ -554,7 +553,7 @@ fn run(b: &mut bind::Binder<'_>, predicates_only: bool) -> bind::R<Model> {
     };
     // The temporal route's reference evaluation needs the start-up values
     // of what it reaches: the binder evaluates those, as TLC does, and the
-    // core keeps the rest (issue #846).
+    // core keeps the rest.
     for d in b.keep_temporal_startup_values(&model)? {
         model.deferred_constants.remove(&d);
     }

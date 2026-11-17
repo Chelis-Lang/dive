@@ -1,4 +1,4 @@
-//! Fallible, private-file seen-state storage (ADR 0063).
+//! Fallible, private-file seen-state storage.
 //!
 //! Every operation is fallible: an I/O error is returned, never read as absence.
 //! The checker admits this storage through an explicit fallible inline route.

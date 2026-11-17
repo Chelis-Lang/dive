@@ -1,5 +1,4 @@
-//! The compiled plan (`04-plan-compiler.md` §1, §6; `05-successor-generation.md`
-//! §8.1): compact node arrays indexed by `u32`, not boxed trees.
+//! The compiled plan: compact node arrays indexed by `u32`, not boxed trees.
 //!
 //! Value nodes ([`Node`]) evaluate to a handle. Generator nodes ([`GNode`])
 //! enumerate successors with TLC's `getNextStates` rules. Every local is a
@@ -324,7 +323,7 @@ pub enum Node {
         free: Box<[u32]>,
     },
     /// An expression the core evaluates eagerly where TLC evaluates it
-    /// lazily (`04-plan-compiler.md` §4.1): an evaluation error inside it
+    /// lazily: an evaluation error inside it
     /// is reported as `unsupported`, because TLC might never raise it.
     Spec(P),
     /// `a \in S` (or `a \notin S` with `neg`) with `S` a set TLC keeps
@@ -362,7 +361,7 @@ pub enum Node {
         /// The body.
         body: P,
     },
-    /// A memoized pure body (S6).
+    /// A memoized pure body.
     Memo {
         /// The site.
         site: u32,
@@ -371,7 +370,7 @@ pub enum Node {
     },
 }
 
-/// A generator node (`05-successor-generation.md` §4, §8.1).
+/// A generator node.
 #[derive(Clone, Debug)]
 pub enum GNode {
     /// Pure bounded `A \\cdot B`, with complete intermediate rows and a
@@ -446,7 +445,7 @@ pub enum GNode {
         set: P,
     },
     /// `x' \in S` where TLC's `elements()` of `S` may list an element more
-    /// than once (a lazy union, `05-successor-generation.md` §6): `raw`
+    /// than once (a lazy union): `raw`
     /// reproduces TLC's multiplicity, and the run refuses when it differs
     /// from the normalized set's.
     AssignInRaw {
@@ -512,8 +511,7 @@ pub enum Unch {
     Verify(P),
 }
 
-/// TLC's `Enumerable.elements()` multiplicity of a set bound by `x' \in S`
-/// (`05-successor-generation.md` §6).
+/// TLC's `Enumerable.elements()` multiplicity of a set bound by `x' \in S`.
 #[derive(Clone, Debug)]
 pub enum Raw {
     /// A set whose `elements()` lists every element once.
@@ -561,7 +559,7 @@ pub struct Fun {
     pub caps: Box<[u32]>,
 }
 
-/// A memoization site (`06-memoization.md` §2.2).
+/// A memoization site.
 #[derive(Clone, Debug)]
 pub struct MemoSite {
     /// A description for statistics.
@@ -736,7 +734,7 @@ pub struct CompileStats {
     pub folded: usize,
     /// State-level definitions cached once per frame activation.
     pub cached_defs: usize,
-    /// Folds abandoned because they ran out of fuel (R9).
+    /// Folds abandoned because they ran out of fuel.
     pub fold_abandoned: usize,
     /// Folds not attempted because the compile-time budget was spent.
     pub fold_skipped: usize,

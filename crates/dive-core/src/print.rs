@@ -51,7 +51,7 @@ pub enum Conversion {
     /// symbolic or raw sets need independent representation-history support.
     /// The caller must supply original evaluation representations retained
     /// through import, folding and capture, never canonical identity handles
-    /// whose receiver class was erased (ADR 0121).
+    /// whose receiver class was erased.
     Graph,
     /// Printing: symbolic sets stay symbolic, and a stored set TLC could
     /// print otherwise is refused.
@@ -232,8 +232,8 @@ impl std::error::Error for ConversionError {}
 /// Converts a graph value with checkpoints in materialized traversal and
 /// normalization. `proceed` returns false to interrupt.
 ///
-/// Symbolic values retain the legacy conversion/materialization path, which is
-/// not yet cooperative. Final shared allocations and diagnostic rendering also
+/// Symbolic values keep the uncontrolled conversion/materialization path, which
+/// is not yet cooperative. Final shared allocations and diagnostic rendering also
 /// retain their existing behavior. This helper does not establish a memory cap.
 ///
 /// # Errors

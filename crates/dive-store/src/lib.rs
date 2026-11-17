@@ -1,8 +1,8 @@
-//! `dive-store`: state storage for the model checker (ADR 0015). It provides the
+//! `dive-store`: state storage for the model checker. It provides the
 //! state fingerprint and the exact-store key, the disk-backed seen-state set, the
 //! ordered frontier spill and the predecessor log Core's search uses.
 //!
-//! The crate depends only on `dive-value` (`xtask/src/layering.rs`) and has no
+//! The crate depends on no other dive crate except `dive-value`, and has no
 //! `unsafe` code.
 //!
 //! # Overview

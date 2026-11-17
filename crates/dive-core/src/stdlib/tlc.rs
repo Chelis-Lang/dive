@@ -3,9 +3,8 @@
 //! the effects `Print` and `PrintT`, whose output the machine keeps in
 //! order (`Machine::printed`), and `RandomElement`, which draws from the
 //! machine's stream (`crate::random`), and `TLCGet`/`TLCSet`, against the
-//! run's registers. The reference is
-//! `crates/dive-eval/src/std.rs` (`TlcMakeFcn`, `combine_fcn`, `TlcAssert`,
-//! `permutations`).
+//! run's registers. The reference is `dive-eval`'s `std` module
+//! (`TlcMakeFcn`, `combine_fcn`, `TlcAssert`, `permutations`).
 
 use dive_ir::StdOp;
 
@@ -77,8 +76,8 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
 }
 
 /// `TLCGet(key)` or `TLCSet(key, value)`: `TLCGet("level")` from the
-/// machine, any other key against the run's registers
-/// (`03-value-model.md` §6.2), on the arguments converted to reference
+/// machine, any other key against the run's registers,
+/// on the arguments converted to reference
 /// values and the result converted back.
 fn register(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
     use crate::eval::CheckerAccess;
@@ -125,8 +124,7 @@ fn register(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error
 }
 
 /// `RandomElement(S)`, drawn by `dive-stdlib`'s operator from the
-/// machine's stream, on `S` converted with its lazy form
-/// (`03-value-model.md` §6.1).
+/// machine's stream, on `S` converted with its lazy form.
 fn random_element(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> {
     let s = if s.is_compound() && m.heap.view(s).is_lazy() {
         m.work_norm(s)?

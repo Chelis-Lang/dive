@@ -1,20 +1,20 @@
-//! The global, append-only string table (`03-value-model.md` §2, §7).
+//! The global, append-only string table.
 //!
 //! Ids are assigned on first encounter. The default profile orders strings by
 //! their UTF-8 bytes ([`StringOrder::Text`]), so ids carry no order there.
 //! Under `--compat=tlc` strings compare by intern token
 //! ([`StringOrder::Token`]), which reproduces `UniqueString.compareTo`: the
 //! id is the token, so the table must first be fed TLC's startup encounter
-//! order with [`Strings::preload`] (`03-value-model.md` §7).
+//! order with [`Strings::preload`].
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
 use std::sync::{Arc, PoisonError, RwLock};
 
-/// How strings compare (`02-semantic-contract.md` D1, D2).
+/// How strings compare.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum StringOrder {
-    /// By UTF-8 bytes: the default profile's canonical order (D-010).
+    /// By UTF-8 bytes: the default profile's canonical order.
     #[default]
     Text,
     /// By intern token, in encounter order: TLC's order.

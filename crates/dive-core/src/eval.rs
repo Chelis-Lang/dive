@@ -1,4 +1,4 @@
-//! The interpreter for value nodes (`04-plan-compiler.md` §6): a recursive
+//! The interpreter for value nodes: a recursive
 //! `match` over the plan's node array, over one flat frame per activation.
 
 use std::sync::Arc;
@@ -105,10 +105,10 @@ pub struct Machine {
     transient_slots: Vec<usize>,
     depth: usize,
     /// Loop iterations left before evaluation gives up. Unbounded at run
-    /// time; the compiler bounds it while folding constants (R9), and an
+    /// time; the compiler bounds it while folding constants, and an
     /// isolated optional analysis machine bounds its own speculative work.
     pub(crate) fuel: u64,
-    /// Whether a site where the reference evaluator prints a warning that
+    /// Whether a site where the dive-eval evaluator prints a warning that
     /// Core does not record in [`Machine::warnings`] refuses instead
     /// ([`Machine::set_refuse_unrecorded_warnings`]).
     refuse_unrecorded_warnings: bool,
@@ -146,7 +146,7 @@ pub(crate) enum CheckerAccess {
 }
 
 /// The results of the calls made while the compiler evaluates the pure
-/// constant definitions the binder left to the core (issue #846), keyed by
+/// constant definitions the binder left to the core, keyed by
 /// the function and the exact argument handles.
 ///
 /// A start-up constant definition reads no state and applies no impure
@@ -179,7 +179,7 @@ fn general(what: &str) -> Error {
     Error::eval_class(crate::TlcClass::GENERAL, what)
 }
 
-/// An `EvalException` of TLC class `code` (`04-plan-compiler.md` §5).
+/// An `EvalException` of TLC class `code`.
 fn eval_exc(code: u32, what: &str) -> Error {
     Error::eval_class(crate::TlcClass::eval_exception(code), what)
 }
@@ -302,11 +302,11 @@ impl Machine {
         self.fuel == 0
     }
 
-    /// Makes every site where the reference evaluator prints a warning that
+    /// Makes every site where the dive-eval evaluator prints a warning that
     /// this machine does not record in [`Machine::warnings`] fail as
     /// unsupported instead: an `EXCEPT` key outside the function's domain
     /// (TLC warning 2144). An isolated optional machine sets it so that its
-    /// caller can fall back to the reference evaluator, which prints the
+    /// caller can fall back to the dive-eval evaluator, which prints the
     /// warning. Ordinary machines keep TLC's unchanged-function result.
     ///
     /// ```
@@ -607,7 +607,7 @@ impl Machine {
     }
 
     /// Whether no thunk slot still in the frame holds a transient forced
-    /// since `since` (`03-value-model.md` §11.5 rule 2), so that a rollback
+    /// since `since`, so that a rollback
     /// to the heap mark taken with it frees no value a live slot holds.
     /// A slot forced in a frame that has since been left is gone: entering
     /// a frame fills fresh slots with [`Handle::EMPTY`]. Forgets the
@@ -1799,7 +1799,7 @@ impl Machine {
                 "membership in a lazy set predicate (the evaluator side is not built)",
             )),
             // TLC's unnormalized `SetEnumValue.member` is a linear scan whose
-            // errors differ from a sorted search (C1); its compat-order
+            // errors differ from a sorted search; its compat-order
             // comparison is not built.
             Kind::SetEnum => Err(Error::unsupported(
                 "membership in a set enumeration TLC has not normalized (--compat=tlc)",
@@ -1968,15 +1968,15 @@ impl Machine {
             return Ok(self.heap.set_sorted(&out));
         }
         // The cursor enumerates a symbolic domain in canonical order without
-        // materializing it (R9, R10).
+        // materializing it.
         let dom = self.eval(code, bind.domain)?;
         let mut cur = self.work_cursor(dom)?;
         let mut out = Vec::new();
         loop {
             // Free a rejected candidate, and the predicate's transients, by
-            // arena rollback (R10). Only when no thunk was forced to a
+            // arena rollback. Only when no thunk was forced to a
             // transient meanwhile: its slot may hold a value built after the
-            // mark (`03-value-model.md` §11.5 rule 2).
+            // mark.
             let before = self.heap.mark();
             let Some(e) = self.work_next(&mut cur)? else {
                 break;
@@ -2061,7 +2061,7 @@ impl Machine {
         for (bi, b) in binds.iter().enumerate() {
             let d = match code.nodes.get(b.domain as usize) {
                 // A plan constant's enumeration is built once (bosco's
-                // `\E r \in SUBSET (P \X M)`, #937).
+                // `\E r \in SUBSET (P \X M)`).
                 Some(Node::Const(h)) if self.fuel == u64::MAX => {
                     self.heap.enumerate_constant(*h)?
                 }
@@ -2446,8 +2446,7 @@ impl Machine {
         Ok(self.heap.view(s).data.to_vec())
     }
 
-    /// Bags (`tlc2.module.Bags`; `dive-eval`'s
-    /// `crates/dive-eval/src/community.rs`).
+    /// Bags (`tlc2.module.Bags`; as in `dive-eval`'s `community` module).
     fn bag(&mut self, op: StdFn, args: &[Handle]) -> Result<Handle, Error> {
         let arg = |i: usize| {
             args.get(i)

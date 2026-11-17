@@ -1,4 +1,4 @@
-//! Counterexample reconstruction (`07-engine.md` §4).
+//! Counterexample reconstruction.
 //!
 //! The search logs only `(parent, ordinal)` for each new state, in a
 //! [`dive_store::predecessor::PredecessorLog`]. A trace is rebuilt by

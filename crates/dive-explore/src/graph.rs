@@ -1,5 +1,4 @@
-//! The behavior graph of a run, as events for a temporal check
-//! (`docs/developer/core/11-liveness.md` §3).
+//! The behavior graph of a run, as events for a temporal check.
 //!
 //! A [`GraphSink`] passed to [`crate::explore_with`] receives, in the
 //! one-worker commit order at any worker count, the events from which the

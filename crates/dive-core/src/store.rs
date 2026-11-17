@@ -1,4 +1,4 @@
-//! The persistent, hash-consed, sharded store (`03-value-model.md` §3.1).
+//! The persistent, hash-consed, sharded store.
 //!
 //! - 256 shards, selected by the top eight bits of the interning hash. For
 //!   retained construction views this includes their exact representation;
@@ -15,7 +15,7 @@
 //!   `Mutex`, probes again, and inserts. Growing replaces the table and
 //!   bumps the shard's generation, so a cached table is refreshed (under
 //!   the lock) when the generation moves; an old table stays valid for the
-//!   readers that still hold it, because nodes never move (#550).
+//!   readers that still hold it, because nodes never move.
 //!   Each shard's lock and generation live on their own cache lines, apart
 //!   from the columns that readers touch.
 //!
@@ -472,7 +472,7 @@ struct Padded(AtomicU64);
 const HIT_STRIPES: usize = 16;
 
 /// A heap's view of the store's deduplication tables, for interning
-/// without the shard locks (#550): the table of each shard it has
+/// without the shard locks: the table of each shard it has
 /// interned into, with the generation it was read at, and the hits it has
 /// not yet added to the store's statistics.
 pub struct InternCache {
@@ -556,7 +556,7 @@ pub struct Semantics {
     pub string_order: StringOrder,
     /// The integer semantics every heap on the store starts with.
     pub int_mode: crate::int::IntMode,
-    /// TLC's comparisons (`--comparisons=tlc`) rather than D-009's: where
+    /// TLC's comparisons (`--comparisons=tlc`) rather than TLA+'s: where
     /// TLC's `equals`, `compareTo` or `member` may fail or answer otherwise
     /// than TLA+, the core refuses (`compare.rs`).
     pub tlc_comparisons: bool,

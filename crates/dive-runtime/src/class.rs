@@ -1,4 +1,4 @@
-//! TLC's error-class table (WP-C4): how the pinned TLC reports an evaluation
+//! TLC's error-class table: how the pinned TLC reports an evaluation
 //! error, by the site where it is raised.
 //!
 //! Every rule here was read from TLC's source (tlaplus `94d0c50`) and checked
@@ -214,7 +214,7 @@ fn replayed(e: &EvalError) -> (u32, bool) {
 /// - `ImpliedAction` (named `name`): reported as
 ///   `TLC_ACTION_PROPERTY_EVALUATION_FAILED`, decided by the replay, which
 ///   checks the step again.
-/// - `Startup`: as raised (the binding stage's errors, WP-C1).
+/// - `Startup`: as raised (the binding stage's errors).
 #[must_use]
 #[doc(hidden)]
 pub fn search_error(e: &EvalError, site: ErrorSite, name: Option<&str>) -> Verdict {
@@ -355,7 +355,7 @@ pub fn init_error(v: Verdict, state: Option<&str>, diagnostic: Option<&EvalError
     });
     // A recorded initial-invariant runtime context is not a deciding-class
     // certificate. In particular InitialTool's pinned stream contains 2102 and
-    // context-only 2103, with no canonical deciding primary (#685). Preserve
+    // context-only 2103, with no canonical deciding primary. Preserve
     // generation/module exceptions and actual sourced receiver proof separately.
     let unproved_context =
         state.is_some() && site == ErrorSite::Invariant && !cause.is_eval_exception();
@@ -367,7 +367,7 @@ pub fn init_error(v: Verdict, state: Option<&str>, diagnostic: Option<&EvalError
 }
 
 /// An `ASSUME` that fails to evaluate: `TLC_ASSUMPTION_EVALUATION_ERROR`
-/// with TLC's message (WP-C1).
+/// with TLC's message.
 #[must_use]
 #[doc(hidden)]
 pub fn assumption_error(e: &EvalError, message: String) -> Verdict {

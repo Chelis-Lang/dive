@@ -20,7 +20,7 @@ pub enum ControlledBindError {
         output: Vec<Message>,
     },
     /// Fallible evaluation or optional source-proof planning failed intrinsically.
-    /// Controlled binding retains the original error. The legacy boxed binding
+    /// Controlled binding retains the original error. The plain boxed binding
     /// API has no exception channel and uses its existing fail-closed bug wrapper.
     EvaluationFailure {
         /// Original resource-limit or internal evaluator error.
@@ -56,7 +56,7 @@ impl ControlledBindError {
     pub(crate) fn legacy(self) -> Box<Failure> {
         match self {
             Self::Binding(failure) => failure,
-            // The legacy boxed error has no exception channel. Preserve its
+            // The plain boxed error has no exception channel. Preserve its
             // fail-closed bug projection rather than minting a semantic refusal.
             Self::Interrupted { output, .. }
             | Self::EvaluationFailure { output, .. }

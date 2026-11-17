@@ -82,7 +82,7 @@ pub struct Unsupported {
     pub feature: String,
 }
 
-/// A specification bound to its configuration (ADR 0013 §8).
+/// A specification bound to its configuration.
 #[derive(Clone, Debug)]
 pub struct Model {
     /// The lowered specification.
@@ -152,7 +152,7 @@ pub struct Model {
     /// Features this model uses that dive does not check yet.
     pub unsupported: Vec<Unsupported>,
     /// Why the model must be checked in sequential mode, with one logical
-    /// worker evaluating in TLC's order (ADR 0015 §6); empty when a parallel
+    /// worker evaluating in TLC's order; empty when a parallel
     /// search gives the same results. Each entry names the feature.
     pub sequential: Vec<String>,
     /// The only sequential restriction is preserving runtime name encounter
@@ -168,10 +168,10 @@ pub struct Model {
     pub runtime_name_order: bool,
     pub(crate) stateful_checking: Option<String>,
     /// Pure constant-level definitions whose start-up evaluation was left to
-    /// the core engine ([`crate::bind_deferring_constants`]); empty
+    /// Core ([`crate::bind_deferring_constants`]); empty
     /// otherwise. The evaluator evaluates them lazily.
     pub deferred_constants: std::collections::BTreeSet<dive_ir::DefId>,
-    /// The root module's pure `ASSUME`s, in order, that the core engine
+    /// The root module's pure `ASSUME`s, in order, that Core
     /// evaluates when it compiles its plan
     /// ([`crate::bind_deferring_constants`]); empty otherwise. Their value
     /// is a function of the start-up values alone, so one the core finds

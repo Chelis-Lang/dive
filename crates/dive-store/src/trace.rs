@@ -1,4 +1,4 @@
-//! The trace log: parent pointers for counterexample replay (ADR 0015 §4).
+//! The trace log: parent pointers for counterexample replay.
 //!
 //! Distinct states are numbered in discovery order (𝒪 order): a state's id is the
 //! number of states found before it. For each state the log records its parent's id

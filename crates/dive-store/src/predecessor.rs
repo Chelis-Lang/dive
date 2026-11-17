@@ -1,4 +1,4 @@
-//! Bounded predecessor records for concrete counterexample replay (ADR 0031).
+//! Bounded predecessor records for concrete counterexample replay.
 //!
 //! Fixed-width transient records have implicit discovery IDs. Once spilled,
 //! no growing offset table or record vector stays resident. Reconstruction

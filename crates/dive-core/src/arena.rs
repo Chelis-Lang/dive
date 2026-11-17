@@ -1,8 +1,8 @@
-//! The per-worker transient arena (`03-value-model.md` §3.2).
+//! The per-worker transient arena.
 //!
 //! Values built while one state is expanded live here: node headers in one
 //! vector and their contents in one pool of handles, so building a value does
-//! not allocate once both vectors have grown to their steady size (S7). The
+//! not allocate once both vectors have grown to their steady size. The
 //! arena is reset after each expansion and its epoch incremented. A handle
 //! carries the epoch it was created in, and so does its node; dereferencing a
 //! handle whose node is gone, or whose slot now holds a node of another

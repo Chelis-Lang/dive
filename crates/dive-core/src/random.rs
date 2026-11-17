@@ -1,5 +1,5 @@
 //! Random draws (`TLC!RandomElement`): the run's streams, which the engine
-//! supplies (`03-value-model.md` §6.1, `02-semantic-contract.md` B6).
+//! supplies.
 //!
 //! The core defines the interface only. `dive-api` implements it with
 //! `dive-stdlib`'s seeded streams and `dive-store`'s TLC state fingerprint,
@@ -29,16 +29,16 @@ pub trait Draws: Send + Sync {
     fn startup(&self) -> Box<dyn DrawStream>;
 
     /// The stream for expanding the state whose variables (in IR order)
-    /// are `vars`: TLC's `fingerprint(state) ^ seed`, or D-002's stream
-    /// keyed by the fingerprint.
+    /// are `vars`: TLC's `fingerprint(state) ^ seed`, or dive's replayable
+    /// stream keyed by the fingerprint.
     ///
     /// # Errors
     /// A state that cannot be converted or fingerprinted.
     fn state(&self, heap: &mut Heap, vars: &[Handle]) -> Result<Box<dyn DrawStream>, Error>;
 }
 
-/// The run's `TLCSet`/`TLCGet` registers (`03-value-model.md` §6.2): the
-/// reference evaluator's, which constant definitions and `ASSUME`s wrote.
+/// The run's `TLCSet`/`TLCGet` registers: the
+/// dive-eval evaluator's, which constant definitions and `ASSUME`s wrote.
 pub trait Registers: Send + Sync {
     /// Applies `TLCSet(key, value)` or `TLCGet(key)` to evaluated
     /// arguments. `TLCGet("level")` never reaches it.

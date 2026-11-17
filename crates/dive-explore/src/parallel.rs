@@ -1,4 +1,4 @@
-//! The parallel level (`docs/developer/core/07-engine.md` §3).
+//! The parallel level.
 //!
 //! A level is expanded in two phases, so that every observable result is
 //! the one-worker result, whatever the worker count:
@@ -34,8 +34,8 @@ use dive_core::{Error, ErrorKind, Handle, Machine, Opts, Plan, Sink};
 use crate::ending::Site;
 use crate::{Metrics, Seen, changed_vars, eval_check, in_model, state_identity};
 
-/// Lock-free minimum-position claims on the state keys of one level
-/// (`07-engine.md` §2): a successor inside the model, not seen in an
+/// Lock-free minimum-position claims on the state keys of one level:
+/// a successor inside the model, not seen in an
 /// earlier level, claims its key with its position. A successor whose key
 /// is held by an earlier position is a duplicate within the level: the
 /// one-worker search inserts the earlier one first, so this one is not new,

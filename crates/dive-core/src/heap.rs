@@ -1,6 +1,6 @@
-//! Value operations over both regions: views, hashing (`03-value-model.md`
-//! §5), equality, the canonical order (§7), builders, materialization of
-//! symbolic sets, and interning by deep close (§3.3).
+//! Value operations over both regions: views, hashing, equality, the
+//! canonical order, builders, materialization of symbolic sets, and interning
+//! by deep close.
 
 use std::cmp::Ordering;
 use std::sync::Arc;
@@ -86,10 +86,10 @@ pub struct Heap {
     work_interrupted: std::cell::Cell<bool>,
     /// This heap's copy of the string table's texts and ranks, by id,
     /// extended on a miss: string comparisons read it without the table's
-    /// lock, which every worker would otherwise share (#550).
+    /// lock, which every worker would otherwise share.
     names: std::cell::RefCell<Names>,
     /// This heap's view of the store's deduplication tables, for interning
-    /// a value already present without the shard lock (#550).
+    /// a value already present without the shard lock.
     pub(crate) cache: crate::store::InternCache,
 }
 
@@ -253,8 +253,7 @@ impl Heap {
         self.store.flush_hits(&mut self.cache);
     }
 
-    /// The current transient allocation point (§11.5 rule 2 of
-    /// `03-value-model.md`).
+    /// The current transient allocation point.
     #[must_use]
     pub fn mark(&self) -> Mark {
         self.arena.mark()
@@ -309,7 +308,7 @@ impl Heap {
     }
 
     /// Records an internal error: a lazy value reached an operation that
-    /// needs a closed one (`03-value-model.md` §11.3).
+    /// needs a closed one.
     #[cold]
     fn lazy_misuse(&self) {
         self.poisoned.set(true);
@@ -554,7 +553,7 @@ impl Heap {
         va.data.iter().zip(vb.data).all(|(&x, &y)| self.eq(x, y))
     }
 
-    /// The rank of a handle's class in the canonical order (D2): model
+    /// The rank of a handle's class in the canonical order: model
     /// values, booleans, integers, strings, then compounds.
     fn scalar_rank(h: Handle) -> u8 {
         match h.tag() {
@@ -575,7 +574,7 @@ impl Heap {
         }
     }
 
-    /// The canonical total order (D-010): model values by name, booleans,
+    /// The canonical total order (the default profile's value order): model values by name, booleans,
     /// integers, strings by text, finite sets by size then elements,
     /// functions by size, domain then values, then symbolic sets
     /// structurally. Consistent with
@@ -606,7 +605,7 @@ impl Heap {
                 (Some(x), Some(y)) => self.str_cmp(x, y),
                 _ => Ordering::Equal,
             },
-            // By name, as strings (D2).
+            // By name, as strings.
             Tag::Model => match (a.as_model_id(), b.as_model_id()) {
                 (Some(x), Some(y)) => self.str_cmp(x, y),
                 _ => Ordering::Equal,
@@ -834,7 +833,7 @@ impl Heap {
 
     /// A set enumeration `{e1, ...}` as TLC builds it before normalizing:
     /// the normalized, closed elements in construction order, duplicates kept, as a
-    /// [`Kind::SetEnum`] view with [`flags::UNNORM`] (C1). It is normalized,
+    /// [`Kind::SetEnum`] view with [`flags::UNNORM`]. It is normalized,
     /// hashed and interned as the set of its elements; only membership and
     /// error paths that the contract names read its order.
     pub fn set_enum(&mut self, elems: &[Handle]) -> Handle {
@@ -842,7 +841,7 @@ impl Heap {
     }
 
     /// The same function with the entry at index `i` replaced, hashing in
-    /// O(1) from the stored sum (S2).
+    /// O(1) from the stored sum.
     #[allow(
         clippy::many_single_char_names,
         reason = "short names for the hash algebra"
@@ -1680,8 +1679,8 @@ impl Heap {
     /// and view bits (a symbolic set stays symbolic, a record literal stays
     /// one), so the persistent handle reads like `h` everywhere, and two
     /// handles it returns are equal exactly when the representations are.
-    /// Step-predicate memo sites use it for their keys and results
-    /// (`06-memoization.md` §2.3); graph capture uses it to retain original
+    /// Step-predicate memo sites use it for their keys and results;
+    /// graph capture uses it to retain original
     /// target representations independently of canonical state identities.
     ///
     /// # Errors
@@ -2448,7 +2447,7 @@ mod tests {
 
     /// A function key may be a closed view: a tuple of records that an
     /// exact intern (graph capture for liveness) marked `NESTED_VIEW`, as
-    /// `KeyValueStore`'s `PermSeqs` over its logged operations builds (#851).
+    /// `KeyValueStore`'s `PermSeqs` over its logged operations builds.
     /// Only a lazy key is a misuse.
     #[test]
     fn a_closed_view_is_a_function_key() {

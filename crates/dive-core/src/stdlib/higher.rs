@@ -9,7 +9,7 @@
 //! sequence, or by the normalized order of a function or set. `FoldSet`
 //! and `FoldFunctionOnSet` walk the set's normalized order: the pinned TLC
 //! folds `S \cup T`, `UNION`, `SUBSET`, `[S -> T]`, `S \X T` and set maps
-//! in that order, without repeats (`04-plan-compiler.md`, fixture
+//! in that order, without repeats (fixture
 //! `FoldOps`). Unnormalized functions, whose order is TLC's internal
 //! order, are not here.
 
@@ -46,7 +46,7 @@ pub(super) fn implements(op: StdOp) -> bool {
 /// Whether TLC's override takes the operator as an `OpValue`. Passed an
 /// operator whose body is a constant such as `LAMBDA x : 0`, TLC fails
 /// with error 2154 or 2266 while `dive-eval` applies it
-/// (`04-plan-compiler.md` §8, fixtures `ErHoConst*`); the core refuses
+/// (fixtures `ErHoConst*`); the core refuses
 /// such a call.
 pub(super) fn takes_op_value(op: StdOp) -> bool {
     matches!(

@@ -1,4 +1,5 @@
-//! Checker options (ADR 0010: every option declares its TLC setting).
+//! Checker options. Every option declares its TLC setting, the value
+//! `--compat=tlc` selects.
 
 use dive_eval::{Options, Profile};
 use dive_store::StoreMode;
@@ -9,8 +10,8 @@ pub struct CheckOptions {
     /// Optional owned external inputs for source binding. Runtime reads and
     /// checkpoint/recovery are not implemented; evaluator grants stay explicit.
     pub inputs: Option<std::sync::Arc<dyn dive_eval::inputs::InputSource>>,
-    /// Opt-in transient fallible disk seen-state retention (ADR 0068).
-    /// None preserves the resident reference. Disk runs use an explicitly
+    /// Opt-in transient fallible disk seen-state retention.
+    /// `None` keeps the seen set resident in memory. Disk runs use an explicitly
     /// reported inline fallback; this is not a total-memory or recovery budget.
     pub seen_disk: Option<crate::SeenOptions>,
     /// Opt-in encoded resident budget per current/next frontier queue. TLC uses
@@ -39,13 +40,15 @@ pub struct CheckOptions {
     pub predecessor_directory: Option<std::path::PathBuf>,
     /// The profile: dive's default or `--compat=tlc`.
     pub profile: Profile,
-    /// Whole-run symmetry policy for genuine temporal properties (D-005).
+    /// Whole-run symmetry policy for genuine temporal properties. TLC checks a
+    /// symmetry-reduced graph, which can miss or invent liveness violations.
     /// TLC-equivalent: `Tlc`; unsupported quotient checking still refuses.
     pub symmetry_liveness: dive_model::SymmetryLiveness,
     /// Evaluation options (`Options::tlc()` under `--compat=tlc`).
     pub eval: Options,
     /// Fingerprint mode (the default, as in TLC) or exact mode
-    /// (`--store exact`, D-007). TLC setting: fingerprint.
+    /// (`--store exact`, full states with an unconditional exhaustiveness
+    /// claim). TLC setting: fingerprint.
     pub store: StoreMode,
     /// TLC's fingerprint polynomial index (`-fp`), `0..131`. TLC setting:
     /// random per run unless given; the default profile fixes it at 0.
@@ -53,21 +56,21 @@ pub struct CheckOptions {
     /// Whether to key the fingerprint set on TLC's own state fingerprints in
     /// TLC's variable order (`StateFingerprinter::tlc`), or on dive's cheaper
     /// two-level fingerprints (`StateFingerprinter::new`: cached FP64 value
-    /// fingerprints combined by a non-linear, position-keyed mixer chain,
-    /// ADR 0015 §5). TLC setting: `true`, which `--compat=tlc` uses so that
+    /// fingerprints combined by a non-linear, position-keyed mixer chain).
+    /// TLC setting: `true`, which `--compat=tlc` uses so that
     /// the fingerprint set and the "actual" collision figure are TLC's; the
     /// default profile uses dive's. Result-preserving: only a collision could
     /// tell them apart.
     pub tlc_fingerprints: bool,
-    /// The run's seed (always reported, D-002).
+    /// The run's seed (always reported, so `--seed` replays the run).
     pub seed: i64,
     /// TLC's `-deadlock` flag: do not check deadlock, whatever the
     /// configuration says.
     pub no_deadlock: bool,
-    /// Worker threads (`--workers`). Results are identical at every count
-    /// (ADR 0015). TLC setting: 1, TLC's default; a spec that depends on
+    /// Worker threads (`--workers`). Results are identical at every count.
+    /// TLC setting: 1, TLC's default; a spec that depends on
     /// TLC's sequential side effects runs with one logical worker whatever
-    /// this says (sequential mode, ADR 0015 §6), and the result says so.
+    /// this says (sequential mode), and the result says so.
     /// Final/short graph capture expands at most
     /// [`crate::capture::MAX_EXPANSION_UNITS`] source units concurrently even
     /// with a wider pool; its scratch admission bound is reported separately.
@@ -81,7 +84,7 @@ pub struct CheckOptions {
     /// levels, whether small phases run inline, and insert random yields.
     /// Results must not change; any change is a determinism bug.
     pub chaos: Option<u64>,
-    /// The run's time and memory limits (ADR 0107). A run arms an unarmed
+    /// The run's time and memory limits. A run arms an unarmed
     /// budget for itself; a caller that runs several stages
     /// (capture, then temporal analysis) arms it once with
     /// [`crate::budget::Budget::start`] so the stages share one clock.

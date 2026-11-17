@@ -1,4 +1,4 @@
-//! Handles: 64-bit tagged value words (`03-value-model.md` §2).
+//! Handles: 64-bit tagged value words.
 //!
 //! The low three bits are a tag. Scalars are inline; compounds are an index
 //! into the persistent store or into the owning worker's transient arena.
@@ -267,7 +267,7 @@ pub(crate) const K_SET: u64 = 0x3c6e_f372_fe94_f82b;
 pub(crate) const K_FCN: u64 = 0xa54f_f53a_5f1d_36f1;
 pub(crate) const K_SYM: u64 = 0x510e_527f_ade6_82d1;
 pub(crate) const K_MODEL: u64 = 0x1f83_d9ab_5be0_cd19;
-/// The kind constant of a state hash (`03-value-model.md` §5).
+/// The kind constant of a state hash.
 pub const K_STATE: u64 = 0x9b05_688c_2b3e_6c1f;
 
 /// `fin(K, len, Σ)`: the final mix of an additive hash.
