@@ -8,7 +8,8 @@ hashes, process talk or status words. Two kinds of check run here.
 * Literal checks gate (exit status 1): em dashes, spaced en dashes,
   "load-bearing", issue and pull-request references, ADR citations, bare
   divergence ids (a link into tlc-differences.md or an entry heading is fine),
-  the release gate names R1 to R6, commit hashes, the words owner, campaign,
+  the release gate names R1 to R6, commit hashes (a line about checksums or
+  CRCs may quote hex values), the words owner, campaign,
   agent, LLM, Claude and Codex, status words, and links into maintainer
   material (docs/survey, docs/internal). An unclosed code fence also gates.
 * Phrase tics are reported as warnings and never gate: stock words such as
@@ -44,7 +45,7 @@ LITERAL: dict[str, re.Pattern[str]] = {
     "en dash used as a dash": re.compile(r"\s–\s|&ndash;", re.I),
     "load-bearing": re.compile(r"\bload[- ]bearing\b", re.I),
     "issue or PR reference": re.compile(
-        r"(?<![\w&/(\[])#\d+\b(?![-\w])"
+        r"(?<![\w&/])#\d+\b(?![-\w])"
         r"|\b[A-Za-z][\w.-]*/[\w.-]+#\d+\b(?![-\w])"
         r"|github\.com/[\w.-]+/[\w.-]+/(?:issues|pull)/\d+",
         re.I,
@@ -69,6 +70,8 @@ HEX = re.compile(
     r"(?<![\w./-])(?=[0-9a-f]*[a-f])(?=[0-9a-f]*\d)(?![0-9a-f]*(\w)\1{5})"
     r"[0-9a-f]{7,40}(?![\w-])"
 )
+# A line that talks about checksums or CRCs may quote their hex values.
+CHECKSUM_LINE = re.compile(r"\b(?:CRCs?|checksums?)\b", re.I)
 
 # Word rules apply outside inline code.
 WORDS: dict[str, re.Pattern[str]] = {
@@ -169,7 +172,7 @@ def check_text(text: str) -> tuple[list[tuple[int, str, str]], list[tuple[int, s
             if m:
                 errors.append((number, "bare divergence id", m.group(0)))
         no_links = LINK.sub(lambda l: l.group(0).split("](")[0], line)
-        m = HEX.search(no_links)
+        m = None if CHECKSUM_LINE.search(line) else HEX.search(no_links)
         if m:
             errors.append((number, "commit hash", m.group(0)))
         words = INLINE_CODE.sub("", line)
