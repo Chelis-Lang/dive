@@ -1,9 +1,24 @@
-//! `dive-core`: the new execution core (ADR 0117; design in
-//! `docs/developer/core/`).
+//! `dive-core`: Core, dive's compiled execution core for explicit-state
+//! model checking.
 //!
-//! This is the M0 spike: the default profile only, and only the constructs
-//! the spike models use. Everything else is refused before the run starts
-//! with an `unsupported` result naming the construct.
+//! Core turns a bound specification into a [`Plan`] and evaluates it over
+//! compact value handles instead of tree-walking the IR. [`compile()`] takes
+//! `dive_ir` plus the binder's [`Handoff`] (constants, roles and the
+//! definitions left to evaluate) and compiles every value expression and
+//! every action into flat node arrays. A [`Machine`] interprets those nodes
+//! over a [`Heap`]: persistent values live in a hash-consed, sharded
+//! [`Store`] shared by all workers, and each worker builds intermediate
+//! values in its own transient arena, released once a state is accepted.
+//! Successor generation follows TLC's `getNextStates` rules and hands each
+//! initial state and successor to a [`Sink`]; the exploration engine in
+//! `dive-explore` provides that sink and does the searching, storing and
+//! checking.
+//!
+//! Core serves both profiles, dive's default and `--compat=tlc`: it keeps
+//! TLC's evaluation order and error classes, supports either integer mode
+//! and either value order, and implements `SYMMETRY` reduction. Anything it
+//! does not implement exactly is refused before or during the run with an
+//! `unsupported` result naming the construct, never approximated.
 //!
 //! - [`handle`]: 64-bit tagged value words.
 //! - [`store`]: the hash-consed, sharded persistent store.
@@ -103,8 +118,8 @@ pub struct ErrorData {
 
 /// How TLC raises an evaluation error: its `EC` code and whether it is an
 /// `EvalException` (which a Java override passes through, and which the
-/// checker reports with its own code) or an `Assert.fail`
-/// (`04-plan-compiler.md` §5). The site rules stay with the engine.
+/// checker reports with its own code) or an `Assert.fail`.
+/// The site rules stay with the engine.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct TlcClass {
     /// The `tlc2.output.EC` code: 1000 for `GENERAL`.

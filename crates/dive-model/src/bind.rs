@@ -783,7 +783,7 @@ impl<'a> Binder<'a> {
     }
 
     /// Evaluates, as `processConstantDefns` would have, the definitions left
-    /// to the core that the reference evaluator may evaluate after binding
+    /// to the core that the dive-eval evaluator may evaluate after binding
     /// on the temporal route (`crate::defer::reference_temporal`), and
     /// returns them: they are no longer left to the core.
     pub(crate) fn keep_temporal_startup_values(

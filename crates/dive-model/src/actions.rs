@@ -1,5 +1,5 @@
 //! The initial predicates and the next-state relation as the successor
-//! generator's actions (`dive_eval::next`, WP-C2).
+//! generator's actions (`dive_eval::next`).
 //!
 //! `dive_ir::actions::split_with_values` builds the tree TLC's `Tool.getActions`
 //! walks, with actual value lookups and configuration overrides as redirects;

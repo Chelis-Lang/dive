@@ -130,7 +130,7 @@ impl Remap {
     /// introduced.
     ///
     /// # Errors
-    /// A stale/transient/legacy-history value, new deferred provider, allocation
+    /// A stale/transient/history-flagged value, new deferred provider, allocation
     /// or cancellation.
     #[allow(
         clippy::too_many_lines,

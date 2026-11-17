@@ -1,4 +1,4 @@
-//! Keyed result caches for pure bodies (`06-memoization.md` §2.2).
+//! Keyed result caches for pure bodies.
 //!
 //! Each site has a per-worker, two-way set-associative table. An entry holds
 //! the full key (the handles of the site's inputs) and the result. A site

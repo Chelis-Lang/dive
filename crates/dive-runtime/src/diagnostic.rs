@@ -1,5 +1,4 @@
-//! Diagnostic replays and TLC's state text for Core's error endings
-//! (ADR 0155).
+//! Diagnostic replays and TLC's state text for Core's error endings.
 
 use std::fmt::Write as _;
 

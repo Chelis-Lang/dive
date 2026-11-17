@@ -1,5 +1,4 @@
-//! Successor and initial-state generation with TLC's `getNextStates` rules
-//! (`05-successor-generation.md` §3, §4).
+//! Successor and initial-state generation with TLC's `getNextStates` rules.
 //!
 //! The continuation list (TLC's `ActionItemList`) is a stack of nodes in the
 //! machine, linked by index; a call pushes its items and truncates them on
@@ -573,8 +572,7 @@ impl Machine {
             .copied()
             .unwrap_or(Handle::EMPTY);
         // A primed definition's site over a filter is streamed as its body
-        // is, without building the set to cache it (`06-memoization.md`
-        // §2.4).
+        // is, without building the set to cache it.
         let set = match code.nodes.get(set as usize) {
             Some(Node::Memo { site, body })
                 if cur.is_empty()
@@ -628,9 +626,9 @@ impl Machine {
                         self.unbind_var(var);
                         r?;
                     }
-                    // A rejected candidate is freed (R10; as in
+                    // A rejected candidate is freed (as in
                     // `Machine::filter`), and so is an accepted one once its
-                    // continuation has emitted its states (#551).
+                    // continuation has emitted its states.
                     if self.thunks_released(forced) {
                         self.heap.rollback(before);
                     }
@@ -662,10 +660,10 @@ impl Machine {
 impl Machine {
     /// Binds `var` to each element of `c` in turn and runs the
     /// continuation. An element and the continuation's transients are freed
-    /// once it returns (R10, #551): an `Init` over a large set would
+    /// once it returns: an `Init` over a large set would
     /// otherwise hold every candidate state until the level ends. Only when
     /// no thunk was forced to a transient meanwhile, whose slot may hold a
-    /// value built after the mark (`03-value-model.md` §11.5 rule 2); the
+    /// value built after the mark; the
     /// cursor's own state predates the mark.
     fn each_in(
         &mut self,
@@ -695,7 +693,7 @@ impl Machine {
     /// (§6): TLC's multiplicity is computed, and the run refuses when it
     /// differs from the normalized set's, because which one TLC walks
     /// depends on the set object's history. Otherwise the normalized set
-    /// is enumerated, in the run's value order (D-010).
+    /// is enumerated, in the run's value order.
     fn assign_in_raw(
         &mut self,
         code: &Code,

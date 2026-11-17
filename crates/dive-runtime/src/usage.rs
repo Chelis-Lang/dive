@@ -1,5 +1,5 @@
 //! Storage usage evidence and the disk seen-state policy carried by
-//! [`crate::CheckOptions`] and [`crate::CheckResult`] (ADR 0155). The stores
+//! [`crate::CheckOptions`] and [`crate::CheckResult`]. The stores
 //! themselves belong to the engines.
 
 use std::path::PathBuf;
@@ -12,7 +12,7 @@ use crate::Verdict;
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct FrontierUsage {
     /// Encoded frontier resident byte budget, independently for each of the
-    /// current and next queues. `None` is the legacy in-memory reference path.
+    /// current and next queues. `None` keeps both queues in memory.
     pub memory_bytes_per_queue: Option<usize>,
     /// Encoded record workspace bound, when spill is enabled.
     pub max_record_bytes: Option<usize>,
@@ -30,7 +30,7 @@ pub struct FrontierUsage {
     pub failures: Vec<String>,
 }
 
-/// Explicit opt-in transient disk seen-state policy (ADR 0068).
+/// Explicit opt-in transient disk seen-state policy.
 /// Default checking retains the original resident store. These bounds cover
 /// on-disk membership and key workspaces, not total search/process memory.
 #[derive(Clone, Debug, Default)]

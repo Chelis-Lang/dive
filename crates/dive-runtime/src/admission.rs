@@ -1,5 +1,5 @@
 //! Pure admission analysis of a bound model, shared by graph capture and
-//! Core (ADR 0155). Nothing here evaluates an
+//! Core. Nothing here evaluates an
 //! expression.
 
 use std::sync::Arc;
@@ -37,7 +37,7 @@ fn random_op(op: dive_ir::StdOp) -> bool {
 /// start-up (a precomputed constant-level definition, or a configured
 /// `Op = v` value) is never evaluated again, so neither its body nor what
 /// it references can draw. The start-up draws themselves come from the run's
-/// reported seed (D-002). A configured redirect (`Op <- D`, `C <- D`)
+/// reported seed. A configured redirect (`Op <- D`, `C <- D`)
 /// evaluates `D`'s body at every use, so it references `D`, and `D` is not
 /// fixed ([`dive_eval::Evaluator::startup_fixed`]).
 #[must_use]

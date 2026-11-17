@@ -1,12 +1,12 @@
-//! Successor sampling for the shadow comparison
-//! (`docs/developer/core/08-correctness.md` §4).
+//! Successor sampling for a differential sample: Core's successors of a
+//! sample of states, for comparison with an independent evaluator.
 //!
 //! A run with [`Config::sample`](crate::Config::sample) keeps a uniform
 //! sample of the states it expanded (reservoir sampling, seeded, so the same
 //! seed picks the same states at any worker count), retaining each source's
 //! actual evaluation level. [`successors`] then
 //! regenerates each sampled state's successors, action by action, for the
-//! caller to compare with the reference evaluator's.
+//! caller to compare with the dive-eval evaluator's.
 
 use std::sync::Arc;
 

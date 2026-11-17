@@ -4,7 +4,8 @@
 //! constant definitions are cached, as `SpecProcessor.processPeriodic` does)
 //! and evaluates it on its wall-clock progress timer. dive binds it with
 //! TLC's errors, then refuses to run it: the hook is a named unsupported
-//! feature until it is evaluated at deterministic level boundaries (D-014).
+//! feature until it is evaluated at deterministic level boundaries rather
+//! than on a timer.
 
 use dive_ir::DefId;
 

@@ -8,7 +8,7 @@ use dive_store::StoreMode;
 use dive_value::Value;
 
 /// Where an evaluation error was raised: the phase of TLC's search it
-/// belongs to. TLC's error class and exit status depend on it (WP-C4).
+/// belongs to. TLC's error class and exit status depend on it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ErrorSite {
     /// Processing the specification, before the assumptions.
@@ -123,7 +123,7 @@ pub enum Verdict {
     },
     /// Evaluation failed with an error TLC also raises (including a failed
     /// `Assert` and integer overflow), classified as TLC classifies it at
-    /// `site` (WP-C4's error-class table, `class.rs`).
+    /// `site` (the error-class table in `class.rs`).
     EvaluationError {
         /// Where.
         site: ErrorSite,
@@ -162,8 +162,8 @@ pub enum Verdict {
         /// What.
         message: String,
     },
-    /// The run's budget (`--time-limit`, `--max-memory`) was exhausted
-    /// (ADR 0107). Never a verdict about the model; the statistics are those
+    /// The run's budget (`--time-limit`, `--max-memory`) was exhausted.
+    /// Never a verdict about the model; the statistics are those
     /// at the stop.
     Stopped(Box<crate::budget::Stopped>),
     /// A required process-memory observation failed; never a model verdict.
@@ -194,8 +194,7 @@ pub struct TlcClass {
     /// `code`.
     pub reported: u32,
     /// Whether dive reproduces TLC's class here, checked against a captured
-    /// TLC run. An unverified class is reported but not claimed (WP-C4 owns
-    /// the error-class table).
+    /// TLC run. An unverified class is reported but not claimed.
     pub verified: bool,
 }
 
@@ -278,13 +277,13 @@ impl Verdict {
             }
             Self::Deadlock => class(2114, "TLC_DEADLOCK_REACHED", true),
             Self::AssumptionFalse { .. } => class(2104, "TLC_ASSUMPTION_FALSE", true),
-            // Fixture `ErPostFalse` (WP-C4).
+            // Fixture `ErPostFalse`.
             Self::PostconditionFalse { .. } => class(2404, "TLC_POSTCONDITION_FALSE", true),
-            // The binding stage's errors are checked against TLC (WP-B1);
+            // The binding stage's errors are checked against TLC;
             // `TLC_STATES_AND_NO_NEXT_ACTION` (2115) is read from TLC's source
             // only (`ModelChecker.java:233-245`).
             Self::ModelError { code, name, .. } => class(*code, name, *code != 2115),
-            // Fixtures `ErInitIncomplete` and `ErNextIncomplete` (WP-C4).
+            // Fixtures `ErInitIncomplete` and `ErNextIncomplete`.
             Self::NotCompletelySpecified { initial: true, .. } => {
                 class(2102, "TLC_INITIAL_STATE", true)
             }
@@ -490,7 +489,7 @@ pub struct CheckResult {
     pub elapsed: Duration,
 }
 
-/// Worker threads requested and used (ADR 0015 §6).
+/// Worker threads requested and used.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Workers {
     /// Requested (`--workers`).

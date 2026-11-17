@@ -1,5 +1,5 @@
 //! The run host's `TLCGet("config")` and live counters around the search,
-//! shared by every engine (ADR 0155).
+//! shared by every engine.
 
 use dive_eval::{Counter, RunConfig};
 use dive_stdlib::host::RunHost;
@@ -8,7 +8,7 @@ use crate::CheckOptions;
 
 /// `TLCGet("config")` (`AbstractChecker.createConfig`). The worker count is
 /// the logical one, 1, by default and the requested one under
-/// `--compat=tlc`, as TLC reports `-workers` (D-011); the install location
+/// `--compat=tlc`, as TLC reports `-workers`; the install location
 /// is dive's executable.
 #[must_use]
 pub fn run_config(opts: &CheckOptions, deadlock: bool) -> RunConfig {

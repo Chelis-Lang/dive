@@ -1,6 +1,6 @@
 //! `Bags` (`tlc2.module.Bags`): the operators beyond the five the evaluator
 //! builds itself (`EmptyBag`, `SetToBag`, `BagToSet`, `BagIn`, `CopiesIn`).
-//! The reference is `crates/dive-eval/src/community.rs` (`bag_cardinality`,
+//! The reference is `dive-eval`'s `community` module (`bag_cardinality`,
 //! `bag_cup`, `bag_diff`, `bag_union`, `sq_subseteq`).
 //!
 //! A bag is a function from elements to positive counts. TLC walks a bag's

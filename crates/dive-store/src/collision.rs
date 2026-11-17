@@ -1,4 +1,4 @@
-//! TLC's minimum fingerprint gap (ADR 0015 §5), the input of TLC's "based on the
+//! TLC's minimum fingerprint gap, the input of TLC's "based on the
 //! actual fingerprints" collision estimate.
 //!
 //! Ported from tlaplus `94d0c50` (`tlatools/org.lamport.tlatools/src/`): `d` is the

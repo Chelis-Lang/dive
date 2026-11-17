@@ -1,5 +1,5 @@
 //! Native checkpoint framing, requests, receipts and the owned Core
-//! backend's identity (ADR 0155).
+//! backend's identity.
 //!
 //! Checksums detect corruption, not malicious rewriting.
 
