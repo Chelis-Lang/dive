@@ -200,7 +200,7 @@ including zero and an explicit former default. All other product, acceptance,
 capture, tableau, attribution and word guards are unchanged.
 
 This follows the count-removal sequence above after general range-row storage.
-The [compact CoffeeCan experiment](../survey/data/coffeecan-product-vertex-experiment-2026-10-22.json)
+The [compact CoffeeCan experiment](../internal/survey/data/coffeecan-product-vertex-experiment-2026-10-22.json)
 records separate instrumented custom-ceiling evidence: both ordinary profiles
 complete the pinned 1,000-bean model within explicit TLC-derived budgets, with
 1,003,000 reachable vertices in two groups. The initial omitted-config attempts
@@ -223,7 +223,7 @@ gate passed all 13 phases and 2,295 tests, both small baselines gained the exact
 CoffeeCan1000Beans agreement, both ordinary affected-model profiles exhausted
 capture and completed temporal analysis within their explicit budgets, and all
 eight normal instruction pairs passed the integer 1% overhead check. The
-[compact record](../survey/data/product-vertices-qualification-2026-10-23.json)
+[compact record](../internal/survey/data/product-vertices-qualification-2026-10-23.json)
 keeps the actual source, producer, input and archived-evidence identities. This
 qualifies only the file product-vertex change; other owners, historical full-tier
 results and the remaining capacity/performance work retain their stated scope.

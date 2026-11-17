@@ -8,7 +8,7 @@
 M4 is `dive-sema`: SANY-equivalent semantic analysis. A specification must be accepted
 or rejected exactly as the pinned SANY (tla2tools 1.8.0 at tlaplus `94d0c50`) does with
 `-error-codes`. Without that flag SANY exits 0 on semantic errors
-(`docs/survey/oracles.md`).
+(`docs/internal/survey/oracles.md`).
 
 Several things had to be decided.
 
@@ -103,7 +103,7 @@ Several things had to be decided.
   - re-running the acceptance procedure;
   - regenerating the verdict files.
 
-  Level-checking and module-resolution fixes upstream (`docs/survey/oracle-history.md`)
+  Level-checking and module-resolution fixes upstream (`docs/internal/survey/oracle-history.md`)
   must be ported by hand. The class-by-class structure keeps that tractable.
 - **The semantic model is SANY-shaped.** That is deliberate: `dive-ir` gets exactly the
   structure SANY gives TLC, including substitution wrappers for instantiated

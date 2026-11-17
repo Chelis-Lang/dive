@@ -6,7 +6,7 @@ clones. It preserves values, scopes, evaluation order and random streams.
 
 Three paired repetitions on SimpleRegular alternated the baseline and
 changed binaries. Every repetition matched the golden: 277,726 distinct
-and 1,454,776 generated states. The [raw runs](../../conformance/reports/benchmarks/20261009-core-borrow-smoke.jsonl)
+and 1,454,776 generated states. The [raw runs](../../../conformance/reports/benchmarks/20261009-core-borrow-smoke.jsonl)
 contain binary hashes, runner revision, host/load, pins, seed, CPU, wall
 time and peak RSS. Each runner invocation used `--reps 1`; the file order
 is baseline/changed, changed/baseline, baseline/changed.
@@ -43,7 +43,7 @@ DIVE_CACHE_DIR=<verified-cache> cargo run --release -p dive-bench -- \
 The complete standard-tier strict run also passed: 154 selected models,
 83 agree and 71 explicit unsupported results, with no disagreements,
 pending validations, timeouts or oracle errors. The generated
-[report](../../conformance/reports/20261009T134501007-dive-small.json)
+[report](../../../conformance/reports/20261009T134501007-dive-small.json)
 records the same changed binary hash above, two concurrent jobs and a fixed
 2,400-second timeout. This run includes the slower EWD998 and TLCSailfish
 models. It validates the cleanup; it does not establish a performance gain.

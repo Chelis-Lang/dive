@@ -76,8 +76,8 @@ recovery and graph routing remain pending. Core safety checkpoints separately
 rebuild membership from saved concrete discoveries through the existing fallible
 insertions; they do not import old disk files. Ordinary inline safety admission
 and separately budgeted seen/frontier/predecessor combinations use the explicit
-[engine contract](disk-seen-safety.md). See
-[ADR 0063](../decisions/0083-storage-and-checkpoint.md).
+[engine contract](disk-seen-safety.md). See the
+[storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md).
 
 The source-bound control study
 records full key identity, rehash, poisoned-error and owned-cleanup controls, the

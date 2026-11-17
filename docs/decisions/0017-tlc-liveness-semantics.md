@@ -9,7 +9,7 @@ The charter puts "temporal properties and liveness with fairness" in scope. Toda
 
 The refusal costs 53 small-tier Examples models: 51 whose TLC golden is a success or a safety violation, and 2 liveness violations, `FiniteMonotonic/MCDistributedReplicatedLog` (a 6-state lasso back to state 2) and `SpecifyingSystems/RealTime/MCRealTimeHourClock` (3 states, then stuttering). `SDP_Attack_Spec` is also refused for `Bitwise!Xor`.
 
-TLC's liveness checker has had more correctness fixes than any other part of it since 1.7 (`docs/survey/oracle-history.md` §5). Each changed a verdict on some spec:
+TLC's liveness checker has had more correctness fixes than any other part of it since 1.7 (`docs/internal/survey/oracle-history.md` §5). Each changed a verdict on some spec:
 - `4260e4712`: temporal negations were not normalized, giving spurious counterexamples (`[]~~[]P`);
 - `35d40c91a`: an evaluation error in liveness on an initial state let TLC report success;
 - `01cac36a8`: a bogus safety counterexample, because the possible-error model was ignored;

@@ -121,7 +121,7 @@ How it works, in short: dive explores one breadth-first level at a time. Workers
 
 Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
 
-**Evidence.** Probe P8 in `docs/survey/competitive.md`, ADR 0004, ADR 0010, ADR 0015, Core's worker-invariance tests (`crates/dive-api/tests/core_parallel.rs`: every Core fixture at 2, 3 and 8 workers against 1 worker), and the harness worker-invariance reports in `docs/conformance.md`.
+**Evidence.** Probe P8 in `docs/internal/survey/competitive.md`, ADR 0004, ADR 0010, ADR 0015, Core's worker-invariance tests (`crates/dive-api/tests/core_parallel.rs`: every Core fixture at 2, 3 and 8 workers against 1 worker), and the harness worker-invariance reports in `docs/conformance.md`.
 
 ---
 
@@ -419,7 +419,7 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
 
 **Evidence.**
 
-- Probes P2 and P7 in `docs/survey/competitive.md`.
+- Probes P2 and P7 in `docs/internal/survey/competitive.md`.
 - ADR 0010 (owner decision of 2026-10-08) and ADR 0012.
 - In `crates/dive-value/tests/fixtures/`:
   - `ChooseIntern` and `ChooseInternUnused` (this example);
@@ -629,7 +629,7 @@ final Rust API returns an independently validated periodic witness.
 `dive analyze` also gives every semantic diagnostic the SANY error code it corresponds
 to (`sany_code`), so tools written against SANY's codes keep working.
 
-**Evidence.** ADR 0009, ADR 0011, `dive parse --output json`, `dive analyze --output json`, and probes M1 and M2 (diagnostic comparison in `docs/survey/competitive.md`).
+**Evidence.** ADR 0009, ADR 0011, `dive parse --output json`, `dive analyze --output json`, and probes M1 and M2 (diagnostic comparison in `docs/internal/survey/competitive.md`).
 
 ---
 
@@ -1108,7 +1108,7 @@ These are recorded candidates. They are not decided, and nothing in dive behaves
 
   dive reproduces all of these under `--compat=tlc` and in the default profile. A future option could follow the definitions instead.
 - **Errors inside `TLCGet`, `TLCEval` and other evaluating overrides are wrapped.** An error raised while TLC evaluates `TLCGet`, `TLCEval`, `ReplaceFirstSubSeq` or `ReplaceAllSubSeqs` (including in their arguments, and in the TLA+ definition TLC falls back to) is reported as `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE` with the Java method's signature, around the actual error: `TLCGet(7)` with no register 7 is reported that way rather than as `TLCGet(7) was undefined.` (fixtures `ErCmTlcGetUndefined`, `ErCmTlcGetArgError`, `ErCmTlcEvalError`, `ErCmReplaceFallbackError`). dive reproduces the wrapping. A future option could report the inner error alone.
-- **String length in UTF-16 units.** TLC's `Len`, `SubSeq` and `Tail` on strings count UTF-16 code units, not characters (tlaplus#1076). See `docs/survey/oracle-history.md`.
+- **String length in UTF-16 units.** TLC's `Len`, `SubSeq` and `Tail` on strings count UTF-16 code units, not characters (tlaplus#1076). See `docs/internal/survey/oracle-history.md`.
 - **Quirks of TLC's `.cfg` reader.** TLC's model-configuration reader accepts some files that it will later fail on, and it reads some values in ways you might not expect. Each case below was measured on the pinned TLC:
   - `CONSTANT N = -1` is not a negative number. TLC reads `-` as a model value, and then fails on the next line with "expecting = or <-" (`CFG_EXPECTED_SYMBOL`, exit 151). A cfg file has no way to write a negative integer.
   - `N = 2147483648`, or `N = \h1F`, stops TLC with an unexpected `NumberFormatException` (`GENERAL`, exit 255) instead of a configuration error.
@@ -1360,7 +1360,7 @@ reject or crash after TLA+ grammar parsing succeeds. For example, the existing
 pinned root grammar accepts it. `dive analyze` reports `DIVE-E0009` for the
 translation-validation problem; `dive parse` measures the TLA+ grammar only.
 Deep campaigns now retain both facts separately, with no acceptance inferred
-from a generic crash. See `docs/frontend-campaign.md` and issue #98.
+from a generic crash. See `docs/internal/frontend-campaign.md` and issue #98.
 **D-013 state-domain update:** final/short predicates may quantify or construct
 values over a finite domain that changes with the current state. For example:
 
@@ -1448,7 +1448,7 @@ retains the strict temporal refusal until those are proven.
 
 ## Current temporal coverage limitation, 2026-10-10
 
-The [expanded final/short study](temporal-study.md) selects 53 pinned Examples
+The [expanded final/short study](internal/temporal-study.md) selects 53 pinned Examples
 models: 26 match final truth/counts, 22 refuse features or resource limits, and
 five time out without a verdict. Ten refusals involve finite lazy binding
 domains. There are no observed disagreements or pending validations, but the

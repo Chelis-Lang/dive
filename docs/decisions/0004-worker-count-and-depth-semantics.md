@@ -51,7 +51,7 @@ Generating goldens is slower, because it is single-threaded. That cost is accept
 
 ## Amendment: correctness, not just depth (2026-10-08)
 
-Single-worker goldens are also required for *correctness*. The pinned TLC has a multi-worker race in value normalisation (tlaplus#1445), which can produce bogus states and liveness counterexamples. Multi-worker TLC runs remain useful only as invariance probes, and their results are never goldens. See `docs/survey/oracle-history.md`.
+Single-worker goldens are also required for *correctness*. The pinned TLC has a multi-worker race in value normalisation (tlaplus#1445), which can produce bogus states and liveness counterexamples. Multi-worker TLC runs remain useful only as invariance probes, and their results are never goldens. See `docs/internal/survey/oracle-history.md`.
 
 ## Amendment: worker-introspecting models under `--compat=tlc` (2026-10-09, issue #55)
 

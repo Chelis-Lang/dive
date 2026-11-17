@@ -4,8 +4,8 @@ An owner-requested critical review of dive after four weeks of agent-led
 development (2026-10-08 to 2026-11-05): 472 commits and about 351k lines of Rust.
 It records where the project stands, where the work went off course and what
 changes. The owner's resulting decisions are in
-[ADR 0153](../decisions/0153-core-is-the-product.md). The release bar and
-critical path are in [RELEASE.md](../RELEASE.md).
+[ADR 0153](../../decisions/0153-core-is-the-product.md). The release bar and
+critical path are in [RELEASE.md](../../RELEASE.md).
 
 Numbers come from git history, GitHub and the committed reports. An independent
 verifier rechecked each one. Where it corrected a figure, the corrected figure
@@ -51,7 +51,7 @@ Ranked by cost.
 
 ### 1. No finishable release target
 
-[ROADMAP](../ROADMAP.md), in the version this review replaces, defined release
+[ROADMAP](../../ROADMAP.md), in the version this review replaces, defined release
 as "full TLC parity": all 38 feature families, including:
 - distributed workers;
 - DAP debugging;
@@ -242,9 +242,9 @@ The fix is direction, not a rewrite.
 
 ## What changes
 
-Recorded in [ADR 0153](../decisions/0153-core-is-the-product.md), the
-[charter appendix](../CHARTER.md) item 15, the standing direction in
-[AGENTS.md](../../AGENTS.md) and [RELEASE.md](../RELEASE.md):
+Recorded in [ADR 0153](../../decisions/0153-core-is-the-product.md), the
+[charter appendix](../../CHARTER.md) item 15, the standing direction in
+[AGENTS.md](../../../AGENTS.md) and [RELEASE.md](../../RELEASE.md):
 
 - **Core is the product.** The Reference checking runtime is retired once Core
   covers what it covers. `dive-eval` stays only as the independent validator's

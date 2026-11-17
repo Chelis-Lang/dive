@@ -92,7 +92,6 @@ Known consumers must receive advance notice before landing and implement this
 distinct terminal meaning before advancing an immutable producer pin. They
 must reject unknown versions and cannot relabel version5 as an earlier version.
 The legacy infallible reader refuses the new ending; fallible fresh-session
-entrypoints validate it. The owner authorized the
-[version 5 migration notice](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6545302842),
-posted before #679 landed. The notice includes the wire shape and independent
-replay obligations.
+entrypoints validate it. The owner authorized a version 5 migration notice to
+the known downstream consumer, given before #679 landed. The notice included
+the wire shape and independent replay obligations.

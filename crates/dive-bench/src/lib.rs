@@ -12,7 +12,7 @@
 //! Historical one-worker context is available from:
 //!
 //! - the golden's `elapsed_ms` (one TLC run while the goldens were made);
-//! - the survey's measured medians (`docs/survey/data/bench-summary.csv`);
+//! - the survey's measured medians (`docs/internal/survey/data/bench-summary.csv`);
 //!
 //! With `--tlc`, TLC runs at every requested worker count with the same cfg.
 //! Pair counts and incomplete arms remain visible; only complete populations

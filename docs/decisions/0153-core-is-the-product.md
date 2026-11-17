@@ -27,7 +27,7 @@ specifications.
 - The owner already chose TLA+ comparisons as the default (D-009, 2026-10-08).
 
 The review in
-[2026-11-05-progress-review.md](../reviews/2026-11-05-progress-review.md) has the
+[2026-11-05-progress-review.md](../internal/reviews/2026-11-05-progress-review.md) has the
 evidence.
 
 ## Decision

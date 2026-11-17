@@ -47,4 +47,4 @@ Two further facts come from the existing harness fixtures in `crates/dive-confor
 - `EvalError`: an error while expanding a state is reported as `GENERAL` (1000), then replayed and reported again as `TLC_FINGERPRINT_EXCEPTION` (2147). The trace ends at the state being expanded.
 - `AssertFailure`: `Assert` failing exits 14.
 
-Survey probe P8 (`docs/survey/competitive.md`) is the larger determinism probe. With one worker, TLC stops after 63,251 states with a 46-state trace. With eight workers, the count varies from run to run.
+Survey probe P8 (`docs/internal/survey/competitive.md`) is the larger determinism probe. With one worker, TLC stops after 63,251 states with a 46-state trace. With eight workers, the count varies from run to run.

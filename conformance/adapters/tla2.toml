@@ -1,4 +1,4 @@
-# tla2, as measured in docs/survey/competitive.md ("Method", per-tool
+# tla2, as measured in docs/internal/survey/competitive.md ("Method", per-tool
 # invocations). For reproducible re-measurement with
 # `dive-conformance run --impl adapter:conformance/adapters/tla2.toml`.
 # Not run in CI; adapters are parsed and validated, and executed from M2.

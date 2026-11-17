@@ -35,7 +35,7 @@ The adjacent ecosystem matters to the design. Verus is the leading verifier for 
 
 ## Oracles and existing work
 
-Soundness is established by differential testing against canonical behavior. Before writing implementation code, survey and pin every oracle and every relevant prior effort, and record the results in `docs/survey/`.
+Soundness is established by differential testing against canonical behavior. Before writing implementation code, survey and pin every oracle and every relevant prior effort, and record the results in `docs/internal/survey/`.
 
 ### Canonical oracles
 
@@ -138,7 +138,7 @@ When agents port code from the Java tools, the port follows TLC's semantics, not
 This session establishes the foundation everything else depends on:
 
 1. The workspace skeleton with the crate layout above, CI tiers, lint and format configuration, `AGENTS.md`, and this charter in `docs/CHARTER.md`.
-2. The survey in `docs/survey/`, including a measured conformance run of tla2 against the pinned TLC on the Examples corpus, and a recorded decision on reuse, fork or reference.
+2. The survey in `docs/internal/survey/`, including a measured conformance run of tla2 against the pinned TLC on the Examples corpus, and a recorded decision on reuse, fork or reference.
 3. The conformance harness: pinned oracle download and verification by hash, corpus pinning, golden generation from TLC and SANY, and per-spec reporting. The harness must be able to run TLC alone and report results before any `dive` implementation exists.
 4. ADRs for the decisions made along the way, and a list of open questions for the owner.
 
@@ -151,7 +151,7 @@ Report back with the survey findings, the tla2 decision and its evidence, the ha
 Each item was verified against primary sources on 2026-10-08. Details and consequences live in the referenced ADRs.
 
 1. **`andrewdyates/tla2` no longer exists** (GitHub 404). Only the publish mirror `joweeba/tla2` remains. The survey evaluates the mirror.
-2. **Prior art is competitive analysis, not a build-or-reuse gate.** The owner clarified that `dive` is built regardless. The survey records what each implementation offers and where `dive` can beat it on conformance, performance, Rust ergonomics and architecture. Several Rust checkers that claim TLC parity have appeared since the charter was drafted (tla-rs, tla-mc, tlaplusplus, tlatools-rs), plus a Go port (tlago). See `docs/survey/` and ADR 0006.
+2. **Prior art is competitive analysis, not a build-or-reuse gate.** The owner clarified that `dive` is built regardless. The survey records what each implementation offers and where `dive` can beat it on conformance, performance, Rust ergonomics and architecture. Several Rust checkers that claim TLC parity have appeared since the charter was drafted (tla-rs, tla-mc, tlaplusplus, tlatools-rs), plus a Go port (tlago). See `docs/internal/survey/` and ADR 0006.
 3. **TLC release pinning.** The latest stable release is v1.7.4 (2024-08-05), and it publishes no checksums. Current development ships as a *rolling* `v1.8.0` pre-release that is re-uploaded on every upstream master push, so it cannot be pinned by URL. `dive` pins its own recorded SHA-256 for every oracle and re-hosts a snapshot of the 1.8.0 build. See ADR 0002.
 4. **TLC multi-worker search is only approximately breadth-first.** Counterexample length and reported depth can vary with worker count (tlaplus#883; `TLCTrace.java`). Goldens for trace length and depth are therefore generated with one worker. Distinct-state and generated-state counts for completed exhaustive runs are compared at any worker count. See ADR 0004.
 5. **TLC integers are 32-bit and overflow is an error, not wraparound** (`EC.TLC_MODULE_OVERFLOW`). The soundness contract's "32-bit integer overflow behavior" therefore means matching TLC's overflow *error*. Arbitrary-precision arithmetic would be the opt-in divergence.
@@ -169,7 +169,7 @@ Each item was verified against primary sources on 2026-10-08. Details and conseq
 
 14. **Liveness names are word-relative (owner, 2026-10-30).** Different independently valid liveness words may name different complete configured false-property sets. Each report must name exactly the properties independently proved false on its own actual word; the whole word and complete attribution must validate before this difference can agree. Global unions, copied oracle names, absent/refused/invalid words and unproved attribution are not accepted. Verdicts, required counts/depth, deciding error classes/exits and non-liveness property names keep their existing contracts. See ADR 0126.
 
-15. **Core is the product; the default does the better thing; release at first value (owner, 2026-11-05).** These rulings come out of the [progress review](reviews/2026-11-05-progress-review.md) and are recorded in ADR 0153 and [RELEASE.md](RELEASE.md).
+15. **Core is the product; the default does the better thing; release at first value (owner, 2026-11-05).** These rulings come out of the [progress review](internal/reviews/2026-11-05-progress-review.md) and are recorded in ADR 0153 and [RELEASE.md](RELEASE.md).
     - The Core execution engine (ADR 0117) is the product. The Reference engine's checking runtime gets no new features and is removed once Core alone matches its full-tier coverage.
     - Where TLC's behaviour is an implementation artifact, the default profile does the better thing. The first case is canonical sets, with no TLC normalization history. The owner clarified on 2026-11-06: prefer correct, faster results over suboptimal TLC bookkeeping without escalating each variant. Register precise differences and preserve all other observable and soundness obligations. D-029 applies this to duplicate predicate witnesses; actual semantic uncertainty still requires a named refusal or an owner question.
     - `--compat=tlc` must exist on Core, but it is a nominal credibility feature: known gaps are documented rather than engineered away. This relaxes item 10's requirement that compat pass full conformance against the pinned TLC.

@@ -297,7 +297,7 @@ fn startup_stream_matches_tlc() {
 
 #[test]
 fn probe_p9_seed_7() {
-    // docs/survey/competitive.md, P9: `RandomElement(1..1000000)` in Init, -seed 7.
+    // docs/internal/survey/competitive.md, P9: `RandomElement(1..1000000)` in Init, -seed 7.
     let t = Tla::new(&[]);
     let mut s = Streams::new(7, RandomMode::Tlc).startup();
     assert_eq!(t.print(&t.re(&t.range(1, 1_000_000), &mut s)), "730700");
