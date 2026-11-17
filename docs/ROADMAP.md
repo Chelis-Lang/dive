@@ -20,14 +20,14 @@ GitHub milestones:
 ## Where we are
 
 - **Core is dive's only checking engine.** `dive check`, `dive simulate`,
-  `dive dfid` and `dive tlc` run on Core. The Reference checking runtime, the
-  `--engine=auto` fallback and the `dive-check` crate are removed; shared
-  start-up (`dive-model`) and the independent trace validator (`dive-trace`, on
-  `dive-eval`) remain. Features Core does not implement are named refusals
-  (#910). The remaining retirement cleanup is tracked in #791.
-- **Coverage and speed (R1, R2) are being measured on the release candidate.**
-  The [scoreboard](scoreboard.md) holds the current full-tier numbers, the
-  refusal-reason histogram and the speed blockers.
+  `dive dfid` and `dive tlc` run on Core, with shared start-up (`dive-model`)
+  and the independent trace validator (`dive-trace`, on `dive-eval`). Features
+  Core does not implement are named refusals (#910).
+- **Coverage and speed (R1, R2) are met on the release candidate.** On the full
+  Examples tier Core agrees on 162 models, matches a registered divergence on 7
+  and refuses 7 by name, with no disagreements; its geometric-mean time is
+  0.195x TLC's, with no model above 2x. The [scoreboard](scoreboard.md) holds
+  the numbers and the refusal-reason histogram.
 - **Core's small-tier floor is enforced.** The committed baselines record 141
   agreements, nine registered divergences and six named refusals in the default
   profile, and 142 agreements, one registered divergence and 13 named refusals
@@ -39,21 +39,20 @@ GitHub milestones:
   EWD998ChanID by name, including from the release archive with an empty
   `PATH`. `cargo xtask gate --full` passes, and help, `--version` and schema-3
   JSON are pinned.
-- **There is no release.** Packaging and a release dry-run workflow exist
-  (#805). The version is `0.0.0` and there is no tag (R6, #794).
+- **The release is prepared but not tagged.** The version is `0.1.0`, the
+  curated changelog is on main and the release dry run built both Linux
+  archives (#805). Only the tag remains (R6, #794).
 
 ## Path to v0.1
 
 Remaining work follows the [release gates](RELEASE.md), using measured reason
 buckets rather than model-by-model history fixes:
 
-1. Confirm R1 and R2 with the quiet-node full-tier measurement on the release
-   candidate, and work any remaining refusal or speed blocker by reason bucket.
-2. Resolve the nine absent oracle facts through targeted pinned-oracle work on
+1. Resolve the nine absent oracle facts through targeted pinned-oracle work on
    the original configurations. Keep them unmeasured until a legitimate golden
    exists.
-3. Set the release version, fold in the change log, run `cargo xtask gate
-   --full` on the tagged source and tag `v0.1.0` when all gates hold (#794).
+2. Run `cargo xtask gate --full` on the release source and tag `v0.1.0` when
+   all gates hold (#794).
 
 Delivered release work: canonical sets and history removal (#786, #807, #815),
 lexically scoped applied LET-recursive functions (#811), the Core-only small-tier
@@ -76,7 +75,7 @@ advertised where it is incomplete.
   built on the checker.
 - **Performance:** ADR 0119 default floors across the full tier, scaling, and
   native compilation of specifications.
-- **Platforms:** macOS as a release platform, and crates.io publication.
+- **Platforms:** macOS as a release platform.
 - **Verus:** an exporter to `verus-tla` state machines from the IR.
 
 The empty `dive-lsp` and `dive-compile` placeholder crates are retired

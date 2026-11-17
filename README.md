@@ -5,28 +5,44 @@ TLA+ toolchain. It parses and analyzes specifications, checks supported models,
 translates supported PlusCal algorithms, and independently validates
 counterexamples. Checking needs no JVM.
 
-**Status: pre-release.** Core is the only checking engine. On the pinned
-tlaplus/Examples corpus it has no unregistered disagreement with TLC and is
-faster than TLC on the geometric mean; the remaining release gates are listed
-in the [release gates](docs/RELEASE.md), with current numbers in the
-[scoreboard](docs/scoreboard.md).
+## dive and TLC
+
+- **Same answers.** On the tested tlaplus/Examples corpus, dive gives TLC's
+  result on every model it checks, apart from a short list of registered
+  differences. At one worker, counting TLC's JVM start-up, it takes about a
+  fifth of TLC's time on the geometric mean.
+- **No JVM.** dive is a native binary.
+- **Named refusals.** When a specification needs something dive does not
+  implement, the run ends as `unsupported` and names the feature. dive never
+  approximates a result.
+- **One switch for TLC behaviour.** The default profile uses canonical TLA+
+  semantics where TLC's behaviour is an implementation artifact. `--compat=tlc`
+  selects TLC's behaviour instead.
+
+[Where dive differs from TLC](docs/tlc-differences.md) lists every difference,
+its TLC-compatible setting and the known gaps in `--compat=tlc`.
 
 ## Install
 
-With Rust 1.99 and a C compiler installed:
+With Rust 1.99 and a C compiler installed, from crates.io:
+
+```sh
+cargo install dive-cli --locked
+```
+
+or from the repository:
 
 ```sh
 cargo install --git https://github.com/Chelis-Lang/dive --locked dive-cli
 ```
 
-This installs `dive` and the supported-subset `tlc` command adapter. The source
-checkout pins its toolchain in [rust-toolchain.toml](rust-toolchain.toml).
+Either installs `dive` and the `tlc` command adapter, which accepts TLC's
+checking arguments.
 
-The release workflow prepares Linux x86_64 and aarch64 archives containing both
-binaries and their license notices, alongside SHA-256 checksum files. No release is published yet.
-When available, obtain matching archives from the repository's Releases page,
-verify with `sha256sum --check ARCHIVE.tar.gz.sha256`, extract, and put the
-binaries on your PATH. GNU/Linux archives are built on Ubuntu 24.04 and require
+Linux x86_64 and aarch64 archives with both binaries, their license notices
+and SHA-256 checksum files are on the repository's Releases page. Verify an
+archive with `sha256sum --check ARCHIVE.tar.gz.sha256`, extract it, and put the
+binaries on your PATH. The archives are built on Ubuntu 24.04 and need
 compatible system libraries.
 
 ## Three-command quickstart
@@ -68,24 +84,29 @@ automation. See [getting started](docs/user/getting-started.md) and
 | Model checking | Explicit-state safety and supported liveness/fairness checks; resource limits and unimplemented combinations remain explicit. |
 | Counterexamples | Independent validation against the specification; a stopped or unsupported run proves no completed result. |
 | Core values | Finite sets use canonical mathematical identity; unsupported symbolic identities refuse. |
-| TLC compatibility | `--compat=tlc` selects existing compatibility switches; [known gaps](docs/tlc-differences.md) remain documented. |
+| TLC compatibility | `--compat=tlc` selects TLC's behaviour; [known gaps](docs/tlc-differences.md) are listed. |
 
-Core is the engine of `dive check`, `dive simulate`, `dive dfid` and
-`dive tlc`; what it does not implement is a named refusal, never a fallback.
-A result is never
-reported as proved when its required checking or validation is unsupported.
-The first release is governed by R1–R6, not complete coverage of every TLC mode.
+A result is never reported as proved when its required checking or validation
+is unsupported. Not every TLC mode is covered; what is missing refuses by name.
 
-## Documentation and development
+## Documentation
 
 - [User manual](docs/user/README.md), [checking](docs/user/checking.md),
-  [PlusCal](docs/user/pluscal.md), and [temporal checking](docs/user/temporal.md).
+  [PlusCal](docs/user/pluscal.md) and [temporal checking](docs/user/temporal.md).
 - [Rust API](docs/user/rust-api.md) and [trace validation](docs/user/traces.md).
-- [Roadmap](docs/ROADMAP.md), [release gates](docs/RELEASE.md), and
-  [developer guide](docs/developer/README.md).
-- [AGENTS.md](AGENTS.md), [charter](docs/CHARTER.md), and
-  [provenance](docs/provenance.md).
+- [Changelog](CHANGELOG.md).
 
-For a source checkout, run `cargo xtask install-hooks` once and
-`cargo build --release -p dive-cli`. Development uses focused checks and required
-CI; full qualification is reserved for release or engine cutover.
+## Building from source
+
+The source checkout pins its toolchain in
+[rust-toolchain.toml](rust-toolchain.toml). Build with
+`cargo build --release -p dive-cli`. `cargo xtask gate --fast` runs the same
+format, lint, test and documentation checks as CI.
+
+## Contributing
+
+dive does not accept outside pull requests at this time; issues are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Maintainers: [AGENTS.md](AGENTS.md), the [charter](docs/CHARTER.md),
+[provenance](docs/provenance.md), the [developer guide](docs/developer/README.md),
+the [release gates](docs/RELEASE.md) and the [scoreboard](docs/scoreboard.md).

@@ -7,9 +7,22 @@ are in git history.
 
 ## 0.1.0
 
-Prepared, **not yet published**: no tag or release exists. The
-[release gates](docs/RELEASE.md) pass on the release candidate except the tag
-itself.
+The first release.
+
+### Compatibility
+
+- JSON reports from every command carry `schema_version: 3`. Pre-release
+  builds wrote schema 2; schema 3 replaces the single
+  `options.temporal_bounds.atom_cells` limit with the separate
+  `cell_limits.graph_labels`, `cell_limits.attribution_rows` and
+  `cell_limits.word_truth` limits. Readers that pinned schema 2 must move to 3.
+- Counterexample documents use `"format": "dive-trace"` with a version that
+  depends on how the trace ends: 1 for the ordinary endings, 2 for an error
+  while evaluating a named invariant, 3 for a Next step that leaves variables
+  unassigned, 4 for an error while checking a generated candidate state, 5 for
+  an error in a temporal property's source row and 6 for an error while
+  evaluating VIEW. Readers accept all six and reject unknown versions. See
+  [trace validation](docs/user/traces.md).
 
 ### Added
 
@@ -46,8 +59,9 @@ itself.
   no disagreements.
 - At one worker, end to end including TLC's JVM start-up, Core takes about a
   fifth of TLC's time on the geometric mean (0.195x over 169 models), and no
-  model takes more than twice TLC's time, measured under the
-  [R2 procedure](docs/developer/performance.md#r2-measurement-procedure).
+  model takes more than twice TLC's time. The
+  [measurement procedure](docs/developer/performance.md#r2-measurement-procedure)
+  runs one checker at a time on quiet machines.
 
 ### Differences from TLC
 
@@ -69,5 +83,5 @@ itself.
   TLC coverage and logical costs, spec I/O beyond explicit grants, simulation
   with a temporal PROPERTY, VIEW with liveness, distributed temporal checking,
   and LSP.
-- EWD998ChanID imports resolve, but checking gives its named VIEW/liveness
-  refusal.
+- EWD998ChanID imports resolve, but checking refuses it by name because it
+  combines VIEW with a liveness property.

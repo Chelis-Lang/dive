@@ -7,12 +7,12 @@ a measurement is repeated; history is in git.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| R1 Coverage | **Met on main `ce227b36`.** Core alone, default profile, one worker, full Examples tier including the long tier: 169 covered (162 agree, 7 registered expected divergences), 0 disagreements, 7 named refusals and no stops. The frozen Reference count on the same selection rule is 140. 48 models are out of scope and 9 have no TLC golden. | Quiet-node run in #784; #338 |
-| R2 Speed | **Met on main `e3835968`** under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure): one checker at a time on quiet nodes, small models as the median of six alternating repetitions. Geomean 0.195x TLC over the 169 agreeing models (fixed-set geomean 0.211x, counting the six refused models at 2x); no model above 2x. Above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `conformance/reports/perf/2026-11-10-r2-procedure-e3835968.json`; #784 |
-| R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass, on main `ce227b36`. | #803; #784 |
-| R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main `ce227b36`. In that run Core in the TLC profile ran the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors; the committed TLC-profile baseline, refreshed from a later run with the same counts, records them as the ratchet floor. | #810; #784 |
-| R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-3 JSON-report golden tests pass on main `ce227b36`. | #802, #804; #784 |
-| R6 Shipped | **Open.** Packaging and a release dry-run workflow exist; version is `0.0.0`, no tag. | #794 |
+| R1 Coverage | **Met on main.** Core alone, default profile, one worker, full Examples tier including the long tier: 169 covered (162 agree, 7 registered expected divergences), 0 disagreements, 7 named refusals and no stops. The frozen historical floor on the same selection rule is 140 (see the [R1 gate](RELEASE.md#gates)). 48 models are out of scope and 9 have no TLC golden. | Quiet-node run in #784; #338 |
+| R2 Speed | **Met on main** under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure): one checker at a time on quiet nodes, small models as the median of six alternating repetitions. Geomean 0.195x TLC over the 169 agreeing models (fixed-set geomean 0.211x, counting the six refused models at 2x); no model above 2x. Above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `conformance/reports/perf/2026-11-10-r2-procedure-e3835968.json`; #784 |
+| R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass on main. | #803; #784 |
+| R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main. In that run Core in the TLC profile ran the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors; the committed TLC-profile baseline, refreshed from a later run with the same counts, records them as the ratchet floor. | #810; #784 |
+| R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-3 JSON-report golden tests pass on main. | #802, #804; #784 |
+| R6 Shipped | **Open: only the tag remains.** The workspace version is `0.1.0`, the curated 0.1.0 changelog is on main, and the release dry run built both Linux archives with checksums. | #794 |
 
 Required CI compares Core alone with the TLC goldens on 29 smoke models (#840)
 and ratchets the Core-only small tier nightly (#806).
@@ -21,10 +21,10 @@ and ratchets the Core-only small tier nightly (#806).
 
 | Tier | Profile | Engine | Agree | Expected divergence | Refused | Budget stop | Missing golden | Disagree | Measured |
 |---|---|---|---:|---:|---:|---:|---:|---:|---|
-| Full Examples (185 in scope) | default | Core alone | 148 | 5 | 17 | 6 | 9 | 0 | 2026-11-06, `5f3f0249` |
-| Full Examples (185 in scope) | TLC | Core alone | 128 | 0 | 42 | 6 | 9 | 0 | 2026-11-05 |
-| Full Examples (185 in scope) | default | Reference (retired) | 146 | 4 | 13 | 13 | 9 | 0 | 2026-11-06, `f16a52f5` |
-| Full Examples (185 in scope) | TLC | Reference (retired) | 150 | 0 | 15 | 11 | 9 | 0 | 2026-11-06, `f16a52f5` |
+| Full Examples (185 in scope) | default | Core alone | 148 | 5 | 17 | 6 | 9 | 0 | 2026-11-06, committed baseline |
+| Full Examples (185 in scope) | TLC | Core alone | 128 | 0 | 42 | 6 | 9 | 0 | 2026-11-05, committed baseline |
+| Full Examples (185 in scope) | default | Reference (retired) | 146 | 4 | 13 | 13 | 9 | 0 | 2026-11-06 |
+| Full Examples (185 in scope) | TLC | Reference (retired) | 150 | 0 | 15 | 11 | 9 | 0 | 2026-11-06 |
 | Small (156) | default | Core | 141 | 9 | 6 | 0 | 0 | 0 | 2026-11-07, committed baseline |
 | Small (156) | TLC | Core | 142 | 1 | 13 | 0 | 0 | 0 | 2026-11-09, committed baseline |
 | SANY front end | | | 458/458 | | | | | 0 | 2026-11-09, committed baseline |
@@ -36,10 +36,13 @@ rows come from the committed baselines in `conformance/baselines/`
 (`full-examples-core-*-w1.json` and `small-core-*-w1.json`); the small-tier
 baselines are the floor the full gate and the nightly job ratchet against
 ([conformance snapshot](conformance.md)). The Reference rows are the retired
-engine's last measurement. The R1 and R2 rows above come from the
-quiet-node run on `ce227b36` (#784), which caps each model at 2x the same-host
-TLC time instead of 900 seconds and includes the long tier, so its counts
-differ from the committed full-tier baselines.
+engine's last measurement. The two "Core alone" full-tier rows are
+those committed baselines: an earlier measurement under the 900-second cap,
+where six models stop on budget. They are not the release measurement. The R1 row above comes
+from the later quiet-node run (#784), which caps each model at 2x the same-host
+TLC time instead of 900 seconds and includes the long tier: 162 agree, 7 match
+a registered divergence and 7 refuse by name. Read R1 for the current Core
+coverage and these rows for the ratchet floor.
 
 ## Real-world holdout (#854)
 
@@ -68,7 +71,7 @@ Run it with `--impl dive:core --impl-profile dive --tier all` and
 
 ## Core refusals (full Examples, default profile)
 
-Measured on main `ce227b36` on the quiet node (#784). There are no stops. Every
+Measured on main on the quiet node (#784). There are no stops. Every
 reason covers one or two models, and each is an owner ruling or policy.
 
 | Reason | Models |
@@ -85,7 +88,7 @@ nested TLC run through `IOUtils!IOEnvExec` and names its output file with
 ## Speed
 
 Measured under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure)
-on main `e3835968`: five c7i.metal-24xl nodes (SMT off, fixed 2.4 GHz, one NUMA
+on main: five c7i.metal-24xl nodes (SMT off, fixed 2.4 GHz, one NUMA
 node, provisioned storage), one checker at a time, one worker, seed and
 fingerprint 0, pinned TLC timed on the same node as Core. The 127 models where
 TLC takes under 10 s are the median of six alternating repetitions (largest

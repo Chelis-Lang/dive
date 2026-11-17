@@ -69,10 +69,8 @@ results rather than treating `Ok(report)` as a proof. The independent project is
 for a Rust application's own specifications and recorded behaviors.
 
 `CheckRequest.source_coverage` and `CheckRequest.tlc_coverage` are named
-refusals (`ApiError::Unsupported`): source and TLC logical coverage ran only on
-the removed reference engine (#791, #910). `dive-eval`'s collectors for them
-(`SourceCoverage`, `TlcCoverageSnapshot` and `Evaluator::new_source_covered`)
-were removed with it.
+refusals (`ApiError::Unsupported`): Core does not collect source or TLC
+logical coverage.
 
 Low-level callers may supply predicate and action scopes. Scope ownership and
 expression references are checked before backend startup. Parallel graph capture
@@ -82,10 +80,8 @@ effects. These scopes refuse before worker execution or output. Pure captured
 operators remain usable, and `Evaluator::scope_has_effects` exposes this
 non-evaluating effects check without forcing stored values or callbacks.
 
-Low-level graph consumers implement `dive_runtime::capture::Observer`. The
-reference capture drivers that called it (`dive_check::capture::explore*`) were
-removed with the `dive-check` crate (issue #791); Core builds its behavior
-graphs itself. Observation requires one worker; `--compat=tlc` uses the same
+Low-level graph consumers implement `dive_runtime::capture::Observer`. Core
+builds its behavior graphs itself. Observation requires one worker; `--compat=tlc` uses the same
 hook semantics. Methods are inert by default.
 `init` receives accepted roots after Init succeeds. `edge` receives original
 concrete successors, including duplicate and seen-state transitions, followed by
@@ -128,11 +124,10 @@ original row ids and implicit stutters under an actual `EvaluationControl`.
 and matching statistics; `CsrPrefix::from_producer` requires a successful committed
 boundary with an unfinished frontier. Both preserve original failures and budget
 stops. Their `evidence()` and `into_evidence()` expose the same graph-independent
-facts as reference capture. These low-level APIs do not evaluate the opaque rows
+facts. These low-level APIs do not evaluate the opaque rows
 or certify temporal properties. Existing `capture::Limits` remain unchanged;
 there is no new CLI option or TLC divergence. The ordinary core temporal route
-uses native retained rows and checked CSR, without a retained reference value
-graph. The `capture_csr` and `capture_evidence` tests build checked CSR and
+uses native retained rows and checked CSR, without a retained value graph. The `capture_csr` and `capture_evidence` tests build checked CSR and
 producer evidence from actual captures; run
 `cargo test -p dive-liveness --test capture_csr --test capture_evidence --locked`.
 
@@ -142,8 +137,8 @@ results live in `analyze::periodic::external`: `NativeFinal` retains completed
 producer facts and any `NativeWord`; `NativeAnalysis` distinguishes a final
 result from `NativePrefix`. Words retain their property set, concrete states,
 closing position and original edge metadata, and still require independent
-validation. Prefix facts cannot become a holding result. Existing reference
-analysis entrypoints keep their current return types.
+validation. Prefix facts cannot become a holding result. The other analysis
+entrypoints keep their return types.
 The core now consumes these carriers directly for graph-neutral reports;
 detaching a graph alone adds no capture capacity or proof authority.
 
@@ -171,7 +166,8 @@ single-variable hits, as reported by `convert_ms_scope`. Run-owned
 name payload is shared after pointer-identity checking; opaque Arc/allocator
 metadata is not a complete RSS charge. Hits still check actual run control and
 eager admission always converts. Only demanded values and the bounded cache are
-retained; this is not an unbounded Value graph or a new capacity claim. Reference `GraphCheck::level`/`finish`/`finish_prefix` remain.
+retained; this is not an unbounded Value graph or a new capacity claim.
+`GraphCheck::level`, `finish` and `finish_prefix` are also available.
 
 Core's `temporal::Report::outcome()` returns one of these boxed variants, or
 `Safety` with the ordinary safety result:
@@ -198,7 +194,7 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `check_file` | On Core, the only engine (`Engine::Core`; `check_file_engine` takes it explicitly): ordinary safety and ordinary temporal checking; `TemporalMode::FinalShort` is a named refusal; inspect actual route/completion |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
-| `CheckRequest::host_access` | Explicit env/files/exec permissions; a named refusal on Core (external inputs ran only on the removed reference engine) |
+| `CheckRequest::host_access` | Explicit env/files/exec permissions; a named refusal on Core |
 | `host_inputs::inputs_from_report` / `TraceOptions::inputs` | Explicit external assumptions for fresh offline source replay |
 | `translate_source` / `translate_file` | Admitted in-memory PlusCal artifact |
 | `prepare_translation_file` / `write_translation_file` | Explicit admitted module, backup and merged cfg publication; prepared publication checks concurrent edits |
@@ -218,16 +214,9 @@ constructing a graph or marking a validation boolean does not supply a certified
 model result. The trace crate decides `ENABLED` with the core evaluator and
 shares nothing else with the checker.
 
-Low-level items that only the removed reference engine called, such as
-`dive_model::bind_with_names` and `dive_explore::explore_checkpoint`, are gone;
-`CHANGELOG.md` lists them (#791).
-
 `dive-store` keeps what Core uses: `state::{StateFingerprinter, state_key}`,
 `StoreMode`, the [disk seen-state set](disk-seen-library.md), the ordered
-frontier spill and the predecessor log. The reference checker's in-memory
-stores (`StateSet`, `FpSet`, `ExactSet`, `frontier`, `TraceLog`,
-`encode_state`/`StateDecoder` and the `collision` estimates) were removed with
-it (#791).
+frontier spill and the predecessor log.
 
 `Value::set_controlled`, `fcn_controlled` and `record_controlled` accept a
 cooperative `proceed` callback. Returning `false` discards the partial result
@@ -265,7 +254,5 @@ retained-state serialization checkpoints and fresh finite-word validation.
 See the mode guides for the after-loading scope and uninterruptible value units.
 
 `simulate_file` and `dfid_file` run compiled finite execution on Core, the
-only engine; `Engine::Reference` was removed with the reference checking
-runtime (#791). A reached refusal is never retried. Reports name the engine
-that ran. Seeded
-reproduction includes that engine and the same request settings.
+only engine. A reached refusal is never retried. Reports name the engine that
+ran. Seeded reproduction needs the same request settings.
