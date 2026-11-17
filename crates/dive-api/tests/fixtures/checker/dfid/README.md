@@ -10,6 +10,13 @@ truncated cross-root word.
 Primary capture directs TLC metadata into a temporary directory and records
 that transient path as `<temporary-metadata>`; no state-store files belong in
 this fixture directory.
+Both capture scripts run TLC from this directory and replace host paths in the
+raw output with the harness placeholders: `$CWD` (this directory), `$TMP` (the
+capture's temporary directory, also the JVM's `java.io.tmpdir`) and
+`$DIVE_CACHE_DIR` (the cache holding the jar). The primary raw text predates
+that and was normalized to the same form afterwards, with its hashes
+recomputed; a fresh primary capture would also resample the worker-random
+`DfidBranch`/`DfidRoots`/`DfidRootsMixed` family (D-002).
 
 `SeededDfid.java` is a **separate secondary reference**: only worker selection
 seeds are injected after worker construction, before start. It preserves the
