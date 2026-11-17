@@ -14,3 +14,5 @@
 /.validation-venv
 # Leftovers of an interrupted dive-conformance relative-binary test.
 /crates/dive-conformance/relative-binary-*
+# Python bytecode from the scripts/ tests.
+__pycache__/

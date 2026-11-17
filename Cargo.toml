@@ -7,30 +7,40 @@ default-members = ["crates/*"]
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.99"
+# Opt-in: only the crates that set `publish = ["crates-io"]` are published
+# (docs/developer/releasing.md).
 publish = false
 repository = "https://github.com/Chelis-Lang/dive"
+homepage = "https://github.com/Chelis-Lang/dive"
+documentation = "https://docs.rs/dive-api"
 license = "MIT"
+keywords = ["tla", "tlaplus", "model-checker", "formal-verification", "pluscal"]
+categories = ["development-tools", "science"]
 
 [workspace.dependencies]
 # Internal crates. Allowed edges are enforced by `cargo xtask check-layering`.
-dive-syntax = { path = "crates/dive-syntax" }
-dive-sema = { path = "crates/dive-sema" }
-dive-ir = { path = "crates/dive-ir" }
-dive-value = { path = "crates/dive-value" }
-dive-eval = { path = "crates/dive-eval" }
-dive-stdlib = { path = "crates/dive-stdlib" }
-dive-config = { path = "crates/dive-config" }
-dive-store = { path = "crates/dive-store" }
-dive-runtime = { path = "crates/dive-runtime" }
-dive-liveness = { path = "crates/dive-liveness" }
-dive-sim = { path = "crates/dive-sim" }
-dive-trace = { path = "crates/dive-trace" }
-dive-model = { path = "crates/dive-model" }
-dive-pluscal = { path = "crates/dive-pluscal" }
-dive-api = { path = "crates/dive-api" }
+# Published crates move in lockstep: every requirement is the exact workspace
+# version, bumped together with `[workspace.package] version`. Internal
+# dev-dependencies are written as plain paths in each crate so packaging drops
+# them (dev-dependency cycles cannot be published).
+dive-syntax = { path = "crates/dive-syntax", version = "=0.1.0" }
+dive-sema = { path = "crates/dive-sema", version = "=0.1.0" }
+dive-ir = { path = "crates/dive-ir", version = "=0.1.0" }
+dive-value = { path = "crates/dive-value", version = "=0.1.0" }
+dive-eval = { path = "crates/dive-eval", version = "=0.1.0" }
+dive-stdlib = { path = "crates/dive-stdlib", version = "=0.1.0" }
+dive-config = { path = "crates/dive-config", version = "=0.1.0" }
+dive-store = { path = "crates/dive-store", version = "=0.1.0" }
+dive-runtime = { path = "crates/dive-runtime", version = "=0.1.0" }
+dive-liveness = { path = "crates/dive-liveness", version = "=0.1.0" }
+dive-sim = { path = "crates/dive-sim", version = "=0.1.0" }
+dive-trace = { path = "crates/dive-trace", version = "=0.1.0" }
+dive-model = { path = "crates/dive-model", version = "=0.1.0" }
+dive-pluscal = { path = "crates/dive-pluscal", version = "=0.1.0" }
+dive-api = { path = "crates/dive-api", version = "=0.1.0" }
 dive-conformance = { path = "crates/dive-conformance" }
-dive-core = { path = "crates/dive-core" }
-dive-explore = { path = "crates/dive-explore" }
+dive-core = { path = "crates/dive-core", version = "=0.1.0" }
+dive-explore = { path = "crates/dive-explore", version = "=0.1.0" }
 
 # Third-party. Add here first, then reference with `workspace = true`.
 serde = { version = "1", features = ["derive"] }
@@ -68,7 +78,7 @@ unimplemented = "deny"
 unwrap_used = "deny"
 dbg_macro = "deny"
 
-# Small debug info keeps per-worktree targets small (many agent worktrees).
+# Small debug info keeps build directories small.
 # For a debugger session: CARGO_PROFILE_DEV_DEBUG=2.
 [profile.dev]
 debug = "line-tables-only"

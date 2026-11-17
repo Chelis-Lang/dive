@@ -50,6 +50,9 @@ The first release.
   library flags.
 - Linux x86_64 and aarch64 archives with checksums, both command entrypoints,
   and the bundled libraries' license and provenance notices.
+- Published on crates.io: `cargo install dive-cli --locked` installs the
+  `dive` and `tlc` commands, and `dive-api` with its library crates is
+  available to Rust callers ([Rust API guide](docs/user/rust-api.md)).
 
 ### Results on the tlaplus/Examples corpus
 

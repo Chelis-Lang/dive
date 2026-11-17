@@ -3,7 +3,9 @@ name: release
 # Create the version tag only after R1-R5 and the RC qualification pass on
 # that source. This workflow packages the qualified source; it adds no campaign.
 # A manual dispatch builds and packages both targets as a dry run (named after
-# the commit, no version check) and never publishes.
+# the commit, no version check) and never publishes. Both paths verify the
+# crates.io packages without credentials; a tag push then hands the published
+# release to publish-crates.yml (docs/developer/releasing.md).
 on:
   push:
     tags: ["v[0-9]*"]
@@ -59,13 +61,29 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  crates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+      - name: Check publication controls without credentials
+        run: python3 scripts/test-publish-crates.py
+      - name: Package and verify the crates.io packages (dry run)
+        run: |
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["workspace"]["package"]["version"])')
+          python3 scripts/publish-crates.py --dry-run --version "$version"
+
   publish:
-    needs: build
+    needs: [build, crates]
     if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
-      actions: read
+      actions: write
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
@@ -97,3 +115,7 @@ jobs:
           PY
       - name: Publish release assets
         run: gh release create "$RELEASE_TAG" dist/release-*/*.tar.gz dist/release-*/*.sha256 --verify-tag --title "$RELEASE_TAG" --notes-file release-notes.md
+      # A release created with the workflow token raises no `release` event,
+      # so start the crate publication for this exact commit explicitly.
+      - name: Start crates.io publication
+        run: gh workflow run publish-crates.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$RELEASE_TAG" -f commit="$GITHUB_SHA"

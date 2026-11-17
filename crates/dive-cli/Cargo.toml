@@ -1,13 +1,20 @@
 [package]
 name = "dive-cli"
-description = "The dive command-line interface"
+description = "The dive TLA+ model checker command-line tool, with a TLC-compatible `tlc` command"
 default-run = "dive"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+publish = ["crates-io"]
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/dive-cli"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+# Tests, examples and benchmarks read workspace fixtures; they are not shipped.
+include = ["/src/**", "/build.rs", "/build/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 
 [[bin]]
 name = "dive"

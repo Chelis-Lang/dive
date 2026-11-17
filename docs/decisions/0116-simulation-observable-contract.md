@@ -70,5 +70,5 @@ Simulation is held to observable, checkable properties, not to TLC's draws.
   simulation report, bounded retained traces and independent validation.
 - Multi-worker simulation and run budgets (#350) become ordinary feature work
   under this contract.
-- `docs/user/simulation.md`, `crates/dive-sim/README.md` and D-003 are updated
+- `docs/user/simulation.md`, `crates/dive-sim/CONTRACT.md` and D-003 are updated
   with the implementation change, not by this ADR alone.

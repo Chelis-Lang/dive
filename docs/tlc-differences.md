@@ -292,7 +292,7 @@ claims the model was proved.
 The intended worker-independent default is not yet a parallel implementation:
 requests for additional workers refuse explicitly. Liveness/fairness simulation,
 random operators in the spec, runtime effects and the other limits listed in
-`crates/dive-sim/README.md` remain unsupported. Existing Java RNG and stream
+`crates/dive-sim/CONTRACT.md` remain unsupported. Existing Java RNG and stream
 controls live in `crates/dive-stdlib/tests/java_random.rs` and `dive_mode.rs`.
 
 ---

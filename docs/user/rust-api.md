@@ -1,15 +1,19 @@
 # Embedding dive in Rust
 
-The workspace is unpublished. Until releases are published, use a checkout/path
-dependency; for a caller checked out beside this repository:
+`dive-api` is published on crates.io together with the crates it builds on:
 
 ```toml
 [dependencies]
-dive-api = { path = "../dive/crates/dive-api" }
+dive-api = "0.1"
 serde_json = "1"
 ```
 
-The caller needs the repository's pinned Rust/MSRV. Normal checking is native;
+All dive crates are released together at one version, and each requires the
+exact versions of the others, so depend on `dive-api` alone. To build against
+an unreleased checkout instead, use a path dependency such as
+`dive-api = { path = "../dive/crates/dive-api" }`.
+
+The caller needs Rust 1.99 or later. Normal checking is native;
 the Java conformance harness is a separate developer tool.
 
 ```rust
