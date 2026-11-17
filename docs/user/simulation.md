@@ -31,7 +31,7 @@ regenerates every successor of the deadlocked state and accepts the deadlock
 only if each one falls outside the constraints.
 Initial states may hold compound values (sets, functions, records, sequences).
 A `SPECIFICATION` with fairness conjuncts is simulated: fairness constrains only
-infinite behaviors, so it cannot change a finite safety result (ADR 0116).
+infinite behaviors, so it cannot change a finite safety result.
 Configured temporal `PROPERTY` checking, VIEW, symmetry and unproved sampling
 interactions refuse. `ALIAS` is not applied, as in `dive check`: the traces
 show the states themselves and the report's `notes` say so. An `ALIAS` that
@@ -158,7 +158,7 @@ Init selection, predicate quantifiers, CHOOSE, function construction and ENABLED
 keep their ordinary evaluator semantics and do not consume generation choices.
 CASE generation, action composition and unproved opaque/lazy domains refuse by
 name when reached. Generation uses one worker. Seed replay requires the same
-options and source; matching TLC's random choices is not required (ADR 0116).
+options and source; matching TLC's random choices is not required.
 
 Every retained finite Behavior sample is independently checked with the explicit
 sample-validation operation: Init/Next, constraints, invariants and implied
@@ -196,7 +196,7 @@ not an allocation-time hard cap. `options.budget` states these boundaries.
 Exhaustion gives `result: stopped`, exit 5, actual resource/limit/observation,
 phase and reached progress. It never certifies safety or a violation. Retained
 prefix traces and earlier observations remain diagnostic. Rust requests expose
-`time_limit` and `max_memory` through `BudgetSetting`; one owner covers the run,
+`time_limit` and `max_memory` through `BudgetSetting`; one budget covers the run,
 rather than restarting the clock for each trace or iteration.
 
 ## Execution
@@ -218,4 +218,4 @@ Native compound states, fairness-only specifications, Print and basic action
 flows retain independent word validation. Unsupported native runtime effects,
 unproved lazy receivers and warning/output interleaving refuse by name.
 Reproduce a sample with the same seed and options; TLC's internal draw sequence is not a parity
-obligation, including under `--compat=tlc` (ADR 0116).
+obligation, including under `--compat=tlc`.

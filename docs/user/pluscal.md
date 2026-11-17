@@ -13,10 +13,10 @@ reports the admission without model-proof or exploration fields.
 The JSON includes `module_source`, generated TLA/configuration text, actions,
 process metadata, inserted labels, mappings, warnings and stage diagnostics.
 Each mapping records the emitted action definition's complete UTF-8 byte range
-in `artifact.tla` and its original labelled statement owner in the input source.
+in `artifact.tla` and its original labelled statement in the input source.
 Ranges include multi-line bodies and wrapped updates. Program-counter omission
 can emit `Next` or a process name instead of the original label; scoped label
-renaming retains the same original owner. These are artifact source associations;
+renaming retains the same original statement. These are artifact source associations;
 compiled instruction maps and debugger execution locations remain unfinished.
 Existing translation blocks are replaced in the returned module at their original
 position. The default command does not write the source file. To publish the admitted

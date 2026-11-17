@@ -25,7 +25,7 @@ name `engine: core`. `EWD998ChanID` resolves its imports but may report an
 explicit unsupported result: Core refuses its VIEW/liveness graph capture by
 name. This is a
 checking limitation, not a missing-library error; it does not establish a
-verdict. Supporting that model remains deferred in #428.
+verdict.
 
 The native evaluator implements supported arithmetic, sets, sequences, records,
 functions and selected standard/CommunityModules operators. Standard-module
@@ -315,7 +315,7 @@ with a single evaluation would change `PrintT` or checker-register behavior.
 Existing effectful string arguments retain their single evaluation. Inputs and
 materialized outputs are bounded at 2^24 elements. Core refuses the remaining
 cases by name, including effectful sequence arguments, whose TLC reevaluation
-order is unproved (issue #612).
+order is unproved.
 
 This checked fixture needs the CommunityModules source path and completes with
 success, 1 distinct state, 2 generated states, depth 1 and exit 0:
@@ -337,7 +337,8 @@ It converts booleans, integers, strings, model values, tuples, finite enumerable
 sets and supported functions to compact JSON strings. Strings follow Gson
 escaping without HTML escaping. Numeric `1..n` functions become arrays;
 other supported functions become objects. The default profile uses canonical
-object and set order under D-006. JSON strings can affect a specification's
+object and set order
+([canonical CHOOSE and order](../tlc-differences.md#d-006-choose-does-not-depend-on-unrelated-text-in-the-module)). JSON strings can affect a specification's
 predicates, so this order difference is observable.
 
 With `--compat=tlc` or `--choose-order=tlc`, objects with two or more keys refuse
@@ -369,13 +370,13 @@ Focused native and pinned-oracle controls cover the supported conversion and
 named refusals, alongside independent replay and malformed-word controls.
 Replay accepts JSON strings whose names already exist in the bound model.
 If a deciding word needs newly created JSON string names in the TLC profile,
-independent validation reports the existing runtime-name refusal (#124); that
+independent validation reports the runtime-name refusal; that
 word earns no agreement. Conversion support does not remove this limitation.
 
 ### Host inputs and explicit grants
 
 `dive check --allow-io=env,files,exec` grants named categories. Both profiles
-start with no grants, including `--compat=tlc` (D-017). Denial happens before
+start with no grants, including `--compat=tlc` ([host access](../tlc-differences.md#d-017-host-access-requires-explicit-grants)). Denial happens before
 native host callbacks. A grant supplies permission;
 unsupported operators still refuse.
 

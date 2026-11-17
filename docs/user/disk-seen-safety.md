@@ -219,7 +219,7 @@ compare every existing concrete result field while checking the added disk and
 fallback metadata separately. These controls establish the bounded examples,
 not general storage-family certification.
 
-The positioned-replay campaign separately retains 432 pure disk comparisons
+The positioned-replay tests separately retain 432 pure disk comparisons
 and 504 explicit Print-output refusals against 104 inline references. Those
 refusals receive no output/error-class or certificate agreement credit. All
 original named witness mutants remain selected; the varied five/six/seven

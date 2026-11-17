@@ -82,7 +82,7 @@ headers to 8 KiB; output frames, maps, activations and expression work have expl
 bounds. Listener addresses must be loopback. Source locations identify executed
 TLA+; the separate PlusCal emission maps do not yet supply runtime PlusCal
 breakpoints. TLC `-debugger` and complete debugger
-parity remain open; see [ADR 0152](../decisions/0152-compiled-source-maps-and-native-debugging.md).
+parity remain open; see the [compiled source maps and native debugging design](../decisions/0152-compiled-source-maps-and-native-debugging.md).
 Public checking requests and managed sessions refuse reclamation, coverage and
 distribution before source/key access or observer preparation. Preparing a native
 worker with `CheckRequest.debugger` also refuses explicitly.

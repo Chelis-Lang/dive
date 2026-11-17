@@ -38,7 +38,7 @@ Successful insertion confirms complete in-process record/index writes. There is
 no per-insert data fsync, crash-durability guarantee or restart/import API. These
 are owned transient files, not checkpoints.
 
-Drivers with an actual run owner may call `close_controlled(validate, proceed)`.
+Drivers that own the run may call `close_controlled(validate, proceed)`.
 It returns the cleanup facts and whether the retained-record audit completed.
 Cancellation or `validate = false` still removes owned files, but the returned
 audit flag is false and cannot certify their contents. A later `close()` cannot

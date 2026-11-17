@@ -23,7 +23,7 @@ cargo build --release -p dive-cli
 
 The build needs a C compiler (`cc`), because dive links the mimalloc allocator.
 Release builds use whole-program link-time optimisation, so they take longer
-than debug builds (ADR 0102).
+than debug builds.
 
 Use `target/release/dive` or put that binary on your PATH. Model checking itself
 needs no JVM. TLAPS and the CommunityModules TLA+ sources are built in, so
