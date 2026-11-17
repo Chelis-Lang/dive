@@ -1,4 +1,4 @@
-//! The binder boundary (`04-plan-compiler.md` §2): converts startup values of
+//! The binder boundary: converts startup values of
 //! `dive-model`'s binder (`dive_value::Value`) to persistent handles.
 //!
 //! Lazy set classes that the core represents symbolically (`a..b`, `Nat`,

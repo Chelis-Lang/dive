@@ -1,6 +1,6 @@
 //! TLC's error classes for another engine's error endings.
 //!
-//! The Core execution engine (`docs/developer/core/07-engine.md` §5) finds
+//! The Core execution engine finds
 //! where an evaluation error ends a search and reproduces the error with the
 //! evaluator (`dive-eval`). It then classifies the error by its site with
 //! this crate's table (`class.rs`), so that Core reports TLC's class, message

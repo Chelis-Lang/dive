@@ -182,9 +182,10 @@ impl Model {
         };
         let args = argument_nodes(self.ir.expr(declaration.predicate.expr))?;
         if !args.is_empty() && args.len() >= declaration.functions.len() {
-            // The approved default rejects non-bijective model-value maps even
+            // The default profile rejects non-bijective model-value maps even
             // when TLC disables them. Non-model identities retain TLC's warning
-            // shortcut; extending that default rejection needs owner approval.
+            // shortcut, deliberately: rejecting them too would be a further
+            // result-changing default.
             // A duplicate generator supplies the kernel's capacity precondition
             // without altering its closure; no reduction is attached here.
             if mode == Mode::Checked

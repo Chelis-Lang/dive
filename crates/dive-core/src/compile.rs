@@ -1,4 +1,4 @@
-//! The plan compiler (`04-plan-compiler.md`): `dive_ir` plus the binder
+//! The plan compiler: `dive_ir` plus the binder
 //! handoff to a [`Plan`].
 //!
 //! Passes, in one walk:
@@ -57,17 +57,17 @@ mod composition;
 /// The largest plan the compiler builds (inlining blow-up guard).
 const MAX_NODES: usize = 4_000_000;
 
-/// The most loop iterations one constant fold may spend (R9). A larger
+/// The most loop iterations one constant fold may spend. A larger
 /// closed expression, such as `CoffeeCan`'s initial filter over 1,002,001
 /// records (over 10,201 already at 100 beans), is left to run time, where
 /// the generator streams it instead of building it in the compile arena.
 /// Type sets of a few hundred records, such as `MCNano`'s
 /// `SignedBlock \cup {NoBlock}` (593 records, about 5,000 iterations), fit
-/// and are folded once instead of being rebuilt in every state (#821).
+/// and are folded once instead of being rebuilt in every state.
 pub const FOLD_FUEL: u64 = 1 << 16;
 
 /// The most loop iterations all constant folds of one compile may spend
-/// together: the compile-time budget (R9). Once it is spent, nothing more
+/// together: the compile-time budget. Once it is spent, nothing more
 /// is folded.
 pub const FOLD_BUDGET: u64 = 1 << 22;
 
@@ -76,7 +76,7 @@ pub const FOLD_BUDGET: u64 = 1 << 22;
 /// (`Compiler::settle`). `LeastCircularSubstring`'s
 /// `Corpus == ZSeq(CharacterSet)` (9,841 sequences in the Medium model,
 /// about 217,000 iterations) fits, and is built once instead of in every
-/// state that tests membership in it (#846).
+/// state that tests membership in it.
 pub const SETTLE_FUEL: u64 = 1 << 22;
 
 /// The most loop iterations all such start-up evaluations of one compile
@@ -162,11 +162,10 @@ pub trait StartupEvaluator: std::fmt::Debug {
 
 /// The most transient memory, in bytes, the core's evaluation of one
 /// deferred start-up definition may hold; past it, the definition goes to
-/// the binder's evaluation ([`Handoff::startup_evaluator`]), as before
-/// issue #846.
+/// the binder's evaluation ([`Handoff::startup_evaluator`]).
 pub const STARTUP_TRANSIENT_BYTES: usize = 256 << 20;
 
-/// What `dive-model`'s binder hands to the core (`04-plan-compiler.md` §2).
+/// What `dive-model`'s binder hands to the core.
 #[derive(Clone, Debug)]
 pub struct Handoff<'a> {
     /// The lowered specification.
@@ -202,7 +201,7 @@ pub struct Handoff<'a> {
     /// the compiler evaluates them in order, after the deferred definitions,
     /// as it evaluates those, stopping at the first that is not `TRUE`, and
     /// lists the ones it finds `TRUE` in [`Plan::startup_assumptions`]. The caller checks the others with the
-    /// reference evaluator, which reports a false or failing one as TLC does.
+    /// dive-eval evaluator, which reports a false or failing one as TLC does.
     pub assumptions: Vec<DefId>,
     /// Initial predicates.
     pub init: Vec<Role>,
@@ -439,17 +438,16 @@ struct Info {
     heavy: bool,
     /// Reaches an operator with an effect (`Print`, `PrintT`): TLC performs
     /// it on every evaluation, so the node is never folded, memoized,
-    /// cached or skipped (`04-plan-compiler.md` §3).
+    /// cached or skipped.
     effect: bool,
-    /// Whether TLC's value of a set expression is `Reducible`
-    /// (`04-plan-compiler.md` §4.1), so that TLC builds a filter, function
+    /// Whether TLC's value of a set expression is `Reducible`,
+    /// so that TLC builds a filter, function
     /// or set operation over it eagerly.
     red: Red,
 }
 
 /// Whether TLC's value of a set expression is `Reducible`: a set
-/// enumeration or an interval (`crates/dive-eval/src/core.rs`,
-/// `is_reducible`). TLC builds `{x \in S : P}`, `[x \in S |-> e]` and
+/// enumeration or an interval (as `dive-eval`'s `is_reducible` decides). TLC builds `{x \in S : P}`, `[x \in S |-> e]` and
 /// `S \cup T` eagerly over reducible operands and keeps them lazy
 /// otherwise.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -613,8 +611,8 @@ pub fn compile_bound_test(
 /// Compiles the handoff into a plan.
 ///
 /// # Errors
-/// [`crate::ErrorKind::Unsupported`] naming the first construct the M0 core
-/// does not implement.
+/// [`crate::ErrorKind::Unsupported`] naming the first construct Core does
+/// not implement.
 pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, Error> {
     compile_inner(h, store, opts, None, false)
 }
@@ -1384,7 +1382,7 @@ impl Compiler<'_> {
     }
 
     /// The rewrite of `{E \in SUBSET T : \A e \in E : Q}` as `SUBSET F`,
-    /// `F = {e \in T : Q}`, when its side conditions hold (#853): one plain
+    /// `F = {e \in T : Q}`, when its side conditions hold: one plain
     /// bound `E` over `SUBSET T` (or its folded constant), a predicate that
     /// is exactly a single-variable `\A` over `E` itself, and a body `Q`
     /// that does not read `E`, reads no primed variable, makes no call
@@ -1453,7 +1451,7 @@ impl Compiler<'_> {
     /// Pushes a filter, function constructor or set operation, wrapped in
     /// `Node::Spec` when TLC would build it lazily: the core builds it
     /// eagerly, so an evaluation error inside it may be one TLC never
-    /// raises (`04-plan-compiler.md` §4.1).
+    /// raises.
     fn push_lazy(&mut self, n: Node) -> Result<P, Error> {
         let eager = match &n {
             Node::Filter { bind, .. } => self.red(bind.domain) == Red::Yes,
@@ -1481,7 +1479,7 @@ impl Compiler<'_> {
             Some(Node::Lazy { body, .. } | Node::Scope { body, .. }) => self.lazy_set(*body),
             // A primed definition's site is transparent to membership: the
             // test is decided on the body, never on a materialized value
-            // (`Machine::member_lazy`, `06-memoization.md` §2.4).
+            // (`Machine::member_lazy`).
             Some(Node::Memo { site, body })
                 if self
                     .code
@@ -1931,8 +1929,7 @@ impl Compiler<'_> {
     /// `CallCache`), and within [`STARTUP_TRANSIENT_BYTES`] of transient
     /// memory. A definition the core does not evaluate to a value (its body
     /// does not compile, is not closed, fails, or needs more memory) goes to
-    /// the binder's evaluation ([`Handoff::startup_evaluator`]), which
-    /// evaluated every such definition before issue #846. One that fails
+    /// the binder's evaluation ([`Handoff::startup_evaluator`]). One that fails
     /// there too is left alone: its uses compile it in place, and an error
     /// surfaces where it is used, as TLC reports it after swallowing the
     /// startup failure.
@@ -2060,14 +2057,14 @@ impl Compiler<'_> {
         r.ok().filter(|h| !h.is_empty())
     }
 
-    /// `ENABLED A` (`04-plan-compiler.md` §5.5): `A` compiled as an action
+    /// `ENABLED A`: `A` compiled as an action
     /// in the current frame, searched for one successor at run time.
     ///
     /// An instance environment is supported when its variable substitutions
     /// resolve to the same root variables by name. TLC's branch cutoff then
     /// leaves every primed lookup unchanged, and no hidden candidate state
     /// requires the B2/B4 lazy-cache machinery. Other variable substitutions
-    /// remain refused (`02-semantic-contract.md` B2--B4).
+    /// remain refused.
     fn enabled(
         &mut self,
         a: Option<ExprId>,
@@ -2697,7 +2694,7 @@ impl Compiler<'_> {
                 let v = if let Some(h) = s.parse::<i64>().ok().and_then(Handle::int) {
                     h
                 } else {
-                    // Outside the inline range: a big integer constant (D-004).
+                    // Outside the inline range: a big integer constant.
                     let b = s
                         .parse::<num_bigint::BigInt>()
                         .map_err(|_| Error::unsupported(format!("the numeral {s}")))?;
@@ -3773,7 +3770,7 @@ impl Compiler<'_> {
     /// [`SETTLE_BUDGET`] and [`STARTUP_TRANSIENT_BYTES`], into the permanent
     /// store, as TLC evaluates a constant definition at start-up
     /// (`SpecProcessor.processConstantDefns`). Its uses then read the value
-    /// instead of rebuilding it in every state (#846). The body is the same
+    /// instead of rebuilding it in every state. The body is the same
     /// node a fold would replace, with the same reducibility, so its uses
     /// behave as they do for a folded one.
     ///
@@ -3897,7 +3894,7 @@ impl Compiler<'_> {
     /// A zero-arity top-level definition that a next-state action reads
     /// primed, such as `totalOpOrder'` in `InnerSerial`, as a memo site
     /// keyed on the variables it reads, primed and unprimed
-    /// (`Opts::primed_memo`, `06-memoization.md` §2.4).
+    /// (`Opts::primed_memo`).
     ///
     /// The body is pure (no effect), makes no call and reads no bound
     /// variable, so its value is a function of the key alone. At run time
@@ -5184,7 +5181,9 @@ impl Compiler<'_> {
             Expr::FcnApply { fcn, arg } => {
                 let (fcn, arg) = (*fcn, *arg);
                 let Some((lambda, lenv)) = self.fcn_lambda(fcn, env, 0)? else {
-                    // Applied recursive predicates are Boolean guards (D-029).
+                    // Applied recursive predicates are Boolean guards: Core
+                    // counts the successors they emit rather than TLC's
+                    // duplicate witnesses.
                     // Their whole-plan effect safety is checked after all
                     // function bodies and roles have been compiled.
                     if self.rec_target(fcn, env, Mode::Plain)?.is_some() {

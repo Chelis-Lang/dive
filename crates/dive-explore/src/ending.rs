@@ -1,5 +1,4 @@
-//! Error endings (`docs/developer/core/07-engine.md` §5,
-//! `02-semantic-contract.md` §3(e)).
+//! Error endings.
 //!
 //! The explorer records where an evaluation error was raised, with the
 //! states involved, and stops. It does not classify the error: the caller

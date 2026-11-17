@@ -1,5 +1,4 @@
-//! Generator-side compilation helpers (`05-successor-generation.md` §4.5,
-//! §4.6, §4.9, §6), kept apart from the value compiler: TLC's `elements()`
+//! Generator-side compilation helpers, kept apart from the value compiler: TLC's `elements()`
 //! multiplicity for `x' \in S`, the decomposition of `UNCHANGED`, and the
 //! resolution of a function applied as an action.
 
@@ -300,8 +299,8 @@ impl Compiler<'_> {
         Ok(Class::Raw(Raw::Odometer(raws.into(), p)))
     }
 
-    /// Decomposes `UNCHANGED e` with TLC's `processUnchanged`
-    /// (`05-successor-generation.md` §4.6): variables, tuples and
+    /// Decomposes `UNCHANGED e` with TLC's `processUnchanged`:
+    /// variables, tuples and
     /// zero-arity definitions are followed; anything else is verified.
     pub(super) fn unchanged_items(
         &mut self,

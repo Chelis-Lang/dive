@@ -1,4 +1,4 @@
-//! Run budgets (ADR 0107): a wall-clock limit and a whole-process
+//! Run budgets: a wall-clock limit and a whole-process
 //! resident-memory ceiling, the runaway guards that replace fixed counts.
 //!
 //! A [`Budget`] says how long a run may take and how much resident memory the
@@ -19,7 +19,7 @@
 //! Memory is sampled when a finite-memory budget is armed, periodically,
 //! and before its owner publishes a result. Linux includes resident and
 //! swapped pages from `/proc/self/status`; macOS uses a safe native Mach
-//! resident-memory query (ADR 0109). Sampling is not an allocation-time hard
+//! resident-memory query. Sampling is not an allocation-time hard
 //! cap and cannot observe every transient peak. Unavailable observations
 //! fail closed with [`MeasurementError`], never zero bytes or a fake stop.
 //! Nested entry points reuse the armed signal; only the watchdog owner calls
@@ -293,7 +293,8 @@ pub struct Stopped {
 }
 
 impl Stopped {
-    /// How to continue, for people and agents.
+    /// How to continue: a short hint for the person or tool that started the
+    /// run.
     #[must_use]
     pub fn hint(&self) -> &'static str {
         match self.resource {
@@ -843,7 +844,7 @@ pub fn physical_bytes() -> Option<u64> {
 /// TLC's default footprint is its JVM heap (a quarter of physical memory)
 /// plus off-heap fingerprint storage and its disk queue; dive keeps all of
 /// that resident, so half keeps dive's capacity at least TLC's while still
-/// stopping a runaway run before it exhausts the machine (ADR 0107). `None`
+/// stopping a runaway run before it exhausts the machine. `None`
 /// where physical memory is unknown. A finite budget validates process-memory
 /// availability independently when it is armed.
 ///

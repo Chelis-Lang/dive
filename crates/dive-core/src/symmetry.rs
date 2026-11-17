@@ -3,9 +3,9 @@
 //! permutations of model values, compared variable by variable in the
 //! run's value order. The explored state stays the concrete one; only keys
 //! change, as in `dive-model`'s symmetry reduction
-//! (`crates/dive-model/src/symmetry/prepare.rs`, `Reduction::canonical_values`).
+//! (`Reduction::canonical_values`).
 //!
-//! The default profile's canonicalization (D-010) compares in the canonical
+//! The default profile's canonicalization compares in the canonical
 //! value order, variables in declaration order. TLC's (`--compat=tlc`,
 //! [`Symmetry::tlc`]) compares with TLC's `compareTo`, variables in TLC's
 //! order (`Ir::tlc_var_order`), as `TLCStateMut` does: where `compareTo`

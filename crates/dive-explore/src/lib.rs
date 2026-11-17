@@ -1,5 +1,5 @@
 //! `dive-explore`: breadth-first exploration over a compiled
-//! [`dive_core::Plan`] (`docs/developer/core/07-engine.md`). With several
+//! [`dive_core::Plan`]. With several
 //! workers, each level is expanded in parallel and committed in order
 //! (`parallel.rs`), so every result is the one-worker result.
 //!
@@ -16,9 +16,9 @@
 //!   checked.
 //!
 //! Successors are probed against the seen set with an incremental hash
-//! computed from the transient buffer, and only new states are interned (S3).
+//! computed from the transient buffer, and only new states are interned.
 //! Invariant and constraint conjuncts whose read set does not meet the
-//! variables a step changed are skipped: the parent satisfied them (S6).
+//! variables a step changed are skipped: the parent satisfied them.
 //!
 //! # Example
 //!
@@ -82,7 +82,7 @@ pub enum Verdict {
     /// An evaluation error, or a state that is not completely specified,
     /// ended the search: [`Outcome::failure`] says where.
     Failed,
-    /// A construct, size or error the M0 core does not handle.
+    /// A construct, size or error Core does not handle.
     Unsupported {
         /// What it was.
         feature: String,
@@ -149,14 +149,14 @@ pub struct Stats {
     pub initial_generated: u64,
 }
 
-/// Strategy metrics (`09-performance-method.md` §4).
+/// Strategy metrics.
 #[derive(Clone, Debug, Default)]
 pub struct Metrics {
     /// Authenticated remote work facts when distributed safety was requested.
     pub distributed: Option<distributed::Usage>,
     /// Actual opt-in native safety storage facts, not whole-process memory.
     pub storage: storage::Usage,
-    /// Successors discarded as seen before any interning (S3).
+    /// Successors discarded as seen before any interning.
     pub discarded_before_intern: u64,
     /// Successors probed against the seen set.
     pub probed: u64,
@@ -1058,7 +1058,7 @@ impl Explorer<'_> {
 
 /// Evaluates a check on the state in `m.s1`. With `skip`, the variables the
 /// step changed: a conjunct that reads none of them is skipped, since the
-/// parent satisfied it (S6).
+/// parent satisfied it.
 pub(crate) fn eval_check(
     m: &mut Machine,
     code: &Code,
@@ -1233,7 +1233,7 @@ fn check_step(m: &mut Machine, code: &Code, c: &Check) -> Result<bool, Error> {
 impl Sink for Explorer<'_> {
     fn emit(&mut self, m: &mut Machine, _code: &Code) -> Result<(), Error> {
         // One poll per initial state: the budget can stop a long `Init`
-        // enumeration between its states (ADR 0107).
+        // enumeration between its states.
         if self.initial && (self.poll)() {
             self.stop = Some(Verdict::Budget);
             return Err(Error::stop());
@@ -1267,12 +1267,12 @@ impl Sink for Explorer<'_> {
             self.stop = Some(Verdict::Budget);
             return Err(Error::stop());
         }
-        // The checks' transients are freed once the state is accepted (R10):
+        // The checks' transients are freed once the state is accepted:
         // an `Init` that enumerates many states, or a state with many
         // successors, would otherwise hold them all until the expansion
-        // ends (#551). Only when no thunk was forced to a transient
-        // meanwhile, whose slot may hold a value built after the mark
-        // (`03-value-model.md` §11.5 rule 2). The state's own values predate
+        // ends. Only when no thunk was forced to a transient
+        // meanwhile, whose slot may hold a value built after the mark.
+        // The state's own values predate
         // the mark, and the frontier holds them interned.
         let before = m.heap.mark();
         let forced = m.thunk_mark();
@@ -1284,7 +1284,7 @@ impl Sink for Explorer<'_> {
         m.level = level;
         if m.draws != draws {
             // TLC's checks draw from the expansion's stream, which the
-            // trace rebuild replays without them (`03-value-model.md` §6.1).
+            // trace rebuild replays without them.
             return Err(Error::unsupported(
                 "RandomElement in an invariant, constraint or implied action (M1 core)",
             ));
@@ -1875,7 +1875,7 @@ fn explore_inner<'p>(
     }
 }
 
-/// Rebuilds the behavior that ends at `end` (`07-engine.md` §4).
+/// Rebuilds the behavior that ends at `end`.
 fn reconstruct(
     plan: &Plan,
     store: &Arc<Store>,
@@ -1974,7 +1974,7 @@ fn source_row(
 }
 
 /// Starts the random stream draws come from: the startup stream for
-/// `Init`, or the stream of expanding `state` (`03-value-model.md` §6.1).
+/// `Init`, or the stream of expanding `state`.
 pub(crate) fn start_stream(
     m: &mut Machine,
     plan: &Plan,
@@ -2022,7 +2022,7 @@ fn level_done(ex: &mut Explorer<'_>, _nvars: usize) -> Result<(), Error> {
     Err(Error::stop())
 }
 
-/// The states of a parallel level each worker expands per chunk (#551).
+/// The states of a parallel level each worker expands per chunk.
 const CHUNK_PER_WORKER: usize = 4096;
 /// The optional encoded path decodes at most this many state pairs at once.
 const FRONTIER_CHUNK_STATES: usize = 1024;
@@ -2108,7 +2108,7 @@ fn run(
         let mut expand_time = std::time::Duration::ZERO;
         // The parallel level is expanded and committed a chunk of states at
         // a time, so that phase 1 buffers one chunk's successors, not the
-        // level's (#551). A chunk's commit fills the seen set before the
+        // level's. A chunk's commit fills the seen set before the
         // next chunk is expanded, which reads it as an earlier level's.
         let chunk = ex.graph.as_deref().map_or_else(
             || (machines.len() * CHUNK_PER_WORKER).max(1),

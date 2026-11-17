@@ -195,7 +195,7 @@ impl<'a> CsrCapture<'a> {
         self.input.ordinals.get(edge).copied()
     }
 
-    /// Action label; generated unnamed actions use the legacy empty label.
+    /// Action label; generated unnamed actions use the empty label.
     /// Stutters have `Some(None)`, and out-of-range entries have `None`.
     #[must_use]
     pub fn label(&self, edge: usize) -> Option<Option<&'a str>> {

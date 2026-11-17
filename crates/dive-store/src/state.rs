@@ -5,7 +5,7 @@
 //! ([`dive_value::codec`]): within one run, two states have equal keys exactly when
 //! they are equal.
 //!
-//! [`StateFingerprinter`] computes the state fingerprint of ADR 0015 §5: dive's
+//! [`StateFingerprinter`] computes the state fingerprint: dive's
 //! two-level fingerprint (FP64 value fingerprints combined by [`combine`]), or
 //! TLC's own.
 
@@ -26,7 +26,7 @@ pub fn state_key(vars: &[Value], ctx: Ctx, out: &mut Vec<u8>) -> Result<(), Stor
     Ok(())
 }
 
-/// The state fingerprint (ADR 0015 §5), in one of two schemes.
+/// The state fingerprint, in one of two schemes.
 ///
 /// - **dive's** ([`StateFingerprinter::new`], the default profile): each
 ///   variable's value is fingerprinted with FP64 under the run's polynomial,
@@ -243,7 +243,7 @@ impl Chain {
 }
 
 /// dive's combination of per-variable value fingerprints into a state
-/// fingerprint (ADR 0015 §5), in variable order:
+/// fingerprint, in variable order:
 ///
 /// ```text
 /// h₀ = SEED;  hᵢ₊₁ = mix64(hᵢ ⊕ mix64(fpᵢ ⊕ Kᵢ));  result hₙ

@@ -36,7 +36,7 @@ fn prove(b: &Binder<'_>, model: &Model) -> R<Option<TupleConcatSources>> {
 }
 
 fn proof_error(error: EvalError) -> crate::control::StepError {
-    // Optional planning can fail intrinsically even on the legacy startup
+    // Optional planning can fail intrinsically even on the plain startup
     // route. Its resource/bug/interruption must never become a semantic refusal.
     crate::control::eval_error(true, true, error, |e| BindError::unsupported(e.to_string()))
 }

@@ -2,9 +2,9 @@
 //! (`Contains`, `RemoveFirst`, `Suffixes`, `AllSubSeqs`, `SetToSeq`,
 //! `IsPrefix`, `LongestCommonPrefix`, and `ReplaceFirstSubSeq` and
 //! `ReplaceAllSubSeqs` on strings and pure scalar sequences), `Functions` (`IsInjective`),
-//! `DyadicRationals` (`Reduce`) and `Bitwise`. The reference is
-//! `crates/dive-eval/src/community.rs` (`call_ext`), which follows the Java
-//! overrides of `tlc2.overrides` (`docs/provenance.md`).
+//! `DyadicRationals` (`Reduce`) and `Bitwise`. The reference is `dive-eval`'s
+//! `community` module (`call_ext`), which follows the Java overrides of
+//! `tlc2.overrides`.
 
 use dive_ir::StdOp;
 
@@ -231,7 +231,7 @@ fn all_sub_seqs(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error> 
         out.push(m.heap.tuple(&sub));
     }
     // The order is observable only through TLC's comparisons: a membership
-    // test scans an unnormalized set (C1). D-009 answers it in the default
+    // test scans an unnormalized set. TLA+ comparisons answer it in the default
     // profile, so there the set is normalized at once.
     if m.heap.store().semantics().tlc_comparisons {
         Ok(m.heap.set_enum(&out))

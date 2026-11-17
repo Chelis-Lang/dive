@@ -1,4 +1,4 @@
-//! `dive-runtime`: the run contract every checking engine shares (ADR 0155).
+//! `dive-runtime`: the run contract every checking engine shares.
 //!
 //! The execution core and temporal analysis (`dive-liveness`) agree on these
 //! pieces, so neither needs the other's search runtime:
@@ -192,7 +192,7 @@ pub fn note_canonical_stop(opts: &CheckOptions, verdict: &Verdict, notes: &mut V
         && verdict.is_verdict()
         && *verdict != Verdict::Success
     {
-        // D-010: canonical exploration can stop at a different event than
+        // Canonical exploration can stop at a different event than
         // TLC's order. Detecting whether it did is not implemented yet, so
         // every stop says so.
         notes.push(

@@ -1,4 +1,4 @@
-//! Integers of any size (`03-value-model.md` §9, §11.1; D-004).
+//! Integers of any size (big integers are the default profile's mode).
 //!
 //! An integer is an inline handle while it fits 61 bits, and otherwise a
 //! compound node of kind [`Kind::BigInt`]: `lo` is the sign (`1` or `-1`)
@@ -27,7 +27,7 @@ use crate::node::Kind;
 /// The integer semantics of a run.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum IntMode {
-    /// Mathematical integers (the default profile, D-004).
+    /// Mathematical integers (the default profile).
     #[default]
     Big,
     /// TLC's 32-bit integers (`--int=tlc`, part of `--compat=tlc`).
@@ -58,8 +58,7 @@ pub enum IntOp {
 /// `dive_value::Int`).
 const MAX_POW_BITS: u64 = 1 << 26;
 
-/// `EC.TLC_MODULE_OVERFLOW`, an `EvalException` (stream 2's error classes,
-/// `04-plan-compiler.md` §5.2).
+/// `EC.TLC_MODULE_OVERFLOW`, an `EvalException`.
 fn overflow(what: &str) -> Error {
     Error::eval_class(
         crate::TlcClass::eval_exception(2178),

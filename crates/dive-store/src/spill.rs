@@ -1,4 +1,4 @@
-//! Ordered frontier records with bounded resident encoded storage (ADR 0024).
+//! Ordered frontier records with bounded resident encoded storage.
 //!
 //! This is a native transient format, not a TLC checkpoint format. It bounds
 //! retained encoded frontier bytes; a reader and writer each also hold at most

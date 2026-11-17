@@ -1,5 +1,5 @@
-//! What a bound model uses that dive does not check yet (M5 plan, "Refused
-//! as `unsupported` in M5"), each named.
+//! What a bound model uses that dive does not check yet, each refused as
+//! `unsupported` by name.
 
 use std::collections::BTreeSet;
 
@@ -411,7 +411,7 @@ fn sequential_op(op: StdOp, key: Option<&Expr>) -> Option<String> {
 /// DFID and simulation ignore those intermediate states, as their TLC functors do.
 pub const TLC_CDOT: &str = "action composition under `--action-composition=tlc` (TLC counts its intermediate states as generated)";
 
-/// Why `model` must be checked in sequential mode (ADR 0015 §6, ADR 0014 §7),
+/// Why `model` must be checked in sequential mode,
 /// in a stable order; empty when the parallel engine may run it.
 ///
 /// A parallel search evaluates the checking path in an order other than

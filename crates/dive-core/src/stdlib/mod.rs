@@ -1,12 +1,11 @@
 //! Standard and CommunityModules operators of the core, by TLC's override
-//! table (`dive_ir::StdOp`, `crates/dive-ir/src/std_op.rs`).
+//! table ([`dive_ir::StdOp`]).
 //!
 //! The compiler asks [`implements`] for a standard operator it does not
 //! compile itself and emits `Node::Lib`; the evaluator evaluates
 //! the arguments (normalized) and calls [`call`]. Semantics, error points
-//! and error classes are `dive-eval`'s
-//! (`crates/dive-eval/src/community.rs`, `std.rs`), which follow TLC's Java
-//! overrides (`docs/provenance.md`). Where `dive-eval` refuses a case, so
+//! and error classes are `dive-eval`'s (its `community` and `std`
+//! modules), which follow TLC's Java overrides. Where `dive-eval` refuses a case, so
 //! does the core.
 //!
 //! Every operator here is pure except `Print` and `PrintT` ([`effectful`]),

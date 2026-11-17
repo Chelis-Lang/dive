@@ -1,4 +1,4 @@
-//! Start-up constant definitions the binder may leave to the core engine.
+//! Start-up constant definitions the binder may leave to Core.
 //!
 //! TLC evaluates every constant-level zero-arity definition at start-up
 //! (`SpecProcessor.processConstantDefns`) and swallows the failures. For a
@@ -6,16 +6,16 @@
 //! it leaves behind, and only where the binder itself looks at that value:
 //! where it splits the behavior specification, the initial predicate or the
 //! next-state relation and finds a definition in a role position, and where
-//! the reference evaluator evaluates something after binding on the core
+//! the dive-eval evaluator evaluates something after binding on the core
 //! route (`ASSUME`, `ALIAS`, `VIEW`, `SYMMETRY`, `POSTCONDITION` and the
 //! configuration's substitutions). A definition used only as a value by the
 //! roles the core compiles is therefore evaluated by the core instead, once,
-//! when it compiles the plan (issue #846).
+//! when it compiles the plan.
 //!
 //! A pure `ASSUME` of the root module is a value too: TLC's
 //! `Tool.checkAssumptions` evaluates it once, and only its truth is
 //! observable. The core evaluates such an `ASSUME` when it compiles the
-//! plan, and the reference evaluator checks only those the core does not
+//! plan, and the dive-eval evaluator checks only those the core does not
 //! find `TRUE`, so the definitions it reaches may be left to the core.
 
 use std::collections::HashSet;
@@ -28,7 +28,7 @@ use crate::tables::Look;
 /// What the second phase of `processConstantDefns` leaves to the core.
 pub(crate) struct Deferral {
     /// The pure startup definitions the binder does not evaluate: never in a
-    /// role position, not reached by anything the reference evaluator
+    /// role position, not reached by anything the dive-eval evaluator
     /// evaluates on the core route or by a definition the binder does
     /// evaluate, and not named by the configuration.
     pub skip: HashSet<DefId>,
@@ -37,7 +37,7 @@ pub(crate) struct Deferral {
     /// swallows the failure of a pure startup evaluation.
     pub evaluate: HashSet<DefId>,
     /// The leading pure `ASSUME`s of the root module, in order, which the
-    /// core evaluates before the reference evaluator checks the others.
+    /// core evaluates before the dive-eval evaluator checks the others.
     pub assumptions: Vec<DefId>,
 }
 
@@ -101,7 +101,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
         );
     }
     // Constants the configuration binds to definitions: their targets are
-    // evaluated at start-up by the reference evaluator.
+    // evaluated at start-up by the dive-eval evaluator.
     for c in 0..ir.consts().len() {
         if let Some(Look::Def(d) | Look::Java(_, d)) =
             b.t.const_look(dive_ir::ConstId(u32::try_from(c).unwrap_or(u32::MAX)))
@@ -114,7 +114,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
     let by_roles = Walk::run(b, &roles, true, false);
     let by_assumptions = Walk::run(b, &assumptions, false, false);
     // What the binder evaluates at start-up must not reach a deferred
-    // definition: the reference evaluator would evaluate it lazily there,
+    // definition: the dive-eval evaluator would evaluate it lazily there,
     // once per use. Removing a candidate makes it one of those, so this
     // runs to a fixed point.
     let startup = startup_defs(b);
@@ -159,7 +159,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
 /// `AXIOM`s aside) that apply no impure operator, in order: the core
 /// evaluates them. TLC's `Tool.checkAssumptions` stops at the first `ASSUME`
 /// that is not `TRUE`, so an `ASSUME` may guard the ones after it. The core
-/// evaluates its `ASSUME`s before the reference evaluator checks the others,
+/// evaluates its `ASSUME`s before the dive-eval evaluator checks the others,
 /// so it takes only those no impure `ASSUME` precedes, and stops at the first
 /// that is not `TRUE` itself.
 fn pure_assumptions(b: &Binder<'_>) -> Vec<DefId> {
@@ -174,7 +174,7 @@ fn pure_assumptions(b: &Binder<'_>) -> Vec<DefId> {
         .collect()
 }
 
-/// The definitions the reference evaluator may evaluate after binding on the
+/// The definitions the dive-eval evaluator may evaluate after binding on the
 /// temporal route: those the temporal properties, the behavior
 /// specification's fairness and the configured properties reach, including
 /// through the arguments their scopes bind lazily. The liveness checker and

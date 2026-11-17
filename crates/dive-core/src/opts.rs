@@ -1,4 +1,4 @@
-//! Strategy switches for ablation (`09-performance-method.md` §5).
+//! Strategy switches for ablation.
 //!
 //! Every switch turns one strategy off (`-name`) or on (`+name`) and must
 //! leave every observable result unchanged. They are parsed from a list
@@ -11,47 +11,47 @@
     reason = "one independent switch per strategy"
 )]
 pub struct Opts {
-    /// S1, S2: incremental state and `EXCEPT` hashes from cached node
+    /// Incremental state and `EXCEPT` hashes from cached node
     /// hashes. Off (`-delta-hash`): every successor's key is recomputed from
     /// the leaves of every variable, and `EXCEPT` re-sums every entry.
     pub delta_hash: bool,
-    /// S3: probe the seen set before materializing. Off (`-early-probe`):
+    /// Probe the seen set before materializing. Off (`-early-probe`):
     /// every successor is interned first.
     pub early_probe: bool,
-    /// S4, S5: hash-consing and equality by handle. Off (`-hashcons`).
+    /// Hash-consing and equality by handle. Off (`-hashcons`).
     pub hashcons: bool,
-    /// S5: symbolic membership in `a..b`, `[D -> R]`, `SUBSET S`, record
+    /// Symbolic membership in `a..b`, `[D -> R]`, `SUBSET S`, record
     /// sets and `Seq(S)`. Off (`-symbolic-member`): the set is materialized
     /// (up to 2^24 elements; beyond that the run is refused).
     pub symbolic_member: bool,
-    /// S5: bounded hash indexes for repeated default normalized membership.
+    /// Bounded hash indexes for repeated default normalized membership.
     /// Off (`-member-index`); TLC comparisons always use the original search.
     pub member_index: bool,
-    /// S6: keyed result caches. Off (`-memo`; `06-memoization.md` §6).
+    /// Keyed result caches. Off (`-memo`).
     pub memo: bool,
-    /// S6: keyed result caches for the cached bodies of step predicates
+    /// Keyed result caches for the cached bodies of step predicates
     /// (implied actions, action constraints), keyed on the primed and
     /// unprimed variables they read. Off (`-step-memo`).
     pub step_memo: bool,
-    /// S6: keyed result caches for zero-arity definitions that a
+    /// Keyed result caches for zero-arity definitions that a
     /// next-state action reads primed, keyed on the primed and unprimed
     /// variables they read, used only once those primed variables are
-    /// assigned (`06-memoization.md` §2.4). Off (`-primed-memo`).
+    /// assigned. Off (`-primed-memo`).
     pub primed_memo: bool,
-    /// S6: parent-delta skip of invariant and constraint conjuncts. Off
+    /// Parent-delta skip of invariant and constraint conjuncts. Off
     /// (`-parent-skip`).
     pub parent_skip: bool,
-    /// S7: the pooled arena. Off (`-arena`): one heap allocation per
+    /// The pooled arena. Off (`-arena`): one heap allocation per
     /// transient value.
     pub arena: bool,
-    /// S8: arguments substituted or evaluated eagerly where the demand-order
+    /// Arguments substituted or evaluated eagerly where the demand-order
     /// rule allows. Off (`-eager`): every argument is a thunk.
     pub eager: bool,
-    /// S8: constant folding of closed constant-level subexpressions. Off
+    /// Constant folding of closed constant-level subexpressions. Off
     /// (`-fold`).
     pub fold: bool,
     /// The byte cap of each worker's memo tables (not a switch; the engine
-    /// derives it from the run's memory budget, `06-memoization.md` §6).
+    /// derives it from the run's memory budget).
     pub memo_cap: usize,
 }
 

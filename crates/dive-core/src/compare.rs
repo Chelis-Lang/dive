@@ -1,6 +1,6 @@
 //! Equality, membership and set-construction rules of the default profile
-//! (`02-semantic-contract.md` C1–C3, D-009), as `dive-eval` applies
-//! them (`crates/dive-eval/src/tla_cmp.rs`).
+//! (TLA+ comparisons, `--comparisons=tla`), as `dive-eval`'s `tla_cmp`
+//! module applies them.
 //!
 //! - Two values of the same class (boolean, integer, string, set, function)
 //!   compare extensionally; inside sets and functions, values of different
@@ -10,11 +10,11 @@
 //! - Membership that fails to find the element raises TLC's error when the
 //!   set holds a scalar of another class than the element: TLC compares them
 //!   on its way and fails.
-//! - Core finite-set construction is canonical (ADR 0153, D-028). Nominal
+//! - Core finite-set construction is canonical. Nominal
 //!   compat retains existing checked-comparison refusals instead of reproducing
 //!   TLC's mutable construction history.
 //!
-//! Model values follow TLC's `ModelValue` (`crates/dive-value/src/tlc.rs`):
+//! Model values follow TLC's `ModelValue` (as `dive-value`'s `tlc` module does):
 //! - an untyped model value is unequal to every other value, without error,
 //!   and is never a member of a set of another kind;
 //! - a typed model value (`A_x`: more than two characters, the second `_`)
@@ -262,7 +262,7 @@ pub(crate) fn miss_cached(
 
 fn miss_scalars(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
     // Model values sort first. Which of them TLC compares `x` with depends
-    // on its search, so any incomparable pair is refused (C1, D3).
+    // on its search, so any incomparable pair is refused.
     let k = elems.partition_point(|e| e.as_model_id().is_some());
     let (mvs, elems) = elems.split_at(k);
     if x.as_model_id().is_some() {
@@ -306,7 +306,7 @@ fn miss_scalars(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
 }
 
 /// Whether a function is record-like (string keys) rather than tuple-like
-/// (an integer domain), for TLC's asymmetric record/tuple order (C2, C5).
+/// (an integer domain), for TLC's asymmetric record/tuple order.
 fn record_like(heap: &Heap, f: Handle) -> bool {
     let v = heap.view(f);
     v.kind == Kind::Fcn && v.keys().first().is_some_and(|k| k.as_str_id().is_some())
@@ -375,7 +375,7 @@ pub(crate) fn check_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
         }
         _ => Ok(()),
     }?;
-    // D-009 changes equality and membership, not normalization (C2). Keep
+    // TLA+ comparisons change equality and membership, not normalization. Keep
     // the default profile's existing class/record refusals above, then prove
     // nested comparisons safe. Scalar sets need no recursive shape walk.
     if !tlc && !cf.is_scalar() {
@@ -392,8 +392,8 @@ pub(crate) fn check_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
 /// `equals` or `compareTo` TLC runs on it could inspect. Two values whose
 /// shapes unify cannot make TLC fail, in any order of comparison, and then
 /// TLC's answers are TLA+'s, which the core computes. Where they do not
-/// unify, TLC may fail, or answer by the asymmetric rules of C2 and C5, and
-/// the core refuses (`02-semantic-contract.md` C1–C5) until TLC's checked
+/// unify, TLC may fail, or answer by its asymmetric record/tuple rules, and
+/// the core refuses until TLC's checked
 /// comparisons are ported.
 #[derive(Clone, Debug, PartialEq, Eq)]
 enum Shape {
@@ -495,7 +495,7 @@ fn unify_maps<K: Ord>(
 fn unify(a: Shape, b: Shape) -> Option<Shape> {
     use Shape as S;
     Some(match (a, b) {
-        // `<<>>` against a record is C2/C5's asymmetric case, so the empty
+        // `<<>>` against a record is TLC's asymmetric case, so the empty
         // function unifies with the other non-record functions only.
         (S::Hole, x)
         | (x, S::Hole)
@@ -832,8 +832,8 @@ fn guard_member(heap: &Heap, x: Handle, elems: &[Handle]) -> Result<(), Error> {
     }
 }
 
-/// In either profile, refuses a set whose elements TLC could fail to sort
-/// (C2): their shapes must unify.
+/// In either profile, refuses a set whose elements TLC could fail to sort:
+/// their shapes must unify.
 fn guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
     if elems.len() < 2 {
         return Ok(());
@@ -862,7 +862,7 @@ fn guard_set(heap: &Heap, elems: &[Handle]) -> Result<(), Error> {
 }
 
 /// Under TLC's comparisons, refuses an answer the default profile gives
-/// by D-009 where TLC's own `member` may fail instead (C3).
+/// with TLA+ comparisons where TLC's own `member` may fail instead.
 pub(crate) fn guard_kind_member(heap: &Heap, what: &str) -> Result<(), Error> {
     if heap.store().semantics().tlc_comparisons {
         return Err(guard_refusal(what));

@@ -1,4 +1,4 @@
-//! The run's name table, fed in TLC's encounter order (ADR 0012).
+//! The run's name table, fed in TLC's encounter order.
 //!
 //! TLC orders strings, model values and record fields by their token in
 //! `util.UniqueString`'s table, and fingerprints a model value by its token.
