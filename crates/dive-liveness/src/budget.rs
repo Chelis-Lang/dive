@@ -1,4 +1,4 @@
-//! The run budget during temporal analysis (ADR 0107).
+//! The run budget during temporal analysis.
 //!
 //! Graph capture polls the budget through the shared safety engine. After
 //! capture, the analysis thread polls it between units of labelling,

@@ -502,7 +502,7 @@ impl CompactAcceptance {
 }
 
 /// Materialized product with flat acceptance bits, retained as the reference
-/// for [`ImplicitProduct`] and the acceptance-budget controls. All legacy construction
+/// for [`ImplicitProduct`] and the acceptance-budget controls. All construction
 /// guards run before materializing acceptance, just as for the owned reference.
 #[cfg(test)]
 pub(crate) struct CompactProduct {

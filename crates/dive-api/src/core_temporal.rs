@@ -1,12 +1,11 @@
-//! Temporal properties on the core engine
-//! (`docs/developer/core/11-liveness.md` §6).
+//! Temporal properties on Core.
 //!
-//! The core explores and reports its native rows and CSR
+//! Core explores and reports its native rows and CSR
 //! ([`crate::core_native_graph::NativeSink`]); `dive-liveness`'s planning,
 //! completed-level and final checks
 //! ([`dive_liveness::analyze::periodic::external::GraphCheck`]), validation
 //! and report finish the run. A safety ending is reported as the safety
-//! route reports it. What the core does not reproduce exactly is refused by
+//! route reports it. What Core does not reproduce exactly is refused by
 //! name: `dive_runtime::capture`'s refusals, the options its route
 //! excludes, other behavior-graph stops, and temporal failures whose report
 //! Core does not build (planning, evaluation and validation failures).
@@ -66,7 +65,7 @@ fn fixed_name_domain(prepared: &Prepared) -> bool {
         })
 }
 
-/// Why the core does not run this temporal check before its search.
+/// Why Core does not run this temporal check before its search.
 pub(crate) fn static_refusal(
     ir: &Arc<Ir>,
     config: &dive_config::ModelConfig,
@@ -100,7 +99,7 @@ pub(crate) fn static_refusal(
     None
 }
 
-/// Runs the temporal check of a prepared model on the core.
+/// Runs the temporal check of a prepared model on Core.
 #[allow(
     clippy::too_many_lines,
     reason = "the stages of a temporal core run, in order"

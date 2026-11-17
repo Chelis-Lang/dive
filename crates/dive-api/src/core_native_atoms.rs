@@ -3,10 +3,10 @@
 //! A retained atom runs natively when its exact object and source scope bind,
 //! the Core bound-test compiler accepts it, its plan is effect-free and cannot
 //! add a string to the shared table, and every compiled constant and input row
-//! is a materialized Core value (ADRs 0129, 0154). Recursive operators, memo
+//! is a materialized Core value. Recursive operators, memo
 //! sites (evaluated directly: the analysis Machine memoizes nothing) and
 //! powers are admitted. Anything else, and every error, fuel exhaustion,
-//! warning or printed output, keeps the reference call.
+//! warning or printed output, keeps the dive-eval evaluator's call.
 
 use std::sync::Arc;
 
@@ -25,7 +25,7 @@ struct Compiled {
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     /// A directly syntactic `~ENABLED A` atom: the plan searches `A` and the
-    /// truth is its negation, as the reference evaluator negates its search.
+    /// truth is its negation, as the dive-eval evaluator negates its search.
     negate: bool,
     /// Fuel exhaustions in a row; at [`FUEL_STRIKES`] the atom stops running
     /// natively in this analysis.
@@ -37,10 +37,10 @@ struct Compiled {
 /// [`QueryControl`], polled at least once per
 /// [`dive_core::eval::WORK_POLL_UNITS`] charged units; this allowance only
 /// bounds the work wasted, and the memory held until `heap.reset()`, before
-/// the reference evaluator answers instead.
+/// the dive-eval evaluator answers instead.
 const NATIVE_FUEL: u64 = 1 << 20;
 
-/// Consecutive fuel exhaustions after which an atom is left to the reference
+/// Consecutive fuel exhaustions after which an atom is left to the dive-eval
 /// evaluator for the rest of the analysis: a scheduling choice that changes
 /// no truth value.
 const FUEL_STRIKES: u32 = 8;
@@ -70,7 +70,7 @@ pub(crate) struct NativeAtoms {
     evaluated_enabled: u64,
     evaluated_nonstuttering: u64,
     evaluated_negated_enabled: u64,
-    /// Label demands the caller answered by reference evaluation because no
+    /// Label demands the caller answered with the dive-eval evaluator because no
     /// native truth was available (unprepared atoms and fallbacks).
     reference: ReferenceMetrics,
     row_proofs: RowProofMetrics,
@@ -81,7 +81,7 @@ pub(crate) struct NativeAtoms {
     fuel: u64,
     /// Atoms that reached [`FUEL_STRIKES`].
     fuel_retired: u64,
-    /// `DIVE_NATIVE_ATOM_AUDIT=1`: re-evaluate every native truth by reference.
+    /// `DIVE_NATIVE_ATOM_AUDIT=1`: re-evaluate every native truth with the dive-eval evaluator.
     audit: bool,
     audit_mismatch: Option<String>,
 }
@@ -128,7 +128,7 @@ impl Rejections {
     }
 }
 
-/// Why an actual native demand returned to the reference evaluator.
+/// Why an actual native demand returned to the dive-eval evaluator.
 #[derive(Default)]
 struct Fallbacks {
     row_proof: u64,
@@ -207,18 +207,18 @@ impl NativeAtoms {
             .machine
             .set_work_control(Some(Arc::new(QueryControl(Arc::clone(control)))));
         // A native truth must not add a string token that the skipped
-        // reference call would not have added (string order under
+        // dive-eval call would not have added (string order under
         // `--compat=tlc`); a new text is an unsupported error and falls back.
         result.machine.heap.set_existing_strings_only(true);
-        // A reference warning Core does not record (2144) must reach the
-        // reference evaluator, which prints it.
+        // A warning Core does not record (2144) must reach the
+        // dive-eval evaluator, which prints it.
         result.machine.set_refuse_unrecorded_warnings(true);
         for atom in driver.native_predicates() {
             result.total += 1;
             // (a) The exact retained atom and its source scope must bind to
             // this model's evaluator; equal source text is not enough. A
             // `~ENABLED A` atom validates both its source expression and the
-            // pure action it searches, as the reference evaluator does.
+            // pure action it searches, as the dive-eval evaluator does.
             let sub = match atom.test {
                 AtomTest::Enabled { sub } => sub,
                 AtomTest::Nonstuttering { sub } => Some(sub),
@@ -314,12 +314,12 @@ impl NativeAtoms {
     }
 
     /// Whether every retained liveness atom was prepared natively, so the
-    /// reference evaluator answers only an actual demand fallback.
+    /// dive-eval evaluator answers only an actual demand fallback.
     pub(crate) fn all_native(&self) -> bool {
         self.eligible == self.total
     }
 
-    /// The first native-versus-reference disagreement found by the audit.
+    /// The first disagreement between native and dive-eval evaluation found by the audit.
     pub(crate) fn audit_mismatch(&self) -> Option<&str> {
         self.audit_mismatch.as_deref()
     }
@@ -497,7 +497,7 @@ fn compile(
     handoff.view = None;
     handoff.check_deadlock = false;
     // The run's plan already evaluated the start-up definitions and the
-    // ASSUMEs left to the core; an atom reaches none of those definitions
+    // ASSUMEs left to Core; an atom reaches none of those definitions
     // (the binder evaluated what temporal properties reach), so its compile
     // evaluates no start-up values, and would compile any body in place.
     handoff.deferred.clear();
@@ -621,7 +621,7 @@ const ROW_NAME_BYTES: usize = 4096;
 /// Whether native evaluation may read these input handles: every handle is a
 /// materialized Core value (`compare::materialized`), so the native evaluator
 /// and value order are the ones safety checking used on the same stored
-/// representation (ADR 0154). Symbolic, lazy, unnormalized, transient and
+/// representation. Symbolic, lazy, unnormalized, transient and
 /// empty handles decline, and so does a poisoned heap.
 fn admissible_row(heap: &dive_core::Heap, roots: &[Handle]) -> bool {
     if heap.poisoned() {
@@ -640,7 +640,7 @@ fn admissible_row(heap: &dive_core::Heap, roots: &[Handle]) -> bool {
 
 // A positive fact is scoped by an immutable graph borrow, never by a handle's
 // bits across Stores or by extensional row equality. It is issued only by
-// admissible_row(), independently for each actual row demand (ADR 0134, 0154).
+// admissible_row(), independently for each actual row demand.
 const MAX_ROW_PROOF_BYTES: usize = 1024 * 1024;
 
 #[derive(Default)]
@@ -981,7 +981,7 @@ mod tests {
     }
 
     /// Evaluates `atom` natively on rows converted from `before`/`after`.
-    /// When native evaluation produced a truth, the reference evaluator must
+    /// When native evaluation produced a truth, the dive-eval evaluator must
     /// return the same truth without printing a warning.
     fn agree(
         prepared: &crate::core_engine::Prepared,

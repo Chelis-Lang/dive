@@ -1,12 +1,12 @@
-//! The checks (ADR 0016 §1).
+//! The checks.
 //!
 //! Every check evaluates a predicate of the model over *given* states with
-//! the core evaluator (`Model::eval`): `Init` as a state predicate on the
+//! the dive-eval evaluator (`Model::eval`): `Init` as a state predicate on the
 //! first state, the next-state relation as an action predicate on each pair
 //! of states. Private register-dependent Init delegates to an independent
 //! single-candidate operation from empty slots. Whether a state has a
-//! successor (a deadlock ending, `ENABLED`, fairness) is the core evaluator's
-//! `ENABLED` search ([`crate::enabled`], ADR 0103).
+//! successor (a deadlock ending, `ENABLED`, fairness) is the dive-eval
+//! evaluator's `ENABLED` search ([`crate::enabled`]).
 //!
 //! **Random draws.** Borrowed/warmed-model replay refuses them by name
 //! ([`RANDOM_UNSUPPORTED`]). Fresh native finite sessions can independently
@@ -215,7 +215,7 @@ impl std::fmt::Display for ValidationRunError {
 }
 impl std::error::Error for ValidationRunError {}
 
-/// The reason given for a deadlock ending (ADR 0016, amendment 1).
+/// The reason given for a deadlock ending whose `ENABLED` cannot be decided.
 pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed (ADR 0016, amendment 1; ADR 0103)";
 
 /// The reason given when the trace or a check created a name after the
@@ -383,7 +383,7 @@ impl<'a> Run<'a> {
     }
 
     /// Validates `trace`.
-    // Legacy document/session callers have a closed result type. Controlled
+    // Plain document/session callers have a closed result type. Controlled
     // callers bypass this conversion through validate_result, including label,
     // ENABLED/fairness and final refusal handling.
     pub(crate) fn validate(&mut self, trace: &Trace) -> Validation {
@@ -1392,7 +1392,7 @@ impl<'a> Run<'a> {
         state: Option<usize>,
         check: Check,
     ) -> Stop {
-        // Legacy finite validation keeps its closed report channel. The new
+        // Plain finite validation keeps its closed report channel. The
         // fallible endpoint path retains original resource/bug transport separately
         // and intercepts it before constructing any ValidationReport.
         if self.endpoint_prepared
@@ -1538,7 +1538,7 @@ pub(crate) struct TraceHost {
     pub(crate) run_config: Mutex<Option<dive_eval::RunConfig>>,
     /// This host's own expression cache domain: replay reuses lazy values it
     /// computed itself, as TLC's `LazyValue` does, but never values another
-    /// consumer cached (ADR 0103).
+    /// consumer cached.
     cache_domain: u64,
     pub(crate) choices: Option<Arc<crate::choices::Search>>,
     predicate_init: AtomicBool,

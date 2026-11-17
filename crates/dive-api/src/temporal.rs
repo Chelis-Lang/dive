@@ -823,7 +823,7 @@ fn validate_row(
         dive_stdlib::random::Streams::new(options.seed, mode),
         None,
     ));
-    // Encoding still uses a genuine fresh model, but no legacy binding or
+    // Encoding still uses a genuine fresh model, but no earlier binding or
     // Behavior validation may erase an intrinsic error before the fallible path.
     let model = recipe
         .bind_fallible(host, Some(control.clone()))
@@ -1017,8 +1017,8 @@ fn finish_periodic_failure(
     ))
 }
 
-/// The report of a temporal check whose graph the core engine produced
-/// (`docs/developer/core/11-liveness.md` §6): the analysis result goes
+/// The report of a temporal check whose graph Core produced: the analysis
+/// result goes
 /// through this module's validation and report path, with
 /// the file configuration. `periodic` says whether the default profile's
 /// completed-level schedule ran.
