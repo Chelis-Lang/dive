@@ -44,7 +44,7 @@ not an allocation-time hard cap. `options.budget` states these boundaries.
 Exhaustion gives `result: stopped`, exit 5, actual resource/limit/observation,
 phase and reached progress. It never certifies safety or a violation. Retained
 prefix traces and earlier observations remain diagnostic. Rust requests expose
-`time_limit` and `max_memory` through `BudgetSetting`; one owner covers the run,
+`time_limit` and `max_memory` through `BudgetSetting`; one budget covers the run,
 rather than restarting the clock for each trace or iteration.
 
 ## Execution engines

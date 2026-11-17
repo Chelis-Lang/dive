@@ -24,8 +24,8 @@ Invalid UTF-8 files are decoded with replacement and a `DIVE-S0007` warning;
 losslessness then refers to the decoded text.
 
 Diagnostics carry stable codes and source locations. Source acceptance and
-semantic acceptance are independently compared with the pinned SANY in the
-[front-end campaign](../internal/frontend-campaign.md). The syntax/analysis crates are
+semantic acceptance are independently compared with the pinned SANY, including
+on deterministic syntax, layout and semantic mutations. The syntax/analysis crates are
 available independently of the model checker.
 
 Read [modules and evaluated operators](modules.md) for the distinction between

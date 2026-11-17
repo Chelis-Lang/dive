@@ -8,8 +8,8 @@ A worker process can restart and retry uncommitted work in a live coordinator;
 coordinator loss does not leave a durable distributed continuation.
 
 This guide covers the opt-in disk storage for safety search and native
-checkpoint/recovery. The design decision is
-[ADR 0083](../decisions/0083-storage-and-checkpoint.md).
+checkpoint/recovery. See the
+[storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md).
 
 Core (the default engine) safety BFS supports `--store exact` and the frontier and
 predecessor budget/directory options. Exact membership resolves hash collisions by comparing
@@ -69,7 +69,7 @@ startup and live next frontier. Expanded payloads without a live root are
 released. Canonical state identities and original receiver/history rows stay
 separate. Raw/normalized origins, aliases, tuple/function classes, dynamic name
 tokens and warning order survive; evaluator caches and worker Arenas are cleared.
-Disk frontiers receive fresh owner-bound files, streamed one paired row at a
+Disk frontiers receive fresh run-bound files, streamed one paired row at a
 time. Concrete witnesses use the existing predecessor/ordinal replay and still
 undergo independent validation.
 
@@ -104,8 +104,8 @@ seen keys, predecessor records, selected trace/replay values, mapping/codec
 workspaces, temporary old/new Store overlap and allocator/OS overhead remain
 outside the trigger. Combine the independent storage budgets and whole-run
 time/RSS controls as needed. Filesystem/corruption/cleanup failures prevent
-certification; cancellation remains an incomplete resource stop. See
-[ADR 0149](../decisions/0149-completed-level-store-reclamation.md).
+certification; cancellation remains an incomplete resource stop. See the
+[completed-level store reclamation design](../decisions/0149-completed-level-store-reclamation.md).
 
 ## Candidate payload spill
 
@@ -146,7 +146,7 @@ Separate `peak_origin_index_bytes` / `origin_index_bytes` fields report actual
 retained codec index capacity; the per-worker index limit is explicit.
 Read, write, checksum and cleanup failures produce a resource stop without a
 certified word. Completed queues are removed; they cannot be recovered after
-restart or used as trace evidence. See [ADR 0143](../decisions/0143-owned-candidate-payload-spill.md).
+restart or used as trace evidence. See the [owned candidate payload spill design](../decisions/0143-owned-candidate-payload-spill.md).
 
 ## Transient frontier and predecessor storage
 
@@ -232,7 +232,7 @@ limit (`max_state_bytes` is null). Recovery-only runs release
 expanded discovery rows after rebuilding keys and may continue under ordinary
 search budgets; they do not automatically save a new archive. Disk files remain
 transient: native checkpoints reconstruct membership from concrete discovery
-rows. [ADR 0141](../decisions/0141-owned-core-safety-recovery.md) records this
+rows. The [owned core safety recovery design](../decisions/0141-owned-core-safety-recovery.md) records this
 persistent owned-history contract.
 
 Archive source identity

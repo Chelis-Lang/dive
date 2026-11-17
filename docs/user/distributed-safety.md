@@ -230,5 +230,5 @@ deadlines; wrong, short and missing keys; another build; endpoint and listener
 policy; and the refused models and options. `crates/dive-api/tests/distributed.rs`
 covers identity mismatches, restarts and the Rust API, and
 `crates/dive-explore/src/distributed/fault_tests.rs` covers corrupted, stale,
-duplicate and oversized frames. The design is recorded in
-[ADR 0151](../decisions/0151-authenticated-native-safety-workers.md).
+duplicate and oversized frames. See the
+[authenticated native safety workers design](../decisions/0151-authenticated-native-safety-workers.md).

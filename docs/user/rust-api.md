@@ -40,7 +40,7 @@ after each completed level. Positive values trigger on measured Store bytes;
 this is not a hard live-memory cap. `None` uses Core's default 256 MiB trigger
 on pure fingerprint safety BFS, which does not change results. The same field may be enabled for
 `check_file_checkpoint_engine` recovery-only requests. See the supported
-combinations, retained owners and metrics in [storage and recovery](storage-recovery.md).
+combinations, retained values and metrics in [storage and recovery](storage-recovery.md).
 
 Explicit native worker roles use `prepare_core_worker`/`CoreWorker::serve`, and
 coordinators use `CheckRequest.distributed` plus `DistributedOptions` under the
@@ -114,7 +114,7 @@ fields. Complete facts retain the existing graph-completion receipt; prefix
 facts retain their level and unexhausted queue and cannot become completion.
 Neither kind proves a temporal property. `GraphBuilder::complete` and `prefix`
 return the original verdict when supplied a failed or stopped safety result.
-Existing graph-owning variants keep their graph owners; native reports retain
+Graph-owning variants keep their graphs; native reports retain
 only sealed facts and any independently validated selected word.
 
 Producers retaining their own state rows can supply borrowed adjacency through
@@ -179,8 +179,8 @@ Core's `temporal::Report::outcome()` returns one of these boxed variants, or
 | `NativePrefixViolation` | `ValidatedNativePrefix`: `word()`, unfinished-prefix `evidence()`, `document()`, `validation()` |
 
 Validated wrappers have private constructors. Each selected word passes fresh
-independent typed and serialized replay after native graph/converter/store/plan
-owners are dropped. `NativeWord` alone is unvalidated; a validation marker or
+independent typed and serialized replay after the native graph, converter, store and plan
+are dropped. `NativeWord` alone is unvalidated; a validation marker or
 caller-supplied CSR cannot construct a validated outcome. Prefix facts never
 become complete facts or a holding result. JSON retains schema 3, existing trace
 endings and actual completion/worker/collision/output metadata. The core example
@@ -242,14 +242,14 @@ interpreting a generated Spec as a checker result.
 
 The TLC-internal liveness diagnostics (`tlc_temporal`, `periodic_candidate`,
 `phase_*`, `periodic_*` and `tlc_*` projections other than `tlc_plan::classify`)
-were removed on 2026-10-12 (ADR 0082). TLC's exact lasso and periodic timing
+were removed. TLC's exact lasso and periodic timing
 are not parity obligations. A configured `_PERIODIC` entry binds with TLC's
 errors and is then refused by name.
 
 `SimulateRequest` and `DfidRequest` also expose `BudgetSetting` fields
 `time_limit` and `max_memory`, with the same defaults as checking. Their finite
 reports distinguish `stopped` (exit 5) from sampled/incomplete/completed outcomes;
-a stopped report never has `model_proved: true`. One owner covers execution,
+a stopped report never has `model_proved: true`. One budget covers execution,
 retained-state serialization checkpoints and fresh finite-word validation.
 See the mode guides for the after-loading scope and uninterruptible value units.
 
