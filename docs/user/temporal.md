@@ -18,8 +18,8 @@ The checker chooses a deterministic short periodic witness and independently
 replays it in memory and as a lossless document. It checks the complete
 configured property claims, including the closing edge.
 
-At one worker, a bounded temporal source-row error can now retain TLC's
-GENERAL1000 and TLC exit255 in either execution engine. The checker must reach
+At one worker, a bounded temporal source-row error can report TLC's GENERAL
+(1000) and TLC exit 255. The checker must reach
 the first actual source boundary after exactly one generated and accepted Init
 state, prove that its concrete destinations are the source itself, execute
 ordered temporal demand and its diagnostic replay, and then
@@ -27,12 +27,12 @@ independently validate the finite original word on a fresh runtime. This covers
 both a Next failure before any complete emission and a successful self successor
 followed by a fairness error. A complete self emission before a later Next error
 is covered too. The report has no violated property or lasso, and capture remains
-incomplete. Native trace version5 carries the source-only endpoint (ADR 0132).
-An unproved or quiet first row disables this optional lane; it cannot skip that
+incomplete. A version-5 trace carries the source-only endpoint.
+An unproved or quiet first row disables this route; it cannot skip that
 row or its opaque residual and later certify another source as first.
 
-The original `MinChooseFair` and `MinChooseFairSafeNext` controls now agree with
-the pinned oracle, as do action-before-state demand and prior-self-emission
+The `MinChooseFair` and `MinChooseFairSafeNext` controls agree with the pinned
+TLC, as do action-before-state demand and prior-self-emission
 controls. `WF`/`SF` syntax alone grants no classification. A quiet earlier action
 bin may reach a later state error; an earlier failing action bin takes priority.
 State-only residual tableau work is an opaque boundary: reaching it supplies no
@@ -42,10 +42,10 @@ Unknown source order, non-self targets, effects, VIEW/symmetry, cached/history
 questions and unsupported parallel source events remain explicit refusals.
 Other retained-primary or candidate-ending lifecycles also remain unproved.
 In particular, an action-candidate error with pending temporal obligations may
-not borrow the ordinary2103/75 classification or the new source ending. These
+not borrow the ordinary 2103/75 classification or the source-row ending. These
 refusals retain actual counters, output and diagnostic context. Successful
-fairness checks and the separate2179/2182 temporal-state-row meaning remain
-unchanged. Issue #502 remains open for the uncovered boundaries.
+fairness checks and the separate 2179/2182 temporal-state-row meaning are
+unchanged. Other boundaries remain unsupported.
 
 The native optional lane performs no source binding or reference row evaluation
 for compound roots. It uses a callback-free eligibility check, waits for an
@@ -59,7 +59,7 @@ lasso can violate a different set of configured properties. Compatibility does
 not require copying TLC's set onto a word where some named property holds.
 The harness accepts this difference only after fresh independent whole-word and
 complete-attribution validation; all required verdict/count/depth/class/exit
-comparisons remain in force (ADR 0126).
+comparisons remain in force.
 
 ## Native graph capture with the core engine
 
@@ -97,13 +97,12 @@ This tuple `SubSeq` cycle returns success with 3 distinct states, 4 generated
 states and depth 3, as pinned TLC does at one worker. The same default-profile
 request is supported. No model, operator-name or function-name whitelist is used.
 The native producer refuses any name absent from its sealed startup table;
-reference temporal evaluation must also leave its exact private name domain
+general temporal evaluation must also leave its exact private name domain
 unchanged throughout planning, capture, final/prefix analysis and reporting.
-Actual new names in temporal atoms therefore yield explicit unsupported before
+Names created inside temporal atoms therefore yield explicit unsupported before
 a semantic result escapes. Independent replay has its own fresh-domain guard.
 Source/configured/captured effects, foreign scopes and unproved value shapes
-remain refused, and reference-pool scheduling is unchanged. This is no new
-runtime-string ordering capability or full-model performance qualification.
+remain refused. This does not add runtime-string ordering.
 
 JSON schema 3 preserves the actual completion/counters and existing trace
 format. `core.metrics.liveness.storage: "native-csr"` identifies native capture;
@@ -137,7 +136,7 @@ possible later scalar-domain ordering storage. Budget checks
 precede hits. The table initializes after 1,024 read
 lookups; unproved, oversize or unavailable cache storage bypasses reuse. Unknown set normalization history is refused;
 function versus tuple/record literal classes remain distinct. A selected word
-outlives capture, but the native graph, converter, store and plan owners are
+outlives capture, but the native graph, converter, store and plan are
 released before a freshly bound model independently replays both the typed word
 and serialized trace. Invalid or interrupted validation publishes no violation.
 
@@ -151,9 +150,7 @@ an automatic retry. Explicit Rust limits, final/short selection and formula/tabl
 their existing policies. Existing core admission refusals remain.
 VIEW/symmetry quotient semantics, effects and temporal error-demand order are
 separate limitations. A core refusal is explicit and never falls back to
-another engine. This implementation establishes no larger TLC-relative capacity
-or throughput improvement. Complete
-memory accounting and original-workload qualification remain open.
+another engine. Memory accounting is not complete.
 
 Temporal product construction uses exact pair lookup and restores deterministic
 search order before choosing a witness. The optimization applies in both
@@ -167,7 +164,7 @@ deadlock, sequential or chaos overrides, ordinary `dive check` uses
 original startup host and error priority. After each fully committed BFS
 expansion level with an unexhausted frontier, the graph is checked when it has
 at least 65,536 (2^16) distinct states and at least twice as many as at the
-previous check (ADR 0018 §7). The doubling bounds the cost of all prefix checks
+previous check. The doubling bounds the cost of all prefix checks
 together by about one final check, and the schedule depends only on the graph,
 so results are the same at every worker count. Workers finish and join their
 level work before checking. Unexpanded frontier rows remain empty. Exhausted
@@ -206,8 +203,8 @@ facts alongside ordinary TLC final reports. It independently replays words; a
 producer's validation marker is insufficient. Required result comparisons stay
 strict, so prefix counts are not replaced with final-oracle counts or waived.
 Goldens use `-lncheck final`; a model whose violation the default profile finds
-on a prefix stops with fewer states than the golden, which is a D-014 count
-divergence. Like TLC's own periodic checking, a prefix violation can also
+on a prefix stops with fewer states than the golden, which is a registered count difference
+([periodic liveness checking](../tlc-differences.md#d-014-periodic-liveness-checking-has-a-replayable-schedule)). Like TLC's own periodic checking, a prefix violation can also
 preempt an invariant violation or evaluation error beyond the checked prefix
 that a final-only run reports instead. The
 TLC-equivalent setting is `--compat=tlc`.
@@ -249,7 +246,7 @@ bounds under
 `options.temporal_bounds`; exhaustion is an explicit resource refusal. Rust
 callers select byte/work admission explicitly through the acceptance policy
 they pass to `GraphCheck::prepare`. See
-[covered allocations and exclusions](../temporal-api.md) and ADR 0098.
+[covered allocations and exclusions](../temporal-api.md).
 
 ### Product vertex capacity
 
@@ -445,8 +442,8 @@ Atoms are evaluated by the core evaluator, as TLC evaluates them: the native
 loop invokes the original callback on each element and stops at the first
 error, empty sequences invoke no callback, only the branches an evaluation
 reaches are evaluated, and definition and lazy argument results are cached as
-for invariants. An enabledness atom runs the evaluator's `ENABLED` search
-(ADR 0103). Planning still inspects callback sources without evaluating them.
+for invariants. An enabledness atom runs the evaluator's `ENABLED` search.
+Planning still inspects callback sources without evaluating them.
 Both value profiles use this same subset.
 
 Schema 3 reports explicit final requests and actual ordinary temporal analysis;
@@ -462,7 +459,7 @@ Ordinary `dive check --compat=tlc` requests check temporal properties after
 exhaustion with TLC's value semantics and report a deterministic short lasso
 that passes independent replay. TLC's own lasso choice is not reproduced: it
 depends on hash-table and SCC visitation order, which are not parity
-obligations (ADR 0082, ADR 0086). Core does not implement the explicit
+obligations. Core does not implement the explicit
 `--lncheck final --lasso short` mode; with temporal properties it refuses by
 name (exit 3). `--lasso tlc` is a usage error.
 
@@ -497,8 +494,7 @@ multiple operands even when their action IDs coincide. Input-term, depth and
 actual-work limits still apply; all references are validated before constant
 pruning. This pass neither classifies TLC formulas nor changes tableau rules,
 limit defaults or predicate-local lazy Boolean guards. A model can reach a
-separate existing graph/product bound after this temporary-copy refusal is
-removed; new corpus agreement is claimed only after bounded qualification.
+separate graph or product bound instead.
 
 `AllocatorImplementation`, with its pinned configuration, one worker,
 seed and fingerprint 0 and explicit 361.620-second and 4 GiB budgets, completes
@@ -639,11 +635,8 @@ covers cannot become a Disabled result. No planner approval is passed to the
 validator. Both value profiles share this bounded subset; existing defaults,
 options, schemas and resource caps are unchanged.
 
-Seven tiny pinned primary cases cover empty/one/two-element domains, holds,
-fails and a direct control. Original allocator observations retain their earlier
-producer identities and do not qualify this transferred source. No corpus gain
-or roadmap completion is claimed. Fresh review, current-main qualification and
-the full gate remain pending.
+Seven small pinned cases cover empty, one- and two-element domains, a holding
+and a failing property, and a direct control.
 
 A configured first-order target whose body constructs a local recursive function
 also refuses, including through ordinary helpers or lazy bindings. The same
@@ -677,7 +670,7 @@ Fairness on a lasso is validated with the same `ENABLED`: `WF_v(A)` holds when
 `<<A>>_v` occurs on the cycle or is disabled at some cycle state, and `SF_v(A)`
 when it occurs or is disabled at every cycle state. An action whose guard reads
 a primed variable, such as `ack' = IF x' = 1 THEN ~ack ELSE ack`, is decided
-like any other (issue #321; corpus `fairness-replay`).
+like any other (corpus `fairness-replay`).
 
 ```sh
 dive check crates/dive-liveness/tests/fixtures/nested-enabled/NestedEnabled.tla --config crates/dive-liveness/tests/fixtures/nested-enabled/hold.cfg --compat=tlc --workers 1 --fp 0 --seed 0 --output json
@@ -691,8 +684,7 @@ These two pinned primary references qualify this tiny subset, not the original
 Elevator model or a corpus gain.
 
 The trace validator checks the original `Next` and closing edge on the word and
-decides each query with the core evaluator's `ENABLED`
-([ADR 0103](../decisions/0103-validator-enabled-via-core-evaluator.md)). A
+decides each query with the core evaluator's `ENABLED`. A
 reached query error is reported even when a later guard is false; ordinary
 Boolean short circuit leaves unreached errors unreached. Use the dedicated
 `RECOMMENDED_STACK` thread contract when calling trace validation directly from
@@ -758,22 +750,19 @@ evaluation and context operations check both current and successor named-state
 ownership before effects or retained captures. Named assignments from another
 evaluator are refused. A root
 projection of a query candidate is not an ordinary Next transition. See the
-constructor's runnable rustdoc example and [ADR 0099](../decisions/0099-enabled-variable-name-states.md).
+constructor's runnable rustdoc example.
 
 This is evaluator/checker query execution, not complete file-based INSTANCE
 support. Independent INSTANCE query-word validation, general instantiated
 temporal actions and refinement, callable substitution, and fairness word replay
 remain required scope. Existing high-level planning/data guards and independent
-replay refusals remain; the ten oracle cases do not themselves add native corpus
-agreements. Composition with assigned hidden query names explicitly refuses
-until its intermediate-state generator can retain them; existing root-only
-composition keeps its original behavior. No new native agreement or independent
-full-word validation is claimed.
+replay refusals remain. Composition with assigned hidden query names refuses
+by name, because its intermediate-state generator cannot retain them;
+root-only composition is unaffected.
 
 ## Lazy action sources in enabledness callbacks
 
-The isolated `lazy-enabled-capture` oracle corpus records four controls for
-[issue #312](https://github.com/Chelis-Lang/dive/issues/312). An exported
+The isolated `lazy-enabled-capture` oracle corpus records four controls. An exported
 INSTANCE query assigns `a' = 1`, captures `LET Cut == a'`, and filters
 `<<1, 2, 3>>` with `SelectSeq(..., LAMBDA e : e /= Cut)`. Requiring the result
 to remain `<<1, 2, 3>>` makes that query false; requiring `<<2, 3>>` makes it
@@ -783,7 +772,7 @@ two generated states and depth one (2193, exit 0). Constant and current-state
 capture controls distinguish the creation context from the successor lookup.
 
 Native checking matches all four in both profiles. Since the validator decides
-`ENABLED` with the core evaluator (ADR 0103), replay accepts the genuine
+`ENABLED` with the core evaluator, replay accepts the genuine
 initial-violation word of the primed disabled case and rejects the same word
 for the primed enabled case, where `Inv` holds, through both the document and
 the typed API, on the corpus's own `LET Cut == a'` specs
@@ -794,8 +783,7 @@ generated goldens retain their own source identity.
 ## A false prefix inside ENABLED
 
 `ENABLED A` evaluates `A`'s conjuncts in order, as TLC does, and stops at a
-false one. In the `enabled-false-prefix` corpus
-([issue #320](https://github.com/Chelis-Lang/dive/issues/320)),
+false one. In the `enabled-false-prefix` corpus,
 `A == FALSE /\ x' = 0 /\ D = D` compares a startup set filter
 `D == {k \in SUBSET {0} : 1 \div 0 = 0}` that would divide by zero. The false
 prefix leaves the equality unevaluated, so `[]<>ENABLED A` is violated
@@ -809,8 +797,7 @@ zero, which TLC reports with exit 255.
 
 ## Hidden-query lazy argument caching
 
-The separate `lazy-enabled-cache` oracle corpus records six minimal controls for
-[issue #313](https://github.com/Chelis-Lang/dive/issues/313). An exported INSTANCE
+The separate `lazy-enabled-cache` oracle corpus records six minimal controls. An exported INSTANCE
 query assigns `b' = 42`, enumerates hidden `a' \in {1, 2}`, and calls
 `Step(a')`. Its callback filters `<<1, 2, 3>>` using the lazy `Cut` argument.
 Pinned default TLC reports disabledness when the final conjunct requires
@@ -847,7 +834,7 @@ established 156-model population.
 ## Lazy query binding lifetime
 
 The separate `lazy-query-lifetimes` oracle corpus records 24 primary controls
-for the lexical lifetime issue investigated in [issue #313](https://github.com/Chelis-Lang/dive/issues/313).
+for lexical lifetimes inside such queries.
 An exported INSTANCE query assigns `b' = 42` and then enters a LET binding
 `Cut == a'` before enumerating hidden `a' \in {1, 2}`. A SelectSeq callback
 uses Cut to remove an element from `<<1, 2, 3>>`. Pinned TLC retains the same
@@ -890,8 +877,8 @@ metrics distinguish reused truth from actual atom evaluations; they do not prove
 completion, time saved or a hard whole-process memory ceiling.
 
 The existing formula, graph, atom and product bounds still apply. An exhausted
-bound remains an explicit non-verdict result; this change introduces no new
-flag or profile divergence. Shared Boolean scratch consumes covered bytes;
+bound remains an explicit non-verdict result. There is no flag for this, and
+both profiles behave the same. Shared Boolean scratch consumes covered bytes;
 condition inspections and scratch initialization share the materialization
 work budget with the base buffers. Scratch bytes are reused across sequential
 alternatives; setup work accumulates. Boolean evaluation during lasso search
@@ -906,7 +893,7 @@ Value-only allocation, sorting and native operations may finish before the next
 poll, so the time limit is not a hard real-time deadline. Structural binding,
 evaluator construction, assumptions, post-binding symmetry preparation and
 diagnostic reconstruction of an already deciding error remain outside this
-interruption scope (#349, #379). Evaluator-backed fresh binding observes the
+interruption scope. Evaluator-backed fresh binding observes the
 same control after structural construction. Fresh independent replay of native
 temporal candidates inherits the same armed run control. Both the supplied word and its
 native serialized round trip must validate before a violation is certified.
@@ -918,7 +905,7 @@ records a zero-based supplied state and check only when known.
 Fresh validation rebinding observes this control during evaluator-backed work;
 a stop retains the original capture, zero completed validation checks and no
 supplied state position. Its structural construction and `ASSUME`, native
-document encoding/decoding, and quiet value units remain uninterruptible (#349).
+document encoding and decoding, and value operations remain uninterruptible.
 A supplied deferred value can retain a different evaluator that this fresh
 control does not govern; the
 serialized native pass reconstructs its values independently. General TLC
@@ -961,14 +948,11 @@ including caller-supplied zero and default-valued ceilings. New final and
 periodic `*_with_policies` variants select graph admission explicitly, separate
 from acceptance-buffer policy. `NoCellLimit` affects only graph labels;
 attribution rows and word truth retain their original bounds and failure order.
-See [ADR 0111](../decisions/0111-graph-label-policy-and-report-v3.md).
 
-The `866c00ba` qualification retains the unchanged 156-model small tier:
-149 agreements in the TLC profile, and 143 agreements plus six registered
-expected divergences in the default profile. Both profiles retain seven named
-refusals and have zero disagreements or timeouts. MCCRDT and
-AllocatorImplementation are newly admitted; default-profile MCCRDT retains
-D-022's generated-count difference and earns no agreement credit.
+With this policy MCCRDT and AllocatorImplementation complete. In the default
+profile MCCRDT keeps its registered generated-count difference
+([action composition](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning)) and is counted as an expected
+divergence, not an agreement.
 
 Six ordinary affected-model checks completed in both profiles under explicit
 8 GiB ceilings and TLC-derived native time budgets: 165.8 seconds for MCCRDT,
@@ -989,7 +973,8 @@ queues. These are bounded capacity and instruction observations.
 
 ## Symmetry with genuine temporal properties
 
-`--symmetry-liveness=unreduced` is the dive profile's default (D-005). If the
+`--symmetry-liveness=unreduced` is the dive profile's default
+([symmetry with liveness](../tlc-differences.md#d-005-symmetry-with-liveness-uses-the-full-state-space)). If the
 actual configured roles contain a genuine temporal property and `SYMMETRY`,
 the entire check uses full concrete state identities, including its initial and
 safety checks. Counts are the actual unreduced counts. `SYMMETRY` remains in the
@@ -1016,9 +1001,9 @@ dive check conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla --co
 
 That named result-changing mode reports `tlc+overrides`. The flag wins over the
 profile regardless of argument order. `dive tlc` accepts the same double-dash
-extension. No new TLC `.cfg` keyword is introduced. The original configured
+extension. There is no `.cfg` keyword for it. The original configured
 constant/role errors still precede checking; an ignored temporal symmetry
-operator is not newly evaluated or prepared solely to validate its declaration.
+operator is not evaluated or prepared only to validate its declaration.
 A malformed declaration still receives the existing ordinary safety treatment
 when safety reduction actually applies.
 
@@ -1043,8 +1028,8 @@ dive validate-trace conformance/corpus/probes/specifications/P4SymLive/P4SymLive
 
 Native `dive-trace` stays version 1. No quotient/permutation closing annotation
 is accepted. VIEW remains unsupported, including the order-sensitive primary
-controls in [the corpus guide](../conformance-corpora.md#liveness-quotient-primary-controls)
-and issue #428. Strict TLC parity does not count an unreduced default result as
-agreement with a reduced golden; only the exact registered D-005 difference can
-be an expected divergence. The explicit no-SYMMETRY primary references remain a
+controls in [the corpus guide](../conformance-corpora.md#liveness-quotient-primary-controls).
+Strict TLC parity does not count an unreduced default result as agreement with
+a reduced golden; only the exact registered
+[symmetry difference](../tlc-differences.md#d-005-symmetry-with-liveness-uses-the-full-state-space) can be an expected divergence. The explicit no-SYMMETRY primary references remain a
 separate validation population.
