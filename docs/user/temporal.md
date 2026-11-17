@@ -310,9 +310,8 @@ Core analysis may evaluate certified closed-input predicates and bounded fairnes
 tests directly from retained original states. Proved ordinary action atoms may
 construct functions over integer intervals, use bounded interval CHOOSE and make
 single-key scalar EXCEPT/@ updates. Scoped non-stuttering tests compare the
-before and after projections first; hidden ENABLED queries retain their existing
-reference boundary. Unproved scopes, values, updates and evaluation errors use
-the existing reference evaluator. The additive
+before and after projections first. Hidden ENABLED queries, unproved scopes,
+values, updates and evaluation errors use the general evaluator. The additive
 `core.metrics.liveness.atoms` counters show prepared eligibility, successful
 native evaluations by kind, and fallback; they do not establish throughput or
 whole-model completion. State admission and independent word validation retain

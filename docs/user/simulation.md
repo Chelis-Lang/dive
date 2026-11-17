@@ -13,18 +13,15 @@ Use `--compat=tlc` for the implemented Java/TLC selection stream and `--aril N`
 for its supported seed adjustment. Record the seed and the complete options.
 The current mode supports one actual worker and finite safety models, including
 runtime `Print` and `PrintT` through captured operators. Their normal arguments,
-rendering and return values are evaluated. Reference execution supports repeated
-`RandomElement` calls at startup, in ordered Init and in Next, including finite
-compound choices and captured operators. Independent replay remains bounded as
-described below. Registers, Randomization operators and unsupported host effects
-refuse; untaken branches do not run them.
+rendering and return values are evaluated. A reached `RandomElement`,
+register, Randomization operator or other unsupported host effect refuses by
+name; an untaken branch does not run it.
 Core provides `TLCGet("level")` with the values the pinned TLC simulator
 gives: 0 in `Init`, a state's 1-based position in its trace in invariants and
 `CONSTRAINT`s, and the position of the step's source state in `Next`,
 `ACTION_CONSTRAINT`s and action properties. Independent replay recomputes the
 level from each state's position. A primed `TLCGet("level")`, which TLC
-evaluates at the successor's level, refuses by name. The Reference simulator
-still refuses `TLCGet("level")`.
+evaluates at the successor's level, refuses by name.
 As in TLC's simulator, a step only chooses among successors that satisfy every
 `CONSTRAINT` and then every `ACTION_CONSTRAINT`. A state none of whose
 successors satisfies them is reported as a deadlock (exit 11) when deadlock
@@ -40,8 +37,7 @@ interactions refuse. `ALIAS` is not applied, as in `dive check`: the traces
 show the states themselves and the report's `notes` say so. An `ALIAS` that
 names no definition refuses. Returned violations require independent trace validation;
 unknown replay alignment returns `unsupported`.
-Configured VIEW is rejected by shared preflight in Reference, Core and Auto,
-before assumptions, Init or sampling; exhausted budgets do not rewrite that
+Configured VIEW is rejected before assumptions, Init or sampling; exhausted budgets do not rewrite that
 named refusal as a stopped run.
 
 Use `--stats basic --output json` to collect action flows, corresponding to TLC's
@@ -117,56 +113,22 @@ returns. It introduces no TLS, callback admission or cache authority. The earlie
 external overlap diagnostic and each scoped qualification retain their original
 source bindings.
 
-## Finite native random choices
+## Random choices
 
-Reference simulation owns a single host before source binding and continues its
-stream through startup, assumptions, ordered Init and ordinary Next execution.
-Repeated, nested, parameterized and configured RandomElement calls are supported;
-finite compound states keep their actual values. Selection and constructive
-traversal streams retain their existing contracts. The same source, options,
-engine and seed reproduce the result. Matching TLC's individual draws is not a
-parity obligation in either profile (ADR 0116).
+Simulation refuses a reached `RandomElement` in `Init` or `Next` by name, with
+verdict `unsupported`:
 
 ```sh
 dive simulate crates/dive-sim/tests/fixtures/random-init/InitRandomNextBoundary.tla --compat=tlc --traces 2 --depth 3 --seed 7 --output json
 ```
 
-Every returned sample is still independently checked. Replay searches actual
-source-defined finite choices, rebinding the entire private runtime for every
-alternative. It preserves startup and lexical correlations within an attempt;
-failed attempts share no values, atoms or normalization history. Actual bound
-action captures persist within an attempt: a constant random action argument is
-frozen by source binding, while action LET and expression LET keep their distinct
-cache rules. Ordinary pure validation still omits action construction. Supplied scalar
-state values only prioritize actual domain elements, without forcing compound
-values or establishing membership. Ordinary predicates and the final claimed
-ending must all pass. No producer RNG position or replay flag is proof.
-Fresh action reconstruction keeps the pre-startup VIEW/symmetry randomness
-refusal, including unused references. Native domain errors keep their diagnostics;
-wrong-kind values in an otherwise pure initial state remain invalid words.
-
-Replay bounds are 65,536 attempts, 256 source selections per attempt and 65,536
-materialized domain entries. i64 intervals are indexed without materialization;
-the earlier direct scalar Init membership fast path also remains. Function,
-record and product domains follow native component selection, so an empty
-function domain does not demand its range. Opaque deferred providers remain
-unsupported. These bounds can make a valid complicated sample unproved; it is
-reported explicitly, never certified. The existing run budget governs fresh
-binding and replay. General long random words can require substantial search.
-
-Random choices mixed with registers, reached random operations inside ENABLED,
-and unproved Init forms remain unsupported. Ordered Init handles conjunctions,
-assignments and lexical/call/substitution scopes; forms needing a different
-independent assignment operation do not gain authority from the supplied state.
-TLC JSON interpretation and temporal/error-endpoint replay retain their separate
-support boundaries. Native trace versions and report schemas are unchanged.
+Matching TLC's individual random draws is not a parity requirement in either
+profile.
 
 The file API creates the host automatically. Low-level callers that bind source
 should create `dive_sim::Runtime::new(options)`, install `runtime.host()` in
 `BindOptions`, then run a backend with `runtime.simulate_with_backend`. A
-runtime admits one execution and preserves startup RNG consumption. The
-reference simulator (`dive_sim::simulate` and `Runtime::simulate`) was removed
-with the reference engine (issue #791).
+runtime admits one execution and preserves startup RNG consumption.
 
 `TLCGet("config")` is available after binding with the actual seed and settings.
 Print/output bounds and evaluator ownership remain in force. Core refuses
@@ -176,7 +138,7 @@ remaining effects are not complete.
 ## Constructive successors
 
 `dive simulate Spec.tla --generate --traces 3 --depth 100 --seed 7` selects a
-constructive successor traversal in Reference, Core and Auto. The ordinary
+constructive successor traversal. The ordinary
 simulation default still enumerates successors. Rust callers set
 `SimulateRequest::generation`; low-level callers set `dive_sim::Options::generation`.
 JSON reports `options.algorithm: constructive` and `probabilistic: true`.
@@ -195,9 +157,7 @@ contexts, even when an earlier domain is empty.
 Init selection, predicate quantifiers, CHOOSE, function construction and ENABLED
 keep their ordinary evaluator semantics and do not consume generation choices.
 CASE generation, action composition and unproved opaque/lazy domains refuse by
-name when reached. Reference RandomElement calls use the independent finite
-choice relation described above; compiled effects retain their own support
-boundaries. Both engines still use one actual worker. Seed replay requires the same engine,
+name when reached. Generation uses one worker. Seed replay requires the same
 options and source; matching TLC's random choices is not required (ADR 0116).
 
 Every retained finite Behavior sample is independently checked with the explicit
@@ -239,25 +199,23 @@ prefix traces and earlier observations remain diagnostic. Rust requests expose
 `time_limit` and `max_memory` through `BudgetSetting`; one owner covers the run,
 rather than restarting the clock for each trace or iteration.
 
-## Execution engines
+## Execution
 
-Core is the default engine. It uses compiled native Init/Next and predicate
-execution for the supported finite safety slice in either profile:
+Core runs simulation with compiled Init, Next and predicate execution for
+finite safety models in either profile:
 
 ```sh
 dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --output json
 ```
 
-What Core does not implement, such as some random or register runtime effects,
-is a named refusal; a reached native refusal never retries or duplicates producer
-output, and there is no fallback. `--engine reference` and `--engine auto` were
-removed. JSON adds `engine`, `engine_requested` and `engine_fallback`, which is
-always `null`; requested/actual workers remain separate. Simulation uses one
-actual worker.
+What Core does not implement, such as random choices and registers, is a
+named refusal. A reached refusal is not retried and does not repeat output.
+JSON reports `engine: "core"`, plus `engine_requested` and `engine_fallback`,
+which is always `null`; requested and actual workers are reported separately.
+Simulation uses one worker.
 
 Native compound states, fairness-only specifications, Print and basic action
 flows retain independent word validation. Unsupported native runtime effects,
-unproved lazy receivers and warning/output interleaving refuse by name. Auto
-can select reference for declared unavailable effects. Reproduce a sample with
-the same engine, seed and options; TLC's internal draw sequence is not a parity
+unproved lazy receivers and warning/output interleaving refuse by name.
+Reproduce a sample with the same seed and options; TLC's internal draw sequence is not a parity
 obligation, including under `--compat=tlc` (ADR 0116).

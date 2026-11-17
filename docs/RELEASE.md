@@ -20,8 +20,8 @@ Each gate is measured on a commit on `main`. All six must hold to tag `v0.1.0`.
 
 | Gate | Requirement | How it is measured |
 |---|---|---|
-| **R1 Coverage** | Default profile, **Core engine alone** (`--impl dive:core`, no fallback), pinned Examples full tier, 1 worker. **0 disagreements.** Agreements plus registered expected divergences are at least the Reference engine's recorded count: 140 on the same 164-model selection at 79170e21, where Core had 151, both with 0 disagreements. The Reference engine is retired, so this count is frozen. The historical 182/217 baseline (#486) spans four corpora, including 151 Examples agreements; re-measure before comparing. Every other model gives a named refusal or a declared budget stop. | `dive-conformance run --impl dive:core --impl-profile dive --corpus examples --tier all --workers 1`, compared with the frozen Reference count |
-| **R2 Speed** | End to end, including TLC's JVM startup, Core is faster than TLC on the geometric mean over the R1 agreeing models. A model slower than TLC gets a `perf` issue. A model more than 2x slower than TLC blocks the release. | One host, one worker, seed and fingerprint 0: pinned TLC (through the harness JRE) and `dive check --engine core` on every R1 agreeing model, wall clock including startup. Report the geometric mean of dive/TLC and list every model above 1x and above 2x. Golden TLC times from another host are triage only. The [R2 measurement procedure](developer/performance.md#r2-measurement-procedure) governs a gate run. |
+| **R1 Coverage** | Default profile, **Core engine** (`--impl dive:core`), pinned Examples full tier, 1 worker. **0 disagreements.** Agreements plus registered expected divergences are at least 140. That is a frozen historical number: the count dive's first, since retired, checking engine reached on the same 164-model selection, where Core had 151, both with 0 disagreements. The historical 182/217 baseline (#486) spans four corpora, including 151 Examples agreements; re-measure before comparing. Every other model gives a named refusal or a declared budget stop. | `dive-conformance run --impl dive:core --impl-profile dive --corpus examples --tier all --workers 1`, compared with the frozen count of 140 |
+| **R2 Speed** | End to end, including TLC's JVM startup, Core is faster than TLC on the geometric mean over the R1 agreeing models. A model slower than TLC gets a `perf` issue. A model more than 2x slower than TLC blocks the release. | One host, one worker, seed and fingerprint 0: pinned TLC (through the harness JRE) and `dive check` on every R1 agreeing model, wall clock including startup. Report the geometric mean of dive/TLC and list every model above 1x and above 2x. Golden TLC times from another host are triage only. The [R2 measurement procedure](developer/performance.md#r2-measurement-procedure) governs a gate run. |
 | **R3 Bare use** | TLAPS and the CommunityModules ship inside dive at the lowest search priority, with provenance recorded. Ten original Examples specifications resolve with **no** `--module-path` or `--library-path` options. Nine must check successfully, including MCPaxos, MCBakery, at least two PlusCal specs and two liveness/fairness specs. EWD998ChanID may succeed or give its specific named VIEW/liveness or recursive-LET refusal (owner-approved bounded fallback); other failures block the gate. | A CI smoke test |
 | **R4 Compat exists** | `--compat=tlc` runs on Core. Its known gaps are listed in `docs/tlc-differences.md`. It is not measured against an agreement target. | Small-tier run in the TLC profile reports no internal errors |
 | **R5 Stable surface** | Per-command `--help` works. `--version` names the commit. Unimplemented commands such as `lsp` are hidden. The JSON report (`schema_version` 3) and the CLI help are pinned by golden tests. | Golden tests in the workspace gate |
@@ -45,7 +45,7 @@ In order. Each item has a GitHub issue in the
 [`v0.1: first value`](https://github.com/Chelis-Lang/dive/milestone) milestone.
 
 1. **Measure Core alone.**
-   - Run the full tier on Core and on Reference, in both profiles.
+   - Run the full tier on Core in both profiles.
    - Publish a refusal-reason histogram for Core.
    - Add a CI ratchet: the Core-native agreement count on the small tier may not
      fall.
@@ -62,11 +62,9 @@ In order. Each item has a GitHub issue in the
 5. **Bundle the module libraries** and add the bare-use smoke test (R3).
 6. **Make compat nominal on Core** (R4): the existing cheap switches plus a gap
    list.
-7. **Remove the fallback.**
-   - Done: Core is the default engine, Auto and its Reference fallback are
-     removed, and golden comparison replaced the shadow gate (#791 part A).
-   - Remaining: retire the Reference checking runtime from the product path,
-     keeping what `dive-trace` and Core startup still use (#791 part B).
+7. **Make Core the only engine.** Done: the first checking engine and the
+   `dive-check` crate are removed, keeping what `dive-trace` and Core start-up
+   use, and golden comparison replaced the shadow gate (#791, #935).
 8. **Freeze the surface** (R5), then **package and ship** (R6): one
    release-candidate qualification, then the tag.
 

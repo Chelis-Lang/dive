@@ -60,7 +60,7 @@ dive dfid docs/user/examples/Counter.tla --max-level 8 --seed 7 --output json
 ```
 
 Reports name `engine`, `engine_requested` and `engine_fallback`, which is always
-`null`: Core never falls back, and `--engine auto` was removed.
+`null` because Core is the only engine.
 A reached refusal never restarts DFID. Native candidate batches release their
 transients after real checking/key demand and retention of required DFS rows;
 persistent values, seen keys, DFS frames and reports remain separate consumers,

@@ -1,14 +1,19 @@
 # Getting started
 
-With Rust 1.99 and a C compiler installed, install directly from Git:
+With Rust 1.99 and a C compiler installed, install from crates.io:
+
+```sh
+cargo install dive-cli --locked
+```
+
+or directly from Git:
 
 ```sh
 cargo install --git https://github.com/Chelis-Lang/dive --locked dive-cli
 ```
 
-This installs the `dive` and supported-subset `tlc` binaries. Linux release
-archives and checksum verification are described in the [README](../../README.md);
-the first release has not been published yet.
+This installs the `dive` binary and the `tlc` command adapter. Linux release
+archives and checksum verification are described in the [README](../../README.md).
 
 From a source checkout, build the CLI with the pinned stable Rust toolchain:
 
@@ -36,8 +41,8 @@ commands are omitted from the list and still give a named refusal if invoked.
 `git describe` form (`v0.1.0-0-g<hash>` on a tagged release), or the
 abbreviated commit hash when no release tag (`v` and a digit, such as
 `v0.1.0`) precedes it. Source archives built without Git report `unknown`
-instead. Human checking reports name the requested engine (Core by default) and requested/used worker
-counts.
+instead. The first line of a human checking report names the run settings,
+including the profile, store, seed and the requested and used worker counts.
 
 Run the included model from the repository root:
 
