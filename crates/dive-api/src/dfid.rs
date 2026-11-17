@@ -1,4 +1,4 @@
-//! Native depth-first iterative deepening for Rust callers (ADR 0021).
+//! Native depth-first iterative deepening for Rust callers.
 //!
 //! ```no_run
 //! use dive_api::{DfidRequest, dfid_file};

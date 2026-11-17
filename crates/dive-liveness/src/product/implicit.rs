@@ -1,4 +1,4 @@
-//! The coordinator's reachable product, explored on the fly (ADR 0018 §3).
+//! The coordinator's reachable product, explored on the fly.
 //!
 //! Only product vertices are retained, in `(behavior vertex, tableau node)`
 //! order. Product edges are recomputed from the behavior graph, the tableau

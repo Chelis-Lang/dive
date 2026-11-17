@@ -192,7 +192,7 @@ fn parse(args: &[String]) -> Result<Arguments, Failure> {
                     parsed.request.max_depth = limit;
                 }
             }
-            // The memory ceiling stands for TLC's heap (ADR 0107): the JVM's
+            // The memory ceiling stands for TLC's heap: the JVM's
             // `-Xmx` spelling, or dive's `--max-memory` with `auto`/`none`.
             "--max-memory" => {
                 parsed.request.max_memory = crate::max_memory(value()?).ok_or_else(|| {

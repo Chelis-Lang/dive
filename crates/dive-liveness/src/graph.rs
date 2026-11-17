@@ -1,4 +1,4 @@
-//! Deterministic reachable-component decomposition (ADR 0018 §5).
+//! Deterministic reachable-component decomposition.
 
 /// A malformed graph reference.
 #[derive(Clone, Debug, PartialEq, Eq)]

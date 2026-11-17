@@ -1,4 +1,4 @@
-//! Direct temporal semantics on an ultimately periodic word (ADR 0018 §8).
+//! Direct temporal semantics on an ultimately periodic word.
 //!
 //! This module has no tableau, graph search, or successor enumerator. Each
 //! subformula yields a truth value at every position of the given word.
@@ -80,7 +80,7 @@ impl TemporalError {
 /// # Errors
 /// Invalid words or nonboolean atoms; side effects, unbounded/dynamic
 /// temporal quantification, opaque scoped atoms, checker introspection,
-/// resource bounds, or an `ENABLED` the core evaluator cannot decide. A
+/// resource bounds, or an `ENABLED` the dive-eval evaluator cannot decide. A
 /// string or model value created after binding under encounter order
 /// refuses ([`crate::RUNTIME_NAMES_UNSUPPORTED`]), whatever the truth.
 pub fn evaluate_lasso(

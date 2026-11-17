@@ -1,4 +1,4 @@
-//! Trace validation: checking a trace against a specification (ADR 0016).
+//! Trace validation: checking a trace against a specification.
 //!
 //! A [`SpecModel`] is a specification bound to its TLC configuration. It
 //! validates traces in dive's format ([`dive_trace::format`]) or TLC's
@@ -22,7 +22,7 @@
 //! to values (in dive's JSON form, [`dive_trace::value_json`]), and validate
 //! the sequence as a [`Ending::Behavior`]. The trace must assign every
 //! variable in every complete state. A version-3 terminal partial candidate
-//! is separate from those rows and requires fresh fallible replay (ADR 0123).
+//! is separate from those rows and requires fresh fallible replay.
 //!
 //! # Example
 //!
@@ -80,7 +80,8 @@ pub struct TraceOptions {
     /// The checking run's `-seed` and `-fp` index, when known (the TLC
     /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them, and
     /// constant definitions draw from the run's start-up stream (TLC's
-    /// seeding under `compat_tlc`, dive's otherwise; D-002). Without them,
+    /// seeding under `compat_tlc`, dive's replayable seeding otherwise).
+    /// Without them,
     /// startup random operations need a producer host to bind. Native finite
     /// validation independently proves finite source-defined choice support,
     /// rebinding every alternative; it does not reproduce the run's RNG draws.
@@ -677,7 +678,7 @@ pub fn render_report(report: &Report) -> String {
 
 /// The result of running the validator's controls on one counterexample
 /// known to be valid (TLC's, or dive's): the positive control, and every
-/// by-construction mutant (ADR 0016 §3).
+/// by-construction mutant.
 #[derive(Debug, Clone)]
 pub struct Controls {
     /// The original trace's report.

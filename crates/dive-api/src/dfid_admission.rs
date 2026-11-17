@@ -1,4 +1,4 @@
-//! The DFID request, outcome and report, and its static admission (ADR 0021).
+//! The DFID request, outcome and report, and its static admission.
 //!
 //! Core's iterative deepening (`core_modes::dfid`) runs these requests. The
 //! admission checks a bound model without evaluating it.
@@ -150,7 +150,7 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
         });
     }
     // TLC rejects these with a general error (exit 255); dive refuses them by
-    // name with the refusal exit in both profiles (D-018 in docs/divergences.md).
+    // name with the refusal exit in both profiles.
     if opts.check.workers != 1 {
         return refusal("DFID multiple workers");
     }

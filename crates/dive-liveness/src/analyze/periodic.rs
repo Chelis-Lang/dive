@@ -13,7 +13,8 @@ use dive_eval::next::StateVals;
 use dive_model::Model;
 use dive_runtime::{CheckOptions, Stats, capture};
 
-/// When a completed, nonexhausted level is checked (ADR 0018 section 7, D-014).
+/// When a completed, nonexhausted level is checked in dive's default profile;
+/// the TLC profile checks once, at the end.
 ///
 /// A level is checked once the graph has at least `min_states` distinct states
 /// and at least `growth_factor` times as many as at the previous check. With
@@ -105,7 +106,7 @@ pub enum PeriodicAnalysis {
 }
 
 impl PeriodicAnalysis {
-    /// Releases legacy graph storage while retaining the actual complete or
+    /// Releases the graph storage while retaining the actual complete or
     /// prefix facts and any selected word. It does not validate a candidate or
     /// promote incomplete exploration to a holding result.
     ///
@@ -140,7 +141,7 @@ impl PeriodicAnalysis {
 pub struct PeriodicFailure {
     /// Original analysis error and typed action cause, where applicable.
     pub failure: Box<DetailedFailure>,
-    /// Actual prefix facts, separate from legacy completed-exploration evidence.
+    /// Actual prefix facts, separate from the completed-exploration evidence.
     pub prefix: Option<Box<ExplorationEvidence>>,
     /// Whether capture completed; a lost thread remains unknown.
     pub capture_completed: Option<bool>,
@@ -204,7 +205,7 @@ impl Decisions {
         // budgets do not cross that boundary; install the same armed signal
         // only while a due prefix analysis runs.
         let _scope = crate::budget::enter(inputs.budget);
-        // Due prefixes retain legacy frontier labels and attribution. A row
+        // Due prefixes retain the frontier labels and attribution. A row
         // cache covers expanded sources only and cannot replace that demand.
         // Only the first property can decide a prefix: a word for it on a
         // subgraph is a word on the complete graph, which the final search

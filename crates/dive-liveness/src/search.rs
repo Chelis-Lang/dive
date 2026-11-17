@@ -1,6 +1,6 @@
 //! Accepting cycles on an already constructed, labelled product graph.
 //!
-//! This is the graph-search part of ADR 0018 §5. It neither constructs a
+//! This is the graph-search part of the temporal check. It neither constructs a
 //! temporal tableau nor evaluates specification predicates, and cannot by
 //! itself establish a model-checking verdict. The on-the-fly product supplies
 //! its graph, including stutter edges, and its acceptance labels. Only
@@ -347,7 +347,7 @@ pub(crate) fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<La
 /// distance from a root, then vertex id. BFS parents use sorted frontiers and
 /// original edge positions. SCC traversal order does not determine the answer.
 /// Product vertex ids must be ordered by `(state id, tableau node id)` for
-/// that tie-break to implement ADR 0018's product-order rule.
+/// that tie-break to implement the product-order rule.
 ///
 /// # Errors
 /// An internal witness-construction bug or an exhausted installed run budget.

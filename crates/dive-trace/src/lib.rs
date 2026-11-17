@@ -1,21 +1,24 @@
 //! `dive-trace`: the counterexample format and the independent trace
-//! validator (ADR 0016).
+//! validator.
 //!
 //! The validator checks a counterexample *as data* against a bound
 //! [`dive_model::Model`]: that its first state satisfies the initial
 //! predicate, that every step satisfies the next-state relation, evaluated as
 //! a predicate over the two given states, that the states the search must
 //! have explored are inside the model and violate nothing earlier, and that
-//! the trace ends as it claims. It shares only the core evaluator, the value
-//! library and the binding stage with the checker, never the search, store or
-//! liveness graph. Whether a state has a successor (`ENABLED`, deadlock and
-//! fairness) is the core evaluator's `ENABLED` (ADR 0103); the states and
+//! the trace ends as it claims. It shares only the dive-eval evaluator, the
+//! value library and the binding stage with the checker, never the search,
+//! store or liveness graph. This is deliberate: code such as the scoped
+//! temporal walk in [`mod@temporal`] duplicates what `dive-liveness` does
+//! rather than sharing it, so that a checker bug cannot also hide itself from
+//! validation. Whether a state has a successor (`ENABLED`, deadlock and
+//! fairness) is the dive-eval evaluator's `ENABLED`; the states and
 //! steps of the counterexample are still replayed and checked here.
 //!
 //! Named pure periodic words (`TraceDoc::with_properties`) also check all
 //! behavior temporal conjuncts and the complete violated-property set.
-//! Fairness is decided with the core evaluator's `ENABLED`. VIEW/symmetry
-//! closing evidence and unnamed legacy periodic claims remain explicit
+//! Fairness is decided with the dive-eval evaluator's `ENABLED`. VIEW/symmetry
+//! closing evidence and unnamed periodic claims from older documents remain explicit
 //! refusals.
 //!
 //! - [`mod@format`]: the versioned trace format (also TLC's `-dumpTrace json`).

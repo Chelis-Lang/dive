@@ -34,13 +34,20 @@
 //!   | `assertion`, `error` | `ec` (`error`, optional) | expanding the last state fails |
 //!   | `invariant-error` | `name`, `ec` | evaluating the named invariant on the last state raises the given underlying error |
 //!
-//! Existing endings retain version 1. `invariant-error` requires version 2;
-//! a separate partial terminal candidate requires version 3 (ADR 0123).
-//! candidate-side ordered errors require version 4 (ADR 0128); post-Next
-//! temporal-source-row errors require version 5 (ADR 0132); source-final VIEW
-//! errors require version 6 (ADR 0135). Readers accept
-//! all six versions and reject a version-1 document using the named
-//! ending. Unknown versions and ending kinds fail closed (ADR 0108/0118).
+//! The format version is the lowest one that can express the document:
+//!
+//! | Version | Adds |
+//! |---|---|
+//! | 1 | every ending kind above except `invariant-error` |
+//! | 2 | the `invariant-error` ending |
+//! | 3 | a terminal partial candidate, separate from the complete state rows |
+//! | 4 | ordered errors on the candidate side of a step |
+//! | 5 | errors in temporal-source rows after `Next` |
+//! | 6 | errors in a source-final `VIEW` evaluation |
+//!
+//! Readers accept all six versions and reject a version-1 document that uses
+//! the `invariant-error` ending. Unknown versions and ending kinds are
+//! rejected, never guessed.
 //!
 //! `invariant-error.ec` is the underlying evaluation cause. The enclosing
 //! check report retains TLC's deciding class, normally
@@ -51,7 +58,7 @@
 //!
 //! - `length` (optional) is the claimed number of states; it must match.
 //! - `properties` lists all temporal properties violated by a lasso or
-//!   stuttering word. Legacy documents without names remain unsupported for
+//!   stuttering word. Older documents without names remain unsupported for
 //!   liveness validation. An enclosing report's names must agree with these.
 //!
 //! `dive check --output json` embeds this object as `counterexample.trace`;
@@ -72,10 +79,11 @@ use serde_json::{Map, Value as J, json};
 /// The format name in [`TraceDoc::to_json`].
 pub const FORMAT: &str = "dive-trace";
 
-/// The legacy format version, still written for all existing ending kinds.
+/// The base format version, still written for every ending kind that needs
+/// nothing newer.
 pub const VERSION: u64 = 1;
 
-/// The format version required by named invariant-error endings (ADR 0118).
+/// The format version required by named invariant-error endings.
 pub const INVARIANT_ERROR_VERSION: u64 = 2;
 
 /// Version for a terminal partial candidate separate from complete prefix rows.
@@ -425,7 +433,7 @@ pub struct TraceDoc {
     /// The format.
     pub source: Source,
     /// All temporal properties claimed to be false on this periodic word.
-    /// Empty for other endings, or for a legacy unnamed liveness document.
+    /// Empty for other endings, or for an older unnamed liveness document.
     pub properties: Vec<String>,
 }
 

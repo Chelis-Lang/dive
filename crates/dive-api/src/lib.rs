@@ -1,17 +1,28 @@
 //! `dive-api`: the embeddable library API and `cargo test` integration.
 //!
-//! Implemented so far: parsing ([`parse_source`], [`parse_file`]) with a
-//! versioned JSON report ([`ParseReport::to_json`]); reading TLC model
-//! configurations ([`parse_config_file`], [`ConfigReport`]); and
-//! SANY-equivalent semantic analysis ([`analyze_file`], [`analyze_source`])
-//! with its own report ([`AnalyzeReport::to_json`]); safety model checking
-//! ([`check_file`], [`CheckReport`]); and trace validation against a
-//! specification ([`trace`], ADR 0016); and bounded final temporal checking
-//! for Rust callers ([`temporal`]) and eligible ordinary TLC-profile checks;
-//! and finite seeded safety simulation
-//! ([`simulate_file`]). Everything else in the
-//! charter is still to come. Permitted internal dependencies are listed in
-//! `xtask/src/layering.rs`.
+//! It exposes everything the `dive` command line does as plain Rust calls,
+//! each returning a typed report with a versioned JSON form
+//! ([`REPORT_SCHEMA_VERSION`]):
+//!
+//! - **Parsing** TLA+ source ([`parse_source`], [`parse_file`]) into a lossless
+//!   syntax tree, with SANY's syntax errors.
+//! - **Model configurations** in TLC's `.cfg` format ([`parse_config_file`],
+//!   [`parse_config_source`]).
+//! - **Semantic analysis** equivalent to SANY ([`analyze_file`],
+//!   [`analyze_source`]).
+//! - **PlusCal** translation and checksum rewriting ([`translate_file`],
+//!   [`translate_source`], [`rewrite_file`]).
+//! - **Model checking** of safety and temporal properties ([`check_file`] with a
+//!   [`CheckRequest`], returning a [`CheckReport`]), including run budgets,
+//!   checkpoints ([`checkpoint`]) and several workers.
+//! - **Simulation** with a seed ([`simulate_file`]) and depth-first iterative
+//!   deepening ([`dfid_file`]).
+//! - **Trace validation**: checking a counterexample against the
+//!   specification with the independent validator ([`trace`]), and temporal
+//!   checking on its own ([`temporal`]).
+//!
+//! Anything dive does not implement exactly is reported as
+//! [`ApiError::Unsupported`], naming the feature, rather than approximated.
 //!
 //! # Example
 //!
@@ -77,7 +88,7 @@ mod core_sample;
 mod core_temporal;
 mod mode_budget;
 pub use core_engine::Engine;
-/// Native safety checkpoint request and format API (ADR0033).
+/// Native safety checkpoint request and format API.
 pub mod checkpoint {
     pub use dive_runtime::checkpoint::{
         Action, Counters, MAX_COUNTER, MAX_LEVEL, MAX_PAYLOAD_BYTES, MAX_STATE_BYTES, MAX_STATES,
@@ -122,7 +133,8 @@ use std::path::Path;
 /// Incompatible field, type or outcome changes require a new version, a
 /// CHANGELOG entry and advance notice to known consumers. Optional fields and
 /// diagnostic codes may be added; readers must reject unknown outcomes and
-/// versions. See `docs/user/reports-and-errors.md` for the compatibility policy.
+/// versions. The compatibility policy is in the
+/// [reports and errors guide](https://github.com/Chelis-Lang/dive/blob/main/docs/user/reports-and-errors.md).
 pub const REPORT_SCHEMA_VERSION: u32 = 3;
 
 /// Version of the JSON document produced by [`ParseReport::to_json`].
@@ -421,7 +433,7 @@ pub use dive_syntax;
 /// Re-exported so API users can work with the semantic model directly.
 pub use dive_sema;
 
-/// Action composition modes (`--action-composition`, D-022).
+/// Action composition modes (`--action-composition`).
 pub use dive_eval::ActionComposition;
 /// Bounded transient disk seen-state safety options.
 pub use dive_runtime::SeenOptions;
