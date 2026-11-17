@@ -530,8 +530,6 @@ nor a proof. Existing verdicts, execution facts and independent counterexample
 validation remain required. This symmetry metadata does not change native trace encoding.
 
 Finite simulation and DFID reports also include `engine`, `engine_requested`
-and nullable `engine_fallback`. Core never falls back and `--engine auto` was
-removed, so `engine_fallback` is always `null`; the field is retained within
-report schema 3, and older reports may carry `stage: static` with a reason.
-Check reports no longer carry the Auto-only `engine_requested` and
-`engine_fallback` fields. Native trace versions 1–6 retain their existing meanings.
+and nullable `engine_fallback`. Core is the only engine, so `engine_fallback`
+is always `null`. Check reports do not carry `engine_requested` or
+`engine_fallback`. Native trace versions 1–6 retain their existing meanings.

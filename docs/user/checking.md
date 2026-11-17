@@ -18,10 +18,7 @@ a named refusal (verdict `unsupported`, exit 3) in both profiles, and so is
 `dive tlc -coverage 0`. Coverage defaults to off, which is the TLC-equivalent
 setting; the same command without the option checks the model as usual. Rust
 callers that set `CheckRequest.tlc_coverage` or `CheckRequest.source_coverage`
-get `ApiError::Unsupported`. Only the removed reference engine collected
-coverage (issue #791); coverage on Core is frozen until after v0.1
-([ADR 0153](../decisions/0153-core-is-the-product.md)), and issue #910 lists
-the tests to restore when it lands.
+get `ApiError::Unsupported`.
 
 ## Native distributed workers
 
@@ -107,11 +104,10 @@ the supported library interfaces.
 dive check Spec.tla --workers 4 --output json
 ```
 
-Core, the compiled execution core (ADR 0117), is the engine of `dive check`,
-`dive simulate`, `dive dfid` and `dive tlc` (ADR 0153), in both profiles. There
-is no fallback: `--engine reference` (or `DIVE_ENGINE=reference`) and
-`--engine auto` were removed and are usage errors (exit 2); `--engine core`
-is still accepted. The core currently covers:
+Core, the compiled execution core, is the engine of `dive check`,
+`dive simulate`, `dive dfid` and `dive tlc` in both profiles. What it does not
+implement is a named refusal. `--engine core` and `DIVE_ENGINE=core` are
+accepted; any other engine name is a usage error (exit 2). Core covers:
 
 - the default profile and `--compat=tlc` (below). Safety checks support
   `--store fp|exact`, ordered frontier spill and predecessor-log spill under
@@ -215,8 +211,7 @@ dive check conformance/corpus/core-instance-scopes/specifications/ScopeHolding/S
 
 The adjacent `ScopeViolation` model fails its invariant immediately with exit
 12. These controls preserve existing unsupported query contexts; they do not
-claim complete INSTANCE support. The reference cache repair is a separate
-change (#515).
+claim complete INSTANCE support.
 
 When constraints exclude every initial candidate, the core completes with
 zero distinct states and no counterexample. As in TLC, the reported depth is
@@ -320,7 +315,7 @@ logical coverage, granted external inputs (`--allow-io`) and bounded final
 checking (`--lncheck final --lasso short`) are named refusals on Core, and
 `dive check --help` does not list them (see the
 [command-line surface](README.md#command-line-surface)). A
-checkpoint archive written by the removed reference engine is rejected with
+checkpoint archive in an older pre-release format is rejected with
 `DIVE-S0400` before the model is loaded.
 
 `--core-sample N` (with the core) is a diagnostic for the core's

@@ -1,12 +1,12 @@
 # Using dive
 
-Dive currently provides parsing, semantic analysis, bounded native PlusCal
-translation, explicit safety checking, finite simulation, DFID, independent
-trace validation and bounded temporal checking with deterministic level checks
-or explicit final/short analysis. Full TLC parity is
-still in progress. Core is the only engine; what it does not implement is a
-named refusal. Native capacity and TLC-relative performance
-qualification remain open. A named refusal or
+dive provides parsing, semantic analysis, native PlusCal translation, explicit
+safety checking, finite simulation, DFID, independent trace validation and
+temporal checking. Core is the only engine. On the tested tlaplus/Examples
+corpus it gives TLC's answer on every model it checks, apart from
+[registered differences](../tlc-differences.md), and at one worker it takes about a
+fifth of TLC's time on the geometric mean, with no model above twice TLC's
+time. What dive does not implement is a named refusal, and a named refusal or
 resource stop does not establish safety.
 
 | Task | Guide | Current boundary |

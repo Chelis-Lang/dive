@@ -25,12 +25,12 @@ and recovery with these storage choices. Temporal exact/spill/disk combinations
 remain unsupported.
 
 The core frontier stores paired canonical and original opaque handle rows under
-one retained live Store. Original receiver classes are preserved; values are not reconstructed through the reference value codec. Its
+one retained live Store. Original receiver classes are preserved; values are not re-encoded. Its
 private files cannot be recovered after restart or decoded by another run.
 Each decoded chunk contains at most 1,024 state pairs and is outside the encoded
 queue budgets. Retained Store/history allocations, seen sets, candidates, arenas
-and decoded chunks remain outside those component budgets. The report therefore
-leaves the reference value codec's node limit null for actual core runs.
+and decoded chunks remain outside those component budgets. The report's value
+codec node limit is therefore null.
 
 Before certifying a result, the core validates all retained frontier records,
 including unvisited rows, with the actual run control checked every 128 rows.
@@ -85,9 +85,9 @@ dive check docs/user/examples/CheckpointCounter.tla --seed 7 --fp 0 --checkpoint
 dive check docs/user/examples/CheckpointCounter.tla --recover counter.core.cp --store-compact-bytes 0 --checkpoint-counters retain --output json
 ```
 
-Checkpoint pause with reclamation, temporal capture, runtime effects, sampling,
-Reference and Auto refuse this policy. Checkpoint discovery residency and
-temporal graph/product/SCC paging/recovery remain separate work.
+Checkpoint pause with reclamation, temporal capture, runtime effects and
+sampling refuse this policy by name. Checkpoint discovery residency and paging
+of temporal graphs are not covered by it.
 
 JSON `core.metrics.store_reclamation` reports `trigger_bytes`, `trigger_source`
 (`"requested"`, `"default"` or `null`), `skipped`, `collections`,
@@ -118,8 +118,8 @@ dive check docs/user/examples/Counter.tla --workers 8 --candidate-memory-bytes 0
 
 Zero forces disk; omission retains resident execution in either profile. The
 matching `CheckRequest` and `CheckOptions` fields have the same names. A candidate
-directory without a budget is rejected before opening the model. Reference,
-Auto, runtime effects and temporal capture currently refuse this policy by name.
+directory without a budget is rejected before opening the model. Runtime
+effects and temporal capture refuse this policy by name.
 
 The budget counts each worker's pending encoded occurrences and compound DAG
 payloads, including the queue index. A chunk retains at most one source per
@@ -157,8 +157,8 @@ dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 8 --predecessor-memory-bytes 0 --output json
 ```
 
-Zero forces disk storage from the start. Omit the flags to keep the in-memory
-reference path. `--frontier-directory DIR` and `--predecessor-directory DIR`
+Zero forces disk storage from the start. Omit the flags to keep the frontier
+and predecessor records in memory. `--frontier-directory DIR` and `--predecessor-directory DIR`
 choose an existing parent directory; without them dive uses a private
 subdirectory of the system temporary directory. A directory without its matching
 budget is rejected (`DIVE-A0100`) before the model is opened. The Rust
@@ -200,9 +200,8 @@ correctness.
 
 ## Native checkpoints
 
-Checkpoints are a separate, bounded, safety-only feature owned by Core. An
-archive written by the removed reference engine is rejected with `DIVE-S0400`
-before evaluation.
+Checkpoints are a separate, bounded, safety-only feature. An archive in an
+older pre-release format is rejected with `DIVE-S0400` before evaluation.
 Core recovery supports both profiles, fingerprint/exact, VIEW, safety symmetry,
 changed requested worker widths, transient spill and disk membership (one actual
 worker). It resumes the saved frontier without re-enumerating Init as search work.
@@ -221,15 +220,15 @@ empty count, so the byte layout is unchanged; an archive whose image records
 construction history is rejected with `DIVE-S0400` ("legacy construction
 history") rather than restored. New transient files
 receive fresh run ownership; old live frontier bytes cannot be reused. It does
-not convert state values through the reference codec. Source, executable, config
+not re-encode state values. Source, executable, config
 bytes, semantic policy, seed/fingerprint and Core strategy switches must match.
 Workers and resource/storage budgets may change. Unknown post-startup deferred
 providers, runtime effects and temporal graphs refuse explicitly.
 
 Only checkpoint-enabled Core runs retain the extra discovery rows. The aggregate
 64 MiB archive and 65,536-state/level admission bounds do not bound live Store,
-codec workspaces or process memory. Core has no separate reference-codec
-1 MiB state-image limit (`max_state_bytes` is null). Recovery-only runs release
+codec workspaces or process memory. There is no separate per-state image
+limit (`max_state_bytes` is null). Recovery-only runs release
 expanded discovery rows after rebuilding keys and may continue under ordinary
 search budgets; they do not automatically save a new archive. Disk files remain
 transient: native checkpoints reconstruct membership from concrete discovery
@@ -239,7 +238,7 @@ persistent owned-history contract.
 Archive source identity
 includes the module name and exact bytes of adjacent local Java override classes.
 The supported Hanoi `Bits.class` can pause and recover with unchanged class
-bytes under the native worker/reference contract. Worker choices do not alter
+bytes. Worker choices do not alter
 checkpoint semantic identity. Recovery first-error order and corrupt-bootstrap
 diagnostics remain unchanged.
 No-class TLA+ fallback keeps the existing recovery worker policy. Removing or modifying a class rejects recovery before using saved
@@ -268,22 +267,23 @@ and can be independently validated.
   profiles do so by default. `--checkpoint-counters retain` keeps the
   uninterrupted totals. It is a named result-changing option, so TLC-profile runs
   report `tlc+overrides`. Verdict, trace, distinct count and depth are unchanged.
-- **Reference workers.** Worker width, chaos scheduling and `--sequential` may change on
-  recovery without changing the ordered result. Seed and fingerprint defaults come
+- **Workers.** Worker width and `--sequential` may change on recovery without
+  changing the ordered result. Seed and fingerprint defaults come
   from the archive. Runtime string constructors are supported; TLC mode uses an
   inline one-worker fallback for their encounter order.
 - **Identity.** The executable, model, exact configuration bytes, profile, store
   and evaluation settings must match. Even a changed configuration comment needs
   a new snapshot.
-- **Reference bounds.** The payload is limited to 64 MiB, with at most 65,536 discoveries or
-  names, 1 MiB per state, key or name, 1,024 variables and depth 65,536. These are
-  archive admission bounds, not a RAM budget. Transient frontier and predecessor
+- **Bounds.** The archive is limited to 64 MiB, 65,536 discovered states and
+  depth 65,536.
+  These are archive admission bounds, not a RAM budget. Transient frontier and predecessor
   budgets can be combined with checkpoints and may change on recovery.
 - **Commits.** Archives are written to a private staging file, synced and
   atomically committed without replacing an existing file. Failures are reported;
   partial staging files are not checkpoints.
-- **Reference format.** Reference archives use structural format 2 (`DIVECP02`). Older value-bearing
-  archives refuse rather than guess; recreate them with the current executable.
+- **Format.** Archives use format `DIVECC01`. Archives in older pre-release
+  formats refuse with `DIVE-S0400` rather than guess; recreate them with the
+  current executable.
 - **Refusals.** Liveness, random or effectful execution, checker reads,
   effectful configuration aliases and evaluator-driven deferred values refuse by
   name in both profiles. Behavior-graph recovery is unsupported.
@@ -301,6 +301,6 @@ not imply a seen-set budget.
 [The opt-in safety route](disk-seen-safety.md) uses it for transient disk
 seen-state membership, with inline fallback and independent concrete witnesses.
 It can be combined with the frontier and predecessor budgets. It is not a total
-memory budget. Reference recovery, graphs and temporal combinations refuse
-before work. Explicit Core recovery reconstructs disk membership from its saved
+memory budget. Behavior graphs and temporal combinations refuse before work.
+Recovery reconstructs disk membership from its saved
 concrete discoveries; the transient disk files themselves are not imported.
