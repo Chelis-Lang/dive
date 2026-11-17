@@ -1,4 +1,4 @@
-//! Dense ids into the [`crate::Ir`] arena (ADR 0013 §1).
+//! Dense ids into the [`crate::Ir`] arena.
 //!
 //! Ids are assigned by a deterministic traversal, so lowering the same input
 //! always gives the same ids. They are not stable across edits; structural

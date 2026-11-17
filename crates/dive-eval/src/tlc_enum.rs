@@ -279,7 +279,7 @@ impl Core {
         norm.sort_by(|a, b| a.cmp_with(b, TLC_ORDER));
         norm.dedup_by(|a, b| a.cmp_with(b, TLC_ORDER) == Ordering::Equal);
         if self.opts.exploration == ExplorationOrder::Value && raw.len() == norm.len() {
-            // The order is the run's (D-010); the multiplicity is TLC's.
+            // The order is the run's; the multiplicity is TLC's.
             return self.explore(set);
         }
         let same = raw.len() == norm.len()

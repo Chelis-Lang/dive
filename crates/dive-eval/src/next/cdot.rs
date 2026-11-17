@@ -1,4 +1,4 @@
-//! Action composition, `A \cdot B` (D-022): a port of TLC's `OPCODE_cdot`
+//! Action composition, `A \cdot B`: a port of TLC's `OPCODE_cdot`
 //! rules in `Tool.getNextStates`, `Tool.eval` and `Tool.enabled`
 //! (`tlc2/tool/impl/Tool.java` at tlaplus `94d0c50`, `:1488-1531`,
 //! `:2772-2808`, `:3371-3393`), which TLC runs only with

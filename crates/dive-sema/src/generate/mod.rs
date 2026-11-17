@@ -6,6 +6,12 @@
 //! rejected exactly when SANY rejects it. Method names in the doc comments
 //! name the Java method each function matches. Where SANY throws an
 //! `AbortException` (it stops analysing), the port returns [`Abort`].
+//!
+//! The selector code in `select.rs` (`selector_to_node` in particular) is a
+//! deliberate one-to-one port of SANY's `selectorToNode`, including its long
+//! single function and its control flow. Keeping that shape lets the two be
+//! compared line by line; restructuring it would make that comparison, and
+//! later upstream fixes, much harder to follow.
 #![allow(
     clippy::too_many_lines,
     clippy::too_many_arguments,

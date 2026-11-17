@@ -1,5 +1,5 @@
 //! Per-thread capture of `Print` output, for a parallel checker that
-//! releases output in TLC's sequential order (ADR 0014 §7, ADR 0015 §6).
+//! releases output in TLC's sequential order.
 //!
 //! While a [`PrintCapture`] is active on a thread, `Print`, `PrintT` and the
 //! evaluator's once-per-run warnings evaluated on that thread go into the

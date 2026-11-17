@@ -1,7 +1,6 @@
-//! `dive-eval`: the evaluator for expressions and actions over states (ADR
-//! 0014).
+//! `dive-eval`: the evaluator for expressions and actions over states.
 //!
-//! It evaluates the IR ([`dive_ir`], ADR 0013) over `dive-value` values with
+//! It evaluates the IR ([`dive_ir`]) over `dive-value` values with
 //! TLC's semantics: TLC's evaluation order, its laziness (operator arguments,
 //! zero-arity `LET` definitions and instance substitutions are thunks forced
 //! under TLC's caching rule), its lazy sets and functions, `CHOOSE` in the
@@ -34,7 +33,7 @@
 //! TLC's order, duplicates included, evaluating the non-action parts of an
 //! action through this interpreter against the partial successor it is
 //! building, and uses [`EvalError`] for the error classes. `ENABLED` goes
-//! through it too, for the checker and the trace validator alike (ADR 0103).
+//! through it too, for the checker and the trace validator alike.
 #![forbid(unsafe_code)]
 
 mod host_io;
@@ -126,14 +125,14 @@ pub enum ConstBinding {
 }
 
 /// The bindings evaluation needs beyond the IR: the run's names and the
-/// constants. `dive-model` builds it from the configuration (ADR 0013 §8).
+/// constants. `dive-model` builds it from the configuration.
 #[derive(Clone, Debug)]
 pub struct Model {
     /// The lowered specification.
     pub ir: Arc<Ir>,
     /// The run's names. To reproduce TLC's order of strings and model values
     /// under `--choose-order=tlc`, intern them in SANY/TLC's encounter order
-    /// before building the evaluator (ADR 0012).
+    /// before building the evaluator.
     pub names: Arc<Interner>,
     /// Constant bindings, by [`dive_ir::ConstId`].
     pub constants: Vec<Option<ConstBinding>>,
@@ -411,7 +410,7 @@ impl Evaluator {
     /// cached after callbacks are restored. It is not an isolated guard domain.
     /// Other host methods and cooperative control are unchanged. The caller
     /// must own host changes until scope drop; evaluator clones are not locked.
-    /// Legacy setters select callbacks. This grants no private-run certificate.
+    /// Plain setters select callbacks. This grants no private-run certificate.
     ///
     /// ```
     /// # fn select(ev: &dive_eval::Evaluator) {
@@ -746,8 +745,8 @@ impl Evaluator {
     }
 
     /// The outcome [`Self::check_assumption`] reports for `a` when it
-    /// evaluates to `FALSE`, for an evaluator that found it so (the core
-    /// engine's start-up evaluation of a pure `ASSUME`), without
+    /// evaluates to `FALSE`, for an evaluator that found it so (Core's
+    /// start-up evaluation of a pure `ASSUME`), without
     /// evaluating it again.
     #[must_use]
     pub fn false_assumption(&self, a: DefId) -> AssumptionOutcome {
@@ -782,8 +781,8 @@ impl Evaluator {
         self.core.def_values.contains_key(&def)
     }
 
-    /// The value the configuration assigns `def` (`Op = v`), if any. The
-    /// new core reads it at its binder boundary (`dive-api`'s
+    /// The value the configuration assigns `def` (`Op = v`), if any. Core
+    /// reads it at its binder boundary (`dive-api`'s
     /// `core_engine`).
     #[must_use]
     pub fn value_override(&self, def: DefId) -> Option<Value> {

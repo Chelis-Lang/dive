@@ -1,4 +1,4 @@
-//! Native source-mapped PlusCal grammar parsing (ADR 0022).
+//! Native source-mapped PlusCal grammar parsing and translation.
 //!
 //! [`parse`] produces a source AST, not a translated TLA+ specification.
 //! [`translate`] follows the pinned translator's normalization, scoped renaming,

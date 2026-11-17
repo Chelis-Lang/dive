@@ -141,7 +141,7 @@ impl Core {
     /// `SelectSeq` and `SortSeq` with 2169, the `OpValue` parameters of the
     /// CommunityModules overrides with 2154). `TRUE`, `-1` and `1 + 1` are
     /// operator applications and are passed as operators (fixtures
-    /// `tests/fixtures/op-literal` of `dive-api`, issue #557).
+    /// `tests/fixtures/op-literal` of `dive-api`).
     fn literal_body(self: &Arc<Self>, env: &mut Env, st: &St, o: &OpVal) -> Result<Option<Value>> {
         let OpVal::Def { def, .. } = o else {
             return Ok(None);

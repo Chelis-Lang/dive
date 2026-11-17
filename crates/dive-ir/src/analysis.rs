@@ -154,7 +154,7 @@ fn std_effects(op: StdOp, key: Option<&Expr>) -> Effects {
     e
 }
 
-/// Computes node and definition effects to a fixed point (ADR 0013 §6).
+/// Computes node and definition effects to a fixed point.
 pub(crate) fn compute_effects(ir: &mut Ir) {
     let locals = local_kinds(ir);
     let mut def_eff = vec![Effects::NONE; ir.defs.len()];

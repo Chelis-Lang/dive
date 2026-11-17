@@ -2,9 +2,8 @@
 
 /// How integers behave.
 ///
-/// ADR 0010: arbitrary precision is the owner-approved dive default, and TLC's 32-bit
-/// integers with its overflow error are always built and selected by `--int=tlc`
-/// (part of `--compat=tlc`).
+/// Arbitrary precision is dive's default. TLC's 32-bit integers, with its overflow
+/// error, are always available and selected by `--int=tlc` (part of `--compat=tlc`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum IntMode {
     /// TLC's semantics: values are Java `int`s, arithmetic that leaves
@@ -24,9 +23,8 @@ pub enum IntMode {
 /// (`util.UniqueString.compareTo` compares intern tokens), not by their characters.
 /// That order depends on the order in which SANY and TLC first met each name: adding
 /// an unused definition `U == "alpha"` can change `CHOOSE e \in {"zeta", "alpha"} : TRUE`.
-/// The owner decided (open question 8, ADR 0012) that dive's default is a canonical,
-/// text-independent order, and TLC's order is `--choose-order=tlc`, included in
-/// `--compat=tlc`.
+/// dive's default is a canonical, text-independent order; TLC's order is
+/// `--choose-order=tlc`, included in `--compat=tlc`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum ValueOrder {
     /// dive's canonical order (the default): names by the lexicographic order of their
@@ -62,8 +60,7 @@ impl Ctx {
         }
     }
 
-    /// dive's default semantics: big integers and the canonical order (both
-    /// owner-approved defaults; ADR 0010, ADR 0012).
+    /// dive's default semantics: big integers and the canonical order.
     #[must_use]
     pub const fn dive() -> Self {
         Self {

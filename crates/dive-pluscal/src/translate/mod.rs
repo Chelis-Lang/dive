@@ -99,7 +99,7 @@ pub struct TranslationOptions {
     /// CLI-only `-writeAST` filesystem operation, currently unsupported.
     /// Use [`original_ast_at`] for explicit in-memory original bytes.
     pub write_ast: bool,
-    /// Legacy specification-backed translator option and specification name.
+    /// The pcal.trans specification-backend option and specification name.
     /// `spec`, `myspec`, `spec2`, `myspec2` are explicitly unsupported backends.
     pub specification_backend: Option<(String, String)>,
     /// Maximum labelled actions (hard ceiling: 10,000).

@@ -1,5 +1,5 @@
 //! Operators that TLC implements in Java instead of evaluating their TLA+
-//! definitions (ADR 0013 §5).
+//! definitions.
 //!
 //! TLC installs them in `SpecProcessor.processModuleOverrides`
 //! (`tlc2/tool/impl/SpecProcessor.java:2114-2324` at tlaplus `94d0c50`), in
@@ -32,8 +32,7 @@
 //! The table was extracted from the class files of the pinned `tla2tools.jar`
 //! (`tlc-2026.10.06.014338`) and `CommunityModules-202610040242.jar`: method
 //! access flags, parameter counts and annotation values. It therefore lists
-//! what the pinned TLC loads, not what its sources suggest. Provenance:
-//! `docs/provenance.md`.
+//! what the pinned TLC loads, not what its sources suggest.
 
 use serde::{Deserialize, Serialize};
 
@@ -64,7 +63,7 @@ pub enum Phase {
 /// Whether dive plans to implement an override, and if not, why.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum StdSupport {
-    /// In the scope of dive's standard library (M5 plan, WP-C3): the standard
+    /// In the scope of dive's standard library: the standard
     /// modules, `TLC`, `Randomization`, `Json`'s `ToJson` family, the basic
     /// `TLCExt` operators, and the CommunityModules operators dive implements.
     /// An operator of this kind that the evaluator does not implement yet is

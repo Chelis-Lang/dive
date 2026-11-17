@@ -2,8 +2,10 @@
 //!
 //! These are the `.tla` files the pinned `tla2tools.jar` ships under
 //! `tla2sany/StandardModules/` (tlaplus `94d0c50`), byte for byte. They are
-//! MIT-licensed; see `stdlib/README.md` and `stdlib/LICENSE`. ADR 0011
-//! records why they live here.
+//! MIT-licensed; the upstream licence ships with this crate as
+//! `stdlib/LICENSE`. They live in this crate because semantic analysis
+//! resolves `EXTENDS Naturals` and the like itself, and depends only on
+//! `dive-syntax`.
 
 /// `(module name, source text)` for every standard module.
 pub const STANDARD_MODULES: &[(&str, &str)] = &[

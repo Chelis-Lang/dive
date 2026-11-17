@@ -1,8 +1,8 @@
 //! `dive-value`: TLA+ values with TLC's canonical ordering, equality, printing and
 //! fingerprints; model values; lazy and enumerable sets.
 //!
-//! The crate has no internal dependencies (`xtask/src/layering.rs`). Its design is
-//! recorded in ADR 0012 (`docs/decisions/0012-value-representation.md`).
+//! The crate has no dependencies on other dive crates. The design records behind it
+//! are in the repository's [decision records](https://github.com/Chelis-Lang/dive/tree/main/docs/decisions).
 //!
 //! # Overview
 //!

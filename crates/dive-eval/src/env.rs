@@ -3,7 +3,7 @@
 //!
 //! TLC binds names in an immutable linked `Context` (`tlc2.util.Context`) and
 //! looks them up by semantic node. dive resolves names to frame slots when
-//! lowering (ADR 0013 §2), so an [`Env`] is a frame of slots plus TLC's
+//! lowering, so an [`Env`] is a frame of slots plus TLC's
 //! dynamically scoped part: instance substitutions and `@`.
 //!
 //! **Persistence.** A thunk, a lazy set or a lazy function captures the

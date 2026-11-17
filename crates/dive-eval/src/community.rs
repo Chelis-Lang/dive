@@ -12,8 +12,7 @@
 //! the JVM (a `ClassCastException` or `NullPointerException` thrown inside
 //! the method), or where its result depends on the order of a function that
 //! TLC may hold unnormalized (dive keeps functions normalized), the operator
-//! is refused by name. Provenance: `docs/provenance.md`, section
-//! "CommunityModules overrides".
+//! is refused by name.
 
 #![allow(
     clippy::many_single_char_names,

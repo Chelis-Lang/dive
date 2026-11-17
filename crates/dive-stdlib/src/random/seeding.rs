@@ -8,7 +8,7 @@ pub enum RandomMode {
     /// TLC's seeding with `java.util.Random`, bit-exact (`--compat=tlc`). Requires
     /// TLC's own state fingerprints for state-level draws.
     Tlc,
-    /// dive's seeding (D-002, D-003): every stream is a pure function of the seed, a
+    /// dive's seeding: every stream is a pure function of the seed, a
     /// stream key (the state's fingerprint, or a simulation trace number) and the call
     /// index, so a run replays at any worker count. Any 64-bit state fingerprint works.
     Dive,
@@ -29,8 +29,8 @@ pub enum RandomMode {
 /// - Trace reconstruction replays with the same streams: [`Streams::startup`] for
 ///   the initial states, then [`Streams::state`] per predecessor (TLC resets the
 ///   generator, `ConcurrentTLCTrace.getTrace`). In TLC the reset stream does *not*
-///   replay draws made by start-up definitions and `ASSUME`s before `Init`, see
-///   `docs/tlc-differences.md` D-002.
+///   replay draws made by start-up definitions and `ASSUME`s before `Init`, so a
+///   violation that depends on them can lose its counterexample.
 ///
 /// **Simulation** (TLC's `Simulator`, `SimulationWorker`, `DefaultRandom`):
 /// - [`Streams::startup`] serves constants, `ASSUME`s and the initial states, as above.
