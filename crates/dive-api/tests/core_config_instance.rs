@@ -396,7 +396,8 @@ fn unproved_lazy_configured_instance_values_refuse_instead_of_claiming_errors() 
             assert!(doc["counterexample"].is_null());
             let message = doc["message"].as_str().expect("named refusal");
             assert!(
-                message.contains("an evaluation error the reference evaluator does not reproduce"),
+                message
+                    .contains("an evaluation error that independent validation does not reproduce"),
                 "{message}"
             );
         }

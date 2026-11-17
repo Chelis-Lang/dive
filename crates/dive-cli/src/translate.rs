@@ -100,7 +100,8 @@ Supported: -label -labelRoot ROOT -reportLabels -nof -wf -sf -wfNext\n\
 Write policy: -noold -nocfg -unixEOL (--write opts in to publication)\n\
 Original AST: --ast returns bytes; -writeAST writes AST.tla and exits 255\n\
 Explicitly unsupported: -spec -myspec -spec2 -myspec2\n\
-See docs/pluscal-translation.md for version/AST limits and JSON reports."
+See https://github.com/Chelis-Lang/dive/blob/main/docs/pluscal-translation.md\n\
+for version/AST limits and JSON reports."
                 );
                 return ExitCode::SUCCESS;
             }

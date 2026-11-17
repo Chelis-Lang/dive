@@ -760,7 +760,7 @@ fn compile_inner(
             }))
     {
         return Err(Error::unsupported(
-            "recursive Boolean action predicates in a compiled plan with effects or unproved calls (D-029)",
+            "recursive Boolean action predicates in a compiled plan with effects or unproved calls",
         ));
     }
     // An instance ENABLED query may read compiled calls only when no call

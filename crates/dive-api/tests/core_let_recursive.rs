@@ -1074,7 +1074,7 @@ fn recursive_action_predicates_refuse_direct_and_indirect_effects()
                     assert_eq!(core.exit_code_for(ExitConvention::Tlc), 3);
                     assert_eq!(
                         doc["message"],
-                        "recursive Boolean action predicates in a compiled plan with effects or unproved calls (D-029)"
+                        "recursive Boolean action predicates in a compiled plan with effects or unproved calls"
                     );
                     assert!(doc["counterexample"].is_null());
                     assert!(doc["tlc"].is_null());

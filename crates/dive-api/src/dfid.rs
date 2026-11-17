@@ -151,7 +151,7 @@ pub fn dfid_file_engine(
             "worker_seeds": [], "worker_seed_override": req.worker_seeds,
             "cli_seed_controls_workers": !req.compat_tlc, "store": if req.exact { "exact" } else { "fingerprint+exact-collision-guard" },
             "execution_stage": "model-loading", "execution_scope": "native-dfid",
-            "witness_policy": "actual-concrete-path (D-019)"},
+            "witness_policy": "actual-concrete-path"},
         "statistics": {"scope": "unavailable", "generated": null, "distinct": null, "level": null, "initial_candidates": null},
         "counterexample": null, "startup_output": null,
     });

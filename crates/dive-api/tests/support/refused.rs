@@ -49,7 +49,7 @@ pub const TEMPORAL_FAILURE_REPORT: &str =
     "a temporal failure (core): its report is not implemented";
 /// An evaluation error whose TLC context Core does not reproduce.
 pub const UNREPRODUCED_ERROR: &str =
-    "an evaluation error the reference evaluator does not reproduce";
+    "an evaluation error that independent validation does not reproduce";
 
 /// Asserts that `report` (a report's JSON) with process exit `exit` is
 /// Core's named refusal of `feature`.

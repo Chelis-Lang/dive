@@ -15,20 +15,37 @@ mod translate;
 use std::io::Write as _;
 use std::process::ExitCode;
 
-/// Implemented commands advertised in help.
-const COMMANDS: &[&str] = &[
-    "check",
-    "worker",
-    "tlc",
-    "dfid",
-    "simulate",
-    "parse",
-    "analyze",
-    "translate",
-    "validate-trace",
-    "explain",
-    "debug",
+/// Implemented commands advertised in help, each with a one-line description.
+const COMMANDS: &[(&str, &str)] = &[
+    ("check", "Check a model exhaustively"),
+    ("worker", "Serve safety work for a distributed `dive check`"),
+    ("tlc", "Check a model with TLC's command-line arguments"),
+    ("dfid", "Check a model by bounded iterative deepening"),
+    ("simulate", "Explore random bounded behaviors"),
+    ("parse", "Parse a specification or configuration"),
+    ("analyze", "Resolve modules and analyze a specification"),
+    ("translate", "Translate PlusCal into TLA+"),
+    ("validate-trace", "Validate a counterexample independently"),
+    ("explain", "Explain an error code"),
+    (
+        "debug",
+        "Debug a safety check over the Debug Adapter Protocol (experimental)",
+    ),
 ];
+
+/// The command list of `dive --help`: names in a column, then descriptions.
+fn command_list() -> String {
+    let width = COMMANDS
+        .iter()
+        .map(|(name, _)| name.len())
+        .max()
+        .unwrap_or(0);
+    COMMANDS
+        .iter()
+        .map(|(name, description)| format!("{name:width$}  {description}"))
+        .collect::<Vec<_>>()
+        .join("\n    ")
+}
 
 /// Exit code when the input is rejected (`parse`: syntax or cfg errors;
 /// `analyze`: any error SANY would report).
@@ -78,10 +95,10 @@ fn usage() -> String {
                [--distributed-worker IP:port]... [--worker-key FILE] [--worker-timeout-ms N] [--distributed-retries N]
                [--core-sample N] [--library-path DIR]... [--module-path DIR]...\n    dive worker <FILE.tla> --seed N --fp N --worker-key FILE [--listen IP:port] [--worker-timeout-ms N] [--worker-max-units N]\n                [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--output human|json]\n    dive simulate <FILE.tla> --traces N [--generate] [--exit-codes native|tlc] [--depth N] [--seed N] [--aril N] [--stats none|basic] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--time-limit DURATION|none] [--max-memory BYTES|auto|none] [--output human|json]\n    dive validate-trace <FILE.tla> [--trace TRACE.json] [--inputs RUN.json] [--config FILE.cfg] [--claim ENDING] [--sample]\n               [--compat=tlc] [--symmetry-liveness unreduced|refuse|tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    Eligible ordinary temporal checks use deterministic completed-level checks in the dive
     profile and final checking in the TLC profile.
-    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to none in both profiles, as in TLC; --max-memory defaults to\n    half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.\n    The compiled Core is the engine of check, simulate, dfid and tlc; what it does not\n    implement is a named refusal, never a fallback. --core-sample N\n    also compares the successors of N sampled states with the reference evaluator's, in the JSON\n    report (core.sample); it is diagnostic and changes no result.
+    dive check uses TLC process statuses by default, independently of semantic profile.\n    --exit-codes native retains: 0 no error, 1 rejected input, 10 property violated, 11 deadlock,\n    12 assumption, 13 evaluation error. Both conventions keep 2 usage, 3 unsupported/resource\n    limit, 4 internal error and 5 stopped by a run budget (no verdict).\n    --time-limit defaults to none in both profiles, as in TLC; --max-memory defaults to\n    half of physical memory (auto) in both. --compat=tlc (or DIVE_COMPAT=tlc) selects existing TLC-compatible behavior; known gaps are documented.\n    The compiled Core is the engine of check, simulate, dfid and tlc; what it does not\n    implement is a named refusal, never a fallback. --core-sample N\n    also compares the successors of N sampled states with an independent evaluator's, in the JSON\n    report (core.sample); it is diagnostic and changes no result.
     Options Core does not implement are not listed; they still parse and refuse by name\n    (exit 3).\n",
         env!("CARGO_PKG_VERSION"),
-        COMMANDS.join("\n    ")
+        command_list()
     )
 }
 

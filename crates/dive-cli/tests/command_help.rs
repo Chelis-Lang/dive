@@ -29,7 +29,16 @@ fn every_advertised_command_has_pinned_help() -> Result<(), Box<dyn std::error::
         .split_once("\n\n")
         .ok_or("missing command-list terminator")?
         .0;
-    let commands: Vec<_> = section.lines().map(str::trim).collect();
+    let commands: Vec<_> = section
+        .lines()
+        .map(|line| line.split_whitespace().next().unwrap_or_default())
+        .collect();
+    for line in section.lines() {
+        assert!(
+            line.split_whitespace().count() > 1,
+            "command without a description: {line:?}"
+        );
+    }
     assert!(!commands.contains(&"lsp"));
     let root = root.replacen(env!("CARGO_PKG_VERSION"), "{version}", 1);
     let mut help = format!("=== dive --help ===\n{root}");
@@ -78,8 +87,7 @@ fn hidden_commands_still_refuse_explicitly() -> std::io::Result<()> {
 }
 
 #[test]
-fn human_header_names_requested_engine_and_actual_workers() -> Result<(), Box<dyn std::error::Error>>
-{
+fn human_header_names_actual_workers_and_no_engine() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../docs/user/examples/Counter.tla");
     // `None` is the default engine, Core.
@@ -94,8 +102,9 @@ fn human_header_names_requested_engine_and_actual_workers() -> Result<(), Box<dy
         assert!(output.stderr.is_empty(), "{engine:?}: {output:?}");
         let human = String::from_utf8(output.stdout)?;
         let header = human.lines().next().ok_or("missing human header")?;
-        let named = engine.unwrap_or("core");
-        assert!(header.contains(&format!("requested engine {named},")));
+        // Core is the only engine, so the header does not name one.
+        assert!(header.contains(": profile dive, store fingerprint (fp 0), seed 7,"));
+        assert!(!header.contains("engine"));
         assert!(header.contains("1 worker(s) requested, 1 used"));
         assert!(!human.contains("engine auto"));
     }
