@@ -205,8 +205,8 @@ The existing direct scalar Init membership fast path remains. Other finite
 choices use bounded search; native function/record/product selection keeps its
 component demand order. Deferred providers, random-register interactions,
 randomness inside ENABLED and unproved Init assignment forms remain explicit
-refusals. Exact limits and invocation examples are in the
-[user guide](../../docs/user/simulation.md#finite-native-random-choices).
+refusals. Core simulation refuses a reached `RandomElement`; see the
+[user guide](../../docs/user/simulation.md#random-choices).
 
 The primary controls in `tests/fixtures/random-init/oracle.json` retain their
 historical native-scope annotations and unchanged pinned TLC results. The former

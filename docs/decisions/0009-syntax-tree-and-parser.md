@@ -41,7 +41,7 @@ Its acceptance depends on machinery beyond the grammar text:
   begin and end.
 
 **tree-sitter-tlaplus** is a good node-type vocabulary, but it is deliberately permissive
-(`docs/survey/adjacent.md`), so its acceptance is not an oracle. Its corpus, as copied
+(`docs/internal/survey/adjacent.md`), so its acceptance is not an oracle. Its corpus, as copied
 into tlaplus at `test/tla2sany/corpus`, is the best structural test set available.
 
 ### CST representation: rowan or a bespoke arena

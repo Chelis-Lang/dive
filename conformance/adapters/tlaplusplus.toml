@@ -1,4 +1,4 @@
-# tlaplusplus, as measured in docs/survey/competitive.md ("Method", per-tool
+# tlaplusplus, as measured in docs/internal/survey/competitive.md ("Method", per-tool
 # invocations). GPL-3.0: run as an external program only, never linked or
 # copied. For reproducible re-measurement with
 # `dive-conformance run --impl adapter:conformance/adapters/tlaplusplus.toml`.

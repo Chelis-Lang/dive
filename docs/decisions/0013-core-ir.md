@@ -53,7 +53,7 @@ TLC paths below are relative to `tlatools/org.lamport.tlatools/src/` at tlaplus 
 
 ### Constraints from the other consumers
 
-- **Verus export** (`docs/survey/adjacent.md`).
+- **Verus export** (`docs/internal/survey/adjacent.md`).
   - verus-tla models an action as a guard plus a deterministic transition, with nondeterminism lifted into an `Input` parameter.
   - So the IR must keep three things recoverable:
     - `Next` as a disjunction of named actions;

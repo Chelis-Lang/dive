@@ -17,7 +17,7 @@ directory that holds no downloaded files, and pass downloaded paths as arguments
 
 **Oracle.** Use the jar and JRE pinned in `conformance/oracles.toml`, and check both
 sha256s before use:
-- `tla2tools.jar`, sha256 `7beec0f0…ea78d`. It is a private release asset:
+- `tla2tools.jar`, sha256 `7beec0f0…ea78d`. It is a release asset of this repository:
   `gh release download oracle-tlc-2026.10.06.014338 -R Chelis-Lang/dive -p tla2tools.jar`.
 - Temurin JRE 17.0.20.1+1.
 
@@ -163,5 +163,5 @@ deterministic syntax/layout/semantic mutation subset through the pinned
 harness. `scripts/frontend-campaign.py` preserves a complete selection census,
 original module names and byte-copied dependencies in isolated directories.
 Full frontend and direct root-grammar observations remain separate, including
-PlusCal validation failures. See `docs/frontend-campaign.md`; these legacy
+PlusCal validation failures. See `docs/internal/frontend-campaign.md`; these legacy
 classifiers are not used by the new job.

@@ -207,13 +207,13 @@ The three evaluation-error controls remained `DIVE-L0033` refusals (issue #451),
 and string concatenation retained `DIVE-L0020`: that was three agreements and four
 refusals in each profile. A separate TLC-profile run of EWD998ChanID still refuses
 VIEW graph capture (issue #428). These results add no agreement to the established
-small or full populations. See the [compact qualification](survey/data/selectseq-concat-qualification-2026-10-24.json).
+small or full populations. See the [compact qualification](internal/survey/data/selectseq-concat-qualification-2026-10-24.json).
 The 2026-10-25 comparison at `92a33e3b` reports **six agreements and one
 refusal in each profile**. The three finite evaluation-error controls now match
 the pinned classes, physical status 255, counts and depth, with fresh independent
 error-endpoint validation. `StringConcatNames` remains refused. These isolated
 results add no small- or full-tier agreement; see the
-[current qualification](survey/data/temporal-row-errors-qualification-2026-10-25.json).
+[current qualification](internal/survey/data/temporal-row-errors-qualification-2026-10-25.json).
 Select this microcorpus explicitly with
 `--corpus selectseq-concat-type-capability --tier all --no-sany`.
 
@@ -268,7 +268,7 @@ per-model limit. The initial generation left the original two references untouch
 corpus membership expanded, the normal pinned harness regenerated all sixteen
 references with an explicit provenance-refresh reason. Every result payload,
 including those original two, remained identical; only provenance was refreshed.
-[The compact primary record](survey/data/startup-tautology-primary-controls-2026-10-25.json)
+[The compact primary record](internal/survey/data/startup-tautology-primary-controls-2026-10-25.json)
 pins all eleven inputs, outputs, classes and provenance. This adds references
 before runtime work; it does not itself change established populations or
 establish dive's reported agreement.
@@ -292,7 +292,7 @@ match 2253/77, including both split-role controls. The earlier finite2179 error
 word remains independently validated. Effectful conversion, conversion error
 class, both mixed-claim cases and initial-only later-row labelling remain
 refused. The
-[startup qualification](survey/data/startup-zero-solution-qualification-2026-10-25.json)
+[startup qualification](internal/survey/data/startup-zero-solution-qualification-2026-10-25.json)
 records the complete selection, original reports, full gate and unchanged
 established baselines; this isolated population is not a full-tier result.
 
@@ -434,7 +434,7 @@ whole-node quiescence, preservation-only recovery and a RAM audit verified
 all 1,288 originals (3,009,809 bytes), without rerunning models, builds or the
 utility. `conformance/baselines/full-tlc-w1.json` is copied byte-for-byte from
 that normal utility output for `20261026T023947024-dive-all`. The
-[compact record](survey/data/full-tier-measurement-2026-10-26.json) binds the
+[compact record](internal/survey/data/full-tier-measurement-2026-10-26.json) binds the
 source, complete population, every remaining gap, resource findings, generated
 digest and S3/cleanup receipts. Small-tier baselines are unchanged. No new SANY,
 four-worker, full-gate, throughput or peak-memory result follows.
@@ -451,7 +451,7 @@ missing references remain unresolved; there are zero disagreements.
 It uses two concurrent models, a 16 GiB native process-memory ceiling per model
 and TLC-derived time budgets capped at 900 seconds, with 30 seconds of harness
 cleanup grace. All ten timeouts are structured native stops with exit 5, nine
-for time and one for memory. The [compact record](survey/data/full-tier-measurement-2026-10-24.json)
+for time and one for memory. The [compact record](internal/survey/data/full-tier-measurement-2026-10-24.json)
 retains every gap's named cause and the stops' actual resource, phase and prefix
 statistics. Signals and partial streams are absent; no stopped run earns
 agreement or completion credit.
@@ -494,7 +494,7 @@ No model was dropped to improve the denominator and no golden changed.
 
 The previous generated digest came from `report baseline` on report
 `20261021T141221299-dive-all`; it remains in Git history.
-The [compact evidence](survey/data/full-tier-budgeted-2026-10-21.json) records
+The [compact evidence](internal/survey/data/full-tier-budgeted-2026-10-21.json) records
 both source pins, binary and report hashes, the exact selection hash, all ten
 resource findings and the budget policy. Existing accepted small-tier baselines
 remain unchanged. This incomplete result is not release acceptance; resource
@@ -529,7 +529,7 @@ Independent terminal-error certification is tracked in
 [#434](https://github.com/Chelis-Lang/dive/issues/434). Both profiles agree on
 the new witness and retain the first-error case as pending; neither model changes
 the established small-tier denominator. The
-[qualification evidence](survey/data/enabled-interval-qualification-2026-10-23.json)
+[qualification evidence](internal/survey/data/enabled-interval-qualification-2026-10-23.json)
 keeps these observations separate from the full gate and normal-input overhead.
 
 ## State-time Json runtime names
@@ -551,7 +551,7 @@ target/debug/dive-conformance golden generate \
 ```
 
 The raw primary observations stay external; compact source and producer hashes
-are recorded in [the primary evidence](survey/data/json-runtime-names-2026-10-21.json).
+are recorded in [the primary evidence](internal/survey/data/json-runtime-names-2026-10-21.json).
 The native Array/Object conversions remain named refusals.
 
 ## Liveness quotient primary controls
@@ -594,7 +594,7 @@ result. A matching trace pass is not a fairness validation certificate.
 VIEW quotient capture, edge-label retention and concrete witness reconstruction
 therefore remain separate obligations; these probes authorize no approximation.
 
-[Compact primary evidence](survey/data/liveness-quotient-primary-2026-10-22.json)
+[Compact primary evidence](internal/survey/data/liveness-quotient-primary-2026-10-22.json)
 records source, producer, pins and original observation hashes. Raw outer harness
 logs and generated golden bytes stay external. This frozen generator does not
 preserve its internal raw Java stdout/stderr; that limitation is explicit.
@@ -629,7 +629,7 @@ The existing independent trace validator accepted all four original words and
 rejected all eight mutations, including lossless format controls. These facts
 precede the compound-assignment implementation and do not establish agreement
 for unmeasured models or deferred provider effects.
-[Compact provenance](survey/data/compound-domain-oracle-2026-10-23.json) records
+[Compact provenance](internal/survey/data/compound-domain-oracle-2026-10-23.json) records
 source, input, original producer archive and exact generated-golden hashes.
 
 `compound-domain-emptiness` separately pins two constructor-order controls.
@@ -643,7 +643,7 @@ replay rejects these two generated words as non-tuple/non-record membership
 errors; [issue #443](https://github.com/Chelis-Lang/dive/issues/443) retains that
 validation finding. They receive no trace-validation or agreement credit. The original four large
 controls and their corpus digest remain unchanged.
-[Compact constructor provenance](survey/data/compound-domain-emptiness-oracle-2026-10-23.json)
+[Compact constructor provenance](internal/survey/data/compound-domain-emptiness-oracle-2026-10-23.json)
 records the new input and golden hashes.
 
 The delivery qualification ran a fresh full gate (2,329 tests, no skips), the
@@ -652,7 +652,7 @@ All four wide checks matched their primary words and independently validated.
 The eight normal-model instruction comparisons retained identical counts/depth;
 the largest overhead was 0.043%, below the 1% per-pair ceiling. This is capacity
 evidence, without a TLC throughput or full-tier agreement claim.
-[Compact qualification](survey/data/compound-domain-streaming-qualification-2026-10-23.json)
+[Compact qualification](internal/survey/data/compound-domain-streaming-qualification-2026-10-23.json)
 records source/tool identities, all eight instruction pairs and original hashes.
 
 
@@ -670,7 +670,7 @@ Init-replay path; the required inner-component overflow remains distinct 2147/75
 The accepted-order, effectful and dependent controls succeed with distinct /
 generated counts of 8/16, 4/8 and 5/10 respectively, each at depth 1. The six earlier
 reference result payloads are byte-identical after normal regeneration. See the
-[compact primary record](survey/data/nested-powerset-primary-controls-2026-10-25.json)
+[compact primary record](internal/survey/data/nested-powerset-primary-controls-2026-10-25.json)
 for source, oracle, result and preserved original-stream identities.
 
 Select it with `--corpus nested-powerset-primary --tier all --no-sany`. This is reference generation before enumeration changes: no native
@@ -740,7 +740,7 @@ the oracle. `Redirect` retains the actual null violated-property name and a
 two-state lasso returning to state one; its separate JSON trace pass matched
 the clean run. These generated references preserve the actual result and
 provenance rather than predicting them from the initial probe's output count.
-[Compact provenance](survey/data/startup-stored-read-primary-2026-10-26.json)
+[Compact provenance](internal/survey/data/startup-stored-read-primary-2026-10-26.json)
 records the input, corpus, harness, golden and retained original identities.
 
 Descriptor runtime/result fields remain `unknown`. Select only these inputs with
@@ -840,7 +840,7 @@ fresh diagnostic receiver catches the underlying division2179 and decides
 TLC_FINGERPRINT_EXCEPTION2147 with exit75, 1 generated and distinct state,
 depth1 and one queued state. This differs from selecting the defined entry;
 the source-bearing receiver, rather than the division's numeric code, determines
-the wrapper. See [the source mechanism](survey/value-method-error-provenance.md).
+the wrapper. See [the source mechanism](internal/survey/value-method-error-provenance.md).
 
 The `comparison-receiver-primary` corpus records twelve TLC deciding models and
 twelve accepted SANY modules for #620. Literal tuples/records, scoped LET/INSTANCE

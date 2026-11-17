@@ -3,7 +3,7 @@
 These scripts measure whether `dive-sema` accepts exactly the specifications that the
 pinned SANY accepts with semantic analysis and level checking on. The pinned SANY is
 tla2tools 1.8.0 at tlaplus `94d0c50`, run with `-error-codes`. Without that flag SANY
-exits 0 on semantic errors (`docs/survey/oracles.md`).
+exits 0 on semantic errors (`docs/internal/survey/oracles.md`).
 
 The scripts produce a confusion matrix per corpus: both accept, both reject, dive-only
 accept, SANY-only accept. They also regenerate the verdict files that
@@ -198,5 +198,5 @@ deterministic syntax/layout/semantic mutation subset through the pinned
 harness. `scripts/frontend-campaign.py` preserves a complete selection census,
 original module names and byte-copied dependencies in isolated directories.
 Full frontend and direct root-grammar observations remain separate, including
-PlusCal validation failures. See `docs/frontend-campaign.md`; these legacy
+PlusCal validation failures. See `docs/internal/frontend-campaign.md`; these legacy
 classifiers are not used by the new job.

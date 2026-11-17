@@ -59,7 +59,7 @@ owner. The charter's appendix records later corrections.
 
 Read [ADR 0153](docs/decisions/0153-core-is-the-product.md) and
 [docs/RELEASE.md](docs/RELEASE.md) before choosing work. The
-[progress review](docs/reviews/2026-11-05-progress-review.md) explains why these
+[progress review](docs/internal/reviews/2026-11-05-progress-review.md) explains why these
 rules exist.
 
 **Choose work by the release gates.**
@@ -264,7 +264,7 @@ implementation progress with additional prerequisite splits.
 - *Deep:* `conformance.yml` with `tier=deep`, on manual dispatch and before
   releases. Its separate frontend job runs deterministic syntax/layout/semantic
   mutations and both SANY-case directories through the pinned oracle. See
-  `docs/frontend-campaign.md`; preserve the complete selection and raw reports.
+  `docs/internal/frontend-campaign.md`; preserve the complete selection and raw reports.
 - *Not in CI:* benchmarks, profiling and long fuzzing. Run them by hand with
   `dive-bench` and `cargo build --profile profiling`, and record machine details
   with the results.
@@ -283,8 +283,10 @@ implementation progress with additional prerequisite splits.
   `docs/conformance.md`.
 
 No system Java is needed. Concurrent runs on one cache are safe (advisory locks).
-Keep run outputs outside the repository. The private oracle asset needs
-`GH_TOKEN`, `GITHUB_TOKEN` or `gh auth login`.
+Keep run outputs outside the repository. The re-hosted TLC jar is a release
+asset of this repository and downloads without credentials when the repository
+is public; if a plain download fails, the harness retries through the GitHub API
+with `GH_TOKEN`, `GITHUB_TOKEN` or `gh auth login`.
 
 ## Tracking and docs
 

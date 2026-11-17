@@ -1,4 +1,4 @@
-# tlago, as measured in docs/survey/competitive.md ("Method", per-tool
+# tlago, as measured in docs/internal/survey/competitive.md ("Method", per-tool
 # invocations). A port of TLC: TLC's flags, exit codes and output lines.
 # For reproducible re-measurement with
 # `dive-conformance run --impl adapter:conformance/adapters/tlago.toml`.

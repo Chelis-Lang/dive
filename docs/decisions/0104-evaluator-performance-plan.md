@@ -149,7 +149,7 @@ baselines.
 A fresh frozen-main profile at `c542d442` and a bounded hash-demand check
 qualify the historical cost estimates; see the
 [performance guide](../developer/performance.md#frozen-main-callgrind-attribution-2026-10-24)
-and [compact record](../survey/data/current-main-profile-2026-10-25.json).
+and [compact record](../internal/survey/data/current-main-profile-2026-10-25.json).
 Hot exclusive owners and nested inclusive arcs do not themselves establish
 removable work. No defensible 5% hash-deferral case was established; that
 hypothesis was rejected before implementation.
@@ -285,20 +285,20 @@ A later frozen-main caller profile at `1a8343b9` retains complete source-PC and
 caller-context ledgers for all eight observations. The mixed allocator and
 ownership share does not prove removable work. A query of existing EXCEPT
 contexts did not justify a 5% candidate; selected exclusive costs and overlapping
-immediate arcs remain separate. See the [caller-attribution record](../survey/data/instruction-caller-attribution-2026-10-25.json).
+immediate arcs remain separate. See the [caller-attribution record](../internal/survey/data/instruction-caller-attribution-2026-10-25.json).
 
 A later private eight-cell function-membership census recorded no qualified repeat
 successes. Provider-excluded MCbtree work remains unknown; GameOfLife had only
 first successes. This does not establish a safe hit rate or saved instructions,
 and no membership cache is admitted. See the
-[census record](../survey/data/function-membership-census-2026-10-25.json).
+[census record](../internal/survey/data/function-membership-census-2026-10-25.json).
 
 A complete query of the same eight ledgers also did not justify batched
 ordered-set search: conditional deletion of the selected source PCs gives
 0.657% geometric instruction reduction, or 4.579% for the broader selected
 owner and immediate-helper pool. Neither establishes removable work or reaches
 the fixed 5% bar. No implementation or additional campaign follows; see the
-[compact assessment](../survey/data/ordered-set-search-assessment-2026-10-26.json).
+[compact assessment](../internal/survey/data/ordered-set-search-assessment-2026-10-26.json).
 
 ## Consequences
 

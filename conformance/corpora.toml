@@ -55,7 +55,7 @@ path = "tlatools/org.lamport.tlatools/test/tla2sany/semantic/error_corpus/E4294_
 reason = "crashes SANY (tlc-2026.10.06.014338): semantic analysis throws util.WrongInvocationException \"Defined more recursive operators than were declared in RECURSIVE statements.\" (Generator.endOpDefNode), wrapped in FrontEndException, exit 255, no error marker. Upstream expects error 4294 (a nested module between RECURSIVE and the definition). dive rejects it with DIVE-E0124 (SANY 4294)"
 
 # dive's own corpus, kept in this repository (ADR 0005, amendment 1): the
-# honesty and determinism probes of docs/survey/competitive.md (P1-P9, M1-M2),
+# honesty and determinism probes of docs/internal/survey/competitive.md (P1-P9, M1-M2),
 # in the Examples layout with Examples-format manifests. Identified by the
 # SHA-256 of its files instead of a commit; editing any file means
 # regenerating its goldens.

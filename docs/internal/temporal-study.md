@@ -1,6 +1,6 @@
 # Expanded final/short temporal study, 2026-10-10
 
-The [raw generated study](../conformance/reports/studies/small-temporal-53-final-short-tlc.json)
+The [raw generated study](../../conformance/reports/studies/small-temporal-53-final-short-tlc.json)
 records all 53 configurations in the explicit selection.
 The selection comes from temporal-refused Examples entries in the committed
 `20261009T134501007-dive-small.json` baseline. Every selected model has one row,
@@ -124,5 +124,5 @@ issue #117). Current supported pure final/short runs can use the requested pool,
 with fixed eight-source waves and a separate per-source scratch admission cap.
 The historical model totals, timeouts and source artifacts remain unchanged.
 Current graph, tiny-bound and validated witness controls are documented in
-[the temporal API](temporal-api.md#bounded-parallel-graph-retention); exact TLC
+[the temporal API](../temporal-api.md#bounded-parallel-graph-retention); exact TLC
 lassos and phase-L timing are still not certified.

@@ -274,19 +274,10 @@ Whole-process time and memory budgets retain their documented cooperative and
 sampling limits: individual allocations and uninterruptible units can still
 outlast a poll or fail at the host. A refusal or stop never proves a property.
 
-The [CoffeeCan feasibility record](../survey/data/coffeecan-product-vertex-experiment-2026-10-22.json)
-is a separate instrumented custom-ceiling experiment. Both native profiles
-completed the pinned model and two groups each retained 1,003,000 vertices.
-Its original offline classifier HOLD remains preserved alongside a reviewed
-zero-buffer interpretation correction. It is not production-default, current
-corpus, causal speedup or true peak-memory qualification.
-
-The separate [production qualification](../survey/data/product-vertices-qualification-2026-10-23.json)
-at source `db8d4ad5` passed the full gate and both complete small-tier baseline
-comparisons. Both ordinary CoffeeCan1000Beans profiles completed all configured
-properties with 501,500 distinct states, 2,000,002 generated and depth 1 under
-an explicit 564,520 ms budget and 8 GiB ceiling. All eight normal instruction
-pairs stayed within 1% overhead; this is capacity evidence, not a throughput claim.
+Under an explicit 564,520 ms budget and an 8 GiB ceiling, CoffeeCan1000Beans
+completes all configured properties in both profiles, with 501,500 distinct
+states, 2,000,002 generated and depth 1. This is a capacity result, not a
+throughput claim.
 From the pinned Examples CoffeeCan directory, use:
 
 ```sh
@@ -315,7 +306,7 @@ values, updates and evaluation errors use the general evaluator. The additive
 `core.metrics.liveness.atoms` counters show prepared eligibility, successful
 native evaluations by kind, and fallback; they do not establish throughput or
 whole-model completion. State admission and independent word validation retain
-their existing checks. See [the native evaluation boundary](../developer/core/11-liveness.md#41-optional-stable-native-predicate-evaluation).
+their existing checks. See [the native evaluation boundary](../developer/core/11-liveness.md#41-optional-native-predicate-evaluation).
 
 The ordinary conformance adapter retains those actual complete counters and
 requires coherent schema, class, physical status and word metadata. It still
@@ -509,27 +500,11 @@ limit defaults or predicate-local lazy Boolean guards. A model can reach a
 separate existing graph/product bound after this temporary-copy refusal is
 removed; new corpus agreement is claimed only after bounded qualification.
 
-The [source-specific Allocator observations](../survey/data/active-action-membership-2026-10-21.json)
-preserve the prior `dd2f0907` measurements separately from fresh integrated
-`85592819` results. Both profiles at that historical source use the unchanged
-pinned configuration, one worker, seed/fingerprint zero, and explicit
-361.620-second / 4 GiB budgets. They complete capture with 17,701 distinct
-states, 64,414 generated states and depth 16, then report `DIVE-L0034`,
-`atom cells`, at stage `atoms`. The report does not identify a graph-label,
-attribution or word-cell sub-bound or give its dimensions. These results remove
-the temporary-copy refusal but prove no property, improve no agreement count
-and justify no further count removal. Early refusal timing is not compared
-with TLC's completed check; sampled process memory is neither a true peak nor
-a projected allocation lower bound.
-
-That historical source passed the full gate: 2,178 tests with no
-skips, 458 SANY modules, and the small corpus at 147/156 in the TLC profile and
-142/156 plus five expected divergences in the default profile. Both profiles
-retain nine unsupported models, with no baseline changes, disagreements,
-timeouts or pending trace validation. The compact evidence keeps the original
-before-run identities, producer archive and report hashes. A documentation-only
-delivery preserves that qualified runtime, test and harness source; it does
-not rename either native observation's measured pin.
+`AllocatorImplementation`, with its pinned configuration, one worker,
+seed and fingerprint 0 and explicit 361.620-second and 4 GiB budgets, completes
+capture with 17,701 distinct states, 64,414 generated states and depth 16 in
+both profiles. Removing the temporary copy proves no property and changes no
+agreement count.
 
 Final checking also preserves binding errors: a missing `_PERIODIC` definition
 reports TLC code 2229, and a parameterized definition reports 2228. Both exit
@@ -1009,16 +984,7 @@ completed temporal analysis. Their counts are:
 
 All eight normal instruction cells changed by less than 1%; geometric overhead
 was 0.0113%, with identical verdicts, counts, depth, initial counts and final
-queues. The [compact qualification](../survey/data/graph-label-policy-2026-10-22.json)
-records actual source, input, binary and producer identities. These are bounded
-capacity and instruction observations; historical full-tier and four-worker
-measurements retain their own sources and counts.
-
-A separate [historical CLI interoperability check](../survey/data/native31-cli-evidence-2026-10-22.json)
-used source `eeae5dd1` and its own frozen binary on 31 exported Oyster fixtures.
-Its 126 native commands cover 62 checks, 32 genuine trace validations and 32
-forged-trace rejections. These observations retain that source's identity;
-they do not qualify an Oyster report reader, typed consumer or new pilot pin.
+queues. These are bounded capacity and instruction observations.
 
 
 ## Symmetry with genuine temporal properties

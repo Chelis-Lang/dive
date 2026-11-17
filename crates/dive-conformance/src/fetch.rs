@@ -9,12 +9,15 @@
 //! ([`Cache::lock`]) and checks again under it, so concurrent harness
 //! processes sharing one cache never write the same entry at once.
 //!
-//! GitHub release assets on private repositories cannot be fetched from the
-//! browser URL, even with a token (GitHub answers 404). For those the harness
-//! resolves the asset through the REST API (`GET
+//! Every artifact is first downloaded from its URL without credentials, which
+//! is enough for public GitHub release assets. Assets on a private repository
+//! cannot be fetched from the browser URL, even with a token (GitHub answers
+//! 404). When the plain download fails and the URL names a GitHub release
+//! asset, the harness falls back to the REST API (`GET
 //! /repos/{owner}/{repo}/releases/tags/{tag}`) and downloads it from the
-//! asset's API URL with `Accept: application/octet-stream`. The token never
-//! appears on a command line: it is passed to `curl` on stdin via `--config -`.
+//! asset's API URL with `Accept: application/octet-stream`, using an optional
+//! token. The token never appears on a command line: it is passed to `curl` on
+//! stdin via `--config -`.
 
 use crate::cache::Cache;
 use crate::config::ModuleLibrary;

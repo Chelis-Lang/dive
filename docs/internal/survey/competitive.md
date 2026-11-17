@@ -5,7 +5,7 @@ conformance numbers rigorously against TLC goldens; until then, treat the counts
 well-instrumented first look, not as the record.
 
 Every statement is labelled:
-- **measured**: we ran it, and the raw data is under `docs/survey/data/`;
+- **measured**: we ran it, and the raw data is under `docs/internal/survey/data/`;
 - **observed**: we read it in the source, docs or history;
 - **claimed**: the project says so and we have not verified it.
 
@@ -126,7 +126,7 @@ Notes on the table:
 - **tlago crashes** are all one bug: `interface conversion: interface is nil, not tlago.sanyCanonicalLevelNode` on every Paxos-family and proof-heavy spec. TLC-style exit 255.
 - **tla-rs refusals** are mostly front-end gaps: parse errors on proof syntax in `FiniteSetTheorems` and `NaturalsInduction`, cfg substitutions of parameterised operators, `INSTANCE` substitution of modules, and `LOCAL`. On `CoffeeCan1000Beans` it fails "ASSUME constraint evaluated to FALSE". This is its default `Nat = 0..100` truncation (observed in `src/stdlib.rs`) surfacing as an error rather than a wrong answer.
 
-Raw per-model data: `docs/survey/data/conformance-small-models.csv`.
+Raw per-model data: `docs/internal/survey/data/conformance-small-models.csv`.
 
 ## Honesty probes (measured)
 
@@ -149,7 +149,7 @@ Each probe is a tiny spec run on every tool and on TLC. The specs are reproduced
 | M1 syntax error (missing `)`) | SANY parse error, line 6 col 1, exit 150 | `line 6 col 1: expected )` (no file name in the location) | only a *warning* "failed to parse operator 'Next'", exit 1 | **hangs at 1 state forever** (2 workers); with 1 worker, panic then "all 1 worker threads panicked" | SANY-identical text | ariadne-rendered span, `TLA_PARSE_ERROR` in JSON (no location in JSON) |
 | M2 undefined identifier `step` | "Unknown operator: `step'", line 5 col 18–21 | "unknown identifier step" (no location) | runtime "undefined variable `step`" while evaluating Next | **hangs**; treats `step` as a model value, then panics "expected Int, got ModelValue" | SANY-identical | "semantic error: undefined identifier `step`" (no line or column) |
 
-Raw data: `docs/survey/data/probes.csv` and `docs/survey/data/determinism-random.csv`.
+Raw data: `docs/internal/survey/data/probes.csv` and `docs/internal/survey/data/determinism-random.csv`.
 
 **Reading the probes for honesty:**
 - **Refuses rather than approximates:** tla-mc (P3 both, P5, P9). Its two exceptions are the silent integer widening (P1) and the false liveness alarm under SYMMETRY (P4).

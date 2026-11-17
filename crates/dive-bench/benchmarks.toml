@@ -4,7 +4,7 @@
 #
 # Each entry names an Examples model by its corpus-relative `.cfg` (the
 # golden's model id). `survey` names the row of
-# docs/survey/data/bench-summary.csv with TLC's and tla-mc's measured
+# docs/internal/survey/data/bench-summary.csv with TLC's and tla-mc's measured
 # single-worker times, where the survey ran the model.
 #
 # `cfg` explicitly names a safety-only variant. Both tools run the identical

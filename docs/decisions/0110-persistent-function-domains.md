@@ -77,7 +77,7 @@ reduced ADR 0104 models in both profiles at one worker. All 16 arms completed
 with identical verdicts/counts/depth; geometric instruction reduction is
 5.365455%, and every cell improves. Original before-arm source/build/tool/input
 receipts and all raw arm hashes are retained. See the
-[compact evidence](../survey/data/persistent-function-domains-2026-10-21.json).
+[compact evidence](../internal/survey/data/persistent-function-domains-2026-10-21.json).
 
 The exact `239db53f` full checker gate passed in 35m16s: all 2,188 tests,
 cm1 and independent validation at 1/4/8 workers, 147 TLC-profile and 142 default

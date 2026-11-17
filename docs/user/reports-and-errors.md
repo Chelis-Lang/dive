@@ -125,9 +125,7 @@ complete source rows; use the whole `counterexample.trace` for validation.
 Consumers must accept native version 6 and validate this endpoint with a fresh
 source-bound fallible session before advancing their producer pin. An old reader
 must reject it, without relabelling the document as version 1 or the final source
-as a version-4 candidate. Unknown stages/versions still fail closed. Advance
-[notice to known consumers](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6558501056)
-was posted before the version-6 writer landed in #712.
+as a version-4 candidate. Unknown stages/versions still fail closed.
 
 VIEW proof supports scalar states and scalar/tuple VIEW keys only (64 key
 nodes, tuple depth eight), at most 64 admitted keys and 256 emissions.
@@ -448,8 +446,7 @@ parity contract; their independent validation requirements stay unchanged.
 An incompatible report or native trace change requires a new format version,
 a CHANGELOG entry describing migration, and advance notice to known consumers
 before it lands. Consumers update their readers before moving an immutable pin.
-The schema-2 migration was announced in
-[Oyster #61](https://github.com/Chelis-Lang/oyster/issues/61). The conformance
+The conformance
 harness retains version-1 safety/parse/analyze input support and legacy version-2
 temporal input support; current producers emit version 3 for every operation.
 A legacy version-2 check without `check_kind` still undergoes all strict temporal
@@ -465,8 +462,7 @@ including zero. Attribution and word-truth defaults remain 8,000,000 cells.
 existing byte/work fields are null in legacy mode, and actual integers in buffer
 mode. These are configured settings, never proof that execution reached them.
 No DFID/simulation result disposition changes. Readers must support major 3
-before moving a producer pin; [Oyster #70](https://github.com/Chelis-Lang/oyster/issues/70)
-records the advance notice. See [ADR 0111](../decisions/0111-graph-label-policy-and-report-v3.md).
+before moving a producer pin. See [ADR 0111](../decisions/0111-graph-label-policy-and-report-v3.md).
 
 For example:
 

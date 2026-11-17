@@ -32,7 +32,7 @@ Data gathered 2026-10-08 from a blob-filtered clone of `tlaplus/tlaplus`.
 | docs.tlapl.us `using:vscode:migrating_from_tlatoolbox` | "The TLA+ Toolbox has now moved to archived mode … not recommended for daily use." |
 | VS Code extension (`tlaplus/vscode-tlaplus`) | It **ships the rolling `v1.8.0` jar**: `ci.yml:21` and `release.yml:37` download `releases/download/v1.8.0/tla2tools.jar`, and each tlaplus build dispatches an extension rebuild (`main.yml:330-337`). |
 | Toolbox | Built from master as `TLAToolbox-1.8.0-*` (`main.yml:33-36`). The last stable Toolbox is 1.7.4. |
-| tlaplus/Examples CI | Validates against the nightly (= `v1.8.0`) build (dive `docs/survey/corpora.md` finding 2). |
+| tlaplus/Examples CI | Validates against the nightly (= `v1.8.0`) build (dive `docs/internal/survey/corpora.md` finding 2). |
 | lamport.azurewebsites.net/tla/tools.html, docs.tlapl.us `using:start` and `using:vscode:getting_started` | No version guidance. `current-tools.md` speaks only of "the current release". |
 | Deprecation of 1.7.x | Not stated anywhere. 1.7.x is simply unmaintained: no commit since 2024-08-08, and no backport of any fix in §4. |
 

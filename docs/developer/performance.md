@@ -124,7 +124,7 @@ they were on 2026-10-21, so this campaign is not quiet-window certified.
 **Runs.**
 - `dive-bench --profile both --workers 1,8 --reps 5 --tlc --timeout 900 --xmx 3g`.
 - All **300 runs** passed the pinned-golden checks.
-- Compact summary: `docs/survey/data/aws-benchmark-2026-10-26.json`. Raw rows
+- Compact summary: `docs/internal/survey/data/aws-benchmark-2026-10-26.json`. Raw rows
   stay outside the repository.
 
 TLC/dive wall-time ratios (above 1 means dive is faster), each the median of
@@ -170,7 +170,7 @@ A dedicated bare-metal campaign at clean source
 ten models, five repetitions, TLC and both dive profiles, at requested worker
 counts 1 and 8. Every run passed the pinned-golden checks. All arm summaries, including actual
 worker use, remain in the compact
-[controlled summary](../survey/data/aws-benchmark-controlled-2026-10-21.json).
+[controlled summary](../internal/survey/data/aws-benchmark-controlled-2026-10-21.json).
 All 300 individual raw rows are retained in the external archive identified by
 the summary's raw-row and archive hashes.
 This is a historical source baseline; later parity and budget changes are not
@@ -287,7 +287,7 @@ or 3.5× scaling target; small and initial-state-only models remain in the table
 CoffeeCan1000BeansSafety drops temporal properties in its explicit safety
 configuration and earns no original-liveness parity credit.
 
-The compact [machine-readable summary](../survey/data/aws-benchmark-2026-10-20.json)
+The compact [machine-readable summary](../internal/survey/data/aws-benchmark-2026-10-20.json)
 records the source/binary, benchmark set, oracle, Java, corpus and module pins.
 The release binary SHA-256 is
 `2987ec6480544a3d69de2e7f3de794cc9035678611c03bb85ae217bedfdd4ca5`.
@@ -325,7 +325,7 @@ A fresh profile of frozen main `c542d442` completed one shipping profiling CLI b
 
 `eval_inner` owns 10.26–13.81% exclusive instructions, but inclusive generation/property/evaluator arcs overlap and do not identify removable dispatch work. One bounded reread of the same profiles examined compound-value hash/constructor source positions and immediate call arcs. Its exclusive source/function unions include other construction and exclude descendants; they are not a global hash bound. No defensible eligible 5% hash-deferral case was established, so that hypothesis was rejected before implementation. No extra native run or profiler campaign followed.
 
-[The compact record](../survey/data/current-main-profile-2026-10-25.json) pins all eight totals and five-counter outcomes, original profile/stream hashes, machine/tools and the distinct raw-replay and compact-review scopes. The earlier startup `KeyError` occurred before any build/model/profile sample and remains separate from the complete corrected campaign. Compute was removed; raw evidence remains in S3. These observations establish no wall-time, TLC-throughput or scaling gain.
+[The compact record](../internal/survey/data/current-main-profile-2026-10-25.json) pins all eight totals and five-counter outcomes, original profile/stream hashes, machine/tools and the distinct raw-replay and compact-review scopes. The earlier startup `KeyError` occurred before any build/model/profile sample and remains separate from the complete corrected campaign. Compute was removed; raw evidence remains in S3. These observations establish no wall-time, TLC-throughput or scaling gain.
 
 ## Frozen-main caller attribution, 2026-10-25
 
@@ -333,7 +333,7 @@ Frozen main `1a8343b9` completed a shipping profiling build and all eight reduce
 
 A bounded query of those same eight ledgers retained every selected EXCEPT producer context, its exclusive source PCs and immediate incident helpers/arcs. Deleting the entire selected exclusive pool would reduce the eight-cell instruction geometric mean by only 1.487%. That is conditional arithmetic over the selected pool, not a universal bound: arbitrary descendants and shared helper ownership remain unknown, and overlapping arc costs are never added to exclusive totals. The evidence does not justify a 5% EXCEPT rewrite or a new performance campaign.
 
-[The compact record](../survey/data/instruction-caller-attribution-2026-10-25.json) pins all eight totals/category partitions and counter outcomes, original stream/profile/ledger hashes, machine/tool/binary identities, review scopes and S3 receipts. Raw profiles and archives remain in S3; the node, volume and security group were removed. This is instruction attribution, without a candidate, wall-time, Java TLC throughput, scaling or new conformance qualification.
+[The compact record](../internal/survey/data/instruction-caller-attribution-2026-10-25.json) pins all eight totals/category partitions and counter outcomes, original stream/profile/ledger hashes, machine/tool/binary identities, review scopes and S3 receipts. Raw profiles and archives remain in S3; the node, volume and security group were removed. This is instruction attribution, without a candidate, wall-time, Java TLC throughput, scaling or new conformance qualification.
 
 
 A separate complete query of the same eight caller ledgers examined batched
@@ -343,7 +343,7 @@ broader selected owner and immediate-helper pool would give 4.579%. Both miss
 the fixed 5% bar even before eligibility checks and required merge work. These
 are conditional calculations over finite selected pools, not global bounds on
 descendants or predictions of savings. Overlapping call arcs remain separate.
-No implementation or new model run follows. The [compact assessment](../survey/data/ordered-set-search-assessment-2026-10-26.json)
+No implementation or new model run follows. The [compact assessment](../internal/survey/data/ordered-set-search-assessment-2026-10-26.json)
 pins every whole-ledger replay, selected union, arithmetic and retained review.
 
 
@@ -351,7 +351,7 @@ pins every whole-ledger replay, selected union, arithmetic and retained review.
 
 A private diagnostic build completed the same eight reduced model/profile cells through the ordinary CLI at one worker, with matching success verdicts and all five counters. It observed the original function-set checks without skipping domain or range work. No qualified repeat successes were recorded. GameOfLife supplied 512 eligible first Boolean successes per profile, with no later witnessed repeat; every MCbtree query was conservatively provider-excluded. SimpleRegular used non-Boolean ranges and was also provider-excluded; EWD998PCal entered no observed function-set kernel.
 
-These exclusions prevent a general conclusion about reuse. Neither the zero recorded repeats nor the Boolean visit counts establish saved instructions, a safe cache hit rate or a 5% improvement. The cache proposal remains unimplemented. The [compact census record](../survey/data/function-membership-census-2026-10-25.json) retains every cell, exact source/binary/input and original-output hashes, the corrected checker-thread diagnostic handoff, qualification and limitations. No throughput, scaling, conformance or shipping-overhead result follows.
+These exclusions prevent a general conclusion about reuse. Neither the zero recorded repeats nor the Boolean visit counts establish saved instructions, a safe cache hit rate or a 5% improvement. The cache proposal remains unimplemented. The [compact census record](../internal/survey/data/function-membership-census-2026-10-25.json) retains every cell, exact source/binary/input and original-output hashes, the corrected checker-thread diagnostic handoff, qualification and limitations. No throughput, scaling, conformance or shipping-overhead result follows.
 
 ## Substitution-cache probe
 
@@ -445,7 +445,7 @@ and depth. The experiment was rejected; no runtime change was landed.
 
 The paired source pins, binary hashes, all eight instruction pairs and exact
 reduced-input hashes are in the compact
-[experiment summary](../survey/data/performance-prototypes-2026-10-21.json).
+[experiment summary](../internal/survey/data/performance-prototypes-2026-10-21.json).
 Both arms included CLI startup and used the same profiling build, Valgrind
 3.22.0 Cachegrind with cache simulation disabled, one worker, seed/fingerprint
 zero, a 900-second native budget, an 8 GiB memory ceiling and a 930-second
@@ -522,7 +522,7 @@ counts, depth, initial counts and empty final queues. The +1.422% cell also
 exceeded the per-cell regression ceiling. The prototype was rejected; its
 conditional full gate was correctly skipped and no runtime change was landed.
 
-The compact [frame-reuse screen](../survey/data/activation-frame-reuse-rejected-2026-10-22.json)
+The compact [frame-reuse screen](../internal/survey/data/activation-frame-reuse-rejected-2026-10-22.json)
 records the exact `537f8388` / `37488e87` source and binary pins, all eight pairs,
 input hashes and retained raw-archive identity. It used Rust 1.99.0 profiling
 builds, Valgrind 3.22.0 Cachegrind with cache simulation disabled, one worker,
@@ -541,7 +541,7 @@ depth, initial counts and empty final queues in all sixteen arms. It missed the
 required 5% geometric reduction, so the prototype was rejected and its
 conditional full gate was skipped. No runtime change was landed.
 
-The compact [operand screen](../survey/data/fused-operands-rejected-2026-10-22.json)
+The compact [operand screen](../internal/survey/data/fused-operands-rejected-2026-10-22.json)
 retains the actual `4e219ea8` / `1faf4905` source and profiling binary pins,
 all eight pairs and sixteen profile hashes. Each arm included the complete CLI
 under Cachegrind with cache simulation disabled, one worker, seed/fingerprint
@@ -560,7 +560,7 @@ initial counts and empty queues. The runtime candidate was rejected, and the
 frozen runner correctly skipped its conditional full gate. No runtime change
 was landed.
 
-The compact [predicate-region screen](../survey/data/predicate-regions-rejected-2026-10-22.json)
+The compact [predicate-region screen](../internal/survey/data/predicate-regions-rejected-2026-10-22.json)
 records actual `6badeb20` / `561e6ff4` source and profiling binary pins, all eight
 pairs and sixteen original profile hashes. The complete CLI ran under Cachegrind
 with cache simulation disabled, one worker, seed/fingerprint zero, a 900-second
@@ -587,7 +587,7 @@ counts and empty queues. The screen missed the required 5% geometric reduction,
 so the runner rejected the prototype and skipped its conditional full gate.
 No runtime change was landed.
 
-The compact [Boolean-consumer screen](../survey/data/typed-boolean-consumers-rejected-2026-10-22.json)
+The compact [Boolean-consumer screen](../internal/survey/data/typed-boolean-consumers-rejected-2026-10-22.json)
 records actual `4459812b` / `8448506c` source and profiling binary pins, all eight
 pairs and sixteen original profile hashes. It used the same 115 pinned inputs,
 Valgrind 3.22.0 Cachegrind with cache simulation disabled, one worker,
@@ -608,7 +608,7 @@ but individual improvements do not qualify the complete matrix. All sixteen
 arms completed with native exit zero and no external censor, preserving success
 verdicts, exact distinct/generated/initial counts, depth and empty queues.
 
-The [compact continuation screen](../survey/data/action-context-continuations-rejected-2026-10-23.json)
+The [compact continuation screen](../internal/survey/data/action-context-continuations-rejected-2026-10-23.json)
 records exact `1892ddc7` / `b30b2d4d` sources and trees, both physically frozen
 profiling ELF identities and modes, all eight instruction pairs, sixteen original
 profile/output hashes and both integer acceptance tests. It used the same 115
@@ -647,7 +647,7 @@ performance result, not a failed or censored native model run. The separate
 `02854597` / `6b7baa57` raw-handler experiment's 4.5943593% rejection remains
 unchanged; neither result earns a threshold waiver or a layout retry.
 
-The [compact screen](../survey/data/prepared-value-entry-screen-2026-10-23.json)
+The [compact screen](../internal/survey/data/prepared-value-entry-screen-2026-10-23.json)
 retains each integer instruction pair, equal semantic counters, actual source
 and binary pins, input/tool/library hashes and raw evidence hashes. The host
 was c7i.8xlarge with Rust 1.99.0 and Valgrind 3.22.0. Explicit native budgets
@@ -676,8 +676,8 @@ received a full checker gate or a threshold waiver. The outline producer's
 terminal HOLD follows a complete matrix and records the threshold failure;
 its earlier zero-build, zero-model startup failure is separate evidence.
 
-The compact [activation record](../survey/data/transient-activations-rejected-2026-10-24.json)
-and [outline record](../survey/data/compact-raw-outline-rejected-2026-10-24.json)
+The compact [activation record](../internal/survey/data/transient-activations-rejected-2026-10-24.json)
+and [outline record](../internal/survey/data/compact-raw-outline-rejected-2026-10-24.json)
 retain integer instruction pairs, equal counters, source/binary/input identities,
 tool and machine provenance, review hashes and retained S3 origins. Both used
 900-second native budgets, 8 GiB ceilings and 930-second external backstops.
@@ -701,7 +701,7 @@ its producer HOLD records the threshold failure after all arms completed.
 The runtime prototype remains unmerged, with no runtime full gate, repeat
 screen, retuning or threshold waiver.
 
-The [compact record](../survey/data/native-stdarg-storage-rejected-2026-10-24.json)
+The [compact record](../internal/survey/data/native-stdarg-storage-rejected-2026-10-24.json)
 retains every integer pair, equal counters, input and binary identities, raw
 hashes and retained S3 origins. An independent audit replayed original streams and Cachegrind
 costs in memory; a separate review recomputed the integer decision and geometric
@@ -726,7 +726,7 @@ screen failed both the fixed 5% geometric reduction bar and the individual
 1% regression ceiling. The runtime prototype remains unmerged; no runtime full
 gate, repeat screen, retuning or threshold waiver follows.
 
-The [compact record](../survey/data/invocation-session-rejected-2026-10-24.json)
+The [compact record](../internal/survey/data/invocation-session-rejected-2026-10-24.json)
 retains the eight integer pairs, equal counters, source/binary/input identities,
 all sixteen raw profile hashes and S3 origins. An independent audit replayed the original
 profiles, outputs and observations in memory. A separate post-run upload retained
@@ -753,7 +753,7 @@ individual 1% regression ceiling and missed the fixed 5% geometric reduction
 bar. It was rejected in full: no conditional runtime full gate, runtime PR,
 repeat screen, retuning or threshold waiver follows.
 
-The [compact record](../survey/data/eager-set-payload-rejected-2026-10-25.json)
+The [compact record](../internal/survey/data/eager-set-payload-rejected-2026-10-25.json)
 retains all eight integer pairs, equal counters, source and binary identities,
 sixteen raw profile hashes, machine/tool facts and retained S3 origins. An
 independent audit replayed original streams and identities in memory; a
@@ -782,7 +782,7 @@ Six cells exceeded the 1% regression ceiling, and the fixed 5% geometric
 reduction bar also failed. The complete screen was rejected; no conditional
 runtime full gate, runtime PR, repeat, retuning or threshold waiver follows.
 
-The [compact record](../survey/data/resolved-call-demand-rejected-2026-10-25.json)
+The [compact record](../internal/survey/data/resolved-call-demand-rejected-2026-10-25.json)
 retains all eight integer pairs, equal counters, source and binary identities,
 raw profile and observation hashes, machine/tool facts and retained S3 origins.
 An independent audit replayed 110 original objects in memory; a separate compact
@@ -821,7 +821,7 @@ budgets. Whole-CLI instructions changed by -1.031% in the default profile and
 -1.017% in the TLC profile, with the same success, counts and depth. This is
 not the evaluator performance acceptance campaign and earns no throughput
 credit. Both measurements are preserved in the compact
-[machine-readable summary](../survey/data/packed-atom-truth-2026-10-21.json).
+[machine-readable summary](../internal/survey/data/packed-atom-truth-2026-10-21.json).
 
 ## Search-budget overhead qualification
 
@@ -840,7 +840,7 @@ totals are not pooled. The shared host and reduced diagnostic workloads make
 no wall-clock, quiet-host or TLC throughput claim; this campaign executes no
 TLC oracle.
 
-The [compact evidence](../survey/data/search-budget-overhead-2026-10-21.json)
+The [compact evidence](../internal/survey/data/search-budget-overhead-2026-10-21.json)
 retains all cells/pairs, exact source/binary and workload hashes, reductions,
 machine/toolchain, constraints and archive identity. Raw outputs stay external.
 
@@ -855,7 +855,7 @@ call evidence. Their paired-median deltas are −0.0209% default / −0.0428% TL
 with identical counts/depth. Every measured cell and pair satisfies the
 one-percent normal-input overhead bar. The two instrument totals are not pooled.
 
-The [compact evidence](../survey/data/interval-streaming-overhead-2026-10-21.json)
+The [compact evidence](../internal/survey/data/interval-streaming-overhead-2026-10-21.json)
 retains all rows/pairs, exact source/binary/workload/library identities, machine,
 toolchain, constraints and archive hash. The shared host and reduced diagnostic
 workloads earn no wall-clock or TLC throughput credit; no TLC oracle executes
@@ -875,7 +875,7 @@ whole-command instruction observations on a shared host, not throughput claims.
 
 The runner's original provenance block accidentally named older source and
 binary paths. That block is preserved and invalidated in the
-[compact evidence](../survey/data/native-memory-overhead-2026-10-21.json).
+[compact evidence](../internal/survey/data/native-memory-overhead-2026-10-21.json).
 The original staging script checks and builds the intended clean source heads,
 and every original Valgrind header names the corresponding executable path.
 Corrected hashes and clean-head observations were collected afterward. Retained
@@ -894,7 +894,7 @@ do not establish quiet-machine speedups or replace instruction qualification.
 
 ## Cooperative evaluator interruption overhead
 
-The [compact 2026-10-21 campaign](../survey/data/evaluator-loop-overhead-2026-10-21.json)
+The [compact 2026-10-21 campaign](../internal/survey/data/evaluator-loop-overhead-2026-10-21.json)
 qualifies normal-input instruction overhead for typed interruption in nested
 quantifier, CHOOSE and filter loops. On the four reduced ADR 0104 workloads in
 both semantic profiles, whole-CLI Cachegrind instructions at one worker rose
@@ -926,7 +926,7 @@ remain interruption limitations; the fresh-validation follow-up is separate.
 
 ## Controlled native validation overhead
 
-The [compact validation-control campaign](../survey/data/validation-control-overhead-2026-10-21.json)
+The [compact validation-control campaign](../internal/survey/data/validation-control-overhead-2026-10-21.json)
 compares exact sources `1338630b` and `8f0731ac`. All eight reduced ADR 0104
 model/profile cells retain success, counts and depth. Whole-CLI Cachegrind
 instructions at one worker have geometric mean change −0.000512%, with cells
@@ -975,7 +975,7 @@ PR checks are separate from this exact-source gate.
 | GameOfLife | 6.478926% | 3.658053% |
 | EWD998PCal | 0.769651% | 0.574490% |
 
-[Compact evidence](../survey/data/persistent-function-domains-2026-10-21.json)
+[Compact evidence](../internal/survey/data/persistent-function-domains-2026-10-21.json)
 records actual source trees, profiling binaries, tool/input identities, every
 arm and raw hash. This dedicated c7i.8xlarge campaign ran two sequential locked
 profiling builds and 16 sequential Cachegrind arms with explicit 900-second,
@@ -1018,7 +1018,7 @@ The campaign used explicit 900-second/8-GiB native budgets and a 930-second OS
 backstop, original before-run source/binary/tool/input receipts and matching
 final identities. This measures whole-CLI normal-input overhead, not binding-heavy
 throughput, quiet wall time, TLC speedup, universal interruption coverage or new
-corpus agreement. [Compact evidence](../survey/data/controlled-binding-overhead-2026-10-22.json)
+corpus agreement. [Compact evidence](../internal/survey/data/controlled-binding-overhead-2026-10-22.json)
 records the actual source pins, binaries, raw hashes and all eight pairs. Later
 original delivery on `6badeb20` retained the entire measured runtime tree.
 
@@ -1051,7 +1051,7 @@ the first-candidate error remains pending independent trace validation under
 [#434](https://github.com/Chelis-Lang/dive/issues/434), without established
 population agreement credit.
 
-[Compact evidence](../survey/data/enabled-interval-qualification-2026-10-23.json)
+[Compact evidence](../internal/survey/data/enabled-interval-qualification-2026-10-23.json)
 records every integer instruction pair, actual source/tool/input identities,
 profile and release binary hashes, gate reports and original archive hashes.
 Release binaries were captured after the gate and remain distinct from the
@@ -1073,7 +1073,7 @@ The complete eight-pair instruction screen kept all reported state, depth and
 queue counters identical and every pair within the 1% overhead limit
 (geometric mean −0.5968%). This qualifies the capacity change; it establishes no wall-clock or throughput milestone.
 Structural, quiet/native/bulk and independent-validation exclusions remain.
-The [compact record](../survey/data/assumption-control-overhead-2026-10-23.json)
+The [compact record](../internal/survey/data/assumption-control-overhead-2026-10-23.json)
 distinguishes the compiled source from its later delivery, retains both earlier
 setup HOLDs, and records preservation plus independent resource cleanup.
 

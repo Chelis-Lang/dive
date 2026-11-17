@@ -148,9 +148,8 @@ contains both `SPECIFICATION Spec` and `PROPERTY Bound`. Output still reports
 requested8/actual1 workers. Separately add frontier/predecessor budgets when
 needed; their scopes remain independent.
 
-See [the storage library](disk-seen-library.md),
-[ADR0068](../decisions/0083-storage-and-checkpoint.md) and the current
-source-bound study.
+See [the storage library](disk-seen-library.md) and the
+[storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md).
 
 
 An invariant evaluation error now uses positioned fallible disk replay. For
@@ -204,9 +203,8 @@ For the minimal already-seen successor case, pinned TLC and resident checking
 report 3 generated, 3 distinct and 1 queued. The original failed disk epoch gave
 4 distinct/2 queued; the first guarded epoch refused replay. Both remain
 immutable observations.
-The positioned implementation, clean probes and current validation status are
-in [ADR0072](../decisions/0083-storage-and-checkpoint.md) and
-the replay study.
+The positioned implementation, clean probes and validation are described in
+the [storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md).
 The storage and replay-mode restrictions above remain. Model roles bind through
 the same path as resident checking; no separate role-admission proof is required.
 Per-action replay successor buffers are outside the disk-key budget.

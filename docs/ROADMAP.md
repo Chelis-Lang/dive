@@ -9,7 +9,7 @@ The owner's direction since 2026-11-05 is
 
 [RELEASE.md](RELEASE.md) defines the release gates and the critical path.
 [scoreboard.md](scoreboard.md) has the current numbers. The
-[2026-11-05 progress review](reviews/2026-11-05-progress-review.md) explains the
+[2026-11-05 progress review](internal/reviews/2026-11-05-progress-review.md) explains the
 reset. Plans give no dates or effort estimates.
 
 GitHub milestones:
@@ -87,8 +87,8 @@ and native compilation come back as new implementations after v0.1.
 | Milestone | Delivered |
 |---|---|
 | M0 Foundation | Workspace, lints, layering check, lean CI, commit hooks, charter and AGENTS.md |
-| M1 Oracles and harness | Pinned TLC/SANY snapshots and JRE; pinned Examples, CommunityModules and TLC test corpora; `dive-conformance` with goldens, reports and worker invariance; the survey in `docs/survey/` |
-| M2 Competitive analysis | `docs/survey/competitive.md` and the positioning ADR |
+| M1 Oracles and harness | Pinned TLC/SANY snapshots and JRE; pinned Examples, CommunityModules and TLC test corpora; `dive-conformance` with goldens, reports and worker invariance; the survey in `docs/internal/survey/` |
+| M2 Competitive analysis | `docs/internal/survey/competitive.md` and the positioning ADR |
 | M3 Syntax and values | Lossless parser with spans and recovery; `dive-value` with canonical order and FP64 fingerprints |
 | M4 Semantics and configuration | SANY-equivalent `dive-sema`; the TLC `.cfg` format |
 | M5 First verdicts | IR, evaluator, standard library, deterministic parallel safety checking, the independent `dive-trace` validator |
