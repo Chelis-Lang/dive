@@ -1,4 +1,4 @@
-//! Lowering `dive-sema`'s semantic model to the IR (ADR 0013).
+//! Lowering `dive-sema`'s semantic model to the IR.
 //!
 //! The traversal is deterministic: modules in dependency order (each file's
 //! inner modules before it), the symbols of each module's context in SANY's
@@ -1014,7 +1014,7 @@ impl<'a> Lowerer<'a> {
 
     /// Whether an expression is pure and cannot fail by its shape alone: a
     /// literal, a bound variable, or a tuple or record of these. Such a
-    /// laziness point may be evaluated eagerly (ADR 0013 §3).
+    /// laziness point may be evaluated eagerly.
     fn is_strict_shape(&self, id: ExprId) -> bool {
         match self.expr_of(id) {
             Some(Expr::Bool(_) | Expr::Num(_) | Expr::Str(_)) => true,

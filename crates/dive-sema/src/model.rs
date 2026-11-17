@@ -10,8 +10,7 @@
 //!
 //! The shapes follow SANY's `tla2sany.semantic` classes one to one (see the
 //! variant docs), so a consumer that knows SANY's graph knows this one, and
-//! the port can be compared class by class. `dive-ir` lowers from it; see
-//! `docs/sema-model.md` for the contract and the invariants it may rely on.
+//! the port can be compared class by class. `dive-ir` lowers from it.
 //!
 //! Built-in operators are [`NodeKind::OpDef`] nodes of kind [`DefKind::BuiltIn`] whose
 //! names are SANY's (`\in`, `$FcnApply`, `$SetEnumerate`, ...); the full list

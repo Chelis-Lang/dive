@@ -639,7 +639,7 @@ impl Set {
 /// Quiet mode: while a [`quiet::Quiet`] guard is alive on this thread, operations
 /// that TLC performs with side effects (normalizing an unnormalized set) compute the
 /// same results without recording the side effect. `==`, [`Hash`] and `Debug` run
-/// quietly (ADR 0012).
+/// quietly.
 pub(crate) mod quiet {
     use std::cell::Cell;
 
@@ -1351,7 +1351,7 @@ impl Value {
     /// Constructs a mathematical finite set in canonical value order.
     ///
     /// Unlike [`Self::set`], construction accepts mixed value shapes without
-    /// reproducing TLC's partial sorting comparisons (ADR 0153). This does not
+    /// reproducing TLC's partial sorting comparisons. This does not
     /// change the semantics of direct scalar comparisons.
     ///
     /// ```
@@ -1430,7 +1430,7 @@ impl Value {
     ///
     /// `proceed` returns false to interrupt. Closed materialized values use
     /// checked comparison, sorting and fallible temporary storage. Symbolic
-    /// children retain the legacy constructor, whose enumeration is not yet
+    /// children keep the uncontrolled constructor, whose enumeration is not yet
     /// cooperative. Final shared-value allocations retain Rust's allocation
     /// behavior; this is not an allocation-time memory ceiling.
     ///
@@ -1591,7 +1591,7 @@ impl Value {
         crate::order::make_fcn(pairs, ctx)
     }
 
-    /// Constructs a function with the controls and legacy symbolic fallback
+    /// Constructs a function with the controls and symbolic fallback
     /// described by [`Self::set_controlled`].
     ///
     /// # Errors

@@ -1,8 +1,7 @@
 //! `dive-config`: the TLC model configuration (`.cfg`) format.
 //!
 //! [`parse`] reads a cfg file exactly as the pinned TLC does
-//! (`tlc2.tool.impl.ModelConfig` at upstream commit `94d0c50`, see
-//! `docs/provenance.md`):
+//! (`tlc2.tool.impl.ModelConfig`, ported from tlaplus at `94d0c50`):
 //!
 //! - **Tokens** come from SANY's TLA+ lexer in its `SPEC` state, shared with
 //!   `dive-syntax` ([`dive_syntax::tokens`]). Comments are TLA+ comments.

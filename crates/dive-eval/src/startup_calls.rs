@@ -1,11 +1,11 @@
 //! Results of pure operator calls kept during one start-up evaluation
-//! (`Evaluator::precompute`, TLC's `processConstantDefns`), as the core keeps
+//! (`Evaluator::precompute`, TLC's `processConstantDefns`), as Core keeps
 //! its own while it evaluates deferred definitions (`dive_core`'s
-//! `CallCache`, `docs/developer/core/04-plan-compiler.md`).
+//! `CallCache`).
 //!
 //! A start-up definition such as `MCReachabilityTestRandomGraphs`'s `Test`
 //! applies the same constant operator to the same constant arguments
-//! thousands of times (`Seq(Nodes)` with `Seq <- LimitedSeq`, issue #846);
+//! thousands of times (`Seq(Nodes)` with `Seq <- LimitedSeq`);
 //! each call rebuilds and canonicalizes the same set. A call is kept only
 //! when its result cannot depend on anything but its inputs, and its inputs
 //! are already values:
@@ -22,7 +22,7 @@
 //! - so is each substituted constant the definition reaches, as the call
 //!   finds it in its dynamic context: those values are part of the call's
 //!   inputs, so `P(Succ)!ExistsPath(m, n)` is kept for each `Succ`
-//!   (`MCReachabilityTestRandomGraphs`, issue #939);
+//!   (`MCReachabilityTestRandomGraphs`);
 //! - the evaluation runs in the default profile (canonical sets, so a value
 //!   carries no normalization history), outside diagnostics and
 //!   foreign cache domains.

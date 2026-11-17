@@ -1,8 +1,7 @@
 //! The PlusCal translator proper: a port of the semantics of the pinned
-//! tlaplus/tlaplus `pcal.trans` (MIT), commit
-//! `94d0c5070852b37b801bb8998c436383ab7ee37b` (`ParseAlgorithm`, `PcalSymTab`, `PcalFixIDs`,
-//! `PcalTranslate` and `PcalTLAGen`). See `docs/provenance.md`; the upstream
-//! MIT copyright and permission notice is retained in this directory's `LICENSE`.
+//! tlaplus/tlaplus `pcal.trans` (MIT), ported from tlaplus at `94d0c50`
+//! (`ParseAlgorithm`, `PcalSymTab`, `PcalFixIDs`, `PcalTranslate` and
+//! `PcalTLAGen`). The upstream MIT copyright and permission notice is retained in this directory's `LICENSE`.
 //!
 //! Stages, in the reference order:
 //! 1. [`build`]: the parsed source becomes the translator's tree; macro
@@ -378,7 +377,8 @@ fn check_normalized_depth(alg: &ast::Algorithm, limit: usize) -> Result<(), Fail
 
 /// pcal.trans translates an algorithm that declares a variable, label,
 /// procedure or process with a name the translation also defines, and SANY
-/// then rejects the module. dive refuses instead (D-008).
+/// then rejects the module. dive refuses the algorithm instead, naming the
+/// clashing name.
 fn check_generated_names(alg: &ast::Algorithm) -> Result<(), Fail> {
     let mut names: Vec<&str> = alg.decls.iter().map(|d| d.var.as_str()).collect();
     for procedure in &alg.prcds {

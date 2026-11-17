@@ -17,7 +17,7 @@ pub const MAX_INPUT_RECORDS: usize = 256;
 /// Maximum entries in one captured environment.
 pub const MAX_ENV_ENTRIES: usize = 4096;
 
-/// Explicit host category grants (D-017). Every profile defaults to no grants.
+/// Explicit host category grants. Every profile defaults to no grants.
 /// A grant never supplies an implementation or overrides a driver's refusal.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct HostAccess {

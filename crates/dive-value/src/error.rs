@@ -6,12 +6,12 @@ use std::fmt;
 ///
 /// Specification error classes map to TLC's error codes (`tlc2.output.EC`), see
 /// [`ErrorKind::tlc_code`]. [`ErrorKind::Interrupted`] is instead typed host
-/// control flow; its legacy numeric accessor is not a TLC-error certificate.
+/// control flow; its numeric code accessor is not a TLC-error certificate.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum ErrorKind {
     /// A mathematical operation whose exact semantics are not implemented.
-    /// The legacy numeric accessor is not a TLC error certificate for this kind.
+    /// The numeric code accessor is not a TLC error certificate for this kind.
     Unsupported,
     /// Typed cooperative host interruption transported through a deferred
     /// evaluator provider. This is not a TLC error or a resource refusal.

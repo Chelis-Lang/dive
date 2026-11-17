@@ -16,7 +16,7 @@ use std::collections::BTreeSet;
 
 /// Sets nested deeper than this are refused with `DIVE-C0030`. TLC parses
 /// them recursively and fails with a stack overflow somewhere deeper,
-/// depending on `-Xss`; dive refuses explicitly instead (cf. ADR 0009).
+/// depending on `-Xss`; dive refuses explicitly instead.
 pub const MAX_SET_NESTING: usize = 1024;
 
 /// Every keyword TLC's reader knows (`ModelConfig.ALL_KEYWORDS`). A token

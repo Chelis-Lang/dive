@@ -1,10 +1,10 @@
-//! Splitting the next-state relation into actions (ADR 0013 §4).
+//! Splitting the next-state relation into actions.
 //!
 //! [`split`] builds the tree that TLC's `Tool.getActions` walks
 //! (`tlc2/tool/impl/Tool.java:269-419` at tlaplus `94d0c50`). Expanding it
 //! into TLC's flat, ordered action list needs values (the domains of
 //! existential quantifiers and the arguments of inlined operators), so that
-//! happens when the model is bound (`dive-model`, ADR 0013 §8). The tree
+//! happens when the model is bound (`dive-model`). The tree
 //! records every point where TLC's walk branches on a value or an exception,
 //! so the expansion is mechanical:
 //!
@@ -392,7 +392,7 @@ pub enum Update {
     Unchanged,
 }
 
-/// An action as guards and per-variable updates (ADR 0013 §4), for export
+/// An action as guards and per-variable updates, for export
 /// (the Verus exporter) and diagnostics. Checking never uses it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ActionShape {

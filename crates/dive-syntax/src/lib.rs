@@ -9,7 +9,7 @@
 //! includes SANY's syntactic restrictions, such as operator precedence
 //! conflicts (`a * -b` is rejected) and junction-list alignment. The one
 //! exception is pathologically deep nesting, which `dive` refuses with
-//! `DIVE-S0040` (see ADR 0009). It never panics, and it always produces a
+//! `DIVE-S0040` instead of risking a stack overflow. It never panics, and it always produces a
 //! tree; after an error it recovers at the next module-level unit so editors
 //! keep working.
 //!

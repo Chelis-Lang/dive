@@ -5,7 +5,7 @@
 //! does; a configured `Op = v` likewise replaces a definition by a value.
 //! Checking then reads the kept value and never evaluates the body again, so
 //! a `RandomElement` in such a body draws once, from the run's start-up
-//! stream (reported with its seed, D-002), and never while checking. The IR's
+//! stream (reported with its seed), and never while checking. The IR's
 //! syntactic [`Effects::IMPURE`] flag cannot see this: it propagates through
 //! every reference. [`Evaluator::impure_after_startup`] answers the same
 //! question with the fixed definitions as values, and is conservative in

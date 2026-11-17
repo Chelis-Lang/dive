@@ -84,7 +84,7 @@ impl RunHost {
     }
 
     /// Restarts the start-up stream (trace reconstruction regenerates the
-    /// initial states from a fresh one, as TLC does; D-002).
+    /// initial states from a fresh one, as TLC does).
     pub fn restart(&self) {
         *self.stream.lock().unwrap_or_else(PoisonError::into_inner) = self.streams.startup();
     }

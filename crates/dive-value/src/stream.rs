@@ -20,7 +20,7 @@ pub(crate) type Elems = Box<dyn Iterator<Item = Value> + Send>;
 mod subset_cursor;
 pub use subset_cursor::{ConcreteSubsetStream, SubsetCommit, SubsetScratch};
 
-/// Legacy scalar-component eligibility: no heap work-list on the old path.
+/// Scalar-component eligibility: a component that needs no heap work-list.
 fn concrete_component(value: &Value, order: ValueOrder) -> bool {
     let Value::Set(set) = value else {
         return false;

@@ -1,7 +1,7 @@
 //! The successor generator: ports of TLC's `Tool.getInitStates`,
 //! `Tool.getNextStates`, `processUnchanged`, `enabled` and `getActions`
-//! (`tlc2/tool/impl/Tool.java` at tlaplus `94d0c50`), rule by rule
-//! (ADR 0014 §3).
+//! (`tlc2/tool/impl/Tool.java`, ported from tlaplus at `94d0c50`), rule by
+//! rule.
 //!
 //! **What it reproduces.** For each state and action, the exact sequence of
 //! successors TLC's enumerator hands to its functor, duplicates included,
@@ -36,13 +36,13 @@
 //! all-assigned path.
 //!
 //! **What it does not do.** It never deduplicates, filters or reorders: the
-//! checker counts, constrains and stores (ADR 0015). A successor that leaves a
+//! checker counts, constrains and stores. A successor that leaves a
 //! variable unassigned is still emitted ([`Successor::complete`]); TLC reports
 //! it in its functor (`TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT`).
 //!
 //! # Driving it
 //!
-//! A checker (WP-D2) gets the initial predicates and the split actions from
+//! A checker gets the initial predicates and the split actions from
 //! the binding stage ([`Evaluator::init_predicate`], [`Evaluator::actions`],
 //! or [`Evaluator::scope`] and its relatives for formulas found inside
 //! definitions and instances), generates the initial states, then expands
@@ -1238,7 +1238,7 @@ impl Gen<'_, '_, '_> {
                             // no normalized copy or history-sensitive lazy-set
                             // decision is needed. Reach the sink before building
                             // an entire domain so its stop can interrupt Init
-                            // and successor enumeration (ADR 0107, issue #349).
+                            // and successor enumeration.
                             return self.bind_interval(var, lo, hi, acts);
                         }
                         if let Some(elements) = core.in_element_stream(s)? {
@@ -2214,7 +2214,7 @@ impl Evaluator {
     /// Decides whether a scoped action has a successor, using TLC's existing
     /// ENABLED search. A subscript requests a non-stuttering successor,
     /// equivalent to `ENABLED <<action>>_sub`. The checker, the liveness
-    /// checker and the trace validator all decide `ENABLED` here (ADR 0103).
+    /// checker and the trace validator all decide `ENABLED` here.
     ///
     /// ```
     /// use std::sync::Arc;
