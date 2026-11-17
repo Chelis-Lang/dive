@@ -41,7 +41,7 @@ pub mod exit {
     /// An internal error in dive; no verdict (both).
     pub const INTERNAL: u8 = 4;
     /// The run's budget (`--time-limit`, `--max-memory`) ran out; no verdict
-    /// (both; ADR 0107).
+    /// (both).
     pub const STOPPED: u8 = 5;
     /// An invariant, property, action property or postcondition is violated.
     pub const VIOLATION: u8 = 10;
@@ -92,11 +92,12 @@ pub enum Store {
     /// Fingerprints (the default, as in TLC).
     #[default]
     Fingerprint,
-    /// Full states (`--store exact`, D-007).
+    /// Full states (`--store exact`): an exhaustive result with no
+    /// fingerprint-collision caveat.
     Exact,
 }
 
-/// A run-budget setting (ADR 0107): the profile's default, no limit, or an
+/// A run-budget setting: the profile's default, no limit, or an
 /// explicit value.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum BudgetSetting<T> {
@@ -162,12 +163,13 @@ pub struct CheckRequest {
     /// TLC-equivalent setting; use `debug::Session` for a managed session.
     pub debugger: Option<Arc<dyn dive_core::debug::Observer>>,
     /// `--source-coverage`: native source-expression work. Core does not
-    /// implement it, so `true` is a named refusal (issue #910).
+    /// implement it, so `true` is a named refusal.
     pub source_coverage: bool,
     /// `--coverage 0`: TLC's logical action-context costs. Core does not
-    /// implement them, so `true` is a named refusal (issue #910).
+    /// implement them, so `true` is a named refusal.
     pub tlc_coverage: bool,
-    /// Explicit spec host categories (D-017), default-empty in both profiles.
+    /// Explicit spec host categories, default-empty in both profiles: a
+    /// specification gets host access only when it is granted.
     /// The first slice supports source-binding environment and TXT/UTF-8 reads.
     pub host_access: crate::HostAccess,
     /// Explicit bounded transient disk seen-state route. None keeps the memory
@@ -209,7 +211,7 @@ pub struct CheckRequest {
     /// Whole-run symmetry/liveness policy; profile default when omitted.
     /// TLC-equivalent: `Tlc`, currently refused for quotient temporal checking.
     pub symmetry_liveness: Option<dive_model::SymmetryLiveness>,
-    /// `--action-composition off|tlc|tla` (D-022); `None` is the profile's
+    /// `--action-composition off|tlc|tla`; `None` is the profile's
     /// setting: `tla` by default, `off` under `--compat=tlc` (TLC without
     /// `-Dtlc2.tool.impl.Tool.cdot=true`).
     pub action_composition: Option<dive_eval::ActionComposition>,
@@ -218,8 +220,8 @@ pub struct CheckRequest {
     /// `--seed`; a fresh seed otherwise (always reported).
     pub seed: Option<i64>,
     /// `--core-sample N` (`--engine core`): after the search, compare the
-    /// successors of `N` sampled expanded states with the reference
-    /// evaluator's (`docs/developer/core/08-correctness.md` §4). Diagnostic
+    /// successors of `N` sampled expanded states with the dive-eval
+    /// evaluator's. Diagnostic
     /// only: every result is unchanged. `None` samples nothing.
     pub core_sample: Option<usize>,
     /// `--fp`; TLC picks one at random under `--compat=tlc`, dive uses 0.
@@ -230,7 +232,7 @@ pub struct CheckRequest {
     /// TLC's `-deadlock`: do not check for deadlock.
     pub no_deadlock: bool,
     /// `--sequential`: every level inline with one logical worker, as
-    /// sequential mode does (ADR 0015 §6). Results are identical.
+    /// sequential mode does. Results are identical.
     pub sequential: bool,
     /// Test-only chaos scheduling (`--chaos SEED`, or `DIVE_CHAOS`); see
     /// `dive_runtime::CheckOptions::chaos`. Results must be identical.
@@ -242,12 +244,12 @@ pub struct CheckRequest {
     /// Unsupported combinations retain named refusals.
     pub temporal: TemporalMode,
     /// Completed-level schedule for ordinary dive-profile temporal checking
-    /// (D-014). The default is the documented [`PeriodicSchedule::DEFAULT`];
+    /// (TLC checks only at the end). The default is the documented [`PeriodicSchedule::DEFAULT`];
     /// TLC-profile and explicit final requests ignore it and check once at the end.
     pub periodic: PeriodicSchedule,
-    /// `--time-limit` (ADR 0107): wall-clock time for the whole check.
+    /// `--time-limit`: wall-clock time for the whole check.
     pub time_limit: BudgetSetting<std::time::Duration>,
-    /// `--max-memory` (ADR 0107): the whole process's resident-memory
+    /// `--max-memory`: the whole process's resident-memory
     /// ceiling, in bytes.
     pub max_memory: BudgetSetting<u64>,
     /// Maximum admitted distinct in-model identities; `None` is TLC-equivalent.
@@ -435,7 +437,7 @@ pub fn check_file_engine(
     check_file_in(req, None, false, None)
 }
 
-/// Checks with the core engine under explicit strategy switches, as
+/// Checks with Core under explicit strategy switches, as
 /// `DIVE_CORE_OPT` gives them (for example `-memo,-delta-hash`); the
 /// environment variable is ignored. Every switch must leave every result
 /// unchanged.
@@ -524,8 +526,8 @@ pub fn check_file_checkpoint(
 }
 
 /// Runs a checkpoint transaction on the given engine, Core. Recovering an
-/// archive the removed reference engine wrote is rejected before the model
-/// loads.
+/// archive written by an earlier dive engine, which no longer exists, is
+/// rejected before the model loads.
 ///
 /// ```no_run
 /// use dive_api::{CheckRequest, Engine, checkpoint, check_file_checkpoint_engine};
@@ -1343,8 +1345,8 @@ impl CheckReport {
                     || self.checkpoint_request.as_ref().is_some_and(|r| {
                         r.counters == dive_runtime::checkpoint::Counters::Retain
                     })
-                    // TLC has no time limit (D-026). A memory ceiling is
-                    // TLC's `-Xmx` counterpart, a host resource (ADR 0107).
+                    // TLC has no time limit. A memory ceiling is TLC's
+                    // `-Xmx` counterpart, a host resource.
                     || self.budget_sources.0 == "explicit"
                     || self.opts.max_states.is_some() || self.opts.max_depth.is_some()
                     || self.opts.symmetry_liveness != dive_model::SymmetryLiveness::Tlc =>
@@ -1398,7 +1400,7 @@ impl CheckReport {
         output
     }
 
-    /// The `options` block: profile, options and seed (ADR 0010).
+    /// The `options` block: profile, options and seed.
     fn symmetry_liveness(&self) -> Option<&dive_model::SymmetryLivenessResolution> {
         match &self.phase {
             Phase::Checked(result) => result.symmetry_liveness.as_ref(),
@@ -2175,7 +2177,7 @@ impl CheckReport {
 }
 
 /// The counterexample in `dive-trace`'s format, the
-/// document the independent validator reads (ADR 0016): `dive
+/// document the independent validator reads: `dive
 /// validate-trace` and the conformance harness take it from
 /// `counterexample.trace`. `null` when a value has no JSON form or the
 /// verdict has no ending the format names.
@@ -2292,7 +2294,7 @@ fn trace_doc(
     Ok(doc.to_json())
 }
 
-/// The `stopped` block of a run its budget stopped (ADR 0107).
+/// The `stopped` block of a run its budget stopped.
 pub(crate) fn stopped_json(stopped: &dive_runtime::budget::Stopped) -> Value {
     json!({
         "resource": stopped.resource.name(),
@@ -2542,7 +2544,7 @@ fn temporal_json(doc: &mut Value, report: &crate::temporal::Report, tlc_fingerpr
 }
 
 // Pinned TLC MP::TLC_TEMPORAL_PROPERTY_VIOLATED names the properties false
-// on the actual printed word, in configured order (ADR 0126).
+// on the actual printed word, in configured order.
 fn temporal_property_names(names: &[String]) -> String {
     match names.split_last() {
         None => String::new(),

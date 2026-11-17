@@ -67,7 +67,7 @@ pub(super) fn prefix(
 }
 
 impl Completed {
-    /// The legacy adapter retains the original graph object and its public
+    /// The compatibility adapter retains the original graph object and its public
     /// fields. Its original sealed facts already contain the neutral result's
     /// producer evidence; only that redundant metadata copy is released.
     pub(super) fn reference(self, captured: capture::Complete) -> Analysis {

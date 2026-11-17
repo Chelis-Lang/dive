@@ -305,8 +305,9 @@ impl Session {
 
     /// Validates a document with resource exceptions outside the report.
     /// No budget or artificial control is installed by this uncontrolled path.
-    /// Legacy documents retain the existing reader; temporal error endpoints
-    /// use fresh private binding, ordered reconstruction and finite replay.
+    /// Documents without temporal error endpoints use the plain reader; those
+    /// endpoints use fresh private binding, ordered reconstruction and finite
+    /// replay.
     ///
     /// ```no_run
     /// # fn read(session: &dive_trace::Session, doc: &dive_trace::TraceDoc)

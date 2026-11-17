@@ -397,7 +397,7 @@ impl PartialStateEndpoint {
     }
 }
 
-/// The independently discovered candidate-side error site (ADR 0128).
+/// The independently discovered candidate-side error site.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CandidateErrorSite {
     /// An ordered state constraint.

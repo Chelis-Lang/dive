@@ -34,7 +34,7 @@ pub struct Limits {
     pub product: product::Limits,
     /// Maximum temporal properties planned before exploration.
     pub properties: usize,
-    /// Shared legacy graph-label, attribution-row and word-truth cell ceiling.
+    /// Shared graph-label, attribution-row and word-truth cell ceiling.
     /// Existing entrypoints retain it for every owner; explicit graph policy
     /// changes only graph labels, leaving the latter two owners unchanged.
     pub atom_cells: usize,
@@ -176,7 +176,7 @@ pub enum AnalysisError {
     Inconsistent(&'static str),
     /// A capture thread failure lost execution evidence.
     CaptureThread(String),
-    /// The run's budget ran out after capture (ADR 0107). Never a verdict;
+    /// The run's budget ran out after capture. Never a verdict;
     /// a stop during capture is an [`Self::Exploration`] with
     /// [`dive_runtime::Verdict::Stopped`].
     Stopped(Box<dive_runtime::budget::Stopped>),
@@ -399,7 +399,7 @@ pub enum StateEvaluationSite {
 
 /// An original state-atom cause, without an ordinary error verdict.
 /// The inner cause's expression origin and the bound predicate's outer source
-/// are retained separately. Legacy posthoc evidence has no demand authority.
+/// are retained separately. Post-hoc evidence has no demand authority.
 /// A certified row additionally retains its finite producer diagnostic path,
 /// never the scope, evaluator or complete behavior graph.
 ///
@@ -564,15 +564,15 @@ struct StateContext<'a> {
     attribution: bool,
 }
 
-/// A failure retaining legacy errors and original typed evaluation causes.
-/// Legacy entrypoints keep their existing error shapes; no diagnostic is parsed.
+/// A failure retaining the plain errors and original typed evaluation causes.
+/// The existing entry points keep their error shapes; no diagnostic is parsed.
 #[derive(Clone, Debug)]
 pub struct DetailedFailure {
     failure: Failure,
     evaluations: EvaluationErrors,
 }
 impl DetailedFailure {
-    /// Legacy failure and completed execution facts.
+    /// The plain failure and completed execution facts.
     #[must_use]
     pub fn failure(&self) -> &Failure {
         &self.failure
@@ -587,21 +587,21 @@ impl DetailedFailure {
     pub fn state_evaluation(&self) -> Option<&StateEvaluation> {
         self.evaluations.state.as_deref()
     }
-    /// Takes the state evidence before consuming the legacy two-part result.
+    /// Takes the state evidence before consuming the plain two-part result.
     /// This transfers only the failure description; no runtime owner is retained.
     ///
     /// ```
     /// # fn example(mut failure: dive_liveness::analyze::DetailedFailure) {
     /// let state = failure.take_state_evaluation();
-    /// let (legacy, action) = failure.into_parts();
-    /// # let _ = (state, legacy, action);
+    /// let (plain, action) = failure.into_parts();
+    /// # let _ = (state, plain, action);
     /// # }
     /// ```
     #[must_use]
     pub fn take_state_evaluation(&mut self) -> Option<Box<StateEvaluation>> {
         self.evaluations.state.take()
     }
-    /// Consumes this description without changing the legacy public error shape.
+    /// Consumes this description without changing the public error shape.
     #[must_use]
     pub fn into_parts(self) -> (Failure, Option<Box<ActionEvaluation>>) {
         (self.failure, self.evaluations.action)
@@ -1177,7 +1177,7 @@ fn validate_analysis_context(model: &Model) -> Result<(), AnalysisError> {
 /// Runs [`analyze_unbudgeted`] under the run's budget: armed once for capture
 /// and analysis alike, and installed on this thread for the analysis
 /// stages. Any failure while the budget is exhausted is reported as the stop
-/// it is (ADR 0107); a stop during capture stays the capture's own result.
+/// it is; a stop during capture stays the capture's own result.
 #[allow(
     clippy::too_many_arguments,
     reason = "explicit owner policies and separate typed execution evidence"
@@ -1538,7 +1538,7 @@ fn analyze_graph(
             )?;
             *stage = Stage::Product;
             for group in &prepared.groups {
-                // ADR 0018 §3: the product's vertices are retained and its
+                // The product's vertices are retained and its
                 // edges are recomputed by each search walk, never stored.
                 let product =
                     ImplicitProduct::new(graph, &group.tableau, &labels, limits.product, policy)

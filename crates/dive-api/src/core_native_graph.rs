@@ -330,7 +330,8 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
     }
 
     fn record(&mut self, heap: &Heap, step: Step<'_>) -> Result<(), Verdict> {
-        // Preserve the legacy converter-before-state/edge-admission precedence,
+        // Preserve the converter-before-state/edge-admission precedence of the
+        // value-graph capture,
         // including seen originals and run-local name interning order. A
         // deferred admission happens at the next read, in retention order.
         // A seen root that need not be retained is still admitted at once,
@@ -376,7 +377,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
         if action.is_some_and(|id| id as usize >= self.graph.action_labels.len()) {
             return Err(bug("native action index out of range"));
         }
-        // Conversion has already happened. Match the legacy state-before-edge
+        // Conversion has already happened. Match the capture's state-before-edge
         // limit precedence before adding capture-specific retention buffers.
         if step.new.is_some() && self.graph.state_count() >= self.graph.limits.states {
             return Err(limit("states"));

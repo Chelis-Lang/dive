@@ -71,7 +71,7 @@ pub(super) trait StateSource {
         Ok(false)
     }
 
-    /// Records one label demand answered by the reference evaluator.
+    /// Records one label demand answered by the dive-eval evaluator.
     fn reference_predicate(&mut self, _atom: &crate::plan::PredicateAtom) {}
 
     fn predicate_reuse_storage(

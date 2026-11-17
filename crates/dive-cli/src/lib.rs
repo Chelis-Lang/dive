@@ -38,10 +38,10 @@ const EXIT_USAGE: u8 = 2;
 /// Exit code for a request that `dive` recognises but does not implement.
 const EXIT_UNSUPPORTED: u8 = 3;
 
-/// The engine an `--engine` value names. Core is the only engine: `auto`
-/// was removed with the Reference fallback and `reference` with the
-/// Reference checking runtime (ADR 0153, #791). `--engine core` is still
-/// accepted, and no longer advertised.
+/// The engine an `--engine` value names. Core is the only engine: the
+/// earlier `auto` and `reference` values name engines that no longer exist
+/// and are rejected with an explanation. `--engine core` is still accepted,
+/// and no longer advertised.
 fn engine_option(name: Option<&str>) -> Result<dive_api::Engine, String> {
     match name {
         Some("core") => Ok(dive_api::Engine::Core),
@@ -803,7 +803,7 @@ fn check_command_mode(
                 }
             },
             // Hidden, test-only: randomized scheduling that must not change
-            // any result (ADR 0015 §2, chaos mode).
+            // any result (chaos mode).
             "--chaos" => match value().as_deref().map(str::parse::<u64>) {
                 Some(Ok(seed)) => req.chaos = Some(seed),
                 _ => return usage_error(err, "--chaos expects a 64-bit unsigned seed"),
@@ -1022,7 +1022,7 @@ fn check_command_mode(
 /// [--compat=tlc] [--seed N] [--fp N] [--deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...`.
 ///
 /// Validates a counterexample or behavior against the specification with
-/// the independent trace validator (ADR 0016). The trace is in dive's format
+/// the independent trace validator. The trace is in dive's format
 /// or TLC's `-dumpTrace json` (which needs `--claim`, e.g.
 /// `invariant:Inv`). `--seed` (and `--fp`) give the checking run's seed and
 /// polynomial, so that random draws are replayed. Exit status: 0 valid, 1 invalid (or the specification

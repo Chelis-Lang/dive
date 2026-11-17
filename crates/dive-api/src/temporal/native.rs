@@ -300,7 +300,7 @@ pub(crate) fn core_capture_stop(
 }
 
 /// A budget stop of Core's start-up work, found before the temporal route
-/// plans or captures (#968): stage and phase `check-startup`, no capture,
+/// plans or captures: stage and phase `check-startup`, no capture,
 /// and the start-up output printed so far.
 pub(crate) fn core_startup_stop(
     verdict: dive_runtime::Verdict,

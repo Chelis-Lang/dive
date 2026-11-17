@@ -1,5 +1,4 @@
-//! Checks of a behavior graph built by its producer, the execution core
-//! (`docs/developer/core/11-liveness.md`).
+//! Checks of a behavior graph built by its producer, Core.
 //!
 //! The producer explores and builds the graph with
 //! [`dive_runtime::capture::GraphBuilder`] or its native rows; [`GraphCheck`]
@@ -87,7 +86,7 @@ pub trait NativeReader {
     ///
     /// # Errors
     /// Only an original owned interruption/resource failure; semantic errors
-    /// must retain the existing reference evaluator and its error evidence.
+    /// must retain the dive-eval evaluator and its error evidence.
     fn predicate(
         &mut self,
         _atom: &crate::plan::PredicateAtom,
@@ -115,7 +114,7 @@ pub trait NativeReader {
     }
 
     /// Records that label demand answered this exact retained atom on one
-    /// state or edge by the reference evaluator, because no native truth was
+    /// state or edge by the dive-eval evaluator, because no native truth was
     /// available. A counter only; it supplies no truth. Ignored by default.
     fn reference_predicate(&mut self, _atom: &crate::plan::PredicateAtom) {}
 

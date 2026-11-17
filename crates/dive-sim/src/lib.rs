@@ -1,4 +1,4 @@
-//! The seeded finite safety simulation contract (ADR 0020): its options,
+//! The seeded finite safety simulation contract: its options,
 //! report, static admission and the run host that owns one simulation.
 //!
 //! Core's finite simulation is the backend (`dive-api`), run through
@@ -313,9 +313,8 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
         return refusal(&u.feature);
     }
     // Fairness (`model.temporals`) constrains only infinite behaviors and is
-    // inert for the finite safety prefixes simulation checks (ADR 0116).
-    // Simulation does not check temporal properties on its traces (deferred
-    // by owner ruling, 2026-11-06).
+    // inert for the finite safety prefixes simulation checks.
+    // Simulation does not check temporal properties on its traces yet.
     if !model.implied_temporals.is_empty() {
         let names: Vec<&str> = model
             .implied_temporals

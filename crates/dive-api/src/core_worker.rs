@@ -14,7 +14,7 @@ fn rejected(message: impl Into<String>) -> ApiError {
 }
 
 // The executable hash pins this representation. Include the full evaluator
-// policy here without changing the existing ADR0141 checkpoint identity or its
+// policy here without changing the existing checkpoint identity or its
 // compatibility rules; search admission/transport limits remain coordinator
 // policy and never alter the worker's source semantics.
 pub(crate) fn identity(

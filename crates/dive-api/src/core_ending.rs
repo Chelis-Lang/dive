@@ -1,7 +1,6 @@
-//! Error endings of `--engine=core` (`docs/developer/core/07-engine.md` §5,
-//! `02-semantic-contract.md` §3(e)).
+//! Error endings of `--engine=core`.
 //!
-//! The core records where an evaluation error ended its search (the site,
+//! Core records where an evaluation error ended its search (the site,
 //! the parent state, the state checked), but its errors carry no TLC class.
 //! The class is TLC's, by the site where the error is raised, and it depends
 //! on the error's own code and on whether it is an `EvalException`. So the
@@ -103,7 +102,7 @@ fn check_of(model: &Model, site: Site) -> Option<(&Named, ErrorSite)> {
 
 /// Counts the emissions of `run` until its error; the error, or why the
 /// value evaluator disagrees. The replay stops at the first emission
-/// past the core's count: the two already disagree there, so the rest of
+/// past Core's count: the two already disagree there, so the rest of
 /// the initial states or successors is never enumerated.
 fn reproduce_actions(
     emitted: u64,
@@ -279,7 +278,7 @@ fn incomplete(model: &Model, f: &Failure, t: &[Option<Value>]) -> Verdict {
     }
 }
 
-/// The verdict of an error the reference evaluator reproduced at `f`.
+/// The verdict of an error the dive-eval evaluator reproduced at `f`.
 fn classified(model: &Model, f: &Failure, e: &EvalError) -> Verdict {
     match f.site {
         Site::Init => classify::search_error(e, ErrorSite::Init, None),
@@ -297,7 +296,7 @@ fn classified(model: &Model, f: &Failure, e: &EvalError) -> Verdict {
 /// classifies it, and whether its trace ends with the state checked.
 ///
 /// # Errors
-/// The refusal when the reference evaluator does not reproduce the error.
+/// The refusal when the dive-eval evaluator does not reproduce the error.
 pub(crate) fn ending(
     model: &Model,
     store: &Arc<dive_core::Store>,

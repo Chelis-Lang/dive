@@ -1,4 +1,4 @@
-//! Explicit publication of admitted PlusCal artifacts (ADR 0144).
+//! Explicit publication of admitted PlusCal artifacts.
 use crate::{ApiError, RewriteReport, RewriteRequest, rewrite_source};
 use serde_json::json;
 use std::fs::{self, File, OpenOptions};

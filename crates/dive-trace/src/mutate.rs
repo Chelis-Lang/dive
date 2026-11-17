@@ -1,8 +1,8 @@
 //! Negative controls: mutants of a valid counterexample that are invalid by
-//! construction (ADR 0016 §3).
+//! construction.
 //!
 //! The caller selects [`ControlMode`] explicitly. Dropping and swapping
-//! states require a valid shortest breadth-first counterexample (ADR 0015):
+//! states require a valid shortest breadth-first counterexample:
 //! state `k` is at distance exactly `k` from the initial states, and no two
 //! states are equal. Simulation, multi-worker and liveness words have no
 //! such guarantee; [`ControlMode::Counterexample`] omits these controls.
@@ -134,7 +134,7 @@ pub fn mutants_with_mode(model: &Model, trace: &Trace, mode: ControlMode) -> Vec
     }
     // Violations and named invariant errors must first arise at the original
     // end. Generic expansion-error and liveness endings retain their existing
-    // validation boundary (ADR 0016, amendment 1).
+    // validation boundary.
     if n >= 2
         && matches!(
             trace.ending,

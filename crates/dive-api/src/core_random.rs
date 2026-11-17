@@ -1,7 +1,6 @@
-//! The core's random streams (`docs/developer/core/03-value-model.md` §6.1)
-//! and `TLCSet`/`TLCGet` registers (§6.2):
+//! Core's random streams and `TLCSet`/`TLCGet` registers:
 //! `dive-stdlib`'s seeded streams and `dive-store`'s TLC state fingerprint
-//! behind `dive_core::random::Draws`, so that the core's draws continue the
+//! behind `dive_core::random::Draws`, so that Core's draws continue the
 //! streams start-up evaluation drew from.
 
 use std::sync::Arc;
@@ -19,8 +18,8 @@ pub(crate) struct CoreDraws {
     pub(crate) streams: Streams,
     pub(crate) startup: Stream,
     /// Constant definitions or `ASSUME`s drew: `Init` would continue their
-    /// stream, where TLC's trace rebuild starts a fresh one (D-002,
-    /// fixture `RndTraceAssume`), so a draw in `Init` is refused.
+    /// stream, where TLC's trace rebuild starts a fresh one (fixture
+    /// `RndTraceAssume`), so a draw in `Init` is refused.
     pub(crate) startup_drew: bool,
     pub(crate) seeder: StateFingerprinter,
     pub(crate) names: Arc<Interner>,
@@ -97,7 +96,7 @@ fn draw_error(e: &RandomError) -> Error {
     }
 }
 
-/// The run's registers: the reference evaluator's, which start-up wrote.
+/// The run's registers: the dive-eval evaluator's, which start-up wrote.
 pub(crate) struct CoreRegisters(pub(crate) dive_eval::Evaluator);
 
 impl dive_core::random::Registers for CoreRegisters {

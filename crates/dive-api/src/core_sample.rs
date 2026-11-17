@@ -1,6 +1,5 @@
-//! The successor-multiset sample of the shadow comparison
-//! (`docs/developer/core/08-correctness.md` §4): for each sampled state, the
-//! core's successors under each action, as canonical state keys, must be
+//! The successor-multiset sample of the differential sample check: for each
+//! sampled state, Core's successors under each action, as canonical state keys, must be
 //! `dive-eval`'s value evaluator's, with the same multiplicities.
 
 use std::sync::Arc;

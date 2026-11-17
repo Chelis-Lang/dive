@@ -1,5 +1,5 @@
-//! `ENABLED` and successor existence on a given state, decided by the core
-//! evaluator's `ENABLED` (ADR 0103). The validator replays and checks the
+//! `ENABLED` and successor existence on a given state, decided by the
+//! dive-eval evaluator's `ENABLED`. The validator replays and checks the
 //! counterexample's states and steps itself; whether an action has some
 //! successor is decided with the shared evaluator, with a pure bounded TLA
 //! composition path and independent cache ownership.
