@@ -52,12 +52,12 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
         (
             "InitialTool",
             include_str!("fixtures/initial-context-unclassified/InitialTool.stdout"),
-            "77eb050796d1cb1fc30b433a666553fc898cc9152eeb5e00fac5aeb0a35a6936",
+            "93e61e1ea39f9b6afc5a126ce5cc6800f4dffa2bc77cb79b5432d3e5b78a4f8d",
         ),
         (
             "InitialOverride",
             include_str!("fixtures/initial-context-unclassified/InitialOverride.stdout"),
-            "a7ab40e040f98033631201bf9899be1e619b349cf8453f564e2c570e8018b695",
+            "31e3739a3f1eab038d81deac9e472f84306fad3f4aebfc6d027099c8b5c0a743",
         ),
     ] {
         context_only_oracle(pinned, sha256);

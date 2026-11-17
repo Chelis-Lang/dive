@@ -1,4 +1,4 @@
----------------- MODULE /var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/dive-simulation-oracle-xsm9sj8d/s0-a0_0_0 -----------------
+---------------- MODULE $TMP/s0-a0_0_0 -----------------
 \* <Init line 4, col 9 to line 4, col 20 of module SimChoice>
 STATE_1 == 
 x = 0

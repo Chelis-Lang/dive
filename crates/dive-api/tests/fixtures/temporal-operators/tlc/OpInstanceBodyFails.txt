@@ -10,8 +10,8 @@ Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker o
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
 @!@!@ENDMSG 2220 @!@!@
-Parsing file /Users/jeff/code/dive-temporal-operator-work/conformance/probes/temporal-operators/models/OpInstanceBodyFails/OpInstanceBodyFails.tla
-Parsing file /Users/jeff/code/dive-temporal-operator-work/conformance/probes/temporal-operators/models/OpInstanceBodyFails/Inner.tla
+Parsing file $CWD/conformance/probes/temporal-operators/models/OpInstanceBodyFails/OpInstanceBodyFails.tla
+Parsing file $CWD/conformance/probes/temporal-operators/models/OpInstanceBodyFails/Inner.tla
 Semantic processing of module Inner
 Semantic processing of module OpInstanceBodyFails
 Linting of module Inner

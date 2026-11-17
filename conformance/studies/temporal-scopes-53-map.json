@@ -2,7 +2,7 @@
   "schema_version": 1,
   "kind": "historical-temporal-blocker-map",
   "source_report": "conformance/reports/studies/small-temporal-53-final-short-tlc.json",
-  "source_report_sha256": "db1cc630e4e10af004da1073aeed51a3d92f830942652210e48ab9a4066538f9",
+  "source_report_sha256": "b934be86bc5a236ccb4210ba8d8f045bb83cf58614774986331ec3adf4117b54",
   "source_binary_sha256": "62bc8577aef390ded5134c0a487a6c40fd48d2e6b554ec9ec334feb351914e86",
   "claim": "Read-only classification of all53 historical outcomes; no rerun, no new matches, no performance or strict conformance claim. The old binary predates later scope/domain increments.",
   "rows": [
