@@ -37,22 +37,19 @@ checkpoint pause/recovery and original named refusal.
 
 `ProcedureExample.tla` and `ProcedureExampleC.tla` are the runnable C/P modules
 from the [procedure guide](../../pluscal-translation.md). Four CLI translations
-and two compiled Rust calls passed in the separate current procedure receipt.
+and two compiled Rust calls are checked by the test suite.
 Translation acceptance remains an artifact claim, not a model proof.
 
 `RecursiveExample.tla` and `RecursiveExampleC.tla` are the C/P inputs in
-[the recursive-procedure guide](../../pluscal-translation.md). Its
-original capture-first campaign checks four CLI translations and two compiled
-Rust calls. The current integration receipt
-also reruns all six guide calls on the integrated source. Translation acceptance
-remains an artifact claim, and strict stack witness replay is pending.
+[the recursive-procedure guide](../../pluscal-translation.md). The test suite
+checks four CLI translations and two compiled Rust calls. Translation
+acceptance is an artifact claim, and strict stack witness replay is not
+supported.
 
 Process procedure examples (`ProcessCallExample`, `MultipleCallExample`,
 `FairCall`, with C-style counterparts) come from the corresponding current
 procedure guides. They exercise recursive/per-ID/shared stacks and generated
-fairness, separately from finite safety and liveness proof. Current root
-verification must use its own built executable and preserve the ancestor
-campaigns separately.
+fairness, separately from finite safety and liveness proof.
 
 
 `AstExample.tla` is the simple finite-process input for the original AST and
