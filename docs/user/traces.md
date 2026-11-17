@@ -23,12 +23,31 @@ non-Behavior endings and refuses configured temporal properties and
 unproved projections; fairness alone does not constrain a finite sample.
 
 The JSON validation report uses `schema_version: 3`, `command: "validate-trace"`
-and `result: "valid" | "invalid" | "unsupported"`. Its report version is
-independent of the native trace document's `format: "dive-trace"` and payload
-version (1 for existing endings, 2 for named invariant errors, 3 for separate
-partial terminal bindings, 4 for candidate-side terminal errors).
-Existing trace tags, endings and loop indexing follow the compatibility policy
-in [reports and automation](reports-and-errors.md).
+and `result: "valid" | "invalid" | "unsupported"`. The report version is
+independent of the trace document's own version.
+
+## Trace format versions
+
+A counterexample is a JSON document with `"format": "dive-trace"` and a
+`version` that depends on how the trace ends:
+
+| Version | Ending | Section |
+| ---: | --- | --- |
+| 1 | Invariant, action-property and liveness violations, deadlock, and the error endpoints `next-before-successor`, `next-ordered-terminal` and temporal state rows | [Error endpoints](#error-endpoints) |
+| 2 | `invariant-error`: an error while evaluating a named invariant | [Named invariant errors](#named-invariant-errors) |
+| 3 | A partial terminal candidate: a Next step that leaves variables unassigned, or an incomplete Init | [Partial candidates](#partial-candidates) |
+| 4 | `candidate-ordered-terminal`: an error on a generated candidate | [Candidate errors](#candidate-errors) |
+| 5 | `temporal-source-row`: an error in a temporal property's source row | [Temporal source-row errors](#temporal-source-row-errors) |
+| 6 | `view-source-terminal`: an error while evaluating VIEW | [VIEW errors](reports-and-errors.md#view-errors) |
+
+Each ending has exactly one version, and a document may not be relabelled with
+another. Readers accept all six versions and fail closed on an unknown version
+or ending. Tags, endings and loop indexing follow the
+[compatibility policy](reports-and-errors.md#report-compatibility).
+
+## Endings and their validation
+
+### Named invariant errors
 
 A final invariant evaluation error carries `kind: "invariant-error"`, its
 configured `name`, and the underlying error's `ec`, for example
@@ -50,8 +69,8 @@ The strict harness still refutes this wrapper/word pair; matching metadata
 supplies no replacement proof. Anonymous expansion errors gain no exception,
 and unclassified oracle results remain unclassified.
 
-Initial diagnostic states are separate from formal behavior counterexamples
-(ADR 0133). The bounded initial receiver-error route keeps `counterexample`
+Initial diagnostic states are separate from formal behavior counterexamples.
+The bounded initial receiver-error route keeps `counterexample`
 null and carries its original one-state word at `diagnostic_witness.trace`.
 That word still uses version 2, the configured invariant name and underlying
 `GENERAL` cause. Ordinary word validation proves that named cause; it does not
@@ -67,11 +86,8 @@ and existing materialization cases require their own matching diagnostic replay.
 This adds no trace version, ordinary counterexample, trace-comparison waiver or
 BFS-count certificate. Partial-Init `error_witness` keeps its separate meaning.
 
-This new closed ending requires native trace version 2 (ADR 0118). Existing
-endings still write version 1; readers accept both. A version-1 document carrying
-`invariant-error`, an unknown version, or an unknown ending fails closed. Consumer
-readers must support version 2 and its named error obligation before updating a
-producer pin; they must not relabel the payload as version 1. Example:
+The `invariant-error` ending requires version 2; a version-1 document carrying
+it fails closed. Example:
 
 ```json
 {"format":"dive-trace","version":2,"variables":["x"],"states":[{"action":null,"values":{"x":0}},{"action":null,"values":{"x":1}},{"action":null,"values":{"x":2}}],"ending":{"kind":"invariant-error","name":"Inv","ec":"TLC_VALUE_ASSERT_FAILED"}}
@@ -83,6 +99,8 @@ while the first report remains 2111. The native word preserves the original
 invariant name and cause. Independent validation proves that logical claim;
 unclassified primary streams still earn no class/count agreement credit.
 
+### Constraints on the last state
+
 The last state may be outside `CONSTRAINT`, or its entering step outside
 `ACTION_CONSTRAINT`, for a named invariant violation or evaluation error, or a
 named initial/action-property violation. Constraints are evaluated in order,
@@ -91,18 +109,20 @@ result invalidates a claim to a later safety failure; it is never skipped.
 Every earlier state and step must satisfy the applicable constraints. The named
 terminal check and all earlier configured safety checks must still pass their
 independent obligations. Generic constraint, action-property and expansion error
-claims retain their checks/refusals (#490/#499); an anonymous error ending cannot
-stand in for a named invariant error. Partial-state errors remain separate (#607).
+claims keep their own checks and refusals; an anonymous error ending cannot
+stand in for a named invariant error. Partial-state errors are a separate form.
+
+### Error endpoints
 
 A certified temporal state-row error can carry `kind: "error"` with an optional
-`endpoint` describing its stage and original source context (ADR 0113). The
+`endpoint` describing its stage and original source context. The
 validator reconstructs the full configured demand independently and checks its
 first real error after validating the finite path. The descriptor cannot select
 an atom or scope. Generic errors without an endpoint remain unsupported; an
 endpoint is not a lasso, property violation, BFS-count or completion proof.
-Older trace1 readers retain the generic unsupported error ending.
+Readers without endpoint support treat the ending as a generic unsupported error.
 
-A Next error can request the closed `next-before-successor` stage (ADR 0120).
+A Next error can use the closed `next-before-successor` stage.
 The validator checks the supplied finite path and earlier safety obligations,
 then rebinds another private source/configuration runtime for terminal replay.
 It runs the real configured actions in order and stops at the first candidate.
@@ -115,14 +135,13 @@ descriptor selects no action or expression to evaluate. For example:
 {"kind":"error","ec":"TLC_MODULE_DIVISION_BY_ZERO","endpoint":{"stage":"next-before-successor","source":{"module":"M","start":40,"end":49,"instance":null}}}
 ```
 
-The legacy stage retains its before-first-candidate meaning. New producers can
-request `next-ordered-terminal` (ADR 0125), adding `reported` and `deciding`
+`next-before-successor` means an error before the first candidate.
+`next-ordered-terminal` adds `reported` and `deciding`
 integer codes to the source descriptor. Independent replay must observe the
 same primary error and then actually run the per-action diagnostic sequence to
 establish those codes. Changing the source, underlying class or wrapper claims
 refutes the word. Matching report metadata alone grants no proof. Exact
-assertion 2132 also requires this actual replay. Complete words remain version 1;
-versions 1/2 keep their existing meanings.
+assertion 2132 also requires this replay. These words are version 1.
 
 Earlier complete candidates receive ordered completeness, constraint,
 action-constraint, fingerprint and safety demands. Unknown global newness or
@@ -136,8 +155,10 @@ no wrapper exemption. Generic errors without a source endpoint remain unsupporte
 An independently valid word does not certify checker counts or turn an
 unclassified pinned TLC result into parity.
 
+### Partial candidates
+
 A Next action that leaves variables unassigned can carry a version-3 partial
-terminal descriptor (ADR 0123). Its `states` array holds only the complete prefix;
+terminal descriptor. Its `states` array holds only the complete prefix;
 the ending separately names the assigned values, unassigned variables and actual
 generating source. Assigned and unassigned names must partition the model's
 variables. An unassigned slot is never the JSON encoding of an ordinary TLA
@@ -155,14 +176,12 @@ Validation separately reconstructs the complete prefix and terminal generator
 on fresh runtimes, requiring the first incomplete candidate's exact assignments
 and source. Every complete prefix row must pass configured constraints,
 invariants and implied safety properties before terminal replay. Earlier complete
-candidates now receive the same bounded ordered demands, so `RoActions` and
-`SplitThrows` validate alongside the other eight original Next cases. Unknown
-newness/alias or unsupported demand still refuses rather than skipping checks.
-Version 3 is reserved for partial terminal bindings; older readers must refuse
-it. Use `logical_length()` rather than counting complete rows. Resource/control
+candidates receive the same bounded ordered demands; `RoActions` and
+`SplitThrows` are examples. Unknown newness or alias history, or an unsupported
+demand, refuses rather than skipping checks. Use `logical_length()` rather than counting complete rows. Resource/control
 failures return no completed validation report.
 
-An incomplete Init can provide optional schema-3 `error_witness`, while its
+An incomplete Init can provide an optional `error_witness`, while its
 formal `counterexample` remains null. Extract `error_witness` instead of
 `counterexample.trace` in the example above and use fixture `ErInitIncomplete`.
 Its initial error exits 255. The native version-3 word has no complete rows,
@@ -179,6 +198,50 @@ The producer captures scalar bindings under
 the existing budget and leaves compound/unavailable evidence explicitly
 unconfirmed. Optional evidence never changes the primary result or verified
 flags; source-bound validation is still required.
+
+### Candidate errors
+
+Errors on a generated candidate use version 4. The last complete
+row is the actual generated candidate, rather than the state whose expansion
+fails. The closed `candidate-ordered-terminal` endpoint carries untrusted
+`site`, original `source`, `reported` and `deciding` codes. Supported sites are
+`constraint`, `action-constraint` and `implied-action`. Fresh replay must discover
+the first real error and exact candidate after checking the complete source
+prefix, then actually execute diagnostic generation/checks to prove its deciding
+code. VIEW, unknown
+newness/alias history, unproved top-level non-Boolean role results, raw fingerprint demand and
+executed effects remain unsupported. The witness certifies no BFS counts or
+TLC classifier result, and legacy infallible validation refuses it.
+
+This non-Boolean boundary depends on the actual operation reached. A named role
+that returns a non-Boolean value still has an unproved role classification and
+receives no agreement credit. An expression such as `[A]_e` can instead raise
+an actual source-qualified evaluator error when its inner action is not
+Boolean. That inner constructor error can be proved by both fresh replay phases;
+`ErPropNonBool` supplies a pinned control. This does not certify every
+non-Boolean check or authorize a synthesized error from a returned role value.
+
+### Temporal source-row errors
+
+Temporal source-row errors after Next use version 5. Complete
+rows form the original finite prefix; its last row is the failing source.
+The closed `temporal-source-row` endpoint carries only the original row-error
+source (`module`, byte `start`/`end`, nullable `instance`); `ec` names its
+underlying error. A fresh source session independently enumerates Next and its
+candidate checks, proves the singleton self row, executes ordered action/state
+demand and its diagnostic, and derives the GENERAL (1000) and exit 255
+lifecycle. A serialized flag or matching header cannot certify that sequence.
+Distinct admitted targets, unproved lifetimes/order and reached tableau work
+remain unsupported. No partial successor, lasso or temporal-property violation
+is claimed. Use `Session::try_read` or `read_controlled`; the legacy infallible
+entrypoint refuses this form.
+
+The supported case has a one-state word and exactly one complete Init
+emission, independently enumerated before terminal replay. Multi-state source
+prefixes and multiple initial emissions remain unsupported; no earlier temporal
+row is silently skipped.
+
+## Validating traces
 
 Rust callers must use `SpecModel::try_validate`/`try_read`, or the corresponding
 fresh `dive_trace::Session` fallible/controlled entrypoint, for these endpoints.
@@ -200,9 +263,9 @@ rejects the word; an earlier source error or partial emission remains unsupporte
 and interrupted replay never reports validity. Effects and unresolved contexts
 retain their existing private replay restrictions.
 Every state must assign every spec variable; missing/partial states
-are not completed by guessing. Native trace formats normalize value JSON and has known representation
+are not completed by guessing. The trace format normalizes value JSON and has known representation
 gaps. Successful decoding is separate from semantic validation. TLC dumpTrace
-JSON is also an accepted input format within the validator's documented boundary.
+JSON is also accepted as input.
 
 Rust applications can validate their own observed state sequence:
 
@@ -281,15 +344,15 @@ search-dependent register access, unavailable finite deadlock/ENABLED covers,
 effects and unknown closing evidence do not become `valid`. Supply the original
 seed/fp for run-dependent model binding and use the checking profile. The in-memory lasso back edge is zero-based; checker
 summary `back_to` display is one-based. Prefer the supplied trace document over reconstructing a lasso from displayed
-states, and inspect its decoder and independent-validation disposition.
+states, and inspect its decoder and independent-validation result.
 
-See the [API rustdoc](../../crates/dive-api/src/trace.rs),
-[temporal contract](../temporal-api.md) and [validator independence ADR](../decisions/0016-trace-validator-independence.md).
+See the `dive_api::trace` API documentation, the
+[temporal contract](../temporal-api.md) and the
+[validator independence design](../decisions/0016-trace-validator-independence.md).
 
 A known mixed-set limitation remains: a checker can emit a JSON set containing
 a sequence before a record that the decoder rejects at the shape check, in
 either profile. Such a result receives no validation credit.
-[Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) tracks this boundary.
 
 Under `--compat=tlc`, strings and model values compare in the order TLC first
 encountered them. The validator knows that order for every name interned when
@@ -307,8 +370,7 @@ context or one whose effects annotation is not pure. It trusts the IR's
 effects annotations; it does not re-prove them.
 
 Whether a state has a successor is decided by the core evaluator's `ENABLED`,
-the same search TLC's `Tool.enabled` performs and the checker uses
-([ADR 0103](../decisions/0103-validator-enabled-via-core-evaluator.md)). This
+the same search TLC's `Tool.enabled` performs and the checker uses. This
 covers `ENABLED` inside any predicate the validator evaluates, deadlock endings
 (`ENABLED Next` on the last state) and weak or strong fairness on a lasso. The
 validator still replays and checks every state and step of the counterexample
@@ -397,7 +459,7 @@ counters and system properties have no private-startup validation contract and
 remain named refusals when executed. Supply the run
 seed/fp when reading `TLCGet("config")`; the configuration becomes available
 after constant binding and before ASSUMEs, matching ordinary API binding.
-This validates the displayed behavior, with no claim of phase or corpus parity.
+This validates the displayed behavior only.
 
 
 ### Direct random initial membership
@@ -405,7 +467,7 @@ This validates the displayed behavior, with no claim of phase or corpus parity.
 Private sessions support exactly one variable and a complete Init consisting
 of `x = RandomElement(S)`. Zero-argument definition expansion and labels may
 expose that equality; surrounding Boolean relations, parameterized wrappers,
-native aliases/redirects and INSTANCE relations have no new random authority.
+native aliases/redirects and INSTANCE relations gain no random support.
 The shared evaluator evaluates the actual `S` from empty initial slots with
 registers and host effects refused. It accepts nonempty intervals and stored
 finite scalar sets, using the profile's exact value membership. Stored sets
@@ -438,7 +500,7 @@ of untaken branches; it grants no random or register access and proves no
 absence of unselected effects. Raw bound-Model validation still refuses every
 executed draw. Every interpretation and repeated validation gets a fresh Core,
 interner and caches; caller registers, cached samples and stream position are
-not authority. This narrow operation makes no full-gate or corpus parity claim.
+not authority.
 
 Candidates and stored entries are scalar. Strings/model values require tokens
 that resolve to their exact text in the private interner. Assigned public states,
@@ -454,46 +516,3 @@ the hidden-variable cutoff when inner and outer variables have the same name.
 Effectful callbacks remain refused. This
 query support does not admit action-valued callbacks as ordinary state helpers.
 
-Post-Next temporal source errors use native trace version5 (ADR 0132). Complete
-rows form the original finite prefix; its last row is the failing source.
-The closed `temporal-source-row` endpoint carries only the original row-error
-source (`module`, byte `start`/`end`, nullable `instance`); `ec` names its
-underlying error. A fresh source session independently enumerates Next and its
-candidate checks, proves the singleton self row, executes ordered action/state
-demand and its diagnostic, and derives the retained GENERAL1000/exit255
-lifecycle. A serialized flag or matching header cannot certify that sequence.
-Distinct admitted targets, unproved lifetimes/order and reached tableau work
-remain unsupported. No partial successor, lasso or temporal-property violation
-is claimed. Use `Session::try_read` or `read_controlled`; the legacy infallible
-entrypoint refuses this form. Version5 is reserved for this endpoint and cannot
-be relabeled as versions1/2/3/4, whose meanings stay unchanged. Consumers must
-implement the new replay obligation before advancing a producer pin. See
-[ADR 0132](../decisions/0132-temporal-source-row-error-replay.md) for the wire
-shape and advance-notice requirement.
-
-The initial supported slice has a one-state word and exactly one complete Init
-emission, independently enumerated before terminal replay. Multi-state source
-prefixes and multiple initial emissions remain unsupported; no earlier temporal
-row is silently skipped.
-
-Candidate-side errors use native trace version 4 (ADR 0128). The last complete
-row is the actual generated candidate, rather than the state whose expansion
-fails. The closed `candidate-ordered-terminal` endpoint carries untrusted
-`site`, original `source`, `reported` and `deciding` codes. Supported sites are
-`constraint`, `action-constraint` and `implied-action`. Fresh replay must discover
-the first real error and exact candidate after checking the complete source
-prefix, then actually execute diagnostic generation/checks to prove its deciding
-code. See [ADR 0128](../decisions/0128-candidate-terminal-error-replay.md) for the
-wire example. Readers must understand version 4 before updating producer pins;
-versions 1/2/3 retain their meanings and reject the new form. VIEW, unknown
-newness/alias history, unproved top-level non-Boolean role results, raw fingerprint demand and
-executed effects remain unsupported. The witness certifies no BFS counts or
-TLC classifier result, and legacy infallible validation refuses it.
-
-This non-Boolean boundary depends on the actual operation reached. A named role
-that returns a non-Boolean value still has an unproved role classification and
-receives no agreement credit. An expression such as `[A]_e` can instead raise
-an actual source-qualified evaluator error when its inner action is not
-Boolean. That inner constructor error can be proved by both fresh replay phases;
-`ErPropNonBool` supplies a pinned control. This does not certify every
-non-Boolean check or authorize a synthesized error from a returned role value.
