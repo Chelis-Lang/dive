@@ -1,14 +1,14 @@
-# D.I.V.E. Master Prompt
+# D.I.V.E. charter
 
-> This is the project charter, preserved verbatim as received from the owner on 2026-10-08.
-> Factual corrections discovered during the bootstrap session are recorded in the
-> [Corrections appendix](#appendix-corrections-recorded-during-bootstrap) at the end and in
-> the ADRs under `docs/decisions/`. The body below is not edited; where it and the appendix
-> disagree on a matter of fact, the appendix and the referenced ADR are authoritative.
+> Adopted on 2026-10-08. The body was rewritten on 2026-11-17 as plain charter
+> statements, with its rules unchanged. Later corrections are recorded in the
+> [appendix](#appendix-corrections-recorded-during-bootstrap) and in the ADRs under
+> `docs/decisions/`. Where the body and the appendix disagree on a matter of fact,
+> the appendix and the referenced ADR are authoritative.
 
-You are the lead engineer on **D.I.V.E. (Deterministic Invariant Verification Engine)**, a ground-up Rust implementation of the TLA+ toolchain. The CLI is `dive`. Every crate, binary, config key and environment variable uses the `dive` prefix (`dive-syntax`, `dive-check`, `DIVE_WORKERS`, and so on).
+**D.I.V.E. (Deterministic Invariant Verification Engine)** is a ground-up Rust implementation of the TLA+ toolchain. The CLI is `dive`. Every crate, binary, config key and environment variable uses the `dive` prefix (`dive-syntax`, `dive-core`, `DIVE_WORKERS`, and so on).
 
-This prompt is the project's charter. Keep it in the repository as `docs/CHARTER.md` and keep `AGENTS.md` consistent with it. When this document and a later instruction conflict, ask before acting.
+This document is the project's charter. `AGENTS.md`, the operating guide for contributors, must stay consistent with it. Where the charter and a later instruction conflict, the maintainers decide before anyone acts on either.
 
 ## Mission
 
@@ -31,11 +31,11 @@ The adjacent ecosystem matters to the design. Verus is the leading verifier for 
 
 **In scope:** TLA+ syntax and semantic analysis equivalent to SANY (module system, `EXTENDS`, `INSTANCE`, `LOCAL`, recursive operators, level checking); the TLC configuration format; explicit-state model checking equivalent to TLC (invariants, deadlock, action properties, temporal properties and liveness with fairness, symmetry, `VIEW`, `CONSTRAINT`, `ACTION_CONSTRAINT`); the standard modules and TLC's Java overrides of them; the `TLC` module (`Print`, `Assert`, `TLCGet`, `TLCSet`, `JavaTime` and the rest, with documented semantics); simulation mode; the PlusCal translator; trace validation; a Rust library API; structured output; a language server; and specification compilation.
 
-**Out of scope until the owner says otherwise:** TLAPS and the proof language beyond parsing it; Apalache-style symbolic checking; the Toolbox GUI. The proof-language syntax must still parse and pass semantic analysis, because real specifications contain proofs.
+**Out of scope until the maintainers decide otherwise:** TLAPS and the proof language beyond parsing it; Apalache-style symbolic checking; the Toolbox GUI. The proof-language syntax must still parse and pass semantic analysis, because real specifications contain proofs.
 
 ## Oracles and existing work
 
-Soundness is established by differential testing against canonical behavior. Before writing implementation code, survey and pin every oracle and every relevant prior effort, and record the results in `docs/internal/survey/`.
+Soundness is established by differential testing against canonical behavior. Every oracle and every relevant prior effort is surveyed and pinned, and the results are recorded in `docs/internal/survey/`. The oracles were pinned before any implementation code was written.
 
 ### Canonical oracles
 
@@ -47,22 +47,22 @@ Soundness is established by differential testing against canonical behavior. Bef
 
 ### Prior and adjacent work to evaluate
 
-For each, record what it covers, its license, its code quality, and, where it is an implementation, its measured conformance against the pinned TLC on the corpus. Then record a decision: reuse, fork, consult as reference, or ignore, with reasons.
+For each, the survey records what it covers, its license, its code quality and, where it is an implementation, its measured conformance against the pinned TLC on the corpus, followed by a decision with reasons: reuse, fork, consult as reference, or ignore. Appendix item 2 recasts this as competitive analysis.
 
-- **tla2** (`andrewdyates/tla2`, also mirrored at `joweeba/tla2`): an existing Rust workspace covering parsing, checking, simulation, code generation, an LSP, a symbolic backend and hardware frontends, Apache-2.0. This is the most important evaluation. Measure its conformance before deciding anything.
+- **tla2** (`andrewdyates/tla2`, also mirrored at `joweeba/tla2`): an existing Rust workspace covering parsing, checking, simulation, code generation, an LSP, a symbolic backend and hardware frontends, Apache-2.0. This is the most important evaluation, and its conformance is measured before any decision about it.
 - **anvil-verifier/verus-tla**: a Verus embedding of TLA for proofs. It is not a port, but its state-machine and temporal-logic definitions inform the Verus export path.
 - **Stateright**: a Rust model checker for actor systems. A reference for embeddable, in-process checking and for Rust-native API design.
 - **Apalache** and **Quint**: secondary semantic references, especially for typing and for corner cases of the language. They are references, not oracles.
 - **tree-sitter-tlaplus**: a reference for the concrete grammar and for editor tooling.
-- Search GitHub, crates.io and the TLA+ Google Group and discussions for any other Rust or non-JVM implementations of TLA+ parsing or checking, and evaluate them the same way.
+- Any other Rust or non-JVM implementation of TLA+ parsing or checking found on GitHub, crates.io or the TLA+ Google Group and discussions is evaluated the same way.
 
-Respect licenses throughout. The canonical tools are MIT-licensed; any code translated from them carries attribution. Record provenance for every ported algorithm in `docs/provenance.md`. Confirm D.I.V.E.'s own license with the owner before the first public release.
+Licenses are respected throughout. The canonical tools are MIT-licensed; any code translated from them carries attribution. Provenance for every ported algorithm is recorded in `docs/provenance.md`. D.I.V.E.'s own license is confirmed by the maintainers before the first public release.
 
 ## Soundness contract
 
 These rules define what "sound" means for this project. They are not negotiable for speed or convenience.
 
-1. **Conformance is the definition of correctness.** For every corpus entry, `dive` and the pinned TLC must agree on: whether the spec parses and passes semantic analysis; the verdict (no error, invariant violation, deadlock, property violation, assertion failure, evaluation error); the number of distinct states and generated states and the search depth, wherever TLC reports them; and the class of error. Precisely registered owner-approved default differences are reported as expected divergences; every other disagreement is a bug until proven otherwise.
+1. **Conformance is the definition of correctness.** For every corpus entry, `dive` and the pinned TLC must agree on: whether the spec parses and passes semantic analysis; the verdict (no error, invariant violation, deadlock, property violation, assertion failure, evaluation error); the number of distinct states and generated states and the search depth, wherever TLC reports them; and the class of error. Precisely registered, maintainer-approved default differences are reported as expected divergences; every other disagreement is a bug until proven otherwise.
 2. **Counterexamples are checked, not compared byte for byte.** Every counterexample `dive` produces is independently replayed and validated against the spec by a separate trace validator. For safety violations it must have the same length as TLC's (both are shortest by breadth-first search). Where TLC's own choice of counterexample is nondeterministic, conformance checks validity and length; `dive`'s choice is deterministic and documented.
 3. **Unsupported means refused.** Any construct, operator, option or configuration `dive` does not implement exactly yields an explicit `unsupported` result naming the feature. It never falls back to an approximation and never reports success.
 4. **Exhaustiveness claims are honest.** TLC stores state fingerprints and reports a probabilistic collision bound. `dive` provides an exact mode that stores full states and makes an unconditional exhaustiveness claim, and a fingerprint mode that reports its collision bound alongside every result. Output must always say which mode produced it.
@@ -100,13 +100,13 @@ A Cargo workspace with small crates and strict dependency direction. Names and b
 
 ## Engineering practice
 
-**Rust.** Stable toolchain, pinned MSRV, no nightly features. `#![forbid(unsafe_code)]` in every crate by default; if `dive-store` or `dive-compile` ever needs `unsafe`, it lives in a small isolated module with a written safety argument, tests under Miri, and owner approval recorded as a decision. Clippy at pedantic level with documented exceptions. `rustfmt` enforced.
+**Rust.** Stable toolchain, pinned MSRV, no nightly features. `#![forbid(unsafe_code)]` in every crate by default; if `dive-store` or `dive-compile` ever needs `unsafe`, it lives in a small isolated module with a written safety argument, tests under Miri, and maintainer approval recorded as a decision. Clippy at pedantic level with documented exceptions. `rustfmt` enforced.
 
 **Errors.** No panics on any user input. Every user-facing error carries a source span and a stable error code. Internal invariant violations are reported as bugs with enough context to reproduce.
 
 **Testing tiers.**
 - *Fast:* unit tests, property-based tests for values, ordering, hashing and fingerprints, parser round-trip tests, and a small conformance subset. Runs on every change.
-- *Standard:* the main conformance corpus at small model sizes, worker-count invariance, and trace validation of every counterexample. Gates integrated milestones and release candidates; required fast CI gates incremental PR merges (owner correction, 2026-10-29).
+- *Standard:* the main conformance corpus at small model sizes, worker-count invariance, and trace validation of every counterexample. Gates integrated milestones and release candidates; required fast CI gates incremental PR merges (correction of 2026-10-29; see appendix item 13).
 - *Deep:* the full corpus at full model sizes, liveness-heavy specs, both fingerprint and exact modes, and benchmarks. Runs on a schedule and before releases.
 - *Fuzzing:* `cargo-fuzz` on the parser and semantic analyzer with SANY as the oracle for acceptance; on the evaluator with TLC as the oracle where feasible.
 - *Metamorphic tests:* renaming variables, reordering conjuncts and definitions, and splitting modules must not change results.
@@ -127,22 +127,20 @@ A Cargo workspace with small crates and strict dependency direction. Names and b
 
 ## Working method
 
-Work in small, reviewable changes. Each change states which conformance entries it affects and includes the harness results. Never weaken a test, a golden result or a conformance check to make a change pass; if a check looks wrong, raise it with evidence.
+Work happens in small, reviewable changes. Each change states which conformance entries it affects and includes the harness results. No test, golden result or conformance check is weakened to make a change pass; a check that looks wrong is raised with evidence.
 
-When you discover a TLC behavior that surprises you, write the smallest spec that demonstrates it, add it to the corpus with the oracle's result, and document it before implementing it.
+A surprising TLC behavior is first captured as the smallest spec that demonstrates it, added to the corpus with the oracle's result, and documented before it is implemented.
 
-When agents port code from the Java tools, the port follows TLC's semantics, not its structure. Idiomatic Rust is the goal; provenance notes record which Java behavior each component matches.
+Code ported from the Java tools follows TLC's semantics, not its structure. Idiomatic Rust is the goal; provenance notes record which Java behavior each component matches.
 
-## Initial session deliverables
+## Initial foundation
 
-This session establishes the foundation everything else depends on:
+The project's first phase laid the foundation everything else depends on:
 
 1. The workspace skeleton with the crate layout above, CI tiers, lint and format configuration, `AGENTS.md`, and this charter in `docs/CHARTER.md`.
-2. The survey in `docs/internal/survey/`, including a measured conformance run of tla2 against the pinned TLC on the Examples corpus, and a recorded decision on reuse, fork or reference.
-3. The conformance harness: pinned oracle download and verification by hash, corpus pinning, golden generation from TLC and SANY, and per-spec reporting. The harness must be able to run TLC alone and report results before any `dive` implementation exists.
-4. ADRs for the decisions made along the way, and a list of open questions for the owner.
-
-Report back with the survey findings, the tla2 decision and its evidence, the harness design and its first oracle-only report, and the open questions.
+2. The survey in `docs/internal/survey/`, including a measured conformance run of tla2 against the pinned TLC on the Examples corpus.
+3. The conformance harness: pinned oracle download and verification by hash, corpus pinning, golden generation from TLC and SANY, and per-spec reporting. It ran TLC alone and reported results before any `dive` implementation existed.
+4. ADRs for the decisions made along the way, and `docs/open-questions.md` for questions to the maintainers.
 
 ---
 
