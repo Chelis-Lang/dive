@@ -52,13 +52,13 @@ existing restrictions. Ordinary evaluation preserves eager argument order and
 typed errors. Eligible single-worker temporal requests can report an original
 Concat evaluation error through the certified row-demand route described below;
 unproved contexts retain `DIVE-L0033` refusals. VIEW graph capture
-still requires quotient-edge and closing-state evidence (issue #428), so
-EWD998ChanID remains unsupported. Other temporal restrictions also remain.
+still requires quotient-edge and closing-state evidence, so
+EWD998ChanID is unsupported. Other temporal restrictions also remain.
 
 State substitutions through `INSTANCE` retain their caller's state when a
 native arithmetic operator reads them. For example, an instantiated
 `Double == 2 * v` with `v <- x` reads the current `x`, in both semantic
-profiles (#515). This minimal example succeeds with 1 distinct state, 2
+profiles. This minimal example succeeds with 1 distinct state, 2
 generated states, depth 1 and exit 0:
 
 ```sh
@@ -68,9 +68,9 @@ dive check conformance/corpus/reference-instance-naturals/specifications/RefSubs
 Actual constant definitions still retain their startup values, including
 deferred-set identity and retained materialization history when a constructor
 uses its own bound values. Configuration redirects keep their existing
-evaluation behavior; this correction does not change startup output, lazy
-argument demands or error priority. The separate core cache correction (#634)
-covers definitions reached through two nested instance scopes. These bounded
+evaluation behavior, and start-up output, lazy argument demands and error
+priority are unaffected. Definitions reached through two nested instance scopes
+are also compiled per scope. These bounded
 controls do not establish general INSTANCE completion.
 
 ## Experimental core engine
@@ -125,8 +125,8 @@ accepted; any other engine name is a usage error (exit 2). Core covers:
   reported as unsupported, naming the feature;
 - liveness: a `PROPERTY` that needs liveness checking, with fairness. The
   core explores the states and builds the behavior graph, and
-  `dive-liveness` checks it (in the default profile, at completed levels,
-  D-014; under `--compat=tlc`, once the search is complete). A
+  `dive-liveness` checks it (in the default profile, at completed levels; see
+  [periodic liveness checking](../tlc-differences.md#d-014-periodic-liveness-checking-has-a-replayable-schedule); under `--compat=tlc`, once the search is complete). A
   counterexample is validated independently before it is reported. A
   temporal property together with
   `VIEW`, `SYMMETRY`, `Print`, `RandomElement`, `TLCSet`, `TLCGet`,
@@ -161,8 +161,7 @@ to one MiB; allocation failure or a larger graph retains the original checks.
 Current run controls, input/evaluation limits, conversion demands and independent
 counterexample validation still apply. Additive
 `core.metrics.liveness.atoms.row_proofs` counters report actual reuse and storage;
-they do not establish faster original-model completion. There is no new option.
-See [ADR 0134](../decisions/0134-native-atom-row-proofs.md).
+they do not establish faster original-model completion. There is no option for it.
 
 `ENABLED A` inside an action constraint or implied action property searches
 for a successor of `A` from the current state. Its primed expressions read
@@ -200,9 +199,8 @@ in both compatibility profiles.
 Cached core definitions also retain their own `INSTANCE` substitution context,
 including nested instances and primed definitions in a step property. A shared
 source definition can therefore read `x` through one instance and `x + 2`
-through another. The core previously reused the first compiled body, causing
-both false invariant violations and missed violations (#634). This example
-now succeeds with 3 distinct states, 4 generated states, depth 3 and exit 0 in
+through another. Core compiles the body per instance, so this example
+succeeds with 3 distinct states, 4 generated states, depth 3 and exit 0 in
 both profiles:
 
 ```sh
@@ -459,7 +457,7 @@ other engine regions. Rehash scratch fields describe allocation traffic and
 the largest individual temporary, rather than retained bytes or a process peak.
 These diagnostics do not change the limits or replace the whole-process budget.
 
-Every `dive check` runs under two budgets (ADR 0107):
+Every `dive check` runs under two budgets:
 
 - `--time-limit DURATION|none` bounds wall-clock time for the whole check.
   Durations are seconds by default, or take a unit: `500ms`, `90s`, `10m`,
@@ -471,11 +469,11 @@ The clock starts after the specification and configuration are loaded.
 dive polls the budget for each initial state, each expanded state, and during
 graph capture and temporal analysis. After startup, nested quantifier, CHOOSE
 and filter predicate loops also poll at amortized work checkpoints, including
-when no complete successor is emitted (issue #374). Successor domain candidates
+when no complete successor is emitted. Successor domain candidates
 poll before binding, so a rejecting continuation cannot bypass control. Action
 composition also polls while collecting those candidates and before each
 intermediate right step in next-state generation, action-predicate evaluation
-and `ENABLED` (issue #393). These checks retain the original mode-specific
+and `ENABLED`. These checks retain the original mode-specific
 enumeration and counts. An interrupted private intermediate collection does
 not become reported generated states; progress describes the externally
 published prefix.
@@ -515,7 +513,7 @@ Structural binding and evaluator construction,
 post-binding symmetry preparation, value-only allocation/sorting/native
 operations, normalization in existing quiet equality/ordering/hash units, and
 diagnostic error/count and predecessor-path reconstruction after an already
-deciding event remain outside this control (#349, #379). The diagnostic exclusion
+deciding event remain outside this control. The diagnostic exclusion
 affects only the reconstructing thread; other workers retain control. It does
 not suspend ordinary checking.
 
@@ -538,7 +536,7 @@ infallible value operation cannot substitute a transient interruption for truth
 or cache it as a structural hash. Ordinary fallible enumeration and comparison
 retain typed interruption, including function-domain lookup with 32 or more keys.
 A genuine incomparable argument still receives its existing evaluation error or
-named normalization refusal. These quiet value units remain part of #349.
+named normalization refusal. These value operations are not interruptible.
 Memory is the whole process's: resident
 plus swapped pages on Linux, resident pages on macOS. Where it cannot be
 measured, checking fails with diagnostic `DIVE-R0002`; it never substitutes
@@ -559,7 +557,7 @@ finished also returns `stopped` at `check-startup`, before `Init`, rather than
 at the search's first poll. Refusals that hold at any budget come first.
 A terminal resource excess reports phase `finalization`,
 retaining completed capture and progress without publishing a holding result.
-The owner checks its elapsed clock at that boundary even if the watchdog was
+The run checks its elapsed clock at that boundary even if the watchdog was
 delayed. macOS uses a native RSS query instead of launching `ps`.
 
 `resources.memory` reports the platform metric (`rss+swap` on Linux, `rss` on
@@ -569,7 +567,6 @@ Sampling is not an allocation-time hard cap: excursions between observations
 remain possible. macOS RSS does not claim swapped/compressed-memory or physical
 footprint accounting. Earlier genuine errors and independently validated
 counterexamples retain precedence if a later terminal observation fails.
-See [ADR 0109](../decisions/0109-native-memory-budget-sampling.md).
 
 When either runs out, dive stops and reports `verdict: "stopped"` with a
 `stopped` block (resource, limit, observed value, elapsed time, unit, phase and
@@ -663,7 +660,8 @@ initial invariant can report `TLC_FINGERPRINT_EXCEPTION` (2147), exit75. The
 reference replays actual receiver construction, including a receiver rebuilt by
 the first history-free Init emission, without constraints, VIEW or symmetry;
 cached constants, later initial rows and stored Next values gain no source by
-reuse. This changes diagnostic classification only. The default keeps D-009, and unproved
+reuse. This changes diagnostic classification only. The default keeps its
+[mathematical comparisons](../tlc-differences.md#d-009-comparisons-that-tlc-refuses-although-tla-answers-them), and unproved
 core comparisons remain `unsupported`. This recorded initial state is diagnostic
 context, not a formal counterexample: schema 3 exposes it separately through
 `diagnostic_witness`. Strict consumption requires independent replay of both the
@@ -737,8 +735,6 @@ assume a type invariant, remove other sequential causes, or change evaluation,
 error behavior or resource limits. Replay and checkpoint admission retain their
 conservative source inventory. Requested and used widths remain reported;
 the source proof is not a worker-utilization or performance measurement.
-See [ADR 0114](../decisions/0114-proven-runtime-name-free-concatenation.md) for the
-proof and source-inventory boundary.
 
 Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.
@@ -754,8 +750,8 @@ Concrete values and the VIEW value must fit 16,384 stored-value visits and depth
 64: atoms, literal tuples/records, general functions with homogeneous atomic
 domains, and explicit homogeneous atomic sets. Compound/mixed sets, symbolic or
 deferred sets and nonliteral tuple/record representations remain named refusals;
-these extra shape limits do not widen the unresolved mixed-word certificate
-boundary in #190. No provider callback or comparison is used to grant admission.
+these extra shape limits do not widen the mixed-set decoding limit described
+below. No provider callback or comparison is used to grant admission.
 Pure VIEW and direct source-call random checking without VIEW remain available.
 VIEW normalizes all concrete variables before computing a visited key, even
 variables the projection ignores. If a value cannot be normalized on the
@@ -801,13 +797,10 @@ used or not, reaches a random operator through the definitions it references.
 Extending `Randomization` or `TLC` without calling a random operator is not
 randomness: the standard modules' own helpers, such as
 `TestRandomSetOfSubsets`, count only when something outside them calls them.
-See the original wrong-answer repair
-and bound-stream controls and remaining replay limits.
-The corrected standalone campaign independently validates 144 of 180 original
-witness controls, refuses 36 unproved draw positions, and rejects all 180
-changed-Init controls. The remaining refusals cover two draws, a discarded random
-branch and conditional random Init. These counts belong to the corrected
-producer; the original failed campaign's 48 refusals remain historical evidence.
+On the random-witness test set, independent validation accepts 144 of 180
+witness controls, refuses 36 whose draw positions it cannot prove, and rejects
+all 180 controls with a changed Init. The refusals cover two draws, a discarded
+random branch and conditional random Init.
 
 Eligible ordinary dive-profile requests check temporal properties at deterministic
 completed-level boundaries; ordinary TLC-profile requests use the bounded pure
@@ -827,17 +820,15 @@ Spilling or archiving that callback-bearing value still refuses explicitly;
 this support is limited to memory checking. Other unproved lazy representations
 remain unsupported.
 
-The current D-009 comparison improvements do not make every mixed structure
-normalizable. The core refuses compound sets whose nested comparison shapes do not
+The default profile's [mathematical comparisons](../tlc-differences.md#d-009-comparisons-that-tlc-refuses-although-tla-answers-them)
+do not make every mixed structure normalizable. The core refuses compound sets whose nested comparison shapes do not
 unify in both profiles, including `Cardinality({<<1>>, <<TRUE>>})`. This
 conservative refusal also covers some sets TLC can sort by an earlier field or
 size without inspecting the conflict. A reversed heterogeneous set may refuse even in the
 default profile. A forward heterogeneous set can produce a checker report whose
 canonical structured trace then fails decoder shape admission in both profiles.
 Treat that report as an unvalidated witness; checking counts or a displayed
-trace do not confer independent validation. See the measured selection and
-refusals and
-[follow-up #190](https://github.com/Chelis-Lang/dive/issues/190).
+trace do not confer independent validation.
 
 
 For automation, an invariant violation uses TLC's physical status (normally 12)
@@ -891,15 +882,15 @@ Existing loop checkpoints can therefore run without first retaining the entire
 interval. Existing cardinality admission errors still apply before the first
 body in both profiles. APIs requesting all bindings still collect the full
 result. Other constructors can still materialize a domain before candidate binding, and long
-individual evaluations remain potentially uninterruptible (issue #349). No fixed
+individual evaluations may not be interruptible. No fixed
 domain-size count is introduced. Parallel checking polls the armed run budget during
-successor emission (issue #362). A stop retains its actual ordered prefix and
+successor emission. A stop retains its actual ordered prefix and
 leaves the unfinished source queued; a later worker's violation cannot bypass an
 earlier incomplete expansion. A predicate such as
 `x' \in 0..50000000 /\ FALSE` emits no complete successors, so the emission
 guard alone cannot interrupt it. The additional amortized candidate checkpoint
-now observes the budget before binding while this rejecting search proceeds
-(issue #393), including inside private action-composition collection. Quiet
+observes the budget before binding while this rejecting search proceeds,
+including inside private action-composition collection. Quiet
 normalization/equality/hash units, domain materialization before the candidate
 loop, and single long evaluations retain their limitations. For a bounded
 first-state violation with an independently
@@ -981,9 +972,9 @@ input and generated reference are retained. A separate
 `liveness-atom-action-error-order` corpus uses `<<ActionBad>>_x` and reports
 the state Concat error (2182), exit 255, with two distinct/generated states, one
 queued state and depth two. This formula establishes no global action priority.
-The exact manifests retain unknown metadata; these validation populations do not
-change established small/full selections. The historical primary measurements
-alone do not validate a dive error prefix or qualify an ordinary error verdict.
+These validation models are outside the small and full corpus tiers. The TLC
+measurements alone do not validate a dive error prefix or an ordinary error
+verdict.
 
 In the ordinary comparison this four-model corpus gives two agreements and
 two refusals, in both profiles. `DelayedSiblingStateError` matches 2179/255 and
@@ -1042,7 +1033,7 @@ error endpoint on another fresh runtime. Unknown independent validation
 capabilities remain named refusals; allocation and budget failures remain
 resource exceptions/stops. The report uses
 `temporal-state-row`; it does not claim a lasso or violated property. Scheduling,
-existing owner limits and JSON schema 3 are unchanged. Budgets, nonboolean results,
+existing limits and JSON schema 3 are unchanged. Budgets, nonboolean results,
 foreign contexts and internal failures do not acquire this error authority.
 
 Temporal preparation reports TLC's zero-solution startup error (2253/77)
@@ -1055,9 +1046,7 @@ true formula alone is insufficient: `<>TRUE` and `<>[]TRUE` retain their ordinar
 analysis route. Effectful or unknown conversion scopes can still be refused.
 The original configured claims remain separate attribution inputs; nonzero
 startup preparation retains their existing backend and row-proof requirements.
-This adds startup-only preparation work, not work per state or a performance
-claim. These capabilities do not by themselves establish a new small/full
-baseline or agreement count.
+This adds start-up preparation work only, not work per state.
 
 
 
@@ -1082,9 +1071,9 @@ native callback already returns success. It preserves binding state and output.
 Fresh owned temporal capture keeps its existing fresh-host reset before
 assumptions and Init. Public borrowed capture and legacy host setters retain
 callbacks; diagnostic replay temporarily restores them too. Complete scopes
-restore the host owner, policy and installed expression-cache domain with a new
+restore the host, policy and installed expression-cache domain with a new
 nonreused installation generation. Exhausted generations grant no optional
-admission authority. There is no new CLI switch or predicate-result cache.
+admission. There is no CLI switch or predicate-result cache for this.
 
 Native compiled safety debugging is available through `dive debug` and public
 Rust sessions. See [the debugging guide](debugging.md) for actual source
