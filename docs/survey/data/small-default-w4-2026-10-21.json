@@ -92,7 +92,7 @@
     "kernel": "7.0.0-1014-aws",
     "rustc": "1.99.0 (b940084d7 2026-09-28)",
     "shared_with_gates_and_instruction_profiling": true,
-    "instance_id": "i-0aa864e1e40c45c02",
+    "instance_id": "<instance>",
     "region": "us-east-1"
   },
   "selection": {

@@ -499,7 +499,7 @@
     "final_results_archive": {
       "state": "uploaded-downloaded-payload-verified",
       "scope": "closed original9aa2 population/audit results; full-gate archive recorded separately",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase8-20261104/final-populations-9aa2b8e2-valid-negative-20261105T005604Z-22e46362.tar.gz",
       "sha256": "7973d13137b1ba4c0b3e3743518a4147317e5e5112ceecf8f9cf888a8d343d88",
       "bytes": 63220370,
@@ -543,7 +543,7 @@
     },
     "closed_full_gate_archive": {
       "state": "uploaded-downloaded-member-verified",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase8-20261104/closed-full-gate-9aa2b8e2-20261105T001944Z-7e807a1a.tar.gz",
       "sha256": "d558a82f9459f5b525f5eea1b59c2a051fee3caac2ef1ec4b2665778eb28c223",
       "bytes": 160605,
@@ -582,7 +582,7 @@
     "archive_manifest_sha256": "b724fc39fae5ffc496c19d2dd58287188188848ff251cfe65834243df602132a"
   },
   "completed_frozen_archives": {
-    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "bucket": "<evidence-archive>",
     "index_sha256": "952f78a5415c5db811d9cb97a9bb0c44c9f58215ee51be14147f281c82c242f5",
     "scope": "four named final source/review/preparation snapshots only; excludes live qualification results, targets and executable copies",
     "archives": [
@@ -729,7 +729,7 @@
     "fresh_gate_census_auto_or_performance": false,
     "fresh_aggregate_qualification_claimed": false,
     "archive": {
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase8-20261104/pr779-separated-source-correction-20261105T013840Z-8020398e.tar.gz",
       "archive_sha256": "d3a47f0331b696de5669b686b070e7d9d2d457829ff83d7c52c5ca785baa3cd5",
       "archive_bytes": 530849,
@@ -751,7 +751,7 @@
       "exclusive_physical_reclaim_claimed": false,
       "raw_and_copied_executables_retained": true,
       "archive": {
-        "bucket": "dive-evidence-archive-010928226848-us-east-1",
+        "bucket": "<evidence-archive>",
         "key": "phase8-20261104/pr779-correction-cleanup-metadata-20261105T014017Z-785efbfd.tar.gz",
         "archive_sha256": "eb0e3d990d9f7fcacce216ae6c4b2b2ca075bf272a3ba24be7c1bff3d1f217ab",
         "archive_bytes": 3063,
@@ -786,7 +786,7 @@
     "measurement_limit": "du nominal allocation and logical file sizes do not prove exclusive physical reclamation; observed free-space delta includes concurrent filesystem activity.",
     "receipt_sha256": "5dc0d01f97c05f325e0ba5341eed4a3cd9b44a55d99de5f888bc9b7b43751fb5",
     "archive": {
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase8-20261104/closed-qualification-cleanup-9aa2b8e2-20261105T010233Z-35bde19c.tar.gz",
       "sha256": "6475f84741309f02c3caf8b7145abb0e53de630c67d0dbc5e36ab3449d1904e2",
       "bytes": 4860,

@@ -560,14 +560,14 @@
   },
   "hardware_and_identity": {
     "region": "us-east-1",
-    "instance_id": "i-0bbb4bd07f4784510",
+    "instance_id": "<instance>",
     "launch_instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "machine_record_key": "results/originals/tool-machine.json",
     "scope": "Sealed launch/source/build/wrapper receipts; machine body bound by the original-object manifest. No second ELF replay or quiet-host/throughput/scaling/peak-memory qualification."
   },
   "retention": {
-    "bucket": "dive-fulltier-20261026003655-24a9ebbe-010928226848",
+    "bucket": "<bucket>",
     "originals_prefix": "results/originals/",
     "object_manifest_key": "results/original-object-manifest.json",
     "object_manifest_sha256": "73ff5f7fbbe8cd835e17d471f3dfae93f4d26fb83aee556263ba67c4902dab5b",

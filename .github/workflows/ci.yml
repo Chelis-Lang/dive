@@ -7,11 +7,6 @@ name: ci
 # `cargo xtask gate --full` at integrated milestones, and in conformance.yml
 # on manual dispatch.
 #
-# `runs-on` reads the repository variable DIVE_CI_RUNNER (default
-# `ubuntu-latest`). Setting it to `dive-local` moves every job onto the
-# self-hosted runners described in docs/developer/ci.md, for example when hosted
-# minutes run out; the job names, and so the required checks, are unchanged.
-#
 # Push to main runs the same jobs. Branch protection is not strict, so a
 # merged PR can still meet a main it was never tested against; the push run
 # checks the merged result, and it is also the only run whose rust-cache
@@ -39,7 +34,7 @@ jobs:
   no-ai-authorship:
     # Required check name; must match `cargo xtask protect-main`.
     name: No AI authorship markers
-    runs-on: ${{ vars.DIVE_CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -69,7 +64,7 @@ jobs:
     # Required check name; must match `cargo xtask protect-main`.
     # Mirrored locally by `cargo xtask gate --fast`.
     name: Workspace gate
-    runs-on: ${{ vars.DIVE_CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     # Hosted-runner measurements reached 22m30s in nextest (including its
     # build), with all tests passing. Leave bounded time for the remaining
     # docs, standalone builds, external consumer and dependency checks.
@@ -85,8 +80,6 @@ jobs:
         # The test inventory does not fit in the ~9 GB a hosted runner leaves
         # free after checkout (the linker dies with SIGBUS). Deleting unused
         # preinstalled SDKs frees ~15 GB; it runs while the job compiles.
-        # Hosted runners only: self-hosted runners have neither the SDKs nor sudo.
-        if: ${{ runner.environment == 'github-hosted' }}
         run: nohup sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc >/dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -102,9 +95,6 @@ jobs:
         with:
           key: workspace-gate
           save-if: ${{ github.ref == 'refs/heads/main' }}
-          # Never cache or prune CARGO_HOME/bin on self-hosted runners: the post
-          # step deletes binaries that predate the job (docs/developer/ci.md).
-          cache-bin: ${{ runner.environment == 'github-hosted' }}
       - name: Did Cargo.lock or deny.toml change?
         id: deny
         env:
@@ -149,7 +139,7 @@ jobs:
     # default profile on core-smoke.txt. Never runs TLC. The whole CM1 list and
     # the validation-smoke corpus run in `cargo xtask gate --full`.
     name: Conformance gate
-    runs-on: ${{ vars.DIVE_CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       DIVE_CACHE_DIR: ${{ github.workspace }}/../dive-cache
@@ -163,9 +153,6 @@ jobs:
         with:
           key: release-gate
           save-if: ${{ github.ref == 'refs/heads/main' }}
-          # Never cache or prune CARGO_HOME/bin on self-hosted runners: the post
-          # step deletes binaries that predate the job (docs/developer/ci.md).
-          cache-bin: ${{ runner.environment == 'github-hosted' }}
       - name: Cache oracles, JRE and corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:

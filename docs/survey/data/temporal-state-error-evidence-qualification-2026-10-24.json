@@ -167,7 +167,7 @@
     }
   },
   "provenance": {
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "instance_type": "c7i.8xlarge",
     "CPU_model": "Intel(R) Xeon(R) Platinum 8488C",
     "tool_versions": {
@@ -181,7 +181,7 @@
     "independent_actual_data_review_sha256": "dba560d9fbfb4ede0002e7532e29bd5d2ba09f739572c23e3660c3ba55ea5b4a"
   },
   "storage": {
-    "retained_archive": "s3://dive-selectseq-gate-20261024125700-45027010-010928226848/results/final.tgz",
+    "retained_archive": "s3://<bucket>/results/final.tgz",
     "archive_sha256": "d49f9871d9b063b79227fd277ad2969d3b307d3b12dd885bcab68c51ea4ab30d",
     "compressed_bytes": 140983,
     "selected_original_bytes": 948899,

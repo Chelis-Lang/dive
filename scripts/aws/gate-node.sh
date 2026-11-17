@@ -7,11 +7,21 @@
 # scripts/aws/remote-gate.sh. Prints the instance id; export it as DIVE_GATE_NODE.
 # Setup takes about 10 minutes. Terminate the node when done.
 # DRY_RUN=1 prints the generated user data instead of launching.
-# The GitHub token comes from the SSM parameter /dive/bench/gh-token and is never printed.
-: ${AWS_PROFILE:?set AWS_PROFILE}; export AWS_REGION=${AWS_REGION:-us-east-1} AWS_PAGER=""
+# Required environment: AWS_PROFILE, DIVE_AWS_AMI (AMI id), DIVE_AWS_INSTANCE_PROFILE
+# (IAM instance profile) and DIVE_AWS_GH_TOKEN_PARAM (SSM SecureString parameter
+# name holding a GitHub token). The token is never printed.
+: ${AWS_PROFILE:?set AWS_PROFILE}
+: ${DIVE_AWS_AMI:?set DIVE_AWS_AMI to an Ubuntu x86_64 AMI id}
+: ${DIVE_AWS_INSTANCE_PROFILE:?set DIVE_AWS_INSTANCE_PROFILE to an IAM instance profile that can read the token parameter}
+: ${DIVE_AWS_GH_TOKEN_PARAM:?set DIVE_AWS_GH_TOKEN_PARAM to the SSM SecureString parameter holding a GitHub token}
+export AWS_REGION=${AWS_REGION:-us-east-1} AWS_PAGER=""
 UD=$(mktemp)
-cat > $UD <<'OUTER'
+cat > $UD <<OUTER
 #!/bin/bash
+AWS_REGION=${(q)AWS_REGION}
+TOKEN_PARAM=${(q)DIVE_AWS_GH_TOKEN_PARAM}
+OUTER
+cat >> $UD <<'OUTER'
 exec > /var/log/dive-bootstrap.log 2>&1
 set -eu
 export DEBIAN_FRONTEND=noninteractive HOME=/root
@@ -19,7 +29,7 @@ apt-get update -q && apt-get install -yq build-essential pkg-config git curl jq 
 systemctl stop snapd unattended-upgrades apt-daily.timer apt-daily-upgrade.timer || true
 (cd /tmp && curl -sSfo awscliv2.zip https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip && unzip -qo awscliv2.zip && ./aws/install --update)
 useradd -m -s /bin/bash gate || true
-/usr/local/bin/aws ssm get-parameter --region us-east-1 --name /dive/bench/gh-token --with-decryption --query Parameter.Value --output text > /home/gate/.gh-token
+/usr/local/bin/aws ssm get-parameter --region "$AWS_REGION" --name "$TOKEN_PARAM" --with-decryption --query Parameter.Value --output text > /home/gate/.gh-token
 chmod 600 /home/gate/.gh-token; chown gate: /home/gate/.gh-token
 cat > /home/gate/setup.sh <<'INNER'
 #!/bin/bash
@@ -60,8 +70,8 @@ chmod 755 /home/gate/setup.sh /home/gate/gate.sh; chown gate: /home/gate/setup.s
 systemd-run --unit=dive-gate-setup --uid=gate --setenv=HOME=/home/gate --working-directory=/home/gate /home/gate/setup.sh
 OUTER
 [ -n "${DRY_RUN:-}" ] && { cat $UD; rm -f $UD; exit 0; }
-aws ec2 run-instances --image-id ami-02a9cdd4e98bc3c78 --instance-type c7i.16xlarge \
-  --iam-instance-profile Name=dive-bench \
+aws ec2 run-instances --image-id "$DIVE_AWS_AMI" --instance-type c7i.16xlarge \
+  --iam-instance-profile Name="$DIVE_AWS_INSTANCE_PROFILE" \
   --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=200,VolumeType=gp3}' \
   --user-data file://$UD \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=project,Value=dive},{Key=Name,Value=dive-gate}]' \

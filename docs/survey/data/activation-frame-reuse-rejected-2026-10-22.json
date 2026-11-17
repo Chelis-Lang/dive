@@ -19,9 +19,9 @@
   },
   "machine": {
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "region": "us-east-1",
-    "kernel": "Linux ip-172-31-13-58 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux"
+    "kernel": "Linux <host> 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux"
   },
   "tool_versions": {
     "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",

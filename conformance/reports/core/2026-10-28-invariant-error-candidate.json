@@ -2211,7 +2211,7 @@
       "recorder source"
     ],
     "external_preservation": {
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "m1-closeout/2026-10-28/fixture-trace-candidate-c831-results.tar.gz",
       "verified": "local SHA-256 and archive members; S3 length and SHA-256 metadata"
     }

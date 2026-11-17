@@ -85,7 +85,7 @@
       "controller_sha256": "ef8775ddef71385fd7544016f7ccae18df358824bebf90911ae876d3359d47af",
       "template_sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
       "source_elf_receipt_verified": true,
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase4-20261101/aba-baseline-b1a5972d.tar.gz"
     },
     "candidate_archive": {
@@ -101,7 +101,7 @@
       "controller_sha256": "c0cd8c401c68249fd172654406c776ca0e6cb99917b89acf68cf35d205ad5820",
       "template_sha256": "9e30672372fe6997d94eb4ad66023d9dd5b3f67a3c26d7b3050217d00faeef7a",
       "source_elf_receipt_verified": true,
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase4-20261101/aba-candidate-8e7dc78c.tar.gz"
     },
     "rows": [
@@ -1429,7 +1429,7 @@
       "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
       "sha256": "8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282",
       "bytes": 25973501,
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase4-20261101/final-capacity-95e73d2f.tar.gz",
       "members": 148,
       "all_member_hashes_verified": true,
@@ -1513,7 +1513,7 @@
       "manifest_sha256": "8038d55ae57d0408b665da1047afb380184e3f6f8f1f6561f07a189b5c74f16c",
       "all_member_hashes_verified": true,
       "verified_utc": "2026-11-01T20:24:08.504500+00:00",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase4-20261101/local-qualification-support-95e73d2f.tar.gz",
       "scope": "Closed local qualification and support snapshot only; no final twelve-cell raw capacity, later documentation update or future cleanup credit."
     },
@@ -1522,7 +1522,7 @@
       "source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
       "sha256": "8d4cc56e14d0b342b715964eaf3e264ffe343b506cb94c6937a55a71fd257282",
       "bytes": 25973501,
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase4-20261101/final-capacity-95e73d2f.tar.gz",
       "members": 148,
       "all_member_hashes_verified": true,
@@ -1557,7 +1557,7 @@
       "physical_rc": 0,
       "physical_rc_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
       "phase": "phase4-20261101",
-      "instance_id": "i-09ff9813821bc0fc6",
+      "instance_id": "<instance>",
       "root_volume_id": "vol-006d883b1736ab3b9",
       "launch_utc": "2026-11-01T17:02:22+00:00",
       "termination_requested_utc": "2026-11-01T20:40:53.713721+00:00",

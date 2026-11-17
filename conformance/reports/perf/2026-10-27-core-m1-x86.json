@@ -10,7 +10,7 @@
   "turbo": "off",
   "governor": "performance, min=max 2.4 GHz",
   "affinity": "CPUs 0-15",
-  "ami": "ami-02a9cdd4e98bc3c78",
+  "ami": "<ami>",
   "load_at_start": "1.82 1.06 0.45 1/1059 5354",
   "quiet_window_certified": false
  },

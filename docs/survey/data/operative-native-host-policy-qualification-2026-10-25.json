@@ -43,7 +43,7 @@
   },
   "review_scope": "Independent whole-source review plus Root actual native, gate, report/baseline, source/tool identity and original S3 archive audit",
   "raw_evidence": {
-    "uri": "s3://dive-selectseq-gate-20261025192836-c5e26efe-010928226848/results/final.tgz",
+    "uri": "s3://<bucket>/results/final.tgz",
     "sha256": "24c1e4313cd9e62f041502a51b753aa16f0c4f3cef8ddae8fe0951c057692e1c",
     "bytes": 147249,
     "root_audit_sha256": "5cac1b75088c7df0fa5f1de0e8304e5712fe7eb59e107a737763889a94d49141"

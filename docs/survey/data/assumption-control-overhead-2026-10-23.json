@@ -605,7 +605,7 @@
  },
  "machine_and_tools": {
   "instance_type": "c7i.8xlarge",
-  "AMI": "ami-02a9cdd4e98bc3c78",
+  "AMI": "<ami>",
   "CPU_model": "Intel(R) Xeon(R) Platinum 8488C",
   "logical_cpus": 32,
   "cores_per_socket": 16,

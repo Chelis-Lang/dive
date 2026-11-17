@@ -81,7 +81,7 @@
   "archive": {
     "archive_sha256": "03d797cd1c45c9d482832041b11a3c9188a04b3f58466c5093ceddf89d95a718",
     "bytes": 2835695,
-    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "bucket": "<evidence-archive>",
     "key": "phase7-20261103/source-coverage-disabled-overhead-03d797cd1c45.tar.gz",
     "verified": true,
     "download_hash_verified": true,

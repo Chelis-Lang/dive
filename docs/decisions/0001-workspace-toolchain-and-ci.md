@@ -37,7 +37,7 @@ The owner explicitly asked that CI not grow bloated: perf and profiling work wil
   - `ci.yml` (every push and PR) has two jobs: `No AI authorship markers`, then `Workspace gate`. The gate runs fmt, clippy, nextest, doctests, rustdoc, layering and cargo-deny, with a target under 10 minutes.
   - `conformance.yml` (nightly and dispatch) runs the standard and deep conformance tiers.
   - Benchmarks, profiling and long fuzzing never run in CI.
-- **Hosting:** GitHub-hosted runners only. The org's self-hosted pool and Sand Dollar caches are admission-limited to other repos.
+- **Hosting:** GitHub-hosted runners only.
 - **Debug info:** `debug = "line-tables-only"` in dev and test profiles. This follows the org's runner disk guidance.
 - **Profiling builds:** a `profiling` profile (release plus full debug info).
 

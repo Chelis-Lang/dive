@@ -411,7 +411,7 @@
   },
   "machine": {
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "architecture": "x86_64",
     "OS": "Ubuntu 24.04",
     "kernel_release": "7.0.0-1014-aws",

@@ -129,7 +129,7 @@
     "all_raw_budget_objects_identical": true
   },
   "machine": {
-    "instance": "i-0a02ece5b4983d7d1",
+    "instance": "<instance>",
     "instance_type": "c7i.4xlarge",
     "physical_cores": 8,
     "threads_per_core": 2,
@@ -1688,8 +1688,8 @@
   },
   "archive": {
     "source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
-    "node": "i-0a02ece5b4983d7d1",
-    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "node": "<instance>",
+    "bucket": "<evidence-archive>",
     "key": "phase2-20261101-16095d43/original-capacity.tar.gz",
     "sha256": "5bd0c893243dc072365d03cf95d2c0e44613bd981c4010fd08eabc0fa40f6db4",
     "bytes": 25821365,
@@ -1817,7 +1817,7 @@
     "scope": "Local primary archive/raw recomputation and the completed independent fresh-context final review agree on nine successes and three honest stops. All50 controls passed. Approval covers accuracy and integrity of this bounded evidence; original capacity acceptance remains rejected."
   },
   "cleanup": {
-    "instance": "i-0a02ece5b4983d7d1",
+    "instance": "<instance>",
     "state": "terminated",
     "root_volume": "vol-0d8633e6ceaac8cdb",
     "volume_deleted": true,
@@ -1831,7 +1831,7 @@
     "verification_scope": "Verified local root API/controller receipts; archive/all-member verification precedes capacity termination. No new cloud query was made by this record author."
   },
   "instance_policy": {
-    "instance": "i-0a02ece5b4983d7d1",
+    "instance": "<instance>",
     "type": "c7i.4xlarge",
     "launch": "2026-11-01T01:04:00+00:00",
     "cpu_options": {
@@ -1941,7 +1941,7 @@
       "bytes": 2904
     },
     "capacity_shutdown_policy": {
-      "file": "cloud/final-16095d43/i-0a02ece5b4983d7d1-shutdown-policy.json",
+      "file": "cloud/final-16095d43/<instance>-shutdown-policy.json",
       "sha256": "3c3f024768f522d338b9dae222ff35cb2c1f9b6e5d2d643542822dfe59c90316",
       "bytes": 113
     },
@@ -2006,8 +2006,8 @@
       "same_original_inputs_and_native_budgets": true,
       "same_actual_source_pin_file_hashes": true,
       "different_instances": [
-        "i-0e6be2fb5ec1c55af",
-        "i-0a02ece5b4983d7d1"
+        "<instance>",
+        "<instance>"
       ],
       "quiet_window_certified": false,
       "matched_runtime_conditions": false,
@@ -2091,7 +2091,7 @@
   },
   "publication": {
     "original_raw_archive": {
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase2-20261101-16095d43/original-capacity.tar.gz",
       "sha256": "5bd0c893243dc072365d03cf95d2c0e44613bd981c4010fd08eabc0fa40f6db4",
       "bytes": 25821365,
@@ -2099,7 +2099,7 @@
       "all_manifest_members_verified": true
     },
     "supporting_provenance": {
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "manifest_key": "phase2-20261101-16095d43/capacity-support-v1/manifest.json",
       "sha256": "07cfc82935217637597705a9a16d859f693e858ee4f90d8b06fe9037904396a7",
       "bytes": 5269,
@@ -2110,7 +2110,7 @@
       "scope": "Supporting provenance and cleanup only; original12raw archive remains unchanged, final independent capacity review is separate."
     },
     "independent_final_review": {
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "manifest_key": "phase2-20261101-16095d43/capacity-review-v1/manifest.json",
       "sha256": "f39726d19685ab9fd641519d09aeef996f21c4648a3d413070ba025d3daed3c3",
       "bytes": 3906,

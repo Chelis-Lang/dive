@@ -42,7 +42,7 @@
       "release": "7.0.0-1014-aws",
       "architecture": "x86_64"
     },
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "instance_type": "c7i.8xlarge",
     "identity_sha256": "8b16a1389c736401db813cdd5c9094975e842acebd75f91e50102b965e591de6",
     "shared_environment_no_quiet_or_exclusive_host_certificate": true
@@ -489,7 +489,7 @@
     }
   },
   "origin": {
-    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "bucket": "<bucket>",
     "raw_prefix": "results/raw/",
     "ledger_profile_overview_s3_key": "root-followups/completed-1a8343b9-attribution-audit-v1/ROOT-INDEPENDENT-PROFILE-OVERVIEW.json",
     "audit_receipt_s3_key": "root-followups/completed-1a8343b9-attribution-audit-v1/RECEIPT.json",
@@ -503,7 +503,7 @@
     "interpretation": "Conditional arithmetic over exact selected exclusive contexts only; source-range rows and direct incident helpers do not cover arbitrary descendants. Shared helpers remain unknown. Immediate arc costs overlap and are never added to exclusive totals. Neither these costs nor the 24.22-28.12% mixed allocator/ownership pool proves removable work. No defensible 5% candidate is established."
   },
   "compute_cleanup": {
-    "instance": "i-0d4f6fedac73b520a",
+    "instance": "<instance>",
     "state": "terminated",
     "exact_volume_absent": true,
     "exact_security_group_absent": true,

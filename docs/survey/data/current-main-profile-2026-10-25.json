@@ -38,7 +38,7 @@
       "release": "7.0.0-1014-aws",
       "architecture": "x86_64"
     },
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "instance_type": "c7i.8xlarge",
     "identity_sha256": "607452ce2ce0b5a2d0c0060e2e0e6cd1530ebf8aa07796c16123a3eb3a5cfa72",
     "shared_environment_no_quiet_or_exclusive_host_certificate": true
@@ -62,7 +62,7 @@
     "results/raw/observed-inputs-after.json": "da7391aaaef0717a9b63f4d88ae2063b4e23cdc854a481818691e70c031f41ec"
   },
   "origin": {
-    "bucket": "dive-callgrind-profile-20261024230124-8d598041-010928226848",
+    "bucket": "<bucket>",
     "prefix": "results/raw/",
     "plan_sha256": "d55c2d112b5db9abfe80b7a1c90dbbc18ec1731c1a89e7626fdf574f1c839460",
     "manifest_sha256": "e15c4f146107971c8052b04e09d3eafc2602f64825e9d7f094b04fd0178f7ac3",

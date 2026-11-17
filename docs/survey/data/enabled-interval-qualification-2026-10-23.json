@@ -20,9 +20,9 @@
   },
   "source_bundle_sha256": "3a30a3fed17f32816799fc66a5b2594bc52e273ab8b34dd326ff4b8a18a2c970",
   "machine": {
-    "instance_id": "i-0fe5264fd4fd01484",
+    "instance_id": "<instance>",
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "cpu": "Intel(R) Xeon(R) Platinum 8488C",
     "kernel": "Linux 7.0.0-1014-aws x86_64",
     "region": "us-east-1",

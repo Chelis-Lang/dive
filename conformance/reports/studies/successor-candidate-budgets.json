@@ -17,7 +17,7 @@
     "cloud": "AWS",
     "instance_type": "c7i.8xlarge",
     "region": "us-east-1",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "architecture": "x86_64",
     "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
     "logical_cpus": 32,
