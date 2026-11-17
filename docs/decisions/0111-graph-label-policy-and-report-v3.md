@@ -23,11 +23,9 @@ has unknown phase and cause. No experimental bypass is delivery code.
 
 Schema 2 reports the shared `atom_cells` setting. Keeping 8,000,000 there while
 disabling its graph owner would misrepresent an effective guard. ADR 0108 freezes
-field meanings within a major version. Advance consumer notice was filed in
-[Oyster #70](https://github.com/Chelis-Lang/oyster/issues/70) before implementation;
-its schema-2 pin remains unchanged until reader migration and requalification.
-The [exact field-map notice](https://github.com/Chelis-Lang/oyster/issues/70#issuecomment-6326487977)
-preceded source freeze.
+field meanings within a major version. Advance notice, including the exact
+field map, was given to the known downstream consumer before implementation.
+A consumer's schema-2 pin stays unchanged until its reader migrates.
 
 ## Decision
 

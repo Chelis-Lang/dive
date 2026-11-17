@@ -79,7 +79,7 @@ This reset superseded:
   and the delivery plans (`docs/design/tlc-parity-plan.md`, `m5-plan.md`,
   `m6-plan.md` and `final-temporal-study.md`). `conformance/parity-surfaces.json`
   is kept as a reference inventory.
-- `docs/sprint-status.md`, `docs/reviews/` and the per-increment docs, which are
+- `docs/sprint-status.md`, `docs/internal/reviews/` and the per-increment docs, which are
   merged into area guides such as `docs/pluscal-translation.md` and
   `docs/user/storage-recovery.md`.
 - `conformance/probes/`, the `crates/dive-pluscal/*acceptance/` trees, the bulky

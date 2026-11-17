@@ -146,13 +146,13 @@ vertex, edge, inspection and acceptance limits retain their units and values.
 The layout change does not by itself establish a process-memory saving; flat
 buffer spare capacity and simultaneous discovery offsets/final row ranges also
 consume memory.
-A [four-case synthetic capacity study](survey/data/product-adjacency-capacity-2026-10-22.json)
+A [four-case synthetic capacity study](internal/survey/data/product-adjacency-capacity-2026-10-22.json)
 records the buffers at six construction checkpoints. Nonempty target and
 original-edge arrays retain their allocation, length and capacity throughout
 canonicalization. These observations exclude the lookup index, acceptance,
 search and allocator internals; they establish neither CoffeeCan capacity nor
 a whole-process memory reduction.
-A separate [normal-input instruction screen](survey/data/product-adjacency-overhead-2026-10-22.json)
+A separate [normal-input instruction screen](internal/survey/data/product-adjacency-overhead-2026-10-22.json)
 compares the original base and CSR candidate on four reduced models in both
 profiles. Every matched cell stays within 1% overhead, with identical verdicts,
 counts and execution facts. The geometric mean is 0.0104% more instructions.

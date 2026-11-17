@@ -63,6 +63,6 @@ Unknown cases may still serialize even when a stronger proof could admit them.
 Replay and checkpoint support do not broaden merely because workers are admitted.
 
 The complete gate and unchanged trace controls qualify the source change.
-The [worker admission record](../survey/data/proven-tuple-worker-admission-2026-10-25.json)
+The [worker admission record](../internal/survey/data/proven-tuple-worker-admission-2026-10-25.json)
 separately records original workload observations. Selecting eight workers is
 not evidence of utilization or throughput; those require a measured campaign.

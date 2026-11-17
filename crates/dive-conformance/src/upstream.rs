@@ -3,7 +3,7 @@
 //!
 //! When one TLC oracle runs against another's goldens, many differences are
 //! not dive's concern at all: they are upstream bug fixes or features that one
-//! build has and the other lacks. `docs/survey/oracle-history.md` catalogues
+//! build has and the other lacks. `docs/internal/survey/oracle-history.md` catalogues
 //! them. This registry makes the catalogue machine-readable. A cross-oracle
 //! difference that a registered change fully explains is reported as
 //! [`Outcome::KnownUpstreamChange`](crate::compare::Outcome::KnownUpstreamChange),
@@ -83,7 +83,7 @@ pub struct OracleChange {
     pub upstream_commit: String,
     /// What changed, for a reader of the report.
     pub description: String,
-    /// The entry in `docs/survey/oracle-history.md` or the ADR that records it.
+    /// The entry in `docs/internal/survey/oracle-history.md` or the ADR that records it.
     pub link: String,
     /// Pinned oracle ids whose builds lack the change.
     pub absent_in: Vec<String>,
@@ -380,7 +380,7 @@ mod tests {
 id = "depth-zero-states"
 upstream_commit = "508aaf05f"
 description = "depth 0 when no state was generated"
-link = "docs/survey/oracle-history.md"
+link = "docs/internal/survey/oracle-history.md"
 absent_in = ["tlc-1.7.4"]
 present_in = ["tlc-2026.10.06.014338"]
 models = ["specifications/**"]
@@ -489,7 +489,7 @@ present_result = { distinct_states = 0 }
 id = "a"
 upstream_commit = "856398af6"
 description = "TLCExt is standard"
-link = "docs/survey/oracle-history.md"
+link = "docs/internal/survey/oracle-history.md"
 absent_in = ["tlc-1.7.4"]
 present_in = ["tlc-2026.10.06.014338"]
 modules = ["**"]
@@ -561,7 +561,7 @@ absent_result = { verdict = ["parse-error"], unresolved_modules = ["Functions"] 
                 "description = \" \"",
             ),
             (
-                "link = \"docs/survey/oracle-history.md\"",
+                "link = \"docs/internal/survey/oracle-history.md\"",
                 "link = \"https://example.com\"",
             ),
         ] {

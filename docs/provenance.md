@@ -58,7 +58,7 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 | Compiled finite simulation and DFID (`dive-api::core_modes`) | Existing dive simulation/DFID drivers, derived from tlaplus `Simulator`, `SimulationWorker`, `DFIDModelChecker`, `DFIDWorker` and `FPIntSet` at pinned `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT semantics; original core adapters | Preserve candidate/check phases, iteration status bits and first-event draining over Plan/Machine; independently validate actual words. Native per-trace choices follow ADR 0116, not Java draw equality; owned batch retention (including deferred generator continuation reclamation) and isolated engine selection are dive designs (ADR 0139). |
 | Finite mode run-budget ownership (`dive-api`, `dive-sim`, `dive-check`) | Existing dive ADR 0107 watchdog and evaluator host-control implementation | Original dive design | One owner for a finite simulation/DFID request, amortized execution checkpoints, prefix accounting and final resource sampling; no TLC algorithm or random-stream changes. |
 | Temporal source-row error execution and independent tracev5 (`dive-check` / `dive-explore` / `dive-liveness` / `dive-api` / `dive-trace`) | TLC `Worker.run` / post-Next liveness-row diagnostic, `ModelChecker.doNextFailed` / `keepCallStack`, `LiveCheck.addNextState`, `OrderOfSolution` and `Liveness.classifyExpr` / `addToBin`; pinned `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT semantics; original ownership/event transport | Reuse ordered normalization; evaluate AEAction then EAAction action bins before state bins, stopping at an opaque state-only residual. Real terminal and completed source events retain original emissions/counts; separate private source execution and fresh independent replay prove bounded GENERAL1000/255 suppression. No tableau truth, public borrowed-model authority or wrapper-code override. Local integer-CHOOSE stability inspection is an original bounded proof and evaluates no domain/provider. ADR 0132. |
-| Initial-invariant value-method replay (`dive-eval` / `dive-check` / `dive-api`) | TLC `Tool.java` function constructor, `CallStackTool.setSource` / returned-lambda copy and `FcnLambdaValue.toFcnRcd`, pinned `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Attach source only to actual diagnostic receivers, preserve copy/cache lifetime and typed underlying causes; replay the pure failed initial invariant before claiming2147. Other lifetimes stay unverified. Minimal official-oracle control and boundary: `docs/survey/value-method-error-provenance.md`. |
+| Initial-invariant value-method replay (`dive-eval` / `dive-check` / `dive-api`) | TLC `Tool.java` function constructor, `CallStackTool.setSource` / returned-lambda copy and `FcnLambdaValue.toFcnRcd`, pinned `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Attach source only to actual diagnostic receivers, preserve copy/cache lifetime and typed underlying causes; replay the pure failed initial invariant before claiming2147. Other lifetimes stay unverified. Minimal official-oracle control and boundary: `docs/internal/survey/value-method-error-provenance.md`. |
 | Optional bound native temporal atoms (`dive-api` / `dive-core`) | Existing dive `PredicateAtom::evaluate_detailed`, `Evaluator::enabled_scoped`, `Compiler::enabled`, `Machine::enabled`, generator Changed and function range replacement; their TLC semantic source is `Tool.java` enabled/EXCEPT at pinned `94d0c5070852b37b801bb8998c436383ab7ee37b` | Original integration; upstream semantics MIT | Reuse the existing compiler and successor search. Nonstuttering preserves reference subscript-first order. A new optional guard proves exact immutable interval-binder/input-domain identity and key membership before a scalar range replacement; unproved cases retain reference execution and warning 2144. No new generator algorithm or upstream code imported. ADR 0129. |
 | Core scalar sequence replacement (`dive-core/src/stdlib/community.rs`) | CommunityModules `modules/SequencesExt.tla`, `ReplaceFirstSubSeq`, `ReplaceAllSubSeqs`, `IndexFirstSubSeq` and `ReplaceSubSeqAt`, pinned `78b98ae` / release `202610040242`; test oracle normalization: TLC `TupleValue.compareTo`, `FcnRcdValue.compareTo`, `Tool` BoundedChoose at `94d0c50` | MIT semantics | Original bounded KMP matcher. First follows the least-prefix definition. All's early CASE arms and non-overlapping occurrences have choice-independent output; overlapping occurrences refuse. The rejected absolute-position greedy rule at `7e1195f1` is preserved and corrected in the value-model notes. Independent bounded partition enumeration includes empty components, maximum matching-component count, component-index domination and normalized tuple/function order; it reproduces the pinned overlap surprise and checks all satisfying outputs for admitted cases. Effects and unproved comparisons remain refused. |
 | `dive-value` persistent function domains and borrowed views; `dive-eval` selection/EXCEPT | Original immutable-domain and exact integer/Cartesian index design; semantic constraints checked against existing dive paths and tlaplus `FcnRcdValue.selectLinearSearch`, `selectBinarySearch`, `normalize`, and `SetOfFcnsValue.member` at `94d0c5070852b37b801bb8998c436383ab7ee37b` | Original design; upstream semantics MIT | No upstream lookup/index-table implementation imported. Preserve checked operand order, range-check order, canonical representation/literal flags, unknown/provider fallbacks and the existing large-incomparable refusal. A private permutation is not a TLC normalization certificate. ADR 0110. The complete reduced eight-cell screen measured 5.365455% fewer instructions geometrically; exact-source full gate and both small baselines pass without changes. Later delivery retains the separately qualified benchmark test-fixture delta explicitly. No throughput claim. |
@@ -217,7 +217,7 @@ The frontend campaign grammar driver invokes `TLAplusParser.parse` and
 (MIT). The reported PlusCal validation error is classified from
 `SpecObj.validateParseUnit` / `SANY.frontEndParse`; generic exceptions never
 establish a root-grammar fact. See `scripts/java/README.md` for source and
-bytecode pins, and `docs/frontend-campaign.md` for the separate measurements.
+bytecode pins, and `docs/internal/frontend-campaign.md` for the separate measurements.
 
 | Component | Reference | License | Evidence |
 |---|---|---|---|
@@ -1399,7 +1399,7 @@ independent validation of the failing word. The three temporal-atom evaluation
 errors remain named refusals (issue #451), as does string-name creation. The
 original EWD998ChanID additionally retains its VIEW refusal (issue #428).
 No established small/full population or agreement count changes. The
-[compact qualification](survey/data/selectseq-concat-qualification-2026-10-24.json)
+[compact qualification](internal/survey/data/selectseq-concat-qualification-2026-10-24.json)
 binds the primary inputs, generated references, native producers and measurements.
 
 ### SelectSeq callbacks in pure temporal predicates
@@ -1509,7 +1509,7 @@ pre-fix native profile/worker controls at `66aa04c69712a297922de167fd8e12c3a0062
 all completed with generated 3, distinct 3 and depth 3. Compat requested four
 workers actually used four before the missing native-name registry entry was
 corrected; no verdict/count disagreement or performance gain is claimed.
-[Compact primary evidence](survey/data/json-runtime-names-2026-10-21.json)
+[Compact primary evidence](internal/survey/data/json-runtime-names-2026-10-21.json)
 retains actual source/binary/input/raw hashes. TLC `Json.java.toJson` returns a
 new `StringValue`; native `json.rs` interns the generated text. Array/Object
 entry points remain named refusals and are not included in this correction.
@@ -2233,7 +2233,7 @@ success (2 distinct, 3 generated, depth 2). VIEW forward reports success;
 reverse reports a violation of `Bad` (both 2 distinct, 5 generated, depth 2).
 The reverse literal trace fails its `SF(A)` by source inspection; no independent
 validator was executed. The actual result difference is preserved before any
-implementation change. [Compact evidence](survey/data/liveness-quotient-primary-2026-10-22.json)
+implementation change. [Compact evidence](internal/survey/data/liveness-quotient-primary-2026-10-22.json)
 records the producer and input hashes, with the explicit limitation that internal
 raw Java transcripts are unavailable. No algorithm is ported and no checker,
 validator, report or trace policy changes in these primary controls.
@@ -2250,7 +2250,7 @@ closing and full fairness. TLC-equivalent requested mode `tlc` and all VIEW
 quotient paths remain unsupported. Primary unreduced references and the distinct
 VIEW order/witness gap were recorded before implementation in the separate
 `liveness-quotient-primary` corpus; no primary golden is edited. See its
-[compact evidence](survey/data/liveness-quotient-primary-2026-10-22.json).
+[compact evidence](internal/survey/data/liveness-quotient-primary-2026-10-22.json).
 
 ### Conformance process-group ownership
 
@@ -2292,7 +2292,7 @@ remains `agree-pending-trace-validation` in both profiles:
 [#434](https://github.com/Chelis-Lang/dive/issues/434) tracks independent
 certification of errors while expanding the last recorded state. The new witness
 agrees in both profiles. These explicit controls are outside the established
-small population; [compact qualification evidence](survey/data/enabled-interval-qualification-2026-10-23.json)
+small population; [compact qualification evidence](internal/survey/data/enabled-interval-qualification-2026-10-23.json)
 records their distinct producer identities alongside the exact-source Linux gate.
 
 ### Compound-domain first-state oracle observations
@@ -2306,7 +2306,7 @@ These are primary semantic observations, with original clean/trace evidence
 retained externally; the generated golden bytes are imported unchanged.
 The independent validator accepts all four words and rejects eight mutants.
 No algorithm is ported by these corpus additions. See
-[the compact provenance](survey/data/compound-domain-oracle-2026-10-23.json).
+[the compact provenance](internal/survey/data/compound-domain-oracle-2026-10-23.json).
 
 The compound output cursor reuses dive's existing native normalized subset and
 odometer iterators. TLC's `Tool` unassigned `IN` rule and `SubsetValue`,
@@ -2354,7 +2354,7 @@ No Java algorithm
 is copied and no runtime behavior or independent-validation credit follows from
 these references. The earlier seven Concat primary references are unchanged.
 
-See the [compact primary observations](survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
+See the [compact primary observations](internal/survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
 
 The later `temporal-demand-primary-probes` references distinguish the zero-solution
 startup rejection (2253/77, null counts) from row demand. In
@@ -2419,7 +2419,7 @@ empty-quantifier binding path remains distinct. Actual bound temporal roles,
 not original configured attribution roots, grant this startup outcome. The
 existing pure conversion boundary remains; no predicate-result cache, row or
 word is created. Source/operator observations and generated goldens are recorded
-in `startup-tautology-primary-controls-2026-10-25.json` under `docs/survey/data/`.
+in `startup-tautology-primary-controls-2026-10-25.json` under `docs/internal/survey/data/`.
 
 
 ### Primary Init errors and diagnostic exits

@@ -85,7 +85,7 @@ So `RandomElement` in `Next` is a function of the state, the seed and the finger
   - specializing boolean evaluation and reads of state paths by reference;
   - folding guards inside conjunctions;
   - continuation-passing enumeration over one reusable successor buffer (`eval.rs:740-867`; `closure.rs:782-795`).
-- **Quint.** Quint's Rust evaluator compiles to closures (`docs/survey/adjacent.md`). Its source was not available to this review.
+- **Quint.** Quint's Rust evaluator compiles to closures (`docs/internal/survey/adjacent.md`). Its source was not available to this review.
 - **Matching TLC's counts.** tla2's interpreter mirrors TLC's continuation design and enforces generated-count parity as a release gate. Its parallel path counts at different points (after constraints) and diverges. tla-mc does not match TLC's generated counts, and says so (112.6 M against 115.3 M).
 
 ## Decision

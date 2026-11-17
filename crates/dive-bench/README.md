@@ -170,7 +170,7 @@ alongside each run.
 
 Models: `TeachingConcurrency/SimpleRegular`, `lamport_mutex/MCLamportMutex`
 and `btree/MCbtree` from the survey's benchmark set
-(`docs/survey/competitive.md`), plus `Disruptor/MCDisruptor_MPMC` for a deep
+(`docs/internal/survey/competitive.md`), plus `Disruptor/MCDisruptor_MPMC` for a deep
 state graph (Examples `6a7b26a`). The survey's other models are left out:
 - `CoffeeCan1000Beans` checks liveness, which dive does not do yet;
 - `MCBakery` and `GameOfLife` have depth 1: every state is an initial state,

@@ -966,12 +966,8 @@ concrete successor occurrence. This avoids a second behavior adjacency copy; it
 does not change capture, graph-label, product or acceptance limits, and does not
 provide disk-backed temporal capture.
 
-The [source-bound qualification](../survey/data/borrowed-topology-qualification-2026-10-23.json)
-preserves all 312 small-tier model runs and 458 SANY agreements. Its eight normal
-instruction pairs stay within 1% overhead (maximum 0.0301%). Four ordinary-release
-CoffeeCan observations are descriptive; they establish no quantitative memory
-or throughput gain. All measurements run dive, including its TLC compatibility
-profile; this adds no capacity or parity claim.
+Borrowing the graph kept every small-tier result and SANY agreement, with
+under 1% instruction overhead; it makes no memory or throughput claim.
 
 The `liveness-atom-error-timing` validation microcorpus records four pinned
 primary observations. The delayed-source error reports four distinct/generated
@@ -989,17 +985,12 @@ The exact manifests retain unknown metadata; these validation populations do not
 change established small/full selections. The historical primary measurements
 alone do not validate a dive error prefix or qualify an ordinary error verdict.
 
-See the [compact primary observations](../survey/data/liveness-atom-error-timing-primary-2026-10-24.json) for input and generated-reference identities, exact outcomes and limitations.
-
-The `92a33e3b` ordinary comparison records two agreements and two refusals in
-this four-model corpus, in both profiles. `DelayedSiblingStateError` now matches
-2179/255 and its partial counts with independent finite endpoint validation;
-the invalid bare-action model already agrees on its SANY rejection.
-`CombinedUnusedAtom` and `TableauInitAtomError` remain unsupported. Together with
-the separate Concat and bin-priority controls, the five new agreements are
-outside the established small and full populations. The
-[qualification](../survey/data/temporal-row-errors-qualification-2026-10-25.json)
-retains the tested source and unchanged baseline results.
+In the ordinary comparison this four-model corpus gives two agreements and
+two refusals, in both profiles. `DelayedSiblingStateError` matches 2179/255 and
+its partial counts with independent finite endpoint validation; the invalid
+bare-action model agrees on its SANY rejection. `CombinedUnusedAtom` and
+`TableauInitAtomError` are unsupported. These models, and the separate Concat
+and bin-priority controls, are outside the small and full corpus tiers.
 
 The Rust detailed temporal-failure APIs retain a state atom's original typed
 cause separately from its bound predicate source. `state_evaluation()` identifies
@@ -1068,14 +1059,6 @@ This adds startup-only preparation work, not work per state or a performance
 claim. These capabilities do not by themselves establish a new small/full
 baseline or agreement count.
 
-The
-[typed state-error qualification](../survey/data/temporal-state-error-evidence-qualification-2026-10-24.json)
-records the full gate at `2373b961`: 2,374 tests passed with none skipped,
-the cm1 and validation-smoke gates passed at 1, 4 and 8 workers, and both
-one-worker 156-model small-tier baselines retained every observable. TLC-profile agreement remains 150/156,
-with 458/458 SANY module comparisons; default-profile agreement remains 144/156
-with seven expected divergences and five refusals. No full-tier or performance
-improvement is inferred.
 
 
 ### Native host bindings for embedding

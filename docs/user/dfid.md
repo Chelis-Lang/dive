@@ -23,7 +23,7 @@ captured operator scopes remain supported. Callers use `DfidRequest` and `dfid_f
 and `exit_status()` the process disposition.
 
 See [DFID reference controls](../../crates/dive-api/tests/fixtures/checker/dfid/README.md),
-[ADR 0021](../decisions/0083-storage-and-checkpoint.md) and [report interpretation](reports-and-errors.md).
+the [storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md) and [report interpretation](reports-and-errors.md).
 
 ## Run budgets
 

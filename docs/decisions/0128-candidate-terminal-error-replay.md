@@ -16,8 +16,8 @@ ADR 0125's independent ordered driver already executes the actual candidate
 checks and TLC's per-action enumerate-before-check diagnostic sequence. Its
 Next stage deliberately refuses primary errors at other evaluation sites.
 
-The version-4 [consumer notice](https://github.com/Chelis-Lang/oyster/issues/61#issuecomment-6526681302)
-was posted before the initial implementation landed in #666. The extension below
+Notice of version 4 was given to the known downstream consumer before the
+initial implementation landed in #666. The extension below
 uses the same endpoint, final-candidate interpretation and two replay obligations.
 
 ## Decision

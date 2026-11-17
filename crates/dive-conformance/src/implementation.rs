@@ -549,7 +549,7 @@ impl Implementation for TlcImplementation {
 }
 
 /// An external tool described by a TOML file (`conformance/adapters/` holds
-/// the competitors measured in `docs/survey/competitive.md`):
+/// the competitors measured in `docs/internal/survey/competitive.md`):
 ///
 /// ```toml
 /// name = "tla2"

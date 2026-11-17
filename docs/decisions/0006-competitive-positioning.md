@@ -5,7 +5,7 @@
 
 ## Context
 
-Five other implementations of TLA+ model checking appeared between 2026-01 and 2026-10: tla2, tla-rs, tla-mc and tlaplusplus in Rust, and tlago in Go. The owner has decided dive is built regardless (charter appendix item 2). This ADR records where dive is positioned against them and which of their designs it adopts or rejects. It also sets the performance numbers dive must beat. The evidence is in `docs/survey/competitive.md` and `docs/survey/data/`. All of it was measured in Docker against the pinned TLC (`tlc-2026.10.06.014338`) on tlaplus/Examples `6a7b26a`.
+Five other implementations of TLA+ model checking appeared between 2026-01 and 2026-10: tla2, tla-rs, tla-mc and tlaplusplus in Rust, and tlago in Go. The owner has decided dive is built regardless (charter appendix item 2). This ADR records where dive is positioned against them and which of their designs it adopts or rejects. It also sets the performance numbers dive must beat. The evidence is in `docs/internal/survey/competitive.md` and `docs/internal/survey/data/`. All of it was measured in Docker against the pinned TLC (`tlc-2026.10.06.014338`) on tlaplus/Examples `6a7b26a`.
 
 The evidence that shapes the decision:
 
@@ -79,7 +79,7 @@ The evidence that shapes the decision:
 
 ### Performance targets dive must beat
 
-All targets are measured as in `docs/survey/competitive.md`: the same container limits, interleaved reps, median of within-rep ratios against the pinned TLC, and correctness checked on every run. The original decision applied the same numbers to **both profiles**. **Amended 2026-10-29 by ADR 0119:** default interpreted-throughput targets remain; TLC compatibility instead has a per-model runtime ceiling of 2× TLC, with investigation above 1.5×. Observable correctness and the other targets remain unchanged. The original target table below is retained as the historical decision.
+All targets are measured as in `docs/internal/survey/competitive.md`: the same container limits, interleaved reps, median of within-rep ratios against the pinned TLC, and correctness checked on every run. The original decision applied the same numbers to **both profiles**. **Amended 2026-10-29 by ADR 0119:** default interpreted-throughput targets remain; TLC compatibility instead has a per-model runtime ceiling of 2× TLC, with investigation above 1.5×. Observable correctness and the other targets remain unchanged. The original target table below is retained as the historical decision.
 
 | Metric | Must beat (measured baseline) | Target |
 |---|---|---|
@@ -96,7 +96,7 @@ These targets are revisited when `dive` first produces verdicts. The quiet-machi
 
 ## Consequences
 
-- **Harness.** The conformance harness must classify `wrong-count-claimed-success` and `wrong-verdict-claimed-success` separately from other disagreements. Those are the categories that exposed competitors' unsoundness. The probe specs in `docs/survey/competitive.md` (P1–P9, M1–M2) should be imported as corpus entries with TLC goldens.
+- **Harness.** The conformance harness must classify `wrong-count-claimed-success` and `wrong-verdict-claimed-success` separately from other disagreements. Those are the categories that exposed competitors' unsoundness. The probe specs in `docs/internal/survey/competitive.md` (P1–P9, M1–M2) should be imported as corpus entries with TLC goldens.
 - **Registry.** The divergence registry gains the `CHOOSE` order row, now characterised: strings by interning order, sets by size first, tuples by length first (measured). Its option is `--choose-order=canonical`.
 - **Revisiting.** The targets are revisited when dive first produces verdicts (M2/M3), and whenever a competitor publishes a release that changes them. The benchmark commands in the survey are the reproducible baseline.
 - **Licences.** Ideas taken from tlaplusplus are recorded as independent implementations of published techniques. No code or text is taken from it. Code consulted from MIT or Apache-2.0 competitors is recorded in `docs/provenance.md` when used.

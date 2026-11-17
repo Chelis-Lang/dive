@@ -876,7 +876,7 @@ compiling the query fails the second. Restoring both passes both tests.
 The plan is executed by a recursive `match` over compact node arrays: an enum
 with indices into the plan's arrays, not boxed trees.
 
-Evidence from ADR 0104 and from tla-mc (`docs/survey/competitive.md`) shows
+Evidence from ADR 0104 and from tla-mc (`docs/internal/survey/competitive.md`) shows
 that dispatch style is not the bottleneck. Continuation-passing and
 "invocation session" designs regressed by 10–73% in ADR 0104. The interpreter
 therefore stays simple. Its speed comes from:

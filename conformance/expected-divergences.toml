@@ -87,7 +87,7 @@ generated_count_pair = { expected = 3126, actual = 3042 }
 justification = "Canonical exploration order (D-010) reaches Immutability at depth 15 after 1581 distinct / 3042 generated states versus TLC's 1617 / 3126; changing only ExplorationOrder to Tlc reproduces TLC in both translation label variants and every actual word validates independently"
 link = "docs/divergences.md#registry"
 
-# Probes (conformance/corpus/probes; docs/survey/competitive.md) whose default
+# Probes (conformance/corpus/probes; docs/internal/survey/competitive.md) whose default
 # profile answer differs from TLC's by owner-approved design.
 
 [[divergence]]

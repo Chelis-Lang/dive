@@ -16,8 +16,8 @@ default = true
 role = "gating"
 description = "TLC 1.8.0 rolling build at upstream commit 94d0c50 (CalVer tag 2026.10.06.014338), re-hosted"
 upstream_commit = "94d0c5070852b37b801bb8998c436383ab7ee37b"
-# Private release asset on this repo; fetch needs a GitHub token (GH_TOKEN,
-# GITHUB_TOKEN, or `gh auth token`).
+# Release asset on this repo. Public downloads need no token; while the repo
+# is private the harness falls back to GH_TOKEN, GITHUB_TOKEN or `gh auth token`.
 url = "https://github.com/Chelis-Lang/dive/releases/download/oracle-tlc-2026.10.06.014338/tla2tools.jar"
 sha256 = "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
 # `[[classpath]]` ids put on `-cp` after the jar, in this order.
@@ -27,7 +27,7 @@ classpath = ["community-modules-202610040242", "community-modules-deps-202610040
 id = "tlc-1.7.4"
 default = false
 # A 2020 maintenance branch, unmaintained; differences from the pin are mostly
-# 1.7.4 bugs fixed upstream (docs/survey/oracle-history.md).
+# 1.7.4 bugs fixed upstream (docs/internal/survey/oracle-history.md).
 role = "reference"
 description = "TLC 1.7.4 (Xenophanes), latest upstream stable release, 2024-08-05"
 upstream_commit = "v1.7.4"

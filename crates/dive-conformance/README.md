@@ -92,7 +92,7 @@ None of the last three ever counts as `agree`, and none is a finding.
   - a `run` in which it takes part, on either side, exits 0 even with findings. It prints how many there were;
   - the report records `golden_oracle_role`, `implementation_oracle_role` and `reference: true`, and the Markdown summary says "Reference run".
 
-**Known upstream changes.** `conformance/oracle-changes.toml` is the machine-readable side of `docs/survey/oracle-history.md`. When a TLC oracle runs against another oracle's goldens, a difference that registered changes fully explain is reported as `known-upstream-change`, with the change ids and upstream commits in the detail. A difference that no entry explains stays `disagree`.
+**Known upstream changes.** `conformance/oracle-changes.toml` is the machine-readable side of `docs/internal/survey/oracle-history.md`. When a TLC oracle runs against another oracle's goldens, a difference that registered changes fully explain is reported as `known-upstream-change`, with the change ids and upstream commits in the detail. A difference that no entry explains stays `disagree`.
 
 An entry applies when all of these hold:
 - the two oracles are one from `absent_in` and one from `present_in`, in either role;
@@ -188,7 +188,7 @@ is not reinterpreted by this feature.
   two direct configured Reply temporal controls, holding and violated, with
   generated TLC/SANY goldens. This separate corpus preserves the existing
   `probes` input identity. Run it with `--corpus configured-temporal-operators`.
-- `probes` (`conformance/corpus/probes/`, `examples-manifest` layout): the honesty and determinism probes of `docs/survey/competitive.md` (P1–P9, M1–M2), 12 modules and 14 models with goldens from the gating oracle. Run it with `--corpus probes`.
+- `probes` (`conformance/corpus/probes/`, `examples-manifest` layout): the honesty and determinism probes of `docs/internal/survey/competitive.md` (P1–P9, M1–M2), 12 modules and 14 models with goldens from the gating oracle. Run it with `--corpus probes`.
 
 ## Commands
 
@@ -382,7 +382,7 @@ A copied cache is verified exactly like a downloaded one: artifacts by SHA-256, 
 - The GitHub token is passed to curl on stdin (`--config -`), never on a command line.
 - `unzip` reads the jar manifest's `X-Git-Revision` (if it is missing, the revision is simply not recorded), and, for `--impl dive`, extracts the `.tla` files of the verified classpath jars into `jar-modules/<sha256>/` (required there).
 
-**The private oracle asset.** It is fetched through the GitHub REST API: the release by tag, then the asset URL with `Accept: application/octet-stream`. The token comes from `GH_TOKEN`, `GITHUB_TOKEN` or `gh auth token`. The browser download URL answers 404 for private assets even with a token. Public assets are fetched from their URL without a token.
+**The re-hosted oracle asset.** The pinned `tla2tools.jar` is a release asset of this repository. Every asset is first fetched from its URL without a token. If that fails and the URL names a GitHub release asset, the harness falls back to the GitHub REST API: the release by tag, then the asset URL with `Accept: application/octet-stream`, with a token from `GH_TOKEN`, `GITHUB_TOKEN` or `gh auth token`. The fallback is needed only while the repository is private, because the browser download URL answers 404 for private assets even with a token.
 
 ## Adding an implementation adapter
 
@@ -466,7 +466,7 @@ distinct_states = { pattern = '([0-9,]+) distinct states found' }   # or { json 
 
 A result that no rule or exit code explains is unclassified, never a guess. Loading validates placeholders, exit codes, rules, counts and the library mode.
 
-`conformance/adapters/` holds the invocations measured in `docs/survey/competitive.md`: `tla-mc.toml`, `tla-rs.toml`, `tlaplusplus.toml`, `tlago.toml` and `tla2.toml`. A unit test loads every one. They are not run in CI; they exist for reproducible re-measurement.
+`conformance/adapters/` holds the invocations measured in `docs/internal/survey/competitive.md`: `tla-mc.toml`, `tla-rs.toml`, `tlaplusplus.toml`, `tlago.toml` and `tla2.toml`. A unit test loads every one. They are not run in CI; they exist for reproducible re-measurement.
 
 The descriptions are parsed and validated today, but adapters are **not executed yet**: every request answers `unsupported`. Executing them, and mapping their output into `OracleResult`, is M2 work.
 
@@ -565,7 +565,7 @@ runner uses this harness for full SANY goldens and `dive analyze`, then a
 pinned direct grammar driver for `dive parse`. Every selected root is
 accounted for; oracle crashes, malformed reports and missing facts are
 findings. Inputs and reports remain in an external disposable directory,
-and artifacts retain the complete campaign. See `docs/frontend-campaign.md`.
+and artifacts retain the complete campaign. See `docs/internal/frontend-campaign.md`.
 
 ### Exact process-exit differences
 

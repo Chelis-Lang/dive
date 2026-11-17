@@ -9,7 +9,7 @@ The charter calls for pinning `tla2tools.jar` by release version and SHA-256, an
 
 - **v1.7.4** (2024-08-05) is the latest *stable* release. It publishes no checksum.
 - **v1.8.0** is a *rolling* pre-release. The workflow `.github/workflows/main.yml` force-moves its tag and re-uploads `tla2tools.jar` on every master push, so its URL and digest change over time. The upstream Examples CI uses this rolling build, via the nightly mirror.
-- **CalVer tags** such as `2026.10.06.014338` mark each *successful* master build. Not every commit gets one, and some commits get several (see `docs/survey/oracle-history.md`). They are git tags only, with no release assets.
+- **CalVer tags** such as `2026.10.06.014338` mark each *successful* master build. Not every commit gets one, and some commits get several (see `docs/internal/survey/oracle-history.md`). They are git tags only, with no release assets.
 - **Java and build provenance:**
   - TLC needs Java 11+.
   - The 1.8.0 jar's manifest records Temurin 17 and the `X-Git-Revision` it was built from.
@@ -36,7 +36,7 @@ The charter calls for pinning `tla2tools.jar` by release version and SHA-256, an
 ## Addendum (survey, 2026-10-08)
 
 - **v1.7.4 is a 2020 maintenance branch.** It diverged from master at v1.7.0 and is 1663 commits behind. It has no Unicode syntax, no `TLCExt` or `Json` modules, and no `-dumpTrace`, `-generate` or `-noGenerateSpecTE` flags. It is a secondary comparison oracle only. The harness keeps per-oracle flags and records the features each oracle lacks.
-- **The rolling builds change semantics.** Many recent changes are fixes to TLC answers that were wrong, for example `35d40c91a`, `4260e4712`, `d17f1d35e` and `bdf9e1415`; see `docs/survey/oracle-history.md`. (An earlier version of this addendum cited `94d0c50` as changing `Len` to UTF-16 units. That commit only adds disabled tests documenting a long-standing behaviour.) Pins therefore record the jar's `X-Git-Revision` as well as its SHA-256.
+- **The rolling builds change semantics.** Many recent changes are fixes to TLC answers that were wrong, for example `35d40c91a`, `4260e4712`, `d17f1d35e` and `bdf9e1415`; see `docs/internal/survey/oracle-history.md`. (An earlier version of this addendum cited `94d0c50` as changing `Len` to UTF-16 units. That commit only adds disabled tests documenting a long-standing behaviour.) Pins therefore record the jar's `X-Git-Revision` as well as its SHA-256.
 - **TLC's `-fp` is random per run unless pinned.** The harness pins it.
 - **SANY exits 0 on semantic errors** unless it is passed `-error-codes`, which v1.7.4 rejects. The harness reads SANY output as well as the exit code.
 
@@ -46,7 +46,7 @@ There is no refresh cadence for now. The single snapshot `tlc-2026.10.06.014338`
 
 ## Revision: the 1.8.x line is the oracle (2026-10-08)
 
-The owner asked to work against the 1.8.x line. Research on its release history is recorded in `docs/survey/oracle-history.md`. Findings:
+The owner asked to work against the 1.8.x line. Research on its release history is recorded in `docs/internal/survey/oracle-history.md`. Findings:
 - **Upstream points every channel at the rolling 1.8.0 build:** the README, the VS Code extension, the Toolbox build and Examples CI.
 - **1.7.x is unmaintained.** It is not formally deprecated, but no fixes are backported to it.
 - **Each CalVer tag is a build that passed upstream's unit and regression suite.** Old jars are not archived anywhere; they can only be rebuilt from source.
@@ -55,7 +55,7 @@ Decision:
 1. **One gating oracle:** `tlc-2026.10.06.014338`. It is trusted **only at `-workers 1`**: the pin has an upstream multi-worker race in value normalisation (tlaplus#1445, fix pending on branch `mku-gh1445`), which can produce bogus states and liveness counterexamples. Goldens are already single-worker (ADR 0004).
 2. **v1.7.4 becomes reference-only** (`role = "reference"`, follow-up issue). It never gates and runs only when selected explicitly. Its differences from the pin are mostly 1.7.4 bugs fixed upstream.
 3. **No older 1.8.x drift oracle for now.** From now on, each outgoing pin is kept as a byte-exact reference oracle when the pin moves.
-4. **The register `docs/survey/oracle-history.md`** catalogues semantics-affecting upstream changes:
+4. **The register `docs/internal/survey/oracle-history.md`** catalogues semantics-affecting upstream changes:
    - Wrong-answer fixes get minimal conformance specs, reusing upstream's `test-model/` specs where they exist.
    - Questionable behaviours, such as UTF-16 `Len` and the #1445 race, go through ADR 0010 as possible divergences.
    - A harness-readable `conformance/oracle-changes.toml` (follow-up issue) lets differences between two TLC builds be reported as known upstream changes rather than dive bugs.
@@ -69,9 +69,9 @@ Decision:
 
 ## Consequences
 
-- The private release asset needs a GitHub token to fetch. CI has one; locally the harness uses `gh auth token`.
+- The re-hosted jar is a release asset of this repository. It downloads without credentials once the repository is public; while it is private, the harness falls back to a GitHub token (CI has one; locally `gh auth token`).
 - **Default choice:** goldens follow the current upstream TLC, which is also what Examples is validated against, rather than a two-year-old stable release.
-- **v1.7.4 cannot detect drift within the 1.8.x line.** It is a 2020 fork that lacks many fixes. Drift is tracked by the register in `docs/survey/oracle-history.md`.
+- **v1.7.4 cannot detect drift within the 1.8.x line.** It is a 2020 fork that lacks many fixes. Drift is tracked by the register in `docs/internal/survey/oracle-history.md`.
 - **Refresh cadence** is an open owner question.
 
 ## Amendments
@@ -79,7 +79,7 @@ Decision:
 - **2026-10-08 (ADR 0003).**
   - The classpath is now per oracle. The pinned CommunityModules jars break v1.7.4 on every spec (`TLCOverrides` references classes 1.7.4 lacks), so v1.7.4 runs without them.
   - The TLAPS library and Apalache's modules are pinned as `[[module_library]]` git checkouts, as upstream Examples CI uses them.
-  - Fetching the private asset works only through the GitHub API asset endpoint; the browser URL answers 404 even with a token.
+  - While the repository is private, its release assets can be fetched only through the GitHub API asset endpoint; the browser URL answers 404 even with a token. The harness tries the plain URL first and uses the API endpoint as a fallback.
 - **2026-10-08 (issue #16, roles and upstream changes).** Decisions 2 and 4 of the 1.8.x revision are implemented.
   - **Roles.** `oracles.toml` gives every oracle a required `role`:
     - `tlc-2026.10.06.014338` is `gating`, and the default oracle must be gating;
