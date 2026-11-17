@@ -326,12 +326,12 @@ fn actual_next_receiver_wrapper_requires_the_original_source_word_and_diagnostic
         (
             "EmptyLazyQuery",
             include_str!("fixtures/next-receiver-lifetime/EmptyLazyQuery.stdout"),
-            "b1e4f39f762c1d0e7774d1d522546b9ae3d0f7e6d4c906c5346125b532260111",
+            "a37ec7307f5360e6c998a07e0bcdef26a242d3a9449c04f1d6de4c0b5a500144",
         ),
         (
             "DefinedFunction",
             include_str!("fixtures/next-receiver-lifetime/DefinedFunction.stdout"),
-            "448da25a53480fcc355b349a9622aebe9ef25735f6206a06fb5620d07b5fd9f3",
+            "db7ee058068f983b84139c160a21a7c63945f3d99d1ecd382509f0368e3e03bd",
         ),
     ] {
         let file = repo().join(format!(

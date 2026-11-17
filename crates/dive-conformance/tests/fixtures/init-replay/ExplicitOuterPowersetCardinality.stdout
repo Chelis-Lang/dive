@@ -7,11 +7,11 @@ Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker o
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
 @!@!@ENDMSG 2220 @!@!@
-Parsing file /Users/jeff/dive-evidence/nested-powerset-primary-generation-4a9b1d3b-v1/raw-invocations/tlc-95902-10-1792937756379911000/work/specifications/ExplicitOuterPowersetCardinality/ExplicitOuterPowersetCardinality.tla
-Parsing file /Users/jeff/dive-evidence/nested-powerset-primary-generation-4a9b1d3b-v1/raw-invocations/tlc-95902-10-1792937756379911000/tlc-9354401745688193522/Naturals.tla (jar:file:/Users/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
-Parsing file /Users/jeff/dive-evidence/nested-powerset-primary-generation-4a9b1d3b-v1/raw-invocations/tlc-95902-10-1792937756379911000/tlc-9354401745688193522/FiniteSets.tla (jar:file:/Users/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
-Parsing file /Users/jeff/dive-evidence/nested-powerset-primary-generation-4a9b1d3b-v1/raw-invocations/tlc-95902-10-1792937756379911000/tlc-9354401745688193522/TLC.tla (jar:file:/Users/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
-Parsing file /Users/jeff/dive-evidence/nested-powerset-primary-generation-4a9b1d3b-v1/raw-invocations/tlc-95902-10-1792937756379911000/tlc-9354401745688193522/Sequences.tla (jar:file:/Users/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $TMP/work/specifications/ExplicitOuterPowersetCardinality/ExplicitOuterPowersetCardinality.tla
+Parsing file $TMP/tlc-9354401745688193522/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-9354401745688193522/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file $TMP/tlc-9354401745688193522/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $TMP/tlc-9354401745688193522/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
 Semantic processing of module Naturals
 Semantic processing of module Sequences
 Semantic processing of module FiniteSets

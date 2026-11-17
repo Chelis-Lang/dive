@@ -48,7 +48,7 @@
       "detail": "unsupported: DIVE-L0033: liveness atom for Termination at line 293, col 20 to line 293, col 23 of module Quicksort: unsupported: bounded bindings require structurally finite domains; infinite and deferred sets are not supported",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -152,7 +152,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 225, col 8 to line 225, col 57 of module Elevator: effectful, temporal or ENABLED operand in a pure predicate atom (at line 225, col 36 to line 225, col 56 of module Elevator)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -256,7 +256,7 @@
       "detail": "unsupported: DIVE-L0033: liveness atom for Liveness at line 214, col 42 to line 214, col 45 of module YoYoPruning: unsupported: bounded bindings require structurally finite domains; infinite and deferred sets are not supported",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -360,7 +360,7 @@
       "detail": "unsupported: DIVE-L0033: liveness atom for Liveness at line 198, col 42 to line 198, col 45 of module YoYoAllGraphs: unsupported: bounded bindings require structurally finite domains; infinite and deferred sets are not supported",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -464,7 +464,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 142, col 6 to line 142, col 22 of module AllocatorImplementation: opaque scoped level (at line 40, col 11 to line 40, col 12 of module SchedulingAllocator)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -568,7 +568,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 121, col 6 to line 121, col 22 of module SchedulingAllocator: opaque scoped level (at line 40, col 11 to line 40, col 12 of module SchedulingAllocator)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -672,7 +672,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 121, col 6 to line 121, col 22 of module SchedulingAllocator: opaque scoped level (at line 40, col 11 to line 40, col 12 of module SchedulingAllocator)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -776,7 +776,7 @@
       "detail": "resource-limit: temporal product resource limit: acceptance cells",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -880,7 +880,7 @@
       "detail": "study timeout; no verdict",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -919,7 +919,7 @@
       "detail": "resource-limit: DIVE-L0021 at line 203, col 17 to line 203, col 49 of module EWD998ChanID: temporal formula resource limit: predicate quantifier bindings",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-lazy-domains-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",

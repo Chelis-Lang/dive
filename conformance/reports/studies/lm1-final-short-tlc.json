@@ -8,7 +8,7 @@
   "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
   "base_profile": "tlc",
   "implementation": {
-    "binary": "/Users/jeff/code/dive-perf-work/target/release/dive",
+    "binary": "target/release/dive",
     "sha256": "62bc8577aef390ded5134c0a487a6c40fd48d2e6b554ec9ec334feb351914e86",
     "version": "dive 0.0.0",
     "module_path": [
@@ -48,7 +48,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -162,7 +162,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -276,7 +276,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -390,7 +390,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -504,7 +504,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -618,7 +618,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -732,7 +732,7 @@
       "detail": "unsupported: graph capture with VIEW or SYMMETRY",
       "golden_verdict": "liveness-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -831,7 +831,7 @@
       "detail": "unsupported: graph capture with VIEW or SYMMETRY",
       "golden_verdict": "liveness-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -930,7 +930,7 @@
       "detail": "unsupported: graph capture with VIEW or SYMMETRY",
       "golden_verdict": "liveness-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1029,7 +1029,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1143,7 +1143,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1257,7 +1257,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1371,7 +1371,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1485,7 +1485,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1599,7 +1599,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1713,7 +1713,7 @@
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2129,7 +2129,7 @@
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2545,7 +2545,7 @@
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2961,7 +2961,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3075,7 +3075,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3189,7 +3189,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3303,7 +3303,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3417,7 +3417,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3531,7 +3531,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3645,7 +3645,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3759,7 +3759,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3873,7 +3873,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3987,7 +3987,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4101,7 +4101,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4215,7 +4215,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4329,7 +4329,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4443,7 +4443,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4557,7 +4557,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4671,7 +4671,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4785,7 +4785,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4899,7 +4899,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5013,7 +5013,7 @@
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "liveness-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5192,7 +5192,7 @@
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "liveness-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5371,7 +5371,7 @@
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "liveness-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5550,7 +5550,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5664,7 +5664,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5778,7 +5778,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5892,7 +5892,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -6006,7 +6006,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -6120,7 +6120,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",

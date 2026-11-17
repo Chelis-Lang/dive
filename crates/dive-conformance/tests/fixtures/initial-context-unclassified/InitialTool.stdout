@@ -7,11 +7,11 @@ Running breadth-first search Model-Checking with fp 0 and seed 19 with 1 worker 
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
 @!@!@ENDMSG 2220 @!@!@
-Parsing file /home/jeff/Documents/scratch/dive-worktrees/review-0707d543/crates/dive-api/tests/fixtures/comparison-receiver-unclassified/InitialTool.tla
-Parsing file /home/jeff/.cache/dive/reviews/0707d543/negative/InitialTool/tlc-16170341826088140208/Integers.tla (jar:file:/home/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
-Parsing file /home/jeff/.cache/dive/reviews/0707d543/negative/InitialTool/tlc-16170341826088140208/FiniteSets.tla (jar:file:/home/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
-Parsing file /home/jeff/.cache/dive/reviews/0707d543/negative/InitialTool/tlc-16170341826088140208/Naturals.tla (jar:file:/home/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
-Parsing file /home/jeff/.cache/dive/reviews/0707d543/negative/InitialTool/tlc-16170341826088140208/Sequences.tla (jar:file:/home/jeff/.cache/dive/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $CWD/InitialTool.tla
+Parsing file $TMP/tlc-16170341826088140208/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file $TMP/tlc-16170341826088140208/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file $TMP/tlc-16170341826088140208/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-16170341826088140208/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
 Semantic processing of module Naturals
 Semantic processing of module Integers
 Semantic processing of module Sequences

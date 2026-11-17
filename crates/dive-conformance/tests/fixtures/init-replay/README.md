@@ -4,7 +4,8 @@ These three small original stdout fixtures are read in full by the pure
 `tlc::result::init_replay_tests` controls. They were produced by the normal
 pinned TLC `94d0c5070852b37b801bb8998c436383ab7ee37b` harness at source
 `4a9b1d3b8cefed628b94a4d83d813b1a3e66b402`, using the independent
-`nested-powerset-primary` corpus. `facts.json` pins whole fixture bytes,
+`nested-powerset-primary` corpus. Host paths in them are replaced by the
+harness placeholders `$TMP` and `$DIVE_CACHE_DIR`. `facts.json` pins whole fixture bytes,
 normal uncensored physical exits and source inputs. TLC output is MIT-licensed.
 
 The explicit Cardinality stream has GENERAL owning NONE2154 owning NONE2178.

@@ -8,7 +8,7 @@
   "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
   "base_profile": "tlc",
   "implementation": {
-    "binary": "/Users/jeff/code/dive-perf-work/target/release/dive",
+    "binary": "target/release/dive",
     "sha256": "62bc8577aef390ded5134c0a487a6c40fd48d2e6b554ec9ec334feb351914e86",
     "version": "dive 0.0.0",
     "module_path": [
@@ -48,7 +48,7 @@
       "detail": "study timeout; no verdict",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -87,7 +87,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -201,7 +201,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -315,7 +315,7 @@
       "detail": "study timeout; no verdict",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -354,7 +354,7 @@
       "detail": "resource-limit: temporal product resource limit: acceptance cells",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -458,7 +458,7 @@
       "detail": "unsupported: graph capture with VIEW or SYMMETRY",
       "golden_verdict": "liveness-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -557,7 +557,7 @@
       "detail": "study timeout; no verdict",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -596,7 +596,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -710,7 +710,7 @@
       "detail": "unsupported: DIVE-L0033: liveness atom for Termination at line 293, col 20 to line 293, col 23 of module Quicksort: unsupported: bounded bindings require an explicit set or interval",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -814,7 +814,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 148, col 12 to line 148, col 47 of module ParReach: opaque substituted predicate atom (at line 120, col 63 to line 120, col 66 of module ParReach)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -918,7 +918,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1032,7 +1032,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1146,7 +1146,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 221, col 8 to line 221, col 49 of module Elevator: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 44, col 1 to line 47, col 37 of module Elevator)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1250,7 +1250,7 @@
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1666,7 +1666,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1780,7 +1780,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -1894,7 +1894,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2008,7 +2008,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2122,7 +2122,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2236,7 +2236,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 91, col 8 to line 91, col 52 of module ReadersWriters: higher-order predicate argument (at line 25, col 40 to line 25, col 63 of module ReadersWriters)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2340,7 +2340,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 1150, col 8 to line 1150, col 40 of module SPA_Attack_New: higher-order predicate argument (at line 855, col 19 to line 855, col 58 of module SPA_Attack_New)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2444,7 +2444,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 1138, col 8 to line 1138, col 40 of module SPA_Attack: higher-order predicate argument (at line 848, col 19 to line 848, col 58 of module SPA_Attack)",
       "golden_verdict": "safety-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2548,7 +2548,7 @@
       "detail": "study timeout; no verdict",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2587,7 +2587,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2701,7 +2701,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 66, col 34 to line 66, col 46 of module SpanTreeRandom: effects or dynamic bindings in temporal planning (at line 66, col 34 to line 66, col 46 of module SpanTreeRandom)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2805,7 +2805,7 @@
       "detail": "unsupported: graph capture with random operators",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -2904,7 +2904,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3018,7 +3018,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3132,7 +3132,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 18, col 14 to line 18, col 53 of module LiveInternalMemory: dynamically bound predicate operator (at line 34, col 14 to line 34, col 46 of module InternalMemory)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3236,7 +3236,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 17, col 16 to line 18, col 63 of module LiveWriteThroughCache: dynamically bound predicate operator (at line 57, col 16 to line 57, col 48 of module WriteThroughCacheInstanced)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3340,7 +3340,7 @@
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "liveness-violation",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3519,7 +3519,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3633,7 +3633,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3747,7 +3747,7 @@
       "detail": "unsupported: DIVE-L0033: liveness atom for Liveness at line 214, col 42 to line 214, col 45 of module YoYoPruning: unsupported: bounded bindings require an explicit set or interval",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3851,7 +3851,7 @@
       "detail": "unsupported: DIVE-L0033: liveness atom for Liveness at line 198, col 42 to line 198, col 45 of module YoYoAllGraphs: unsupported: bounded bindings require an explicit set or interval",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3955,7 +3955,7 @@
       "detail": "study timeout; no verdict",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -3994,7 +3994,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 141, col 6 to line 141, col 75 of module AllocatorImplementation: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 141, col 33 to line 141, col 74 of module AllocatorImplementation)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4098,7 +4098,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 120, col 6 to line 120, col 75 of module SchedulingAllocator: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 120, col 33 to line 120, col 74 of module SchedulingAllocator)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4202,7 +4202,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 120, col 6 to line 120, col 75 of module SchedulingAllocator: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 120, col 33 to line 120, col 74 of module SchedulingAllocator)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4306,7 +4306,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 74, col 6 to line 74, col 72 of module SimpleAllocator: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 74, col 32 to line 74, col 71 of module SimpleAllocator)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4410,7 +4410,7 @@
       "detail": "unsupported: DIVE-L0033: liveness atom for CorrLtl at line 167, col 25 to line 171, col 74 of module bcastByz: unsupported: bounded bindings require an explicit set or interval",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4514,7 +4514,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4628,7 +4628,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4742,7 +4742,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4856,7 +4856,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -4970,7 +4970,7 @@
       "detail": "unsupported: DIVE-L0033: liveness atom for TDSpec at line 53, col 42 to line 53, col 58 of module SyncTerminationDetection: unsupported: a variable of an instantiated module, hidden by ENABLED, with no root variable of its name (line 44, col 6 to line 44, col 25 of module SyncTerminationDetection)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5074,7 +5074,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5188,7 +5188,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5302,7 +5302,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 203, col 17 to line 203, col 49 of module EWD998ChanID: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 37, col 3 to line 37, col 55 of module EWD998ChanID)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5406,7 +5406,7 @@
       "detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 169, col 12 to line 169, col 26 of module product: recursive/overridden/higher-order temporal call (at line 105, col 43 to line 105, col 60 of module product)",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5510,7 +5510,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5624,7 +5624,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
@@ -5738,7 +5738,7 @@
       "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "target/release/dive",
         "check",
         "--output",
         "json",
