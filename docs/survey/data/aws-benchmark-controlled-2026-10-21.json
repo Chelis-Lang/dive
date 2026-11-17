@@ -39,7 +39,7 @@
   ],
   "host": {
     "instance_type": "c7i.metal-24xl",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "cpu": "Intel(R) Xeon(R) Platinum 8488C",
     "kernel": "7.0.0-1014-aws",
     "os": "Ubuntu 24.04.5",

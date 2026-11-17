@@ -92,13 +92,13 @@
   "machine": {
     "cpu": "Intel Xeon Platinum 8488C",
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "kernel": "7.0.0-1014-aws",
     "rustc": "1.99.0",
     "quiet_host": false
   },
   "origins": {
-    "bucket": "dive-selectseq-gate-20261025220917-d667c653-010928226848",
+    "bucket": "<bucket>",
     "gate_key": "results/gate-complete.tgz",
     "original_producer_completion": "results/completion.json",
     "recovery_prefix": "root-recovery2/",

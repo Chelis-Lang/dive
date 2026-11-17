@@ -75,7 +75,7 @@
       "source": "1e02a967ab75c0b1b7b80c07877d8ad7f4b23c23",
       "baseline": "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
       "model": "CoffeeCan1000Beans original temporal configuration",
-      "node": "i-09e3c9b027d6fa7b4",
+      "node": "<instance>",
       "machine": "c7i.4xlarge",
       "quiet_window_certified": false,
       "repetitions": 1,
@@ -287,7 +287,7 @@
         "native_time_limit_ms": 900000,
         "native_memory_limit_bytes": 17179869184,
         "binary_sha256": "add40afff7c518a393bbe8da106a43168e5e8aa9fe76e5550b1fa7b8859ece2d",
-        "node": "i-0a165c61a32381d4c",
+        "node": "<instance>",
         "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
       },
       {
@@ -306,7 +306,7 @@
         "native_time_limit_ms": 900000,
         "native_memory_limit_bytes": 17179869184,
         "binary_sha256": "add40afff7c518a393bbe8da106a43168e5e8aa9fe76e5550b1fa7b8859ece2d",
-        "node": "i-0a165c61a32381d4c",
+        "node": "<instance>",
         "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
       },
       {
@@ -325,7 +325,7 @@
         "native_time_limit_ms": 900000,
         "native_memory_limit_bytes": 17179869184,
         "binary_sha256": "add40afff7c518a393bbe8da106a43168e5e8aa9fe76e5550b1fa7b8859ece2d",
-        "node": "i-0a165c61a32381d4c",
+        "node": "<instance>",
         "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
       },
       {
@@ -344,7 +344,7 @@
         "native_time_limit_ms": 900000,
         "native_memory_limit_bytes": 17179869184,
         "binary_sha256": "add40afff7c518a393bbe8da106a43168e5e8aa9fe76e5550b1fa7b8859ece2d",
-        "node": "i-0a165c61a32381d4c",
+        "node": "<instance>",
         "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
       },
       {
@@ -365,7 +365,7 @@
         "native_time_limit_ms": 900000,
         "native_memory_limit_bytes": 17179869184,
         "binary_sha256": "9a0c215df293966ae79935b0bb057ec2f8a6c243a06c2accf2aad8a8004b7598",
-        "node": "i-09e3c9b027d6fa7b4",
+        "node": "<instance>",
         "scope": "Complete capture counts match pin but atom analysis did not finish; no holding/violation claim or capacity acceptance."
       }
     ],
@@ -388,8 +388,8 @@
         "e3f859e88a0f7103a083261d37c90843f9712cad",
         "f8e627c4616cbe07f54521d390d00be1c9007022"
       ],
-      "node": "i-0a165c61a32381d4c",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "node": "<instance>",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/native-diagnostics/native-diagnostics.tar.gz",
       "sha256": "eda6b906036dd315d551b58c6ed7018f894ff89c1ebada1de9f75ab7d0055469",
       "bytes": 71276030,
@@ -397,8 +397,8 @@
     },
     "cache_direct": {
       "source": "1e02a967ab75c0b1b7b80c07877d8ad7f4b23c23",
-      "node": "i-09e3c9b027d6fa7b4",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "node": "<instance>",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/cache-direct-1e02/cache-direct.tar.gz",
       "sha256": "34118797b99b3453ec1bcfad8862860890b1d0b0a14394fb642fe97c67b08391",
       "bytes": 38240727,
@@ -407,8 +407,8 @@
     "ewd_development": {
       "source": "f8e627c4616cbe07f54521d390d00be1c9007022",
       "scope": "development; native run includes ten seconds of 49Hz sampling and is not quiet performance acceptance",
-      "node": "i-0a165c61a32381d4c",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "node": "<instance>",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/ewd-development-f8e627c4/ewd-development.tar.gz",
       "sha256": "70b754f4115508b95dbd5748a98a1611ff2c08cbc586bee0285ca0e4d16d8672",
       "bytes": 13710342,
@@ -416,8 +416,8 @@
     },
     "baseline_c21": {
       "source": "c21e509798bfee97a544b39419ceb7743a042071",
-      "node": "i-0a165c61a32381d4c",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "node": "<instance>",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/baseline-c21/baseline-c21.tar.gz",
       "sha256": "8c72a938b963bcc33754e2d61cf5165ed37a7ca9adf1fa3f48129ca29a8f2c94",
       "bytes": 4420508,
@@ -426,8 +426,8 @@
     "closed_functions": {
       "source": "7aa3d37ab25954d2de672dc4a6b1afbd1e1eafc8",
       "scope": "development; original EWD default1 native900s/16GiB stopped, not quiet final qualification",
-      "node": "i-0a165c61a32381d4c",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "node": "<instance>",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/closed-functions-7aa3d37a/closed-functions.tar.gz",
       "sha256": "fde70dbc4b536960362388650ce31df9a93405eb11e11b80adeb1d6732e7e588",
       "bytes": 13214203,
@@ -436,7 +436,7 @@
     "final_census": {
       "source": "68dd8266740740bb6dce4f4d916b724762732a15",
       "scope": "complete integrated core/reference shadow census, exit1 with unwaived findings, not TLC parity",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/final-census-68dd8266/final-census.tar.gz",
       "sha256": "c8baaeb331111dfd54fa1987dc4bf843bbf991e0b77adba6acbc3338700a783d",
       "bytes": 5288043,
@@ -445,7 +445,7 @@
     "milestone_gate": {
       "source": "68dd8266740740bb6dce4f4d916b724762732a15",
       "scope": "one integrated fullgate at68dd exit1 onlyClippy failure; all13runtime/phases passed, deny skipped, a79lintrepair separatelybound; no performance or release qualification",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/milestone-gate-68dd8266/milestone-gate.tar.gz",
       "sha256": "51a254742ee5dbdccc61413183c865f564f1b849bea54f2a86e4f1da045ef4c2",
       "bytes": 22800563,
@@ -454,7 +454,7 @@
     "lvperiodic_validation": {
       "source": "68dd8266740740bb6dce4f4d916b724762732a15",
       "scope": "actual retained coreTLCword freshindependent validation bothprofiles valid; capacitydifference unwaived",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/lvperiodic-validation/lvperiodic-validation.tar.gz",
       "sha256": "ccd8c37320f1fbb09ea269de4202aa514fefdee5bfd7b26ad45b990a38fb3179",
       "bytes": 1023,
@@ -1952,7 +1952,7 @@
     "binary_sha256": "96f038fa970a5a51460e375ac3a0c691248977f2307e4324e7cd5219afa0ba93",
     "examples_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
     "fixture": "specifications/ewd998/EWD998Chan.cfg",
-    "node": "i-0a165c61a32381d4c",
+    "node": "<instance>",
     "quiet_performance_acceptance": false,
     "arms": [
       {
@@ -2015,8 +2015,8 @@
     "archive": {
       "source": "7aa3d37ab25954d2de672dc4a6b1afbd1e1eafc8",
       "scope": "diagnostic default60s sampled20s99Hz; TLC30s unsampled; original capacity input exact modulepaths; no performance acceptance",
-      "node": "i-0a165c61a32381d4c",
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "node": "<instance>",
+      "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/ewd-7aa-hotpath/ewd-7aa-hotpath.tar.gz",
       "sha256": "0c82087c544c58dc80bb61ab3859899a7b615e7dc64fa580bab7198a5d385492",
       "bytes": 6045834,

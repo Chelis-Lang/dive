@@ -296,7 +296,7 @@ independently recomputed all paired medians and geometric means from the raw
 rows and verified archive hashes before terminating the completed instance.
 
 Machine: c7i.metal-24xl, Intel Xeon Platinum 8488C, 188 GiB RAM, Ubuntu 24.04.5,
-Linux 7.0.0-1014-aws, pinned AMI `ami-02a9cdd4e98bc3c78`, rustc 1.99.0. SMT was
+Linux 7.0.0-1014-aws, a pinned Ubuntu AMI, rustc 1.99.0. SMT was
 off, governor `performance`, affinity CPUs 0–15 and memory NUMA node 0. The
 runner executed one process at a time, counterbalancing worker/arm blocks on odd
 repetitions. Seed and fingerprint polynomial were zero, timeout 1,800 seconds,

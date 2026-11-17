@@ -34,7 +34,7 @@
     }
   },
   "host": {
-    "instance_id": "i-0829c5fd5f7c523b0",
+    "instance_id": "<instance>",
     "instance_type": "c7i.metal-24xl",
     "boot_id": "d8006110-235b-4319-8070-dbbaf50d71a4",
     "cpu": "Intel(R) Xeon(R) Platinum 8488C",
@@ -683,7 +683,7 @@
     "sampling_limit": "Masks/cgroup observations establish the recorded sampling instants, not unsampled continuous placement or current frequency."
   },
   "archive": {
-    "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/performance/2026-10-31/focused-cdaf7e13/i-0829c5fd5f7c523b0/performance-evidence.tar.gz",
+    "s3_uri": "s3://<evidence-archive>/performance/2026-10-31/focused-cdaf7e13/<instance>/performance-evidence.tar.gz",
     "sha256": "214af342081a475fdb9812dea587c9ea7ee60b9379d673d32d0b8cd676b6a3d6",
     "bytes": 45094896,
     "local_download_sha256_independently_verified": true,
@@ -710,7 +710,7 @@
     "receipt_name": "cleanup-verified.json",
     "receipt_sha256": "61d17fc752f5409e588d0e47f67ef928e56d26425e6e0afee87e8c2a5ba1a321",
     "basis": "Durable local owner-verifier receipt and inspected verifier source; no independent cloud query by this reviewer.",
-    "instance_id": "i-0829c5fd5f7c523b0",
+    "instance_id": "<instance>",
     "root_volume_id": "vol-0c51ad920a906c6e2",
     "termination_requested_utc": "2026-10-31T18:03:56.494233+00:00",
     "instance_state_recorded": "terminated",

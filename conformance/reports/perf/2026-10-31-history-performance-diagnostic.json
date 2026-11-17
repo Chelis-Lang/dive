@@ -46,7 +46,7 @@
     }
   },
   "host": {
-    "instance_id": "i-0829c5fd5f7c523b0",
+    "instance_id": "<instance>",
     "instance_type": "c7i.metal-24xl",
     "boot_id": "d8006110-235b-4319-8070-dbbaf50d71a4",
     "cpu": "Intel(R) Xeon(R) Platinum 8488C",
@@ -410,7 +410,7 @@
     }
   },
   "archive": {
-    "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/performance/2026-10-31/final-83356b01/i-0829c5fd5f7c523b0/performance-evidence.tar.gz",
+    "s3_uri": "s3://<evidence-archive>/performance/2026-10-31/final-83356b01/<instance>/performance-evidence.tar.gz",
     "sha256": "c3a301beefe2d088ffaff46a9b650b46c5a42636d60497b5d2a50b0f702e2abd",
     "bytes": 105459473,
     "local_download_sha256_verified": true,

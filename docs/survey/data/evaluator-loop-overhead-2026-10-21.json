@@ -11,7 +11,7 @@
     "candidate_binary_sha256": "85e34032f164e2900c6b7bfe1dfccdc868cca3478a81ee60d6fd84d490319b2d",
     "raw_archive_sha256": "215cbc55efc9d37b37e862c2609f801a35e8cb991238b2419e0c5e77feb23fd1",
     "machine": {
-      "instance_id": "i-0aa864e1e40c45c02",
+      "instance_id": "<instance>",
       "instance_type": "c7i.8xlarge",
       "cpu": "Intel Xeon Platinum 8488C",
       "logical_cpus": 32,

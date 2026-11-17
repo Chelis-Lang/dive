@@ -2383,9 +2383,9 @@
   "independent_source_review_sha256": "bd2edbc2cd5f7c4476b46d95ceb004dcedf3486dea043ca9878589d9b397133f",
   "root_normal_overhead_review_sha256": "318f93c77cebb89ceff4292af6c713d72d105185aacfc069a19068771d1bcb20",
   "machine": {
-    "instance_id": "i-067f2314ae5db04bd",
+    "instance_id": "<instance>",
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "region": "us-east-1",
     "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
     "architecture": "x86_64",

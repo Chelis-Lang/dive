@@ -606,7 +606,7 @@
   },
   "retention": {
     "raw": {
-      "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+      "bucket": "<bucket>",
       "prefix": "root-followups/function-membership-census-20261025-v1/",
       "receipt_key": "root-followups/function-membership-census-20261025-v1/RECEIPT.json",
       "receipt_sha256": "ab0ffdf7398f8aa3579f0dce5beed680423bf66846d9ae4cce0ec6b1957a6f53",

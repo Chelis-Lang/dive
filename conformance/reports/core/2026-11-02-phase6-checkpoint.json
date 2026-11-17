@@ -552,7 +552,7 @@
   },
   "preservation": {
     "performance_archive": {
-      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_bucket": "<evidence-archive>",
       "s3_key": "phase6-20261102/scalar-panel-c4003fc6-node-evidence.tar.gz",
       "sha256": "230445d427d8959ac38dacaab4fb53340d9182a0e18b8b31112fb8e66b4c6361",
       "bytes": 166541981,
@@ -562,7 +562,7 @@
       "download_and_all_member_verification": true
     },
     "performance_cleanup": {
-      "instance_id": "i-08d76e5f3ce6f5765",
+      "instance_id": "<instance>",
       "state": "terminated",
       "root_volume": "vol-05b87b5421b9968ba",
       "root_volume_api_result": "InvalidVolume.NotFound",
@@ -578,11 +578,11 @@
       "downloaded": true,
       "all_members_hash_verified": true,
       "verified_utc": "2026-11-02T19:26:46.355312+00:00",
-      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_bucket": "<evidence-archive>",
       "s3_key": "phase6-20261102/runtime-ee79de82-node-evidence.tar.gz"
     },
     "local_support_interim_archive": {
-      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_bucket": "<evidence-archive>",
       "s3_key": "phase6-20261102/local-support-interim-20261102T184221Z.tar.gz",
       "sha256": "b84d6d3439cc90735574c2ebb21d2229be8a91f817b50248e41bf15a3eefa833",
       "bytes": 45784773,
@@ -594,7 +594,7 @@
       "s3_download_hash_verified": true
     },
     "local_support_final_closure": {
-      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_bucket": "<evidence-archive>",
       "s3_key": "phase6-20261102/qualification-support-closure-20261102T193605Z.tar.gz",
       "sha256": "c0c54e5ae5c6217db8501d1093982377662f0aebcc26f542b28019d636b6459d",
       "bytes": 348694,
@@ -614,7 +614,7 @@
     },
     "nodes_terminated": true,
     "qualification_cleanup": {
-      "instance_id": "i-05f6ec4e9317ab4cc",
+      "instance_id": "<instance>",
       "state": "terminated",
       "root_volume": "vol-0fd1a4b683a5dba11",
       "root_volume_api_result": "InvalidVolume.NotFound",

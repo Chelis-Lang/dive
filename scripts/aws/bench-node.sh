@@ -13,14 +13,22 @@
 #     --profile default --workers 1,8 --reps 5 --tlc --timeout 900 --xmx 3g
 # Fetch with scripts/aws/ssm.sh (as /home/bench/out/...), then terminate the node.
 # DRY_RUN=1 prints the generated user data instead of launching.
-# The GitHub token comes from the SSM parameter /dive/bench/gh-token and is never printed.
-: ${AWS_PROFILE:?set AWS_PROFILE}; export AWS_REGION=${AWS_REGION:-us-east-1} AWS_PAGER=""
+# Required environment: AWS_PROFILE, DIVE_AWS_AMI (AMI id), DIVE_AWS_INSTANCE_PROFILE
+# (IAM instance profile) and DIVE_AWS_GH_TOKEN_PARAM (SSM SecureString parameter
+# name holding a GitHub token). The token is never printed.
+: ${AWS_PROFILE:?set AWS_PROFILE}
+: ${DIVE_AWS_AMI:?set DIVE_AWS_AMI to an Ubuntu x86_64 AMI id}
+: ${DIVE_AWS_INSTANCE_PROFILE:?set DIVE_AWS_INSTANCE_PROFILE to an IAM instance profile that can read the token parameter}
+: ${DIVE_AWS_GH_TOKEN_PARAM:?set DIVE_AWS_GH_TOKEN_PARAM to the SSM SecureString parameter holding a GitHub token}
+export AWS_REGION=${AWS_REGION:-us-east-1} AWS_PAGER=""
 REV=$1; shift
 ARGS="$*"  # arguments must not contain spaces; ~ expands on the node
 UD=$(mktemp)
 cat > $UD <<OUTER
 #!/bin/bash
 REV=$REV
+AWS_REGION=${(q)AWS_REGION}
+TOKEN_PARAM=${(q)DIVE_AWS_GH_TOKEN_PARAM}
 OUTER
 cat >> $UD <<'OUTER'
 exec > /var/log/dive-bootstrap.log 2>&1
@@ -37,7 +45,7 @@ done
 systemctl stop snapd unattended-upgrades apt-daily.timer apt-daily-upgrade.timer || true
 (cd /tmp && curl -sSfo awscliv2.zip https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip && unzip -qo awscliv2.zip && ./aws/install --update)
 useradd -m -s /bin/bash bench || true
-/usr/local/bin/aws ssm get-parameter --region us-east-1 --name /dive/bench/gh-token --with-decryption --query Parameter.Value --output text > /home/bench/.gh-token
+/usr/local/bin/aws ssm get-parameter --region "$AWS_REGION" --name "$TOKEN_PARAM" --with-decryption --query Parameter.Value --output text > /home/bench/.gh-token
 chmod 600 /home/bench/.gh-token; chown bench: /home/bench/.gh-token
 cat > /home/bench/run.sh <<'INNER'
 #!/bin/bash
@@ -65,8 +73,8 @@ chmod 755 /home/bench/run.sh; chown bench: /home/bench/run.sh
 OUTER
 print -r -- "systemd-run --unit=dive-bench --uid=bench --setenv=HOME=/home/bench --working-directory=/home/bench /home/bench/run.sh \"\$REV\" ${(q)ARGS}" >> $UD
 [ -n "${DRY_RUN:-}" ] && { cat $UD; rm -f $UD; exit 0; }
-aws ec2 run-instances --image-id ami-02a9cdd4e98bc3c78 --instance-type c7i.metal-24xl \
-  --iam-instance-profile Name=dive-bench \
+aws ec2 run-instances --image-id "$DIVE_AWS_AMI" --instance-type c7i.metal-24xl \
+  --iam-instance-profile Name="$DIVE_AWS_INSTANCE_PROFILE" \
   --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=100,VolumeType=gp3}' \
   --user-data file://$UD \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=project,Value=dive},{Key=Name,Value=dive-bench}]' \

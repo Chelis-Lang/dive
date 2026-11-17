@@ -22,8 +22,11 @@ counter cannot see lock contention, atomics or cache misses: #495, the largest
 - It is launched for a campaign and terminated afterwards.
 - Every milestone gate is decided on this host.
 - Launch it with `scripts/aws/bench-node.sh <sha> <dive-bench arguments>`
-  (an SSO `AWS_PROFILE` for the dive account; nodes are tagged
-  `project=dive`). It builds the revision, sets SMT and turbo off at 2.4 GHz,
+  (an SSO `AWS_PROFILE`; nodes are tagged `project=dive`). Both node
+  scripts require `DIVE_AWS_AMI` (an Ubuntu x86_64 AMI id),
+  `DIVE_AWS_INSTANCE_PROFILE` (an IAM instance profile that can read the
+  token parameter) and `DIVE_AWS_GH_TOKEN_PARAM` (the SSM SecureString
+  parameter holding a GitHub token); none has a committed default. It builds the revision, sets SMT and turbo off at 2.4 GHz,
   pins CPUs 0–15 and leaves `runs.jsonl` and `summary.json` under
   `/home/bench/out`. Fetch them with `scripts/aws/ssm.sh` in gzip+base64
   chunks (SSM truncates output at about 24 KB), keep only a compact JSON

@@ -68,7 +68,7 @@
     "default_or_count_limit_changes": false
   },
   "provenance": {
-    "bucket": "dive-selectseq-gate-20261025180822-8ac7b5be-010928226848",
+    "bucket": "<bucket>",
     "archive_key": "results/final.tgz",
     "archive_sha256": "05a2c9ff30335434727ddb9384c95e532d964ca8500bc24a4ffbc7102f2f385f",
     "archive_bytes": 147223,

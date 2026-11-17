@@ -403,7 +403,7 @@
   },
   "preflight": "Earlier v1 exited before spawning because its context-lifetime guard lacked five seconds of required cleanup allowance. V2 preserves the same600s outer cap with sufficient whole-context allowance; no native arm was retried.",
   "retention": {
-    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "bucket": "<bucket>",
     "prefix": "root-followups/startup-tautology-primary-20261025-v1/",
     "receipt_key": "root-followups/startup-tautology-primary-20261025-v1/RECEIPT.json",
     "receipt_sha256": "c54419a68a8e90ec0c429cfd0e896e9b3ad4f26e043d68885fc08bb85d04f30c",
@@ -604,7 +604,7 @@
       "primary-generate.stderr": "07704a2e41e4784fa188c981fca7a4288c2c857dfb757dc481c6a7ca416cfdd6"
     },
     "retention": {
-      "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+      "bucket": "<bucket>",
       "prefix": "root-followups/startup-role-split-primary-20261025-v1/",
       "receipt_key": "root-followups/startup-role-split-primary-20261025-v1/RECEIPT.json",
       "receipt_sha256": "669d6b461b2c038e377370a9e2b5bcd858d6b595cff4d5a7d494e92e58e5e50d",

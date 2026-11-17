@@ -1142,7 +1142,7 @@
     "all_archive_members_verified": true
   },
   "raw_evidence": {
-    "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "s3_bucket": "<evidence-archive>",
     "s3_key": "phase6-20261102/scalar-panel-c4003fc6-node-evidence.tar.gz",
     "sha256": "230445d427d8959ac38dacaab4fb53340d9182a0e18b8b31112fb8e66b4c6361",
     "bytes": 166541981,
@@ -1152,7 +1152,7 @@
     "download_and_all_member_verification": true
   },
   "cleanup": {
-    "instance_id": "i-08d76e5f3ce6f5765",
+    "instance_id": "<instance>",
     "state": "terminated",
     "root_volume": "vol-05b87b5421b9968ba",
     "root_volume_api_result": "InvalidVolume.NotFound",

@@ -221,14 +221,14 @@
   },
   "original_evidence": {
     "local_qualification": {
-      "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+      "bucket": "<bucket>",
       "prefix": "root-followups/startup-zero-local-qualification-20261025-v1/",
       "receipt_sha256": "467de8a64814159313cbef6bd92690f64bf1bf1b789a5c8b9fa2805dd2eade4c",
       "objects": 411,
       "bytes": 839087
     },
     "full_gate": {
-      "bucket": "dive-selectseq-gate-20261025132920-f93638fc-010928226848",
+      "bucket": "<bucket>",
       "key": "results/final.tgz",
       "sha256": "43b11f9acb253bb950e086a29980ca22a06f4381072d0a9759fa432e28745856",
       "bytes": 145476,

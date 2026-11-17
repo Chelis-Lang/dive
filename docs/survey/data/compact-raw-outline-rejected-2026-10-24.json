@@ -111,7 +111,7 @@
   },
   "machine": {
     "campaign": "dive-selectseq-perf-20261024143249-f6faf2eb",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "instance_type": "c7i.8xlarge",
     "kernel_boot_id": "988cc901-f00c-4f26-ad27-b361d9676b88",
     "kernel_release": "7.0.0-1014-aws",
@@ -465,7 +465,7 @@
   },
   "evidence": {
     "originals": {
-      "bucket": "dive-selectseq-perf-20261024143249-f6faf2eb-010928226848",
+      "bucket": "<bucket>",
       "key": "results/final.tgz",
       "sha256": "d4b89cfb37766c9085dd1dbf923d45f0537a75d1a362c5f3e8be837a81dada05",
       "bytes": 4463694

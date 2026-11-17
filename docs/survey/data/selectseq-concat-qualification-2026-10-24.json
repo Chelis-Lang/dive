@@ -742,7 +742,7 @@
     },
     "machine": {
       "instance_type": "c7i.8xlarge",
-      "ami": "ami-02a9cdd4e98bc3c78",
+      "ami": "<ami>",
       "cpu": "Intel Xeon Platinum8488C",
       "kernel": "Linux7.0.0-1014-aws x86_64",
       "dedicated_wall_clock_campaign": false

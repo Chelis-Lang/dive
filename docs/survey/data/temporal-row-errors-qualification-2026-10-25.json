@@ -256,7 +256,7 @@
       }
     },
     "retained_raw_S3_preservation": {
-      "bucket": "dive-selectseq-perf-20261025055036-65e37f43-010928226848",
+      "bucket": "<bucket>",
       "normal_cli_prefix": "root-followups/completed-local-since-0340-v1/temporal-row-demand-cli-92a33e3b-v5/",
       "full_gate_prefix": "root-followups/completed-final-gate-92-v1/temporal-row-full-gate-92a33e3b-v2/",
       "individual_whole_file_sha256_verified": true,
