@@ -33,32 +33,10 @@ The job ceiling does not change test selection, individual test deadlines or
 required checks. Routine development uses focused checks; the whole suite and
 wider conformance populations qualify integrated milestones and releases.
 
-## Self-hosted runners
+## Runners
 
-Every job's `runs-on` reads the repository variable `DIVE_CI_RUNNER`. Unset,
-jobs run on `ubuntu-latest`. Set to `dive-local`, they run on self-hosted
-runners with that label, so required checks keep reporting when hosted
-minutes are unavailable:
-
-```sh
-gh variable set DIVE_CI_RUNNER --body dive-local   # self-hosted
-gh variable delete DIVE_CI_RUNNER                  # back to hosted
-```
-
-A `dive-local` runner is a stock `actions/runner` registered to this
-repository with the label `dive-local`, running as an ordinary user with the
-pinned toolchain on `PATH`. Each runner needs its own `CARGO_HOME` (set in the
-runner's `.env`, with its `bin` first in the runner's `.path` and the user's
-rustup proxies after it), and `CARGO_TARGET_DIR=target` if the user's
-environment sets a shared target directory. `Swatinem/rust-cache` treats
-`CARGO_HOME/bin` as disposable: its post step deletes binaries that existed
-before the job, which on a shared `CARGO_HOME` removes the user's `rustup` and
-installed tools. The workflows also pass `cache-bin: false` on self-hosted
-runners as a second guard. Register one
-runner per concurrent job (three cover one PR). The runners execute PR code
-with that user's privileges, which is acceptable only because the repository
-is private. Steps that need a hosted image, such as freeing preinstalled SDKs,
-are skipped with `runner.environment == 'github-hosted'`.
+Every job runs on GitHub-hosted `ubuntu-latest` runners
+([ADR 0001](../decisions/0001-workspace-toolchain-and-ci.md)).
 
 ## The `ci` nextest profile
 

@@ -120,7 +120,7 @@
   },
   "machine": {
     "campaign": "dive-selectseq-perf-20261024210211-90bd4f41",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "instance_type": "c7i.8xlarge",
     "observed_machine_identity_sha256": "43bcd69a5907bef006e8a8164799287e7c05fb7d6a530bdc49ce1d98466c4ef9",
     "scope": "SMT2 shared environment; actual per-arm identity stable, no quiet-window or exclusive-host certificate.",
@@ -475,7 +475,7 @@
   },
   "evidence": {
     "originals": {
-      "bucket": "dive-selectseq-perf-20261024210211-90bd4f41-010928226848",
+      "bucket": "<bucket>",
       "key": "results/final.tgz",
       "sha256": "fceba0066216280b81ee5790485267eeb6e8a0aebbf99cf207258ea61eea2c38",
       "bytes": 4516019,

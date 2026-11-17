@@ -559,7 +559,7 @@
     "build_reruns": 0
   },
   "evidence": {
-    "retained_s3_bucket": "dive-fulltier-20261024145328-f80f26b6-010928226848",
+    "retained_s3_bucket": "<bucket>",
     "original_report": {
       "key": "results/originals/reports/20261024T165628670-dive-all.json",
       "sha256": "e7baba71167a32175136314b6322551225f4fcdb58fbc2b21614b2dc5e5210f4"

@@ -242,7 +242,7 @@
   "decision": "Do not implement or benchmark the proposed batched ordered-set merge on this evidence; no further query/prototype authorized by this assessment.",
   "limitations": "No optimized binary, savings/hit-rate/eligible-count, allocator-causality, JavaTLC speedup, wallclock/scaling, new conformance or parity claim. Collector metadata adapter key correction occurred before SDK clients/reads and left the sealed selector unchanged; original finding preserved separately.",
   "storage": {
-    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "bucket": "<bucket>",
     "assessment_preservation_prefix": "root-compact/mask-merge-canary3-and-fulltier-source-20261026-v1/",
     "assessment_preservation_receipt_sha256": "d7d400b413450919668e93d35ebe0a969746da009e5ebeaf331cb15c709ba441"
   },

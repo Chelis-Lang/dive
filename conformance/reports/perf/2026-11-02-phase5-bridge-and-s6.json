@@ -189,7 +189,7 @@
       "members": 162,
       "regular_files": 135,
       "every_extracted_member_verified": true,
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase5-20261101/bridge-comparison-ccff7729.tar.gz"
     },
     "independent_review": {
@@ -200,7 +200,7 @@
       "json_sha256": "d9278f2976dd4e7ebc0d908b9172d8339268ce28df051ac69b9e2c8f0cb7a077"
     },
     "cleanup": {
-      "terminated_instance": "i-033155093e60c22df",
+      "terminated_instance": "<instance>",
       "deleted_root_volume": "vol-0a1bac1889e3e0427",
       "verified": true
     },
@@ -236,7 +236,7 @@
       "sha256": "6af085d24f72166034b0f0ec61d0b6208871d9e6a7e3612a872bd2407102e318",
       "bytes": 27383063,
       "members": 213,
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase5-20261101/s6-indexed-guard-unadopted.tar.gz",
       "uploaded_downloaded_hash_verified": true
     },

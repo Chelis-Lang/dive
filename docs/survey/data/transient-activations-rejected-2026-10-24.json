@@ -111,7 +111,7 @@
   },
   "machine": {
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "cpu": "Intel Xeon Platinum 8488C",
     "kernel": "Linux7.0.0-1014-aws x86_64"
   },
@@ -370,7 +370,7 @@
   },
   "evidence": {
     "originals": {
-      "bucket": "dive-selectseq-perf-20261024091752-aa9b7ebd-010928226848",
+      "bucket": "<bucket>",
       "key": "results/final.tgz",
       "sha256": "c3dda92ab0720a84c88cc393b1828013294b0a6ed9e5d3cf0e201f9255715735"
     },

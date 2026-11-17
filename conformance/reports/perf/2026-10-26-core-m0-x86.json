@@ -13,7 +13,7 @@
   "affinity": "taskset 0-15, numactl membind 0",
   "os": "Ubuntu 24.04.5 LTS",
   "kernel": "7.0.0-1014-aws",
-  "ami": "ami-02a9cdd4e98bc3c78",
+  "ami": "<ami>",
   "load_1m_max": 1.3,
   "other_benchmark_processes": 0
  },

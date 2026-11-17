@@ -108,7 +108,7 @@
   "performance_resource_absence_observation": {
     "observed_utc": "2026-11-03T16:49:56.523692+00:00",
     "source": "88a5845a05c676adcca2a1e5fc0274388ca3f906",
-    "instance": "i-0707e1c55caf3b934",
+    "instance": "<instance>",
     "exact_instance_query_exit": 0,
     "matching_instances": [],
     "source_task_tagged_volume_query_exit": 0,
@@ -377,14 +377,14 @@
       "every_member_hash_verified": true,
       "no_credentials_or_cargo_targets": true,
       "verified_utc": "2026-11-04T13:36:11.690497+00:00",
-      "s3_bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "s3_bucket": "<evidence-archive>",
       "s3_key": "phase7-20261103/qualification-20ee7f75-capture-20261104-node-evidence.tar.gz",
-      "instance_id": "i-04b3fcb811ae34432"
+      "instance_id": "<instance>"
     },
     "independent_archive_verification_sha256": "1e87729963d1ee880f31b09dc01f189b2cd71b2bd86b767f72d547ddf1237dcd",
     "archive_regular_payload_files": 41532,
     "termination": {
-      "instance_id": "i-04b3fcb811ae34432",
+      "instance_id": "<instance>",
       "state": "terminated",
       "ebs_volumes": {
         "vol-08080cbdbeff1b71d": "absent"
@@ -400,7 +400,7 @@
   },
   "forensic_local_survivor_archives": [
     {
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase7-20261103/recovery/local-survivors-20261103T172724Z-cc7d9224ef0b5c78.tar.gz",
       "archive_sha256": "cc7d9224ef0b5c7814eecda736f9e3b230abe7c9c39a8547900ecc281530cf0a",
       "archive_bytes": 4301588,
@@ -415,7 +415,7 @@
       "full_qualification_recovered": false
     },
     {
-      "bucket": "dive-evidence-archive-010928226848-us-east-1",
+      "bucket": "<evidence-archive>",
       "key": "phase7-20261103/recovery/local-survivors-addendum-20261104T122321Z-15b3332a2a3bd8d6.tar.gz",
       "archive_sha256": "15b3332a2a3bd8d69808b3ef51c3278338bb077d215537c343c1a0a1eab696d8",
       "archive_bytes": 2839621,

@@ -19,9 +19,9 @@
   },
   "machine": {
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "region": "us-east-1",
-    "kernel": "Linux ip-172-31-15-139 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "kernel": "Linux <host> 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
     "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
     "cpu_source": "Original source-before.json lscpu receipt; no new query or instance-class inference.",
     "source_before_receipt_sha256": "4f083f800942eddd895c8edfdd8bca19a26535e1caae15568e8c271fcdf68429"

@@ -61,7 +61,7 @@
   },
   "machine": {
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "architecture": "x86_64",
     "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
     "logical_cpus": 32,
@@ -292,7 +292,7 @@
     "scope": "Focused/library and evaluator integrations only, not full checker/corpus qualification."
   },
   "evidence": {
-    "bucket": "dive-selectseq-perf-20261025055036-65e37f43-010928226848",
+    "bucket": "<bucket>",
     "original_raw_prefix": "results/raw/",
     "manifest_sha256": "2400aa72433c2cee1a7ba1a5f9aed73cbc63d5a0d1c023f5f240a3b9072f4f33",
     "plan_sha256": "c258e2f96d479f9cba32f7af0b30ffafc43984bc6938278ef87d6c47444429d6",
@@ -332,7 +332,7 @@
     },
     "durable_followup_locator": {
       "status": "WHOLE_S3_BODIES_VERIFIED",
-      "s3_uri": "s3://dive-selectseq-perf-20261025055036-65e37f43-010928226848/root-followups/completed-813525e8-audit-v1/RECEIPT.json",
+      "s3_uri": "s3://<bucket>/root-followups/completed-813525e8-audit-v1/RECEIPT.json",
       "sha256": "6a82b78deb96ad3b2616deb5fe57362e4c14617308472ffbd1c73e8daf7e6a10",
       "objects": 13,
       "scope": "Selected completed compact audit, input/quiescence, peer review, machine and cleanup receipts; every uploaded S3 object and the final receipt read back and verified byte-for-byte. Original raw results remain separately in results/raw/."

@@ -19,11 +19,11 @@
   },
   "machine": {
     "instance_type": "c7i.8xlarge",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "region": "us-east-1",
     "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
     "cpu_source": "Original source-before.json lscpu receipt; no instance-class inference or new query.",
-    "kernel": "Linux ip-172-31-5-50 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "kernel": "Linux <host> 7.0.0-1014-aws #14~24.04.1-Ubuntu SMP PREEMPT Fri Sep 18 21:24:59 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
     "source_before_sha256": "b4a521ba1fde3668047848f689f11ee4e3ba110e1c1da98ff29c568542944b9d"
   },
   "tool_versions": {
@@ -304,12 +304,12 @@
   "cleanup": {
     "status": "root-independently-verified-complete",
     "at": "2026-10-22T06:44:06.593747+00:00",
-    "instance": "i-065c20e8c8d55d826",
+    "instance": "<instance>",
     "root_volumes_absent": [
       "vol-03d0f5cb70a62d353"
     ],
     "security_group_absent": "sg-034b9cb18654a21bd",
-    "bucket_absent": "dive-regions-20261022054859-5fb2259b-010928226848",
+    "bucket_absent": "<bucket>",
     "all32_original_objects_preserved_bytes": 172538693,
     "receipt_sha256": "1e2d466e824ee8edbf62ebf6f0b9b7ddd661407a2cdb51fe93b3332b2c503183",
     "Sail_IAM_SSM_untouched": true

@@ -283,7 +283,7 @@
   "performance_credit": false,
   "full_qualification_gate_run": false,
   "archive": {
-    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "bucket": "<evidence-archive>",
     "key": "phase7-20261103/graph-demand-c9cef7d481f9e1da.tar.gz",
     "archive_sha256": "c9cef7d481f9e1dac86f2f2d04549f2dbba6d61f62282495b47094e9b57d87b9",
     "bytes": 30388509,

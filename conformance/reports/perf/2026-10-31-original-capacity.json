@@ -68,7 +68,7 @@
     "memory_scope": "Sampled process RSS plus swap and GNU time maximum RSS are separate observations. Cooperative sampling is not an allocation-time hard cap; collector accounting remains incomplete."
   },
   "machine": {
-    "instance": "i-0e6be2fb5ec1c55af",
+    "instance": "<instance>",
     "instance_type": "c7i.4xlarge",
     "cpu_model": "Intel(R) Xeon(R) Platinum 8488C",
     "physical_cores": 8,
@@ -1436,8 +1436,8 @@
   ],
   "archive": {
     "source": "83356b0102983f118ff1aa80d761680fee8adf7c",
-    "node": "i-0e6be2fb5ec1c55af",
-    "bucket": "dive-evidence-archive-010928226848-us-east-1",
+    "node": "<instance>",
+    "bucket": "<evidence-archive>",
     "key": "trusted-core/2026-10-31/final-capacity-83356b01/capacity-public.tar.gz",
     "sha256": "55a806872ab1c68f2f35dbef5acbe43108fc0e2a9f4dcd64fa93098f4dcadbb6",
     "bytes": 25753317,
@@ -1463,7 +1463,7 @@
     "verifier_script_sha256": "cdca3ead9bceacaff9ec7be3cbc162db2517915fd2446eca3a33936498050562"
   },
   "cleanup": {
-    "instance": "i-0e6be2fb5ec1c55af",
+    "instance": "<instance>",
     "state": "terminated",
     "root_volume": "vol-082171c9b2d7f45f8",
     "volume_deleted": true,
@@ -1473,7 +1473,7 @@
   },
   "instance_policy": {
     "verified_utc": "2026-10-31T16:20:56.209438+00:00",
-    "instance": "i-0e6be2fb5ec1c55af",
+    "instance": "<instance>",
     "type": "c7i.4xlarge",
     "launch": "2026-10-31 16:20:01+00:00",
     "cpu_options": {

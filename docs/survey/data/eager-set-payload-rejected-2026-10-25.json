@@ -122,7 +122,7 @@
   },
   "machine": {
     "campaign": "dive-selectseq-perf-20261025012341-11fb20f4",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "instance_type": "c7i.8xlarge",
     "cpu": {
       "Architecture": "x86_64",
@@ -685,9 +685,9 @@
     "threshold_waiver": false
   },
   "evidence": {
-    "raw_origin": "s3://dive-selectseq-perf-20261025012341-11fb20f4-010928226848/results/raw/",
+    "raw_origin": "s3://<bucket>/results/raw/",
     "producer_archive": {
-      "uri": "s3://dive-selectseq-perf-20261025012341-11fb20f4-010928226848/results/final.tgz",
+      "uri": "s3://<bucket>/results/final.tgz",
       "sha256": "6f06b6d087e8ba8ec1020ef225d17080f2d4815d509e4bf1ff33d6572d997aac",
       "bytes": 4462723,
       "complete_required_raw_set_preserved": true,

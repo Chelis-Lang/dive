@@ -51,7 +51,7 @@
     "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
   },
   "provenance": {
-    "bucket": "dive-selectseq-gate-20261025163852-7885d710-010928226848",
+    "bucket": "<bucket>",
     "archive_key": "results/final.tgz",
     "archive_sha256": "90e123f8eedb20e0db6c8174f0730d2de1e3d7aeeac916b13867c67999479b83",
     "archive_bytes": 146301,

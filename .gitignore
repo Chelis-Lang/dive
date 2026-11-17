@@ -6,10 +6,11 @@
 /conformance/.work
 *.profraw
 .DS_Store
-# Agent worktrees (Claude Code isolation)
 /.claude/worktrees
 # Per-worktree conformance cache (DIVE_CACHE_DIR; see AGENTS.md)
 /.dive-cache
 
 # Local ValidationTestSuite generator environment.
 /.validation-venv
+# Leftovers of an interrupted dive-conformance relative-binary test.
+/crates/dive-conformance/relative-binary-*

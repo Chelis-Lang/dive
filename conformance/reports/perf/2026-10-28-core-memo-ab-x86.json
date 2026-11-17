@@ -10,7 +10,7 @@
   "turbo": "off",
   "governor": "performance, min=max 2.4 GHz",
   "affinity": "CPUs 0-15, numactl membind 0",
-  "ami": "ami-02a9cdd4e98bc3c78"
+  "ami": "<ami>"
  },
  "binary": {
   "commit": "fdaf57a2ce937da27dfbae1268bbe86470abfb54",

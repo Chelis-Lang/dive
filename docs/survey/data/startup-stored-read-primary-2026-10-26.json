@@ -154,7 +154,7 @@
     }
   },
   "originals": {
-    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "bucket": "<bucket>",
     "prefix": "root-probes/startup-stored-harness-39c7e399/",
     "generation_record_key": "root-probes/startup-stored-harness-39c7e399/GENERATION.json",
     "inventory_entries": 94,

@@ -46,7 +46,7 @@
   ],
   "qualification": "Core/reference shadow only. No pinned TLC parity percentage or complete trace-class certification inferred. Shared gate host timings not performance evidence.",
   "raw_archive": {
-    "uri": "s3://dive-evidence-archive-010928226848-us-east-1/trusted-core/2026-10-29/baseline-91742/evidence.tar.gz",
+    "uri": "s3://<evidence-archive>/trusted-core/2026-10-29/baseline-91742/evidence.tar.gz",
     "sha256": "109680cb099a71c20aafc3923646d67908fa4a5826c656d9f330dc7bb38026e6"
   },
   "harness_sha256": "6db251f99b8b1b6df4445bfdc0233b3a08144dc408eaa340dedf9be1fabc9051",

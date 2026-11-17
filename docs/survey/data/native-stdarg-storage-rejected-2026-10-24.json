@@ -112,7 +112,7 @@
   },
   "machine": {
     "campaign": "dive-selectseq-perf-20261024161625-68df4c61",
-    "ami": "ami-02a9cdd4e98bc3c78",
+    "ami": "<ami>",
     "instance_type": "c7i.8xlarge",
     "kernel_boot_id": "e6bedb5f-3ae9-4095-b20a-0ce9210d8869",
     "Architecture": "x86_64",
@@ -454,7 +454,7 @@
   },
   "evidence": {
     "originals": {
-      "bucket": "dive-selectseq-perf-20261024161625-68df4c61-010928226848",
+      "bucket": "<bucket>",
       "key": "results/final.tgz",
       "sha256": "2bc28b731adcdaf15fe433d6ae65f3f8c3335a55cf6ac9c47e78a3406ee15d7f",
       "bytes": 4458941

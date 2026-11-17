@@ -598,7 +598,7 @@
       "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
       "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
       "archive": {
-        "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/local-qualification/local-qualification-evidence.tar.gz",
+        "s3_uri": "s3://<evidence-archive>/phase3-20261101/local-qualification/local-qualification-evidence.tar.gz",
         "bytes": 94959086,
         "sha256": "0ca65949ce48d52bfbb4ca5b7ce693a63757e039281238ad28782f79d5d18550",
         "downloaded_sha256": "0ca65949ce48d52bfbb4ca5b7ce693a63757e039281238ad28782f79d5d18550",
@@ -737,7 +737,7 @@
       "bytes": 2728
     },
     "archive": {
-      "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/payload-ab-ee9e789c.tar.gz",
+      "s3_uri": "s3://<evidence-archive>/phase3-20261101/payload-ab-ee9e789c.tar.gz",
       "sha256": "aed1ec200e55dda136e2141fb52e71591fcf51e0d2daa1a7f65fda0180a01721",
       "bytes": 61860371,
       "members": 60,
@@ -841,7 +841,7 @@
       "bytes": 22166
     },
     "archive": {
-      "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/aba-focused-a1e731d3.tar.gz",
+      "s3_uri": "s3://<evidence-archive>/phase3-20261101/aba-focused-a1e731d3.tar.gz",
       "sha256": "2f7439248911902c43ef3af4788e342c854c5686246e67001c1f6c82dc69da60",
       "bytes": 44641423,
       "members": 132,
@@ -1246,7 +1246,7 @@
         }
       },
       "archive": {
-        "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/final-focus-fb48dbbf.tar.gz",
+        "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-focus-fb48dbbf.tar.gz",
         "sha256": "d2e7f82914a018d4c837cd3bdae050a4498b050a88241598f4d7f8c5963a8937",
         "bytes": 55887680,
         "members": 58,
@@ -1827,7 +1827,7 @@
         }
       },
       "archive": {
-        "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/final-breadth-fb48dbbf.tar.gz",
+        "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-breadth-fb48dbbf.tar.gz",
         "sha256": "a01abb1236d12c01271e53840ab81bcac0c8acda738cc1b5612bf994bbcef2bf",
         "bytes": 59920960,
         "members": 60,
@@ -1920,7 +1920,7 @@
     },
     "cleanup": {
       "verified_utc": "2026-11-01T14:42:08.509179+00:00",
-      "instance_id": "i-0016fedfda67e43bc",
+      "instance_id": "<instance>",
       "state": "terminated",
       "root_volume_id": "vol-03fb9dabdd3513451",
       "root_volume_state": "deleted",
@@ -2422,7 +2422,7 @@
       "bytes": 4834
     },
     "archive": {
-      "s3_uri": "s3://dive-evidence-archive-010928226848-us-east-1/phase3-20261101/final-capacity-fb48dbbf.tar.gz",
+      "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-capacity-fb48dbbf.tar.gz",
       "sha256": "f653ac17247aeee60c97eb457087a995468479186d1f720ce6ea9146bbf5a700",
       "bytes": 25958943,
       "members": 147,
@@ -2487,7 +2487,7 @@
   "cloud_cleanup": {
     "status": "BOTH_PHASE_INSTANCES_TERMINATED_AND_ROOT_VOLUMES_DELETED",
     "performance": {
-      "instance_id": "i-0016fedfda67e43bc",
+      "instance_id": "<instance>",
       "state": "terminated",
       "root_volume_id": "vol-03fb9dabdd3513451",
       "root_volume_deleted": true,
@@ -2500,7 +2500,7 @@
     },
     "capacity": {
       "verified_utc": "2026-11-01T15:55:47.808408+00:00",
-      "instance_id": "i-0cac45996af611dc6",
+      "instance_id": "<instance>",
       "state": "terminated",
       "root_volume_id": "vol-030fac13de8e74193",
       "root_volume_state": "deleted",
@@ -2536,14 +2536,14 @@
       "rows": [
         {
           "role": "performance",
-          "instance_id": "i-0016fedfda67e43bc",
+          "instance_id": "<instance>",
           "observed_launch_to_termination_confirmation_seconds": 6802.509179,
           "on_demand_usd_per_hour": 4.284,
           "conservative_compute_estimate_usd": 8.094985923009999
         },
         {
           "role": "capacity",
-          "instance_id": "i-0cac45996af611dc6",
+          "instance_id": "<instance>",
           "observed_launch_to_termination_confirmation_seconds": 10789.808408,
           "on_demand_usd_per_hour": 0.714,
           "conservative_compute_estimate_usd": 2.1399786675866665

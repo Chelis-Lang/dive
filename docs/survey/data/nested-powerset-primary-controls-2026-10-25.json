@@ -209,7 +209,7 @@
     "primary_audit_sha256": "4ea819710649964932bc9b3ed08045a9bbce6ffd4ed59dbf3cfbbab88d6473b4"
   },
   "evidence": {
-    "bucket": "dive-callgrind-profile-20261025064842-b9f59b27-010928226848",
+    "bucket": "<bucket>",
     "prefix": "root-followups/init-replay-qualified-and-primary-20261025-v1/",
     "receipt_sha256": "f3ac574d976572230520b51a0b44b1cd089c4ce0128784220b4947fcc4b9736a"
   },
