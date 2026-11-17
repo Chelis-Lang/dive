@@ -12,12 +12,29 @@ import tempfile
 PIN = '7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 
 
+def redactor(fixture, temp, jar):
+    """Replace host paths with the harness placeholders ($TMP, $DIVE_CACHE_DIR, $CWD)."""
+    replacements = [(str(Path(temp).resolve()), '$TMP'), (str(temp), '$TMP')]
+    if jar.parent.parent.name == 'sha256':
+        replacements.append((str(jar.parents[2]), '$DIVE_CACHE_DIR'))
+    else:
+        replacements.append((str(jar.parent), '$JAR_DIR'))
+    replacements.append((str(fixture), '$CWD'))
+
+    def redact(text):
+        for path, placeholder in replacements:
+            text = text.replace(path, placeholder)
+        return text
+    return redact
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--java', required=True, type=Path)
     parser.add_argument('--jar', required=True, type=Path)
     parser.add_argument('--reason', required=True)
     args = parser.parse_args()
+    args.jar = args.jar.resolve()
     if hashlib.sha256(args.jar.read_bytes()).hexdigest() != PIN:
         raise SystemExit('pinned oracle SHA mismatch')
     fixture = Path(__file__).resolve().parent
@@ -33,14 +50,17 @@ def main():
     selection += [('DfidRoots', 6, 1, 7, 3, repeat) for repeat in range(1, 7)]
     selection += [('DfidRootsMixed', 6, 1, 7, 3, repeat) for repeat in range(1, 13)]
     with tempfile.TemporaryDirectory(prefix='dive-dfid-primary-') as directory:
+        redact = redactor(fixture, directory, args.jar)
         for model, depth, workers, seed, aril, repeat in selection:
             metadata = Path(directory) / f'{model}-{depth}-{workers}-{repeat}'
             metadata.mkdir()
             flags = ['-tool', '-workers', str(workers), '-fp', '0', '-seed', str(seed),
                      '-aril', str(aril), '-dfid', str(depth), '-metadir', str(metadata)]
-            command = [str(args.java), '-cp', str(args.jar), 'tlc2.TLC', *flags,
-                       '-config', str(fixture / f'{model}.cfg'), str(fixture / f'{model}.tla')]
-            completed = subprocess.run(command, cwd=directory, text=True, capture_output=True, timeout=30)
+            command = [str(args.java), f'-Djava.io.tmpdir={Path(directory).resolve()}',
+                       '-cp', str(args.jar), 'tlc2.TLC', *flags,
+                       '-config', f'{model}.cfg', f'{model}.tla']
+            completed = subprocess.run(command, cwd=fixture, text=True, capture_output=True, timeout=30)
+            completed.stdout, completed.stderr = redact(completed.stdout), redact(completed.stderr)
             control = f'{model}.depth{depth}.workers{workers}.seed{seed}.aril{aril}.repeat{repeat}'
             (raw / f'{control}.stdout').write_text(completed.stdout)
             (raw / f'{control}.stderr').write_text(completed.stderr)

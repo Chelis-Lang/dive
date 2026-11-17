@@ -11,12 +11,30 @@ import tempfile
 
 PIN = '7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 
+
+def redactor(fixture, temp, jar):
+    """Replace host paths with the harness placeholders ($TMP, $DIVE_CACHE_DIR, $CWD)."""
+    replacements = [(str(Path(temp).resolve()), '$TMP'), (str(temp), '$TMP')]
+    if jar.parent.parent.name == 'sha256':
+        replacements.append((str(jar.parents[2]), '$DIVE_CACHE_DIR'))
+    else:
+        replacements.append((str(jar.parent), '$JAR_DIR'))
+    replacements.append((str(fixture), '$CWD'))
+
+    def redact(text):
+        for path, placeholder in replacements:
+            text = text.replace(path, placeholder)
+        return text
+    return redact
+
+
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--java', type=Path, required=True)
 p.add_argument('--javac', type=Path, required=True)
 p.add_argument('--jar', type=Path, required=True)
 p.add_argument('--reason', required=True)
 a = p.parse_args()
+a.jar = a.jar.resolve()
 if hashlib.sha256(a.jar.read_bytes()).hexdigest() != PIN:
     raise SystemExit('pinned oracle SHA mismatch')
 base = Path(__file__).resolve().parent
@@ -27,6 +45,7 @@ models = ['DfidBound', 'DfidCycle', 'DfidBranch', 'DfidRoots', 'DfidDuplicate', 
           'DfidRootsMixed', 'DfidInitialIncomplete', 'DfidInitialPrecedence', 'DfidSeedNames']
 rows = []
 with tempfile.TemporaryDirectory(prefix='dive-dfid-secondary-') as directory:
+    redact = redactor(base, directory, a.jar)
     classes = Path(directory) / 'classes'
     classes.mkdir()
     subprocess.run([str(a.javac), '-cp', str(a.jar), '-d', str(classes), str(base / 'SeededDfid.java')], check=True)
@@ -36,9 +55,11 @@ with tempfile.TemporaryDirectory(prefix='dive-dfid-secondary-') as directory:
                 control = f'{model}.depth{depth}.workerSeed{seed}'
                 meta = Path(directory) / control
                 meta.mkdir()
-                run = subprocess.run([str(a.java), '-cp', f'{classes}:{a.jar}', 'SeededDfid',
+                run = subprocess.run([str(a.java), f'-Djava.io.tmpdir={Path(directory).resolve()}',
+                                      '-cp', f'{classes}:{a.jar}', 'SeededDfid',
                                       str(base / model), str(depth), str(seed), str(meta)],
-                                     cwd=directory, text=True, capture_output=True, timeout=30)
+                                     cwd=base, text=True, capture_output=True, timeout=30)
+                run.stdout, run.stderr = redact(run.stdout), redact(run.stderr)
                 (raw / f'{control}.stdout').write_text(run.stdout)
                 (raw / f'{control}.stderr').write_text(run.stderr)
                 stats = re.findall(r'(\d+) states generated, (\d+) distinct states found\.', run.stdout)
