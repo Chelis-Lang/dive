@@ -10,7 +10,7 @@
 //! host, the operators that need one are refused by name, never guessed.
 //!
 //! **Registers** belong to the evaluator itself (one logical register file
-//! per run, ADR 0014 §7): TLC's main thread writes every worker's registers,
+//! per run): TLC's main thread writes every worker's registers,
 //! and dive's search is TLC's single-worker search, so one file reproduces
 //! every value a TLC run with one worker reads.
 
@@ -50,7 +50,8 @@ pub struct RunConfig {
     /// Whether deadlock is checked.
     pub deadlock: bool,
     /// The worker count TLC reports. dive reports the logical count, 1
-    /// (D-011): its search at any worker count is TLC's single-worker search.
+    /// by default: its search at any worker count is TLC's single-worker
+    /// search. Under `--compat=tlc` it reports the physical count, as TLC does.
     pub workers: i64,
     /// The run's seed (printed as a string, as TLC does).
     pub seed: i64,
@@ -387,7 +388,7 @@ pub(crate) struct Registers {
 /// Whether native permission hooks execute for an installed host.
 ///
 /// This chooses execution semantics, not a host's claim of purity or a proof
-/// that checks may be omitted. Legacy host setters always select `Callback`.
+/// that checks may be omitted. The plain host setters always select `Callback`.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum NativeHooks {
     /// Invoke the installed host's original permission callback.
@@ -407,7 +408,7 @@ pub enum NativeHooks {
 /// unrestricted binding; a displaced snapshot can retain an admitted domain-zero
 /// policy. A displaced
 /// binding retains its installed cache domain for complete restoration; a fresh
-/// constructor queries the host at installation, like legacy replacement.
+/// constructor queries the host at installation, like plain replacement.
 ///
 /// ```
 /// # fn install(ev: &dive_eval::Evaluator, host: std::sync::Arc<dyn dive_eval::Host>) {
@@ -541,7 +542,7 @@ impl HostSlot {
         true
     }
 
-    /// Legacy replacements always select callbacks, even for the same Arc.
+    /// Plain replacements always select callbacks, even for the same Arc.
     pub(crate) fn replace(&self, host: Option<Arc<dyn Host>>) -> Option<Arc<dyn Host>> {
         self.replace_binding(HostBinding::callback(host)).host
     }
@@ -955,7 +956,7 @@ impl Core {
                 }
             }
             // `System.getProperty(key, "-D" + key)`: the one property dive
-            // models is the action composition switch (D-022), set exactly
+            // models is the action composition switch, set exactly
             // when `\cdot` is enabled.
             "-Dtlc2.tool.impl.Tool.cdot" => Ok(Value::string(
                 &self.names,

@@ -1,4 +1,6 @@
-//! Bounded live environment/text inputs during source binding (D-017).
+//! Bounded live environment/text inputs during source binding. A specification
+//! gets no host access unless the run grants the category explicitly, also under
+//! `--compat=tlc`.
 //! Later evaluation can use captured values, but cannot execute more I/O.
 
 use std::collections::BTreeMap;

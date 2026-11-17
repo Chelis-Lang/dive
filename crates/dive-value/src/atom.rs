@@ -4,7 +4,7 @@
 //! their position in it (`UniqueString.compareTo` returns `this.tok - other.tok`).
 //! dive mirrors that with an [`Interner`] that hands out [`Atom`]s numbered in
 //! insertion order. Fed in SANY/TLC's encounter order, the numbering reproduces TLC's
-//! order of strings, model values and record fields; see ADR 0012.
+//! order of strings, model values and record fields.
 
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -390,7 +390,7 @@ pub(crate) const fn mix64(mut z: u64) -> u64 {
 ///
 /// Tokens are assigned in insertion order, starting at 0. To reproduce TLC's order of
 /// strings, model values and record fields, intern names in the order SANY and TLC
-/// first meet them (ADR 0012).
+/// first meet them.
 ///
 /// ```
 /// use dive_value::Interner;

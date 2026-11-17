@@ -1,4 +1,4 @@
-//! Expression nodes (ADR 0013 §2).
+//! Expression nodes.
 //!
 //! Every construct SANY gives TLC has its own variant, named for what it
 //! means rather than by SANY's `$`-names. Source order is kept everywhere:
@@ -48,11 +48,11 @@ pub enum OpRef {
 }
 
 /// How an argument, `LET` definition or substitution is passed: a laziness
-/// point (ADR 0013 §3).
+/// point.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Pass {
     /// TLC creates a `LazyValue` here, and so must the evaluator: a thunk,
-    /// forced at most once under TLC's caching rule (ADR 0014 §2).
+    /// forced at most once under TLC's caching rule.
     Lazy,
     /// TLC creates a `LazyValue`, but the effects analysis proves the
     /// expression pure and unable to fail (a literal, a bound variable, or a

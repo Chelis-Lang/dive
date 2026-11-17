@@ -1,6 +1,6 @@
 //! Cooperative construction of closed, already materialized values.
 //!
-//! These helpers are used at the core's graph-value boundary. Symbolic values
+//! These helpers are used at Core's graph-value boundary. Symbolic values
 //! retain the existing conversion path; they are not certified by this module.
 
 use std::borrow::Cow;

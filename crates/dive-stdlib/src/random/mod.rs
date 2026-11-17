@@ -1,5 +1,11 @@
-//! TLC's randomness, bit-exact, and dive's replayable randomness (M5 work package
-//! C5; `docs/tlc-differences.md` D-002 and D-003).
+//! TLC's randomness, bit-exact, and dive's replayable randomness.
+//!
+//! TLC's random operators are unseeded unless `-seed` is given; its draws while
+//! expanding a state also depend on the fingerprint polynomial, and in simulation on
+//! which worker ran a trace, so `-seed` alone does not replay them. dive always
+//! reports the seed it used, and `--seed` alone replays a run exactly at any worker
+//! count; `--compat=tlc` reproduces TLC's draws bit for bit. See
+//! [Differences from TLC](https://github.com/Chelis-Lang/dive/blob/main/docs/tlc-differences.md).
 //!
 //! # Layers
 //!
@@ -31,16 +37,14 @@
 //! let mut bits = |n| stream.next_bits(n);
 //! let s = Value::interval(Int::from(1i64), Int::from(1_000_000i64), ctx);
 //! let v = random_element(&s, ctx, &mut bits)?;
-//! // TLC -seed 7: `RandomElement(1..1000000)` is 730700 (probe P9).
+//! // Under TLC -seed 7, `RandomElement(1..1000000)` is 730700.
 //! assert_eq!(print_value(&v, ctx)?, "730700");
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 //!
 //! Under [`RandomMode::Tlc`], [`Streams::state`] needs TLC's own state fingerprint,
-//! which depends on TLC's variable order (ADR 0014); under [`RandomMode::Dive`] any
+//! which depends on TLC's variable order; under [`RandomMode::Dive`] any
 //! fixed 64-bit state fingerprint gives a replayable run.
-//!
-//! Provenance: `docs/provenance.md`, section "Randomness".
 
 mod lcg;
 mod ops;

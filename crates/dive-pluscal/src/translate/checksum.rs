@@ -1,4 +1,5 @@
-//! Bounded pinned original and post-translation AST serialization (ADR 0047).
+//! Bounded serialization of the original and post-translation ASTs, matching
+//! the pinned translator's output.
 use super::{
     FairnessOption, TranslationError, TranslationOptions, TranslationStage, error, labels, lower,
     macros,

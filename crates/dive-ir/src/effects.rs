@@ -1,4 +1,4 @@
-//! The effects analysis (ADR 0013 §6).
+//! The effects analysis.
 //!
 //! Effects are computed bottom-up over expressions and to a fixed point over
 //! definitions, during lowering. They are conservative: a flag that is clear
@@ -6,7 +6,7 @@
 //!
 //! They decide:
 //! - which laziness points may be [`crate::Pass::Strict`];
-//! - whether the checker may run in parallel (ADR 0015 §6, ADR 0014 §7);
+//! - whether the checker may run in parallel;
 //! - what `dive-compile` may hoist or share.
 
 use serde::{Deserialize, Serialize};

@@ -5,9 +5,7 @@
 //! model checker's [`dive_eval::Host`], which wires that randomness, the level,
 //! the live counters and `TLCGet("config")` into evaluation. The value-level
 //! overrides (the standard modules, `Bags` and the CommunityModules operators)
-//! are in `dive-eval`, which needs their evaluation context. See
-//! `docs/ROADMAP.md` and `docs/design/m5-plan.md`. Permitted internal
-//! dependencies are listed in `xtask/src/layering.rs`.
+//! are in `dive-eval`, which needs their evaluation context.
 #![forbid(unsafe_code)]
 
 pub mod inputs;

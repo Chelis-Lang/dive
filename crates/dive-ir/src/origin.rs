@@ -1,4 +1,4 @@
-//! Where IR nodes come from (ADR 0013 §7).
+//! Where IR nodes come from.
 //!
 //! An [`Origin`] records the byte range of the semantic node a definition or
 //! expression was lowered from, SANY's line and column for both ends, and the

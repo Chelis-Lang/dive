@@ -37,14 +37,14 @@ use rowan::{TextRange, TextSize};
 /// Maximum nesting of expressions, proofs and modules before giving up.
 ///
 /// SANY is limited only by the Java stack; this keeps `dive` from
-/// overflowing its own stack on adversarial input (see `docs/divergences.md`).
+/// overflowing its own stack on adversarial input.
 pub(crate) const MAX_DEPTH: u32 = 256;
 
 /// Maximum height of one module unit's syntax tree.
 ///
 /// rowan drops green trees recursively, so a very deep tree (such as a
 /// chain of thousands of `+`) could overflow the stack when freed. SANY
-/// accepts such input; `dive` refuses it explicitly (see `docs/divergences.md`).
+/// accepts such input; `dive` refuses it explicitly.
 pub(crate) const MAX_TREE_HEIGHT: u32 = 2048;
 
 /// A position in SANY's token stream, which interleaves fictitious

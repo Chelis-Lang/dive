@@ -1,4 +1,4 @@
-//! Fingerprints: TLC's FP64 (ADR 0012).
+//! Fingerprints: TLC's FP64.
 //!
 //! [`Fp64`] ports `tlc2.util.FP64` (Rabin fingerprints over GF(2^64), "Written by Allan
 //! Heydon and Marc Najork"; tlaplus `94d0c50`) and [`TlcFingerprint`] ports each
@@ -401,7 +401,7 @@ impl TlcFingerprint {
     /// value (a successor that keeps a variable unchanged, say) reuses it, at the cost
     /// of one atomic load. The result always equals [`Fingerprinter::fingerprint`]. A
     /// hit skips the traversal, and with it the normalization of unnormalized sets
-    /// that fingerprinting performs (ADR 0012); the traversal that filled the cache
+    /// that fingerprinting performs; the traversal that filled the cache
     /// already performed it.
     ///
     /// ```

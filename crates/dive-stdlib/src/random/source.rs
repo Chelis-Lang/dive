@@ -19,7 +19,7 @@ use super::primes::PRIMES;
 /// let mut rng = JavaRandom::new(7);
 /// let mut bits = |n| rng.next_bits(n);
 /// let f: &mut dyn FnMut(u32) -> i32 = &mut bits;
-/// // RandomElement(1..1000000) with -seed 7, as TLC draws it (probe P9).
+/// // RandomElement(1..1000000) with -seed 7, as TLC draws it.
 /// assert_eq!(1 + (f.next_double() * 1_000_000.0).floor() as i64, 730_700);
 /// ```
 pub trait RandomSource {

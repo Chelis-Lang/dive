@@ -1,4 +1,4 @@
-//! `dive-ir`: the resolved core IR shared by every backend (ADR 0013).
+//! `dive-ir`: the resolved core IR shared by every backend.
 //!
 //! [`lower`] turns an accepted [`dive_sema::Analysis`] into an [`Ir`]: one
 //! immutable arena per specification holding every module's definitions,
@@ -19,7 +19,7 @@
 //!   ([`Level`]) for every node.
 //!
 //! The IR holds no values and no configuration: constants, overrides and
-//! roles are bound by `dive-model` (ADR 0013 §8).
+//! roles are bound by `dive-model`.
 //!
 //! # Example
 //!
@@ -303,7 +303,7 @@ pub struct Def {
     /// belong to the parent's frame.
     pub frame: Vec<SlotInfo>,
     /// The body. For a [`StdOp`] this is the TLA+ definition, kept for
-    /// documentation; it is never evaluated (ADR 0013 §5).
+    /// documentation; it is never evaluated.
     pub body: ExprId,
     /// Declared `RECURSIVE`. The definition call graph is cyclic only
     /// through these.
@@ -326,7 +326,7 @@ pub struct Def {
     pub hash: u64,
 }
 
-/// A use of a construct dive refuses (ADR 0013 §5, M5 plan). The model
+/// A use of a construct dive refuses. The model
 /// refuses the specification as `unsupported`, naming the feature, if a
 /// refused node is reachable from a role.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -573,8 +573,8 @@ impl Ir {
     /// finds it). Comments and whitespace are not interned; a string literal's
     /// image keeps its quotes, because SANY interns the token, not the string.
     ///
-    /// TLC orders strings, model values and record fields by intern token
-    /// (ADR 0012), so this is the part of TLC's encounter order that the front
+    /// TLC orders strings, model values and record fields by intern token,
+    /// so this is the part of TLC's encounter order that the front
     /// end decides. `dive-model` builds the run's interner from it.
     #[must_use]
     pub fn lexical_names(&self) -> &[Box<str>] {

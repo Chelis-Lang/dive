@@ -1,4 +1,4 @@
-//! A compact, deterministic byte encoding of values (ADR 0015 §5, §8).
+//! A compact, deterministic byte encoding of values.
 //!
 //! State storage (`dive-store`) keeps states as bytes: frontier blocks, the exact
 //! store, disk spill and checkpoints. This module encodes one value; a state is the

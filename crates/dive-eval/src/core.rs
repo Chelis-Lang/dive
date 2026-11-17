@@ -300,7 +300,7 @@ impl Core {
             .unwrap_or_else(|_| dive_value::print::to_tlc_string_lenient(v, self.ctx))
     }
 
-    /// The elements of a set in exploration order (open question 9): TLC's
+    /// The elements of a set in exploration order: TLC's
     /// normalized order unless the options say to follow the value order.
     pub(crate) fn explore(&self, set: &dive_value::Set) -> Result<Arc<[Value]>> {
         self.enum_guard(set)?;
