@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use dive_api::trace::{SpecModel, TraceOptions};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use dive_conformance::compare::{CompareContext, diff_results};
 use dive_conformance::dive::{CheckMapping, check_result, check_result_with_model};
 use dive_conformance::process::ProcessOutcome;
@@ -74,22 +74,16 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
                     ..TraceOptions::default()
                 },
             )?;
-            for (engine, workers) in [Engine::Core]
-                .into_iter()
-                .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
-            {
-                let report = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc: compat,
-                        workers: Some(workers),
-                        seed: Some(19),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )?;
+            for workers in [1, 4] {
+                let report = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc: compat,
+                    workers: Some(workers),
+                    seed: Some(19),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                })?;
                 let value = report.to_json();
                 let mut actual_outcome = outcome(&value);
                 actual_outcome.exit_code = Some(i32::from(
@@ -102,7 +96,7 @@ fn context_only_initial_errors_keep_unclassified_oracles_and_refuse_native_class
                     canonical_initial_success(&value, actual_outcome.exit_code);
                     continue;
                 }
-                if name == "InitialOverride" && engine == Engine::Core {
+                if name == "InitialOverride" {
                     assert_eq!(value["verdict"], "unsupported");
                     assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 3);
                     assert!(matches!(
@@ -194,18 +188,15 @@ fn actual(file: &std::path::Path) -> Result<Value, Box<dyn std::error::Error>> {
         .clone())
 }
 fn core_report(file: &std::path::Path) -> Result<Value, Box<dyn std::error::Error>> {
-    Ok(check_file_engine(
-        &CheckRequest {
-            file: file.to_path_buf(),
-            config: Some(file.with_extension("cfg")),
-            compat_tlc: true,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        Engine::Core,
-    )?
+    Ok(check_file(&CheckRequest {
+        file: file.to_path_buf(),
+        config: Some(file.with_extension("cfg")),
+        compat_tlc: true,
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })?
     .to_json())
 }
 fn mapped(

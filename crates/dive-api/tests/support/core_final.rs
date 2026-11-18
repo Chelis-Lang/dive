@@ -9,7 +9,7 @@
 #![allow(clippy::panic, reason = "test adapter: a failed setup ends the test")]
 
 use dive_api::temporal::{Error, Failure, Outcome as Core};
-use dive_api::{CheckReport, CheckRequest, Engine, Store};
+use dive_api::{CheckReport, CheckRequest, Store};
 use dive_eval::Profile;
 use dive_eval::next::StateVals;
 use dive_runtime::{CheckOptions, CheckResult};
@@ -91,8 +91,7 @@ impl Drop for Files {
 #[must_use]
 pub fn run(source: &str, cfg: &str, opts: &CheckOptions) -> CheckReport {
     let files = Files::new(source, cfg);
-    dive_api::check_file_engine(&files.request(opts), Engine::Core)
-        .unwrap_or_else(|e| panic!("Core check: {e}"))
+    dive_api::check_file(&files.request(opts)).unwrap_or_else(|e| panic!("Core check: {e}"))
 }
 
 /// Checks `source` and `cfg` on Core: the run when it reached a verdict

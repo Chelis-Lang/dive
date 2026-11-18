@@ -484,7 +484,7 @@ mod tests {
     use super::*;
     use crate::corpus::{ManifestExpectation, ModelEntry, ModelMode, Tier};
     use crate::dive::DiveEngine;
-    use dive_api::{BudgetSetting, Engine, ExitConvention, SimulateRequest, simulate_file_engine};
+    use dive_api::{BudgetSetting, ExitConvention, SimulateRequest, simulate_file};
     use std::path::PathBuf;
     use std::time::Duration;
 
@@ -549,7 +549,7 @@ mod tests {
                 format!("INIT Init\nNEXT Next\nINVARIANT {case}\n"),
             )?;
         }
-        for (engine, selected) in [(Engine::Core, DiveEngine::Core)] {
+        for selected in [DiveEngine::Core] {
             for tlc in [false, true] {
                 let implementation = DiveImplementation {
                     options: Vec::new(),
@@ -589,22 +589,19 @@ mod tests {
                             xmx: "none",
                             budgets: false,
                         };
-                        let report = simulate_file_engine(
-                            &SimulateRequest {
-                                file: root.join("M.tla"),
-                                config: Some(root.join(&model.id)),
-                                compat_tlc: tlc,
-                                generation: true,
-                                seed: Some(0),
-                                traces,
-                                depth: Some(100),
-                                workers: Some(1),
-                                time_limit: BudgetSetting::Unlimited,
-                                max_memory: BudgetSetting::Unlimited,
-                                ..Default::default()
-                            },
-                            engine,
-                        )?;
+                        let report = simulate_file(&SimulateRequest {
+                            file: root.join("M.tla"),
+                            config: Some(root.join(&model.id)),
+                            compat_tlc: tlc,
+                            generation: true,
+                            seed: Some(0),
+                            traces,
+                            depth: Some(100),
+                            workers: Some(1),
+                            time_limit: BudgetSetting::Unlimited,
+                            max_memory: BudgetSetting::Unlimited,
+                            ..Default::default()
+                        })?;
                         let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                         let admitted = |value: &Value| {
                             let outcome = ProcessOutcome {
@@ -620,10 +617,7 @@ mod tests {
                             matches!(simulation_result(&implementation, &req, &outcome, traces, true),
                                 CheckMapping::Result(ref result) if matches!(result.verdict, Verdict::Success | Verdict::SafetyViolation))
                         };
-                        assert!(
-                            admitted(&value),
-                            "{engine:?}/{tlc}/{case}/{traces}: {value}"
-                        );
+                        assert!(admitted(&value), "{tlc}/{case}/{traces}: {value}");
                         let words = value["traces"].as_array().ok_or("trace words")?;
                         let initial = value["statistics"]["initial_candidates"]
                             .as_u64()
@@ -691,22 +685,19 @@ mod tests {
                         if case == "FarBad" && traces == 1 {
                             // This actual producer word is independently valid,
                             // but its late violation cannot satisfy depth 100.
-                            let long = simulate_file_engine(
-                                &SimulateRequest {
-                                    file: root.join("M.tla"),
-                                    config: Some(root.join(&model.id)),
-                                    compat_tlc: tlc,
-                                    generation: true,
-                                    seed: Some(0),
-                                    traces: 1,
-                                    depth: Some(300),
-                                    workers: Some(1),
-                                    time_limit: BudgetSetting::Unlimited,
-                                    max_memory: BudgetSetting::Unlimited,
-                                    ..Default::default()
-                                },
-                                engine,
-                            )?;
+                            let long = simulate_file(&SimulateRequest {
+                                file: root.join("M.tla"),
+                                config: Some(root.join(&model.id)),
+                                compat_tlc: tlc,
+                                generation: true,
+                                seed: Some(0),
+                                traces: 1,
+                                depth: Some(300),
+                                workers: Some(1),
+                                time_limit: BudgetSetting::Unlimited,
+                                max_memory: BudgetSetting::Unlimited,
+                                ..Default::default()
+                            })?;
                             let mut late = long.to_json_with_exit_convention(ExitConvention::Tlc);
                             assert_eq!(late["result"], "violation");
                             assert!(
@@ -785,7 +776,7 @@ mod tests {
     -> std::result::Result<(), Box<dyn std::error::Error>> {
         let root =
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-api/tests/fixtures/generation");
-        for (engine, selected) in [(Engine::Core, DiveEngine::Core)] {
+        for selected in [DiveEngine::Core] {
             for tlc in [false, true] {
                 let implementation = DiveImplementation {
                     options: Vec::new(),
@@ -824,22 +815,19 @@ mod tests {
                         xmx: "none",
                         budgets: false,
                     };
-                    let report = simulate_file_engine(
-                        &SimulateRequest {
-                            file: root.join("Generation.tla"),
-                            config: Some(root.join(&model.id)),
-                            compat_tlc: tlc,
-                            generation: true,
-                            seed: Some(0),
-                            traces: 1,
-                            depth: Some(100),
-                            workers: Some(1),
-                            time_limit: BudgetSetting::Unlimited,
-                            max_memory: BudgetSetting::Unlimited,
-                            ..Default::default()
-                        },
-                        engine,
-                    )?;
+                    let report = simulate_file(&SimulateRequest {
+                        file: root.join("Generation.tla"),
+                        config: Some(root.join(&model.id)),
+                        compat_tlc: tlc,
+                        generation: true,
+                        seed: Some(0),
+                        traces: 1,
+                        depth: Some(100),
+                        workers: Some(1),
+                        time_limit: BudgetSetting::Unlimited,
+                        max_memory: BudgetSetting::Unlimited,
+                        ..Default::default()
+                    })?;
                     let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                     let outcome = |value: &Value| ProcessOutcome {
                         exit_code: Some(i32::from(report.exit_code_for(ExitConvention::Tlc))),

@@ -5,9 +5,7 @@
 )]
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{
-    CheckRequest, DistributedOptions, Engine, Store, check_file_engine, prepare_core_worker,
-};
+use dive_api::{CheckRequest, DistributedOptions, Store, check_file, prepare_core_worker};
 use serde_json::{Value, json};
 use std::io::{BufRead, BufReader, Write};
 use std::net::{SocketAddr, TcpListener};
@@ -194,7 +192,7 @@ fn check_cases(cases: &[&str]) -> TestResult {
         for tlc in [false, true] {
             for exact in [false, true] {
                 let mut req = request(&root.join(relative), tlc, exact);
-                let baseline = check_file_engine(&req, Engine::Core)?;
+                let baseline = check_file(&req)?;
                 let expected = baseline.to_json();
                 assert!(
                     !matches!(
@@ -213,7 +211,7 @@ fn check_cases(cases: &[&str]) -> TestResult {
                 // coordinator-owned; the worker never receives a file path.
                 req.frontier_memory_bytes = Some(0);
                 req.predecessor_memory_bytes = Some(0);
-                let actual = check_file_engine(&req, Engine::Core)?;
+                let actual = check_file(&req)?;
                 let doc = actual.to_json();
                 assert_eq!(
                     observed(&doc),
@@ -312,7 +310,7 @@ fn a_worker_process_restarts_and_uncommitted_units_continue_at_the_same_epoch() 
     for tlc in [false, true] {
         for exact in [false, true] {
             let mut req = request(&file, tlc, exact);
-            let local = check_file_engine(&req, Engine::Core)?.to_json();
+            let local = check_file(&req)?.to_json();
             let mut a = worker_at(
                 &req,
                 &key,
@@ -334,7 +332,7 @@ fn a_worker_process_restarts_and_uncommitted_units_continue_at_the_same_epoch() 
                 key.clone(),
             ));
             std::thread::scope(|scope| -> TestResult {
-                let checking = scope.spawn(|| check_file_engine(&req, Engine::Core));
+                let checking = scope.spawn(|| check_file(&req));
                 let deadline = std::time::Instant::now() + Duration::from_secs(10);
                 while a.child.try_wait()?.is_none() {
                     if std::time::Instant::now() >= deadline {
@@ -407,7 +405,7 @@ fn identity_key_and_unsupported_combinations_refuse_before_search_and_caps_never
                 req.file = source;
             }
         }
-        let doc = check_file_engine(&req, Engine::Core)?.to_json();
+        let doc = check_file(&req)?.to_json();
         assert_eq!(
             doc["verdict"], "resource-limit",
             "identity mutation {mutation}: {doc}"
@@ -428,7 +426,7 @@ fn identity_key_and_unsupported_combinations_refuse_before_search_and_caps_never
     bad.key_file = wrong;
     bad.timeout = Duration::from_millis(500);
     req.distributed = Some(bad);
-    let doc = check_file_engine(&req, Engine::Core)?.to_json();
+    let doc = check_file(&req)?.to_json();
     assert_eq!(doc["verdict"], "resource-limit");
     assert!(doc["statistics"].is_null());
     assert!(doc["counterexample"].is_null());
@@ -445,7 +443,7 @@ fn identity_key_and_unsupported_combinations_refuse_before_search_and_caps_never
             _ => req.source_coverage = true,
         }
         assert!(
-            check_file_engine(&req, Engine::Core).is_err(),
+            check_file(&req).is_err(),
             "unsupported combination {mutation}"
         );
     }
@@ -456,9 +454,9 @@ fn identity_key_and_unsupported_combinations_refuse_before_search_and_caps_never
         } else {
             req.max_states = Some(2);
         }
-        let local = check_file_engine(&req, Engine::Core)?.to_json();
+        let local = check_file(&req)?.to_json();
         req.distributed = Some(policy.clone());
-        let doc = check_file_engine(&req, Engine::Core)?.to_json();
+        let doc = check_file(&req)?.to_json();
         assert_eq!(observed(&doc), observed(&local));
         assert_eq!(doc["verdict"], "stopped");
         assert!(doc["counterexample"].is_null());
@@ -492,7 +490,7 @@ fn new_combination_refusals_precede_model_and_key_access() -> TestResult {
                 "worker must reject {feature} before loading the missing model/key"
             );
             req.distributed = Some(policy.clone());
-            let coordinator = check_file_engine(&req, Engine::Core);
+            let coordinator = check_file(&req);
             assert!(
                 matches!(coordinator, Err(dive_api::ApiError::Unsupported { feature: message })
                     if message == format!("distributed safety with {feature} is not implemented")),
@@ -517,7 +515,7 @@ fn per_unit_successor_admission_does_not_cap_ordinary_local_checking() -> TestRe
     std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n")?;
     let mut req = request(&file, false, true);
     req.workers = Some(1);
-    let local = check_file_engine(&req, Engine::Core)?.to_json();
+    let local = check_file(&req)?.to_json();
     assert_eq!(local["verdict"], "success");
     assert_eq!(local["statistics"]["distinct"], 16385);
     // Reach the deterministic emission limit even on a slow CI host; this
@@ -541,7 +539,7 @@ fn per_unit_successor_admission_does_not_cap_ordinary_local_checking() -> TestRe
     let mut policy = DistributedOptions::new(vec![a.address, b.address], key);
     policy.timeout = Duration::from_secs(20);
     req.distributed = Some(policy);
-    let actual = check_file_engine(&req, Engine::Core)?.to_json();
+    let actual = check_file(&req)?.to_json();
     assert_eq!(actual["verdict"], "resource-limit", "{actual}");
     assert!(actual["counterexample"].is_null());
     assert!(
@@ -578,7 +576,7 @@ fn identity_refusal_precedes_a_startup_budget_stop() -> TestResult {
         let mut req = request(&file, tlc, false);
         req.time_limit = BudgetSetting::Explicit(Duration::from_millis(10));
         req.distributed = Some(policy.clone());
-        let report = check_file_engine(&req, Engine::Core)?;
+        let report = check_file(&req)?;
         let doc = report.to_json();
         assert_eq!(doc["verdict"], "unsupported", "tlc={tlc}: {doc}");
         assert!(
@@ -592,7 +590,7 @@ fn identity_refusal_precedes_a_startup_budget_stop() -> TestResult {
         assert!(doc["stopped"].is_null(), "tlc={tlc}: {doc}");
         // Without distribution the same budget stops at start-up.
         req.distributed = None;
-        let local = check_file_engine(&req, Engine::Core)?.to_json();
+        let local = check_file(&req)?.to_json();
         assert_eq!(local["verdict"], "stopped", "tlc={tlc}: {local}");
         assert_eq!(
             local["stopped"]["phase"], "check-startup",

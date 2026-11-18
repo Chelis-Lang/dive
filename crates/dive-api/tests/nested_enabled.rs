@@ -38,14 +38,14 @@ fn nested_enabled_primary_public_results_keep_existing_schema_and_statuses() -> 
                 // Only the retired reference engine ran bounded final
                 // checking (#791, #910); Core's ordinary temporal mode must
                 // reach the oracle's final-mode truth.
-                let final_short = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                let final_short = dive_api::check_file(&request)?;
                 refused::assert_refused(
                     &final_short.to_json(),
                     final_short.exit_code(),
                     refused::FINAL_SHORT,
                 );
                 request.temporal = TemporalMode::Ordinary;
-                let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                let report = dive_api::check_file(&request)?;
                 if store == Store::Exact {
                     refused::assert_refused(
                         &report.to_json(),
@@ -128,14 +128,14 @@ fn true_query_guard_preserves_final_selected_target_error_and_function_control()
             };
             // Only the retired reference engine ran bounded final checking
             // (#791, #910); Core checks the property in its ordinary mode.
-            let final_short = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            let final_short = dive_api::check_file(&request)?;
             refused::assert_refused(
                 &final_short.to_json(),
                 final_short.exit_code(),
                 refused::FINAL_SHORT,
             );
             request.temporal = TemporalMode::Ordinary;
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request)?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             if expected == 255 {
                 // The retired reference engine reported the selected target's
@@ -201,14 +201,14 @@ fn direct_query_instance_properties_keep_original_native_holds() -> TestResult {
                 };
                 // Only the retired reference engine ran bounded final
                 // checking (#791, #910); Core holds each in ordinary mode.
-                let final_short = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                let final_short = dive_api::check_file(&request)?;
                 refused::assert_refused(
                     &final_short.to_json(),
                     final_short.exit_code(),
                     refused::FINAL_SHORT,
                 );
                 request.temporal = TemporalMode::Ordinary;
-                let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                let report = dive_api::check_file(&request)?;
                 if store == Store::Exact {
                     refused::assert_refused(
                         &report.to_json(),

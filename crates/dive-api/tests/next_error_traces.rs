@@ -1,6 +1,6 @@
 //! Source-bound terminal Next errors use the existing optional endpoint wire.
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use std::path::PathBuf;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -44,20 +44,16 @@ fn real_next_errors_retain_source_cause_and_independently_validate() -> TestResu
                 },
             )?;
             {
-                let engine = Engine::Core;
                 for workers in [1, 4] {
-                    let result = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )?
+                    let result = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })?
                     .to_json();
                     assert_eq!(result["error_site"], "next-state", "{result}");
                     assert_eq!(result["tlc"]["code"], code);
@@ -96,7 +92,7 @@ fn real_next_errors_retain_source_cause_and_independently_validate() -> TestResu
                     assert_eq!(
                         model.try_validate(&doc)?.validation,
                         Validation::Valid,
-                        "{name} {engine:?} {compat_tlc} {workers}: {result}"
+                        "{name} {compat_tlc} {workers}: {result}"
                     );
                 }
             }
@@ -123,20 +119,16 @@ fn actual_next_function_receiver_requires_its_first_source_diagnostic_lifetime()
                 },
             )?;
             {
-                let engine = Engine::Core;
                 for workers in [1, 4] {
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )?;
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })?;
                     let value = report.to_json();
                     assert_eq!(value["tlc"]["code"], 2147, "{value}");
                     assert_eq!(value["tlc"]["reported"], 2179);
@@ -211,47 +203,39 @@ fn effectful_later_and_multiple_lifetimes_gain_no_receiver_certificate() -> Test
                     ..TraceOptions::default()
                 },
             )?;
-            for engine in std::iter::once(Engine::Core) {
-                for workers in [1, 4] {
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )?;
-                    let value = report.to_json();
-                    assert_ne!(
-                        value["tlc"]["code"], 2147,
-                        "{name}/{engine:?}/{workers}: {value}"
-                    );
-                    if value["verdict"] == "unsupported" {
-                        continue;
-                    }
-                    assert_eq!(value["tlc"]["code"], 2179, "{name}: {value}");
-                    assert_eq!(value["tlc"]["verified"], false, "{name}: {value}");
-                    assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 255);
-                    if name == "EffectBeforeReceiver" {
-                        assert!(report.render_human().contains("actual-before-receiver"));
-                    }
-                    let mut forged = value["counterexample"]["trace"].clone();
-                    let endpoint = &mut forged["ending"]["endpoint"];
-                    endpoint["stage"] = serde_json::json!("next-ordered-terminal");
-                    endpoint["reported"] = serde_json::json!(2179);
-                    endpoint["deciding"] = serde_json::json!(2147);
-                    assert_ne!(
-                        source
-                            .try_validate(&TraceDoc::from_json(&forged)?)?
-                            .validation,
-                        Validation::Valid,
-                        "{name}: {forged}"
-                    );
+            for workers in [1, 4] {
+                let report = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    workers: Some(workers),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                })?;
+                let value = report.to_json();
+                assert_ne!(value["tlc"]["code"], 2147, "{name}/{workers}: {value}");
+                if value["verdict"] == "unsupported" {
+                    continue;
                 }
+                assert_eq!(value["tlc"]["code"], 2179, "{name}: {value}");
+                assert_eq!(value["tlc"]["verified"], false, "{name}: {value}");
+                assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 255);
+                if name == "EffectBeforeReceiver" {
+                    assert!(report.render_human().contains("actual-before-receiver"));
+                }
+                let mut forged = value["counterexample"]["trace"].clone();
+                let endpoint = &mut forged["ending"]["endpoint"];
+                endpoint["stage"] = serde_json::json!("next-ordered-terminal");
+                endpoint["reported"] = serde_json::json!(2179);
+                endpoint["deciding"] = serde_json::json!(2147);
+                assert_ne!(
+                    source
+                        .try_validate(&TraceDoc::from_json(&forged)?)?
+                        .validation,
+                    Validation::Valid,
+                    "{name}: {forged}"
+                );
             }
         }
     }

@@ -16,7 +16,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_budgets.json");
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use dive_api::{BudgetSetting, CheckRequest, Engine, check_file_engine};
+use dive_api::{BudgetSetting, CheckRequest, check_file};
 use serde_json::Value;
 
 fn repo() -> PathBuf {
@@ -38,7 +38,7 @@ fn specs(dir: &Path, out: &mut Vec<PathBuf>) {
     }
 }
 
-fn run(spec: &Path, engine: Engine, edit: impl FnOnce(&mut CheckRequest)) -> Value {
+fn run(spec: &Path, edit: impl FnOnce(&mut CheckRequest)) -> Value {
     let mut req = CheckRequest {
         config: Some(spec.with_extension("cfg")),
         file: spec.to_path_buf(),
@@ -48,7 +48,7 @@ fn run(spec: &Path, engine: Engine, edit: impl FnOnce(&mut CheckRequest)) -> Val
         ..CheckRequest::default()
     };
     edit(&mut req);
-    let report = check_file_engine(&req, engine).expect("check runs");
+    let report = check_file(&req).expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
     j
@@ -92,11 +92,11 @@ fn admission_limits_stop_as_the_reference_engine_does() {
                 r.max_states = states;
                 r.max_depth = depth;
             };
-            let core = run(spec, Engine::Core, limits);
+            let core = run(spec, limits);
             if core["verdict"] == "unsupported" {
                 break;
             }
-            let reference = run(spec, Engine::Core, limits);
+            let reference = run(spec, limits);
             if name == "LazyCupDup" {
                 // The retired reference engine refused this fixture. This graph has r=0,1,2 and exactly two canonical successors
                 // per state (D-028). Pin its admission prefix independently of
@@ -168,7 +168,7 @@ fn endless() -> PathBuf {
 #[test]
 fn time_and_memory_limits_stop_the_core() {
     let spec = endless();
-    let core = run(&spec, Engine::Core, |r| {
+    let core = run(&spec, |r| {
         r.time_limit = BudgetSetting::Explicit(Duration::from_millis(300));
     });
     assert_eq!(core["verdict"], "stopped", "{core:#}");
@@ -179,7 +179,7 @@ fn time_and_memory_limits_stop_the_core() {
         core["statistics"]["distinct"].as_u64() > Some(0),
         "{core:#}"
     );
-    let reference = run(&spec, Engine::Core, |r| {
+    let reference = run(&spec, |r| {
         r.time_limit = BudgetSetting::Explicit(Duration::from_millis(300));
     });
     agreed::check_eq(
@@ -192,7 +192,7 @@ fn time_and_memory_limits_stop_the_core() {
     // past it.
     let rss = dive_runtime::budget::resident_bytes().expect("resident memory is readable");
     let ceiling = rss + (64 << 20);
-    let core = run(&spec, Engine::Core, |r| {
+    let core = run(&spec, |r| {
         r.max_memory = BudgetSetting::Explicit(ceiling);
         r.time_limit = BudgetSetting::Explicit(Duration::from_secs(120));
     });

@@ -249,14 +249,11 @@ fn final_safety_reports_actual_binding_origin_not_model_error_class() -> TestRes
                 fp: Some(0),
                 ..Default::default()
             };
-            let ordinary = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
-            let selected = dive_api::check_file_engine(
-                &dive_api::CheckRequest {
-                    temporal: dive_api::TemporalMode::FinalShort,
-                    ..request
-                },
-                dive_api::Engine::Core,
-            )?;
+            let ordinary = dive_api::check_file(&request)?;
+            let selected = dive_api::check_file(&dive_api::CheckRequest {
+                temporal: dive_api::TemporalMode::FinalShort,
+                ..request
+            })?;
             if cfg.contains("POSTCONDITION") {
                 // Only the retired reference engine bound POSTCONDITION
                 // (#791, #910); Core refuses it before binding.

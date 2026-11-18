@@ -8,24 +8,21 @@ const AGREED: &str = include_str!("fixtures/agreed/core_subset_filter.json");
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
-fn run(name: &str, engine: Engine) -> Value {
+fn run(name: &str) -> Value {
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/core-subset-filter")
         .join(format!("{name}.tla"));
-    check_file_engine(
-        &CheckRequest {
-            config: Some(file.with_extension("cfg")),
-            file,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+    check_file(&CheckRequest {
+        config: Some(file.with_extension("cfg")),
+        file,
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("check runs")
     .to_json()
 }
@@ -45,7 +42,7 @@ fn outcome(v: &Value) -> (Value, Value, Value, Value, Value) {
 /// the same filter (the invariant) keeps the filter's own evaluation.
 #[test]
 fn pure_forall_filter_over_a_powerset_enumerates_the_subsets_of_its_filter() {
-    let core = run("Pairs5", Engine::Core);
+    let core = run("Pairs5");
     assert_eq!(core["verdict"], "success", "{core:#}");
     assert_eq!(core["statistics"]["distinct"], 1024, "{core:#}");
     assert_eq!(core["statistics"]["generated"], 2048, "{core:#}");
@@ -55,7 +52,7 @@ fn pure_forall_filter_over_a_powerset_enumerates_the_subsets_of_its_filter() {
 /// 2^32 enumeration still refuses by name.
 #[test]
 fn a_body_reading_the_subset_keeps_the_named_refusal() {
-    let core = run("ReadsSet5", Engine::Core);
+    let core = run("ReadsSet5");
     assert_eq!(core["verdict"], "unsupported", "{core:#}");
     assert!(
         core["message"]
@@ -71,13 +68,13 @@ fn a_body_reading_the_subset_keeps_the_named_refusal() {
 /// engine's counts.
 #[test]
 fn rewritten_and_excluded_filters_agree_with_the_reference_engine() {
-    let core = run("Small", Engine::Core);
+    let core = run("Small");
     assert_eq!(core["verdict"], "success", "{core:#}");
     agreed::check_eq(
         AGREED,
         "rewritten_and_excluded_filters_agree_with_the_reference_engine/0",
         &(outcome(&core)),
-        &(outcome(&run("Small", Engine::Core))),
+        &(outcome(&run("Small"))),
     );
 }
 
@@ -86,9 +83,9 @@ fn rewritten_and_excluded_filters_agree_with_the_reference_engine() {
 /// engine's.
 #[test]
 fn an_evaluation_error_in_the_rewritten_body_is_raised_as_by_the_filter() {
-    let core = run("DivZero", Engine::Core);
+    let core = run("DivZero");
     assert_eq!(core["verdict"], "evaluation-error", "{core:#}");
-    let reference = run("DivZero", Engine::Core);
+    let reference = run("DivZero");
     agreed::check_eq(
         AGREED,
         "an_evaluation_error_in_the_rewritten_body_is_raised_as_by_the_filter/0",

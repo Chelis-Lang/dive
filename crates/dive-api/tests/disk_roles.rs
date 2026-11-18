@@ -37,12 +37,10 @@ fn witness_case(name: &str, root: &Path) {
                 };
                 // Only the retired reference engine ran --chaos (#791, #910);
                 // the same request without it runs on Core.
-                let chaotic =
-                    dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("check");
+                let chaotic = dive_api::check_file(&request).expect("check");
                 refused::assert_refused(&chaotic.to_json(), chaotic.exit_code(), refused::CHAOS);
                 request.chaos = None;
-                let report =
-                    dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("check");
+                let report = dive_api::check_file(&request).expect("check");
                 let json = report.to_json();
                 assert_eq!(json["options"]["workers"]["requested"], width);
                 assert_eq!(json["options"]["workers"]["used"], 1);

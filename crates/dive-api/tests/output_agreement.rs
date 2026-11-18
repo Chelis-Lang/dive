@@ -56,20 +56,17 @@ const MAX_STATES: u64 = 20_000;
 const TIME_LIMIT: Duration = Duration::from_secs(10);
 
 fn run(spec: &Path, compat_tlc: bool) -> Result<(Value, String)> {
-    let report = dive_api::check_file_engine(
-        &CheckRequest {
-            file: spec.to_path_buf(),
-            config: Some(spec.with_extension("cfg")),
-            compat_tlc,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            max_states: Some(MAX_STATES),
-            time_limit: BudgetSetting::Explicit(TIME_LIMIT),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Core,
-    )?;
+    let report = dive_api::check_file(&CheckRequest {
+        file: spec.to_path_buf(),
+        config: Some(spec.with_extension("cfg")),
+        compat_tlc,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        max_states: Some(MAX_STATES),
+        time_limit: BudgetSetting::Explicit(TIME_LIMIT),
+        ..CheckRequest::default()
+    })?;
     Ok((report.to_json(), report.render_human()))
 }
 

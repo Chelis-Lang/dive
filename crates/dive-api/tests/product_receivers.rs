@@ -4,7 +4,7 @@
     reason = "pinned primary fixtures and result controls"
 )]
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::Value;
 use std::path::PathBuf;
 
@@ -47,7 +47,7 @@ fn empty_products_keep_their_non_tuple_membership_demand() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&req, Engine::Core).expect("Reference run");
+            let reference = check_file(&req).expect("Reference run");
             let doc = reference.to_json();
             assert_eq!(doc["verdict"], "evaluation-error");
             assert_eq!(reference.exit_code_for(ExitConvention::Tlc), 75);

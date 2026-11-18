@@ -3,7 +3,7 @@
 //! values) agrees with TLC on Core in both profiles and at several widths.
 //! The retired reference capture drivers were checked here until #791.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
-use dive_api::{CheckRequest, Engine};
+use dive_api::CheckRequest;
 use std::path::PathBuf;
 
 fn base() -> PathBuf {
@@ -44,7 +44,7 @@ fn stored_material_values_agree_with_tlc_on_core() {
                         fp: Some(0),
                         ..CheckRequest::default()
                     };
-                    let report = dive_api::check_file_engine(&req, Engine::Core).expect("Core");
+                    let report = dive_api::check_file(&req).expect("Core");
                     let json = report.to_json();
                     let what = format!("{name} tlc={compat_tlc} w={workers}: {json}");
                     assert_eq!(

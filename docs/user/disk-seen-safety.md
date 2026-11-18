@@ -19,9 +19,9 @@ dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0
 
 The example completes with five distinct and six generated states. Core never
 retries a reached operation on another engine. Rust callers get Core from
-`check_file` or `check_file_engine(&request, Engine::Core)`. Core temporal and opaque/deferred key combinations remain
+`check_file`. Core temporal and opaque/deferred key combinations remain
 named refusals. Core completed-level checkpoints can reconstruct disk
-membership from saved concrete rows; use `check_file_checkpoint_engine` or
+membership from saved concrete rows; use `check_file_checkpoint` or
 the CLI as described in [storage and recovery](storage-recovery.md). Read, write, key-limit, audit and cleanup
 failures stop without a certified word. A cancelled retained-record audit cleans
 up and cannot certify the unprocessed suffix.

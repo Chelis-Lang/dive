@@ -1,5 +1,5 @@
 //! Managed, producer-only debugging of the existing compiled safety checker.
-use crate::{CheckReport, CheckRequest, Engine, check_file_engine};
+use crate::{CheckReport, CheckRequest, check_file};
 use dive_core::debug::{Instruction, Observer, Returned, SourceMap};
 use dive_core::plan::Code;
 use dive_core::{Error, Handle, Machine};
@@ -575,7 +575,7 @@ impl Session {
             .name("dive-debug-check".into())
             .stack_size(32 << 20)
             .spawn(move || {
-                let result = check_file_engine(&request, Engine::Core);
+                let result = check_file(&request);
                 observed.complete(result.as_ref().map_err(ToString::to_string));
                 result
             })

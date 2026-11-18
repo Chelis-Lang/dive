@@ -46,7 +46,7 @@ fn core_ordinary(
     mut request: CheckRequest,
 ) -> Result<dive_api::CheckReport, Box<dyn std::error::Error>> {
     if request.temporal == TemporalMode::FinalShort {
-        let final_short = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let final_short = dive_api::check_file(&request)?;
         refused::assert_refused(
             &final_short.to_json(),
             final_short.exit_code(),
@@ -54,10 +54,7 @@ fn core_ordinary(
         );
         request.temporal = TemporalMode::Ordinary;
     }
-    Ok(dive_api::check_file_engine(
-        &request,
-        dive_api::Engine::Core,
-    )?)
+    Ok(dive_api::check_file(&request)?)
 }
 impl Drop for Spec {
     fn drop(&mut self) {

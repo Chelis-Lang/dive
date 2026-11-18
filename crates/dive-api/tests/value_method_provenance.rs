@@ -6,7 +6,7 @@
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, Store, check_file_engine};
+use dive_api::{CheckRequest, Store, check_file};
 use serde_json::Value;
 
 fn root() -> PathBuf {
@@ -28,63 +28,57 @@ fn whole_function_failure_matches_the_generated_oracle_without_changing_alias_de
             "conformance/corpus/constant-retry-lazy/specifications/{name}/{name}.tla"
         ));
         for compat_tlc in [false, true] {
-            for engine in std::iter::once(Engine::Core) {
-                for store in [Store::Exact, Store::Fingerprint] {
-                    for workers in [1, 4] {
-                        let report = check_file_engine(
-                            &CheckRequest {
-                                file: file.clone(),
-                                config: Some(file.with_extension("cfg")),
-                                compat_tlc,
-                                workers: Some(workers),
-                                store,
-                                seed: Some(0),
-                                fp: Some(0),
-                                ..CheckRequest::default()
-                            },
-                            engine,
-                        )
-                        .expect("check")
-                        .to_json();
-                        // Native exact storage is a safety capability. This
-                        // fixture has a genuine temporal property and keeps
-                        // the graph-storage refusal until that is implemented.
-                        if engine == Engine::Core && store == Store::Exact && name == "NamedAction"
-                        {
-                            assert_eq!(report["verdict"], "unsupported");
-                            assert!(
-                                report["message"]
-                                    .as_str()
-                                    .expect("temporal storage refusal")
-                                    .contains("exact or spilled native temporal storage")
-                            );
-                            assert_eq!(report["options"]["workers"]["used"], 0);
-                            assert!(report["tlc"].is_null());
-                            assert!(report["counterexample"].is_null());
-                            continue;
-                        }
-                        assert_eq!(
-                            report["tlc"]["code"], golden["result"]["verdict_code"],
-                            "{name}/{compat_tlc}/{engine:?}/{store:?}/{workers}: {report}"
+            for store in [Store::Exact, Store::Fingerprint] {
+                for workers in [1, 4] {
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        workers: Some(workers),
+                        store,
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })
+                    .expect("check")
+                    .to_json();
+                    // Native exact storage is a safety capability. This
+                    // fixture has a genuine temporal property and keeps
+                    // the graph-storage refusal until that is implemented.
+                    if store == Store::Exact && name == "NamedAction" {
+                        assert_eq!(report["verdict"], "unsupported");
+                        assert!(
+                            report["message"]
+                                .as_str()
+                                .expect("temporal storage refusal")
+                                .contains("exact or spilled native temporal storage")
                         );
-                        assert_eq!(report["tlc"]["verified"], true, "{name}: {report}");
-                        assert_eq!(report["tlc"]["exit_status"], golden["result"]["exit_code"]);
-                        for (field, expected) in [
-                            ("generated", "states_generated"),
-                            ("distinct", "distinct_states"),
-                            ("depth", "depth"),
-                        ] {
-                            assert_eq!(
-                                report["statistics"][field], golden["result"]["counts"][expected],
-                                "{name}/{engine:?}/{field}"
-                            );
-                        }
-                        if name == "WholeFunctionError" {
-                            assert_eq!(report["statistics"]["left_on_queue"], 1);
-                            assert_eq!(report["tlc"]["reported"], 1000);
-                            assert_eq!(report["property"], Value::Null);
-                            assert_eq!(report["counterexample"], Value::Null);
-                        }
+                        assert_eq!(report["options"]["workers"]["used"], 0);
+                        assert!(report["tlc"].is_null());
+                        assert!(report["counterexample"].is_null());
+                        continue;
+                    }
+                    assert_eq!(
+                        report["tlc"]["code"], golden["result"]["verdict_code"],
+                        "{name}/{compat_tlc}/{store:?}/{workers}: {report}"
+                    );
+                    assert_eq!(report["tlc"]["verified"], true, "{name}: {report}");
+                    assert_eq!(report["tlc"]["exit_status"], golden["result"]["exit_code"]);
+                    for (field, expected) in [
+                        ("generated", "states_generated"),
+                        ("distinct", "distinct_states"),
+                        ("depth", "depth"),
+                    ] {
+                        assert_eq!(
+                            report["statistics"][field], golden["result"]["counts"][expected],
+                            "{name}/{field}"
+                        );
+                    }
+                    if name == "WholeFunctionError" {
+                        assert_eq!(report["statistics"]["left_on_queue"], 1);
+                        assert_eq!(report["tlc"]["reported"], 1000);
+                        assert_eq!(report["property"], Value::Null);
+                        assert_eq!(report["counterexample"], Value::Null);
                     }
                 }
             }

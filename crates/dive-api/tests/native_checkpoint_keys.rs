@@ -81,8 +81,7 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                             chaos,
                             ..base.clone()
                         };
-                        let report = dive_api::check_file_engine(&req, dive_api::Engine::Core)
-                            .expect("full");
+                        let report = dive_api::check_file(&req).expect("full");
                         let full = report.to_json();
                         if chaos.is_some() {
                             // Only the retired reference engine ran --chaos (#791, #910).
@@ -98,13 +97,9 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                                 config_source_sha256: None,
                             };
                             serial += 1;
-                            let paused = dive_api::check_file_checkpoint_engine(
-                                &req,
-                                &cp,
-                                dive_api::Engine::Core,
-                            )
-                            .expect("pause")
-                            .to_json();
+                            let paused = dive_api::check_file_checkpoint(&req, &cp)
+                                .expect("pause")
+                                .to_json();
                             assert_eq!(paused["verdict"], "resource-limit", "{paused}");
                             assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
                             assert_eq!(
@@ -112,13 +107,12 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                                 if boundary == 0 { 1 } else { workers }
                             );
                             assert!(paused["counterexample"].is_null());
-                            let resumed = dive_api::check_file_checkpoint_engine(
+                            let resumed = dive_api::check_file_checkpoint(
                                 &req,
                                 &checkpoint::Request {
                                     action: checkpoint::Action::Recover,
                                     ..cp.clone()
                                 },
-                                dive_api::Engine::Core,
                             )
                             .expect("resume")
                             .to_json();
@@ -161,14 +155,13 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                                     );
                                 }
                             }
-                            let reset = dive_api::check_file_checkpoint_engine(
+                            let reset = dive_api::check_file_checkpoint(
                                 &req,
                                 &checkpoint::Request {
                                     action: checkpoint::Action::Recover,
                                     counters: checkpoint::Counters::Tlc,
                                     ..cp
                                 },
-                                dive_api::Engine::Core,
                             )
                             .expect("TLC reset")
                             .to_json();

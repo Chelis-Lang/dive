@@ -4,7 +4,7 @@
 use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn request(name: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
@@ -44,7 +44,7 @@ fn pure_replacements_match_the_pinned_oracle_and_reference() {
     for compat in [false, true] {
         for workers in [1, 4, 8] {
             let req = request("SeqReplacePure", compat, workers);
-            let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
+            let reference = check_file(&req).expect("reference runs");
             let expected = observed(&reference);
             assert_eq!(expected["verdict"], "success");
             assert_eq!(expected["code"], 2193);
@@ -67,7 +67,7 @@ fn replacement_steps_have_independently_validated_counterexamples() {
         for compat in [false, true] {
             for workers in [1, 4, 8] {
                 let req = request(name, compat, workers);
-                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
+                let reference = check_file(&req).expect("reference runs");
                 let expected = observed(&reference);
                 assert_eq!(expected["verdict"], "invariant-violation");
                 assert_eq!(expected["property"], "Inv");
@@ -124,7 +124,7 @@ fn unimplemented_sequence_demands_stay_explicitly_refused() {
     ] {
         for compat in [false, true] {
             let req = request(name, compat, 1);
-            let core = check_file_engine(&req, Engine::Core).expect("refusal reports");
+            let core = check_file(&req).expect("refusal reports");
             let doc = core.to_json();
             assert_eq!(doc["verdict"], "unsupported", "{name}: {doc:#}");
             assert!(doc.to_string().contains("Replace"), "{name}: {doc:#}");
@@ -140,8 +140,8 @@ fn unimplemented_sequence_demands_stay_explicitly_refused() {
 fn existing_effectful_string_override_keeps_its_output() {
     for compat in [false, true] {
         let req = request("StringReplaceInlineEffect", compat, 8);
-        let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
-        let core = check_file_engine(&req, Engine::Core).expect("core runs");
+        let reference = check_file(&req).expect("reference runs");
+        let core = check_file(&req).expect("core runs");
         let expected = observed(&reference);
         assert_eq!(expected["verdict"], "success");
         assert_eq!(
@@ -161,7 +161,7 @@ fn partition_choice_overlap_is_explicitly_refused() {
         let req = request("SeqReplacePartitionChoice", compat, 1);
         // Only the retired reference engine reproduced TLC's <<0,1,2>> here
         // (#791, #910); Core refuses rather than answer otherwise.
-        let core = check_file_engine(&req, Engine::Core).expect("core reports");
+        let core = check_file(&req).expect("core reports");
         assert_eq!(core.to_json()["verdict"], "unsupported");
         assert_eq!(core.exit_code(), 3);
     }

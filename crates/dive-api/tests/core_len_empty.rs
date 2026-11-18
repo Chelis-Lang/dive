@@ -4,7 +4,7 @@
 mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/core_len_empty.json");
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -35,12 +35,11 @@ fn empty_functions_match_pinned_len_results_without_fallback() {
                     ..CheckRequest::default()
                 };
                 {
-                    let engine = Engine::Core;
-                    let report = check_file_engine(&req, engine).expect("check");
+                    let report = check_file(&req).expect("check");
                     assert_eq!(
                         observed(&report),
                         *expected,
-                        "{name}/{compat_tlc}/{workers}/{engine:?}"
+                        "{name}/{compat_tlc}/{workers}"
                     );
                     assert_eq!(report.to_json()["engine"], "core");
                 }
@@ -72,9 +71,9 @@ fn empty_nonfunctions_and_nonsequence_domains_do_not_become_sequences() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&req, Engine::Core).expect("reference");
+            let reference = check_file(&req).expect("reference");
             assert_ne!(reference.to_json()["verdict"], "success");
-            let core = check_file_engine(&req, Engine::Core).expect("core");
+            let core = check_file(&req).expect("core");
             assert_eq!(core.to_json()["verdict"], "evaluation-error", "{name}");
             agreed::check_eq(
                 AGREED,

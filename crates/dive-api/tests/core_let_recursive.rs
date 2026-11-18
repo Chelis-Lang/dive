@@ -4,7 +4,7 @@ mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/core_let_recursive.json");
 
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -36,7 +36,7 @@ fn lexical_captures_repeated_calls_and_substitutions_match_reference()
             ("Holding", "success", 4, 3, 3),
             ("Violation", "invariant-violation", 2, 2, 2),
         ] {
-            let reference = check_file_engine(&request(config, compat_tlc, 1), Engine::Core)?;
+            let reference = check_file(&request(config, compat_tlc, 1))?;
             let expected = observed(&reference);
             assert_eq!(expected["verdict"], verdict);
             assert_eq!(expected["statistics"]["generated"], generated);
@@ -197,7 +197,7 @@ fn enclosing_operator_bindings_inline_in_their_actual_lexical_context()
             let wrong = config.ends_with("Wrong");
             let prime = config.starts_with("OpPrime");
             let req = op_request(config, compat_tlc, 1);
-            let expected = observed(&check_file_engine(&req, Engine::Core)?);
+            let expected = observed(&check_file(&req)?);
             // Pinned TLC 94d0c50 confirms the complete positive/opposite
             // counts, property, error class and exit for these inputs.
             assert_eq!(
@@ -386,10 +386,7 @@ fn mutually_recursive_top_level_operators_keep_isolated_frames()
             ("MutualHolding", "success", 4, 3, 3, 2193, 0),
             ("MutualWrong", "invariant-violation", 2, 2, 2, 2110, 12),
         ] {
-            let expected = observed(&check_file_engine(
-                &mutual_request(config, compat_tlc, 1),
-                Engine::Core,
-            )?);
+            let expected = observed(&check_file(&mutual_request(config, compat_tlc, 1))?);
             // Pinned TLC 94d0c50 confirms both complete verdicts and counts.
             agreed::check_eq(
                 AGREED,
@@ -505,10 +502,7 @@ fn recursive_operator_instances_keep_their_substitutions() -> Result<(), Box<dyn
             ("InstanceMutualWrong", "MutualWrong", 2, 2, 2, 2110),
             ("InstanceOperatorConstant", "", 4, 3, 3, 2193),
         ] {
-            let expected = observed(&check_file_engine(
-                &mutual_request(config, compat_tlc, 1),
-                Engine::Core,
-            )?);
+            let expected = observed(&check_file(&mutual_request(config, compat_tlc, 1))?);
             // Pinned TLC 94d0c50: each Good holds, each Opposite fails
             // initially, and each Wrong first fails after one transition.
             let holds = code == 2193;
@@ -607,7 +601,7 @@ fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
         for config in ["DynamicCorrect", "DynamicOpposite"] {
             let mut oracle_req = request(config, compat_tlc, 1);
             oracle_req.file.set_file_name("DynamicInstance.tla");
-            let reference = check_file_engine(&oracle_req, Engine::Core)?;
+            let reference = check_file(&oracle_req)?;
             let expected = observed(&reference);
             // Pinned TLC: Correct holds on all three states; Opposite fails
             // initially. Neither answer may be borrowed from a caller slot.
@@ -671,7 +665,7 @@ fn parameterized_instance_substitutions_never_reuse_caller_frame_slots()
         }
         let mut req = request("DynamicConstant", compat_tlc, 1);
         req.file.set_file_name("DynamicInstance.tla");
-        let reference = check_file_engine(&req, Engine::Core)?;
+        let reference = check_file(&req)?;
         assert_eq!(reference.verdict(), "success");
         for switches in ["", "-fold,-memo,-hashcons,-eager"] {
             let core = check_file_core_opts(&req, switches)?;
@@ -720,7 +714,7 @@ fn recursive_action_predicates_preserve_truth_without_duplicate_witnesses()
                 fp: Some(0),
                 ..Default::default()
             };
-            let reference = check_file_engine(&req, Engine::Core)?;
+            let reference = check_file(&req)?;
             let expected = observed(&reference);
             assert_eq!(
                 expected["verdict"],
@@ -820,8 +814,7 @@ fn top_level_recursive_instances_never_borrow_the_callers_frame()
             "TopMixedWrong",
         ] {
             let wrong = config.ends_with("Wrong");
-            let reference =
-                check_file_engine(&primed_request(config, compat_tlc, 1), Engine::Core)?;
+            let reference = check_file(&primed_request(config, compat_tlc, 1))?;
             let expected = observed(&reference);
             assert_eq!(
                 expected["verdict"],
@@ -882,8 +875,7 @@ fn primed_domains_bodies_and_arguments_observe_each_candidate()
             ("QueueWrong", 2, 2, 2),
         ] {
             let wrong = config.ends_with("Wrong");
-            let reference =
-                check_file_engine(&primed_request(config, compat_tlc, 1), Engine::Core)?;
+            let reference = check_file(&primed_request(config, compat_tlc, 1))?;
             let expected = observed(&reference);
             assert_eq!(
                 expected["verdict"],
@@ -1172,8 +1164,7 @@ fn recursive_definitions_under_a_prime_evaluate_in_the_next_state()
             ),
         ] {
             let wrong = config.ends_with("Wrong");
-            let reference =
-                check_file_engine(&next_state_variant(config, compat_tlc, 1), Engine::Core)?;
+            let reference = check_file(&next_state_variant(config, compat_tlc, 1))?;
             let expected = observed(&reference);
             assert_eq!(
                 expected["verdict"],
@@ -1271,10 +1262,7 @@ fn recursive_calls_reading_the_next_state_are_not_shared_across_disjuncts()
             ("NextReadCalls", "NextReadInit", 4, 2, 1),
             ("NextReadSub", "NextReadSub", 5, 2, 2),
         ] {
-            let reference = check_file_engine(
-                &next_read_request(file, config, compat_tlc, 1),
-                Engine::Core,
-            )?;
+            let reference = check_file(&next_read_request(file, config, compat_tlc, 1))?;
             let expected = observed(&reference);
             assert_eq!(expected["verdict"], "success", "{config}");
             assert_eq!(expected["statistics"]["generated"], generated);

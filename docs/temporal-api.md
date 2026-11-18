@@ -18,8 +18,8 @@ and [ordinary TLC-profile checking](user/temporal.md#ordinary-checking-in-the-tl
 for options, physical exits, reports and limits. Explicit `FinalShort` behavior
 and its mixed-profile label retain the final-only schedule.
 
-Temporal checks from Rust run on Core through `dive_api::check_file` (or
-`check_file_engine`) with a `CheckRequest`. `TemporalMode::FinalShort` checks
+Temporal checks from Rust run on Core through `dive_api::check_file` with a
+`CheckRequest`. `TemporalMode::FinalShort` checks
 the supported pure temporal subset once the safety graph is completely
 explored. `CheckReport::temporal_result` returns the temporal report: either a
 holding result over the exhausted graph, an independently validated periodic

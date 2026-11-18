@@ -325,7 +325,7 @@ dive check crates/dive-api/tests/fixtures/core-replace/SeqReplacePure.tla --libr
 ```
 
 The Rust API uses the same `CheckRequest.library_paths` and
-`check_file_engine(&request, Engine::Core)`; see the
+`check_file(&request)`; see the
 [Rust API guide](rust-api.md). The pinned semantics and remaining boundaries are
 recorded in the [value-model notes](../developer/core/03-value-model.md#sequence-replacement-fallback-semantics).
 

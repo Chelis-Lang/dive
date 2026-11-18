@@ -63,7 +63,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
         let spec = Spec::new(&format!("{COUNTER}P == {property}"), CONFIG)?;
         for workers in [1, 4] {
             let request = spec.request(workers);
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request)?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert!(report.result().is_none());
             assert!(report.temporal_result().is_some());
@@ -111,7 +111,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             explicit.temporal = TemporalMode::FinalShort;
             // Only the retired reference engine ran bounded final checking
             // (#791, #910).
-            let original = dive_api::check_file_engine(&explicit, dive_api::Engine::Core)?;
+            let original = dive_api::check_file(&explicit)?;
             refused::assert_refused(
                 &original.to_json(),
                 original.exit_code(),
@@ -121,7 +121,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             native.compat_tlc = false;
             // Below the default schedule's minimum, the default profile checks
             // once at exhaustion and reports the final truth and counts.
-            let default = dive_api::check_file_engine(&native, dive_api::Engine::Core)?.to_json();
+            let default = dive_api::check_file(&native)?.to_json();
             assert_eq!(default["options"]["profile"], "dive");
             assert_eq!(default["options"]["lncheck"], "deterministic");
             assert_eq!(default["periodic"]["min_states"], 65_536);
@@ -132,7 +132,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             assert_eq!(value["verdict"], default["verdict"]);
             assert_eq!(value["statistics"], default["statistics"]);
             native.periodic = EVERY_LEVEL;
-            let native = dive_api::check_file_engine(&native, dive_api::Engine::Core)?;
+            let native = dive_api::check_file(&native)?;
             let value = native.to_json();
             assert_eq!(value["schema_version"], 3);
             assert_eq!(value["options"]["lncheck"], "deterministic");
@@ -199,8 +199,7 @@ fn configured_initial_invariant_action_and_mixed_safety_roles_keep_the_full_tail
     ] {
         let spec = Spec::new(&format!("{COUNTER}P == {property}"), CONFIG)?;
         for workers in [1, 4] {
-            let report =
-                dive_api::check_file_engine(&spec.request(workers), dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&spec.request(workers))?;
             // TLC also warns (2255) that a state-level `P` is used as a
             // PROPERTY; Core does not report that warning (#910).
             let actual = report.result().ok_or("ordinary safety result")?;
@@ -224,7 +223,7 @@ fn configured_safety_roles_keep_safety_family_and_the_original_print_rng_stream(
         request.seed = Some(seed);
         // Only the retired reference engine continued TLC's start-up random
         // stream into Init (#791, #910); Core refuses it by name.
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let report = dive_api::check_file(&request)?;
         let value = report.to_json();
         refused::assert_refused(
             &value,
@@ -243,7 +242,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
         "CONSTANT C\nBoot == Print(\"must-not-start\",0)\nVARIABLE x\nInit == x=C\nNext == x'=x\nP == x=0",
         CONFIG,
     )?;
-    let report = dive_api::check_file_engine(&failed.request(1), dive_api::Engine::Core)?;
+    let report = dive_api::check_file(&failed.request(1))?;
     let actual = report.result().ok_or("ordinary binding result")?;
     assert!(
         matches!(
@@ -269,7 +268,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
     request.predecessor_memory_bytes = Some(0);
     requests.push(request);
     for request in requests {
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let report = dive_api::check_file(&request)?;
         assert_eq!(report.verdict(), "unsupported");
         assert!(report.result().is_some());
         assert_eq!(report.to_json()["schema_version"], 3);
@@ -292,8 +291,8 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
 #[test]
 fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() -> TestResult {
     let spec = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
-    let baseline = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Core)?
-        .to_json_with_exit_convention(ExitConvention::Tlc);
+    let baseline =
+        dive_api::check_file(&spec.request(1))?.to_json_with_exit_convention(ExitConvention::Tlc);
     assert_eq!(baseline["verdict"], "liveness-violation");
     let mut requests = Vec::new();
     let mut request = spec.request(1);
@@ -309,7 +308,7 @@ fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() 
     request.sequential = true;
     requests.push(request);
     for request in requests {
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let report = dive_api::check_file(&request)?;
         if request.store == dive_api::Store::Exact {
             // Only the retired reference engine kept exact seen storage with
             // temporal properties (#791, #910).
@@ -335,12 +334,12 @@ fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() 
         "VARIABLE x\nInit == x=0\nNext == x<2 /\\ x'=x+1\nP == <>(x=2)",
         CONFIG,
     )?;
-    let checked = dive_api::check_file_engine(&dead.request(1), dive_api::Engine::Core)?;
+    let checked = dive_api::check_file(&dead.request(1))?;
     assert_eq!(checked.verdict(), "deadlock");
     assert_eq!(checked.exit_code_for(ExitConvention::Tlc), 11);
     let mut request = dead.request(1);
     request.no_deadlock = true;
-    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+    let report = dive_api::check_file(&request)?;
     let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
     assert_eq!(value["verdict"], "liveness-violation");
     assert_eq!(value["property"], "P");
@@ -349,7 +348,7 @@ fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() 
     assert_eq!(report.exit_code_for(ExitConvention::Tlc), 13);
     let mut request = spec.request(1);
     request.chaos = Some(0);
-    let chaotic = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+    let chaotic = dive_api::check_file(&request)?;
     refused::assert_refused(&chaotic.to_json(), chaotic.exit_code(), refused::CHAOS);
     Ok(())
 }
@@ -357,7 +356,7 @@ fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() 
 #[test]
 fn ordinary_temporal_planning_errors_never_turn_into_holds() -> TestResult {
     let spec = Spec::new(&format!("{COUNTER}P == <>1"), CONFIG)?;
-    let report = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Core)?;
+    let report = dive_api::check_file(&spec.request(1))?;
     // TLC reports its planning error (2215, exit 255). Only the retired
     // reference engine built that report (#791, #910); Core refuses it and
     // never reports a hold.
@@ -381,7 +380,7 @@ fn file_final_requests_report_compact_acceptance_defaults() -> TestResult {
                 let mut request = spec.request(workers);
                 request.compat_tlc = compat_tlc;
                 request.temporal = mode;
-                let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                let report = dive_api::check_file(&request)?;
                 let json = report.to_json();
                 let bounds = &json["options"]["temporal_bounds"];
                 assert_eq!(bounds["total_memory_budget"], false);
@@ -428,7 +427,7 @@ fn default_periodic_reports_actual_boundary_and_fresh_word_at_all_widths() -> Te
         let mut request = spec.request(workers);
         request.compat_tlc = false;
         request.periodic = EVERY_LEVEL;
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let report = dive_api::check_file(&request)?;
         let value = report.to_json();
         assert_eq!(value["verdict"], "liveness-violation");
         assert_eq!(value["schema_version"], 3);
@@ -467,7 +466,7 @@ fn default_periodic_reports_actual_boundary_and_fresh_word_at_all_widths() -> Te
         request.temporal = TemporalMode::FinalShort;
         // Only the retired reference engine ran bounded final checking
         // (#791, #910).
-        let final_report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let final_report = dive_api::check_file(&request)?;
         refused::assert_refused(
             &final_report.to_json(),
             final_report.exit_code(),
@@ -484,7 +483,7 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
         for workers in [1, 4, 8] {
             let mut request = spec.request(workers);
             request.compat_tlc = false;
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request)?;
             let actual = report.result().ok_or("ordinary safety route")?;
             assert_safety(actual, property, workers);
             assert_eq!(actual.workers.used, workers);
@@ -498,7 +497,7 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
     )?;
     let mut request = spec.request(4);
     request.compat_tlc = false;
-    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+    let report = dive_api::check_file(&request)?;
     // TLC reports the initial `Safe` violation after printing once. Only the
     // retired reference engine reached it (#791, #910): Core refuses a
     // temporal capture whose start-up has an effect.

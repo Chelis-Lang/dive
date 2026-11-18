@@ -60,8 +60,7 @@ fn verify_frontier_recovery_cases(names: &[&str]) {
                         req.store = store;
                         req.workers = Some(workers);
                         req.chaos = chaos;
-                        let report = dive_api::check_file_engine(&req, dive_api::Engine::Core)
-                            .expect("reference");
+                        let report = dive_api::check_file(&req).expect("reference");
                         let reference = report.to_json();
                         if chaos.is_some() {
                             // Only the retired reference engine ran --chaos (#791, #910).
@@ -77,25 +76,20 @@ fn verify_frontier_recovery_cases(names: &[&str]) {
                             config_source_sha256: None,
                         };
                         serial += 1;
-                        let paused = dive_api::check_file_checkpoint_engine(
-                            &req,
-                            &checkpoint,
-                            dive_api::Engine::Core,
-                        )
-                        .expect("pause")
-                        .to_json();
+                        let paused = dive_api::check_file_checkpoint(&req, &checkpoint)
+                            .expect("pause")
+                            .to_json();
                         assert_eq!(paused["verdict"], "resource-limit", "{name}: {paused}");
                         assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
                         assert_eq!(paused["options"]["workers"]["requested"], workers);
                         assert_eq!(paused["options"]["workers"]["used"], 1);
                         assert!(paused["counterexample"].is_null());
-                        let resumed = dive_api::check_file_checkpoint_engine(
+                        let resumed = dive_api::check_file_checkpoint(
                             &req,
                             &checkpoint::Request {
                                 action: checkpoint::Action::Recover,
                                 ..checkpoint
                             },
-                            dive_api::Engine::Core,
                         )
                         .expect("resume")
                         .to_json();
@@ -179,7 +173,7 @@ fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
         config_source_sha256: None,
     };
     assert_eq!(
-        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Core)
+        dive_api::check_file_checkpoint(&req, &cp)
             .expect("pause")
             .to_json()["checkpoint"]["status"],
         "paused-incomplete"
@@ -190,7 +184,7 @@ fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
         action: checkpoint::Action::Recover,
         ..cp
     };
-    let json = dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core)
+    let json = dive_api::check_file_checkpoint(&req, &resume)
         .expect("resume")
         .to_json();
     assert_eq!(json["verdict"], "success");
@@ -204,7 +198,7 @@ fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
     let original = std::fs::read_to_string(req.config.as_ref().expect("config")).expect("cfg");
     std::fs::write(&cfg, format!("{original}\n\\* Changed bytes only\n")).expect("alternate cfg");
     req.config = Some(cfg);
-    let drift = dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core)
+    let drift = dive_api::check_file_checkpoint(&req, &resume)
         .expect("identity rejection")
         .to_json();
     assert_eq!(drift["verdict"], "resource-limit");
@@ -215,28 +209,34 @@ fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
 }
 
 #[test]
-fn reference_engine_archives_are_rejected_by_name_and_damage_by_framing() {
+fn foreign_archives_are_rejected_by_format_and_damage_by_framing() {
     let dir = dir();
     let req = request("DuplicateSuccessors");
     let resume = checkpoint::Request {
-        path: dir.join("reference.cp"),
+        path: dir.join("foreign.cp"),
         action: checkpoint::Action::Recover,
         counters: checkpoint::Counters::Retain,
         config_source_sha256: None,
     };
     dive_runtime::checkpoint::write_payload(&resume.path, b"DIVECP02", b"{}")
-        .expect("framed reference archive");
+        .expect("framed foreign archive");
     assert!(matches!(
-        dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core),
+        dive_api::check_file_checkpoint(&req, &resume),
         Err(dive_api::ApiError::Rejected { message })
-            if message.starts_with("DIVE-S0400") && message.contains("reference engine")
+            if message == "DIVE-S0400: native magic/schema mismatch"
     ));
+    let resume = checkpoint::Request {
+        path: dir.join("damaged.cp"),
+        ..resume
+    };
+    dive_runtime::checkpoint::write_payload(&resume.path, b"DIVECC01", b"{}")
+        .expect("framed Core archive");
     let mut bytes = std::fs::read(&resume.path).expect("archive bytes");
     let last = bytes.len() - 1;
     bytes[last] ^= 1;
     std::fs::write(&resume.path, bytes).expect("damaged archive");
     assert!(matches!(
-        dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core),
+        dive_api::check_file_checkpoint(&req, &resume),
         Err(dive_api::ApiError::Rejected { message })
             if message.starts_with("DIVE-S0400") && message.contains("checksum")
     ));
@@ -257,19 +257,19 @@ fn unsupported_mode_combinations_refuse_before_file_access() {
         ..CheckRequest::default()
     };
     assert!(matches!(
-        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Core),
+        dive_api::check_file_checkpoint(&req, &cp),
         Err(dive_api::ApiError::Unsupported { .. })
     ));
     req.temporal = TemporalMode::Ordinary;
     req.frontier_directory = Some("orphan-frontier".into());
     assert!(matches!(
-        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Core),
+        dive_api::check_file_checkpoint(&req, &cp),
         Err(dive_api::ApiError::Rejected { message }) if message.contains("DIVE-A0100")
     ));
     req.frontier_directory = None;
     req.predecessor_directory = Some("orphan-directory".into());
     assert!(matches!(
-        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Core),
+        dive_api::check_file_checkpoint(&req, &cp),
         Err(dive_api::ApiError::Rejected { message }) if message.contains("DIVE-A0101")
     ));
 }

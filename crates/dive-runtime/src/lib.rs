@@ -196,7 +196,7 @@ pub fn note_canonical_stop(opts: &CheckOptions, verdict: &Verdict, notes: &mut V
         // TLC's order. Detecting whether it did is not implemented yet, so
         // every stop says so.
         notes.push(
-            "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.".to_owned(),
+            "The default profile explores sets in canonical order. When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.".to_owned(),
         );
     }
 }

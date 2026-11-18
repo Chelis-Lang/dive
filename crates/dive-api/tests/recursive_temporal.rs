@@ -20,17 +20,14 @@ fn check(directory: &std::path::Path, property: &str, compat_tlc: bool) -> serde
         },
     )
     .expect("cfg");
-    dive_api::check_file_engine(
-        &CheckRequest {
-            file: directory.join("Rec.tla"),
-            compat_tlc,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Core,
-    )
+    dive_api::check_file(&CheckRequest {
+        file: directory.join("Rec.tla"),
+        compat_tlc,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        ..CheckRequest::default()
+    })
     .expect("checked")
     .to_json()
 }

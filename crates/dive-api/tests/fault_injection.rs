@@ -233,7 +233,7 @@ fn judge(kind: Kind, reference: &Value, faulted: &std::result::Result<Value, Str
 }
 
 fn checked(req: &CheckRequest) -> std::result::Result<Value, String> {
-    dive_api::check_file_engine(req, dive_api::Engine::Core)
+    dive_api::check_file(req)
         .map(|r| r.to_json())
         .map_err(|e| e.to_string())
 }
@@ -363,7 +363,7 @@ fn spill(req: &mut CheckRequest, role: &str, dir: &Path) {
 }
 
 fn pause(req: &CheckRequest, path: &Path, levels: u64) -> std::result::Result<Value, String> {
-    dive_api::check_file_checkpoint_engine(
+    dive_api::check_file_checkpoint(
         req,
         &checkpoint::Request {
             path: path.to_path_buf(),
@@ -371,14 +371,13 @@ fn pause(req: &CheckRequest, path: &Path, levels: u64) -> std::result::Result<Va
             counters: checkpoint::Counters::Retain,
             config_source_sha256: None,
         },
-        dive_api::Engine::Core,
     )
     .map(|r| r.to_json())
     .map_err(|e| e.to_string())
 }
 
 fn recover(req: &CheckRequest, path: &Path) -> std::result::Result<Value, String> {
-    dive_api::check_file_checkpoint_engine(
+    dive_api::check_file_checkpoint(
         req,
         &checkpoint::Request {
             path: path.to_path_buf(),
@@ -386,7 +385,6 @@ fn recover(req: &CheckRequest, path: &Path) -> std::result::Result<Value, String
             counters: checkpoint::Counters::Retain,
             config_source_sha256: None,
         },
-        dive_api::Engine::Core,
     )
     .map(|r| r.to_json())
     .map_err(|e| e.to_string())
@@ -669,7 +667,7 @@ fn incomplete_diagnostic_replay_refuses_an_uncertified_error_class() -> Result<(
     for compat_tlc in [false, true] {
         let mut req = request(&spec);
         req.compat_tlc = compat_tlc;
-        let reference_report = dive_api::check_file_engine(&req, dive_api::Engine::Core)?;
+        let reference_report = dive_api::check_file(&req)?;
         let reference = reference_report.to_json();
         assert_eq!(reference_report.exit_code_for(ExitConvention::Native), 13);
         assert_eq!(reference_report.exit_code_for(ExitConvention::Tlc), 75);
@@ -716,7 +714,7 @@ fn incomplete_diagnostic_replay_refuses_an_uncertified_error_class() -> Result<(
         // error within the cap and reports exactly the uncapped result, with
         // a word that validates independently.
         req.max_states = Some(4);
-        let faulted_report = dive_api::check_file_engine(&req, dive_api::Engine::Core)?;
+        let faulted_report = dive_api::check_file(&req)?;
         let faulted = faulted_report.to_json();
         assert_eq!(faulted_report.exit_code_for(ExitConvention::Native), 13);
         assert_eq!(faulted_report.exit_code_for(ExitConvention::Tlc), 75);

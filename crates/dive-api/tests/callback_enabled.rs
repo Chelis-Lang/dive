@@ -37,19 +37,16 @@ fn callback_enabled_cutoff_keeps_initial_invariant_and_real_enabled_control()
         for compat_tlc in [true, false] {
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4] {
-                    let report = dive_api::check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(config.clone()),
-                            compat_tlc,
-                            store,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..Default::default()
-                        },
-                        dive_api::Engine::Core,
-                    )?;
+                    let report = dive_api::check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(config.clone()),
+                        compat_tlc,
+                        store,
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..Default::default()
+                    })?;
                     let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                     if instance_enabled_refused(&value) {
                         refusals += 1;
@@ -228,18 +225,15 @@ fn issue_312_primed_let_capture_words_replay_in_both_profiles()
         )?)?;
         let expected = &golden["result"];
         for compat_tlc in [true, false] {
-            let value = dive_api::check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    config: Some(config.clone()),
-                    compat_tlc,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..Default::default()
-                },
-                dive_api::Engine::Core,
-            )?
+            let value = dive_api::check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(config.clone()),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..Default::default()
+            })?
             .to_json_with_exit_convention(ExitConvention::Tlc);
             let refused = instance_enabled_refused(&value);
             if !refused {
@@ -355,7 +349,7 @@ fn query_callback_replay_keeps_renamed_and_nested_scopes_and_rejects_unassigned_
                         fp: Some(0),
                         ..Default::default()
                     };
-                    let value = dive_api::check_file_engine(&request, dive_api::Engine::Core)?
+                    let value = dive_api::check_file(&request)?
                         .to_json_with_exit_convention(ExitConvention::Tlc);
                     if instance_enabled_refused(&value) {
                         continue;

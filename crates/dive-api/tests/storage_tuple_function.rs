@@ -139,8 +139,7 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                     chaos,
                     ..request(name, compat)
                 };
-                let run =
-                    dive_api::check_file_engine(&base, dive_api::Engine::Core).expect("memory");
+                let run = dive_api::check_file(&base).expect("memory");
                 let reference = run.to_json();
                 // Only the retired reference engine ran these cases (#791).
                 if chaos.is_some() {
@@ -182,9 +181,7 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                         predecessor_memory_bytes: predecessor.then_some(0),
                         ..base.clone()
                     };
-                    let bounded = dive_api::check_file_engine(&req, dive_api::Engine::Core)
-                        .expect("bounded")
-                        .to_json();
+                    let bounded = dive_api::check_file(&req).expect("bounded").to_json();
                     agreed::check_eq(
                         AGREED,
                         "verify/0",
@@ -204,21 +201,19 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                         config_source_sha256: None,
                     };
                     serial += 1;
-                    let paused =
-                        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Core)
-                            .expect("pause")
-                            .to_json();
+                    let paused = dive_api::check_file_checkpoint(&req, &cp)
+                        .expect("pause")
+                        .to_json();
                     assert_eq!(paused["verdict"], "resource-limit");
                     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
                     assert_eq!(paused["options"]["workers"]["used"], 1);
                     assert_eq!(&std::fs::read(&cp.path).expect("archive")[..8], b"DIVECC01");
-                    let resumed = dive_api::check_file_checkpoint_engine(
+                    let resumed = dive_api::check_file_checkpoint(
                         &req,
                         &checkpoint::Request {
                             action: checkpoint::Action::Recover,
                             ..cp
                         },
-                        dive_api::Engine::Core,
                     )
                     .expect("recover")
                     .to_json();
@@ -307,7 +302,7 @@ fn actual_older_ambiguous_archive_refuses_without_search() {
         b"DIVECP01"
     );
     for compat in [true, false] {
-        let result = dive_api::check_file_checkpoint_engine(
+        let result = dive_api::check_file_checkpoint(
             &request("Apply", compat),
             &checkpoint::Request {
                 path: path.clone(),
@@ -315,7 +310,6 @@ fn actual_older_ambiguous_archive_refuses_without_search() {
                 counters: checkpoint::Counters::Retain,
                 config_source_sha256: None,
             },
-            dive_api::Engine::Core,
         )
         .expect_err("pre-search archive refusal");
         assert!(

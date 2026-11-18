@@ -8,7 +8,7 @@
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 fn repo() -> PathBuf {
@@ -31,18 +31,15 @@ fn specs(dir: &Path, out: &mut Vec<PathBuf>) {
 }
 
 fn run(spec: &Path, workers: usize, sample: Option<usize>) -> Value {
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(workers),
-            seed: Some(7),
-            fp: Some(0),
-            core_sample: sample,
-            ..CheckRequest::default()
-        },
-        Engine::Core,
-    )
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(workers),
+        seed: Some(7),
+        fp: Some(0),
+        core_sample: sample,
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());

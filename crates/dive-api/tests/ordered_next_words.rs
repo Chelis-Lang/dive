@@ -3,7 +3,7 @@
 mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/ordered_next_words.json");
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 #[test]
@@ -52,19 +52,15 @@ fn native_ordered_next_families_reproduce_actual_source_and_diagnostic_error() -
                 },
             )?;
             {
-                let engine = Engine::Core;
-                let actual = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc,
-                        workers: Some(1),
-                        seed: Some(0),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )?
+                let actual = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                })?
                 .to_json();
                 assert_eq!(actual["error_site"], "next-state", "{relative}: {actual}");
                 let wire = &actual["counterexample"]["trace"];
@@ -77,7 +73,7 @@ fn native_ordered_next_families_reproduce_actual_source_and_diagnostic_error() -
                 assert_eq!(
                     validation.validation,
                     Validation::Valid,
-                    "{relative} {engine:?} {compat_tlc}: {validation:?}"
+                    "{relative} {compat_tlc}: {validation:?}"
                 );
                 for field in ["tlc", "statistics", "counterexample"] {
                     agreed::check(AGREED, "cross/0", &(actual[field]));

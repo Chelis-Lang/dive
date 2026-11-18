@@ -100,17 +100,14 @@ fn optimized_emitted_mapping_is_usable_before_checking_the_translated_module()
         }
         let emitted = document["module_source"].as_str().ok_or("emitted module")?;
         std::fs::write(&file, emitted)?;
-        let checked = dive_api::check_file_engine(
-            &dive_api::CheckRequest {
-                file: file.clone(),
-                compat_tlc,
-                workers: Some(1),
-                seed: Some(7),
-                fp: Some(0),
-                ..dive_api::CheckRequest::default()
-            },
-            dive_api::Engine::Core,
-        )?
+        let checked = dive_api::check_file(&dive_api::CheckRequest {
+            file: file.clone(),
+            compat_tlc,
+            workers: Some(1),
+            seed: Some(7),
+            fp: Some(0),
+            ..dive_api::CheckRequest::default()
+        })?
         .to_json();
         assert_eq!(checked["verdict"], "success", "{checked}");
         assert_eq!(checked["statistics"]["distinct"], 2);

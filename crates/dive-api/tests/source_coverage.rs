@@ -9,7 +9,7 @@
     clippy::unwrap_used,
     reason = "test fixture construction and assertions require admitted source rows"
 )]
-use dive_api::{ApiError, CheckRequest, Engine, TemporalMode, check_file_engine};
+use dive_api::{ApiError, CheckRequest, TemporalMode, check_file};
 use std::{
     fs,
     path::PathBuf,
@@ -55,7 +55,7 @@ impl Drop for Project {
     }
 }
 fn assert_refused(request: &CheckRequest) {
-    let result = check_file_engine(request, Engine::Core);
+    let result = check_file(request);
     assert!(
         matches!(&result, Err(ApiError::Unsupported { feature }) if feature.contains(FEATURE)),
         "expected the coverage refusal, got {result:?}"
@@ -75,7 +75,7 @@ fn every_coverage_request_is_refused_by_name_and_plain_runs_keep_their_result() 
     ] {
         let project = Project::new(source, CONFIG);
         for compat in [false, true] {
-            let plain = check_file_engine(&project.request(compat, false), Engine::Core)
+            let plain = check_file(&project.request(compat, false))
                 .unwrap()
                 .to_json();
             assert_eq!(plain["verdict"], plain_verdict, "{plain}");

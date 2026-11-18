@@ -1,7 +1,7 @@
 //! A run that ends in Init reports the one worker that evaluated it.
 #![allow(clippy::expect_used, reason = "worker report regression assertions")]
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use std::path::Path;
 
 fn request(workers: usize) -> CheckRequest {
@@ -24,13 +24,10 @@ fn a_spill_failure_in_init_reports_one_worker_and_a_full_search_reports_the_widt
     let blocked = dir.join("blocked");
     std::fs::write(&blocked, b"not a directory").expect("block spill parent");
     for compat_tlc in [false, true] {
-        let full = check_file_engine(
-            &CheckRequest {
-                compat_tlc,
-                ..request(8)
-            },
-            Engine::Core,
-        )
+        let full = check_file(&CheckRequest {
+            compat_tlc,
+            ..request(8)
+        })
         .expect("full search")
         .to_json();
         assert!(
@@ -40,17 +37,14 @@ fn a_spill_failure_in_init_reports_one_worker_and_a_full_search_reports_the_widt
         assert_eq!(full["options"]["workers"]["requested"], 8);
         assert_eq!(full["options"]["workers"]["used"], 8, "{full}");
         for (frontier, predecessor) in [(true, false), (false, true), (true, true)] {
-            let failed = check_file_engine(
-                &CheckRequest {
-                    compat_tlc,
-                    frontier_memory_bytes: frontier.then_some(0),
-                    frontier_directory: frontier.then(|| blocked.clone()),
-                    predecessor_memory_bytes: predecessor.then_some(0),
-                    predecessor_directory: predecessor.then(|| blocked.clone()),
-                    ..request(8)
-                },
-                Engine::Core,
-            )
+            let failed = check_file(&CheckRequest {
+                compat_tlc,
+                frontier_memory_bytes: frontier.then_some(0),
+                frontier_directory: frontier.then(|| blocked.clone()),
+                predecessor_memory_bytes: predecessor.then_some(0),
+                predecessor_directory: predecessor.then(|| blocked.clone()),
+                ..request(8)
+            })
             .expect("storage failure")
             .to_json();
             assert_eq!(failed["verdict"], "resource-limit", "{failed}");

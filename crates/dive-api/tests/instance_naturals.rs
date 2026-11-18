@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn root() -> PathBuf {
@@ -64,8 +64,7 @@ fn original_issue_matches_the_official_minimal_corpus_golden() {
                 ..CheckRequest::default()
             };
             {
-                let engine = Engine::Core;
-                let report = check_file_engine(&req, engine).expect("runs");
+                let report = check_file(&req).expect("runs");
                 let actual = observed(&report);
                 assert_eq!(actual["verdict"], expected["verdict"]);
                 assert_eq!(actual["code"], expected["verdict_code"]);
@@ -121,33 +120,31 @@ fn multiplication_scope_demand_and_error_priority_match_pinned_controls() {
         for compat in [false, true] {
             for workers in [1, 4, 8] {
                 let req = request(name, compat, workers);
-                for engine in std::iter::once(Engine::Core) {
-                    let report = check_file_engine(&req, engine).expect("runs");
-                    let actual = observed(&report);
-                    for key in [
-                        "verdict",
-                        "property",
-                        "code",
-                        "error_class",
-                        "exit",
-                        "distinct",
-                        "generated",
-                        "depth",
-                        "output",
-                    ] {
-                        // #504 separately fixes missing assumption-name metadata;
-                        // this control establishes priority, never name agreement.
-                        if name == "AssumePriority" && key == "property" {
-                            continue;
-                        }
-                        assert_eq!(
-                            actual[key], expected[key],
-                            "{name}/{compat}/{workers}/{engine:?}/{key}: {actual:#}"
-                        );
+                let report = check_file(&req).expect("runs");
+                let actual = observed(&report);
+                for key in [
+                    "verdict",
+                    "property",
+                    "code",
+                    "error_class",
+                    "exit",
+                    "distinct",
+                    "generated",
+                    "depth",
+                    "output",
+                ] {
+                    // #504 separately fixes missing assumption-name metadata;
+                    // this control establishes priority, never name agreement.
+                    if name == "AssumePriority" && key == "property" {
+                        continue;
                     }
-                    if !expected["underlying_class"].is_null() {
-                        validate_error(&req, &report, expected);
-                    }
+                    assert_eq!(
+                        actual[key], expected[key],
+                        "{name}/{compat}/{workers}/{key}: {actual:#}"
+                    );
+                }
+                if !expected["underlying_class"].is_null() {
+                    validate_error(&req, &report, expected);
                 }
                 if name == "NestedScopes" {
                     continue;
@@ -156,7 +153,7 @@ fn multiplication_scope_demand_and_error_priority_match_pinned_controls() {
                 // binder/evaluator handoff or change actual lazy demands.
                 let ablated = check_file_core_opts(&req, "-fold,-memo,-step-memo,-eager")
                     .expect("ablated core runs");
-                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
+                let reference = check_file(&req).expect("reference runs");
                 agreed::check_eq(
                     AGREED,
                     "multiplication_scope_demand_and_error_priority_match_pinned_controls/0",

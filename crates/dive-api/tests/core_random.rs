@@ -18,7 +18,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_random.json");
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 const ORACLE: &str = "tlc-2026.10.06.014338";
@@ -61,19 +61,16 @@ fn specs(dir: &str, prefix: &str) -> Vec<(String, PathBuf)> {
     out
 }
 
-fn run(spec: &Path, engine: Engine, compat_tlc: bool, seed: i64, workers: usize) -> Value {
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(workers),
-            seed: Some(seed),
-            fp: Some(0),
-            compat_tlc,
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run(spec: &Path, compat_tlc: bool, seed: i64, workers: usize) -> Value {
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(workers),
+        seed: Some(seed),
+        fp: Some(0),
+        compat_tlc,
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -113,7 +110,7 @@ fn draws_match_the_reference_engine() {
     for (name, spec) in all() {
         for &compat in &[false, true] {
             for &seed in SEEDS {
-                let core = run(&spec, Engine::Core, compat, seed, 1);
+                let core = run(&spec, compat, seed, 1);
                 let at = format!("{name} compat={compat} seed={seed}");
                 if let Some((_, word)) = REFUSED.iter().find(|(n, _)| *n == name) {
                     assert_eq!(core["verdict"], "unsupported", "{at}: {core:#}");
@@ -124,7 +121,7 @@ fn draws_match_the_reference_engine() {
                     continue;
                 }
                 assert_eq!(core["engine"], "core", "{at}");
-                let reference = run(&spec, Engine::Core, compat, seed, 1);
+                let reference = run(&spec, compat, seed, 1);
                 agreed::check_eq(
                     AGREED,
                     "draws_match_the_reference_engine/0",
@@ -149,8 +146,8 @@ fn a_seed_replays() {
             continue;
         }
         for &compat in &[false, true] {
-            let first = run(&spec, Engine::Core, compat, 7, 1);
-            let again = run(&spec, Engine::Core, compat, 7, 4);
+            let first = run(&spec, compat, 7, 1);
+            let again = run(&spec, compat, 7, 4);
             assert_eq!(observed(&first), observed(&again), "{name}");
             assert_eq!(again["options"]["workers"]["used"], 1, "{name}: {again:#}");
             assert!(
@@ -160,8 +157,8 @@ fn a_seed_replays() {
                 "{name}: {again:#}"
             );
         }
-        let a = run(&spec, Engine::Core, false, 0, 1);
-        let b = run(&spec, Engine::Core, false, 1, 1);
+        let a = run(&spec, false, 0, 1);
+        let b = run(&spec, false, 1, 1);
         if name == "RdBfs" {
             assert_ne!(
                 a["output"], b["output"],
@@ -214,7 +211,7 @@ fn compat_draws_match_tlc() {
             continue;
         }
         let transcript = root.join(ORACLE).join(format!("{name}.stdout"));
-        let core = run(&spec, Engine::Core, true, 0, 1);
+        let core = run(&spec, true, 0, 1);
         let (g, d) = tlc_counts(&transcript).expect("TLC counts");
         assert_eq!(
             (

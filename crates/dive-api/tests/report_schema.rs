@@ -25,17 +25,14 @@ fn operation_reports_share_version_three_without_changing_trace_payloads() -> Re
             .to_json(),
         "analyze",
     );
-    let check = dive_api::check_file_engine(
-        &CheckRequest {
-            file: file.clone(),
-            compat_tlc: true,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            ..Default::default()
-        },
-        dive_api::Engine::Core,
-    )?
+    let check = dive_api::check_file(&CheckRequest {
+        file: file.clone(),
+        compat_tlc: true,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        ..Default::default()
+    })?
     .to_json();
     envelope(&check, "check");
     assert_eq!(check["check_kind"], "safety");
@@ -43,29 +40,23 @@ fn operation_reports_share_version_three_without_changing_trace_payloads() -> Re
     assert_eq!(check["statistics"]["distinct"], 5);
     assert!(check.get("execution").is_none());
     assert!(check.get("properties").is_none());
-    let simulation = dive_api::simulate_file_engine(
-        &SimulateRequest {
-            file: file.clone(),
-            seed: Some(0),
-            traces: 1,
-            depth: Some(2),
-            ..Default::default()
-        },
-        dive_api::Engine::Core,
-    )?
+    let simulation = dive_api::simulate_file(&SimulateRequest {
+        file: file.clone(),
+        seed: Some(0),
+        traces: 1,
+        depth: Some(2),
+        ..Default::default()
+    })?
     .to_json();
     envelope(&simulation, "simulate");
     assert_eq!(simulation["exhaustive"], false);
     assert_eq!(simulation["model_proved"], false);
-    let dfid = dive_api::dfid_file_engine(
-        &DfidRequest {
-            file: file.clone(),
-            seed: Some(0),
-            max_level: 2,
-            ..Default::default()
-        },
-        dive_api::Engine::Core,
-    )?
+    let dfid = dive_api::dfid_file(&DfidRequest {
+        file: file.clone(),
+        seed: Some(0),
+        max_level: 2,
+        ..Default::default()
+    })?
     .to_json();
     envelope(&dfid, "dfid");
     assert_eq!(dfid["model_proved"], false);

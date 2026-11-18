@@ -97,8 +97,9 @@ impl DfidReport {
     }
 }
 
-/// Loads and runs a DFID model on the default engine (Core), independently
-/// certifying every violation.
+/// Loads and runs a DFID model with the compiled Core, independently
+/// certifying every violation. A reached refusal stops; there is no
+/// fallback.
 ///
 /// # Errors
 /// This API retains load and thread errors as structured unknown/partial
@@ -108,23 +109,6 @@ impl DfidReport {
     reason = "keep report provenance and certification in one path"
 )]
 pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
-    dfid_file_engine(req, crate::Engine::default())
-}
-
-/// Runs DFID on the given engine, Core (the only engine), with common
-/// independent witnesses. A reached refusal stops; there is no fallback.
-/// `Reference` runs the reference DFID backend.
-///
-/// # Errors
-/// The same budget and ownership failures as [`dfid_file`].
-#[allow(
-    clippy::too_many_lines,
-    reason = "engine selection and independent certification share one DFID report path"
-)]
-pub fn dfid_file_engine(
-    req: &DfidRequest,
-    engine: crate::Engine,
-) -> Result<DfidReport, crate::ApiError> {
     let seed = req.seed.unwrap_or_else(dive_stdlib::random::fresh_seed);
     let config = req
         .config
@@ -142,7 +126,7 @@ pub fn dfid_file_engine(
     };
     let mut document = json!({
         "schema_version": DFID_SCHEMA_VERSION, "command": "dfid", "profile": profile,
-        "engine_requested": engine.name(), "engine": "none", "engine_fallback": null,
+        "engine_requested": "core", "engine": "none", "engine_fallback": null,
         "file": req.file.display().to_string(), "config": config.display().to_string(),
         "exhaustive": false, "model_proved": false, "violation_validated": false,
         "result": "internal-error", "termination": "unavailable", "tlc_code": null,
@@ -237,7 +221,6 @@ pub fn dfid_file_engine(
     options.worker_seeds.clone_from(&req.worker_seeds);
     let mut native = None;
     let mut setup_failure = None;
-    let crate::Engine::Core = engine;
     {
         if let Some(outcome) = crate::dfid_admission::preflight(model.model(), &options) {
             setup_failure = Some(outcome);
@@ -258,14 +241,10 @@ pub fn dfid_file_engine(
             }
         }
     }
-    document["engine"] = json!(engine.name());
+    document["engine"] = json!("core");
     // Retained in report schema 3; there is no automatic fallback.
     document["engine_fallback"] = Value::Null;
-    document["options"]["execution_scope"] = json!(if engine == crate::Engine::Core {
-        "compiled-plan-dfid"
-    } else {
-        "native-dfid"
-    });
+    document["options"]["execution_scope"] = json!("compiled-plan-dfid");
     let executed = std::thread::scope(|scope| {
         std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)

@@ -53,14 +53,14 @@ fn filtered_wf_matches_two_primary_outcomes_and_validates_the_primary_word() -> 
                 // Only the retired reference engine ran bounded final
                 // checking (#791, #910). Core refuses it by name, and its
                 // ordinary temporal mode must reach TLC's final-mode truth.
-                let final_short = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                let final_short = dive_api::check_file(&request)?;
                 refused::assert_refused(
                     &final_short.to_json(),
                     final_short.exit_code(),
                     refused::FINAL_SHORT,
                 );
                 request.temporal = TemporalMode::Ordinary;
-                let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+                let report = dive_api::check_file(&request)?;
                 if store == Store::Exact {
                     refused::assert_refused(
                         &report.to_json(),

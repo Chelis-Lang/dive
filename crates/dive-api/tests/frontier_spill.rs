@@ -12,18 +12,13 @@ fn a_frontier_directory_without_a_budget_rejects_before_file_access() {
             dive_api::TemporalMode::Ordinary,
             dive_api::TemporalMode::FinalShort,
         ] {
-            let error = dive_api::check_file_engine(
-                &CheckRequest {
-                    file: std::path::PathBuf::from(
-                        "missing-model-for-invalid-frontier-request.tla",
-                    ),
-                    frontier_directory: Some(std::path::PathBuf::from("unused-frontier-directory")),
-                    compat_tlc,
-                    temporal,
-                    ..CheckRequest::default()
-                },
-                dive_api::Engine::Core,
-            )
+            let error = dive_api::check_file(&CheckRequest {
+                file: std::path::PathBuf::from("missing-model-for-invalid-frontier-request.tla"),
+                frontier_directory: Some(std::path::PathBuf::from("unused-frontier-directory")),
+                compat_tlc,
+                temporal,
+                ..CheckRequest::default()
+            })
             .expect_err("the directory must not be silently ignored");
             assert!(matches!(error, dive_api::ApiError::Rejected { message }
                 if message == "DIVE-A0100: frontier_directory requires frontier_memory_bytes"));
@@ -64,16 +59,14 @@ fn spilled_counterexamples_validate_and_corruptions_are_rejected() {
                         ..CheckRequest::default()
                     };
                     // Only the retired reference engine ran --chaos (#791, #910).
-                    let chaotic = dive_api::check_file_engine(&request, dive_api::Engine::Core)
-                        .expect("check");
+                    let chaotic = dive_api::check_file(&request).expect("check");
                     refused::assert_refused(
                         &chaotic.to_json(),
                         chaotic.exit_code(),
                         refused::CHAOS,
                     );
                     request.chaos = None;
-                    let r = dive_api::check_file_engine(&request, dive_api::Engine::Core)
-                        .expect("check");
+                    let r = dive_api::check_file(&request).expect("check");
                     let json = r.to_json();
                     assert_eq!(json["frontier_storage"]["retained_bytes"], 0);
                     assert!(
@@ -97,19 +90,16 @@ fn disk_creation_failure_has_no_success_and_truthful_worker_evidence() {
     let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(
         "tests/fixtures/checker/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.tla",
     );
-    let r = dive_api::check_file_engine(
-        &CheckRequest {
-            frontier_memory_bytes: Some(0),
-            frontier_directory: Some(file.clone()),
-            file,
-            compat_tlc: true,
-            workers: Some(8),
-            seed: Some(7),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Core,
-    )
+    let r = dive_api::check_file(&CheckRequest {
+        frontier_memory_bytes: Some(0),
+        frontier_directory: Some(file.clone()),
+        file,
+        compat_tlc: true,
+        workers: Some(8),
+        seed: Some(7),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("check");
     let j = r.to_json();
     assert_eq!(j["verdict"], "resource-limit");

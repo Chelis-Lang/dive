@@ -14,18 +14,15 @@ fn empty_subset_bases_reach_the_initial_invariant_and_validate_the_finite_word()
         for name in ["EmptyBase", "DirectEmptyBase"] {
             let file = specs.join(name).join(format!("{name}.tla"));
             let config = file.with_extension("cfg");
-            let report = dive_api::check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    config: Some(config.clone()),
-                    compat_tlc,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..CheckRequest::default()
-                },
-                dive_api::Engine::Core,
-            )
+            let report = dive_api::check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(config.clone()),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            })
             .expect("ordinary source-bound check");
             // Only the retired reference engine ran TLC's checked
             // mixed-shape comparison on EmptyBase (#791, #910).

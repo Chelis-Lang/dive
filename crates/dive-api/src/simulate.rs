@@ -166,8 +166,11 @@ impl SimulateReport {
     }
 }
 
-/// Loads and samples a specification on the default engine (Core); validates
+/// Loads and samples a specification with the compiled Core, and validates
 /// every returned trace separately.
+///
+/// What Core does not implement is a named refusal, and a reached refusal
+/// never reruns effects.
 ///
 /// # Errors
 /// Unreadable/rejected files, unimplemented binding, or worker-thread failure.
@@ -176,24 +179,6 @@ impl SimulateReport {
     reason = "report construction keeps the simulation and independent validation evidence together"
 )]
 pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::ApiError> {
-    simulate_file_engine(req, crate::Engine::default())
-}
-
-/// Samples on the given engine, Core (the only engine).
-///
-/// What Core does not implement is a named refusal, and a reached refusal
-/// never reruns effects. The report names the engine.
-///
-/// # Errors
-/// The same load, budget and ownership failures as [`simulate_file`].
-#[allow(
-    clippy::too_many_lines,
-    reason = "engine selection and common independent certification retain one report path"
-)]
-pub fn simulate_file_engine(
-    req: &SimulateRequest,
-    engine: crate::Engine,
-) -> Result<SimulateReport, crate::ApiError> {
     let seed = req.seed.unwrap_or_else(dive_stdlib::random::fresh_seed);
     let options = Options::new(
         seed,
@@ -248,7 +233,6 @@ pub fn simulate_file_engine(
             })?;
     let mut native = None;
     let mut setup_failure = None;
-    let crate::Engine::Core = engine;
     if req.workers.is_none_or(|workers| workers == 1) {
         if let Some(outcome) = dive_sim::preflight(model.model(), &options) {
             setup_failure = Some(outcome);
@@ -560,15 +544,11 @@ pub fn simulate_file_engine(
         ));
     }
     document["notes"] = json!(notes);
-    document["engine"] = json!(engine.name());
-    document["engine_requested"] = json!(engine.name());
+    document["engine"] = json!("core");
+    document["engine_requested"] = json!("core");
     // Retained in report schema 3; there is no automatic fallback.
     document["engine_fallback"] = Value::Null;
-    document["options"]["execution_scope"] = json!(if engine == crate::Engine::Core {
-        "compiled-plan-simulation"
-    } else {
-        "simulation-backend"
-    });
+    document["options"]["execution_scope"] = json!("compiled-plan-simulation");
     drop(control_scope);
     run_budget.finish(
         &mut document,

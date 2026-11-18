@@ -11,7 +11,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_parallel.json");
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 fn repo() -> PathBuf {
@@ -34,22 +34,19 @@ fn specs(dir: &Path, out: &mut Vec<PathBuf>) {
 }
 
 fn run(spec: &Path, workers: usize, max_states: Option<u64>) -> Value {
-    run_on(spec, workers, max_states, Engine::Core)
+    run_on(spec, workers, max_states)
 }
 
-fn run_on(spec: &Path, workers: usize, max_states: Option<u64>, engine: Engine) -> Value {
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(workers),
-            seed: Some(0),
-            fp: Some(0),
-            max_states,
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run_on(spec: &Path, workers: usize, max_states: Option<u64>) -> Value {
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(workers),
+        seed: Some(0),
+        fp: Some(0),
+        max_states,
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -103,7 +100,7 @@ fn every_worker_count_gives_the_one_worker_result() {
                 // A run that ends at startup (a false or failing ASSUME)
                 // starts no worker.
                 let used = if one["options"]["workers"]["used"] == 0 {
-                    let reference = run_on(spec, workers, limit, Engine::Core);
+                    let reference = run_on(spec, workers, limit);
                     agreed::check_eq(
                         AGREED,
                         "every_worker_count_gives_the_one_worker_result/0",

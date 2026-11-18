@@ -3,7 +3,7 @@
 mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/core_split_operators.json");
 use dive_api::trace::{Check, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use serde_json::json;
 use std::path::PathBuf;
 
@@ -29,8 +29,8 @@ fn split_operator_substitutions_preserve_verdicts_counts_and_words()
                 compat_tlc,
                 ..Default::default()
             };
-            let reference = check_file_engine(&request, Engine::Core)?;
-            let report = check_file_engine(&request, Engine::Core)?;
+            let reference = check_file(&request)?;
+            let report = check_file(&request)?;
             let doc = report.to_json();
             assert_eq!(doc["engine"], "core");
             assert_eq!(doc["verdict"], verdict, "{config}: {doc}");
@@ -117,7 +117,7 @@ fn captured_operator_substitutions_keep_their_named_refusal()
             ..Default::default()
         };
         // Only the retired reference engine ran this (#791, #910).
-        let core = check_file_engine(&request, Engine::Core)?;
+        let core = check_file(&request)?;
         let report = core.to_json();
         assert_eq!(core.verdict(), "unsupported", "{report}");
         assert_eq!(

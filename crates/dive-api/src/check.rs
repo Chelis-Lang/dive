@@ -145,7 +145,7 @@ pub struct CheckRequest {
     /// Requires explicit Core, seed and fingerprint; secret bytes never enter reports.
     ///
     /// ```no_run
-    /// use dive_api::{CheckRequest, DistributedOptions, Engine, check_file_engine};
+    /// use dive_api::{CheckRequest, DistributedOptions, check_file};
     /// let request = CheckRequest {
     ///     file: "Counter.tla".into(), seed: Some(0), fp: Some(0),
     ///     distributed: Some(DistributedOptions::new(
@@ -154,7 +154,7 @@ pub struct CheckRequest {
     ///     )),
     ///     ..CheckRequest::default()
     /// };
-    /// let report = check_file_engine(&request, Engine::Core)?;
+    /// let report = check_file(&request)?;
     /// println!("{}", report.to_json());
     /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
@@ -310,8 +310,6 @@ pub struct CheckReport {
     view_error_endpoint: Option<dive_trace::ViewSourceEndpoint>,
     /// Observed partial candidate captured while its original IR is owned.
     partial_terminal_endpoint: Option<dive_trace::PartialNextEndpoint>,
-    /// The engine requested.
-    engine: crate::Engine,
 }
 
 /// Names the first coordinator option that distributed safety does not admit,
@@ -405,35 +403,19 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
     Ok(())
 }
 
-/// Loads, binds and checks the request on the default engine, the compiled
-/// Core ([`crate::Engine::Core`]). What Core does not implement is an
-/// `unsupported` verdict naming it.
-///
-/// # Errors
-/// [`crate::ApiError`] if the root file or the configuration cannot be read.
-pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_in(req, None, false, None)
-}
-
-/// Loads and checks files as [`check_file`] does, with the given engine.
-///
-/// [`crate::Engine::Core`] is the only engine; what it does not implement is
-/// an `unsupported` verdict naming the construct.
+/// Loads, binds and checks the request with the compiled Core. What Core
+/// does not implement is an `unsupported` verdict naming it.
 ///
 /// ```no_run
-/// use dive_api::{CheckRequest, Engine, check_file_engine};
+/// use dive_api::{CheckRequest, check_file};
 /// let req = CheckRequest { file: "Spec.tla".into(), ..CheckRequest::default() };
-/// let report = check_file_engine(&req, Engine::Core).unwrap();
+/// let report = check_file(&req).unwrap();
 /// println!("{}", report.to_json()["engine"]);
 /// ```
 ///
 /// # Errors
-/// As [`check_file`].
-pub fn check_file_engine(
-    req: &CheckRequest,
-    engine: crate::Engine,
-) -> Result<CheckReport, crate::ApiError> {
-    let crate::Engine::Core = engine;
+/// [`crate::ApiError`] if the root file or the configuration cannot be read.
+pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
     check_file_in(req, None, false, None)
 }
 
@@ -454,7 +436,7 @@ pub fn check_file_core_opts(
 /// Loads and checks files with TLC's configuration-first input error priority.
 ///
 /// Used by the `dive tlc` and `tlc` checking entrypoints after resolving their
-/// filenames, on the default engine (Core). Unlike [`check_file`], this reads and parses the configuration
+/// filenames. Unlike [`check_file`], this reads and parses the configuration
 /// before analyzing the module: an unreadable or malformed configuration wins
 /// when both inputs are invalid. Request defaults and path spellings are unchanged.
 ///
@@ -472,30 +454,10 @@ pub fn check_file_core_opts(
 /// # Errors
 /// [`crate::ApiError`] if the configuration or root file cannot be read.
 pub fn check_file_tlc_inputs(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    check_file_tlc_inputs_engine(req, crate::Engine::default())
-}
-
-/// Checks as [`check_file_tlc_inputs`] does, with the given engine.
-///
-/// ```no_run
-/// use dive_api::{CheckRequest, Engine, check_file_tlc_inputs_engine};
-/// let request = CheckRequest { file: "Counter.tla".into(), compat_tlc: true, ..CheckRequest::default() };
-/// let report = check_file_tlc_inputs_engine(&request, Engine::Core)?;
-/// # Ok::<(), dive_api::ApiError>(())
-/// ```
-///
-/// # Errors
-/// As [`check_file_tlc_inputs`].
-pub fn check_file_tlc_inputs_engine(
-    req: &CheckRequest,
-    engine: crate::Engine,
-) -> Result<CheckReport, crate::ApiError> {
-    let crate::Engine::Core = engine;
     check_file_in(req, None, true, None)
 }
 
-/// Runs the native pure-safety checkpoint/recovery slice on the default
-/// engine (Core). It refuses
+/// Runs the native pure-safety checkpoint/recovery slice. It refuses
 /// temporal combinations before loading files. Existing frontier/predecessor
 /// budgets configure transient storage; native archive work is separately bounded
 /// and excluded from both budgets. Recovery uses
@@ -522,34 +484,11 @@ pub fn check_file_checkpoint(
     req: &CheckRequest,
     checkpoint: &dive_runtime::checkpoint::Request,
 ) -> Result<CheckReport, crate::ApiError> {
-    check_file_checkpoint_engine(req, checkpoint, crate::Engine::default())
-}
-
-/// Runs a checkpoint transaction on the given engine, Core. Recovering an
-/// archive written by an earlier dive engine, which no longer exists, is
-/// rejected before the model loads.
-///
-/// ```no_run
-/// use dive_api::{CheckRequest, Engine, checkpoint, check_file_checkpoint_engine};
-/// let model=CheckRequest{file:"Counter.tla".into(),..CheckRequest::default()};
-/// let checkpoint=checkpoint::Request{path:"counter.cp".into(),action:checkpoint::Action::PauseAfterLevels(2),counters:checkpoint::Counters::Retain,config_source_sha256:None};
-/// let report=check_file_checkpoint_engine(&model,&checkpoint,Engine::Core)?;
-/// # Ok::<(),dive_api::ApiError>(())
-/// ```
-///
-/// # Errors
-/// File loading, backend mismatch, unsupported request or archive framing failure.
-pub fn check_file_checkpoint_engine(
-    req: &CheckRequest,
-    checkpoint: &dive_runtime::checkpoint::Request,
-    engine: crate::Engine,
-) -> Result<CheckReport, crate::ApiError> {
     if req.temporal != TemporalMode::Ordinary {
         return Err(crate::ApiError::Unsupported {
             feature: "native checkpoint with temporal checking is not implemented".into(),
         });
     }
-    let crate::Engine::Core = engine;
     check_file_in(req, Some(checkpoint), false, None)
 }
 
@@ -640,14 +579,7 @@ fn check_file_in(
                 message: format!("DIVE-S0400: {message}"),
             }
         })?;
-        let Some((seed, fp)) = defaults else {
-            return Err(crate::ApiError::Rejected {
-                message: "DIVE-S0400: the archive was written by the reference engine, which dive \
-                          no longer runs; Core cannot recover it"
-                    .to_owned(),
-            });
-        };
-        Some((seed, fp))
+        Some(defaults)
     } else {
         None
     };
@@ -748,7 +680,6 @@ fn check_file_in(
         candidate_error_endpoint: None,
         view_error_endpoint: None,
         partial_terminal_endpoint: None,
-        engine: crate::Engine::Core,
     };
     // TLC's Spec constructor parses ModelConfig before creating SpecProcessor
     // (tlaplus 94d0c50). Keep the file API's existing module-first order.
@@ -1520,7 +1451,7 @@ impl CheckReport {
                 // Core has no separate state-image limit, also when the run
                 // stops before Core starts (a parse error, say).
                 "max_state_bytes": Value::Null,
-                "backend": self.engine.name(),
+                "backend": "core",
                 "archive_bounds_scope": "archive admission only; ordinary search, Store, codec workspaces and process memory are separate",
                 "max_level": dive_runtime::checkpoint::MAX_LEVEL,
                 "max_counter": dive_runtime::checkpoint::MAX_COUNTER,
@@ -2033,7 +1964,7 @@ impl CheckReport {
             doc["statistics"]["exhaustive"] = json!(false);
         }
         if let Some(core) = &self.core {
-            doc["engine"] = json!(crate::Engine::Core.name());
+            doc["engine"] = json!("core");
             doc["core"] = json!({"disabled": core.opts, "metrics": core.metrics});
             if !core.sample.is_null() {
                 doc["core"]["sample"] = core.sample.clone();

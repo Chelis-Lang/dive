@@ -10,7 +10,7 @@
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 
 const EXAMPLES: &str = "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f";
 const TLAPM: &str = "tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library";
@@ -53,18 +53,15 @@ fn check_with(spec: &Path, cfg: &Path, model: &str, libraries: &[&str]) {
     }
     // One worker, and the parallel level, whose results are the same.
     for workers in [1, 4] {
-        let report = check_file_engine(
-            &CheckRequest {
-                file: spec.to_path_buf(),
-                config: Some(cfg.to_path_buf()),
-                module_paths: module_paths.clone(),
-                workers: Some(workers),
-                seed: Some(0),
-                fp: Some(0),
-                ..CheckRequest::default()
-            },
-            Engine::Core,
-        )
+        let report = check_file(&CheckRequest {
+            file: spec.to_path_buf(),
+            config: Some(cfg.to_path_buf()),
+            module_paths: module_paths.clone(),
+            workers: Some(workers),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        })
         .expect("check runs");
         let got = report.to_json();
         let want = golden(model);

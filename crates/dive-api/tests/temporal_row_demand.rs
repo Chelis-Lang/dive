@@ -18,19 +18,16 @@ fn root() -> PathBuf {
 }
 
 fn report(corpus: &str, name: &str, tlc: bool) -> Result<Value, Box<dyn std::error::Error>> {
-    let result = dive_api::check_file_engine(
-        &CheckRequest {
-            file: root().join(format!(
-                "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
-            )),
-            compat_tlc: tlc,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Core,
-    )?;
+    let result = dive_api::check_file(&CheckRequest {
+        file: root().join(format!(
+            "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
+        )),
+        compat_tlc: tlc,
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })?;
     Ok(result.to_json_with_exit_convention(ExitConvention::Tlc))
 }
 
@@ -270,7 +267,7 @@ fn an_owned_budget_stop_never_becomes_a_semantic_row_error() -> TestResult {
             time_limit: dive_api::BudgetSetting::Explicit(std::time::Duration::ZERO),
             ..files.request(&options)
         };
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let report = dive_api::check_file(&request)?;
         let json = report.to_json();
         assert_eq!(json["verdict"], "stopped", "{json}");
         assert!(json["error_site"].is_null(), "{json}");

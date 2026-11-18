@@ -29,7 +29,7 @@ fn request(row: &Value, compat_tlc: bool) -> SimulateRequest {
     }
 }
 fn assert_refused(request: &SimulateRequest) {
-    let report = dive_api::simulate_file_engine(request, dive_api::Engine::Core).expect("report");
+    let report = dive_api::simulate_file(request).expect("report");
     refused::assert_refused(
         &report.to_json(),
         report.exit_code(),

@@ -1007,19 +1007,16 @@ fn variants(seed: &str, module: &Module, cfg: &str, siblings: &BTreeSet<String>)
 // Running and comparing
 
 fn run(dir: &Path, root: &str) -> Result<Value> {
-    let report = dive_api::check_file_engine(
-        &CheckRequest {
-            file: dir.join(format!("{root}.tla")),
-            config: Some(dir.join(format!("{root}.cfg"))),
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            max_states: Some(MAX_STATES),
-            time_limit: BudgetSetting::Explicit(TIME_LIMIT),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Core,
-    )?;
+    let report = dive_api::check_file(&CheckRequest {
+        file: dir.join(format!("{root}.tla")),
+        config: Some(dir.join(format!("{root}.cfg"))),
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        max_states: Some(MAX_STATES),
+        time_limit: BudgetSetting::Explicit(TIME_LIMIT),
+        ..CheckRequest::default()
+    })?;
     Ok(report.to_json())
 }
 

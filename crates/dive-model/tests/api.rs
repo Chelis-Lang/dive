@@ -168,7 +168,7 @@ fn both_profiles_bind_the_same_roles() {
     assert_eq!(tlc.invariants.len(), dive.invariants.len());
     assert_eq!(tlc.actions.len(), 2);
     // TLC's order splits `"b"` first; the default profile explores in the
-    // canonical order (D-010).
+    // canonical order.
     assert!(tlc.actions[0].label().starts_with("<Next line 6"));
     assert_eq!(dive.actions.len(), 2);
 }

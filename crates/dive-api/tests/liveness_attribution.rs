@@ -8,7 +8,7 @@
 use std::path::PathBuf;
 
 use dive_api::temporal::Outcome;
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::json;
 
 fn root() -> PathBuf {
@@ -36,20 +36,16 @@ fn actual_word_names_agree_in_rust_json_and_human_reports() {
         };
         for compat_tlc in [false, true] {
             {
-                let engine = Engine::Core;
                 for workers in [1, 4] {
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc,
-                            seed: Some(0),
-                            fp: Some(0),
-                            workers: Some(workers),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        seed: Some(0),
+                        fp: Some(0),
+                        workers: Some(workers),
+                        ..CheckRequest::default()
+                    })
                     .expect("check");
                     let temporal = report.temporal_result().expect("temporal report");
                     let word = match temporal.outcome() {
@@ -57,10 +53,7 @@ fn actual_word_names_agree_in_rust_json_and_human_reports() {
                         Outcome::NativePrefixViolation(w) => w.document(),
                         other => panic!("expected violation, got {other:?}"),
                     };
-                    assert_eq!(
-                        word.properties, properties,
-                        "{name}/{engine:?}/{compat_tlc}/{workers}"
-                    );
+                    assert_eq!(word.properties, properties, "{name}/{compat_tlc}/{workers}");
                     let doc = report.to_json();
                     assert_eq!(doc["verdict"], "liveness-violation");
                     assert_eq!(doc["property"], formatted);

@@ -11,7 +11,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_primed_memo.json");
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn request(name: &str) -> CheckRequest {
@@ -44,9 +44,7 @@ fn observed(v: &Value) -> Value {
 /// and off.
 fn compare(name: &str) -> (Value, Value) {
     let req = request(name);
-    let reference = check_file_engine(&req, Engine::Core)
-        .expect("reference runs")
-        .to_json();
+    let reference = check_file(&req).expect("reference runs").to_json();
     let mut on = Value::Null;
     for switches in ["", "-primed-memo"] {
         let core = check_file_core_opts(&req, switches)
