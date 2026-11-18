@@ -33,6 +33,7 @@ pub(crate) use native::{
 
 /// The outcome of a bounded temporal run on Core, distinguishing real prefixes.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub enum Outcome {
     /// All properties hold after complete native capture, without retained rows.
     NativeHolds(Box<capture::CompleteEvidence>),
@@ -209,6 +210,7 @@ pub(crate) fn finish_report(
 /// An explicit refusal, evaluation error, resource bound or internal inconsistency. No error
 /// variant is evidence of a successful model check.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub enum Error {
     /// Binding failed, preserving diagnostics and startup output.
     Binding(Box<dive_model::Failure>),
@@ -298,6 +300,7 @@ impl std::error::Error for Error {}
 
 /// Stage reached by a temporal run that produced no verdict.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Stage {
     /// Budget admission before model binding or capture starts.
     Startup,
@@ -704,6 +707,7 @@ fn validation_run_error(
                 None,
             );
         }
+        other => return (Error::Thread(other.to_string()), None),
     };
     let error = match control.verdict(&error) {
         Some(dive_runtime::Verdict::Stopped(stopped)) => AnalysisError::Stopped(stopped),

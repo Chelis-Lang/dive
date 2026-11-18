@@ -45,6 +45,7 @@ pub struct SeenOptions {
 
 /// Ordered engine phase of the first observed storage failure.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum SeenPhase {
     /// Before generating Init; binding and assumptions may already have run.
     Creation,

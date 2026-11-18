@@ -16,6 +16,7 @@ use crate::enabled::enabled;
 
 /// Why temporal evaluation cannot establish a truth value.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum TemporalError {
     /// A typed cooperative interruption, never a temporal truth value/refusal.
     Interrupted(dive_eval::EvalError),

@@ -269,6 +269,7 @@ fn outcome(report: &CheckReport) -> Outcome {
         })),
         Core::Safety(r) => Outcome::Safety(r.clone()),
         Core::NativePrefixViolation(v) => panic!("Core final checking returned a prefix: {v:?}"),
+        other => panic!("Core final checking returned an unexpected outcome: {other:?}"),
     }
 }
 

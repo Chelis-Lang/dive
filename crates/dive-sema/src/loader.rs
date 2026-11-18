@@ -37,6 +37,7 @@ pub struct SearchPath {
 
 /// Where a loaded file came from.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Origin {
     /// A file on disk.
     File(PathBuf),

@@ -554,7 +554,6 @@ fn serve<R: Read + Send + 'static, W: Write>(
         };
         if let Some(event) = event {
             match event {
-                Event::Prepared => {}
                 Event::Stopped {
                     reason,
                     breakpoints,
@@ -584,6 +583,8 @@ fn serve<R: Read + Send + 'static, W: Write>(
                     wire.event("terminated", &json!({}))?;
                     return Ok(2);
                 }
+                // `Prepared`, and events this adapter does not forward.
+                _ => {}
             }
         }
         if server.done {

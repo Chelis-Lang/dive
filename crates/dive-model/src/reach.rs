@@ -72,8 +72,8 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
     let mut refused: BTreeSet<String> = BTreeSet::new();
     for r in ir.refusals() {
         if reach.get(r.def.index()).copied().unwrap_or(false) {
-            let dive_ir::Feature::StdOp(op) = &r.feature;
-            if matches!(op, StdOp::IoUtilsIOEnv | StdOp::IoUtilsDeserialize)
+            if let dive_ir::Feature::StdOp(op) = &r.feature
+                && matches!(op, StdOp::IoUtilsIOEnv | StdOp::IoUtilsDeserialize)
                 && b.ev().options().host_access.allows(*op)
             {
                 continue;

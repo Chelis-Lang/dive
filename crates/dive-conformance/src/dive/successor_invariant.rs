@@ -121,6 +121,7 @@ fn physical_status(code: i32, convention: ExitConvention) -> Option<i32> {
     match convention {
         ExitConvention::Native => Some(i32::from(dive_api::exit::EVALUATION)),
         ExitConvention::Tlc => crate::tlc::codes::exit_statuses_for(code).first().copied(),
+        _ => None,
     }
 }
 

@@ -619,6 +619,10 @@ pub fn run(config: &Config, cache: &Cache, opts: &Options) -> Result<Report> {
                             Validation::Unsupported(why) => {
                                 TraceCheck::no(format!("independent validation refused: {why}"))
                             }
+                            other => TraceCheck::no(format!(
+                                "independent validation returned {}",
+                                other.kind()
+                            )),
                         }
                     }
                     Err(e) => TraceCheck::no(format!("independent binding failed: {e}")),

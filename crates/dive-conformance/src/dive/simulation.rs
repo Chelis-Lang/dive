@@ -428,6 +428,9 @@ fn simulation_result(
             Validation::Unsupported(reason) => {
                 return CheckMapping::Refused(format!("independent simulation word: {reason}"));
             }
+            other => {
+                return malformed(&format!("independent simulation word: {}", other.kind()));
+            }
         }
         if Some(index) == selected {
             trace = Some(Trace {
