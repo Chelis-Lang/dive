@@ -401,11 +401,11 @@ pub(crate) fn handoff<'a>(
     })
 }
 
-/// The note on a stop in the default profile (D-010): the same text as
+/// The note on a stop in the default profile: the same text as
 /// `dive_runtime::note_canonical_stop`'s, kept in step by hand. The
 /// report-schema fixtures in `crates/dive-cli/tests/fixtures/report-schema/`
 /// pin this copy, which is the one Core reports.
-const CANONICAL_STOP_NOTE: &str = "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.";
+const CANONICAL_STOP_NOTE: &str = "The default profile explores sets in canonical order. When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.";
 
 /// The core's value semantics for the run's evaluation options: each of
 /// `--compat=tlc`'s components maps to its own switch.
@@ -484,7 +484,7 @@ fn binding_failure(
 
 /// `SYMMETRY`, prepared by `dive-model`'s binder: its maps by
 /// model-value name, its start-up warnings and the default profile's
-/// D-010 note.
+/// canonical-order note.
 #[derive(Default)]
 struct Symmetry {
     maps: Vec<Vec<(String, String)>>,
@@ -511,7 +511,7 @@ impl SymmetryEnd {
     }
 }
 
-const SYMMETRY_NOTE: &str = "The default profile canonicalizes symmetry keys in canonical value order (D-010). A non-invariant VIEW or asymmetric specification may differ under --compat=tlc; order relevance is not yet detected.";
+const SYMMETRY_NOTE: &str = "The default profile canonicalizes symmetry keys in canonical value order. A non-invariant VIEW or asymmetric specification may differ under --compat=tlc; order relevance is not yet detected.";
 
 fn symmetry(
     model: &mut dive_model::Model,
@@ -560,7 +560,7 @@ fn symmetry(
     }
     let symmetry = format!("SYMMETRY {}", model.symmetry.as_deref().unwrap_or_default());
     model.unsupported.retain(|u| u.feature != symmetry);
-    // The default profile's canonical keys may differ from TLC's (D-010);
+    // The default profile's canonical keys may differ from TLC's;
     // under `--compat=tlc` the keys are TLC's.
     if !profile_tlc {
         out.note = Some(SYMMETRY_NOTE.into());
@@ -1104,8 +1104,8 @@ pub(crate) fn safety_result(
     // The boundary for a plan that draws: TLC rebuilds
     // a trace whose predecessor is initial from the original state object,
     // whose stream is already consumed, so its last state can go missing
-    // (`docs/tlc-differences.md`, D-002). The core refuses it by name,
-    // with the stop's statistics and a D-002 note, and drops the trace.
+    // (see `docs/tlc-differences.md`). The core refuses it by name,
+    // with the stop's statistics and a note, and drops the trace.
     let mut draw_note = None;
     if plan.effects.draws
         && then
@@ -1113,7 +1113,7 @@ pub(crate) fn safety_result(
         && matches!(&trace, Some(Ok(t)) if t.len() == 2)
     {
         draw_note = Some(format!(
-            "The search reached {verdict:?}; its first-successor random trace has an unproved TLC replay/printing contract (D-002). Statistics record that stopping prefix, not a completed certification."
+            "The search reached {verdict:?}; its first-successor random trace has an unproved TLC replay/printing contract. Statistics record that stopping prefix, not a completed certification."
         ));
         verdict = unsupported("TLC initial-predecessor random counterexample replay is not proved");
         trace = None;
@@ -1221,7 +1221,7 @@ pub(crate) fn safety_result(
             alias.text
         ));
     }
-    // The D-010 qualification of a stop in the default
+    // The canonical-order qualification of a stop in the default
     // profile (`dive_runtime::note_canonical_stop`); under `--compat=tlc`
     // TLC's order needs no note.
     if !profile_tlc && r.verdict.is_verdict() && r.verdict != Verdict::Success {
