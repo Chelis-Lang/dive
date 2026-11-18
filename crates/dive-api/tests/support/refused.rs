@@ -33,9 +33,9 @@ pub const FINAL_SHORT: &str =
     "bounded final checking (--lncheck final --lasso short) is not implemented on Core";
 /// `--max-states` or `--max-depth` with temporal properties.
 pub const TEMPORAL_CAP: &str = "--max-states or --max-depth with temporal properties";
-/// Exact or spilled seen storage with temporal properties.
-pub const TEMPORAL_EXACT_STORE: &str =
-    "exact or spilled native temporal storage under the core engine";
+/// Spilled or reclaimed storage with temporal properties (ADR 0158).
+pub const TEMPORAL_SPILLED_STORE: &str =
+    "spilled or reclaimed native temporal storage under the core engine";
 /// TLC action composition (`--action-composition=tlc`, TLC's `cdot`).
 pub const ACTION_COMPOSITION: &str = "--action-composition=tlc under the core engine";
 /// A configured `POSTCONDITION`.

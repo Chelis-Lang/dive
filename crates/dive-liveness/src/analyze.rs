@@ -287,7 +287,8 @@ pub struct ExplorationEvidence {
     pub stats: dive_runtime::Stats,
     /// Requested and actual capture workers.
     pub workers: dive_runtime::Workers,
-    /// Collision qualification, absent for exact storage.
+    /// Collision qualification, absent for exact storage and when the
+    /// producer computes none (Core); the safety result's store says which.
     pub collision: Option<dive_runtime::Collision>,
     /// Startup and exploration output in execution order.
     pub output: Vec<String>,

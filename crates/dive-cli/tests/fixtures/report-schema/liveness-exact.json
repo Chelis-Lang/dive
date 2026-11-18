@@ -1,0 +1,413 @@
+{
+  "check_kind": "temporal",
+  "collision": null,
+  "command": "check",
+  "config": "<fixtures>/Liveness.cfg",
+  "core": {
+    "disabled": "default",
+    "metrics": {
+      "arena_peak": {
+        "handles": 0,
+        "nodes": 0
+      },
+      "candidate_storage": {
+        "committed_spill_bytes": 0,
+        "failures": [],
+        "identity_close_entries_limit": 65536,
+        "identity_close_scratch_bytes_limit": 67108864,
+        "max_record_bytes": 67108864,
+        "memory_bytes_per_worker": null,
+        "origin_index_bytes": 0,
+        "origin_index_bytes_limit_per_worker": 1048576,
+        "peak_origin_index_bytes": 0,
+        "peak_retained_bytes": 0,
+        "retained_bytes": 0,
+        "scope": "encoded occurrence/DAG queues and separately reported bounded codec origin index; active Arena roots, per-record codec scratch, names, other caches, accepted Store and total RSS excluded",
+        "search_event_before_storage_failure": null,
+        "write_accounting_complete": true
+      },
+      "commit_ms": 0.0,
+      "compile_ms": 0.0,
+      "conjuncts": {
+        "parent_skipped": 0,
+        "total": 0
+      },
+      "discarded_before_intern": 0,
+      "distributed": null,
+      "exact_states": 3,
+      "expand_ms": 0.0,
+      "explore_ms": 0.0,
+      "liveness": {
+        "atoms": {
+          "action_evaluations": 0,
+          "audit": false,
+          "eligibility": "source-scoped effect-free Core plans without fresh strings over materialized rows; identity-scoped fairness queries",
+          "eligible_action_atoms": 0,
+          "eligible_atoms": 1,
+          "eligible_state_atoms": 1,
+          "enabled_evaluations": 0,
+          "evaluated": 3,
+          "fairness_reuse": {
+            "action_consumptions": 0,
+            "allocation_bypasses": 0,
+            "cap_bypasses": 0,
+            "peak_storage_bytes": 0,
+            "scope": "completed native frozen behavior prefix columns per analysis; actual evaluation counters exclude reuse",
+            "state_consumptions": 0,
+            "stored_columns": 0
+          },
+          "fallback": 0,
+          "fallbacks": {
+            "error": 0,
+            "fuel_exhausted": 0,
+            "fuel_retired": 0,
+            "not_compiled": 0,
+            "row_proof": 0,
+            "warning_or_print": 0
+          },
+          "fuel": {
+            "per_demand": 1048576,
+            "retired_atoms": 0,
+            "strikes": 8
+          },
+          "negated_enabled_evaluations": 0,
+          "nonstuttering_evaluations": 0,
+          "reference_evaluations": {
+            "action": 0,
+            "scope": "label demands answered by the reference evaluator: unprepared atoms and fallbacks",
+            "state": 0
+          },
+          "rejections": {
+            "allocation": 0,
+            "compile_error": 0,
+            "const_unclosed": 0,
+            "effects": 0,
+            "foreign_scope": 0,
+            "fresh_string": 0
+          },
+          "row_proofs": {
+            "certified": 3,
+            "hits": 0,
+            "peak_storage_bytes": 1,
+            "scans": 3
+          },
+          "state_evaluations": 3,
+          "total_atoms": 1
+        },
+        "convert_ms": 0.0,
+        "converted_nodes": 1,
+        "graph_states": 3,
+        "memo_entries": 0,
+        "memory": {
+          "accounting_complete": false,
+          "buffer_bytes": 520,
+          "capture_key_capacity": 0,
+          "capture_key_entries": 0,
+          "fixed_bytes": 320,
+          "growth_overlap_upper_bound_bytes": 536,
+          "key_index_retained_after_capture": false,
+          "scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim"
+        },
+        "retained_rows": 3,
+        "storage": "native-csr",
+        "values": {
+          "admission": "deferred",
+          "admission_memo_bytes": 0,
+          "admission_memo_hits": 0,
+          "admitted_rows": 3,
+          "cache_allocation_bypasses": 0,
+          "cache_bypasses": 0,
+          "cache_byte_rejections": 0,
+          "cache_bytes": 0,
+          "cache_direct_hits": 0,
+          "cache_direct_lookups": 0,
+          "cache_eligible_misses": 1,
+          "cache_enabled": false,
+          "cache_entries": 0,
+          "cache_entry_bytes": 32,
+          "cache_evictions": 0,
+          "cache_hits": 0,
+          "cache_insertions": 0,
+          "cache_limit_bytes": 134217728,
+          "cache_misses": 1,
+          "cache_probe_exhaustions": 0,
+          "cache_row_index_fallbacks": 0,
+          "cache_scope": "requested table capacity, single-component row arrays and closed-function/set payload including potential scalar-domain order storage; string/field-name payload already pinned by run Interner; opaque Arc/allocator overhead excluded; not total RSS",
+          "cache_slot_capacity": 0,
+          "cache_slots": 0,
+          "cache_table_bytes": 0,
+          "cache_uncovered_misses": 0,
+          "caught_up_rows": 3,
+          "convert_ms": 0.0,
+          "convert_ms_scope": "admission and read slow paths; single-variable cache hits are not timed",
+          "converted_values": 1,
+          "deferred_rows": 4,
+          "read_rows": 1,
+          "skipped_admission_conversions": 3
+        }
+      },
+      "memo": [],
+      "plan": {
+        "aliased_args": 0,
+        "beta": 0,
+        "by_name": 0,
+        "cached_defs": 0,
+        "fold_abandoned": 0,
+        "fold_fuel": 0,
+        "fold_ms": 0.0,
+        "fold_skipped": 0,
+        "folded": 0,
+        "generator_nodes": 2,
+        "inlined": 0,
+        "memo_sites": 0,
+        "nodes": 9,
+        "speculative": 0,
+        "startup_call_hits": 0,
+        "startup_fallbacks": 0,
+        "startup_ms": 0.0,
+        "startup_values": 0,
+        "substituted": 0,
+        "thunk_args": 0
+      },
+      "probed": 4,
+      "store": {
+        "handles": 0,
+        "hits": 0,
+        "memory": {
+          "accounting_complete": false,
+          "boxed_payload_bytes": 0,
+          "construction_history_view_bytes": 0,
+          "current_table_bytes": 0,
+          "external_shared_owners": {
+            "printer_names": true,
+            "random_streams": false,
+            "registers": false
+          },
+          "fixed_bytes": 862480,
+          "known_retained_bytes_lower_bound": 862480,
+          "largest_individual_rehash_scratch_bytes": 0,
+          "rehash_scratch_bytes_cumulative": 0,
+          "retired_table_bytes": 0,
+          "retired_tables": 0,
+          "retirement_tracking_bytes": 0,
+          "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+          "slab_bytes": 0,
+          "strings": {
+            "count": 0,
+            "index_capacity": 0,
+            "index_entries_bytes_lower_bound": 0,
+            "text_slots_bytes": 0,
+            "unique_payload_bytes": 0
+          }
+        },
+        "misses": 0,
+        "nodes": 0
+      },
+      "store_reclamation": {
+        "collections": 0,
+        "failures": [],
+        "peak_after_bytes_lower_bound": 0,
+        "peak_after_nodes": 0,
+        "peak_before_bytes_lower_bound": 0,
+        "reclaimed_nodes": 0,
+        "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+        "skipped": null,
+        "trigger_bytes": null,
+        "trigger_source": null
+      },
+      "thunks": {
+        "cached": 0,
+        "forced": 0
+      }
+    }
+  },
+  "counterexample": {
+    "back_to": 1,
+    "ending": "lasso",
+    "length": 1,
+    "states": [
+      {
+        "action": null,
+        "index": 1,
+        "label": null,
+        "values": {
+          "x": 0
+        }
+      }
+    ],
+    "trace": {
+      "ending": {
+        "back_to": 0,
+        "kind": "lasso"
+      },
+      "format": "dive-trace",
+      "length": 1,
+      "properties": [
+        "Live"
+      ],
+      "states": [
+        {
+          "action": null,
+          "values": {
+            "x": 0
+          }
+        }
+      ],
+      "variables": [
+        "x"
+      ],
+      "version": 1
+    },
+    "validation": "valid"
+  },
+  "diagnostics": [],
+  "elapsed_ms": 0,
+  "engine": "core",
+  "error_site": null,
+  "execution": {
+    "capture_completed": true,
+    "exhausted": true,
+    "stage": "complete"
+  },
+  "exit_code": 13,
+  "file": "<fixtures>/Reports.tla",
+  "frontier_storage": null,
+  "message": null,
+  "notes": [
+    "Bounded short-lasso analysis: TLC-exact lasso selection and periodic timing are not claimed. Only independently validated periodic counterexamples are returned; prefix statistics describe the actual committed boundary."
+  ],
+  "options": {
+    "action_composition": "tla",
+    "allow_io": [],
+    "budget": {
+      "max_depth": null,
+      "max_memory_bytes": null,
+      "max_memory_requested_source": "none",
+      "max_memory_source": "none",
+      "max_states": null,
+      "scope": "the check after loading: evaluator-backed fresh model binding after structural configuration/evaluator construction, safety search, graph capture, temporal analysis and fresh native temporal-candidate validation including its rebinding, and producer ASSUME using existing amortized loop checkpoints; structural binding, independent validation ASSUME, post-binding symmetry preparation, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
+      "time_limit_ms": null,
+      "time_limit_source": "none"
+    },
+    "candidate_memory_bytes_per_worker": null,
+    "candidate_record_bytes_limit": null,
+    "choose_order": "canonical",
+    "comparisons": "tla",
+    "deadlock_flag": false,
+    "exit_codes": "tlc",
+    "explore_order": "value",
+    "fingerprint": null,
+    "frontier_codec_nodes_per_value_limit": null,
+    "frontier_memory_bytes_per_queue": null,
+    "frontier_record_bytes_limit": null,
+    "int": "big",
+    "lasso": "short",
+    "lncheck": "deterministic",
+    "predecessor_memory_bytes": null,
+    "predecessor_path_steps_limit": null,
+    "profile": "dive",
+    "seed": 0,
+    "seed_source": "flag",
+    "semantic_profile": "dive",
+    "store": "exact",
+    "store_compact_trigger_bytes": null,
+    "symmetry_liveness": "unreduced",
+    "symmetry_liveness_source": "profile-default",
+    "temporal_bounds": {
+      "acceptance_buffer_bytes": 18446744073709551615,
+      "acceptance_materialization_work": 18446744073709551615,
+      "acceptance_policy": {
+        "bytes": 18446744073709551615,
+        "kind": "buffers",
+        "materialization_work": 18446744073709551615
+      },
+      "cell_limits": {
+        "attribution_rows": {
+          "cells": 18446744073709551615,
+          "kind": "cells"
+        },
+        "graph_labels": {
+          "kind": "run-budgets"
+        },
+        "word_truth": {
+          "cells": 18446744073709551615,
+          "kind": "cells"
+        }
+      },
+      "edges": 18446744073709551615,
+      "formula_nodes": 4096,
+      "formula_steps": 1000000,
+      "generated": 18446744073709551615,
+      "kind": "entry-work-counts-and-acceptance-buffers",
+      "max_expansion_units": 8,
+      "product_edges": 18446744073709551615,
+      "product_steps": 18446744073709551615,
+      "product_vertices": 18446744073709551615,
+      "properties": 256,
+      "states": 18446744073709551615,
+      "successors_per_unit": 18446744073709551615,
+      "tableau_nodes": 4096,
+      "total_memory_budget": false
+    },
+    "tlc_exact_temporal": false,
+    "warnings": true,
+    "workers": {
+      "chaos": null,
+      "reason": null,
+      "requested": 1,
+      "sequential": false,
+      "used": 1
+    }
+  },
+  "output": [],
+  "periodic": {
+    "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+    "exhausted": true,
+    "final_check": true,
+    "growth_factor": 2,
+    "last_level": null,
+    "last_size": 0,
+    "min_states": 65536,
+    "prefix_checks": 0
+  },
+  "properties": [
+    "Live"
+  ],
+  "property": "Live",
+  "resources": {
+    "memory": {
+      "final_sampled": false,
+      "initial_sampled": false,
+      "metric": "<platform-memory-metric>",
+      "observed_max_bytes": null,
+      "samples": 0,
+      "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+      "status": "disabled",
+      "unavailable_at": null
+    }
+  },
+  "schema_version": 3,
+  "statistics": {
+    "depth": 3,
+    "distinct": 3,
+    "generated": 4,
+    "initial_generated": 1,
+    "left_on_queue": 0,
+    "reported_by_tlc": false
+  },
+  "symmetry_liveness": {
+    "declared": null,
+    "effective": "not-applicable",
+    "genuine_temporal": true,
+    "requested": "unreduced",
+    "scope": null
+  },
+  "tlc": {
+    "code": 2116,
+    "exit_status": 13,
+    "name": "TLC_TEMPORAL_PROPERTY_VIOLATED",
+    "verified": true
+  },
+  "verdict": "liveness-violation",
+  "warnings": []
+}

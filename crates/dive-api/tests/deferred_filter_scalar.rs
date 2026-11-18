@@ -61,14 +61,6 @@ fn filtered_wf_matches_two_primary_outcomes_and_validates_the_primary_word() -> 
                 );
                 request.temporal = TemporalMode::Ordinary;
                 let report = dive_api::check_file(&request)?;
-                if store == Store::Exact {
-                    refused::assert_refused(
-                        &report.to_json(),
-                        report.exit_code(),
-                        refused::TEMPORAL_EXACT_STORE,
-                    );
-                    continue;
-                }
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(value["exit_code"], case["physical_exit"], "{value}");
                 for field in ["generated", "distinct", "depth"] {

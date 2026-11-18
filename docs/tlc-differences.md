@@ -436,12 +436,23 @@ so these words earn no agreement. See [the module guide](user/modules.md).
 | **Kind** | Same answer, with a stronger guarantee |
 | **Default** | Fingerprint mode, as in TLC, always reporting its collision bound |
 | **Better option** | `--store exact`: full states, with an unconditional claim that every state was checked |
-| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode (`exact_storage_runs_on_the_core` in `crates/dive-api/tests/core_default.rs`). Ordered safety-frontier spill is available with `--frontier-memory-bytes N` (zero forces disk), under both profiles/stores. It preserves concrete traces and ordered counts, and reports explicit I/O/cleanup failures. Visited stores, candidates, traces and graphs remain outside the frontier-only budget. See [frontier storage](user/storage-recovery.md). |
-| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode (`exact_storage_runs_on_the_core` in `crates/dive-api/tests/core_default.rs`). Separate predecessor spill is available; graph spill is not implemented. |
+| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings, for safety and temporal properties. It gives the same results as fingerprint mode (`exact_storage_runs_on_the_core` in `crates/dive-api/tests/core_default.rs`; temporal fixtures in `crates/dive-api/tests/core_liveness.rs`). Ordered safety-frontier spill is available with `--frontier-memory-bytes N` (zero forces disk), under both profiles/stores. It preserves concrete traces and ordered counts, and reports explicit I/O/cleanup failures. Visited stores, candidates, traces and graphs remain outside the frontier-only budget. See [frontier storage](user/storage-recovery.md). Separate predecessor spill is available for safety. Temporal checks refuse spilled or reclaimed storage by name; graph spill is not implemented. |
 
 **What TLC does.** TLC stores 64-bit fingerprints of states, not the states themselves. A collision between two distinct states would silently skip part of the state space. TLC prints a probabilistic estimate of this at the end of a run, but the "no error found" verdict itself is probabilistic.
 
 **What dive does.** dive offers an exact mode that stores full states and makes an unconditional exhaustiveness claim. Every result says which mode produced it.
+
+**Temporal properties.** With `--store exact`, liveness checking builds its
+behavior graph from full state identities: two states whose fingerprints
+collide stay two vertices. TLC's liveness graph is keyed by fingerprint, so a
+collision can merge states and change the answer. dive's human report states
+the claim ("Exact full-state storage." or "Fingerprint storage (64-bit);
+collision probability not computed."). A spilled store with temporal
+properties is still refused by name.
+
+```sh
+dive check Spec.tla --store exact --output json
+```
 
 **Separate disk predecessor option.** Safety BFS accepts
 `--predecessor-memory-bytes N` (zero goes straight to disk). This moves the

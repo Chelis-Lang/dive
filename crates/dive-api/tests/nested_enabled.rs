@@ -46,14 +46,6 @@ fn nested_enabled_primary_public_results_keep_existing_schema_and_statuses() -> 
                 );
                 request.temporal = TemporalMode::Ordinary;
                 let report = dive_api::check_file(&request)?;
-                if store == Store::Exact {
-                    refused::assert_refused(
-                        &report.to_json(),
-                        report.exit_code(),
-                        refused::TEMPORAL_EXACT_STORE,
-                    );
-                    continue;
-                }
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(value["schema_version"], 3);
                 assert_eq!(value["statistics"]["generated"], oracle["generated"]);
@@ -209,14 +201,6 @@ fn direct_query_instance_properties_keep_original_native_holds() -> TestResult {
                 );
                 request.temporal = TemporalMode::Ordinary;
                 let report = dive_api::check_file(&request)?;
-                if store == Store::Exact {
-                    refused::assert_refused(
-                        &report.to_json(),
-                        report.exit_code(),
-                        refused::TEMPORAL_EXACT_STORE,
-                    );
-                    continue;
-                }
                 let v = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(report.exit_code_for(ExitConvention::Tlc), 0, "{name}: {v}");
                 assert_eq!(v["verdict"], "success", "{name}");

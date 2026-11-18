@@ -5,8 +5,6 @@
 #![allow(clippy::expect_used, clippy::panic, reason = "tiny primary assertions")]
 #[path = "support/core_final.rs"]
 mod core_final;
-#[path = "support/refused.rs"]
-mod refused;
 
 use core_final::Outcome;
 use dive_runtime::CheckOptions;
@@ -65,15 +63,6 @@ fn two_primary_counts_truth_and_native_words_match_in_both_profiles_and_stores()
                 }
             };
             for (cfg, fail) in [(HOLD, false), (FAIL, true)] {
-                if store == dive_store::StoreMode::Exact {
-                    let report = core_final::run(SOURCE, cfg, &options);
-                    refused::assert_refused(
-                        &report.to_json(),
-                        report.exit_code(),
-                        refused::TEMPORAL_EXACT_STORE,
-                    );
-                    continue;
-                }
                 verify(SOURCE, cfg, fail, &options, counts);
             }
         }

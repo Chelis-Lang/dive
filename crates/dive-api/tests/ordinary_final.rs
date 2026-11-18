@@ -309,16 +309,6 @@ fn ordinary_temporal_honors_store_polynomial_deadlock_and_sequential_requests() 
     requests.push(request);
     for request in requests {
         let report = dive_api::check_file(&request)?;
-        if request.store == dive_api::Store::Exact {
-            // Only the retired reference engine kept exact seen storage with
-            // temporal properties (#791, #910).
-            refused::assert_refused(
-                &report.to_json(),
-                report.exit_code(),
-                refused::TEMPORAL_EXACT_STORE,
-            );
-            continue;
-        }
         let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
         assert!(report.temporal_result().is_some(), "{request:?}");
         assert_eq!(value["check_kind"], "temporal");

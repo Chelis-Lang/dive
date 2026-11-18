@@ -114,7 +114,11 @@ they never license substituting that representative for an original successor.
 The production sink (`dive-api`, `core_native_graph.rs`) admits every accepted
 original through `NativeValues`, including seen targets. Capture-only `intern_exact` retains available kind and view flags
 before fingerprinting can replace a row with canonical identity handles.
-The core still refuses exact storage (`07-engine.md`).
+With `--store exact` the explorer names every seen target by its discovery
+id (`Step::seen`), and the sink resolves seen targets only through those ids:
+equal keys of distinct states stay distinct vertices and the sink keeps no key
+index (ADR 0158). A seen step without an id in exact mode, or with one in
+fingerprint mode, is an internal error.
 
 Capture also retains first-discovered original rows for the current/next
 frontier. Source evaluation uses these rows so `UNCHANGED` or `EXCEPT` does not

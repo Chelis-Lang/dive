@@ -2387,6 +2387,17 @@ fn temporal_evidence(
     None
 }
 
+/// The store of the exploration behind a temporal report.
+fn temporal_store(report: &crate::temporal::Report) -> Option<dive_store::StoreMode> {
+    if let Some(complete) = temporal_native_complete(report) {
+        return Some(complete.safety_result().store);
+    }
+    if let crate::temporal::Outcome::NativePrefixViolation(word) = report.outcome() {
+        return Some(word.evidence().safety_result().store);
+    }
+    None
+}
+
 fn temporal_word(report: &crate::temporal::Report) -> Option<(&str, &dive_trace::TraceDoc, usize)> {
     match report.outcome() {
         crate::temporal::Outcome::NativeViolation(word) => Some((
@@ -2526,15 +2537,26 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
         "{} states generated, {} distinct states, depth {}.",
         s.generated, s.distinct, s.depth
     );
-    if let Some(c) = &complete.collision {
-        let _ = writeln!(
-            out,
-            "Fingerprint collision probability (random 64-bit assumption): optimistic {}, actual {}.",
-            c.optimistic,
-            c.actual.as_deref().unwrap_or("not reported")
-        );
-    } else {
-        let _ = writeln!(out, "Exact full-state storage.");
+    // The store, not the absence of collision figures, decides the claim:
+    // Core computes no collision probability for temporal runs (ADR 0158).
+    match (temporal_store(report), &complete.collision) {
+        (Some(dive_store::StoreMode::Exact), _) => {
+            let _ = writeln!(out, "Exact full-state storage.");
+        }
+        (_, Some(c)) => {
+            let _ = writeln!(
+                out,
+                "Fingerprint collision probability (random 64-bit assumption): optimistic {}, actual {}.",
+                c.optimistic,
+                c.actual.as_deref().unwrap_or("not reported")
+            );
+        }
+        (_, None) => {
+            let _ = writeln!(
+                out,
+                "Fingerprint storage (64-bit); collision probability not computed."
+            );
+        }
     }
     let _ = writeln!(out, "{TEMPORAL_NOTE}");
     out
