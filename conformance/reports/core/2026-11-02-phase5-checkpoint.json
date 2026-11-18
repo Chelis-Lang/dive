@@ -5,7 +5,7 @@
   "date": "2026-11-02",
   "recorded_utc": "2026-11-02T02:24:42.419828+00:00",
   "runtime": {
-    "frozen_actual_main": "5688504ee3405f78b7951d6cab2b4b841ee549c8",
+    "frozen_actual_main": "04be1cf93f1039d1197f6e73c7ca31ec19792a55",
     "tree": "a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e",
     "default_engine": "reference",
     "note": "Actual merged runtime is executed; later documentation receives no new execution credit.",
@@ -20,7 +20,7 @@
       "pr": 725,
       "reviewed_source": "8cf4d3c815b747b695aed78517e7566d1d1db720",
       "checked_head": "8cf4d3c815b747b695aed78517e7566d1d1db720",
-      "runtime_merge": "d7ca92921b76d6ef46ca884afb8966c6eba68d99",
+      "runtime_merge": "0cbbb6c75026edbbeca9ee97b07c10a8c6613092",
       "runtime_tree": "0c3ceddec10c50664b8588e93efbc2b7444e4d6d",
       "head_tree_matches_squash": true,
       "required_pr_checks": "all three green before protected squash merge",
@@ -30,7 +30,7 @@
       "pr": 724,
       "reviewed_source": "27ac5dc8c3738eca22c771ae28927a96c4c8709c",
       "checked_head": "fc831e6452170b4afad9f5eef390dad5dc56bd0e",
-      "runtime_merge": "0117a789f189acd88f84974ff8ffe784760e9e15",
+      "runtime_merge": "6693982c5b0d6862c072a90dcd45eb11275ea6ff",
       "runtime_tree": "2cebe9480b34c75acbb8a2162438b635d61f51a5",
       "head_tree_matches_squash": true,
       "required_pr_checks": "all three green before protected squash merge",
@@ -40,7 +40,7 @@
       "pr": 730,
       "reviewed_source": "f1ba5ba0a9abfb88296d505a63b640ab3e90b5bd",
       "checked_head": "b71464faa3bd0a79dbb8014911794310b5534529",
-      "runtime_merge": "70f3b778202445ac33c8a5124e4ca76f84cb22ba",
+      "runtime_merge": "07085960ffb650f5e88caeb642b3d267550140a1",
       "runtime_tree": "0ba86f04af84e9214da6ed9d0714e4d05527efbb",
       "head_tree_matches_squash": true,
       "required_pr_checks": "all three green before protected squash merge",
@@ -50,7 +50,7 @@
       "pr": 729,
       "reviewed_source": "8f5967aa24ca4f2af33c0100edd0484be4a23fcc",
       "checked_head": "91d334b282b94508ff3d59531e37ecc0cde77592",
-      "runtime_merge": "9e075925af2b723be9c0639e4e6d968bdee6200d",
+      "runtime_merge": "687cdceb4f6a902d071b55b632b3690df5681981",
       "runtime_tree": "89f3f83b0d541df035b8a2354a19174b01fe9ec1",
       "head_tree_matches_squash": true,
       "required_pr_checks": "all three green before protected squash merge",
@@ -60,7 +60,7 @@
       "pr": 728,
       "reviewed_source": "7d61219fa77a497c60356d2fb1c01b4a4559787d",
       "checked_head": "09d46460ded4dcc4f5bbad7e55c7766564f2b889",
-      "runtime_merge": "5688504ee3405f78b7951d6cab2b4b841ee549c8",
+      "runtime_merge": "04be1cf93f1039d1197f6e73c7ca31ec19792a55",
       "runtime_tree": "a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e",
       "head_tree_matches_squash": false,
       "required_pr_checks": "all three green before protected squash merge",
@@ -402,8 +402,8 @@
     "node_three_hour_max_compute_usd": 4.284,
     "phase_compute_ceiling_usd": 40,
     "node_archive": {
-      "uri": "s3://<evidence-archive>/phase5-20261101/runtime-5688504e-node-evidence.tar.gz",
-      "source": "5688504ee3405f78b7951d6cab2b4b841ee549c8",
+      "uri": "s3://<evidence-archive>/phase5-20261101/runtime-04be1cf9-node-evidence.tar.gz",
+      "source": "04be1cf93f1039d1197f6e73c7ca31ec19792a55",
       "tree": "a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e",
       "sha256": "e6d7ce958775293268500e03e6d333832ba7dd87792cf64cc0ba34d67c52ec19",
       "bytes": 234146695,
@@ -451,11 +451,11 @@
       "support_archive_member": "phase5-20261101/source-bundle/phase5-reviewed-sources.bundle",
       "bytes": 135794,
       "sha256": "0937efff638b4fb96a8fe4d4b93fb6f82ef869068cd456b5c31370efeda2026b",
-      "note": "Original rejected/approved source tips plus final runtime and unadopted S6; prerequisite ccff7729. Temporary bundle refs removed; no runtime integration branch."
+      "note": "Original rejected/approved source tips plus final runtime and unadopted S6; prerequisite 0b3a5498. Temporary bundle refs removed; no runtime integration branch."
     },
     "local_support_archive": {
       "uri": "s3://<evidence-archive>/phase5-20261101/local-support-final.tar.gz",
-      "source": "5688504ee3405f78b7951d6cab2b4b841ee549c8",
+      "source": "04be1cf93f1039d1197f6e73c7ca31ec19792a55",
       "tree": "a8ab9e3bc576bc564cfd3fd1adb24db3e4d3621e",
       "sha256": "802b87d0bc4aa85719bb25fc2aace3f2fd582b97082c17573c7482397ac8d7e2",
       "bytes": 54798046,
@@ -537,7 +537,7 @@
     "Actual-core full-tier acceptance, unchanged deep inputs, supported platforms/packages/user flows and final RC performance/qualification."
   ],
   "main_required_ci": {
-    "source": "5688504ee3405f78b7951d6cab2b4b841ee549c8",
+    "source": "04be1cf93f1039d1197f6e73c7ca31ec19792a55",
     "run": 41365465677,
     "conclusion": "success"
   }

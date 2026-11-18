@@ -5,7 +5,7 @@
   "identity": {
     "schema_version": 1,
     "campaign": "rss375-overhead normal-input overhead",
-    "base_source": "52485957449fd59ef33e5f7385ce4d437680c8ba",
+    "base_source": "991207ff35880639a2ed7dce189cc1022e195242",
     "candidate_source": "ca2d6e96ff6765518f59f9dcd32c8b306fe82eb7",
     "base_binary_sha256": "20c6e63493882e2aa3dc36c6aa91bf5733633cfa90399df26fd91a35a632e0cd",
     "candidate_binary_sha256": "1918b3efd4dbd82606e11c58f8e0905249f7bba37510107d4f45ab2cc5cf66bc",
@@ -986,7 +986,7 @@
     "build_profile": "release --locked",
     "source": {
       "base": {
-        "commit": "52485957449fd59ef33e5f7385ce4d437680c8ba",
+        "commit": "991207ff35880639a2ed7dce189cc1022e195242",
         "clean": true
       },
       "candidate": {

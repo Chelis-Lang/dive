@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "source_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+  "source_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
   "binaries": {
     "dive": {
       "sha256": "82629a86db65e7525dd6cf59080b6d49ef9be72dc342af613ac0bc2b35ef2b02",
-      "revision": "0f0c6ad1b385846128a1889dea205ac87c468e33"
+      "revision": "f5bf4d1093c3751201f2f93cb8636de159626072"
     },
     "dive-conformance": {
       "sha256": "99afa8ae44e49ed1368cb22755f279d44503afe76d17b1af2fecf2bfc85a8398",
-      "revision": "0f0c6ad1b385846128a1889dea205ac87c468e33"
+      "revision": "f5bf4d1093c3751201f2f93cb8636de159626072"
     }
   },
   "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",

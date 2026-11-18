@@ -113,7 +113,7 @@ This is the small tier: 156 models in the examples, probes, validation-smoke
 and configured-temporal-operators corpora, default profile, 1 worker. It ran
 under `dive-conformance run --impl dive:auto --impl-profile dive --no-sany`
 with `--baseline conformance/baselines/small-dive-w1.json`, on `main` at
-`431d6f95` plus the harness's `--impl dive:<engine>`. The counts come from
+`2930547e` plus the harness's `--impl dive:<engine>`. The counts come from
 the report's `summary.by_engine`.
 
 | Engine that ran | Models |

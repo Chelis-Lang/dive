@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "kind": "empty-function-length-recheck",
-  "source": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "source": "75fa4e33c7f7a45358ddc5e2d2ac947ce8a10220",
   "dive_sha256": "a55e2f1dbac8a05911ef14b7bf5efe3be3e6fd9c1b005e41ee747ca5985f6064",
   "harness_sha256": "3604013c96cecbb39fcfc4b231c07e99b427f8306740951fffc111bbd5419b98",
-  "historical_implementation": "d56f1a6f6 (PR #533): canonicalize empty function keys as IntFcn lower bound 1",
+  "historical_implementation": "abc6d6449 (PR #533): canonicalize empty function keys as IntFcn lower bound 1",
   "runtime_change": false,
   "golden_model": "examples/specifications/LearnProofs/MCFindHighest.cfg",
   "profiles": [

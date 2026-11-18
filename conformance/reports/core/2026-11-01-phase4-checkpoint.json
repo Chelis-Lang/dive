@@ -9,16 +9,16 @@
     "frozen_qualification_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
     "default_engine": "reference",
     "note": "Execution belongs to source95 and its separately identified actual ELFs. Runtime squash949 has the exact qualified tree; the main commit itself was not executed. Later documentation receives no new execution credit.",
-    "previous_landed_main": "d62d68d4f6bc178c34e5e00f9920a7c24b33013c",
+    "previous_landed_main": "ba5c12d578f558a74f130de514da3ddf0e214a7b",
     "previous_landed_tree": "8cedadd05c555b4c14d8d4ae28def3f9ed59eb5c",
-    "qualified_runtime_main": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "qualified_runtime_main": "224e2bc0a007488e37217e9542d216e05cdca593",
     "qualified_runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
     "runtime_merge_binding": {
       "artifact_name": "pr719-merge-binding.json",
       "sha256": "7e6b7af55a1f75d392b9500e56cd94459a6468bcb8e5013abec4eb451728f007",
       "reviewed_head": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
       "qualified_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
-      "runtime_merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+      "runtime_merge": "224e2bc0a007488e37217e9542d216e05cdca593",
       "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
       "tree_identical_to_qualified_source": true,
       "merged_utc": "2026-11-01T20:47:24Z",
@@ -30,7 +30,7 @@
     {
       "pr": 716,
       "reviewed_head": "a25bc558fa23e1d612c8a84b5225e4ae413dfcec",
-      "merge": "63f0d55d247c986dc65bdb012e0c3d4d8e3fbc5b",
+      "merge": "58cb59ca6d1b9d91f3d14de678d6d99a6cf4bdae",
       "issue_closed": 714,
       "scope": "Build dive-trace alone in dedicated target in both local gates and CI; preserve phase3 standalone supplement as distinct from old full gate.",
       "independent_review": {
@@ -46,7 +46,7 @@
       "original_reviewed_head": "36172bcf7977578ce40da1b43259281ce5ed47c7",
       "rebased_head": "84126ab191e635a35982edd0b1e79e22f1cdb13c",
       "reviewed_test_only_head": "cbac393b6c76123934804e460293d5c92a6e0e0a",
-      "merge": "d62d68d4f6bc178c34e5e00f9920a7c24b33013c",
+      "merge": "ba5c12d578f558a74f130de514da3ddf0e214a7b",
       "tree": "8cedadd05c555b4c14d8d4ae28def3f9ed59eb5c",
       "merge_tree_matches_reviewed_candidate": true,
       "issue_closed": 713,
@@ -100,7 +100,7 @@
       "pr": 719,
       "issue_closed": 718,
       "reviewed_and_executed_candidate": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
-      "runtime_merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+      "runtime_merge": "224e2bc0a007488e37217e9542d216e05cdca593",
       "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
       "tree_identical_to_qualified_source": true,
       "measured_initial_adoption_source": "8e7dc78cb853e493661ae203c1c748b56080ae2f",
@@ -153,7 +153,7 @@
     "valid_stacks": 59,
     "invalid_attachments": 1,
     "session_seconds": 155.7614777320996,
-    "actual_elf_source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "actual_elf_source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
     "actual_elf_sha256": "d7ebc89617d221eaabcec624224323352bab6c60aaba947b9c64bd2ee19d380f",
     "runtime_code_diff_to_b1_empty": true,
     "reason": "The single bounded diagnostic does not establish material certifiable repeated guard work for BOTH targeted default/W1 models. Sailfish shows two raw-history guard observations; Bakery shows no such guard in its observed default stacks. Existing comparison, construction, projection, evaluator, generation and seen-set costs cannot be counted as removable positive-proof work. Few truncated samples establish neither precise shares nor a global absence of guards; insufficiency fails the predeclared authoring gate.",
@@ -217,7 +217,7 @@
       ],
       "scope": "All three required CI checks passed at exact95 before runtime PR719 merged; this is not a new execution of squash949."
     },
-    "merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "merge": "224e2bc0a007488e37217e9542d216e05cdca593",
     "manual_issue_close": {
       "closedAt": "2026-11-01T20:47:33Z",
       "number": 718,
@@ -229,7 +229,7 @@
       "sha256": "7e6b7af55a1f75d392b9500e56cd94459a6468bcb8e5013abec4eb451728f007",
       "reviewed_head": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
       "qualified_source": "95e73d2f05ba4af94ac6a2bca7f46fbc06d63a52",
-      "runtime_merge": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+      "runtime_merge": "224e2bc0a007488e37217e9542d216e05cdca593",
       "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b",
       "tree_identical_to_qualified_source": true,
       "merged_utc": "2026-11-01T20:47:24Z",
@@ -242,7 +242,7 @@
     "archive_bytes": 64667685,
     "members": 79,
     "manifested_payloads": 78,
-    "base": "b1a5972d688606463061030c44da19612ef1f068",
+    "base": "5fc4f6390b5f33d19a7cccb85abc6678ebe8fdaa",
     "actual_instrumented_elf_sha256": "28a494320b5963c8d2d0cf785006ceed064a143db7a7ba574896df8c3e1d66b4",
     "patch_sha256": "e81e5af96c31c8ef8b43c66500b4fefa3c5d2df8ae74ee157a150b6e3190e868",
     "runtime_controller_sha256": "6b918e228c22fbdd594dd7315037f5881f632188aae72ec6003e48d4d4381509",
@@ -1385,11 +1385,11 @@
       "verification_artifact_sha256": "5cced131beede478fd6fb0f0a82d2718a18253399148b4e69da7e9486ac85e9e",
       "pins_artifact_sha256": "0b02ddf7f3b38d772e6ffb5e85f000f06025f3499b85d08e6fe3cf0eb042abe7"
     },
-    "qualified_runtime_main": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "qualified_runtime_main": "224e2bc0a007488e37217e9542d216e05cdca593",
     "runtime_tree": "37a77be0a70fe86dcaf4fce4617fa82690fe356b"
   },
   "historical_negative_evidence_retained": {
-    "phase3_source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "phase3_source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
     "phase3_record": "conformance/reports/core/2026-11-01-phase3-checkpoint.json",
     "phase3_gate_exit": 0,
     "phase3_census_and_join_exit": 1,
@@ -1517,13 +1517,13 @@
       "root_volume_deleted": true,
       "remaining_active_owned_phase_instances": [],
       "all_required_archives_verified_before_termination": {
-        "atom-diagnostic-b1a5972d": {
+        "atom-diagnostic-5fc4f639": {
           "sha256": "70d1b1802ea806ca96932374785993a58137b2cfe57e1af5c9afcbe4f19b3e09",
           "members": 79,
           "verified_utc": "2026-11-01T17:40:27.743435+00:00",
           "verification_sha256": "de5498c8981aae3d00d46a1ff3e8eb7603eb2fcb95438d817887de3b5d2748e7"
         },
-        "aba-baseline-b1a5972d": {
+        "aba-baseline-5fc4f639": {
           "sha256": "43fda902c0d9ab5c3373c59b905ecce15d59238934de24ba831cf2d7c37e52e7",
           "members": 38,
           "verified_utc": "2026-11-01T18:29:36.471627+00:00",
@@ -1602,8 +1602,8 @@
     "no_builds_tests_models_or_cloud_by_this_docs_author": true,
     "raw_logs_archives_or_source_snapshots_committed": false,
     "source_links_repo_relative": true,
-    "authoring_initial_base": "d62d68d4f6bc178c34e5e00f9920a7c24b33013c",
-    "documentation_parent_runtime_main": "949e549cc1fece68cfa1bcfe59ea4b1c83bc368f",
+    "authoring_initial_base": "ba5c12d578f558a74f130de514da3ddf0e214a7b",
+    "documentation_parent_runtime_main": "224e2bc0a007488e37217e9542d216e05cdca593",
     "later_documentation_is_new_execution": false
   },
   "issue_contracts": {

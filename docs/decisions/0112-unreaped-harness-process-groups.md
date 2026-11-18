@@ -14,7 +14,7 @@ are source-level races (#430), not evidence that an unrelated process was
 actually signalled in a recorded campaign.
 
 The harness README has targeted macOS and Linux since bootstrap commit
-`0dcf235b6` (2026-10-08). The old generic Unix implementation was not a promise
+`ab50c2fd9` (2026-10-08). The old generic Unix implementation was not a promise
 of broader supported-host coverage. This change enforces that existing scope
 explicitly; it does not substitute successful direct-child execution for Unix
 process-group cleanup.

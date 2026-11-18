@@ -2,7 +2,7 @@
   "schema_version": 1,
   "kind": "fixture-census-common-input-comparison",
   "before_source_revision": "2d55317a21c5d14336e274b27378ef1b2a462806",
-  "after_source_revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+  "after_source_revision": "fb920399b68d08b936683be23315d82b80c2d0e4",
   "before_population": 1474,
   "after_population": 1476,
   "common_population": 1474,
@@ -579,7 +579,7 @@
   ],
   "invariant_error_credit_scope": "Actual merged main includes the approved trace v2 change. Original 37/38 invariant-error cases are measured again here; credit depends on these observed actual-main statuses. The earlier c831 diagnostic remains a separate execution.",
   "source_input_freeze": {
-    "source_revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+    "source_revision": "fb920399b68d08b936683be23315d82b80c2d0e4",
     "v1_fixture_source_revision": "2d55317a21c5d14336e274b27378ef1b2a462806",
     "fixture_count": 1476,
     "selection_counts": {

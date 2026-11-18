@@ -4,9 +4,9 @@
   "date": "2026-10-24",
   "status": "complete_measurement_with_36_unresolved_in_scope_models_not_release_acceptance",
   "source": {
-    "measured": "68c09a1b7c2d12445c6eb967f9df7a886dbae8c3",
+    "measured": "eb33b279b589e673ef70c0d18c555562c01d7adf",
     "tree": "ac0547cbf2fca5abf2ebd517f419b9e45c3ef2ba",
-    "delivery_base": "a0ec72b901dab4646ca67312cb5ee435b6541414",
+    "delivery_base": "f1b0a8a7874d74b771ba90fb91d2e18410994218",
     "runtime_source_transfer": "Only documentation/changelog changed since measured source; no binary-equivalence or new-source execution claim."
   },
   "population": {

@@ -30,7 +30,7 @@
     "actual_executed_source": "16095d43f9391836a900d2369c9cefa77f25a5f3",
     "source_tree_and_elf_bound_by_ready_receipt": true,
     "build_receipt_clean": true,
-    "squash_main": "9a1d51a113ead8dff77c52409d9d3350247637d4",
+    "squash_main": "35593fcae54ddedd29b3ae49dbf2e72e56ea4706",
     "squash_tree": "3f36eb710d1a1d052764e443a329d24055f2d87a",
     "whole_tree_identical": true,
     "main_commit_itself_executed": false,

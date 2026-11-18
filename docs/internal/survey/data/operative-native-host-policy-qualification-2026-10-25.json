@@ -3,7 +3,7 @@
   "purpose": "Operative native host binding foundation correctness; no atomic optimization or throughput claim",
   "source": "48ed1e428f2df66a233874edf91b888c14e6dca4",
   "tree": "3c77a4c3f82de4e71a951c92c9dbdf90a052ee12",
-  "base": "8f738c0f9376d061f47b162ddca4935c6704cee3",
+  "base": "2e82face8be18c168b8226c3dcba444a1a607f2d",
   "full_gate": {
     "command": "cargo xtask gate --full",
     "phases": 13,

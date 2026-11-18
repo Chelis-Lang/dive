@@ -312,7 +312,7 @@
       "geomean_instruction_ratio": 1.0030062492654266
     },
     "four_byte_fingerprint_extension": {
-      "base": "90174cdfb9eee6bc0802eb6630433832dfa6b797",
+      "base": "0cecacf415efe2ba07d0d28601356cc87f3656d5",
       "candidate": "e38cf3958379441c646ba21489bcee2aadbead22",
       "base_binary_sha256": "b7542ced14659e9cceb5712a2be2eea7290b2903e4492baeceffc42647bef157",
       "candidate_binary_sha256": "2b4d5bd6d2cd2afca36ce83d6d878b4bfa39485a40f9fb2194c10316d2c26a45",
@@ -535,7 +535,7 @@
       "geomean_instruction_ratio": 1.0047295461996861
     },
     "inline_settled_leaves": {
-      "base": "773490db7d060aef940aa02528d772b89d9fccc0",
+      "base": "ec983f6e877ffd79b499fad573379e1ce92d45b6",
       "candidate": "b7c22ccd35d527f109c94e7548793f05064a3276",
       "base_binary_sha256": "8a54fb9e4d645af0d525e731585a56e0d36786d8b38ce3f7470f19b358a3eca4",
       "candidate_binary_sha256": "fce13614f872a55b987cfecf43ed471b9e47ffa4a0550597e0419c417ba41c0d",

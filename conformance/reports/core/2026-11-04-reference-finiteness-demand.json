@@ -2,7 +2,7 @@
   "issue": 771,
   "runtime_source_commit": "eac7015a4caf6bcf10f255c6eaa1b09feb51b0d9",
   "runtime_tree": "943339b0a72b1bc5c503e8e652f41678ec255be6",
-  "base": "66483059ad696127224af4962db1e55b96bb4710",
+  "base": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
   "oracle_first_commit": "d0a3a573",
   "patch_sha256": "4a7b6347ef7442aff5835d2bd3d54b4713e174b3993152782fa8907bbba5f8e8",
   "repair": "IsFiniteSet delegates compound emptiness to an operation-local traversal of original Product/record/function-set receivers. Product and record traversal returns at the first empty child in stored receiver order; function-set domain emptiness precedes range emptiness. Existing leaf methods and initial finiteness order remain in use. No conversion, receiver replacement or shared Value normalization change.",
@@ -16,7 +16,7 @@
   },
   "primary_binding": {
     "report": "conformance/reports/core/2026-11-04-reference-finiteness-oracle.json",
-    "sha256": "b5280b64461f36e8fc307beb91eb09008ff31f3a3b0913685fdd4a124a0154ad",
+    "sha256": "594c8e19d68450fc17bfa92037e9968e955c6f258253e3d780eb185774660add",
     "goldens": [
       {
         "path": "conformance/golden/tlc-2026.10.06.014338/reference-finiteness-demand/specifications/EmptyBeforeScalar/EmptyBeforeScalar.cfg.json",
@@ -322,7 +322,7 @@
     "source_sha256": "a6ade1a8609b82166c515644268c273011034608d319ddfe0c5fcacdc3a8d6b6",
     "config_sha256": "79229ebac5ae0c9f55866c6842bae86f43e89d752cbf1b107c4dcedd809fa34d",
     "observations": 4,
-    "result": "Retained original composite succeeds2193/0 at3/3/depth3 on both engines and both profiles. The earlier claim that its first clause isolated the defect is explicitly corrected in issue771 and primary documentation; isolated direct empty-axis and empty-function-domain clauses already pass fd2190e2/main."
+    "result": "Retained original composite succeeds2193/0 at3/3/depth3 on both engines and both profiles. The earlier claim that its first clause isolated the defect is explicitly corrected in issue771 and primary documentation; isolated direct empty-axis and empty-function-domain clauses already pass c7c79f7d/main."
   },
   "attempts_preserved": [
     "The first source-order forecast did not seed encounter-token record-field order. Original inputs and refused/context-only streams are retained, with no failed golden written. Source-correct controls were pinned before runtime repair.",

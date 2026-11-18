@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "NOT_ADMITTED_AFTER_COMPLETE_EXISTING_LEDGER_QUERY",
-  "source": "1a8343b90a60f5087a1a5a9ca8d1a0f69195992a",
+  "source": "4c49488f8d6aa33bd4748b54d428053875733fce",
   "source_tree": "bb4dad68b4ee8c5834c61997eb1e11fac5d1dcaf",
   "input_scope": "Four ADR0104 reduced models, both profiles, one worker; unweighted eight-cell instruction arithmetic. This is a query of existing profiles, not a new model run or candidate screen.",
   "raw_replay": {

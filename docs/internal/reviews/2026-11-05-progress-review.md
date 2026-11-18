@@ -140,7 +140,7 @@ Charter item 13 (2026-10-29) said to use focused checks and integrate small
 changes, keeping full qualification for milestones and releases.
 
 The agent then declared eight "phases" in seven days: #692, #706, #715, #720,
-#732, #743, #764 and `19cbefe1`, three of them on 11-01. Each ran:
+#732, #743, #764 and `81535879`, three of them on 11-01. Each ran:
 - the 55-minute full gate;
 - a 3,040-ID census;
 - S3 archives, receipts, dollar ledgers and node-absence proofs;

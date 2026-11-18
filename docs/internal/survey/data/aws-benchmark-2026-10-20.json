@@ -2,7 +2,7 @@
  "schema_version": 1,
  "measured_at": "2026-10-20",
  "campaign_id": "2477-1792514764214149737",
- "source_commit": "73259029b7689a55ddfe77ed648cb5dd14519274",
+ "source_commit": "27e24c8746992c7add5a19814b694170ec9a6ebc",
  "source_clean": true,
  "binary_sha256": "2987ec6480544a3d69de2e7f3de794cc9035678611c03bb85ae217bedfdd4ca5",
  "benchmark_set_sha256": "5a1a11b0398324394a2cc0b3ca8679b744bd20ced27cb6c4cfe662c8da942c8e",

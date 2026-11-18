@@ -4,7 +4,7 @@
   "record_status": "COMPLETE_BOUNDED_QUALIFICATION_WITH_NEGATIVE_CAPACITY_AND_PERFORMANCE",
   "date": "2026-11-01",
   "runtime": {
-    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
     "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
     "frozen_utc": "2026-11-01T13:28:42.993689+00:00",
     "adopted_prs": [
@@ -25,7 +25,7 @@
   "landed_changes": [
     {
       "pr": 709,
-      "merge": "b4967e0a0d464606a889df2ba106c61bf36fcd29",
+      "merge": "c635f4647b603241d6d745f9787a5197a0592b3d",
       "reviewed_candidate": "a1e731d3312199dc718d0436026d4c685ce9e5ee",
       "adr": "docs/decisions/0134-native-atom-row-proofs.md",
       "scope": "Positive closed-input proof reuse for exact immutable retained rows within one native graph analysis, both profiles; one-MiB optional storage cap; original checks on bypass.",
@@ -34,7 +34,7 @@
     },
     {
       "pr": 712,
-      "merge": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "merge": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
       "reviewed_candidate_same_runtime_tree": "f4bf17fdf8a6d5ed8b566c63dbf61f897a4508fb",
       "adr": "docs/decisions/0135-bounded-ordered-error-prefixes.md",
       "scope": "Bounded independent ordered-prefix execution for six source-final VIEW, two top-level non-Boolean constraint and two named invariant diagnostic families.",
@@ -52,7 +52,7 @@
     }
   ],
   "frozen_source_required_ci": {
-    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
     "verified_utc": "2026-11-01T13:43:40.116221+00:00",
     "checks": {
       "Workspace gate": {
@@ -77,7 +77,7 @@
   },
   "fixture_census": {
     "status": "COMPLETE_WITH_FINDINGS",
-    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
     "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
     "selected_per_profile": 1520,
     "configuration_population_per_profile": 1637,
@@ -181,7 +181,7 @@
         }
       },
       {
-        "source": "c21e5097",
+        "source": "8b80a347",
         "old_configuration_count": 1601,
         "added_ids": 36,
         "removed_ids": 0,
@@ -195,7 +195,7 @@
         }
       },
       {
-        "source": "68dd8266",
+        "source": "0bddb993",
         "old_configuration_count": 1614,
         "added_ids": 23,
         "removed_ids": 0,
@@ -304,7 +304,7 @@
   "local_qualification": {
     "single_integrated_full_gate": {
       "status": "COMPLETE_PASS",
-      "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
       "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
       "one_invocation": true,
       "physical_exit": 0,
@@ -538,7 +538,7 @@
         "dive-trace",
         "--locked"
       ],
-      "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
       "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
       "physical_exit": 0,
       "compiler_reported_seconds": 11.64,
@@ -595,7 +595,7 @@
       "scope": "Terminal local gate/census/Auto accounting and source binding. Separate from performance, original capacity and later preservation actions."
     },
     "preservation": {
-      "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
       "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
       "archive": {
         "s3_uri": "s3://<evidence-archive>/phase3-20261101/local-qualification/local-qualification-evidence.tar.gz",
@@ -632,7 +632,7 @@
       "ELF_sha256": "84d72596916db8a14e0ccf343437c4dc9d50fb1c47d6ec1b27f78668692bfa7c"
     },
     "baseline": {
-      "commit": "b2274f3dbb28654e9caeb166d88dd6bffeaedb5a",
+      "commit": "9454f167bec0f044c3a9d0ccea95fbd6aa0b629e",
       "tree": "97a3990e297cc300c0acdace948ae49755162284",
       "ELF_sha256": "f0547ac1720a2a439df6ec4e5fe9d0dc208026c90773e99e4ac8a3d17221692c"
     },
@@ -769,7 +769,7 @@
     "rows": [
       {
         "label": "baseline",
-        "source": "b2274f3dbb28654e9caeb166d88dd6bffeaedb5a",
+        "source": "9454f167bec0f044c3a9d0ccea95fbd6aa0b629e",
         "tree": "97a3990e297cc300c0acdace948ae49755162284",
         "binary_sha256": "d92407597d3a9c1ffde6149728386f15732709e7f28d79cc98b89b9e2429c11c",
         "wall_seconds": 900.097005162,
@@ -920,7 +920,7 @@
     "issue": 713,
     "status": "OPEN_INHERITED_OUTSIDE_FROZEN_IMPLEMENTATION_DELTA",
     "baseline_source": {
-      "head": "b2274f3dbb28654e9caeb166d88dd6bffeaedb5a",
+      "head": "9454f167bec0f044c3a9d0ccea95fbd6aa0b629e",
       "tree": "97a3990e297cc300c0acdace948ae49755162284"
     },
     "reviewed_source": {
@@ -967,7 +967,7 @@
     "capacity_and_performance_acceptance": false
   },
   "integrated_performance": {
-    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
     "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
     "status": "COMPLETE_CONTROLLED_DIAGNOSTICS_PERFORMANCE_ACCEPTANCE_REJECTED",
     "native_dive_elf_sha256": "d7ebc89617d221eaabcec624224323352bab6c60aaba947b9c64bd2ee19d380f",
@@ -978,7 +978,7 @@
     "total_actual_core_observations": 64,
     "cohorts_pooled": false,
     "focus": {
-      "run_id": "focus-fb48dbbf-3rep",
+      "run_id": "focus-6a373bcc-3rep",
       "models": 2,
       "repetitions": 3,
       "rows": 36,
@@ -1246,14 +1246,14 @@
         }
       },
       "archive": {
-        "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-focus-fb48dbbf.tar.gz",
+        "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-focus-6a373bcc.tar.gz",
         "sha256": "d2e7f82914a018d4c837cd3bdae050a4498b050a88241598f4d7f8c5963a8937",
         "bytes": 55887680,
         "members": 58,
         "root_download_and_all_member_hashes_verified": true,
         "verified_utc": "2026-11-01T14:04:25.379397+00:00",
         "verification_receipt": {
-          "artifact_name": "final-focus-fb48dbbf-verification.json",
+          "artifact_name": "final-focus-6a373bcc-verification.json",
           "sha256": "9db677b58c8d5cf55f2f0252467790379097837f1e1e6c792af4dc78a1476ceb",
           "bytes": 642
         }
@@ -1262,7 +1262,7 @@
       "limits": "Three matched repetitions and two models only. Controlled observed window with periodic-sampling limits; no five-repeat, whole-panel or milestone acceptance."
     },
     "breadth": {
-      "run_id": "breadth-fb48dbbf-1rep",
+      "run_id": "breadth-6a373bcc-1rep",
       "models": 10,
       "repetitions": 1,
       "rows": 60,
@@ -1827,14 +1827,14 @@
         }
       },
       "archive": {
-        "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-breadth-fb48dbbf.tar.gz",
+        "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-breadth-6a373bcc.tar.gz",
         "sha256": "a01abb1236d12c01271e53840ab81bcac0c8acda738cc1b5612bf994bbcef2bf",
         "bytes": 59920960,
         "members": 60,
         "root_download_and_all_member_hashes_verified": true,
         "verified_utc": "2026-11-01T14:31:48.664353+00:00",
         "verification_receipt": {
-          "artifact_name": "final-breadth-fb48dbbf-verification.json",
+          "artifact_name": "final-breadth-6a373bcc-verification.json",
           "sha256": "ea9d5e05198d8a7a091592598030c54dc8a549f4a5f0cc44bb5623a0f23bb6af",
           "bytes": 648
         }
@@ -1883,7 +1883,7 @@
     "runtime_cache_boundary": {
       "collected_utc": "2026-11-01T14:09:23.900259+00:00",
       "boundary": "After focus, before breadth timing; not continuous tamper proof or a retroactive pre-focus attestation.",
-      "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+      "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
       "actual_remote_jar_and_jre_hashes_match_pinned_local_artifacts": true,
       "remote_receipt": {
         "artifact_name": "runtime-cache-actual.json",
@@ -1965,7 +1965,7 @@
     "M1_M2_RC_release_acceptance": "open; no promotion"
   },
   "original_temporal_capacity": {
-    "source": "fb48dbbf42bd224f278b138e74c1c8e29e2af106",
+    "source": "6a373bcc81c9403da2cdcd3098d7521ef3a8fc13",
     "tree": "b2d90500b04efdd00f1c3bcac43dde43e4a0376a",
     "dive_elf_sha256": "43d9b6a22cb31f73bcfac2b13ed45ec127b4d3e21fc3137b6c9231b84f903984",
     "status": "COMPLETE_VALID_NEGATIVE_MATRIX_11_OF_12",
@@ -2422,7 +2422,7 @@
       "bytes": 4834
     },
     "archive": {
-      "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-capacity-fb48dbbf.tar.gz",
+      "s3_uri": "s3://<evidence-archive>/phase3-20261101/final-capacity-6a373bcc.tar.gz",
       "sha256": "f653ac17247aeee60c97eb457087a995468479186d1f720ce6ea9146bbf5a700",
       "bytes": 25958943,
       "members": 147,
@@ -2431,7 +2431,7 @@
       "root_download_and_all_member_hashes_verified": true,
       "verified_utc": "2026-11-01T15:54:48.620843+00:00",
       "verification_receipt": {
-        "artifact_name": "final-capacity-fb48dbbf-verification.json",
+        "artifact_name": "final-capacity-6a373bcc-verification.json",
         "sha256": "99c4a759c211a2063fbd95377317b19e6763c0fdb14df02de1476f5e70f5f329",
         "bytes": 652
       }

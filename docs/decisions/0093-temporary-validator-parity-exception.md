@@ -77,7 +77,7 @@ corpus, modes, liveness, performance or release completion credit.
 Private startup recovery merged through [PR #262](https://github.com/Chelis-Lang/dive/pull/262),
 and direct initial random membership through [PR #263](https://github.com/Chelis-Lang/dive/pull/263).
 The latter's tested source `e8c82c0e039f8da6308796a5bdf09ec5ab79a4fe` has the same
-tree as merged main `ade12658044bbc9195bae118351434b2082c4df9`. Fresh independent
+tree as merged main `9996b958e90eb793efb37f7f7d3ab6c1d8ab5746`. Fresh independent
 review, the full local gate (1,599 tests, no skips, 456 SANY agrees), all four
 complete unchanged 154-model runs and all three required source and main CI
 checks passed.

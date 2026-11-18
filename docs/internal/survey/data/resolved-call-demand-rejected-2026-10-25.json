@@ -5,7 +5,7 @@
   "status": "SCREEN_REJECTED",
   "change": "Shared original recursive interpreter with a scoped callee-access protocol: borrow only the final lazy actual suffix, promote automatically into original owned frames/thunks before captures, and share immutable zero-slot top-level frames. Existing resolved IR and typed slots remain. Private runtime prototype unmerged.",
   "source": {
-    "base": "de8a97617556ab235209908e9c9dc486198b6c0f",
+    "base": "1b6bdaab86559be9e22277253c092b693ec6ab75",
     "candidate": "813525e8ad060c78f78cd200201e23d41472235f",
     "trees": {
       "base": "65da9acfe5442f9c50043aac4af0a159203b02b9",

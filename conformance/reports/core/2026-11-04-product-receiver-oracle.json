@@ -2,7 +2,7 @@
   "kind": "product receiver primary observations before issue 768 semantic repair",
   "issue": 768,
   "rejected_head": "a9f311f9449ea0acb0e483ff8ba76c6a9f9c5859",
-  "base_source": "fd2190e2fa99c03aa3c18371a487b5da4c638b74",
+  "base_source": "c7c79f7dd01ed96313b74d7743cfbded56d5106f",
   "base_binary_sha256": "75c33b3255fb0a1f700951a3c436bc39811a5959c67df32f2795a2332971a8c9",
   "base_observations": [
     {

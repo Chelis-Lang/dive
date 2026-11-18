@@ -1,6 +1,6 @@
 # Motivation: why a new core, and where its speed comes from
 
-Status: current as of `main` at `794e9431` (2026-10-26).
+Status: current as of `main` at `625622c1` (2026-10-26).
 
 ## 1. Measurements
 
@@ -43,7 +43,7 @@ use is far lower than TLC's: 4–300 MB against 1.7–3 GB.
 ### 1.2 Where the time goes
 
 The figures below come from macOS `sample` on a profiling build (`main` at
-`109ba0ab`, MCLamportMutex). They are inclusive shares on the worker thread at
+`92a2e32d`, MCLamportMutex). They are inclusive shares on the worker thread at
 1 worker:
 
 | Category | Share |

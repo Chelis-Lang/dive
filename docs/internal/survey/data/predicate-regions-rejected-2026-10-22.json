@@ -3,7 +3,7 @@
   "study": "predicate-region-screen",
   "date": "2026-10-22",
   "status": "rejected-unshipped-prototype",
-  "baseline_source": "6badeb20b393dce1dc5fba50ad161d70b092e91e",
+  "baseline_source": "9568d168610808e817d554cf3b220a4d80cd928b",
   "candidate_source": "561e6ff451f9aed2d9a4bebee6ed394ca3de23e6",
   "source_trees": {
     "base": "789ee91f2abb1a600604f61e840b6b81747a4b00",

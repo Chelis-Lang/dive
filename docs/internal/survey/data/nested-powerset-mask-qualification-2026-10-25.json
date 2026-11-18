@@ -3,7 +3,7 @@
   "status": "QUALIFIED_CLOSED_POWERSET_FILTER_MASK",
   "runtime_source": "2c966c74543f38b3de2e19828bef492aad9c7a5d",
   "runtime_tree": "f39d7f38b4a4bf5c5878dea3d51b58c47eec392d",
-  "base_main": "84c2624a40a94865fc9e5eba167f95619c9038f1",
+  "base_main": "58532a4c1424de0e0b1dc7471d65f529f28dc63b",
   "model": "specifications/SpanningTree/SpanTreeTest5Nodes.cfg",
   "module": "specifications/SpanningTree/SpanTreeTest.tla",
   "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",

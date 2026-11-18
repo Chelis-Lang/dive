@@ -9,14 +9,14 @@
     "partial": 27,
     "missing": 3
   },
-  "base": "b809a2885377c18fe13685601edcdf17ab1be2c6",
+  "base": "9ea1b81a6029fdfa37efc24abc6650f08efc604b",
   "implementation": {
     "disk_membership": {
       "issue": 733,
       "pr": 738,
       "author": "ca6a05706b7591eab4c234d441a43bc2fe6bf27f",
       "tree": "992031ca9c6527ad61877383258587954b168d88",
-      "merged": "91504d7e9697132bb719c1786b4761ad94dae4c8",
+      "merged": "6bd7d7335541a657060f977aa1ea6fe4f9c13d00",
       "review": "approve",
       "scope": "explicitCore safety fp/exact canonical disk keys; actual1worker; Auto staticReference; fallible audit/replay/cleanup"
     },
@@ -29,7 +29,7 @@
       "scope": "ownedStore/history,DIVECC01 in unchanged atomic envelope, completedlevels, freshprocess,VIEW/symmetry,spill+disk; no totalRAM/temporal/effects/distribution",
       "original_author": "794fe0496b73b519682de6a3dfc56de26a9deca3",
       "author": "14a27c67365ee53e9828448d972ab8b7e9dc6284",
-      "merged": "cd5b5e622f199d5067b34f95802f8182c45fd031",
+      "merged": "a0fa3588c958e533dfff4a470029f508e4f7e561",
       "review": {
         "decision": "approve corrected source",
         "original_review_json_sha256": "15cda30f054852713ed22239d516934cf619e652c06a1f6cba2b22cbc3dbcbca",
@@ -68,7 +68,7 @@
         "public_mismatches": 0
       },
       "standalone_trace": "fresh build/isolation passes",
-      "merged": "ee79de8295d1d9c73324b2322491ecf77485729d",
+      "merged": "3e197c9a440fe166634aba354de41f4259eca331",
       "runtime_reviewed_source": "8423a482fbb807015eadd350548041907b4b62e0",
       "reader_corrections": [
         "checked generated-count lower bound across Init and selected steps",
@@ -88,7 +88,7 @@
       "issue": 737,
       "pr": 740,
       "author": "21a9d3532298a3965be8be91622c739edb12fb45",
-      "merged": "e647c4ee41d49d8fa1829daf8e22fed557312d2e",
+      "merged": "13028ccceca1c7f5c2d9ec3cee864d855d057ab8",
       "review": "approve",
       "scope": "two-source primitive2179 primary+diagnostic before second temporal row completion; total true recurrences retained; old6traceversions unchanged",
       "focused_models": 4,
@@ -104,7 +104,7 @@
       "issue": 731,
       "pr": 739,
       "author": "9ccce11aa36fde605375a20258bca5f65a396ec4",
-      "merged": "b29d236bbe80067b4aa701b2a9bcfcb8ff59937e",
+      "merged": "ed715e71314dfa126c6c36ff134806a84a699427",
       "review": "approve",
       "default_counts": [
         1581,
@@ -130,7 +130,7 @@
       "code_shipped": false
     },
     "baseline": {
-      "source": "b809a2885377c18fe13685601edcdf17ab1be2c6",
+      "source": "9ea1b81a6029fdfa37efc24abc6650f08efc604b",
       "tree": "967dc6331970d326a9a224acad3a6305528d04b9"
     },
     "initial_N4_median_runtime_ratio": 0.5002305954886468,
@@ -251,10 +251,10 @@
     "record": "conformance/reports/perf/2026-11-02-phase6-scalar-specialization.json"
   },
   "qualification": {
-    "source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+    "source": "3e197c9a440fe166634aba354de41f4259eca331",
     "tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
     "fullgate": {
-      "source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+      "source": "3e197c9a440fe166634aba354de41f4259eca331",
       "tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
       "physical_exit": 0,
       "postflight_exit": 0,
@@ -537,14 +537,14 @@
       "launched_utc": "2026-11-02T19:05:45.123332+00:00",
       "native_command_runtime_max_s": 1752
     },
-    "node_tag_prewarm_source": "b29d236bbe80067b4aa701b2a9bcfcb8ff59937e",
+    "node_tag_prewarm_source": "ed715e71314dfa126c6c36ff134806a84a699427",
     "actual_source_authority": "clean worktree Git source/tree and actual ELF hashes rechecked before/after all selected commands; the unchanged prewarm instance tag is not the final-source authority",
     "independent_downloaded_data_audit_sha256": "2b7db9a117ff61e138bb3599a2774b731db2a97f51a8ac86f5e8a83bb9070ba9",
     "independent_final_data_review": {
       "decision": "approve bounded qualification evidence with stated limits",
       "json_sha256": "91f6cbb9ecaf233f4f43d52bed655d76705f86f790901c1c17fa7516c0ce9e83",
       "markdown_sha256": "54a6982a2d462f1b72e2a87c575afcb9629f9d565500697f39d0514c5ef9575c",
-      "reviewed_source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+      "reviewed_source": "3e197c9a440fe166634aba354de41f4259eca331",
       "reviewed_tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
       "source_or_model_test_gate_reruns_by_reviewer": false,
       "mutable_final_core_record_or_docs_hashed_by_data_review": false
@@ -579,7 +579,7 @@
       "all_members_hash_verified": true,
       "verified_utc": "2026-11-02T19:26:46.355312+00:00",
       "s3_bucket": "<evidence-archive>",
-      "s3_key": "phase6-20261102/runtime-ee79de82-node-evidence.tar.gz"
+      "s3_key": "phase6-20261102/runtime-3e197c9a-node-evidence.tar.gz"
     },
     "local_support_interim_archive": {
       "s3_bucket": "<evidence-archive>",
@@ -642,7 +642,7 @@
     "ADR0119 performance/memory/startup/scaling and RC gates"
   ],
   "updated_utc": "2026-11-02T19:38:23.624219+00:00",
-  "qualified_runtime_source": "ee79de8295d1d9c73324b2322491ecf77485729d",
+  "qualified_runtime_source": "3e197c9a440fe166634aba354de41f4259eca331",
   "qualified_runtime_tree": "14f02996e2fd26f1168a8a4177706c803eb8d50f",
   "acceptance_limits": [
     "Reference remains default; Core and Auto are explicitly selected",

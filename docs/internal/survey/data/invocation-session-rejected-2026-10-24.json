@@ -5,7 +5,7 @@
   "status": "rejected_complete_instruction_screen",
   "change": "Private generation-tagged invocation control across calls, thunks, substitutions, bounded quantifier rows and raw logic, with same-session native callbacks and declared legacy fallback barriers. No runtime change landed.",
   "source": {
-    "baseline": "6077f492ad4ca8aab2ee9c8749fe82bab78ef773",
+    "baseline": "63a7fbed1b2a4a3f6b30b311dc78b2637f8bbb50",
     "candidate": "99a4787830f2193bb3f574e3739b5f199e64f4ae",
     "trees": {
       "base": "902754e71e67f4e84fcde9560ca3df259a3c8ab1",

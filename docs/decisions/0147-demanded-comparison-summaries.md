@@ -24,7 +24,7 @@ grant adoption.
 ## Decision
 
 Do not adopt or merge this candidate. Against baseline
-`2be62e211d548760140bbc024fdd2fd015d67368`, the first screen completed all
+`a86a15311545e16a2e81d74e21efb76c6b9dc85d`, the first screen completed all
 30 Sailfish rows correctly across both profiles and actual widths one/eight.
 One-worker rows retained 109,604 distinct states, 314,144 generated and
 depth 16.

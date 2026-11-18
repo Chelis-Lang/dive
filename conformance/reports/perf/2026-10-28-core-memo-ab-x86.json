@@ -13,7 +13,7 @@
   "ami": "<ami>"
  },
  "binary": {
-  "commit": "fdaf57a2ce937da27dfbae1268bbe86470abfb54",
+  "commit": "eb97f8c0a7637264f361057ee670b406609d53b5",
   "build": "release profile",
   "rustc": "1.99.0"
  },

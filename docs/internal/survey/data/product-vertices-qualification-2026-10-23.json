@@ -5,7 +5,7 @@
   "policy": "File temporal product_vertices uses explicit finite machine-index capacity; public Rust defaults/custom ceilings and all other admission owners unchanged.",
   "source": {
     "base": {
-      "head": "1892ddc7ea97902f65d406543a9d68f38a498e9d",
+      "head": "f9b3871f5371b488d96d2af71df4c9deb3ff3d04",
       "tree": "721c8821513e9c5dfb01c38242b4bd53fe6dc190",
       "status": "",
       "tracked_file_count": 22672,
@@ -20,7 +20,7 @@
     }
   },
   "measured_candidate_source": "db8d4ad56143d33b07a8c885a03331b3c44ab30b",
-  "measured_base_main": "1892ddc7ea97902f65d406543a9d68f38a498e9d",
+  "measured_base_main": "f9b3871f5371b488d96d2af71df4c9deb3ff3d04",
   "source_contract_sha256": "35e49e1593aee14b58e589a3c242c422bb524bd1f030f525c19e66c1d0344154",
   "integrated_patch_sha256": "8201797890fe8c7a4b2e6c9164659ef2f54afc5eb1f5153001b2082afb869ec9",
   "source_review_sha256": "9f9f3ae5bcfbf7df7df93b62328268241fd680b8651c48fc5404ee624d37c346",

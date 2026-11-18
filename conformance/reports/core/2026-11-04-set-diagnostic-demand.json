@@ -1,7 +1,7 @@
 {
   "kind": "bounded original-Product diagnostic correction after rejected Reference conversion candidate",
   "issue": 770,
-  "main_base": "66483059ad696127224af4962db1e55b96bb4710",
+  "main_base": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
   "previous_rejected_head": "7a1384c6c43683876c96c76b2c2cf2fc9ccd21fc",
   "runtime_source": "ea2865f95c23608b4826cc8908e32516c9f153d0",
   "runtime_tree": "7dec96e8225b169f08ae16f7280b13ebd466f35d",

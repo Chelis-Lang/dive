@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "QUALIFIED_SUPPORTED_UNREDUCED_SYMMETRY_LIVENESS",
   "qualified_source": "a9c7376ff3d126deb5c8a9f48665b7e99cb02903",
-  "qualified_base": "5913ffd6c906df4f5e9d355248335b682e2e9c4c",
+  "qualified_base": "334d31bb08ffca176293f9b356c17484faf60214",
   "scope": "Supported default-profile genuine temporal roles with SYMMETRY use the whole unreduced graph; safety-only roles keep existing reduction. TLC quotient liveness and VIEW liveness remain refused. No Agree or throughput gain.",
   "full_gate": {
     "native_exit": 0,

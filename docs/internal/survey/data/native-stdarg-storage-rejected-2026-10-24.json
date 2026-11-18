@@ -5,7 +5,7 @@
   "status": "rejected_complete_instruction_screen",
   "change": "General StdArg Empty/One/Two/Heap collection; ordinary evaluation, host, guard, callback, drop and error boundaries retained. Runtime prototype remains unmerged.",
   "source": {
-    "baseline": "1c2bf3f29061f2ba43ba12add53587d09f541f6a",
+    "baseline": "09764f67267216264ff08031401ee8cf8ada260f",
     "candidate": "6790ba3bc40ca776a2685ca64cc60d945e859425",
     "trees": {
       "base": "684ce6897bd056ccdae964b74b68acd8fd85891c",

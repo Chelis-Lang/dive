@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "PINNED_PRIMARY_REFERENCE_ONLY_NO_RUNTIME_CHANGE",
   "issue": 464,
-  "harness_build_source": "64bd7c48a1a6989f921a00514324a05b728b3c71",
+  "harness_build_source": "0361a1994b569233a9ed14fab0b3b80b3af0cf08",
   "fixture_source": "293e88c4d693e9df6139039a8062ca1e0109ed98",
   "harness_binary_sha256": "c745d49dd1ce6b77a537a9b4751ba5ff2fe402ab601a5c1473ad25c153f09055",
   "oracle": {

@@ -3,7 +3,7 @@
   "date": "2026-10-23",
   "status": "complete_instruction_screen_rejected",
   "candidate": "optional value entrypoints in the resolved evaluator plan",
-  "baseline": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+  "baseline": "10e8f083098ea4d0f92de9c88333fd76d40e71c6",
   "source": "bbf71ff3e7a9acf4b02bb4ff11ae8acc3ec5f191",
   "source_trees": {
     "base": "c231b689cf7e4e7a3c68d18ed60777e9277bcf6b",
@@ -264,7 +264,7 @@
     "The runner threshold assertion occurred only after writing all sixteen normal arm results.",
     "No runtime PR, layout retry or threshold waiver follows.",
     "No quiet wall time, TLC throughput, scaling, conformance agreement or release milestone claim.",
-    "The prior raw-handler experiment at 02854597/6b7baa57 reduced instructions 4.5943593%; that separate rejection remains unchanged."
+    "The prior raw-handler experiment at 633ebede/6b7baa57 reduced instructions 4.5943593%; that separate rejection remains unchanged."
   ],
   "evidence": {
     "final_archive_sha256": "98ee241eab2f57b0c7a7a146cc508d7d268a823d15abdb061609765a67a61106",

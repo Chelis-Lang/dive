@@ -273,7 +273,7 @@
       "result": "passed"
     },
     {
-      "command": "git diff --check fd2190e2 HEAD",
+      "command": "git diff --check c7c79f7d HEAD",
       "result": "passed"
     }
   ],

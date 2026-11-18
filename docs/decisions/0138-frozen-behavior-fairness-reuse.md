@@ -11,7 +11,7 @@ ABA atoms qualify without native fallback. The three configured properties each
 consume the same bound behavior WF obligation. Native execution still evaluates
 that obligation separately for each property.
 
-Two instrumented original N=4/T=1/F=1 W8 windows at source `b1a5972d`, with all
+Two instrumented original N=4/T=1/F=1 W8 windows at source `5fc4f639`, with all
 three properties and unchanged native 900-second/16-GiB limits, establish an
 implementation opportunity only. Independent conservative instruction/source
 inspection identifies 347/2,972 TLC and 508/2,971 default samples in direct

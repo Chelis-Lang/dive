@@ -4,9 +4,9 @@
   "date": "2026-10-26",
   "status": "complete_measurement_with_35_unresolved_in_scope_models_not_release_acceptance",
   "source": {
-    "measured": "672fc1b19f196761fc7c007aeb6c8d42c4848328",
+    "measured": "0e3a1d682f590f5a00802226da4cd44984046e69",
     "tree": "eec21abb275e1b81bc61c4d3486211923c762bfd",
-    "runtime_identical_main": "b91b73a630102ad379b47df8334ee6771f181dff",
+    "runtime_identical_main": "aeca27b3b145d213666167d6f034d9218ce58d35",
     "transfer_scope": "All crates/Cargo/toolchain Git entries identical; later primary corpus outside the selected four. Binary execution remains attributed to672, not later main.",
     "source_capsule_sha256": "502e58361da8ce4a6ad2182fa83f878acd8d1279260acd101834ab5862bdd000"
   },

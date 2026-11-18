@@ -5,7 +5,7 @@
   "status": "SCREEN_REJECTED",
   "change": "Prepare the same eager native hash and element cache before Arc publication with OnceLock::from; share only empty element storage and independently owned, same-order canonical Domain keys proved bounded/provider-free. Ordinary unknown/deep/provider key routes remain. Runtime prototype unmerged.",
   "source": {
-    "baseline": "198e587922ea58fea9e7974de5ca864ea1625c41",
+    "baseline": "ec15f53f3097bed70db725172155dcd7207d1743",
     "candidate": "77b34163505286d04fb16fb7ae3864ad23ed2dde",
     "trees": {
       "base": "47d539d54ced32e126018d4196c496cdf6efaa04",
@@ -605,7 +605,7 @@
     "builds": [
       {
         "arm": "base",
-        "source": "198e587922ea58fea9e7974de5ca864ea1625c41",
+        "source": "ec15f53f3097bed70db725172155dcd7207d1743",
         "normal_native_returncode": 0,
         "externally_censored": false,
         "driver_interruption": null,

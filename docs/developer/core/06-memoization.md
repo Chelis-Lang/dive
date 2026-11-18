@@ -85,7 +85,7 @@ inputs are always persistent.
   `tables_grow_within_the_cap_and_never_answer_wrongly` covers caps of 0
   to 64 MiB.
 - **Measured** on M3 (load 8–20, so cycles, medians of 2–3; memo on;
-  `DIVE_CORE_OPT=+memo` on main `e1cbdbfb` against this change; counts
+  `DIVE_CORE_OPT=+memo` on main `d27de64f` against this change; counts
   identical):
 
   | Model | 8w RSS before / after (MB) | 8w cycles before / after | 1w cycles before / after |
@@ -455,7 +455,7 @@ hit rates, the share skipped and the slowdown when each is off.
 off on wall-clock medians at load 10–22 (below). The quiet x86 A/B
 reverses it, and so do the M3 instruction counts.
 - **Measurement of record: quiet x86** (lead; c7i.metal-24xl, SMT and turbo
-  off, CPUs 0–15; main `fdaf57a2`; core with `DIVE_CORE_OPT=+memo` against
+  off, CPUs 0–15; main `eb97f8c0`; core with `DIVE_CORE_OPT=+memo` against
   `-memo`; wall seconds, median of 5; every count equals its golden):
 
   | Model | 1w off | 1w on | Speedup | 8w off | 8w on | Speedup | RSS 8w off / on (MB) |
@@ -476,7 +476,7 @@ reverses it, and so do the M3 instruction counts.
   several models (MCLamportMutex 184 to 419 MB). The per-worker tables need
   a size cap that follows the run's memory budget, with an eviction that
   never changes a result.
-- **Instructions retired, M3, at `0abc2844`, 1 worker, off / on:**
+- **Instructions retired, M3, at `dc4281d4`, 1 worker, off / on:**
 
   | Model | Instructions off / on | Cycles off / on | RSS off / on (MB) |
   |---|---|---|---|
@@ -486,9 +486,9 @@ reverses it, and so do the M3 instruction counts.
   | CoffeeCan1000BeansSafety | 9.2 G / 9.5 G | 2.6 G / 2.6 G | 145 / 146 |
 
   The counts are identical in every run.
-- **x86 bench (lead, `f1ed932a`).** One-worker MCLamportMutex went from
+- **x86 bench (lead, `d96dc825`).** One-worker MCLamportMutex went from
   10.47 s at M0 to 12.53 s. The bisection by instruction count puts 13.4 G
-  of the 24.5 G it gained since M0 on the memo-off commit (`0bff25aa`).
+  of the 24.5 G it gained since M0 on the memo-off commit (`04c8ee1f`).
 - **Cost.** The tables add their memory: about 32 MB on MCLamportMutex.
   Finer keys (below) would cut that.
 

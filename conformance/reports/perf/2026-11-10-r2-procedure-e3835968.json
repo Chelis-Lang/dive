@@ -1,7 +1,7 @@
 {
  "gate": "R2",
  "procedure": "docs/developer/performance.md#r2-measurement-procedure",
- "source": "e3835968903b66b3b3c4c564319245dc5e0ecc70",
+ "source": "7024d1fd15213dada9003c1b04fe4c2b30dc5f3d",
  "dive_binary_sha256": "671cee8f101df5fc5d003e421f9cf54937ba66d81cf2210911963eabad55c177",
  "oracle": "tlc-2026.10.06.014338",
  "corpus": "examples --tier all",
@@ -20,7 +20,7 @@
   "budget_cap_s": 30000
  },
  "classification": "--jobs 1 TLC pass over the selection with --timeout 15 on the small-class node; small = completed agreeing TLC time < 10 s",
- "sharding": "large candidates (TLC >= 7 s at ce227b36) split by longest-processing-time on ce227b36 times, fixed before the run; models the classification made small use the small-class result",
+ "sharding": "large candidates (TLC >= 7 s at a39c9eeb) split by longest-processing-time on a39c9eeb times, fixed before the run; models the classification made small use the small-class result",
  "summary": {
   "agreeing": 169,
   "geomean": 0.1949,

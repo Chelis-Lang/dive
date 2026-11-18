@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "measured_at": "2026-10-21",
-  "native_source_commit": "39f4e483031464031664f341b65e9fe2ef164b55",
+  "native_source_commit": "e5a360082e44e37f4bb02a3d2d972d2f41911249",
   "harness_source_commit": "0ee2a2dd0d82bd78a6aa51f3bdf4b6a74bf4706e",
   "native_binary_sha256": "dcd7855a035669f7d0e0925d971fa6d1791ca32a2b5bcf7003cdee125729b852",
   "harness_binary_sha256": "cb86f544507172f540e6dd6f075f46f7d00edaeab2cfbf41738247d0a43b1cc5",

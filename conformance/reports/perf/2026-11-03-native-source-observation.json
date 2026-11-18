@@ -1,6 +1,6 @@
 {
   "kind": "inactive-source-observation optimized evaluator microdiagnostic",
-  "base_source": "2be62e21",
+  "base_source": "a86a1531",
   "candidate_patch_sha256": "54bfb16b3c86005010a67f1e4a3857ddd727ec0e2f67c491d51bcd8d44ce7402",
   "extra_input_sha256": {
     "crates/dive-eval/src/coverage.rs": "33a370a3f9d3e35545e16e15307fc49c841fd8b4184716fc4ae141f6a1e87134",

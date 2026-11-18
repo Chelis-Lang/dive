@@ -1,7 +1,7 @@
 {
-  "old_backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+  "old_backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
   "new_backend_revision": "f582d791fbaa0490cdfc75502b69e9af76a0cb72",
-  "harness_validator_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+  "harness_validator_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
   "issue": 603,
   "scope": "all original ten failing corpus rows in each full156 profile",
   "records": [

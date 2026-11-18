@@ -4,7 +4,7 @@
   "purpose": "ENABLED interval enumeration: normal-input instruction overhead and exact-source fullgate qualification, not a performance speedup.",
   "sources": {
     "base": {
-      "pin": "1d49aa7670215acffdc9c275cf33bf56a6c7f4b8",
+      "pin": "29719b9b790651231bb862eaca2c1a678d9d0ec8",
       "tree": "f1e775d933d054750cc504adc9f10f00e5120cda",
       "files": 22660,
       "tracked_map_sha256": "e2d8b18080db1f0ed80fbe8249a50df70a4a62c53b8f5a7388d4e91d88e4bdb8",

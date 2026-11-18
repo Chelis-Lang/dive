@@ -2,7 +2,7 @@
   "schema_version": 1,
   "date": "2026-10-30",
   "status": "development_only_integrated_acceptance_open",
-  "implementation_snapshot": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+  "implementation_snapshot": "63c3226ba072bc98e85f010aa18a991217f02d87",
   "scope": "Derived compact facts from preserved development runs. No rerun, quiet-host qualification, latest-source relabeling, new corpus population or milestone acceptance.",
   "cache_screen": {
     "model": "CoffeeCan1000Beans original temporal configuration",
@@ -14,7 +14,7 @@
     "rss_ratio_max": 0.65,
     "earlier_failed_candidate": {
       "candidate": "e3f859e88a0f7103a083261d37c90843f9712cad",
-      "baseline": "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
+      "baseline": "82a079db521a4b8cfa24a0139a6499563696d29f",
       "model": "CoffeeCan1000Beans original temporal properties",
       "machine": "c7i.4xlarge",
       "quiet_window_certified": false,
@@ -73,7 +73,7 @@
     },
     "later_candidate": {
       "source": "1e02a967ab75c0b1b7b80c07877d8ad7f4b23c23",
-      "baseline": "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
+      "baseline": "82a079db521a4b8cfa24a0139a6499563696d29f",
       "model": "CoffeeCan1000Beans original temporal configuration",
       "node": "<instance>",
       "machine": "c7i.4xlarge",
@@ -272,7 +272,7 @@
     "acceptance": "Four original Coffee3000 arms pass at actual1/8workers/bothprofiles. ABA TLC1stops after fullcapture. Other7arms pending; no fullmatrix acceptance, no quiet performance qualification.",
     "later_integrated_observations": [
       {
-        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "source": "63c3226ba072bc98e85f010aa18a991217f02d87",
         "model": "CoffeeCan3000Beans original temporal configuration",
         "engine": "core",
         "profile": "tlc",
@@ -291,7 +291,7 @@
         "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
       },
       {
-        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "source": "63c3226ba072bc98e85f010aa18a991217f02d87",
         "model": "CoffeeCan3000Beans original temporal configuration",
         "engine": "core",
         "profile": "default",
@@ -310,7 +310,7 @@
         "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
       },
       {
-        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "source": "63c3226ba072bc98e85f010aa18a991217f02d87",
         "model": "CoffeeCan3000Beans original temporal configuration",
         "engine": "core",
         "profile": "tlc",
@@ -329,7 +329,7 @@
         "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
       },
       {
-        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "source": "63c3226ba072bc98e85f010aa18a991217f02d87",
         "model": "CoffeeCan3000Beans original temporal configuration",
         "engine": "core",
         "profile": "default",
@@ -348,7 +348,7 @@
         "scope": "Actual original temporal capacity observation; archive pending, no quiet repeated performance qualification."
       },
       {
-        "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+        "source": "63c3226ba072bc98e85f010aa18a991217f02d87",
         "model": "aba_asyn_byz original temporal configuration",
         "engine": "core",
         "profile": "tlc",
@@ -370,7 +370,7 @@
       }
     ],
     "matrix_status": {
-      "source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+      "source": "63c3226ba072bc98e85f010aa18a991217f02d87",
       "required_arms": 12,
       "observed_success": 4,
       "observed_stopped": 1,
@@ -382,8 +382,8 @@
   "archives": {
     "native_diagnostics": {
       "sources": [
-        "c21e509798bfee97a544b39419ceb7743a042071",
-        "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
+        "8b80a347b82c4850be23d3ef90a6620aea053bc0",
+        "82a079db521a4b8cfa24a0139a6499563696d29f",
         "84aeb71bd404cab133dfbe069235cad45f5b47a1",
         "e3f859e88a0f7103a083261d37c90843f9712cad",
         "f8e627c4616cbe07f54521d390d00be1c9007022"
@@ -415,7 +415,7 @@
       "verified_local_download": true
     },
     "baseline_c21": {
-      "source": "c21e509798bfee97a544b39419ceb7743a042071",
+      "source": "8b80a347b82c4850be23d3ef90a6620aea053bc0",
       "node": "<instance>",
       "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/baseline-c21/baseline-c21.tar.gz",
@@ -434,25 +434,25 @@
       "verified_local_download": true
     },
     "final_census": {
-      "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+      "source": "0bddb9932e3286e36d10d42083752c4024be46dc",
       "scope": "complete integrated core/reference shadow census, exit1 with unwaived findings, not TLC parity",
       "bucket": "<evidence-archive>",
-      "key": "trusted-checking/2026-10-30/final-census-68dd8266/final-census.tar.gz",
+      "key": "trusted-checking/2026-10-30/final-census-0bddb993/final-census.tar.gz",
       "sha256": "c8baaeb331111dfd54fa1987dc4bf843bbf991e0b77adba6acbc3338700a783d",
       "bytes": 5288043,
       "verified_local_download": true
     },
     "milestone_gate": {
-      "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+      "source": "0bddb9932e3286e36d10d42083752c4024be46dc",
       "scope": "one integrated fullgate at68dd exit1 onlyClippy failure; all13runtime/phases passed, deny skipped, a79lintrepair separatelybound; no performance or release qualification",
       "bucket": "<evidence-archive>",
-      "key": "trusted-checking/2026-10-30/milestone-gate-68dd8266/milestone-gate.tar.gz",
+      "key": "trusted-checking/2026-10-30/milestone-gate-0bddb993/milestone-gate.tar.gz",
       "sha256": "51a254742ee5dbdccc61413183c865f564f1b849bea54f2a86e4f1da045ef4c2",
       "bytes": 22800563,
       "verified_local_download": true
     },
     "lvperiodic_validation": {
-      "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+      "source": "0bddb9932e3286e36d10d42083752c4024be46dc",
       "scope": "actual retained coreTLCword freshindependent validation bothprofiles valid; capacitydifference unwaived",
       "bucket": "<evidence-archive>",
       "key": "trusted-checking/2026-10-30/lvperiodic-validation/lvperiodic-validation.tar.gz",
@@ -471,7 +471,7 @@
     "Broader modes/storage and complete semantic parity remain separate roadmap work"
   ],
   "integrated_qualification": {
-    "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+    "source": "0bddb9932e3286e36d10d42083752c4024be46dc",
     "tree": "47d18ebc5e39ed4a37c8fdbb7287e05aa784f7ac",
     "full_gate": "complete_exit1_clippy_failure_only",
     "fixture_census": "complete_with_findings_exit1",
@@ -481,7 +481,7 @@
       "source": "7adbdee02d842a33065d920d0caa090f90e06ccf",
       "scope": "Pure helper extraction for#662 merged as a79; exact-source conformance all-target Clippy and required CI pass. No semantic, golden, lint allow or comparison change.",
       "required_ci": "all three required checks success on actual merged source",
-      "merged_source": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+      "merged_source": "63c3226ba072bc98e85f010aa18a991217f02d87",
       "exact_merged_conformance_all_target_clippy": "passed",
       "required_ci_run": 41070771048
     },
@@ -693,13 +693,13 @@
       "scope": "Original broad gate on first source; second source only extracts reported liveness display consistency into a private helper. Separate repaired-source checks must be cited independently.",
       "sources": [
         {
-          "commit": "68dd8266740740bb6dce4f4d916b724762732a15",
+          "commit": "0bddb9932e3286e36d10d42083752c4024be46dc",
           "tree": "47d18ebc5e39ed4a37c8fdbb7287e05aa784f7ac",
           "git_blob": "e32d503e0a6b604c1ec3f12b7f0e41f0910754da",
           "sha256": "1300fd4f408de78699ba2326d4abc3d23d05202046158d5203aa9d62e39caa4b"
         },
         {
-          "commit": "a79a024d453096c85b29a8cfc839981f233c1dc7",
+          "commit": "63c3226ba072bc98e85f010aa18a991217f02d87",
           "tree": "047c2a046448d1c3fa2e814daf10eab801686c35",
           "git_blob": "4b5c572a0c38574bab6ab82d8ab0fd041ae748cd",
           "sha256": "6fb58319dd9e5afbd7b8a0bb589569cd0a103445e769211f73fec0ce5b9dde83"
@@ -711,11 +711,11 @@
     }
   },
   "fixture_census": {
-    "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+    "source": "0bddb9932e3286e36d10d42083752c4024be46dc",
     "tree": "47d18ebc5e39ed4a37c8fdbb7287e05aa784f7ac",
     "kind": "fixture core-reference shadow census; not TLC parity or performance evidence",
     "qualification": "Shadow core/reference agreement only, not TLC parity or a performance measure. Complete measurement with remaining findings, exit1.",
-    "baseline_source": "c21e509798bfee97a544b39419ceb7743a042071",
+    "baseline_source": "8b80a347b82c4850be23d3ef90a6620aea053bc0",
     "population_configs": 1614,
     "selected_configs": 1497,
     "selection": {
@@ -1916,7 +1916,7 @@
       "scope": "Original early shadow difference remains unwaived/no comparison agreement. Separately retained actual core word is now freshly independently valid in both profiles; that does not alter census counts or establish TLC parity.",
       "tracking_issue": 664,
       "subsequent_independent_validation": {
-        "source": "68dd8266740740bb6dce4f4d916b724762732a15",
+        "source": "0bddb9932e3286e36d10d42083752c4024be46dc",
         "binary_sha256": "8555de2d509c554ad779d12ea8d952dd4cd6825a4d3aa3d8b9978fcb0a2e833a",
         "input": "actual retained core TLC word from original run",
         "profiles": [

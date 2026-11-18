@@ -9,7 +9,7 @@
     "candidate": {
       "path": "dive-main",
       "sha256": "b03c5e573649aa8ddad48cc14362f955fcf6176354ca0893ab1a6e37a14fdfe5",
-      "source_label_supplied_by_user": "e18e9dda504f368f76a40e08b881ee7540b44b81"
+      "source_label_supplied_by_user": "5331a4601708edf872ef4bb65663db0ecbe2bbbb"
     },
     "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
     "cpu": "Intel(R) Xeon(R) Platinum 8488C",
@@ -88,7 +88,7 @@
     "os": "Linux x86_64",
     "quiet_window_certified": false,
     "runner_dirty": false,
-    "runner_revision": "e18e9dda504f368f76a40e08b881ee7540b44b81",
+    "runner_revision": "5331a4601708edf872ef4bb65663db0ecbe2bbbb",
     "rustc": "",
     "schedule": "model order fixed; worker/arm blocks reversed on odd repetitions; one process at a time",
     "seed": 0,

@@ -3,7 +3,7 @@
   "study": "fused-value-operands-screen",
   "date": "2026-10-22",
   "status": "rejected-unshipped-prototype",
-  "baseline_source": "4e219ea81b9682c98012308f97fa725e9114d648",
+  "baseline_source": "7122d0e25c1f5ff893d8e286b764dc1bed956cb8",
   "candidate_source": "1faf4905f02262849271f143134b6bc1fbcac8a9",
   "source_trees": {
     "base": "7c7c0c2e90cd29b84a0df0f92b3555e73b149865",

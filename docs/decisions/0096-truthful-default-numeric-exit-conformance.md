@@ -69,7 +69,7 @@ roadmap remain unchanged. No pins, goldens, corpus selections or resource bounds
 change.
 
 The completed correction in [PR #266](https://github.com/Chelis-Lang/dive/pull/266)
-was published as `0e00c942b5ad371acadb9b805509ebceef313cd4`, with the exact tree
+was published as `b2bc0a2919369178e7b10b91944bff38e9e64b57`, with the exact tree
 of tested producer `643b0f1351feccca56968cd8032093f53ccd2c8d`. Fresh independent
 review, the full local gate, all eight corrected parent/current measurements,
 and required source and post-merge CI passed. Both widths retain TLC 94 Agree /

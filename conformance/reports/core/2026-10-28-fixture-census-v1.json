@@ -12,7 +12,7 @@
       "sha256": "0431e233128e8c144b390a4d113555f424078ae3d06a9d6497c4224f9749025d"
     },
     "harness": {
-      "revision": "16336b64835771e1131d0e2df739a07703a6ef6b",
+      "revision": "366e06c98de5e5616d3c1812547d2ffcb4a1c246",
       "sha256": "d33b581dc016af7ef437ce98fb97547a9ab7ee1dd524c76d74a23f11fbd818ea"
     },
     "runner": {
@@ -23,9 +23,9 @@
   "fixture_source_revision": "2d55317a21c5d14336e274b27378ef1b2a462806",
   "fixture_source_dirty": false,
   "main_equivalence": {
-    "revision": "1df4c9010cd8774d2c7370cea224cb6d2f92c55b",
+    "revision": "11267a0370c412b9f24604e1c788a78b05dd4bee",
     "scope": "checker/runtime and fixture input trees; verified separately by the lead",
-    "execution_attribution": "All executions remain attributed to backend 2d55317a and harness 16336b64; main was not rerun by this census."
+    "execution_attribution": "All executions remain attributed to backend 2d55317a and harness 366e06c9; main was not rerun by this census."
   },
   "policy": {
     "workers": [

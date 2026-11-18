@@ -3,7 +3,7 @@
   "prototype": "Evaluator-private recursive Boolean-result consumers; exact original generic dispatch body remains borrowed-node fallback. No work stack, copied plan, new cache, public API or backend change.",
   "decision": "Do not land prototype. All eight cells regress and the required5percent geometric instruction reduction fails. The reviewed runner skipped its conditional full gate; no runtime PR or gate success is claimed.",
   "source": {
-    "base": "4459812b4a48b2aead95f8fa0c9c8d54a9a618fb",
+    "base": "9658a79fc032c08bd5433ad108550dd6b385b076",
     "base_tree": "bc6a4281741dbfc971ee247bad23654216624573",
     "candidate": "8448506c14182df5b404ec7d80a2f9e90d9836f5",
     "candidate_tree": "cb8d75ab94ad14c7c4e43398dfa69e751e27f9c5",

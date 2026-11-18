@@ -2,8 +2,8 @@
   "kind": "graph normalization demand correctness",
   "issue": 756,
   "source_code_commit": "5afd33c3a7fa21852a1251d4694ff5f231f5ced7",
-  "base_source": "21e04fef",
-  "original_defect_source": "49188584",
+  "base_source": "7295e507",
+  "original_defect_source": "72ab59eb",
   "primary_observations_committed_before_semantic_fix": "ba4aa573",
   "runtime_source_sha256": {
     "crates/dive-eval/src/community.rs": "91024016f1e6d43a03222d322611fdbdfa385bc5988b91512b1507303315bc30",

@@ -6,7 +6,7 @@
   "workers": 1,
   "reason": "Initial primary controls for approved direct scalar Init RandomElement simulation subset; issue239 remains partial",
   "primary_before_production_implementation": true,
-  "source_head": "81cb93414b5975ef7b643342e89ae119b47a86c6",
+  "source_head": "637be6459c819c6fcb128c3dca43f70915910b2a",
   "primary_probes": [
     {
       "model": "InitRandomInterval",

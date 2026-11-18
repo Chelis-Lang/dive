@@ -15,7 +15,7 @@
   "quiet_window_certified": false
  },
  "binary": {
-  "commit": "f1ed932ad57910a8809497b57da6c7b25e93b572",
+  "commit": "d96dc825f19f402347658d4f84fe2e1ff775ee2c",
   "reference_sha256": "e457cdc3688184d2765beb98ee2ce630983c8ed7dd9eb0d66bd19a81ddefbca0",
   "core": "same binary with DIVE_ENGINE=core",
   "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",

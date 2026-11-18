@@ -3,7 +3,7 @@
   "measured_at": "2026-10-21",
   "campaign_id": "5776-1792584813046936347",
   "prior_campaign_comparison": "Different source, turbo policy and controls; timing changes from the provisional campaign are not isolated code effects.",
-  "source_commit": "39f4e483031464031664f341b65e9fe2ef164b55",
+  "source_commit": "e5a360082e44e37f4bb02a3d2d972d2f41911249",
   "source_clean": true,
   "binary_sha256": "3b9859b2fe99b77a3393b74a460b573547e5cde61c9410ca1e9cdaa8ea9131ce",
   "benchmark_set_sha256": "5a1a11b0398324394a2cc0b3ca8679b744bd20ced27cb6c4cfe662c8da942c8e",

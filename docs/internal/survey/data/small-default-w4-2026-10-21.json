@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "measured_at": "2026-10-21T16:53:53Z",
-  "source_commit": "52485957449fd59ef33e5f7385ce4d437680c8ba",
-  "harness_source_commit": "52485957449fd59ef33e5f7385ce4d437680c8ba",
+  "source_commit": "991207ff35880639a2ed7dce189cc1022e195242",
+  "harness_source_commit": "991207ff35880639a2ed7dce189cc1022e195242",
   "source_clean_before_and_after": true,
   "report_id": "20261021T165353643-dive-small",
   "report_sha256": "f51eda2468fdaf08dcc3d4475ff7677f05c7df6e083250fc23943f6b6742e953",

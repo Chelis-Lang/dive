@@ -4,7 +4,7 @@
   "issue": 393,
   "status": "QUALIFIED_GATE_AND_28_NORMAL_ARMS; cleanup verified",
   "source": {
-    "baseline": "4bfec0478dfed7994f0384e0c917dd55f7b61a09",
+    "baseline": "879e085361aeeaa60849618d440af6b26d36385a",
     "candidate": "3799fd39da7829458fb3b2de2a3b3b4e51eab384",
     "baseline_tree": "b773bebfd86dad0ce0323f5cd4e43f242887aa97",
     "candidate_tree": "3244cfa297dfe4c8fb45f7274f2d88074153dca5",
@@ -59,7 +59,7 @@
   },
   "builds": {
     "base": {
-      "source": "4bfec0478dfed7994f0384e0c917dd55f7b61a09",
+      "source": "879e085361aeeaa60849618d440af6b26d36385a",
       "tree": "b773bebfd86dad0ce0323f5cd4e43f242887aa97",
       "profile": "profiling",
       "locked": true,

@@ -415,7 +415,7 @@ Twenty-five directories of the pinned Examples checkout have no
 
 ## Full-tier implementation measurement
 
-The latest 2026-10-26 measurement of source `672fc1b1` records **182/217
+The latest 2026-10-26 measurement of source `0e3a1d68` records **182/217
 in-scope agreements**, one more than the 2026-10-24 result. The only new
 agreement is `examples:specifications/SpanningTree/SpanTreeTest5Nodes.cfg`,
 with no lost agreements. The exact 265 historical IDs, 48 exclusions, nine
@@ -441,7 +441,7 @@ four-worker, full-gate, throughput or peak-memory result follows.
 
 ### Earlier 2026-10-24 implementation measurement
 
-The earlier 2026-10-24 measurement of frozen source `68c09a1b` reports **181/217
+The earlier 2026-10-24 measurement of frozen source `eb33b279` reports **181/217
 in-scope agreements** in the TLC profile at one worker: ten more agreements
 than the controlled 2026-10-21 baseline, with no lost agreements. The fixed
 265-model population, 48 exclusions, nine missing references and pinned oracle
@@ -469,11 +469,11 @@ separate small-tier baselines remain unchanged.
 
 ### Historical 2026-10-21 implementation measurements
 
-The earlier controlled 2026-10-21 campaign compares frozen native source `39f4e483`
+The earlier controlled 2026-10-21 campaign compares frozen native source `e5a36008`
 against the references above through harness `0ee2a2dd`. It is not a measurement
 of later main: 171/217 in-scope models agree in the TLC profile at one worker.
 All 265 historical `(corpus, model)` IDs are identical to the recovered
-`652a5334` campaign: Examples 233, validation-smoke 16, probes 14 and configured
+`6a678824` campaign: Examples 233, validation-smoke 16, probes 14 and configured
 operators 2. The 48 exclusions and nine missing references remain selected.
 
 The policy is explicit: two concurrent models, native whole-process memory
@@ -763,7 +763,7 @@ Nine additional consumed compact oracle controls in
 uses, named outer actuals, plain/primed step definitions, supported identity
 queries and demanded errors. Their independently checked words do not require
 the separate #515 repair. The original Naturals pair retains #515's reference
-failure on base `3dc31c0b`; its core words are independently checked by frozen
+failure on base `c644e44c`; its core words are independently checked by frozen
 reference candidate `82b03ca0`, with the separate executable identity retained
 externally. No reference runtime change is composed into this compiler lane.
 These selected controls do not promote historical census/baseline totals or
