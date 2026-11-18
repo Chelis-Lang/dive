@@ -35,6 +35,10 @@ pub struct Storage {
     pub store_compact_default: bool,
     /// Opt-in fallible disk membership; runs inline and does not bound values.
     pub seen_disk: Option<DiskOptions>,
+    /// Test-only: replaces every state key with this value, so every state
+    /// collides and only exact identities can tell states apart.
+    #[cfg(test)]
+    pub collide_keys: Option<u64>,
 }
 
 /// Bounds and owned directory for native disk membership.
@@ -601,12 +605,33 @@ fn frontier_error(cause: impl std::fmt::Display) -> SpillError {
     }
 }
 
+/// The outcome of inserting a state into the seen set.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Inserted {
+    /// The state was absent and is now present.
+    New,
+    /// The state was already present: its discovery id when the set retains
+    /// ids (in-memory exact identities), otherwise `None`.
+    Seen(Option<u64>),
+}
+
+impl Inserted {
+    pub(crate) const fn is_new(self) -> bool {
+        matches!(self, Self::New)
+    }
+}
+
+/// Retained identities with equal keys, each with its discovery id.
+type Bucket<T> = Vec<(T, u64)>;
+
 /// Retained canonical rows, bucketed by the existing state hash. Hashes select
 /// candidates only; even a complete collision cannot discard a distinct state.
+/// Each retained identity carries the discovery id it was inserted with, so
+/// equal keys of distinct states still resolve to distinct discoveries.
 #[derive(Debug, Default)]
 pub(crate) struct Exact {
-    rows: HashMap<u64, Vec<Vec<Handle>>>,
-    encoded: Option<HashMap<u64, Vec<Vec<u8>>>>,
+    rows: HashMap<u64, Bucket<Vec<Handle>>>,
+    encoded: Option<HashMap<u64, Bucket<Vec<u8>>>>,
     len: usize,
 }
 
@@ -622,6 +647,26 @@ impl Exact {
         self.encoded.is_some()
     }
 
+    /// The discovery id of `row`, when it is present.
+    pub(crate) fn lookup_controlled(
+        &self,
+        key: u64,
+        row: &[Handle],
+        heap: &Heap,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> Result<Option<u64>, Error> {
+        let Some(encoded) = &self.encoded else {
+            return Ok(self.lookup(key, row, heap));
+        };
+        let bytes = detached_key(heap, row, poll)?;
+        Ok(encoded.get(&key).and_then(|bucket| {
+            bucket
+                .iter()
+                .find(|(kept, _)| *kept == bytes)
+                .map(|&(_, id)| id)
+        }))
+    }
+
     pub(crate) fn contains_controlled(
         &self,
         key: u64,
@@ -629,31 +674,27 @@ impl Exact {
         heap: &Heap,
         poll: &(dyn Fn() -> bool + Sync),
     ) -> Result<bool, Error> {
-        let Some(encoded) = &self.encoded else {
-            return Ok(self.contains(key, row, heap));
-        };
-        let bytes = detached_key(heap, row, poll)?;
-        Ok(encoded
-            .get(&key)
-            .is_some_and(|bucket| bucket.contains(&bytes)))
+        Ok(self.lookup_controlled(key, row, heap, poll)?.is_some())
     }
 
+    /// Inserts `row` with discovery id `id` unless it is present.
     pub(crate) fn insert_controlled(
         &mut self,
         key: u64,
         row: &[Handle],
         heap: &Heap,
+        id: u64,
         poll: &(dyn Fn() -> bool + Sync),
-    ) -> Result<bool, Error> {
+    ) -> Result<Inserted, Error> {
         let Some(encoded) = &mut self.encoded else {
-            return self.insert(key, row, heap);
+            return self.insert(key, row, heap, id);
         };
         let bytes = detached_key(heap, row, poll)?;
-        if encoded
+        if let Some(&(_, seen)) = encoded
             .get(&key)
-            .is_some_and(|bucket| bucket.contains(&bytes))
+            .and_then(|bucket| bucket.iter().find(|(kept, _)| *kept == bytes))
         {
-            return Ok(false);
+            return Ok(Inserted::Seen(Some(seen)));
         }
         encoded
             .try_reserve(1)
@@ -662,9 +703,9 @@ impl Exact {
         bucket.try_reserve(1).map_err(|_| {
             Error::internal("DIVE-S0203: detached exact collision bucket allocation")
         })?;
-        bucket.push(bytes);
+        bucket.push((bytes, id));
         self.len += 1;
-        Ok(true)
+        Ok(Inserted::New)
     }
 
     pub(crate) fn contains_encoded(
@@ -678,7 +719,7 @@ impl Exact {
         let Some(rows) = self.rows.get(&key) else {
             return Ok(false);
         };
-        for row in rows {
+        for (row, _) in rows {
             let encoded =
                 dive_core::key::canonical(heap, row, limit, &|| !poll()).map_err(|error| {
                     if error == dive_core::key::KeyError::Interrupted {
@@ -696,17 +737,29 @@ impl Exact {
     pub(crate) const fn len(&self) -> usize {
         self.len
     }
-    pub(crate) fn contains(&self, key: u64, row: &[Handle], heap: &Heap) -> bool {
-        self.rows.get(&key).is_some_and(|bucket| {
-            bucket.iter().any(|kept| {
-                kept.len() == row.len() && kept.iter().zip(row).all(|(&a, &b)| heap.eq(a, b))
-            })
+
+    /// The discovery id of `row`, when it is present.
+    pub(crate) fn lookup(&self, key: u64, row: &[Handle], heap: &Heap) -> Option<u64> {
+        self.rows.get(&key).and_then(|bucket| {
+            bucket
+                .iter()
+                .find(|(kept, _)| {
+                    kept.len() == row.len() && kept.iter().zip(row).all(|(&a, &b)| heap.eq(a, b))
+                })
+                .map(|&(_, id)| id)
         })
     }
 
-    pub(crate) fn insert(&mut self, key: u64, row: &[Handle], heap: &Heap) -> Result<bool, Error> {
-        if self.contains(key, row, heap) {
-            return Ok(false);
+    /// Inserts `row` with discovery id `id` unless it is present.
+    pub(crate) fn insert(
+        &mut self,
+        key: u64,
+        row: &[Handle],
+        heap: &Heap,
+        id: u64,
+    ) -> Result<Inserted, Error> {
+        if let Some(seen) = self.lookup(key, row, heap) {
+            return Ok(Inserted::Seen(Some(seen)));
         }
         self.rows
             .try_reserve(1)
@@ -719,9 +772,9 @@ impl Exact {
         bucket
             .try_reserve(1)
             .map_err(|_| Error::unsupported("exact state collision bucket allocation"))?;
-        bucket.push(kept);
+        bucket.push((kept, id));
         self.len += 1;
-        Ok(true)
+        Ok(Inserted::New)
     }
 }
 
@@ -861,8 +914,18 @@ mod tests {
         let b = heap.tuple_literal(&[two, one]);
         let b = heap.intern(b).unwrap();
         let mut exact = Exact::detached();
-        assert!(exact.insert_controlled(0, &[a], &heap, &|| false).unwrap());
-        assert!(exact.insert_controlled(0, &[b], &heap, &|| false).unwrap());
+        assert_eq!(
+            exact
+                .insert_controlled(0, &[a], &heap, 10, &|| false)
+                .unwrap(),
+            Inserted::New
+        );
+        assert_eq!(
+            exact
+                .insert_controlled(0, &[b], &heap, 11, &|| false)
+                .unwrap(),
+            Inserted::New
+        );
         let mut remap = permanent.begin(&store, &|| true).unwrap();
         let mapped = remap.copy(b, &|| true).unwrap();
         let replacement = Heap::new(Arc::clone(remap.store()), true, false);
@@ -871,10 +934,18 @@ mod tests {
                 .contains_controlled(0, &[mapped], &replacement, &|| false)
                 .unwrap()
         );
-        assert!(
-            !exact
-                .insert_controlled(0, &[mapped], &replacement, &|| false)
-                .unwrap()
+        assert_eq!(
+            exact
+                .insert_controlled(0, &[mapped], &replacement, 12, &|| false)
+                .unwrap(),
+            Inserted::Seen(Some(11)),
+            "a detached collision resolves to the discovery id of its own identity"
+        );
+        assert_eq!(
+            exact
+                .lookup_controlled(0, &[mapped], &replacement, &|| false)
+                .unwrap(),
+            Some(11)
         );
         assert!(
             exact.rows.is_empty(),
@@ -965,10 +1036,19 @@ mod tests {
         let a = heap.intern(a).unwrap();
         let b = heap.tuple(&[two, one]);
         let b = heap.intern(b).unwrap();
-        assert!(seen.insert(0, &[a], &heap).unwrap());
-        assert!(seen.insert(0, &[b], &heap).unwrap());
-        assert!(!seen.insert(0, &[a], &heap).unwrap());
-        assert!(!seen.contains(1, &[a], &heap));
+        assert_eq!(seen.insert(0, &[a], &heap, 0).unwrap(), Inserted::New);
+        assert_eq!(seen.insert(0, &[b], &heap, 1).unwrap(), Inserted::New);
+        assert_eq!(
+            seen.insert(0, &[a], &heap, 2).unwrap(),
+            Inserted::Seen(Some(0))
+        );
+        assert_eq!(
+            seen.insert(0, &[b], &heap, 2).unwrap(),
+            Inserted::Seen(Some(1))
+        );
+        assert_eq!(seen.lookup(0, &[a], &heap), Some(0));
+        assert_eq!(seen.lookup(0, &[b], &heap), Some(1));
+        assert_eq!(seen.lookup(1, &[a], &heap), None);
         assert_eq!(seen.len, 2);
     }
 
@@ -984,8 +1064,14 @@ mod tests {
             let function = heap.fcn_sorted(&[one, two], &[one, two]);
             let canonical_function = heap.intern(function).unwrap();
             let mut seen = Exact::default();
-            assert!(seen.insert(7, &[canonical_tuple], &heap).unwrap());
-            assert!(!seen.insert(7, &[canonical_function], &heap).unwrap());
+            assert_eq!(
+                seen.insert(7, &[canonical_tuple], &heap, 3).unwrap(),
+                Inserted::New
+            );
+            assert_eq!(
+                seen.insert(7, &[canonical_function], &heap, 4).unwrap(),
+                Inserted::Seen(Some(3))
+            );
             assert!(heap.view(original).is_tuple_literal());
             assert!(!heap.view(canonical_tuple).is_tuple_literal());
             assert!(!heap.view(canonical_function).is_tuple_literal());
