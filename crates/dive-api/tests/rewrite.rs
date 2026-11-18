@@ -3,14 +3,11 @@ use dive_api::{ChecksumPolicy, RewriteOptions, RewriteRequest, rewrite_source};
 const SOURCE: &str = "---- MODULE R ----\nEXTENDS Integers, TLC\n(* --algorithm A variable x=0; begin L:x:=1; E:skip; end algorithm; *)\n\\* footer\n====\n";
 
 #[test]
-fn policy_aliases_have_one_exact_procedure_free_crc_and_schema()
+fn the_best_effort_policy_has_one_exact_procedure_free_crc_and_schema()
 -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {
-        for checksums in [
-            ChecksumPolicy::BestEffort,
-            ChecksumPolicy::Full,
-            ChecksumPolicy::TranslationOnly,
-        ] {
+        {
+            let checksums = ChecksumPolicy::BestEffort;
             let mut request = RewriteRequest::default();
             request.translation.compat_tlc = compat_tlc;
             request.editing.checksums = checksums;
@@ -229,7 +226,8 @@ fn original_source_options_refuse_before_masking_previous_translation() {
         "PlusCal options"
     );
     for compat_tlc in [false, true] {
-        for checksums in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+        {
+            let checksums = ChecksumPolicy::BestEffort;
             for replace_modified in [false, true] {
                 let request = RewriteRequest {
                     translation: dive_api::TranslationRequest {

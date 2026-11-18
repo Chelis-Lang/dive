@@ -8,27 +8,12 @@ pub enum ChecksumPolicy {
     /// Keep an exact algorithm CRC when available; otherwise disable only that
     /// value using the pinned `\\in STRING` spelling and retain the body CRC.
     #[default]
-    #[serde(alias = "Full", alias = "TranslationOnly")]
     BestEffort,
-}
-impl ChecksumPolicy {
-    /// Compatibility spelling for the unified best-effort policy.
-    #[allow(
-        non_upper_case_globals,
-        reason = "preserve the former public API spelling"
-    )]
-    pub const Full: Self = Self::BestEffort;
-    /// Compatibility spelling; no longer a separate forced body-only policy.
-    #[allow(
-        non_upper_case_globals,
-        reason = "preserve the former public API spelling"
-    )]
-    pub const TranslationOnly: Self = Self::BestEffort;
 }
 /// In-memory replacement limits and explicit overwrite policy.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RewriteOptions {
-    /// Unified best-effort checksum policy; old input spellings remain accepted.
+    /// The best-effort checksum policy.
     pub checksums: ChecksumPolicy,
     /// Maximum source and rewritten document bytes, checked before construction.
     pub max_bytes: usize,

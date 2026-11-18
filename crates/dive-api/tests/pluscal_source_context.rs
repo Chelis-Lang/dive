@@ -43,7 +43,8 @@ fn deciding_source_context_inside_previous_translation_is_not_masked() {
         "\\* BEGIN TRANSLATION\n\\* PlusCal options (-wf)\n\\* END TRANSLATION\n====",
     );
     for compat_tlc in [false, true] {
-        for checksums in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+        {
+            let checksums = ChecksumPolicy::BestEffort;
             let request = RewriteRequest {
                 translation: TranslationRequest {
                     compat_tlc,
@@ -120,7 +121,8 @@ fn legacy_input_version_selects_first_algorithm_before_trailing_comment_content(
                     translated.to_json()["translation_options"]["version"],
                     "1.5"
                 );
-                for checksums in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+                {
+                    let checksums = ChecksumPolicy::BestEffort;
                     let rewrite = RewriteRequest {
                         translation: request.clone(),
                         editing: RewriteOptions {

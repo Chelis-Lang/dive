@@ -136,11 +136,12 @@ fn check_primary_rewrite(
 }
 
 #[test]
-fn policy_aliases_share_behavior_and_generation_limits_still_refuse()
+fn the_best_effort_policy_round_trips_and_generation_limits_still_refuse()
 -> Result<(), Box<dyn std::error::Error>> {
     let source =
         include_str!("../../dive-pluscal/tests/fixtures/procedure/cases/Procedure_P_simple.tla");
-    for spelling in ["BestEffort", "Full", "TranslationOnly"] {
+    {
+        let spelling = "BestEffort";
         let policy: ChecksumPolicy = serde_json::from_value(serde_json::json!(spelling))?;
         assert_eq!(policy, ChecksumPolicy::BestEffort);
         for compat_tlc in [false, true] {

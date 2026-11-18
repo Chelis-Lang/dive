@@ -1117,8 +1117,8 @@ and is not emitted. Unknown CRCs never gate generation/rewrite/debug or claim a
 model result. Default native modified-body protection keeps `--replace-modified` as the
 explicit counterpart; the TLC profile resolves ordinary pinned pcal's Noop
 overwrite behavior automatically. Algorithm changes
-alone regenerate without a grant. Old Full/TranslationOnly inputs alias the one
-policy; direct exact procedure CRCs remain unsupported. Full flags/filesystem/
+alone regenerate without a grant. `--checksums full` and `--checksums tla`
+select the one policy; direct exact procedure CRCs remain unsupported. Full flags/filesystem/
 backends/149 and ordinary model-checking milestones remain open. See the current
 [PlusCal guide](pluscal-translation.md) and [ADR0084](decisions/0084-pluscal-translation.md).
 
