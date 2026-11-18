@@ -109,7 +109,7 @@ fn dense_and_captured_inputs_preserve_full_products_acceptance_and_lassos() {
             ],
         };
         for policy in [
-            AcceptancePolicy::Legacy,
+            AcceptancePolicy::Cells,
             AcceptancePolicy::Buffers {
                 bytes: 1_000_000,
                 work: 1_000_000,
@@ -157,12 +157,12 @@ fn every_existing_product_limit_keeps_its_dense_result() {
             },
         ] {
             assert_eq!(
-                snapshot(view, &labels, limits, AcceptancePolicy::Legacy),
+                snapshot(view, &labels, limits, AcceptancePolicy::Cells),
                 snapshot(
                     BehaviorView::Dense(&dense),
                     &labels,
                     limits,
-                    AcceptancePolicy::Legacy
+                    AcceptancePolicy::Cells
                 )
             );
         }
@@ -382,7 +382,7 @@ fn csr_preserves_owned_and_compact_products_and_original_edge_positions() {
                     owned.expect("dense owned product").find_lasso()
                 );
                 for policy in [
-                    AcceptancePolicy::Legacy,
+                    AcceptancePolicy::Cells,
                     AcceptancePolicy::Buffers {
                         bytes: 1_000_000,
                         work: 1_000_000,
@@ -427,8 +427,8 @@ fn csr_keeps_every_existing_product_and_acceptance_limit() {
             },
         ] {
             assert_eq!(
-                snapshot((&csr).into(), &labels, limits, AcceptancePolicy::Legacy),
-                snapshot((&dense).into(), &labels, limits, AcceptancePolicy::Legacy)
+                snapshot((&csr).into(), &labels, limits, AcceptancePolicy::Cells),
+                snapshot((&dense).into(), &labels, limits, AcceptancePolicy::Cells)
             );
         }
         for policy in [

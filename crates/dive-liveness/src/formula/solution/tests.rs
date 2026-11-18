@@ -101,7 +101,7 @@ fn every_solution_union_matches_original_short_lassos() {
                             &tableau,
                             &labels,
                             product::Limits::default(),
-                            AcceptancePolicy::Legacy,
+                            AcceptancePolicy::Cells,
                         )
                         .expect("product");
                         for conditions in &group.alternatives {
@@ -212,7 +212,7 @@ fn solution_scratch_and_logical_cells_keep_existing_budget_boundaries() {
                 acceptance_cells: cells,
                 ..product::Limits::default()
             },
-            AcceptancePolicy::Legacy,
+            AcceptancePolicy::Cells,
         )
         .expect("core acceptance cells");
         let result = product.find_lasso_with_conditions(&labels, conditions);

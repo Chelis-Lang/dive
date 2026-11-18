@@ -25,7 +25,7 @@ impl<'a> OnTheFly<'a> {
         labels: &'a Labels,
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        Self::with_policy(graph, tableau, labels, limits, AcceptancePolicy::Legacy)
+        Self::with_policy(graph, tableau, labels, limits, AcceptancePolicy::Cells)
     }
 
     fn with_policy(
@@ -605,7 +605,7 @@ fn borrowed_csr_self_loop_accepts_the_true_formula() {
         &tableau,
         &labels,
         Limits::default(),
-        AcceptancePolicy::Legacy,
+        AcceptancePolicy::Cells,
     )
     .expect("product");
     let none = CycleConditions {

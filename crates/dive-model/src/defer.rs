@@ -45,7 +45,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
     let cfg = b.cfg;
     let mut named: HashSet<DefId> = HashSet::new();
     let mut roles = Vec::new();
-    let mut reference = Vec::new();
+    let mut evaluator_roots = Vec::new();
     let look = |name: &str, out: &mut Vec<DefId>, named: &mut HashSet<DefId>| {
         resolve(b, name, out, named);
     };
@@ -61,7 +61,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
     for n in role_names {
         look(&n.text, &mut roles, &mut named);
     }
-    let reference_names = cfg
+    let evaluator_names = cfg
         .view
         .iter()
         .chain(cfg.symmetry.iter())
@@ -70,15 +70,15 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
         .chain(cfg.rl_reward.iter())
         .chain(cfg.postconditions.iter())
         .chain(cfg.possible.iter());
-    for n in reference_names {
-        look(&n.text, &mut reference, &mut named);
+    for n in evaluator_names {
+        look(&n.text, &mut evaluator_roots, &mut named);
     }
     for e in &cfg.constants {
         match e {
             // A replaced definition is not evaluated; its replacement is,
             // wherever the definition is used (the walk follows the
-            // replacement), and a constant's replacement is a reference
-            // root below.
+            // replacement), and a constant's replacement is an
+            // evaluator root below.
             dive_config::ConstantEntry::Substitution { name, target, .. } => {
                 look(&name.text, &mut Vec::new(), &mut named);
                 look(&target.text, &mut Vec::new(), &mut named);
@@ -92,7 +92,7 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
     let assumptions = pure_assumptions(b);
     for m in 0..ir.modules().len() {
         let module = ir.module(dive_ir::ModuleId(u32::try_from(m).unwrap_or(u32::MAX)));
-        reference.extend(
+        evaluator_roots.extend(
             module
                 .assumptions
                 .iter()
@@ -106,11 +106,11 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
         if let Some(Look::Def(d) | Look::Java(_, d)) =
             b.t.const_look(dive_ir::ConstId(u32::try_from(c).unwrap_or(u32::MAX)))
         {
-            reference.push(d);
+            evaluator_roots.push(d);
             named.insert(d);
         }
     }
-    let by_reference = Walk::run(b, &reference, false, false);
+    let by_evaluator = Walk::run(b, &evaluator_roots, false, false);
     let by_roles = Walk::run(b, &roles, true, false);
     let by_assumptions = Walk::run(b, &assumptions, false, false);
     // What the binder evaluates at start-up must not reach a deferred
@@ -123,8 +123,8 @@ pub(crate) fn candidates(b: &Binder<'_>) -> Deferral {
         .copied()
         .filter(|d| {
             !by_roles.position.contains(d)
-                && !by_reference.value.contains(d)
-                && !by_reference.position.contains(d)
+                && !by_evaluator.value.contains(d)
+                && !by_evaluator.position.contains(d)
                 && !named.contains(d)
                 && crate::reach::pure(b, *d)
         })
@@ -180,7 +180,7 @@ fn pure_assumptions(b: &Binder<'_>) -> Vec<DefId> {
 /// through the arguments their scopes bind lazily. The liveness checker and
 /// its validation evaluate these, so the binder evaluates the start-up
 /// definitions among them, as TLC does; the core keeps the others.
-pub(crate) fn reference_temporal(b: &Binder<'_>, model: &crate::Model) -> HashSet<DefId> {
+pub(crate) fn evaluator_temporal(b: &Binder<'_>, model: &crate::Model) -> HashSet<DefId> {
     let mut roots = std::collections::BTreeSet::new();
     let mut exprs = Vec::new();
     for named in model

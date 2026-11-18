@@ -1197,5 +1197,4 @@ mod evidence_controls {
 }
 
 #[cfg(test)]
-#[path = "binding_controls.rs"]
 pub(crate) mod binding_controls;

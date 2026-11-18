@@ -25,7 +25,7 @@ fn accepts(
     labels: &Labels,
     limits: Limits,
 ) -> Result<bool, ProductError> {
-    accepts_with(formula, graph, labels, limits, AcceptancePolicy::Legacy)
+    accepts_with(formula, graph, labels, limits, AcceptancePolicy::Cells)
 }
 
 fn accepts_with(
@@ -133,10 +133,7 @@ fn every_decomposed_short_word_matches_original_temporal_truth() {
                     let expected = formula
                         .evaluate_word(&states, &actions, back, 100_000)
                         .expect("direct word")[0];
-                    for policy in [
-                        AcceptancePolicy::Legacy,
-                        AcceptancePolicy::compact_default(),
-                    ] {
+                    for policy in [AcceptancePolicy::Cells, AcceptancePolicy::compact_default()] {
                         assert_eq!(
                             accepts_with(&formula, &graph, &labels, Limits::default(), policy)
                                 .expect("search"),
@@ -181,7 +178,7 @@ fn closing_edge_fulfills_recurrence_but_prefix_alone_does_not() {
             &tableau,
             labels,
             Limits::default(),
-            AcceptancePolicy::Legacy,
+            AcceptancePolicy::Cells,
         )
         .expect("product")
         .find_lasso_with_conditions(labels, &none())
@@ -228,7 +225,7 @@ fn closing_edge_fulfills_recurrence_but_prefix_alone_does_not() {
             &tableau,
             &empty,
             Limits::default(),
-            AcceptancePolicy::Legacy,
+            AcceptancePolicy::Cells,
         )
         .expect("product")
         .find_lasso_with_conditions(&empty, conditions),

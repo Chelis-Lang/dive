@@ -1,6 +1,6 @@
 //! A small test-only behavior-graph producer for the analyzer's tests.
 //!
-//! It plays the producer the way Core and the retired reference capture do:
+//! It plays the producer the way Core does:
 //! a sequential breadth-first search over the bound model's `Init` and
 //! `Next` actions, recording each root, then each source's concrete
 //! successors in action order followed by its implicit stutter, with TLC's

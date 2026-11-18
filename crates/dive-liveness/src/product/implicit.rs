@@ -262,7 +262,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             order: &ordered,
         };
         let acceptance = match policy {
-            AcceptancePolicy::Legacy => CompactAcceptance::new(&input, tableau),
+            AcceptancePolicy::Cells => CompactAcceptance::new(&input, tableau),
             AcceptancePolicy::Buffers { bytes, work } => {
                 budget::materialize(&input, tableau, bytes, work)?
             }
@@ -356,7 +356,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
                 labels,
                 conditions,
                 self.policy,
-                || self.legacy_cells(conditions),
+                || self.admit_cells(conditions),
                 &self.solution_setup_work,
             )?;
             let conditioned = super::Conditioned {
@@ -370,9 +370,9 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
         lasso.map(|lasso| self.project(&lasso)).transpose()
     }
 
-    // The materialized product's legacy logical-cell admission for a solution.
-    fn legacy_cells(&self, conditions: &CycleConditions) -> Result<(), ProductError> {
-        if self.policy != AcceptancePolicy::Legacy {
+    // The materialized product's logical-cell admission for a solution.
+    fn admit_cells(&self, conditions: &CycleConditions) -> Result<(), ProductError> {
+        if self.policy != AcceptancePolicy::Cells {
             return Ok(());
         }
         self.acceptance

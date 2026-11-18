@@ -53,7 +53,7 @@ impl ControlledBindError {
         clippy::unnecessary_box_returns,
         reason = "preserve the uncontrolled public boxed-error contract without reallocating existing failures"
     )]
-    pub(crate) fn legacy(self) -> Box<Failure> {
+    pub(crate) fn into_uncontrolled(self) -> Box<Failure> {
         match self {
             Self::Binding(failure) => failure,
             // The plain boxed error has no exception channel. Preserve its
@@ -134,7 +134,7 @@ pub(crate) fn eval_error(
     controlled: bool,
     fallible_errors: bool,
     error: EvalError,
-    legacy: impl FnOnce(EvalError) -> BindError,
+    to_binding: impl FnOnce(EvalError) -> BindError,
 ) -> StepError {
     if (controlled || fallible_errors) && error.class() == dive_eval::ErrorClass::Interrupted {
         StepError::Interrupted(error)
@@ -146,7 +146,7 @@ pub(crate) fn eval_error(
     {
         StepError::EvaluationFailure(error)
     } else {
-        StepError::Binding(legacy(error))
+        StepError::Binding(to_binding(error))
     }
 }
 
@@ -160,10 +160,10 @@ mod tests {
             EvalError::bug("actual internal failure"),
         ] {
             let original = original.at(dive_ir::ExprId(17));
-            let legacy = eval_error(false, false, original.clone(), |error| {
+            let binding = eval_error(false, false, original.clone(), |error| {
                 BindError::unsupported(error.to_string())
             });
-            assert!(matches!(legacy, StepError::Binding(_)));
+            assert!(matches!(binding, StepError::Binding(_)));
             let output = vec![Message::Print("before".into())];
             let result = eval_error(false, true, original.clone(), |error| {
                 BindError::unsupported(error.to_string())

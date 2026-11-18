@@ -175,10 +175,7 @@ fn compact_preserves_prefix_parallel_and_closing_edges() {
         (1, 1, 2)
     );
     assert_eq!((lasso.cycle[1].from, lasso.cycle[1].to), (2, 1));
-    for policy in [
-        AcceptancePolicy::Legacy,
-        AcceptancePolicy::compact_default(),
-    ] {
+    for policy in [AcceptancePolicy::Cells, AcceptancePolicy::compact_default()] {
         let implicit = ImplicitProduct::new(&graph, &t, &labels, Limits::default(), policy)
             .expect("on-the-fly product");
         assert_eq!(
@@ -368,10 +365,7 @@ fn cycle_predicates_outside_the_label_table_are_shape_errors() {
         view.find_lasso_with_conditions(&labels, &invalid),
         cycle_shape
     );
-    for policy in [
-        AcceptancePolicy::Legacy,
-        AcceptancePolicy::compact_default(),
-    ] {
+    for policy in [AcceptancePolicy::Cells, AcceptancePolicy::compact_default()] {
         let implicit = ImplicitProduct::new(&graph, &t, &labels, Limits::default(), policy)
             .expect("on-the-fly product");
         assert_eq!(

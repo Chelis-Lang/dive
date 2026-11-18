@@ -140,7 +140,7 @@ fn random_case(rng: &mut Rng) -> (Graph, Labels) {
 
 fn policies() -> [AcceptancePolicy; 3] {
     [
-        AcceptancePolicy::Legacy,
+        AcceptancePolicy::Cells,
         AcceptancePolicy::compact_default(),
         AcceptancePolicy::Buffers {
             bytes: usize::MAX,
@@ -235,7 +235,7 @@ fn on_the_fly_products_report_the_same_named_construction_limits() {
                         },
                     ] {
                         for policy in [
-                            AcceptancePolicy::Legacy,
+                            AcceptancePolicy::Cells,
                             AcceptancePolicy::Buffers {
                                 bytes: bound * 16,
                                 work: bound * 4,
@@ -279,7 +279,7 @@ fn an_expired_run_budget_stops_discovery_and_search() {
         &tableau,
         &labels,
         Limits::default(),
-        AcceptancePolicy::Legacy,
+        AcceptancePolicy::Cells,
     )
     .expect("product");
     let watchdog = crate::budget::expired_for_test();
@@ -300,7 +300,7 @@ fn an_expired_run_budget_stops_discovery_and_search() {
             &tableau,
             &labels,
             Limits::default(),
-            AcceptancePolicy::Legacy,
+            AcceptancePolicy::Cells,
         )
         .err(),
         Some(crate::product::ProductError::Limit(

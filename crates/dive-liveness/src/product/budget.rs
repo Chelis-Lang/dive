@@ -5,11 +5,11 @@ use crate::formula::Tableau;
 use std::mem::size_of;
 
 /// Admission policy for the coordinator's compact acceptance buffers.
-/// [`Self::Legacy`] keeps the logical acceptance-cell bound.
+/// [`Self::Cells`] keeps the logical acceptance-cell bound.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AcceptancePolicy {
     /// Preserve [`Limits::acceptance_cells`] and existing materialization behavior.
-    Legacy,
+    Cells,
     /// Replace only logical acceptance cells with covered buffer bytes and
     /// independent materialization work. Other product bounds retain their units.
     Buffers {

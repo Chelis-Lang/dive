@@ -181,7 +181,7 @@ impl Recipe {
             None,
             false,
         )
-        .map_err(ControlledBindError::legacy)
+        .map_err(ControlledBindError::into_uncontrolled)
     }
 
     /// Repeats startup with a separate typed evaluator control capability.
@@ -294,7 +294,7 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, false, None, false).map_err(ControlledBindError::legacy)
+    bind_in(ir, cfg, opts, false, None, false).map_err(ControlledBindError::into_uncontrolled)
 }
 
 /// Binds `ir` to `cfg` for Core: as [`bind`], except that the pure
@@ -317,7 +317,8 @@ pub fn bind_deferring_constants(
     cfg: &ModelConfig,
     opts: &BindOptions,
 ) -> Result<Model, Box<Failure>> {
-    bind_in_deferring(ir, cfg, opts, false, None, false, true).map_err(ControlledBindError::legacy)
+    bind_in_deferring(ir, cfg, opts, false, None, false, true)
+        .map_err(ControlledBindError::into_uncontrolled)
 }
 
 /// Binds a fresh model with typed cooperative evaluator control.
