@@ -462,6 +462,10 @@ fn accept(
     timeout: Duration,
 ) -> Result<Channel, Error> {
     let deadline = Instant::now() + timeout;
+    // BSD-derived systems (macOS) let an accepted socket inherit O_NONBLOCK
+    // from the polled listener; Linux does not. The deadline-bounded reads
+    // below need a blocking socket, or a frame still in flight fails at once.
+    stream.set_nonblocking(false).map_err(io)?;
     timeouts(&stream, timeout)?;
     let mut hello = [0; 128];
     let mut tag = [0; 32];
@@ -1103,6 +1107,47 @@ mod tests {
         assert_eq!(waits[11], ACCEPT_POLL_MAX);
         backoff.reset();
         assert_eq!(backoff.next_wait(), ACCEPT_POLL_MIN);
+    }
+
+    // Issue #1022: on macOS an accepted socket inherits the polled listener's
+    // O_NONBLOCK, so a HELLO not yet in flight failed at once as a timeout.
+    #[test]
+    fn accepted_session_waits_for_a_late_hello_from_a_nonblocking_listener() {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("local listener");
+        listener
+            .set_nonblocking(true)
+            .expect("nonblocking listener");
+        let address = listener.local_addr().expect("address");
+        let client = std::thread::spawn(move || {
+            let mut stream = TcpStream::connect(address).expect("connect");
+            std::thread::sleep(Duration::from_millis(100));
+            stream.write_all(&[0; 160]).expect("late hello");
+            stream
+        });
+        let stream = loop {
+            match listener.accept() {
+                Ok((stream, _)) => break stream,
+                Err(e) => {
+                    assert_eq!(e.kind(), std::io::ErrorKind::WouldBlock, "accept: {e}");
+                    std::thread::sleep(Duration::from_millis(1));
+                }
+            }
+        };
+        let error = accept(
+            stream,
+            &Secret([37; 32]),
+            [0; 32],
+            [0; 32],
+            Duration::from_secs(5),
+        )
+        .err()
+        .expect("an unauthenticated hello is rejected");
+        // The whole zero HELLO and tag are read and fail authentication, not I/O.
+        assert_eq!(
+            error.message(),
+            "DIVE-S0500: distributed safety: authentication failed"
+        );
+        drop(client.join().expect("client"));
     }
 
     #[test]

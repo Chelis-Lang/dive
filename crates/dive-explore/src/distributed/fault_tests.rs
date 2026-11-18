@@ -244,6 +244,10 @@ fn proxy(listener: &TcpListener, target: SocketAddr, stop: &AtomicBool, injectio
                 }
                 Err(_) => break,
             };
+            // macOS accepted sockets inherit the listener's O_NONBLOCK.
+            incoming
+                .set_nonblocking(false)
+                .expect("blocking proxy stream");
             scope.spawn(move || {
                 let mut outgoing = TcpStream::connect(target).expect("actual worker");
                 timeouts(&incoming, Duration::from_secs(2)).expect("proxy timeout");

@@ -47,8 +47,8 @@ The first release.
   one-line description of each command in `dive --help`, and `--version`
   naming the release tag or, for an untagged build, the commit.
 - Distributed safety checking across worker processes (`dive check
-  --distributed-worker`, `dive worker`) over authenticated TCP, with the same
-  results as a local run and named failures; see the
+  --distributed-worker`, `dive worker`) over authenticated TCP on Linux and
+  macOS, with the same results as a local run and named failures; see the
   [distributed safety guide](docs/user/distributed-safety.md).
 - Exact state storage (`--store exact`) for safety and temporal checks. The
   behavior graph keeps complete state identities, so states whose 64-bit
