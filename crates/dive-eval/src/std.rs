@@ -54,7 +54,7 @@ impl Core {
         }
         if let Some(category) = self.opts.host_access.denied(op) {
             let error = EvalError::unsupported(format!(
-                "{} requires explicit --allow-io={category} (D-017)",
+                "{} requires explicit --allow-io={category}",
                 op.qualified_name()
             ));
             self.remember_input_refusal(&error);

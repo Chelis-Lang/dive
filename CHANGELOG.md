@@ -34,8 +34,9 @@ The first release.
   symmetry, VIEW, CONSTRAINT and ACTION_CONSTRAINT support.
 - Counterexamples independently validated against their specifications by
   `dive-trace`, which shares no search code with the checker.
-- Schema-3 JSON operation reports, per-command help without input files, and
-  `--version` naming the release tag or, for an untagged build, the commit.
+- Schema-3 JSON operation reports, per-command help without input files, a
+  one-line description of each command in `dive --help`, and `--version`
+  naming the release tag or, for an untagged build, the commit.
 - Distributed safety checking across worker processes (`dive check
   --distributed-worker`, `dive worker`) over authenticated TCP, with the same
   results as a local run and named failures; see the

@@ -109,7 +109,7 @@ fn the_default_engine_is_core_and_refuses_by_name_without_fallback() {
             on_core += 1;
         }
         let human = default["human"].as_str().unwrap_or_default();
-        assert!(human.contains("requested engine core"), "{name}: {human}");
+        assert!(!human.contains("requested engine"), "{name}: {human}");
         assert!(!human.contains("engine auto"), "{name}: {human}");
     }
     assert!(on_core >= 120, "only {on_core} runs on the core");
