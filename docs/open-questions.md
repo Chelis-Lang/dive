@@ -107,7 +107,7 @@ skips later unforced checks for that value. Consider a separately named
 `--liveness-ratio=finite` option that defines a finite zero-duration policy. It
 is not implemented, no new default is approved, and the TLC-equivalent setting
 must preserve the recorded IEEE arithmetic. Component evidence and the native
-diagnostic ResourceLimit experiment are qualified in [D-014](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).
+diagnostic ResourceLimit experiment are qualified in [D-014](internal/tlc-differences-notes.md#zero-duration-ratio-edge-case-controlled-component-evidence).
 
 ## Checker CLI exit default (resolved 2026-10-14)
 
