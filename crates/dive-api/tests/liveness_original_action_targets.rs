@@ -1,12 +1,10 @@
 //! Constructor-alias action targets on Core, beyond the TLC-profile cases of
-//! `original_action_targets.rs`: exact storage refuses by name, and the
+//! `original_action_targets.rs`: exact storage matches the fingerprint store, and the
 //! default profile's value semantics hold with the pinned counts. These ran
 //! on the retired reference final analysis until #791.
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 #[path = "support/core_final.rs"]
 mod core_final;
-#[path = "support/refused.rs"]
-mod refused;
 use dive_runtime::CheckOptions;
 
 const SOURCE: &str = include_str!("../../dive-liveness/tests/fixtures/constructor-alias.tla");
@@ -31,22 +29,35 @@ fn cases() -> Vec<(String, String, u64)> {
 }
 
 #[test]
-fn exact_storage_with_these_temporal_properties_refuses_by_name() {
-    let options = CheckOptions {
-        store: dive_store::StoreMode::Exact,
-        ..CheckOptions::tlc(0, 0)
-    };
-    for (next, property, _) in cases() {
-        let report = core_final::run(
-            SOURCE,
-            &format!("INIT Init\nNEXT {next}\nPROPERTY {property}\n"),
-            &options,
-        );
-        refused::assert_refused(
-            &report.to_json(),
-            report.exit_code(),
-            refused::TEMPORAL_EXACT_STORE,
-        );
+fn exact_storage_with_these_temporal_properties_matches_the_fingerprint_store() {
+    for profile in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+        for (next, property, _) in cases() {
+            let config = format!("INIT Init\nNEXT {next}\nPROPERTY {property}\n");
+            let exact = core_final::run(
+                SOURCE,
+                &config,
+                &CheckOptions {
+                    store: dive_store::StoreMode::Exact,
+                    ..profile.clone()
+                },
+            );
+            let fingerprint = core_final::run(SOURCE, &config, &profile);
+            assert_eq!(exact.exit_code(), fingerprint.exit_code());
+            let (exact, fingerprint) = (exact.to_json(), fingerprint.to_json());
+            assert_eq!(exact["options"]["store"], "exact", "{exact:#}");
+            for field in [
+                "verdict",
+                "message",
+                "property",
+                "statistics",
+                "counterexample",
+            ] {
+                assert_eq!(
+                    exact[field], fingerprint[field],
+                    "{next}/{property}: {field}"
+                );
+            }
+        }
     }
 }
 

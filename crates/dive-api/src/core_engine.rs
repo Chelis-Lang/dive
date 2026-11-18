@@ -1314,8 +1314,7 @@ pub(crate) fn check(
         return (finish(result(unsupported(feature), options, ir)), run);
     }
     if !prepared.model.implied_temporals.is_empty()
-        && (options.store == dive_store::StoreMode::Exact
-            || options.frontier_memory_bytes.is_some()
+        && (options.frontier_memory_bytes.is_some()
             || options.frontier_directory.is_some()
             || options.candidate_memory_bytes.is_some()
             || options.candidate_directory.is_some()
@@ -1325,7 +1324,7 @@ pub(crate) fn check(
     {
         return (
             finish(result(
-                unsupported("exact or spilled native temporal storage under the core engine"),
+                unsupported("spilled or reclaimed native temporal storage under the core engine"),
                 options,
                 ir,
             )),

@@ -8,9 +8,6 @@
     reason = "original primary fixtures"
 )]
 
-#[path = "support/refused.rs"]
-mod refused;
-
 use dive_api::{CheckRequest, Store};
 use std::path::Path;
 
@@ -42,14 +39,6 @@ fn original_constant_cases_keep_primary_final_truth_and_counts() {
                 };
                 let report = dive_api::check_file(&request).expect("Core");
                 let json = report.to_json();
-                if store == Store::Exact {
-                    refused::assert_refused(
-                        &json,
-                        report.exit_code(),
-                        refused::TEMPORAL_EXACT_STORE,
-                    );
-                    continue;
-                }
                 let observed = (
                     json["verdict"].clone(),
                     json["statistics"]["generated"].clone(),

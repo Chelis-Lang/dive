@@ -679,3 +679,108 @@ fn deferred_admission_refuses_an_unconvertible_row_at_its_read() {
         Err(AnalysisError::UnsupportedValue(reason)) if reason.contains("unmaterialized symbolic")
     ));
 }
+
+/// One synthetic step with the forced key 7.
+#[allow(
+    clippy::too_many_arguments,
+    reason = "every Step field the test varies"
+)]
+fn equal_key_step(
+    sink: &mut NativeSink<'_, '_>,
+    heap: &mut Heap,
+    generated: u64,
+    new: Option<u64>,
+    seen: Option<u64>,
+    row: Handle,
+    parent: Option<u64>,
+    ordinal: u64,
+) -> Result<(), Verdict> {
+    let canonical = [row];
+    let emitted = sink.emitted(generated, parent.map(|_| ordinal));
+    let stepped = emitted.and_then(|()| {
+        sink.state(
+            heap,
+            Step {
+                key: 7,
+                new: new.map(|id| (id, &canonical[..])),
+                seen,
+                original: &canonical,
+                parent,
+                ordinal,
+                action: parent.map(|_| 0),
+            },
+        )
+    });
+    stepped.map_err(|_| sink.take_error().expect("the sink keeps its reason"))
+}
+
+/// Two distinct roots with equal keys, then a source whose seen successors
+/// name each of them by discovery id.
+fn equal_key_steps(sink: &mut NativeSink<'_, '_>, heap: &mut Heap) -> Result<(), Verdict> {
+    let zero = Handle::int(0).expect("small integer");
+    let one = Handle::int(1).expect("small integer");
+    equal_key_step(sink, heap, 1, Some(0), None, zero, None, 0)?;
+    equal_key_step(sink, heap, 2, Some(1), None, one, None, 1)?;
+    equal_key_step(sink, heap, 3, None, Some(1), one, Some(0), 0)?;
+    equal_key_step(sink, heap, 4, None, Some(0), zero, Some(0), 1)
+}
+
+/// Equal keys of distinct states, as forced key collisions present them: the
+/// exact sink keeps distinct vertices and resolves seen targets by their
+/// discovery ids; the fingerprint sink cannot, and says so.
+#[test]
+fn exact_identities_keep_equal_keys_as_distinct_vertices() {
+    let opts = dive_core::Opts::default();
+    let prepared = prepare(
+        "VARIABLE x\nInit == x \\in {0, 1}\nNext == x' = 1 - x",
+        "INIT Init\nNEXT Next\n",
+        false,
+        opts,
+    );
+    let options = options(false);
+    let sink = || {
+        NativeSink::new(
+            &prepared.model,
+            Arc::clone(&prepared.store),
+            Limits::default(),
+            &options,
+            None,
+        )
+        .expect("sink")
+    };
+    let mut heap = Heap::new(Arc::clone(&prepared.store), false, false);
+
+    let mut exact = sink();
+    exact.use_exact_identities();
+    equal_key_steps(&mut exact, &mut heap).expect("exact identities");
+    assert_eq!(exact.graph.state_count(), 2);
+    assert_eq!(exact.graph.targets, [1, 0]);
+    assert_eq!(
+        exact.graph.memory.key_entries, 0,
+        "no key index in exact mode"
+    );
+
+    let mut fingerprint = sink();
+    let error = equal_key_steps(&mut fingerprint, &mut heap).expect_err("one key, two states");
+    assert!(
+        matches!(&error, Verdict::InternalError { message } if message.contains("differ from trace log")),
+        "{error:?}"
+    );
+
+    // A seen id in fingerprint mode, or none in exact mode, is a bug; so is
+    // an id that names no discovered vertex.
+    let zero = Handle::int(0).expect("small integer");
+    for (exact_mode, seen) in [(false, Some(0)), (true, None), (true, Some(5))] {
+        let mut sink = sink();
+        if exact_mode {
+            sink.use_exact_identities();
+        }
+        equal_key_step(&mut sink, &mut heap, 1, Some(0), None, zero, None, 0).expect("root");
+        let error = equal_key_step(&mut sink, &mut heap, 2, None, seen, zero, Some(0), 0)
+            .expect_err("an inconsistent seen id");
+        assert!(
+            matches!(&error, Verdict::InternalError { message } if message.contains("id")),
+            "exact={exact_mode} seen={seen:?}: {error:?}"
+        );
+    }
+}

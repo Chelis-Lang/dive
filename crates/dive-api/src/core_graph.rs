@@ -197,6 +197,12 @@ impl GraphSink for Graph<'_> {
     }
 
     fn state(&mut self, heap: &mut Heap, step: Step<'_>) -> Result<(), Stopped> {
+        if step.seen.is_some() {
+            // This test collector resolves states by key only.
+            return Err(self.stop(Verdict::InternalError {
+                message: "core graph: exact seen ids are not supported by the key collector".into(),
+            }));
+        }
         let vals = self
             .convert(heap, step.original)
             .map_err(|verdict| self.stop(verdict))?;

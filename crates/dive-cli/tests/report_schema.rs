@@ -138,9 +138,19 @@ fn refusal() -> TestResult {
     report(
         "refusal",
         "Liveness",
-        &["--store", "exact"],
+        &["--store", "exact", "--frontier-memory-bytes", "0"],
         3,
         "unsupported",
+    )
+}
+#[test]
+fn exact_liveness_violation() -> TestResult {
+    report(
+        "liveness-exact",
+        "Liveness",
+        &["--store", "exact"],
+        13,
+        "liveness-violation",
     )
 }
 #[test]

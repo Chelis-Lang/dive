@@ -765,3 +765,173 @@ fn native_fairness_words_validate_independently_and_reject_changed_initial_funct
         }
     }
 }
+
+fn probe(name: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-liveness/tests/fixtures/tlc-probes/specs")
+        .join(name)
+        .join(format!("{name}.tla"))
+}
+
+/// The observables both stores must share.
+fn store_observables(v: &Value) -> Value {
+    serde_json::json!({
+        "verdict": v["verdict"],
+        "exit_code": v["exit_code"],
+        "property": v["property"],
+        "statistics": v["statistics"],
+        "tlc": v["tlc"],
+        "counterexample": v["counterexample"],
+        "periodic": v["periodic"],
+        "options_workers": v["options"]["workers"],
+    })
+}
+
+#[test]
+fn exact_and_fingerprint_stores_agree_on_temporal_checks() {
+    use dive_api::Store;
+    use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+    let cases = [
+        fixture("Fair"),
+        fixture("Holds"),
+        fixture("Wide"),
+        fixture("FairUpdate"),
+        probe("LvNoFair"),
+        probe("LvTwoLoopsRev"),
+        probe("LvWeakFair"),
+        probe("LvPerProcessFair"),
+    ];
+    let mut violations = 0;
+    for file in cases {
+        let name = file
+            .file_stem()
+            .expect("name")
+            .to_string_lossy()
+            .into_owned();
+        for tlc in [false, true] {
+            for workers in [1, 4] {
+                let request = CheckRequest {
+                    config: Some(file.with_extension("cfg")),
+                    file: file.clone(),
+                    workers: Some(workers),
+                    seed: Some(0),
+                    fp: Some(0),
+                    compat_tlc: tlc,
+                    ..CheckRequest::default()
+                };
+                let fingerprint = check_file(&request).expect("fingerprint check");
+                let exact = check_file(&CheckRequest {
+                    store: Store::Exact,
+                    ..request.clone()
+                })
+                .expect("exact check");
+                let (fp_json, exact_json) = (fingerprint.to_json(), exact.to_json());
+                let what = format!("{name} tlc={tlc} w={workers}");
+                assert_eq!(exact_json["engine"], "core", "{what}: {exact_json:#}");
+                assert_eq!(
+                    exact_json["check_kind"], "temporal",
+                    "{what}: {exact_json:#}"
+                );
+                assert_ne!(
+                    exact_json["verdict"], "unsupported",
+                    "{what}: {exact_json:#}"
+                );
+                assert_eq!(
+                    store_observables(&exact_json),
+                    store_observables(&fp_json),
+                    "{what}"
+                );
+                assert_eq!(exact.exit_code(), fingerprint.exit_code(), "{what}");
+                assert_eq!(exact_json["options"]["store"], "exact", "{what}");
+                assert_eq!(fp_json["options"]["store"], "fingerprint", "{what}");
+                assert_eq!(
+                    exact_json["core"]["metrics"]["exact_states"],
+                    exact_json["statistics"]["distinct"],
+                    "{what}: every distinct state keeps its identity"
+                );
+                assert_eq!(fp_json["core"]["metrics"]["exact_states"], 0, "{what}");
+                let exact_human = exact.render_human();
+                let fp_human = fingerprint.render_human();
+                assert!(
+                    exact_human.contains("\nExact full-state storage.\n"),
+                    "{what}: {exact_human}"
+                );
+                assert!(
+                    fp_human.contains(
+                        "\nFingerprint storage (64-bit); collision probability not computed.\n"
+                    ),
+                    "{what}: {fp_human}"
+                );
+                assert!(
+                    !fp_human.contains("Exact full-state storage."),
+                    "{fp_human}"
+                );
+                if exact_json["verdict"] == "liveness-violation" {
+                    violations += 1;
+                    let model = SpecModel::load(
+                        &request.file,
+                        request.config.as_ref().expect("cfg"),
+                        &TraceOptions {
+                            compat_tlc: tlc,
+                            run: Some((0, 0)),
+                            ..TraceOptions::default()
+                        },
+                    )
+                    .expect("independent model");
+                    let word = TraceDoc::from_json(&exact_json["counterexample"]["trace"])
+                        .expect("exact lasso");
+                    assert_eq!(model.read(&word).0.validation, Validation::Valid, "{what}");
+                }
+            }
+        }
+    }
+    assert!(
+        violations >= 8,
+        "fairness violations are covered: {violations}"
+    );
+}
+
+#[test]
+fn spilled_or_reclaimed_storage_with_temporal_properties_is_refused_by_name() {
+    let file = fixture("Fair");
+    let base = CheckRequest {
+        config: Some(file.with_extension("cfg")),
+        file,
+        seed: Some(0),
+        fp: Some(0),
+        store: dive_api::Store::Exact,
+        ..CheckRequest::default()
+    };
+    for request in [
+        CheckRequest {
+            frontier_memory_bytes: Some(0),
+            ..base.clone()
+        },
+        CheckRequest {
+            predecessor_memory_bytes: Some(0),
+            ..base.clone()
+        },
+        CheckRequest {
+            candidate_memory_bytes: Some(0),
+            ..base.clone()
+        },
+    ] {
+        let report = check_file(&request).expect("refusal");
+        refused::assert_refused(
+            &report.to_json(),
+            report.exit_code(),
+            refused::TEMPORAL_SPILLED_STORE,
+        );
+    }
+    // An explicit reclamation trigger is refused by its own earlier name.
+    let report = check_file(&CheckRequest {
+        store_compact_bytes: Some(0),
+        ..base
+    })
+    .expect("refusal");
+    refused::assert_refused(
+        &report.to_json(),
+        report.exit_code(),
+        "Store reclamation with runtime effects or native temporal capture",
+    );
+}

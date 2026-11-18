@@ -50,6 +50,10 @@ The first release.
   --distributed-worker`, `dive worker`) over authenticated TCP, with the same
   results as a local run and named failures; see the
   [distributed safety guide](docs/user/distributed-safety.md).
+- Exact state storage (`--store exact`) for safety and temporal checks. The
+  behavior graph keeps complete state identities, so states whose 64-bit
+  fingerprints collide stay distinct. The human temporal report names the
+  store, and a fingerprint run says that no collision probability was computed.
 - Run budgets (`--time-limit`, `--max-memory`) that end a run as `stopped`
   (exit 5) with the phase and limit named. There is no default time limit;
   `--max-memory` defaults to half of physical memory.

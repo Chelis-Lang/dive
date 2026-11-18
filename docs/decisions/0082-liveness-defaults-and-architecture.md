@@ -60,7 +60,9 @@ shapes and resource limits are named refusals, not errors in the spec.
 **Store and identity.** Temporal checking over the exact store is refused until
 the exact store can provide a temporal proof. Fingerprint-store results keep the
 store's collision qualification. Symmetry with liveness follows ADR 0019 §4 and
-ADR 0085.
+ADR 0085. Amended 2026-11-18 by ADR 0158: the exact store now names seen
+targets by discovery id, so Core checks temporal properties with `--store
+exact`; spilled or reclaimed temporal storage is still refused.
 
 **Evaluator contexts.** `Evaluator::new` and `Evaluator::with_sink` validate
 their context and return `Result<_, ContextError>`, with codes `DIVE-EVAL-C001`

@@ -332,11 +332,17 @@ fn check_configured_inner(
     if defer_admission {
         sink.defer_admission();
     }
+    let exact = options.store == dive_store::StoreMode::Exact;
+    if exact {
+        sink.use_exact_identities();
+    }
     if let Some(setup) = source_setup {
         sink.prepare_source_rows(setup);
     }
     run.searched = true;
-    let mut out = dive_explore::explore_with_control(
+    // Exact storage keeps full state identities, so equal 64-bit keys of
+    // distinct states stay distinct vertices (ADR 0158).
+    let mut out = dive_explore::explore_with_storage(
         &plan,
         &store,
         dive_explore::Config {
@@ -350,6 +356,10 @@ fn check_configured_inner(
         &poll,
         Some(&mut sink),
         Some(&crate::core_engine::search_work_control(budget)),
+        &dive_explore::storage::Storage {
+            exact,
+            ..dive_explore::storage::Storage::default()
+        },
     );
     let graph_error = sink.take_error();
     let source_error = sink.take_source_error();

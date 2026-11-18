@@ -112,7 +112,9 @@ accepted; any other engine name is a usage error (exit 2). Core covers:
 - the default profile and `--compat=tlc` (below). Safety checks support
   `--store fp|exact`, ordered frontier spill and predecessor-log spill under
   their explicit budgets. Disk seen sets and `--chaos` remain unsupported.
-  Temporal checks with exact stores or frontier/predecessor spill refuse by name;
+  Temporal checks support `--store exact`; frontier, candidate or predecessor
+  spill, disk seen sets and an explicit `--store-compact-bytes` with temporal
+  properties refuse by name;
 - any number of workers. Every result (counts, verdict, trace, output) is
   the one-worker result;
 - safety: invariants, constraints, `ACTION_CONSTRAINT`, deadlock, and

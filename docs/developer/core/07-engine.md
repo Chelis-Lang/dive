@@ -402,6 +402,13 @@ evaluation. Receiver/history rows remain separate. Parallel fingerprint claims
 are disabled in exact mode: a claim cannot prove full-state equality. Ordered
 commit still decides duplicate admission, limits and the first error.
 
+Each retained row carries its discovery id. A new insert predicts the id from
+the predecessor log's length, and the log push must confirm it (otherwise an
+internal error). A seen successor reaches the graph sink with that id
+(`graph::Step::seen`), so temporal capture over the exact store keeps distinct
+states with equal keys as distinct vertices (ADR 0158). Fingerprint mode, disk
+seen sets and parallel fingerprint duplicates report no id.
+
 The existing fallible `PredecessorLog` now takes the caller's resident byte
 limit and directory. It validates and explicitly closes before the explorer
 publishes a result. Typed storage failures retain prefix counts and component

@@ -205,7 +205,12 @@ impl NativeGraph {
 pub(crate) struct NativeSink<'model, 'callback> {
     graph: NativeGraph,
     values: NativeValues<'model>,
+    /// Fingerprint mode: discovery ids by state key (equal keys are one
+    /// vertex). Unused when the explorer names seen targets by id.
     ids: HashMap<u64, u32>,
+    /// The explorer's exact seen set names every seen target by its
+    /// discovery id ([`Step::seen`]); keys are then never identities.
+    exact: bool,
     control: Arc<EvaluationControl>,
     on_level: Option<&'callback mut OnLevel<'model, 'callback>>,
     error: Option<Verdict>,
@@ -283,6 +288,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             graph,
             values,
             ids: HashMap::new(),
+            exact: false,
             control,
             on_level,
             error: None,
@@ -302,6 +308,14 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
     /// [`NativeValues::defer_admission`] for the caller's obligations.
     pub(crate) fn defer_admission(&mut self) {
         self.values.defer_admission();
+    }
+
+    /// Resolves seen targets by the discovery ids of the explorer's exact
+    /// seen set instead of by state key. The search must then run with
+    /// exact storage: a seen step without an id is an internal error, as is
+    /// one with an id when this is not called.
+    pub(crate) fn use_exact_identities(&mut self) {
+        self.exact = true;
     }
 
     pub(crate) fn prepare_source_rows(&mut self, setup: SourceRowSetup) {
@@ -388,7 +402,8 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
         let (target, original) = if let Some((id, canonical)) = step.new {
             let target = u32::try_from(id).map_err(|_| limit("native vertex ids"))?;
             if target as usize != self.graph.state_count()
-                || self.ids.contains_key(&step.key)
+                || step.seen.is_some()
+                || (!self.exact && self.ids.contains_key(&step.key))
                 || canonical.len() != self.graph.nvars
             {
                 return Err(bug("native discovery ids differ from trace log"));
@@ -406,23 +421,37 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
                 &self.control,
             )?;
             poll(&self.control)?;
-            self.ids
-                .try_reserve(1)
-                .map_err(|_| limit("native discovery index allocation"))?;
-            self.graph.memory.key_capacity = self.ids.capacity();
+            if !self.exact {
+                self.ids
+                    .try_reserve(1)
+                    .map_err(|_| limit("native discovery index allocation"))?;
+                self.graph.memory.key_capacity = self.ids.capacity();
+            }
             poll(&self.control)?;
             let row = self.graph.retain_row(step.original, &self.control)?;
             self.graph.representatives.push(row);
             self.graph.offsets.push(self.graph.targets.len());
-            self.ids.insert(step.key, target);
-            self.graph.memory.key_entries = self.ids.len();
-            self.graph.memory.key_capacity = self.ids.capacity();
+            if !self.exact {
+                self.ids.insert(step.key, target);
+                self.graph.memory.key_entries = self.ids.len();
+                self.graph.memory.key_capacity = self.ids.capacity();
+            }
             (target, row)
         } else {
-            let target = *self
-                .ids
-                .get(&step.key)
-                .ok_or_else(|| bug("native seen state has no discovery id"))?;
+            let target = match (self.exact, step.seen) {
+                (true, Some(id)) => u32::try_from(id)
+                    .ok()
+                    .filter(|&id| (id as usize) < self.graph.state_count())
+                    .ok_or_else(|| bug("native exact seen id is not a discovered vertex"))?,
+                (true, None) => return Err(bug("native exact seen state has no discovery id")),
+                (false, Some(_)) => {
+                    return Err(bug("native fingerprint seen state carries a discovery id"));
+                }
+                (false, None) => *self
+                    .ids
+                    .get(&step.key)
+                    .ok_or_else(|| bug("native seen state has no discovery id"))?,
+            };
             let representative = self.graph.representatives[target as usize];
             let original = if parent.is_none()
                 || same_rows(

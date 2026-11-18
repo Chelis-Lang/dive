@@ -153,11 +153,7 @@ fn eliminated_false_action_candidate_still_refuses_attribution_without_a_word() 
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
         assert!(value["tlc"].is_null());
         assert!(value["counterexample"].is_null());
-        if store == dive_api::Store::Exact {
-            refused::assert_refused(&value, report.exit_code(), refused::TEMPORAL_EXACT_STORE);
-        } else {
-            refused::assert_refused(&value, report.exit_code(), refused::TEMPORAL_FAILURE_REPORT);
-        }
+        refused::assert_refused(&value, report.exit_code(), refused::TEMPORAL_FAILURE_REPORT);
     }
     Ok(())
 }
