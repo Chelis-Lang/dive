@@ -49,6 +49,10 @@ The first release.
 - Embedded standard modules, TLAPS and CommunityModules, with local modules
   and explicit search paths taking precedence; ordinary imports need no extra
   library flags.
+- Experimental: `dive debug`, a Debug Adapter Protocol adapter over stdio or
+  loopback TCP for Core safety checking in both profiles, with source and
+  exception breakpoints, forward steps and bounded scalar inspection; see
+  [debugging](docs/user/debugging.md).
 - Linux x86_64 and aarch64 archives with checksums, both command entrypoints,
   and the bundled libraries' license and provenance notices.
 - Published on crates.io: `cargo install dive-cli --locked` installs the
@@ -83,7 +87,7 @@ The first release.
 
 - Unimplemented requests refuse by name (verdict `unsupported`, exit 3);
   budget stops are reported as stops, never as success.
-- Not in the first release: the debugger, checkpoint and recovery breadth,
+- Not in the first release: checkpoint and recovery breadth,
   TLC coverage and logical costs, spec I/O beyond explicit grants, simulation
   with a temporal PROPERTY, VIEW with liveness, distributed temporal checking,
   and LSP.
