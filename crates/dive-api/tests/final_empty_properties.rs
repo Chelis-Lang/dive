@@ -251,7 +251,7 @@ fn final_safety_reports_actual_binding_origin_not_model_error_class() -> TestRes
             };
             let ordinary = dive_api::check_file(&request)?;
             let selected = dive_api::check_file(&dive_api::CheckRequest {
-                temporal: dive_api::TemporalMode::FinalShort,
+                temporal_refusal: Some(refused::FINAL_SHORT.into()),
                 ..request
             })?;
             if cfg.contains("POSTCONDITION") {
@@ -274,12 +274,11 @@ fn final_safety_reports_actual_binding_origin_not_model_error_class() -> TestRes
                 result.verdict
             );
             assert_eq!(result.binding_model_error, binding, "{cfg}");
+            // Without temporal properties the refused strategy changes
+            // nothing: the report is the ordinary safety report.
             let json = selected.to_json();
-            assert_eq!(
-                json["execution"]["stage"],
-                if binding { "binding" } else { "capture" }
-            );
-            assert_eq!(json["execution"]["capture_completed"], false);
+            assert_eq!(json["check_kind"], "safety");
+            assert!(json["execution"].is_null(), "{json}");
         }
     }
     Ok(())

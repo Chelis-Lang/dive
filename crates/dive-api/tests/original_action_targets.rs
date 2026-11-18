@@ -4,7 +4,7 @@
 //! the failure report by name.
 #[path = "support/refused.rs"]
 mod refused;
-use dive_api::{CheckRequest, ExitConvention, TemporalMode};
+use dive_api::{CheckRequest, ExitConvention};
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 const SOURCE: &str = include_str!("../../dive-liveness/tests/fixtures/constructor-alias.tla");
@@ -27,11 +27,11 @@ impl Spec {
         )?;
         Ok(Self(file))
     }
-    fn request(&self, compat: bool, temporal: TemporalMode) -> CheckRequest {
+    fn request(&self, compat: bool, temporal: refused::Mode) -> CheckRequest {
         CheckRequest {
             file: self.0.clone(),
             compat_tlc: compat,
-            temporal,
+            temporal_refusal: temporal.refusal(),
             workers: Some(1),
             seed: Some(0),
             fp: Some(0),
@@ -45,14 +45,14 @@ impl Spec {
 fn core_ordinary(
     mut request: CheckRequest,
 ) -> Result<dive_api::CheckReport, Box<dyn std::error::Error>> {
-    if request.temporal == TemporalMode::FinalShort {
+    if request.temporal_refusal.is_some() {
         let final_short = dive_api::check_file(&request)?;
         refused::assert_refused(
             &final_short.to_json(),
             final_short.exit_code(),
             refused::FINAL_SHORT,
         );
-        request.temporal = TemporalMode::Ordinary;
+        request.temporal_refusal = None;
     }
     Ok(dive_api::check_file(&request)?)
 }
@@ -73,7 +73,7 @@ fn required_action_error_is_general255_while_state_and_selected_function_succeed
         ("Next", "EliminatedAction", 0, 2),
     ] {
         let spec = Spec::new(next, property, "")?;
-        for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+        for mode in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
             let report = core_ordinary(spec.request(true, mode))?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             if status == 255 {
@@ -95,7 +95,7 @@ fn required_action_error_is_general255_while_state_and_selected_function_succeed
             assert!(value["counterexample"].is_null());
             assert_eq!(value["verdict"], "success");
         }
-        let default = core_ordinary(spec.request(false, TemporalMode::FinalShort))?;
+        let default = core_ordinary(spec.request(false, refused::Mode::FinalShort))?;
         assert_eq!(default.exit_code_for(ExitConvention::Tlc), 0);
     }
     Ok(())
@@ -103,7 +103,7 @@ fn required_action_error_is_general255_while_state_and_selected_function_succeed
 #[test]
 fn residual_state_error_remains_validation_refusal_without_a_false_word() -> TestResult {
     let spec = Spec::new("Next", "EventuallyEqual", "")?;
-    let report = core_ordinary(spec.request(true, TemporalMode::FinalShort))?;
+    let report = core_ordinary(spec.request(true, refused::Mode::FinalShort))?;
     let value = report.to_json();
     refused::assert_refused(
         &value,
@@ -122,7 +122,7 @@ fn state_nonboolean_and_uncertain_multi_property_errors_are_not_verified_tlc_err
         ("ActionCheck Other", "Other == <>[](FALSE)"),
     ] {
         let spec = Spec::new("Next", property, extra)?;
-        let report = core_ordinary(spec.request(true, TemporalMode::FinalShort))?;
+        let report = core_ordinary(spec.request(true, refused::Mode::FinalShort))?;
         let value = report.to_json();
         refused::assert_refused(&value, report.exit_code(), refused::TEMPORAL_FAILURE_REPORT);
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
@@ -145,7 +145,7 @@ fn eliminated_false_action_candidate_still_refuses_attribution_without_a_word() 
     );
     std::fs::write(&spec.0, source)?;
     for store in [dive_api::Store::Fingerprint, dive_api::Store::Exact] {
-        let mut request = spec.request(true, TemporalMode::FinalShort);
+        let mut request = spec.request(true, refused::Mode::FinalShort);
         request.store = store;
         let report = core_ordinary(request)?;
         let value = report.to_json();

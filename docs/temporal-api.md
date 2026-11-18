@@ -15,13 +15,13 @@ levels to check; the default checks once the graph has at least 2^16 states and
 has doubled since the previous check.
 See [ordinary dive-profile checking](user/temporal.md#ordinary-checking-in-the-dive-profile)
 and [ordinary TLC-profile checking](user/temporal.md#ordinary-checking-in-the-tlc-profile)
-for options, physical exits, reports and limits. Explicit `FinalShort` behavior
-and its mixed-profile label retain the final-only schedule.
+for options, physical exits, reports and limits. Core implements no bounded
+final-only mode, so `TemporalMode` has only `Ordinary`; the CLI's
+`--lncheck final --lasso short` refuses temporal properties by name.
 
 Temporal checks from Rust run on Core through `dive_api::check_file` with a
-`CheckRequest`. `TemporalMode::FinalShort` checks
-the supported pure temporal subset once the safety graph is completely
-explored. `CheckReport::temporal_result` returns the temporal report: either a
+`CheckRequest`. Under `--compat=tlc` (`compat_tlc: true`) the supported pure
+temporal subset is checked once the safety graph is completely explored. `CheckReport::temporal_result` returns the temporal report: either a
 holding result over the exhausted graph, an independently validated periodic
 counterexample, or the safety engine's earlier stop. `CheckReport::result`
 returns a safety result, and `CheckReport::temporal_failure` the typed failure
@@ -42,11 +42,11 @@ which took a lowered module and caller-set analysis limits and policies, were
 removed with that engine (#791).
 
 ```rust
-use dive_api::{CheckRequest, TemporalMode, temporal::Outcome};
+use dive_api::{CheckRequest, temporal::Outcome};
 
 let request = CheckRequest {
     file: "M.tla".into(),
-    temporal: TemporalMode::FinalShort,
+    compat_tlc: true,
     seed: Some(17),
     ..CheckRequest::default()
 };
@@ -239,24 +239,24 @@ not turn this malformed formula into a feature refusal. The check report names
 
 ## Command-line access
 
-The same backend is available explicitly:
+The same backend runs from the command line in the TLC profile:
 
 ```sh
-dive check Model.tla --lncheck final --lasso short --store exact --seed 17 --output json
+dive check Model.tla --compat=tlc --seed 17 --output json
 ```
 
-Both flags are required for explicit selection. Eligible ordinary requests
-select deterministic level checks in the dive profile and bounded final analysis
-in the TLC profile without these flags; ordinary safety checks also retain their
-existing command. With these flags, an empty property list or the bounded
-configured-safety-role route above returns the ordinary safety result. Supported final
-checking returns success or independently validated periodic counterexamples;
-unsupported formulas, missing independent covers and limits return no verdict.
+Eligible ordinary requests select deterministic level checks in the dive
+profile and bounded final analysis in the TLC profile; ordinary safety checks
+also keep their existing command. `--lncheck final --lasso short` refuses
+temporal properties by name (exit 3) and leaves a model without them unchanged.
+Supported checking returns success or independently validated periodic
+counterexamples; unsupported formulas, missing independent covers and limits
+return no verdict.
 Safety violations found during exploration retain their full original report.
 
-All operation reports use JSON schema 3. Explicit final requests retain the
-`temporal` report family even when they stop at a safety failure; ordinary safety
-reports use the `safety` family and carry no temporal capture claim. A temporal
+All operation reports use JSON schema 3. Temporal runs use the `temporal`
+report family; ordinary safety reports use the `safety` family and carry no
+temporal capture claim. A temporal
 violation includes `properties`, an independently admitted tagged `counterexample.trace`, a 1-based
 `counterexample.back_to`, and `counterexample.validation: "valid"`. The trace
 document itself retains its own schema and 0-based back edge. Save the trace

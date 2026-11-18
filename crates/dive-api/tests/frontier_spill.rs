@@ -8,15 +8,12 @@ use dive_api::{CheckRequest, Store};
 #[test]
 fn a_frontier_directory_without_a_budget_rejects_before_file_access() {
     for compat_tlc in [false, true] {
-        for temporal in [
-            dive_api::TemporalMode::Ordinary,
-            dive_api::TemporalMode::FinalShort,
-        ] {
+        for temporal in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
             let error = dive_api::check_file(&CheckRequest {
                 file: std::path::PathBuf::from("missing-model-for-invalid-frontier-request.tla"),
                 frontier_directory: Some(std::path::PathBuf::from("unused-frontier-directory")),
                 compat_tlc,
-                temporal,
+                temporal_refusal: temporal.refusal(),
                 ..CheckRequest::default()
             })
             .expect_err("the directory must not be silently ignored");

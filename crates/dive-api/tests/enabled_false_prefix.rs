@@ -7,7 +7,7 @@
 mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, ExitConvention, TemporalMode};
+use dive_api::{CheckRequest, ExitConvention};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 
@@ -26,14 +26,14 @@ fn spec(name: &str) -> (PathBuf, PathBuf) {
 fn check(
     name: &str,
     compat_tlc: bool,
-    temporal: TemporalMode,
+    temporal: refused::Mode,
 ) -> Result<Value, Box<dyn std::error::Error>> {
     let (file, config) = spec(name);
     Ok(dive_api::check_file(&CheckRequest {
         file,
         config: Some(config),
         compat_tlc,
-        temporal,
+        temporal_refusal: temporal.refusal(),
         seed: Some(0),
         fp: Some(0),
         workers: Some(1),
@@ -67,11 +67,11 @@ fn validation(model: &SpecModel, word: &TraceDoc) -> (Validation, Validation) {
 #[test]
 fn false_enabled_prefix_reports_the_violation_with_a_validated_word() -> TestResult {
     for compat_tlc in [true, false] {
-        for temporal in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+        for temporal in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
             // Pinned TLC: temporal property `Prop` violated, 2116, exit 13,
             // 2 generated, 1 distinct, depth 1, no division error.
             let report = check("StartupFilterUnreachedError", compat_tlc, temporal)?;
-            if temporal == TemporalMode::FinalShort {
+            if temporal == refused::Mode::FinalShort {
                 // Only the retired reference engine ran bounded final
                 // checking (#791, #910).
                 let exit = u8::try_from(report["exit_code"].as_u64().unwrap_or(255))?;
@@ -120,7 +120,7 @@ fn true_controls_hold_in_both_profiles() -> TestResult {
     for name in ["StartupFilterReachedTrue", "StartupFilterAliasTrue"] {
         for compat_tlc in [true, false] {
             // Pinned TLC: success, 2193, exit 0, 2 generated, 1 distinct, depth 1.
-            let report = check(name, compat_tlc, TemporalMode::Ordinary)?;
+            let report = check(name, compat_tlc, refused::Mode::Ordinary)?;
             assert_eq!(report["verdict"], "success", "{name}: {report}");
             assert_eq!(report["exit_code"], 0);
             assert_eq!(report["statistics"]["generated"], 2);

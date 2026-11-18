@@ -195,7 +195,7 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
 | `analyze_source` / `analyze_file` | Resolved semantic analysis |
 | `parse_config_source` / `parse_config_file` | Configuration reading |
-| `check_file` | On Core, the only engine: ordinary safety and ordinary temporal checking; `TemporalMode::FinalShort` is a named refusal; inspect actual route/completion |
+| `check_file` | On Core, the only engine: ordinary safety and ordinary temporal checking (`TemporalMode::Ordinary`, the only mode); inspect actual route/completion |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
 | `CheckRequest::host_access` | Explicit env/files/exec permissions; a named refusal on Core |

@@ -6,7 +6,7 @@ mod memory_observations;
 mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Store, TemporalMode};
+use dive_api::{CheckRequest, Store};
 use std::path::Path;
 
 fn request(corpus: &str, name: &str) -> CheckRequest {
@@ -162,7 +162,7 @@ fn concrete_spilled_symmetry_witnesses_remain_independently_valid() {
 
 #[test]
 fn early_admission_and_failed_creation_never_certify_success() {
-    let mut req = CheckRequest {
+    let req = CheckRequest {
         file: "nonexistent-model.tla".into(),
         predecessor_directory: Some("nonexistent-log-parent".into()),
         ..CheckRequest::default()
@@ -171,14 +171,6 @@ fn early_admission_and_failed_creation_never_certify_success() {
         .expect_err("orphan directory refused before file access")
         .to_string();
     assert!(error.contains("DIVE-A0101"), "{error}");
-    req.predecessor_memory_bytes = Some(0);
-    req.temporal = TemporalMode::FinalShort;
-    assert!(
-        dive_api::check_file(&req)
-            .expect_err("capture refused early")
-            .to_string()
-            .contains("predecessor spill")
-    );
     let mut req = request("checker", "DuplicateSuccessors");
     req.compat_tlc = true;
     req.workers = Some(8);

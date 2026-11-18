@@ -5,7 +5,7 @@ mod core_final;
 mod refused;
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, ExitConvention, TemporalMode};
+use dive_api::{CheckRequest, ExitConvention};
 use dive_runtime::CheckOptions;
 use serde_json::Value;
 
@@ -15,13 +15,13 @@ const CORPUS: &str = "temporal-demand-primary-probes";
 fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
-fn request(name: &str, tlc: bool, mode: TemporalMode, workers: usize) -> CheckRequest {
+fn request(name: &str, tlc: bool, mode: refused::Mode, workers: usize) -> CheckRequest {
     CheckRequest {
         file: root().join(format!(
             "conformance/corpus/{CORPUS}/specifications/{name}/{name}.tla"
         )),
         compat_tlc: tlc,
-        temporal: mode,
+        temporal_refusal: mode.refusal(),
         workers: Some(workers),
         seed: Some(0),
         fp: Some(0),
@@ -34,12 +34,12 @@ fn oracle(name: &str) -> Result<Value, Box<dyn std::error::Error>> {
     )))?)?)
 }
 /// Asserts Core's named refusal for `request`: bounded final checking for
-/// `FinalShort`, which only the retired reference engine ran (#791, #910),
+/// `--lncheck final --lasso short`, which only the retired reference engine ran (#791, #910),
 /// and otherwise `ordinary`.
 fn assert_core_refusal(request: &CheckRequest, ordinary: &str) -> TestResult {
     let report = dive_api::check_file(request)?;
     let actual = report.to_json();
-    let feature = if request.temporal == TemporalMode::FinalShort {
+    let feature = if request.temporal_refusal.is_some() {
         refused::FINAL_SHORT
     } else {
         ordinary
@@ -68,7 +68,7 @@ fn pinned_zero_solution_startup_precedes_assumptions_init_and_invariants() -> Te
         let expected = oracle(name)?;
         assert_eq!(expected["result"]["exit_code"], 77);
         for tlc in [false, true] {
-            for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+            for mode in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
                 for workers in [1, 4] {
                     assert_core_refusal(
                         &request(name, tlc, mode, workers),
@@ -92,7 +92,7 @@ fn semantically_true_temporal_forms_keep_their_actual_nonzero_startup_route() ->
         let expected = oracle(name)?;
         assert_eq!(expected["result"]["verdict"], "success");
         for tlc in [false, true] {
-            for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+            for mode in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
                 assert_core_refusal(
                     &request(name, tlc, mode, 1),
                     "Print or PrintT with temporal properties (core)",
@@ -108,7 +108,7 @@ fn earlier_binding_errors_keep_the_original_code_and_never_become_tautology() ->
     let name = "BindingBeforeTautology";
     let expected = oracle(name)?;
     for tlc in [false, true] {
-        for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+        for mode in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
             let report = dive_api::check_file(&request(name, tlc, mode, 1))?;
             let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
@@ -147,7 +147,7 @@ fn startup_tautology_after_a_binding_print_is_a_named_refusal() {
 #[test]
 fn an_expired_run_budget_is_a_typed_stop_not_a_zero_solution_verdict() -> TestResult {
     for tlc in [false, true] {
-        for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+        for mode in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
             let mut req = request("UnusedDemandTautology", tlc, mode, 1);
             req.time_limit = dive_api::BudgetSetting::Explicit(std::time::Duration::ZERO);
             let report = dive_api::check_file(&req)?;

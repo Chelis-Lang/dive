@@ -7,7 +7,7 @@ mod refused;
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, TemporalMode};
+use dive_api::CheckRequest;
 use dive_runtime::CheckOptions;
 
 const SOURCE: &str = "---- MODULE VertexLimit ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
@@ -72,11 +72,11 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
     for config in [CONFIG, "INIT Missing\nNEXT Next\nPROPERTY P\n"] {
         let files = Files::new(config);
         for compat_tlc in [false, true] {
-            for temporal in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+            for temporal in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
                 let report = dive_api::check_file(&CheckRequest {
                     file: files.0.clone(),
                     compat_tlc,
-                    temporal,
+                    temporal_refusal: temporal.refusal(),
                     seed: Some(0),
                     fp: Some(0),
                     workers: Some(1),
@@ -85,9 +85,10 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
                 .expect("real file report");
                 let json = report.to_json();
                 assert_eq!(json["schema_version"], 3);
-                if config != CONFIG && matches!(temporal, TemporalMode::Ordinary) {
-                    // Ordinary genuine binding failures retain the existing
-                    // safety report; no temporal role was established.
+                if config != CONFIG {
+                    // Genuine binding failures retain the existing safety
+                    // report, with or without a refused strategy; no
+                    // temporal role was established.
                     let result = report.result().expect("ordinary binding result");
                     assert!(result.binding_model_error);
                     assert_ne!(report.verdict(), "success");
@@ -101,20 +102,17 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
                     assert!(json["counterexample"].is_null());
                     continue;
                 }
-                if config == CONFIG && matches!(temporal, TemporalMode::FinalShort) {
+                if temporal == refused::Mode::FinalShort {
                     // Only the retired reference engine ran bounded final
-                    // checking (#791, #910).
+                    // checking (#791, #910); the refusal reports no bounds.
                     refused::assert_refused(&json, report.exit_code(), refused::FINAL_SHORT);
+                    assert!(json["options"].get("temporal_bounds").is_none());
+                    continue;
                 }
                 let bounds = &json["options"]["temporal_bounds"];
                 // Core's ordinary temporal checking has no product or
-                // acceptance caps of its own; the file-route caps remain on
-                // the final-mode route.
-                let (edges, steps) = if matches!(temporal, TemporalMode::Ordinary) {
-                    (serde_json::json!(usize::MAX), serde_json::json!(usize::MAX))
-                } else {
-                    (serde_json::json!(8_000_000), serde_json::json!(32_000_000))
-                };
+                // acceptance caps of its own.
+                let (edges, steps) = (serde_json::json!(usize::MAX), serde_json::json!(usize::MAX));
                 assert_eq!(
                     bounds["product_vertices"],
                     serde_json::json!(usize::MAX),
@@ -128,31 +126,14 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
                 for owner in ["attribution_rows", "word_truth"] {
                     assert_eq!(bounds["cell_limits"][owner]["cells"], edges);
                 }
-                if config == CONFIG && matches!(temporal, TemporalMode::FinalShort) {
-                    continue;
-                }
-                if config == CONFIG {
-                    assert_eq!(
-                        json["options"]["lncheck"],
-                        if !compat_tlc && matches!(temporal, TemporalMode::Ordinary) {
-                            "deterministic"
-                        } else {
-                            "final"
-                        }
-                    );
-                    assert_eq!(report.verdict(), "success");
-                    assert_eq!(json["statistics"]["distinct"], 2);
-                    assert_eq!(json["execution"]["capture_completed"], true);
-                    assert_eq!(json["execution"]["exhausted"], true);
-                } else {
-                    // Binding failed before any periodic schedule was installed.
-                    assert_eq!(json["options"]["lncheck"], "final");
-                    assert_ne!(report.verdict(), "success");
-                    assert_eq!(json["execution"]["stage"], "binding");
-                    assert_eq!(json["execution"]["capture_completed"], false);
-                    assert!(json["statistics"].is_null());
-                    assert!(json["counterexample"].is_null());
-                }
+                assert_eq!(
+                    json["options"]["lncheck"],
+                    if compat_tlc { "final" } else { "deterministic" }
+                );
+                assert_eq!(report.verdict(), "success");
+                assert_eq!(json["statistics"]["distinct"], 2);
+                assert_eq!(json["execution"]["capture_completed"], true);
+                assert_eq!(json["execution"]["exhausted"], true);
             }
         }
     }

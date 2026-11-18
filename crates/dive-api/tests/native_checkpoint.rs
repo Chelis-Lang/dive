@@ -6,7 +6,7 @@ mod memory_observations;
 mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Store, TemporalMode, checkpoint};
+use dive_api::{CheckRequest, Store, checkpoint};
 use std::path::Path;
 
 fn request(name: &str) -> CheckRequest {
@@ -253,14 +253,8 @@ fn unsupported_mode_combinations_refuse_before_file_access() {
     };
     let mut req = CheckRequest {
         file: "no-model.tla".into(),
-        temporal: TemporalMode::FinalShort,
         ..CheckRequest::default()
     };
-    assert!(matches!(
-        dive_api::check_file_checkpoint(&req, &cp),
-        Err(dive_api::ApiError::Unsupported { .. })
-    ));
-    req.temporal = TemporalMode::Ordinary;
     req.frontier_directory = Some("orphan-frontier".into());
     assert!(matches!(
         dive_api::check_file_checkpoint(&req, &cp),
