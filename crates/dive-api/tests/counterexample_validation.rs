@@ -98,12 +98,12 @@ fn run(spec: &Path, profile: Profile) -> Result<Value> {
         ..CheckRequest::default()
     };
     let report = dive_api::check_file(&request)?.to_json();
-    // Core refuses a state cap with temporal properties; the time limit
-    // still bounds the run.
-    if report["verdict"] == "unsupported"
-        && report["message"].as_str().is_some_and(|message| {
-            message.contains("--max-states or --max-depth with temporal properties")
-        })
+    // A temporal capture stopped by the state cap has no counterexample to
+    // check; rerun it without the cap, bounded by the time limit, so its
+    // lasso is still validated.
+    if report["verdict"] == "stopped"
+        && report["stopped"]["phase"] == "graph-capture"
+        && report["stopped"]["resource"] == "states"
     {
         request.max_states = None;
         return Ok(dive_api::check_file(&request)?.to_json());

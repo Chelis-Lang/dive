@@ -260,10 +260,11 @@ fn limits_are_not_verdicts_and_startup_metadata_is_not_a_bound_policy() {
     let mut req = request(p4(), None, false, 8);
     req.max_states = Some(1);
     let report = check(&req);
-    // Only the retired reference engine stopped a temporal run at a search
-    // cap (#791, #910).
-    let exit = u8::try_from(report["exit_code"].as_u64().unwrap_or(255)).unwrap_or(255);
-    refused::assert_refused(&report, exit, refused::TEMPORAL_CAP);
+    // A search cap stops the temporal capture without a verdict.
+    assert_eq!(report["verdict"], "stopped", "{report}");
+    assert_eq!(report["stopped"]["resource"], "states", "{report}");
+    assert_eq!(report["stopped"]["phase"], "graph-capture", "{report}");
+    assert_eq!(report["exit_code"], 5, "{report}");
     req.max_states = None;
     req.max_memory = BudgetSetting::Explicit(1);
     let report = check(&req);

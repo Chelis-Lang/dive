@@ -935,3 +935,146 @@ fn spilled_or_reclaimed_storage_with_temporal_properties_is_refused_by_name() {
         "Store reclamation with runtime effects or native temporal capture",
     );
 }
+
+/// A temporal run under a state or depth ceiling.
+fn ceiling_run(
+    file: &std::path::Path,
+    tlc: bool,
+    workers: usize,
+    store: dive_api::Store,
+    ceilings: (Option<u64>, Option<u64>),
+) -> dive_api::CheckReport {
+    check_file(&CheckRequest {
+        config: Some(file.with_extension("cfg")),
+        file: file.to_path_buf(),
+        workers: Some(workers),
+        seed: Some(0),
+        fp: Some(0),
+        compat_tlc: tlc,
+        store,
+        max_states: ceilings.0,
+        max_depth: ceilings.1,
+        periodic: PeriodicSchedule {
+            min_states: 2,
+            growth_factor: 1,
+        },
+        ..CheckRequest::default()
+    })
+    .expect("ceiling run")
+}
+
+#[test]
+fn state_and_depth_ceilings_stop_temporal_capture_without_a_verdict() {
+    use dive_api::{ExitConvention, Store, exit};
+    let file = fixture("CaptureStop");
+    for tlc in [false, true] {
+        for (resource, ceilings, limit) in [
+            ("states", (Some(5), None), 5),
+            ("depth", (None, Some(3)), 3),
+        ] {
+            let mut first: Option<Value> = None;
+            for store in [Store::Fingerprint, Store::Exact] {
+                for workers in [1, 4] {
+                    let report = ceiling_run(&file, tlc, workers, store, ceilings);
+                    let json = report.to_json();
+                    let what = format!("tlc={tlc} {resource} {store:?} w={workers}");
+                    assert_eq!(json["engine"], "core", "{what}: {json:#}");
+                    assert_eq!(json["verdict"], "stopped", "{what}: {json:#}");
+                    assert_eq!(json["stopped"]["resource"], resource, "{what}");
+                    assert_eq!(json["stopped"]["limit"], limit, "{what}");
+                    assert_eq!(json["stopped"]["observed"], limit + 1, "{what}");
+                    assert_eq!(json["stopped"]["phase"], "graph-capture", "{what}");
+                    assert_eq!(json["execution"]["capture_completed"], false, "{what}");
+                    assert!(json["counterexample"].is_null(), "{what}");
+                    assert!(json["tlc"].is_null(), "{what}");
+                    for convention in [ExitConvention::Native, ExitConvention::Tlc] {
+                        assert_eq!(report.exit_code_for(convention), exit::STOPPED, "{what}");
+                    }
+                    if tlc {
+                        assert!(json["periodic"].is_null(), "{what}");
+                    } else {
+                        assert_eq!(json["periodic"]["final_check"], false, "{what}");
+                        assert_eq!(json["periodic"]["exhausted"], false, "{what}");
+                        assert!(
+                            json["periodic"]["prefix_checks"].as_u64() >= Some(1),
+                            "{what}"
+                        );
+                    }
+                    let observed = serde_json::json!({
+                        "statistics": json["statistics"],
+                        "periodic": json["periodic"],
+                        "stopped": {
+                            "resource": json["stopped"]["resource"],
+                            "limit": json["stopped"]["limit"],
+                            "observed": json["stopped"]["observed"],
+                        },
+                    });
+                    match &first {
+                        None => first = Some(observed),
+                        Some(first) => assert_eq!(&observed, first, "{what}"),
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn a_ceiling_at_the_model_size_keeps_the_full_temporal_verdict() {
+    use dive_api::Store;
+    for name in ["Fair", "Holds", "Wide"] {
+        let file = fixture(name);
+        for tlc in [false, true] {
+            let reference = ceiling_run(&file, tlc, 1, Store::Fingerprint, (None, None)).to_json();
+            assert_ne!(reference["verdict"], "stopped", "{name}: {reference:#}");
+            assert_ne!(reference["verdict"], "unsupported", "{name}: {reference:#}");
+            let distinct = reference["statistics"]["distinct"].as_u64();
+            let depth = reference["statistics"]["depth"].as_u64();
+            for store in [Store::Fingerprint, Store::Exact] {
+                for workers in [1, 4] {
+                    for ceilings in [(distinct, None), (None, depth), (distinct, depth)] {
+                        let json = ceiling_run(&file, tlc, workers, store, ceilings).to_json();
+                        let what = format!("{name} tlc={tlc} {store:?} w={workers} {ceilings:?}");
+                        for field in [
+                            "verdict",
+                            "exit_code",
+                            "property",
+                            "statistics",
+                            "counterexample",
+                            "periodic",
+                        ] {
+                            assert_eq!(json[field], reference[field], "{what}: {field}");
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn a_violation_proven_before_the_ceiling_is_still_reported() {
+    use dive_api::Store;
+    // Checked at every completed level, Wide fails on a prefix (D-014),
+    // before the search reaches the rest of its states.
+    let file = fixture("Wide");
+    let reference = ceiling_run(&file, false, 1, Store::Fingerprint, (None, None)).to_json();
+    assert_eq!(reference["verdict"], "liveness-violation", "{reference:#}");
+    assert!(reference["statistics"]["left_on_queue"].as_u64() > Some(0));
+    let distinct = reference["statistics"]["distinct"].as_u64();
+    let full = 60 * 71;
+    assert!(distinct < Some(full), "{reference:#}");
+    for store in [Store::Fingerprint, Store::Exact] {
+        for workers in [1, 4] {
+            for ceiling in [distinct, Some(full - 1)] {
+                let json = ceiling_run(&file, false, workers, store, (ceiling, None)).to_json();
+                for field in ["verdict", "property", "statistics", "counterexample"] {
+                    assert_eq!(
+                        json[field], reference[field],
+                        "{store:?} w={workers} {ceiling:?}: {field}"
+                    );
+                }
+            }
+        }
+    }
+}

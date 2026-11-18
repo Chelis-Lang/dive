@@ -203,14 +203,25 @@ fn state_argument_holds_and_resource_limits_never_become_holds() {
     let (ir, cfg) = text(src, "INIT Init\nNEXT Next\nPROPERTY P\n");
     let r = core_final::check(&ir, &cfg, &CheckOptions::dive(0)).expect("pure state argument");
     assert!(matches!(r.outcome(), Outcome::Holds(_)));
-    // A state cap with temporal properties is a named Core refusal, never Holds.
+    // A state cap with temporal properties is a capture stop, never Holds.
+    // Here the cap equals the model's one state, so the run completes.
     let files = core_final::Files::new(&ir, &cfg);
     let request = dive_api::CheckRequest {
         max_states: Some(1),
         ..files.request(&CheckOptions::dive(0))
     };
     let report = dive_api::check_file(&request).expect("report");
-    refused::assert_refused(&report.to_json(), report.exit_code(), refused::TEMPORAL_CAP);
+    assert_eq!(report.verdict(), "success", "{}", report.to_json());
+    let request = dive_api::CheckRequest {
+        max_depth: Some(0),
+        ..request
+    };
+    let report = dive_api::check_file(&request).expect("report");
+    let json = report.to_json();
+    assert_eq!(json["verdict"], "stopped", "{json}");
+    assert_eq!(json["stopped"]["resource"], "depth", "{json}");
+    assert_eq!(json["stopped"]["phase"], "graph-capture", "{json}");
+    assert!(json["counterexample"].is_null(), "{json}");
 }
 
 /// Shape of `specifications/YoYo`: the finite-binding preflight visits every

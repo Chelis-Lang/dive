@@ -1134,7 +1134,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
 - **`dive check` refusals.** Core checks invariants, deadlock, temporal properties with fairness, and `SYMMETRY`. With a genuine temporal property, `SYMMETRY` is checked on the unreduced state space in the default profile ([D-005](#d-005-symmetry-with-liveness-uses-the-full-state-space)). TLC's symmetry-quotient liveness (`--symmetry-liveness=tlc`) is refused, and it is the `--compat=tlc` default, so under `--compat=tlc` a temporal property with `SYMMETRY` is refused unless `--symmetry-liveness=unreduced` is passed. Core refuses, naming the feature, rather than give an answer it cannot vouch for:
   - `POSTCONDITION`;
   - `--chaos`, `--action-composition=tlc`, and action composition (`\cdot`) with conjuncts after it or variables assigned before it in the default mode ([D-022](#d-022-action-composition-works-by-default-with-its-tla-meaning));
-  - with temporal properties: the explicit bounded final mode (`--lncheck final --lasso short`), and `--max-states` or `--max-depth`;
+  - with temporal properties: the explicit bounded final mode (`--lncheck final --lasso short`);
   - anything the binding stage or the evaluator refuses (for example `IOUtils`, Json file operations and the CommunityModules operators listed above);
   - evaluation errors whose exact TLC error class depends on value-source metadata dive does not retain. dive reports their messages but marks the deciding class as unverified, and the conformance harness refuses agreement.
 
@@ -1990,8 +1990,11 @@ search this way. Finite settings under `--compat=tlc` are reported as
 `tlc+overrides`. A new identity that would exceed either ceiling is not
 admitted; the run reports resource `states` or `depth`, actual admitted
 progress, `statistics.exhaustive: false`, and exit 5. A finite graph exactly
-at the ceiling can still exhaust and finish normally. See the
-[checking guide](user/checking.md) for worker and recovery semantics.
+at the ceiling can still exhaust and finish normally. With temporal
+properties the ceilings stop graph capture the same way: no counterexample and
+no holding result, while a violation proven at a completed level before the
+ceiling is still reported. TLC has no such ceiling for liveness checking. See
+the [checking guide](user/checking.md) for worker and recovery semantics.
 
 
 Native `dive debug` and Rust sessions observe actual compiled Core safety

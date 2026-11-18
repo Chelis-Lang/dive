@@ -84,9 +84,15 @@ fn explicit_search_caps_report_actual_prefixes_and_never_temporal_completion()
                     })?;
                     let json = report.to_json();
                     if temporal {
-                        // Only the retired reference engine stopped a temporal
-                        // capture at a search cap (#791, #910).
-                        refused::assert_refused(&json, report.exit_code(), refused::TEMPORAL_CAP);
+                        // A temporal capture stops at the cap without a
+                        // verdict (ADR 0158).
+                        assert_stopped(&json, resource, "graph-capture");
+                        assert_eq!(json["stopped"]["limit"], limit);
+                        assert_eq!(json["stopped"]["observed"], limit + 1);
+                        assert_eq!(json["execution"]["capture_completed"], false, "{json}");
+                        for convention in [ExitConvention::Native, ExitConvention::Tlc] {
+                            assert_eq!(report.exit_code_for(convention), exit::STOPPED);
+                        }
                         continue;
                     }
                     assert_stopped(&json, resource, "safety-search");
@@ -673,11 +679,12 @@ fn a_time_budget_spent_at_startup_stops_in_check_startup() -> Result<(), Box<dyn
         let report = dive_api::check_file(&CheckRequest {
             time_limit: BudgetSetting::Explicit(Duration::from_millis(10)),
             max_memory: BudgetSetting::Explicit(1 << 34),
-            max_states: Some(5),
+            frontier_memory_bytes: Some(0),
             ..request(&file, compat_tlc, 1)
         })?;
         let json = report.to_json();
         assert_eq!(json["verdict"], "unsupported", "{json}");
+        refused::assert_refused(&json, report.exit_code(), refused::TEMPORAL_SPILLED_STORE);
         assert_eq!(report.exit_code(), exit::UNSUPPORTED, "{json}");
     }
     Ok(())
