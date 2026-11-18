@@ -4,7 +4,7 @@ mod refused;
 use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, ExitConvention, TemporalMode};
+use dive_api::{CheckRequest, ExitConvention};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 struct Spec(PathBuf);
@@ -108,7 +108,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
                 assert!(value["counterexample"].is_null());
             }
             let mut explicit = request.clone();
-            explicit.temporal = TemporalMode::FinalShort;
+            explicit.temporal_refusal = Some(refused::FINAL_SHORT.into());
             // Only the retired reference engine ran bounded final checking
             // (#791, #910).
             let original = dive_api::check_file(&explicit)?;
@@ -376,23 +376,22 @@ fn file_final_requests_report_compact_acceptance_defaults() -> TestResult {
     let spec = Spec::new(&format!("{COUNTER}P == []<>FALSE"), CONFIG)?;
     for workers in [1, 4] {
         for compat_tlc in [false, true] {
-            for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
+            for mode in [refused::Mode::Ordinary, refused::Mode::FinalShort] {
                 let mut request = spec.request(workers);
                 request.compat_tlc = compat_tlc;
-                request.temporal = mode;
+                request.temporal_refusal = mode.refusal();
                 let report = dive_api::check_file(&request)?;
                 let json = report.to_json();
+                if mode == refused::Mode::FinalShort {
+                    // Only the retired reference engine ran the file route
+                    // (#791, #910); the refusal reports no bounds.
+                    refused::assert_refused(&json, report.exit_code(), refused::FINAL_SHORT);
+                    assert!(json["options"].get("temporal_bounds").is_none());
+                    continue;
+                }
                 let bounds = &json["options"]["temporal_bounds"];
                 assert_eq!(bounds["total_memory_budget"], false);
                 assert!(bounds.get("acceptance_cells").is_none());
-                if mode == TemporalMode::FinalShort {
-                    // The file route's caps; only the retired reference
-                    // engine ran it (#791, #910).
-                    assert_eq!(bounds["acceptance_buffer_bytes"], 8_000_000);
-                    assert_eq!(bounds["acceptance_materialization_work"], 32_000_000);
-                    refused::assert_refused(&json, report.exit_code(), refused::FINAL_SHORT);
-                    continue;
-                }
                 // Core's ordinary temporal checking has no acceptance caps.
                 assert_eq!(
                     bounds["acceptance_buffer_bytes"],
@@ -463,7 +462,7 @@ fn default_periodic_reports_actual_boundary_and_fresh_word_at_all_widths() -> Te
             model.read(&forged).0.validation,
             Validation::Invalid(_)
         ));
-        request.temporal = TemporalMode::FinalShort;
+        request.temporal_refusal = Some(refused::FINAL_SHORT.into());
         // Only the retired reference engine ran bounded final checking
         // (#791, #910).
         let final_report = dive_api::check_file(&request)?;

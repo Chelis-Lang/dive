@@ -5,7 +5,7 @@ mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, SeenOptions, Store, TemporalMode, checkpoint};
+use dive_api::{CheckRequest, SeenOptions, Store, checkpoint};
 use std::path::Path;
 
 /// Only the retired reference engine ran `--chaos` (#791, #910): Core refuses
@@ -85,11 +85,6 @@ fn malformed_and_unimplemented_requests_refuse_before_input_or_archive_access() 
             matches!(dive_api::check_file(&request),Err(dive_api::ApiError::Rejected{message}) if message.contains("DIVE-S0700"))
         );
         request.seen_disk.as_mut().expect("policy").limits.entries = 16;
-        request.temporal = TemporalMode::FinalShort;
-        assert!(
-            matches!(dive_api::check_file(&request),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
-        );
-        request.temporal = TemporalMode::Ordinary;
         let archive = checkpoint::Request {
             path: "missing-seen-archive.cp".into(),
             action: checkpoint::Action::Recover,

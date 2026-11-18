@@ -123,15 +123,13 @@ impl<T: Copy> BudgetSetting<T> {
 
 /// Temporal checking strategy for a request.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub enum TemporalMode {
     /// Ordinary checking. Eligible temporal requests use bounded final analysis
     /// in the TLC profile and deterministic completed-level checks in the dive
     /// profile.
     #[default]
     Ordinary,
-    /// Bounded final analysis with independently validated short lassos.
-    /// TLC value profiles are labeled as mixed overrides.
-    FinalShort,
 }
 
 /// What to check and how.
@@ -237,12 +235,18 @@ pub struct CheckRequest {
     /// Test-only chaos scheduling (`--chaos SEED`, or `DIVE_CHAOS`); see
     /// `dive_runtime::CheckOptions::chaos`. Results must be identical.
     pub chaos: Option<u64>,
-    /// Temporal checking strategy. `FinalShort` selects bounded final-only
-    /// analysis and labels TLC profiles `tlc+overrides`.
-    /// `Ordinary` selects final analysis for eligible TLC-profile temporal roles
-    /// and deterministic completed-level checks for eligible dive-profile roles.
-    /// Unsupported combinations retain named refusals.
+    /// Temporal checking strategy. `Ordinary` selects final analysis for
+    /// eligible TLC-profile temporal roles and deterministic completed-level
+    /// checks for eligible dive-profile roles. Unsupported combinations retain
+    /// named refusals.
     pub temporal: TemporalMode,
+    /// CLI-internal: refuse the model's temporal properties instead of
+    /// checking them, appending this text to the refusal. The `dive` CLI sets
+    /// it for strategies it accepts but Core does not implement, such as
+    /// `--lncheck final --lasso short`. A model without temporal properties
+    /// is checked as usual. Not part of the supported API.
+    #[doc(hidden)]
+    pub temporal_refusal: Option<String>,
     /// Completed-level schedule for ordinary dive-profile temporal checking
     /// (TLC checks only at the end). The default is the documented [`PeriodicSchedule::DEFAULT`];
     /// TLC-profile and explicit final requests ignore it and check once at the end.
@@ -293,7 +297,6 @@ pub struct CheckReport {
     symmetry_liveness_explicit: bool,
     fp_given: bool,
     workers_requested: usize,
-    temporal: TemporalMode,
     /// Where the time and memory limits came from: `default`, `explicit`
     /// or `none`.
     budget_sources: (&'static str, &'static str),
@@ -329,8 +332,6 @@ fn distributed_refusal(req: &CheckRequest, checkpoint: bool) -> Option<String> {
     }
     let feature = if checkpoint {
         "checkpoint or recovery"
-    } else if req.temporal != TemporalMode::Ordinary {
-        "bounded final temporal analysis"
     } else if req.core_sample.is_some() {
         "--core-sample"
     } else if !req.host_access.is_empty() {
@@ -354,9 +355,7 @@ fn distributed_refusal(req: &CheckRequest, checkpoint: bool) -> Option<String> {
 }
 
 fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
-    if req.store_compact_bytes.is_some()
-        && (req.temporal != TemporalMode::Ordinary || req.core_sample.is_some())
-    {
+    if req.store_compact_bytes.is_some() && req.core_sample.is_some() {
         return Err(crate::ApiError::Unsupported {
             feature: "Store reclamation with temporal capture or sampling".into(),
         });
@@ -367,22 +366,10 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
             .map_err(|error| crate::ApiError::Rejected {
                 message: error.to_string(),
             })?;
-        if req.temporal != TemporalMode::Ordinary {
-            return Err(crate::ApiError::Unsupported {
-                feature:
-                    "disk seen-state retention with temporal/capture checking is not implemented"
-                        .into(),
-            });
-        }
     }
     if req.candidate_directory.is_some() && req.candidate_memory_bytes.is_none() {
         return Err(crate::ApiError::Rejected {
             message: "DIVE-A0102: candidate_directory requires candidate_memory_bytes".into(),
-        });
-    }
-    if req.candidate_memory_bytes.is_some() && req.temporal != TemporalMode::Ordinary {
-        return Err(crate::ApiError::Unsupported {
-            feature: "candidate spill with native temporal checking".into(),
         });
     }
     if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
@@ -393,11 +380,6 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
     if req.predecessor_directory.is_some() && req.predecessor_memory_bytes.is_none() {
         return Err(crate::ApiError::Rejected {
             message: "DIVE-A0101: predecessor directory requires predecessor memory budget".into(),
-        });
-    }
-    if req.predecessor_memory_bytes.is_some() && req.temporal != TemporalMode::Ordinary {
-        return Err(crate::ApiError::Unsupported {
-            feature: "predecessor spill with bounded temporal checking is not implemented".into(),
         });
     }
     Ok(())
@@ -484,11 +466,6 @@ pub fn check_file_checkpoint(
     req: &CheckRequest,
     checkpoint: &dive_runtime::checkpoint::Request,
 ) -> Result<CheckReport, crate::ApiError> {
-    if req.temporal != TemporalMode::Ordinary {
-        return Err(crate::ApiError::Unsupported {
-            feature: "native checkpoint with temporal checking is not implemented".into(),
-        });
-    }
     check_file_in(req, Some(checkpoint), false, None)
 }
 
@@ -522,9 +499,7 @@ fn check_file_in(
     }
     admit_storage_request(req)?;
     if req.debugger.is_some()
-        && (checkpoint.is_some()
-            || req.temporal != TemporalMode::Ordinary
-            || req.core_sample.is_some())
+        && (checkpoint.is_some() || req.temporal_refusal.is_some() || req.core_sample.is_some())
     {
         return Err(crate::ApiError::Unsupported { feature: "compiled debugger requires explicit Core ordinary safety checking without coverage, sampling or checkpoint".into() });
     }
@@ -669,7 +644,6 @@ fn check_file_in(
         symmetry_liveness_explicit: req.symmetry_liveness.is_some(),
         fp_given: req.fp.is_some(),
         workers_requested,
-        temporal: req.temporal,
         budget_sources: (time_source, memory_source),
         memory_requested_source,
         memory_samples: None,
@@ -775,20 +749,18 @@ fn check_file_in(
         report.core = Some(Box::new(run));
         result.into()
     };
-    if report.core.is_some() && req.temporal == TemporalMode::Ordinary {
+    if report.core.is_some() {
         report.temporal_configuration = crate::temporal::core_file_configuration();
     }
-    // Core has no bounded final temporal route: name the requested mode in
-    // its temporal refusal.
+    // A refused temporal strategy: name it in Core's temporal refusal.
     if report.core.is_some()
-        && req.temporal == TemporalMode::FinalShort
+        && let Some(reason) = &req.temporal_refusal
         && let Phase::Checked(result) = &mut report.phase
         && let Verdict::Unsupported { feature } = &mut result.verdict
         && feature.contains("temporal properties (liveness checking)")
     {
-        feature.push_str(
-            "; bounded final checking (--lncheck final --lasso short) is not implemented on Core",
-        );
+        feature.push_str("; ");
+        feature.push_str(reason);
     }
     if let Phase::Checked(result) = &mut report.phase {
         certify_next_receiver(&ir, &model, &armed, result);
@@ -946,9 +918,11 @@ fn check_file_in(
 
 /// The core's temporal route for this request: ordinary checking only,
 /// with the default profile's completed-level schedule or, under the TLC
-/// profile, the final check alone (as `check_backend` routes it).
+/// profile, the final check alone (as `check_backend` routes it). A refused
+/// temporal strategy has no route.
 fn core_route(req: &CheckRequest, options: &CheckOptions) -> Option<crate::core_temporal::Route> {
-    (req.temporal == TemporalMode::Ordinary)
+    req.temporal_refusal
+        .is_none()
         .then(|| (options.profile == dive_eval::Profile::Dive).then_some(req.periodic))
 }
 
@@ -1091,8 +1065,7 @@ impl CheckReport {
         }
     }
     fn temporal_schema(&self) -> bool {
-        self.temporal == TemporalMode::FinalShort
-            || matches!(&self.phase, Phase::Temporal(_) | Phase::TemporalError(_))
+        matches!(&self.phase, Phase::Temporal(_) | Phase::TemporalError(_))
     }
 
     /// The safety checker's result, including a safety stop in final/short
@@ -1271,8 +1244,7 @@ impl CheckReport {
     fn profile_name(&self) -> &'static str {
         match self.profile {
             Profile::Tlc
-                if self.temporal == TemporalMode::FinalShort
-                    || self.opts.eval.action_composition == dive_eval::ActionComposition::Tla
+                if self.opts.eval.action_composition == dive_eval::ActionComposition::Tla
                     || self.checkpoint_request.as_ref().is_some_and(|r| {
                         r.counters == dive_runtime::checkpoint::Counters::Retain
                     })
@@ -1633,20 +1605,18 @@ impl CheckReport {
             Phase::Unlowered(why) => doc["message"] = Value::from(why.as_str()),
             Phase::Temporal(r) => {
                 temporal_json(&mut doc, r, self.opts.tlc_fingerprints);
-                if self.temporal == TemporalMode::Ordinary {
-                    let violation = matches!(
-                        r.outcome(),
-                        crate::temporal::Outcome::NativeViolation(_)
-                            | crate::temporal::Outcome::NativePrefixViolation(_)
-                    );
-                    doc["execution"]["exhausted"] =
-                        json!(r.periodic().is_none_or(|checks| checks.exhausted));
-                    doc["tlc"] = if violation {
-                        json!({"code":2116,"name":"TLC_TEMPORAL_PROPERTY_VIOLATED","exit_status":13,"verified":true})
-                    } else {
-                        json!({"code":2193,"name":"TLC_SUCCESS","exit_status":0,"verified":true})
-                    };
-                }
+                let violation = matches!(
+                    r.outcome(),
+                    crate::temporal::Outcome::NativeViolation(_)
+                        | crate::temporal::Outcome::NativePrefixViolation(_)
+                );
+                doc["execution"]["exhausted"] =
+                    json!(r.periodic().is_none_or(|checks| checks.exhausted));
+                doc["tlc"] = if violation {
+                    json!({"code":2116,"name":"TLC_TEMPORAL_PROPERTY_VIOLATED","exit_status":13,"verified":true})
+                } else {
+                    json!({"code":2193,"name":"TLC_SUCCESS","exit_status":0,"verified":true})
+                };
             }
             Phase::TemporalError(e) => {
                 if let Some(progress) = e.validation_progress() {
@@ -1787,16 +1757,6 @@ impl CheckReport {
                     "failures": r.frontier.failures,
                     "search_event_before_storage_failure": r.frontier.deciding_event_before_failure,
                 });
-                if self.temporal != TemporalMode::Ordinary {
-                    let stage = if r.binding_model_error
-                        || matches!(&r.verdict, Verdict::Stopped(stop) if stop.phase == dive_runtime::budget::Phase::Binding)
-                    {
-                        "binding"
-                    } else {
-                        "capture"
-                    };
-                    doc["execution"] = json!({"stage": stage, "capture_completed": false});
-                }
                 if self.opts.predecessor_memory_bytes.is_some() {
                     let p = &r.predecessor;
                     doc["predecessor_storage"] = json!({

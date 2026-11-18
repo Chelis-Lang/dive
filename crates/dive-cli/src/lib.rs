@@ -33,6 +33,12 @@ const COMMANDS: &[(&str, &str)] = &[
     ),
 ];
 
+/// What `--lncheck final --lasso short` adds to Core's refusal of a model's
+/// temporal properties. A model without temporal properties is checked as
+/// usual.
+pub(crate) const FINAL_SHORT_REFUSAL: &str =
+    "bounded final checking (--lncheck final --lasso short) is not implemented on Core";
+
 /// The command list of `dive --help`: names in a column, then descriptions.
 fn command_list() -> String {
     let width = COMMANDS
@@ -871,11 +877,9 @@ fn check_command_mode(
     if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
         return usage_error(err, "--frontier-directory requires --frontier-memory-bytes");
     }
-    req.temporal = if final_check && short_lasso {
-        dive_api::TemporalMode::FinalShort
-    } else {
-        dive_api::TemporalMode::Ordinary
-    };
+    if final_check && short_lasso {
+        req.temporal_refusal = Some(FINAL_SHORT_REFUSAL.into());
+    }
     if req.predecessor_directory.is_some() && req.predecessor_memory_bytes.is_none() {
         return usage_error(
             err,

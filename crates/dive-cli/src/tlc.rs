@@ -150,10 +150,10 @@ fn parse(args: &[String]) -> Result<Arguments, Failure> {
             }
             "-lncheck" | "--lncheck" => {
                 let strategy = value()?;
-                parsed.request.temporal = if strategy.eq_ignore_ascii_case("final") {
-                    dive_api::TemporalMode::FinalShort
+                parsed.request.temporal_refusal = if strategy.eq_ignore_ascii_case("final") {
+                    Some(super::FINAL_SHORT_REFUSAL.into())
                 } else if strategy.eq_ignore_ascii_case("default") {
-                    dive_api::TemporalMode::Ordinary
+                    None
                 } else {
                     return Err(Failure::Unsupported(format!(
                         "{flag} {strategy}: checking strategy is not implemented"
@@ -270,7 +270,7 @@ fn parse(args: &[String]) -> Result<Arguments, Failure> {
         }
     }
     parsed.request.file = file.ok_or_else(|| Failure::Usage("missing input TLA+ module".into()))?;
-    if short && parsed.request.temporal != dive_api::TemporalMode::FinalShort {
+    if short && parsed.request.temporal_refusal.is_none() {
         return Err(Failure::Usage(
             "--lasso short requires -lncheck final".into(),
         ));

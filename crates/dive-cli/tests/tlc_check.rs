@@ -207,7 +207,7 @@ fn final_spelling_reaches_the_same_named_core_refusal() -> TestResult {
         assert_eq!(output.status.code(), Some(3), "{output:?}");
         let actual: Value = serde_json::from_slice(&output.stdout)?;
         assert_eq!(actual["verdict"], "unsupported");
-        assert_eq!(actual["options"]["profile"], "tlc+overrides");
+        assert_eq!(actual["options"]["profile"], "tlc");
         assert!(actual["message"].as_str().is_some_and(|message| message
             .ends_with("bounded final checking (--lncheck final --lasso short) is not implemented on Core")));
         let native = run(

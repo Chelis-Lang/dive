@@ -1,7 +1,7 @@
 //! Original nested-query primary statuses, counts and independently checked words.
 #[path = "support/refused.rs"]
 mod refused;
-use dive_api::{CheckRequest, ExitConvention, Store, TemporalMode};
+use dive_api::{CheckRequest, ExitConvention, Store};
 use serde_json::Value;
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -29,7 +29,7 @@ fn nested_enabled_primary_public_results_keep_existing_schema_and_statuses() -> 
                     config: Some(directory.join(format!("{name}.cfg"))),
                     compat_tlc,
                     store,
-                    temporal: TemporalMode::FinalShort,
+                    temporal_refusal: Some(refused::FINAL_SHORT.into()),
                     workers: Some(1),
                     seed: Some(0),
                     fp: Some(0),
@@ -44,7 +44,7 @@ fn nested_enabled_primary_public_results_keep_existing_schema_and_statuses() -> 
                     final_short.exit_code(),
                     refused::FINAL_SHORT,
                 );
-                request.temporal = TemporalMode::Ordinary;
+                request.temporal_refusal = None;
                 let report = dive_api::check_file(&request)?;
                 if store == Store::Exact {
                     refused::assert_refused(
@@ -120,7 +120,7 @@ fn true_query_guard_preserves_final_selected_target_error_and_function_control()
                 file: file.clone(),
                 config: Some(config),
                 compat_tlc: true,
-                temporal: TemporalMode::FinalShort,
+                temporal_refusal: Some(refused::FINAL_SHORT.into()),
                 workers: Some(1),
                 seed: Some(0),
                 fp: Some(0),
@@ -134,7 +134,7 @@ fn true_query_guard_preserves_final_selected_target_error_and_function_control()
                 final_short.exit_code(),
                 refused::FINAL_SHORT,
             );
-            request.temporal = TemporalMode::Ordinary;
+            request.temporal_refusal = None;
             let report = dive_api::check_file(&request)?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             if expected == 255 {
@@ -193,7 +193,7 @@ fn direct_query_instance_properties_keep_original_native_holds() -> TestResult {
                     config: Some(config.clone()),
                     compat_tlc,
                     store,
-                    temporal: TemporalMode::FinalShort,
+                    temporal_refusal: Some(refused::FINAL_SHORT.into()),
                     workers: Some(1),
                     seed: Some(0),
                     fp: Some(0),
@@ -207,7 +207,7 @@ fn direct_query_instance_properties_keep_original_native_holds() -> TestResult {
                     final_short.exit_code(),
                     refused::FINAL_SHORT,
                 );
-                request.temporal = TemporalMode::Ordinary;
+                request.temporal_refusal = None;
                 let report = dive_api::check_file(&request)?;
                 if store == Store::Exact {
                     refused::assert_refused(

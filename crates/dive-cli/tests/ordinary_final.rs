@@ -80,7 +80,7 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
         let explicit = run(&file, "tlc", 1, &["--lncheck=final", "--lasso=short"])?;
         assert_eq!(explicit.status.code(), Some(3));
         let explicit: serde_json::Value = serde_json::from_slice(&explicit.stdout)?;
-        assert_eq!(explicit["options"]["profile"], "tlc+overrides");
+        assert_eq!(explicit["options"]["profile"], "tlc");
         assert!(explicit["message"].as_str().is_some_and(|message| message
             .ends_with("bounded final checking (--lncheck final --lasso short) is not implemented on Core")));
         let native = run(&file, "dive", 1, &[])?;

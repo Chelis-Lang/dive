@@ -712,51 +712,6 @@ mod tests {
         v["counterexample"] = json!({"length":2,"ending":"lasso","back_to":2,"trace":d.to_json(),"validation":"valid","states":[{"index":1,"values":{"x":false}},{"index":2,"values":{"x":true}}]});
         v
     }
-    #[test]
-    fn real_initial_memory_stop_is_a_finding_in_the_qualified_final_study()
-    -> std::result::Result<(), Box<dyn std::error::Error>> {
-        use dive_api::{BudgetSetting, CheckRequest, TemporalMode};
-        let scratch =
-            crate::util::TempDir::new_in(&std::env::temp_dir(), "study-initial-memory-stop")?;
-        let file = scratch.path().join("Tiny.tla");
-        std::fs::write(
-            &file,
-            "---- MODULE Tiny ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n",
-        )?;
-        std::fs::write(
-            file.with_extension("cfg"),
-            "INIT Init\nNEXT Next\nPROPERTY P\n",
-        )?;
-        let reference = golden(Verdict::Success);
-        for profile in [Profile::Dive, Profile::Tlc] {
-            let report = dive_api::check_file(&CheckRequest {
-                file: file.clone(),
-                compat_tlc: profile == Profile::Tlc,
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                temporal: TemporalMode::FinalShort,
-                time_limit: BudgetSetting::Unlimited,
-                max_memory: BudgetSetting::Explicit(1),
-                ..CheckRequest::default()
-            })?;
-            let value = report.to_json();
-            assert_eq!(value["check_kind"], "temporal");
-            assert_eq!(value["execution"]["stage"], "check-startup");
-            assert_eq!(value["execution"]["capture_completed"], false);
-            assert_eq!(value["resources"]["checking_started"], false);
-            let (observation, detail, _) = assess(
-                &process(&value, i32::from(report.exit_code())),
-                &profile,
-                1,
-                &reference,
-                |_| panic!("an initial stop supplies no witness"),
-            );
-            assert_eq!(observation, Outcome::Timeout, "{detail}: {value}");
-            assert!(observation.finding());
-        }
-        Ok(())
-    }
 
     #[test]
     fn budget_stops_are_findings_never_observations_or_refusals() {

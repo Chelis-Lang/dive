@@ -99,9 +99,12 @@ fn final_flags_without_properties_match_ordinary_safety_observables()
                 ] {
                     assert_eq!(a[key], b[key], "{name}/{profile}/{workers}/{key}");
                 }
-                assert_eq!(b["execution"]["stage"], "capture");
-                assert_eq!(b["execution"]["capture_completed"], false);
-                assert_eq!(b["options"]["lncheck"], "final");
+                // Without temporal properties the flags change nothing.
+                for key in ["check_kind", "execution"] {
+                    assert_eq!(a[key], b[key], "{name}/{profile}/{workers}/{key}");
+                }
+                assert!(b["options"]["lncheck"].is_null());
+                assert_eq!(a["options"]["profile"], b["options"]["profile"]);
                 assert_eq!(a["options"]["workers"], b["options"]["workers"]);
                 assert_ne!(b["verdict"], "unsupported");
             }

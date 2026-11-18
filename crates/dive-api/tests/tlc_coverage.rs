@@ -87,9 +87,6 @@ fn logical_coverage_requires_an_explicit_supported_backend_and_separate_metric()
         check_file(&request),
         Err(ApiError::Unsupported { .. })
     ));
-    request.source_coverage = false;
-    request.temporal = dive_api::TemporalMode::FinalShort;
-    assert!(check_file(&request).is_err());
 }
 
 #[test]

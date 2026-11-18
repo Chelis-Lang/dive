@@ -1,4 +1,4 @@
-//! Configured safety-role final selection preserves real CLI statuses and stages.
+//! Configured safety-role final selection preserves real CLI statuses and reports.
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
@@ -40,32 +40,24 @@ fn real_configured_role_exits_observables_and_error_origins_match_ordinary()
     ));
     std::fs::create_dir(&dir)?;
     let scratch = Scratch(dir);
-    for (body, extra, expected, stage) in [
+    for (body, extra, expected) in [
         (
             "Init == x=0\nNext == x'=IF x<2 THEN x+1 ELSE x\nP == x=0 /\\ [](x<=2) /\\ [][x'>=x]_x",
             "",
             0,
-            "capture",
         ),
-        ("Init == x=0\nNext == x'=x\nP == x=1", "", 13, "capture"),
-        (
-            "Init == x=0\nNext == x'=(x+1)%2\nP == [][x'=x+1]_x",
-            "",
-            13,
-            "capture",
-        ),
+        ("Init == x=0\nNext == x'=x\nP == x=1", "", 13),
+        ("Init == x=0\nNext == x'=(x+1)%2\nP == [][x'=x+1]_x", "", 13),
         (
             "Init == x=0\nNext == x'=x\nP == x=0\nSym == TRUE",
             "SYMMETRY Sym\n",
             255,
-            "binding",
         ),
         (
             "Init == x=0\nNext == x'=x\nP == x=0\nPost == TRUE",
             "POSTCONDITION Post\n",
             // Core refuses POSTCONDITION by name in either mode.
             3,
-            "capture",
         ),
     ] {
         let file = scratch.0.join("Roles.tla");
@@ -98,8 +90,11 @@ fn real_configured_role_exits_observables_and_error_origins_match_ordinary()
                 ] {
                     assert_eq!(a[key], b[key], "{body}/{profile}/{workers}/{key}");
                 }
-                assert_eq!(b["execution"]["stage"], stage);
-                assert_eq!(b["execution"]["capture_completed"], false);
+                // Without temporal properties the flags change nothing.
+                for key in ["check_kind", "execution"] {
+                    assert_eq!(a[key], b[key], "{body}/{profile}/{workers}/{key}");
+                }
+                assert_eq!(a["options"]["profile"], b["options"]["profile"]);
             }
         }
     }

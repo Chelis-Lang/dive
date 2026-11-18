@@ -133,7 +133,7 @@ fn admit_request(request: &CheckRequest) -> Result<(), ApiError> {
         || request.distributed.is_some()
         || request.source_coverage
         || request.core_sample.is_some()
-        || request.temporal != crate::TemporalMode::Ordinary
+        || request.temporal_refusal.is_some()
         || request.seen_disk.is_some()
         || request.candidate_memory_bytes.is_some()
         || request.candidate_directory.is_some()

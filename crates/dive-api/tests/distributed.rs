@@ -430,16 +430,15 @@ fn identity_key_and_unsupported_combinations_refuse_before_search_and_caps_never
     assert_eq!(doc["verdict"], "resource-limit");
     assert!(doc["statistics"].is_null());
     assert!(doc["counterexample"].is_null());
-    for mutation in 0..7 {
+    for mutation in 0..6 {
         let mut req = base.clone();
         req.distributed = Some(policy.clone());
         match mutation {
             0 => req.seed = None,
             1 => req.fp = None,
-            2 => req.temporal = dive_api::TemporalMode::FinalShort,
-            3 => req.sequential = true,
-            4 => req.candidate_memory_bytes = Some(0),
-            5 => req.seen_disk = Some(dive_api::SeenOptions::default()),
+            2 => req.sequential = true,
+            3 => req.candidate_memory_bytes = Some(0),
+            4 => req.seen_disk = Some(dive_api::SeenOptions::default()),
             _ => req.source_coverage = true,
         }
         assert!(
