@@ -53,7 +53,8 @@ Supported storage options:\n\
     --seen-probe-steps N --seen-summary-pairs N\n\
     --checkpoint FILE --checkpoint-after-levels N | --recover FILE\n\
     --checkpoint-counters tlc|retain\n\n\
-Supported distributed options (pure safety; see docs/user/distributed-safety.md):\n\
+Supported distributed options (pure safety; see\n\
+    https://github.com/Chelis-Lang/dive/blob/main/docs/user/distributed-safety.md):\n\
     --distributed-worker IP:port  a running `dive worker` endpoint; repeat, 2..64\n\
     --worker-key FILE       local file holding the shared 32-byte secret\n\
     --worker-timeout-ms N   per-operation and per-unit deadline, 1..60000 (5000)\n\

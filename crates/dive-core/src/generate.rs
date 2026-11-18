@@ -387,7 +387,7 @@ impl Machine {
                 }
                 if acts != NONE || self.assigned != 0 {
                     return Err(Error::unsupported(
-                        "action composition with pending conjuncts or preassigned variables (D-022)",
+                        "action composition with pending conjuncts or preassigned variables",
                     ));
                 }
                 self.composition(code, *first, *then, reset, sink)

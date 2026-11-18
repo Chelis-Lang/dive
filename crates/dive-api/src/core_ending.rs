@@ -120,12 +120,12 @@ fn reproduce_actions(
     match r {
         Err(e) if n == emitted => Ok(e),
         Err(_) => Err(format!(
-            "the reference evaluator emits {n} states before the error, the core {emitted}"
+            "independent validation emits {n} states before the error, Core {emitted}"
         )),
         Ok(()) if n > emitted => Err(format!(
-            "the reference evaluator emits more than {emitted} states before any error, the core {emitted}"
+            "independent validation emits more than {emitted} states before any error, Core {emitted}"
         )),
-        Ok(()) => Err("the reference evaluator raises no error there".into()),
+        Ok(()) => Err("independent validation raises no error there".into()),
     }
 }
 
@@ -175,7 +175,7 @@ fn reproduce(
             let t = state(model, store, t)?;
             match model.eval(&view.pred, &St::state(t)) {
                 Err(e) => Ok(e),
-                Ok(_) => Err("the reference evaluator evaluates the VIEW there".into()),
+                Ok(_) => Err("independent validation evaluates the VIEW there".into()),
             }
         }
         Site::Next(i) => {
@@ -214,7 +214,7 @@ fn reproduce(
                     ),
                 )
                 .at(c.pred.location)),
-                Ok(_) => Err(format!("the reference evaluator answers {} there", c.name)),
+                Ok(_) => Err(format!("independent validation answers {} there", c.name)),
             }
         }
     }
@@ -305,7 +305,7 @@ pub(crate) fn ending(
 ) -> Result<Ending, Verdict> {
     let refuse = |why: String| Verdict::Unsupported {
         feature: format!(
-            "an evaluation error the reference evaluator does not reproduce (core engine): {why} (the core raised: {})",
+            "an evaluation error that independent validation does not reproduce: {why} (Core raised: {})",
             f.message
         ),
     };

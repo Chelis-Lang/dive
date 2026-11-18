@@ -216,11 +216,11 @@ impl std::fmt::Display for ValidationRunError {
 impl std::error::Error for ValidationRunError {}
 
 /// The reason given for a deadlock ending whose `ENABLED` cannot be decided.
-pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed (ADR 0016, amendment 1; ADR 0103)";
+pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed";
 
 /// The reason given when the trace or a check created a name after the
 /// model was bound, under an order where names compare by encounter.
-pub const RUNTIME_NAMES_UNSUPPORTED: &str = "runtime string encounter order: decoding the trace or checking it created a string or model value that was not interned when the model was bound, and its order relative to other names depends on evaluations outside the trace (#124)";
+pub const RUNTIME_NAMES_UNSUPPORTED: &str = "runtime string encounter order: decoding the trace or checking it created a string or model value that was not interned when the model was bound, and its order relative to other names depends on evaluations outside the trace";
 
 /// The reason given when a check draws a random value.
 pub const RANDOM_UNSUPPORTED: &str = "a random draw: the value depends on the checking run's stream position, which only the successor generator determines, so the independent validator cannot check it";
@@ -473,7 +473,7 @@ impl<'a> Run<'a> {
 
     #[allow(
         clippy::too_many_lines,
-        reason = "the checks of ADR 0016 §1, in the order the search makes them"
+        reason = "every trace check, in the order the search makes them"
     )]
     fn run(&mut self, trace: &Trace) -> Result<Option<String>, Stop> {
         self.poll(None, None)?;

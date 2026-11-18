@@ -262,7 +262,7 @@ fn deadlock_needs_the_model_to_check_it() {
 
 fn dive_trace_deadlock() -> &'static str {
     // The reason `dive-trace` gives; spelled out so a change is deliberate.
-    "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed (ADR 0016, amendment 1; ADR 0103)"
+    "deadlock: ENABLED of the next-state relation could not be decided on the last state; every other check passed"
 }
 
 #[test]
