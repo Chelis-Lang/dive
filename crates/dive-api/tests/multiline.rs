@@ -122,7 +122,7 @@ fn multiline_scope_and_lowered_budgets_never_admit_partial_output()
     for partial in [false, true] {
         let mut request = RewriteRequest::default();
         if partial {
-            request.editing.checksums = ChecksumPolicy::TranslationOnly;
+            request.editing.checksums = ChecksumPolicy::BestEffort;
         }
         assert!(rewrite_source("B.tla", source, &request).accepted());
         for limit in [0, 1, 8] {
@@ -171,7 +171,8 @@ fn multiline_scope_and_lowered_budgets_never_admit_partial_output()
         .ok_or("primary body CRC")?;
     assert_eq!(primary_body_crc, manifest["actual_primary_body_crc"]);
     for compat_tlc in [false, true] {
-        for checksums in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+        {
+            let checksums = ChecksumPolicy::BestEffort;
             let mut request = RewriteRequest::default();
             request.translation.compat_tlc = compat_tlc;
             request.editing.checksums = checksums;

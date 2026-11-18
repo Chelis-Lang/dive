@@ -461,7 +461,7 @@ fn existing_translation_uses_its_original_slot_before_analysis()
             &dive_api::RewriteRequest {
                 translation: request,
                 editing: dive_api::RewriteOptions {
-                    checksums: dive_api::ChecksumPolicy::TranslationOnly,
+                    checksums: dive_api::ChecksumPolicy::BestEffort,
                     replace_modified: true,
                     ..dive_api::RewriteOptions::default()
                 },

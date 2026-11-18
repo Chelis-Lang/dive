@@ -239,10 +239,9 @@ direct exact checksum operation still returns a named Unsupported result. Both
 policy aliases and profiles preserve real body CRCs and that warning.
 
 `--checksums full` and `--checksums tla` are compatibility spellings for this
-same behavior. Rust uses `ChecksumPolicy::BestEffort`; the old policy names remain
-aliases. This intentionally changes the old forced body-only and Full-refusal
-contracts in both profiles. It does not claim byte identity with an unmodified
-primary header where dive disables an unavailable CRC. A primary route whose
+same behavior. Rust uses `ChecksumPolicy::BestEffort`. This intentionally
+changes the old forced body-only and Full-refusal contracts in both profiles. It
+does not claim byte identity with an unmodified primary header where dive disables an unavailable CRC. A primary route whose
 input explicitly disables the pcal value preserves that value; those controlled
 reference results stay separate from the original primary translation.
 

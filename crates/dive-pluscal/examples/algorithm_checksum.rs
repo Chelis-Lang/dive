@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .transpose()?
         .unwrap_or_default();
     let editing = dive_pluscal::rewrite::RewriteOptions {
-        checksums: dive_pluscal::rewrite::ChecksumPolicy::TranslationOnly,
+        checksums: dive_pluscal::rewrite::ChecksumPolicy::BestEffort,
         ..Default::default()
     };
     let selected = dive_pluscal::rewrite::select_rewrite(source, &editing)?;
