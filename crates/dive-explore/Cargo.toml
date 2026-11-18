@@ -1,12 +1,19 @@
 [package]
 name = "dive-explore"
-description = "The new core's exploration engine: breadth-first search over compiled plans (ADR 0117)"
+description = "Breadth-first state-space exploration over compiled TLA+ plans"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+publish = ["crates-io"]
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/dive-explore"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+# Tests, examples and benchmarks read workspace fixtures; they are not shipped.
+include = ["/src/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 
 [dependencies]
 dive-core.workspace = true

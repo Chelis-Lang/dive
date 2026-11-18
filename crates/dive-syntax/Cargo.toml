@@ -1,12 +1,19 @@
 [package]
 name = "dive-syntax"
-description = "TLA+ syntax: lexing, parsing and the lossless concrete syntax tree"
+description = "TLA+ lexer and parser producing a lossless concrete syntax tree"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+publish = ["crates-io"]
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/dive-syntax"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+# Tests, examples and benchmarks read workspace fixtures; they are not shipped.
+include = ["/src/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 
 [dependencies]
 rowan = { workspace = true }

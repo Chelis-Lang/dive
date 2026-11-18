@@ -1,12 +1,19 @@
 [package]
 name = "dive-model"
-description = "Binding a specification to its TLC model configuration"
+description = "Binding a TLA+ specification to its TLC model configuration"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+publish = ["crates-io"]
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/dive-model"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+# Tests, examples and benchmarks read workspace fixtures; they are not shipped.
+include = ["/src/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 
 [dependencies]
 dive-ir.workspace = true
@@ -16,7 +23,7 @@ dive-config.workspace = true
 dive-eval.workspace = true
 
 [dev-dependencies]
-dive-sema.workspace = true
+dive-sema = { path = "../dive-sema" }
 serde_json.workspace = true
 
 [lints]

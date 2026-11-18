@@ -1,12 +1,19 @@
 [package]
 name = "dive-stdlib"
-description = "Standard modules and TLC overrides"
+description = "TLA+ standard module support for model checking: TLC's randomness and the checker host"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+publish = ["crates-io"]
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/dive-stdlib"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+# Tests, examples and benchmarks read workspace fixtures; they are not shipped.
+include = ["/src/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 
 [dependencies]
 dive-value.workspace = true

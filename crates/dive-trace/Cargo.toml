@@ -1,12 +1,19 @@
 [package]
 name = "dive-trace"
-description = "Trace format and independent trace validation"
+description = "TLA+ counterexample trace format and independent trace validation"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+publish = ["crates-io"]
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/dive-trace"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+# Tests, examples and benchmarks read workspace fixtures; they are not shipped.
+include = ["/src/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 
 [dependencies]
 dive-ir.workspace = true
@@ -18,8 +25,8 @@ dive-model.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
-dive-sema.workspace = true
-dive-config.workspace = true
+dive-sema = { path = "../dive-sema" }
+dive-config = { path = "../dive-config" }
 
 [lints]
 workspace = true

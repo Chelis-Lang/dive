@@ -1,21 +1,28 @@
 [package]
 name = "dive-eval"
-description = "Expression and action evaluator"
+description = "TLA+ expression and action evaluator with TLC's semantics"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+publish = ["crates-io"]
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/dive-eval"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+# Tests, examples and benchmarks read workspace fixtures; they are not shipped.
+include = ["/src/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 
 [dependencies]
 dive-ir.workspace = true
 dive-value.workspace = true
 
 [dev-dependencies]
-dive-sema.workspace = true
-dive-model.workspace = true
-dive-config.workspace = true
+dive-sema = { path = "../dive-sema" }
+dive-model = { path = "../dive-model" }
+dive-config = { path = "../dive-config" }
 proptest.workspace = true
 serde_json.workspace = true
 

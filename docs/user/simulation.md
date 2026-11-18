@@ -72,7 +72,7 @@ dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --sta
 Rust callers use `SimulateRequest` and `simulate_file`; `traces` is required and
 `depth` is optional. `SimulateReport::to_json()` exposes actual traces,
 statistics, observed/pending outcomes and validation; `exit_code()` exposes the
-process disposition. See [the detailed simulation contract](../../crates/dive-sim/README.md)
+process disposition. See [the detailed simulation contract](../../crates/dive-sim/CONTRACT.md)
 and [reports](reports-and-errors.md).
 
 Simulation reports binding output once in `startup_output` and actual backend

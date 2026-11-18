@@ -15,6 +15,11 @@ fn main() {
     println!("cargo::rustc-env=DIVE_GIT_DESCRIBE={revision}");
     println!("cargo::rerun-if-changed=build.rs");
     println!("cargo::rerun-if-changed=build/revision.rs");
+    if directory.join(revision::VCS_INFO).exists() {
+        // A published package: the revision is fixed by its recorded commit.
+        println!("cargo::rerun-if-changed={}", revision::VCS_INFO);
+        return;
+    }
     let mut paths = vec![
         "HEAD".to_owned(),
         "packed-refs".to_owned(),
