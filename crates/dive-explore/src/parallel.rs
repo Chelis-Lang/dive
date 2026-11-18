@@ -335,7 +335,7 @@ impl WorkerSink<'_, '_> {
             0
         } else {
             match state_identity(m, plan, self.seen.exact.as_ref().map(|_| &mut identity)) {
-                Ok(k) => k,
+                Ok(k) => self.seen.key(k),
                 Err(error) if error.kind() == ErrorKind::Eval && plan.view.is_some() => {
                     return Err(self.check_err(m, Site::View, error)?);
                 }
@@ -807,7 +807,9 @@ impl crate::Explorer<'_> {
                         ));
                     }
                     if *inside {
-                        self.record(m, *key, false, None)?;
+                        // Fingerprint claims only: exact mode never produces
+                        // an `Old` occurrence, so there is no id to report.
+                        self.record(m, *key, crate::Recorded::Seen(None), None)?;
                     }
                 }
                 Occ::CaptureLimit => {
@@ -855,22 +857,25 @@ impl crate::Explorer<'_> {
                     {
                         self.admit_new()?;
                     }
-                    let new = if *in_model {
+                    let inserted = if *in_model {
                         self.seen_insert(*key, identity, &m.heap, ("Insertion", None))?
+                    } else if self.plan.symmetry.is_some()
+                        || self.plan.view.is_some()
+                        || !self.seen_contains(
+                            *key,
+                            identity,
+                            &m.heap,
+                            ("AdmissionMembership", None),
+                        )?
+                    {
+                        crate::storage::Inserted::New
                     } else {
-                        self.plan.symmetry.is_some()
-                            || self.plan.view.is_some()
-                            || !self.seen_contains(
-                                *key,
-                                identity,
-                                &m.heap,
-                                ("AdmissionMembership", None),
-                            )?
+                        crate::storage::Inserted::Seen(None)
                     };
-                    if !new {
+                    if let crate::storage::Inserted::Seen(seen) = inserted {
                         self.apply_implied(m, imp)?;
                         if *in_model {
-                            self.record(m, *key, false, None)?;
+                            self.record(m, *key, crate::Recorded::Seen(seen), None)?;
                         }
                         continue;
                     }
@@ -904,7 +909,7 @@ impl crate::Explorer<'_> {
                     self.apply_implied(m, imp)?;
                     if *in_model {
                         self.enqueue(m, None)?;
-                        self.record(m, *key, true, None)?;
+                        self.record(m, *key, crate::Recorded::New, None)?;
                     }
                 }
             }

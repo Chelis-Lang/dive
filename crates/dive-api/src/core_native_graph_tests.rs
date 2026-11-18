@@ -443,6 +443,7 @@ fn native_conversion_precedes_state_and_edge_caps() {
             Step {
                 key: 1,
                 new: Some((0, &[canonical])),
+                seen: None,
                 original: &[original],
                 parent: None,
                 ordinal: 0,
@@ -661,6 +662,7 @@ fn deferred_admission_refuses_an_unconvertible_row_at_its_read() {
         Step {
             key: 1,
             new: Some((0, &[canonical])),
+            seen: None,
             original: &[original],
             parent: None,
             ordinal: 0,
