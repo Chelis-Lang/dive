@@ -267,7 +267,7 @@ fn replay_after_unobserved(
                 let mut identity = Vec::new();
                 let key =
                     match state_identity(m, plan, ex.seen.exact.as_ref().map(|_| &mut identity)) {
-                        Ok(k) => k,
+                        Ok(k) => ex.seen.key(k),
                         Err(e) if e.kind() == ErrorKind::Eval && plan.view.is_some() => {
                             out.error =
                                 Some(ex.failure_at(m, Site::View, e.message().to_owned())?);
@@ -282,7 +282,9 @@ fn replay_after_unobserved(
                     if ex.disk.is_some() {
                         ex.seen_insert(key, &identity, &m.heap, ("ReplayInsertion", Some(o)))?;
                     } else {
-                        added.insert_row(key, &identity, &m.heap, ex.poll)?;
+                        // Diagnostic replay never feeds a graph sink, so
+                        // these discoveries need no id.
+                        added.insert_row(key, &identity, &m.heap, u64::MAX, ex.poll)?;
                     }
                     out.distinct += 1;
                 }

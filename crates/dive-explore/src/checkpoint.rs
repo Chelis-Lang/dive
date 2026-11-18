@@ -476,7 +476,11 @@ pub(super) fn restore(
         }
         m.s1.copy_from_slice(&d.original);
         let mut identity = Vec::new();
-        let key = super::state_identity(m, ex.plan, ex.seen.exact.as_ref().map(|_| &mut identity))?;
+        let key = ex.seen.key(super::state_identity(
+            m,
+            ex.plan,
+            ex.seen.exact.as_ref().map(|_| &mut identity),
+        )?);
         if key != d.key
             || d.original
                 .iter()
@@ -486,12 +490,15 @@ pub(super) fn restore(
             return Err(invalid("restored discovery identity"));
         }
         ex.cur_id = d.parent;
-        if !ex.seen_insert(
-            key,
-            &identity,
-            &m.heap,
-            ("RecoveryInsertion", Some(u64::from(d.ordinal))),
-        )? {
+        if !ex
+            .seen_insert(
+                key,
+                &identity,
+                &m.heap,
+                ("RecoveryInsertion", Some(u64::from(d.ordinal))),
+            )?
+            .is_new()
+        {
             return Err(invalid("duplicate restored discovery key"));
         }
         let stored = match d.parent {
@@ -502,6 +509,7 @@ pub(super) fn restore(
         if stored != id as u64 {
             return Err(invalid("restored predecessor coordinate"));
         }
+        ex.confirm_logged(stored)?;
         // Imported identities and rows are persistent. Do not retain VIEW or
         // symmetry evaluation scratch across the full discovery stream.
         m.heap.reset();

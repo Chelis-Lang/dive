@@ -30,6 +30,8 @@ mod candidate;
 pub mod checkpoint;
 pub mod distributed;
 pub mod ending;
+#[cfg(test)]
+mod exact_identity_tests;
 pub mod graph;
 mod parallel;
 mod reclaim;
@@ -242,6 +244,9 @@ pub struct Seen {
     table: Vec<u64>,
     len: usize,
     exact: Option<storage::Exact>,
+    /// Test-only key override ([`storage::Storage::collide_keys`]).
+    #[cfg(test)]
+    collide_keys: Option<u64>,
 }
 
 impl Default for Seen {
@@ -250,6 +255,8 @@ impl Default for Seen {
             table: vec![0; 1 << 16],
             len: 0,
             exact: None,
+            #[cfg(test)]
+            collide_keys: None,
         }
     }
 }
@@ -269,10 +276,30 @@ impl Seen {
     }
 
     fn empty_like(&self) -> Self {
-        Self::with_detached_exact(
-            self.exact.is_some(),
-            self.exact.as_ref().is_some_and(storage::Exact::is_detached),
-        )
+        Self {
+            #[cfg(test)]
+            collide_keys: self.collide_keys,
+            ..Self::with_detached_exact(
+                self.exact.is_some(),
+                self.exact.as_ref().is_some_and(storage::Exact::is_detached),
+            )
+        }
+    }
+
+    /// The key a state identity is looked up under. Outside dive-explore's
+    /// own tests this is `key` itself.
+    #[cfg(test)]
+    fn key(&self, key: u64) -> u64 {
+        self.collide_keys.unwrap_or(key)
+    }
+
+    /// The key a state identity is looked up under. Outside dive-explore's
+    /// own tests this is `key` itself.
+    #[cfg(not(test))]
+    #[inline]
+    #[allow(clippy::unused_self, reason = "the test build reads a key override")]
+    const fn key(&self, key: u64) -> u64 {
+        key
     }
 
     fn contains_row(
@@ -288,17 +315,21 @@ impl Seen {
         )
     }
 
+    /// Inserts a state; an exact set records `id` as its discovery id.
     fn insert_row(
         &mut self,
         key: u64,
         row: &[Handle],
         heap: &dive_core::Heap,
+        id: u64,
         poll: &(dyn Fn() -> bool + Sync),
-    ) -> Result<bool, Error> {
+    ) -> Result<storage::Inserted, Error> {
         if let Some(exact) = &mut self.exact {
-            exact.insert_controlled(key, row, heap, poll)
+            exact.insert_controlled(key, row, heap, id, poll)
+        } else if self.insert(key) {
+            Ok(storage::Inserted::New)
         } else {
-            Ok(self.insert(key))
+            Ok(storage::Inserted::Seen(None))
         }
     }
 
@@ -537,6 +568,9 @@ struct Explorer<'p> {
     next_ids: Vec<StateId>,
     /// The log id of the state being expanded.
     cur_id: Option<StateId>,
+    /// The discovery id an in-memory exact seen set recorded for the last
+    /// new state, until the state is logged with exactly that id.
+    predicted: Option<StateId>,
     /// How the trace of a stop ends: the state to replay up to, and the
     /// last state when it is not a logged one.
     end: Option<End>,
@@ -556,6 +590,15 @@ struct Explorer<'p> {
     warnings: Vec<(u16, u32)>,
 }
 
+/// How an accepted state inside the model reaches the graph sink.
+#[derive(Clone, Copy, Debug)]
+enum Recorded {
+    /// New: the last state enqueued.
+    New,
+    /// Already seen: its discovery id when the seen set retains ids.
+    Seen(Option<StateId>),
+}
+
 /// The end of a counterexample, recorded at the stop.
 struct End {
     /// The last logged state of the behavior (`None`: an initial state).
@@ -569,7 +612,8 @@ struct End {
 }
 
 enum Probe {
-    Seen,
+    /// Already present: its discovery id when the seen set retains ids.
+    Seen(Option<StateId>),
     New,
 }
 
@@ -594,13 +638,16 @@ impl Explorer<'_> {
         )
     }
 
+    /// Inserts a state. An in-memory exact set records the next discovery id
+    /// (the predecessor log's length), which the state must then be logged
+    /// with ([`Self::confirm_logged`]) before any other state is inserted.
     fn seen_insert(
         &mut self,
         key: u64,
         row: &[Handle],
         heap: &dive_core::Heap,
         phase: (&'static str, Option<u64>),
-    ) -> Result<bool, Error> {
+    ) -> Result<storage::Inserted, Error> {
         let exact = self.seen.exact.is_some();
         let position = (
             phase.0,
@@ -609,9 +656,43 @@ impl Explorer<'_> {
             phase.1.unwrap_or_else(|| self.emitted.saturating_sub(1)),
         );
         if let Some(disk) = &mut self.disk {
-            disk.operation(exact, key, row, heap, true, position, self.poll)
-        } else {
-            self.seen.insert_row(key, row, heap, self.poll)
+            return disk
+                .operation(exact, key, row, heap, true, position, self.poll)
+                .map(|new| {
+                    if new {
+                        storage::Inserted::New
+                    } else {
+                        storage::Inserted::Seen(None)
+                    }
+                });
+        }
+        if !exact {
+            return self.seen.insert_row(key, row, heap, 0, self.poll);
+        }
+        if self.predicted.is_some() {
+            return Err(Error::internal(
+                "an exact discovery id was recorded for a state that was never logged",
+            ));
+        }
+        let predicted = self.log.len();
+        let inserted = self.seen.insert_row(key, row, heap, predicted, self.poll)?;
+        if inserted.is_new() {
+            self.predicted = Some(predicted);
+        }
+        Ok(inserted)
+    }
+
+    /// Checks that the state just logged as `id` is the one the exact seen
+    /// set recorded with that discovery id.
+    fn confirm_logged(&mut self, id: StateId) -> Result<(), Error> {
+        match self.predicted.take() {
+            Some(predicted) if predicted != id => Err(Error::internal(format!(
+                "the exact seen set recorded discovery id {predicted} for a state logged as {id}"
+            ))),
+            None if self.seen.exact.is_some() && self.disk.is_none() => Err(Error::internal(
+                "a state was logged without its exact discovery id",
+            )),
+            _ => Ok(()),
         }
     }
 
@@ -694,7 +775,7 @@ impl Explorer<'_> {
             self.plan,
             self.seen.exact.as_ref().map(|_| &mut identity),
         ) {
-            Ok(k) => k,
+            Ok(k) => self.seen.key(k),
             Err(e) if e.kind() == ErrorKind::Eval && self.plan.view.is_some() => {
                 self.failure = Some(self.failure_at(m, Site::View, e.message().to_owned())?);
                 self.end_here(m)?;
@@ -709,15 +790,17 @@ impl Explorer<'_> {
         {
             self.admit_new()?;
         }
-        let new = if in_model {
+        let inserted = if in_model {
             self.seen_insert(key, &identity, &m.heap, ("Insertion", None))?
+        } else if self.seen_contains(key, &identity, &m.heap, ("AdmissionMembership", None))? {
+            storage::Inserted::Seen(None)
         } else {
-            !self.seen_contains(key, &identity, &m.heap, ("AdmissionMembership", None))?
+            storage::Inserted::New
         };
-        if !new {
+        if let storage::Inserted::Seen(id) = inserted {
             self.metrics.discarded_before_intern +=
                 u64::from(self.opts.early_probe && (!in_model || self.graph.is_none()));
-            return Ok((Probe::Seen, in_model, key));
+            return Ok((Probe::Seen(id), in_model, key));
         }
         Ok((Probe::New, in_model, key))
     }
@@ -740,14 +823,14 @@ impl Explorer<'_> {
             self.changed = changed_vars(m);
         }
         let (probe, in_model, key) = self.probe(m)?;
-        if matches!(probe, Probe::Seen) {
+        if let Probe::Seen(seen) = probe {
             // TLC checks the implied actions on every step, to a seen state
             // too (`Search::successor`).
             if !self.initial {
                 self.implied_actions(m)?;
             }
             return if in_model {
-                self.record(m, key, false, original.as_deref())
+                self.record(m, key, Recorded::Seen(seen), original.as_deref())
             } else {
                 Ok(())
             };
@@ -819,7 +902,7 @@ impl Explorer<'_> {
             self.enqueue(m, original.as_deref())?;
         }
         if in_model {
-            self.record(m, key, true, original.as_deref())?;
+            self.record(m, key, Recorded::New, original.as_deref())?;
         }
         Ok(())
     }
@@ -830,9 +913,13 @@ impl Explorer<'_> {
         &mut self,
         m: &mut Machine,
         key: u64,
-        new: bool,
+        recorded: Recorded,
         original: Option<&[Handle]>,
     ) -> Result<(), Error> {
+        let (new, seen) = match recorded {
+            Recorded::New => (true, None),
+            Recorded::Seen(seen) => (false, seen),
+        };
         if new && let Some(session) = &mut self.checkpoint {
             let values = m.s1.clone();
             let original = original.unwrap_or(&values);
@@ -889,6 +976,7 @@ impl Explorer<'_> {
         let step = graph::Step {
             key,
             new,
+            seen,
             original,
             parent: self.cur_id,
             ordinal: self.emitted.saturating_sub(1),
@@ -985,7 +1073,7 @@ impl Explorer<'_> {
     /// Interns the successor in `m.s1`, queues it and logs its parent and
     /// ordinal.
     fn enqueue(&mut self, m: &mut Machine, original: Option<&[Handle]>) -> Result<(), Error> {
-        if let Some(frontier) = &mut self.frontier {
+        if self.frontier.is_some() {
             let mut identity = Vec::new();
             let mut retained = Vec::new();
             capture_reserve(&mut identity, m.s1.len())?;
@@ -1003,7 +1091,12 @@ impl Explorer<'_> {
                 Some(parent) => self.log.push(parent, ordinal),
             }
             .map_err(|e| Error::internal(format!("predecessor log: {e}")))?;
-            return frontier.push(id, &identity, &retained);
+            self.confirm_logged(id)?;
+            return self
+                .frontier
+                .as_mut()
+                .ok_or_else(|| Error::internal("the spilled frontier disappeared"))?
+                .push(id, &identity, &retained);
         }
         if self.graph.is_some() || self.checkpoint.is_some() {
             capture_reserve(&mut self.next, m.s1.len())?;
@@ -1026,6 +1119,7 @@ impl Explorer<'_> {
             Some(parent) => self.log.push(parent, ordinal),
         }
         .map_err(|e| Error::internal(format!("predecessor log: {e}")))?;
+        self.confirm_logged(id)?;
         self.next_ids.push(id);
         Ok(())
     }
@@ -1550,7 +1644,6 @@ fn explore_inner<'p>(
     };
     let unsupported_storage = graph.is_some()
         && (storage.seen_disk.is_some()
-            || storage.exact
             || storage.predecessor_memory_bytes.is_some()
             || storage.predecessor_directory.is_some()
             || storage.frontier_memory_bytes.is_some()
@@ -1600,6 +1693,10 @@ fn explore_inner<'p>(
         }
     };
     let mut seen = Seen::with_detached_exact(storage.exact, compact);
+    #[cfg(test)]
+    {
+        seen.collide_keys = storage.collide_keys;
+    }
     if storage.seen_disk.is_some() {
         seen.table = Vec::new();
     }
@@ -1657,6 +1754,7 @@ fn explore_inner<'p>(
         ),
         next_ids: Vec::new(),
         cur_id: None,
+        predicted: None,
         end: None,
         in_model: true,
         action_start: 0,
@@ -1686,7 +1784,7 @@ fn explore_inner<'p>(
         ))
     } else if unsupported_storage {
         Err(Error::unsupported(
-            "exact or spilled predecessor storage with native graph capture",
+            "spilled native temporal storage (disk seen set, predecessor, frontier or candidate spill)",
         ))
     } else if storage.candidate_directory.is_some() && storage.candidate_memory_bytes.is_none() {
         Err(Error::unsupported(

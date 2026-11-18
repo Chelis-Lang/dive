@@ -26,10 +26,15 @@ pub struct Stopped;
 /// One accepted state inside the model.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Step<'a> {
-    /// The state's key in the seen set; equal keys are one vertex.
+    /// The state's key in the seen set. Without [`Self::seen`] ids, equal
+    /// keys are one vertex.
     pub key: u64,
     /// Its values (persistent handles) when it is new, with its new id.
     pub new: Option<(u64, &'a [Handle])>,
+    /// The discovery id of an already-seen target, when the seen set retains
+    /// ids (the in-memory exact store); otherwise `None`, and the target is
+    /// resolved by [`Self::key`]. Always `None` for a new state.
+    pub seen: Option<u64>,
     /// The actual accepted target, including already seen states. These
     /// persistent handles retain the original closed representation (kind and
     /// flags); equal keys do not permit replacing them with a representative.
