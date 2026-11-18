@@ -3,8 +3,8 @@
 This is the runbook for the performance measurements that qualify dive 0.1.0
 and the first Sail release that runs native temporal jobs on it (Sail 0.3.0).
 It is written for an engineer or agent who has not seen the work that led to
-it. Tracking issue: #1011. The Sail side is tracked in a Sail issue that links
-back here.
+it. Tracking issue: #1011. The Sail side is tracked in
+[Chelis-Lang/sail#764](https://github.com/Chelis-Lang/sail/issues/764).
 
 ## Purpose and status rule
 
