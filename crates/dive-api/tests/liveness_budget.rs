@@ -8,7 +8,7 @@
 mod core_final;
 
 use core_final::Files;
-use dive_api::{BudgetSetting, Engine};
+use dive_api::BudgetSetting;
 use dive_runtime::CheckOptions;
 use std::time::Duration;
 
@@ -25,7 +25,7 @@ fn a_generous_budget_finds_the_same_candidate_as_the_default() {
             max_memory,
             ..files.request(&CheckOptions::tlc(0, 0))
         };
-        let report = dive_api::check_file_engine(&request, Engine::Core).expect("Core");
+        let report = dive_api::check_file(&request).expect("Core");
         let json = report.to_json();
         assert_eq!(json["verdict"], "liveness-violation", "{json}");
         let temporal = report.temporal_result().expect("temporal result");

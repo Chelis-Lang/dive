@@ -8,7 +8,7 @@
 )]
 
 use dive_api::temporal::Outcome;
-use dive_api::{CheckRequest, Engine, Store};
+use dive_api::{CheckRequest, Store};
 use dive_trace::Validation;
 use serde_json::{Value, json};
 use std::path::PathBuf;
@@ -40,7 +40,7 @@ fn seven_actual_primary_outcomes_counts_and_native_words_match() {
                 workers: Some(1),
                 ..CheckRequest::default()
             };
-            let report = dive_api::check_file_engine(&req, Engine::Core).expect("Core");
+            let report = dive_api::check_file(&req).expect("Core");
             let what = format!("{row} tlc={tlc}: {}", report.to_json());
             let temporal = report.temporal_result().unwrap_or_else(|| panic!("{what}"));
             let (stats, violation) = match temporal.outcome() {

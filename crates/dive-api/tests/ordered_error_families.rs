@@ -1,6 +1,6 @@
 //! Producer words retain independently reconstructed source/candidate meanings.
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::json;
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -33,28 +33,24 @@ fn ten_retained_cases_validate_in_both_engines_profiles_and_worker_counts() -> T
                 },
             )?;
             {
-                let engine = Engine::Core;
                 for workers in [1, 4] {
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )?
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })?
                     .to_json();
                     let wire = &report["counterexample"]["trace"];
                     let doc = TraceDoc::from_json(wire)
-                        .map_err(|e| format!("{name}/{engine:?}/{workers}: {e}: {report}"))?;
+                        .map_err(|e| format!("{name}/{workers}: {e}: {report}"))?;
                     assert_eq!(
                         model.try_validate(&doc)?.validation,
                         Validation::Valid,
-                        "{name}/{engine:?}/{workers}: {report}"
+                        "{name}/{workers}: {report}"
                     );
                     if name.starts_with("ErView") {
                         assert_eq!(wire["version"], 6);
@@ -117,26 +113,22 @@ fn view_module_errors_require_actual_primary_and_diagnostic_execution() -> TestR
                 },
             )?;
             {
-                let engine = Engine::Core;
-                let report = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc,
-                        workers: Some(1),
-                        seed: Some(0),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )?
+                let report = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                })?
                 .to_json();
                 let word = TraceDoc::from_json(&report["counterexample"]["trace"])?;
-                assert_eq!(word.to_json()["version"], 6, "{name}/{engine:?}");
+                assert_eq!(word.to_json()["version"], 6, "{name}");
                 assert_eq!(
                     model.try_validate(&word)?.validation,
                     Validation::Valid,
-                    "{name}/{engine:?}"
+                    "{name}"
                 );
                 assert_eq!(report["tlc"]["verified"], true);
                 let mut legacy = word.to_json();

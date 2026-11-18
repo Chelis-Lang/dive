@@ -7,7 +7,7 @@
 //! golden pins it and refuses otherwise.
 #![allow(clippy::expect_used, reason = "pinned corpus models")]
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use std::path::PathBuf;
 
 const UNPROVED_FACTOR: &str =
@@ -33,8 +33,7 @@ fn an_empty_factor_never_hides_a_non_set_factor_in_the_default_profile() {
     for name in ["EncounterTokenScalarFirst", "EncounterTokenEmptyFirst"] {
         for compat in [false, true] {
             for workers in [1, 4] {
-                let report = check_file_engine(&request(name, compat, workers), Engine::Core)
-                    .expect("Core check");
+                let report = check_file(&request(name, compat, workers)).expect("Core check");
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 if compat && name == "EncounterTokenEmptyFirst" {
                     // Pinned TLC: success, 3 distinct, 3 generated, depth 3.

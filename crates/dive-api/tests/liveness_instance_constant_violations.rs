@@ -12,8 +12,8 @@ mod core_final;
 #[path = "support/refused.rs"]
 mod refused;
 
+use dive_api::CheckRequest;
 use dive_api::temporal::Outcome;
-use dive_api::{CheckRequest, Engine};
 use dive_runtime::CheckOptions;
 use dive_trace::Validation;
 use std::path::Path;
@@ -45,7 +45,7 @@ fn absent_constants_keep_primary_violations_counts_and_valid_words() {
                     config: Some(path.join("Constant.cfg")),
                     ..core_final::request(&options)
                 };
-                let report = dive_api::check_file_engine(&req, Engine::Core).expect("Core");
+                let report = dive_api::check_file(&req).expect("Core");
                 if store == dive_store::StoreMode::Exact {
                     refused::assert_refused(
                         &report.to_json(),

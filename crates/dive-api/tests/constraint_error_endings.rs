@@ -4,7 +4,7 @@
 use std::path::PathBuf;
 
 use dive_api::trace::{Check, Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use serde_json::{Value, json};
 
 fn root() -> PathBuf {
@@ -97,20 +97,16 @@ fn qualified_invariant_error_words_validate_but_unclassified_streams_stay_unknow
                 "{name}/{compat_tlc}"
             );
             {
-                let engine = Engine::Core;
                 let path = source(name);
-                let report = check_file_engine(
-                    &CheckRequest {
-                        file: path.clone(),
-                        config: Some(path.with_extension("cfg")),
-                        compat_tlc,
-                        workers: Some(1),
-                        seed: Some(0),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )
+                let report = check_file(&CheckRequest {
+                    file: path.clone(),
+                    config: Some(path.with_extension("cfg")),
+                    compat_tlc,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                })
                 .expect("native check")
                 .to_json();
                 assert_eq!(report["tlc"]["code"], 2179);
@@ -175,25 +171,21 @@ fn actual_property_words_match_their_primary_goldens_and_validate() {
         for compat_tlc in [false, true] {
             let model = load(name, compat_tlc);
             {
-                let engine = Engine::Core;
                 for workers in [1, 4] {
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: path.clone(),
-                            config: Some(path.with_extension("cfg")),
-                            compat_tlc,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )
+                    let report = check_file(&CheckRequest {
+                        file: path.clone(),
+                        config: Some(path.with_extension("cfg")),
+                        compat_tlc,
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })
                     .expect("check");
                     let actual = report.to_json();
                     assert_eq!(
                         actual["tlc"]["code"], golden["result"]["verdict_code"],
-                        "{name}/{engine:?}/{compat_tlc}/{workers}"
+                        "{name}/{compat_tlc}/{workers}"
                     );
                     assert_eq!(actual["property"], golden["result"]["violated_property"]);
                     assert_eq!(
@@ -221,7 +213,7 @@ fn actual_property_words_match_their_primary_goldens_and_validate() {
                     assert_eq!(
                         model.validate(&doc).validation,
                         Validation::Valid,
-                        "{name}/{engine:?}/{compat_tlc}/{workers}"
+                        "{name}/{compat_tlc}/{workers}"
                     );
                     let mut forged = doc;
                     forged.ending = Some(Ending::Property("Missing".into()));

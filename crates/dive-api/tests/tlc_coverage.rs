@@ -5,7 +5,7 @@
 //! Core's named refusal, and the same request without coverage still runs.
 //! The pinned TLC rows stay in the corpus; #910 points to this file's earlier
 //! form, to restore when Core implements logical coverage.
-use dive_api::{ApiError, CheckRequest, Engine, check_file_engine};
+use dive_api::{ApiError, CheckRequest, check_file};
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 const FEATURE: &str = "source coverage and TLC logical coverage";
@@ -16,7 +16,7 @@ fn fixture(name: &str) -> std::path::PathBuf {
         .join(format!("{name}.tla"))
 }
 fn assert_refused(request: &CheckRequest) {
-    let result = check_file_engine(request, Engine::Core);
+    let result = check_file(request);
     assert!(
         matches!(&result, Err(ApiError::Unsupported { feature }) if feature.contains(FEATURE)),
         "expected the coverage refusal, got {result:?}"
@@ -36,7 +36,7 @@ fn assert_plain_runs_and_coverage_refuses(
             max_states: limit,
             ..CheckRequest::default()
         };
-        let plain = check_file_engine(&request, Engine::Core)?.to_json();
+        let plain = check_file(&request)?.to_json();
         assert!(plain.get("tlc_coverage").is_none(), "{plain}");
         request.tlc_coverage = true;
         assert_refused(&request);
@@ -84,12 +84,12 @@ fn logical_coverage_requires_an_explicit_supported_backend_and_separate_metric()
     assert_refused(&request);
     request.source_coverage = true;
     assert!(matches!(
-        check_file_engine(&request, Engine::Core),
+        check_file(&request),
         Err(ApiError::Unsupported { .. })
     ));
     request.source_coverage = false;
     request.temporal = dive_api::TemporalMode::FinalShort;
-    assert!(check_file_engine(&request, Engine::Core).is_err());
+    assert!(check_file(&request).is_err());
 }
 
 #[test]

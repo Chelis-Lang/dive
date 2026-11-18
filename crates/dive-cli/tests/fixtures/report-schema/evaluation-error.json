@@ -213,7 +213,7 @@
   },
   "message": "Evaluating invariant InvError failed.\n@!@!@STARTMSG 2179:0 @!@!@\nThe second argument of \\div is 0.\n@!@!@ENDMSG 2179 @!@!@",
   "notes": [
-    "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run."
+    "The default profile explores sets in canonical order. When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run."
   ],
   "options": {
     "action_composition": "tla",

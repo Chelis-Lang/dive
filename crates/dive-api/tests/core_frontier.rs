@@ -4,9 +4,7 @@
 use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{
-    CheckRequest, Engine, ExitConvention, Store, check_file_core_opts, check_file_engine,
-};
+use dive_api::{CheckRequest, ExitConvention, Store, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn request(relative: &str, tlc: bool, workers: usize, store: Store) -> CheckRequest {
@@ -48,7 +46,7 @@ fn spilled_frontiers_preserve_both_profiles_stores_worker_widths_and_words() {
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
                     let mut req = request(relative, tlc, workers, store);
-                    let baseline = check_file_engine(&req, Engine::Core).expect("ordinary core");
+                    let baseline = check_file(&req).expect("ordinary core");
                     assert!(
                         !matches!(
                             baseline.to_json()["verdict"].as_str(),
@@ -60,7 +58,7 @@ fn spilled_frontiers_preserve_both_profiles_stores_worker_widths_and_words() {
                     for budget in [0, 96, 65_536] {
                         req.frontier_memory_bytes = Some(budget);
                         req.predecessor_memory_bytes = Some(0);
-                        let actual = check_file_engine(&req, Engine::Core).expect("spilled native");
+                        let actual = check_file(&req).expect("spilled native");
                         let doc = actual.to_json();
                         assert_eq!(
                             observed(&doc),
@@ -135,7 +133,7 @@ fn frontier_write_failure_never_reports_certification() {
                 );
                 req.frontier_memory_bytes = Some(0);
                 req.frontier_directory = Some(req.file.clone());
-                let actual = check_file_engine(&req, Engine::Core).expect("storage result");
+                let actual = check_file(&req).expect("storage result");
                 let doc = actual.to_json();
                 assert_eq!(doc["verdict"], "resource-limit");
                 assert!(doc["counterexample"].is_null());
@@ -161,11 +159,11 @@ fn a_late_multichunk_violation_keeps_global_frontier_positions_and_predecessors(
         (false, Store::Exact, 8),
     ] {
         let mut req = request("tests/fixtures/core-m1/WideLevel.tla", tlc, workers, store);
-        let baseline = check_file_engine(&req, Engine::Core).expect("ordinary wide frontier");
+        let baseline = check_file(&req).expect("ordinary wide frontier");
         assert_eq!(baseline.to_json()["verdict"], "invariant-violation");
         req.frontier_memory_bytes = Some(0);
         req.predecessor_memory_bytes = Some(0);
-        let actual = check_file_engine(&req, Engine::Core).expect("spilled wide frontier");
+        let actual = check_file(&req).expect("spilled wide frontier");
         assert_eq!(observed(&actual.to_json()), observed(&baseline.to_json()));
         assert_eq!(actual.to_json()["options"]["workers"]["used"], workers);
         assert_eq!(actual.to_json()["frontier_storage"]["failures"], json!([]));
@@ -182,7 +180,7 @@ fn spill_preserves_exact_rows_when_hashconsing_and_early_probe_are_disabled() {
         for tlc in [false, true] {
             for workers in [1, 4, 8] {
                 let mut req = request(relative, tlc, workers, Store::Exact);
-                let baseline = check_file_engine(&req, Engine::Core).expect("ordinary exact core");
+                let baseline = check_file(&req).expect("ordinary exact core");
                 req.frontier_memory_bytes = Some(0);
                 req.predecessor_memory_bytes = Some(0);
                 for switches in ["-hashcons", "-hashcons,-early-probe"] {

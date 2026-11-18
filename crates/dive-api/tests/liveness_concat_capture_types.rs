@@ -10,7 +10,7 @@
 #[path = "support/refused.rs"]
 mod refused;
 
-use dive_api::{CheckRequest, Engine};
+use dive_api::CheckRequest;
 use dive_trace::Validation;
 use serde_json::Value;
 use std::path::{Path, PathBuf};
@@ -32,18 +32,15 @@ fn primary(name: &str) -> Value {
 
 fn check(name: &str, compat_tlc: bool) -> dive_api::CheckReport {
     let file = spec(name);
-    dive_api::check_file_engine(
-        &CheckRequest {
-            file: file.clone(),
-            config: Some(file.with_extension("cfg")),
-            compat_tlc,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            ..CheckRequest::default()
-        },
-        Engine::Core,
-    )
+    dive_api::check_file(&CheckRequest {
+        file: file.clone(),
+        config: Some(file.with_extension("cfg")),
+        compat_tlc,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        ..CheckRequest::default()
+    })
     .expect("Core")
 }
 

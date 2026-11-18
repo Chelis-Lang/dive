@@ -19,7 +19,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_kinds.json");
 
 use std::path::Path;
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 /// Invariants over `x \in 0..2`, each either an error or a plain answer in
@@ -65,18 +65,15 @@ const CASES: &[&str] = &[
     r#"{x} \cap {"a"} = {}"#,
 ];
 
-fn run(spec: &Path, engine: Engine) -> Value {
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run(spec: &Path) -> Value {
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -114,8 +111,8 @@ fn comparisons_across_kinds_are_never_answered_wrongly() {
             "INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
         )
         .expect("cfg");
-        let core = run(&spec, Engine::Core);
-        let reference = run(&spec, Engine::Core);
+        let core = run(&spec);
+        let reference = run(&spec);
         if reference["verdict"] == "evaluation-error" {
             errors += 1;
         }

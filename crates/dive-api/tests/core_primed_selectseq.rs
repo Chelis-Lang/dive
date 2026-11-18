@@ -4,7 +4,7 @@
 use std::path::{Path, PathBuf};
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn oracle() -> Value {
@@ -99,7 +99,7 @@ fn primed_sequence_and_pure_predicates_match_oracle_and_reference() {
         for compat in [false, true] {
             for workers in [1, 4, 8] {
                 let req = request(name, compat, workers);
-                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
+                let reference = check_file(&req).expect("reference runs");
                 let reference_observed = observed(&reference);
                 check_oracle(&reference_observed, expected, name);
                 for opts in ["", "-fold,-memo,-step-memo", "-eager", "-hashcons"] {
@@ -184,8 +184,7 @@ fn free_and_double_primes_remain_frontend_errors() {
         for compat in [false, true] {
             let req = request(name, compat, 1);
             {
-                let engine = Engine::Core;
-                let report = check_file_engine(&req, engine).expect("frontend rejection reports");
+                let report = check_file(&req).expect("frontend rejection reports");
                 check_oracle(&observed(&report), expected, name);
                 assert!(
                     report.to_json()["diagnostics"]

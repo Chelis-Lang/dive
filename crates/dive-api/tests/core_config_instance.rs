@@ -337,7 +337,7 @@ fn configured_imported_constants_match_pinned_results_in_both_profiles() {
                         check_word(&req, &doc);
                     }
                     if name.starts_with("AppliedRng") {
-                        let reference = dive_api::check_file_engine(&req, dive_api::Engine::Core)
+                        let reference = dive_api::check_file(&req)
                             .expect("reference startup argument")
                             .to_json();
                         agreed::check_eq(

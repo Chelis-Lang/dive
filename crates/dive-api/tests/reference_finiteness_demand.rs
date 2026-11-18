@@ -12,7 +12,7 @@ const MIXED_COMPAT: &str = "a set of values of different shapes under --compat=t
 const UNPROVED_FACTOR: &str =
     "Cardinality/IsFiniteSet of a Product with an unproved factor shape or size";
 
-use dive_api::{CheckReport, CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckReport, CheckRequest, ExitConvention, check_file};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -70,8 +70,7 @@ fn nested_empty_receivers_match_pinned_successes_without_normalizing_raw_aliases
             "distinct": r["counts"]["distinct_states"], "generated": r["counts"]["states_generated"],
             "depth": r["counts"]["depth"], "property": r["violated_property"], "exit": r["exit_code"]});
         for compat in [false, true] {
-            let report =
-                check_file_engine(&request(name, compat), Engine::Core).expect("Core check");
+            let report = check_file(&request(name, compat)).expect("Core check");
             if compat && name == "RawAxesStayRaw" {
                 refused::assert_refused(&report.to_json(), report.exit_code(), MIXED_COMPAT);
             } else if !compat && matches!(name, "EmptyRecordBeforeScalar" | "OrderedRecordEmpty") {
@@ -104,8 +103,7 @@ fn original_finite_and_empty_method_order_keeps_demanded_errors_and_receivers() 
                 !golden_path(name).exists(),
                 "context-only primary observation"
             );
-            let report = check_file_engine(&request(name, compat), Engine::Core)
-                .expect("Core demanded error");
+            let report = check_file(&request(name, compat)).expect("Core demanded error");
             let d = report.to_json();
             if matches!(
                 name,
@@ -147,8 +145,8 @@ fn original_finite_and_empty_method_order_keeps_demanded_errors_and_receivers() 
 
         let g = golden("ReceiverAfterFiniteness");
         assert_eq!(g["result"]["verdict_code"], 2147);
-        let report = check_file_engine(&request("ReceiverAfterFiniteness", compat), Engine::Core)
-            .expect("Core receiver error");
+        let report =
+            check_file(&request("ReceiverAfterFiniteness", compat)).expect("Core receiver error");
         let d = report.to_json();
         assert_eq!(d["verdict"], "evaluation-error");
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
@@ -166,8 +164,8 @@ fn an_unproved_provider_finiteness_method_still_refuses_before_a_later_empty_axi
     let g = golden("ProviderBeforeEmpty");
     assert_eq!(g["result"]["verdict"], "success");
     for compat in [false, true] {
-        let report = check_file_engine(&request("ProviderBeforeEmpty", compat), Engine::Core)
-            .expect("Core provider refusal");
+        let report =
+            check_file(&request("ProviderBeforeEmpty", compat)).expect("Core provider refusal");
         let d = report.to_json();
         assert_eq!(d["verdict"], "unsupported");
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
@@ -201,7 +199,7 @@ fn nonlexical_record_tokens_keep_source_success_and_error_order_in_both_profiles
                 "conformance/corpus/{corpus}/specifications/{name}/{name}.tla"
             ));
             req.config = Some(req.file.with_extension("cfg"));
-            let report = check_file_engine(&req, Engine::Core).expect("paired token-order check");
+            let report = check_file(&req).expect("paired token-order check");
             if name == positive && compat {
                 assert_eq!(facts(&report), expected);
             } else {

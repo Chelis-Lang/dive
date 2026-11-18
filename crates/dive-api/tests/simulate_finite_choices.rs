@@ -3,7 +3,7 @@
 #[path = "support/refused.rs"]
 mod refused;
 
-use dive_api::{Engine, SimulateRequest, simulate_file_engine};
+use dive_api::{SimulateRequest, simulate_file};
 
 #[test]
 fn native_random_steps_and_startup_have_reproducible_validated_samples() {
@@ -26,7 +26,7 @@ fn native_random_steps_and_startup_have_reproducible_validated_samples() {
             ..Default::default()
         };
         // Only the retired reference engine sampled RandomElement (#791, #910).
-        let first = simulate_file_engine(&request, Engine::Core).expect("simulation");
+        let first = simulate_file(&request).expect("simulation");
         refused::assert_refused(&first.to_json(), first.exit_code(), refused::FINITE_RANDOM);
     }
     check_action_contexts(&file);
@@ -34,17 +34,14 @@ fn native_random_steps_and_startup_have_reproducible_validated_samples() {
     std::fs::write(file.with_extension("cfg"), "INIT Init\nNEXT Next\n")
         .expect("configuration fixture");
     for compat_tlc in [false, true] {
-        let report = simulate_file_engine(
-            &SimulateRequest {
-                file: file.clone(),
-                compat_tlc,
-                seed: Some(7),
-                depth: Some(2),
-                traces: 1,
-                ..Default::default()
-            },
-            Engine::Core,
-        )
+        let report = simulate_file(&SimulateRequest {
+            file: file.clone(),
+            compat_tlc,
+            seed: Some(7),
+            depth: Some(2),
+            traces: 1,
+            ..Default::default()
+        })
         .expect("actual runtime config");
         // Only the retired reference engine read TLCGet here (#791, #910).
         refused::assert_refused(
@@ -90,17 +87,14 @@ fn check_action_contexts(file: &std::path::Path) {
             // Only the retired reference engine sampled this LET-bound draw
             // (#791, #910); Core refuses it by name.
             for compat_tlc in [false, true] {
-                let report = simulate_file_engine(
-                    &SimulateRequest {
-                        file: file.to_path_buf(),
-                        compat_tlc,
-                        seed: Some(7),
-                        depth: Some(4),
-                        traces: 2,
-                        ..Default::default()
-                    },
-                    Engine::Core,
-                )
+                let report = simulate_file(&SimulateRequest {
+                    file: file.to_path_buf(),
+                    compat_tlc,
+                    seed: Some(7),
+                    depth: Some(4),
+                    traces: 2,
+                    ..Default::default()
+                })
                 .expect("captured Next");
                 refused::assert_refused(
                     &report.to_json(),
@@ -111,17 +105,14 @@ fn check_action_contexts(file: &std::path::Path) {
             continue;
         }
         for compat_tlc in [false, true] {
-            let report = simulate_file_engine(
-                &SimulateRequest {
-                    file: file.to_path_buf(),
-                    compat_tlc,
-                    seed: Some(7),
-                    depth: Some(4),
-                    traces: 2,
-                    ..Default::default()
-                },
-                Engine::Core,
-            )
+            let report = simulate_file(&SimulateRequest {
+                file: file.to_path_buf(),
+                compat_tlc,
+                seed: Some(7),
+                depth: Some(4),
+                traces: 2,
+                ..Default::default()
+            })
             .expect("captured Next")
             .to_json();
             assert_eq!(report["result"], "sampled", "{case}: {report}");

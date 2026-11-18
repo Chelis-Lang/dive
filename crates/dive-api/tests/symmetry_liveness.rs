@@ -44,7 +44,7 @@ fn token() -> PathBuf {
     )
 }
 fn check(request: &CheckRequest) -> Value {
-    dive_api::check_file_engine(request, dive_api::Engine::Core)
+    dive_api::check_file(request)
         .expect("file check")
         .to_json_with_exit_convention(ExitConvention::Tlc)
 }

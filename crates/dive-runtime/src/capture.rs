@@ -459,23 +459,6 @@ impl From<Exploration> for ControlledExploration {
         }
     }
 }
-impl ControlledExploration {
-    #[doc(hidden)]
-    #[must_use]
-    pub fn legacy(self) -> Exploration {
-        match self {
-            Self::Complete(c) => Exploration::Complete(c),
-            Self::Stopped(s) => Exploration::Stopped(s),
-            Self::Prefix(p) => {
-                let mut result = p.evidence.into_result();
-                result.verdict = Verdict::Unsupported {
-                    feature: "prefix stop requires controlled capture entrypoint".into(),
-                };
-                Exploration::Stopped(result)
-            }
-        }
-    }
-}
 
 #[doc(hidden)]
 pub fn elapsed(result: &mut Exploration, duration: std::time::Duration) {

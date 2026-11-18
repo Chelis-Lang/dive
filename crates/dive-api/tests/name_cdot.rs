@@ -33,7 +33,7 @@ fn check_primary_cases(temporal: TemporalMode) -> TestResult {
             // Only the retired reference engine ran TLC action composition
             // (#791, #910). Pinned TLC holds `hold` with the oracle's counts
             // and primary values; the other case was a named refusal.
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request)?;
             refused::assert_refused(
                 &report.to_json(),
                 report.exit_code(),
@@ -134,20 +134,17 @@ fn independent_composed_words_validate_tla_and_keep_tlc_accounting_refused() -> 
 /// because its finite-binding preflight evaluated that untaken domain.
 #[test]
 fn original_short_fragment_matches_the_pinned_success() -> TestResult {
-    let report = dive_api::check_file_engine(
-        &CheckRequest {
-            file: fixtures().join("original/NameCdot.tla"),
-            config: Some(fixtures().join("hold.cfg")),
-            compat_tlc: true,
-            action_composition: Some(ActionComposition::Tlc),
-            temporal: TemporalMode::FinalShort,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            ..Default::default()
-        },
-        dive_api::Engine::Core,
-    )?;
+    let report = dive_api::check_file(&CheckRequest {
+        file: fixtures().join("original/NameCdot.tla"),
+        config: Some(fixtures().join("hold.cfg")),
+        compat_tlc: true,
+        action_composition: Some(ActionComposition::Tlc),
+        temporal: TemporalMode::FinalShort,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        ..Default::default()
+    })?;
     // Only the retired reference engine ran TLC action composition (#791,
     // #910); Core refuses it by name.
     refused::assert_refused(

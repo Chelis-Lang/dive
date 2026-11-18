@@ -16,7 +16,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_registers.json");
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 const ORACLE: &str = "tlc-2026.10.06.014338";
@@ -60,19 +60,16 @@ fn specs(dir: &str, prefix: &str) -> Vec<(String, PathBuf)> {
     out
 }
 
-fn run(spec: &Path, engine: Engine, compat_tlc: bool, workers: usize) -> Value {
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(workers),
-            seed: Some(0),
-            fp: Some(0),
-            compat_tlc,
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run(spec: &Path, compat_tlc: bool, workers: usize) -> Value {
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(workers),
+        seed: Some(0),
+        fp: Some(0),
+        compat_tlc,
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -136,16 +133,16 @@ fn registers_match_the_reference_engine_and_tlc() {
         let transcript = root.join(ORACLE).join(format!("{name}.stdout"));
         for compat in [false, true] {
             let at = format!("{name} compat={compat}");
-            let core = run(&spec, Engine::Core, compat, 1);
+            let core = run(&spec, compat, 1);
             assert_eq!(core["engine"], "core", "{at}");
-            let reference = run(&spec, Engine::Core, compat, 1);
+            let reference = run(&spec, compat, 1);
             agreed::check_eq(
                 AGREED,
                 "registers_match_the_reference_engine_and_tlc/0",
                 &(observed(&core)),
                 &(observed(&reference)),
             );
-            let four = run(&spec, Engine::Core, compat, 4);
+            let four = run(&spec, compat, 4);
             assert_eq!(observed(&four), observed(&core), "{at} at 4 workers");
             assert_eq!(four["options"]["workers"]["used"], 1, "{at}: {four:#}");
             let (g, d) = tlc_counts(&transcript).expect("TLC counts");
@@ -181,7 +178,7 @@ fn tlc_module_fixtures_match_or_are_refused() {
     for (name, spec) in specs("crates/dive-api/tests/fixtures/checker/tlc-module", "Tm") {
         for compat in [false, true] {
             let at = format!("{name} compat={compat}");
-            let core = run(&spec, Engine::Core, compat, 1);
+            let core = run(&spec, compat, 1);
             if let Some((_, word)) = REFUSED.iter().find(|(n, _)| *n == name) {
                 assert_eq!(core["verdict"], "unsupported", "{at}: {core:#}");
                 assert!(
@@ -190,7 +187,7 @@ fn tlc_module_fixtures_match_or_are_refused() {
                 );
                 continue;
             }
-            let reference = run(&spec, Engine::Core, compat, 1);
+            let reference = run(&spec, compat, 1);
             agreed::check_eq(
                 AGREED,
                 "tlc_module_fixtures_match_or_are_refused/0",

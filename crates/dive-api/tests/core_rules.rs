@@ -21,7 +21,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_rules.json");
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 const ORACLE: &str = "tlc-2026.10.06.014338";
@@ -71,21 +71,18 @@ fn specs(dir: &str) -> Vec<(String, PathBuf, PathBuf)> {
     out
 }
 
-fn run(spec: &Path, engine: Engine) -> Value {
+fn run(spec: &Path) -> Value {
     // The CommunityModules `dive-eval`'s fixtures use.
     let community = repo().join("crates/dive-eval/tests/fixtures/community-modules");
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            library_paths: vec![community],
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        library_paths: vec![community],
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -168,10 +165,10 @@ const REFERENCE_ONLY: &[&str] = &[
 fn check_dir(dir: &str) -> usize {
     let mut agreed = 0;
     for (name, spec, transcript) in specs(dir) {
-        let core = run(&spec, Engine::Core);
+        let core = run(&spec);
         if core["verdict"] == "rejected" {
             // Rejected before any engine runs.
-            assert_eq!(run(&spec, Engine::Core)["verdict"], "rejected", "{name}");
+            assert_eq!(run(&spec)["verdict"], "rejected", "{name}");
             continue;
         }
         assert_eq!(core["engine"], "core", "{name}");
@@ -199,7 +196,7 @@ fn check_dir(dir: &str) -> usize {
             );
             continue;
         }
-        let reference = run(&spec, Engine::Core);
+        let reference = run(&spec);
         if REFERENCE_ONLY.contains(&name.as_str()) {
             assert_eq!(core["verdict"], "unsupported", "{name}: {core:#}");
             // Only a construct the core names as not implemented yet, or
@@ -320,7 +317,7 @@ fn print_fixtures_print_as_tlc() {
         if !name.starts_with("Pr") || REFUSED.iter().any(|(n, _)| *n == name) {
             continue;
         }
-        let core = run(&spec, Engine::Core);
+        let core = run(&spec);
         assert_eq!(core["verdict"], "success", "{name}: {core:#}");
         let printed: Vec<String> = core["output"]
             .as_array()
@@ -337,37 +334,29 @@ fn print_fixtures_print_as_tlc() {
         assert_eq!(printed, tlc_printed(&transcript), "{name}");
         // More workers print the same: a plan that prints runs one.
         let community = repo().join("crates/dive-eval/tests/fixtures/community-modules");
-        let four = check_file_engine(
-            &CheckRequest {
-                config: Some(spec.with_extension("cfg")),
-                file: spec.clone(),
-                library_paths: vec![community],
-                workers: Some(4),
-                seed: Some(0),
-                fp: Some(0),
-                ..CheckRequest::default()
-            },
-            Engine::Core,
-        )
+        let four = check_file(&CheckRequest {
+            config: Some(spec.with_extension("cfg")),
+            file: spec.clone(),
+            library_paths: vec![community],
+            workers: Some(4),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        })
         .expect("check runs")
         .to_json();
         assert_eq!(four["output"], core["output"], "{name} at 4 workers");
         // And under `--compat=tlc`.
-        let compat = check_file_engine(
-            &CheckRequest {
-                config: Some(spec.with_extension("cfg")),
-                file: spec.clone(),
-                library_paths: vec![
-                    repo().join("crates/dive-eval/tests/fixtures/community-modules"),
-                ],
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                compat_tlc: true,
-                ..CheckRequest::default()
-            },
-            Engine::Core,
-        )
+        let compat = check_file(&CheckRequest {
+            config: Some(spec.with_extension("cfg")),
+            file: spec.clone(),
+            library_paths: vec![repo().join("crates/dive-eval/tests/fixtures/community-modules")],
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            compat_tlc: true,
+            ..CheckRequest::default()
+        })
         .expect("check runs")
         .to_json();
         assert_eq!(
@@ -402,8 +391,8 @@ fn m1_generator_fixtures_match_the_reference() {
             .and_then(|n| n.to_str())
             .unwrap_or("?")
             .to_owned();
-        let core = run(&spec, Engine::Core);
-        let reference = run(&spec, Engine::Core);
+        let core = run(&spec);
+        let reference = run(&spec);
         if matches!(
             name.as_str(),
             "FpInfiniteSets" | "FpRecordSet" | "FpSeqSet" | "FpSubsetNat"

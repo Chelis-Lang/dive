@@ -2,7 +2,7 @@
 #[path = "support/agreed.rs"]
 mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/core_dfid.json");
-use dive_api::{DfidRequest, Engine, dfid_file_engine};
+use dive_api::{DfidRequest, dfid_file};
 use std::path::PathBuf;
 
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -36,9 +36,8 @@ fn native_deterministic_search_matches_reference_certificates_counts_and_names()
                     "DfidDeadlock",
                 ] {
                     let request = request(name, compat, exact, seed);
-                    let reference =
-                        dive_api::dfid_file_engine(&request, dive_api::Engine::Core)?.to_json();
-                    let core = dfid_file_engine(&request, Engine::Core)?.to_json();
+                    let reference = dive_api::dfid_file(&request)?.to_json();
+                    let core = dfid_file(&request)?.to_json();
                     assert_eq!(core["engine"], "core", "{name}: {core}");
                     assert_eq!(core["engine_requested"], "core");
                     assert!(core["engine_fallback"].is_null());
@@ -110,11 +109,9 @@ fn enumerated_compound_batches_match_pinned_counts_and_actual_words() -> Result 
                     worker_seeds: Some(vec![0; 6]),
                     ..Default::default()
                 };
-                let reference =
-                    dive_api::dfid_file_engine(&request, dive_api::Engine::Core)?.to_json();
+                let reference = dive_api::dfid_file(&request)?.to_json();
                 {
-                    let engine = Engine::Core;
-                    let actual = dfid_file_engine(&request, engine)?.to_json();
+                    let actual = dfid_file(&request)?.to_json();
                     assert_eq!(actual["engine"], "core", "{name}: {actual}");
                     for field in [
                         "result",
@@ -189,8 +186,8 @@ fn closed_compound_candidates_preserve_reference_normalization_and_completion() 
                 seed: Some(7),
                 ..Default::default()
             };
-            let reference = dive_api::dfid_file_engine(&request, dive_api::Engine::Core)?.to_json();
-            let native = dfid_file_engine(&request, Engine::Core)?.to_json();
+            let reference = dive_api::dfid_file(&request)?.to_json();
+            let native = dfid_file(&request)?.to_json();
             for field in [
                 "result",
                 "statistics",

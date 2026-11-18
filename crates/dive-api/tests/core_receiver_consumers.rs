@@ -3,7 +3,7 @@
 mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/core_receiver_consumers.json");
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -40,7 +40,7 @@ fn product_sequence_ranges_and_mapped_subsets_match_reference()
     ] {
         for compat_tlc in [false, true] {
             let request = request(name, compat_tlc);
-            let reference = check_file_engine(&request, Engine::Core)?;
+            let reference = check_file(&request)?;
             // Under --compat=tlc only the retired reference engine ran these
             // two (#791, #910); Core refuses them, checked below.
             let refused = compat_tlc && matches!(name, "SeqProductSkipRaw" | "MappedEmptySubsets");
@@ -71,7 +71,7 @@ fn product_non_tuple_errors_and_demanded_mixed_query_refusals_remain()
 -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {
         let request = request("SeqProductNonTuple", compat_tlc);
-        let reference = check_file_engine(&request, Engine::Core)?;
+        let reference = check_file(&request)?;
         assert_eq!(reference.verdict(), "evaluation-error");
         assert_eq!(reference.to_json()["tlc"]["verified"], false);
         for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
@@ -90,7 +90,7 @@ fn product_non_tuple_errors_and_demanded_mixed_query_refusals_remain()
             );
         }
         let request = self::request("MappedMixedSubsets", compat_tlc);
-        let reference = check_file_engine(&request, Engine::Core)?;
+        let reference = check_file(&request)?;
         // Under --compat=tlc the retired reference engine reported TLC's
         // evaluation error (#791, #910); Core refuses the mixed-shape set.
         assert_eq!(
@@ -139,7 +139,7 @@ fn mapped_subset_violation_words_validate_and_mutations_fail()
 -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {
         let request = request("MappedSubsetsViolation", compat_tlc);
-        let reference = check_file_engine(&request, Engine::Core)?;
+        let reference = check_file(&request)?;
         assert_eq!(reference.verdict(), "invariant-violation");
         let model = SpecModel::load(
             &request.file,
@@ -187,10 +187,7 @@ fn outer_collection_of_multiple_sets_is_canonical_by_default()
 -> Result<(), Box<dyn std::error::Error>> {
     for compat_tlc in [false, true] {
         let request = request("MappedMultipleSubsets", compat_tlc);
-        assert_eq!(
-            check_file_engine(&request, Engine::Core)?.verdict(),
-            "success"
-        );
+        assert_eq!(check_file(&request)?.verdict(), "success");
         for switches in ["", "-fold", "-memo", "-hashcons", "-symbolic-member"] {
             let core = check_file_core_opts(&request, switches)?;
             let doc = core.to_json();
@@ -218,7 +215,7 @@ fn unproved_symbolic_identity_cannot_create_a_verdict_or_error_certificate()
         let request = request(name, false);
         // Pinned TLC review for #808/#809: Equal/OuterOne hold, while
         // Unequal/OuterTwo fail initially. Unknown identity cannot prove either.
-        let reference = check_file_engine(&request, Engine::Core)?;
+        let reference = check_file(&request)?;
         assert_eq!(reference.verdict(), "unsupported", "{name}");
         for switches in ["", "-fold,-memo,-hashcons"] {
             let core = check_file_core_opts(&request, switches)?;
@@ -329,7 +326,7 @@ fn sequence_finiteness_uses_original_range_methods_and_preserves_alias_demand()
             "SeqProductFiniteNestedInfinite",
         ] {
             let request = request(name, compat_tlc);
-            let reference = check_file_engine(&request, Engine::Core)?;
+            let reference = check_file(&request)?;
             // Under --compat=tlc only the retired reference engine ran
             // SeqProductFiniteSkipRaw (#791, #910); Core refuses it below.
             if !(compat_tlc && name == "SeqProductFiniteSkipRaw") {
@@ -360,7 +357,7 @@ fn sequence_finiteness_uses_original_range_methods_and_preserves_alias_demand()
         }
         for name in ["SeqProductFiniteMalformed", "SeqProductFiniteDemandRaw"] {
             let request = request(name, compat_tlc);
-            let reference = check_file_engine(&request, Engine::Core)?;
+            let reference = check_file(&request)?;
             let canonical = !compat_tlc && name == "SeqProductFiniteDemandRaw";
             // The retired reference engine reported TLC's evaluation error for
             // the others (#791, #910); Core refuses them by name, checked below.
@@ -395,7 +392,7 @@ fn sequence_finiteness_uses_original_range_methods_and_preserves_alias_demand()
             }
         }
         let request = request("SeqProductFiniteUnknownWrapper", compat_tlc);
-        let reference = check_file_engine(&request, Engine::Core)?;
+        let reference = check_file(&request)?;
         assert_eq!(reference.verdict(), "success");
         for switches in ["", "-fold,-memo,-hashcons,-symbolic-member"] {
             agreed::check_eq(
@@ -418,7 +415,7 @@ fn negating_empty_range_finiteness_cannot_report_a_false_holds()
             "SeqProductFiniteUnionNegated",
         ] {
             let request = request(name, compat_tlc);
-            let reference = check_file_engine(&request, Engine::Core)?;
+            let reference = check_file(&request)?;
             assert_eq!(reference.verdict(), "invariant-violation");
             let model = SpecModel::load(
                 &request.file,

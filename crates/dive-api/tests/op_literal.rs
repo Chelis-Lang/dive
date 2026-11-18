@@ -15,7 +15,7 @@
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 const ORACLE: &str = "tlc-2026.10.06.014338";
@@ -24,22 +24,19 @@ fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/op-literal")
 }
 
-fn run(spec: &Path, engine: Engine, compat_tlc: bool) -> Value {
+fn run(spec: &Path, compat_tlc: bool) -> Value {
     let community = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-eval/tests/fixtures/community-modules");
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            library_paths: vec![community],
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            compat_tlc,
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        library_paths: vec![community],
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        compat_tlc,
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -98,7 +95,7 @@ fn literal_bodies_reach_java_methods_as_values() {
         });
         let mut compat_verdict = Value::Null;
         for compat in [true, false] {
-            let core = run(&spec, Engine::Core, compat);
+            let core = run(&spec, compat);
             let at = format!("{name} compat={compat}");
             if core["verdict"] == "unsupported" {
                 // Only the retired reference engine applied these (#791,

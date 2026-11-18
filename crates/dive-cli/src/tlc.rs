@@ -352,11 +352,10 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
         return ExitCode::SUCCESS;
     }
     // Core, the only engine; `DIVE_ENGINE` accepts only `core`.
-    let engine = match super::engine_from_env() {
-        Ok(engine) => engine,
-        Err(message) => return Failure::Usage(message).emit(err),
-    };
-    let report = match dive_api::check_file_tlc_inputs_engine(&parsed.request, engine) {
+    if let Err(message) = super::engine_from_env() {
+        return Failure::Usage(message).emit(err);
+    }
+    let report = match dive_api::check_file_tlc_inputs(&parsed.request) {
         Ok(report) => report,
         Err(dive_api::ApiError::BudgetStartup(error)) => {
             let _ = writeln!(err, "{error}; no verdict produced");
@@ -686,7 +685,7 @@ mod tests {
             workers: Some(1),
             ..Default::default()
         };
-        let mut doc = dive_api::check_file_engine(&request, dive_api::Engine::Core)?.to_json();
+        let mut doc = dive_api::check_file(&request)?.to_json();
         assert!(validate_trace(&request, &mut doc).is_ok());
         assert_eq!(doc["counterexample"]["validation"], "valid");
         doc["counterexample"]["trace"]["states"][1]["values"]["x"] = json!(99);

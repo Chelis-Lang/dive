@@ -2,7 +2,7 @@
 //! action's complete candidate vector. Every published word is still replayed.
 use std::path::PathBuf;
 
-use dive_api::{Engine, SimulateRequest, simulate_file_engine};
+use dive_api::{SimulateRequest, simulate_file};
 use serde_json::Value;
 
 fn request(config: &str, tlc: bool) -> SimulateRequest {
@@ -33,9 +33,8 @@ fn thousand_way_actions_emit_only_the_requested_sample_and_replay()
 -> Result<(), Box<dyn std::error::Error>> {
     for tlc in [false, true] {
         {
-            let engine = Engine::Core;
             let req = request("Wide", tlc);
-            let a = simulate_file_engine(&req, engine)?.to_json();
+            let a = simulate_file(&req)?.to_json();
             assert_eq!(a["result"], "sampled", "{a}");
             assert_eq!(a["statistics"]["generated"], 13, "{a}");
             assert_eq!(a["options"]["algorithm"], "constructive");
@@ -45,14 +44,11 @@ fn thousand_way_actions_emit_only_the_requested_sample_and_replay()
             for trace in a["traces"].as_array().ok_or("traces")? {
                 assert_eq!(trace["validation"]["result"], "valid", "{trace}");
             }
-            let b = simulate_file_engine(&req, engine)?.to_json();
+            let b = simulate_file(&req)?.to_json();
             assert_eq!(words(&a), words(&b));
             let mut req = req;
             req.seed = Some(19);
-            assert_ne!(
-                words(&a),
-                words(&simulate_file_engine(&req, engine)?.to_json())
-            );
+            assert_ne!(words(&a), words(&simulate_file(&req)?.to_json()));
         }
     }
     Ok(())
@@ -63,13 +59,9 @@ fn disabled_or_constraint_rejected_choices_do_not_create_a_false_deadlock()
 -> Result<(), Box<dyn std::error::Error>> {
     for tlc in [false, true] {
         {
-            let engine = Engine::Core;
             for case in ["Guarded", "Constrained", "Multi", "Tuple", "Stored"] {
-                let report = simulate_file_engine(&request(case, tlc), engine)?.to_json();
-                assert_eq!(
-                    report["result"], "sampled",
-                    "{case}/{tlc:?}/{engine:?}: {report}"
-                );
+                let report = simulate_file(&request(case, tlc))?.to_json();
+                assert_eq!(report["result"], "sampled", "{case}/{tlc:?}: {report}");
                 for trace in report["traces"].as_array().ok_or("traces")? {
                     assert_eq!(trace["validation"]["result"], "valid", "{trace}");
                 }
@@ -84,10 +76,9 @@ fn ordinary_queries_do_not_inherit_the_generation_stream() -> Result<(), Box<dyn
 {
     for tlc in [false, true] {
         {
-            let engine = Engine::Core;
-            let wide = simulate_file_engine(&request("Wide", tlc), engine)?.to_json();
+            let wide = simulate_file(&request("Wide", tlc))?.to_json();
             for case in ["Quantified", "Queried", "Universal"] {
-                let report = simulate_file_engine(&request(case, tlc), engine)?.to_json();
+                let report = simulate_file(&request(case, tlc))?.to_json();
                 assert_eq!(report["result"], "sampled", "{case}: {report}");
                 assert_eq!(
                     words(&wide),
@@ -95,7 +86,7 @@ fn ordinary_queries_do_not_inherit_the_generation_stream() -> Result<(), Box<dyn
                     "query consumed generation draws: {case}"
                 );
             }
-            let chosen = simulate_file_engine(&request("Chosen", tlc), engine)?.to_json();
+            let chosen = simulate_file(&request("Chosen", tlc))?.to_json();
             assert_eq!(chosen["result"], "sampled", "{chosen}");
             for trace in chosen["traces"].as_array().ok_or("traces")? {
                 for state in trace["document"]["states"]
@@ -118,9 +109,8 @@ fn generation_violation_is_freshly_proved_and_a_forged_edge_is_rejected()
     use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
     for tlc in [false, true] {
         {
-            let engine = Engine::Core;
             let req = request("Violation", tlc);
-            let report = simulate_file_engine(&req, engine)?.to_json();
+            let report = simulate_file(&req)?.to_json();
             assert_eq!(report["result"], "violation", "{report}");
             let mut word = report["traces"][0]["document"].clone();
             let source = SpecModel::load(
@@ -153,9 +143,8 @@ fn unknown_domains_and_partial_rows_never_become_completed_samples()
 -> Result<(), Box<dyn std::error::Error>> {
     for tlc in [false, true] {
         {
-            let engine = Engine::Core;
             for case in ["Unknown", "Partial"] {
-                let report = simulate_file_engine(&request(case, tlc), engine)?.to_json();
+                let report = simulate_file(&request(case, tlc))?.to_json();
                 assert_ne!(report["result"], "sampled", "{case}: {report}");
                 assert_eq!(report["model_proved"], false);
                 assert_eq!(report["options"]["workers_used"], 1);
@@ -178,8 +167,7 @@ fn unknown_domains_and_partial_rows_never_become_completed_samples()
 fn indexed_intervals_keep_tlc_cardinality_admission_before_the_body()
 -> Result<(), Box<dyn std::error::Error>> {
     {
-        let engine = Engine::Core;
-        let report = simulate_file_engine(&request("LargeTlc", true), engine)?.to_json();
+        let report = simulate_file(&request("LargeTlc", true))?.to_json();
         // Finite mode still refuses unowned Next error wrappers. The original
         // cardinality demand must occur before any sampled assignment.
         assert_eq!(report["result"], "unsupported", "{report}");
@@ -200,8 +188,7 @@ fn process_conventions_and_budget_stops_do_not_change_generation_semantics()
     use dive_api::{BudgetSetting, ExitConvention};
     for tlc in [false, true] {
         {
-            let engine = Engine::Core;
-            let report = simulate_file_engine(&request("Violation", tlc), engine)?;
+            let report = simulate_file(&request("Violation", tlc))?;
             assert_eq!(report.exit_code_for(ExitConvention::Native), 10);
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 12);
             for convention in [ExitConvention::Native, ExitConvention::Tlc] {
@@ -209,13 +196,10 @@ fn process_conventions_and_budget_stops_do_not_change_generation_semantics()
                 assert_eq!(mapped["traces"], report.to_json()["traces"]);
                 assert_eq!(mapped["options"]["exit_codes"], convention.as_str());
             }
-            let stopped = simulate_file_engine(
-                &SimulateRequest {
-                    time_limit: BudgetSetting::Explicit(std::time::Duration::ZERO),
-                    ..request("Wide", tlc)
-                },
-                engine,
-            )?;
+            let stopped = simulate_file(&SimulateRequest {
+                time_limit: BudgetSetting::Explicit(std::time::Duration::ZERO),
+                ..request("Wide", tlc)
+            })?;
             assert_eq!(stopped.to_json()["result"], "stopped");
             assert_eq!(stopped.exit_code_for(ExitConvention::Native), 5);
             assert_eq!(stopped.exit_code_for(ExitConvention::Tlc), 5);

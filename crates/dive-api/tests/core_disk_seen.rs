@@ -7,7 +7,7 @@
 use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, SeenOptions, Store, check_file_engine};
+use dive_api::{CheckRequest, SeenOptions, Store, check_file};
 use serde_json::{Value, json};
 
 fn request(relative: &str, tlc: bool, store: Store, workers: usize) -> CheckRequest {
@@ -43,7 +43,7 @@ fn disk_matches_core_identity_constraints_views_symmetry_and_pure_error_replay()
         for tlc in [false, true] {
             for store in [Store::Fingerprint, Store::Exact] {
                 let mut req = request(relative, tlc, store, 1);
-                let baseline = check_file_engine(&req, Engine::Core).expect("resident Core");
+                let baseline = check_file(&req).expect("resident Core");
                 assert!(
                     !matches!(
                         baseline.to_json()["verdict"].as_str(),
@@ -57,7 +57,7 @@ fn disk_matches_core_identity_constraints_views_symmetry_and_pure_error_replay()
                     req.seen_disk = Some(SeenOptions::default());
                     req.frontier_memory_bytes = Some(0);
                     req.predecessor_memory_bytes = Some(0);
-                    let actual = check_file_engine(&req, Engine::Core).expect("disk Core");
+                    let actual = check_file(&req).expect("disk Core");
                     let doc = actual.to_json();
                     assert_eq!(
                         observed(&doc),
@@ -122,18 +122,14 @@ fn disk_creation_and_entry_failure_are_resource_stops_without_certificates() {
             let mut req = request("tests/fixtures/core-m0/CompoundTrace.tla", tlc, store, 8);
             req.seen_disk = Some(SeenOptions::default());
             req.seen_disk.as_mut().expect("policy").directory = Some(req.file.clone());
-            let doc = check_file_engine(&req, Engine::Core)
-                .expect("creation stop")
-                .to_json();
+            let doc = check_file(&req).expect("creation stop").to_json();
             assert_eq!(doc["verdict"], "resource-limit");
             assert_eq!(doc["seen_storage"]["first_failure"]["phase"], "Creation");
             assert_eq!(doc["options"]["workers"]["used"], 0);
             assert!(doc["counterexample"].is_null());
             req.seen_disk.as_mut().expect("policy").directory = None;
             req.seen_disk.as_mut().expect("policy").limits.entries = 1;
-            let doc = check_file_engine(&req, Engine::Core)
-                .expect("entry stop")
-                .to_json();
+            let doc = check_file(&req).expect("entry stop").to_json();
             assert_eq!(doc["verdict"], "resource-limit");
             assert_eq!(doc["seen_storage"]["first_failure"]["phase"], "Insertion");
             assert_eq!(doc["statistics"]["distinct"], 1);
@@ -158,7 +154,7 @@ fn disk_runs_on_the_default_core_engine_without_fallback() {
     let doc = dive_api::check_file(&req)
         .expect("default disk check")
         .to_json();
-    let core = check_file_engine(&req, Engine::Core)
+    let core = check_file(&req)
         .expect("explicit Core disk check")
         .to_json();
     assert_eq!(doc["engine"], "core");
@@ -177,9 +173,7 @@ fn disk_does_not_silently_ignore_configured_temporal_properties() {
         8,
     );
     req.seen_disk = Some(SeenOptions::default());
-    let doc = check_file_engine(&req, Engine::Core)
-        .expect("temporal refusal")
-        .to_json();
+    let doc = check_file(&req).expect("temporal refusal").to_json();
     assert_eq!(doc["verdict"], "unsupported");
     assert!(
         doc["message"]
@@ -202,9 +196,7 @@ fn replay_entry_failure_retains_its_actual_ordinal_and_frozen_source_prefix() {
             );
             req.seen_disk = Some(SeenOptions::default());
             req.seen_disk.as_mut().expect("policy").limits.entries = 3;
-            let doc = check_file_engine(&req, Engine::Core)
-                .expect("replay storage stop")
-                .to_json();
+            let doc = check_file(&req).expect("replay storage stop").to_json();
             assert_eq!(doc["verdict"], "resource-limit");
             assert_eq!(
                 doc["seen_storage"]["first_failure"]["phase"],

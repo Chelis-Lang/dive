@@ -86,19 +86,16 @@ fn scratch() -> Result<Scratch> {
 // Runs
 
 fn run(file: &Path, config: &Path) -> Result<Value> {
-    let report = dive_api::check_file_engine(
-        &CheckRequest {
-            file: file.to_path_buf(),
-            config: Some(config.to_path_buf()),
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            max_states: Some(MAX_STATES),
-            time_limit: BudgetSetting::Explicit(TIME_LIMIT),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Core,
-    )?;
+    let report = dive_api::check_file(&CheckRequest {
+        file: file.to_path_buf(),
+        config: Some(config.to_path_buf()),
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        max_states: Some(MAX_STATES),
+        time_limit: BudgetSetting::Explicit(TIME_LIMIT),
+        ..CheckRequest::default()
+    })?;
     Ok(report.to_json())
 }
 

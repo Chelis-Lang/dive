@@ -8,7 +8,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_engine.json");
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 fn fixture(name: &str) -> PathBuf {
@@ -17,19 +17,16 @@ fn fixture(name: &str) -> PathBuf {
         .join(format!("{name}.tla"))
 }
 
-fn run(name: &str, engine: Engine) -> Value {
+fn run(name: &str) -> Value {
     let file = fixture(name);
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(file.with_extension("cfg")),
-            file,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+    let report = check_file(&CheckRequest {
+        config: Some(file.with_extension("cfg")),
+        file,
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     report.to_json()
 }
@@ -48,8 +45,8 @@ fn core_matches_reference_counts_and_verdicts() {
     for name in [
         "Mix", "Viol", "Dead", "Fold", "Lazy", "Inst", "Big", "Bag", "Mv", "Emp",
     ] {
-        let reference = run(name, Engine::Core);
-        let core = run(name, Engine::Core);
+        let reference = run(name);
+        let core = run(name);
         assert_eq!(core["engine"], "core", "{name}");
         agreed::check_eq(
             AGREED,
@@ -68,7 +65,7 @@ fn core_matches_reference_counts_and_verdicts() {
 
 #[test]
 fn store_memory_metrics_report_components_and_their_coverage_gap() {
-    let core = run("Mix", Engine::Core);
+    let core = run("Mix");
     let memory = &core["core"]["metrics"]["store"]["memory"];
     let mut known = 0;
     for field in [
@@ -95,7 +92,7 @@ fn store_memory_metrics_report_components_and_their_coverage_gap() {
     let scope = memory["scope"].as_str().expect("scope");
     assert!(scope.contains("lower bound, not RSS or peak"));
     assert!(scope.contains("opaque string-index bucket"));
-    assert_eq!(counts(&core), counts(&run("Mix", Engine::Core)));
+    assert_eq!(counts(&core), counts(&run("Mix")));
 }
 
 /// A false or failing ASSUME ends a core run with the agreed
@@ -103,8 +100,8 @@ fn store_memory_metrics_report_components_and_their_coverage_gap() {
 #[test]
 fn assumptions_end_the_run_as_the_reference_engine_reports() {
     for name in ["AsFalse", "AsErr"] {
-        let reference = run(name, Engine::Core);
-        let core = run(name, Engine::Core);
+        let reference = run(name);
+        let core = run(name);
         assert_eq!(core["engine"], "core", "{name}");
         agreed::check_eq(
             AGREED,
@@ -125,7 +122,7 @@ fn assumptions_end_the_run_as_the_reference_engine_reports() {
 /// abandoned fold is reported, and the counts do not change.
 #[test]
 fn large_folds_are_bounded_and_reported() {
-    let core = run("Fold", Engine::Core);
+    let core = run("Fold");
     let plan = &core["core"]["metrics"]["plan"];
     assert_eq!(plan["fold_abandoned"], 1, "{plan:#}");
     assert!(
@@ -133,7 +130,7 @@ fn large_folds_are_bounded_and_reported() {
         "{plan:#}"
     );
     assert!(plan["fold_ms"].is_number(), "{plan:#}");
-    assert_eq!(counts(&core), counts(&run("Fold", Engine::Core)));
+    assert_eq!(counts(&core), counts(&run("Fold")));
 }
 
 /// The binder's initial predicates are conjoined, as TLC's
@@ -141,8 +138,8 @@ fn large_folds_are_bounded_and_reported() {
 #[test]
 fn initial_predicates_are_conjoined() {
     let name = "InitConj";
-    let reference = run(name, Engine::Core);
-    let core = run(name, Engine::Core);
+    let reference = run(name);
+    let core = run(name);
     assert_eq!(core["engine"], "core", "{name}");
     agreed::check_eq(
         AGREED,
@@ -164,7 +161,7 @@ fn initial_predicates_are_conjoined() {
 /// agreed counts.
 #[test]
 fn lazy_values_are_applied_without_being_built() {
-    let core = run("Lazy", Engine::Core);
+    let core = run("Lazy");
     assert_eq!(core["verdict"], "success", "{core:#}");
     let plan = &core["core"]["metrics"]["plan"];
     assert!(plan["beta"].as_u64().is_some_and(|b| b >= 1), "{plan:#}");
@@ -172,7 +169,7 @@ fn lazy_values_are_applied_without_being_built() {
         plan["speculative"].as_u64().is_some_and(|s| s >= 1),
         "{plan:#}"
     );
-    assert_eq!(counts(&core), counts(&run("Lazy", Engine::Core)));
+    assert_eq!(counts(&core), counts(&run("Lazy")));
 }
 
 /// A function constructor of several bound variables is applied without
@@ -183,17 +180,14 @@ fn lazy_functions_of_several_variables_are_applied_without_being_built() {
     // Kept out of `core-m0`, whose fixtures other tests sweep in order.
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/core-lazy-functions/LazyPair.tla");
-    let core = check_file_engine(
-        &CheckRequest {
-            config: Some(file.with_extension("cfg")),
-            file,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        Engine::Core,
-    )
+    let core = check_file(&CheckRequest {
+        config: Some(file.with_extension("cfg")),
+        file,
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("check runs")
     .to_json();
     assert_eq!(core["engine"], "core", "{core:#}");
@@ -216,8 +210,8 @@ fn lazy_functions_of_several_variables_are_applied_without_being_built() {
 #[test]
 fn operator_arguments_are_applied_where_passed() {
     for name in ["OpArg", "OpSub"] {
-        let reference = run(name, Engine::Core);
-        let core = run(name, Engine::Core);
+        let reference = run(name);
+        let core = run(name);
         assert_eq!(core["engine"], "core", "{name}");
         agreed::check_eq(
             AGREED,
@@ -236,9 +230,9 @@ fn operator_arguments_are_applied_where_passed() {
 
 #[test]
 fn violations_and_deadlocks_are_reported() {
-    assert_eq!(run("Viol", Engine::Core)["verdict"], "invariant-violation");
-    assert_eq!(run("Viol", Engine::Core)["property"], "Small");
-    assert_eq!(run("Dead", Engine::Core)["verdict"], "deadlock");
+    assert_eq!(run("Viol")["verdict"], "invariant-violation");
+    assert_eq!(run("Viol")["property"], "Small");
+    assert_eq!(run("Dead")["verdict"], "deadlock");
 }
 
 /// `LET` values around a split action are bound lazily
@@ -246,8 +240,8 @@ fn violations_and_deadlocks_are_reported() {
 #[test]
 fn let_values_of_split_actions_are_lazy() {
     let name = "RoleLet";
-    let reference = run(name, Engine::Core);
-    let core = run(name, Engine::Core);
+    let reference = run(name);
+    let core = run(name);
     assert_eq!(core["engine"], "core", "{name}");
     agreed::check_eq(
         AGREED,
@@ -265,7 +259,7 @@ fn let_values_of_split_actions_are_lazy() {
 
 #[test]
 fn unsupported_features_are_named_without_fallback() {
-    let core = run("Unsup", Engine::Core);
+    let core = run("Unsup");
     assert_eq!(core["verdict"], "unsupported");
     assert_eq!(core["engine"], "core");
     assert!(
@@ -280,8 +274,8 @@ fn unsupported_features_are_named_without_fallback() {
 #[test]
 fn unions_with_an_infinite_side_stay_lazy() {
     let name = "InfCup";
-    let reference = run(name, Engine::Core);
-    let core = run(name, Engine::Core);
+    let reference = run(name);
+    let core = run(name);
     assert_eq!(core["engine"], "core", "{name}");
     agreed::check_eq(
         AGREED,
@@ -302,8 +296,8 @@ fn unions_with_an_infinite_side_stay_lazy() {
 #[test]
 fn a_union_of_one_set_constructor_stays_lazy() {
     let name = "UnionOne";
-    let reference = run(name, Engine::Core);
-    let core = run(name, Engine::Core);
+    let reference = run(name);
+    let core = run(name);
     assert_eq!(core["engine"], "core", "{name}");
     agreed::check_eq(
         AGREED,
@@ -327,8 +321,8 @@ fn enabled_matches_the_reference_engine() {
     // in an implied action and an action constraint, where a primed
     // definition must read the ENABLED action's successor, not the step's.
     for name in ["Enab", "EnabStep"] {
-        let reference = run(name, Engine::Core);
-        let core = run(name, Engine::Core);
+        let reference = run(name);
+        let core = run(name);
         assert_eq!(core["engine"], "core", "{name}");
         agreed::check_eq(
             AGREED,
@@ -348,9 +342,9 @@ fn enabled_matches_the_reference_engine() {
 #[test]
 fn zero_to_the_zero_is_tlcs_evaluation_error() {
     // M0 answered 0^0 = 1 and reported success; TLC raises 2180.
-    let reference = run("Pow0", Engine::Core);
+    let reference = run("Pow0");
     assert_eq!(reference["verdict"], "evaluation-error", "{reference:#}");
-    let core = run("Pow0", Engine::Core);
+    let core = run("Pow0");
     agreed::check_eq(
         AGREED,
         "zero_to_the_zero_is_tlcs_evaluation_error/0",
@@ -371,8 +365,8 @@ fn zero_to_the_zero_is_tlcs_evaluation_error() {
 #[test]
 fn pair_domain_lookups_and_small_differences_match_the_reference() {
     let name = "GridFcn";
-    let reference = run(name, Engine::Core);
-    let core = run(name, Engine::Core);
+    let reference = run(name);
+    let core = run(name);
     assert_eq!(core["engine"], "core", "{name}");
     agreed::check_eq(
         AGREED,
@@ -400,7 +394,7 @@ fn every_strategy_switch_leaves_counts_unchanged() {
             fp: Some(0),
             ..CheckRequest::default()
         };
-        let base = counts(&run(name, Engine::Core));
+        let base = counts(&run(name));
         let mut all = Vec::new();
         for switch in dive_core_switches() {
             all.push(format!("-{switch}"));
@@ -457,8 +451,8 @@ fn unknown_switches_are_refused() {
 /// is the Java override's (#849).
 #[test]
 fn std_operators_as_operator_arguments_and_dyadic_reduce() {
-    let reference = run("HoStd", Engine::Core);
-    let core = run("HoStd", Engine::Core);
+    let reference = run("HoStd");
+    let core = run("HoStd");
     assert_eq!(core["engine"], "core");
     assert_eq!(core["verdict"], "success", "{core:#}");
     agreed::check_eq(
@@ -473,7 +467,7 @@ fn std_operators_as_operator_arguments_and_dyadic_reduce() {
 /// Java-method report, which the core does not reproduce: it refuses.
 #[test]
 fn an_error_inside_a_passed_std_operator_is_refused() {
-    let core = run("HoStdErr", Engine::Core);
+    let core = run("HoStdErr");
     assert_eq!(core["engine"], "core");
     assert_eq!(core["verdict"], "unsupported", "{core:#}");
 }
@@ -491,8 +485,8 @@ fn built_in_operators_as_operator_arguments() {
         Value::from(4),
         Value::from(4),
     );
-    let reference = run("HoBuiltin", Engine::Core);
-    let core = run("HoBuiltin", Engine::Core);
+    let reference = run("HoBuiltin");
+    let core = run("HoBuiltin");
     assert_eq!(core["engine"], "core");
     assert_eq!(counts(&core), tlc, "{core:#}");
     agreed::check_eq(
@@ -509,17 +503,14 @@ fn built_in_operators_as_operator_arguments() {
 fn implication_and_equivalence_as_operator_arguments() {
     let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/core-ho-builtin/HoBuiltinImp.tla");
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(file.with_extension("cfg")),
-            file,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        Engine::Core,
-    )
+    let report = check_file(&CheckRequest {
+        config: Some(file.with_extension("cfg")),
+        file,
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let core = report.to_json();
     assert_eq!(core["engine"], "core");
@@ -539,7 +530,7 @@ fn implication_and_equivalence_as_operator_arguments() {
 /// stays a named refusal: TLC's action splitting of it is not reproduced.
 #[test]
 fn a_built_in_operator_argument_applied_as_an_action_is_refused() {
-    let core = run("HoBuiltinAct", Engine::Core);
+    let core = run("HoBuiltinAct");
     assert_eq!(core["verdict"], "unsupported", "{core:#}");
     assert!(
         core["message"]
@@ -552,7 +543,7 @@ fn a_built_in_operator_argument_applied_as_an_action_is_refused() {
 /// `Reduce` refuses operands beyond 32 bits, as `dive-eval` does.
 #[test]
 fn dyadic_reduce_refuses_operands_beyond_32_bits() {
-    let core = run("DyadicBig", Engine::Core);
+    let core = run("DyadicBig");
     assert_eq!(core["verdict"], "unsupported", "{core:#}");
     assert!(
         core["message"]

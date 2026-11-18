@@ -11,7 +11,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_liveness.json");
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, PeriodicSchedule, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, PeriodicSchedule, check_file, check_file_core_opts};
 use serde_json::Value;
 
 fn fixture(name: &str) -> PathBuf {
@@ -20,7 +20,7 @@ fn fixture(name: &str) -> PathBuf {
         .join(format!("{name}.tla"))
 }
 
-fn run(name: &str, engine: Engine, workers: usize, tlc: bool, every_level: bool) -> Value {
+fn run(name: &str, workers: usize, tlc: bool, every_level: bool) -> Value {
     let file = fixture(name);
     let mut request = CheckRequest {
         config: Some(file.with_extension("cfg")),
@@ -37,9 +37,7 @@ fn run(name: &str, engine: Engine, workers: usize, tlc: bool, every_level: bool)
             growth_factor: 1,
         };
     }
-    check_file_engine(&request, engine)
-        .expect("check runs")
-        .to_json()
+    check_file(&request).expect("check runs").to_json()
 }
 
 #[test]
@@ -47,26 +45,23 @@ fn capture_budget_stop_retains_actual_periodic_checks() {
     for (tlc, min_states) in [(false, 2), (false, u64::MAX), (true, 2)] {
         for workers in [1, 4] {
             let file = fixture("CaptureStop");
-            let report = check_file_engine(
-                &CheckRequest {
-                    config: Some(file.with_extension("cfg")),
-                    file,
-                    workers: Some(workers),
-                    seed: Some(0),
-                    fp: Some(0),
-                    compat_tlc: tlc,
-                    periodic: PeriodicSchedule {
-                        min_states,
-                        growth_factor: u64::MAX,
-                    },
-                    time_limit: dive_api::BudgetSetting::Explicit(
-                        std::time::Duration::from_millis(500),
-                    ),
-                    max_memory: dive_api::BudgetSetting::Unlimited,
-                    ..CheckRequest::default()
+            let report = check_file(&CheckRequest {
+                config: Some(file.with_extension("cfg")),
+                file,
+                workers: Some(workers),
+                seed: Some(0),
+                fp: Some(0),
+                compat_tlc: tlc,
+                periodic: PeriodicSchedule {
+                    min_states,
+                    growth_factor: u64::MAX,
                 },
-                Engine::Core,
-            )
+                time_limit: dive_api::BudgetSetting::Explicit(std::time::Duration::from_millis(
+                    500,
+                )),
+                max_memory: dive_api::BudgetSetting::Unlimited,
+                ..CheckRequest::default()
+            })
             .expect("budgeted native capture")
             .to_json();
             assert_eq!(report["engine"], "core", "{report:#}");
@@ -169,9 +164,9 @@ fn temporal_reports_on_the_core_are_the_reference_reports() {
     ] {
         for tlc in [false, true] {
             for every_level in [false, true] {
-                let reference = run(name, Engine::Core, 1, tlc, every_level);
+                let reference = run(name, 1, tlc, every_level);
                 for workers in [1, 2, 3, 8] {
-                    let core = run(name, Engine::Core, workers, tlc, every_level);
+                    let core = run(name, workers, tlc, every_level);
                     assert_eq!(core["engine"], "core", "{name}: {core:#}");
                     let what = format!("{name} tlc={tlc} every={every_level} w={workers}");
                     let mut expected = native_expected(reference.clone());
@@ -190,11 +185,11 @@ fn temporal_reports_on_the_core_are_the_reference_reports() {
 
 #[test]
 fn every_kind_of_ending_is_covered() {
-    let verdict = |name, every| run(name, Engine::Core, 1, false, every)["verdict"].clone();
+    let verdict = |name, every| run(name, 1, false, every)["verdict"].clone();
     assert_eq!(verdict("Fair", false), "liveness-violation");
     assert_eq!(verdict("Holds", false), "success");
     assert_eq!(verdict("Safety", false), "invariant-violation");
-    let wide = run("Wide", Engine::Core, 1, false, true);
+    let wide = run("Wide", 1, false, true);
     assert_eq!(wide["verdict"], "liveness-violation");
     // Stopped on a prefix: the frontier was not exhausted.
     assert!(
@@ -205,9 +200,9 @@ fn every_kind_of_ending_is_covered() {
 
 #[test]
 fn what_the_core_refuses_is_a_named_refusal_on_the_default_engine() {
-    let core = run("Viewed", Engine::Core, 1, false, false);
+    let core = run("Viewed", 1, false, false);
     assert_eq!(core["verdict"], "unsupported", "{core:#}");
-    let default = run("Viewed", Engine::default(), 1, false, false);
+    let default = run("Viewed", 1, false, false);
     assert_eq!(default["engine"], "core", "{default:#}");
     assert_eq!(default["verdict"], "unsupported", "{default:#}");
     assert_eq!(default["message"], core["message"], "{default:#}");
@@ -227,18 +222,13 @@ fn temporal_atoms_keep_general_functions_distinct_from_record_literals() {
                 compat_tlc: tlc,
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&request, Engine::Core)
-                .expect("reference check")
-                .to_json();
+            let reference = check_file(&request).expect("reference check").to_json();
             assert_eq!(reference["verdict"], "success", "{reference:#}");
             for workers in [1, 2, 3, 8] {
-                let core = check_file_engine(
-                    &CheckRequest {
-                        workers: Some(workers),
-                        ..request.clone()
-                    },
-                    Engine::Core,
-                )
+                let core = check_file(&CheckRequest {
+                    workers: Some(workers),
+                    ..request.clone()
+                })
                 .expect("core check")
                 .to_json();
                 assert_eq!(core["engine"], "core");
@@ -287,9 +277,7 @@ fn class_controls(module: &str, cases: &[(&str, bool)]) {
                 } else {
                     "success"
                 };
-                let reference = check_file_engine(&request, Engine::Core)
-                    .expect("reference")
-                    .to_json();
+                let reference = check_file(&request).expect("reference").to_json();
                 agreed::check_eq(
                     AGREED,
                     "class_controls/0",
@@ -371,7 +359,7 @@ fn ordinary_safety_keeps_its_existing_checked_comparison_refusal() {
     };
     // The retired reference engine reported TLC's evaluation error here
     // (#791, #910); Core refuses the comparison by name.
-    let core = check_file_engine(&request, Engine::Core).expect("core");
+    let core = check_file(&request).expect("core");
     refused::assert_refused(&core.to_json(), core.exit_code(), refused::MIXED_SHAPES);
     let default = dive_api::check_file(&request)
         .expect("default engine")
@@ -408,9 +396,7 @@ fn captured_source_error_endings_replay_the_canonical_frontier_identity() {
                     compat_tlc: tlc,
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&request, Engine::Core)
-                    .expect("reference")
-                    .to_json();
+                let reference = check_file(&request).expect("reference").to_json();
                 agreed::check_eq(
                     AGREED,
                     "captured_source_error_endings_replay_the_canonical_frontier_identity/0",
@@ -469,8 +455,8 @@ fn assert_error_ending(
 #[test]
 fn bounded_flat_cache_reuses_records_without_changing_verified_reports() {
     for tlc in [false, true] {
-        let reference = run("FlatCache", Engine::Core, 1, tlc, false);
-        let core = run("FlatCache", Engine::Core, 1, tlc, false);
+        let reference = run("FlatCache", 1, tlc, false);
+        let core = run("FlatCache", 1, tlc, false);
         assert_eq!(core["verdict"], "liveness-violation");
         assert_eq!(core["property"], "Q");
         assert_eq!(core["counterexample"]["validation"], "valid");
@@ -509,12 +495,8 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
                     compat_tlc: tlc,
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&request, Engine::Core)
-                    .expect("reference")
-                    .to_json();
-                let core = check_file_engine(&request, Engine::Core)
-                    .expect("core")
-                    .to_json();
+                let reference = check_file(&request).expect("reference").to_json();
+                let core = check_file(&request).expect("core").to_json();
                 assert_eq!(core["verdict"], verdict);
                 assert_eq!(core["engine"], "core");
                 assert_eq!(core["statistics"]["distinct"], 1101);
@@ -571,12 +553,8 @@ fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
                 compat_tlc: tlc,
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&request, Engine::Core)
-                .expect("reference")
-                .to_json();
-            let core = check_file_engine(&request, Engine::Core)
-                .expect("core")
-                .to_json();
+            let reference = check_file(&request).expect("reference").to_json();
+            let core = check_file(&request).expect("core").to_json();
             assert_eq!(core["verdict"], verdict);
             assert_eq!(core["engine"], "core");
             assert_eq!(core["statistics"]["distinct"], 1101);
@@ -643,12 +621,12 @@ fn concrete_set_read_cache_preserves_holds_violations_and_independent_words() {
 #[test]
 fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
     for tlc in [false, true] {
-        let reference = run("FixedNames/TupleSubSeq", Engine::Core, 1, tlc, false);
+        let reference = run("FixedNames/TupleSubSeq", 1, tlc, false);
         assert_eq!(reference["statistics"]["distinct"], 3);
         assert_eq!(reference["statistics"]["generated"], 4);
         assert_eq!(reference["statistics"]["depth"], 3);
         for workers in [1, 8] {
-            let actual = run("FixedNames/TupleSubSeq", Engine::Core, workers, tlc, false);
+            let actual = run("FixedNames/TupleSubSeq", workers, tlc, false);
             assert_eq!(actual["engine"], "core");
             assert_eq!(actual["options"]["workers"]["used"], workers);
             for field in [
@@ -666,7 +644,7 @@ fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
                     &(reference[field]),
                 );
             }
-            let producer = run("FixedNames/NameProducer", Engine::Core, workers, tlc, false);
+            let producer = run("FixedNames/NameProducer", workers, tlc, false);
             assert_eq!(producer["verdict"], "unsupported", "{producer}");
             assert!(producer["counterexample"].is_null());
             if tlc {
@@ -678,7 +656,7 @@ fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
                 );
             }
             for every in [false, true] {
-                let atom = run("FixedNames/NameAtom", Engine::Core, workers, tlc, every);
+                let atom = run("FixedNames/NameAtom", workers, tlc, every);
                 if tlc {
                     assert_eq!(atom["verdict"], "unsupported", "{atom}");
                     assert!(
@@ -701,8 +679,8 @@ fn fixed_native_names_admit_pure_tuple_calls_but_refuse_new_name_demands() {
 fn native_predicate_lane_consumes_certified_scalar_truth() {
     for tlc in [false, true] {
         for name in ["Holds", "Wide"] {
-            let core = run(name, Engine::Core, 1, tlc, false);
-            let reference = run(name, Engine::Core, 1, tlc, false);
+            let core = run(name, 1, tlc, false);
+            let reference = run(name, 1, tlc, false);
             agreed::check_eq(
                 AGREED,
                 "native_predicate_lane_consumes_certified_scalar_truth/0",
@@ -740,7 +718,7 @@ fn native_fairness_words_validate_independently_and_reject_changed_initial_funct
         )
         .expect("fresh independent validator");
         for workers in [1, 4] {
-            let report = run("FairUpdate", Engine::Core, workers, tlc, false);
+            let report = run("FairUpdate", workers, tlc, false);
             assert_eq!(report["verdict"], "liveness-violation");
             assert!(
                 report["core"]["metrics"]["liveness"]["atoms"]["enabled_evaluations"]

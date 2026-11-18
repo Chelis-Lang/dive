@@ -11,7 +11,7 @@ use std::path::Path;
 /// Only the retired reference engine ran `--chaos` (#791, #910): Core refuses
 /// it by name, and the same request without it runs on Core.
 fn assert_chaos_refused_then_clear(request: &mut CheckRequest) {
-    let chaotic = dive_api::check_file_engine(request, dive_api::Engine::Core).expect("check");
+    let chaotic = dive_api::check_file(request).expect("check");
     refused::assert_refused(&chaotic.to_json(), chaotic.exit_code(), refused::CHAOS);
     request.chaos = None;
 }
@@ -36,7 +36,7 @@ fn invariant_error_replay_reports_actual_continuation_and_verified_known_class()
                     ..CheckRequest::default()
                 };
                 assert_chaos_refused_then_clear(&mut request);
-                let json = dive_api::check_file_engine(&request, dive_api::Engine::Core)
+                let json = dive_api::check_file(&request)
                     .expect("error report")
                     .to_json();
                 assert_eq!(json["statistics"]["generated"], 2);
@@ -51,7 +51,7 @@ fn invariant_error_replay_reports_actual_continuation_and_verified_known_class()
                 // and the disk-backed run reports what the in-memory run does.
                 assert!(json["seen_storage"]["replay"].is_null(), "{json}");
                 request.seen_disk = None;
-                let memory = dive_api::check_file_engine(&request, dive_api::Engine::Core)
+                let memory = dive_api::check_file(&request)
                     .expect("in-memory report")
                     .to_json();
                 for field in ["verdict", "message", "statistics", "tlc", "counterexample"] {
@@ -82,12 +82,12 @@ fn malformed_and_unimplemented_requests_refuse_before_input_or_archive_access() 
         };
         request.seen_disk.as_mut().expect("policy").limits.entries = 0;
         assert!(
-            matches!(dive_api::check_file_engine(&request, dive_api::Engine::Core),Err(dive_api::ApiError::Rejected{message}) if message.contains("DIVE-S0700"))
+            matches!(dive_api::check_file(&request),Err(dive_api::ApiError::Rejected{message}) if message.contains("DIVE-S0700"))
         );
         request.seen_disk.as_mut().expect("policy").limits.entries = 16;
         request.temporal = TemporalMode::FinalShort;
         assert!(
-            matches!(dive_api::check_file_engine(&request, dive_api::Engine::Core),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
+            matches!(dive_api::check_file(&request),Err(dive_api::ApiError::Unsupported{feature}) if feature.contains("disk seen-state"))
         );
         request.temporal = TemporalMode::Ordinary;
         let archive = checkpoint::Request {
@@ -97,7 +97,7 @@ fn malformed_and_unimplemented_requests_refuse_before_input_or_archive_access() 
             config_source_sha256: None,
         };
         assert!(
-            matches!(dive_api::check_file_checkpoint_engine(&request,&archive, dive_api::Engine::Core),Err(dive_api::ApiError::Rejected{message}) if message.contains("DIVE-S0400"))
+            matches!(dive_api::check_file_checkpoint(&request,&archive),Err(dive_api::ApiError::Rejected{message}) if message.contains("DIVE-S0400"))
         );
     }
 }
@@ -133,8 +133,7 @@ fn witness_case(name: &str, root: &Path) {
                     ..CheckRequest::default()
                 };
                 assert_chaos_refused_then_clear(&mut request);
-                let report =
-                    dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("check");
+                let report = dive_api::check_file(&request).expect("check");
                 let json = report.to_json();
                 assert_eq!(json["options"]["workers"]["requested"], width);
                 assert_eq!(json["options"]["workers"]["used"], 1);
@@ -184,20 +183,17 @@ fn invariant_counterexample_has_independent_original_and_mutant_controls() {
 fn creation_failure_reports_no_initial_search_or_success() {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/checker/disk-seen/DuplicateNext/DuplicateNext.tla");
-    let report = dive_api::check_file_engine(
-        &CheckRequest {
-            file: file.clone(),
-            seen_disk: Some(SeenOptions {
-                directory: Some(file),
-                ..SeenOptions::default()
-            }),
-            workers: Some(8),
-            seed: Some(7),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Core,
-    )
+    let report = dive_api::check_file(&CheckRequest {
+        file: file.clone(),
+        seen_disk: Some(SeenOptions {
+            directory: Some(file),
+            ..SeenOptions::default()
+        }),
+        workers: Some(8),
+        seed: Some(7),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("typed result");
     let json = report.to_json();
     assert_eq!(json["verdict"], "resource-limit");
@@ -227,11 +223,7 @@ fn resident_and_disk(
         seen_disk: Some(SeenOptions::default()),
         ..resident.clone()
     };
-    let run = |request: &CheckRequest| {
-        dive_api::check_file_engine(request, dive_api::Engine::Core)
-            .expect("report")
-            .to_json()
-    };
+    let run = |request: &CheckRequest| dive_api::check_file(request).expect("report").to_json();
     (run(&resident), run(&disk))
 }
 
@@ -308,7 +300,7 @@ fn actual_print_events_refuse_unproved_disk_error_output() {
                         ..CheckRequest::default()
                     };
                     assert_chaos_refused_then_clear(&mut request);
-                    let json = dive_api::check_file_engine(&request, dive_api::Engine::Core)
+                    let json = dive_api::check_file(&request)
                         .expect("diagnostic report")
                         .to_json();
                     assert_eq!(json["verdict"], "unsupported", "{name}: {json}");

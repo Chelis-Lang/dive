@@ -12,7 +12,7 @@ use crate::process::ProcessOutcome;
 use crate::tlc::messages;
 use crate::trace_check::validate_counterexample;
 use dive_api::trace::{SpecModel, TraceOptions};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::json;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -216,19 +216,16 @@ fn every_admitted_frame_keeps_its_severity_and_unknown_frames_never_borrow_autho
         }
     }
 }
-fn native_at_workers(file: &Path, engine: Engine, compat: bool, workers: usize) -> OracleResult {
-    let report = check_file_engine(
-        &CheckRequest {
-            file: file.into(),
-            config: Some(file.with_extension("cfg")),
-            compat_tlc: compat,
-            workers: Some(workers),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn native_at_workers(file: &Path, compat: bool, workers: usize) -> OracleResult {
+    let report = check_file(&CheckRequest {
+        file: file.into(),
+        config: Some(file.with_extension("cfg")),
+        compat_tlc: compat,
+        workers: Some(workers),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("native check");
     let outcome = ProcessOutcome {
         exit_code: Some(i32::from(
@@ -293,11 +290,8 @@ fn candidate_words_require_actual_replay_and_ambiguous_oracles_cannot_earn_agree
                     continue;
                 }
                 let spec = model(&file, compat);
-                for (engine, workers) in [Engine::Core]
-                    .into_iter()
-                    .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
-                {
-                    let actual = native_at_workers(&file, engine, compat, workers);
+                for workers in [1, 4] {
+                    let actual = native_at_workers(&file, compat, workers);
                     let diffs = diff_results(
                         &oracle,
                         &actual,
@@ -314,7 +308,7 @@ fn candidate_words_require_actual_replay_and_ambiguous_oracles_cannot_earn_agree
                         );
                     } else if !diffs.is_empty() {
                         disagreements.push(format!(
-                            "{name}/{compat}/{engine:?}/{workers}: oracle {oracle:?}; differences {diffs:?}"
+                            "{name}/{compat}/{workers}: oracle {oracle:?}; differences {diffs:?}"
                         ));
                     }
                     let proof = validate_counterexample(&spec, &actual, &oracle);

@@ -6,7 +6,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_sample_level.json");
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use serde_json::{Value, json};
 
 fn observed(document: &Value) -> Value {
@@ -40,8 +40,8 @@ fn sampled_level_operators_match_actual_search_at_every_depth() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&request, Engine::Core).expect("reference runs");
-            let plain = check_file_engine(&request, Engine::Core).expect("core runs");
+            let reference = check_file(&request).expect("reference runs");
+            let plain = check_file(&request).expect("core runs");
             let plain_json = plain.to_json();
             assert_eq!(plain_json["engine"], "core", "{fixture}: {plain_json:#}");
             agreed::check_eq(
@@ -69,7 +69,7 @@ fn sampled_level_operators_match_actual_search_at_every_depth() {
                 for workers in [1, 4, 8] {
                     request.workers = Some(workers);
                     request.core_sample = Some(count);
-                    let report = check_file_engine(&request, Engine::Core).expect("sample runs");
+                    let report = check_file(&request).expect("sample runs");
                     let document = report.to_json();
                     assert_eq!(observed(&document), observed(&plain_json), "{fixture}");
                     let sample = &document["core"]["sample"];

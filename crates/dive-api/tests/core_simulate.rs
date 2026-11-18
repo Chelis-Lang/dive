@@ -2,7 +2,7 @@
 #[path = "support/agreed.rs"]
 mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/core_simulate.json");
-use dive_api::{Engine, SimulateRequest, simulate_file_engine};
+use dive_api::{SimulateRequest, simulate_file};
 use serde_json::Value;
 use std::path::PathBuf;
 
@@ -37,20 +37,14 @@ fn checked(document: &Value) {
 fn core_samples_replay_and_statistics_do_not_change_choices() -> Result {
     for compat in [false, true] {
         let request = request("SimChoice", compat);
-        let plain = simulate_file_engine(&request, Engine::Core)?.to_json();
+        let plain = simulate_file(&request)?.to_json();
         checked(&plain);
         assert_eq!(plain["result"], "sampled");
-        assert_eq!(
-            plain,
-            simulate_file_engine(&request, Engine::Core)?.to_json()
-        );
-        let counted = simulate_file_engine(
-            &SimulateRequest {
-                action_stats: true,
-                ..request
-            },
-            Engine::Core,
-        )?
+        assert_eq!(plain, simulate_file(&request)?.to_json());
+        let counted = simulate_file(&SimulateRequest {
+            action_stats: true,
+            ..request
+        })?
         .to_json();
         checked(&counted);
         for field in ["result", "statistics", "traces", "runtime_output"] {
@@ -78,9 +72,8 @@ fn deterministic_violations_and_errors_keep_reference_classes() -> Result {
             "SimInitialIncomplete",
         ] {
             let request = request(name, compat);
-            let reference =
-                dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?.to_json();
-            let native = simulate_file_engine(&request, Engine::Core)?.to_json();
+            let reference = dive_api::simulate_file(&request)?.to_json();
+            let native = simulate_file(&request)?.to_json();
             assert_eq!(native["engine"], "core", "{name}: {native}");
             for field in ["result", "tlc_code", "exit_code", "violation_validated"] {
                 agreed::check_eq(
@@ -108,9 +101,8 @@ fn direct_captured_and_configured_prints_keep_actual_output() -> Result {
             "RuntimePrintConditional",
         ] {
             let request = request(&format!("runtime-print/{name}"), compat);
-            let reference =
-                dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?.to_json();
-            let native = simulate_file_engine(&request, Engine::Core)?.to_json();
+            let reference = dive_api::simulate_file(&request)?.to_json();
+            let native = simulate_file(&request)?.to_json();
             checked(&native);
             if name == "RuntimePrintConditional" {
                 // Only the retired reference engine sampled this RandomElement
@@ -185,17 +177,14 @@ fn compound_states_and_fairness_only_specs_produce_independent_violations() -> R
     ] {
         let (_scratch, file) = source(name, text, config)?;
         for compat in [false, true] {
-            let report = simulate_file_engine(
-                &SimulateRequest {
-                    file: file.clone(),
-                    compat_tlc: compat,
-                    seed: Some(0),
-                    traces: 10,
-                    depth: Some(10),
-                    ..Default::default()
-                },
-                Engine::Core,
-            )?
+            let report = simulate_file(&SimulateRequest {
+                file: file.clone(),
+                compat_tlc: compat,
+                seed: Some(0),
+                traces: 10,
+                depth: Some(10),
+                ..Default::default()
+            })?
             .to_json();
             checked(&report);
             assert_eq!(report["result"], "violation", "{name}: {report}");
@@ -215,29 +204,25 @@ fn view_refuses_before_execution_and_budget_exhaustion_in_every_engine() -> Resu
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-sim/tests/fixtures/SimView.tla");
     for compat_tlc in [false, true] {
         {
-            let engine = Engine::Core;
             for limited in [false, true] {
-                let report = simulate_file_engine(
-                    &SimulateRequest {
-                        file: file.clone(),
-                        compat_tlc,
-                        seed: Some(7),
-                        traces: 1,
-                        depth: Some(1),
-                        time_limit: if limited {
-                            BudgetSetting::Explicit(Duration::from_nanos(1))
-                        } else {
-                            BudgetSetting::Unlimited
-                        },
-                        max_memory: if limited {
-                            BudgetSetting::Explicit(1)
-                        } else {
-                            BudgetSetting::Unlimited
-                        },
-                        ..Default::default()
+                let report = simulate_file(&SimulateRequest {
+                    file: file.clone(),
+                    compat_tlc,
+                    seed: Some(7),
+                    traces: 1,
+                    depth: Some(1),
+                    time_limit: if limited {
+                        BudgetSetting::Explicit(Duration::from_nanos(1))
+                    } else {
+                        BudgetSetting::Unlimited
                     },
-                    engine,
-                )?
+                    max_memory: if limited {
+                        BudgetSetting::Explicit(1)
+                    } else {
+                        BudgetSetting::Unlimited
+                    },
+                    ..Default::default()
+                })?
                 .to_json();
                 assert_eq!(report["result"], "unsupported", "{report}");
                 assert_eq!(
@@ -262,8 +247,8 @@ fn view_refuses_before_execution_and_budget_exhaustion_in_every_engine() -> Resu
 fn the_default_engine_refuses_runtime_effects_on_core_and_never_retries() -> Result {
     for compat in [false, true] {
         let request = request("runtime-print/RuntimePrintRegister", compat);
-        let reference = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?.to_json();
-        let explicit = simulate_file_engine(&request, Engine::Core)?.to_json();
+        let reference = dive_api::simulate_file(&request)?.to_json();
+        let explicit = simulate_file(&request)?.to_json();
         assert_eq!(explicit["engine"], "core");
         assert!(explicit["engine_fallback"].is_null());
         assert_eq!(explicit["result"], "unsupported");
@@ -286,16 +271,13 @@ fn the_default_engine_refuses_runtime_effects_on_core_and_never_retries() -> Res
         "---- MODULE DeniedArgs ----\nEXTENDS Naturals,TLC\nVARIABLE x\nInit == x = 0\nNext == TLCSet(0, PrintT(\"must-not-run\")) /\\ x' = x + 1\n====\n",
         "INIT Init\nNEXT Next\n",
     )?;
-    let report = simulate_file_engine(
-        &SimulateRequest {
-            file,
-            seed: Some(0),
-            traces: 1,
-            depth: Some(1),
-            ..Default::default()
-        },
-        Engine::Core,
-    )?
+    let report = simulate_file(&SimulateRequest {
+        file,
+        seed: Some(0),
+        traces: 1,
+        depth: Some(1),
+        ..Default::default()
+    })?
     .to_json();
     assert_eq!(report["result"], "unsupported");
     assert_eq!(report["options"]["workers_used"], 1, "{report}");
@@ -312,19 +294,16 @@ fn native_prefix_stops_do_not_start_unbounded_independent_replay() -> Result {
     )?;
     for compat in [false, true] {
         let start = std::time::Instant::now();
-        let report = simulate_file_engine(
-            &SimulateRequest {
-                file: file.clone(),
-                compat_tlc: compat,
-                seed: Some(7),
-                traces: 100_000,
-                depth: Some(10),
-                time_limit: dive_api::BudgetSetting::Explicit(std::time::Duration::from_millis(50)),
-                max_memory: dive_api::BudgetSetting::Unlimited,
-                ..Default::default()
-            },
-            Engine::Core,
-        )?
+        let report = simulate_file(&SimulateRequest {
+            file: file.clone(),
+            compat_tlc: compat,
+            seed: Some(7),
+            traces: 100_000,
+            depth: Some(10),
+            time_limit: dive_api::BudgetSetting::Explicit(std::time::Duration::from_millis(50)),
+            max_memory: dive_api::BudgetSetting::Unlimited,
+            ..Default::default()
+        })?
         .to_json();
         assert_eq!(report["result"], "stopped", "{report}");
         assert_eq!(report["exit_code"], 5);
@@ -354,7 +333,6 @@ fn alias_is_noted_not_applied_and_a_failed_lookup_refuses() -> Result {
     )?;
     for compat_tlc in [false, true] {
         {
-            let engine = Engine::Core;
             let request = SimulateRequest {
                 file: file.clone(),
                 compat_tlc,
@@ -363,7 +341,7 @@ fn alias_is_noted_not_applied_and_a_failed_lookup_refuses() -> Result {
                 depth: Some(10),
                 ..Default::default()
             };
-            let report = simulate_file_engine(&request, engine)?.to_json();
+            let report = simulate_file(&request)?.to_json();
             assert_eq!(report["result"], "violation", "{report}");
             assert_eq!(report["observed_violation"]["name"], "Inv");
             assert_eq!(report["violation_validated"], true, "{report}");
@@ -380,13 +358,10 @@ fn alias_is_noted_not_applied_and_a_failed_lookup_refuses() -> Result {
                 .cloned()
                 .unwrap_or_default();
             assert_eq!(last["values"], serde_json::json!({"x": 3}), "{report}");
-            let refused = simulate_file_engine(
-                &SimulateRequest {
-                    file: missing.clone(),
-                    ..request
-                },
-                engine,
-            )?
+            let refused = simulate_file(&SimulateRequest {
+                file: missing.clone(),
+                ..request
+            })?
             .to_json();
             assert_eq!(refused["result"], "unsupported", "{refused}");
             assert_eq!(
@@ -412,7 +387,7 @@ fn constraint_excluded_successors_end_in_a_validated_deadlock() -> Result {
             seed: Some(0),
             ..request(name, compat)
         };
-        let report = simulate_file_engine(&request, Engine::Core)?.to_json();
+        let report = simulate_file(&request)?.to_json();
         checked(&report);
         assert_eq!(report["result"], "violation", "{name}: {report}");
         assert_eq!(report["observed_violation"]["kind"], "deadlock");

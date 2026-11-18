@@ -55,13 +55,13 @@ const EXIT_USAGE: u8 = 2;
 /// Exit code for a request that `dive` recognises but does not implement.
 const EXIT_UNSUPPORTED: u8 = 3;
 
-/// The engine an `--engine` value names. Core is the only engine: the
-/// earlier `auto` and `reference` values name engines that no longer exist
-/// and are rejected with an explanation. `--engine core` is still accepted,
-/// and no longer advertised.
-fn engine_option(name: Option<&str>) -> Result<dive_api::Engine, String> {
+/// Validates an `--engine` value. Core is the only engine: the earlier
+/// `auto` and `reference` values name engines that no longer exist and are
+/// rejected with an explanation. `--engine core` is still accepted, and no
+/// longer advertised.
+fn engine_option(name: Option<&str>) -> Result<(), String> {
     match name {
-        Some("core") => Ok(dive_api::Engine::Core),
+        Some("core") => Ok(()),
         Some("auto") => Err(
             "--engine auto was removed: Core is the only engine and refuses by \
              name what it does not implement"
@@ -76,10 +76,10 @@ fn engine_option(name: Option<&str>) -> Result<dive_api::Engine, String> {
     }
 }
 
-/// `DIVE_ENGINE`, or the default engine (Core) when it is unset or empty.
-fn engine_from_env() -> Result<dive_api::Engine, String> {
+/// Validates `DIVE_ENGINE`, which may be unset, empty or `core`.
+fn engine_from_env() -> Result<(), String> {
     match std::env::var("DIVE_ENGINE").ok().as_deref() {
-        None | Some("") => Ok(dive_api::Engine::default()),
+        None | Some("") => Ok(()),
         Some(name) => engine_option(Some(name))
             .map_err(|message| message.replacen("--engine", "DIVE_ENGINE", 1)),
     }
@@ -454,17 +454,10 @@ fn check_command_mode(
     let mut worker_retries_given = false;
     let mut worker_max_units = None;
     let mut exit_convention = dive_api::ExitConvention::Tlc;
-    let mut engine = if worker_mode {
-        dive_api::Engine::Core
-    } else {
-        match engine_from_env() {
-            Ok(engine) => engine,
-            Err(message) => {
-                let _ = writeln!(err, "error: {message}");
-                return ExitCode::from(EXIT_USAGE);
-            }
-        }
-    };
+    if !worker_mode && let Err(message) = engine_from_env() {
+        let _ = writeln!(err, "error: {message}");
+        return ExitCode::from(EXIT_USAGE);
+    }
     let usage_error = |err: &mut dyn std::io::Write, m: &str| {
         let _ = writeln!(err, "error: {m}");
         ExitCode::from(EXIT_USAGE)
@@ -655,10 +648,11 @@ fn check_command_mode(
                     );
                 }
             },
-            "--engine" => match engine_option(value().as_deref()) {
-                Ok(e) => engine = e,
-                Err(message) => return usage_error(err, &message),
-            },
+            "--engine" => {
+                if let Err(message) = engine_option(value().as_deref()) {
+                    return usage_error(err, &message);
+                }
+            }
             "--core-sample" => match value().and_then(|v| v.parse().ok()) {
                 Some(n) => req.core_sample = Some(n),
                 None => return usage_error(err, "--core-sample expects a state count"),
@@ -996,9 +990,9 @@ fn check_command_mode(
         );
     }
     let checked = if let Some(request) = &checkpoint {
-        dive_api::check_file_checkpoint_engine(&req, request, engine)
+        dive_api::check_file_checkpoint(&req, request)
     } else {
-        dive_api::check_file_engine(&req, engine)
+        dive_api::check_file(&req)
     };
     let report = match checked {
         Ok(r) => r,
@@ -1337,10 +1331,9 @@ fn simulate_command(
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|s| s == "tlc"),
         ..Default::default()
     };
-    let mut engine = match engine_from_env() {
-        Ok(engine) => engine,
-        Err(message) => return simulation_usage_error(err, &message),
-    };
+    if let Err(message) = engine_from_env() {
+        return simulation_usage_error(err, &message);
+    }
     let mut json = false;
     let mut exit_convention = None;
     let mut file = None;
@@ -1392,14 +1385,16 @@ fn simulate_command(
                     );
                 }
             },
-            "--engine" => match engine_option(it.next().map(String::as_str)) {
-                Ok(selected) => engine = selected,
-                Err(message) => return simulation_usage_error(err, &message),
-            },
-            name if name.starts_with("--engine=") => match engine_option(Some(&name[9..])) {
-                Ok(selected) => engine = selected,
-                Err(message) => return simulation_usage_error(err, &message),
-            },
+            "--engine" => {
+                if let Err(message) = engine_option(it.next().map(String::as_str)) {
+                    return simulation_usage_error(err, &message);
+                }
+            }
+            name if name.starts_with("--engine=") => {
+                if let Err(message) = engine_option(Some(&name[9..])) {
+                    return simulation_usage_error(err, &message);
+                }
+            }
             "--config" => {
                 let Some(value) = it.next() else {
                     return simulation_usage_error(err, "--config expects a path");
@@ -1518,7 +1513,7 @@ fn simulate_command(
         return simulation_usage_error(err, "simulate requires a positive finite --traces N");
     }
     request.file = file.into();
-    let report = match dive_api::simulate_file_engine(&request, engine) {
+    let report = match dive_api::simulate_file(&request) {
         Ok(report) => report,
         Err(dive_api::ApiError::Unsupported { feature }) => {
             let _ = writeln!(err, "unsupported: {feature}; no result produced");
@@ -1565,13 +1560,10 @@ fn dfid_command(
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
         ..dive_api::DfidRequest::default()
     };
-    let mut engine = match engine_from_env() {
-        Ok(engine) => engine,
-        Err(message) => {
-            let _ = writeln!(err, "error: {message}");
-            return ExitCode::from(EXIT_USAGE);
-        }
-    };
+    if let Err(message) = engine_from_env() {
+        let _ = writeln!(err, "error: {message}");
+        return ExitCode::from(EXIT_USAGE);
+    }
     let mut json = false;
     let mut has_depth = false;
     let mut file = None;
@@ -1601,10 +1593,11 @@ fn dfid_command(
                 Some("dive" | "none") => req.compat_tlc = false,
                 _ => return usage_error(err, "--compat expects tlc or dive"),
             },
-            "--engine" => match engine_option(value().as_deref()) {
-                Ok(selected) => engine = selected,
-                Err(message) => return usage_error(err, &message),
-            },
+            "--engine" => {
+                if let Err(message) = engine_option(value().as_deref()) {
+                    return usage_error(err, &message);
+                }
+            }
             "--config" | "-config" => match value() {
                 Some(v) => req.config = Some(v.into()),
                 None => return usage_error(err, "--config expects a cfg file"),
@@ -1685,7 +1678,7 @@ fn dfid_command(
         return usage_error(err, "dfid requires explicit --max-level N");
     }
     req.file = file.into();
-    let report = match dive_api::dfid_file_engine(&req, engine) {
+    let report = match dive_api::dfid_file(&req) {
         Ok(r) => r,
         Err(
             error @ (dive_api::ApiError::BudgetStartup(_)

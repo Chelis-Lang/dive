@@ -12,7 +12,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_traces.json");
 use std::path::{Path, PathBuf};
 
 use dive_api::trace::{Ending, Failure, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 fn repo() -> PathBuf {
@@ -35,18 +35,15 @@ fn specs(dir: &Path, out: &mut Vec<PathBuf>) {
     }
 }
 
-fn run(spec: &Path, engine: Engine) -> Value {
-    check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run(spec: &Path) -> Value {
+    check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("check runs")
     .to_json()
 }
@@ -148,11 +145,11 @@ fn core_counterexamples_equal_reference_with_explicit_unconfirmed_endings() {
     let mut ordered_next = 0;
     for spec in &all {
         let name = spec.file_stem().and_then(|n| n.to_str()).unwrap_or("?");
-        let core = run(spec, Engine::Core);
+        let core = run(spec);
         if core["verdict"] == "unsupported" {
             continue;
         }
-        let reference = run(spec, Engine::Core);
+        let reference = run(spec);
         // The retired reference engine refused these two, so Core's result
         // has no agreed record; its trace, if any, is validated below.
         if !["NxIfCase", "PropAbs"].contains(&name) {

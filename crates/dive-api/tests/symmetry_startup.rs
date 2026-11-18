@@ -35,18 +35,15 @@ fn symmetry_errors_precede_assumptions_and_preserve_general_exit_class() {
             )
             .unwrap();
             for compat_tlc in [false, true] {
-                let report = dive_api::check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(config.clone()),
-                        compat_tlc,
-                        seed: Some(0),
-                        fp: Some(0),
-                        workers: Some(1),
-                        ..CheckRequest::default()
-                    },
-                    dive_api::Engine::Core,
-                )
+                let report = dive_api::check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(config.clone()),
+                    compat_tlc,
+                    seed: Some(0),
+                    fp: Some(0),
+                    workers: Some(1),
+                    ..CheckRequest::default()
+                })
                 .unwrap();
                 assert_eq!(report.verdict(), "model-error", "{name}");
                 assert_eq!(report.exit_code(), if compat_tlc { 255 } else { 1 });

@@ -26,7 +26,7 @@ fn mixed_effects_refuse_before_work_output_or_archive() {
         for compat_tlc in [false, true] {
             for workers in [1, 4, 8] {
                 let path = dir.join(format!("{at}-{compat_tlc}-{workers}.cp"));
-                let report = dive_api::check_file_checkpoint_engine(
+                let report = dive_api::check_file_checkpoint(
                     &CheckRequest {
                         file: file.clone(),
                         config: Some(cfg.clone()),
@@ -43,7 +43,6 @@ fn mixed_effects_refuse_before_work_output_or_archive() {
                         counters: checkpoint::Counters::Retain,
                         config_source_sha256: None,
                     },
-                    dive_api::Engine::Core,
                 )
                 .expect("admission")
                 .to_json();

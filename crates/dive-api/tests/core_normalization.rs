@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn observed(report: &dive_api::CheckReport) -> Value {
@@ -39,7 +39,7 @@ fn canonical_default_accepts_shapes_while_nominal_compat_names_its_gaps() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
+                let reference = check_file(&req).expect("reference runs");
                 let reference_observed = observed(&reference);
                 // Under --compat=tlc Core refuses every case but the three
                 // controls; the retired reference engine reproduced the

@@ -18,7 +18,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_compat.json");
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 const ORACLE: &str = "tlc-2026.10.06.014338";
@@ -123,23 +123,20 @@ fn flat(dir: &str) -> Vec<(String, PathBuf, Option<PathBuf>)> {
     out
 }
 
-fn run(spec: &Path, engine: Engine, compat_tlc: bool) -> Value {
-    run_at(spec, engine, compat_tlc, 1)
+fn run(spec: &Path, compat_tlc: bool) -> Value {
+    run_at(spec, compat_tlc, 1)
 }
 
-fn run_at(spec: &Path, engine: Engine, compat_tlc: bool, workers: usize) -> Value {
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(workers),
-            seed: Some(0),
-            fp: Some(0),
-            compat_tlc,
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run_at(spec: &Path, compat_tlc: bool, workers: usize) -> Value {
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(workers),
+        seed: Some(0),
+        fp: Some(0),
+        compat_tlc,
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -197,17 +194,13 @@ fn check_all(fixtures: Vec<(String, PathBuf, Option<PathBuf>)>) -> (usize, Vec<S
     let mut agreed = 0;
     let mut refused = Vec::new();
     for (name, spec, transcript) in fixtures {
-        let core = run(&spec, Engine::Core, true);
+        let core = run(&spec, true);
         if core["verdict"] == "rejected" {
-            assert_eq!(
-                run(&spec, Engine::Core, true)["verdict"],
-                "rejected",
-                "{name}"
-            );
+            assert_eq!(run(&spec, true)["verdict"], "rejected", "{name}");
             continue;
         }
         assert_eq!(core["engine"], "core", "{name}");
-        let reference = run(&spec, Engine::Core, true);
+        let reference = run(&spec, true);
         if REFERENCE_ONLY.contains(&name.as_str()) {
             assert_eq!(core["verdict"], "unsupported", "{name}: {core:#}");
             let m = core["message"].as_str().unwrap_or("");
@@ -248,16 +241,13 @@ fn compat_fixtures_pin_each_component() {
     // The string order is observable: the two profiles differ.
     let spec = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/core-compat/CompatStrOrder.tla");
-    assert_eq!(
-        run(&spec, Engine::Core, true)["verdict"],
-        "invariant-violation"
-    );
-    assert_eq!(run(&spec, Engine::Core, false)["verdict"], "success");
+    assert_eq!(run(&spec, true)["verdict"], "invariant-violation");
+    assert_eq!(run(&spec, false)["verdict"], "success");
     // A binding failure is reported as the agreed record reports it.
     let spec = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/core-compat/CompatBigNumeral.tla");
-    assert_eq!(run(&spec, Engine::Core, true)["verdict"], "model-error");
-    assert_eq!(run(&spec, Engine::Core, false)["verdict"], "success");
+    assert_eq!(run(&spec, true)["verdict"], "model-error");
+    assert_eq!(run(&spec, false)["verdict"], "success");
 }
 
 #[test]
@@ -294,12 +284,12 @@ fn parallel_compat_runs_give_the_one_worker_result() {
     all.extend(specs("crates/dive-api/tests/fixtures/checker/errors"));
     let mut ran = 0;
     for (name, spec, _) in all {
-        let one = run_at(&spec, Engine::Core, true, 1);
+        let one = run_at(&spec, true, 1);
         if one["verdict"] == "unsupported" || one["verdict"] == "rejected" {
             continue;
         }
         for workers in [2, 3, 8] {
-            let many = run_at(&spec, Engine::Core, true, workers);
+            let many = run_at(&spec, true, workers);
             assert_eq!(
                 observed(&many),
                 observed(&one),
@@ -316,10 +306,10 @@ fn parallel_compat_runs_give_the_one_worker_result() {
 #[test]
 fn the_default_engine_runs_compat_on_the_core() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-compat");
-    let j = run(&dir.join("CompatQueue.tla"), Engine::default(), true);
+    let j = run(&dir.join("CompatQueue.tla"), true);
     assert_eq!(j["engine"], "core", "{j:#}");
     assert_eq!(j["verdict"], "invariant-violation");
-    let j = run(&dir.join("CompatShape.tla"), Engine::default(), true);
+    let j = run(&dir.join("CompatShape.tla"), true);
     assert_eq!(j["engine"], "core", "{j:#}");
     assert_eq!(j["verdict"], "unsupported", "{j:#}");
     assert!(

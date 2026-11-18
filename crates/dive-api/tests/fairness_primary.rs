@@ -1,6 +1,6 @@
 //! Actual source rows establish bounded temporal error authority; other paths refuse.
 #![allow(clippy::expect_used, clippy::panic, reason = "pinned primary controls")]
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -49,9 +49,8 @@ fn proved_source_rows_publish_only_freshly_validated_v5_words() {
         ).expect("official oracle golden")).expect("golden JSON");
         for tlc in [false, true] {
             {
-                let engine = Engine::Core;
                 let req = request(name, tlc, 1);
-                let report = check_file_engine(&req, engine).expect("owned source run");
+                let report = check_file(&req).expect("owned source run");
                 let json = report.to_json();
                 assert_eq!(json["verdict"], "evaluation-error", "{name}/{tlc}: {json}");
                 assert_eq!(report.exit_code_for(dive_api::ExitConvention::Tlc), 255);
@@ -117,14 +116,9 @@ fn different_primary_and_candidate_error_lifecycles_do_not_borrow_source_row_aut
         same_corpus_input(name);
         for tlc in [false, true] {
             {
-                let engine = Engine::Core;
-                let report =
-                    check_file_engine(&request(name, tlc, 1), engine).expect("actual boundary");
+                let report = check_file(&request(name, tlc, 1)).expect("actual boundary");
                 let json = report.to_json();
-                assert_eq!(
-                    json["verdict"], "unsupported",
-                    "{name}/{tlc}/{engine:?}: {json}"
-                );
+                assert_eq!(json["verdict"], "unsupported", "{name}/{tlc}: {json}");
                 assert!(
                     json["tlc"].is_null(),
                     "unproved first-primary/ending contract cannot verify a class"
@@ -162,7 +156,6 @@ fn an_unproved_first_row_or_multiple_init_emissions_cannot_publish_v5() {
         .expect("actual source");
         for tlc in [false, true] {
             {
-                let engine = Engine::Core;
                 let req = CheckRequest {
                     file: file.clone(),
                     config: Some(config.clone()),
@@ -172,9 +165,7 @@ fn an_unproved_first_row_or_multiple_init_emissions_cannot_publish_v5() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let json = check_file_engine(&req, engine)
-                    .expect("bounded source run")
-                    .to_json();
+                let json = check_file(&req).expect("bounded source run").to_json();
                 assert_eq!(json["verdict"], "unsupported", "{json}");
                 assert!(json["tlc"].is_null(), "unproved first source: {json}");
                 assert_ne!(json["counterexample"]["trace"]["version"], 5);
@@ -192,40 +183,37 @@ fn unproved_temporal_next_primaries_are_refusals_not_verified_75_or_general() {
         same_corpus_input(name);
         for tlc in [false, true] {
             for workers in [1, 8] {
-                for engine in std::iter::once(Engine::Core) {
-                    if name == "MinChooseFair" && workers == 1 {
-                        continue; // The separately asserted reached-row capability is now proved.
-                    }
-                    let report =
-                        check_file_engine(&request(name, tlc, workers), engine).expect("check");
-                    let json = report.to_json();
-                    assert_eq!(
-                        report.verdict(),
-                        "unsupported",
-                        "{name} {tlc} {workers}: {json:#}"
-                    );
-                    assert_eq!(report.exit_code(), 3);
-                    assert!(
-                        json["message"]
-                            .as_str()
-                            .expect("named refusal")
-                            .contains("post-Next temporal-demand primary"),
-                        "{json:#}"
-                    );
-                    assert!(
-                        json["tlc"].is_null(),
-                        "neither75 nor255 is a certified class: {json:#}"
-                    );
-                    assert!(json["property"].is_null());
-                    assert!(
-                        json["counterexample"].is_null(),
-                        "no unconfirmed mandatory word can earn agreement"
-                    );
-                    assert_eq!(json["statistics"]["distinct"], 1);
-                    assert_eq!(json["statistics"]["generated"], 1);
-                    assert_eq!(json["statistics"]["depth"], 1);
-                    assert_eq!(json["statistics"]["left_on_queue"], 0);
+                if name == "MinChooseFair" && workers == 1 {
+                    continue; // The separately asserted reached-row capability is now proved.
                 }
+                let report = check_file(&request(name, tlc, workers)).expect("check");
+                let json = report.to_json();
+                assert_eq!(
+                    report.verdict(),
+                    "unsupported",
+                    "{name} {tlc} {workers}: {json:#}"
+                );
+                assert_eq!(report.exit_code(), 3);
+                assert!(
+                    json["message"]
+                        .as_str()
+                        .expect("named refusal")
+                        .contains("post-Next temporal-demand primary"),
+                    "{json:#}"
+                );
+                assert!(
+                    json["tlc"].is_null(),
+                    "neither75 nor255 is a certified class: {json:#}"
+                );
+                assert!(json["property"].is_null());
+                assert!(
+                    json["counterexample"].is_null(),
+                    "no unconfirmed mandatory word can earn agreement"
+                );
+                assert_eq!(json["statistics"]["distinct"], 1);
+                assert_eq!(json["statistics"]["generated"], 1);
+                assert_eq!(json["statistics"]["depth"], 1);
+                assert_eq!(json["statistics"]["left_on_queue"], 0);
             }
         }
     }
@@ -245,10 +233,8 @@ fn unproved_parallel_fairness_errors_keep_the_existing_explicit_refusal() {
     for tlc in [false, true] {
         for workers in std::iter::once(8) {
             {
-                let engine = Engine::Core;
                 let report =
-                    check_file_engine(&request("MinChooseFairSafeNext", tlc, workers), engine)
-                        .expect("check");
+                    check_file(&request("MinChooseFairSafeNext", tlc, workers)).expect("check");
                 let json = report.to_json();
                 assert_eq!(json["verdict"], "unsupported", "{json:#}");
                 assert!(json["tlc"].is_null());
@@ -262,10 +248,9 @@ fn unproved_parallel_fairness_errors_keep_the_existing_explicit_refusal() {
 fn safety_only_next_errors_stay_unchanged_but_the_word_certifies_no_temporal_primary() {
     for tlc in [false, true] {
         {
-            let engine = Engine::Core;
             let mut req = request("MinChooseFair", tlc, 1);
             req.config = Some(directory().join("NoTemporal.cfg"));
-            let report = check_file_engine(&req, engine).expect("safety check");
+            let report = check_file(&req).expect("safety check");
             let json = report.to_json();
             assert_eq!(json["verdict"], "evaluation-error", "{json:#}");
             assert_eq!(json["tlc"]["exit_status"], 75);

@@ -23,7 +23,7 @@ fn core(
         periodic,
         ..files.request(options)
     };
-    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("Core");
+    let report = dive_api::check_file(&request).expect("Core");
     let json = report.to_json();
     (report, json)
 }

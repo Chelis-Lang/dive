@@ -15,17 +15,14 @@ fn spec(name: &str) -> PathBuf {
 }
 
 fn check(file: PathBuf, compat_tlc: bool, workers: usize) -> dive_api::CheckReport {
-    let report = dive_api::check_file_engine(
-        &CheckRequest {
-            file,
-            compat_tlc,
-            workers: Some(workers),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        dive_api::Engine::Core,
-    );
+    let report = dive_api::check_file(&CheckRequest {
+        file,
+        compat_tlc,
+        workers: Some(workers),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    });
     match report {
         Ok(report) => report,
         Err(error) => unreachable!("well-formed request: {error}"),

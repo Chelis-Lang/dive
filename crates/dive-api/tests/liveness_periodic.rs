@@ -34,7 +34,7 @@ fn core(body: &str, properties: &str, options: &CheckOptions) -> (CheckReport, V
         periodic: EVERY_LEVEL,
         ..files.request(options)
     };
-    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("Core");
+    let report = dive_api::check_file(&request).expect("Core");
     let json = report.to_json();
     (report, json)
 }
@@ -160,8 +160,7 @@ fn existing_pinned_fair_and_unfair_words_anchor_both_periodic_profiles() {
                     periodic: EVERY_LEVEL,
                     ..core_final::request(&options(&base, width))
                 };
-                let report =
-                    dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("Core");
+                let report = dive_api::check_file(&request).expect("Core");
                 let json = report.to_json();
                 assert_eq!(report.verdict(), "liveness-violation", "{name}: {json}");
                 assert_eq!(

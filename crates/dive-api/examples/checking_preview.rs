@@ -4,7 +4,7 @@ use std::path::Path;
 use std::time::Duration;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{BudgetSetting, CheckRequest, Engine, check_file_engine};
+use dive_api::{BudgetSetting, CheckRequest, check_file};
 use serde_json::Value;
 
 type ExampleResult<T = ()> = Result<T, Box<dyn std::error::Error>>;
@@ -23,7 +23,7 @@ fn request(root: &Path, config: &str) -> CheckRequest {
 }
 
 fn check(request: &CheckRequest, verdict: &str) -> ExampleResult<Value> {
-    let report = check_file_engine(request, Engine::Core)?.to_json();
+    let report = check_file(request)?.to_json();
     if report["verdict"] != verdict || report["engine"] != "core" {
         return Err(format!("expected core {verdict}, received {report}").into());
     }

@@ -113,8 +113,7 @@ fn deciding_exits_preserve_api_history_and_semantic_options()
         )?;
         std::fs::write(file.with_extension("cfg"), config)?;
         for compat in [false, true] {
-            let report =
-                dive_api::check_file_engine(&request(&file, compat), dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request(&file, compat))?;
             let old = report.to_json();
             if name == "Post" {
                 // Only the retired reference engine checked POSTCONDITION
@@ -193,8 +192,7 @@ fn frontend_config_and_unverified_errors_remain_distinct() -> Result<(), Box<dyn
     ] {
         std::fs::write(&file, source)?;
         for compat in [false, true] {
-            let report =
-                dive_api::check_file_engine(&request(&file, compat), dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request(&file, compat))?;
             assert_eq!(report.exit_code_for(ExitConvention::Native), 1);
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 150);
             assert_eq!(
@@ -208,16 +206,16 @@ fn frontend_config_and_unverified_errors_remain_distinct() -> Result<(), Box<dyn
         "---- MODULE Rejected ----\nVARIABLE x\nInit == x=0\nNext == x'=x\n====\n",
     )?;
     std::fs::write(file.with_extension("cfg"), "NOT_A_CONFIG_DIRECTIVE\n")?;
-    let report = dive_api::check_file_engine(&request(&file, false), dive_api::Engine::Core)?;
+    let report = dive_api::check_file(&request(&file, false))?;
     assert_eq!(report.exit_code_for(ExitConvention::Native), 1);
     assert_eq!(report.exit_code_for(ExitConvention::Tlc), 151);
     assert!(report.to_json_with_exit_convention(ExitConvention::Tlc)["tlc"].is_null());
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checker/errors/specs");
     for (name, native, tlc) in [("ErNextAssert", 13, 14), ("ErNextDivZero", 13, 255)] {
-        let report = dive_api::check_file_engine(
-            &request(&root.join(name).join(format!("{name}.tla")), false),
-            dive_api::Engine::Core,
-        )?;
+        let report = dive_api::check_file(&request(
+            &root.join(name).join(format!("{name}.tla")),
+            false,
+        ))?;
         agreed::check_eq(
             AGREED,
             "frontend_config_and_unverified_errors_remain_distinct/0",
@@ -231,10 +229,7 @@ fn frontend_config_and_unverified_errors_remain_distinct() -> Result<(), Box<dyn
             &(report.exit_code_for(ExitConvention::Tlc)),
         );
     }
-    let report = dive_api::check_file_engine(
-        &request(&root.join("ErFpTuple/ErFpTuple.tla"), false),
-        dive_api::Engine::Core,
-    )?;
+    let report = dive_api::check_file(&request(&root.join("ErFpTuple/ErFpTuple.tla"), false))?;
     let before = report.to_json();
     assert_eq!(before["tlc"]["verified"], false);
     let mut copied_metadata = report.to_json_with_exit_convention(ExitConvention::Tlc);
@@ -256,7 +251,7 @@ fn selecting_tlc_statuses_does_not_change_big_integers_or_choose()
     for (module, config) in [("P1Overflow", "P1Overflow"), ("P2Choose", "P2Choose_str")] {
         let mut req = request(&root.join(module).join(format!("{module}.tla")), false);
         req.config = Some(root.join(module).join(format!("{config}.cfg")));
-        let report = dive_api::check_file_engine(&req, dive_api::Engine::Core)?;
+        let report = dive_api::check_file(&req)?;
         assert_eq!(report.verdict(), "success");
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 0);
         assert_eq!(report.to_json()["options"]["int"], "big");

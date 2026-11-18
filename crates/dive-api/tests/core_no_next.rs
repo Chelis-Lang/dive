@@ -7,7 +7,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_no_next.json");
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use serde_json::json;
 
 #[test]
@@ -65,8 +65,7 @@ fn missing_next_actions_keep_tlcs_model_error_and_precedence() {
                         ..CheckRequest::default()
                     };
                     {
-                        let engine = Engine::Core;
-                        let report = check_file_engine(&request, engine).expect("check runs");
+                        let report = check_file(&request).expect("check runs");
                         assert_eq!(report.exit_code_for(ExitConvention::Tlc), expected_exit);
                         let document = report.to_json();
                         // These are pinned TLC BFS results, not DFID or

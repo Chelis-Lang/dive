@@ -39,11 +39,11 @@ success. API errors also distinguish rejected inputs, I/O, named unsupported
 requests and internal failures.
 
 For pure Core safety, `CheckRequest.store_compact_bytes = Some(0)` with
-`check_file_engine(&request, Engine::Core)` reclaims expanded persistent values
+`check_file(&request)` reclaims expanded persistent values
 after each completed level. Positive values trigger on measured Store bytes;
 this is not a hard live-memory cap. `None` uses Core's default 256 MiB trigger
 on pure fingerprint safety BFS, which does not change results. The same field may be enabled for
-`check_file_checkpoint_engine` recovery-only requests. See the supported
+`check_file_checkpoint` recovery-only requests. See the supported
 combinations, retained values and metrics in [storage and recovery](storage-recovery.md).
 
 Explicit native worker roles use `prepare_core_worker`/`CoreWorker::serve`, and
@@ -195,7 +195,7 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
 | `analyze_source` / `analyze_file` | Resolved semantic analysis |
 | `parse_config_source` / `parse_config_file` | Configuration reading |
-| `check_file` | On Core, the only engine (`Engine::Core`; `check_file_engine` takes it explicitly): ordinary safety and ordinary temporal checking; `TemporalMode::FinalShort` is a named refusal; inspect actual route/completion |
+| `check_file` | On Core, the only engine: ordinary safety and ordinary temporal checking; `TemporalMode::FinalShort` is a named refusal; inspect actual route/completion |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
 | `CheckRequest::host_access` | Explicit env/files/exec permissions; a named refusal on Core |

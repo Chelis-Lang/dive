@@ -7,9 +7,7 @@
 use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{
-    CheckReport, CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine,
-};
+use dive_api::{CheckReport, CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 const MIXED_COMPAT: &str = "a set of values of different shapes under --compat=tlc, where TLC's checked comparison may fail or answer by its asymmetric rules (C1–C5; the exact port is not built)";
@@ -154,7 +152,7 @@ fn demanded_comparisons_and_argument_diagnostics_retain_errors_or_guarded_refusa
         );
         for compat in [false, true] {
             let req = request(name, compat, 1);
-            let core = check_file_engine(&req, Engine::Core).expect("Core check");
+            let core = check_file(&req).expect("Core check");
             let doc = core.to_json();
             if compat && matches!(name, "DemandedEdges" | "SimpleEmpty" | "FieldPriority") {
                 assert_eq!(doc["verdict"], "unsupported", "{name}: {doc}");

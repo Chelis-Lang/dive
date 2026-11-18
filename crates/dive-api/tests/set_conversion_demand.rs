@@ -4,7 +4,7 @@
 mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckReport, CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckReport, CheckRequest, ExitConvention, check_file};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -64,11 +64,8 @@ fn concrete_conversions_preserve_raw_axes_and_nonempty_order_in_both_profiles() 
             "depth":r["counts"]["depth"],"exit":r["exit_code"]});
         for compat in [false, true] {
             {
-                let engine = Engine::Core;
-                let report =
-                    check_file_engine(&request(name, compat), engine).expect("model check");
+                let report = check_file(&request(name, compat)).expect("model check");
                 if compat
-                    && engine == Engine::Core
                     && matches!(
                         name,
                         "NormalizedProjectionSkipRaw"
@@ -81,7 +78,7 @@ fn concrete_conversions_preserve_raw_axes_and_nonempty_order_in_both_profiles() 
                     assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
                     assert_eq!(report.to_json()["message"], MIXED_COMPAT);
                 } else {
-                    assert_eq!(facts(&report), expected, "{name}/{compat}/{engine:?}");
+                    assert_eq!(facts(&report), expected, "{name}/{compat}");
                 }
             }
         }
@@ -92,7 +89,7 @@ fn concrete_conversions_preserve_raw_axes_and_nonempty_order_in_both_profiles() 
 fn conversion_does_not_erase_receiver_or_later_error_demand() {
     for compat in [false, true] {
         let req = request("ReceiverAfterProjection", compat);
-        let core = check_file_engine(&req, Engine::Core).expect("Core receiver");
+        let core = check_file(&req).expect("Core receiver");
         let d = core.to_json();
         if compat {
             refused::assert_refused(&d, core.exit_code(), MIXED_COMPAT);
@@ -117,7 +114,7 @@ fn conversion_does_not_erase_receiver_or_later_error_demand() {
         ] {
             assert!(!root().join(format!("conformance/golden/tlc-2026.10.06.014338/set-conversion-demand/specifications/{name}/{name}.cfg.json")).exists());
             let req = request(name, compat);
-            let core = check_file_engine(&req, Engine::Core).expect("demanded error");
+            let core = check_file(&req).expect("demanded error");
             let d = core.to_json();
             if name != "UnknownFirstProjection" {
                 if compat {
@@ -142,9 +139,8 @@ fn conversion_does_not_erase_receiver_or_later_error_demand() {
             same_argument_error(&req, &core, "TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE");
         }
         {
-            let engine = Engine::Core;
             let req = request("ProjectionOperandError", compat);
-            let report = check_file_engine(&req, engine).expect("operand error");
+            let report = check_file(&req).expect("operand error");
             let d = report.to_json();
             assert_eq!(d["verdict"], "evaluation-error");
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
@@ -154,7 +150,7 @@ fn conversion_does_not_erase_receiver_or_later_error_demand() {
                     .is_some_and(|s| s.contains("second argument of \\div is 0"))
             );
             let req = request("ProviderProjectionRefusal", compat);
-            let report = check_file_engine(&req, engine).expect("provider refusal");
+            let report = check_file(&req).expect("provider refusal");
             assert_eq!(report.to_json()["verdict"], "unsupported");
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
         }
@@ -179,7 +175,7 @@ fn caller_order_distinguishes_receiver_normalization_from_conversion() {
             "PrefixRawEmpty",
         ] {
             let req = request(name, compat);
-            let core = check_file_engine(&req, Engine::Core).expect("Core conversion consumer");
+            let core = check_file(&req).expect("Core conversion consumer");
             if compat {
                 // TLC's normalization-first comparison error (AntiFunction)
                 // and its conversion-first argument error (prefix) were
@@ -222,8 +218,7 @@ fn prefix_diagnostic_preserves_selective_original_product_demand() {
             } else {
                 diagnostic_request(name, compat)
             };
-            let report =
-                check_file_engine(&request, Engine::Core).expect("empty projection argument error");
+            let report = check_file(&request).expect("empty projection argument error");
             let d = report.to_json();
             if compat
                 && matches!(
@@ -247,11 +242,8 @@ fn prefix_diagnostic_preserves_selective_original_product_demand() {
         // PrefixReverse is covered by `core_prefix_results`: TLC's fallback
         // comparison error under --compat=tlc refuses by name on Core.
 
-        let report = check_file_engine(
-            &diagnostic_request("PrefixUnknownFirst", compat),
-            Engine::Core,
-        )
-        .expect("earlier unknown operand error");
+        let report = check_file(&diagnostic_request("PrefixUnknownFirst", compat))
+            .expect("earlier unknown operand error");
         let d = report.to_json();
         assert_eq!(d["verdict"], "evaluation-error");
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 75);
@@ -262,11 +254,8 @@ fn prefix_diagnostic_preserves_selective_original_product_demand() {
                 .is_some_and(|s| s.contains("Shouldn't call isEmpty() on value 0"))
         );
 
-        let report = check_file_engine(
-            &diagnostic_request("PrefixInfiniteFirst", compat),
-            Engine::Core,
-        )
-        .expect("retained infinite conversion refusal");
+        let report = check_file(&diagnostic_request("PrefixInfiniteFirst", compat))
+            .expect("retained infinite conversion refusal");
         let d = report.to_json();
         assert_eq!(d["verdict"], "unsupported");
         assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
@@ -293,7 +282,7 @@ fn core_prefix_results(compat: bool) {
         "PrefixInfiniteFirst",
     ] {
         let req = diagnostic_request(name, compat);
-        let report = check_file_engine(&req, Engine::Core).expect("Core prefix result");
+        let report = check_file(&req).expect("Core prefix result");
         if name == "PrefixInfiniteFirst" {
             assert_eq!(report.verdict(), "unsupported");
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
@@ -328,15 +317,14 @@ fn ordinary_prefix_matches_golden(compat: bool) {
         .expect("golden JSON");
     let r = &golden["result"];
     {
-        let engine = Engine::Core;
-        let report = check_file_engine(&diagnostic_request("PrefixOrdinary", compat), engine)
-            .expect("ordinary prefix");
+        let report =
+            check_file(&diagnostic_request("PrefixOrdinary", compat)).expect("ordinary prefix");
         assert_eq!(
             facts(&report),
             json!({"verdict":r["verdict"],"code":r["verdict_code"],"class":r["error_class"],
                 "distinct":r["counts"]["distinct_states"],"generated":r["counts"]["states_generated"],
                 "depth":r["counts"]["depth"],"exit":r["exit_code"]}),
-            "{compat}/{engine:?}"
+            "{compat}"
         );
     }
 }
@@ -434,7 +422,7 @@ fn empty_product_consumers_cannot_turn_a_false_invariant_into_success() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let core = check_file_engine(&req, Engine::Core).expect("paired conversion check");
+            let core = check_file(&req).expect("paired conversion check");
             if compat_tlc {
                 refused::assert_refused(&core.to_json(), core.exit_code(), MIXED_COMPAT);
                 continue;

@@ -239,7 +239,7 @@ fn imported_and_lexical_property_roles_retain_their_real_scopes() -> TestResult 
                 file: file.clone(),
                 ..core_final::request(&opts)
             };
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request)?;
             let actual = report
                 .result()
                 .ok_or("bound imported/lexical safety roles")?;

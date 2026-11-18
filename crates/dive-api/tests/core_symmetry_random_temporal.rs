@@ -10,7 +10,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_symmetry_random_temporal
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, SymmetryLiveness, check_file_engine};
+use dive_api::{CheckRequest, SymmetryLiveness, check_file};
 use serde_json::{Value, json};
 
 fn repo() -> PathBuf {
@@ -29,25 +29,16 @@ fn fixture(name: &str) -> PathBuf {
     ))
 }
 
-fn run(
-    spec: &Path,
-    cfg: &Path,
-    engine: Engine,
-    policy: Option<SymmetryLiveness>,
-    seed: i64,
-) -> Value {
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(cfg.to_path_buf()),
-            file: spec.to_path_buf(),
-            workers: Some(1),
-            seed: Some(seed),
-            fp: Some(0),
-            symmetry_liveness: policy,
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run(spec: &Path, cfg: &Path, policy: Option<SymmetryLiveness>, seed: i64) -> Value {
+    let report = check_file(&CheckRequest {
+        config: Some(cfg.to_path_buf()),
+        file: spec.to_path_buf(),
+        workers: Some(1),
+        seed: Some(seed),
+        fp: Some(0),
+        symmetry_liveness: policy,
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -76,8 +67,8 @@ fn declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core() {
         probe("SymLiveWarn"),
     ] {
         let cfg = spec.with_extension("cfg");
-        let core = run(&spec, &cfg, Engine::Core, None, 0);
-        let reference = run(&spec, &cfg, Engine::Core, None, 0);
+        let core = run(&spec, &cfg, None, 0);
+        let reference = run(&spec, &cfg, None, 0);
         assert_eq!(core["engine"], "core", "{}: {core}", spec.display());
         assert_ne!(core["verdict"], "unsupported", "{}: {core}", spec.display());
         agreed::check_eq(
@@ -93,7 +84,7 @@ fn declared_symmetry_with_temporal_properties_runs_unreduced_on_the_core() {
     // SymLiveMissed's violation, hidden by TLC's reduced graph, is found and
     // independently validated.
     let spec = probe("SymLiveMissed");
-    let core = run(&spec, &spec.with_extension("cfg"), Engine::Core, None, 0);
+    let core = run(&spec, &spec.with_extension("cfg"), None, 0);
     assert_eq!(core["verdict"], "liveness-violation", "{core}");
     assert!(core["counterexample"]["states"].is_array());
 }
@@ -103,7 +94,7 @@ fn refused_and_tlc_symmetry_liveness_policies_still_refuse_on_the_core() {
     let spec = probe("SymLiveMissed");
     let cfg = spec.with_extension("cfg");
     for policy in [SymmetryLiveness::Refuse, SymmetryLiveness::Tlc] {
-        let core = run(&spec, &cfg, Engine::Core, Some(policy), 0);
+        let core = run(&spec, &cfg, Some(policy), 0);
         assert_eq!(core["verdict"], "unsupported", "{policy:?}: {core}");
         assert!(core["counterexample"].is_null());
     }
@@ -114,8 +105,8 @@ fn a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_s
     let spec = fixture("StartupEdges");
     let cfg = spec.with_extension("cfg");
     for seed in [0, 3, 7, -11] {
-        let core = run(&spec, &cfg, Engine::Core, None, seed);
-        let reference = run(&spec, &cfg, Engine::Core, None, seed);
+        let core = run(&spec, &cfg, None, seed);
+        let reference = run(&spec, &cfg, None, seed);
         assert_eq!(core["engine"], "core", "seed {seed}: {core}");
         assert_eq!(core["verdict"], "success", "seed {seed}: {core}");
         agreed::check_eq(
@@ -126,7 +117,7 @@ fn a_startup_fixed_random_definition_checks_temporal_properties_and_replays_by_s
         );
         // The seed that fixed the start-up draws is reported and replays them.
         assert_eq!(core["options"]["seed"], seed);
-        let again = run(&spec, &cfg, Engine::Core, None, seed);
+        let again = run(&spec, &cfg, None, seed);
         assert_eq!(observed(&core), observed(&again), "seed {seed}");
     }
 }
@@ -139,7 +130,6 @@ fn unvalidated_or_runtime_draws_with_temporal_properties_refuse_by_name() {
     let core = run(
         &spec,
         &spec.with_file_name("StartupEdgesViolated.cfg"),
-        Engine::Core,
         None,
         0,
     );
@@ -151,7 +141,7 @@ fn unvalidated_or_runtime_draws_with_temporal_properties_refuse_by_name() {
     for name in ["NextDraw", "PickDraw", "RedirectDraw", "ConstDraw"] {
         let spec = fixture(name);
         for seed in [0, 1, 5] {
-            let core = run(&spec, &spec.with_extension("cfg"), Engine::Core, None, seed);
+            let core = run(&spec, &spec.with_extension("cfg"), None, seed);
             assert_eq!(core["verdict"], "unsupported", "{name} seed {seed}: {core}");
             assert!(core["counterexample"].is_null(), "{name} seed {seed}");
             let text = core.to_string();
@@ -170,7 +160,7 @@ fn a_redirected_random_definition_is_never_read_as_its_startup_value_on_the_safe
     // claim the invariant holds.
     let spec = fixture("RedirectInvariant");
     for seed in [0, 1, 2, 3] {
-        let core = run(&spec, &spec.with_extension("cfg"), Engine::Core, None, seed);
+        let core = run(&spec, &spec.with_extension("cfg"), None, seed);
         assert_eq!(core["verdict"], "unsupported", "seed {seed}: {core}");
         assert!(
             core.to_string().contains("RandomElement"),
@@ -187,7 +177,7 @@ fn a_lazy_startup_value_that_draws_at_each_membership_test_refuses_on_every_engi
     let spec = fixture("LazyDraw");
     let cfg = spec.with_extension("cfg");
     for seed in 0..10 {
-        let core = run(&spec, &cfg, Engine::Core, None, seed);
+        let core = run(&spec, &cfg, None, seed);
         assert_eq!(core["verdict"], "unsupported", "seed {seed}: {core}");
         assert!(core["counterexample"].is_null(), "seed {seed}");
         assert!(

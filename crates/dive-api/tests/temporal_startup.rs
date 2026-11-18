@@ -37,7 +37,7 @@ fn oracle(name: &str) -> Result<Value, Box<dyn std::error::Error>> {
 /// `FinalShort`, which only the retired reference engine ran (#791, #910),
 /// and otherwise `ordinary`.
 fn assert_core_refusal(request: &CheckRequest, ordinary: &str) -> TestResult {
-    let report = dive_api::check_file_engine(request, dive_api::Engine::Core)?;
+    let report = dive_api::check_file(request)?;
     let actual = report.to_json();
     let feature = if request.temporal == TemporalMode::FinalShort {
         refused::FINAL_SHORT
@@ -109,8 +109,7 @@ fn earlier_binding_errors_keep_the_original_code_and_never_become_tautology() ->
     let expected = oracle(name)?;
     for tlc in [false, true] {
         for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-            let report =
-                dive_api::check_file_engine(&request(name, tlc, mode, 1), dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request(name, tlc, mode, 1))?;
             let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(actual["tlc"]["code"], expected["result"]["verdict_code"]);
             assert_eq!(actual["tlc"]["name"], expected["result"]["error_class"]);
@@ -151,7 +150,7 @@ fn an_expired_run_budget_is_a_typed_stop_not_a_zero_solution_verdict() -> TestRe
         for mode in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
             let mut req = request("UnusedDemandTautology", tlc, mode, 1);
             req.time_limit = dive_api::BudgetSetting::Explicit(std::time::Duration::ZERO);
-            let report = dive_api::check_file_engine(&req, dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&req)?;
             let actual = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert_eq!(actual["verdict"], "stopped");
             assert_eq!(actual["stopped"]["resource"], "time");

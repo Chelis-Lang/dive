@@ -24,19 +24,16 @@ fn point_witness_matches_counts_and_rejects_forged_coordinates() {
         )
         .expect("independent model");
         for store in [Store::Exact, Store::Fingerprint] {
-            let report = dive_api::check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    compat_tlc,
-                    store,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    module_paths: vec![modules.clone()],
-                    ..CheckRequest::default()
-                },
-                dive_api::Engine::Core,
-            )
+            let report = dive_api::check_file(&CheckRequest {
+                file: file.clone(),
+                compat_tlc,
+                store,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                module_paths: vec![modules.clone()],
+                ..CheckRequest::default()
+            })
             .expect("check");
             // Only the retired reference engine evaluated SVG!PointOnLine
             // (#791, #910). Pinned TLC: invariant `Inv` violated (2110) after
@@ -58,18 +55,15 @@ fn unsupported_shape_has_no_authoritative_witness() {
     let modules =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-eval/tests/fixtures/svg-point");
     for compat_tlc in [true, false] {
-        let report = dive_api::check_file_engine(
-            &CheckRequest {
-                file: file.clone(),
-                compat_tlc,
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                module_paths: vec![modules.clone()],
-                ..CheckRequest::default()
-            },
-            dive_api::Engine::Core,
-        )
+        let report = dive_api::check_file(&CheckRequest {
+            file: file.clone(),
+            compat_tlc,
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            module_paths: vec![modules.clone()],
+            ..CheckRequest::default()
+        })
         .expect("check");
         assert_eq!(report.exit_code(), 3);
         let json = report.to_json();
