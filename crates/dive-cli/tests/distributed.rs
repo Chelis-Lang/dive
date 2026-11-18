@@ -322,6 +322,10 @@ fn later_result_loss(
             }
             Err(_) => return,
         };
+        // macOS accepted sockets inherit the listener's O_NONBLOCK.
+        incoming
+            .set_nonblocking(false)
+            .expect("blocking proxy stream");
         let mut outgoing = TcpStream::connect(target).expect("actual later worker");
         for stream in [&incoming, &outgoing] {
             stream.set_nodelay(true).expect("nodelay");
