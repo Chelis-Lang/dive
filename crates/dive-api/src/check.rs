@@ -2623,7 +2623,7 @@ fn temporal_limits_json(configuration: crate::temporal::Configuration) -> Value 
         GraphLabelPolicy::NoCellLimit => json!({"kind": "run-budgets"}),
     };
     let (acceptance, bytes, work) = match configuration.acceptance {
-        AcceptancePolicy::Legacy => (
+        AcceptancePolicy::Cells => (
             json!({"kind": "cells", "cells": limits.product.acceptance_cells}),
             None,
             None,
@@ -2791,7 +2791,6 @@ mod evidence_controls {
 }
 
 #[cfg(test)]
-#[path = "binding_report_controls.rs"]
 mod binding_report_controls;
 
 // Explanatory bound metadata only. It never supplies execution or proof facts.

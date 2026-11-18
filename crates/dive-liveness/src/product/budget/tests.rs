@@ -431,10 +431,7 @@ fn all_small_complete_tableaux_match_independent_language_and_full_witness() {
                         .find_lasso_with_conditions(&labels, &solution)
                         .expect("search");
                     assert_eq!(word.is_some(), language);
-                    for policy in [
-                        AcceptancePolicy::Legacy,
-                        AcceptancePolicy::compact_default(),
-                    ] {
+                    for policy in [AcceptancePolicy::Cells, AcceptancePolicy::compact_default()] {
                         assert_eq!(
                             ImplicitProduct::new(&graph, &t, &labels, Limits::default(), policy)
                                 .expect("on-the-fly product")

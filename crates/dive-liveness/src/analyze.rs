@@ -724,7 +724,7 @@ fn action_failure(
 /// Original edge metadata without owning or reconstructing state rows.
 #[derive(Clone, Copy)]
 enum OriginalEdges<'a> {
-    Legacy(&'a capture::BehaviorGraph),
+    Behavior(&'a capture::BehaviorGraph),
     Native(&'a capture::CsrCapture<'a>),
 }
 
@@ -737,26 +737,26 @@ struct OriginalEdge<'a> {
 
 impl<'a> From<&'a capture::BehaviorGraph> for OriginalEdges<'a> {
     fn from(graph: &'a capture::BehaviorGraph) -> Self {
-        Self::Legacy(graph)
+        Self::Behavior(graph)
     }
 }
 
 impl<'a> OriginalEdges<'a> {
     fn states(self) -> usize {
         match self {
-            Self::Legacy(graph) => graph.edges.len(),
+            Self::Behavior(graph) => graph.edges.len(),
             Self::Native(graph) => graph.state_count(),
         }
     }
     fn len(self, source: usize) -> Option<usize> {
         match self {
-            Self::Legacy(graph) => graph.edges.get(source).map(Vec::len),
+            Self::Behavior(graph) => graph.edges.get(source).map(Vec::len),
             Self::Native(graph) => graph.outgoing_range(source).map(|range| range.len()),
         }
     }
     fn edge(self, source: usize, position: usize) -> Option<OriginalEdge<'a>> {
         match self {
-            Self::Legacy(graph) => {
+            Self::Behavior(graph) => {
                 graph
                     .edges
                     .get(source)?
@@ -1475,7 +1475,7 @@ fn analyze_source(
         model,
         plans,
         searched,
-        OriginalEdges::Legacy(captured),
+        OriginalEdges::Behavior(captured),
         states,
         graph,
         limits,

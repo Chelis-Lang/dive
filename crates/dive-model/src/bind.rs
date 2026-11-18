@@ -170,9 +170,9 @@ impl<'a> Binder<'a> {
     pub(crate) fn eval_error(
         &self,
         error: dive_eval::EvalError,
-        legacy: impl FnOnce(dive_eval::EvalError) -> BindError,
+        to_binding: impl FnOnce(dive_eval::EvalError) -> BindError,
     ) -> crate::control::StepError {
-        self.t.eval_error(error, legacy)
+        self.t.eval_error(error, to_binding)
     }
 
     pub(crate) fn propagate_interruption(&self, error: &dive_eval::EvalError) -> R<()> {
@@ -784,7 +784,7 @@ impl<'a> Binder<'a> {
 
     /// Evaluates, as `processConstantDefns` would have, the definitions left
     /// to the core that the dive-eval evaluator may evaluate after binding
-    /// on the temporal route (`crate::defer::reference_temporal`), and
+    /// on the temporal route (`crate::defer::evaluator_temporal`), and
     /// returns them: they are no longer left to the core.
     pub(crate) fn keep_temporal_startup_values(
         &mut self,
@@ -796,7 +796,7 @@ impl<'a> Binder<'a> {
         if model.implied_temporals.is_empty() || defer.skip.is_empty() {
             return Ok(std::collections::BTreeSet::new());
         }
-        let reached = crate::defer::reference_temporal(self, model);
+        let reached = crate::defer::evaluator_temporal(self, model);
         let settled: std::collections::BTreeSet<DefId> = defer
             .skip
             .iter()

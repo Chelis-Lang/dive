@@ -83,9 +83,9 @@ impl Tables {
     pub(crate) fn eval_error(
         &self,
         error: dive_eval::EvalError,
-        legacy: impl FnOnce(dive_eval::EvalError) -> crate::BindError,
+        to_binding: impl FnOnce(dive_eval::EvalError) -> crate::BindError,
     ) -> crate::control::StepError {
-        crate::control::eval_error(self.controlled, self.fallible_errors, error, legacy)
+        crate::control::eval_error(self.controlled, self.fallible_errors, error, to_binding)
     }
 
     pub(crate) fn is_exception(&self, error: &dive_eval::EvalError) -> bool {

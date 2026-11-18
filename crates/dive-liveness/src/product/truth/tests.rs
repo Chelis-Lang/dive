@@ -126,7 +126,7 @@ fn compare_formula(graph: &Graph, formula: &Formula, labels: &Labels, packed: &P
         let tableau =
             formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");
         for policy in [
-            AcceptancePolicy::Legacy,
+            AcceptancePolicy::Cells,
             AcceptancePolicy::Buffers {
                 bytes: 1_000_000,
                 work: 1_000_000,
