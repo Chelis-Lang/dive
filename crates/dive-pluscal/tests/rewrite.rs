@@ -10,7 +10,7 @@ fn source() -> String {
 }
 fn options() -> RewriteOptions {
     RewriteOptions {
-        checksums: ChecksumPolicy::TranslationOnly,
+        checksums: ChecksumPolicy::BestEffort,
         ..RewriteOptions::default()
     }
 }
@@ -272,7 +272,8 @@ fn resolved_legacy_grammar_bounds_the_rewrite_prefix_without_relaxing_standalone
         )
         .is_err()
     );
-    for checksums in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+    {
+        let checksums = ChecksumPolicy::BestEffort;
         let plan = dive_pluscal::rewrite::rewrite_document_with_translation_options(
             source,
             "SuppliedBody == TRUE\n",

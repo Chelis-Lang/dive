@@ -40,14 +40,12 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
             }
             "--checksums" => {
                 editing_flag = true;
-                match arguments.next().map(String::as_str) {
-                    Some("tla") => editing.checksums = dive_api::ChecksumPolicy::TranslationOnly,
-                    Some("full") => editing.checksums = dive_api::ChecksumPolicy::Full,
-                    _ => {
-                        let _ = writeln!(err, "error: --checksums expects tla|full");
-                        return ExitCode::from(2);
-                    }
+                // `tla` and `full` both select the one best-effort policy.
+                if !matches!(arguments.next().map(String::as_str), Some("tla" | "full")) {
+                    let _ = writeln!(err, "error: --checksums expects tla|full");
+                    return ExitCode::from(2);
                 }
+                editing.checksums = dive_api::ChecksumPolicy::BestEffort;
             }
             "--label" | "-label" => request.limits.insert_missing_labels = true,
             "--report-labels" | "-reportLabels" => request.limits.report_labels = true,

@@ -11,8 +11,6 @@ struct Input {
     #[serde(default)]
     replace_modified: bool,
     #[serde(default)]
-    full: bool,
-    #[serde(default)]
     max_bytes: Option<usize>,
 }
 fn main() -> ExitCode {
@@ -29,11 +27,7 @@ fn main() -> ExitCode {
         return ExitCode::from(2);
     };
     let options = dive_pluscal::rewrite::RewriteOptions {
-        checksums: if input.full {
-            dive_pluscal::rewrite::ChecksumPolicy::Full
-        } else {
-            dive_pluscal::rewrite::ChecksumPolicy::TranslationOnly
-        },
+        checksums: dive_pluscal::rewrite::ChecksumPolicy::BestEffort,
         normalize_newlines: input.normalize,
         replace_modified: input.replace_modified,
         max_bytes: input.max_bytes.unwrap_or(4_194_304),

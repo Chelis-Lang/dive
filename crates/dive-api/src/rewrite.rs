@@ -101,7 +101,7 @@ fn failure(
 /// use dive_api::{ChecksumPolicy, RewriteOptions, RewriteRequest, rewrite_source};
 /// let source = "---- MODULE R ----\nEXTENDS Integers\n(* --algorithm A variable x=0; begin L:x:=1; E:skip; end algorithm; *)\n====\n";
 /// let request = RewriteRequest {
-///     editing: RewriteOptions { checksums: ChecksumPolicy::TranslationOnly, ..RewriteOptions::default() },
+///     editing: RewriteOptions { checksums: ChecksumPolicy::BestEffort, ..RewriteOptions::default() },
 ///     ..RewriteRequest::default()
 /// };
 /// let report = rewrite_source("R.tla", source, &request);

@@ -36,7 +36,8 @@ fn supported_source_flags_flow_through_all_artifacts() {
         );
         assert!(doc.get("model_proved").is_none());
         assert!(doc.get("exhaustive").is_none());
-        for checksums in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+        {
+            let checksums = ChecksumPolicy::BestEffort;
             let report = dive_api::rewrite_source(
                 "FlagOptions.tla",
                 SOURCE,
@@ -72,9 +73,7 @@ fn supported_source_flags_flow_through_all_artifacts() {
                     "preserved"
                 }
             );
-            if checksums == ChecksumPolicy::Full {
-                assert_eq!(rewritten["translation_options"], doc["translation_options"]);
-            }
+            assert_eq!(rewritten["translation_options"], doc["translation_options"]);
             assert!(rewritten.get("model_proved").is_none());
         }
     }
