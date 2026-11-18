@@ -27,6 +27,11 @@ Each gate is measured on a commit on `main`. All six must hold to tag `v0.1.0`.
 | **R5 Stable surface** | Per-command `--help` works. `--version` names the commit. Unimplemented commands such as `lsp` are hidden. The JSON report (`schema_version` 3) and the CLI help are pinned by golden tests. | Golden tests in the workspace gate |
 | **R6 Shipped** | A release workflow builds Linux x86_64 and aarch64 archives with checksums. `cargo install --git … --locked dive-cli` is documented. The README is a user landing page. `CHANGELOG.md` has a curated `0.1.0` section. One release-candidate qualification (`cargo xtask gate --full`) passes on the tagged source. | Release workflow run on the tag |
 
+The [release performance qualification](developer/release-performance-plan.md)
+runs on the release-candidate source before the tag. Its R2 run is the gate
+run; its other measurements are directional, and each regression gets a
+`perf` issue.
+
 Not required for v0.1:
 - Core-native coverage beyond R1;
 - distributed workers;
