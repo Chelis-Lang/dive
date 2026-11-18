@@ -131,8 +131,9 @@ accepted; any other engine name is a usage error (exit 2). Core covers:
   [periodic liveness checking](../tlc-differences.md#d-014-periodic-liveness-checking-has-a-replayable-schedule); under `--compat=tlc`, once the search is complete). A
   counterexample is validated independently before it is reported. A
   temporal property together with
-  `VIEW`, `SYMMETRY`, `Print`, `RandomElement`, `TLCSet`, `TLCGet`,
-  `--max-states` or `--max-depth` is reported as unsupported. So, for now,
+  `VIEW`, `SYMMETRY`, `Print`, `RandomElement`, `TLCSet` or `TLCGet` is
+  reported as unsupported. `--max-states` and `--max-depth` stop a temporal
+  capture without a verdict (see [state and depth budgets](#state-and-depth-budgets)). So, for now,
   is a run whose liveness check fails rather than answers (a planning or
   evaluation error, or a graph limit): Core refuses it by name. Capture retains original accepted targets,
   including seen successors, with their action and ordinal. Parallel capture
@@ -615,6 +616,18 @@ has no counterexample and makes no successful or temporal-completion claim;
 its statistics carry `exhaustive: false`. The resolved limits appear in
 `options.budget.max_states` and `max_depth`. An explicit finite ceiling labels
 the TLC profile `tlc+overrides`; `none` restores TLC's unbounded setting.
+
+With temporal properties, a ceiling reached during graph capture reports
+`stopped` in phase `graph-capture` with `execution.capture_completed: false`.
+The run publishes no counterexample and never reports that a property holds.
+A violation already proven at a completed level before the ceiling is still
+reported. In the default profile, completed-level checks run as usual up to
+the stop, and the report counts them in `periodic`. A ceiling equal to the
+model's size gives the same verdict as no ceiling.
+
+```sh
+dive check Spec.tla --store exact --max-states 100000 --output json
+```
 
 Parallel workers retain their requested pool. Their generated candidates are
 published in reference order up to the admission boundary, retaining earlier

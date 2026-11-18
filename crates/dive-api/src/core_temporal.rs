@@ -93,9 +93,6 @@ pub(crate) fn static_refusal(
     if prepared.plan.effects.registers {
         return Some("TLCSet or TLCGet with temporal properties (core)".into());
     }
-    if options.max_states.is_some() || options.max_depth.is_some() {
-        return Some("--max-states or --max-depth with temporal properties (core)".into());
-    }
     None
 }
 
@@ -347,8 +344,11 @@ fn check_configured_inner(
         &store,
         dive_explore::Config {
             opts: core_opts,
-            max_states: None,
-            max_depth: None,
+            // A ceiling stops capture before the state beyond it: the run
+            // reports `stopped` in graph capture, never a holding result
+            // (ADR 0158).
+            max_states: options.max_states,
+            max_depth: options.max_depth,
             workers,
             warn: options.eval.warnings,
             sample: None,

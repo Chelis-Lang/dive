@@ -50,8 +50,6 @@ impl Mode {
         (self == Self::FinalShort).then(|| FINAL_SHORT.into())
     }
 }
-/// `--max-states` or `--max-depth` with temporal properties.
-pub const TEMPORAL_CAP: &str = "--max-states or --max-depth with temporal properties";
 /// Spilled or reclaimed storage with temporal properties (ADR 0158).
 pub const TEMPORAL_SPILLED_STORE: &str =
     "spilled or reclaimed native temporal storage under the core engine";

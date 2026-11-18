@@ -55,7 +55,10 @@ The first release.
   fingerprints collide stay distinct. The human temporal report names the
   store, and a fingerprint run says that no collision probability was computed.
 - Run budgets (`--time-limit`, `--max-memory`) that end a run as `stopped`
-  (exit 5) with the phase and limit named. There is no default time limit;
+  (exit 5) with the phase and limit named. The opt-in `--max-states` and
+  `--max-depth` ceilings apply to safety and temporal checks; a temporal
+  capture stopped by a ceiling reports no counterexample and no holding
+  result. There is no default time limit;
   `--max-memory` defaults to half of physical memory.
 - Seeded simulation (`dive simulate`) that reports its seed, so `--seed`
   replays the run, and depth-first iterative deepening (`dive dfid`).
