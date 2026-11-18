@@ -292,6 +292,14 @@ impl DiveImplementation {
             .and_then(|option| option.value.as_deref())
     }
 
+    /// The `--store` value requested with `--impl-option store=<mode>`.
+    fn store(&self) -> Option<&str> {
+        self.options
+            .iter()
+            .find(|option| option.name == "store")
+            .and_then(|option| option.value.as_deref())
+    }
+
     /// Raw black-box model run. Final/short observation is assessed separately
     /// from the strict schema-1 conformance mapping.
     pub(crate) fn run_model(
@@ -336,6 +344,11 @@ impl DiveImplementation {
         if let Some(policy) = self.symmetry_policy() {
             extra
                 .extend::<[&std::ffi::OsStr; 2]>(["--symmetry-liveness".as_ref(), policy.as_ref()]);
+        }
+        // `--store exact` strengthens the exhaustiveness claim without
+        // changing any result (D-007), so it is result-preserving.
+        if let Some(store) = self.store() {
+            extra.extend::<[&std::ffi::OsStr; 2]>(["--store".as_ref(), store.as_ref()]);
         }
         // TLC runs these with `-Dtlc2.tool.impl.Tool.cdot=true`
         // (`oracle::run_tlc`); the default profile composes actions anyway
@@ -1326,9 +1339,9 @@ impl Implementation for DiveImplementation {
     }
 
     fn result_preserving_options(&self) -> &[&str] {
-        // A deterministic seed or a worker count never changes a TLC-
-        // compatible result (ADR 0010).
-        &["seed", "workers"]
+        // A deterministic seed, a worker count or exact state storage never
+        // changes a TLC-compatible result (ADR 0010; D-007).
+        &["seed", "workers", "store"]
     }
 
     fn name(&self) -> String {
@@ -1504,6 +1517,27 @@ impl Implementation for DiveImplementation {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_store_option_is_passed_through_and_result_preserving() -> Result<()> {
+        let mut implementation = DiveImplementation {
+            options: Vec::new(),
+            engine: DiveEngine::Core,
+            profile: Profile::Dive,
+            bin: PathBuf::new(),
+            module_path: Vec::new(),
+            provenance: None,
+            tmp_root: PathBuf::new(),
+            cache_root: PathBuf::new(),
+        };
+        assert_eq!(implementation.store(), None);
+        let option = ImplOption::parse("store=exact", &implementation)?;
+        assert!(!option.result_changing);
+        assert!(ImplOption::parse("int=big", &implementation)?.result_changing);
+        implementation.options.push(option);
+        assert_eq!(implementation.store(), Some("exact"));
+        Ok(())
+    }
 
     #[test]
     fn engine_run_reads_the_engine_and_its_fallback() -> Result<()> {
