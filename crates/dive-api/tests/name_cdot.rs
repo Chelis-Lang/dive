@@ -2,14 +2,14 @@
 #[path = "support/refused.rs"]
 mod refused;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{ActionComposition, CheckRequest, TemporalMode};
+use dive_api::{ActionComposition, CheckRequest};
 use serde_json::json;
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 fn fixtures() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/name-cdot")
 }
-fn check_primary_cases(temporal: TemporalMode) -> TestResult {
+fn check_primary_cases(temporal: refused::Mode) -> TestResult {
     let oracle: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/name-cdot/oracle.json"))?;
     for case in oracle["cases"].as_array().ok_or("cases")? {
@@ -26,9 +26,9 @@ fn check_primary_cases(temporal: TemporalMode) -> TestResult {
                 workers: Some(workers),
                 ..Default::default()
             };
-            assert_eq!(request.temporal, TemporalMode::Ordinary);
-            if temporal == TemporalMode::FinalShort {
-                request.temporal = TemporalMode::FinalShort;
+            assert!(request.temporal_refusal.is_none());
+            if temporal == refused::Mode::FinalShort {
+                request.temporal_refusal = Some(refused::FINAL_SHORT.into());
             }
             // Only the retired reference engine ran TLC action composition
             // (#791, #910). Pinned TLC holds `hold` with the oracle's counts
@@ -45,11 +45,11 @@ fn check_primary_cases(temporal: TemporalMode) -> TestResult {
 }
 #[test]
 fn explicit_final_keeps_primary_hold_and_safe_failure_without_ordinary_admission() -> TestResult {
-    check_primary_cases(TemporalMode::FinalShort)
+    check_primary_cases(refused::Mode::FinalShort)
 }
 #[test]
 fn ordinary_tlc_keeps_mixed_name_composition_primary_values_and_safe_refusal() -> TestResult {
-    check_primary_cases(TemporalMode::Ordinary)
+    check_primary_cases(refused::Mode::Ordinary)
 }
 #[test]
 fn independent_composed_words_validate_tla_and_keep_tlc_accounting_refused() -> TestResult {
@@ -139,7 +139,7 @@ fn original_short_fragment_matches_the_pinned_success() -> TestResult {
         config: Some(fixtures().join("hold.cfg")),
         compat_tlc: true,
         action_composition: Some(ActionComposition::Tlc),
-        temporal: TemporalMode::FinalShort,
+        temporal_refusal: Some(refused::FINAL_SHORT.into()),
         seed: Some(0),
         fp: Some(0),
         workers: Some(1),

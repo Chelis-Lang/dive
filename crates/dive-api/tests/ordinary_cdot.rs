@@ -2,7 +2,7 @@
 #[path = "support/refused.rs"]
 mod refused;
 use dive_api::trace::{TraceDoc, Validation};
-use dive_api::{ActionComposition, CheckRequest, TemporalMode};
+use dive_api::{ActionComposition, CheckRequest};
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -67,7 +67,7 @@ fn actual_primary_hold_retains_intermediate_counts_and_fail_retains_replay_refus
                 refused::ACTION_COMPOSITION,
             );
             let mut explicit = request;
-            explicit.temporal = TemporalMode::FinalShort;
+            explicit.temporal_refusal = Some(refused::FINAL_SHORT.into());
             let direct = dive_api::check_file(&explicit)?;
             assert_eq!(direct.verdict(), "unsupported");
             assert_eq!(direct.exit_code(), 3);

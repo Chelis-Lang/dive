@@ -19,7 +19,6 @@ fn report(tlc: bool, capture: Option<bool>) -> CheckReport {
         seed_given: true,
         fp_given: true,
         workers_requested: 1,
-        temporal: TemporalMode::FinalShort,
         budget_sources: ("explicit", "none"),
         memory_requested_source: "none",
         memory_samples: None,

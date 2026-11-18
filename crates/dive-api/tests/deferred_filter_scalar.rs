@@ -1,6 +1,6 @@
 //! Pinned filtered-WF truth and original textual word, independently validated.
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, ExitConvention, Store, TemporalMode};
+use dive_api::{CheckRequest, ExitConvention, Store};
 use std::path::PathBuf;
 #[path = "support/refused.rs"]
 mod refused;
@@ -44,7 +44,7 @@ fn filtered_wf_matches_two_primary_outcomes_and_validates_the_primary_word() -> 
                     file: files.0.clone(),
                     compat_tlc,
                     store,
-                    temporal: TemporalMode::FinalShort,
+                    temporal_refusal: Some(refused::FINAL_SHORT.into()),
                     workers: Some(1),
                     seed: Some(0),
                     fp: Some(0),
@@ -59,7 +59,7 @@ fn filtered_wf_matches_two_primary_outcomes_and_validates_the_primary_word() -> 
                     final_short.exit_code(),
                     refused::FINAL_SHORT,
                 );
-                request.temporal = TemporalMode::Ordinary;
+                request.temporal_refusal = None;
                 let report = dive_api::check_file(&request)?;
                 if store == Store::Exact {
                     refused::assert_refused(

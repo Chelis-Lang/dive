@@ -413,9 +413,9 @@ fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
     for compat in [false, true] {
         for workers in [1, 8] {
             for (property, temporal) in [
-                (false, dive_api::TemporalMode::Ordinary),
-                (true, dive_api::TemporalMode::Ordinary),
-                (true, dive_api::TemporalMode::FinalShort),
+                (false, refused::Mode::Ordinary),
+                (true, refused::Mode::Ordinary),
+                (true, refused::Mode::FinalShort),
             ] {
                 std::fs::write(
                     file.with_extension("cfg"),
@@ -428,7 +428,7 @@ fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
                 let report = dive_api::check_file(&CheckRequest {
                     max_memory: BudgetSetting::Explicit(1),
                     time_limit: BudgetSetting::Unlimited,
-                    temporal,
+                    temporal_refusal: temporal.refusal(),
                     ..request(&file, compat, workers)
                 })?;
                 let json = report.to_json();
@@ -438,18 +438,13 @@ fn a_one_byte_ceiling_stops_short_safety_and_temporal_requests_before_binding()
                 assert!(json["stopped"]["observed"].as_u64() > Some(1));
                 assert!(json["statistics"].is_null(), "no search began: {json}");
                 assert_eq!(json["resources"]["checking_started"], false);
-                if temporal == dive_api::TemporalMode::FinalShort {
-                    assert_eq!(json["check_kind"], "temporal");
-                    assert_eq!(json["execution"]["stage"], "check-startup");
-                    assert_eq!(json["execution"]["started"], false);
-                    assert_eq!(json["execution"]["capture_completed"], false);
-                } else {
-                    assert_eq!(json["check_kind"], "safety");
-                    assert!(
-                        json["execution"].is_null(),
-                        "safety envelope cannot claim temporal execution"
-                    );
-                }
+                // A start-up stop precedes binding, so no temporal report
+                // family is chosen, with or without a refused strategy.
+                assert_eq!(json["check_kind"], "safety", "{temporal:?}");
+                assert!(
+                    json["execution"].is_null(),
+                    "safety envelope cannot claim temporal execution"
+                );
                 assert_eq!(json["resources"]["memory"]["initial_sampled"], true);
                 assert_eq!(json["resources"]["memory"]["final_sampled"], true);
                 assert!(json["resources"]["memory"]["samples"].as_u64() >= Some(2));
@@ -564,7 +559,7 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
     )?;
     for compat_tlc in [false, true] {
         let mut budgeted = CheckRequest {
-            temporal: dive_api::TemporalMode::FinalShort,
+            temporal_refusal: Some(refused::FINAL_SHORT.into()),
             time_limit: BudgetSetting::Explicit(Duration::from_millis(50)),
             max_memory: BudgetSetting::Unlimited,
             ..request(&file, compat_tlc, 1)
@@ -578,7 +573,7 @@ fn evaluator_loops_stop_temporal_atoms_after_actual_complete_capture()
             final_short.exit_code(),
             refused::FINAL_SHORT,
         );
-        budgeted.temporal = dive_api::TemporalMode::Ordinary;
+        budgeted.temporal_refusal = None;
         let report = dive_api::check_file(&budgeted)?;
         let json = report.to_json();
         assert_stopped(&json, "time", "temporal-analysis");

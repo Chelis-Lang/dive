@@ -330,12 +330,6 @@ fn unsupported_owners_refuse_before_opening_source() {
         check_file_checkpoint(&req, &cp),
         Err(dive_api::ApiError::Unsupported { .. })
     ));
-    req.temporal = dive_api::TemporalMode::FinalShort;
-    assert!(matches!(
-        check_file(&req),
-        Err(dive_api::ApiError::Unsupported { .. })
-    ));
-    req.temporal = dive_api::TemporalMode::Ordinary;
     req.core_sample = Some(1);
     assert!(matches!(
         check_file(&req),

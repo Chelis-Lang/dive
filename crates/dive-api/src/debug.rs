@@ -556,7 +556,7 @@ impl Session {
             ));
         }
         if request.debugger.is_some()
-            || request.temporal != crate::TemporalMode::Ordinary
+            || request.temporal_refusal.is_some()
             || request.core_sample.is_some()
             || !request.host_access.is_empty()
         {

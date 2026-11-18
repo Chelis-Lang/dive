@@ -115,14 +115,13 @@ fn property_bearing_final_routes_do_not_return_configured_rng_false_verdicts() {
             std::fs::write(&file,format!("---- MODULE ConfiguredFinal ----\nEXTENDS Naturals,TLC\nCONSTANT C(_)\nVARIABLES n,x\nInit == n=0 /\\ x=0\nNext == n<3 /\\ n'=n+1 /\\ x'=C(1..100)\nInv == {inv}\nLive == {live}\n====\n")).expect("source");
             std::fs::write(dir.join("ConfiguredFinal.cfg"),"INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\nCONSTANT C <- RandomElement\nPROPERTY Live\n").expect("cfg");
             {
-                let temporal = dive_api::TemporalMode::FinalShort;
                 for compat in [false, true] {
                     for store in [Store::Fingerprint, Store::Exact] {
                         for width in [1, 4, 8] {
                             for chaos in [None, Some(19)] {
                                 let r = dive_api::check_file(&CheckRequest {
                                     file: file.clone(),
-                                    temporal,
+                                    temporal_refusal: Some(refused::FINAL_SHORT.into()),
                                     compat_tlc: compat,
                                     store,
                                     workers: Some(width),

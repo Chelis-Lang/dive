@@ -28,9 +28,28 @@ pub const FINITE_HOST_ACCESS: &str = "native finite mode TLCGet/TLCSet host acce
 /// conjunct, which TLC evaluates again in each.
 pub const EFFECT_REUSED_IN_CONJUNCTS: &str =
     "with an effect (Print, PrintT, RandomElement) used in more than one conjunct";
-/// Bounded final temporal checking (`--lncheck final --lasso short`).
+/// Bounded final temporal checking (`--lncheck final --lasso short`): the
+/// text the CLI adds to Core's refusal of a model's temporal properties.
 pub const FINAL_SHORT: &str =
     "bounded final checking (--lncheck final --lasso short) is not implemented on Core";
+
+/// The temporal strategy a test requests: ordinary checking, or the CLI's
+/// `--lncheck final --lasso short`, which Core refuses by name
+/// ([`FINAL_SHORT`]) for a model with temporal properties.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Mode {
+    /// Ordinary checking.
+    Ordinary,
+    /// `--lncheck final --lasso short`.
+    FinalShort,
+}
+
+impl Mode {
+    /// The request's `temporal_refusal` for this strategy, as the CLI sets it.
+    pub fn refusal(self) -> Option<String> {
+        (self == Self::FinalShort).then(|| FINAL_SHORT.into())
+    }
+}
 /// `--max-states` or `--max-depth` with temporal properties.
 pub const TEMPORAL_CAP: &str = "--max-states or --max-depth with temporal properties";
 /// Exact or spilled seen storage with temporal properties.

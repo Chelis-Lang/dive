@@ -11,6 +11,11 @@ The first release.
 
 ### Compatibility
 
+- Library users: `dive_api::TemporalMode` no longer has a `FinalShort`
+  variant, which Core never implemented, and is `#[non_exhaustive]`. The CLI
+  is unchanged: `--lncheck final --lasso short` (and `dive tlc -lncheck final`)
+  still refuses temporal properties by name with exit 3, and a model without
+  temporal properties is checked exactly as without the flags.
 - JSON reports from every command carry `schema_version: 3`. Pre-release
   builds wrote schema 2; schema 3 replaces the single
   `options.temporal_bounds.atom_cells` limit with the separate

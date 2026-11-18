@@ -6,7 +6,7 @@ mod core_final;
 mod refused;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{BudgetSetting, CheckRequest, ExitConvention, SymmetryLiveness, TemporalMode};
+use dive_api::{BudgetSetting, CheckRequest, ExitConvention, SymmetryLiveness};
 use dive_runtime::CheckOptions;
 use serde_json::{Value, json};
 use std::{
@@ -271,12 +271,12 @@ fn limits_are_not_verdicts_and_startup_metadata_is_not_a_bound_policy() {
     assert!(report["symmetry_liveness"].is_null());
     assert_eq!(report["options"]["symmetry_liveness"], "unreduced");
     req.max_memory = BudgetSetting::Unlimited;
-    req.temporal = TemporalMode::FinalShort;
+    req.temporal_refusal = Some(refused::FINAL_SHORT.into());
     let report = check(&req);
     // Only the retired reference engine ran bounded final checking.
     let exit = u8::try_from(report["exit_code"].as_u64().unwrap_or(255)).unwrap_or(255);
     refused::assert_refused(&report, exit, refused::FINAL_SHORT);
-    req.temporal = TemporalMode::Ordinary;
+    req.temporal_refusal = None;
     let report = check(&req);
     assert_eq!(report["verdict"], "success");
     assert_eq!(report["symmetry_liveness"]["scope"], "whole-run");

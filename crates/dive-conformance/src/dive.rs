@@ -1716,7 +1716,7 @@ mod tests {
     #[test]
     fn real_initial_memory_stops_keep_their_report_family_and_resource_finding()
     -> std::result::Result<(), Box<dyn std::error::Error>> {
-        use dive_api::{BudgetSetting, CheckRequest, ExitConvention, TemporalMode};
+        use dive_api::{BudgetSetting, CheckRequest, ExitConvention};
         let scratch = TempDir::new_in(&std::env::temp_dir(), "initial-memory-stop")?;
         let file = scratch.path().join("Tiny.tla");
         std::fs::write(
@@ -1728,55 +1728,39 @@ mod tests {
             "INIT Init\nNEXT Next\nPROPERTY P\n",
         )?;
         for compat_tlc in [false, true] {
-            for temporal in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-                let report = dive_api::check_file(&CheckRequest {
-                    file: file.clone(),
-                    compat_tlc,
-                    seed: Some(0),
-                    fp: Some(0),
-                    max_memory: BudgetSetting::Explicit(1),
-                    time_limit: BudgetSetting::Unlimited,
-                    temporal,
-                    ..CheckRequest::default()
-                })?;
-                let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-                assert_eq!(value["verdict"], "stopped");
-                assert_eq!(value["stopped"]["resource"], "memory");
-                assert_eq!(value["stopped"]["phase"], "check-startup");
-                assert_eq!(value["resources"]["checking_started"], false);
-                assert!(
-                    value["statistics"].is_null()
-                        && value["tlc"].is_null()
-                        && value["counterexample"].is_null()
-                );
-                let status = i32::from(report.exit_code_for(ExitConvention::Tlc));
-                assert_eq!(status, 5);
-                let mapped = check_result(&outcome(status, &value.to_string()), compat_tlc);
-                if compat_tlc && temporal == TemporalMode::FinalShort {
-                    assert!(
-                        matches!(mapped, CheckMapping::Result(result) if result.verdict == Verdict::Unclassified),
-                        "the ordinary reader must retain its qualified-mode guard"
-                    );
-                } else {
-                    assert!(
-                        matches!(mapped, CheckMapping::Result(result) if result.verdict == Verdict::Timeout && result.note.as_deref().is_some_and(|note| note.contains("--max-memory"))),
-                        "{value}"
-                    );
-                }
-                if temporal == TemporalMode::Ordinary {
-                    assert_eq!(value["check_kind"], "safety");
-                    assert!(value["execution"].is_null());
-                    let mut forged = value.clone();
-                    forged["execution"] = serde_json::json!({"stage":"check-startup", "capture_completed":false, "started":false});
-                    assert!(
-                        matches!(check_result(&outcome(status, &forged.to_string()), compat_tlc), CheckMapping::Result(result) if result.verdict == Verdict::Unclassified)
-                    );
-                } else {
-                    assert_eq!(value["check_kind"], "temporal");
-                    assert_eq!(value["execution"]["stage"], "check-startup");
-                    assert_eq!(value["execution"]["capture_completed"], false);
-                }
-            }
+            let report = dive_api::check_file(&CheckRequest {
+                file: file.clone(),
+                compat_tlc,
+                seed: Some(0),
+                fp: Some(0),
+                max_memory: BudgetSetting::Explicit(1),
+                time_limit: BudgetSetting::Unlimited,
+                ..CheckRequest::default()
+            })?;
+            let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
+            assert_eq!(value["verdict"], "stopped");
+            assert_eq!(value["stopped"]["resource"], "memory");
+            assert_eq!(value["stopped"]["phase"], "check-startup");
+            assert_eq!(value["resources"]["checking_started"], false);
+            assert!(
+                value["statistics"].is_null()
+                    && value["tlc"].is_null()
+                    && value["counterexample"].is_null()
+            );
+            let status = i32::from(report.exit_code_for(ExitConvention::Tlc));
+            assert_eq!(status, 5);
+            let mapped = check_result(&outcome(status, &value.to_string()), compat_tlc);
+            assert!(
+                matches!(mapped, CheckMapping::Result(result) if result.verdict == Verdict::Timeout && result.note.as_deref().is_some_and(|note| note.contains("--max-memory"))),
+                "{value}"
+            );
+            assert_eq!(value["check_kind"], "safety");
+            assert!(value["execution"].is_null());
+            let mut forged = value.clone();
+            forged["execution"] = serde_json::json!({"stage":"check-startup", "capture_completed":false, "started":false});
+            assert!(
+                matches!(check_result(&outcome(status, &forged.to_string()), compat_tlc), CheckMapping::Result(result) if result.verdict == Verdict::Unclassified)
+            );
         }
         Ok(())
     }

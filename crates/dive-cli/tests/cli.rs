@@ -549,10 +549,9 @@ fn final_binding_errors_preserve_primary_periodic_classes_and_exits() {
                 assert!(report["statistics"].is_null());
                 assert!(report["counterexample"].is_null());
                 assert_eq!(report["output"], serde_json::json!([]));
-                if final_short {
-                    assert_eq!(report["execution"]["stage"], "binding");
-                    assert_eq!(report["execution"]["capture_completed"], false);
-                }
+                // A binding failure is the same report with or without the
+                // refused final strategy.
+                assert!(report["execution"].is_null(), "{final_short}: {report}");
             }
         }
     }
@@ -1063,7 +1062,6 @@ fn native_checkpoint_option_contract_rejects_orphans_and_unsupported_modes() {
         assert!(String::from_utf8_lossy(&output.stderr).contains("checkpoint"));
     }
     for flags in [
-        vec!["--lncheck", "final", "--lasso", "short"],
         vec!["--frontier-directory", "unused"],
         vec!["--predecessor-directory", "unused"],
     ] {
@@ -1324,8 +1322,7 @@ fn recursive_state_property_final_mode_matches_ordinary_evaluation()
             }
             assert_eq!(b["verdict"], "unsupported");
             assert_eq!(b["message"], "a split binding the M0 core cannot read");
-            assert_eq!(b["execution"]["stage"], "capture");
-            assert_eq!(b["execution"]["capture_completed"], false);
+            assert!(b["execution"].is_null(), "{b}");
             assert_eq!(b["options"]["workers"]["requested"], 1);
             assert_eq!(b["options"]["seed"], 0);
             assert!(b["property"].is_null());
