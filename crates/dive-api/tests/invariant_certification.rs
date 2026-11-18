@@ -1,6 +1,6 @@
 //! Every retained genuine invariant family keeps its independently proved class.
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use std::path::PathBuf;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -55,26 +55,22 @@ fn prior_agreements_keep_multi_init_records_instances_and_print_values() -> Test
                 },
             )?;
             {
-                let engine = Engine::Core;
                 for workers in [1, 4] {
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(config.clone()),
-                            compat_tlc,
-                            seed: Some(0),
-                            fp: Some(0),
-                            workers: Some(workers),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )?
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(config.clone()),
+                        compat_tlc,
+                        seed: Some(0),
+                        fp: Some(0),
+                        workers: Some(workers),
+                        ..CheckRequest::default()
+                    })?
                     .to_json();
-                    assert_eq!(report["tlc"]["code"], 2111, "{file:?}/{engine:?}: {report}");
+                    assert_eq!(report["tlc"]["code"], 2111, "{file:?}: {report}");
                     assert_eq!(report["tlc"]["verified"], true);
                     let word = TraceDoc::from_json(&report["counterexample"]["trace"])?;
                     let (proof, class) = model.invariant_error_class(&word, None)?;
-                    assert_eq!(proof.validation, Validation::Valid, "{file:?}/{engine:?}");
+                    assert_eq!(proof.validation, Validation::Valid, "{file:?}");
                     assert_eq!(class.ok_or("certificate")?.deciding_code(), 2111);
                 }
             }
@@ -155,45 +151,38 @@ fn genuine_primary_wrappers_include_later_sources_and_value_method_causes() -> T
                         ..TraceOptions::default()
                     },
                 )?;
-                for engine in std::iter::once(Engine::Core) {
-                    for workers in [1, 4] {
-                        let report = check_file_engine(
-                            &CheckRequest {
-                                file: file.clone(),
-                                config: Some(file.with_extension("cfg")),
-                                compat_tlc,
-                                seed: Some(0),
-                                fp: Some(0),
-                                workers: Some(workers),
-                                module_paths: vec![modules.clone()],
-                                ..CheckRequest::default()
-                            },
-                            engine,
-                        )?
-                        .to_json();
-                        if engine == Engine::Core && report["verdict"] == "unsupported" {
-                            // Existing native evaluator refusals are outside this proof
-                            // change. A new certification refusal must never hide here.
-                            assert!(
-                                !report["message"]
-                                    .as_str()
-                                    .ok_or("refusal reason")?
-                                    .starts_with(
-                                        "candidate primary/diagnostic lifecycle is unproved"
-                                    ),
-                                "{name}: {report}"
-                            );
-                            assert!(report["counterexample"].is_null());
-                            continue;
-                        }
-                        assert_eq!(report["tlc"]["code"], 2111, "{name}/{engine:?}: {report}");
-                        assert_eq!(report["tlc"]["verified"], true, "{name}/{engine:?}");
-                        assert_eq!(report["tlc"]["exit_status"], 76, "{name}/{engine:?}");
-                        let word = TraceDoc::from_json(&report["counterexample"]["trace"])?;
-                        let (proof, class) = model.invariant_error_class(&word, None)?;
-                        assert_eq!(proof.validation, Validation::Valid, "{name}/{engine:?}");
-                        assert_eq!(class.ok_or("missing class")?.deciding_code(), 2111);
+                for workers in [1, 4] {
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        seed: Some(0),
+                        fp: Some(0),
+                        workers: Some(workers),
+                        module_paths: vec![modules.clone()],
+                        ..CheckRequest::default()
+                    })?
+                    .to_json();
+                    if report["verdict"] == "unsupported" {
+                        // Existing native evaluator refusals are outside this proof
+                        // change. A new certification refusal must never hide here.
+                        assert!(
+                            !report["message"]
+                                .as_str()
+                                .ok_or("refusal reason")?
+                                .starts_with("candidate primary/diagnostic lifecycle is unproved"),
+                            "{name}: {report}"
+                        );
+                        assert!(report["counterexample"].is_null());
+                        continue;
                     }
+                    assert_eq!(report["tlc"]["code"], 2111, "{name}: {report}");
+                    assert_eq!(report["tlc"]["verified"], true, "{name}");
+                    assert_eq!(report["tlc"]["exit_status"], 76, "{name}");
+                    let word = TraceDoc::from_json(&report["counterexample"]["trace"])?;
+                    let (proof, class) = model.invariant_error_class(&word, None)?;
+                    assert_eq!(proof.validation, Validation::Valid, "{name}");
+                    assert_eq!(class.ok_or("missing class")?.deciding_code(), 2111);
                 }
             }
         }

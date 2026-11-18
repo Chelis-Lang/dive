@@ -18,45 +18,6 @@ use dive_runtime::{CheckOptions, CheckResult, Stats, Verdict, Workers};
 use dive_value::Value;
 use serde_json::{Value as Json, json};
 
-/// Which execution engine runs a checking or finite-mode request.
-///
-/// The compiled Core is the only engine (ADR 0153, #791): the Reference
-/// checking runtime was removed. What Core does not implement is a named
-/// refusal.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub enum Engine {
-    /// The compiled core in either profile. Unsupported language or mode
-    /// combinations are named refusals, without fallback.
-    #[default]
-    Core,
-}
-
-impl Engine {
-    /// Parses `core`, the only engine.
-    ///
-    /// ```
-    /// assert_eq!(dive_api::Engine::parse("core"), Some(dive_api::Engine::Core));
-    /// assert_eq!(dive_api::Engine::parse("reference"), None);
-    /// assert_eq!(dive_api::Engine::parse("auto"), None);
-    /// assert_eq!(dive_api::Engine::default(), dive_api::Engine::Core);
-    /// ```
-    #[must_use]
-    pub fn parse(s: &str) -> Option<Self> {
-        match s {
-            "core" => Some(Self::Core),
-            _ => None,
-        }
-    }
-
-    /// The name used on the command line and in reports.
-    #[must_use]
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Core => "core",
-        }
-    }
-}
-
 /// What a core run reports beyond TLC's statistics.
 #[derive(Clone, Debug, Default)]
 pub(crate) struct CoreRun {

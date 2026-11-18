@@ -6,7 +6,7 @@
 use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn fixture(name: &str) -> PathBuf {
@@ -48,7 +48,7 @@ fn check(names: &[&str]) {
                     compat_tlc,
                     ..CheckRequest::default()
                 };
-                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
+                let reference = check_file(&req).expect("reference runs");
                 let expected = observed(&reference);
                 let bad = name == "EnabStepCacheBad";
                 assert_eq!(

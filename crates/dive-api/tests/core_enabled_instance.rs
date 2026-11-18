@@ -7,7 +7,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_enabled_instance.json");
 use std::path::{Path, PathBuf};
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn fixture(name: &str) -> PathBuf {
@@ -71,7 +71,7 @@ fn check_case(name: &str, bad: bool, error: bool, states: u64) {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let expected = observed(&check_file_engine(&req, Engine::Core).expect("reference"));
+            let expected = observed(&check_file(&req).expect("reference"));
             assert_eq!(
                 expected["code"],
                 if error {
@@ -167,7 +167,7 @@ fn nonidentity_and_hidden_query_contexts_remain_explicitly_refused() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let report = check_file_engine(&req, Engine::Core).expect("check returns refusal");
+            let report = check_file(&req).expect("check returns refusal");
             let value = report.to_json();
             assert_eq!(
                 value["verdict"],
@@ -204,7 +204,6 @@ fn constant_parameters_cannot_capture_state_across_the_query_boundary() {
         let file = dir.join(format!("{name}.tla"));
         for compat_tlc in [false, true] {
             {
-                let engine = Engine::Core;
                 let req = CheckRequest {
                     config: Some(file.with_extension("cfg")),
                     file: file.clone(),
@@ -214,7 +213,7 @@ fn constant_parameters_cannot_capture_state_across_the_query_boundary() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let report = check_file_engine(&req, engine).expect("frontend rejects");
+                let report = check_file(&req).expect("frontend rejects");
                 assert_eq!(report.exit_code_for(ExitConvention::Tlc), 150);
                 let value = report.to_json();
                 assert_eq!(value["verdict"], "rejected", "{name}/{compat_tlc}");
@@ -255,7 +254,7 @@ fn pure_recursive_calls_in_identity_instance_queries_run_on_core() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let expected = observed(&check_file_engine(&req, Engine::Core).expect("reference"));
+            let expected = observed(&check_file(&req).expect("reference"));
             assert_eq!(expected["verdict"], "success");
             assert_eq!(
                 [
@@ -299,7 +298,7 @@ fn identity_instance_fairness_over_recursive_functions_runs_native_atoms() {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&req, Engine::Core).expect("reference");
+            let reference = check_file(&req).expect("reference");
             let expected = observed(&reference);
             assert_eq!(expected["exit"], if bad { 13 } else { 0 }, "{name}");
             assert_eq!(
@@ -310,7 +309,7 @@ fn identity_instance_fairness_over_recursive_functions_runs_native_atoms() {
                 ],
                 [6, 6, 6]
             );
-            let core = check_file_engine(&req, Engine::Core).expect("core");
+            let core = check_file(&req).expect("core");
             let value = core.to_json();
             assert_eq!(value["engine"], "core", "{name}: {value}");
             let actual = observed(&core);
@@ -396,7 +395,7 @@ fn unproved_configured_captures_effects_and_calls_stay_static_refusals() {
                     ..CheckRequest::default()
                 };
                 // Only the retired reference engine ran these (#791, #910).
-                let core = check_file_engine(&req, Engine::Core).expect("refusal");
+                let core = check_file(&req).expect("refusal");
                 let core = core.to_json();
                 assert_eq!(core["verdict"], "unsupported", "{name}: {core}");
                 let reason = if name.starts_with("EnabConfigured") {

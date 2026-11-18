@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use dive_api::host_inputs::{InputRecord, InputRequest, InputResponse, RecordedInputs};
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, HostAccess, check_file_engine};
+use dive_api::{CheckRequest, HostAccess, check_file};
 use serde_json::json;
 
 struct Fixture(PathBuf);
@@ -55,7 +55,7 @@ fn modules() -> PathBuf {
 /// Core's named refusal of granted external inputs; only the retired
 /// reference engine captured them (#791, #910).
 fn assert_io_refused(request: &CheckRequest) {
-    let result = check_file_engine(request, Engine::Core);
+    let result = check_file(request);
     assert!(
         matches!(&result, Err(dive_api::ApiError::Unsupported { feature })
             if feature.contains("external inputs (--allow-io, IOUtils/IOEnv) are not implemented on Core")),
@@ -76,7 +76,6 @@ fn options(tlc: bool, inputs: RecordedInputs) -> TraceOptions {
 fn actual_file_capture_replays_after_the_file_is_removed_and_rejects_forgery() {
     for tlc in [false, true] {
         {
-            let engine = Engine::Core;
             let fixture = Fixture::new();
             let input = fixture.file("input.txt");
             std::fs::write(&input, "hello\n").expect("input");
@@ -91,7 +90,6 @@ fn actual_file_capture_replays_after_the_file_is_removed_and_rejects_forgery() {
                 library_paths: vec![modules()],
                 ..Default::default()
             };
-            assert_eq!(engine, Engine::Core);
             assert_io_refused(&request);
             // The independent validator still binds a recorded capture of
             // this file offline and rejects forged words and records.
@@ -299,7 +297,7 @@ fn external_inputs_refuse_recovery_before_loading_an_archive_or_specification() 
         config_source_sha256: None,
     };
     assert!(
-        matches!(dive_api::check_file_checkpoint_engine(&request,&checkpoint,Engine::Core),Err(dive_api::ApiError::Unsupported { feature }) if feature.contains("checkpoint/recovery"))
+        matches!(dive_api::check_file_checkpoint(&request,&checkpoint),Err(dive_api::ApiError::Unsupported { feature }) if feature.contains("checkpoint/recovery"))
     );
     assert!(!checkpoint.path.exists());
 }

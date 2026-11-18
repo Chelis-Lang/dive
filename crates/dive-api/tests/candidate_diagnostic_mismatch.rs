@@ -2,7 +2,7 @@
 #![allow(clippy::expect_used, reason = "pinned diagnostic lifetime controls")]
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -19,27 +19,21 @@ fn a_different_diagnostic_cause_refuses_without_retagging_or_publishing_an_inval
         ("LaterOverflowDiagnosticDiv", "TLC_MODULE_OVERFLOW"),
     ] {
         let file = fixture(name);
-        for (engine, workers) in [Engine::Core]
-            .into_iter()
-            .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
-        {
-            let report = check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    config: Some(file.with_extension("cfg")),
-                    compat_tlc: true,
-                    workers: Some(workers),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..CheckRequest::default()
-                },
-                engine,
-            )
+        for workers in [1, 4] {
+            let report = check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(file.with_extension("cfg")),
+                compat_tlc: true,
+                workers: Some(workers),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            })
             .expect("actual file check");
             let result = report.to_json();
             assert_eq!(
                 result["verdict"], "unsupported",
-                "{name}/{engine:?}/{workers}: {result}"
+                "{name}/{workers}: {result}"
             );
             assert_eq!(report.exit_code_for(ExitConvention::Tlc), 3);
             assert!(result["tlc"].is_null());
@@ -67,18 +61,14 @@ fn default_unbounded_arithmetic_does_not_inherit_the_tlc_overflow_boundary() {
     for name in ["LaterDivDiagnosticOverflow", "LaterOverflowDiagnosticDiv"] {
         let file = fixture(name);
         {
-            let engine = Engine::Core;
-            let report = check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    config: Some(file.with_extension("cfg")),
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..CheckRequest::default()
-                },
-                engine,
-            )
+            let report = check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(file.with_extension("cfg")),
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            })
             .expect("default check");
             let result = report.to_json();
             if name == "LaterDivDiagnosticOverflow" {

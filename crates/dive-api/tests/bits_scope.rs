@@ -17,7 +17,7 @@ const CLASS: &[u8] = include_bytes!("../../dive-model/tests/fixtures/bits/Bits.c
 /// Core, explicitly (the retired Reference engine's former slot);
 /// `check_file` and `check_file_tlc_inputs` run the default engine, also Core.
 fn reference_engine(req: &CheckRequest) -> Result<CheckReport, dive_api::ApiError> {
-    dive_api::check_file_engine(req, dive_api::Engine::Core)
+    dive_api::check_file(req)
 }
 
 struct Files(PathBuf);
@@ -93,8 +93,7 @@ fn pinned_local_class_matches_reference_at_supported_worker_widths() {
     for profile in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             let mut req = request(&files, profile, 1, store);
-            let completed =
-                dive_api::check_file_engine(&req, dive_api::Engine::Core).expect("one worker");
+            let completed = dive_api::check_file(&req).expect("one worker");
             assert_eq!(completed.verdict(), "success", "{}", completed.to_json());
             assert_eq!(completed.exit_code(), 0);
             assert_eq!(completed.to_json()["statistics"]["distinct"], 4);
@@ -104,8 +103,7 @@ fn pinned_local_class_matches_reference_at_supported_worker_widths() {
                 for sequential in [false, true] {
                     req.sequential = sequential;
                     reference(
-                        &dive_api::check_file_engine(&req, dive_api::Engine::Core)
-                            .expect("supported width"),
+                        &dive_api::check_file(&req).expect("supported width"),
                         workers,
                         &baseline,
                     );
@@ -238,9 +236,7 @@ fn plain_tla_bits_preserves_parallel_checking_and_checkpoint_recovery() {
     for profile in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             let req = request(&files, profile, 1, store);
-            let baseline = dive_api::check_file_engine(&req, dive_api::Engine::Core)
-                .expect("TLA fallback")
-                .to_json();
+            let baseline = dive_api::check_file(&req).expect("TLA fallback").to_json();
             let path = files.0.join(format!("fallback-{profile}-{store:?}.cp"));
             let pause = checkpoint::Request {
                 path,
@@ -249,14 +245,14 @@ fn plain_tla_bits_preserves_parallel_checking_and_checkpoint_recovery() {
                 config_source_sha256: None,
             };
             assert_eq!(
-                dive_api::check_file_checkpoint_engine(&req, &pause, dive_api::Engine::Core)
+                dive_api::check_file_checkpoint(&req, &pause)
                     .expect("fallback pause")
                     .verdict(),
                 "resource-limit"
             );
             for workers in [1, 4, 8] {
                 let req = request(&files, profile, workers, store);
-                let complete = dive_api::check_file_engine(&req, dive_api::Engine::Core)
+                let complete = dive_api::check_file(&req)
                     .expect("fallback width")
                     .to_json();
                 assert_eq!(complete["verdict"], "success");
@@ -266,8 +262,7 @@ fn plain_tla_bits_preserves_parallel_checking_and_checkpoint_recovery() {
                     ..pause.clone()
                 };
                 let resumed =
-                    dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core)
-                        .expect("fallback recovery");
+                    dive_api::check_file_checkpoint(&req, &resume).expect("fallback recovery");
                 assert_eq!(resumed.verdict(), "success", "{}", resumed.to_json());
                 assert_eq!(resumed.to_json()["statistics"], baseline["statistics"]);
             }
@@ -287,12 +282,10 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
                 counters: checkpoint::Counters::Retain,
                 config_source_sha256: None,
             };
-            let baseline = dive_api::check_file_engine(&req, dive_api::Engine::Core)
+            let baseline = dive_api::check_file(&req)
                 .expect("reference check")
                 .to_json();
-            let paused =
-                dive_api::check_file_checkpoint_engine(&req, &pause, dive_api::Engine::Core)
-                    .expect("one-worker pause");
+            let paused = dive_api::check_file_checkpoint(&req, &pause).expect("one-worker pause");
             assert_eq!(paused.verdict(), "resource-limit");
             let bytes = std::fs::read(&pause.path).expect("archive");
             let resume = checkpoint::Request {
@@ -300,7 +293,7 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
                 ..pause.clone()
             };
             assert_eq!(
-                dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core)
+                dive_api::check_file_checkpoint(&req, &resume)
                     .expect("one-worker resume")
                     .verdict(),
                 "success"
@@ -313,17 +306,12 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
                 width_pause.path = files
                     .0
                     .join(format!("supported-{profile}-{store:?}-{workers}.cp"));
-                let paused_at_width = dive_api::check_file_checkpoint_engine(
-                    &req,
-                    &width_pause,
-                    dive_api::Engine::Core,
-                )
-                .expect("pause width");
+                let paused_at_width =
+                    dive_api::check_file_checkpoint(&req, &width_pause).expect("pause width");
                 assert_eq!(paused_at_width.verdict(), "resource-limit");
                 assert!(width_pause.path.exists());
                 reference(
-                    &dive_api::check_file_checkpoint_engine(&req, &resume, dive_api::Engine::Core)
-                        .expect("recovery width"),
+                    &dive_api::check_file_checkpoint(&req, &resume).expect("recovery width"),
                     workers,
                     &baseline,
                 );
@@ -332,7 +320,7 @@ fn local_class_recovery_preserves_identity_across_widths_and_corrupt_bootstrap_p
                     ..resume.clone()
                 };
                 assert!(matches!(
-                    dive_api::check_file_checkpoint_engine(&req, &corrupt_resume, dive_api::Engine::Core),
+                    dive_api::check_file_checkpoint(&req, &corrupt_resume),
                     Err(dive_api::ApiError::Rejected { message }) if message.contains("DIVE-S0400")
                 ));
                 assert_eq!(std::fs::read(&pause.path).expect("untouched"), bytes);
@@ -354,14 +342,12 @@ fn finite_simulation_keeps_its_separate_worker_contract() {
             workers: Some(1),
             ..SimulateRequest::default()
         };
-        let sampled = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
-            .expect("sample")
-            .to_json();
+        let sampled = dive_api::simulate_file(&req).expect("sample").to_json();
         assert_eq!(sampled["result"], "sampled");
         assert_eq!(sampled["model_proved"], false);
         assert_eq!(sampled["traces"][0]["validation"]["result"], "valid");
         req.workers = Some(4);
-        let refused = dive_api::simulate_file_engine(&req, dive_api::Engine::Core)
+        let refused = dive_api::simulate_file(&req)
             .expect("existing worker boundary")
             .to_json();
         assert_eq!(refused["result"], "unsupported");

@@ -87,7 +87,6 @@ mod core_random;
 mod core_sample;
 mod core_temporal;
 mod mode_budget;
-pub use core_engine::Engine;
 /// Native safety checkpoint request and format API.
 pub mod checkpoint {
     pub use dive_runtime::checkpoint::{
@@ -98,17 +97,14 @@ pub mod checkpoint {
 }
 mod dfid;
 mod dfid_admission;
-pub use dfid::{DFID_SCHEMA_VERSION, DfidReport, DfidRequest, dfid_file, dfid_file_engine};
+pub use dfid::{DFID_SCHEMA_VERSION, DfidReport, DfidRequest, dfid_file};
 mod simulate;
-pub use simulate::{
-    SIMULATE_SCHEMA_VERSION, SimulateReport, SimulateRequest, simulate_file, simulate_file_engine,
-};
+pub use simulate::{SIMULATE_SCHEMA_VERSION, SimulateReport, SimulateRequest, simulate_file};
 
 pub use check::{
     BudgetSetting, CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, ExitConvention,
     PeriodicSchedule, Store, TEMPORAL_CHECK_SCHEMA_VERSION, TemporalMode, check_file,
-    check_file_checkpoint, check_file_checkpoint_engine, check_file_core_opts, check_file_engine,
-    check_file_tlc_inputs, check_file_tlc_inputs_engine, exit,
+    check_file_checkpoint, check_file_core_opts, check_file_tlc_inputs, exit,
 };
 /// Parses a seed as TLC's `-seed` does (`dive check --seed`).
 pub use dive_stdlib::random::parse_seed;

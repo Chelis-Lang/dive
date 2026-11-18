@@ -209,7 +209,7 @@ fn state_argument_holds_and_resource_limits_never_become_holds() {
         max_states: Some(1),
         ..files.request(&CheckOptions::dive(0))
     };
-    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core).expect("report");
+    let report = dive_api::check_file(&request).expect("report");
     refused::assert_refused(&report.to_json(), report.exit_code(), refused::TEMPORAL_CAP);
 }
 
@@ -1702,18 +1702,15 @@ fn assert_large_constructor_report(
     model_values: &[String],
 ) {
     for store in [dive_api::Store::Exact, dive_api::Store::Fingerprint] {
-        let report = dive_api::check_file_engine(
-            &dive_api::CheckRequest {
-                file: file.to_path_buf(),
-                compat_tlc: tlc,
-                store,
-                seed: Some(0),
-                fp: Some(0),
-                workers: Some(1),
-                ..dive_api::CheckRequest::default()
-            },
-            dive_api::Engine::Core,
-        )
+        let report = dive_api::check_file(&dive_api::CheckRequest {
+            file: file.to_path_buf(),
+            compat_tlc: tlc,
+            store,
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            ..dive_api::CheckRequest::default()
+        })
         .expect("check");
         let value = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
         assert_eq!(value["exit_code"], golden["result"]["exit_code"], "{value}");

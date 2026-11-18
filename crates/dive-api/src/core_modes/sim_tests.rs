@@ -11,7 +11,7 @@ mod print;
 mod random_init;
 mod runtime;
 
-/// Simulates a bound model on Core, as `simulate_file_engine` does after
+/// Simulates a bound model on Core, as `simulate_file` does after
 /// binding: preflight, Core preparation (a refusal is a preflight report),
 /// then Core's sampler under a fresh simulation runtime.
 fn simulate(model: &Model, options: &Options) -> Report {

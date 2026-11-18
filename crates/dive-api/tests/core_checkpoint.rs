@@ -1,8 +1,6 @@
 //! End-to-end owned Core completed-level recovery.
 #![allow(clippy::expect_used, reason = "checkpoint regression assertions")]
-use dive_api::{
-    CheckRequest, Engine, Store, check_file_checkpoint_engine, check_file_engine, checkpoint,
-};
+use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 static SERIAL: AtomicU64 = AtomicU64::new(0);
@@ -32,9 +30,7 @@ fn pause_fresh_owner_resume_matches_uninterrupted() {
             req.compat_tlc = tlc;
             req.store = store;
             req.workers = Some(4);
-            let full = check_file_engine(&req, Engine::Core)
-                .expect("baseline")
-                .to_json();
+            let full = check_file(&req).expect("baseline").to_json();
             let file = path();
             let mut cp = checkpoint::Request {
                 path: file.clone(),
@@ -42,18 +38,14 @@ fn pause_fresh_owner_resume_matches_uninterrupted() {
                 counters: checkpoint::Counters::Retain,
                 config_source_sha256: None,
             };
-            let paused = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-                .expect("pause")
-                .to_json();
+            let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
             assert_eq!(
                 paused["checkpoint"]["status"], "paused-incomplete",
                 "{paused}"
             );
             cp.action = checkpoint::Action::Recover;
             req.workers = Some(8);
-            let resumed = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-                .expect("resume")
-                .to_json();
+            let resumed = check_file_checkpoint(&req, &cp).expect("resume").to_json();
             assert_eq!(resumed["verdict"], full["verdict"], "{resumed}");
             assert_eq!(resumed["statistics"], full["statistics"], "{resumed}");
             assert_eq!(resumed["checkpoint"]["status"], "recovered", "{resumed}");
@@ -135,9 +127,7 @@ fn transformed_spilled_and_disk_recovery_preserves_actual_words() {
             fp: Some(0),
             ..CheckRequest::default()
         };
-        let full = check_file_engine(&req, Engine::Core)
-            .expect("baseline")
-            .to_json();
+        let full = check_file(&req).expect("baseline").to_json();
         req.frontier_memory_bytes = Some(0);
         req.predecessor_memory_bytes = Some(0);
         if disk {
@@ -150,9 +140,7 @@ fn transformed_spilled_and_disk_recovery_preserves_actual_words() {
             counters: checkpoint::Counters::Retain,
             config_source_sha256: None,
         };
-        let paused = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-            .expect("pause")
-            .to_json();
+        let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
         assert_eq!(
             paused["checkpoint"]["status"], "paused-incomplete",
             "{relative}: {paused}"
@@ -223,9 +211,7 @@ fn fresh_process_resumes_and_tlc_counter_reset_is_explicit() {
         counters: checkpoint::Counters::Retain,
         config_source_sha256: None,
     };
-    let paused = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-        .expect("pause")
-        .to_json();
+    let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
     assert_eq!(
         paused["checkpoint"]["status"], "paused-incomplete",
         "{paused}"
@@ -243,9 +229,7 @@ fn fresh_process_resumes_and_tlc_counter_reset_is_explicit() {
     assert_eq!(resumed["statistics"]["generated"], 6);
     cp.action = checkpoint::Action::Recover;
     cp.counters = checkpoint::Counters::Tlc;
-    let reset = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-        .expect("reset")
-        .to_json();
+    let reset = check_file_checkpoint(&req, &cp).expect("reset").to_json();
     assert_eq!(reset["statistics"]["generated"], 6);
     assert_eq!(reset["statistics"]["initial_generated"], 3, "{reset}");
     std::fs::remove_file(file).expect("cleanup");
@@ -275,12 +259,10 @@ fn malformed_archive_identity_no_replace_and_storage_failures_never_certify() {
         counters: checkpoint::Counters::Retain,
         config_source_sha256: None,
     };
-    let paused = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-        .expect("pause")
-        .to_json();
+    let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
     let before = std::fs::read(&file).expect("bytes");
-    let duplicate = check_file_checkpoint_engine(&req, &cp, Engine::Core)
+    let duplicate = check_file_checkpoint(&req, &cp)
         .expect("no replace")
         .to_json();
     assert_ne!(duplicate["verdict"], "success");
@@ -301,7 +283,7 @@ fn malformed_archive_identity_no_replace_and_storage_failures_never_certify() {
             action: checkpoint::Action::Recover,
             ..cp.clone()
         };
-        let report = check_file_checkpoint_engine(&req, &request, Engine::Core)
+        let report = check_file_checkpoint(&req, &request)
             .expect("named reject")
             .to_json();
         assert_ne!(report["verdict"], "success", "offset{offset}: {report}");
@@ -318,7 +300,7 @@ fn malformed_archive_identity_no_replace_and_storage_failures_never_certify() {
         action: checkpoint::Action::Recover,
         ..cp.clone()
     };
-    let mismatch = check_file_checkpoint_engine(&changed, &recover, Engine::Core)
+    let mismatch = check_file_checkpoint(&changed, &recover)
         .expect("identity refusal")
         .to_json();
     assert!(
@@ -332,7 +314,7 @@ fn malformed_archive_identity_no_replace_and_storage_failures_never_certify() {
     let mut seen = dive_api::SeenOptions::default();
     seen.limits.entries = 1;
     disk.seen_disk = Some(seen);
-    let failed = check_file_checkpoint_engine(&disk, &recover, Engine::Core)
+    let failed = check_file_checkpoint(&disk, &recover)
         .expect("fallible restore")
         .to_json();
     assert_eq!(failed["verdict"], "resource-limit", "{failed}");
@@ -372,9 +354,7 @@ fn configured_spec_counter_policy_and_prebinding_refusals() {
         workers: Some(1),
         ..CheckRequest::default()
     };
-    let full = check_file_engine(&req, Engine::Core)
-        .expect("baseline")
-        .to_json();
+    let full = check_file(&req).expect("baseline").to_json();
     assert_eq!(full["statistics"]["generated"], 6, "{full}");
     let mut cp = checkpoint::Request {
         path: directory.join("saved"),
@@ -382,22 +362,16 @@ fn configured_spec_counter_policy_and_prebinding_refusals() {
         counters: checkpoint::Counters::Retain,
         config_source_sha256: None,
     };
-    let paused = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-        .expect("pause")
-        .to_json();
+    let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
     assert_eq!(
         paused["checkpoint"]["status"], "paused-incomplete",
         "{paused}"
     );
     cp.action = checkpoint::Action::Recover;
-    let retained = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-        .expect("retain")
-        .to_json();
+    let retained = check_file_checkpoint(&req, &cp).expect("retain").to_json();
     assert_eq!(retained["statistics"], full["statistics"]);
     cp.counters = checkpoint::Counters::Tlc;
-    let reset = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-        .expect("reset")
-        .to_json();
+    let reset = check_file_checkpoint(&req, &cp).expect("reset").to_json();
     assert_eq!(reset["statistics"]["generated"], 5, "{reset}");
     assert_eq!(reset["statistics"]["initial_generated"], 4);
     std::fs::write(
@@ -405,13 +379,13 @@ fn configured_spec_counter_policy_and_prebinding_refusals() {
         "SPECIFICATION Spec\n\\* comment changes identity\n",
     )
     .expect("config comment");
-    let rejected = check_file_checkpoint_engine(&req, &cp, Engine::Core)
+    let rejected = check_file_checkpoint(&req, &cp)
         .expect("source identity")
         .to_json();
     assert!(rejected["checkpoint"].is_null());
     assert_ne!(rejected["verdict"], "success");
     req.time_limit = dive_api::BudgetSetting::Explicit(std::time::Duration::ZERO);
-    let stopped = check_file_checkpoint_engine(&req, &cp, Engine::Core)
+    let stopped = check_file_checkpoint(&req, &cp)
         .expect("budget before startup")
         .to_json();
     assert_ne!(stopped["verdict"], "success");
@@ -449,9 +423,7 @@ fn core_effect_and_temporal_refusals_do_not_execute_or_commit() {
             counters: checkpoint::Counters::Retain,
             config_source_sha256: None,
         };
-        let report = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-            .expect("refusal")
-            .to_json();
+        let report = check_file_checkpoint(&req, &cp).expect("refusal").to_json();
         assert_eq!(report["verdict"], "unsupported", "{report}");
         assert_eq!(report["output"], serde_json::json!([]));
         assert!(report["checkpoint"].is_null());
@@ -479,12 +451,12 @@ fn backend_disk_policy_admits_before_archive_or_model_loading() {
         config_source_sha256: None,
     };
     assert!(matches!(
-        check_file_checkpoint_engine(&request, &cp, Engine::Core),
+        check_file_checkpoint(&request, &cp),
         Err(ApiError::Rejected { message }) if message.contains("DIVE-S0400")
     ));
     request.seen_disk.as_mut().expect("policy").limits.entries = 0;
     assert!(matches!(
-        check_file_checkpoint_engine(&request, &cp, Engine::Core),
+        check_file_checkpoint(&request, &cp),
         Err(ApiError::Rejected { message }) if message.contains("DIVE-S0700")
     ));
     assert!(!missing.exists());
@@ -513,9 +485,7 @@ fn checkpoint_options_name_core_even_when_the_run_stops_before_core_starts() {
         config_source_sha256: None,
     };
     for req in [rejected, req()] {
-        let report = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-            .expect("report")
-            .to_json();
+        let report = check_file_checkpoint(&req, &cp).expect("report").to_json();
         let options = &report["options"]["checkpoint"];
         assert_eq!(options["backend"], "core", "{report}");
         assert!(options["max_state_bytes"].is_null(), "{report}");

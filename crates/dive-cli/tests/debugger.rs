@@ -301,17 +301,14 @@ fn framed_exception_stop_preserves_the_ordinary_independently_validated_violatio
         client.ok("continue", json!({"threadId":1}))?;
         let report = client.event("dive/checkResult")?;
         assert_eq!(report["verdict"], "invariant-violation");
-        let plain = dive_api::check_file_engine(
-            &dive_api::CheckRequest {
-                file: file.clone(),
-                compat_tlc: compat,
-                workers: Some(1),
-                seed: Some(7),
-                fp: Some(0),
-                ..Default::default()
-            },
-            dive_api::Engine::Core,
-        )?
+        let plain = dive_api::check_file(&dive_api::CheckRequest {
+            file: file.clone(),
+            compat_tlc: compat,
+            workers: Some(1),
+            seed: Some(7),
+            fp: Some(0),
+            ..Default::default()
+        })?
         .to_json_with_exit_convention(dive_api::ExitConvention::Native);
         for field in [
             "verdict",
@@ -366,17 +363,14 @@ fn diagnostic_replay_cannot_emit_another_exception_stop_or_replace_the_primary_s
         "INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\n",
     )?;
     for compat in [false, true] {
-        let plain = dive_api::check_file_engine(
-            &dive_api::CheckRequest {
-                file: file.clone(),
-                compat_tlc: compat,
-                workers: Some(1),
-                seed: Some(7),
-                fp: Some(0),
-                ..Default::default()
-            },
-            dive_api::Engine::Core,
-        )?
+        let plain = dive_api::check_file(&dive_api::CheckRequest {
+            file: file.clone(),
+            compat_tlc: compat,
+            workers: Some(1),
+            seed: Some(7),
+            fp: Some(0),
+            ..Default::default()
+        })?
         .to_json_with_exit_convention(dive_api::ExitConvention::Native);
         let mut client = Client::launch(&file, compat)?;
         client.initialize("launch")?;

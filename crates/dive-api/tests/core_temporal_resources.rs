@@ -1,6 +1,6 @@
 //! Genuine ordinary native resource stops retain the actual capture boundary.
 #![allow(clippy::expect_used, reason = "bounded native resource controls")]
-use dive_api::{BudgetSetting, CheckRequest, Engine, check_file_engine};
+use dive_api::{BudgetSetting, CheckRequest, check_file};
 use std::time::Duration;
 
 #[test]
@@ -26,8 +26,7 @@ fn ordinary_native_capture_budget_stops_keep_schema_phase_and_actual_work() {
                 ..CheckRequest::default()
             };
             {
-                let engine = Engine::Core;
-                let report = check_file_engine(&request, engine).expect("check");
+                let report = check_file(&request).expect("check");
                 let json = report.to_json();
                 assert_eq!(json["schema_version"], 3, "{json:#}");
                 assert_eq!(json["engine"], "core", "{json:#}");
@@ -64,21 +63,17 @@ fn ordinary_native_postcapture_budget_is_a_structured_stop_without_fallback() {
     std::fs::write(&config, "INIT Init\nNEXT Next\nPROPERTY P\n").expect("config");
     for compat_tlc in [false, true] {
         {
-            let engine = Engine::Core;
-            let report = check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    config: Some(config.clone()),
-                    compat_tlc,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
-                    max_memory: BudgetSetting::Unlimited,
-                    ..CheckRequest::default()
-                },
-                engine,
-            )
+            let report = check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(config.clone()),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
+                max_memory: BudgetSetting::Unlimited,
+                ..CheckRequest::default()
+            })
             .expect("check");
             let json = report.to_json();
             assert_eq!(json["engine"], "core", "{json:#}");

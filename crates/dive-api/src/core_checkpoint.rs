@@ -12,9 +12,6 @@ use dive_runtime::{CheckOptions, Verdict};
 use crate::core_engine::{self, CoreRun, Prepared, Search};
 
 const MAGIC: &[u8; 8] = b"DIVECC01";
-/// The framing of archives the removed reference engine wrote. Recovery
-/// rejects them by name (DIVE-S0400).
-const REFERENCE_MAGIC: &[u8; 8] = b"DIVECP02";
 const PARTS: usize = 4;
 type Parts<'a> = [&'a [u8]; PARTS];
 
@@ -58,24 +55,11 @@ fn join(parts: Parts<'_>) -> Result<Vec<u8>, String> {
 }
 
 /// Saved seed and fingerprint defaults of a Core archive, without model
-/// evaluation. `None` is an archive the removed reference engine wrote.
-pub(crate) fn metadata(path: &Path) -> Result<Option<(i64, usize)>, String> {
-    use std::io::Read;
-    let mut magic = [0; 8];
-    std::fs::File::open(path)
-        .and_then(|mut f| f.read_exact(&mut magic))
-        .map_err(|e| e.to_string())?;
-    if &magic == MAGIC {
-        let (bytes, _, _) = checkpoint::read_payload(path, MAGIC)?;
-        let parts = split(&bytes)?;
-        let (seed, fp) = checkpoint::owned_identity_seed_fp(parts[0])?;
-        Ok(Some((seed, fp)))
-    } else {
-        // Frames the reference archive (bounds, length and checksum), so a
-        // damaged file still reports its framing error rather than the engine.
-        checkpoint::read_payload(path, REFERENCE_MAGIC)?;
-        Ok(None)
-    }
+/// evaluation. An archive in any other format is a framing error.
+pub(crate) fn metadata(path: &Path) -> Result<(i64, usize), String> {
+    let (bytes, _, _) = checkpoint::read_payload(path, MAGIC)?;
+    let parts = split(&bytes)?;
+    checkpoint::owned_identity_seed_fp(parts[0])
 }
 
 fn refused(ir: &Ir, options: &CheckOptions, verdict: Verdict) -> checkpoint::Result {

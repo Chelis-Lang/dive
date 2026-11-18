@@ -6,7 +6,7 @@
 )]
 
 use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use dive_conformance::compare::{CompareContext, diff_results, diff_verdict_and_class};
 use dive_conformance::dive::{CheckMapping, check_result, check_result_with_model};
 use dive_conformance::process::ProcessOutcome;
@@ -22,19 +22,16 @@ fn fixtures() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-api/tests/fixtures/checker/errors")
 }
 
-fn native(file: &Path, engine: Engine, compat: bool) -> (Value, i32) {
-    let report = check_file_engine(
-        &CheckRequest {
-            file: file.into(),
-            config: Some(file.with_extension("cfg")),
-            compat_tlc: compat,
-            seed: Some(0),
-            fp: Some(0),
-            workers: Some(1),
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn native(file: &Path, compat: bool) -> (Value, i32) {
+    let report = check_file(&CheckRequest {
+        file: file.into(),
+        config: Some(file.with_extension("cfg")),
+        compat_tlc: compat,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        ..CheckRequest::default()
+    })
     .expect("native check");
     (
         report.to_json_with_exit_convention(ExitConvention::Tlc),
@@ -94,8 +91,7 @@ fn coordinated_primary_wrapper_and_exit_forgeries_cannot_borrow_a_valid_word() {
             )
             .expect("model");
             {
-                let engine = Engine::Core;
-                let (report, exit) = native(&file, engine, compat);
+                let (report, exit) = native(&file, compat);
                 let actual = mapped_source(&report, exit, compat, &spec);
                 for forged_exit in [76, 12] {
                     let mut forged = report.clone();
@@ -204,8 +200,7 @@ fn independent_named_cause_does_not_certify_the_deciding_wrapper() {
         )
         .expect("model");
         {
-            let engine = Engine::Core;
-            let (report, exit) = native(&file, engine, compat);
+            let (report, exit) = native(&file, compat);
             let actual = mapped_source(&report, exit, compat, &spec);
             assert!(matches!(
                 mapping(&report, exit, compat),
@@ -294,7 +289,7 @@ fn secondary_replay_context_is_not_proven_by_the_invariant_word() {
     std::fs::write(&changed_file, changed).expect("changed secondary context");
     std::fs::write(changed_file.with_extension("cfg"), config).expect("config");
     for compat in [false, true] {
-        let (original_report, exit) = native(&file, Engine::Core, compat);
+        let (original_report, exit) = native(&file, compat);
         let original_spec = SpecModel::load(
             &file,
             &file.with_extension("cfg"),
@@ -306,7 +301,7 @@ fn secondary_replay_context_is_not_proven_by_the_invariant_word() {
         )
         .expect("original model");
         let original = mapped_source(&original_report, exit, compat, &original_spec);
-        let (mut changed_report, exit) = native(&changed_file, Engine::Core, compat);
+        let (mut changed_report, exit) = native(&changed_file, compat);
         let changed_spec = SpecModel::load(
             &changed_file,
             &changed_file.with_extension("cfg"),
@@ -388,8 +383,7 @@ fn qualified_next_word_preserves_legacy_refusal_and_unclassified_oracle() {
         )
         .expect("model");
         {
-            let engine = Engine::Core;
-            let (report, exit) = native(&file, engine, compat);
+            let (report, exit) = native(&file, compat);
             let actual = mapped(&report, exit, compat);
             let doc = TraceDoc::from_json(&report["counterexample"]["trace"]).expect("trace");
             // The borrowed legacy API has no private source replay authority.

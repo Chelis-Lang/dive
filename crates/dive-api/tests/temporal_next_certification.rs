@@ -1,6 +1,6 @@
 //! Fresh serialized proof of primitive Next errors before temporal row completion.
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::json;
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -24,19 +24,15 @@ fn primitive_temporal_next_words_require_fresh_execution_of_both_sources() -> Te
                 },
             )?;
             {
-                let engine = Engine::Core;
-                let report = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(config.clone()),
-                        compat_tlc,
-                        seed: Some(0),
-                        fp: Some(0),
-                        workers: Some(1),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )?
+                let report = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(config.clone()),
+                    compat_tlc,
+                    seed: Some(0),
+                    fp: Some(0),
+                    workers: Some(1),
+                    ..CheckRequest::default()
+                })?
                 .to_json();
                 assert_eq!(report["tlc"]["code"], 2179);
                 assert_eq!(report["tlc"]["exit_status"], 255);
@@ -49,7 +45,7 @@ fn primitive_temporal_next_words_require_fresh_execution_of_both_sources() -> Te
                 assert_eq!(
                     proof.validation,
                     Validation::Valid,
-                    "{case}/{compat_tlc}/{engine:?}: {proof:?}"
+                    "{case}/{compat_tlc}: {proof:?}"
                 );
                 for (pointer, value) in [
                     ("/states/0/values/n", json!(3)),
@@ -67,7 +63,7 @@ fn primitive_temporal_next_words_require_fresh_execution_of_both_sources() -> Te
                         "{bad}"
                     );
                 }
-                if case == "Record" && compat_tlc && matches!(engine, Engine::Core) {
+                if case == "Record" && compat_tlc {
                     controlled_reads(&model, &config, &doc)?;
                 }
                 let mut bad = wire.clone();
@@ -88,18 +84,15 @@ fn temporal_row_shape_and_exception_lifetime_are_not_assumed() -> TestResult {
     let original = std::fs::read_to_string(&file)?;
     let config_text = std::fs::read_to_string(&config)?;
     for compat_tlc in [false, true] {
-        let report = check_file_engine(
-            &CheckRequest {
-                file: file.clone(),
-                config: Some(config.clone()),
-                compat_tlc,
-                seed: Some(0),
-                fp: Some(0),
-                workers: Some(1),
-                ..CheckRequest::default()
-            },
-            Engine::Core,
-        )?
+        let report = check_file(&CheckRequest {
+            file: file.clone(),
+            config: Some(config.clone()),
+            compat_tlc,
+            seed: Some(0),
+            fp: Some(0),
+            workers: Some(1),
+            ..CheckRequest::default()
+        })?
         .to_json();
         let doc = TraceDoc::from_json(&report["counterexample"]["trace"])?;
         for source in [

@@ -8,7 +8,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_default.json");
 
 use std::path::{Path, PathBuf};
 
-use dive_api::{CheckRequest, Engine, check_file, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 fn repo() -> PathBuf {
@@ -41,8 +41,8 @@ fn request(spec: &Path) -> CheckRequest {
     }
 }
 
-fn run(req: &CheckRequest, engine: Engine) -> Value {
-    let report = check_file_engine(req, engine).expect("check runs");
+fn run(req: &CheckRequest) -> Value {
+    let report = check_file(req).expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
     j["human"] = Value::from(report.render_human());
@@ -91,7 +91,7 @@ fn the_default_engine_is_core_and_refuses_by_name_without_fallback() {
         let name = spec.file_stem().and_then(|n| n.to_str()).unwrap_or("?");
         let req = request(spec);
         let default = run_default(&req);
-        let core = run(&req, Engine::Core);
+        let core = run(&req);
         assert_eq!(observed(&default), observed(&core), "{name}");
         // A check that ends before the search names no engine.
         assert_eq!(default["engine"], core["engine"], "{name}");
@@ -123,9 +123,9 @@ fn exact_storage_runs_on_the_core() {
     let spec = repo().join("crates/dive-api/tests/fixtures/core-m0/Mix.tla");
     let mut req = request(&spec);
     req.store = dive_api::Store::Exact;
-    let core = run(&req, Engine::Core);
+    let core = run(&req);
     let default = run_default(&req);
-    let reference = run(&req, Engine::Core);
+    let reference = run(&req);
     agreed::check_eq(
         AGREED,
         "exact_storage_runs_on_the_core/0",

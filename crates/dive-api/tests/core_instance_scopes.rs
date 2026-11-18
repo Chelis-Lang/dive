@@ -4,7 +4,7 @@
 use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 const OPTS: &[&str] = &[
@@ -178,7 +178,7 @@ fn controls(role: &str) {
         for compat in [false, true] {
             for workers in [1, 4, 8] {
                 let req = request(root.join(format!("{name}.tla")), compat, workers);
-                let reference = check_file_engine(&req, Engine::Core).expect("reference");
+                let reference = check_file(&req).expect("reference");
                 let observed_reference = observed(&reference);
                 for key in [
                     "verdict",
@@ -230,7 +230,7 @@ fn unproved_query_contexts_remain_explicit_refusals() {
     for name in ["EnabNonidentityInstance", "EnabConstInstanceInit"] {
         for compat in [false, true] {
             let req = request(fixtures.join(format!("{name}.tla")), compat, 1);
-            let report = check_file_engine(&req, Engine::Core).expect("refusal");
+            let report = check_file(&req).expect("refusal");
             assert_eq!(report.to_json()["verdict"], "unsupported");
             assert_eq!(report.exit_code(), 3);
         }

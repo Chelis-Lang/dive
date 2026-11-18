@@ -4,9 +4,9 @@
 mod distributed;
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{
-    ApiError, CheckRequest, DfidRequest, Engine, RewriteRequest, SimulateRequest,
-    TranslationRequest, check_file_checkpoint_engine, check_file_engine, checkpoint,
-    dfid_file_engine, simulate_file_engine, translate_source, write_translation_file,
+    ApiError, CheckRequest, DfidRequest, RewriteRequest, SimulateRequest, TranslationRequest,
+    check_file, check_file_checkpoint, checkpoint, dfid_file, simulate_file, translate_source,
+    write_translation_file,
 };
 use serde_json::{Value, json};
 use std::{
@@ -75,29 +75,27 @@ fn checking_reports_real_success_and_independently_validated_violations() -> Res
         FINITE.replace("Inv == x<=2", "Inv == x<=2\nBad == x<2"),
     )?;
     for compat in [false, true] {
-        for engine in [Engine::Core] {
-            let report = check_file_engine(&safe.request(compat), engine)?;
-            assert_eq!(report.verdict(), "success", "{}", report.to_json());
-            assert_eq!(report.exit_code(), 0);
-            assert!(report.result().is_some());
-            assert_eq!(report.to_json()["statistics"]["distinct"], 3);
-            let report = check_file_engine(&bad.request(compat), engine)?;
-            assert_eq!(
-                report.verdict(),
-                "invariant-violation",
-                "{}",
-                report.to_json()
-            );
-            assert_ne!(report.exit_code(), 0);
-            let mut word = TraceDoc::from_json(&report.to_json())?;
-            let model = bad.model(compat)?;
-            assert_eq!(model.validate(&word).validation, Validation::Valid);
-            word.states[1].insert("x".into(), json!(99));
-            assert!(matches!(
-                model.validate(&word).validation,
-                Validation::Invalid(_)
-            ));
-        }
+        let report = check_file(&safe.request(compat))?;
+        assert_eq!(report.verdict(), "success", "{}", report.to_json());
+        assert_eq!(report.exit_code(), 0);
+        assert!(report.result().is_some());
+        assert_eq!(report.to_json()["statistics"]["distinct"], 3);
+        let report = check_file(&bad.request(compat))?;
+        assert_eq!(
+            report.verdict(),
+            "invariant-violation",
+            "{}",
+            report.to_json()
+        );
+        assert_ne!(report.exit_code(), 0);
+        let mut word = TraceDoc::from_json(&report.to_json())?;
+        let model = bad.model(compat)?;
+        assert_eq!(model.validate(&word).validation, Validation::Valid);
+        word.states[1].insert("x".into(), json!(99));
+        assert!(matches!(
+            model.validate(&word).validation,
+            Validation::Invalid(_)
+        ));
     }
     Ok(())
 }
@@ -118,35 +116,30 @@ fn seeded_generation_is_reproducible_and_samples_remain_non_exhaustive() -> Resu
         CONFIG,
     )?;
     for compat in [false, true] {
-        for engine in [Engine::Core] {
-            let request = SimulateRequest {
-                file: project.file.clone(),
-                compat_tlc: compat,
-                generation: true,
-                traces: 2,
-                depth: Some(4),
-                seed: Some(7),
-                ..SimulateRequest::default()
-            };
-            let report = simulate_file_engine(&request, engine)?.to_json();
-            assert_eq!(report["result"], "sampled", "{report}");
-            assert_eq!(report["model_proved"], false);
-            assert_eq!(report["exhaustive"], false);
-            let traces = report["traces"].as_array().ok_or("missing samples")?;
-            assert_eq!(traces.len(), 2);
-            let model = project.model(compat)?;
-            for trace in traces {
-                let word = TraceDoc::from_json(&trace["document"])?;
-                assert_eq!(
-                    model.try_validate_sample(&word)?.validation,
-                    Validation::Valid
-                );
-            }
+        let request = SimulateRequest {
+            file: project.file.clone(),
+            compat_tlc: compat,
+            generation: true,
+            traces: 2,
+            depth: Some(4),
+            seed: Some(7),
+            ..SimulateRequest::default()
+        };
+        let report = simulate_file(&request)?.to_json();
+        assert_eq!(report["result"], "sampled", "{report}");
+        assert_eq!(report["model_proved"], false);
+        assert_eq!(report["exhaustive"], false);
+        let traces = report["traces"].as_array().ok_or("missing samples")?;
+        assert_eq!(traces.len(), 2);
+        let model = project.model(compat)?;
+        for trace in traces {
+            let word = TraceDoc::from_json(&trace["document"])?;
             assert_eq!(
-                words(&report),
-                words(&simulate_file_engine(&request, engine)?.to_json())
+                model.try_validate_sample(&word)?.validation,
+                Validation::Valid
             );
         }
+        assert_eq!(words(&report), words(&simulate_file(&request)?.to_json()));
     }
     Ok(())
 }
@@ -160,32 +153,27 @@ fn dfid_completion_requires_evidence_even_when_the_compatibility_exit_is_zero() 
         "INIT Init\nNEXT Next\n",
     )?;
     for compat in [false, true] {
-        for engine in [Engine::Core] {
-            let request = DfidRequest {
-                file: finite.file.clone(),
-                compat_tlc: compat,
-                max_level: 8,
-                seed: Some(7),
-                ..DfidRequest::default()
-            };
-            let report = dfid_file_engine(&request, engine)?.to_json();
-            assert_eq!(report["result"], "complete", "{report}");
-            assert_eq!(report["model_proved"], true);
-            let bounded = dfid_file_engine(
-                &DfidRequest {
-                    file: unbounded.file.clone(),
-                    max_level: 3,
-                    ..request
-                },
-                engine,
-            )?;
-            let report = bounded.to_json();
-            assert_eq!(report["result"], "incomplete", "{report}");
-            assert_eq!(report["model_proved"], false);
-            assert_eq!(report["termination"], "depth-bound");
-            if compat {
-                assert_eq!(bounded.exit_status(), 0);
-            }
+        let request = DfidRequest {
+            file: finite.file.clone(),
+            compat_tlc: compat,
+            max_level: 8,
+            seed: Some(7),
+            ..DfidRequest::default()
+        };
+        let report = dfid_file(&request)?.to_json();
+        assert_eq!(report["result"], "complete", "{report}");
+        assert_eq!(report["model_proved"], true);
+        let bounded = dfid_file(&DfidRequest {
+            file: unbounded.file.clone(),
+            max_level: 3,
+            ..request
+        })?;
+        let report = bounded.to_json();
+        assert_eq!(report["result"], "incomplete", "{report}");
+        assert_eq!(report["model_proved"], false);
+        assert_eq!(report["termination"], "depth-bound");
+        if compat {
+            assert_eq!(bounded.exit_status(), 0);
         }
     }
     Ok(())
@@ -199,7 +187,7 @@ fn tlc_logical_coverage_is_a_named_refusal_for_an_independent_rust_consumer() ->
         let mut request = project.request(compat);
         request.tlc_coverage = true;
         // TLC logical coverage ran only on the removed reference engine.
-        match check_file_engine(&request, Engine::Core) {
+        match check_file(&request) {
             Err(ApiError::Unsupported { feature }) => {
                 assert!(feature.contains("TLC logical coverage"), "{feature}")
             }
@@ -230,39 +218,36 @@ fn implementation_traces_accept_real_steps_and_reject_skipped_states() -> Result
 #[test]
 fn native_checkpoint_recovery_resumes_a_saved_frontier_with_truthful_counts() -> Result {
     let project = Project::new("Finite", FINITE, CONFIG)?;
-    for (index, engine) in [Engine::Core].into_iter().enumerate() {
-        let request = project.request(false);
-        let full = check_file_engine(&request, engine)?.to_json();
-        let pause = checkpoint::Request {
-            path: project.directory.join(format!("{index}.checkpoint")),
-            action: checkpoint::Action::PauseAfterLevels(1),
-            counters: checkpoint::Counters::Retain,
-            config_source_sha256: None,
-        };
-        let stopped = check_file_checkpoint_engine(&request, &pause, engine)?.to_json();
+    let request = project.request(false);
+    let full = check_file(&request)?.to_json();
+    let pause = checkpoint::Request {
+        path: project.directory.join("0.checkpoint"),
+        action: checkpoint::Action::PauseAfterLevels(1),
+        counters: checkpoint::Counters::Retain,
+        config_source_sha256: None,
+    };
+    let stopped = check_file_checkpoint(&request, &pause)?.to_json();
+    assert_eq!(
+        stopped["checkpoint"]["status"], "paused-incomplete",
+        "{stopped}"
+    );
+    assert_ne!(stopped["verdict"], "success");
+    assert!(fs::metadata(&pause.path)?.len() > 0);
+    let recovered = check_file_checkpoint(
+        &request,
+        &checkpoint::Request {
+            action: checkpoint::Action::Recover,
+            ..pause
+        },
+    )?
+    .to_json();
+    assert_eq!(recovered["verdict"], "success", "{recovered}");
+    assert_eq!(recovered["checkpoint"]["status"], "recovered");
+    for counter in ["distinct", "generated", "depth"] {
         assert_eq!(
-            stopped["checkpoint"]["status"], "paused-incomplete",
-            "{stopped}"
+            recovered["statistics"][counter],
+            full["statistics"][counter]
         );
-        assert_ne!(stopped["verdict"], "success");
-        assert!(fs::metadata(&pause.path)?.len() > 0);
-        let recovered = check_file_checkpoint_engine(
-            &request,
-            &checkpoint::Request {
-                action: checkpoint::Action::Recover,
-                ..pause
-            },
-            engine,
-        )?
-        .to_json();
-        assert_eq!(recovered["verdict"], "success", "{recovered}");
-        assert_eq!(recovered["checkpoint"]["status"], "recovered");
-        for counter in ["distinct", "generated", "depth"] {
-            assert_eq!(
-                recovered["statistics"][counter],
-                full["statistics"][counter]
-            );
-        }
     }
     Ok(())
 }
@@ -286,7 +271,7 @@ fn translated_algorithms_are_admitted_then_checked_as_a_separate_model() -> Resu
         fs::read_to_string(project.file.with_extension("old"))?,
         source
     );
-    let checked = check_file_engine(&project.request(false), Engine::Core)?;
+    let checked = check_file(&project.request(false))?;
     assert_eq!(checked.verdict(), "success", "{}", checked.to_json());
     assert_eq!(checked.to_json()["statistics"]["distinct"], 3);
     Ok(())
@@ -302,7 +287,7 @@ fn core_reclamation_and_recovery_run_without_external_tools() -> Result {
     for compat in [false, true] {
         let mut request = project.request(compat);
         request.store = dive_api::Store::Exact;
-        let full = check_file_engine(&request, Engine::Core)?.to_json();
+        let full = check_file(&request)?.to_json();
         assert_eq!(full["verdict"], "success", "{full}");
         let pause = checkpoint::Request {
             path: project.directory.join(format!("{compat}.cp")),
@@ -310,7 +295,7 @@ fn core_reclamation_and_recovery_run_without_external_tools() -> Result {
             counters: checkpoint::Counters::Retain,
             config_source_sha256: None,
         };
-        let paused = check_file_checkpoint_engine(&request, &pause, Engine::Core)?.to_json();
+        let paused = check_file_checkpoint(&request, &pause)?.to_json();
         assert_eq!(
             paused["checkpoint"]["status"], "paused-incomplete",
             "{paused}"
@@ -318,13 +303,12 @@ fn core_reclamation_and_recovery_run_without_external_tools() -> Result {
         request.store_compact_bytes = Some(0);
         request.frontier_memory_bytes = Some(0);
         request.predecessor_memory_bytes = Some(0);
-        let recovered = check_file_checkpoint_engine(
+        let recovered = check_file_checkpoint(
             &request,
             &checkpoint::Request {
                 action: checkpoint::Action::Recover,
                 ..pause
             },
-            Engine::Core,
         )?
         .to_json();
         assert_eq!(recovered["verdict"], "success", "{recovered}");

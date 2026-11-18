@@ -4,7 +4,7 @@ mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/partial_terminal_words.json");
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use std::path::PathBuf;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -36,19 +36,15 @@ fn partial_next_words_preserve_the_pinned_bfs_terminal_and_logical_length() -> T
                 },
             )?;
             {
-                let engine = Engine::Core;
-                let result = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc,
-                        workers: Some(1),
-                        seed: Some(0),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )?
+                let result = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    workers: Some(1),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                })?
                 .to_json();
                 assert_eq!(result["tlc"]["code"], 2109, "{path}: {result}");
                 assert_eq!(result["tlc"]["exit_status"], 75, "{path}: {result}");
@@ -111,18 +107,15 @@ fn complete_prefix_must_pass_configured_safety_before_partial_replay() -> TestRe
         &original[marker..]
     );
     for compat_tlc in [false, true] {
-        let actual = check_file_engine(
-            &CheckRequest {
-                file: file.clone(),
-                config: Some(file.with_extension("cfg")),
-                compat_tlc,
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                ..CheckRequest::default()
-            },
-            Engine::Core,
-        )?
+        let actual = check_file(&CheckRequest {
+            file: file.clone(),
+            config: Some(file.with_extension("cfg")),
+            compat_tlc,
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        })?
         .to_json();
         let doc = TraceDoc::from_json(&actual["counterexample"]["trace"])?;
         for (config, source, expected, state) in [
@@ -199,26 +192,22 @@ fn init_partial_error_witness_preserves_the_absent_formal_counterexample() -> Te
             },
         )?;
         {
-            let engine = Engine::Core;
-            let actual = check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    config: Some(file.with_extension("cfg")),
-                    compat_tlc,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    ..CheckRequest::default()
-                },
-                engine,
-            )?
+            let actual = check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(file.with_extension("cfg")),
+                compat_tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            })?
             .to_json();
             assert_eq!(actual["tlc"]["code"], 2102);
             assert_eq!(actual["tlc"]["exit_status"], 255);
             assert!(actual["counterexample"].is_null());
             assert_eq!(actual["statistics"]["reported_by_tlc"], false);
             let wire = &actual["error_witness"];
-            assert_eq!(wire["version"], 3, "{engine:?}: {actual}");
+            assert_eq!(wire["version"], 3, "{actual}");
             assert_eq!(wire["length"], 1);
             assert_eq!(wire["states"], serde_json::json!([]));
             assert_eq!(wire["ending"]["endpoint"]["stage"], "init-partial-state");
@@ -295,7 +284,6 @@ fn initial_candidate_level_proves_earlier_property_priority() -> TestResult {
         let correct = SpecModel::load(&good, &good.with_extension("cfg"), &options)?;
         let forged = SpecModel::load(&bad, &bad.with_extension("cfg"), &options)?;
         {
-            let engine = Engine::Core;
             let request = |file: &PathBuf| CheckRequest {
                 file: file.clone(),
                 config: Some(file.with_extension("cfg")),
@@ -305,12 +293,12 @@ fn initial_candidate_level_proves_earlier_property_priority() -> TestResult {
                 fp: Some(0),
                 ..CheckRequest::default()
             };
-            let genuine = check_file_engine(&request(&good), engine)?.to_json();
+            let genuine = check_file(&request(&good))?.to_json();
             assert_eq!(genuine["tlc"]["code"], 2102);
             assert_eq!(genuine["tlc"]["exit_status"], 255);
             assert!(genuine["counterexample"].is_null());
             let witness = TraceDoc::from_json(&genuine["error_witness"])?;
-            let earlier = check_file_engine(&request(&bad), engine)?.to_json();
+            let earlier = check_file(&request(&bad))?.to_json();
             assert_eq!(earlier["tlc"]["code"], 2108);
             assert_eq!(earlier["tlc"]["exit_status"], 13);
             assert_eq!(earlier["property"], "P");

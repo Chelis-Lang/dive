@@ -79,15 +79,12 @@ fn prepared_translation_writes_only_on_publish_and_checks_as_a_real_model() {
             fs::read_to_string(file.with_extension("cfg")).unwrap(),
             "SPECIFICATION Spec\n\\* Add statements after this line.\n"
         );
-        let checked = dive_api::check_file_engine(
-            &CheckRequest {
-                file,
-                compat_tlc: compat,
-                seed: Some(7),
-                ..CheckRequest::default()
-            },
-            dive_api::Engine::Core,
-        )
+        let checked = dive_api::check_file(&CheckRequest {
+            file,
+            compat_tlc: compat,
+            seed: Some(7),
+            ..CheckRequest::default()
+        })
         .unwrap();
         assert_eq!(checked.exit_code(), 0, "{}", checked.to_json());
         assert!(checked.result().is_some());

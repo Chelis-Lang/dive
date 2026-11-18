@@ -4,7 +4,7 @@
     reason = "pinned primary fixtures and model checks"
 )]
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -109,7 +109,7 @@ fn an_infinite_axis_does_not_hide_a_later_scalar_finiteness_error() {
 fn sizing_keeps_product_membership_receiver_and_demands_nonempty_axis_sizes() {
     for compat in [false, true] {
         let req = request("SizedProductReceiver", compat);
-        let default = check_file_engine(&req, Engine::Core).expect("Core check");
+        let default = check_file(&req).expect("Core check");
         let expected = default.to_json();
         assert_eq!(expected["verdict"], "evaluation-error");
         assert!(

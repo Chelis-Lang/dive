@@ -7,7 +7,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_initial_depth.json");
 
 use std::path::PathBuf;
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use serde_json::json;
 
 #[test]
@@ -37,8 +37,7 @@ fn initial_depth_counts_emitted_states_instead_of_retained_states() {
                     ..CheckRequest::default()
                 };
                 {
-                    let engine = Engine::Core;
-                    let report = check_file_engine(&request, engine).expect("check runs");
+                    let report = check_file(&request).expect("check runs");
                     assert_eq!(report.exit_code_for(ExitConvention::Tlc), 0);
                     let document = report.to_json();
                     // Pinned TLC BFS (tlc-2026.10.06.014338, fp/seed 0):

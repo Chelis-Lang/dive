@@ -10,7 +10,7 @@ const AGREED: &str = include_str!("fixtures/agreed/core_binding_failures.json");
 
 use std::path::Path;
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
 /// `(name, module body, configuration)`: each fails at binding, after the
@@ -45,19 +45,16 @@ const CASES: &[(&str, &str, &str)] = &[
     ),
 ];
 
-fn run(spec: &Path, engine: Engine, compat_tlc: bool) -> Value {
-    check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            compat_tlc,
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run(spec: &Path, compat_tlc: bool) -> Value {
+    check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        compat_tlc,
+        ..CheckRequest::default()
+    })
     .expect("check runs")
     .to_json()
 }
@@ -88,8 +85,8 @@ fn core_binding_failures_are_reported_as_the_reference_engine_reports_them() {
         std::fs::write(&spec, format!("---- MODULE {name} ----\n{body}====\n")).expect("spec");
         std::fs::write(spec.with_extension("cfg"), cfg).expect("cfg");
         for compat_tlc in [false, true] {
-            let reference = run(&spec, Engine::Core, compat_tlc);
-            let core = run(&spec, Engine::Core, compat_tlc);
+            let reference = run(&spec, compat_tlc);
+            let core = run(&spec, compat_tlc);
             assert_eq!(core["engine"], "core", "{name}: {core:#}");
             assert_ne!(core["verdict"], "unsupported", "{name}: {core:#}");
             assert_ne!(core["verdict"], "success", "{name}: {core:#}");
@@ -114,18 +111,15 @@ fn core_reports_a_binding_failure_under_a_core_only_option() {
     let spec = dir.join(format!("{name}.tla"));
     std::fs::write(&spec, format!("---- MODULE {name} ----\n{body}====\n")).expect("spec");
     std::fs::write(spec.with_extension("cfg"), cfg).expect("cfg");
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.clone(),
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            candidate_memory_bytes: Some(1 << 20),
-            ..CheckRequest::default()
-        },
-        Engine::Core,
-    )
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.clone(),
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        candidate_memory_bytes: Some(1 << 20),
+        ..CheckRequest::default()
+    })
     .expect("check runs")
     .to_json();
     assert_eq!(report["verdict"], "model-error", "{report:#}");

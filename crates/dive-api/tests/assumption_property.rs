@@ -1,7 +1,7 @@
 //! Failed assumptions retain their typed source image in JSON (#504).
 #![allow(clippy::expect_used, reason = "test fixtures")]
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use serde_json::Value;
 use std::path::PathBuf;
 
@@ -34,8 +34,7 @@ fn failed_assumptions_name_the_exact_oracle_property_without_parsing_messages() 
                     ..CheckRequest::default()
                 };
                 {
-                    let engine = Engine::Core;
-                    let report = check_file_engine(&request, engine).expect("check");
+                    let report = check_file(&request).expect("check");
                     let actual = report.to_json();
                     let native_verdict = if expected["verdict_code"] == 2105 {
                         Value::String("evaluation-error".into())
@@ -50,7 +49,7 @@ fn failed_assumptions_name_the_exact_oracle_property_without_parsing_messages() 
                         (&actual["tlc"]["code"], &expected["verdict_code"]),
                         (&actual["tlc"]["name"], &expected["error_class"]),
                     ] {
-                        assert_eq!(actual, expected, "{name}/{compat_tlc}/{workers}/{engine:?}");
+                        assert_eq!(actual, expected, "{name}/{compat_tlc}/{workers}");
                     }
                     assert_eq!(
                         Value::from(report.exit_code_for(ExitConvention::Tlc)),

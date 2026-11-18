@@ -2,7 +2,7 @@
 #![allow(clippy::expect_used, reason = "test fixture construction")]
 
 use dive_api::trace::{Check, ControlMode, Ending, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::json;
 use std::path::PathBuf;
 
@@ -122,20 +122,16 @@ fn named_invariant_word_survives_a_different_diagnostic_replay_error() {
         )
         .expect("model");
         {
-            let engine = Engine::Core;
             for workers in [1, 4] {
-                let report = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc,
-                        seed: Some(0),
-                        fp: Some(0),
-                        workers: Some(workers),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )
+                let report = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    seed: Some(0),
+                    fp: Some(0),
+                    workers: Some(workers),
+                    ..CheckRequest::default()
+                })
                 .expect("check")
                 .to_json();
                 assert_eq!(report["error_site"], "invariant");
@@ -198,20 +194,16 @@ fn oracle_backed_invariant_errors_validate_for_both_engines_and_profiles() {
         let file = root.join(name).join(format!("{name}.tla"));
         for compat_tlc in [false, true] {
             {
-                let engine = Engine::Core;
                 for workers in [1, 4] {
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })
                     .expect("check")
                     .to_json();
                     assert_eq!(report["tlc"]["code"], 2111, "{report}");
@@ -243,7 +235,7 @@ fn oracle_backed_invariant_errors_validate_for_both_engines_and_profiles() {
                     assert_eq!(
                         model.validate(&doc).validation,
                         Validation::Valid,
-                        "{name} {compat_tlc} {engine:?} {workers}"
+                        "{name} {compat_tlc} {workers}"
                     );
                     let controls = model.controls_with_mode(
                         &doc,

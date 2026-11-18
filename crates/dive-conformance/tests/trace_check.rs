@@ -207,7 +207,7 @@ fn golden_controls_route_the_actual_mode_and_worker_contract() {
     reason = "three oracle-backed producer/normalizer/validator pipelines and forged claims"
 )]
 fn named_invariant_error_claims_require_independent_cause_and_order_proof() {
-    use dive_api::{CheckRequest, Engine, check_file_engine};
+    use dive_api::{CheckRequest, check_file};
     use dive_conformance::dive::{CheckMapping, check_result_with_model};
     use dive_conformance::process::ProcessOutcome;
     use dive_conformance::tlc::{messages, result};
@@ -242,18 +242,15 @@ fn named_invariant_error_claims_require_independent_cause_and_order_proof() {
             Some("TLC_INVARIANT_EVALUATION_FAILED")
         );
         for compat_tlc in [false, true] {
-            let native = check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    config: Some(file.with_extension("cfg")),
-                    compat_tlc,
-                    seed: Some(0),
-                    fp: Some(0),
-                    workers: Some(1),
-                    ..CheckRequest::default()
-                },
-                Engine::Core,
-            )
+            let native = check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(file.with_extension("cfg")),
+                compat_tlc,
+                seed: Some(0),
+                fp: Some(0),
+                workers: Some(1),
+                ..CheckRequest::default()
+            })
             .expect("native check");
             let mut report = native.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
             let exit_code = native.exit_code_for(dive_api::ExitConvention::Tlc);

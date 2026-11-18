@@ -1611,18 +1611,15 @@ mod tests {
                     "INIT Init\nNEXT Next\n"
                 },
             )?;
-            let report = dive_api::check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    compat_tlc: true,
-                    fp: Some(0),
-                    seed: Some(0),
-                    time_limit: BudgetSetting::Explicit(limit),
-                    max_memory: BudgetSetting::Unlimited,
-                    ..CheckRequest::default()
-                },
-                dive_api::Engine::Core,
-            )?;
+            let report = dive_api::check_file(&CheckRequest {
+                file: file.clone(),
+                compat_tlc: true,
+                fp: Some(0),
+                seed: Some(0),
+                time_limit: BudgetSetting::Explicit(limit),
+                max_memory: BudgetSetting::Unlimited,
+                ..CheckRequest::default()
+            })?;
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             let status = i32::from(report.exit_code_for(ExitConvention::Tlc));
             let mapped = |value: &Value| {
@@ -1698,19 +1695,16 @@ mod tests {
         )?;
         for compat_tlc in [false, true] {
             for temporal in [TemporalMode::Ordinary, TemporalMode::FinalShort] {
-                let report = dive_api::check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        compat_tlc,
-                        seed: Some(0),
-                        fp: Some(0),
-                        max_memory: BudgetSetting::Explicit(1),
-                        time_limit: BudgetSetting::Unlimited,
-                        temporal,
-                        ..CheckRequest::default()
-                    },
-                    dive_api::Engine::Core,
-                )?;
+                let report = dive_api::check_file(&CheckRequest {
+                    file: file.clone(),
+                    compat_tlc,
+                    seed: Some(0),
+                    fp: Some(0),
+                    max_memory: BudgetSetting::Explicit(1),
+                    time_limit: BudgetSetting::Unlimited,
+                    temporal,
+                    ..CheckRequest::default()
+                })?;
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
                 assert_eq!(value["verdict"], "stopped");
                 assert_eq!(value["stopped"]["resource"], "memory");
@@ -2058,20 +2052,17 @@ mod symmetry_policy_transport_tests {
     fn actual(tlc: bool) -> Value {
         let file = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../conformance/corpus/probes/specifications/P4SymLive/P4SymLive.tla");
-        dive_api::check_file_engine(
-            &dive_api::CheckRequest {
-                file,
-                compat_tlc: tlc,
-                symmetry_liveness: tlc.then_some(dive_api::SymmetryLiveness::Unreduced),
-                workers: Some(1),
-                seed: Some(0),
-                fp: Some(0),
-                time_limit: dive_api::BudgetSetting::Unlimited,
-                max_memory: dive_api::BudgetSetting::Unlimited,
-                ..Default::default()
-            },
-            dive_api::Engine::Core,
-        )
+        dive_api::check_file(&dive_api::CheckRequest {
+            file,
+            compat_tlc: tlc,
+            symmetry_liveness: tlc.then_some(dive_api::SymmetryLiveness::Unreduced),
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            time_limit: dive_api::BudgetSetting::Unlimited,
+            max_memory: dive_api::BudgetSetting::Unlimited,
+            ..Default::default()
+        })
         .expect("real finite writer")
         .to_json_with_exit_convention(dive_api::ExitConvention::Tlc)
     }

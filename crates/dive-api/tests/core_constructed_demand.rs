@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use dive_core::compile::{BoundTest, compile_bound_test};
 use dive_core::{Handle, Handoff, Machine, Opts, Role, Semantics, Store};
 use dive_eval::{Evaluator, Model, Options, St};
@@ -176,10 +176,10 @@ fn three_oracle_cases_match_and_named_action_words_validate_freshly() {
                 compat_tlc: tlc,
                 ..CheckRequest::default()
             };
-            let reference = check_file_engine(&request, Engine::Core)
+            let reference = check_file(&request)
                 .expect("reference")
                 .to_json_with_exit_convention(ExitConvention::Tlc);
-            let core = check_file_engine(&request, Engine::Core)
+            let core = check_file(&request)
                 .expect("native")
                 .to_json_with_exit_convention(ExitConvention::Tlc);
             let expected = if name == "NamedAction" {

@@ -60,7 +60,7 @@ fn actual_primary_hold_retains_intermediate_counts_and_fail_retains_replay_refus
             // (#791, #910). Pinned TLC: `hold` succeeds (2193) with the
             // oracle's counts; `fail` was a named replay refusal.
             let request = spec.request(workers);
-            let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+            let report = dive_api::check_file(&request)?;
             refused::assert_refused(
                 &report.to_json(),
                 report.exit_code(),
@@ -68,7 +68,7 @@ fn actual_primary_hold_retains_intermediate_counts_and_fail_retains_replay_refus
             );
             let mut explicit = request;
             explicit.temporal = TemporalMode::FinalShort;
-            let direct = dive_api::check_file_engine(&explicit, dive_api::Engine::Core)?;
+            let direct = dive_api::check_file(&explicit)?;
             assert_eq!(direct.verdict(), "unsupported");
             assert_eq!(direct.exit_code(), 3);
         }
@@ -88,7 +88,7 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
         // (#791, #910): it held `Hold` and violated `Fail` after 4
         // generated, 3 distinct states, depth 3, with a validated word.
         let request = spec.request(4);
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let report = dive_api::check_file(&request)?;
         refused::assert_refused(
             &report.to_json(),
             report.exit_code(),
@@ -100,7 +100,7 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
                 0 => excluded.action_composition = Some(ActionComposition::Tla),
                 _ => excluded.compat_tlc = false,
             }
-            let refused = dive_api::check_file_engine(&excluded, dive_api::Engine::Core)?;
+            let refused = dive_api::check_file(&excluded)?;
             assert_eq!(refused.verdict(), "unsupported");
             assert_eq!(refused.to_json()["schema_version"], 3);
         }
@@ -114,7 +114,7 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
                 2 => admitted.store = dive_api::Store::Exact,
                 _ => admitted.no_deadlock = true,
             }
-            let actual = dive_api::check_file_engine(&admitted, dive_api::Engine::Core)?;
+            let actual = dive_api::check_file(&admitted)?;
             refused::assert_refused(
                 &actual.to_json(),
                 actual.exit_code(),
@@ -134,7 +134,7 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
         request.seed = Some(seed);
         // Only the retired reference engine ran TLC action composition
         // (#791, #910); Core refuses it before start-up prints.
-        let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+        let report = dive_api::check_file(&request)?;
         let json = report.to_json();
         refused::assert_refused(&json, report.exit_code(), refused::ACTION_COMPOSITION);
         assert_eq!(json["schema_version"], 3);
@@ -143,7 +143,7 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
         "---- MODULE CompositionFinal ----\nEXTENDS TLC\nCONSTANT C\nBoot==Print(\"must-not-start\",0)\nVARIABLE x\nInit==x=C\nNext==x'=x\nHold==<>(x=1)\n====\n",
         "INIT Init\nNEXT Next\nPROPERTY Hold\n",
     )?;
-    let failure = dive_api::check_file_engine(&missing.request(1), dive_api::Engine::Core)?;
+    let failure = dive_api::check_file(&missing.request(1))?;
     assert_eq!(failure.to_json()["schema_version"], 3);
     assert_eq!(failure.to_json()["output"], serde_json::json!([]));
     assert_ne!(failure.verdict(), "success");
@@ -153,7 +153,7 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
 #[test]
 fn composed_fairness_is_a_named_refusal() -> TestResult {
     let spec = Spec::new(&SOURCE.replace("WF_x(Fair)", "WF_x(Next)"), HOLD)?;
-    let refused = dive_api::check_file_engine(&spec.request(1), dive_api::Engine::Core)?.to_json();
+    let refused = dive_api::check_file(&spec.request(1))?.to_json();
     assert_eq!(refused["verdict"], "unsupported");
     assert!(
         refused["message"]

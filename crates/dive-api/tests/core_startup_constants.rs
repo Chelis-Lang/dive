@@ -4,7 +4,7 @@
 mod agreed;
 const AGREED: &str = include_str!("fixtures/agreed/core_startup_constants.json");
 
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -37,7 +37,7 @@ fn startup_constants_evaluated_by_the_core_match_the_reference_engine()
     for compat_tlc in [false, true] {
         for (config, verdict) in [("Holding", "success"), ("Failing", "error")] {
             let req = request(config, compat_tlc);
-            let reference = check_file_engine(&req, Engine::Core)?;
+            let reference = check_file(&req)?;
             let expected = observed(&reference);
             assert_eq!(expected["statistics"]["distinct"], 11, "{expected:#}");
             if verdict == "success" {
@@ -45,7 +45,7 @@ fn startup_constants_evaluated_by_the_core_match_the_reference_engine()
             } else {
                 assert_ne!(expected["verdict"], "success", "{expected:#}");
             }
-            let core = check_file_engine(&req, Engine::Core)?;
+            let core = check_file(&req)?;
             let doc = core.to_json();
             assert_eq!(doc["engine"], "core", "{doc:#}");
             assert_eq!(observed(&core), expected, "{config}/{compat_tlc}");
@@ -80,13 +80,13 @@ fn temporal_properties_keep_the_cores_startup_constants_they_do_not_reach()
             [("LiveHolding", "success", 3), ("LiveFailing", "error", 2)]
         {
             let req = request(config, compat_tlc);
-            let expected = observed(&check_file_engine(&req, Engine::Core)?);
+            let expected = observed(&check_file(&req)?);
             if verdict == "success" {
                 assert_eq!(expected["verdict"], "success", "{expected:#}");
             } else {
                 assert_eq!(expected["property"], "Never", "{expected:#}");
             }
-            let core = check_file_engine(&req, Engine::Core)?;
+            let core = check_file(&req)?;
             let doc = core.to_json();
             assert_eq!(doc["engine"], "core", "{doc:#}");
             agreed::check_eq(
@@ -128,10 +128,10 @@ fn fallback() -> Result<(), Box<dyn std::error::Error>> {
         fp: Some(0),
         ..Default::default()
     };
-    let expected = observed(&check_file_engine(&req, Engine::Core)?);
+    let expected = observed(&check_file(&req)?);
     assert_eq!(expected["verdict"], "success", "{expected:#}");
     assert_eq!(expected["statistics"]["distinct"], 4, "{expected:#}");
-    let core = check_file_engine(&req, Engine::Core)?;
+    let core = check_file(&req)?;
     let doc = core.to_json();
     assert_eq!(doc["engine"], "core", "{doc:#}");
     agreed::check_eq(AGREED, "fallback/0", &(observed(&core)), &(expected));
@@ -163,13 +163,13 @@ fn a_pure_assume_evaluated_by_the_core_matches_the_reference_engine()
                 fp: Some(0),
                 ..Default::default()
             };
-            let expected = observed(&check_file_engine(&req, Engine::Core)?);
+            let expected = observed(&check_file(&req)?);
             if verdict == "success" {
                 assert_eq!(expected["verdict"], "success", "{expected:#}");
             } else {
                 assert_ne!(expected["verdict"], "success", "{expected:#}");
             }
-            let core = check_file_engine(&req, Engine::Core)?;
+            let core = check_file(&req)?;
             let doc = core.to_json();
             assert_eq!(doc["engine"], "core", "{doc:#}");
             agreed::check_eq(
@@ -194,12 +194,7 @@ fn a_pure_assume_evaluated_by_the_core_matches_the_reference_engine()
 
 /// The verdict of checking `module` on `engine`, or `None` when it takes
 /// longer than `limit`.
-fn bounded(
-    module: &str,
-    engine: Engine,
-    compat_tlc: bool,
-    limit: std::time::Duration,
-) -> Option<Value> {
+fn bounded(module: &str, compat_tlc: bool, limit: std::time::Duration) -> Option<Value> {
     let root =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-startup-constants");
     let req = CheckRequest {
@@ -213,7 +208,7 @@ fn bounded(
     };
     let (tx, rx) = std::sync::mpsc::channel();
     std::thread::spawn(move || {
-        let _ = tx.send(check_file_engine(&req, engine).map(|r| observed(&r)).ok());
+        let _ = tx.send(check_file(&req).map(|r| observed(&r)).ok());
     });
     rx.recv_timeout(limit).ok().flatten()
 }
@@ -226,12 +221,12 @@ fn a_false_assume_guards_the_pure_assumes_after_it() {
     let limit = std::time::Duration::from_secs(30);
     for module in ["GuardedAssume", "GuardedAssumeImpure"] {
         for compat_tlc in [false, true] {
-            let expected = bounded(module, Engine::Core, compat_tlc, limit);
+            let expected = bounded(module, compat_tlc, limit);
             let expected = expected.unwrap_or_else(|| json!("reference timed out"));
             assert_eq!(expected["class"], "TLC_ASSUMPTION_FALSE", "{expected:#}");
             assert_eq!(expected["exit"], 10, "{expected:#}");
             // Core is the default engine; Auto was removed with its fallback.
-            let got = bounded(module, Engine::Core, compat_tlc, limit);
+            let got = bounded(module, compat_tlc, limit);
             agreed::check_eq(
                 AGREED,
                 "a_false_assume_guards_the_pure_assumes_after_it/0",
@@ -258,14 +253,14 @@ fn a_closed_definition_too_large_to_fold_is_evaluated_once()
                 fp: Some(0),
                 ..Default::default()
             };
-            let expected = observed(&check_file_engine(&req, Engine::Core)?);
+            let expected = observed(&check_file(&req)?);
             agreed::check_eq(
                 AGREED,
                 "a_closed_definition_too_large_to_fold_is_evaluated_once/0",
                 &(verdict),
                 &(expected["verdict"]),
             );
-            let core = check_file_engine(&req, Engine::Core)?;
+            let core = check_file(&req)?;
             let doc = core.to_json();
             assert_eq!(doc["engine"], "core", "{doc:#}");
             agreed::check_eq(

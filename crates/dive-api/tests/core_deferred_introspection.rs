@@ -11,22 +11,19 @@ const AGREED: &str = include_str!("fixtures/agreed/core_deferred_introspection.j
 
 use std::path::Path;
 
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::Value;
 
-fn run(spec: &Path, engine: Engine, compat_tlc: bool) -> Value {
-    let report = check_file_engine(
-        &CheckRequest {
-            config: Some(spec.with_extension("cfg")),
-            file: spec.to_path_buf(),
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            compat_tlc,
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn run(spec: &Path, compat_tlc: bool) -> Value {
+    let report = check_file(&CheckRequest {
+        config: Some(spec.with_extension("cfg")),
+        file: spec.to_path_buf(),
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        compat_tlc,
+        ..CheckRequest::default()
+    })
     .expect("check runs");
     let mut j = report.to_json();
     j["exit"] = Value::from(report.exit_code());
@@ -108,7 +105,7 @@ fn unreached_trace_introspection_is_not_refused_and_reached_names_it() {
         let spec = write(&dir, name, inv);
         for compat in [false, true] {
             let at = format!("{name} compat={compat}");
-            let core = run(&spec, Engine::Core, compat);
+            let core = run(&spec, compat);
             assert_eq!(core["engine"], "core", "{at}: {core:#}");
             if let Some(op) = refused {
                 assert_eq!(core["verdict"], "unsupported", "{at}: {core:#}");
@@ -119,7 +116,7 @@ fn unreached_trace_introspection_is_not_refused_and_reached_names_it() {
                 );
             } else {
                 assert_eq!(core["verdict"], "success", "{at}: {core:#}");
-                let reference = run(&spec, Engine::Core, compat);
+                let reference = run(&spec, compat);
                 agreed::check_eq(
                     AGREED,
                     "unreached_trace_introspection_is_not_refused_and_reached_names_it/0",
@@ -153,7 +150,7 @@ fn failing_run_that_never_prints_is_not_refused() {
         let spec = write(&dir, name, inv);
         for compat in [false, true] {
             let at = format!("{name} compat={compat}");
-            let core = run(&spec, Engine::Core, compat);
+            let core = run(&spec, compat);
             assert_eq!(core["engine"], "core", "{at}: {core:#}");
             if refused {
                 assert_eq!(core["verdict"], "unsupported", "{at}: {core:#}");
@@ -161,7 +158,7 @@ fn failing_run_that_never_prints_is_not_refused() {
                 assert!(message.contains("Print or PrintT"), "{at}: {core:#}");
             } else {
                 assert_eq!(core["verdict"], "invariant-violation", "{at}: {core:#}");
-                let reference = run(&spec, Engine::Core, compat);
+                let reference = run(&spec, compat);
                 agreed::check_eq(
                     AGREED,
                     "failing_run_that_never_prints_is_not_refused/0",

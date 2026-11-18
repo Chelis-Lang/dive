@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use dive_api::trace::{SpecModel, TraceOptions};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file};
 use dive_conformance::compare::{CompareContext, diff_results};
 use dive_conformance::dive::{CheckMapping, check_result};
 use dive_conformance::process::ProcessOutcome;
@@ -89,19 +89,15 @@ fn real_source_rows_match_official_goldens_and_required_words_cannot_be_forged()
                 },
             )?;
             {
-                let engine = Engine::Core;
-                let value = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc,
-                        seed: Some(0),
-                        fp: Some(0),
-                        workers: Some(1),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )?
+                let value = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    seed: Some(0),
+                    fp: Some(0),
+                    workers: Some(1),
+                    ..CheckRequest::default()
+                })?
                 .to_json_with_exit_convention(ExitConvention::Tlc);
                 let result = native(&value, compat_tlc)?;
                 assert_eq!(
@@ -114,10 +110,10 @@ fn real_source_rows_match_official_goldens_and_required_words_cannot_be_forged()
                         }
                     ),
                     Vec::new(),
-                    "{name}/{compat_tlc}/{engine:?}"
+                    "{name}/{compat_tlc}"
                 );
                 let validation = validate_counterexample(&spec, &result, &oracle);
-                assert!(validation.validated, "{name}/{engine:?}: {validation:?}");
+                assert!(validation.validated, "{name}: {validation:?}");
 
                 let mut bad = result.clone();
                 bad.trace = None;

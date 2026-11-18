@@ -1,6 +1,6 @@
 //! The session controls an actual compiled checker, not a replay evaluator.
 use dive_api::{
-    CheckRequest, Engine, check_file_engine,
+    CheckRequest, check_file,
     debug::{Event, Session},
 };
 use std::time::Duration;
@@ -73,7 +73,7 @@ fn managed_session_preserves_requested_workers_and_one_actual_worker_result()
             fp: Some(0),
             ..Default::default()
         };
-        let ordinary = check_file_engine(&request, Engine::Core)?.to_json();
+        let ordinary = check_file(&request)?.to_json();
         assert_eq!(ordinary["verdict"], "success", "{ordinary}");
         let mut session = Session::launch(request, false)?;
         assert!(matches!(
@@ -143,7 +143,7 @@ fn incompatible_requests_refuse_before_source_keys_or_observer_preparation()
                     ));
                 }
             }
-            let error = check_file_engine(&request, Engine::Core)
+            let error = check_file(&request)
                 .err()
                 .ok_or("incompatible observer request was accepted")?;
             assert!(matches!(error, dive_api::ApiError::Unsupported { .. }));
@@ -195,15 +195,12 @@ fn diagnostic_replay_has_no_raw_callbacks_and_error_scope_restores_live_observat
             workers: Some(4),
             ..Default::default()
         };
-        let plain = check_file_engine(&request, Engine::Core)?.to_json();
+        let plain = check_file(&request)?.to_json();
         let observer = Arc::new(ReplayObserver::default());
-        let debugged = check_file_engine(
-            &CheckRequest {
-                debugger: Some(observer.clone()),
-                ..request
-            },
-            Engine::Core,
-        )?
+        let debugged = check_file(&CheckRequest {
+            debugger: Some(observer.clone()),
+            ..request
+        })?
         .to_json();
         assert_eq!(debugged["options"]["workers"]["requested"], 4);
         assert_eq!(debugged["options"]["workers"]["used"], 1);
@@ -291,7 +288,7 @@ fn helper_breakpoint_inspects_real_storage_steps_and_finishes_the_existing_core_
             fp: Some(0),
             ..CheckRequest::default()
         };
-        let plain = check_file_engine(&request, Engine::Core)?.to_json();
+        let plain = check_file(&request)?.to_json();
         assert_eq!(plain["verdict"], "success", "{plain}");
         let mut session = Session::launch(request, false)?;
         assert!(matches!(
@@ -412,7 +409,7 @@ fn instance_helper_source_and_unforced_locals_keep_actual_provenance_and_demand(
             fp: Some(0),
             ..Default::default()
         };
-        let plain = check_file_engine(&request, Engine::Core)?.to_json();
+        let plain = check_file(&request)?.to_json();
         assert_eq!(plain["verdict"], "success", "{plain}");
         let mut session = Session::launch(request, false)?;
         assert!(matches!(
@@ -506,7 +503,7 @@ fn nested_inlined_helpers_have_distinct_real_activations_without_rehitting_each_
             fp: Some(0),
             ..Default::default()
         };
-        let plain = check_file_engine(&request, Engine::Core)?.to_json();
+        let plain = check_file(&request)?.to_json();
         let mut session = Session::launch(request, false)?;
         assert!(matches!(
             session.wait_event(Duration::from_secs(10))?,

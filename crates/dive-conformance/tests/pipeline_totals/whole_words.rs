@@ -603,7 +603,7 @@ fn pinned_p2_success_divergence_needs_no_counterexample_but_safety_still_does() 
         workers: Some(1),
         ..dive_api::CheckRequest::default()
     };
-    let native = dive_api::check_file_engine(&request, dive_api::Engine::Core)?;
+    let native = dive_api::check_file(&request)?;
     assert_eq!(native.exit_code(), 0);
     let process = ProcessOutcome {
         exit_code: Some(i32::from(native.exit_code())),
@@ -659,13 +659,10 @@ fn pinned_p2_success_divergence_needs_no_counterexample_but_safety_still_does() 
         pipeline::run(&config, &cache, &probe, None, &opts)?.models[0].outcome,
         Outcome::Disagree
     );
-    let compatible = dive_api::check_file_engine(
-        &dive_api::CheckRequest {
-            compat_tlc: true,
-            ..request
-        },
-        dive_api::Engine::Core,
-    )?;
+    let compatible = dive_api::check_file(&dive_api::CheckRequest {
+        compat_tlc: true,
+        ..request
+    })?;
     assert_eq!(compatible.exit_code(), 12);
     let process = ProcessOutcome {
         exit_code: Some(12),

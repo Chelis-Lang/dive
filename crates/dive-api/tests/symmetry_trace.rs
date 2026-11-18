@@ -52,16 +52,14 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
                     // Only the retired reference engine ran --chaos (#791,
                     // #910); Core refuses it and checks the same request
                     // without it.
-                    let chaotic = dive_api::check_file_engine(&request, dive_api::Engine::Core)
-                        .expect("check");
+                    let chaotic = dive_api::check_file(&request).expect("check");
                     refused::assert_refused(
                         &chaotic.to_json(),
                         chaotic.exit_code(),
                         refused::CHAOS,
                     );
                     request.chaos = None;
-                    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)
-                        .expect("check");
+                    let report = dive_api::check_file(&request).expect("check");
                     let doc = TraceDoc::from_json(&report.to_json())
                         .expect("concrete counterexample document");
                     let controls = model.controls(&doc);

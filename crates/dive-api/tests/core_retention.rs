@@ -5,9 +5,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{
-    CheckRequest, Engine, Store, check_file_checkpoint_engine, check_file_engine, checkpoint,
-};
+use dive_api::{CheckRequest, Store, check_file, check_file_checkpoint, checkpoint};
 use serde_json::{Value, json};
 
 fn request(relative: &str, tlc: bool, store: Store, workers: usize) -> CheckRequest {
@@ -65,9 +63,7 @@ fn many_forced_collections_release_expanded_payloads_and_keep_valid_words() {
         for store in [Store::Fingerprint, Store::Exact] {
             for workers in [1, 4, 8] {
                 let mut req = chain(tlc, store, workers);
-                let baseline = check_file_engine(&req, Engine::Core)
-                    .expect("resident")
-                    .to_json();
+                let baseline = check_file(&req).expect("resident").to_json();
                 assert_eq!(baseline["verdict"], "invariant-violation", "{baseline}");
                 assert_eq!(
                     baseline["core"]["metrics"]["store_reclamation"]["collections"],
@@ -77,9 +73,7 @@ fn many_forced_collections_release_expanded_payloads_and_keep_valid_words() {
                 req.frontier_memory_bytes = Some(0);
                 req.predecessor_memory_bytes = Some(0);
                 req.candidate_memory_bytes = Some(0);
-                let actual = check_file_engine(&req, Engine::Core)
-                    .expect("reclaimed")
-                    .to_json();
+                let actual = check_file(&req).expect("reclaimed").to_json();
                 assert_eq!(
                     observed(&actual),
                     observed(&baseline),
@@ -120,9 +114,7 @@ fn reclamation_preserves_history_views_symmetry_errors_and_disk_keys() {
         for tlc in [false, true] {
             for store in [Store::Fingerprint, Store::Exact] {
                 let mut req = request(relative, tlc, store, 4);
-                let baseline = check_file_engine(&req, Engine::Core)
-                    .expect("resident")
-                    .to_json();
+                let baseline = check_file(&req).expect("resident").to_json();
                 assert!(
                     !matches!(
                         baseline["verdict"].as_str(),
@@ -134,9 +126,7 @@ fn reclamation_preserves_history_views_symmetry_errors_and_disk_keys() {
                 req.frontier_memory_bytes = Some(0);
                 req.predecessor_memory_bytes = Some(0);
                 req.seen_disk = Some(dive_api::SeenOptions::default());
-                let actual = check_file_engine(&req, Engine::Core)
-                    .expect("reclaimed")
-                    .to_json();
+                let actual = check_file(&req).expect("reclaimed").to_json();
                 assert_eq!(
                     observed(&actual),
                     observed(&baseline),
@@ -159,14 +149,10 @@ fn dynamic_names_and_high_trigger_preserve_existing_behavior() {
             Store::Exact,
             1,
         );
-        let baseline = check_file_engine(&req, Engine::Core)
-            .expect("resident")
-            .to_json();
+        let baseline = check_file(&req).expect("resident").to_json();
         for trigger in [0, usize::MAX] {
             req.store_compact_bytes = Some(trigger);
-            let actual = check_file_engine(&req, Engine::Core)
-                .expect("names")
-                .to_json();
+            let actual = check_file(&req).expect("names").to_json();
             assert_eq!(observed(&actual), observed(&baseline), "{tlc}: {actual}");
             if trigger == usize::MAX {
                 assert_eq!(
@@ -184,18 +170,14 @@ fn successful_search_releases_payloads_and_large_live_roots_are_never_discarded(
         for store in [Store::Fingerprint, Store::Exact] {
             let mut req = chain(tlc, store, 4);
             req.config = Some(req.file.with_file_name("RetainedChainSafe.cfg"));
-            let full = check_file_engine(&req, Engine::Core)
-                .expect("resident success")
-                .to_json();
+            let full = check_file(&req).expect("resident success").to_json();
             assert_eq!(full["verdict"], "success");
             let nodes = full["core"]["metrics"]["store"]["nodes"]
                 .as_u64()
                 .expect("nodes");
             for trigger in [0, 1, 1 << 20] {
                 req.store_compact_bytes = Some(trigger);
-                let actual = check_file_engine(&req, Engine::Core)
-                    .expect("reclaimed success")
-                    .to_json();
+                let actual = check_file(&req).expect("reclaimed success").to_json();
                 assert_eq!(observed(&actual), observed(&full));
                 assert!(
                     actual["core"]["metrics"]["store"]["nodes"]
@@ -222,9 +204,7 @@ fn remapped_compound_words_preserve_hashcons_and_early_probe_ablations() {
         for tlc in [false, true] {
             for workers in [1, 4] {
                 let mut req = request(relative, tlc, Store::Exact, workers);
-                let base = check_file_engine(&req, Engine::Core)
-                    .expect("baseline")
-                    .to_json();
+                let base = check_file(&req).expect("baseline").to_json();
                 req.store_compact_bytes = Some(0);
                 req.frontier_memory_bytes = Some(0);
                 req.predecessor_memory_bytes = Some(0);
@@ -280,7 +260,7 @@ fn subprocess_recovery_worker() {
         counters: checkpoint::Counters::Retain,
         config_source_sha256: None,
     };
-    let doc = check_file_checkpoint_engine(&req, &cp, Engine::Core)
+    let doc = check_file_checkpoint(&req, &cp)
         .expect("fresh recovery")
         .to_json();
     std::fs::write(output, serde_json::to_vec(&doc).expect("json")).expect("write");
@@ -291,9 +271,7 @@ fn fresh_process_recovery_reclaims_without_replaying_init_as_search() {
     for tlc in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             let req = chain(tlc, store, 4);
-            let baseline = check_file_engine(&req, Engine::Core)
-                .expect("baseline")
-                .to_json();
+            let baseline = check_file(&req).expect("baseline").to_json();
             let archive = temp();
             let output = temp();
             let cp = checkpoint::Request {
@@ -302,9 +280,7 @@ fn fresh_process_recovery_reclaims_without_replaying_init_as_search() {
                 counters: checkpoint::Counters::Retain,
                 config_source_sha256: None,
             };
-            let paused = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-                .expect("pause")
-                .to_json();
+            let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
             assert_eq!(
                 paused["checkpoint"]["status"], "paused-incomplete",
                 "{paused}"
@@ -351,18 +327,18 @@ fn unsupported_owners_refuse_before_opening_source() {
         config_source_sha256: None,
     };
     assert!(matches!(
-        check_file_checkpoint_engine(&req, &cp, Engine::Core),
+        check_file_checkpoint(&req, &cp),
         Err(dive_api::ApiError::Unsupported { .. })
     ));
     req.temporal = dive_api::TemporalMode::FinalShort;
     assert!(matches!(
-        check_file_engine(&req, Engine::Core),
+        check_file(&req),
         Err(dive_api::ApiError::Unsupported { .. })
     ));
     req.temporal = dive_api::TemporalMode::Ordinary;
     req.core_sample = Some(1);
     assert!(matches!(
-        check_file_engine(&req, Engine::Core),
+        check_file(&req),
         Err(dive_api::ApiError::Unsupported { .. })
     ));
     for tlc in [false, true] {
@@ -373,9 +349,7 @@ fn unsupported_owners_refuse_before_opening_source() {
             4,
         );
         effect.store_compact_bytes = Some(0);
-        let doc = check_file_engine(&effect, Engine::Core)
-            .expect("effect refusal")
-            .to_json();
+        let doc = check_file(&effect).expect("effect refusal").to_json();
         assert_eq!(doc["verdict"], "unsupported");
         assert!(doc["statistics"].is_null());
         assert_eq!(doc["output"], json!([]));

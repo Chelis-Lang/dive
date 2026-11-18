@@ -40,7 +40,7 @@ Safe == x \in {0,1}
                 ..Default::default()
             };
             // Only the retired reference engine sampled this draw (#791, #910).
-            let report = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?;
+            let report = dive_api::simulate_file(&request)?;
             refused::assert_refused(
                 &report.to_json(),
                 report.exit_code(),
@@ -75,8 +75,7 @@ Safe == x \in {0,1}
             let reached =
                 source.replace("~ENABLED (x'=x /\\ x=2)", "ENABLED (x'=RandomElement({x}))");
             std::fs::write(&file, reached)?;
-            let refused =
-                dive_api::simulate_file_engine(&request, dive_api::Engine::Core)?.to_json();
+            let refused = dive_api::simulate_file(&request)?.to_json();
             assert_eq!(refused["result"], "unsupported");
             assert!(
                 refused["message"]

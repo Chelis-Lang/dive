@@ -5,7 +5,7 @@
 )]
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, Store, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, Store, check_file};
 use serde_json::{Value, json};
 use std::path::PathBuf;
 
@@ -43,7 +43,7 @@ fn candidate_spill_preserves_profiles_stores_widths_history_and_independent_word
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
                     let mut req = request(relative, tlc, workers, store);
-                    let baseline = check_file_engine(&req, Engine::Core).expect("resident Core");
+                    let baseline = check_file(&req).expect("resident Core");
                     assert!(
                         !matches!(
                             baseline.to_json()["verdict"].as_str(),
@@ -56,8 +56,7 @@ fn candidate_spill_preserves_profiles_stores_widths_history_and_independent_word
                         req.candidate_memory_bytes = Some(bytes);
                         req.frontier_memory_bytes = Some(0);
                         req.predecessor_memory_bytes = Some(0);
-                        let actual =
-                            check_file_engine(&req, Engine::Core).expect("candidate check");
+                        let actual = check_file(&req).expect("candidate check");
                         let doc = actual.to_json();
                         assert_eq!(
                             observed(&doc),
@@ -106,10 +105,10 @@ fn candidate_spill_combines_with_disk_seen_and_refuses_other_backends() {
     for tlc in [false, true] {
         for store in [Store::Fingerprint, Store::Exact] {
             let mut req = request("tests/fixtures/core-m0/CompoundTrace.tla", tlc, 4, store);
-            let baseline = check_file_engine(&req, Engine::Core).expect("resident Core");
+            let baseline = check_file(&req).expect("resident Core");
             req.candidate_memory_bytes = Some(0);
             req.seen_disk = Some(dive_api::SeenOptions::default());
-            let actual = check_file_engine(&req, Engine::Core).expect("disk candidate check");
+            let actual = check_file(&req).expect("disk candidate check");
             assert_eq!(observed(&actual.to_json()), observed(&baseline.to_json()));
         }
     }
@@ -124,9 +123,9 @@ fn candidate_write_failure_never_certifies_success_and_directory_needs_budget() 
         Store::Exact,
     );
     req.candidate_directory = Some(req.file.clone());
-    assert!(check_file_engine(&req, Engine::Core).is_err());
+    assert!(check_file(&req).is_err());
     req.candidate_memory_bytes = Some(0);
-    let actual = check_file_engine(&req, Engine::Core).expect("storage failure report");
+    let actual = check_file(&req).expect("storage failure report");
     let doc = actual.to_json();
     assert_eq!(doc["verdict"], "resource-limit", "{doc:#}");
     assert!(doc["counterexample"].is_null());
@@ -149,9 +148,9 @@ fn candidate_spill_small_smoke_runs_both_profiles_and_actual_widths() {
         for tlc in [false, true] {
             for workers in [1, 4] {
                 let mut req = request(relative, tlc, workers, Store::Exact);
-                let baseline = check_file_engine(&req, Engine::Core).expect("resident");
+                let baseline = check_file(&req).expect("resident");
                 req.candidate_memory_bytes = Some(0);
-                let actual = check_file_engine(&req, Engine::Core).expect("spilled");
+                let actual = check_file(&req).expect("spilled");
                 assert_eq!(observed(&actual.to_json()), observed(&baseline.to_json()));
                 assert_eq!(
                     actual.to_json()["core"]["metrics"]["candidate_storage"]["retained_bytes"],
@@ -164,7 +163,7 @@ fn candidate_spill_small_smoke_runs_both_profiles_and_actual_widths() {
 
 #[test]
 fn candidate_policy_can_change_across_core_checkpoint_recovery() {
-    use dive_api::{check_file_checkpoint_engine, checkpoint};
+    use dive_api::{check_file_checkpoint, checkpoint};
     use std::sync::atomic::{AtomicU64, Ordering};
     static SERIAL: AtomicU64 = AtomicU64::new(0);
     for tlc in [false, true] {
@@ -175,7 +174,7 @@ fn candidate_policy_can_change_across_core_checkpoint_recovery() {
                 4,
                 store,
             );
-            let baseline = check_file_engine(&req, Engine::Core).expect("resident");
+            let baseline = check_file(&req).expect("resident");
             req.candidate_memory_bytes = Some(0);
             req.frontier_memory_bytes = Some(0);
             req.predecessor_memory_bytes = Some(0);
@@ -190,9 +189,7 @@ fn candidate_policy_can_change_across_core_checkpoint_recovery() {
                 counters: checkpoint::Counters::Retain,
                 config_source_sha256: None,
             };
-            let paused = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-                .expect("pause")
-                .to_json();
+            let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
             assert_eq!(
                 paused["checkpoint"]["status"], "paused-incomplete",
                 "{paused:#}"
@@ -200,9 +197,7 @@ fn candidate_policy_can_change_across_core_checkpoint_recovery() {
             req.workers = Some(8);
             req.candidate_memory_bytes = Some(256);
             cp.action = checkpoint::Action::Recover;
-            let resumed = check_file_checkpoint_engine(&req, &cp, Engine::Core)
-                .expect("recover")
-                .to_json();
+            let resumed = check_file_checkpoint(&req, &cp).expect("recover").to_json();
             assert_eq!(observed(&resumed), observed(&baseline.to_json()));
             assert_eq!(resumed["checkpoint"]["status"], "recovered");
             assert_eq!(
@@ -223,7 +218,7 @@ fn candidate_spill_keeps_incomplete_constraint_and_action_endings() {
     ] {
         for tlc in [false, true] {
             let mut req = request(relative, tlc, 4, Store::Exact);
-            let baseline = check_file_engine(&req, Engine::Core).expect("resident");
+            let baseline = check_file(&req).expect("resident");
             assert!(
                 !matches!(
                     baseline.to_json()["verdict"].as_str(),
@@ -233,7 +228,7 @@ fn candidate_spill_keeps_incomplete_constraint_and_action_endings() {
                 baseline.to_json()
             );
             req.candidate_memory_bytes = Some(0);
-            let actual = check_file_engine(&req, Engine::Core).expect("spilled");
+            let actual = check_file(&req).expect("spilled");
             assert_eq!(
                 observed(&actual.to_json()),
                 observed(&baseline.to_json()),
@@ -259,14 +254,10 @@ fn candidate_closure_keeps_an_actual_shared_dag_compact() {
                     store,
                 );
                 req.no_deadlock = true;
-                let baseline = check_file_engine(&req, Engine::Core)
-                    .expect("resident shared DAG")
-                    .to_json();
+                let baseline = check_file(&req).expect("resident shared DAG").to_json();
                 assert_eq!(baseline["verdict"], "success");
                 req.candidate_memory_bytes = Some(0);
-                let actual = check_file_engine(&req, Engine::Core)
-                    .expect("spilled shared DAG")
-                    .to_json();
+                let actual = check_file(&req).expect("spilled shared DAG").to_json();
                 assert_eq!(observed(&actual), observed(&baseline));
                 let resident = &baseline["core"]["metrics"]["arena_peak"];
                 let spilled = &actual["core"]["metrics"]["arena_peak"];
@@ -300,14 +291,10 @@ fn canonical_candidates_need_no_constructor_history_index() {
             Store::Exact,
         );
         req.no_deadlock = true;
-        let resident = check_file_engine(&req, Engine::Core)
-            .expect("resident origins")
-            .to_json();
+        let resident = check_file(&req).expect("resident origins").to_json();
         assert_eq!(resident["verdict"], "success");
         req.candidate_memory_bytes = Some(0);
-        let actual = check_file_engine(&req, Engine::Core)
-            .expect("spilled origins")
-            .to_json();
+        let actual = check_file(&req).expect("spilled origins").to_json();
         assert_eq!(observed(&actual), observed(&resident));
         let usage = &actual["core"]["metrics"]["candidate_storage"];
         assert_eq!(usage["peak_retained_bytes"], 0);

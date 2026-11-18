@@ -100,8 +100,7 @@ fn verify(
                         fp: Some(0),
                         ..CheckRequest::default()
                     };
-                    let run = dive_api::check_file_engine(&request, dive_api::Engine::Core)
-                        .expect("full run");
+                    let run = dive_api::check_file(&request).expect("full run");
                     let full = run.to_json();
                     // Only the retired reference engine ran --chaos (#791).
                     if chaos.is_some() {
@@ -136,22 +135,17 @@ fn verify(
                             config_source_sha256: None,
                         };
                         ordinal += 1;
-                        let pause = dive_api::check_file_checkpoint_engine(
-                            &request,
-                            &cp,
-                            dive_api::Engine::Core,
-                        )
-                        .expect("pause")
-                        .to_json();
+                        let pause = dive_api::check_file_checkpoint(&request, &cp)
+                            .expect("pause")
+                            .to_json();
                         assert_eq!(pause["verdict"], "resource-limit");
                         assert_eq!(pause["checkpoint"]["status"], "paused-incomplete");
-                        let recovered = dive_api::check_file_checkpoint_engine(
+                        let recovered = dive_api::check_file_checkpoint(
                             &request,
                             &checkpoint::Request {
                                 action: checkpoint::Action::Recover,
                                 ..cp.clone()
                             },
-                            dive_api::Engine::Core,
                         )
                         .expect("recover")
                         .to_json();
@@ -178,14 +172,13 @@ fn verify(
                             .validation,
                             Validation::Valid
                         );
-                        let reset = dive_api::check_file_checkpoint_engine(
+                        let reset = dive_api::check_file_checkpoint(
                             &request,
                             &checkpoint::Request {
                                 action: checkpoint::Action::Recover,
                                 counters: checkpoint::Counters::Tlc,
                                 ..cp
                             },
-                            dive_api::Engine::Core,
                         )
                         .expect("reset recovery")
                         .to_json();
@@ -348,7 +341,7 @@ fn ignored_invalid_value_cannot_produce_a_public_verdict_or_archive() {
                     fp: Some(0),
                     ..CheckRequest::default()
                 };
-                let full = dive_api::check_file_engine(&request, dive_api::Engine::Core)
+                let full = dive_api::check_file(&request)
                     .expect("explicit refusal")
                     .to_json();
                 assert_eq!(full["verdict"], "unsupported", "{full}");
@@ -360,10 +353,9 @@ fn ignored_invalid_value_cannot_produce_a_public_verdict_or_archive() {
                     counters: checkpoint::Counters::Tlc,
                     config_source_sha256: None,
                 };
-                let pause =
-                    dive_api::check_file_checkpoint_engine(&request, &cp, dive_api::Engine::Core)
-                        .expect("explicit checkpoint refusal")
-                        .to_json();
+                let pause = dive_api::check_file_checkpoint(&request, &cp)
+                    .expect("explicit checkpoint refusal")
+                    .to_json();
                 assert_eq!(pause["verdict"], "unsupported", "{pause}");
                 assert!(pause["counterexample"].is_null());
                 assert_eq!(pause["output"], serde_json::json!([]));

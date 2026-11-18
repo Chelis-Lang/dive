@@ -196,12 +196,12 @@ process only, not the workers.
 ## Rust callers
 
 An embedding program can use `prepare_core_worker` and `CoreWorker::serve` for
-the worker role and `check_file_engine` with `DistributedOptions` for the
+the worker role and `check_file` with `DistributedOptions` for the
 coordinator. Use the same executable for every role, because the executable
 digest is part of the session identity.
 
 ```rust,no_run
-use dive_api::{CheckRequest, DistributedOptions, Engine, check_file_engine};
+use dive_api::{CheckRequest, DistributedOptions, check_file};
 let request = CheckRequest {
     file: "docs/user/examples/Counter.tla".into(), seed: Some(0), fp: Some(0),
     distributed: Some(DistributedOptions::new(
@@ -210,7 +210,7 @@ let request = CheckRequest {
     )),
     ..CheckRequest::default()
 };
-let report = check_file_engine(&request, Engine::Core)?;
+let report = check_file(&request)?;
 println!("{}", report.to_json());
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```

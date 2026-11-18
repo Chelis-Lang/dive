@@ -729,20 +729,17 @@ mod tests {
         )?;
         let reference = golden(Verdict::Success);
         for profile in [Profile::Dive, Profile::Tlc] {
-            let report = dive_api::check_file_engine(
-                &CheckRequest {
-                    file: file.clone(),
-                    compat_tlc: profile == Profile::Tlc,
-                    workers: Some(1),
-                    seed: Some(0),
-                    fp: Some(0),
-                    temporal: TemporalMode::FinalShort,
-                    time_limit: BudgetSetting::Unlimited,
-                    max_memory: BudgetSetting::Explicit(1),
-                    ..CheckRequest::default()
-                },
-                dive_api::Engine::Core,
-            )?;
+            let report = dive_api::check_file(&CheckRequest {
+                file: file.clone(),
+                compat_tlc: profile == Profile::Tlc,
+                workers: Some(1),
+                seed: Some(0),
+                fp: Some(0),
+                temporal: TemporalMode::FinalShort,
+                time_limit: BudgetSetting::Unlimited,
+                max_memory: BudgetSetting::Explicit(1),
+                ..CheckRequest::default()
+            })?;
             let value = report.to_json();
             assert_eq!(value["check_kind"], "temporal");
             assert_eq!(value["execution"]["stage"], "check-startup");

@@ -112,14 +112,11 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
             * 2;
     // References must span stores and widths, not restart inside the split
     // wrapper. These are actual full runs of the same source/profile at width1.
-    let fingerprint_run = dive_api::check_file_engine(
-        &CheckRequest {
-            store: Store::Fingerprint,
-            workers: Some(1),
-            ..base.clone()
-        },
-        dive_api::Engine::Core,
-    )
+    let fingerprint_run = dive_api::check_file(&CheckRequest {
+        store: Store::Fingerprint,
+        workers: Some(1),
+        ..base.clone()
+    })
     .expect("full fingerprint reference");
     let fingerprint_reference = fingerprint_run.to_json();
     // Only the retired reference engine ran these cases (#791).
@@ -140,14 +137,11 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
         let store_reference = if store == Store::Fingerprint {
             fingerprint_reference.clone()
         } else {
-            dive_api::check_file_engine(
-                &CheckRequest {
-                    store,
-                    workers: Some(1),
-                    ..base.clone()
-                },
-                dive_api::Engine::Core,
-            )
+            dive_api::check_file(&CheckRequest {
+                store,
+                workers: Some(1),
+                ..base.clone()
+            })
             .expect("full store reference")
             .to_json()
         };
@@ -165,7 +159,7 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                     predecessor_memory_bytes: (family & 2 != 0).then_some(0),
                     ..base.clone()
                 };
-                let run = dive_api::check_file_engine(&req, dive_api::Engine::Core).expect("full");
+                let run = dive_api::check_file(&req).expect("full");
                 let full = run.to_json();
                 // Only the retired reference engine ran --chaos (#791).
                 if chaos.is_some() {
@@ -193,10 +187,9 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                         counters: checkpoint::Counters::Retain,
                         config_source_sha256: None,
                     };
-                    let paused =
-                        dive_api::check_file_checkpoint_engine(&req, &cp, dive_api::Engine::Core)
-                            .expect("pause")
-                            .to_json();
+                    let paused = dive_api::check_file_checkpoint(&req, &cp)
+                        .expect("pause")
+                        .to_json();
                     assert_eq!(paused["verdict"], "resource-limit", "{paused}");
                     metadata(&paused, store, compat_tlc);
                     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
@@ -219,13 +212,12 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                         workers: Some(if workers == 8 { 4 } else { 8 }),
                         ..req.clone()
                     };
-                    let resumed = dive_api::check_file_checkpoint_engine(
+                    let resumed = dive_api::check_file_checkpoint(
                         &recovery,
                         &checkpoint::Request {
                             action: checkpoint::Action::Recover,
                             ..cp.clone()
                         },
-                        dive_api::Engine::Core,
                     )
                     .expect("recover")
                     .to_json();
@@ -269,14 +261,13 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
                             Validation::Invalid(_)
                         ));
                     }
-                    let reset = dive_api::check_file_checkpoint_engine(
+                    let reset = dive_api::check_file_checkpoint(
                         &recovery,
                         &checkpoint::Request {
                             action: checkpoint::Action::Recover,
                             counters: checkpoint::Counters::Tlc,
                             ..cp
                         },
-                        dive_api::Engine::Core,
                     )
                     .expect("reset")
                     .to_json();

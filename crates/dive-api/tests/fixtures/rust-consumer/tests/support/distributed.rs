@@ -1,8 +1,6 @@
 //! Independent public consumer: native worker processes with an empty PATH.
 use super::{CONFIG, FINITE, Project, Result};
-use dive_api::{
-    CheckRequest, DistributedOptions, Engine, Store, check_file_engine, prepare_core_worker,
-};
+use dive_api::{CheckRequest, DistributedOptions, Store, check_file, prepare_core_worker};
 use serde_json::Value;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{SocketAddr, TcpListener};
@@ -97,7 +95,7 @@ fn two_independent_workers_check_through_public_rust_without_cli_or_java() -> Re
             vec![a.address, b.address],
             key.clone(),
         ));
-        let report = check_file_engine(&request, Engine::Core)?;
+        let report = check_file(&request)?;
         let doc = report.to_json();
         assert_eq!(doc["verdict"], "success", "{doc}");
         assert_eq!(doc["statistics"]["distinct"], 3);

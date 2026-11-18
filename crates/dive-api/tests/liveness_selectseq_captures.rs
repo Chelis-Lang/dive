@@ -8,7 +8,7 @@
 mod refused;
 
 use dive_api::temporal::Outcome;
-use dive_api::{CheckRequest, Engine, Store};
+use dive_api::{CheckRequest, Store};
 use dive_trace::Validation;
 use serde_json::{Value, json};
 use std::path::Path;
@@ -43,7 +43,7 @@ fn complete_primary_selection_preserves_counts_truth_and_fresh_replay() {
                 workers: Some(1),
                 ..CheckRequest::default()
             };
-            let report = dive_api::check_file_engine(&req, Engine::Core).expect("Core");
+            let report = dive_api::check_file(&req).expect("Core");
             let json = report.to_json();
             let what = format!("{name}/tlc={tlc}: {json}");
             if matches!(

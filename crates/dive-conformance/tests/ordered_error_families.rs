@@ -1,6 +1,6 @@
 //! Word/report proof does not classify an ambiguous pinned oracle stream.
 use dive_api::trace::{SpecModel, TraceOptions};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use dive_conformance::compare::{CompareContext, diff_results};
 use dive_conformance::dive::{CheckMapping, check_result_with_model};
 use dive_conformance::process::ProcessOutcome;
@@ -86,19 +86,15 @@ fn error_family_shadows_preserve_the_pinned_oracle_classification() -> TestResul
                 )?;
                 let mut pair = vec![recorded];
                 {
-                    let engine = Engine::Core;
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )?;
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })?;
                     let wire = report.to_json_with_exit_convention(dive_api::ExitConvention::Tlc);
                     let outcome = ProcessOutcome {
                         exit_code: Some(i32::from(
@@ -113,14 +109,11 @@ fn error_family_shadows_preserve_the_pinned_oracle_classification() -> TestResul
                     let CheckMapping::Result(actual) =
                         check_result_with_model(&outcome, compat_tlc, &model)
                     else {
-                        return Err(format!(
-                            "source-bound mapping refused {name}/{engine:?}: {wire}"
-                        )
-                        .into());
+                        return Err(format!("source-bound mapping refused {name}: {wire}").into());
                     };
                     assert!(
                         validate_counterexample(&model, &actual, &oracle).validated,
-                        "{name}/{engine:?}"
+                        "{name}"
                     );
                     if name.starts_with("ErView") {
                         assert!(matches!(
@@ -176,7 +169,7 @@ fn error_family_shadows_preserve_the_pinned_oracle_classification() -> TestResul
                                 }
                             )
                             .is_empty(),
-                            "{name}/{engine:?}: {:?}",
+                            "{name}: {:?}",
                             diff_results(
                                 &oracle,
                                 &actual,

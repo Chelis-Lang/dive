@@ -96,7 +96,7 @@ counterexamples in a fresh source-bound validator:
 cargo run -p dive-api --example checking_preview --locked
 ```
 
-The example uses `check_file_engine`, `TraceDoc` and `SpecModel`; it runs the
+The example uses `check_file`, `TraceDoc` and `SpecModel`; it runs the
 checker and validator in process. See the [Rust API guide](rust-api.md) for
 the supported library interfaces.
 

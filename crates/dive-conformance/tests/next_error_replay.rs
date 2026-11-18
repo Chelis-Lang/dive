@@ -6,7 +6,7 @@
 )]
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use dive_conformance::compare::{CompareContext, diff_results};
 use dive_conformance::dive::{CheckMapping, check_result, check_result_with_model};
 use dive_conformance::process::ProcessOutcome;
@@ -20,19 +20,16 @@ use std::time::Duration;
 fn repo() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
-fn native(file: &Path, engine: Engine, compat: bool) -> OracleResult {
-    let report = check_file_engine(
-        &CheckRequest {
-            file: file.into(),
-            config: Some(file.with_extension("cfg")),
-            compat_tlc: compat,
-            workers: Some(1),
-            seed: Some(0),
-            fp: Some(0),
-            ..CheckRequest::default()
-        },
-        engine,
-    )
+fn native(file: &Path, compat: bool) -> OracleResult {
+    let report = check_file(&CheckRequest {
+        file: file.into(),
+        config: Some(file.with_extension("cfg")),
+        compat_tlc: compat,
+        workers: Some(1),
+        seed: Some(0),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
     .expect("native check");
     let outcome = ProcessOutcome {
         exit_code: Some(i32::from(
@@ -72,8 +69,7 @@ fn pinned_direct_cause_requires_the_real_independent_word() {
     for compat in [false, true] {
         let spec = model(&file, compat);
         {
-            let engine = Engine::Core;
-            let actual = native(&file, engine, compat);
+            let actual = native(&file, compat);
             assert_eq!(
                 diff_results(
                     &golden,
@@ -118,8 +114,7 @@ fn next_word_validity_does_not_waive_an_unknown_or_mismatched_wrapper() {
     for compat in [false, true] {
         let spec = model(&file, compat);
         {
-            let engine = Engine::Core;
-            let actual = native(&file, engine, compat);
+            let actual = native(&file, compat);
             let doc = TraceDoc::from_json(
                 actual
                     .trace
@@ -199,8 +194,7 @@ fn pinned_partial_candidate_requires_the_exact_independent_terminal() {
     for compat in [false, true] {
         let spec = model(&file, compat);
         {
-            let engine = Engine::Core;
-            let actual = native(&file, engine, compat);
+            let actual = native(&file, compat);
             assert_eq!(
                 diff_results(
                     &oracle,
@@ -270,8 +264,7 @@ fn candidate_wrapper_replay_preserves_pinned_primary_headers_and_strict_report_c
         for compat in [false, true] {
             let spec = model(&file, compat);
             {
-                let engine = Engine::Core;
-                let actual = native(&file, engine, compat);
+                let actual = native(&file, compat);
                 let wire = actual
                     .trace
                     .as_ref()
@@ -350,20 +343,16 @@ fn actual_next_receiver_wrapper_requires_the_original_source_word_and_diagnostic
         for compat in [false, true] {
             let source = model(&file, compat);
             {
-                let engine = Engine::Core;
                 for workers in [1, 4] {
-                    let report = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc: compat,
-                            workers: Some(workers),
-                            seed: Some(0),
-                            fp: Some(0),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )
+                    let report = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc: compat,
+                        workers: Some(workers),
+                        seed: Some(0),
+                        fp: Some(0),
+                        ..CheckRequest::default()
+                    })
                     .expect("actual producer");
                     let value = report.to_json();
                     let outcome = |value: &Value, exit| ProcessOutcome {

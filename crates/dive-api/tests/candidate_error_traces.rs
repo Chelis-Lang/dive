@@ -1,6 +1,6 @@
 //! Candidate-side wrappers need independent primary and diagnostic execution.
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, check_file_engine};
+use dive_api::{CheckRequest, check_file};
 use serde_json::json;
 use std::path::PathBuf;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -33,22 +33,16 @@ fn actual_candidate_errors_require_exact_word_source_site_and_both_identities() 
                     ..TraceOptions::default()
                 },
             )?;
-            for (engine, workers) in [Engine::Core]
-                .into_iter()
-                .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
-            {
-                let result = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc,
-                        workers: Some(workers),
-                        seed: Some(0),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )?
+            for workers in [1, 4] {
+                let result = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    workers: Some(workers),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                })?
                 .to_json();
                 let wire = &result["counterexample"]["trace"];
                 assert_eq!(result["tlc"]["code"], 2103, "{name}: {result}");
@@ -61,7 +55,7 @@ fn actual_candidate_errors_require_exact_word_source_site_and_both_identities() 
                 assert_eq!(
                     model.try_validate(&doc)?.validation,
                     Validation::Valid,
-                    "{name}/{compat_tlc}/{engine:?}: {result}"
+                    "{name}/{compat_tlc}: {result}"
                 );
                 assert!(matches!(
                     model.validate(&doc).validation,
@@ -163,22 +157,16 @@ fn direct_module_errors_and_assertions_replay_actual_candidate_and_diagnostic() 
                         ..TraceOptions::default()
                     },
                 )?;
-                for (engine, workers) in [Engine::Core]
-                    .into_iter()
-                    .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
-                {
-                    let result = check_file_engine(
-                        &CheckRequest {
-                            file: file.clone(),
-                            config: Some(file.with_extension("cfg")),
-                            compat_tlc,
-                            seed: Some(0),
-                            fp: Some(0),
-                            workers: Some(workers),
-                            ..CheckRequest::default()
-                        },
-                        engine,
-                    )?
+                for workers in [1, 4] {
+                    let result = check_file(&CheckRequest {
+                        file: file.clone(),
+                        config: Some(file.with_extension("cfg")),
+                        compat_tlc,
+                        seed: Some(0),
+                        fp: Some(0),
+                        workers: Some(workers),
+                        ..CheckRequest::default()
+                    })?
                     .to_json();
                     let wire = &result["counterexample"]["trace"];
                     assert_eq!(wire["version"], 4, "{name}: {result}");
@@ -277,22 +265,16 @@ fn top_level_nonboolean_role_proofs_do_not_admit_the_old_anonymous_word() -> Tes
                     ..TraceOptions::default()
                 },
             )?;
-            for (engine, workers) in [Engine::Core]
-                .into_iter()
-                .flat_map(|engine| [1, 4].map(|workers| (engine, workers)))
-            {
-                let result = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        compat_tlc,
-                        workers: Some(workers),
-                        seed: Some(0),
-                        fp: Some(0),
-                        ..CheckRequest::default()
-                    },
-                    engine,
-                )?
+            for workers in [1, 4] {
+                let result = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    compat_tlc,
+                    workers: Some(workers),
+                    seed: Some(0),
+                    fp: Some(0),
+                    ..CheckRequest::default()
+                })?
                 .to_json();
                 let wire = &result["counterexample"]["trace"];
                 assert_eq!(wire["version"], 4);

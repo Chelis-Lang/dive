@@ -30,7 +30,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use dive_api::trace::{Ending, Failure, SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{BudgetSetting, CheckRequest, Engine, check_file_engine};
+use dive_api::{BudgetSetting, CheckRequest, check_file};
 use serde_json::{Value, json};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -97,7 +97,7 @@ fn run(spec: &Path, profile: Profile) -> Result<Value> {
         time_limit: BudgetSetting::Explicit(TIME_LIMIT),
         ..CheckRequest::default()
     };
-    let report = dive_api::check_file_engine(&request, dive_api::Engine::Core)?.to_json();
+    let report = dive_api::check_file(&request)?.to_json();
     // Core refuses a state cap with temporal properties; the time limit
     // still bounds the run.
     if report["verdict"] == "unsupported"
@@ -106,7 +106,7 @@ fn run(spec: &Path, profile: Profile) -> Result<Value> {
         })
     {
         request.max_states = None;
-        return Ok(dive_api::check_file_engine(&request, dive_api::Engine::Core)?.to_json());
+        return Ok(dive_api::check_file(&request)?.to_json());
     }
     Ok(report)
 }
@@ -412,18 +412,15 @@ fn core_empty_compound_initial_words_validate_or_refuse_mixed_compatibility() ->
         ));
         for compat_tlc in [false, true] {
             for workers in [1, 4] {
-                let report = check_file_engine(
-                    &CheckRequest {
-                        file: file.clone(),
-                        config: Some(file.with_extension("cfg")),
-                        workers: Some(workers),
-                        seed: Some(0),
-                        fp: Some(0),
-                        compat_tlc,
-                        ..CheckRequest::default()
-                    },
-                    Engine::Core,
-                )?
+                let report = check_file(&CheckRequest {
+                    file: file.clone(),
+                    config: Some(file.with_extension("cfg")),
+                    workers: Some(workers),
+                    seed: Some(0),
+                    fp: Some(0),
+                    compat_tlc,
+                    ..CheckRequest::default()
+                })?
                 .to_json();
                 if compat_tlc {
                     assert_eq!(report["verdict"], "unsupported");

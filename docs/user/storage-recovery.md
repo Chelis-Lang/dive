@@ -211,8 +211,7 @@ dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0
 dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --workers 8 --recover counter.core.cp --checkpoint-counters retain --output json
 ```
 
-The additive Rust API is `check_file_checkpoint_engine(request, checkpoint,
-Engine::Core)`; `check_file_checkpoint` uses the default engine, Core. Core's
+The Rust API is `check_file_checkpoint(request, checkpoint)`. Core's
 `DIVECC01` archive retains the compiled startup prefix, owned Store DAG,
 complete original/canonical discovery rows, keys, parents/ordinals and ordered
 frontier. Its Store image keeps the retired construction-history table as an

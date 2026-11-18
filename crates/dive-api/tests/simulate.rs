@@ -28,18 +28,15 @@ fn seeded_tlc_choices_and_counts_match_ten_oracle_runs() {
     .unwrap();
     let mut matching_rows = 0;
     for row in expected.as_array().unwrap() {
-        let report = dive_api::simulate_file_engine(
-            &SimulateRequest {
-                file: fixture(),
-                compat_tlc: true,
-                seed: row["seed"].as_i64(),
-                aril: row["aril"].as_u64().unwrap(),
-                depth: Some(5),
-                traces: 3,
-                ..Default::default()
-            },
-            dive_api::Engine::Core,
-        )
+        let report = dive_api::simulate_file(&SimulateRequest {
+            file: fixture(),
+            compat_tlc: true,
+            seed: row["seed"].as_i64(),
+            aril: row["aril"].as_u64().unwrap(),
+            depth: Some(5),
+            traces: 3,
+            ..Default::default()
+        })
         .unwrap();
         let json = report.to_json();
         assert_eq!(report.exit_code(), 0, "{json}");
@@ -90,34 +87,23 @@ fn default_trace_identity_replays_and_is_prefix_stable() {
         traces: 2,
         ..Default::default()
     };
-    let a = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
-        .unwrap()
-        .to_json();
+    let a = dive_api::simulate_file(&request).unwrap().to_json();
     // D-003's per-trace streams are dive-defined: Core's own sample is the
     // contract for this seed.
-    assert_eq!(
-        dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
-            .unwrap()
-            .to_json(),
-        a
-    );
+    assert_eq!(dive_api::simulate_file(&request).unwrap().to_json(), a);
     agreed::check_core(
         CORE,
         "default_trace_identity_replays_and_is_prefix_stable/0",
         &serde_json::json!({"traces": a["traces"], "statistics": a["statistics"]}),
     );
     request.traces = 5;
-    let b = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
-        .unwrap()
-        .to_json();
+    let b = dive_api::simulate_file(&request).unwrap().to_json();
     assert_eq!(
         &a["traces"].as_array().unwrap()[..],
         &b["traces"].as_array().unwrap()[..2]
     );
     request.workers = Some(8);
-    let refused = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
-        .unwrap()
-        .to_json();
+    let refused = dive_api::simulate_file(&request).unwrap().to_json();
     assert_eq!(refused["result"], "unsupported");
     assert_eq!(refused["options"]["workers_used"], 0);
     assert_eq!(refused["options"]["execution_stage"], "preflight");
@@ -131,17 +117,14 @@ fn simulation_error_sites_match_pinned_messages_and_statuses() {
     .unwrap();
     for row in expected.as_array().unwrap() {
         let name = row["model"].as_str().unwrap();
-        let report = dive_api::simulate_file_engine(
-            &SimulateRequest {
-                file: fixture().with_file_name(format!("{name}.tla")),
-                compat_tlc: true,
-                seed: Some(0),
-                depth: Some(4),
-                traces: 1,
-                ..Default::default()
-            },
-            dive_api::Engine::Core,
-        )
+        let report = dive_api::simulate_file(&SimulateRequest {
+            file: fixture().with_file_name(format!("{name}.tla")),
+            compat_tlc: true,
+            seed: Some(0),
+            depth: Some(4),
+            traces: 1,
+            ..Default::default()
+        })
         .unwrap();
         let json = report.to_json();
         if row["native_scope"] == "unsupported" {
@@ -187,16 +170,13 @@ fn simulation_error_sites_match_pinned_messages_and_statuses() {
 #[test]
 fn corrupted_trace_rejected_and_guarded_deadlock_certified() {
     use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-    let report = dive_api::simulate_file_engine(
-        &SimulateRequest {
-            file: fixture(),
-            seed: Some(0),
-            depth: Some(3),
-            traces: 1,
-            ..Default::default()
-        },
-        dive_api::Engine::Core,
-    )
+    let report = dive_api::simulate_file(&SimulateRequest {
+        file: fixture(),
+        seed: Some(0),
+        depth: Some(3),
+        traces: 1,
+        ..Default::default()
+    })
     .unwrap()
     .to_json();
     let mut doc = TraceDoc::from_json(&report["traces"][0]["document"]).unwrap();
@@ -216,15 +196,12 @@ fn corrupted_trace_rejected_and_guarded_deadlock_certified() {
     let path = dir.join("Uncovered.tla");
     std::fs::write(&path, "---- MODULE Uncovered ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x > 0 /\\ x' \\in Nat\n====\n").unwrap();
     std::fs::write(path.with_extension("cfg"), "INIT Init\nNEXT Next\n").unwrap();
-    let json = dive_api::simulate_file_engine(
-        &SimulateRequest {
-            file: path,
-            seed: Some(0),
-            traces: 1,
-            ..Default::default()
-        },
-        dive_api::Engine::Core,
-    )
+    let json = dive_api::simulate_file(&SimulateRequest {
+        file: path,
+        seed: Some(0),
+        traces: 1,
+        ..Default::default()
+    })
     .unwrap()
     .to_json();
     // The false guard `x > 0` leaves no successor: ENABLED Next is FALSE.
@@ -243,16 +220,13 @@ fn unrepresentable_sample_retains_execution_statistics() {
     let path = dir.join("SymbolicState.tla");
     std::fs::write(&path, "---- MODULE SymbolicState ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = Nat\n====\n").unwrap();
     std::fs::write(path.with_extension("cfg"), "INIT Init\nNEXT Next\n").unwrap();
-    let report = dive_api::simulate_file_engine(
-        &SimulateRequest {
-            file: path,
-            seed: Some(0),
-            traces: 1,
-            depth: Some(1),
-            ..Default::default()
-        },
-        dive_api::Engine::Core,
-    )
+    let report = dive_api::simulate_file(&SimulateRequest {
+        file: path,
+        seed: Some(0),
+        traces: 1,
+        depth: Some(1),
+        ..Default::default()
+    })
     .unwrap();
     let json = report.to_json();
     assert_eq!(json["result"], "unsupported", "{json}");
@@ -280,9 +254,7 @@ fn tlc_runtime_name_sampling_refuses_before_uncertifiable_traces() {
         traces: 1,
         ..Default::default()
     };
-    let report = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
-        .unwrap()
-        .to_json();
+    let report = dive_api::simulate_file(&request).unwrap().to_json();
     assert_eq!(report["result"], "unsupported", "{report}");
     assert_eq!(report["exhaustive"], false);
     assert_eq!(report["model_proved"], false);
@@ -291,13 +263,10 @@ fn tlc_runtime_name_sampling_refuses_before_uncertifiable_traces() {
         "{report}"
     );
     assert_eq!(report["traces"].as_array().unwrap().len(), 0);
-    let sampled = dive_api::simulate_file_engine(
-        &SimulateRequest {
-            compat_tlc: false,
-            ..request
-        },
-        dive_api::Engine::Core,
-    )
+    let sampled = dive_api::simulate_file(&SimulateRequest {
+        compat_tlc: false,
+        ..request
+    })
     .unwrap()
     .to_json();
     assert_eq!(sampled["result"], "sampled", "{sampled}");
@@ -319,12 +288,9 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
                 traces: 3,
                 ..Default::default()
             };
-            let plain = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
-                .unwrap()
-                .to_json();
+            let plain = dive_api::simulate_file(&request).unwrap().to_json();
             request.action_stats = true;
-            let counted_report =
-                dive_api::simulate_file_engine(&request, dive_api::Engine::Core).unwrap();
+            let counted_report = dive_api::simulate_file(&request).unwrap();
             assert!(
                 counted_report
                     .render_human()
@@ -333,9 +299,7 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
             let counted = counted_report.to_json();
             assert_eq!(
                 counted,
-                dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
-                    .unwrap()
-                    .to_json()
+                dive_api::simulate_file(&request).unwrap().to_json()
             );
             for field in [
                 "result",
@@ -395,9 +359,7 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
                 );
             }
             request.workers = Some(4);
-            let refused = dive_api::simulate_file_engine(&request, dive_api::Engine::Core)
-                .unwrap()
-                .to_json();
+            let refused = dive_api::simulate_file(&request).unwrap().to_json();
             assert_eq!(refused["result"], "unsupported");
             assert_eq!(refused["options"]["workers_requested"], 4);
             assert_eq!(refused["options"]["workers_used"], 0);

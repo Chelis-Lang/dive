@@ -9,10 +9,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use dive_api::trace::{TraceDoc, Validation};
-use dive_api::{
-    ActionComposition, CheckRequest, Engine, ExitConvention, check_file_core_opts,
-    check_file_engine,
-};
+use dive_api::{ActionComposition, CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 static SERIAL: AtomicUsize = AtomicUsize::new(0);
@@ -83,7 +80,7 @@ fn deterministic_reduction_counts_only_final_successors() {
             fp: Some(0),
             ..CheckRequest::default()
         };
-        let reference = check_file_engine(&request, Engine::Core).expect("reference");
+        let reference = check_file(&request).expect("reference");
         assert_eq!(
             observed(&reference),
             json!({"verdict":"success","property":null,"distinct":3,"generated":7,"depth":2,"exit":0})
@@ -142,7 +139,7 @@ fn primed_step_thunks_are_not_reused_across_first_stage_rows() {
             fp: Some(0),
             ..CheckRequest::default()
         };
-        let reference = check_file_engine(&request, Engine::Core).expect("reference");
+        let reference = check_file(&request).expect("reference");
         assert_eq!(
             observed(&reference),
             json!({"verdict":"success","property":null,"distinct":3,"generated":4,"depth":3,"exit":0}),
@@ -175,9 +172,7 @@ fn unproved_shapes_and_composition_modes_keep_named_refusals() {
             "RepeatedTail",
         ] {
             let input = Input::new(next, "Inv", compat_tlc);
-            let core = check_file_engine(&input.0, Engine::Core)
-                .expect("Core refusal")
-                .to_json();
+            let core = check_file(&input.0).expect("Core refusal").to_json();
             assert_eq!(core["verdict"], "unsupported", "{next}: {core:#}");
             assert!(
                 core["message"].to_string().contains("composition"),
@@ -187,9 +182,7 @@ fn unproved_shapes_and_composition_modes_keep_named_refusals() {
         for mode in [ActionComposition::Off, ActionComposition::Tlc] {
             let mut input = Input::new("Basic", "Inv", compat_tlc);
             input.0.action_composition = Some(mode);
-            let core = check_file_engine(&input.0, Engine::Core)
-                .expect("Core mode refusal")
-                .to_json();
+            let core = check_file(&input.0).expect("Core mode refusal").to_json();
             assert_eq!(core["verdict"], "unsupported", "{mode:?}: {core:#}");
         }
     }
@@ -231,7 +224,7 @@ fn actual_opposite_and_forged_composed_words_use_independent_replay() {
     for compat_tlc in [false, true] {
         for (invariant, final_y, generated) in [("Bad", 4, 3), ("Other", 2, 2)] {
             let input = Input::new("Basic", invariant, compat_tlc);
-            let report = check_file_engine(&input.0, Engine::Core).expect("Core violation");
+            let report = check_file(&input.0).expect("Core violation");
             let value = report.to_json();
             assert_eq!(
                 observed(&report),

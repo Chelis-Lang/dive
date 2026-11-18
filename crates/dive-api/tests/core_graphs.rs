@@ -4,7 +4,7 @@
 use std::path::PathBuf;
 
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
-use dive_api::{CheckRequest, Engine, ExitConvention, check_file_core_opts, check_file_engine};
+use dive_api::{CheckRequest, ExitConvention, check_file, check_file_core_opts};
 use serde_json::{Value, json};
 
 fn request(name: &str, compat_tlc: bool, workers: usize) -> CheckRequest {
@@ -40,7 +40,7 @@ fn graph_operators_execute_in_state_dependent_core_checks() {
         for workers in [1, 4, 8] {
             for name in ["GraphsStep", "GraphViolation"] {
                 let req = request(name, compat, workers);
-                let reference = check_file_engine(&req, Engine::Core).expect("reference runs");
+                let reference = check_file(&req).expect("reference runs");
                 let expected = observed(&reference);
                 let pinned = &oracle["models"][name];
                 assert_eq!(expected["generated"], pinned["counts"][0]);
