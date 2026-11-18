@@ -25,7 +25,7 @@ results. These correctness controls did not grant performance adoption.
 
 ## Decision
 
-Do not adopt or merge this candidate. Against `b809a288`, the initial full
+Do not adopt or merge this candidate. Against `9ea1b81a`, the initial full
 GameOfLife N=4 screen had three matched pairs/six correct rows, 65,536 distinct /
 131,072 generated and median candidate/base runtime 0.5002306. The original-model
 panel then physically completed 138 rows: GameOfLife 54, Sailfish 54 and

@@ -108,7 +108,7 @@ difference exceeds 2 %, re-take the whole cache on that launch.
 ## AWS rebaseline, 2026-10-26
 
 This is the Day-0 rebaseline of the core reboot (#498,
-`docs/developer/core/09-performance-method.md`). It ran at `main` `e18e9dda`,
+`docs/developer/core/09-performance-method.md`). It ran at `main` `5331a460`,
 which includes the native-hook lock fix (#497, #495).
 
 **Host.** A dedicated c7i.metal-24xl on the same AMI: Xeon Platinum 8488C,
@@ -166,7 +166,7 @@ credit there.
 ## Controlled AWS baseline, 2026-10-21
 
 A dedicated bare-metal campaign at clean source
-`39f4e483031464031664f341b65e9fe2ef164b55` completed all **300 planned runs**:
+`e5a360082e44e37f4bb02a3d2d972d2f41911249` completed all **300 planned runs**:
 ten models, five repetitions, TLC and both dive profiles, at requested worker
 counts 1 and 8. Every run passed the pinned-golden checks. All arm summaries, including actual
 worker use, remain in the compact
@@ -240,7 +240,7 @@ run outputs are committed.
 
 ## AWS baseline, 2026-10-20
 
-The recovered campaign at clean source `73259029b7689a55ddfe77ed648cb5dd14519274`
+The recovered campaign at clean source `27e24c8746992c7add5a19814b694170ec9a6ebc`
 completed all **300 planned runs**: ten models, five repetitions, TLC and both
 dive profiles, at requested worker counts 1 and 8. TLC's observations are shared
 by the two comparisons. All runs passed the runner's pinned-golden checks;
@@ -309,7 +309,7 @@ reserved Linux host with the recorded CPU/memory controls:
 cargo build --release --locked -p dive-cli -p dive-bench
 taskset -c 0-15 numactl --membind=0 target/release/dive-bench \
   --profile both --workers 1,8 --reps 5 --tlc \
-  --dive-revision 73259029b7689a55ddfe77ed648cb5dd14519274 \
+  --dive-revision 27e24c8746992c7add5a19814b694170ec9a6ebc \
   --timeout 1800 --xmx 3g \
   --runs <external-directory>/runs.jsonl \
   --summary <external-directory>/summary.json
@@ -321,7 +321,7 @@ campaign; retain all original measurements when repeating a declared block.
 
 ## Frozen-main Callgrind attribution, 2026-10-24
 
-A fresh profile of frozen main `c542d442` completed one shipping profiling CLI build and all eight reduced-model/profile observations at one worker. All observations were normal and retained the expected verdict and all five counters; this is attribution evidence, with no candidate comparison or new parity qualification. Every original Callgrind file was replayed through its terminal totals and matched its stdout/stderr and source/input/tool/binary identities. Exclusive sums equal whole instructions in all cells. An independent compact review separately checked the arithmetic and original transport links.
+A fresh profile of frozen main `5efcaa8e` completed one shipping profiling CLI build and all eight reduced-model/profile observations at one worker. All observations were normal and retained the expected verdict and all five counters; this is attribution evidence, with no candidate comparison or new parity qualification. Every original Callgrind file was replayed through its terminal totals and matched its stdout/stderr and source/input/tool/binary identities. Exclusive sums equal whole instructions in all cells. An independent compact review separately checked the arithmetic and original transport links.
 
 `eval_inner` owns 10.26–13.81% exclusive instructions, but inclusive generation/property/evaluator arcs overlap and do not identify removable dispatch work. One bounded reread of the same profiles examined compound-value hash/constructor source positions and immediate call arcs. Its exclusive source/function unions include other construction and exclude descendants; they are not a global hash bound. No defensible eligible 5% hash-deferral case was established, so that hypothesis was rejected before implementation. No extra native run or profiler campaign followed.
 
@@ -329,7 +329,7 @@ A fresh profile of frozen main `c542d442` completed one shipping profiling CLI b
 
 ## Frozen-main caller attribution, 2026-10-25
 
-Frozen main `1a8343b9` completed a shipping profiling build and all eight reduced-model/profile observations at one worker. Original profiles and caller-context ledgers were replayed through genuine EOF with whole hashes, exact instruction conservation and the expected verdict and five counters. The mixed allocator/ownership categories account for 24.22–28.12% of instructions; they include required work and do not identify a removable client pool.
+Frozen main `4c49488f` completed a shipping profiling build and all eight reduced-model/profile observations at one worker. Original profiles and caller-context ledgers were replayed through genuine EOF with whole hashes, exact instruction conservation and the expected verdict and five counters. The mixed allocator/ownership categories account for 24.22–28.12% of instructions; they include required work and do not identify a removable client pool.
 
 A bounded query of those same eight ledgers retained every selected EXCEPT producer context, its exclusive source PCs and immediate incident helpers/arcs. Deleting the entire selected exclusive pool would reduce the eight-cell instruction geometric mean by only 1.487%. That is conditional arithmetic over the selected pool, not a universal bound: arbitrary descendants and shared helper ownership remain unknown, and overlapping arc costs are never added to exclusive totals. The evidence does not justify a 5% EXCEPT rewrite or a new performance campaign.
 
@@ -393,7 +393,7 @@ was a debug binary (SHA-256
 `3b0cff81cd88dfb68a198fd4f52e97e92fd78f8c3242912387180a4381400eb8`)
 with recorded source context `d1eb36e3912a88032c24de025e9b11f125a72943`;
 a complete clean-build attestation was not captured. The relevant cache source
-blobs are identical at that context and integrated main `39f4e483`:
+blobs are identical at that context and integrated main `e5a36008`:
 `eval.rs` blob `022d85c523c1de4ca6696a411365673de0db627d`, and `env.rs`
 blob `2bad80a1ae4d265e5d0c27ab0b56bb1e0b984a4e`. No evaluator change
 or performance improvement follows from the probe. Investigate cache misses within the existing TLC rule before
@@ -460,7 +460,7 @@ initial traversal-stack allocation for scalars, also failed the complete matrix:
 larger private table grew from 2 to 8 KiB, added 768 construction reductions,
 and grew an `Fp64` clone from 2,056 to 8,200 bytes (12 KiB more for the two
 keyer copies). Those construction and clone costs remained inside the measured
-CLI process. The compact summary records the exact `90174cdf` / `e38cf395`
+CLI process. The compact summary records the exact `0cecacf4` / `e38cf395`
 source and binary pins; no runtime change was landed.
 
 The hot `TlcFingerprint::extend` symbol includes iterative value traversal and
@@ -483,7 +483,7 @@ Inlining already settled literal, typed-state and local-value leaves ahead of
 the large evaluator dispatch also failed the complete matrix: **2.263% more
 instructions geometrically**, with all eight cells increasing (0.202–4.390%).
 All sixteen arms completed with the expected counts and depth. The compact
-summary records the frozen `773490db` / `b7c22ccd` pair and full matrix. The
+summary records the frozen `ec983f6e` / `b7c22ccd` pair and full matrix. The
 experiment was rejected; its function-level appearance did not establish a
 whole-process saving.
 
@@ -523,7 +523,7 @@ exceeded the per-cell regression ceiling. The prototype was rejected; its
 conditional full gate was correctly skipped and no runtime change was landed.
 
 The compact [frame-reuse screen](../internal/survey/data/activation-frame-reuse-rejected-2026-10-22.json)
-records the exact `537f8388` / `37488e87` source and binary pins, all eight pairs,
+records the exact `11f7fe54` / `37488e87` source and binary pins, all eight pairs,
 input hashes and retained raw-archive identity. It used Rust 1.99.0 profiling
 builds, Valgrind 3.22.0 Cachegrind with cache simulation disabled, one worker,
 seed/fingerprint zero, a 900-second native budget, an 8 GiB ceiling and a
@@ -542,7 +542,7 @@ required 5% geometric reduction, so the prototype was rejected and its
 conditional full gate was skipped. No runtime change was landed.
 
 The compact [operand screen](../internal/survey/data/fused-operands-rejected-2026-10-22.json)
-retains the actual `4e219ea8` / `1faf4905` source and profiling binary pins,
+retains the actual `7122d0e2` / `1faf4905` source and profiling binary pins,
 all eight pairs and sixteen profile hashes. Each arm included the complete CLI
 under Cachegrind with cache simulation disabled, one worker, seed/fingerprint
 zero, a 900-second native budget, an 8 GiB ceiling and a 930-second external
@@ -561,7 +561,7 @@ frozen runner correctly skipped its conditional full gate. No runtime change
 was landed.
 
 The compact [predicate-region screen](../internal/survey/data/predicate-regions-rejected-2026-10-22.json)
-records actual `6badeb20` / `561e6ff4` source and profiling binary pins, all eight
+records actual `9568d168` / `561e6ff4` source and profiling binary pins, all eight
 pairs and sixteen original profile hashes. The complete CLI ran under Cachegrind
 with cache simulation disabled, one worker, seed/fingerprint zero, a 900-second
 native budget, an 8 GiB ceiling and a 930-second external backstop. The same
@@ -588,7 +588,7 @@ so the runner rejected the prototype and skipped its conditional full gate.
 No runtime change was landed.
 
 The compact [Boolean-consumer screen](../internal/survey/data/typed-boolean-consumers-rejected-2026-10-22.json)
-records actual `4459812b` / `8448506c` source and profiling binary pins, all eight
+records actual `9658a79f` / `8448506c` source and profiling binary pins, all eight
 pairs and sixteen original profile hashes. It used the same 115 pinned inputs,
 Valgrind 3.22.0 Cachegrind with cache simulation disabled, one worker,
 seed/fingerprint zero, a 900-second native budget, an 8 GiB ceiling and a
@@ -609,7 +609,7 @@ arms completed with native exit zero and no external censor, preserving success
 verdicts, exact distinct/generated/initial counts, depth and empty queues.
 
 The [compact continuation screen](../internal/survey/data/action-context-continuations-rejected-2026-10-23.json)
-records exact `1892ddc7` / `b30b2d4d` sources and trees, both physically frozen
+records exact `f9b3871f` / `b30b2d4d` sources and trees, both physically frozen
 profiling ELF identities and modes, all eight instruction pairs, sixteen original
 profile/output hashes and both integer acceptance tests. It used the same 115
 pinned workload/library inputs, one worker, seed/fingerprint zero, Valgrind
@@ -633,7 +633,7 @@ summary retains the narrow cost inventory and its attribution limitations.
 
 ### Optional value entrypoints, 2026-10-23
 
-A complete screen compared main `e78ffdb1` with candidate `bbf71ff3`, adding
+A complete screen compared main `10e8f083` with candidate `bbf71ff3`, adding
 optional value-returning entrypoints to the existing resolved evaluator plan.
 Two isolated profiling builds and all sixteen sequential Cachegrind arms
 completed normally. All eight reduced model/profile pairs improved and retained
@@ -644,7 +644,7 @@ The runtime change remains unmerged; no full checker gate was run for it.
 
 The runner's threshold assertion followed the complete matrix. It is a negative
 performance result, not a failed or censored native model run. The separate
-`02854597` / `6b7baa57` raw-handler experiment's 4.5943593% rejection remains
+`633ebede` / `6b7baa57` raw-handler experiment's 4.5943593% rejection remains
 unchanged; neither result earns a threshold waiver or a layout retry.
 
 The [compact screen](../internal/survey/data/prepared-value-entry-screen-2026-10-23.json)
@@ -666,8 +666,8 @@ reported counters. The baseline in each screen is dive, not Java TLC.
 
 | Experiment | Baseline / candidate | Geometric instruction change | Decision |
 | --- | --- | --- | --- |
-| Transient function activations | `771178b5` / `25850c0d` | +0.5727351% | All eight pairs slower; rejected |
-| Compact raw evaluator outlining | `68c09a1b` / `9be70ddf` | -0.4409831% | All eight pairs improve, below 5%; rejected |
+| Transient function activations | `3b088f38` / `25850c0d` | +0.5727351% | All eight pairs slower; rejected |
+| Compact raw evaluator outlining | `eb33b279` / `9be70ddf` | -0.4409831% | All eight pairs improve, below 5%; rejected |
 
 The fixed bar requires at least 5% fewer instructions geometrically and no more
 than 1% regression in any cell. Both experiments pass the per-cell bound and
@@ -687,7 +687,7 @@ release-capacity result.
 
 ### General native argument storage, 2026-10-24
 
-The general `StdArg` collector experiment compared baseline `1c2bf3f2` with
+The general `StdArg` collector experiment compared baseline `09764f67` with
 candidate `6790ba3b`, using empty, one-argument and two-argument owned storage
 before falling back to a vector. It completed the same four reduced models in
 both profiles at one worker: two profiling builds and sixteen normal,
@@ -712,7 +712,7 @@ release-capacity claim.
 
 ### Invocation-local evaluator control, 2026-10-24
 
-The private invocation-session experiment compared baseline `6077f492` with
+The private invocation-session experiment compared baseline `63a7fbed` with
 candidate `99a47878`. It moved calls, thunk forcing, instance substitutions,
 bounded quantifier rows and raw Boolean connectors into an invocation-local
 control loop, retaining synchronous native callbacks and explicit legacy
@@ -738,7 +738,7 @@ wall-time, Java TLC throughput, scaling, new parity or release-capacity claim.
 
 ### Ready explicit-set payloads, 2026-10-25
 
-The private ready-set experiment compared baseline `198e5879` with candidate
+The private ready-set experiment compared baseline `ec15f53f` with candidate
 `77b34163`. It prepared the same eager native hash and element cache before
 publishing an owned set, shared empty element storage, and reused independently
 owned domain keys only after an exact same-order, canonical, provider-free
@@ -768,7 +768,7 @@ claim.
 
 ### Resolved recursive call ownership, 2026-10-25
 
-The private resolved-call experiment compared baseline `de8a9761` with candidate
+The private resolved-call experiment compared baseline `1b6bdaab` with candidate
 `813525e8`. It retained the original recursive interpreter and existing resolved
 IR, borrowed the final lazy argument suffix, promoted captures into original
 owned frames and thunks, and shared immutable zero-slot top-level frames. Both
@@ -864,7 +864,7 @@ in this paired instruction campaign. Raw output remains external.
 ## Native memory-budget sampling qualification
 
 Initial and terminal process-memory observations were compared at frozen sources
-`52485957` and `ca2d6e96`. All eight ADR 0104 single-worker cells retained their
+`991207ff` and `ca2d6e96`. All eight ADR 0104 single-worker cells retained their
 verdict/counts/depth; instruction deltas ranged from −0.091353% to +0.113696%,
 with geometric mean +0.007820%. Three interleaved pairs per profile on
 SimpleRegular's genuine eight-worker path gave paired median deltas +0.084346%
@@ -959,7 +959,7 @@ beyond the original keys, which may themselves retain provider contexts. Such
 keys keep the original fallbacks, and deep domain keys use iterative destruction.
 
 A fresh complete screen measured **5.365455% fewer instructions**, geometric
-mean over all eight cells, against main `510dce00` using candidate `239db53f`.
+mean over all eight cells, against main `2f082ab7` using candidate `239db53f`.
 All 16 native arms completed with identical verdicts, distinct/generated counts
 and depths. Every cell improved; no historical arm or favorable repetition was
 substituted. The exact `239db53f` full checker gate passed in 35m16s with all
@@ -1005,7 +1005,7 @@ assumptions, post-binding symmetry, quiet value units, serialization and legacy
 validation retain their documented limitations. This does not establish a hard
 wall-clock deadline for every binding operation.
 
-The exact `8e650dba` candidate against main `44c1fd97` passed all 2,243 tests and
+The exact `8e650dba` candidate against main `222571dc` passed all 2,243 tests and
 13 full-gate stages, including both small baselines without changes: 149 TLC
 agreements, 143 default agreements plus six expected divergences, seven refusals
 each and 458 SANY agreements. The gate's reported total is 35m40s; its outer
@@ -1020,19 +1020,19 @@ final identities. This measures whole-CLI normal-input overhead, not binding-hea
 throughput, quiet wall time, TLC speedup, universal interruption coverage or new
 corpus agreement. [Compact evidence](../internal/survey/data/controlled-binding-overhead-2026-10-22.json)
 records the actual source pins, binaries, raw hashes and all eight pairs. Later
-original delivery on `6badeb20` retained the entire measured runtime tree.
+original delivery on `9568d168` retained the entire measured runtime tree.
 
-After integration with SelectSeq on main `0ec2d0f8`, exact `f5db2f53` passed
+After integration with SelectSeq on main `23418e75`, exact `f5db2f53` passed
 all 2,249 tests, the full gate and both unchanged small baselines. Its reported
 total is 21m55s; the outer process took 1,320.523 seconds. The integration retains
 all 18 binding-owned runtime/test files exactly from `8e650dba` and preserves
 SelectSeq's separately qualified behavior. The normal instruction comparison
-remains the original `44c1fd97` / `8e650dba` campaign; it is not relabelled as a
+remains the original `222571dc` / `8e650dba` campaign; it is not relabelled as a
 measurement of the integrated tree.
 
 ## Incremental ENABLED interval enumeration
 
-Candidate `c2730906` against main `1d49aa76` passed all eight normal-input
+Candidate `c2730906` against main `29719b9b` passed all eight normal-input
 instruction comparisons: each used at most 1% more instructions, with identical
 success verdicts, counts and depths. The whole-CLI geometric mean was
 **+0.033933%**, descriptive rather than an acceptance substitute for individual
@@ -1082,7 +1082,7 @@ setup HOLDs, and records preservation plus independent resource cleanup.
 The source-work feature adds no counter storage, callback or atomic update to
 ordinary unobserved evaluators. Its optional branch sits in the existing
 non-inlined dispatch. A focused optimized scalar-evaluator diagnostic compared
-observation-disabled source against `2be62e21`, with five matched pairs in each
+observation-disabled source against `a86a1531`, with five matched pairs in each
 semantic profile. Median candidate/base runtime was 0.98547 default and 1.02107
 TLC. Three of five TLC pairs exceeded 1.02; the other two were about 0.96.
 The shared host was not quiet-certified, so causality and the <=1% inactive

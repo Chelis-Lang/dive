@@ -22,7 +22,7 @@
   },
   "sources": {
     "base": {
-      "head": "510dce00c9d9e5ca36330bbeef83ddbbc15843cc",
+      "head": "2f082ab7ac0696be007ba31665a87c3f116fd2d5",
       "tree": "944d83bea69a5b9dc744b07096eaa0f0a0b7423a",
       "tracked_file_count": 22523,
       "tracked_file_sha256": "db5b1b406741b03655aa73882137d27791814831a2085135385e2eae452b530f",
@@ -1023,7 +1023,7 @@
     "full_outputs_and_binaries": "Retained externally; not committed."
   },
   "delivery_transfer": {
-    "actual_main": "d3b63d8a9bd16342854c8b19d7babd60f82bb62d",
+    "actual_main": "1e18dd435efb0b28dfa86ed2050aca65ccf5ecf8",
     "measured_candidate": "239db53f4666f5433426ce86e402bcaf7e7548c5",
     "owned_runtime_and_tests": "Exact measured blobs; no runtime modification authorized.",
     "separate_main_delta": {

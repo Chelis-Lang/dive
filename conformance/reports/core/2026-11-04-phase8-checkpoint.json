@@ -11,55 +11,55 @@
       "pr": 765,
       "scope": "Product receiver, demanded conversion and finiteness repairs",
       "state": "merged",
-      "merge_source": "3db919a95749fccf8aefeee314c0cfec01abdf44"
+      "merge_source": "32ccda861ecc33221169c70abdd6a6cbbbcf87b0"
     },
     {
       "pr": 766,
       "scope": "completed-level owned Core safety Store reclamation",
       "state": "merged",
-      "merge_source": "e26f306095c2cca737b7d6329d9f43e69d10b547"
+      "merge_source": "7dda60727a9db0e8adf1ad72d95933b5e12595e3"
     },
     {
       "pr": 767,
       "scope": "final admitted Reference TLC logical cost forests",
       "state": "merged",
-      "merge_source": "4f13558913d56b218363cd1d9b6e307139dfcc69"
+      "merge_source": "45d0005adde3ca9d10ac15c7c5700309a0b1653d"
     },
     {
       "pr": 769,
       "scope": "PlusCal source ranges recorded during emission",
       "state": "merged",
-      "merge_source": "66483059ad696127224af4962db1e55b96bb4710"
+      "merge_source": "cb87d13653a0782fa1fb05738ea67d3f2cde414f"
     },
     {
       "pr": 773,
       "scope": "actual authenticated native pure-safety workers",
       "state": "merged",
-      "merge_source": "56bd5894c502b1b2ceb21544df6edbac1677ec47"
+      "merge_source": "0c47981eddca5cae7dbe7a7d5f06b24e34e8e752"
     },
     {
       "pr": 774,
       "scope": "compiled Core source maps and producer-only DAP/Rust sessions",
       "state": "merged",
-      "merge_source": "877520fadec4dc7115370d61e50344463c634e66"
+      "merge_source": "ed6895666b56231083468c9c7ecae9678007221c"
     },
     {
       "pr": 775,
       "scope": "Reference set conversion and diagnostic demand",
       "state": "merged",
-      "merge_source": "9a0c5264da62a3d46f0e8c28d2c426717d3746b2"
+      "merge_source": "9061555358d1df955c5c0ab7dcc4d7bf0594802a"
     },
     {
       "pr": 777,
       "scope": "measured Workspace job cap, unchanged checks and test deadlines",
       "state": "merged",
-      "merge_source": "5c7716e3996d1f6f0812bbe12aec449c3347af3e"
+      "merge_source": "f2c08023e9c76545f7ed8f6b653c3b37000755a6"
     },
     {
       "pr": 778,
       "scope": "Reference nested finiteness and actual name-token demand order",
       "state": "merged",
-      "merge_source": "3e8c34394b8ae0cb3f99713ddb0c8a75549e5625"
+      "merge_source": "7ef37266ac7004f047d13595a00c8c85e5627d6d"
     }
   ],
   "family_inventory": {
@@ -71,14 +71,14 @@
   "qualification_candidate": {
     "source": "9aa2b8e234f5d558ae4e1ded20b8bc57dfb2e292",
     "tree": "134b2895fbc32d66e653182baaf5c7508df497a5",
-    "main_before_debugger": "56bd5894c502b1b2ceb21544df6edbac1677ec47",
+    "main_before_debugger": "0c47981eddca5cae7dbe7a7d5f06b24e34e8e752",
     "source_review_sha256": "bc3f8e84b00c1a0b780cc5031779edaca668ea092a2c52f0c879b05c7787421d",
     "runner_review_sha256": "f08e2f3badc318193e341f39a942d6a20151067a0eeba789c79333b9712cae38",
     "binding_sha256": "8a277dd47326fa7a17fa2b9dfa1bfa0f7d9fe8d7f36392d01c71f4ceb2af2c1b",
     "population_plan_sha256": "45ef8a1b39eedb3b4b176994a3124897cd441b797fd5ab22c92f8cac8d543d1b",
     "main_tree_bridge": {
       "state": "verified-exact-tree",
-      "merged_source": "877520fadec4dc7115370d61e50344463c634e66",
+      "merged_source": "ed6895666b56231083468c9c7ecae9678007221c",
       "tree": "134b2895fbc32d66e653182baaf5c7508df497a5",
       "candidate_and_main_tree_equal": true,
       "clean_merge_preflight_equal": true,
@@ -89,7 +89,7 @@
       "candidate_execution_relabelled": false
     },
     "main_push_ci": {
-      "source": "877520fadec4dc7115370d61e50344463c634e66",
+      "source": "ed6895666b56231083468c9c7ecae9678007221c",
       "run": 41935283715,
       "conclusion": "success",
       "all_three_required_checks_passed": true,
@@ -667,7 +667,7 @@
       "reason": "IsFiniteSet(Seq(emptyProduct)) falsely violates versus pinned TLC success",
       "review_sha256": "908a63fa06b0181472f882c31f149f6ae0f3e9057769b9356d87d0925fd068c9"
     },
-    "merged_source": "3a6d990713b5288e212e160339de9cc0a1dd20cc",
+    "merged_source": "7b0c91999132b94bacefbbbf214edbdc56d8e072",
     "source_or_aggregate_credit_in_original_campaign": false,
     "original_source_and_results_unchanged": true,
     "issue_state": "closed",
@@ -763,7 +763,7 @@
     }
   },
   "current_runtime_main": {
-    "source": "3a6d990713b5288e212e160339de9cc0a1dd20cc",
+    "source": "7b0c91999132b94bacefbbbf214edbdc56d8e072",
     "tree": "3dd09f3d716ce6f537f52475d1809ff44d0c0282",
     "original_campaign_execution_relabelled": false,
     "fresh_aggregate_qualification_claimed": false

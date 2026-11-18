@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "fixture-shadow-census-summary",
-  "source_revision": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "source_revision": "75fa4e33c7f7a45358ddc5e2d2ac947ce8a10220",
   "source_dirty": false,
   "fixture_count": 1525,
   "selection_counts": {

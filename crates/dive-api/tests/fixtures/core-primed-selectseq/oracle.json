@@ -2,7 +2,7 @@
   "schema": 1,
   "reason": "Pin primed SelectSeq closure-isolation and demand-order regression controls",
   "generation": "Official dive-conformance golden generate, external primed-selectseq staging corpus, --tier all --no-sany --workers 1 --jobs 2 --timeout 20 --xmx 1g; seed/fp 0, -lncheck final",
-  "harness_source": "91742b3c9cb4b7021785975f888d5cf9dd43625c",
+  "harness_source": "75fa4e33c7f7a45358ddc5e2d2ac947ce8a10220",
   "harness_sha256": "3604013c96cecbb39fcfc4b231c07e99b427f8306740951fffc111bbd5419b98",
   "cases": {
     "CapturedLocal": {

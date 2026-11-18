@@ -3,7 +3,7 @@
   "measurement_date": "2026-10-23",
   "purpose": "Compound output storage capacity, with result and normal-input instruction-overhead checks. No TLC throughput or scaling claim.",
   "baseline": {
-    "commit": "02854597c8f37655dc50de717776db1585684fc0",
+    "commit": "633ebede3160143c99dd06c65d42a3a7c684065e",
     "tree": "249da0453fda29ac8b77391c106b17b1c2d3cfed",
     "profiling_binary_sha256": "73aa4e98bddefe9e42f679c9fd174e7dcc67ed3e6a28cedc3eff4b9d88637dfe"
   },

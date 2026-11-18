@@ -4,7 +4,7 @@
   "date": "2026-10-24",
   "status": "rejected_complete_instruction_screen",
   "source": {
-    "baseline": "68c09a1b7c2d12445c6eb967f9df7a886dbae8c3",
+    "baseline": "eb33b279b589e673ef70c0d18c555562c01d7adf",
     "candidate": "9be70ddfc2634e3377fda75d1809b30ec5c6494d",
     "trees": {
       "base": "ac0547cbf2fca5abf2ebd517f419b9e45c3ef2ba",

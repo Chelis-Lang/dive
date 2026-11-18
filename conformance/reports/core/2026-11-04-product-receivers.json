@@ -7,7 +7,7 @@
     "f33047a2"
   ],
   "rejected_head": "a9f311f9449ea0acb0e483ff8ba76c6a9f9c5859",
-  "base_false_success_source": "fd2190e2fa99c03aa3c18371a487b5da4c638b74",
+  "base_false_success_source": "c7c79f7dd01ed96313b74d7743cfbded56d5106f",
   "repair": "Component evaluation preserves Product receivers. Parent flags select actual child-kind inspection and grant no history authority. Known record/tuple/function/EXCEPT/Append/:> value paths preserve the original handle. Construction is history-sensitive for folding/memo/parent skips. Non-tuple membership and unproved comparisons, collection keys, state binding and operator consumers refuse explicitly rather than replacing their receiver by EMPTY. Product membership keeps its class checks under the symbolic-member ablation.",
   "runtime_sources_sha256": {
     "crates/dive-core/src/compile.rs": "180f5677398b682ac1fcd76434f9becd3f2ade2374145283d47334a330f80e3b",
@@ -178,7 +178,7 @@
       "result": "passed"
     },
     {
-      "command": "git diff --check fd2190e2 HEAD",
+      "command": "git diff --check c7c79f7d HEAD",
       "result": "passed"
     }
   ],

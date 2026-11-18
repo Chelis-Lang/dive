@@ -2,9 +2,9 @@
   "schema_version": 1,
   "snapshot_utc": "2026-10-28T17:54:11.507547+00:00",
   "sources": {
-    "original_backend_harness_validator": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+    "original_backend_harness_validator": "f5bf4d1093c3751201f2f93cb8636de159626072",
     "hashcons_repair_backend": "f582d791fbaa0490cdfc75502b69e9af76a0cb72",
-    "hashcons_repair_harness_validator": "0f0c6ad1b385846128a1889dea205ac87c468e33"
+    "hashcons_repair_harness_validator": "f5bf4d1093c3751201f2f93cb8636de159626072"
   },
   "scope": "full156 model-only individual-strategy ablations; all attempts including failures, protocol errors and pending work retained",
   "normalized_fields": [
@@ -153,7 +153,7 @@
     "arena-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T174207619-dive-small",
@@ -193,7 +193,7 @@
       },
       {
         "attempt": "default-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T171302147-dive-small",
@@ -235,13 +235,13 @@
     "arena-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": null,
         "status": "running-or-unadmitted"
       },
       {
         "attempt": "corrected-tlc-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T175345318-dive-small",
@@ -283,7 +283,7 @@
     "delta-hash-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T164541763-dive-small",
@@ -325,7 +325,7 @@
     "delta-hash-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 1,
         "status": "completed",
         "run_id": "20261028T165354178-dive-small",
@@ -368,7 +368,7 @@
     "eager-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T174625334-dive-small",
@@ -408,7 +408,7 @@
       },
       {
         "attempt": "default-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T171507163-dive-small",
@@ -450,13 +450,13 @@
     "eager-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": null,
         "status": "running-or-unadmitted"
       },
       {
         "attempt": "corrected-tlc-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T174136889-dive-small",
@@ -498,7 +498,7 @@
     "early-probe-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T164934380-dive-small",
@@ -540,7 +540,7 @@
     "early-probe-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 1,
         "status": "completed",
         "run_id": "20261028T170152984-dive-small",
@@ -583,7 +583,7 @@
     "hashcons-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 1,
         "status": "completed",
         "run_id": "20261028T165755184-dive-small",
@@ -958,7 +958,7 @@
     "hashcons-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 1,
         "status": "completed",
         "run_id": "20261028T171017637-dive-small",
@@ -1334,7 +1334,7 @@
     "memo-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T171414541-dive-small",
@@ -1374,7 +1374,7 @@
       },
       {
         "attempt": "default-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T170504813-dive-small",
@@ -1416,7 +1416,7 @@
     "memo-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 1,
         "status": "completed",
         "run_id": "20261028T172635617-dive-small",
@@ -1459,7 +1459,7 @@
     "parent-skip-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T173025089-dive-small",
@@ -1499,7 +1499,7 @@
       },
       {
         "attempt": "default-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T171115511-dive-small",
@@ -1541,7 +1541,7 @@
     "parent-skip-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 1,
         "status": "completed",
         "run_id": "20261028T174234551-dive-small",
@@ -1582,7 +1582,7 @@
       },
       {
         "attempt": "corrected-tlc-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": null,
         "status": "running-or-unadmitted"
       }
@@ -1590,7 +1590,7 @@
     "step-memo-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T172601475-dive-small",
@@ -1630,7 +1630,7 @@
       },
       {
         "attempt": "default-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T170902136-dive-small",
@@ -1672,7 +1672,7 @@
     "step-memo-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 1,
         "status": "completed",
         "run_id": "20261028T173810390-dive-small",
@@ -1713,7 +1713,7 @@
       },
       {
         "attempt": "corrected-tlc-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": null,
         "status": "not-started-admission-deadline"
       }
@@ -1721,7 +1721,7 @@
     "symbolic-member-dive": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T170804457-dive-small",
@@ -1832,7 +1832,7 @@
       },
       {
         "attempt": "default-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T170719776-dive-small",
@@ -1975,7 +1975,7 @@
     "symbolic-member-tlc": [
       {
         "attempt": "original",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 1,
         "status": "completed",
         "run_id": "20261028T172207899-dive-small",
@@ -2089,7 +2089,7 @@
     "fold-dive": [
       {
         "attempt": "default-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T171844624-dive-small",
@@ -2131,7 +2131,7 @@
     "fold-tlc": [
       {
         "attempt": "corrected-tlc-continuation",
-        "backend_revision": "0f0c6ad1b385846128a1889dea205ac87c468e33",
+        "backend_revision": "f5bf4d1093c3751201f2f93cb8636de159626072",
         "native_rc": 0,
         "status": "completed",
         "run_id": "20261028T174341548-dive-small",

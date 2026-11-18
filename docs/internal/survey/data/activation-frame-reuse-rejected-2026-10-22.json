@@ -3,7 +3,7 @@
   "study": "activation-frame-reuse-screen",
   "date": "2026-10-22",
   "status": "rejected-unshipped-prototype",
-  "baseline_source": "537f83885cd2b1104e985cd46e8dc13ef1318543",
+  "baseline_source": "11f7fe54647aac13cde2cf90bff0f85dc4400bf9",
   "candidate_source": "37488e8778df5bacfca653d0d13b870fba24010f",
   "source_trees": {
     "base": "0d9831e976a9350318f3d61236c6d2f87a34a9eb",

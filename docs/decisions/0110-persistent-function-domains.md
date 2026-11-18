@@ -72,7 +72,7 @@ performance candidate remains unmerged with its negative evidence preserved.
 
 ## Instruction screening evidence
 
-The complete 2026-10-21 screen compares `510dce00` with `239db53f` across four
+The complete 2026-10-21 screen compares `2f082ab7` with `239db53f` across four
 reduced ADR 0104 models in both profiles at one worker. All 16 arms completed
 with identical verdicts/counts/depth; geometric instruction reduction is
 5.365455%, and every cell improves. Original before-arm source/build/tool/input

@@ -24,11 +24,11 @@
     ]
   },
   "sources": {
-    "baseline": "44c1fd976637a68c4f76e3ce4da3d2fd348977c8",
+    "baseline": "222571dce0cb1eccda933de175abe37125760d09",
     "baseline_tree": "68e697a346a2886f28a9fcc0a74cf214ab54d398",
     "candidate": "8e650dba58dd84ed1102618efc68aa52c2ff5d17",
     "candidate_tree": "87b2abde8d517ea3f3726a066176c3c4ddff1bd5",
-    "delivery_parent": "0ec2d0f8d3d9f50a300d2db823da489a15b4f075",
+    "delivery_parent": "23418e751a62bfe4dc5fd9bcffe8b6960017ed66",
     "delivery_note": "Original6fe delivery on6b retained the entire measured8e runtime/test/build/gate/harness/corpus tree, with416/418 documentation preserved. Current integration on0ec inherits separately qualified SelectSeq and retains all18 owned binding runtime/test blobs exactly8e. The actual combinedf5 gate is recorded separately; original44/8e instruction measurements are not relabelled current-main measurements.",
     "original_before_at": "2026-10-22T05:17:48.004222+00:00",
     "original_after_at": "2026-10-22T06:30:37.394751+00:00",
@@ -37,12 +37,12 @@
       "candidate": 22551
     },
     "before_after_source_payload_tool_identity_unchanged": true,
-    "original_delivery_parent": "6badeb20b393dce1dc5fba50ad161d70b092e91e",
+    "original_delivery_parent": "9568d168610808e817d554cf3b220a4d80cd928b",
     "original_delivery": "6fe608303d26fbf62e4a4c5c689584a910dc5438"
   },
   "builds": {
     "base": {
-      "source": "44c1fd976637a68c4f76e3ce4da3d2fd348977c8",
+      "source": "222571dce0cb1eccda933de175abe37125760d09",
       "profile": "profiling",
       "binary_sha256": "887f1c944c879901cbe2e7566d4b350bf194a08d1b79cd5a883076e5a3a4ebfc",
       "started_at": "2026-10-22T05:17:52.252839+00:00",
@@ -515,7 +515,7 @@
   },
   "integrated_full_gate": {
     "source": "f5db2f534b6a0dd5137eb7437a00e49b6b29a824",
-    "base": "0ec2d0f8d3d9f50a300d2db823da489a15b4f075",
+    "base": "23418e751a62bfe4dc5fd9bcffe8b6960017ed66",
     "whole_tests": 2249,
     "failed": 0,
     "skipped": 0,

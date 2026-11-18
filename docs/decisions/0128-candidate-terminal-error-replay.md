@@ -5,7 +5,7 @@
 
 ## Context
 
-The fixture census at `68dd8266` refutes ordinary error words whose underlying
+The fixture census at `0bddb993` refutes ordinary error words whose underlying
 cause differs from the report's deciding wrapper. Plain `error` retains its
 meaning: expanding the last state fails. A constraint or implied action can
 instead fail while checking a generated candidate, which is already the last

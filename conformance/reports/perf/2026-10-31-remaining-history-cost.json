@@ -154,7 +154,7 @@
       "Construction leads in the reduced probe; original900s hot instruction/cost share is not established."
     ],
     "receipt": {
-      "base_source": "dfb251c05ad4d15abd736e4fca71062ea144f165",
+      "base_source": "8b52d360d532075f35e930a4e8fa2624f97b3e88",
       "base_tree": "a50119edc76554baa347d9ad8fa47f5387e494b4",
       "instrumented_cli_sha256": "6f9fb8934cea9e9705d789c5b2e9ac6755e802cd13c5a4f51a1bb93ad1cc4f20",
       "instrumented_cli_preserved_path": "external-product-diagnosis/dive-instrumented-file-v3-6f9fb893",
@@ -202,7 +202,7 @@
       "timebox_note": "Initial10minute target exceeded recovering from invalid stderr instrumentation; no further variants or production change.",
       "created_utc": "2026-10-31T18:12:57.435246+00:00",
       "source_restored_clean": true,
-      "restored_source": "dfb251c05ad4d15abd736e4fca71062ea144f165",
+      "restored_source": "8b52d360d532075f35e930a4e8fa2624f97b3e88",
       "restored_source_tree": "a50119edc76554baa347d9ad8fa47f5387e494b4",
       "restored_target_cli_sha256": "9f69a8c050cc0dfd6bd6d15c4c35b2030c117527c4ba3437ccf4a1b3ca3b7637",
       "restored_target_cli_source": "cdaf7e1335792ffe0e9f07f5427cfa2b685d791d",

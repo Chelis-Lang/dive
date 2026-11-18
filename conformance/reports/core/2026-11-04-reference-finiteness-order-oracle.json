@@ -183,7 +183,7 @@
     }
   },
   "base_evidence_reuse": {
-    "source": "66483059ad696127224af4962db1e55b96bb4710",
+    "source": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
     "artifact": "phase8-20261104/review-finiteness/record-token-negative-localization.json",
     "sha256": "85a51524f40b36245b1cec8a7d7a06b480d0b1063a46d1564710e0ff3d6f494f",
     "scope": "Reviewer primary and fresh clean-base negative localization are retained at their actual source; not relabeled as author executions."

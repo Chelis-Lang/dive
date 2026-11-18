@@ -6,7 +6,7 @@
   "source": {
     "qualified_candidate": "05278e53b1e6dbb886bd9c5049f8539c63e11f7a",
     "candidate_tree": "c1590454d0960af04e7ba1af8d0f2a6f132d5f1f",
-    "baseline_actual_main": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+    "baseline_actual_main": "10e8f083098ea4d0f92de9c88333fd76d40e71c6",
     "baseline_tree": "c231b689cf7e4e7a3c68d18ed60777e9277bcf6b",
     "historical_runtime_reference": "55dc1f09652ab624fae1d41af64d8e6824bb5c6b",
     "runtime_and_tests_in_final_delivery": "Byte-identical to qualified candidate; subsequent qualification documentation is metadata only. No native execution is attributed to the later documentation commit."
@@ -322,7 +322,7 @@
         "arm": "base",
         "profile": "dive",
         "implementation": "dive",
-        "source": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+        "source": "10e8f083098ea4d0f92de9c88333fd76d40e71c6",
         "verdict": "success",
         "schema_version": 3,
         "statistics": {
@@ -376,7 +376,7 @@
         "arm": "base",
         "profile": "tlc",
         "implementation": "dive",
-        "source": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+        "source": "10e8f083098ea4d0f92de9c88333fd76d40e71c6",
         "verdict": "success",
         "schema_version": 3,
         "statistics": {
@@ -500,28 +500,28 @@
   "binaries": [
     {
       "role": "base-profiling-dive",
-      "source": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+      "source": "10e8f083098ea4d0f92de9c88333fd76d40e71c6",
       "sha256": "3f4ebb78a71fcc0c43dc4ec2cefa21c6f061d5335565c968d03464d2ade3a78a",
       "bytes": 106995624,
       "mode": "0o775"
     },
     {
       "role": "base-profiling-tlc",
-      "source": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+      "source": "10e8f083098ea4d0f92de9c88333fd76d40e71c6",
       "sha256": "80b2d468d4e315697aa3475aa27b19591cdd878550725aaab02fd3c4ce4a5f18",
       "bytes": 106995384,
       "mode": "0o775"
     },
     {
       "role": "base-release-dive",
-      "source": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+      "source": "10e8f083098ea4d0f92de9c88333fd76d40e71c6",
       "sha256": "2ca8301d650d51243b9f8f181a41c3e7c553e168bf729436593192bdbb977569",
       "bytes": 38130440,
       "mode": "0o775"
     },
     {
       "role": "base-release-tlc",
-      "source": "e78ffdb1ec6d732012928da638b9e6b45ec8d9e1",
+      "source": "10e8f083098ea4d0f92de9c88333fd76d40e71c6",
       "sha256": "693e5da98c15cfc41de99edc1da2033f75d0e1cb4ffeecb9c6aa959c005a5349",
       "bytes": 38130544,
       "mode": "0o775"

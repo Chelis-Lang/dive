@@ -22,7 +22,7 @@ shares and estimated savings do not establish a current optimization.
 ### Method
 
 - Build: the `profiling` profile (release settings of ADR 0102 plus debug
-  info), from `main` at `cfec92ba`.
+  info), from `main` at `4888c8b1`.
 - Runs: `dive check --seed 0 --fp 0 --workers 1`, in the default profile unless
   stated, under `valgrind --tool=callgrind` (profiles) or
   `--tool=cachegrind --cache-sim=no` (counts), valgrind 3.27. The machine is a
@@ -146,7 +146,7 @@ baselines.
    expected gain there is large (up to half its instructions), and it bears
    directly on ADR 0006's "at least 1x on every model".
 
-A fresh frozen-main profile at `c542d442` and a bounded hash-demand check
+A fresh frozen-main profile at `5efcaa8e` and a bounded hash-demand check
 qualify the historical cost estimates; see the
 [performance guide](../developer/performance.md#frozen-main-callgrind-attribution-2026-10-24)
 and [compact record](../internal/survey/data/current-main-profile-2026-10-25.json).
@@ -281,7 +281,7 @@ Measured and not pursued:
   exclusive cost on its slower paths), but a custom `GlobalAlloc` needs
   `unsafe`, which the workspace forbids without an owner-approved ADR.
 
-A later frozen-main caller profile at `1a8343b9` retains complete source-PC and
+A later frozen-main caller profile at `4c49488f` retains complete source-PC and
 caller-context ledgers for all eight observations. The mixed allocator and
 ownership share does not prove removable work. A query of existing EXCEPT
 contexts did not justify a 5% candidate; selected exclusive costs and overlapping

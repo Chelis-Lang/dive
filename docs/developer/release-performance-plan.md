@@ -166,7 +166,7 @@ All model paths are relative to the Examples corpus root, pinned in
 commit `6a7b26a3`), as fetched by `dive-conformance corpus fetch` into
 `$DIVE_CACHE_DIR`. The R1 agreeing set is the `agreeing` category of the
 newest R2 record in `conformance/reports/perf/` (169 models in
-`2026-11-10-r2-procedure-e3835968.json`); recompute it from the D1 run before
+`2026-11-10-r2-procedure-7024d1fd.json`); recompute it from the D1 run before
 using any list below, and replace a model that has left it with the next one
 from the same size class, recording the swap.
 
@@ -259,7 +259,7 @@ where this section and the procedure differ, the procedure wins.
   List every attempt; discard one only for a recorded host fault.
 - **Record.** `conformance/reports/perf/<date>-r2-procedure-<source8>.json`,
   shaped like
-  [`2026-11-10-r2-procedure-e3835968.json`](../../conformance/reports/perf/2026-11-10-r2-procedure-e3835968.json):
+  [`2026-11-10-r2-procedure-7024d1fd.json`](../../conformance/reports/perf/2026-11-10-r2-procedure-7024d1fd.json):
   `gate`, `procedure`, `source`, `dive_binary_sha256`, `oracle`, `corpus`,
   `host` (instance and node count, CPU, SMT, turbo, frequency, governor,
   binding, storage, THP, jobs, xmx, budget cap), `classification`,

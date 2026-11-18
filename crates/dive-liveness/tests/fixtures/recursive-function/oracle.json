@@ -3,7 +3,7 @@
   "oracle": "tlc-2026.10.06.014338",
   "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
   "reason": "Primary-first finite recursive function temporal scope slice; allocator originals remain unrun",
-  "source_head": "81cb93414b5975ef7b643342e89ae119b47a86c6",
+  "source_head": "637be6459c819c6fcb128c3dca43f70915910b2a",
   "primary_before_production_implementation": true,
   "workers": 1,
   "seed": 0,

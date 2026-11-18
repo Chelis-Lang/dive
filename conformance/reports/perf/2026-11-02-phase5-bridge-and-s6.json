@@ -13,12 +13,12 @@
     "scope": "#651 matched original CoffeeCan1000 temporal old-bridge runtime/RSS acceptance only",
     "sources": {
       "current": {
-        "source": "ccff77293a3aa859c601b36f9b6da5d692f965f6",
+        "source": "0b3a549824be562ad1b4c81c804f5d758b17a072",
         "tree": "44adc89187cd484a3b5a8b79c3260970beeb43f7",
         "elf_sha256": "7ff28abf849ec3bbbdedfa62285720796cc1ff884cefc496d987e24e89b07286"
       },
       "bridge": {
-        "source": "b5f6af4c340e7321c0a1225d2b576cd50de46ec7",
+        "source": "82a079db521a4b8cfa24a0139a6499563696d29f",
         "tree": "2131aece79471e7c41c834775dde8b5baf1bae06",
         "elf_sha256": "51d92b536d6208aa94105db46a040754c7939a4bc777196ae4163c7a230045af"
       }
@@ -190,7 +190,7 @@
       "regular_files": 135,
       "every_extracted_member_verified": true,
       "bucket": "<evidence-archive>",
-      "key": "phase5-20261101/bridge-comparison-ccff7729.tar.gz"
+      "key": "phase5-20261101/bridge-comparison-0b3a5498.tar.gz"
     },
     "independent_review": {
       "decision": "approve",
@@ -208,14 +208,14 @@
     "limits": [
       "Matched current/old-bridge VM observations; no stock-TLC timing or quiet five-repeat acceptance.",
       "No inference of a whole-process hard memory bound.",
-      "Execution belongs only to ccff7729 and its actual ELF, not later Phase5 runtime."
+      "Execution belongs only to 0b3a5498 and its actual ELF, not later Phase5 runtime."
     ]
   },
   "s6": {
     "status": "stopped-unadopted",
     "source": "f60450d3abe5e40f3d6df520f3548fb677455bc2",
     "tree": "95c5763b376c918a3307bb3f289e68a19a7ab1d2",
-    "base": "ccff77293a3aa859c601b36f9b6da5d692f965f6",
+    "base": "0b3a549824be562ad1b4c81c804f5d758b17a072",
     "candidate_patch_sha256": "c396af682352c6a68c8deeb192267b20881589b2ebbfac7d0ad89e05e4001afc",
     "candidate_elf_sha256": "3771b7dba41b5dd39a3908a965ce3cda25783e2a551e57165f4b20b9dbb0e3d4",
     "baseline_elf_sha256": "3dd2e3b28dc974fed738ca2d923766fd955bc49cd90e52163b1cc3956dff3925",

@@ -2,7 +2,7 @@
   "status": "QUALIFIED_NORMAL_INPUT_W1_INSTRUCTION_OVERHEAD",
   "scope": "Exactly16 sequential whole-CLI Cachegrind arms: four reduced ADR0104 models, both profiles, base/candidate. Each of eight matched cells must have candidate instructions at most1percent above baseline. Geometric mean is descriptive only.",
   "source": {
-    "baseline": "6badeb20b393dce1dc5fba50ad161d70b092e91e",
+    "baseline": "9568d168610808e817d554cf3b220a4d80cd928b",
     "baseline_tree": "789ee91f2abb1a600604f61e840b6b81747a4b00",
     "candidate": "a458e419d857be6868133cc6bfaf397f9ffe56f8",
     "candidate_tree": "22a6034d68ab5fa84143b256122b7e9659baf992",

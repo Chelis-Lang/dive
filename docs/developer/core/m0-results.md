@@ -90,7 +90,7 @@ under each switch and all switches together, and checks the refusals.
 - One worker, release build (fat LTO), `--seed 0 --fp 0`.
 - Five repetitions, with the arm order reversed on even repetitions and one
   process at a time.
-- Reference engine at `e18e9dda`, which is `main` and includes #497; core at
+- Reference engine at `5331a460`, which is `main` and includes #497; core at
   `59471628`.
 - TLC is the pinned jar on the pinned JRE, with the harness flags.
 

@@ -2,14 +2,14 @@
   "issue": 771,
   "kind": "oracle-first Reference compound finiteness demand controls",
   "runtime_edited": false,
-  "source_before_correction": "66483059ad696127224af4962db1e55b96bb4710",
-  "localization_correction": "The historical composite was not an isolated first-clause repro: {} \\X x and [{} -> x] \\X {x} already succeed on fd2190e2 and66483059 in both profiles. The minimal failing clause is IsFiniteSet([a:{},b:x] \\X {x}), whose inner isFinite returns true before outer isEmpty scans that receiver. Original composite/receipt remains preserved; issue771 now explicitly corrects the localization.",
+  "source_before_correction": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
+  "localization_correction": "The historical composite was not an isolated first-clause repro: {} \\X x and [{} -> x] \\X {x} already succeed on c7c79f7d and66483059 in both profiles. The minimal failing clause is IsFiniteSet([a:{},b:x] \\X {x}), whose inner isFinite returns true before outer isEmpty scans that receiver. Original composite/receipt remains preserved; issue771 now explicitly corrects the localization.",
   "isolated_native": {
-    "fd2190e2": [
+    "c7c79f7d": [
       {
         "name": "EmptyBeforeScalar",
         "profile": "dive",
-        "source": "fd2190e2",
+        "source": "c7c79f7d",
         "exit": 0,
         "verdict": "success",
         "message": null,
@@ -33,7 +33,7 @@
       {
         "name": "EmptyBeforeScalar",
         "profile": "tlc",
-        "source": "fd2190e2",
+        "source": "c7c79f7d",
         "exit": 0,
         "verdict": "success",
         "message": null,
@@ -57,7 +57,7 @@
       {
         "name": "EmptyRecordBeforeScalar",
         "profile": "dive",
-        "source": "fd2190e2",
+        "source": "c7c79f7d",
         "exit": 75,
         "verdict": "evaluation-error",
         "message": "@!@!@STARTMSG 2154:0 @!@!@\nAttempted to apply the operator overridden by the Java method\npublic static tlc2.value.IBoolValue tlc2.module.FiniteSets.IsFiniteSet(tlc2.value.impl.Value),\nbut it produced the following error:\nShouldn't call isEmpty() on value 0\n@!@!@ENDMSG 2154 @!@!@\nWhile working on the initial state:\nx = 0\n",
@@ -81,7 +81,7 @@
       {
         "name": "EmptyRecordBeforeScalar",
         "profile": "tlc",
-        "source": "fd2190e2",
+        "source": "c7c79f7d",
         "exit": 75,
         "verdict": "evaluation-error",
         "message": "@!@!@STARTMSG 2154:0 @!@!@\nAttempted to apply the operator overridden by the Java method\npublic static tlc2.value.IBoolValue tlc2.module.FiniteSets.IsFiniteSet(tlc2.value.impl.Value),\nbut it produced the following error:\nShouldn't call isEmpty() on value 0\n@!@!@ENDMSG 2154 @!@!@\nWhile working on the initial state:\nx = 0\n",
@@ -105,7 +105,7 @@
       {
         "name": "EmptyFunctionBeforeScalar",
         "profile": "dive",
-        "source": "fd2190e2",
+        "source": "c7c79f7d",
         "exit": 0,
         "verdict": "success",
         "message": null,
@@ -129,7 +129,7 @@
       {
         "name": "EmptyFunctionBeforeScalar",
         "profile": "tlc",
-        "source": "fd2190e2",
+        "source": "c7c79f7d",
         "exit": 0,
         "verdict": "success",
         "message": null,
@@ -151,10 +151,10 @@
         "tla_sha256": "c69a2591f50cde4335f0bafe57676ed01790a709a7dd21eb6418669bb2a4fabc"
       }
     ],
-    "66483059": [
+    "cb87d136": [
       {
         "name": "EmptyBeforeScalar",
-        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "source": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
         "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
         "profile": "dive",
         "exit": 0,
@@ -178,7 +178,7 @@
       },
       {
         "name": "EmptyBeforeScalar",
-        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "source": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
         "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
         "profile": "tlc",
         "exit": 0,
@@ -202,7 +202,7 @@
       },
       {
         "name": "EmptyFunctionBeforeScalar",
-        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "source": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
         "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
         "profile": "dive",
         "exit": 0,
@@ -226,7 +226,7 @@
       },
       {
         "name": "EmptyFunctionBeforeScalar",
-        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "source": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
         "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
         "profile": "tlc",
         "exit": 0,
@@ -250,7 +250,7 @@
       },
       {
         "name": "EmptyRecordBeforeScalar",
-        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "source": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
         "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
         "profile": "dive",
         "exit": 75,
@@ -274,7 +274,7 @@
       },
       {
         "name": "EmptyRecordBeforeScalar",
-        "source": "66483059ad696127224af4962db1e55b96bb4710",
+        "source": "cb87d13653a0782fa1fb05738ea67d3f2cde414f",
         "binary_sha256": "0316b36626dfe7ec912242bdd7be9eda29313865e506a63a719dc4e6bc760aa9",
         "profile": "tlc",
         "exit": 75,

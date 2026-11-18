@@ -902,8 +902,8 @@ GameOfLife on M3, 1 worker, instructions retired:
 
 | Build | Instructions |
 |---|---|
-| M0, `866c0978` | 101.2 G |
-| main, `0abc2844` | 113.4 G |
+| M0, `aefc95b1` | 101.2 G |
+| main, `dc4281d4` | 113.4 G |
 | this change | 79.5 G |
 | pinned TLC, JVM start included | 153.8 G |
 
@@ -913,15 +913,15 @@ At load 12, the core took 5.1 s wall and 4.8 s user, against TLC's 28.4 s and 15
 
 | Commit | SimpleRegular | GameOfLife | MCLamportMutex |
 |---|---|---|---|
-| M0 `866c0978` | 24.4 G | 101.2 G | 89.9 G |
-| #508 `07e0fd8d` | 24.7 | 101.4 | 90.3 |
-| #509 `d344f0a3` (comparison errors, stream 2) | 25.1 | 110.5 | 92.1 |
-| #510 `57e9e679` (store columns) | 25.9 | 112.7 | 94.7 |
-| #524 `431d6f95` | 26.1 | 113.1 | 96.2 |
-| #526 `ddcbb6c1` (string tokens) | 26.1 | 113.6 | 97.0 |
-| #530 `0bff25aa` (memo off, stream 2) | 25.4 | 113.7 | 110.5 |
-| #545 `d81170b2` (#535 to #545) | 26.9 | 114.5 | 114.1 |
-| `0abc2844` | 26.8 | 113.9 | 114.4 |
+| M0 `aefc95b1` | 24.4 G | 101.2 G | 89.9 G |
+| #508 `a1e2bc9d` | 24.7 | 101.4 | 90.3 |
+| #509 `7f4e0093` (comparison errors, stream 2) | 25.1 | 110.5 | 92.1 |
+| #510 `63cbf968` (store columns) | 25.9 | 112.7 | 94.7 |
+| #524 `2930547e` | 26.1 | 113.1 | 96.2 |
+| #526 `ffff6b57` (string tokens) | 26.1 | 113.6 | 97.0 |
+| #530 `04c8ee1f` (memo off, stream 2) | 25.4 | 113.7 | 110.5 |
+| #545 `da2f3408` (#535 to #545) | 26.9 | 114.5 | 114.1 |
+| `dc4281d4` | 26.8 | 113.9 | 114.4 |
 
 - **Mine, fixed.**
   - #530 turned the memo tables off on wall-clock evidence taken under load. That cost MCLamportMutex 13.4 G. The tables are back on (`06-memoization.md` §6).
@@ -1113,7 +1113,7 @@ repository; the commands are below.
   configuration-parser fixtures (1,269 models), core against the reference
   engine (shadow comparison, `08-correctness.md`), 20 s each.
 
-**Baseline, M0 at `866c0978`.**
+**Baseline, M0 at `aefc95b1`.**
 
 Small tier: 24 agree, 2 expected divergences, 4 disagree, 126 unsupported.
 The four disagreements are missing counterexamples (traces are stream 3);

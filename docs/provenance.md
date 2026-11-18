@@ -1477,7 +1477,7 @@ is Apache-2.0. Runtime conversion is native and performs no host I/O.
 
 The salvage reference is historical source `1f21101a8e8ccc7bda05be6d8dab24378f139254`,
 tree `7ad7e85c9a98ad3603cd5eff0718fc771cd4d74f`. Only its two Json commits are
-adapted onto accepted main `8036d335fcfcd4cd8ff9848632b6c06a94010ba2`; no old
+adapted onto accepted main `59f2366632c78c76a1ce2ba57ebe582f321fa3e6`; no old
 checker, validator, host, PlusCal, simulation or dependency-graph implementation
 is imported. Tests use production model binding. The opaque deferred-key control
 now exercises the public evaluator rather than relying on the removed opaque
@@ -1505,7 +1505,7 @@ use their actual recorded source revisions rather than historical source labels.
 
 The state-time `json-runtime-names` microcorpus (#407) records
 `Json!ToJson(<<n>>)` during Init and successors. The pinned oracle and four
-pre-fix native profile/worker controls at `66aa04c69712a297922de167fd8e12c3a0062746`
+pre-fix native profile/worker controls at `019c7eb2d4314d44df82f7e425f06101f41b825f`
 all completed with generated 3, distinct 3 and depth 3. Compat requested four
 workers actually used four before the missing native-name registry entry was
 corrected; no verdict/count disagreement or performance gain is claimed.
@@ -1572,7 +1572,7 @@ Configured state/action properties keep the existing final-mode route.
 
 The reviewed runtime source is `72ae013e8897b56eb76574ad3fb7a7293a7b53c3`, tree
 `a5dbf925b8165bf7b6f345d55bf34359dc9a2c8a`, directly based on accepted main
-`24b4994d78403b36bb716c6aca408370c8e7393f`. Its actual full gate passed
+`893d41b884c961a572c2b5026b008b3a7f4f1cfb`. Its actual full gate passed
 1,726 workspace tests without skips, 84
 doctests and 456 SANY comparisons; CM1 and validation-smoke passed at 1/4/8.
 The completed original 154-model matrix retains the original 600-second bounds,
@@ -1599,7 +1599,7 @@ reentrant simulation refuses without taking another invocation's output.
 Reached random/register/I/O and other unsupported effects retain their refusals.
 None/basic sampled-flow settings keep their existing bounds and meaning.
 
-Runtime source `2fa57f734adf1a065555d7ab18f40b1cd2ca416b`, tree `24f070f2b326d5a6526c8342b09f471e62179b21`, directly based on actual accepted API main `4b6b6fd4a6bb1e0c69a9b0abfce61c52a0237571`.
+Runtime source `2fa57f734adf1a065555d7ab18f40b1cd2ca416b`, tree `24f070f2b326d5a6526c8342b09f471e62179b21`, directly based on actual accepted API main `b2495b8f2a93c9515800ff7dd9b8540130d5ef6a`.
 
 Its actual full gate passed 1,745 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
 
@@ -1654,7 +1654,7 @@ interpolation and truncating/saturating narrowing. Deferred and unimplemented
 representations retain named refusals and existing error/host/redirect priority.
 Accepted API error routing and Print shared-Core ownership remain intact.
 
-Runtime source `d40c12e626a0c300faeea20adebc1ba9a5f0ec97`, tree `045ccf994a7aadad2ae7f121487a1bab258d88fe`, directly based on actual accepted Print main `952c84bb38e0c044da5188c03712c3758604f219`.
+Runtime source `d40c12e626a0c300faeea20adebc1ba9a5f0ec97`, tree `045ccf994a7aadad2ae7f121487a1bab258d88fe`, directly based on actual accepted Print main `9d21228ea6d36625b482295db93ce0dba7af9cb5`.
 
 Its actual full gate passed 1,753 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
 
@@ -1683,7 +1683,7 @@ Excluded options/transformed randomness and genuine temporal obligations retain
 their existing routes, limits and error/refusal priority. Accepted API binding
 origin, Print shared-Core ownership and bounded SVG numeric behavior remain.
 
-Runtime source `f939f4bfdcf131b94a259bd445655e206d9a4c4f`, tree `a5235897aee36ddbfe8182d1acae528bfd256aec`, directly based on actual accepted SVG main `69cfb8b0d0bcd2721157331d792e58539cf52072`.
+Runtime source `f939f4bfdcf131b94a259bd445655e206d9a4c4f`, tree `a5235897aee36ddbfe8182d1acae528bfd256aec`, directly based on actual accepted SVG main `9e5987f7ce4c423a7bf214fc1f3c206e13fe7d8e`.
 
 Its actual full gate passed 1,767 workspace tests with no skips, 86 doctests and 456 SANY comparisons, with CM1 and validation-smoke at 1/4/8. All four original 154-ID TLC/default 1/4-worker reports retain original pins, goldens, 600-second bounds and per-ID no-loss obligations.
 
@@ -2264,7 +2264,7 @@ the child and is unsuitable before a later numeric group signal. No upstream
 implementation or unsafe wrapper is copied into the workspace.
 
 The existing harness README has declared Linux/macOS hosts since commit
-`0dcf235b6`. Child execution elsewhere is explicitly refused before launch;
+`ab50c2fd9`. Child execution elsewhere is explicitly refused before launch;
 there is no successful direct-child fallback or claimed BSD qualification.
 Existing Unix process assertions remain intact. Process-group quiescence and
 retained child ownership are cooperative host controls, with session escape,

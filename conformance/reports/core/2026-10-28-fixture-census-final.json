@@ -7,22 +7,22 @@
   "agreement_meaning": "Core/reference shadow agreement measured on actual merged main, not a pinned TLC comparison. Findings prevent clean M1 acceptance; no TLC parity credit is added.",
   "sources": {
     "backend": {
-      "revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+      "revision": "fb920399b68d08b936683be23315d82b80c2d0e4",
       "sha256": "eaaba1e730758c6419795bd6f9252fc50e475362735f05a3d8c22b349a1fa197"
     },
     "harness": {
-      "revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+      "revision": "fb920399b68d08b936683be23315d82b80c2d0e4",
       "sha256": "bfbe03a839dcf2adad891870ca64cab81028662a9e297a033ecb1a5cd1fa3639"
     },
     "runner": {
-      "revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+      "revision": "fb920399b68d08b936683be23315d82b80c2d0e4",
       "sha256": "44faa5526b91faf67279fa931cf5d77d261e8cbcf12c0cf76f17f3a47315eeae"
     }
   },
-  "fixture_source_revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+  "fixture_source_revision": "fb920399b68d08b936683be23315d82b80c2d0e4",
   "fixture_source_dirty": false,
   "fixture_input_freeze": {
-    "source_revision": "f1acc846885f6764d2ce3b40c8c757d9912b25c8",
+    "source_revision": "fb920399b68d08b936683be23315d82b80c2d0e4",
     "v1_fixture_source_revision": "2d55317a21c5d14336e274b27378ef1b2a462806",
     "fixture_count": 1476,
     "selection_counts": {
@@ -2188,7 +2188,7 @@
   },
   "trace_v2_consumer_notice": "https://github.com/Chelis-Lang/oyster/issues/70#issuecomment-6475966845",
   "archive": {
-    "file": "fixture-census-final-f1acc846885f-results.tar.gz",
+    "file": "fixture-census-final-fb920399b68d-results.tar.gz",
     "bytes": 3026711,
     "sha256": "9e7b311c8b775cc76eee735b0a31f8edb4a6be7b64dae7bd9a1769f9662ed39a",
     "files": 19777,
@@ -2201,7 +2201,7 @@
     ],
     "external_preservation": {
       "bucket": "<evidence-archive>",
-      "key": "m1-closeout/2026-10-28/fixture-census-final-f1acc846885f-results.tar.gz",
+      "key": "m1-closeout/2026-10-28/fixture-census-final-fb920399b68d-results.tar.gz",
       "verified": "local SHA-256 and outputs-only members; S3 length and SHA-256 metadata confirmed"
     }
   },
