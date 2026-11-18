@@ -17,9 +17,8 @@ if [ -f "$prose" ]; then
     staged_docs=$(git diff --cached --name-only --diff-filter=ACMR -- \
         README.md CHANGELOG.md 'docs/user/*.md' docs/tlc-differences.md)
     if [ -n "$staged_docs" ]; then
-        # Warn-only until the user documentation is clean.
         # shellcheck disable=SC2086
-        python3 -I "$prose" --warn-only --quiet $staged_docs
+        python3 -I "$prose" --quiet $staged_docs
     fi
 fi
 }

@@ -952,7 +952,7 @@ increment certifies the full storage family. See [the library guide](user/disk-s
 and [the current CLI/API route](user/disk-seen-safety.md).
 
 D-014 also retains the controlled zero-duration NaN updater/controller observation
-and a failed native diagnostic resource experiment in [the known-issues log](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).
+and a failed native diagnostic resource experiment in [the known-issues log](internal/tlc-differences-notes.md#zero-duration-ratio-edge-case-controlled-component-evidence).
 A finite-ratio improvement remains under consideration; no ratio default changes.
 
 
