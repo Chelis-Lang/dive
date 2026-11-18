@@ -95,7 +95,7 @@ fn captured_result(
         usize::MAX,
         graph,
         limits,
-        AcceptancePolicy::Legacy,
+        AcceptancePolicy::Cells,
         policy,
         &mut Stage::Unknown,
         &mut EvaluationErrors::default(),
@@ -156,7 +156,7 @@ fn label_path(
                 &group.tableau,
                 &truth,
                 limits.product,
-                AcceptancePolicy::Legacy,
+                AcceptancePolicy::Cells,
             )
             .map_err(|error| format!("{error:?}"))?;
             for conditions in &group.alternatives {

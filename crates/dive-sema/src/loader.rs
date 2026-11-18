@@ -852,19 +852,6 @@ fn is_java_space(c: char) -> bool {
     matches!(c, ' ' | '\t' | '\n' | '\u{b}' | '\u{c}' | '\r')
 }
 
-/// The span of the whole text of a file, for diagnostics without a better
-/// location.
-#[allow(dead_code, reason = "kept for diagnostics that need a whole-file span")]
-pub(crate) fn whole(file: FileId, text: &str) -> Span {
-    Span {
-        file,
-        range: TextRange::new(
-            TextSize::from(0),
-            TextSize::try_from(text.len()).unwrap_or_default(),
-        ),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

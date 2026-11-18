@@ -55,7 +55,7 @@ fn run_with_policy(
         usize::MAX,
         graph,
         limits,
-        AcceptancePolicy::Legacy,
+        AcceptancePolicy::Cells,
         policy,
         &mut stage,
         &mut action,

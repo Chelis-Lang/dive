@@ -355,7 +355,7 @@ impl Product {
             tableau,
             labels,
             limits,
-            AcceptancePolicy::Legacy,
+            AcceptancePolicy::Cells,
             |input| {
                 Ok((0..tableau.promise_count)
                     .map(|p| {
@@ -521,7 +521,7 @@ impl CompactProduct {
         labels: &Labels,
         limits: Limits,
     ) -> Result<Self, ProductError> {
-        Self::with_policy(graph, tableau, labels, limits, AcceptancePolicy::Legacy)
+        Self::with_policy(graph, tableau, labels, limits, AcceptancePolicy::Cells)
     }
 
     pub(crate) fn with_policy<'a>(
@@ -539,7 +539,7 @@ impl CompactProduct {
                 limits,
                 policy,
                 |input| match policy {
-                    AcceptancePolicy::Legacy => Ok(CompactAcceptance::new(&input, tableau)),
+                    AcceptancePolicy::Cells => Ok(CompactAcceptance::new(&input, tableau)),
                     AcceptancePolicy::Buffers { bytes, work } => {
                         budget::materialize(&input, tableau, bytes, work)
                     }
@@ -574,7 +574,7 @@ impl CompactProduct {
             conditions,
             self.policy,
             || {
-                if self.policy != AcceptancePolicy::Legacy {
+                if self.policy != AcceptancePolicy::Cells {
                     return Ok(());
                 }
                 let edges = (0..self.parts.graph.vertex_count())
@@ -635,14 +635,14 @@ impl AcceptanceAccess for CompactProduct {
 }
 
 /// Checks one alternative's cycle predicates and secures its Boolean scratch
-/// under the product's acceptance policy. `legacy` applies the representation's
+/// under the product's acceptance policy. `admit_cells` applies the representation's
 /// logical-cell admission after the predicate references are checked.
 fn solution_scratch(
     acceptance: &CompactAcceptance,
     labels: &impl TruthAccess,
     conditions: &CycleConditions,
     policy: AcceptancePolicy,
-    legacy: impl FnOnce() -> Result<(), ProductError>,
+    admit_cells: impl FnOnce() -> Result<(), ProductError>,
     setup_work: &std::cell::Cell<usize>,
 ) -> Result<Vec<bool>, ProductError> {
     for atom in conditions
@@ -674,7 +674,7 @@ fn solution_scratch(
         }
         Ok(())
     };
-    legacy()?;
+    admit_cells()?;
     check_bytes(scratch_len)?;
     let next_setup_work = if let AcceptancePolicy::Buffers { work, .. } = policy {
         // Each condition's scratch metadata was inspected above. The

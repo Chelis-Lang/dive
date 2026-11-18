@@ -92,7 +92,7 @@ fn accepts_states(
         t,
         &labels,
         ProductLimits::default(),
-        AcceptancePolicy::Legacy,
+        AcceptancePolicy::Cells,
     )
     .expect("product")
     .find_lasso_with_conditions(&labels, &none)
