@@ -341,6 +341,7 @@ pub struct Refusal {
 
 /// A feature dive refuses.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum Feature {
     /// A Java-overridden operator outside dive's standard library.
     StdOp(StdOp),

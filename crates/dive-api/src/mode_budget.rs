@@ -27,9 +27,7 @@ impl ModeBudget {
             dive_runtime::budget::StartError::Measurement(error) => {
                 crate::ApiError::BudgetMeasurement(error)
             }
-            error @ dive_runtime::budget::StartError::Thread(_) => {
-                crate::ApiError::BudgetStartup(error)
-            }
+            error => crate::ApiError::BudgetStartup(error),
         })?;
         let budget = watchdog
             .as_ref()

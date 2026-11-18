@@ -646,11 +646,12 @@ pub fn report_json(report: &Report) -> Value {
         "notes": report.notes,
     });
     match &report.validation {
-        Validation::Valid => {}
         Validation::Invalid(f) => {
             j["failure"] = json!({"state": f.state, "check": f.check.name(), "detail": f.detail});
         }
         Validation::Unsupported(u) => j["unsupported"] = Value::from(u.as_str()),
+        // Valid: the result kind says everything.
+        _ => {}
     }
     j
 }
@@ -669,6 +670,7 @@ pub fn render_report(report: &Report) -> String {
             f.detail
         ),
         Validation::Unsupported(u) => format!("unsupported: {u}\n"),
+        other => format!("{}\n", other.kind()),
     };
     for n in &report.notes {
         let _ = writeln!(s, "note: {n}");
@@ -698,7 +700,7 @@ impl Controls {
         match &self.positive.validation {
             Validation::Valid => true,
             Validation::Unsupported(u) => u == dive_trace::DEADLOCK_UNSUPPORTED,
-            Validation::Invalid(_) => false,
+            _ => false,
         }
     }
 

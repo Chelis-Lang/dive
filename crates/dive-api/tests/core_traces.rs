@@ -125,6 +125,7 @@ fn validate(spec: &Path, trace: &Value) -> Result<Checked, String> {
             Ok(Checked::Unconfirmed)
         }
         Validation::Invalid(f) => Err(format!("invalid at state {}: {}", f.state + 1, f.detail)),
+        other => Err(format!("unexpected validation result: {other:?}")),
     }
 }
 

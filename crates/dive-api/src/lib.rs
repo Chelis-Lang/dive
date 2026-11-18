@@ -149,6 +149,7 @@ pub struct ParseReport {
 
 /// Errors from the API that are not diagnostics about the source.
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum ApiError {
     /// A requested run budget could not be enforced; no check ran.
     BudgetStartup(dive_runtime::budget::StartError),

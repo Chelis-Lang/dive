@@ -394,6 +394,7 @@ pub fn validate_counterexample_with_exit_convention(
             f.check.name(),
             f.detail
         )),
+        other => TraceCheck::no(format!("independent validation returned {}", other.kind())),
     }
 }
 
@@ -563,6 +564,7 @@ impl ControlsSummary {
                             f.check.name(),
                             f.detail
                         ),
+                        other => format!("**{}**", other.kind()),
                     };
                     let ok = c
                         .mutants

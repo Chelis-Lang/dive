@@ -330,6 +330,10 @@ fn validate_trace(request: &dive_api::CheckRequest, doc: &mut Value) -> Result<(
         dive_api::trace::Validation::Invalid(reason) => Err(Failure::Invalid(format!(
             "independently rejected counterexample: {reason:?}"
         ))),
+        other => Err(Failure::Invalid(format!(
+            "independent counterexample validation returned {}",
+            other.kind()
+        ))),
     }
 }
 

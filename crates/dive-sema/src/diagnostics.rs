@@ -26,6 +26,7 @@ macro_rules! codes {
     ($($(#[doc = $doc:literal])* $name:ident = $text:literal, $sev:ident, $sany:expr;)*) => {
         /// A stable semantic diagnostic code.
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        #[non_exhaustive]
         pub enum Code {
             $($(#[doc = $doc])* $name,)*
         }

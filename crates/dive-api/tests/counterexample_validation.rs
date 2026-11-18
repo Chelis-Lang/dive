@@ -265,6 +265,7 @@ fn check_run(spec: &Path, profile: Profile) -> Result<Outcome> {
                 None => Outcome::Refuted(detail),
             }
         }
+        other => Outcome::Refuted(format!("unexpected validation result: {other:?}")),
     })
 }
 

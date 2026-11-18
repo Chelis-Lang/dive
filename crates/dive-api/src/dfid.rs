@@ -342,17 +342,18 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
                 document["counterexample"] = json!({"trace": trace.to_json(), "validation": crate::trace::report_json(&validation)});
                 match validation.validation {
                     Validation::Valid => violation_validated = true,
-                    Validation::Invalid(_) => {
+                    Validation::Unsupported(feature) => {
+                        kind = "unsupported";
+                        exit = 3;
+                        message = Some(format!("independent DFID witness validation: {feature}"));
+                    }
+                    // Invalid, or any other result that is not a validation.
+                    _ => {
                         kind = "internal-error";
                         exit = 4;
                         message = Some(
                             "independent DFID witness validation rejected the candidate".to_owned(),
                         );
-                    }
-                    Validation::Unsupported(feature) => {
-                        kind = "unsupported";
-                        exit = 3;
-                        message = Some(format!("independent DFID witness validation: {feature}"));
                     }
                 }
             }

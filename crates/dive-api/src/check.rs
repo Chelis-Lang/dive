@@ -68,6 +68,7 @@ pub mod exit {
 /// # let _ = process_status;
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum ExitConvention {
     /// Historical native statuses, including violation 10 and rejection 1.
     Native,
@@ -88,6 +89,7 @@ impl ExitConvention {
 
 /// The store `dive check` uses.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub enum Store {
     /// Fingerprints (the default, as in TLC).
     #[default]
@@ -736,9 +738,7 @@ fn check_file_in(
             dive_runtime::budget::StartError::Measurement(error) => {
                 crate::ApiError::BudgetMeasurement(error)
             }
-            error @ dive_runtime::budget::StartError::Thread(_) => {
-                crate::ApiError::BudgetStartup(error)
-            }
+            error => crate::ApiError::BudgetStartup(error),
         })?;
     let armed = armed.into_owned();
     report.phase = if let Some(exhausted) = armed
@@ -1263,6 +1263,7 @@ impl CheckReport {
                     Verdict::EvaluationError { .. } | Verdict::NotCompletelySpecified { .. } => {
                         exit::EVALUATION
                     }
+                    _ => exit::INTERNAL,
                 }
             }
         }
@@ -2231,12 +2232,7 @@ pub(crate) fn stopped_json(stopped: &dive_runtime::budget::Stopped) -> Value {
         "limit": stopped.limit,
         "observed": stopped.observed,
         "elapsed_ms": stopped.elapsed_ms,
-        "unit": match stopped.resource {
-            dive_runtime::budget::Resource::Time => "ms",
-            dive_runtime::budget::Resource::Memory => "bytes",
-            dive_runtime::budget::Resource::States => "states",
-            dive_runtime::budget::Resource::Depth => "levels",
-        },
+        "unit": stopped.resource.unit(),
         "phase": stopped.phase.name(),
         "hint": stopped.hint(),
     })
