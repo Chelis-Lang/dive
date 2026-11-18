@@ -1,5 +1,9 @@
 # Native Core debugging
 
+> **Experimental.** `dive debug` works on Core in both profiles and is covered
+> by the CI test suite, but its protocol surface and limits may change between
+> releases.
+
 `dive debug FILE.tla --stdio` runs a native DAP adapter for the existing Core
 safety checker. A DAP client sends initialize, launch, source/exception breakpoint
 requests and configurationDone. Search then executes normally until a breakpoint,
