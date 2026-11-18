@@ -14,6 +14,13 @@ we have measured and regressions have an issue before the tag.
 - **R2 is the only hard gate** ([RELEASE.md](../RELEASE.md)): Core is faster
   than TLC on the geometric mean over the R1 agreeing models, and no model is
   more than 2x slower than TLC. D1 below measures it.
+- **S7 is a release gate for the joint release** (owner direction,
+  2026-11-18): the release does not ship without S7's Sail+dive against
+  standard TLC numbers, measured and recorded as described below, and the
+  owner expects them to show a clear win. If the first S7 run does not show
+  a large multiple over TLC, profile where the Sail+dive time goes, fix the
+  real costs in Sail and measure again; never weaken a correctness or
+  integrity check and never choose a weaker baseline to get there.
 - Every other measurement is directional. A ×TLC multiple or a Sail overhead
   is an aim, not a gate. Correctness is never directional: a wrong verdict, a
   count that differs from the golden or an unvalidated counterexample is a bug
@@ -34,7 +41,7 @@ we have measured and regressions have an issue before the tag.
    commits that no longer exist).
 2. The dive measurements (D1 to D7) run before the `v0.1.0` tag. D1 must pass
    before tagging.
-3. The Sail measurements (S1 to S6) run after dive 0.1.0 is on crates.io and
+3. The Sail measurements (S1 to S7) run after dive 0.1.0 is on crates.io and
    Sail PR [#763](https://github.com/Chelis-Lang/sail/pull/763) builds against
    it, before the Sail 0.3.0 release.
 
@@ -567,3 +574,94 @@ Run S1 to S5 on Linux c7i.8xlarge (`perf-host.sh`) and on mac-m4.metal
 `sail` binary with its staged worker and manifest), as Sail's release matrix
 does. Record each platform's installed `sail` and worker SHA-256 beside the
 results.
+
+### S7: Sail+dive against standard TLC
+
+The release gate described under [purpose](#purpose-and-status-rule). S1
+to S6 compare Sail with the dive CLI; S7 compares the whole Sail+dive
+workflow with the standard way people and agents check TLA+ today: one
+`java -jar tla2tools.jar` process per check, which starts a JVM and parses
+the specification with SANY every time. There is no warm TLC service in the
+standard tooling (the VS Code extension and the Toolbox also start TLC per
+check), so the TLC side is always a fresh process.
+
+**Comparators.** Every path runs the same model, config and closure files,
+and every row must agree with the pinned TLC golden on the holds/refuted
+class and the distinct-state count; Sail's refutations also carry D.I.V.E.'s
+independent trace validation, which Sail checks before returning.
+
+| Path | What is timed |
+|---|---|
+| TLC | `java -XX:+UseParallelGC -jar tla2tools.jar -workers 1 -config <cfg> <module>` in a fresh scratch copy of the model, from process start to exit. This is TLC's documented invocation with its recommended collector; the JVM heap is left at its default. The JRE and jar are the pinned oracle's (`dive-conformance oracle fetch`). |
+| dive CLI | `dive check` with Sail's settings (`--store exact --workers 1 --seed 0 --fp 0`, the same `--max-states`/`--max-depth`). |
+| Sail embedded | `sail_dive::client::run` from the S1 harness: the isolated worker, without a `sail` process. |
+| Sail execute | `sail runtime execute --file job.json`, a fresh `sail` process per job. |
+| Sail serve | `sail runtime execute --file job.json --socket <s>` against a running `sail serve` that has already run one job. |
+| Sail MCP | One `runtime_execute` tool call in a running `sail mcp` session whose daemon has already run one job; the client is the harness's JSON-RPC driver, so no model or agent time is included. |
+
+TLC runs with one worker because every other path does and because the
+small and medium fixtures do not benefit from more; the large-model engine
+comparison is D1's, which also uses one worker.
+
+**Fixtures.** From the fixture table, inside Sail's admitted module set:
+
+- small: `DieHard.cfg` (invariant violation, 14 states), `EWD840.cfg`
+  (liveness, 302), `MCRealTimeHourClock.cfg` (liveness violation, 216),
+  `MCLiveInternalMemory.cfg` (liveness, 4,408);
+- medium: `MCDisruptor_MPMC_liveliness.cfg` (liveness, 14,365) and
+  `MCLamportMutex.cfg` (safety, 724,274), the MCLamportMutex class.
+
+Jobs are built exactly as for S1 (`max_states` twice the golden's distinct
+states, at least 1,000; `max_depth` 100,000; `wall_time_ms` 300,000).
+
+**(a) Per-check latency.** Each fixture through every path, five
+repetitions, the path order rotated each repetition and reversed on odd
+ones. Record per fixture and path the median, minimum and maximum wall time,
+and peak RSS: GNU `time -f %M` around TLC, the dive CLI and `sail runtime
+execute` (the largest process of the tree, which for Sail is the worker),
+and `VmHWM` of the `sail serve` daemon for the warm paths. Also time the
+first job after installation (no reusable verified worker copy yet) and the
+job after it, five times each, so the one-time cost is visible.
+
+**(b) The agent loop.** An agent iterating on a specification submits many
+small checks in one session. Run N = 100 check jobs cycling over the four
+small fixtures, sequentially, through TLC (100 JVMs), the dive CLI, `sail
+runtime execute`, one warm `sail serve` and one MCP session (its startup
+and daemon autostart included in the session total). Five repetitions,
+order rotated. Record per path the session total, the per-job median, p90
+and maximum, and the number of jobs that disagree with their golden (must
+be zero). Then throughput at Sail's admission limit: the same 100 jobs with
+two concurrent clients against one warm daemon (two active executions) and
+with eight (the connection limit; extra jobs queue), against TLC with two
+concurrent JVMs. Record jobs per second and the daemon's `VmHWM`.
+
+**(c) Large models.** Do not rerun the engine comparison. Quote D1's
+per-model Core/TLC ratios for the large R1 models that Sail admits (for
+example `SlushSmall`, `MCDisruptor_MPMC`, `CoffeeCan1000Beans`,
+`ElevatorLivenessMedium`), with S1's worker-body/CLI ratio for the same
+model, so the large-model multiple is D1's ratio adjusted by Sail's
+measured in-worker difference. Say that it is a composed figure.
+
+**(d) Sail-only capabilities.** Things standard TLC does not offer, timed
+where there is something to time, never turned into a multiple:
+
+- a bounded exhaustive check with the exact store that stops with a
+  structured `Stopped` result and no claim: `ElevatorSafetyLarge.cfg` with
+  `max_states` 1,000,000 (TLC has no state ceiling for model checking);
+- independent replay of returned counterexamples: the `validate` jobs on the
+  ITF traces of `DieHard`, `SlidingPuzzles` and `MCRealTimeHourClock`.
+
+**Reporting.** State the best case and the typical case together, each with
+its conditions: the best case is the agent loop of (b) through a warm
+daemon or MCP session, small specifications, one host; the typical case is
+(a)'s per-check latency for a single small and a single medium
+specification through `sail runtime execute`, and (c)'s ratio for large
+models. Give each multiple as TLC time divided by Sail time from medians.
+Measure Sail before and after any fix made for S7 on the same node, and
+report both. Record the Sail source and worker SHA-256, the dive revision,
+the TLC jar and JRE SHA-256, and the host facts of S1.
+
+Run S7 on a fresh c7i.8xlarge (S1's host type) with nothing else running,
+after the builds finish. Records: a `docs/validation/` page and compact JSON
+in Sail, and an S7 section in the dive release performance results
+(`docs/developer/release-performance-results.md`).
