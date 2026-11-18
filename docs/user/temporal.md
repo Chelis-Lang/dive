@@ -152,6 +152,18 @@ VIEW/symmetry quotient semantics, effects and temporal error-demand order are
 separate limitations. A core refusal is explicit and never falls back to
 another engine. Memory accounting is not complete.
 
+**Store.** Temporal checks accept `--store fp|exact` in both profiles. Unless
+two states' fingerprints collide, both stores give the same verdict, counts and
+counterexample. With `--store exact`
+the behavior graph is built from complete state identities. Two distinct states
+whose 64-bit keys collide stay distinct, so a holding result does not rest on
+the fingerprint assumption. The human report says which claim was made:
+"Exact full-state storage." or "Fingerprint storage (64-bit); collision
+probability not computed." Core does not compute a collision probability for
+temporal runs. Spilled or reclaimed storage (frontier, candidate or predecessor
+spill, disk seen sets, `--store-compact-bytes`) with temporal properties is
+refused by name.
+
 Temporal product construction uses exact pair lookup and restores deterministic
 search order before choosing a witness. The optimization applies in both
 profiles under the existing budgets; it changes no option or supported formula.

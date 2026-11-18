@@ -27,7 +27,7 @@
     "search_event_before_storage_failure": null,
     "write_accounting_complete": true
   },
-  "message": "exact or spilled native temporal storage under the core engine",
+  "message": "spilled or reclaimed native temporal storage under the core engine",
   "notes": [],
   "options": {
     "action_composition": "tla",
@@ -51,8 +51,8 @@
     "explore_order": "value",
     "fingerprint": null,
     "frontier_codec_nodes_per_value_limit": null,
-    "frontier_memory_bytes_per_queue": null,
-    "frontier_record_bytes_limit": null,
+    "frontier_memory_bytes_per_queue": 0,
+    "frontier_record_bytes_limit": 67108864,
     "int": "big",
     "predecessor_memory_bytes": null,
     "predecessor_path_steps_limit": null,

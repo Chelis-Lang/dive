@@ -1,7 +1,7 @@
 //! Final temporal checking on Core versus pinned TLC counts, with independent
 //! word validation. These ran on the retired reference final analysis
 //! (`dive_liveness::analyze::analyze_final`) until #791. Exact seen storage
-//! with temporal properties is a named Core refusal.
+//! with temporal properties agrees with the fingerprint store (ADR 0158).
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 #[path = "support/core_final.rs"]
@@ -67,17 +67,24 @@ fn counters(stdout: &str) -> (u64, u64, u64) {
     (numbers[0], numbers[1], depth)
 }
 
-fn exact_store_is_refused(source: &str, config: &str, opts: &CheckOptions) {
+/// The exact store reaches the fingerprint run's result (ADR 0158).
+fn exact_store_agrees(source: &str, config: &str, opts: &CheckOptions) {
     let exact = CheckOptions {
         store: dive_store::StoreMode::Exact,
         ..opts.clone()
     };
-    let report = core_final::run(source, config, &exact);
-    refused::assert_refused(
-        &report.to_json(),
-        report.exit_code(),
-        refused::TEMPORAL_EXACT_STORE,
-    );
+    let fingerprint = CheckOptions {
+        store: dive_store::StoreMode::Fingerprint,
+        ..opts.clone()
+    };
+    let exact = core_final::run(source, config, &exact);
+    let fingerprint = core_final::run(source, config, &fingerprint);
+    assert_eq!(exact.exit_code(), fingerprint.exit_code());
+    let (exact, fingerprint) = (exact.to_json(), fingerprint.to_json());
+    assert_eq!(exact["options"]["store"], "exact", "{exact:#}");
+    for field in ["verdict", "property", "statistics", "counterexample", "tlc"] {
+        assert_eq!(exact[field], fingerprint[field], "{field}: {exact:#}");
+    }
 }
 
 #[test]
@@ -110,7 +117,7 @@ fn pinned_pure_and_fair_models_have_valid_candidates_and_tlc_counts() {
             workers: 8,
             ..CheckOptions::tlc(0, 0)
         };
-        exact_store_is_refused(&source, &config, &opts);
+        exact_store_agrees(&source, &config, &opts);
         let run =
             core_final::check(&source, &config, &opts).unwrap_or_else(|s| panic!("{name}: {s}"));
         let Outcome::Violation(v) = run.outcome() else {
@@ -314,7 +321,7 @@ fn pinned_fair_successes_use_full_enabledness_beyond_the_retained_graph() {
             "0"
         );
         let opts = CheckOptions::tlc(0, 0);
-        exact_store_is_refused(&source, &cfg, &opts);
+        exact_store_agrees(&source, &cfg, &opts);
         let run = core_final::check(&source, &cfg, &opts).unwrap_or_else(|s| panic!("{name}: {s}"));
         let Outcome::Holds(c) = run.outcome() else {
             panic!("{name}: TLC finds no counterexample: {:?}", run.outcome())

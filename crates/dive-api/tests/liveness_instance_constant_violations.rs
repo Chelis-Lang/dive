@@ -9,8 +9,6 @@
 )]
 #[path = "support/core_final.rs"]
 mod core_final;
-#[path = "support/refused.rs"]
-mod refused;
 
 use dive_api::CheckRequest;
 use dive_api::temporal::Outcome;
@@ -46,14 +44,6 @@ fn absent_constants_keep_primary_violations_counts_and_valid_words() {
                     ..core_final::request(&options)
                 };
                 let report = dive_api::check_file(&req).expect("Core");
-                if store == dive_store::StoreMode::Exact {
-                    refused::assert_refused(
-                        &report.to_json(),
-                        report.exit_code(),
-                        refused::TEMPORAL_EXACT_STORE,
-                    );
-                    continue;
-                }
                 let temporal = report
                     .temporal_result()
                     .unwrap_or_else(|| panic!("{id}: {}", report.to_json()));

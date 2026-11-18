@@ -1,9 +1,10 @@
 # Check report schema fixtures
 
-`Reports.tla` and the five configurations exercise seven Core report kinds:
-success, invariant violation, deadlock, liveness violation, evaluation error,
-named refusal and a state-budget stop. The refusal requests exact storage with
-liveness, which is outside the current supported Core storage modes.
+`Reports.tla` and the five configurations exercise eight Core reports:
+success, invariant violation, deadlock, liveness violation (with fingerprint
+and with exact storage), evaluation error, named refusal and a state-budget
+stop. The refusal requests a spilled frontier with liveness, which is outside
+the supported Core temporal storage modes.
 
 `report_schema.rs` runs the CLI, checks the expected exit/verdict/engine and
 compares each entire JSON report. It normalizes the fixture directory, elapsed
