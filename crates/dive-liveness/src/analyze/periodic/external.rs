@@ -226,9 +226,7 @@ impl<'m> GraphCheck<'m> {
                     dive_runtime::budget::StartError::Measurement(error) => {
                         AnalysisError::BudgetMeasurement(error)
                     }
-                    error @ dive_runtime::budget::StartError::Thread(_) => {
-                        AnalysisError::BudgetStartup(error.to_string())
-                    }
+                    error => AnalysisError::BudgetStartup(error.to_string()),
                 },
                 Stage::Planning,
                 None,

@@ -10,6 +10,7 @@ use dive_value::Value;
 /// Where an evaluation error was raised: the phase of TLC's search it
 /// belongs to. TLC's error class and exit status depend on it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum ErrorSite {
     /// Processing the specification, before the assumptions.
     Startup,
@@ -60,6 +61,7 @@ impl ErrorSite {
 
 /// The verdict of a check.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Verdict {
     /// The search finished without finding a violation.
     Success,

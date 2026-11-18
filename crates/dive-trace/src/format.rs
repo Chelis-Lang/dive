@@ -100,6 +100,7 @@ pub const VIEW_SOURCE_ERROR_VERSION: u64 = 6;
 
 /// What a trace claims about its end.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Ending {
     /// The named invariant is false in the last state.
     Invariant(String),
@@ -410,6 +411,7 @@ pub struct Label {
 
 /// Which format a document was read from.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Source {
     /// dive's format.
     Dive,

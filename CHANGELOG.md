@@ -23,6 +23,10 @@ The first release.
   an error in a temporal property's source row and 6 for an error while
   evaluating VIEW. Readers accept all six and reject unknown versions. See
   [trace validation](docs/user/traces.md).
+- Library users: the public result, error and kind enums of `dive-api`,
+  `dive-runtime`, `dive-trace`, `dive-sema` and `dive-ir` are
+  `#[non_exhaustive]`, so a `match` on them needs a wildcard arm. Later
+  releases can add variants without a breaking change.
 
 ### Added
 

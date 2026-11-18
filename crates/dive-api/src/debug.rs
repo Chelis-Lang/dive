@@ -31,6 +31,7 @@ fn rejected(message: &str) -> DebugError {
 
 /// An asynchronous event from the actual checker.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub enum Event {
     /// The compiled map is available; configuration still gates search.
     Prepared,

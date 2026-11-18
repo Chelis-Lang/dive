@@ -93,6 +93,7 @@ pub struct MeasurementError {
 }
 /// The unavailable information needed to enforce memory policy.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum MeasurementKind {
     /// Current whole-process resident memory.
     Process,
@@ -148,6 +149,7 @@ impl std::error::Error for MeasurementError {}
 /// The requested time/memory budget could not be armed. No check may run
 /// with that budget silently disabled.
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum StartError {
     /// The watchdog thread could not start.
     Thread(std::io::Error),
@@ -202,6 +204,7 @@ pub const MEMORY_EVERY: Duration = if cfg!(target_os = "linux") {
 
 /// The resource a budget limits.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum Resource {
     /// Wall-clock time, in milliseconds.
     Time,
@@ -225,6 +228,18 @@ impl Resource {
         }
     }
 
+    /// The unit of the resource's limit and observation, as reports print
+    /// it.
+    #[must_use]
+    pub const fn unit(self) -> &'static str {
+        match self {
+            Self::Time => "ms",
+            Self::Memory => "bytes",
+            Self::States => "states",
+            Self::Depth => "levels",
+        }
+    }
+
     const fn flag(self) -> u8 {
         match self {
             Self::Time => 1,
@@ -237,6 +252,7 @@ impl Resource {
 
 /// The phase a stopped run was in.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum Phase {
     /// Model startup, before state generation starts.
     Startup,

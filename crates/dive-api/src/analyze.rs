@@ -241,6 +241,7 @@ impl AnalyzeReport {
                     dive_sema::Origin::Bundled => "bundled",
                     dive_sema::Origin::Monolith(_) => "monolith",
                     dive_sema::Origin::Text => "text",
+                    _ => "unknown",
                 };
                 json!({ "id": i, "path": f.display, "origin": origin })
             })

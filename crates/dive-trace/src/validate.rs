@@ -37,6 +37,7 @@ use crate::trace::Trace;
 
 /// Which check failed.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum Check {
     /// The trace's shape: empty, a variable missing or extra, a value that
     /// does not read.
@@ -109,6 +110,7 @@ pub struct Failure {
 
 /// The validator's verdict.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Validation {
     /// Every check passed: the trace is a behavior of the specification and
     /// ends as claimed.
@@ -166,6 +168,7 @@ pub struct ValidationProgress {
 /// The driver interprets the opaque evaluator interruption. This crate knows
 /// neither resource budgets nor the authority that requested interruption.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum ValidationRunError {
     /// A typed host interruption, never an invalid or unsupported trace.
     Interrupted {

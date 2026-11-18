@@ -191,7 +191,7 @@ fn stopped_before_serving(stage: &str, verdict: &dive_runtime::Verdict) -> ApiEr
         V::InvariantViolated { property, .. }
         | V::PropertyViolatedInitially { property }
         | V::ActionPropertyViolated { property } => Some(property.clone()),
-        V::Success | V::Deadlock => None,
+        _ => None,
     };
     let kind = verdict.kind();
     rejected(match detail {

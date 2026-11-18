@@ -207,6 +207,7 @@ fn pinned_liveness_words_validate_including_recurring_fair_actions() {
                 panic!("pinned recurring-action control {name} was refused: {s}")
             }
             Validation::Invalid(f) => panic!("{name}: {f:?}"),
+            other => panic!("{name}: unexpected validation {other:?}"),
         }
     }
     assert!(

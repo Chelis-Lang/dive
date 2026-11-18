@@ -16,6 +16,7 @@ use crate::State;
 
 /// Why `ENABLED` could not be decided. A refusal is never a decision.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum EnabledError {
     /// A cooperative caller interruption, whose authority belongs to the driver.
     Interrupted(dive_eval::EvalError),

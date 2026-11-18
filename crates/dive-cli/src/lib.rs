@@ -1258,8 +1258,9 @@ fn validate_trace_command(
     }
     match report.validation {
         dive_api::trace::Validation::Valid => ExitCode::SUCCESS,
-        dive_api::trace::Validation::Invalid(_) => ExitCode::from(EXIT_REJECTED),
         dive_api::trace::Validation::Unsupported(_) => ExitCode::from(EXIT_UNSUPPORTED),
+        // Invalid, or any other result that is not a validation.
+        _ => ExitCode::from(EXIT_REJECTED),
     }
 }
 
@@ -1292,9 +1293,9 @@ fn validation_exception(
         | ValidationRunError::BindingFailure { progress, .. } => {
             ("execution-error", Some(progress), 4)
         }
-        ValidationRunError::ThreadFailure(_) | ValidationRunError::ControlConflict(_) => {
-            ("execution-error", None, 4)
-        }
+        // A thread failure, a control conflict, or any other failure without
+        // validation progress.
+        _ => ("execution-error", None, 4),
     };
     if json {
         let progress=progress.map(|progress|serde_json::json!({"checks_passed":progress.checks_passed,"state":progress.state,"check":progress.check.map(dive_api::trace::Check::name)}));
