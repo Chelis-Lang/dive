@@ -64,7 +64,7 @@ randomness outside the direct scalar Init subset and other runtime effects,
 compound initial deep normalization, implied-initial
 properties, action properties combined with state/action constraints, ALIAS/POSTCONDITION, generation, RL/probabilistic modes, continuation
 and parallel/distributed execution remain explicit refusals. See
-`crates/dive-sim/README.md` for the supported surface and reproduction.
+`crates/dive-sim/CONTRACT.md` for the supported surface and reproduction.
 
 The pinned `SimConstrainedAction` probe reports action-property violation 2112
 before its candidate is excluded by a state constraint. The exhaustive trace
@@ -86,7 +86,7 @@ Init register contract remain.
 No callback purity certificate, random replay proof or scheduler is added.
 Nine pinned tiny primary probes distinguish real startup, Init and step output;
 seven are admitted words and two remain named reached-effect refusals.
-See `crates/dive-sim/README.md` for limits; M/#239 remains partial.
+See `crates/dive-sim/CONTRACT.md` for limits; M/#239 remains partial.
 
 
 ## Shared evaluator simulation ownership

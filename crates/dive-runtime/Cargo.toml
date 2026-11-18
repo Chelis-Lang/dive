@@ -1,12 +1,19 @@
 [package]
 name = "dive-runtime"
-description = "The run contract shared by every checking engine: options, budgets, results and capture evidence"
+description = "The run contract shared by dive's checking engines: options, budgets, results and capture evidence"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-publish.workspace = true
+publish = ["crates-io"]
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/dive-runtime"
+readme = "README.md"
+keywords.workspace = true
+categories.workspace = true
+# Tests, examples and benchmarks read workspace fixtures; they are not shipped.
+include = ["/src/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 
 [dependencies]
 dive-ir.workspace = true
@@ -26,7 +33,7 @@ memory-stats.workspace = true
 [dev-dependencies]
 # Doctests and unit tests lower small specifications; dev-dependencies are
 # outside the layering (`xtask/src/layering.rs`).
-dive-sema.workspace = true
+dive-sema = { path = "../dive-sema" }
 
 [lints]
 workspace = true

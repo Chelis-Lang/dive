@@ -83,5 +83,48 @@ fn describe_ignores_internal_tags_and_names_release_tags() -> Result<(), Box<dyn
     std::fs::create_dir_all(&outside)?;
     std::fs::write(outside.join(".git"), "gitdir: missing\n")?;
     assert_eq!(revision::revision(&outside), "unknown");
+
+    // A published package names the commit Cargo recorded, even inside a
+    // repository with release tags.
+    let sha = "0123456789abcdef0123456789abcdef01234567";
+    std::fs::write(
+        directory.join(revision::VCS_INFO),
+        format!(
+            "{{\n  \"git\": {{\n    \"sha1\": \"{sha}\"\n  }},\n  \"path_in_vcs\": \"crates/dive-cli\"\n}}"
+        ),
+    )?;
+    assert_eq!(revision::revision(directory), "0123456789ab");
+    std::fs::write(
+        outside.join(revision::VCS_INFO),
+        "{\"git\":{\"sha1\":\"bad\"}}",
+    )?;
+    assert_eq!(revision::revision(&outside), "unknown");
     Ok(())
+}
+
+#[test]
+fn packaged_revision_reads_cargo_vcs_info() {
+    let sha = "fedcba9876543210fedcba9876543210fedcba98";
+    let clean = format!("{{\"git\":{{\"sha1\":\"{sha}\"}},\"path_in_vcs\":\"crates/dive-cli\"}}");
+    assert_eq!(revision::packaged(&clean).as_deref(), Some("fedcba987654"));
+    let dirty = format!("{{\"git\": {{\"sha1\": \"{sha}\", \"dirty\": true}}}}");
+    assert_eq!(
+        revision::packaged(&dirty).as_deref(),
+        Some("fedcba987654-dirty")
+    );
+    let not_dirty = format!("{{\"git\": {{\"sha1\": \"{sha}\", \"dirty\": false}}}}");
+    assert_eq!(
+        revision::packaged(&not_dirty).as_deref(),
+        Some("fedcba987654")
+    );
+    for invalid in [
+        "",
+        "{}",
+        "{\"git\":{\"sha1\":\"\"}}",
+        "{\"git\":{\"sha1\":\"FEDCBA9876543210FEDCBA9876543210FEDCBA98\"}}",
+        "{\"git\":{\"sha1\":\"fedcba987654\"}}",
+        "{\"git\":{\"sha1\":12}}",
+    ] {
+        assert_eq!(revision::packaged(invalid), None, "{invalid}");
+    }
 }
