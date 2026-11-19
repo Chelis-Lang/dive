@@ -76,7 +76,7 @@ cleanup flag before discarding it. Checksums detect accidental corruption only;
 they do not authenticate the files.
 
 Calls must be exclusive: the library has no parallel read views, no recovery
-from its disk files and no graph routing. Core safety checkpoints rebuild
+from its disk files and no graph routing. Safety checkpoints rebuild
 membership from the saved discovered states through the same fallible inserts;
 they do not import old disk files. For how `dive check` combines disk seen
 states with frontier and predecessor budgets, see

@@ -1,16 +1,17 @@
 # Using dive
 
 dive checks TLA+ specifications without a JVM. It reads your existing `.tla`
-and `.cfg` files and gives TLC's answer, apart from
-[registered differences](../tlc-differences.md), on every model of the tested
-tlaplus/Examples corpus that it checks. At one worker it takes about a fifth of
-TLC's time on the geometric mean, with no model above twice TLC's time.
+and `.cfg` files and gives TLC's answer on every model it checks in the
+tlaplus/Examples corpus, apart from the
+[documented differences](../tlc-differences.md). At one worker it takes about a
+fifth of TLC's time on the geometric mean, with no model above twice TLC's
+time.
 
 One binary covers parsing and analysis, PlusCal translation, safety and
 temporal model checking, simulation, iterative deepening and independent trace
-validation. Core is the only engine. When dive meets something it does not
-implement, it refuses by name instead of guessing. A refusal or a run stopped by
-a budget proves nothing about the model.
+validation. When dive meets something it does not implement, it refuses by
+name. A refusal or a run stopped by a budget proves nothing about
+the model.
 
 | Task | Guide | Scope |
 | --- | --- | --- |
@@ -37,11 +38,10 @@ a budget proves nothing about the model.
 
 ## Command-line surface
 
-`dive --help` and `dive <command> --help` list only the commands and options
-that Core implements; `crates/dive-cli/tests/golden/command-help.txt` pins
-them. Options that Core always refuses are left out of the help but still
-parse, so an existing script gets a named refusal (verdict `unsupported`, exit
-3, the feature named) instead of a usage error:
+`dive --help` and `dive <command> --help` list the commands and options dive
+implements. Options it always refuses are left out of the help but still parse,
+so an existing script gets a named refusal (verdict `unsupported`, exit 3, the
+feature named) instead of a usage error:
 
 | Command | Unlisted option | Refusal names |
 | --- | --- | --- |
@@ -53,19 +53,14 @@ parse, so an existing script gets a named refusal (verdict `unsupported`, exit
 | `dfid` | `--workers N` with N > 1 | DFID multiple workers |
 | `tlc` | `-coverage 0`, `-lncheck final` | coverage; bounded final checking |
 
-Without temporal properties, `--lncheck final --lasso short` changes
-nothing and the check runs; `--workers 1` is accepted by `simulate` and
-`dfid`. `--compat=tlc` and `dive tlc` check temporal properties once at
-exhaustion without the explicit flags. `--symmetry-liveness tlc` stays
-listed: it is the `--compat=tlc` default and runs unless `SYMMETRY` meets
-temporal properties, which it refuses by name. `lsp` is not a listed
-command and refuses by name.
+Without temporal properties, `--lncheck final --lasso short` changes nothing
+and the check runs, and `simulate` and `dfid` accept `--workers 1`.
+`--compat=tlc` and `dive tlc` check temporal properties once at exhaustion
+without these flags. `--symmetry-liveness tlc` is listed because it is the
+`--compat=tlc` default; it runs unless the model has both `SYMMETRY` and
+temporal properties, and that combination refuses by name. There is no
+language server: `dive lsp` refuses by name.
 
-The [scoreboard](../scoreboard.md) has current coverage numbers, and the
-[TLC differences log](../tlc-differences.md) lists known limitations and the
-places where dive's default improves on TLC. LSP, native compilation and
-distributed recovery are not available.
-
-Strict TLC-profile trace replay also accepts bounded tuple-valued variables,
-tuple sequence calls and finite process-owned tuple stacks. Arbitrary states
-and general saved stacks refuse. See [trace validation](traces.md).
+The [differences from TLC](../tlc-differences.md) list the known limitations
+and every place where dive's default answer differs from TLC's. The
+[scoreboard](../scoreboard.md) has current coverage numbers.

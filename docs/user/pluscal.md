@@ -13,12 +13,12 @@ fields, because translating a module checks nothing about its behavior.
 The JSON includes `module_source`, the generated TLA+ and configuration text,
 actions, process metadata, inserted labels, mappings, warnings and per-stage
 diagnostics. Each mapping links an emitted action definition, by its complete
-UTF-8 byte range in `artifact.tla`, to the labelled statement it came from in
-the input. Ranges cover multi-line bodies and wrapped updates. When the program
-counter is omitted, the action can be named `Next` or after its process rather
-than after the label, and scoped label renaming keeps the same source
-statement. The mappings link source to output only; they are not debugger
-locations.
+UTF-8 byte range in `artifact.tla`, to the labeled statement it came from in
+the input. Ranges cover multi-line bodies and wrapped updates. When the translation
+needs no program counter, the action is named `Next` or after its process
+instead of after the label; a mapping still points at the right statement, and
+so does one for a renamed label. Mappings link source to output only; they are
+not debugger locations.
 
 An existing translation block is replaced in the returned module at its
 original position. The default command does not write the source file.
@@ -75,8 +75,9 @@ dive translate docs/user/examples/Algorithm.tla --rewrite --compat=tlc --output 
 ```
 
 Rewriting always records the body CRC. For supported procedure-free shapes it
-also adds an exact algorithm CRC; otherwise it disables that one value with the
-pinned `chksum(pcal) \in STRING` spelling and warns. A missing optional CRC
+also adds TLC's exact algorithm CRC; otherwise it writes
+`chksum(pcal) \in STRING` in its place, which turns that check off, and
+warns. A missing optional CRC
 never blocks generation, rewriting or debug output. `--checksums full|tla` are
 aliases for this best-effort behavior. A changed algorithm regenerates
 normally. An old body that was edited by hand, or whose checksum cannot be
@@ -84,7 +85,7 @@ verified, needs `--replace-modified`.
 
 By default the CLI and API protect a modified or unverified existing body, and
 `--replace-modified` overwrites it. `--compat=tlc` overwrites it automatically,
-as the pinned translator does. The low-level `rewrite_document` keeps whatever
+as TLC's translator does. The low-level `rewrite_document` keeps whatever
 policy its caller sets. `requested_editing` records the settings you asked for,
 `editing` the effective ones, and the old body's CRC and match data stay in the
 report.
@@ -102,17 +103,20 @@ Other translator options are `-termination`, `-noDoneDisjunct`, `-lineWidth N`
 Options declared in the source and options given on the CLI or API combine into
 one reported effective context. With `--write`, `-noold` and `-nocfg` suppress
 the backup and configuration writes; without `--write` they are only recorded.
-`-unixEOL` keeps the documented newline policy and does not force a new one.
+`-unixEOL` (CLI only) is recorded but changes nothing: generated text uses LF,
+default rewriting keeps the source file's newlines, and `--compat=tlc`
+rewriting normalizes to LF. TLC's own flag does not change its output either.
 
-`dive translate --ast` returns a bounded original-stage AST in memory, including
-procedure and macro ownership and compound or grouped label locations when
-`-debug` is given. It exits 0 when the AST is available. Labelled-compound and
-flat procedure-free debug headers can carry exact CRCs; procedural CRCs are not
-available. Identifier-renaming ownership, simultaneous-ordering ownership and
-specification-backed translators are not implemented.
+`dive translate --ast` returns the AST of the original algorithm in memory,
+including which procedure or macro each statement belongs to and compound or
+grouped label locations when `-debug` is given. It exits 0 when the AST is
+available. Debug headers for labeled compound statements and for flat code
+without procedures carry TLC's exact CRCs; procedures get no CRC. Debug data
+for renamed identifiers and simultaneous assignments is not produced, and TLC's
+`-spec` family of translator backends is not supported.
 
 `-writeAST` writes `AST.tla` in the current directory, leaves the input,
-configuration and backup unchanged, and exits 255, as the pinned translator
+configuration and backup unchanged, and exits 255, as TLC's translator
 does. The report says `writes_performed: true` and `accepted: false`; exit 255
 here does not mean the write failed. Rust callers use
 `write_original_ast_file(input, destination, &TranslationRequest)`. See the

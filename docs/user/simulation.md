@@ -216,8 +216,8 @@ each trace.
 
 ## Engine
 
-Core runs simulation with compiled Init, Next and predicates for finite safety
-models in either profile. What Core does not implement, such as random choices
+dive runs simulation with compiled Init, Next and predicates for finite safety
+models in either profile. What dive does not implement, such as random choices
 and registers, refuses by name. A refusal is not retried and does not repeat
 output. JSON reports `engine: "core"`, `engine_requested` and
 `engine_fallback`, which is always `null`, and reports requested and used

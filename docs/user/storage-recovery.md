@@ -6,7 +6,7 @@ resume it later. All of them are opt-in. The
 [storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md)
 has the details.
 
-Core's safety BFS supports `--store exact` and the frontier and predecessor
+dive's safety BFS supports `--store exact` and the frontier and predecessor
 budget and directory options. Exact membership resolves hash collisions by
 comparing the complete canonical state; the concrete states used for
 evaluation and replay keep their own representation. Parallel exact search
@@ -14,10 +14,10 @@ keeps colliding candidates until the ordered commit. A predecessor read,
 write, corruption or cleanup failure stops the run as a resource stop, with
 storage diagnostics and no certified counterexample.
 
-Core's safety BFS also supports disk membership with `--seen-disk-entries`,
+dive's safety BFS also supports disk membership with `--seen-disk-entries`,
 using one worker and complete canonical keys for exact membership, and
 completed-level checkpoints and recovery with all of these storage choices.
-Core never falls back to another engine. Exact store, spill and disk options
+dive never falls back to another engine. Exact store, spill and disk options
 combined with temporal checking refuse.
 
 [Distributed safety](distributed-safety.md) accepts frontier and predecessor
@@ -26,23 +26,23 @@ Store reclamation and every checkpoint, pause and recovery option. A worker
 process can restart and retry uncommitted work while the coordinator lives,
 but if the coordinator is lost the run cannot be resumed.
 
-Core's frontier stores each state as a pair of canonical and original handles
+dive's frontier stores each state as a pair of canonical and original handles
 into one live Store, so values are not re-encoded. Its private files cannot be
 recovered after a restart or read by another run. Each decoded chunk holds at
 most 1,024 state pairs and does not count against the encoded queue budgets.
 The Store and its history, seen sets, candidates, arenas and decoded chunks are
 outside those budgets, so the report's value codec node limit is null.
 
-Before reporting a result, Core validates every retained frontier record,
+Before reporting a result, dive validates every retained frontier record,
 including unvisited ones, checking the run budget every 128 rows. A budget stop
 closes and cleans up the remaining files without scanning them and claims no
 completeness. Cancelling during decoding or validation is a budget stop; a read,
 write, corruption or cleanup failure means no certified result, with storage
 diagnostics in the report.
 
-## Reclaiming expanded Core values
+## Reclaiming expanded values
 
-Explicit pure Core safety BFS accepts `--store-compact-bytes N`:
+Pure safety BFS accepts `--store-compact-bytes N`:
 
 ```sh
 dive check docs/user/examples/Counter.tla --store-compact-bytes 0 --frontier-memory-bytes 0 --predecessor-memory-bytes 0 --output json
@@ -53,7 +53,7 @@ The matching `CheckRequest` and `CheckOptions` field is
 completed source level. A positive number triggers it when the Store's measured
 retained-byte lower bound exceeds that number.
 
-When the option is omitted, Core uses a default trigger of 256 MiB (268435456
+When the option is omitted, dive uses a default trigger of 256 MiB (268435456
 bytes) in both profiles for pure fingerprint safety BFS. That excludes runs with
 any of:
 
@@ -83,7 +83,7 @@ Both profiles, fingerprint/exact membership, VIEW, safety symmetry, requested
 worker widths and existing candidate/frontier/predecessor/disk storage policies
 are supported. Exact membership on this route stores full closed mathematical
 key bytes independently of the Store; symbolic/deferred keys outside that
-encoding refuse by name. Disk seen states still use one worker. Core recovery
+encoding refuse by name. Disk seen states still use one worker. Recovery
 can turn on or change this trigger after restoring a checked archive:
 
 ```sh
@@ -116,12 +116,12 @@ The trigger does not count:
 
 Combine it with the storage budgets and the whole-run time and memory limits
 as needed. A filesystem, corruption or cleanup failure means no certified
-result; cancelling is an incomplete resource stop. See the
+result; canceling is an incomplete resource stop. See the
 [completed-level store reclamation design](../decisions/0149-completed-level-store-reclamation.md).
 
 ## Candidate payload spill
 
-Core pure safety BFS also accepts
+Pure safety BFS also accepts
 `--candidate-memory-bytes N` and `--candidate-directory DIR`:
 
 ```sh
@@ -143,7 +143,7 @@ queue does not first copy its speculative values into the Store.
 
 Candidate spill works with both profiles, fingerprint and exact membership,
 VIEW, safety symmetry, disk seen states, frontier and predecessor spill, and
-Core safety checkpoints and recovery. Encoding one record uses a workspace
+Safety checkpoints and recovery. Encoding one record uses a workspace
 limited to 64 MiB and 128 levels of nesting; shared subvalues stay shared, and
 the per-operation workspaces are bounded. A separate index of how values were
 built keeps at most 1 MiB per pending source state, preserving aliases across
@@ -208,7 +208,7 @@ transport format.
 
 Checkpoints are a separate, bounded, safety-only feature. An archive in an
 older pre-release format is rejected with `DIVE-S0400` before evaluation.
-Core recovery supports both profiles, fingerprint and exact stores, VIEW,
+Recovery supports both profiles, fingerprint and exact stores, VIEW,
 safety symmetry, a changed worker count, transient spill and disk membership
 (one worker). It resumes the saved frontier without re-enumerating Init as search work.
 
@@ -217,18 +217,18 @@ dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0
 dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --workers 8 --recover counter.core.cp --checkpoint-counters retain --output json
 ```
 
-The Rust API is `check_file_checkpoint(request, checkpoint)`. Core's
+The Rust API is `check_file_checkpoint(request, checkpoint)`. dive's
 `DIVECC01` archive retains the compiled startup prefix, owned Store DAG,
 complete original/canonical discovery rows, keys, parents/ordinals and ordered
 frontier. An archive whose Store image records construction history is
 rejected with `DIVE-S0400` ("legacy construction history"). A recovered run
 creates new transient files and never reuses the old run's frontier files.
 State values are not re-encoded. Source, executable, config
-bytes, semantic policy, seed/fingerprint and Core strategy switches must match.
+bytes, semantic policy, seed/fingerprint and strategy switches (`DIVE_CORE_OPT`) must match.
 Workers and resource or storage budgets may change. Unknown deferred
 providers after startup, runtime effects and temporal graphs refuse by name.
 
-Only checkpoint-enabled Core runs retain the extra discovery rows. The aggregate
+Only checkpoint-enabled runs retain the extra discovery rows. The aggregate
 64 MiB archive and 65,536-state/level admission bounds do not bound live Store,
 codec workspaces or process memory. There is no separate per-state image
 limit (`max_state_bytes` is null). Recovery-only runs release

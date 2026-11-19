@@ -19,9 +19,9 @@ standard modules retain their existing origin and priority. The source pins
 and licenses are in [the bundled-library README](../../crates/dive-sema/bundled/README.md).
 
 The bundled-library smoke checks ten original Examples without library flags.
-Nine must check successfully on Core, the default engine, and every report must
+Nine must check successfully and every report must
 name `engine: core`. `EWD998ChanID` resolves its imports but may report an
-explicit unsupported result: Core refuses its VIEW/liveness graph capture by
+explicit unsupported result: dive refuses its VIEW/liveness graph capture by
 name. The library resolved; the refusal is about checking, and it gives no verdict.
 
 The native evaluator implements supported arithmetic, sets, sequences, records,
@@ -30,7 +30,7 @@ source and TLC's native overrides are distinct: model binding decides which
 implementation applies. Integer limits, comparison behavior and enumeration
 order follow the resolved [compatibility profile](compatibility.md). An operator listed in the registry may still refuse some arguments or modes.
 
-Core resolves a configured constant such as `C <- Target` through imported
+dive resolves a configured constant such as `C <- Target` through imported
 declarations inside `INSTANCE`, including nested instances. Explicit `WITH`
 bindings still take precedence. The target keeps its own module and lexical
 scope, while state substitutions retain their current or primed meaning.
@@ -40,12 +40,11 @@ leaves the definition lazy, and a named write stores no value. ASSUMEs
 and checking use their ordinary register access. Lazy function field selection
 keeps the same startup availability rule. An explicit configured value
 override still replaces the target. Lazy configured functions selected through
-an instance can remain unsupported when Core cannot
+an instance can remain unsupported when dive cannot
 preserve undemanded entries. Configured targets with unresolved recursive or
 `ENABLED` calls also refuse. The refusal gives no checking verdict.
 
-A constant definition whose startup evaluation fails remains lazy at its actual
-use. For example, `F == [i \in 0..2 |-> IF i=0 THEN 0 ELSE 1 \div 0]`
+A constant definition whose startup evaluation fails remains lazy at its use. For example, `F == [i \in 0..2 |-> IF i=0 THEN 0 ELSE 1 \div 0]`
 can be selected as `F[0]` without demanding entries 1 and 2, whether the function
 is named or written inline. Selecting `F[1]` or materializing the whole function
 still raises division by zero. Values computed successfully at startup stay cached; resource failures and
@@ -65,7 +64,7 @@ example runs without core fallback:
 dive check crates/dive-api/tests/fixtures/core-len-empty/EmptyInterval.tla --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
-`Seq(S)` keeps an original Cartesian-product range on Core. An empty sequence
+`Seq(S)` keeps an original Cartesian-product range. An empty sequence
 does not inspect unused range factors; a nonempty sequence checks each element for membership in the original
 product, so a non-tuple element still raises its error, even when the product
 is empty. Both profiles run this
@@ -99,16 +98,16 @@ Under `--compat=tlc`, an outer mapped collection containing multiple raw sets
 still refuses when its constructor and comparison history are unproved.
 `MappedMultipleSubsets.tla` beside these examples records that boundary. In the
 default profile sets are canonical, and the original Examples
-`LoopInvariance/MCQuicksort` model agrees with TLC on Core.
+`LoopInvariance/MCQuicksort` model agrees with TLC.
 
 Repeat `--library-path DIR` to search before bundled standard modules or
 `--module-path DIR` to search after them. These directories contain TLA+ module
 sources; accepting a source module does not load arbitrary Java plugins. Read
 the resolved files reported by [analysis](front-end.md) when a local module and
-a standard module have the same name. The conformance harness pins module libraries to compare dive with TLC; that
-does not make every library override native.
+a standard module have the same name. A library module being found does not mean
+every Java override in it has a native implementation.
 
-The Core engine supports the CommunityModules graph overrides `AreConnectedIn`
+dive supports the CommunityModules graph overrides `AreConnectedIn`
 and `SimplePath` in `Graphs` and `UndirectedGraphs`, plus `Graphs!IsStronglyConnected`
 and `UndirectedGraphs!ConnectedComponents`. They work on finite, eagerly
 enumerable graph records in both profiles. Singleton undirected edges are
@@ -135,7 +134,7 @@ Normalized Java set conversions, including `SequencesExt!SetToSeq` and
 `SetToSeqs`, check concrete Product emptiness before normalizing axes. This
 follows the override's conversion-then-normalization order: an empty converted
 collection leaves unused axes and their aliases untouched. Under `--compat=tlc`,
-Core refuses this mixed-shape control by name (TLC's checked comparison of a
+dive refuses this mixed-shape control by name (TLC's checked comparison of a
 set of values of different shapes is not ported):
 
 ```sh
@@ -154,7 +153,7 @@ Unknown earlier operands and providers keep their errors or named refusals. Dive
 argument. For `{x, TRUE} \X {}`, that rendering still demands the mixed axis's
 comparison and reports its error. An empty first axis, or a nested Product that
 is already empty, prints `{}` without demanding unused axes. TLC exits 75 on this
-example with the demanded boolean comparison; Core refuses the mixed-shape set
+example with the demanded boolean comparison; dive refuses the mixed-shape set
 under `--compat=tlc` by name:
 
 ```sh
@@ -169,7 +168,7 @@ axes unnormalized; a later use of the same axis still makes its own comparisons.
 Product operand expressions are evaluated normally, so an unused axis expression
 that divides by zero still fails. Unknown earlier axes keep the existing guarded
 conversion, and demanded incomparable nonempty products retain their errors or
-named refusals. This model runs on Core in both profiles with three distinct and
+named refusals. This model runs in both profiles with three distinct and
 generated states, depth three and success exit 0:
 
 ```sh
@@ -178,11 +177,11 @@ dive check conformance/corpus/graph-empty-product/specifications/LazyEmptyProduc
 
 Empty enumeration does not turn the original Product into an ordinary empty-set
 receiver. For example, TLC still rejects `0 \in ((1..0) \X (0..0))` as non-tuple
-membership. Core preserves that receiver through records, tuples, function values,
+membership. dive preserves that receiver through records, tuples, function values,
 EXCEPT, `Append` and `:>` values. Non-tuple membership retains the demanded
 evaluation error, including after graph conversion. It exits 75; dive does not verify that the error has TLC's error class. Nested product comparisons, general set elements,
 function keys, state handoff and other unproved operator consumers retain explicit
-refusals. This checked receiver control errors on Core in both profiles:
+refusals. This checked receiver control errors in both profiles:
 
 ```sh
 dive check conformance/corpus/product-receivers/specifications/BaseValidIntervals/BaseValidIntervals.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --workers 1 --seed 0 --fp 0 --output json
@@ -209,7 +208,7 @@ dive check conformance/corpus/product-operations/specifications/OrdinaryProductC
 source order, as TLC does, in both profiles: `IsFiniteSet({} \X x)` is `TRUE`
 without asking whether `x` is a set. Record fields are different, because TLC
 checks them in the order it first stored the field names. With `--compat=tlc`
-Core follows that order, so `IsFiniteSet([zephyrAxis : {}, amberAxis : x] \X {x})`
+dive follows that order, so `IsFiniteSet([zephyrAxis : {}, amberAxis : x] \X {x})`
 is `TRUE` when `zephyrAxis` was met first. In the default profile fields are in
 canonical order, so every field must be a proved set before an empty field
 decides. A field such as `0` refuses with "Cardinality/IsFiniteSet of a Product
@@ -220,7 +219,7 @@ finiteness method still refuses. These checks preserve raw axes and the original
 later demands. The `reference-finiteness-demand` and
 `reference-finiteness-token-order` corpora record these controls.
 
-This state-dependent example exercises every override on Core:
+This state-dependent example exercises every override:
 
 ```sh
 dive check crates/dive-api/tests/fixtures/core-graphs/GraphsStep.tla --library-path crates/dive-eval/tests/fixtures/community-modules --compat=tlc --workers 4 --seed 0 --fp 0 --output json
@@ -240,8 +239,8 @@ the exact class identity, and removing or changing the class rejects recovery
 (see [storage and recovery](storage-recovery.md)). Every supported worker count
 gives the one-worker result: the same counts, depth, property, error class and
 exit code, with an independently validated counterexample. Simulation and DFID
-follow their own rules. The earlier one-worker restriction is recorded in
-[D-024](../tlc-differences.md#d-024-pinned-local-bits-checking-requires-one-worker).
+follow their own rules. See
+[D-024](../tlc-differences.md#d-024-the-hanoi-bits-override-gives-the-one-worker-result-at-any-width).
 This feature does not execute Java plugins.
 From the pinned Examples checkout, the affected model can be checked with:
 
@@ -277,7 +276,7 @@ dive check crates/dive-api/tests/fixtures/op-literal/specs/OlBagOfAll/OlBagOfAll
 ## Sequence replacement on the core
 
 `SequencesExt!ReplaceFirstSubSeq(r, s, t)` and `ReplaceAllSubSeqs(r, s, t)`
-run on Core on strings and on pure, materialized sequences whose
+run on strings and on pure, materialized sequences whose
 combined elements are all integers, all booleans or all strings. Empty
 sequences are allowed. This holds in both profiles and at any worker count.
 For sequence arguments, ReplaceFirst finds the earliest occurrence, including
@@ -331,7 +330,7 @@ keys without that lost history remain supported. Recursive domain and value
 conversion obey the evaluator depth limit. Symbolic/deferred domain-set printing
 and infinite JSON-array conversion refuse explicitly. `ToJsonArray`,
 `ToJsonObject`, `JsonSerialize`, `JsonDeserialize`, `ndJsonSerialize` and
-`ndJsonDeserialize` remain named refusals. The conversion needs no host access.
+`ndJsonDeserialize` remain named refusals. 
 
 State-time `ToJson` creates string names. When value or exploration order follows
 TLC (`--compat=tlc`), checking reports the existing sequential worker fallback
@@ -340,7 +339,7 @@ requested worker pool. The JSON output is the same either way, and independent t
 still refuses traces that depend on string names created after startup.
 
 The consumed `crates/dive-eval/tests/fixtures/json/JsonSupported.tla` and `.cfg`
-hold the pinned-oracle example (`ToJson(<<"x", TRUE, <<1,2>>>>)`
+hold an example checked against TLC (`ToJson(<<"x", TRUE, <<1,2>>>>)`
 returns `"[\"x\",true,[1,2]]"`). Run the fixture with:
 
 ```sh
@@ -367,18 +366,17 @@ nothing checked uses does not need `--allow-io=env`. `--compat=tlc` still
 refuses it: TLC's evaluation creates strings that change TLC's later value
 order.
 
-Core does not implement external inputs. A specification that reaches
+dive does not implement external inputs. A specification that reaches
 `IOUtils!IOEnv` or `IOUtils!Deserialize` refuses without a grant, naming the
-`--allow-io` category it needs; with the grant, Core refuses the run by name
+`--allow-io` category it needs; with the grant, dive refuses the run by name
 ("external inputs ... are not implemented on Core", exit 3) before any host
 operation. `dive validate-trace --inputs RUN.json` still replays the
 `external_inputs` records of an existing report offline, with exact
 operation, path and order checks and no specification I/O.
 
-For coverage details, see the [scoreboard](../scoreboard.md) and the
-reference inventory in `conformance/parity-surfaces.json`. The
-[maintained TLC differences log](../tlc-differences.md) describes approved changes
-and known limitations. 
+For coverage numbers, see the [scoreboard](../scoreboard.md). The
+[differences from TLC](../tlc-differences.md) describe every default difference
+and known limitation.
 
 `SVG!PointOnLine(from, to, segment)` has a bounded native path for literal stored
 records with `x` and `y` coordinates and a segment, all 32-bit integers. Both

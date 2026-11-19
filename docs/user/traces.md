@@ -1,34 +1,69 @@
 # Independent trace validation
 
-Validate a saved checker witness against the same specification and configuration:
+`dive validate-trace` replays a trace against a specification and
+configuration, independently of the checker that produced it, and answers
+`valid`, `invalid` or `unsupported`. Use it on a saved counterexample, a
+simulation sample, or a state sequence your implementation logged.
 
 ```sh
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --compat=tlc --seed 7 --fp 0 --output json > counter-result.json
-# The expected invariant violation exits 12; retain the document.
+# The invariant violation exits 12; keep the report.
 python3 -c 'import json; r=json.load(open("counter-result.json")); json.dump(r["counterexample"]["trace"], open("counter-trace.json", "w"))'
 dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --trace counter-trace.json --compat=tlc --seed 7 --fp 0 --output json
 ```
 
-For a saved finite simulation Behavior word, add `--sample`. This explicit operation
-checks Init/Next and all configured finite safety obligations on the actual rows,
-including constraints, invariants and implied initial/action properties. Its
-JSON report includes `validation_goal: "sample"`. A valid sample proves neither
-exhaustive safety nor liveness. Rust callers use `SpecModel::try_validate_sample`;
-lower-level owned sessions expose `Session::read_sampled`. Plain Behavior validation checks only the relation on a prefix. Sample validation
-also accepts a `deadlock` ending, checked as a simulation deadlock: every
-successor of the last state must fall outside the `CONSTRAINT`s and
-`ACTION_CONSTRAINT`s (`Session::read_sampled_deadlock`). It rejects other
-non-Behavior endings and refuses configured temporal properties and
-unproved projections; fairness alone does not constrain a finite sample.
+Pass the seed and fingerprint settings of the original run, which binding may
+depend on, and the same profile. The JSON report has `schema_version: 3`,
+`command: "validate-trace"` and `result`. The report version is separate from
+the trace document's own version. TLC `dumpTrace` JSON is also accepted.
 
-The JSON validation report uses `schema_version: 3`, `command: "validate-trace"`
-and `result: "valid" | "invalid" | "unsupported"`. The report version is
-independent of the trace document's own version.
+## What validation checks
+
+The validator rebuilds binding and startup from the original source and
+configuration for every validation, with its own evaluator, interner,
+registers and caches. It then checks:
+
+- that the first state is one Init produces, and every later state
+  follows from the previous one by the original next-state relation;
+- every configured safety obligation along the way, and the claimed ending;
+- for a lasso, the closing edge, the complete property claims and fairness.
+
+Every state must assign every variable; missing values are never guessed.
+Whether a state has a successor (inside a predicate, for a deadlock ending,
+and for `WF` and `SF` on a lasso) is decided by the same `ENABLED` search the
+checker and TLC use. An `ENABLED` with side effects, or one that cannot be
+decided, makes the result `unsupported`.
+
+`unsupported` names what could not be checked; it is never a decision. These
+always give it: executed random draws (`RandomElement`, `Randomization`),
+register access after Init, missing finite deadlock or `ENABLED` covers,
+effects, and unknown closing evidence. Decoding a document is separate from
+validating it, and the trace format has known representation gaps: a checker
+can emit a JSON set holding a sequence before a record that the decoder then
+rejects, in either profile.
+
+The lasso back edge in a trace document is zero-based; the checker summary's
+`back_to` is one-based. Validate the trace document rather than rebuilding a
+lasso from displayed states.
+
+## Simulation samples
+
+For a finite simulation word, add `--sample`. This checks Init, Next and all
+configured finite safety obligations on the rows (constraints, invariants and
+implied initial and action properties), and the report says
+`validation_goal: "sample"`. A plain Behavior validation checks only the
+relation. A sample may also end in `deadlock`: every successor of the last
+state must then fall outside the `CONSTRAINT`s and `ACTION_CONSTRAINT`s.
+Other endings are rejected, and configured temporal properties and unproved
+projections refuse; fairness alone does not constrain a finite sample. A valid
+sample proves neither exhaustive safety nor liveness. Rust callers use
+`SpecModel::try_validate_sample`, or `Session::read_sampled` and
+`Session::read_sampled_deadlock`.
 
 ## Trace format versions
 
 A counterexample is a JSON document with `"format": "dive-trace"` and a
-`version` that depends on how the trace ends:
+`version` set by how the trace ends:
 
 | Version | Ending | Section |
 | ---: | --- | --- |
@@ -39,224 +74,204 @@ A counterexample is a JSON document with `"format": "dive-trace"` and a
 | 5 | `temporal-source-row`: an error in a temporal property's source row | [Temporal source-row errors](#temporal-source-row-errors) |
 | 6 | `view-source-terminal`: an error while evaluating VIEW | [VIEW errors](reports-and-errors.md#view-errors) |
 
-Each ending has exactly one version, and a document may not be relabelled with
-another. Readers accept all six versions and fail closed on an unknown version
-or ending. Tags, endings and loop indexing follow the
+Each ending has exactly one version, and a document may not be relabeled with
+another. Readers accept all six and fail closed on an unknown version or
+ending. Tags, endings and loop indexing follow the
 [compatibility policy](reports-and-errors.md#report-compatibility).
 
-## Endings and their validation
+Validation of an error ending re-runs the real evaluation on fresh runtimes:
+the claimed source and codes are hints to confirm, never instructions about
+what to evaluate. Use the fallible Rust entry points for these endings (see
+[Rust APIs](#rust-apis)); the legacy infallible ones refuse them.
+
+## Endings
 
 ### Named invariant errors
 
-A final invariant evaluation error carries `kind: "invariant-error"`, its
-configured `name`, and the underlying error's `ec`, for example
-`TLC_VALUE_ASSERT_FAILED`. The check report normally uses the deciding class
-`TLC_INVARIANT_EVALUATION_FAILED` (2111) and TLC exit 76. These identify different
-parts of the same result: the validator must reproduce the claimed cause at the
-named invariant, after all earlier states and earlier configured invariants
-pass. A false Boolean invariant is not an evaluation error. Wrong names, wrong
-causes, an absent error, or an earlier failure invalidate the claim. An
-unsupported evaluation remains unsupported. 
-
-A later diagnostic replay can encounter a different error. In the qualified
-native invariant-site case with first report 2111 and deciding
-`TLC_NESTED_EXPRESSION` (2103), the word still names the original invariant and
-its original cause. Independent validation proves that named error on the
-finite word. It does not prove the later diagnostic replay's class or counts.
-The strict harness still refutes this wrapper/word pair; matching metadata is no substitute.
-
-Initial diagnostic states are separate from formal behavior counterexamples.
-The bounded initial receiver-error route keeps `counterexample`
-null and carries its original one-state word at `diagnostic_witness.trace`.
-That word still uses version 2, the configured invariant name and underlying
-`GENERAL` cause. Ordinary word validation proves that named cause; it does not
-establish fingerprint wrapper2147 or first report2102.
-
-Consumers must separately reconstruct the first Init emission and invariant, then the diagnostic receiver's method, constructor and source
-lifetime on a fresh session. `SpecModel::initial_invariant_class` supplies this
-distinct evidence. The strict source-bound reader also determines the actual
-initial lifecycle, so removing the auxiliary word and changing claimed report
-or site fields cannot select a no-word generation route. Genuine generation
-and existing materialization cases require their own matching diagnostic replay.
- Partial-Init `error_witness` keeps its separate meaning.
-
-The `invariant-error` ending requires version 2; a version-1 document carrying
-it fails closed. Example:
+An invariant evaluation error carries `kind: "invariant-error"`, the configured
+`name` and the underlying error's `ec`, for example `TLC_VALUE_ASSERT_FAILED`.
+The check report normally uses the deciding class
+`TLC_INVARIANT_EVALUATION_FAILED` (2111) and TLC exit 76. The validator must
+reproduce the cause at the named invariant after all earlier states and
+earlier invariants pass. A wrong name or cause, an absent error or an earlier
+failure makes the claim invalid; a false Boolean invariant is not an
+evaluation error.
 
 ```json
 {"format":"dive-trace","version":2,"variables":["x"],"states":[{"action":null,"values":{"x":0}},{"action":null,"values":{"x":1}},{"action":null,"values":{"x":2}}],"ending":{"kind":"invariant-error","name":"Inv","ec":"TLC_VALUE_ASSERT_FAILED"}}
 ```
 
-An excluded generated state may trigger the same invariant error again during
-diagnostic replay. Its deciding report can then use the underlying cause's code,
-while the first report remains 2111. The native word preserves the original
-invariant name and cause. Independent validation proves that logical claim.
+This ending requires version 2. A later diagnostic replay can hit a different
+error, so the report's deciding code (for example `TLC_NESTED_EXPRESSION`,
+2103, after a first report of 2111, or the underlying cause's own code) can
+differ from the trace. The trace keeps the original invariant and cause, and
+validation proves that claim only, not the later class or counts.
+
+An initial receiver error keeps `counterexample` null and puts its one-state
+word at `diagnostic_witness.trace`, still version 2 with the invariant name and
+`GENERAL` cause. Validating it proves that cause, not the fingerprint wrapper
+2147 or first report 2102. To confirm those, reconstruct the first Init
+emission and invariant with `SpecModel::initial_invariant_class`.
 
 ### Constraints on the last state
 
-The last state may be outside `CONSTRAINT`, or its entering step outside
-`ACTION_CONSTRAINT`, for a named invariant violation or evaluation error, or a
-named initial/action-property violation. Constraints are evaluated in order,
-stopping at the first false result. A constraint evaluation error or non-Boolean
-result invalidates a claim to a later safety failure; it is never skipped.
-Every earlier state and step must satisfy the applicable constraints. The named
-terminal check and all earlier configured safety checks must still pass their
-independent obligations. Generic constraint, action-property and expansion error
-claims keep their own checks and refusals; an anonymous error ending cannot
-stand in for a named invariant error. Partial-state errors are a separate form.
+For a named invariant violation or evaluation error, or a named initial or
+action property violation, the last state may be outside `CONSTRAINT`, or its
+step outside `ACTION_CONSTRAINT`. Every earlier state and step must satisfy
+them. Constraints are evaluated in order and stop at the first false one; an
+evaluation error or non-Boolean result invalidates a claim to a later failure.
+An anonymous error ending cannot stand in for a named invariant error.
 
 ### Error endpoints
 
-A certified temporal state-row error can carry `kind: "error"` with an optional
-`endpoint` describing its stage and original source context. The
-validator reconstructs the full configured demand independently and checks its
-first real error after validating the finite path. The descriptor cannot select
-an atom or scope. Generic errors without an endpoint remain unsupported; an
-endpoint is not a lasso, property violation, BFS-count or completion proof.
-Readers without endpoint support treat the ending as a generic unsupported error.
+An evaluation error can end with `kind: "error"` and an `endpoint` naming its
+stage and source:
 
-A Next error can use the closed `next-before-successor` stage.
-The validator checks the supplied finite path and earlier safety obligations,
-then rebinds another private source/configuration runtime for terminal replay.
-It runs the real configured actions in order and stops at the first candidate.
-An error before any complete or partial successor must have the exact claimed
-underlying code and original source context. Emitting a candidate first remains
-unsupported; completing generation without an error refutes the claim. The
-descriptor selects no action or expression to evaluate. For example:
+- `next-before-successor`: an error in Next before the first candidate. Replay
+  runs the configured actions in order and must hit the claimed code and source
+  before any complete or partial successor. Emitting a candidate first refuses;
+  finishing without an error invalidates the claim.
+- `next-ordered-terminal`: also carries `reported` and `deciding` codes, which
+  replay confirms by running the per-action diagnostic sequence. Exact
+  assertion 2132 also needs this.
+- A temporal state-row error reports its stage and source; see
+  [errors on a source row](temporal.md#errors-on-a-source-row).
 
 ```json
 {"kind":"error","ec":"TLC_MODULE_DIVISION_BY_ZERO","endpoint":{"stage":"next-before-successor","source":{"module":"M","start":40,"end":49,"instance":null}}}
 ```
 
-`next-before-successor` means an error before the first candidate.
-`next-ordered-terminal` adds `reported` and `deciding`
-integer codes to the source descriptor. Independent replay must observe the
-same primary error and then actually run the per-action diagnostic sequence to
-establish those codes. Changing the source, underlying class or wrapper claims
-refutes the word.  Exact
-assertion 2132 also requires this replay. These words are version 1.
-
-Earlier complete candidates receive ordered completeness, constraint,
-action-constraint, fingerprint and safety demands. Unknown global newness or
-alias history, raw/symbolic fingerprint representations, VIEW, symmetry,
-temporal obligations and executed effects remain named refusals. Pure bounded
-TLA-mode composition can reconstruct the actual source error. A tail that emits
-before failing cannot hide that earlier successor to certify a before-first
-error. Nested, effectful and alternate-mode composition retains named refusals;
-an untaken composition branch alone does not refuse. Other terminal evaluation sites gain
-no wrapper exemption. Generic errors without a source endpoint remain unsupported.
-
+These words are version 1. An endpoint is not a lasso, violation, count or
+completion proof, and a generic error without one is `unsupported`. Earlier
+complete candidates get the usual completeness, constraint, fingerprint and
+safety checks. These refuse by name: unknown newness or alias history, raw or
+symbolic fingerprints, `VIEW`, symmetry, temporal obligations, executed effects,
+and nested, effectful or non-TLA composition. Pure bounded composition in
+`tla` mode can reconstruct the source error.
 
 ### Partial candidates
 
-A Next action that leaves variables unassigned can carry a version-3 partial
-terminal descriptor. Its `states` array holds only the complete prefix;
-the ending separately names the assigned values, unassigned variables and actual
-generating source. Assigned and unassigned names must partition the model's
-variables. An unassigned slot is never the JSON encoding of an ordinary TLA
-value. Logical `length` includes the partial candidate: `ErNextIncomplete` has
-three complete rows plus its partial `x = 3`, `y` unassigned, so length four.
+A Next action that leaves variables unassigned ends with a version-3 partial
+descriptor. `states` holds only the complete prefix; the ending names the
+assigned values, the unassigned variables (together they cover every variable)
+and the generating source. Logical `length` counts the partial candidate:
+`ErNextIncomplete` has three complete rows plus a partial `x = 3` with `y`
+unassigned, so length four. Use `logical_length()` rather than counting rows.
 
 ```sh
 dive check crates/dive-api/tests/fixtures/checker/errors/specs/ErNextIncomplete/ErNextIncomplete.tla --workers 1 --seed 0 --fp 0 --output json > partial-result.json
-# The expected incomplete successor exits 75; retain its actual document.
+# The incomplete successor exits 75; keep the report.
 python3 -c 'import json; r=json.load(open("partial-result.json")); json.dump(r["counterexample"]["trace"], open("partial-trace.json", "w"))'
 dive validate-trace crates/dive-api/tests/fixtures/checker/errors/specs/ErNextIncomplete/ErNextIncomplete.tla --trace partial-trace.json --seed 0 --fp 0 --output json
 ```
 
-Validation separately reconstructs the complete prefix and terminal generator
-on fresh runtimes, requiring the first incomplete candidate's exact assignments
-and source. Every complete prefix row must pass configured constraints,
-invariants and implied safety properties before terminal replay. Earlier complete
-candidates receive the same bounded ordered demands; `RoActions` and
-`SplitThrows` are examples. Unknown newness or alias history, or an unsupported
-demand, refuses rather than skipping checks. Use `logical_length()` rather than counting complete rows. Resource/control
-failures return no completed validation report.
+From a source checkout, this replays the prefix with every constraint,
+invariant and implied safety property, then the generator, which must produce
+the same first incomplete candidate.
 
-An incomplete Init can provide an optional `error_witness`, while its
-formal `counterexample` remains null. Extract `error_witness` instead of
-`counterexample.trace` in the example above and use fixture `ErInitIncomplete`.
-Its initial error exits 255. The native version-3 word has no complete rows,
-logical length one, and `init-partial-state` with EC `TLC_INITIAL_STATE`.
-Validation reconstructs actual Init actions and requires their first partial
-candidate's source and exact assignment partition, with earlier-event priority.
-The first complete Init candidate can receive safety checks; later candidates
-requiring global newness refuse. `TLCGet("level")` observes level 1 in initial
-candidate checks, including implied initial properties; generation resumes at
-level 0 after each callback. Action checks use their predecessor level.
-A primed `TLCGet("level")`, which TLC evaluates at the successor's level,
-refuses the whole validation by name.
-The producer captures scalar bindings under
-the existing budget and leaves compound/unavailable evidence explicitly
-unconfirmed. 
+An incomplete Init keeps `counterexample` null and gives an `error_witness`
+instead; extract that in the example above and use `ErInitIncomplete`. Its
+error exits 255, and the version-3 word has no complete rows, logical length
+one and `init-partial-state` with `TLC_INITIAL_STATE`. Later Init candidates
+that need global newness refuse. `TLCGet("level")` is 1 in initial candidate
+checks and 0 while Init generates; action checks use their predecessor's level.
+A primed `TLCGet("level")` refuses the validation.
 
 ### Candidate errors
 
-Errors on a generated candidate use version 4. The last complete
-row is the actual generated candidate, rather than the state whose expansion
-fails. The closed `candidate-ordered-terminal` endpoint carries untrusted
-`site`, original `source`, `reported` and `deciding` codes. Supported sites are
-`constraint`, `action-constraint` and `implied-action`. Fresh replay must discover
-the first real error and exact candidate after checking the complete source
-prefix, then actually execute diagnostic generation/checks to prove its deciding
-code. VIEW, unknown
-newness/alias history, unproved top-level non-Boolean role results, raw fingerprint demand and
-executed effects remain unsupported. The witness certifies no BFS counts or
-TLC classifier result, and legacy infallible validation refuses it.
-
-This non-Boolean boundary depends on the actual operation reached. A named role
-that returns a non-Boolean value still has an unproved role classification and
-receives no agreement credit. An expression such as `[A]_e` can instead raise
-an actual source-qualified evaluator error when its inner action is not
-Boolean. That inner constructor error can be proved by both fresh replay phases;
-`ErPropNonBool` supplies a pinned control. 
+An error on a generated candidate ends with version 4 and a
+`candidate-ordered-terminal` endpoint carrying `site`, `source`, `reported`
+and `deciding` codes. The last complete row is the candidate itself, not the
+state whose expansion failed. Sites are `constraint`, `action-constraint` and
+`implied-action`. Replay must find the same first error on the same candidate
+and run the diagnostic checks to confirm the deciding code. `VIEW`, unknown
+newness or alias history, a named role that returns a non-Boolean, raw
+fingerprints and executed effects refuse. An expression such as `[A]_e` whose
+inner action is not Boolean raises a source error that replay can confirm
+(the `ErPropNonBool` control). The witness proves no BFS counts.
 
 ### Temporal source-row errors
 
-Temporal source-row errors after Next use version 5. Complete
-rows form the original finite prefix; its last row is the failing source.
-The closed `temporal-source-row` endpoint carries only the original row-error
-source (`module`, byte `start`/`end`, nullable `instance`); `ec` names its
-underlying error. A fresh source session independently enumerates Next and its
-candidate checks, proves the singleton self row, executes ordered action/state
-demand and its diagnostic, and derives the GENERAL (1000) and exit 255
-lifecycle. A serialized flag or matching header cannot certify that sequence.
-Distinct admitted targets, unproved lifetimes/order and reached tableau work
-remain unsupported. No partial successor, lasso or temporal-property violation
-is claimed. Use `Session::try_read` or `read_controlled`; the legacy infallible
-entrypoint refuses this form.
+An error in a temporal property's source row after Next ends with version 5 and
+a `temporal-source-row` endpoint (`module`, byte `start` and `end`, nullable
+`instance`); `ec` names the underlying error. The last complete row is the
+failing source. Replay enumerates Next and its candidate checks, confirms that
+the source's only successor is itself, runs the temporal checks in order and
+derives GENERAL (1000), exit 255. The word has one state and exactly one Init
+emission; longer prefixes, several Init emissions, other targets and reached
+tableau work refuse. No lasso or property violation is claimed.
 
-The supported case has a one-state word and exactly one complete Init
-emission, independently enumerated before terminal replay. Multi-state source
-prefixes and multiple initial emissions remain unsupported; no earlier temporal
-row is silently skipped.
+## TLC-profile names and randomness
 
-## Validating traces
+Under `--compat=tlc`, strings and model values compare in the order TLC first
+saw them. The validator knows that order for every name created while the
+model binds. If reading or checking the trace creates another name (a string
+the specification never mentions, or one that `ToString` or `Tail` builds),
+the result is `unsupported: runtime string encounter order`. Replay in this
+profile also accepts bounded tuple-valued variables, tuple sequence calls and
+finite tuple stacks owned by a process; arbitrary states and general saved
+stack histories refuse.
 
-Rust callers must use `SpecModel::try_validate`/`try_read`, or the corresponding
-fresh `dive_trace::Session` fallible/controlled entrypoint, for these endpoints.
-The legacy infallible entrypoints refuse the request before replay. Resource,
-interruption and execution exceptions return no validation report. Standalone
-`validate-trace` uses the fallible path: an aborted JSON operation has
-`validation_completed: false` and `error` with phase/progress, but no `result`.
-Its resource/interruption/internal statuses are 3/5/4. No new budget is installed
-by the uncontrolled fallible entrypoint. 
+Randomness with `VIEW` or `SYMMETRY` refuses before binding, even in unused
+definitions, untaken branches or configuration-selected operators. The one
+random Init supported is a single variable with `x = RandomElement(S)`, where
+`S` is a nonempty interval or a stored finite scalar set of at most 65,536
+entries. This checks that the witness is in the domain, not that a seed
+produced it: for `RandomElement(1..1000000)` with `Inv == x<0`, both 730968 and
+777 are valid initial witnesses, 1000001 is outside Init, and an in-domain
+value whose claimed ending is true is invalid.  Compound or lazy sets, empty, non-set or infinite domains, multiple
+variables, conditional or wrapped draws, random Next, `VIEW` or properties,
+and startup random definitions refuse. A function-valued non-set domain keeps
+EC2176.
 
-The validator checks Init and the original next-state relation independently of
-the checking engine. For pure relational Init predicates, it reconstructs actual
-initial emissions with the shared evaluator and compares them with the supplied
-first state. Empty product and record branches therefore contribute no states;
-they are not tested as membership predicates on an already assigned variable.
-Replay stops at a matching complete emission. Exhausting Init without a match
-rejects the word; an earlier source error or partial emission remains unsupported,
-and interrupted replay never reports validity. Effects and unresolved contexts
-retain their existing private replay restrictions.
-Every state must assign every spec variable; missing/partial states
-are not completed by guessing. The trace format normalizes value JSON and has known representation
-gaps. Successful decoding is separate from semantic validation. TLC dumpTrace
-JSON is also accepted as input.
+## Registers and startup
 
-Rust applications can validate their own observed state sequence:
+Integer and named registers work during constant binding and `ASSUME`s. If
+Init reads registers, the validator builds a single candidate in source order
+from conjunctions, definitions and `INSTANCE` expansion, variable equalities on
+constants or already set variables, and Boolean filters, then compares it with
+the first state. Disjunctions, quantified or membership assignments and
+unresolved reads refuse. Any register access after Init refuses, including in
+initial invariants and constraints, because other states may have changed the
+registers. Validation never reads or writes the caller's registers.
+
+```tla
+ASSUME TLCSet(1,42)
+Init == x=0 /\ TLCGet(1)=42
+Next == x'=x+1
+```
+
+A behavior starting at `x=0` validates against this. `Print` and `PrintT` keep
+their errors and return values during replay, but their output is discarded.
+Wall-clock and host I/O, exit or pause, live counters and system properties
+refuse when executed. `TLCGet("config")` reads the supplied seed and
+fingerprint, and is available after constant binding and before `ASSUME`s.
+
+## Language notes
+
+- Init predicates are replayed as generators, so empty product and record
+  branches produce no states. Replay stops at a matching emission; exhausting
+  Init without one invalidates the trace.
+- Lazy arguments and functions use the evaluator's caching, as TLC's
+  `LazyValue` does. An `ENABLED` query can use `SelectSeq` callbacks that read
+  primed data through an `INSTANCE`, keeping the hidden-variable cutoff when
+  inner and outer variables share a name. Effectful callbacks refuse.
+- Before entering an `INSTANCE ... WITH` substitution, the validator refuses a
+  binding from another model or one not marked pure.
+- Action composition (`A \cdot B`) validates in `tla` mode when both operands
+  are pure and finite, every first-stage state is complete and each
+  intermediate has at most one complete tail successor. `(x'=1) \cdot (x'=2)`
+  accepts the edge from `x=0` to `x=2` and rejects `x=9`. Fairness compares
+  the original and final states, so `(x'=1) \cdot (x'=0)` from `x=0` has a
+  successor but no nonstuttering one, and weak and strong fairness hold on the
+  `x=0` stuttering word. TLC's experimental implementation differs
+  ([D-022](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning)).
+  Modes `off` and `tlc`, nested composition, partial rows, several tail
+  successors, effects and preassigned variables refuse.
+
+## Rust APIs
+
+Validate your own observed state sequence:
 
 ```rust
 use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
@@ -270,222 +285,49 @@ let result = model.validate(&trace);
 assert_eq!(result.validation, Validation::Valid);
 ```
 
-Use a `Result`-returning surrounding function and add `serde_json` to the caller's
-dependencies. `Behavior` checks the supplied finite execution; it does not claim
-an invariant counterexample or exhaustive model proof. Counterexample endings
-and periodic lassos carry separate claims and closing-edge obligations.
+Call it from a function that returns `Result`, with `serde_json` as a
+dependency. `Behavior` checks the supplied finite execution, not an invariant
+counterexample or an exhaustive proof.
 
-The lower-level `dive_trace` API exposes `validate(&model, &trace)` and
-`validate_doc(&model, &document, &model_values)`. Neither takes a random replay
-token; a random draw during validation remains explicitly unsupported.
+- For error endings, use `SpecModel::try_validate` or `try_read`, or the
+  fallible or controlled `dive_trace::Session` entry points (`Session::try_read`,
+  `read_controlled`). Resource, interruption and execution failures return no
+  validation report. `dive validate-trace` uses the fallible path: an aborted
+  run reports `validation_completed: false` and an `error` with phase and
+  progress but no `result`, and exits 3, 5 or 4 for a resource, interruption or
+  internal failure.
+- `dive_trace::validate(&model, &trace)` and
+  `validate_doc(&model, &document, &model_values)` take no random replay
+  token, and raw bound-model validation refuses every executed draw and
+  register access.
+- `dive_trace::validate_controlled` takes a `dive_eval::HostControl` and returns
+  `Result<Report, ValidationRunError>`. An interrupted check returns a typed
+  interruption with its progress, never a result. The scope restores the
+  caller's host on return or unwind and refuses a registration from another
+  thread. It adds no resource policy to the legacy functions; binding,
+  `ASSUME`, value operations and document encoding are not interruptible.
+  Keep the `dive_eval::RECOMMENDED_STACK` thread size.
 
-For supplied native `Trace` values, `dive_trace::validate_controlled` accepts a
-generic `dive_eval::HostControl` and returns `Result<Report, ValidationRunError>`.
-An interrupted Init, Next, label, deadlock/`ENABLED`, or temporal/fairness check
-returns a typed interruption with actual completed-check progress; it cannot
-become `valid`, `invalid`, or `unsupported`.  Ordinary feature refusals and invalid words keep their existing
-reports. The control scope restores the caller's evaluator host and control on
-return or unwind, and refuses a registration owned by a different thread.
+### Negative controls
 
-This API does not add a resource policy to legacy `validate`, `validate_doc`,
-TLC interpretation scoring or uncontrolled validation.  The fresh controlled endpoint path separately retains its real
-control through reconstruction, ASSUME, finite checks and ordered replay.
-Legacy binding, `ASSUME`,
-quiet value work, and pure bulk/native operations retain their cooperative
-interruption limitations. Supplied deferred values can retain another
-evaluator, whose work this control does not govern; document encoding and
-decoding are also not controlled. Callers must retain the documented
-`dive_eval::RECOMMENDED_STACK` contract.
+`SpecModel::controls` and `SpecModel::mutants` build altered traces that must
+be invalid, and require a known shortest BFS counterexample. For simulation,
+DFID, multi-worker or liveness words, use `controls_with_mode` or
+`mutants_with_mode` with `ControlMode::Counterexample`, which keeps
+changed-value, truncated-claim, changed-claim and false-label controls and
+drops the distance-based ones, since a shorter or reordered word may also be
+valid. `ControlMode::ShortestBfs` adds drop-state, drop-first and swap
+controls. Every mutant must be invalid both directly and after a document
+round trip; a valid or unsupported mutant is a control failure, and an empty
+suite counts for nothing. Random redraw mutations are not available.
 
-`SpecModel::controls` and `SpecModel::mutants` require a known valid shortest
-BFS counterexample. For simulation, DFID, multi-worker or liveness words, use
-`controls_with_mode` or `mutants_with_mode` with `ControlMode::Counterexample`.
-The explicit `ControlMode::ShortestBfs` includes the same drop-state,
-drop-first and swap controls as the compatibility methods. Counterexample mode
-keeps changed-value, truncated-claim, changed-claim and false-label controls;
-it omits the distance-based mutations because a shorter or reordered word may
-also be valid. Mode selection does not search for shorter paths.
-
-Every generated mutant must be invalid through both direct validation and its
-document round trip. Valid or unsupported mutants are control failures; an
-empty negative suite receives no coverage credit. The positive and document
-round-trip checks remain the same in both modes and profiles. The harness's
-`dive-conformance trace-controls` selects shortest-BFS controls only for
-single-worker exhaustive finite counterexamples, using the model mode,
-golden worker count and ending. Random redraw mutations remain unavailable
-while random validation is unsupported.
-
-The pinned TLC regression fixture in
-[`crates/dive-api/tests/fixtures/mode-controls`](../../crates/dive-api/tests/fixtures/mode-controls)
-illustrates the distinction: simulation visits `0, 1, 4, 2, 3`, while BFS
-visits `0, 2, 3`. Dropping `4` leaves another valid counterexample, so it is
-not a negative control for that simulation. The fixture's consuming test runs
-both profiles:
+In the `mode-controls` fixture, simulation visits `0, 1, 4, 2, 3` while BFS
+visits `0, 2, 3`, so dropping `4` leaves another valid counterexample and is not
+a negative control for that simulation. From a source checkout:
 
 ```sh
 cargo test -p dive-api --test trace_control_modes --locked
 ```
 
-Validation distinguishes valid, invalid and explicitly refused. Random draws,
-search-dependent register access, unavailable finite deadlock/ENABLED covers,
-effects and unknown closing evidence do not become `valid`. Supply the original
-seed/fp for run-dependent model binding and use the checking profile. The in-memory lasso back edge is zero-based; checker
-summary `back_to` display is one-based. Prefer the supplied trace document over reconstructing a lasso from displayed
-states, and inspect its decoder and independent-validation result.
-
-See the `dive_api::trace` API documentation, the
-[temporal contract](../temporal-api.md) and the
-[validator independence design](../decisions/0016-trace-validator-independence.md).
-
-A known mixed-set limitation remains: a checker can emit a JSON set containing
-a sequence before a record that the decoder rejects at the shape check, in
-either profile. 
-
-Under `--compat=tlc`, strings and model values compare in the order TLC first
-encountered them. The validator knows that order for every name interned when
-the model is bound. If reading the trace or checking it creates any other
-name (a string the specification never mentions, or one an operator such as
-`ToString` or `Tail` builds on these states), the result is
-`unsupported: runtime string encounter order`, never `valid` or `invalid`.
-Executed random draws (`RandomElement`, `Randomization`) remain refused.
-The private direct initial-membership operation below checks support without
-drawing a value.
-
-Before entering an `INSTANCE ... WITH` substitution, whose strict bindings are
-evaluated eagerly, the validator refuses a binding from another model's
-context or one whose effects annotation is not pure. It trusts the IR's
-effects annotations; it does not re-prove them.
-
-Whether a state has a successor is decided by the core evaluator's `ENABLED`,
-the same search TLC's `Tool.enabled` performs and the checker uses. This
-covers `ENABLED` inside any predicate the validator evaluates, deadlock endings
-(`ENABLED Next` on the last state) and weak or strong fairness on a lasso. The
-validator still replays and checks every state and step of the counterexample
-itself; an `ENABLED` whose action has side effects, or that the evaluator cannot
-decide, makes the result `unsupported`, never a decision.
-
-### Initial-predicate level
-
-Init runs at startup level 0; generated-state invariants and implied initial properties run at level 1. The independent validator uses a distinct initial context and uses the usual state and action contexts after that. Random draws and register access after Init remain refused.
-
-Action composition (`A \cdot B`) validates in `tla` mode when both operand
-closures pass the existing pure finite inspection, every first-stage state is
-complete, and each intermediate has at most one complete tail successor.
-Replay uses the shared evaluator with its own host and fresh cache domain; it
-reads and checks the supplied Init, actual Next and closing edges, invariants,
-labels and claimed ending. For example, `(x'=1) \cdot (x'=2)` admits the edge
-`x=0` to `x=2` and rejects a supplied successor `x=9`.
-
-Public `enabled::enabled`, temporal predicates and `WF`/`SF` use the same bounded
-relation. Nonstuttering tests compare the original state with the final state.
-Thus `(x'=1) \cdot (x'=0)` from `x=0` has a successor but has no nonstuttering
-successor; weak and strong fairness hold on the `x=0` stuttering word. Pinned TLC's
-experimental implementation differs here ([D-022](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning)).
-
-Modes `off` and `tlc`, nested composition, partial rows, multiple tail successors,
-effects, unproved scopes and preassigned variables retain the named composition
-refusal. A nonstuttering subscript may follow the complete composed edge;
-other continuations remain refused. Untaken branches do not run. Random,
-register, runtime-name and host-grant checks retain their existing boundaries.
-Checked runnable sources and compact oracle facts are in
-`crates/dive-trace/tests/fixtures/composition/`; run
-`cargo test -p dive-trace --test composition --locked`.
-
-Replay evaluates lazy arguments and functions with the evaluator's caching, as TLC's `LazyValue` does.
-
-
-### Private startup registers
-
-`SpecModel::validate`, `read`, `validate_trace` and the CLI reconstruct binding
-and startup from the original source/configuration for every validation. Each
-TLC JSON interpretation has its own interner, evaluator, registers and caches.
-Changing the caller's evaluator registers cannot supply an initial value or
-change a validation, and validation does not write the caller's register file.
-
-Randomness combined with `VIEW` or `SYMMETRY` refuses before ordinary API
-binding or the first private startup attempt. This shares the checker's
-source/config policy, including unused definitions, untaken branches and
-configuration-selected random operators. 
-
-Integer and named registers are supported during real constant binding and
-ASSUMEs. If Init accesses registers, the validator determines a single candidate
-from empty variable slots, in source order, then compares it with the first
-trace state. Supported relations are ordered conjunctions, definition and
-INSTANCE expansion, direct variable equalities whose right sides use constants
-or already determined variables, and Boolean filters on determined variables.
-Disjunctions, quantified assignments, membership assignments and unresolved
-variable reads remain explicitly unsupported for this operation. When startup
-has not accessed a register, conservative predicate membership is available in a new runtime that refuses all register operations. It validates
-only the supplied word and makes no claim that unselected Init candidates lack
-writers. Every register access after Init, including initial invariants, constraints, optional
-labels and temporal checks, remains refused: other explored states may have
-changed those registers. The raw `dive_trace::validate(&Model, ...)` API retains
-its conservative register refusal.
-
-For example, this startup pattern validates a behavior starting with `x=0`:
-
-```tla
-ASSUME TLCSet(1,42)
-Init == x=0 /\ TLCGet(1)=42
-Next == x'=x+1
-```
-
-Use `SpecModel::from_source` with `INIT Init` and `NEXT Next`, then validate
-`TraceDoc::behavior(vec![json!({"x":0}), json!({"x":1})])`, as in the Rust
-example above. Random draws remain unsupported even in unused constant start-up definitions that execute. Print/PrintT preserve argument and rendering errors and return values during private startup and word validation;
-rendered replay output is discarded before any sink callback. Producer binding
-and runtime output remain separate from this quiet reconstruction.  Wall-clock/host I/O, exit/pause, live
-counters and system properties have no private-startup validation contract and
-remain named refusals when executed. Supply the run
-seed/fp when reading `TLCGet("config")`; the configuration becomes available
-after constant binding and before ASSUMEs, matching ordinary API binding.
-This validates the displayed behavior only.
-
-
-### Direct random initial membership
-
-Private sessions support exactly one variable and a complete Init consisting
-of `x = RandomElement(S)`. Zero-argument definition expansion and labels may
-expose that equality; surrounding Boolean relations, parameterized wrappers,
-native aliases/redirects and INSTANCE relations gain no random support.
-The shared evaluator evaluates `S` from empty initial slots with
-registers and host effects refused. It accepts nonempty intervals and stored
-finite scalar sets, using the profile's exact value membership. Stored sets
-have a 65,536-entry limit before normalization; compound and lazy set
-representations remain unsupported. A pure expression that evaluates to a supported stored set is allowed. Empty/non-set/infinite domains and domain
-evaluation errors retain their native error identity in an unsupported report;
-they are not reported as an ordinary out-of-domain witness.
-
-This checks witness validity, not reproduction of a seeded producer sample.
-For P9's `RandomElement(1..1000000)` and `Inv == x<0`, both 730968 and 777 are
-valid initial invariant witnesses; 1000001 is outside Init. An in-domain value
-whose claimed ending is true is invalid. The steps, earlier invariants and
-claimed ending still pass the normal independent checks.  Explicit configuration reads in S still use
-the supplied run metadata to determine the actual domain. No random host
-callback receives the witness,
-and the validator never searches for a seed or stream offset.
-
-Randomness with VIEW or SYMMETRY still refuses before binding, including
-unused, untaken and config-selected random references. 
-
-Startup register effects cannot be combined with this relation. Executed
-startup random definitions (including failed/unused definitions), cached or
-coupled draws, multiple variables, conditional/discarded/wrapped draws, random
-Next/VIEW/properties and other random operations retain sticky refusal. The
-ordinary conservative word-membership fallback retains its existing treatment
-of untaken branches and grants no random or register access. Raw bound-Model validation still refuses every
-executed draw. Every interpretation and repeated validation gets a fresh Core,
-interner and caches; caller registers, cached samples and the stream position are never reused.
-
-Candidates and stored entries are scalar. Strings/model values require tokens
-that resolve to their exact text in the private interner. Assigned public states,
-compound candidates, compound stored entries and Deferred domains (including
-cached Deferred sets) refuse before normalization/member callbacks. The public
-helper takes Const or empty Init with the exact slot count and no successor, and does not enable random evaluation elsewhere. Function-valued non-set
-domains retain EC2176 with a static diagnostic, avoiding nested-value formatting.
-
-A reached `ENABLED` query can use `SelectSeq` callbacks that read primed data
-through an `INSTANCE`; replay evaluates them with the core evaluator, which keeps
-the hidden-variable cutoff when inner and outer variables have the same name.
-Effectful callbacks remain refused. 
-
+See the `dive_api::trace` API documentation and the
+[temporal contract](../temporal-api.md).

@@ -12,8 +12,8 @@ cargo install dive-cli --locked
 ```
 
 The C compiler (`cc`) is needed because dive links the mimalloc allocator.
-Release builds use whole-program link-time optimisation, so the install takes
-longer than a debug build.
+Release builds use whole-program link-time optimization, so the install takes
+a few minutes.
 
 To install the current `main` from Git instead:
 
@@ -36,7 +36,7 @@ tar -xzf "$name.tar.gz"
 install -m 755 "$name/dive" "$name/tlc" ~/.local/bin/
 ```
 
-The archive also holds the licence files of the bundled TLA+ libraries.
+The archive also holds the license files of the bundled TLA+ libraries.
 
 ## From a source checkout
 

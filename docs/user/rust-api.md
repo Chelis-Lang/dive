@@ -13,8 +13,7 @@ exact versions of the others, so depend on `dive-api` alone. To build against
 an unreleased checkout instead, use a path dependency such as
 `dive-api = { path = "../dive/crates/dive-api" }`.
 
-The caller needs Rust 1.99 or later. Normal checking is native;
-the Java conformance harness is a separate developer tool.
+The caller needs Rust 1.99 or later, and no JVM.
 
 ```rust
 use dive_api::{CheckRequest, check_file};
@@ -38,10 +37,10 @@ report: check its verdict, refusal, completion and validation before you
 treat the model as checked. API errors also distinguish rejected inputs, I/O, named unsupported
 requests and internal failures.
 
-For pure Core safety, `CheckRequest.store_compact_bytes = Some(0)` with
+For pure safety checks, `CheckRequest.store_compact_bytes = Some(0)` with
 `check_file(&request)` reclaims expanded persistent values
 after each completed level. A positive value triggers reclamation when the
-measured Store bytes exceed it; it is not a hard cap on live memory. `None` uses Core's default 256 MiB trigger
+measured Store bytes exceed it; it is not a hard cap on live memory. `None` uses the default 256 MiB trigger
 on pure fingerprint safety BFS, which does not change results. The same field may be enabled for
 `check_file_checkpoint` recovery-only requests. See the supported
 combinations, retained values and metrics in [storage and recovery](storage-recovery.md).
@@ -55,7 +54,7 @@ worker's own report says nothing about the model; only the coordinator's
 result does.
 
 The repository includes an independent consumer Cargo project and executable
-`#[test]` examples for ordinary public API workflows:
+`#[test]` examples for public API workflows:
 
 ```sh
 scripts/test-rust-consumer.sh
@@ -65,7 +64,7 @@ The script compiles that project with its own locked dependency graph, outside
 the workspace's feature union. It then runs the compiled tests with an empty
 `PATH`, so Java and the `dive` executable cannot satisfy the workflow. It uses
 the checkout's own `target/` and needs Cargo and Python only while preparing the
-test executable. The tests call the public library on Core for:
+test executable. The tests call the public library for:
 
 - successful checks and independently validated violations;
 - seeded constructive samples;
@@ -79,18 +78,18 @@ Each test inspects the report it gets back. The project is in
 for a Rust application's own specifications and recorded behaviors.
 
 `CheckRequest.source_coverage` and `CheckRequest.tlc_coverage` are named
-refusals (`ApiError::Unsupported`): Core does not collect source or TLC
+refusals (`ApiError::Unsupported`): dive does not collect source or TLC
 logical coverage.
 
 Low-level callers may supply predicate and action scopes. Scope ownership and
 expression references are checked before backend startup. Parallel graph capture
-and DFID also inspect actual captured callables for printing, randomness, I/O or
+and DFID also inspect captured callables for printing, randomness, I/O or
 live checker reads; a caller-supplied constant-level annotation cannot hide those
 effects. These scopes refuse before worker execution or output. Pure captured
 operators remain usable, and `Evaluator::scope_has_effects` exposes this
 non-evaluating effects check without forcing stored values or callbacks.
 
-Low-level graph consumers implement `dive_runtime::capture::Observer`. Core
+Low-level graph consumers implement `dive_runtime::capture::Observer`. dive
 builds its behavior graphs itself. Observation requires one worker; `--compat=tlc` uses the same
 hook semantics. Methods are inert by default.
 `init` receives accepted roots after Init succeeds. `edge` receives original
@@ -106,7 +105,7 @@ observer edges contain only emitted successors and implicit stutters. Other
 stateful checking reasons remain refused. The default `tla` composition mode
 counts emitted successors and can use the ordered parallel executor.
 
-A callback error or panic stops exploration with the actual boundary counters
+A callback error or panic stops exploration with the boundary counters
 and no completed graph. A failed Init or partial level supplies no completion
 event, and an earlier safety failure retains its verdict and counterexample.
 Prefix graphs can support independently validated violations; absence of a
@@ -135,9 +134,9 @@ boundary with an unfinished frontier. Both preserve original failures and budget
 stops. Their `evidence()` and `into_evidence()` expose the same graph-independent
 facts. These low-level APIs do not evaluate the opaque rows
 or certify temporal properties. The limits are the usual `capture::Limits`.
-Core's temporal checking
+dive's temporal checking
 uses native retained rows and checked CSR, without a retained value graph. The `capture_csr` and `capture_evidence` tests build checked CSR and
-producer evidence from actual captures; run
+producer evidence from captures; run
 `cargo test -p dive-liveness --test capture_csr --test capture_evidence --locked`.
 
 After temporal analysis, `Analysis::into_native()` and
@@ -148,7 +147,7 @@ result from `NativePrefix`. Words retain their property set, concrete states,
 closing position and original edge metadata, and still require independent
 validation. Prefix facts cannot become a holding result. The other analysis
 entrypoints keep their return types.
-Core reads these results directly when it builds its reports. Releasing the
+dive reads these results directly when it builds its reports. Releasing the
 graph frees memory; it does not let a capture grow larger or prove more.
 
 The native producer uses `GraphCheck::native_level_due(stats)` before scanning
@@ -178,12 +177,12 @@ and eager admission always converts. Only the values a check asks for and the
 bounded cache are kept in memory.
 `GraphCheck::level`, `finish` and `finish_prefix` are also available.
 
-Core's `temporal::Report::outcome()` returns one of these boxed variants, or
+dive's `temporal::Report::outcome()` returns one of these boxed variants, or
 `Safety` with the ordinary safety result:
 
 | Native outcome | Accessible evidence |
 | --- | --- |
-| `NativeHolds` | `CompleteEvidence`: actual exhausted safety result, options, counters and completion receipt |
+| `NativeHolds` | `CompleteEvidence`: exhausted safety result, options, counters and completion receipt |
 | `NativeViolation` | `ValidatedNativeCounterexample`: `word()`, complete `evidence()`, `document()`, `validation()` |
 | `NativePrefixViolation` | `ValidatedNativePrefix`: `word()`, unfinished-prefix `evidence()`, `document()`, `validation()` |
 
@@ -191,29 +190,28 @@ Validated wrappers have private constructors. Each selected word passes fresh
 independent typed and serialized replay after the native graph, converter, store and plan
 are dropped. `NativeWord` alone is unvalidated; a validation marker or
 caller-supplied CSR cannot construct a validated outcome. JSON retains schema 3, existing trace
-endings and actual completion/worker/collision/output metadata. The core example
-and report meanings are in the [temporal guide](temporal.md#native-graph-capture-with-the-core-engine).
+endings and completion/worker/collision/output metadata. The core example
+and report meanings are in the [temporal guide](temporal.md#metrics).
 
 | Entry | Meaning |
 | --- | --- |
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
 | `analyze_source` / `analyze_file` | Resolved semantic analysis |
 | `parse_config_source` / `parse_config_file` | Configuration reading |
-| `check_file` | Safety and temporal checking on Core (`TemporalMode::Ordinary`, the only mode); read the route and completion in the report |
+| `check_file` | Safety and temporal checking (`TemporalMode::Ordinary`, the only mode); read the route and completion in the report |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
-| `CheckRequest::host_access` | Explicit env/files/exec permissions; a named refusal on Core |
+| `CheckRequest::host_access` | Explicit env/files/exec permissions; a named refusal |
 | `host_inputs::inputs_from_report` / `TraceOptions::inputs` | Explicit external assumptions for fresh offline source replay |
 | `translate_source` / `translate_file` | Admitted in-memory PlusCal artifact |
 | `prepare_translation_file` / `write_translation_file` | Explicit admitted module, backup and merged cfg publication; prepared publication checks concurrent edits |
 | `original_ast_source` / `write_original_ast_file` | Separate original AST bytes/publication; a successful AST file write retains pinned exit 255 |
 | `trace::SpecModel` | Independent implementation/witness replay |
-| `CheckReport::temporal_result` / `temporal_failure` | Core temporal report with private validated violations, or its typed failure |
+| `CheckReport::temporal_result` / `temporal_failure` | Temporal report with private validated violations, or its typed failure |
 | `check_file_checkpoint` | Bounded safety pause and recovery |
 
 Request fields make profile and module resolution explicit. Rust APIs do not
-implicitly adopt the CLI's environment-variable parsing. Reports preserve actual
-worker widths, seeds, limits and mode qualifications; retain these alongside the
+implicitly adopt the CLI's environment-variable parsing. Reports preserve worker widths, seeds, limits and mode qualifications; retain these alongside the
 source/configuration in a `cargo test` failure artifact.
 
 Low-level crates expose syntax, IR, values, evaluation, stores and staged temporal
@@ -222,7 +220,7 @@ constructing a graph or marking a validation boolean does not supply a certified
 model result. The trace crate decides `ENABLED` with the core evaluator and
 shares nothing else with the checker.
 
-`dive-store` keeps what Core uses: `state::{StateFingerprinter, state_key}`,
+`dive-store` keeps what dive uses: `state::{StateFingerprinter, state_key}`,
 `StoreMode`, the [disk seen-state set](disk-seen-library.md), the ordered
 frontier spill and the predecessor log.
 
@@ -261,6 +259,5 @@ a stopped report never has `model_proved: true`. One budget covers execution,
 retained-state serialization checkpoints and fresh finite-word validation.
 See the mode guides for the after-loading scope and uninterruptible value units.
 
-`simulate_file` and `dfid_file` run compiled finite execution on Core, the
-only engine. A reached refusal is never retried. Reports name the engine that
+`simulate_file` and `dfid_file` run compiled finite execution. A reached refusal is never retried. Reports name the engine that
 ran. Seeded reproduction needs the same request settings.

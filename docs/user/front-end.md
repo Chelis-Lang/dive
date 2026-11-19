@@ -24,9 +24,9 @@ Reports retain diagnostics and expose `accepted()` and `to_json(...)`.
 Invalid UTF-8 files are decoded with replacement and a `DIVE-S0007` warning;
 losslessness then refers to the decoded text.
 
-Diagnostics carry stable codes and source locations. What the parser and
-analyzer accept is compared against the pinned SANY. The syntax and analysis
-crates can be used without the model checker.
+Diagnostics carry stable codes and source locations, and `dive analyze`
+accepts and rejects what SANY does. The syntax and analysis crates can be used
+without the model checker.
 
-[Modules](modules.md) explains how resolved module sources differ from the
-operators Core evaluates natively.
+[Modules](modules.md) explains which library operators dive evaluates natively
+and which it reads from their TLA+ sources.

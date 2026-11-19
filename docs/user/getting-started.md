@@ -29,6 +29,3 @@ Before you treat a result as a certificate, read
 [reports and errors](reports-and-errors.md) and
 [trace validation](traces.md). For your own specifications, start with
 [safety checking](checking.md).
-
-Model checking needs no JVM. Only the developer conformance harness downloads
-a pinned JRE and Java oracle, to compare dive with TLC.

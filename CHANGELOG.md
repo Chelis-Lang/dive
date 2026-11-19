@@ -112,7 +112,7 @@ The first release.
 
 ### Differences from TLC
 
-- The default profile uses canonical TLA+ semantics where TLC's behaviour is
+- The default profile uses canonical TLA+ semantics where TLC's behavior is
   an implementation artifact: unbounded integers, canonical CHOOSE and print
   order, canonical exploration order, and mathematical comparisons of values
   TLC rejects. Each difference is registered in

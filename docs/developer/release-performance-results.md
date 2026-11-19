@@ -1,27 +1,33 @@
-# Release performance results
+# Performance
 
-The measured results of the [release performance plan](release-performance-plan.md)
-for dive 0.1.0. R2 is the only hard gate. Every other figure is directional:
-it is an aim and is recorded so that regressions are visible. Correctness is
-never directional: every timed run below agrees with its TLC golden unless
-the table says otherwise. The records are compact JSON files in
+How fast dive 0.1.0 is against TLC, how much memory it uses, and how it
+scales, measured on tlaplus/Examples on dedicated machines. In short: at one
+worker dive takes about a fifth of TLC's time on the geometric mean, with no
+model above twice TLC's time, and uses tens to hundreds of MiB where TLC uses
+about a GiB. Safety checks scale with workers; temporal checks mostly do not.
+
+Every timed run below agrees with its TLC result unless the table says
+otherwise: verdict, distinct and generated counts at one worker, depth,
+violated property and exit code. The headline speed measurement (R2 below) was
+a release requirement; the other figures are recorded so that regressions are
+visible. The records are compact JSON files in
 [`conformance/reports/perf/`](../../conformance/reports/perf/README.md), whose
-README is the data-set index and field dictionary; each section names its
-record. The scripts that produced them are in
+README indexes the data and fields; each section names its record. The scripts
+that produced them are in
 [`scripts/perf/release/`](../../scripts/perf/release/README.md).
 
 ## Summary
 
 | Measurement | Result | Record |
 |---|---|---|
-| D1, R2 gate | **Pass.** Core / TLC geomean 0.195x over the 169 agreeing models (fixed-set geomean 0.211x), median 0.148x. No model above 2x. Two above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `2026-11-18-r2-procedure-08a14fba.json` |
-| D2, memory | Benchmark set, default profile: dive peaks at 37 to 110 MiB at 1 worker and 147 to 286 MiB at 8, against 795 to 1,449 MiB for TLC at `-Xmx3g`. Liveness capture: 64 temporal models, none stopped; 62 match their golden and 2 match a registered divergence; the largest is `aba_asyn_byz` at 4,523 MiB for 5.8 million states. | `2026-11-18-release-d2-memory-08a14fba.json` |
-| D3, exact store | All 15 models agree under both stores. Exact costs 1.00x to 1.30x the fingerprint store's time and 0.95x to 2.68x its peak RSS. | `2026-11-18-release-d3-store-08a14fba.json` |
-| D4, worker scaling | Safety models scale: median speed-up over the 47 large-class models 2.26x at 4 workers and 4.04x at 8, up to 7.6x (`PConProof`). Models with temporal properties mostly do not: 15 of the 17 that run at 8 workers stay between 0.50x and 1.40x, six of them slower than at 1 worker (#1028). Two refuse at more than one worker (#1020). | `2026-11-18-release-d4-scaling-08a14fba.json` |
-| D5, startup and throughput | `dive --version` 1.5 ms, `dive parse` 1.3 ms and a full `dive check` of a small model 4.9 ms (medians of 50). Trace validation 7 to 47 ms per trace, all valid. The bosco simulation stops at its 16 GiB budget (#1024). | `2026-11-18-release-d5-throughput-08a14fba.json` |
-| D6, stop latency | Time budgets stop 4 to 40 ms after the limit (median per cell, load time subtracted; worst single run 170 ms). State and depth ceilings stop exactly at the ceiling, with no overshoot. | `2026-11-18-release-d6-stop-latency-08a14fba.json` |
-| D7, macOS (informational) | On an Apple M3 laptop, Core / TLC geomean 0.354x at 1 worker and 0.347x at 4 workers over six benchmark models, all agreeing. | `2026-11-18-release-d7-macos-08a14fba.json` |
-| S7, Sail+dive against standard TLC (release gate) | Best case 27x to 39x faster than TLC per check on the smallest specifications (warm MCP 18.4 ms and `sail runtime execute` 12.8 ms against 491 ms on DieHard), and 12.6x over 100 mixed small checks in one MCP session (6.7 s against 84.5 s). Typical: 9x to 17x on small liveness models, 2.4x at 14,365 states, 1.1x on MCLamportMutex. Before the Sail #765 fix the same paths were 0.9x to 4.0x. All jobs agreed with their goldens. | `2026-11-19-release-s7-sail-vs-tlc-ce94df74.json` |
+| Speed (R2) | **Pass.** dive / TLC geomean 0.195x over the 169 agreeing models (fixed-set geomean 0.211x), median 0.148x. No model above 2x. Two above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `2026-11-18-r2-procedure-08a14fba.json` |
+| Memory | Benchmark set, default profile: dive peaks at 37 to 110 MiB at 1 worker and 147 to 286 MiB at 8, against 795 to 1,449 MiB for TLC at `-Xmx3g`. Liveness capture: 64 temporal models, none stopped; 62 match their golden and 2 match a registered divergence; the largest is `aba_asyn_byz` at 4,523 MiB for 5.8 million states. | `2026-11-18-release-d2-memory-08a14fba.json` |
+| Exact store | All 15 models agree under both stores. Exact costs 1.00x to 1.30x the fingerprint store's time and 0.95x to 2.68x its peak RSS. | `2026-11-18-release-d3-store-08a14fba.json` |
+| Worker scaling | Safety models scale: median speed-up over the 47 large-class models 2.26x at 4 workers and 4.04x at 8, up to 7.6x (`PConProof`). Models with temporal properties mostly do not: 15 of the 17 that run at 8 workers stay between 0.50x and 1.40x, six of them slower than at 1 worker (#1028). Two refuse at more than one worker (#1020). | `2026-11-18-release-d4-scaling-08a14fba.json` |
+| Startup and throughput | `dive --version` 1.5 ms, `dive parse` 1.3 ms and a full `dive check` of a small model 4.9 ms (medians of 50). Trace validation 7 to 47 ms per trace, all valid. The bosco simulation stops at its 16 GiB budget (#1024). | `2026-11-18-release-d5-throughput-08a14fba.json` |
+| Stop latency | Time budgets stop 4 to 40 ms after the limit (median per cell, load time subtracted; worst single run 170 ms). State and depth ceilings stop exactly at the ceiling, with no overshoot. | `2026-11-18-release-d6-stop-latency-08a14fba.json` |
+| macOS (informational) | On an Apple M3 laptop, dive / TLC geomean 0.354x at 1 worker and 0.347x at 4 workers over six benchmark models, all agreeing. | `2026-11-18-release-d7-macos-08a14fba.json` |
+| Sail with dive against TLC | Best case 27x to 39x faster than TLC per check on the smallest specifications (warm MCP 18.4 ms and `sail runtime execute` 12.8 ms against 491 ms on DieHard), and 12.6x over 100 mixed small checks in one MCP session (6.7 s against 84.5 s). Typical: 9x to 17x on small liveness models, 2.4x at 14,365 states, 1.1x on MCLamportMutex. Before the Sail #765 fix the same paths were 0.9x to 4.0x. All jobs agreed with their goldens. | `2026-11-19-release-s7-sail-vs-tlc-ce94df74.json` |
 
 ## Source, machine and method
 
@@ -29,17 +35,18 @@ record. The scripts that produced them are in
 |---|---|
 | Source | `08a14fbac83ff71a3247623fb10bf0584bc83be5` (`main`, dive 0.1.0 candidate) |
 | dive binary | `cargo build --release --locked -p dive-cli --bins` on one node, no `RUSTFLAGS`, copied to the others; SHA-256 `97675f9d446dbd188684f9f519e1313a86ae7e7faf57a7964d42d1115498e014` |
-| Oracle | TLC `tlc-2026.10.06.014338`, pinned JRE, `--xmx 24g` (D2's TLC column: `-Xmx3g`) |
+| Oracle | TLC `tlc-2026.10.06.014338`, pinned JRE, `--xmx 24g` (memory table's TLC column: `-Xmx3g`) |
 | Corpus | tlaplus/Examples `6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f` |
 | Nodes | c7i.metal-24xl in us-east-1: Intel Xeon Platinum 8488C, SMT off, turbo off, 2.4 GHz fixed, performance governor; one NUMA node with 48 CPUs; gp3 at 16000 IOPS and 1000 MiB/s; Ubuntu 24.04.5 LTS, kernel 7.0.0-1017-aws, THP `madvise` |
 | Binding | `numactl --cpunodebind=0 --membind=0` for every timed run (all 48 CPUs) |
 | Environment | `env -i` with only `PATH`, `HOME` and `DIVE_CACHE_DIR`; page cache warmed before timing; one checker at a time per node |
 | Raw output | dive evidence archive bucket (us-east-1), prefix `release-perf/2026-11-18/`, cited by SHA-256 in each record |
 
-Five on-demand nodes ran D1. One ran D1's small class and then D5, D3, D6 and
-D2. Four each ran one D1 large shard and then D4 on that shard's models.
+Five on-demand nodes ran the speed measurement. One ran its small class and
+then the startup, store, stop-latency and memory measurements. Four each ran
+one large shard and then worker scaling on that shard's models.
 Large models were sharded by longest processing time on the golden TLC times,
-and each node timed TLC and Core on its own shard. D4's later repetitions ran in parallel on five additional spot nodes of the same type, image and setup; the D4 record names the node of every repetition.
+and each node timed TLC and dive on its own shard. the scaling measurement's later repetitions ran in parallel on five additional spot nodes of the same type, image and setup; the scaling record names the node of every repetition.
 
 The binary was built once and copied, because independent builds of the same
 source on different nodes were not byte-identical. Every node ran the binary
@@ -50,11 +57,11 @@ counts at one worker, depth, violated property and exit code. A run that
 stops at its time or memory budget is reported as stopped. It is never
 dropped or retried until it fits.
 
-## D1: R2 gate
+## Speed against TLC (R2)
 
 The [R2 measurement procedure](performance.md#r2-measurement-procedure),
 driven by a script around `dive-conformance` while #983 is open. A `--jobs 1`
-TLC pass over the 175-model selection, taken before any Core run, put 127
+TLC pass over the 175-model selection, taken before any dive run, put 127
 models in the small class (TLC under 10 s) and 48 in the large class.
 
 - **Small class** (121 agreeing models): six repetitions in one session,
@@ -64,16 +71,16 @@ models in the small class (TLC under 10 s) and 48 in the large class.
   near 1x and got three fresh back-to-back pairs: `MCKVSSafetyMedium` (first
   pass 0.91x, pairs 0.90x, 0.91x, 0.90x) and `EWD998Chan` (0.98x; pairs
   1.02x, 0.98x, 0.99x). Geomean 0.315x.
-- **Excluded:** six small models that Core refuses by name (unsupported
+- **Excluded:** six small models that dive refuses by name (unsupported
   features). They count as 2x in the fixed-set geomean of 0.211x.
 
 The overall geomean is 0.195x, the same as the 2026-11-10 record to three
 places, although 114 per-model ratios moved by more than 0.0001. The two
 models above 1x are the same two as in that record and already have issues.
 
-### D1 models above 0.9x and the largest models
+### Models above 0.9x and the largest models
 
-| Model | Class | Core / TLC | TLC s | Core s |
+| Model | Class | dive / TLC | TLC s | dive s |
 |---|---|---:|---:|---:|
 | `KeyValueStore/MCKVsnap` | large | 1.198 | 14.11 | 16.89 |
 | `allocator/AllocatorImplementation` | small | 1.166 |  |  |
@@ -91,7 +98,7 @@ models above 1x are the same two as in that record and already have issues.
 | `MultiCarElevator/ElevatorLivenessLarge` | large | 0.239 | 1,879.76 | 449.30 |
 | `SpanningTree/SpanTreeTest5Nodes` | large | 0.167 | 676.69 | 113.20 |
 
-## D2: memory
+## Memory
 
 Two parts on the small-class node. The benchmark-set part runs the ten
 models of `crates/dive-bench/benchmarks.toml` with `dive-bench` at 1 and 8
@@ -103,7 +110,7 @@ The liveness part runs every R1 agreeing model whose report says
 `check_kind: temporal`, found by probing each model with a `PROPERTY` once,
 three repetitions at one worker under `/usr/bin/time -v`. The second batch of the liveness part was split across the small-class node and one large-shard node of the same type to finish sooner; the record says which runs ran where. `MCKVsnap` (D-005, unreduced symmetry with liveness) and `SpanTreeRandom` (D-002, dive's own seeded random streams) differ from the golden counts exactly as registered in `conformance/expected-divergences.toml`; every other model matches its golden. In the benchmark set, the `--compat=tlc` profile at one worker is slower than TLC on `GameOfLife` (20.58 s against 12.08 s) and `TLCSailfish1` (72.70 s against 51.69 s); the default profile is faster than TLC on every model.
 
-### D2 benchmark set peak RSS (MiB, median of 5)
+### Benchmark set peak RSS (MiB, median of 5)
 
 | Model | Profile | Workers | dive RSS | dive range | TLC RSS | dive s | TLC s |
 |---|---|---:|---:|---|---:|---:|---:|
@@ -148,7 +155,7 @@ three repetitions at one worker under `/usr/bin/time -v`. The second batch of th
 | TLCSailfish1 | default | 8 | 221 | 202–246 | 1,349 | 5.61 | 8.12 |
 | TLCSailfish1 | tlc | 8 | 228 | 208–237 | 1,349 | 10.20 | 8.12 |
 
-### D2 liveness capture RSS (median of 3)
+### Liveness capture RSS (median of 3)
 
 | Model | Distinct | Peak RSS MiB | Observed max MiB | Store lower bound MiB | Bytes/state | Wall s | Agrees |
 |---|---:|---:|---:|---:|---:|---:|---|
@@ -217,7 +224,7 @@ three repetitions at one worker under `/usr/bin/time -v`. The second batch of th
 | `nbacg_guer01/nbacg_guer01` | 24922 | 63 | 64 | 1 | 2662.5 | 0.86 | yes |
 | `tcp/MCtcp` | 1182 | 39 | 39 | 1 | 34673.9 | 0.11 | yes |
 
-## D3: exact versus fingerprint store
+## Exact versus fingerprint store
 
 `dive check --store exact` against the default fingerprint store, three
 repetitions with the store order alternating, on the ten benchmark-set models
@@ -225,9 +232,9 @@ and five liveness models. Both stores give the golden verdict, counts and
 depth on every model. The exact store keeps every state, so it costs memory
 on the models with many states per second of work (`MCbtree` 2.68x,
 `MCBakery` 2.54x, `MCLamportMutex` 2.45x). On the liveness models, where the
-behaviour graph dominates memory, it costs 0.95x to 1.15x.
+behavior graph dominates memory, it costs 0.95x to 1.15x.
 
-### D3 exact versus fingerprint store (median of 3)
+### Exact versus fingerprint store (median of 3)
 
 | Model | fp s | exact s | time exact/fp | fp RSS MiB | exact RSS MiB | RSS exact/fp | Agrees |
 |---|---:|---:|---:|---:|---:|---:|---|
@@ -247,14 +254,14 @@ behaviour graph dominates memory, it costs 0.95x to 1.15x.
 | `ewd998/EWD998PCal` | 15.06 | 16.18 | 1.075 | 49 | 109 | 2.223 | yes |
 | `lamport_mutex/MCLamportMutex` | 12.41 | 14.22 | 1.146 | 108 | 266 | 2.451 | yes |
 
-## D4: worker scaling
+## Worker scaling
 
 `dive-bench --profile default --workers 1,4,8 --reps 3 --timeout 3600 --xmx 24g` on the 47
 large-class models that have a success golden (`dive-bench` needs one, so
 `MCCheckpointCoordinationFailure` is left out), bound with `numactl
 --cpunodebind=0 --membind=0`, so 8 workers have all 48 CPUs. The speed-up is
 the median over the three repetitions of the 1-worker time divided by the
-same repetition's N-worker time. To finish in time, the four D1 shard nodes
+same repetition's N-worker time. To finish in time, the four speed-measurement shard nodes
 ran the first repetitions and five spot nodes of the same type, image and
 setup ran the rest, with the binary copied and checked by SHA-256; the record
 names the node of every repetition.
@@ -274,15 +281,14 @@ names the node of every repetition.
   runtime names"), #1020. At one worker both succeed.
 - **SlushLarge at one worker** stops at `dive-bench`'s 3,570 s time limit in
   all three repetitions, so its speed-ups are lower bounds (1.55x and 2.71x).
-  Against D1's completed 1-worker time on the same binary and host type
+  Against the speed measurement's completed 1-worker time on the same binary and host type
   (6,544.78 s) they are 2.84x and 4.97x.
 - At one worker `MCCRDT`, `VoteProof`, `MCKVsnap` and `SpanTreeRandom`
   differ from the golden counts exactly as registered in
   `conformance/expected-divergences.toml`; every other run agrees with its
-  golden. Generated counts at more than one worker are diagnostics only
-  (ADR 0086).
+  golden. Generated counts at more than one worker are not compared.
 
-### D4 worker scaling (median of 3)
+### Worker scaling (median of 3)
 
 | Model | 1 worker s | 4 workers s | 8 workers s | Speed-up 4 | Speed-up 8 | Note |
 |---|---:|---:|---:|---:|---:|---|
@@ -337,11 +343,10 @@ names the node of every repetition.
 ### Open finding: #1028
 
 Temporal checks do not scale with workers, and six models run slower at
-8 workers than at 1. The cause is not known yet. This subsection is a brief
-for whoever investigates it; every hypothesis below is unverified.
+8 workers than at 1. The cause is not known yet. The hypotheses below are unverified.
 
-**What was measured.** The D4 record does not mark check kinds, so the split
-below uses D2's liveness list (models whose report said `check_kind:
+**What was measured.** The scaling record does not mark check kinds, so the split
+below uses the memory measurement's liveness list (models whose report said `check_kind:
 temporal`). By that list, the 28 safety models have a median 8-worker
 speed-up of 5.2x (lowest `MCBakery`, 1.32x) and the 17 temporal models that
 ran at 8 workers have a median of 1.00x; 15 of the 17 stay between 0.50x and
@@ -371,7 +376,7 @@ ran at 8 workers have a median of 1.00x; 15 of the 17 stay between 0.50x and
 worker (#1020). Every run above agrees with its golden.
 
 **What the reports say.** Every 8-worker report has `options.workers` =
-`{"requested": 8, "used": 8, "sequential": false, "reason": null}`, so the D4
+`{"requested": 8, "used": 8, "sequential": false, "reason": null}`, so the scaling
 record shows `workers_used: [8]` and no `sequential_reason`. The temporal
 report's resource limits include `max_expansion_units: 8`, the only hint that
 temporal capture works in waves of at most eight source states. `core.metrics`
@@ -414,8 +419,8 @@ grows with the worker count.
    or `perf record` at 8 workers, looking for `clone3`, `futex`, `mmap` and
    `munmap`; then try a persistent pool or wider waves. Wider waves change the
    documented capture buffer bound ("parallel capture buffers at most eight
-   source states" in `docs/user/checking.md`), so that is a decision, not a
-   tweak.
+   source states" in the checking guide), so they would change documented
+   behavior.
 2. *Sequential ordered commit.* `NativeSink::record_admitted`
    (`crates/dive-api/src/core_native_graph.rs`) requires sources in discovery
    order and runs on the committing thread: row retention, the fingerprint
@@ -469,7 +474,7 @@ profile, build symbols with `cargo build --profile profiling -p dive-cli
 for system-call counts. Compare against `--workers 1` and, for hypothesis 4,
 against `--compat=tlc`.
 
-## D5: startup, simulation and trace validation
+## Startup, simulation and trace validation
 
 Fifty fresh processes each, timed with `perf_counter` around
 `subprocess.run`:
@@ -500,7 +505,7 @@ Simulation (`--traces 10000 --depth 100 --time-limit 600s --max-memory 16g`):
   (exit 11, 25 ms), as documented for simulation, so it gives no throughput
   figure. The 100 `--sample` traces therefore come from bosco.
 
-## D6: stop latency
+## Stop latency
 
 Latency is the wall time minus the load time (a `--max-states 1` run at the
 same worker count) minus the limit. Five repetitions per cell.
@@ -547,10 +552,9 @@ Every run exits 5 with a `stopped` report. For `ElevatorLivenessLarge` the `--ma
 
 Three repetitions each; every run exits 5 with distinct states or depth exactly at the ceiling. The temporal ceilings stop in graph capture and make no claim. The time from the last progress report to exit was not measured: these runs used `--output json` without progress output.
 
-## D7: macOS arm64 spot check (informational)
+## macOS arm64 spot check (informational)
 
-AWS had no mac capacity, so by owner direction this ran on the owner's
-laptop: a MacBook Air (Mac15,13) with an Apple M3 (4 performance and
+This ran on a laptop: a MacBook Air (Mac15,13) with an Apple M3 (4 performance and
 4 efficiency cores) and 24 GB of memory, on macOS 26.5. The laptop was in use
 by other work at the time (one-minute load average 2.9 to 12.6 during the
 runs), so the figures are indicative only and are not comparable with the
@@ -572,16 +576,16 @@ Geomean dive / TLC: 0.354x at 1 worker, 0.347x at 4 workers.
 Startup on the laptop, 50 runs each: `dive --version` 2.75 ms, `dive parse`
 2.93 ms and `dive check` of `Counter.tla` 5.44 ms (medians).
 
-## S7: Sail+dive against standard TLC
+## Sail with dive against TLC
 
-The release gate added to the plan on 2026-11-18. It compares the whole
+It compares the whole
 Sail+dive workflow with the standard one: a fresh `java -XX:+UseParallelGC
 -jar tla2tools.jar -workers 1 -config <cfg> <module>` per check (pinned
 oracle jar and JRE, default heap). Sail ran D.I.V.E. `3d5923a1` in its
 isolated worker with its fixed policy (exact store, seed and fingerprint
 zero, one worker, explicit bounds). One fresh c7i.8xlarge in us-east-1
 (Intel Xeon Platinum 8488C, 32 vCPUs, SMT on, frequency not controlled, no binding, nothing
-else running), not the D1 bench nodes. Five repetitions per cell, path order
+else running), not the speed bench nodes. Five repetitions per cell, path order
 rotated; multiples are TLC time over Sail time within each repetition, then
 the median. Every job in every path agreed with its golden on the
 holds/refuted class and the distinct-state count, and every Sail refutation
@@ -613,17 +617,17 @@ Sail after the #765 fix (`ce94df74`), median milliseconds:
   job after installing a worker still takes 207 ms, then 12.3 ms.
 - **Memory.** Sail jobs peak at 21 to 270 MiB against TLC's 164 MiB to
   3.5 GiB on the same models; a warm `sail serve` holds 12 MiB.
-- **Large models** are D1's engine comparison and were not rerun: the worker
-  is now within 2% of the CLI, so D1's ratios (for example 0.66x on
+- **Large models** are the speed measurement's engine comparison and were not rerun: the worker
+  is now within 2% of the CLI, so the speed measurement's ratios (for example 0.66x on
   MCLamportMutex, 0.26x on CoffeeCan1000Beans) carry over to Sail up to the
-  exact-store cost of D3. On this virtualized host the direct
-  MCLamportMutex comparison is 1.1x rather than D1's 1.5x.
+  exact-store cost of the store measurement. On this virtualized host the direct
+  MCLamportMutex comparison is 1.1x rather than the speed measurement's 1.5x.
 
 ## Issues
 
-- #979 and #940: the two models above 1x in D1, unchanged from the 2026-11-10 record.
-- #1024: `dive simulate` memory grows with the number of traces, and peak RSS reaches about 1.8x `--max-memory` after the stop (D5).
-- #1028: temporal checks do not scale with workers, and six models run slower at 8 workers than at 1 (D4; brief and hypotheses in [Open finding: #1028](#open-finding-1028)).
-- #1020: `MCKVsnap` and `SpanTreeRandom` refuse temporal checking at more than one worker (D4).
+- #979 and #940: the two models above 1x in the speed measurement, unchanged from the 2026-11-10 record.
+- #1024: `dive simulate` memory grows with the number of traces, and peak RSS reaches about 1.8x `--max-memory` after the stop (startup measurement).
+- #1028: temporal checks do not scale with workers, and six models run slower at 8 workers than at 1 (scaling measurement; brief and hypotheses in [Open finding: #1028](#open-finding-1028)).
+- #1020: `MCKVsnap` and `SpanTreeRandom` refuse temporal checking at more than one worker (scaling measurement).
 
-Against the 2026-11-10 R2 record on the same host type, the median per-model change in the Core / TLC ratio is zero and the largest increase is 8% (`MCConsensus`, 0.081x to 0.088x), inside the spread between repetitions. D2 to D7 have no earlier release record, so these figures are their baseline.
+Against the 2026-11-10 R2 record on the same host type, the median per-model change in the dive / TLC ratio is zero and the largest increase is 8% (`MCConsensus`, 0.081x to 0.088x), inside the spread between repetitions. D2 to D7 have no earlier release record, so these figures are their baseline.

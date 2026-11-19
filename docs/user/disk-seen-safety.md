@@ -12,17 +12,17 @@ dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0
 
 The example completes with five distinct and six generated states.
 
-Core runs disk checking in either semantic profile and either store mode. It
+dive runs disk checking in either semantic profile and either store mode. It
 works with pure VIEW, safety symmetry, constraints, and transient frontier and
 predecessor spill. Exact keys encode closed mathematical values directly; the
 concrete states used for evaluation and the trace stay in memory with the
 live Store. Rust callers use `check_file`. Temporal properties and opaque or
 deferred keys refuse by name.
 
-Core's completed-level checkpoints rebuild disk membership from the saved
+dive's completed-level checkpoints rebuild disk membership from the saved
 states; use `check_file_checkpoint` or the CLI as described in
 [storage and recovery](storage-recovery.md). A read, write, key-limit, audit or
-cleanup failure stops the run without a certified result. A cancelled audit of
+cleanup failure stops the run without a certified result. A canceled audit of
 the retained records still cleans up, and does not vouch for the records it did
 not reach.
 
@@ -88,7 +88,7 @@ cargo run -p dive-api --example disk_seen_safety --locked
 | `--seen-probe-steps N` | 33,554,432 | Maximum index slots examined per lookup or rehash insert; positive |
 | `--seen-summary-pairs N` | 1,000,000 | Pair comparisons for the fingerprint-gap summary; zero is valid |
 
-A duplicate is still recognised when the entry limit is full. A new state
+A duplicate is still recognized when the entry limit is full. A new state
 beyond the limit returns `resource-limit`, never absent, duplicate or success.
 Zero entries or probe steps, or key bytes out of range, make a malformed
 request. Exact keys keep all the canonical bytes and fingerprints keep all 64
@@ -160,7 +160,7 @@ successors through the disk store, as TLC does. For example, start at `x=0`,
 generate `x=1`, `x=2` and `x=3`, and divide by zero only when `x=1`. Pinned TLC
 stops generating at 2 states, but its replay brings the totals to 4 distinct
 and 2 queued (exit 76, invariant message 2111). Disk checking follows the same
-continuation through real key lookups and inserts; replay is not counted as
+continuation through key lookups and inserts; replay is not counted as
 generated work.
 
 ```sh
@@ -179,7 +179,7 @@ predecessor and the ordinal of the successor where it stopped, the frozen
 are not new predecessor or frontier rows. If replay hits an I/O or entry limit,
 the result is `resource-limit`, keeping the original error and the completed
 prefix. The trace is diagnostic and is not independently validated.  An error at a site dive does
-not recognise reports an unverified error class.
+not recognize reports an unverified error class.
 
 For the smallest case, where the successor was already seen, pinned TLC and
 in-memory checking report 3 generated, 3 distinct and 1 queued. The

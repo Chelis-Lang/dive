@@ -78,19 +78,18 @@ contains them. The Rust `ConfigReport::to_json` helper emits such a fragment,
 not a complete command report.
 
 `core.metrics.store.memory.construction_history_view_bytes` is deprecated and
-always 0, because Core keeps no construction history. Schema 3 keeps the field;
+always 0, because dive keeps no construction history. Schema 3 keeps the field;
 a later schema version will remove it.
 
-The test suite pins complete Core JSON examples for success, invariant
+The test suite pins complete JSON examples for success, invariant
 violation, deadlock, liveness violation, evaluation error, named refusal and
 budget stop. The tests normalize only fixture paths, elapsed times and the
 host's memory metric. See the
 [fixture guide](../../crates/dive-cli/tests/fixtures/report-schema/README.md).
 
 Stable diagnostic codes and spans belong to the report; display text is for
-people. Not every TLC deciding error class is classified. The harness reports
-in [conformance](../conformance.md) are test evidence, not the schema of user
-commands. Record the profile and schema version in any automation protocol.
+people. Not every TLC deciding error class is classified. Record the profile
+and schema version in any automation that reads reports.
 
 ## Exit codes
 
@@ -129,7 +128,7 @@ When an evaluation error has a TLC class that dive can prove, the report carries
 a finite counterexample whose ending names the error. The validator replays
 each ending kind below before accepting it: it reruns the specification and
 must reproduce the same original error, source location and deciding TLC code.
-Flags, matching metadata or a valid trace on their own are not enough. When dive cannot prove the class, the report keeps the actual error,
+Flags, matching metadata or a valid trace on their own are not enough. When dive cannot prove the class, the report keeps the error,
 output and stopping counts, and is `unsupported` or carries
 `tlc.verified: false` instead of a formal word.
 
@@ -303,7 +302,7 @@ does not inherit the class.
 ## Diagnostics and `dive explain`
 
 `dive explain DIVE-L0020` (or with `--output json`) gives a cause and a next
-action. The catalogue covers every assigned parser `DIVE-S` code, the assigned
+action. The catalog covers every assigned parser `DIVE-S` code, the assigned
 temporal codes `DIVE-L0020` to `DIVE-L0038`, temporal API codes `DIVE-A0030` to
 `DIVE-A0034`, watchdog start-up `DIVE-R0001`, memory observation `DIVE-R0002`
 and command adapter codes `DIVE-X0001` to `DIVE-X0004`. It does not cover every
@@ -346,7 +345,7 @@ finite callback source walk keep the innermost valid expression through
 aliases, lazy actuals and substituted scopes; projection and opaque-storage
 failures may have only their enclosing context. Stage-wide failures have
 `span: null` and `location: null`. A report's own cause takes precedence over
-the catalogue explanation. Budget exhaustion uses its resource-specific
+the catalog explanation. Budget exhaustion uses its resource-specific
 `stopped.hint`; raising a time or memory budget does not lift a named count
 limit or add a missing feature.
 
@@ -357,7 +356,7 @@ Check reports carry `resources.memory`. The configured ceiling is in
 observations. `metric` is `rss+swap` on Linux and `rss` on macOS. `samples` and
 `observed_max_bytes` describe successful observations, with a `null` maximum
 when none succeeded; they are not a true process peak. `initial_sampled`,
-`final_sampled` and `unavailable_at` describe the boundaries actually reached.
+`final_sampled` and `unavailable_at` describe the boundaries reached.
 `status` is sampled, not-started, disabled or unavailable; disabled means an
 explicit unlimited setting, never an unknown measurement replaced by zero.
 
@@ -365,7 +364,7 @@ A known excess at start-up uses the `stopped` outcome, exit 5, phase
 `check-startup`, no statistics and `resources.checking_started: false`; binding
 and graph capture have not started. Safety reports omit `execution`; temporal
 reports add `execution.started: false` and `capture_completed: false`. Start-up work after binding begins includes constant definitions, constant
-folding while Core compiles its plan, and the ASSUMEs. A time or memory budget
+folding while dive compiles its plan, and the ASSUMEs. A time or memory budget
 that runs out there also stops in phase `check-startup`, before `Init`, with no
 statistics and whatever start-up output was printed. Refusals that hold at any budget are reported
 first. `resources.checking_started` is then omitted, since binding started, and
@@ -393,7 +392,7 @@ from their absence. The requested mode is one of `unreduced`, `refuse` and
 declared symmetry and whether it applies to the bound temporal properties. It describes the configuration, not what ran.
 
 Simulation and DFID reports include `engine`, `engine_requested` and a nullable
-`engine_fallback`. Core is the only engine, so `engine_fallback` is always
+`engine_fallback`. dive is the only engine, so `engine_fallback` is always
 `null`. Check reports do not carry `engine_requested` or `engine_fallback`.
 
 ## Report compatibility
@@ -446,27 +445,10 @@ buffer mode. These are configured settings, not proof that a run reached them.
 The JSON wire format is versioned this way; the Rust library API has no such
 stability promise.
 
-## Conformance comparisons
+## Exit codes in comparisons
 
-The conformance harness compares the physical numeric exit exactly, even when a
-worker-specific comparison leaves out counts, so native exit 10 against TLC's 12
-is a real difference. Only an explicitly registered TLC and native exit pair is
-labelled `expected-divergence`, conditioned on its declared verdict, the other
-permitted fields and independent trace validation; it never counts as `agree`.
-See [distinct process exits](../tlc-differences.md#d-023-default-process-exits-are-distinct-conformance-observables).
-A registered generated-count pair is checked at every worker count: both
-observed values must match the registry, and at one worker the pair must also
-appear among the compared differences.
-
-A safety, action-property, liveness or deadlock verdict earns agreement only
-with a whole, independently validated counterexample, also in comparisons that
-leave out the witness shape. A selected TLC error witness is required even when
-verdicts match; metadata cannot stand in for a missing word. Success,
-assumption, front-end and evaluation outcomes whose contract has no witness
-need none. Matching exit codes do not make up for a missing, invalid or refused
+The exit status is part of the result. Native exit 10 against TLC's 12 is a
+real difference unless it is a
+[documented exit difference](../tlc-differences.md#d-023-default-process-exits-are-distinct-conformance-observables),
+and a matching exit does not make up for a missing, invalid or refused
 counterexample.
-
-The harness still reads version-1 safety, parse and analyze reports and
-version-2 temporal reports. A version-2 check report without `check_kind` gets
-every strict temporal check, so relabelling a temporal result as safety cannot
-bypass them.
