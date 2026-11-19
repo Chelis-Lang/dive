@@ -1537,11 +1537,10 @@ fn simulate_command(
         }
     };
     if json {
-        let document = exit_convention.map_or_else(
-            || report.to_json(),
-            |convention| report.to_json_with_exit_convention(convention),
-        );
-        let _ = writeln!(out, "{document}");
+        // Streams the serialized trace entries instead of building one JSON tree.
+        if report.write_json(out, exit_convention).is_ok() {
+            let _ = writeln!(out);
+        }
     } else {
         let _ = write!(out, "{}", report.render_human());
     }
