@@ -360,7 +360,7 @@ Sail+dive workflow with the standard one: a fresh `java -XX:+UseParallelGC
 oracle jar and JRE, default heap). Sail ran D.I.V.E. `3d5923a1` in its
 isolated worker with its fixed policy (exact store, seed and fingerprint
 zero, one worker, explicit bounds). One fresh c7i.8xlarge in us-east-1
-(Intel Xeon Platinum 8488C, 32 vCPUs, SMT and turbo on, no binding, nothing
+(Intel Xeon Platinum 8488C, 32 vCPUs, SMT on, frequency not controlled, no binding, nothing
 else running), not the D1 bench nodes. Five repetitions per cell, path order
 rotated; multiples are TLC time over Sail time within each repetition, then
 the median. Every job in every path agreed with its golden on the
@@ -396,7 +396,7 @@ Sail after the #765 fix (`ce94df74`), median milliseconds:
 - **Large models** are D1's engine comparison and were not rerun: the worker
   is now within 2% of the CLI, so D1's ratios (for example 0.66x on
   MCLamportMutex, 0.26x on CoffeeCan1000Beans) carry over to Sail up to the
-  exact-store cost of D3. On this turbo-enabled host the direct
+  exact-store cost of D3. On this virtualized host the direct
   MCLamportMutex comparison is 1.1x rather than D1's 1.5x.
 
 ## Issues
