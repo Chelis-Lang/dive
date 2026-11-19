@@ -16,3 +16,6 @@
 /crates/dive-conformance/relative-binary-*
 # Python bytecode from the scripts/ tests.
 __pycache__/
+
+# mdBook output (mdbook build book)
+/book/book

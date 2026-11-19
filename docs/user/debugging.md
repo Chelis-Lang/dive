@@ -4,12 +4,12 @@
 > by the CI test suite, but its protocol surface and limits may change between
 > releases.
 
-`dive debug FILE.tla --stdio` runs a native DAP adapter for the existing Core
-safety checker. A DAP client sends initialize, launch, source/exception breakpoint
-requests and configurationDone. Search then executes normally until a breakpoint,
-step, pause, exception, budget stop or completion. Both semantic profiles work;
-`--compat=tlc` or `DIVE_COMPAT=tlc` selects TLC value semantics. Ordinary checking
-keeps debugging off.
+`dive debug FILE.tla --stdio` runs a Debug Adapter Protocol (DAP) adapter for
+the Core safety checker. Your DAP client sends initialize, launch, source and
+exception breakpoint requests, and configurationDone. The search then runs
+until a breakpoint, step, pause, exception, budget stop or completion. Both
+semantic profiles work: `--compat=tlc` or `DIVE_COMPAT=tlc` selects TLC value
+semantics. `dive check` never starts the debugger.
 
 For a client that attaches over TCP:
 
@@ -17,40 +17,44 @@ For a client that attaches over TCP:
 dive debug Spec.tla --listen 127.0.0.1:0 --seed 7 --fp 0 --compat=tlc
 ```
 
-The actual bound address appears on stderr. The checker starts loading/compiling
-and waits for client configuration. Connect a framed DAP client to that address,
-send initialize then attach, and wait for initialized before installing source
-breakpoints and sending configurationDone. A stdio client uses launch instead.
-The program is fixed by the command line; a DAP request cannot select a different
-program, environment, working directory or host-I/O grant.
+The bound address is printed on stderr. The checker loads and compiles the
+model, then waits. Connect a framed DAP client to that address, send initialize
+then attach, and wait for initialized before installing source breakpoints and
+sending configurationDone. A stdio client sends launch instead of attach.
+The command line fixes the program: a DAP request cannot change the program,
+environment, working directory or host-I/O grant.
 
-Source breakpoints are exact executable source lines. A removed/folded/aliased
-expression without an instruction stays unverified. Frames describe actual
-instruction activations, including helpers and INSTANCE substitution context.
-Source coordinates use one-based UTF-16 columns. State, successor and local
-scopes expose existing integers, booleans and bounded strings. An unassigned or
-unforced slot is labelled unavailable; compounds remain opaque. Looking at a
-scope does not evaluate source or normalize producer values.
-Diagnostic replay suspends observation even when it reuses the primary machine;
-reconstruction cannot publish another producer stop or replace its snapshot.
+A source breakpoint sits on an executable source line. A breakpoint on an
+expression the compiler removed, folded or aliased has no instruction and stays
+unverified. Frames follow the instructions that ran, including helpers and
+INSTANCE substitution context. Source coordinates use one-based UTF-16 columns.
 
-The adapter supports continue, pause, next, stepIn, stepOut, stackTrace, scopes,
-variables, loaded-source retrieval, bounded evaluate, exceptionInfo and terminate.
-The `all` exception filter stops on actual evaluation errors or false configured
-safety obligations before ordinary reporting continues. Every resume invalidates
-old frame/scope handles. Evaluate requires a current frame and accepts bounded
-integer/boolean arithmetic over captured names; source helpers, effects, new
-modules and global/source-position evaluation are unsupported. Errors and stale
-requests return failed responses with `DIVE-D0001`. An attach `disconnect`
-request without explicit termination fails; use terminate explicitly.
-Detaching while checking continues is unsupported. Losing the
-transport cancels the owned check without inferring success.
+The state, successor and local scopes show integers, booleans and bounded
+strings. An unassigned or unforced slot is labelled unavailable, and compound
+values are opaque. Reading a scope evaluates nothing. While dive replays a
+step to build a diagnostic, the debugger does not stop, and the replay cannot
+replace the snapshot you are looking at.
 
-The `dive/checkResult` event contains the ordinary check report with its native
-exit code, followed by exited and terminated. The process uses that same native
-exit status. A breakpoint or available map is not a model verdict. Terminating
-an incomplete check produces an explicit refusal, never success; ordinary budget
-stops and unsupported diagnostic/word cases retain their original authority.
+The adapter supports continue, pause, next, stepIn, stepOut, stackTrace,
+scopes, variables, loaded-source retrieval, bounded evaluate, exceptionInfo and
+terminate. The `all` exception filter stops on an evaluation error or a false
+configured safety property, before the check reports it. Every resume
+invalidates the old frame and scope handles.
+
+Evaluate needs a current frame and accepts bounded integer and boolean
+arithmetic over captured names. It cannot call source helpers, run effects,
+load modules or evaluate at a global or source position. Errors and stale
+requests fail with `DIVE-D0001`.
+
+To stop, send terminate. A `disconnect` from an attached client fails unless
+it also terminates, because detaching while the check continues is not
+supported. If the transport drops, the check is cancelled and does not report
+success.
+
+The `dive/checkResult` event carries the check report with its native exit
+code, followed by exited and terminated. The process exits with the same
+status. Terminating an incomplete check produces a refusal, never success.
+Budget stops and unsupported cases report as they do in `dive check`.
 
 Rust callers use the same session without a CLI or external tools:
 
@@ -76,17 +80,26 @@ let report = session.finish()?;
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
-This slice runs one actual local Core worker. The report preserves the caller's
-worker selection in `options.workers.requested` and reports one worker in
-`options.workers.used`. Temporal,
-checkpoint/recovery, Store reclamation, distributed observation, native source or
-TLC logical coverage, sampling, host grants, conditional/log/column breakpoints,
-reverse steps, mutation and compound expansion remain unsupported. Input frames are bounded to 1 MiB and
-headers to 8 KiB; output frames, maps, activations and expression work have explicit
-bounds. Listener addresses must be loopback. Source locations identify executed
-TLA+; the separate PlusCal emission maps do not yet supply runtime PlusCal
-breakpoints. TLC `-debugger` and complete debugger
-parity remain open; see the [compiled source maps and native debugging design](../decisions/0152-compiled-source-maps-and-native-debugging.md).
-Public checking requests and managed sessions refuse reclamation, coverage and
-distribution before source/key access or observer preparation. Preparing a native
-worker with `CheckRequest.debugger` also refuses explicitly.
+## Limits
+
+The debugger runs one local Core worker. The report keeps your worker choice in
+`options.workers.requested` and reports one worker in `options.workers.used`.
+
+These are not supported:
+
+- temporal properties;
+- checkpoint and recovery, Store reclamation and distributed workers;
+- source coverage and TLC logical coverage, sampling and host grants;
+- conditional, log and column breakpoints;
+- reverse steps, mutation and expanding compound values;
+- TLC's `-debugger` protocol;
+- PlusCal breakpoints: source locations name the executed TLA+.
+
+Checking requests and managed sessions refuse reclamation, coverage and
+distribution before reading source. Preparing a distributed worker with
+`CheckRequest.debugger` also refuses.
+
+Input frames are limited to 1 MiB and headers to 8 KiB. Output frames, maps,
+activations and expression work have their own fixed limits. The listener
+address must be loopback. The design is in
+[compiled source maps and native debugging](../decisions/0152-compiled-source-maps-and-native-debugging.md).

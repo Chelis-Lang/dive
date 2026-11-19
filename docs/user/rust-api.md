@@ -32,26 +32,27 @@ let result = report.to_json();
 assert_eq!(result["verdict"], "success");
 ```
 
-Use a `Result`-returning test/application and provide the actual source/config
-paths. An API call returning `Ok(report)` means the operation returned a report;
-inspect that report's verdict, refusal, completion and validation before asserting
-success. API errors also distinguish rejected inputs, I/O, named unsupported
+Run it from a function that returns `Result`, with your own source and
+configuration paths. `Ok(report)` means only that the operation produced a
+report: check its verdict, refusal, completion and validation before you
+treat the model as checked. API errors also distinguish rejected inputs, I/O, named unsupported
 requests and internal failures.
 
 For pure Core safety, `CheckRequest.store_compact_bytes = Some(0)` with
 `check_file(&request)` reclaims expanded persistent values
-after each completed level. Positive values trigger on measured Store bytes;
-this is not a hard live-memory cap. `None` uses Core's default 256 MiB trigger
+after each completed level. A positive value triggers reclamation when the
+measured Store bytes exceed it; it is not a hard cap on live memory. `None` uses Core's default 256 MiB trigger
 on pure fingerprint safety BFS, which does not change results. The same field may be enabled for
 `check_file_checkpoint` recovery-only requests. See the supported
 combinations, retained values and metrics in [storage and recovery](storage-recovery.md).
 
-Explicit native worker roles use `prepare_core_worker`/`CoreWorker::serve`, and
-coordinators use `CheckRequest.distributed` plus `DistributedOptions` under the
-explicit Core engine. Participants independently prepare the same model with
-the same executable. The [distributed safety guide](distributed-safety.md)
-documents authentication, retries, current combination bounds and both roles.
-The default is `None`; worker facts alone never certify a model result.
+Distributed workers use `prepare_core_worker` and `CoreWorker::serve`, and the
+coordinator sets `CheckRequest.distributed` with `DistributedOptions`. Every
+participant prepares the same model with the same executable. The
+[distributed safety guide](distributed-safety.md) covers authentication,
+retries, supported combinations and both roles. The default is `None`. A
+worker's own report says nothing about the model; only the coordinator's
+result does.
 
 The repository includes an independent consumer Cargo project and executable
 `#[test]` examples for ordinary public API workflows:
@@ -64,11 +65,16 @@ The script compiles that project with its own locked dependency graph, outside
 the workspace's feature union. It then runs the compiled tests with an empty
 `PATH`, so Java and the `dive` executable cannot satisfy the workflow. It uses
 the checkout's own `target/` and needs Cargo and Python only while preparing the
-test executable. Checking success and independently validated violations, seeded
-constructive samples, DFID completion versus bounds, implementation trace
-acceptance/rejection, translation followed by checking and real safety recovery
-are exercised through public library calls on Core; the tests inspect actual
-results rather than treating `Ok(report)` as a proof. The independent project is in
+test executable. The tests call the public library on Core for:
+
+- successful checks and independently validated violations;
+- seeded constructive samples;
+- DFID completion and depth bounds;
+- accepted and rejected implementation traces;
+- PlusCal translation followed by checking;
+- safety recovery from a checkpoint.
+
+Each test inspects the report it gets back. The project is in
 `crates/dive-api/tests/fixtures/rust-consumer/`; its tests are examples to adapt
 for a Rust application's own specifications and recorded behaviors.
 
@@ -105,17 +111,16 @@ and no completed graph. A failed Init or partial level supplies no completion
 event, and an earlier safety failure retains its verdict and counterexample.
 Prefix graphs can support independently validated violations; absence of a
 violation proves nothing before exhaustion. The `Observer` rustdoc contains a
-runnable example. Producer-clock requests and the former dispatch, stopped and
-terminal service APIs have been removed. Ordinary parallel graph capture remains
-available through the unobserved entry points.
+runnable example. Parallel graph capture without an observer uses the
+unobserved entry points.
 
 Completed graph consumers can retain original producer facts while releasing
 graph storage with `capture::Complete::into_evidence`; `Prefix::into_evidence`
 does the same for a successful committed prefix. `evidence()` borrows the
 facts while keeping the graph. These immutable values preserve the original
 safety result, options and counters independently of edits to public capture
-fields. Complete facts retain the existing graph-completion receipt; prefix
-facts retain their level and unexhausted queue and cannot become completion.
+fields. Complete facts keep the record that the graph was completed; prefix
+facts keep their level and unexhausted queue and can never become complete.
 Neither kind proves a temporal property. `GraphBuilder::complete` and `prefix`
 return the original verdict when supplied a failed or stopped safety result.
 Graph-owning variants keep their graphs; native reports retain
@@ -123,14 +128,14 @@ only sealed facts and any independently validated selected word.
 
 Producers retaining their own state rows can supply borrowed adjacency through
 `capture::CsrCaptureInput`. `CsrCapture::checked` checks bounds, roots, ordinals,
-original row ids and implicit stutters under an actual `EvaluationControl`.
+original row ids and implicit stutters under the run's `EvaluationControl`.
 `CsrComplete::from_producer` additionally requires the producer's successful EOF
 and matching statistics; `CsrPrefix::from_producer` requires a successful committed
 boundary with an unfinished frontier. Both preserve original failures and budget
 stops. Their `evidence()` and `into_evidence()` expose the same graph-independent
 facts. These low-level APIs do not evaluate the opaque rows
-or certify temporal properties. Existing `capture::Limits` remain unchanged;
-there is no new CLI option or TLC divergence. The ordinary core temporal route
+or certify temporal properties. The limits are the usual `capture::Limits`.
+Core's temporal checking
 uses native retained rows and checked CSR, without a retained value graph. The `capture_csr` and `capture_evidence` tests build checked CSR and
 producer evidence from actual captures; run
 `cargo test -p dive-liveness --test capture_csr --test capture_evidence --locked`.
@@ -143,8 +148,8 @@ result from `NativePrefix`. Words retain their property set, concrete states,
 closing position and original edge metadata, and still require independent
 validation. Prefix facts cannot become a holding result. The other analysis
 entrypoints keep their return types.
-The core now consumes these carriers directly for graph-neutral reports;
-detaching a graph alone adds no capture capacity or proof authority.
+Core reads these results directly when it builds its reports. Releasing the
+graph frees memory; it does not let a capture grow larger or prove more.
 
 The native producer uses `GraphCheck::native_level_due(stats)` before scanning
 CSR, then `level_native` at due committed levels. `finish_native` consumes
@@ -168,9 +173,9 @@ IDs select single-variable slots directly; exact Handle comparison still guards
 reuse. Other reads retain the bounded handle-hash path. Conversion timing excludes
 single-variable hits, as reported by `convert_ms_scope`. Run-owned
 name payload is shared after pointer-identity checking; opaque Arc/allocator
-metadata is not a complete RSS charge. Hits still check actual run control and
-eager admission always converts. Only demanded values and the bounded cache are
-retained; this is not an unbounded Value graph or a new capacity claim.
+metadata is not a complete RSS charge. Cache hits still check the run budget,
+and eager admission always converts. Only the values a check asks for and the
+bounded cache are kept in memory.
 `GraphCheck::level`, `finish` and `finish_prefix` are also available.
 
 Core's `temporal::Report::outcome()` returns one of these boxed variants, or
@@ -185,8 +190,7 @@ Core's `temporal::Report::outcome()` returns one of these boxed variants, or
 Validated wrappers have private constructors. Each selected word passes fresh
 independent typed and serialized replay after the native graph, converter, store and plan
 are dropped. `NativeWord` alone is unvalidated; a validation marker or
-caller-supplied CSR cannot construct a validated outcome. Prefix facts never
-become complete facts or a holding result. JSON retains schema 3, existing trace
+caller-supplied CSR cannot construct a validated outcome. JSON retains schema 3, existing trace
 endings and actual completion/worker/collision/output metadata. The core example
 and report meanings are in the [temporal guide](temporal.md#native-graph-capture-with-the-core-engine).
 
@@ -195,7 +199,7 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
 | `analyze_source` / `analyze_file` | Resolved semantic analysis |
 | `parse_config_source` / `parse_config_file` | Configuration reading |
-| `check_file` | On Core, the only engine: ordinary safety and ordinary temporal checking (`TemporalMode::Ordinary`, the only mode); inspect actual route/completion |
+| `check_file` | Safety and temporal checking on Core (`TemporalMode::Ordinary`, the only mode); read the route and completion in the report |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
 | `CheckRequest::host_access` | Explicit env/files/exec permissions; a named refusal on Core |
@@ -205,7 +209,7 @@ and report meanings are in the [temporal guide](temporal.md#native-graph-capture
 | `original_ast_source` / `write_original_ast_file` | Separate original AST bytes/publication; a successful AST file write retains pinned exit 255 |
 | `trace::SpecModel` | Independent implementation/witness replay |
 | `CheckReport::temporal_result` / `temporal_failure` | Core temporal report with private validated violations, or its typed failure |
-| `check_file_checkpoint` | Bounded actual native safety pause/recovery |
+| `check_file_checkpoint` | Bounded safety pause and recovery |
 
 Request fields make profile and module resolution explicit. Rust APIs do not
 implicitly adopt the CLI's environment-variable parsing. Reports preserve actual
@@ -239,15 +243,15 @@ explores the product on the fly.
 
 The [fair procedure guide](../pluscal-translation.md) includes a compiled
 Rust caller using `TranslationRequest.limits.fairness`. Shared finite process
-procedures retain per-ID ownership; their admitted translation reports still
-carry `model_proved: false`. Read [PlusCal boundaries](pluscal.md) before
+procedures keep per-ID ownership; their translation reports carry
+`model_proved: false`, because translation checks nothing. Read [PlusCal boundaries](pluscal.md) before
 interpreting a generated Spec as a checker result.
 
 
 The TLC-internal liveness diagnostics (`tlc_temporal`, `periodic_candidate`,
 `phase_*`, `periodic_*` and `tlc_*` projections other than `tlc_plan::classify`)
-were removed. TLC's exact lasso and periodic timing
-are not parity obligations. A configured `_PERIODIC` entry binds with TLC's
+were removed. Dive does not reproduce TLC's exact lasso or periodic timing.
+A configured `_PERIODIC` entry binds with TLC's
 errors and is then refused by name.
 
 `SimulateRequest` and `DfidRequest` also expose `BudgetSetting` fields

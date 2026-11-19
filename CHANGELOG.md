@@ -15,6 +15,19 @@ are in git history.
 - Library users: `SimulateReport::write_json` writes the report text without
   building the JSON tree that `to_json` returns.
 
+### Documentation
+
+- The user guides build as an mdBook: `mdbook build book`, then
+  `python3 scripts/check-book-links.py book/book` checks its links. A new
+  [install](docs/user/install.md) page covers crates.io, the Linux release
+  archives and source builds.
+- The user guides read more plainly: shorter sentences, fewer repeated
+  caveats and no maintainer process notes. Stale statements about the removed
+  Reference engine, host-input support and final/short temporal checking are
+  corrected.
+- `skills/dive/SKILL.md` describes how to run dive from an AI coding tool: the
+  check command, exit codes, refusals, temporal checking and trace validation.
+
 ## 0.1.0
 
 The first release.

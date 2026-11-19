@@ -48,12 +48,11 @@ This capability removes only Concat's own string-name creation concern. Both
 operands and all retained captures, including unused actuals, still undergo the
 existing effect, provider, context ownership and resource checks. Configured or
 redirected native origins and higher-order native operator actuals retain their
-existing restrictions. Ordinary evaluation preserves eager argument order and
-typed errors. Eligible single-worker temporal requests can report an original
+existing restrictions.  Eligible single-worker temporal requests can report an original
 Concat evaluation error through the certified row-demand route described below;
 unproved contexts retain `DIVE-L0033` refusals. VIEW graph capture
 still requires quotient-edge and closing-state evidence, so
-EWD998ChanID is unsupported. Other temporal restrictions also remain.
+EWD998ChanID is unsupported. 
 
 State substitutions through `INSTANCE` retain their caller's state when a
 native arithmetic operator reads them. For example, an instantiated
@@ -65,17 +64,16 @@ generated states, depth 1 and exit 0:
 dive check conformance/corpus/reference-instance-naturals/specifications/RefSubstDouble/RefSubstDouble.tla --compat=tlc --workers 4 --seed 0 --fp 0 --output json
 ```
 
-Actual constant definitions still retain their startup values, including
+Constant definitions keep their startup values, including
 deferred-set identity and retained materialization history when a constructor
 uses its own bound values. Configuration redirects keep their existing
 evaluation behavior, and start-up output, lazy argument demands and error
 priority are unaffected. Definitions reached through two nested instance scopes
-are also compiled per scope. These bounded
-controls do not establish general INSTANCE completion.
+are also compiled per scope. 
 
 ## Experimental core engine
 
-Try the same small specification through four ordinary checking outcomes:
+Try the same small specification through four checking outcomes:
 
 ```sh
 dive check docs/user/examples/Counter.tla --seed 0 --fp 0 --workers 1 --output json
@@ -137,13 +135,8 @@ accepted; any other engine name is a usage error (exit 2). Core covers:
   is a run whose liveness check fails rather than answers (a planning or
   evaluation error, or a graph limit): Core refuses it by name. Capture retains original accepted targets,
   including seen successors, with their action and ordinal. Parallel capture
-  buffers at most eight source states. Ordinary core files use the actual run
-  time/memory budgets with checked layouts and fallible growth across capture,
-  products, acceptance and attributed words; inherited count ceilings no longer
-  decide capacity. Explicit Rust limits retain their existing
-  bounds. Genuine budget stops preserve their stage, statistics and capture
-  completion instead of becoming generic refusals; supported temporal combinations
-  remain unchanged. Temporal expressions retain
+  buffers at most eight source states. Core's capture files use the run's time and memory budgets, with checked layouts and fallible growth across capture, products, acceptance and attributed counterexamples; no fixed count ceiling decides capacity. Explicit Rust limits retain their existing
+  bounds. A budget stop keeps its stage, statistics and capture completion, and is reported as a stop, not as a refusal. Temporal expressions retain
   the original distinction between general functions and tuple/record literals,
   including nested values, independently of report formatting;
 - verdicts, TLC's distinct and generated counts and depth, counterexample
@@ -163,8 +156,8 @@ rows within each analysis, in both profiles. Optional proof storage is limited
 to one MiB; allocation failure or a larger graph retains the original checks.
 Current run controls, input/evaluation limits, conversion demands and independent
 counterexample validation still apply. Additive
-`core.metrics.liveness.atoms.row_proofs` counters report actual reuse and storage;
-they do not establish faster original-model completion. There is no option for it.
+`core.metrics.liveness.atoms.row_proofs` counters report reuse and storage;
+there is no option to use it for faster checking.
 
 `ENABLED A` inside an action constraint or implied action property searches
 for a successor of `A` from the current state. Its primed expressions read
@@ -211,8 +204,7 @@ dive check conformance/corpus/core-instance-scopes/specifications/ScopeHolding/S
 ```
 
 The adjacent `ScopeViolation` model fails its invariant immediately with exit
-12. These controls preserve existing unsupported query contexts; they do not
-claim complete INSTANCE support.
+12. 
 
 When constraints exclude every initial candidate, the core completes with
 zero distinct states and no counterexample. As in TLC, the reported depth is
@@ -259,11 +251,9 @@ Core conservatively refuses, including effects hidden behind compiled calls.
 Core counts its emitted successors, without expanding multiple logical witnesses into
 repeated identical successors. The minimal control generates 2 states instead
 of TLC's 3; original VoteProof generates 27,727 instead of 318,877, with the same
-6,962 distinct states, depth 14 and successful verdict. Those count controls
-preserve other observables and independent trace validation. A Boolean predicate
+6,962 distinct states, depth 14 and successful verdict.  A Boolean predicate
 already proved true also avoids unnecessary alternatives: the pinned OrError
-control succeeds rather than demanding a later division by zero. That exact
-result difference is registered separately. Nominal `--compat=tlc` retains
+control succeeds rather than demanding a later division by zero. That result difference is registered as a TLC difference. Nominal `--compat=tlc` retains
 Boolean evaluation, with these gaps documented. Calls, including arguments,
 poll run budgets and refuse beyond 64 active calls instead of exhausting the
 host stack. See [D-029](../tlc-differences.md#d-029-predicate-witness-counts).
@@ -305,8 +295,7 @@ dive check crates/dive-api/tests/fixtures/core-primed-selectseq/PureInstance.tla
 
 The original pinned `EWD998Chan` model also enters core search with its original
 configuration and refinement property. A one-second, one-GiB probe stops with
-exit 5; that probe establishes admission only, with no completed verdict or
-performance/capacity claim. It needs the configured CommunityModules and
+exit 5; that probe only shows the model is admitted; it gives no verdict. It needs the configured CommunityModules and
 dependency module-library roots, as well as its adjacent `EWD998` module.
 
 On Core, anything the core does not implement yields an `unsupported` verdict
@@ -352,8 +341,7 @@ alone, as TLC does, with any number of bound variables. It does not build the
 whole function, so a domain such as `Nat` and entries whose bodies would fail
 no longer stop the check.
 Core does not retain mutable per-object normalization phases or constructor
-origins. Canonical values cross state and candidate handoff directly; genuine
-tuple and record metadata remains available for printing and nominal compatibility.
+origins. Canonical values cross state and candidate handoff directly; tuple and record metadata remains available for printing and nominal compatibility.
 When an equality, set element, function key or stored state needs an unproved
 symbolic identity, checking returns `unsupported`. It does not infer inequality
 from the symbolic expression or report an implementation limit as a specification
@@ -419,8 +407,7 @@ semantics. Configurations embedded in `.tla` files retain their named refusal.
 `-lncheck final` is not listed in the adapter's help: Core does not implement
 the explicit bounded final mode, so with temporal properties it refuses by
 name (exit 3), as does the unlisted native
-`dive check --lncheck final --lasso short`. `-lncheck default` retains
-ordinary checking: Core checks eligible temporal properties once at
+`dive check --lncheck final --lasso short`. `-lncheck default` keeps the usual checking: Core checks eligible temporal properties once at
 exhaustion, reports profile `tlc` with final/short metadata, and validates
 the reported word independently. Other TLC-profile temporal combinations
 retain named refusals; see [ordinary TLC-profile temporal
@@ -436,7 +423,7 @@ and are not proof of a completed check. Existing validator limits remain active.
 
 Human output and versioned JSON use the existing check report. `-tool` message
 framing is not implemented here. Finite `-simulate num=N` and `-generate num=N`
-select the corresponding native sampling algorithm, with actual TLC exits and
+select the corresponding native sampling algorithm, with TLC's exits and
 independent sample validation; see [simulation](simulation.md#constructive-successors).
 Unbounded/file sampling, DFID, checkpoint, storage, debugger, coverage and dump
 flags retain named refusals. Unknown or malformed arguments exit 1;
@@ -446,9 +433,7 @@ reads and parses the configuration first, as TLC does: a missing or malformed
 configuration exits 151 even when the module is also missing.
 `dive_api::check_file_tlc_inputs` provides the same input order for Rust callers;
 filenames must already include their extensions.
-Native commands retain their existing statuses and input ordering. These
-entrypoints implement checking and finite sampling subsets; full TLC toolchain
-parity remains open.
+Native commands retain their existing statuses and input ordering. These entrypoints cover checking and finite sampling, not the whole TLC toolchain.
 
 ## Time and memory budgets
 
@@ -458,7 +443,7 @@ tables still held by readers. `known_retained_bytes_lower_bound` excludes opaque
 allocator, Arc and string-index bucket overhead, external shared objects and
 other engine regions. Rehash scratch fields describe allocation traffic and
 the largest individual temporary, rather than retained bytes or a process peak.
-These diagnostics do not change the limits or replace the whole-process budget.
+
 
 Every `dive check` runs under two budgets:
 
@@ -476,8 +461,7 @@ when no complete successor is emitted. Successor domain candidates
 poll before binding, so a rejecting continuation cannot bypass control. Action
 composition also polls while collecting those candidates and before each
 intermediate right step in next-state generation, action-predicate evaluation
-and `ENABLED`. These checks retain the original mode-specific
-enumeration and counts. An interrupted private intermediate collection does
+and `ENABLED`.  An interrupted private intermediate collection does
 not become reported generated states; progress describes the externally
 published prefix.
 
@@ -494,7 +478,7 @@ then cover constant startup evaluation, evaluator-backed role binding and action
 expansion. An interrupted startup definition is returned as typed control flow;
 it is never swallowed as a TLC evaluation error or relabelled `unsupported`.
 A binding stop reports `model-binding`, retains output already emitted, and
-reports no search statistics or used workers. The additive Rust
+reports no search statistics or used workers. The Rust
 `dive_model::bind_controlled` and `Recipe::bind_controlled` entry points expose
 this capability separately from `BindOptions`; their uncontrolled counterparts
 retain their original behavior.
@@ -509,8 +493,7 @@ or `Recipe::bind_fallible`.
 Producer `ASSUME` evaluation in safety checking and graph capture uses the
 armed startup control at the same amortized evaluator-loop checkpoints.
 Interruption reports `stopped` in `check-startup`, retaining preceding output
-without search statistics, a behavior graph or a model verdict. Genuine false
-assumptions and evaluation errors retain their existing classifications.
+without search statistics, a behavior graph or a model verdict. False assumptions and evaluation errors retain their existing classifications.
 
 Structural binding and evaluator construction,
 post-binding symmetry preparation, value-only allocation/sorting/native
@@ -527,11 +510,9 @@ Interruption there reports `stopped` at `trace-validation`, with real capture
 evidence and optional validation progress, without an uncertified word. A stop
 while rebinding has no passed validation checks or supplied state position.
 Rebinding output is retained as validation evidence and is not printed again as
-original execution output. General TLC/session interpretation and standalone
-`validate-trace` budgets remain follow-ups. Independent validator `ASSUME`,
+original execution output.  Independent validator `ASSUME`,
 serialization, and supplied deferred providers retained by another evaluator
-remain outside this control. Diagnostic suppression never pauses candidate
-certification. No universal wall-clock deadline is promised.
+remain outside this control. 
 Unavailable memory observations interrupt these loops with typed `DIVE-R0002`,
 preserving that failure rather than inventing an exhausted resource.
 Quiet value units defer calling the host control until they return: an
@@ -565,9 +546,7 @@ delayed. macOS uses a native RSS query instead of launching `ps`.
 
 `resources.memory` reports the platform metric (`rss+swap` on Linux, `rss` on
 macOS), successful sample count, observed maximum, initial/final sample flags,
-and unavailable status. The observed maximum is **not** the true process peak.
-Sampling is not an allocation-time hard cap: excursions between observations
-remain possible. macOS RSS does not claim swapped/compressed-memory or physical
+and unavailable status. The observed maximum is **not** the true process peak: memory is sampled, so it can exceed the limit between samples. macOS RSS does not claim swapped/compressed-memory or physical
 footprint accounting. Earlier genuine errors and independently validated
 counterexamples retain precedence if a later terminal observation fails.
 
@@ -604,14 +583,13 @@ returns a counterexample. Raise the ceiling to five to finish this finite
 counter normally.
 
 The first new identity that would exceed either ceiling is left unadmitted.
-Duplicate identities do not consume the state budget. These limits bound
-admitted identity discovery. If constraints exclude every initial candidate,
+Duplicate identities do not consume the state budget.  If constraints exclude every initial candidate,
 the empty retained graph can complete even with both ceilings zero; its
 reported depth still follows TLC's existing depth-one print convention.
 States at the depth boundary can still be expanded to already discovered identities, so a finite
 graph exactly at both limits may finish normally. A truncated search reports
 `verdict: "stopped"`, exit 5, resource `states` or `depth`, the attempted count
-or depth in `observed`, actual admitted progress and a continuation hint. It
+or depth in `observed`, admitted progress and a continuation hint. It
 has no counterexample and makes no successful or temporal-completion claim;
 its statistics carry `exhaustive: false`. The resolved limits appear in
 `options.budget.max_states` and `max_depth`. An explicit finite ceiling labels
@@ -629,7 +607,7 @@ model's size gives the same verdict as no ceiling.
 dive check Spec.tla --store exact --max-states 100000 --output json
 ```
 
-Parallel workers retain their requested pool. Their generated candidates are
+ Their generated candidates are
 published in reference order up to the admission boundary, retaining earlier
 errors and violations. Speculative candidates do not increase the admitted
 distinct count, trace log or retained graph past the limit. Memory and elapsed
@@ -650,8 +628,8 @@ still active unless `--compat=tlc` selects TLC evaluation. An invariant violatio
 exits 12 and a rejected specification 150. Configuration rejection exits 151;
 initial/action properties and supported cyclic liveness use 13. Deciding error
 classes determine other verdict statuses. Success is 0; usage 2, unsupported or
-resource limit 3, internal error 4 and a stop by an explicit or default run budget 5 mean their existing distinct outcomes.
-These statuses do not prove an unverified error class or validate a missing trace.
+resource limit 3, internal error 4 and a stop by an explicit or default run budget 5 keep their own meanings.
+
 
 ```sh
 dive check docs/user/examples/Counter.tla --seed 7 --workers 1 --output json
@@ -664,7 +642,7 @@ rejected input 1, deadlock 11, assumption 12 and evaluation error 13. Both inlin
 exit selection wins independently of `--compat` or `DIVE_COMPAT`. Native exits
 with TLC evaluation are labeled `tlc+overrides`.
 
-JSON adds the actual selected `exit_code`, `options.exit_codes` and
+JSON adds the selected `exit_code`, `options.exit_codes` and
 `options.semantic_profile`; `options.profile` includes compatibility overrides.
 Human output displays the selected convention and process status. The existing
 `tlc` object describes the deciding error class, independently of the selected
@@ -700,7 +678,7 @@ checker or mutate its evaluator or counterexample.
 
 This applies only to `check`; other commands keep their documented statuses.
 The named finite temporal 2116/exit 12 runtime boundary remains unsupported;
-selecting TLC statuses does not implement that missing stream shape.
+selecting TLC statuses does not change that.
 
 The explicit BFS checker loads a configuration, binds constants and roles,
 evaluates assumptions, then explores supported initial and successor states.
@@ -721,8 +699,7 @@ dive check crates/dive-model/tests/fixtures/symmetry-group/specs/SyDivZero/SyDiv
 ```
 
 Other unimplemented startup exception shapes remain named refusals. Effectful,
-state-dependent and parameterized declarations still refuse; these diagnostics
-do not expand supported symmetry modes or resource bounds.
+state-dependent and parameterized declarations still refuse; these diagnostics change no symmetry mode or resource bound.
 
 Fingerprint storage is the normal mode. `--store exact` keeps canonical concrete
 keys for supported values; fingerprint collision qualifications do not become
@@ -753,15 +730,13 @@ A closed operator-argument source path may forward unchanged binary comparisons
 the restriction. Already-inspected configured literal values are call-free
 leaves at zero-arity definition uses, without inheriting the replaced body's
 result kind. Unknown state values, configured native origins, operator overrides
-and opaque captured providers keep the conservative route. This proof does not
-assume a type invariant, remove other sequential causes, or change evaluation,
-error behavior or resource limits. Replay and checkpoint admission retain their
+and opaque captured providers keep the conservative route.  Replay and checkpoint admission retain their
 conservative source inventory. Requested and used widths remain reported;
 the source proof is not a worker-utilization or performance measurement.
 
 Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.
-Ordinary `RandomElement` checking supports a closed pure VIEW and pure startup/Init.
+`RandomElement` checking supports a closed pure VIEW and pure startup/Init.
 Expansion draws use the VIEW value's TLC fingerprint, while counterexamples retain
 concrete variable values. Direct calls and proved configured native replacements
 use the same authority. The runnable paired example
@@ -784,11 +759,10 @@ Random checking reports its actual inline width separately from requested worker
 Ordinary safety checking admits the configured `RandomElement` route, for example
 `CONSTANT C <- RandomElement`, using the actual bound native operator for startup
 and predecessor-stream selection. Native definition redirects and admitted typed
-context aliases follow the same authority. These runs execute inline and disclose
-requested and used worker counts separately. Pure user replacements still use the
+context aliases follow the same authority.  Pure user replacements still use the
 parallel engine where admitted.
 
-The committed configured-operator example is runnable directly:
+The configured-operator example is runnable directly:
 
 ```sh
 dive check docs/user/examples/Stream.tla --compat=tlc --seed 7 --fp 0 --workers 8 --output json
@@ -808,9 +782,7 @@ This boundary applies in both profiles;
 a new full-witness override has not been adopted. Startup draws before random Init can likewise
 prevent reconstruction; a seed alone never creates an independent certificate.
 The standalone validator also refuses unproved draw positions for multiple draws
-or conditionally discarded random branches. A matching concrete value does not
-establish where the generator consumed its stream. A checker violation whose
-witness is missing or independently `unsupported` never counts as full agreement.
+or conditionally discarded random branches. 
 Configured `Randomization` replacements, SYMMETRY with randomness, graph
 capture, temporal random checking and seeded native recovery remain explicitly
 refused. The callback-free configured-target scan remains conservative across
@@ -828,7 +800,7 @@ random branch and conditional random Init.
 Eligible ordinary dive-profile requests check temporal properties at deterministic
 completed-level boundaries; ordinary TLC-profile requests use the bounded pure
 final analyzer. Unsupported combinations retain named refusals. See
-[temporal checking](temporal.md) for exact eligibility, actual schemas and limits. The explicit final/short mode
+[temporal checking](temporal.md) for exact eligibility, schemas and limits. The explicit final/short mode
 remains available in either evaluator profile. Refused library
 operators, unknown finite deadlock covers, resource stops and internal failures
 must never be treated as `success`.
@@ -857,9 +829,7 @@ trace do not confer independent validation.
 For automation, an invariant violation uses TLC's physical status (normally 12)
 in both semantic profiles. `--exit-codes native` selects the historical status 10.
 `--compat=tlc` also selects TLC evaluation. Conformance
-compares these numeric statuses exactly. Known default differences count as
-ExpectedDivergence only for declared exact pairs and valid independent witnesses,
-never as Agree. See [reports and errors](reports-and-errors.md).
+compares these numeric statuses exactly.  See [reports and errors](reports-and-errors.md).
 
 The conformance harness requires whole counterexamples for safety, action-property,
 liveness and deadlock verdicts at every width. Missing or metadata-only words
@@ -896,7 +866,7 @@ This lets existing checker guards run when a complete assignment reaches the
 sink. `ENABLED` likewise streams unassigned interval-membership candidates,
 stopping at its first witness. Its membership-candidate loop reaches the
 existing amortized evaluator control even when every candidate is rejected.
-Already assigned variables still use the ordinary membership check.
+Variables that are already assigned use the usual membership check.
 Bounded evaluator contexts also stream primitive interval columns for
 quantifiers and their shared binder traversal. Every domain is still evaluated
 before the first body, including domains after an empty interval; the first
@@ -905,17 +875,14 @@ Existing loop checkpoints can therefore run without first retaining the entire
 interval. Existing cardinality admission errors still apply before the first
 body in both profiles. APIs requesting all bindings still collect the full
 result. Other constructors can still materialize a domain before candidate binding, and long
-individual evaluations may not be interruptible. No fixed
-domain-size count is introduced. Parallel checking polls the armed run budget during
+individual evaluations may not be interruptible.  Parallel checking polls the armed run budget during
 successor emission. A stop retains its actual ordered prefix and
 leaves the unfinished source queued; a later worker's violation cannot bypass an
 earlier incomplete expansion. A predicate such as
 `x' \in 0..50000000 /\ FALSE` emits no complete successors, so the emission
 guard alone cannot interrupt it. The additional amortized candidate checkpoint
 observes the budget before binding while this rejecting search proceeds,
-including inside private action-composition collection. Quiet
-normalization/equality/hash units, domain materialization before the candidate
-loop, and single long evaluations retain their limitations. For a bounded
+including inside private action-composition collection.  For a bounded
 first-state violation with an independently
 validated witness, run:
 
@@ -954,20 +921,19 @@ replacement, changed checked-depth context, unknown mutable capture, provider,
 outer-set dependence or unproved scope keeps ordinary enumeration. The private
 position commit changes integer cursor storage only; predicate evaluation,
 control callbacks, value construction and sinks remain outside the host lock.
-No cardinality limit, explicit `Cardinality` behavior or reference result changes.
+
 
 Compound assignment domains with recursively concrete finite components
 also yield candidates incrementally: powersets, Cartesian products, function
 sets and record sets reach the initial/successor sink and `ENABLED` continuation
 without retaining every output. Required nonempty component normalization still
 precedes the first candidate. For example, `SUBSET ({1, TRUE} \X {})` yields the
-empty set without comparing the dead mixed column; an initial invariant can
-therefore fail on that actual state. BASE size errors and nonempty conversion
+empty set without comparing the dead mixed column; an initial invariant can therefore fail on that state. BASE size errors and nonempty conversion
 errors remain unchanged, including their existing named class refusals.
 Candidate checkpoints also run when a continuation rejects
 every value, allowing the configured run budget to stop that search.
 
-This changes output storage, without imposing a new cardinality limit. Ordinary
+ Ordinary
 normalized bulk operations, deferred component providers and values requiring a
 different exploration order use their existing paths. A compound component may
 still require materialization; this does not make every domain construction
@@ -994,10 +960,8 @@ is not allowed after `<>`, so it establishes no error priority. Its original
 input and generated reference are retained. A separate
 `liveness-atom-action-error-order` corpus uses `<<ActionBad>>_x` and reports
 the state Concat error (2182), exit 255, with two distinct/generated states, one
-queued state and depth two. This formula establishes no global action priority.
-These validation models are outside the small and full corpus tiers. The TLC
-measurements alone do not validate a dive error prefix or an ordinary error
-verdict.
+queued state and depth two. 
+These validation models are outside the small and full corpus tiers. 
 
 In the ordinary comparison this four-model corpus gives two agreements and
 two refusals, in both profiles. `DelayedSiblingStateError` matches 2179/255 and
@@ -1010,17 +974,15 @@ The Rust detailed temporal-failure APIs retain a state atom's original typed
 cause separately from its bound predicate source. `state_evaluation()` identifies
 whether that failure occurred in final graph labels, a completed-level periodic
 check, or candidate attribution; a synthesized nonboolean result remains distinct
-from a core evaluator error. This evidence does not certify TLC's capture-time
-error demand or stopping prefix. APIs accepting a caller-owned `&Model`, and detailed APIs retaining finite
+from a core evaluator error.  APIs accepting a caller-owned `&Model`, and detailed APIs retaining finite
 `GraphLabelPolicy::Cells` (including their defaults), keep this posthoc refusal
 behavior. A `CaptureRow` site is accompanied by separate
 opaque `capture_row()` evidence; the site or typed cause alone grants no verdict.
 
 A separate opt-in Rust capture API, `capture::explore_checkpoints_with_evidence`,
-exposes actually reached Init and completed-source-row checkpoints. Its W1-only
+exposes the reached Init and completed-source-row checkpoints. Its W1-only
 inline execution is reported explicitly; ordinary capture and the existing
-whole-Init/completed-level observer callbacks keep their behavior. The API can
-retain a genuine core `ErrorClass::Eval` cause with real stopping counters and
+whole-Init/completed-level observer callbacks keep their behavior. The API can keep a core `ErrorClass::Eval` cause with its stopping counters and
 a checked finite diagnostic source path. Unsupported, resource and internal
 causes keep their existing mappings without a typed decision. That path is not a validated temporal counterexample, and the
 checkpoint does not certify that TLC demanded an atom or would report that
@@ -1041,7 +1003,7 @@ representations without running a predicate or provider. Unknown deferred values
 normalization-sensitive operations, host effects or incomplete coverage retain
 the old route before any new atom call; no model names or invariants grant admission.
 
-Successful source rows retain actual Boolean results for analysis after capture
+Successful source rows keep their Boolean results for analysis after capture
 completes, preserving original vertex and edge-occurrence identities. Every due
 periodic prefix check keeps the original graph, including its frontier labels
 and attribution; it does not consume the row cache. An unpromotable semantic
@@ -1056,8 +1018,7 @@ error endpoint on another fresh runtime. Unknown independent validation
 capabilities remain named refusals; allocation and budget failures remain
 resource exceptions/stops. The report uses
 `temporal-state-row`; it does not claim a lasso or violated property. Scheduling,
-existing limits and JSON schema 3 are unchanged. Budgets, nonboolean results,
-foreign contexts and internal failures do not acquire this error authority.
+existing limits and JSON schema 3 are unchanged. 
 
 Temporal preparation reports TLC's zero-solution startup error (2253/77)
 when the complete admissible conversion of the actual bound temporal roles,
@@ -1069,7 +1030,7 @@ true formula alone is insufficient: `<>TRUE` and `<>[]TRUE` retain their ordinar
 analysis route. Effectful or unknown conversion scopes can still be refused.
 The original configured claims remain separate attribution inputs; nonzero
 startup preparation retains their existing backend and row-proof requirements.
-This adds start-up preparation work only, not work per state.
+This adds work at start-up and none per state.
 
 
 
@@ -1081,10 +1042,9 @@ host's native permission callbacks. An explicit `native_hook_scope` can select
 available generation. Otherwise selection returns `None` and changes nothing.
 There is no fresh unrestricted binding constructor. The policy omits only that callback, while
 print, register, introspection, action-composition, I/O and cooperative-control
-checks remain in their original paths. Choosing this policy does not certify
-purity, ownership, or permission to skip an evaluation. A caller must own host
+checks remain in their original paths.  A caller must own host
 replacement while using a binding scope; it does not lock out evaluator clones.
-Domain zero deliberately shares ordinary cached values across mode restoration;
+Domain zero shares cached values across mode restoration;
 Callback restoration is not revocation of that authority. Independent nonzero
 guard/replay domains always retain callbacks, so an unrestricted ordinary warm
 cannot satisfy their permission-bearing cache entries.
@@ -1095,9 +1055,7 @@ Fresh owned temporal capture keeps its existing fresh-host reset before
 assumptions and Init. Public borrowed capture and legacy host setters retain
 callbacks; diagnostic replay temporarily restores them too. Complete scopes
 restore the host, policy and installed expression-cache domain with a new
-nonreused installation generation. Exhausted generations grant no optional
-admission. There is no CLI switch or predicate-result cache for this.
+nonreused installation generation.  There is no CLI switch or predicate-result cache for this.
 
 Native compiled safety debugging is available through `dive debug` and public
-Rust sessions. See [the debugging guide](debugging.md) for actual source
-breakpoints, stop-scoped inspection and supported execution boundaries.
+Rust sessions. See [the debugging guide](debugging.md) for source breakpoints, stop-scoped inspection and supported execution boundaries.

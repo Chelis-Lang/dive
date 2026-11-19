@@ -1,9 +1,10 @@
-# Fallible disk seen-state library
+# Disk seen-state library
 
-`dive-store` has an additive private-file library for fingerprint or exact
-canonical keys. An explicit [ordinary safety route](disk-seen-safety.md) now
-admits it with reported inline fallback. The default checker retains its
-seen-state sets in memory. Frontier and predecessor budgets keep separate scope.
+`dive-store` has a library that keeps a set of fingerprint or exact canonical
+keys in private files on disk. `dive check` uses it when you opt in to
+[disk seen-state checking](disk-seen-safety.md); by default the checker keeps
+seen states in memory. Frontier and predecessor spill have budgets of their
+own.
 
 Run the Cargo example:
 
@@ -34,53 +35,50 @@ allocation, resource or integrity error returns `SeenError` (`DIVE-S0700`),
 poisons the store and is returned by subsequent operations. A failed write never
 returns `Inserted` or `Present`.
 
-Successful insertion confirms complete in-process record/index writes. There is
-no per-insert data fsync, crash-durability guarantee or restart/import API. These
-are owned transient files, not checkpoints.
+A successful insert means the record and index writes completed in this
+process. Inserts do not fsync, and there is no crash durability and no API to
+restart from or import the files. They are transient files owned by the store,
+not checkpoints.
 
-Drivers that own the run may call `close_controlled(validate, proceed)`.
-It returns the cleanup facts and whether the retained-record audit completed.
-Cancellation or `validate = false` still removes owned files, but the returned
-audit flag is false and cannot certify their contents. A later `close()` cannot
-upgrade a discarded store into an audited one. Original storage failures remain
-authoritative and retain any later cleanup failure.
+A driver that owns the run may call `close_controlled(validate, proceed)`.
+It returns what cleanup did and whether the audit of the retained records
+completed. Cancelling, or passing `validate = false`, still removes the owned
+files, but the audit flag is false and says nothing about their contents. A
+later `close()` cannot turn a discarded store into an audited one. The first
+storage failure stays the reported cause, with any later cleanup failure
+attached.
 
-`stats().physical_entries` counts fully written record/index insertions. It must
-not be used as a failed model run's committed discovery count. `disk_bytes` is
-the expected current data/index length, not cumulative rehash traffic; a failed
-write/rehash may leave extra partial or staging bytes. `resident_key_bytes` is zero because no key
-or offset collection is retained in RAM. OS page cache, paths, handles, caller
-keys and at most two record-sized workspaces are outside that statement. It is
-not a total RAM budget.
+`stats().physical_entries` counts fully written record and index inserts. Do
+not use it as the number of states a failed model run discovered. `disk_bytes`
+is the expected current length of the data and index files, not the total
+written by rehashing; a failed write or rehash may leave extra partial or
+staging bytes. `resident_key_bytes` is zero because no keys or offsets are kept
+in RAM. That figure leaves out the OS page cache, paths, handles, the caller's
+keys and at most two record-sized workspaces, so it is not a RAM budget.
 
 Default `Limits` allow one key of at most 64 MiB, 16,777,216 physical entries,
 33,554,432 slots per probe and 1,000,000 pair comparisons for the collision
-summary. Key bounds and arithmetic are checked before allocation/growth. The
-first fingerprint-gap implementation uses a bounded quadratic scan, matching
-the existing TLC subset/minimum-gap rule. Too many pairs return a typed summary
-error instead of silently dropping the collision estimate. It is meaningful
-against TLC when keys are TLC fingerprints; exact mode refuses that summary.
+summary. Key sizes and size arithmetic are checked before anything is
+allocated or grown. The fingerprint-gap summary uses a bounded quadratic scan
+that follows TLC's minimum-gap rule. Too many pairs return a typed summary
+error; the collision estimate is never dropped silently. The summary is
+comparable with TLC's when the keys are TLC fingerprints, and exact mode
+refuses it.
 
-Always call `close()` before declaring completion. It audits record/index
-reachability, then removes only owned files and the owned private directory.
-Unknown caller-added files are retained and cause cleanup to fail. A cleanup
-error prevents a successful close; an earlier storage failure remains the
-primary cause, with cleanup failure attached. Drop cleanup is only a fallback.
-Cleanup can remove some owned files before failing; the poisoned store cannot
-be reused afterward. Retain the failure and cleanup flag before discarding it.
-Checksums detect accidental corruption and provide no archive authenticity or
-independent search proof.
+Call `close()` before you treat the run as complete. It audits that every
+record and index entry is reachable, then removes only the files and private
+directory the store owns. Files the caller added are left in place and make
+cleanup fail. A cleanup error means the close did not succeed; an earlier
+storage failure stays the main cause, with the cleanup failure attached.
+Cleanup on drop is only a fallback. Cleanup can remove some owned files before
+it fails, and a poisoned store cannot be reused, so keep the failure and the
+cleanup flag before discarding it. Checksums detect accidental corruption only;
+they do not authenticate the files.
 
-The first library permits coordinated exclusive calls. Parallel read views, direct disk-file
-recovery and graph routing remain pending. Core safety checkpoints separately
-rebuild membership from saved concrete discoveries through the existing fallible
-insertions; they do not import old disk files. Ordinary inline safety admission
-and separately budgeted seen/frontier/predecessor combinations use the explicit
-[engine contract](disk-seen-safety.md). See the
+Calls must be exclusive: the library has no parallel read views, no recovery
+from its disk files and no graph routing. Core safety checkpoints rebuild
+membership from the saved discovered states through the same fallible inserts;
+they do not import old disk files. For how `dive check` combines disk seen
+states with frontier and predecessor budgets, see
+[disk seen-state checking](disk-seen-safety.md) and the
 [storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md).
-
-The source-bound control study
-records full key identity, rehash, poisoned-error and owned-cleanup controls, the
-actual Cargo example and current engine regression gates. It supplies library
-evidence; the later engine increment supplies its own evidence and option contract. It
-does not establish checkpoint support.

@@ -1,8 +1,8 @@
 # Temporal checking
 
-The checker exposes bounded temporal analysis. Eligible ordinary dive-profile
-requests check at deterministic completed-level boundaries; ordinary TLC-profile
-requests check only after exhaustion. Core does not implement explicit
+`dive check` checks temporal properties on pure finite models. In the default
+profile it checks at deterministic completed-level boundaries; in the TLC profile
+it checks once, after exhaustion. Core does not implement explicit
 `--lncheck final --lasso short` selection: with temporal properties it refuses
 by name (exit 3) in both profiles.
 
@@ -45,21 +45,19 @@ In particular, an action-candidate error with pending temporal obligations may
 not borrow the ordinary 2103/75 classification or the source-row ending. These
 refusals retain actual counters, output and diagnostic context. Successful
 fairness checks and the separate 2179/2182 temporal-state-row meaning are
-unchanged. Other boundaries remain unsupported.
+unchanged. 
 
 The native optional lane performs no source binding or reference row evaluation
 for compound roots. It uses a callback-free eligibility check, waits for an
 actual scalar source event before binding, and reuses one hidden owned row
 runtime. Existing native constructed-action execution remains available.
 
-Property attribution is relative to the actual independently validated word.
+Property attribution is relative to the independently validated counterexample.
 The report's `properties` is the complete configured false-property list on that
 word; `property` and the human headline format the same list. A different valid
 lasso can violate a different set of configured properties. Compatibility does
 not require copying TLC's set onto a word where some named property holds.
-The harness accepts this difference only after fresh independent whole-word and
-complete-attribution validation; all required verdict/count/depth/class/exit
-comparisons remain in force.
+
 
 ## Native graph capture with the core engine
 
@@ -83,8 +81,7 @@ This checked example returns `liveness-violation` for `EventuallyFour`, exit 13:
 at `x = 0` and has `counterexample.validation: "valid"`. Capture is exhausted;
 no prefix check is due for this small graph. Adding `--compat=tlc` keeps those
 observables and selects final-only analysis. The default profile retains its
-deterministic completed-level schedule. Explicit final/short requests retain
-their existing separate route.
+deterministic completed-level schedule. Explicit final/short requests refuse by name.
 
 Pure native temporal capture can use all requested workers under `--compat=tlc`
 when its real startup name table is fixed. For example:
@@ -149,8 +146,7 @@ retain actual statistics, stage and capture-completion truth and never trigger
 an automatic retry. Explicit Rust limits, final/short selection and formula/tableau/property planning bounds retain
 their existing policies. Existing core admission refusals remain.
 VIEW/symmetry quotient semantics, effects and temporal error-demand order are
-separate limitations. A core refusal is explicit and never falls back to
-another engine. Memory accounting is not complete.
+separate limitations.  A Core refusal names the feature and never falls back to another engine. Memory accounting is not complete.
 
 **Store.** Temporal checks accept `--store fp|exact` in both profiles. Unless
 two states' fingerprints collide, both stores give the same verdict, counts and
@@ -190,8 +186,7 @@ actual boundary, skips postconditions and reports its actual generated/distinct/
 depth/queue counters, `capture_completed: false` and `exhausted: false`. A fresh
 model validates both the typed periodic word and its serialized trace, including
 original `Next`, configured property names and the closing edge. A refused or
-invalid word publishes no violation or counterexample. Only real exhaustion can
-produce `Holds`. TLC timing, queue order and final-oracle counts are not copied.
+invalid word publishes no violation or counterexample.  TLC timing, queue order and final-oracle counts are not copied.
 A prefix check searches only the first configured property: a violation of it
 on a prefix is also a violation on the complete graph, where the final check
 would name it first. Violations of later properties wait for the final check,
@@ -206,13 +201,9 @@ including zero checks when no level was due. Such a default-profile run keeps
 Rust callers can choose another schedule with `CheckRequest::periodic`
 (`dive_api::PeriodicSchedule`); the CLI always uses the default. Capture bounds are
 cumulative across the search. Planning happens once; label/product/formula
-bounds retain their actual per-property and per-analysis-check scopes. Repeated
-checks add computation: these bounds promise neither a total-run work/byte cap
-nor a speedup. Explicit `--lncheck final --lasso short` is refused on Core.
+bounds retain their actual per-property and per-analysis-check scopes.  Repeated checks add computation, and these bounds do not cap total work or bytes. 
 
-The conformance adapter reads these actual default prefix counters and schedule
-facts alongside ordinary TLC final reports. It independently replays words; a
-producer's validation marker is insufficient. Required result comparisons stay
+The conformance adapter reads these default prefix counters and schedule facts alongside TLC's final reports, and replays every counterexample itself. Required result comparisons stay
 strict, so prefix counts are not replaced with final-oracle counts or waived.
 Goldens use `-lncheck final`; a model whose violation the default profile finds
 on a prefix stops with fewer states than the golden, which is a registered count difference
@@ -232,8 +223,7 @@ word validation. No lasso-policy flag is needed. It finishes graph exploration
 before checking temporal properties and chooses a deterministic short valid word;
 TLC's particular SCC, lasso, timing and queue order are not reproduced.
 The report records the actual `lncheck: final`, `lasso: short` and temporal
-bounds, with profile `tlc`. This is partial temporal support, not general TLC
-parity or an implementation of periodic checking.
+bounds, with profile `tlc`. This is partial temporal support.
 
 The route requires profile-default evaluation and no storage
 budget/directory or chaos overrides. Any `--store`, `--fp` polynomial,
@@ -273,7 +263,7 @@ Rust callers retain their supplied ceilings. `product::Limits::default()` stays
 at 1,000,000 vertices, and every existing final/periodic entrypoint enforces
 explicit zero, exact boundaries and an explicitly supplied former default.
 Callers can already supply `usize::MAX` when they want machine-index capacity.
-No numeric value is interpreted as permission to ignore the admission check.
+
 
 Outside the ordinary core file route described above, product edges, transition
 work, acceptance buffers, captured graph, tableau, attribution and periodic-word
@@ -281,12 +271,11 @@ bounds retain their independent settings. Checked
 size/layout arithmetic and existing fallible reservations remain in place.
 Whole-process time and memory budgets retain their documented cooperative and
 sampling limits: individual allocations and uninterruptible units can still
-outlast a poll or fail at the host. A refusal or stop never proves a property.
+outlast a poll or fail at the host. 
 
 Under an explicit 564,520 ms budget and an 8 GiB ceiling, CoffeeCan1000Beans
 completes all configured properties in both profiles, with 501,500 distinct
-states, 2,000,002 generated and depth 1. This is a capacity result, not a
-throughput claim.
+states, 2,000,002 generated and depth 1. This measures capacity.
 From the pinned Examples CoffeeCan directory, use:
 
 ```sh
@@ -297,8 +286,7 @@ dive check CoffeeCan.tla --config CoffeeCan1000Beans.cfg --workers 1 --seed 0 --
 Binding happens once under the ordinary startup host. If the configured roles
 are all safety obligations, their complete ordinary result uses schema 3 with
 `check_kind: "safety"`,
-including startup Print output, randomness and error ordering. Genuine temporal
-analysis uses schema 3. A completed holding result or violation reports actual
+including startup Print output, randomness and error ordering. Temporal analysis uses schema 3. A completed holding result or violation reports actual
 generated/distinct/queue/depth counters and `execution.exhausted: true`, even
 though the legacy `reported_by_tlc` print marker is false. A violation names its
 property and carries a lossless periodic word independently replayed against a
@@ -317,7 +305,7 @@ native evaluations by kind, and fallback; they do not establish throughput or
 whole-model completion. State admission and independent word validation retain
 their existing checks. See [the native evaluation boundary](../developer/core/11-liveness.md#41-optional-native-predicate-evaluation).
 
-The ordinary conformance adapter retains those actual complete counters and
+The ordinary conformance adapter keeps those complete counters and
 requires coherent schema, class, physical status and word metadata. It still
 replays the word independently: a producer's `validation: valid` field is not
 proof. Periodic liveness words may differ in length or closing target while
@@ -331,8 +319,7 @@ safety checking in charge: invariants, initialization/successor errors,
 assumptions and other safety settings retain their usual behavior. No temporal
 claim or capture proof is issued.
 
-With default resident-memory settings, configured properties whose actual bound
-roles are entirely initial predicates, invariants and implied actions also use
+With default resident-memory settings, configured properties whose bound roles are entirely initial predicates, invariants and implied actions also use
 that ordinary engine. Each obligation retains its scope, order and name; the
 checker binds once and retains its startup output and random stream. This initial
 route requires profile-default evaluation/fingerprints, polynomial 0, fingerprint
@@ -375,8 +362,7 @@ Pure supported boolean/temporal operators, finite quantification and WF/SF
 predicates have scoped limits. Unknown ENABLED/fairness covers, runtime effects,
 dynamic/exported scopes and other unproved constructs refuse. Eligible ordinary
 requests use the profile schedules described above; excluded options retain
-their named refusals. A diagnostic planning/tableau/product API that completes
-has not issued a temporal verdict.
+their named refusals. 
 
 Direct configured operator constants can call nonrecursive top-level user
 operators with ordinary value parameters inside pure state/action predicates.
@@ -400,7 +386,7 @@ checks the original configured calls separately.
 Temporal preflight distinguishes an absent INSTANCE substitution from an
 explicitly unset binding. An absent reference can use its original variable
 declaration or configured constant instead of being rejected as opaque. Pure
-zero-argument constant redirects are inspected in their actual scopes; value
+zero-argument constant redirects are inspected in their own scopes; value
 bindings and lazy substitutions keep their existing meanings. An unused
 INSTANCE import therefore does not hide a configured constant from checking.
 For example:
@@ -414,8 +400,7 @@ dive check crates/dive-trace/tests/fixtures/instance-constants/constant_absent_v
 This model reports property `Bad` violated, code 2116 and exit 13, with three
 generated states, two distinct states and depth two. Its periodic word passes
 independent validation. The paired configured-redirect fixture has the same
-result; the original holding fixtures report success. Ordinary default-profile temporal
-dispatch keeps its existing support boundary. Explicitly unset or opaque
+result; the original holding fixtures report success.  Explicitly unset or opaque
 bindings, effectful/recursive/nonconstant constant redirects and missing finite
 ENABLED covers retain their named refusals.
 
@@ -458,7 +443,7 @@ for invariants. An enabledness atom runs the evaluator's `ENABLED` search.
 Planning still inspects callback sources without evaluating them.
 Both value profiles use this same subset.
 
-Schema 3 reports explicit final requests and actual ordinary temporal analysis;
+Schema 3 reports explicit final requests and temporal analysis;
 ordinary safety results also use schema 3 with `check_kind: "safety"`.
 `properties` names complete claims, and periodic counterexamples carry validation
 and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
@@ -470,8 +455,7 @@ and indexing conventions.
 Ordinary `dive check --compat=tlc` requests check temporal properties after
 exhaustion with TLC's value semantics and report a deterministic short lasso
 that passes independent replay. TLC's own lasso choice is not reproduced: it
-depends on hash-table and SCC visitation order, which are not parity
-obligations. Core does not implement the explicit
+depends on hash-table and SCC visitation order, which dive does not reproduce. Core does not implement the explicit
 `--lncheck final --lasso short` mode; with temporal properties it refuses by
 name (exit 3). `--lasso tlc` is a usage error.
 
@@ -485,7 +469,7 @@ destination identity at a source. Later constructor aliases and the implicit
 stutter do not replace that selected target; exploration still counts every
 generated successor. This matters when TLC distinguishes a function constructor
 from a record during comparison. A single direct `<>[]A` or `[]<>A` action
-operand preserves an actual evaluator `GENERAL` error as `evaluation-error`,
+operand preserves an evaluator `GENERAL` error as `evaluation-error`,
 TLC code 1000 and process exit 255 (`--exit-codes native`: 13). The report names
 the `temporal-action` error site and retains completed capture counts.
 
@@ -504,15 +488,13 @@ action occurrence IDs, plain Boolean constant simplification and exact direct
 atomic GF/FG classification. Repeated conjunction/disjunction operands remain
 multiple operands even when their action IDs coincide. Input-term, depth and
 actual-work limits still apply; all references are validated before constant
-pruning. This pass neither classifies TLC formulas nor changes tableau rules,
-limit defaults or predicate-local lazy Boolean guards. A model can reach a
+pruning.  A model can reach a
 separate graph or product bound instead.
 
 `AllocatorImplementation`, with its pinned configuration, one worker,
 seed and fingerprint 0 and explicit 361.620-second and 4 GiB budgets, completes
 capture with 17,701 distinct states, 64,414 generated states and depth 16 in
-both profiles. Removing the temporary copy proves no property and changes no
-agreement count.
+both profiles. 
 
 Final checking also preserves binding errors: a missing `_PERIODIC` definition
 reports TLC code 2229, and a parameterized definition reports 2228. Both exit
@@ -539,7 +521,7 @@ values. The predicate still evaluates its concrete domains and bodies in each
 state; static analysis never supplies a sample value or proves a verdict.
 Nested dependent domains and pure helper calls retain their lexical bindings.
 Existing refusals for effects, unsupported action/temporal captures and opaque
-operators remain, including behind empty domains. Actual temporal quantifiers, such as `\A i
+operators remain, including behind empty domains. Temporal quantifiers, such as `\A i
 \in S : []P(i)`, still expand concrete formulas and retain formula/storage
 limits. Recursive functions retain their separate admission rules.
 
@@ -557,8 +539,7 @@ inspection, including at zero work, independently of redirect iteration order.
 Constants supplied with `<-`, operator constants, deferred/non-scalar values,
 recursive or higher-order redirects and unsupported lexical contexts do not
 qualify for this extension. Two tiny filtered-WF models exercise success and a
-genuine independently replayed violation. Coverage of original Quicksort and
-other corpus models is not established by these controls.
+genuine independently replayed violation. 
 
 Core-native Rust reports add `temporal::Outcome::NativeHolds`,
 `NativeViolation` and `NativePrefixViolation`. The holding variant retains sealed
@@ -614,8 +595,7 @@ independent replay in both profiles.
 
 Pure state predicates and fairness actions can use a finite local recursive
 function, such as allocator-style `PermSeqs(S)`. The recursive self, finite
-domain, formal values and enclosing state/LET captures retain their actual
-interpreter scopes. Planning inspects these without evaluating state-dependent
+domain, formal values and enclosing state/LET captures keep their interpreter scopes. Planning inspects these without evaluating state-dependent
 domains; execution obtains the concrete bounded contexts in each invocation.
 
 ```sh
@@ -638,14 +618,12 @@ Unused LET definitions stay lazy.
 Recursive source analysis conservatively treats self and formals as state-level
 unknowns, even for a closed constant call. A recursive result therefore cannot
 yet supply a temporal quantifier domain that planning must establish constant.
-This is an analysis limitation, not evidence of an actual state dependency.
+The state dependency may not be real; the analysis cannot rule it out.
 
 Independent fairness enabledness still needs complete finite successor covers
 and checks the original relation. A recursive function supplies no cover by
 itself. Empty domains cannot hide captured or outer primed reads, and missing
-covers cannot become a Disabled result. No planner approval is passed to the
-validator. Both value profiles share this bounded subset; existing defaults,
-options, schemas and resource caps are unchanged.
+covers cannot become a Disabled result.  Both value profiles share this bounded subset.
 
 Seven small pinned cases cover empty, one- and two-element domains, a holding
 and a failing property, and a direct control.
@@ -666,8 +644,7 @@ request still reports the sequential fallback. Register/live-counter access,
 randomness, I/O and cached lazy effects retain their existing refusals, and
 speculative parallel capture remains excluded. Independent validation can still
 refuse a counterexample that requires composition or newly created runtime names;
-complete graph capture alone does not establish a validated violation. This
-change does not extend checkpoint or DFID admission.
+a completed graph capture alone is not a validated violation. Checkpoints and DFID do not support this.
 
 ## Nested enabledness in Boolean guards
 
@@ -675,7 +652,7 @@ Bounded final analysis accepts pure `ENABLED` queries in ordered Boolean
 `~`, `/\` and `\/` guards, including ordinary first-order definition bodies,
 local LET expressions and bounded Boolean quantifiers. Queries can appear in
 `Next`, temporal action predicates, and actions used by weak or strong fairness.
-Each query quantifies a fresh successor from its actual current state; its inner
+Each query quantifies a fresh successor from its current state; its inner
 primed variables do not refer to the outer transition's target.
 
 Fairness on a lasso is validated with the same `ENABLED`: `WF_v(A)` holds when
@@ -713,7 +690,7 @@ State-level mixtures of direct queries keep their existing temporal conversion
 and native INSTANCE support. Replayed queries use the actual INSTANCE and lazy
 scopes, including enabled and disabled correlated assignments. Direct and instantiated WF/SF words cover continuous
 and intermittent starvation, disabled stutter and recurrent closing occurrences.
-General callable and planner integration remains unfinished.
+
 
 Periodic word validation evaluates queries hidden behind helper formals, such
 as `Guard(p) == p /\ TRUE; Guard(ENABLED A)`, with the core evaluator. A
@@ -722,8 +699,7 @@ edge, closing edge and property claims are still required independently.
 
 ## INSTANCE query namespace controls
 
-The separate `instance-temporal` corpus records ten tiny Boolean controls from
-the pinned primary oracle before changing INSTANCE execution. These expose a
+The separate `instance-temporal` corpus records ten tiny Boolean controls from the pinned TLC oracle. These expose a
 lexical distinction: `ENABLED I!A` applies an instance inside the query, whereas
 an exported `I!Can` whose definition is `Can == ENABLED A` enters the query after
 the instance bindings. They need not give the same answer.
@@ -737,7 +713,7 @@ failures. A nested instance sends both substitutions through `q`; its query
 returns false because the successor choices share that name. Flattening every
 instance to the caller's root variable would lose these observed distinctions.
 
-The guarded controls also separate an actual current-state value from a caller
+The guarded controls also separate a current-state value from a caller
 variable with the same spelling as the imported declaration. Fresh substitutions
 inside the query differ from captured bindings established before it. See
 [the corpus guide](../conformance-corpora.md#instance-query-namespace-controls)
@@ -746,14 +722,13 @@ for the exact selection and generated oracle route.
 The evaluator's ENABLED search represents its partial successor by canonical
 variable name, including hidden names. It preserves the captured contexts and
 branch cutoffs above. Ordinary graph states, fingerprints and trace variable
-lists still contain only the root variables. Both semantic profiles use the
-same query-name rules; no new flag or default divergence is introduced.
+lists still contain only the root variables. Both semantic profiles use the same query-name rules.
 
 Sequential assignments and `UNCHANGED` checks reuse an unshared partial query
 state. Retained alternatives, lazy computations and caller states keep their
 own snapshots; query evaluation still follows the same branch and error order.
 
-Rust callers can construct an actual partial query assignment with
+Rust callers can construct a partial query assignment with
 `Evaluator::named_state`, using checked IR variable declaration IDs and values.
 `StateRef::Named` retains it for scoped reads; `St::enabled_candidate`,
 `enabled_current` and `primed_successor` preserve the complete state. An absent
@@ -784,13 +759,10 @@ two generated states and depth one (2193, exit 0). Constant and current-state
 capture controls distinguish the creation context from the successor lookup.
 
 Native checking matches all four in both profiles. Since the validator decides
-`ENABLED` with the core evaluator, replay accepts the genuine
-initial-violation word of the primed disabled case and rejects the same word
+`ENABLED` with the core evaluator, replay accepts the initial-violation counterexample of the primed disabled case and rejects the same word
 for the primed enabled case, where `Inv` holds, through both the document and
 the typed API, on the corpus's own `LET Cut == a'` specs
-(`crates/dive-api/tests/callback_enabled.rs`). The corpus is
-reported separately from the established 156-model population, and its
-generated goldens retain their own source identity.
+(`crates/dive-api/tests/callback_enabled.rs`). 
 
 ## A false prefix inside ENABLED
 
@@ -824,21 +796,17 @@ variable names; hidden `a` and `c` do not invalidate the retained lazy value.
 The root collision `b` stays42 for both candidates. A paired research run with
 `-Dtlc2.value.impl.LazyValue.off=true` changes only the remove2 control to
 success. That JVM setting is diagnostic and supplies no oracle golden.
-LazyValue captures its expression and lexical context; forcing supplies the
-states and control flags, so adding creation-state snapshots is not a solution.
+LazyValue captures its expression and lexical context; forcing supplies the states and control flags.
 
 Native named-query lazy-cache checks compare the assigned root names, retaining
-pinned TLC's observable behavior across hidden membership candidates. The six
-controls check actual invariant evaluation in both profiles. Independent replay
-compatibility remains open. Replay must evaluate original
+pinned TLC's observable behavior across hidden membership candidates. The six controls check invariant evaluation in both profiles.  Replay must evaluate original
 source with its own bounded invocation state; checker caches or witnesses cannot
 establish validity. The six inputs and generated goldens remain separate from
 the established156-model population and do not increase its agreement count.
 
 ### Lazy query evaluation in replay
 
-Replay evaluates lazy query sources with the core evaluator and its ordinary
-caches, so a LET reached before a hidden membership choice keeps one binding
+Replay evaluates lazy query sources with the core evaluator and its caches, so a LET reached before a hidden membership choice keeps one binding
 across the choices and one reached after it gets a binding per choice, as in
 TLC. The isolated lazy-capture and lazy-cache controls do not change the
 established 156-model population.
@@ -863,8 +831,7 @@ LET before all candidates, violates one of these controls. Source inspection
 cannot supply the runtime context. The implementation must preserve each
 reached lexical binding's lifetime across precisely the branches it encloses.
 
-These primary-first fixtures and generated goldens establish the required
-behavior before its implementation. They remain separate from the established
+ They remain separate from the established
 156-model population; no native or independent replay support is implied.
 
 
@@ -874,7 +841,7 @@ Both profiles separate pure Boolean recurrence (`[]<>B`) and persistence
 (`<>[]B`) obligations from the temporal memory needed by a property. Multiple
 strong-fairness alternatives share that memory. A finite prefix may violate a
 persistence condition; its recurrent cycle must satisfy it. Recurrence may be
-fulfilled on the closing transition, including an actual stuttering edge.
+fulfilled on the closing transition, including a stuttering edge.
 This reduces memory for models with many fairness conditions without changing
 verdicts, state counts or counterexample validation.
 
@@ -885,7 +852,7 @@ reads and current resource checks. This optional storage is bounded by the
 smaller of 16 MiB and one 256th of the requested memory limit; unavailable storage
 uses ordinary evaluation. It resets for each graph analysis and changes no
 fairness or property semantics in either profile. Additive `fairness_reuse`
-metrics distinguish reused truth from actual atom evaluations; they do not prove
+metrics distinguish reused truth from atom evaluations; they do not prove
 completion, time saved or a hard whole-process memory ceiling.
 
 The existing formula, graph, atom and product bounds still apply. An exhausted
@@ -920,10 +887,7 @@ supplied state position. Its structural construction and `ASSUME`, native
 document encoding and decoding, and value operations remain uninterruptible.
 A supplied deferred value can retain a different evaluator that this fresh
 control does not govern; the
-serialized native pass reconstructs its values independently. General TLC
-JSON interpretation/session reconstruction and standalone `validate-trace`
-budgeting are separate follow-ups. The diagnostic exclusion never pauses
-independent candidate certification. The checked
+serialized native pass reconstructs its values independently.   The checked
 strong-fairness fixture in
 `crates/dive-liveness/tests/fixtures/solutions/Solutions.tla` has 8 states and
 25 generated states for three independent toggles. Its holding and failing
@@ -937,7 +901,7 @@ cargo test -p dive-liveness --test solutions
 All operation reports use schema 3. A check's top-level `check_kind: "temporal"`
 identifies its request/report family; it is not capture, completion or proof
 evidence. Final/short requests that encounter a safety failure keep this family
-and the actual incomplete-capture facts. Read the required `execution`, property,
+and the incomplete-capture facts. Read the required `execution`, property,
 options, physical status and independently validated witness fields together.
 Ordinary safety-family reports have no temporal capture claims. See the
 [report and trace versioning policy](reports-and-errors.md).
@@ -966,7 +930,7 @@ profile MCCRDT keeps its registered generated-count difference
 ([action composition](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning)) and is counted as an expected
 divergence, not an agreement.
 
-Six ordinary affected-model checks completed in both profiles under explicit
+Six affected-model checks completed in both profiles under explicit
 8 GiB ceilings and TLC-derived native time budgets: 165.8 seconds for MCCRDT,
 230.82 seconds for Huang and 361.62 seconds for AllocatorImplementation, each
 with 30 seconds of external cleanup grace. Every check exhausted capture and
@@ -980,16 +944,15 @@ completed temporal analysis. Their counts are:
 
 All eight normal instruction cells changed by less than 1%; geometric overhead
 was 0.0113%, with identical verdicts, counts, depth, initial counts and final
-queues. These are bounded capacity and instruction observations.
+queues. 
 
 
 ## Symmetry with genuine temporal properties
 
 `--symmetry-liveness=unreduced` is the dive profile's default
-([symmetry with liveness](../tlc-differences.md#d-005-symmetry-with-liveness-uses-the-full-state-space)). If the
-actual configured roles contain a genuine temporal property and `SYMMETRY`,
+([symmetry with liveness](../tlc-differences.md#d-005-symmetry-with-liveness-uses-the-full-state-space)). If the configured roles contain a temporal property and `SYMMETRY`,
 the entire check uses full concrete state identities, including its initial and
-safety checks. Counts are the actual unreduced counts. `SYMMETRY` remains in the
+safety checks. Counts are unreduced. `SYMMETRY` remains in the
 configuration and report; its reduction is not applied. The choice is made after
 one ordinary binding and role split, without repeating startup output or effects.
 A `PROPERTY` that binds entirely to initial/invariant/implied-action roles does
@@ -1017,7 +980,7 @@ extension. There is no `.cfg` keyword for it. The original configured
 constant/role errors still precede checking; an ignored temporal symmetry
 operator is not evaluated or prepared only to validate its declaration.
 A malformed declaration still receives the existing ordinary safety treatment
-when safety reduction actually applies.
+when safety reduction applies.
 
 `options.symmetry_liveness` records the resolved request and
 `options.symmetry_liveness_source` records `explicit` or `profile-default`.
@@ -1025,7 +988,7 @@ The optional `symmetry_liveness` object is null before successful binding; a
 bound unreduced run records its original `declared` name, `genuine_temporal`,
 `effective: "unreduced"` and `scope: "whole-run"`. This explanatory metadata
 proves neither exploration nor completion. Existing execution, counts, stopped
-outcomes and actual requested/used worker fields remain authoritative. An
+outcomes and requested and used worker fields remain authoritative. An
 incomplete run cannot report success. Worker routing and all other capture
 limits/refusals retain their existing behavior.
 
@@ -1043,5 +1006,4 @@ is accepted. VIEW remains unsupported, including the order-sensitive primary
 controls in [the corpus guide](../conformance-corpora.md#liveness-quotient-primary-controls).
 Strict TLC parity does not count an unreduced default result as agreement with
 a reduced golden; only the exact registered
-[symmetry difference](../tlc-differences.md#d-005-symmetry-with-liveness-uses-the-full-state-space) can be an expected divergence. The explicit no-SYMMETRY primary references remain a
-separate validation population.
+[symmetry difference](../tlc-differences.md#d-005-symmetry-with-liveness-uses-the-full-state-space) can be an expected divergence. 

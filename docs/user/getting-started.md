@@ -1,70 +1,34 @@
 # Getting started
 
-With Rust 1.99 and a C compiler installed, install from crates.io:
-
-```sh
-cargo install dive-cli --locked
-```
-
-or directly from Git:
-
-```sh
-cargo install --git https://github.com/Chelis-Lang/dive --locked dive-cli
-```
-
-This installs the `dive` binary and the `tlc` command adapter. Linux release
-archives and checksum verification are described in the [README](../../README.md).
-
-From a source checkout, build the CLI with the pinned stable Rust toolchain:
-
-```sh
-cargo build --release -p dive-cli
-```
-
-The build needs a C compiler (`cc`), because dive links the mimalloc allocator.
-Release builds use whole-program link-time optimisation, so they take longer
-than debug builds.
-
-Use `target/release/dive` or put that binary on your PATH. Model checking itself
-needs no JVM. TLAPS and the CommunityModules TLA+ sources are built in, so
-ordinary specifications need no library-path flags or separate library download.
-Local modules and explicit search paths take precedence over these bundled
-libraries. Operator support is described in [modules](modules.md).
-
-The developer conformance harness downloads a pinned JRE and Java
-oracle separately; it is not the checker runtime.
-
-Use `dive --help` to list available commands and `dive check --help` (or another
-command's `--help`) for its options. Help needs no input files. Unimplemented
-commands are omitted from the list and still give a named refusal if invoked.
-`dive --version` names the build's commit: the nearest release tag in
-`git describe` form (`v0.1.0-0-g<hash>` on a tagged release), or the
-abbreviated commit hash when no release tag (`v` and a digit, such as
-`v0.1.0`) precedes it. Source archives built without Git report `unknown`
-instead. The first line of a human checking report names the run settings,
-including the profile, store, seed and the requested and used worker counts.
-
-Run the included model from the repository root:
+[Install](install.md) dive first. Then run the included model from the
+repository root:
 
 ```sh
 dive analyze docs/user/examples/Counter.tla --output json
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers 4 --output json
 ```
 
-`Counter.cfg` is discovered beside the source. The safety run reports `success`,
-five distinct states, six generated states and depth five. `Bound` holds on the
-complete supported search. The self-loop at four prevents a deadlock.
+`dive check` finds `Counter.cfg` beside the source. The run reports `success`,
+five distinct states, six generated states and depth five: `Bound` holds on the
+whole state space. The self-loop at four prevents a deadlock.
 
-Change only the configured invariant:
+The first line of a human-readable report names the run settings: the
+profile, store, seed, and the requested and used worker counts.
+
+Now change only the configured invariant:
 
 ```sh
 dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterViolation.cfg --compat=tlc --seed 7 --fp 0 --output json
 ```
 
 The result is an `invariant-violation` of `StrictBound` with a counterexample.
-Its TLC-profile exit is 12, so an automation that uses `set -e` must capture
-that expected nonzero status. See [reports](reports-and-errors.md) and
-[trace validation](traces.md) before consuming the result as a certificate.
+`dive check` uses TLC's process statuses, so this exits 12. A script that runs
+under `set -e` must capture that expected nonzero status.
 
-The examples are deliberately small. Accepting this module or finishing this
-search does not establish support for every TLA+ construct or checking mode.
+Before you treat a result as a certificate, read
+[reports and errors](reports-and-errors.md) and
+[trace validation](traces.md). For your own specifications, start with
+[safety checking](checking.md).
+
+Model checking needs no JVM. Only the developer conformance harness downloads
+a pinned JRE and Java oracle, to compare dive with TLC.

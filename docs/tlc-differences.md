@@ -49,8 +49,7 @@ known places where `--compat=tlc` still does not reproduce TLC:
   it as `expected-divergence`, never `agree`; any other difference stays a
   finding.
 
-Each gap keeps its actual refusal or measured difference. Internal errors remain
-defects. None permits a false verdict or weakens counterexample validation.
+ None permits a false verdict or weakens counterexample validation.
 The entries below describe their implemented scope; any exact-compatibility
 claim in them is subject to this list.
 
@@ -161,14 +160,13 @@ The seed is not shown in the normal results, so a surprising run cannot easily b
 
 The operators choose with TLC's algorithms (which element, which subset); only the source of randomness differs. A dive run that cannot be reproduced from its reported inputs is a bug.
 
-Under `--compat=tlc`, supported untransformed checking reproduces TLC's choices for a fixed `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding and each operator's algorithm. Next-state draws use TLC's variable order ([evaluator architecture design](decisions/0014-evaluator-architecture.md)), and LET expressions are evaluated where TLC evaluates them. Checking-path randomness runs inline with its actual width reported.
+Under `--compat=tlc`, supported untransformed checking reproduces TLC's choices for a fixed `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding and each operator's algorithm. Next-state draws use TLC's variable order ([evaluator architecture design](decisions/0014-evaluator-architecture.md)), and LET expressions are evaluated where TLC evaluates them. Randomness during checking runs inline, and the report gives the worker count used.
 
 **Randomness with VIEW or SYMMETRY.** These combinations are explicitly
 unsupported before binding, output or search, including unused source calls and
 configured native aliases. The rescue removes transformed-stream admission
 proofs rather than certifying a selected stored-value shape. Ordinary pure VIEW
-and untransformed per-state RNG remain available. Earlier pinned transformed
-stream measurements remain historical facts; they are not current support.
+and untransformed per-state RNG remain available.
 Graph, temporal and checkpoint/recovery randomness remain separate limitations. The internal native
 `RandomSubsetSet` helper still reports its named evaluator limitation; configured
 replacement selection does not make that helper implemented.
@@ -206,10 +204,8 @@ Inv == x # 80
 With `CONSTANT C <- RandomElement`, clean pinned TLC at `-seed 7 -fp 0 -workers 1`
 reports an invariant violation after two states. The old native route drew 74
 instead of 80 and missed that violation; `Inv == x # 74` instead produced a false
-native violation where TLC completed four states. The immediate admission repair
-and those exact false-answer controls remain historical evidence.
-The ordinary `RandomElement` stream now follows the actual bound callee, with
-startup and per-predecessor streams and truthful inline worker reporting.
+native violation where TLC completed four states.
+The `RandomElement` stream follows the bound callee, with startup and per-predecessor streams, and reports inline workers.
 Non-VIEW configured native Randomization targets use that same bound-callee
 classification and per-state stream as direct calls. The focused tests compare
 these routes; this is not a claim that every configured random family is
@@ -335,7 +331,7 @@ exit and generated-count pairs. TLC mode retains the overflow and replay exit.
 | | |
 |---|---|
 | **Kind** | Different answer |
-| **Default** | Supported unreduced checking; disable symmetry for the whole genuine temporal run |
+| **Default** | Supported unreduced checking; disable symmetry for the whole temporal run |
 | **TLC behaviour** | `--symmetry-liveness=tlc` (included in `--compat=tlc`): warn and proceed |
 | **Status** | unreduced/refuse implemented for supported temporal runs; TLC quotient remains refused |
 
@@ -353,15 +349,15 @@ Measured on the pinned TLC, it goes wrong in both directions:
 
 - **A false violation.** A token alternates between two interchangeable processes under weak fairness, and the property "every process holds the token infinitely often", `\A p \in S : []<>(tok = p)`, is true. The spec and the property are both symmetric. With `SYMMETRY`, TLC reports `Temporal property Fair was violated`, with a counterexample of one state followed by "Stuttering". The fairness condition forbids that behaviour.
 
-**What dive does.** Supported default-profile temporal runs check the whole unreduced state space and report that symmetry reduction was disabled. Explicit `refuse` remains available. Safety-only roles keep their existing symmetry reduction; actual genuine temporal roles select the whole-run unreduced path.
+**What dive does.** Supported default-profile temporal runs check the whole unreduced state space and report that symmetry reduction was disabled. Explicit `refuse` remains available. Safety-only roles keep their existing symmetry reduction; temporal roles select the whole-run unreduced path.
 
-`--symmetry-liveness=tlc`, including its selection by `--compat=tlc`, requests TLC quotient semantics but currently refuses. No missed/false TLC quotient verdict, quotient counterexample annotation or permutation-closing validation is claimed.
+`--symmetry-liveness=tlc`, including its selection by `--compat=tlc`, requests TLC quotient semantics but currently refuses.
 
 **Evidence.** [tlc compatible defaults dive enhancements design](decisions/0010-tlc-compatible-defaults-dive-enhancements.md) (maintainer decision of 2026-10-08); [symmetry design](decisions/0019-symmetry.md); probes `SymLiveMissed`, `SymLiveMissedNone`, `SymLiveSymProp` and `SymLiveWarn` in `crates/dive-liveness/tests/fixtures/tlc-probes/`; survey probe P4 (another checker raised a false liveness alarm under symmetry).
 
 ---
 
-**Update, 2026-10-09.** The default is `--symmetry-liveness=unreduced`: ignore `SYMMETRY` for the entire liveness run, including its safety checks, and report the unreduced counts. This replaces the earlier approved refusal default. `=refuse` remains available. `--compat=tlc` requests `=tlc`; that route remains refused rather than claiming reproduction of TLC's missed and false violations. The unreduced and explicit refusal modes now implement this policy for supported temporal checks. TLC quotient liveness remains a named refusal, including under `--compat=tlc`; it does not silently select the sound mode. Explicit `--compat=tlc --symmetry-liveness=unreduced` reports `tlc+overrides`. Compare the sound mode against TLC run without symmetry, rather than excusing arbitrary verdict differences. Original declared symmetry and the actual bound whole-run choice are reported separately. VIEW quotient checking and its concrete witness reconstruction remain unsupported.
+**Update, 2026-10-09.** The default is `--symmetry-liveness=unreduced`: ignore `SYMMETRY` for the entire liveness run, including its safety checks, and report the unreduced counts. `=refuse` remains available. `--compat=tlc` requests `=tlc`; that route remains refused rather than claiming reproduction of TLC's missed and false violations. The unreduced and explicit refusal modes now implement this policy for supported temporal checks. TLC quotient liveness remains a named refusal, including under `--compat=tlc`; it does not silently select the sound mode. Explicit `--compat=tlc --symmetry-liveness=unreduced` reports `tlc+overrides`. Compare the sound mode against TLC run without symmetry, rather than excusing arbitrary verdict differences. Original declared symmetry and the actual bound whole-run choice are reported separately. VIEW quotient checking and its concrete witness reconstruction remain unsupported.
 
 ## D-006: `CHOOSE` does not depend on unrelated text in the module
 
@@ -403,7 +399,7 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
   - comparing other kinds is an error ([D-009](#d-009-comparisons-that-tlc-refuses-although-tla-answers-them)).
 - **Equal elements keep the first form written.** `{1..3, {1, 2, 3}}` prints as `{1..3}`, while `{{1, 2, 3}, 1..3}` prints as `{{1, 2, 3}}`.
 
-**What dive does.** dive uses a canonical order that does not depend on the module text: names in the lexicographic order of their characters (Unicode code points), and everything else structured exactly as TLC orders it. Reordering or adding definitions never changes a result. This is one of the charter's metamorphic guarantees. With `--choose-order=tlc`, the order and the printing match TLC's.
+**What dive does.** dive uses a canonical order that does not depend on the module text: names in the lexicographic order of their characters (Unicode code points), and everything else structured exactly as TLC orders it. Reordering or adding definitions never changes a result. With `--choose-order=tlc`, the order and the printing match TLC's.
 
 **Evidence.**
 
@@ -421,8 +417,7 @@ sets and bounded keys without missing history have a native conversion path;
 strings use Gson escaping without HTML escaping. Domain traversal obeys the
 configured evaluation-depth guard before printing and refuses symbolic/deferred
 set expansion. Array/Object entry points and JSON file operations remain refused.
-The consumed Json fixtures preserve historical oracle observations; focused
-native/pinned-oracle controls and independent review cover the supported path.
+
 Independent replay accepts already-interned JSON strings. Newly created runtime
 names in TLC-profile deciding words retain the existing named refusal,
 so these words earn no agreement. See [the module guide](user/modules.md).
@@ -478,15 +473,13 @@ incomplete search. The bounded pure safety slice resumes the actual saved
 frontier without Init regeneration; [native checkpoint documentation](user/storage-recovery.md)
 lists its named exclusions and trusted-local, non-certificate contract. Recovery keeps the TLC counter-reset counterpart; retaining
 original totals is the named, opt-in `--checkpoint-counters retain` behavior,
-with no new default approved. Raw successful and failed recovery controls,
-source hashes and the minimal grid precede implementation. Java/native byte
+with no new default approved. Java/native byte
 interoperability and broader runtime state remain deferred.
 
 **Parallel recovery continuation.** Admitted pure safety checkpoints can resume
 through the deterministic pool, at 1/4/8 workers or a different width from the
 pause. Completed-level barriers retain the logical discovery/predecessor/frontier
-order; native counter-limit stops match inline prefixes. Boundary-zero pauses
-report actual 1 before the pool starts. This removes a dive limitation, not a
+order; native counter-limit stops match inline prefixes. Boundary-zero pauses report 1 before the pool starts. This removes a dive limitation, not a
 claim that TLC cannot recover parallel runs. Counter defaults, archive bounds
 and trust qualifications are unchanged; runtime/temporal recovery remains
 refused. See the separate parallel study.
@@ -506,8 +499,7 @@ output or an archive; structurally valid arena metadata alone is not a purity
 certificate. This is a native admission repair (), not a TLC defect. See raw controls.
 
 [D-007](#d-007-exhaustiveness-claims-can-be-unconditional) native recovery additionally composes with the existing opt-in frontier
-and predecessor budgets, independently or together. This removes a native
-limitation; it is not a new TLC defect or result-changing default. Saved concrete
+and predecessor budgets, independently or together. Saved concrete
 frontiers/parents are reconstructed into fresh transient stores in reference
 order. Archive/discovery workspace is excluded from both budgets; no total RAM,
 Java byte-interop or archive certificate claim. Counter reset/Retain and pure
@@ -522,7 +514,7 @@ construction is admitted with the complete saved ordered name table. For
 same 4-state invariant violation as uninterrupted checking and clean pinned TLC.
 TLC encounter order uses a reported actual one-worker inline fallback; the
 canonical profile may use the parallel engine. Runtime effects/register reads
-and independent TLC witness replay of name history remain honest refusals. This
+and independent TLC witness replay of name history remain named refusals. This
 removes dive's own checkpoint limitation, not a reference implementation defect.
 See `docs/native-checkpoint.md` and the source/raw control study at
 `conformance/probes/native-checkpoint-runtime-names/`.
@@ -536,7 +528,7 @@ costs) are named refusals in both profiles; both default to off, the
 TLC-equivalent setting. Only the removed reference engine collected them
 . See [coverage](user/checking.md#coverage).
 
-[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents) PlusCal original AST data: `dive translate --ast` returns an earlier-stage
+[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools) PlusCal original AST data: `dive translate --ast` returns an earlier-stage
 `AST.tla` representation in memory. Exit0 and `artifact_available: true` mean bytes
 are available; `accepted` and `generated_module_accepted` stay false. Both profiles
 use this explicit native operation. Explicit `translate --write` publishes an
@@ -547,8 +539,7 @@ match retained primary CRCs, including measured compounds and macro substitution
 Modern original procedure/macro ownership is measured before generation; generated
 debug labelled-compound and measured flat procedural headers now match exact CRC
 pairs. Compound/process-owned procedures, renaming/ordering and historical fields
-remain unfinished. The retained SANY semantic successes carry warnings and do not
-prove clean original PlusCal checksum validation.
+remain unfinished.
 See [the current PlusCal guide](pluscal-translation.md).
 
 **Current PlusCal translation.** Scoped renaming, multiline macro substitution,
@@ -585,8 +576,7 @@ both evaluator profiles ([check exit conventions design](decisions/0097-check-ex
 1 rejected input,10 property violation,11 deadlock,12 assumption and13 evaluation
 error. Both conventions retain2 usage,3 unsupported/resource and4 internal error.
 `--compat=tlc` also selects TLC evaluation; an explicit native exit override is
-reported as `tlc+overrides`. Historical Rust `CheckReport::exit_code()` remains
-profile-based. JSON discloses the semantic profile, selected convention and
+reported as `tlc+overrides`. JSON discloses the semantic profile, selected convention and
 physical status. See [the checker guide](user/checking.md#process-statuses).
 
 
@@ -608,7 +598,7 @@ stores invariant code 2110 after printing temporal code 2116. A consumer that
 classifies solely by exit status mislabels the violation.
 
 The harness preserves the temporal class and actual exit status after checking
-this specific finite stream shape. Ordinary cyclic temporal failures still
+this specific finite stream shape. Cyclic temporal failures still
 require exit 13. The raw evidence lives in
 `crates/dive-conformance/tests/fixtures/temporal-prefix/`. This is an oracle
 classification fix, not a new result-changing default. Reproducing TLC's
@@ -709,10 +699,8 @@ The `comparison-receiver-primary` corpus retains eleven existing default
 comparison results as model-specific expected divergences. Its tuple/record
 domain controls and nested tuple-value control complete by default; TLC stops
 at construction-dependent comparison errors. Each registration binds its exact
-exit and generated-count pair and only the fields that actually differ. The
-Next division-by-zero control remains ordinary agreement. These registrations
-change no evaluator behavior, grant no TLC-mode or trace-validation exception,
-and add no strict parity credit.
+exit and generated-count pair and only the fields that differ. The
+Next division-by-zero control remains ordinary agreement.
 
 **Evidence.**
 
@@ -733,15 +721,14 @@ TLC behavior remains recorded in the pinned fixtures and git history.
 
 The separate homogeneous recovery matrix retains 504 executions, 216 valid
 original/recovered witnesses and 216 semantically rejected altered witnesses.
-Source-qualified before and current evidence
-retain the old wrong result separately. Memory VIEW also preserves TLC’s
+ Memory VIEW also preserves TLC’s
 nonforcing normalization of evaluator-owned lazy filters: `x = {i \in Nat :
 Print(i, TRUE)}`, `Next == UNCHANGED x`, and `VIEW 0` complete with
 2 generated / 1 distinct / depth 1 and no Print output on the pinned primary.
 The checker visits the filter’s stored bound set without running its predicate.
 Unknown providers and lazy set-operation cache normalization remain refused;
 callback-bearing filters remain inadmissible to spill/checkpoint archives.
-Full VIEW/random and deferred-value family support remain outside this repair.
+
 
 ## D-010: The order in which sets are explored
 
@@ -782,7 +769,7 @@ canonical exploration reaches `Immutability` at depth 15 after **1,581 / 3,042**
 states, versus **1,617 / 3,126** under TLC. Changing only the evaluator's
 `Options::exploration` to `ExplorationOrder::Tlc` reproduces TLC's counts while
 all other default semantics remain unchanged. Both PlusCal label variants were
-checked; all six actual 15-state words validate independently. The SBB registry
+checked; all six 15-state counterexamples validate independently. The SBB registry
 entry applies only to this model and the default profile, with an exact generated
 count pair. Property, depth, class, exit and word validity remain strict. Raw
 queue counts remain evidence, without a queue-field exemption. The
@@ -887,7 +874,7 @@ The twelve real-model controls retain eleven completed transformation/grouping
 projections and one SANY rejection. TLC's separate configured/action name
 `Live` and derived temporal name `Identity` are recorded field by field; dive
 keeps the configured table separately and matches the derived role vector.
-Future action attribution remains tracked separately. A further 84 supplied-formula controls include four named
+ A further 84 supplied-formula controls include four named
 shape refusals and TLC's integer-overflow bound on DNF expansion.
 
 This supports the future TLC-compatible path; it does not change which
@@ -902,18 +889,15 @@ independent periodic/closing-witness controls cover this artifact; it never
 reports a temporal verdict. Empty/nonpositive direct structures, actions,
 unchecked group/tag/bin metadata, opaque/effectful scopes and resource limits
 remain named refusals. Strict integrated TLC liveness, phase-L timing, SCC and
-witness selection remain unsupported by this stage. Original configured/Action
-claims and derived role names stay separate; no new default is adopted.
+witness selection remain unsupported by this stage.
 
-Eligible ordinary TLC-profile checking selects the existing bounded final/short
+Eligible TLC-profile checking selects the existing bounded final/short
 backend without extra policy flags. Its report states the actual final schedule;
-this does not implement TLC's periodic trigger. Actual startup-bound safety roles
-retain ordinary safety behavior. Real temporal properties use the supported pure
+this does not implement TLC's periodic trigger. Safety roles bound at startup behave as in safety checking. Real temporal properties use the supported pure
 subset and independent periodic-word replay. Ordinary default-profile requests
 use the deterministic completed-level schedule ([D-014](#d-014-periodic-liveness-checking-has-a-replayable-schedule)). Excluded options retain their
 previous refusals. See [ordinary temporal checking](user/temporal.md#ordinary-checking-in-the-tlc-profile)
-for exact eligibility, schema, counts and exit conventions. General TLC parity
-remains incomplete; limits and external timeouts do not prove a model holds.
+for exact eligibility, schema, counts and exit conventions.
 
 ## D-014: Periodic liveness checking has a replayable schedule
 
@@ -929,7 +913,7 @@ provide TLC's wall-clock controller or a `--lncheck default` timing emulation.
 A prefix never proves `Holds`. A deciding periodic word must pass fresh
 independent typed and serialized validation. Results retain actual partial
 counts, depth and nonempty frontier with `capture_completed: false`; they never
-borrow final counts. Reports name the actual schedule and growth/check/boundary/
+borrow final counts. Reports name the schedule and growth/check/boundary/
 exhaustion facts. Capture limits are cumulative; analysis bounds keep their
 per-property/per-check scope, so repeated checks add work without a total-run
 work/byte cap or speedup promise. A prefix check searches only the first
@@ -943,7 +927,7 @@ report instead. `--compat=tlc` restores final checking. See [the temporal guide]
 
 ## D-015: Symmetry functions must actually be permutations
 
-**Status:** bounded checked/TLC groups, supported pure startup warnings and pure safety key reduction are implemented. Unverified startup exceptions, declaration shapes, lazy/deferred permutations, random seeding and TLC quotient liveness remain named refusals. Supported whole-run unreduced temporal checking follows [D-005](#d-005-symmetry-with-liveness-uses-the-full-state-space). A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The approved model default is to name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
+**Status:** bounded checked/TLC groups, supported pure startup warnings and pure safety key reduction are implemented. Unverified startup exceptions, declaration shapes, lazy/deferred permutations, random seeding and TLC quotient liveness remain named refusals. Supported whole-run unreduced temporal checking follows [D-005](#d-005-symmetry-with-liveness-uses-the-full-state-space). A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The default is to name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
 
 **Foundation update, 2026-10-09.** The bounded symmetry-closure kernel now
 has a checked setting that rejects non-bijective maps, including collisions
@@ -955,9 +939,7 @@ match normal pinned TLC transcripts. Unverified evaluation/normalization
 startup errors refuse by name. For example, `Sym == 1 \div 0` is outer
 GENERAL (1000), exit 255, with a nested 2179 message; `Sym == {1, TRUE}` wraps
 its normalization error in GENERAL. The raw SyDivZero and SyMixedElements
-captures preserve those contexts. These exceptions still refuse by name. The
-subsequent pure safety increment below activates supported startup preparation
-and key reduction. Evidence and reproduction:
+captures preserve those contexts. These exceptions still refuse by name. Evidence and reproduction:
 `crates/dive-model/tests/fixtures/symmetry-group/README.md`.
 
 **Safety update, 2026-10-10.** `dive check` now applies pure symmetry
@@ -966,7 +948,7 @@ show concrete explored states and validate independently. The SyNonBiject
 control below now runs: the default refuses the non-bijection before search;
 `--compat=tlc` reproduces TLC's success and exact 3 / 1 / depth 1 counts.
 Source-backed warning controls also match TLC's too-small/unused-set warnings.
-That original safety increment did not enable symmetry with liveness or the opt-in audit. Supported whole-run unreduced temporal checking is now implemented separately under [D-005](#d-005-symmetry-with-liveness-uses-the-full-state-space); the audit is not implemented.
+ Supported whole-run unreduced temporal checking is now implemented separately under [D-005](#d-005-symmetry-with-liveness-uses-the-full-state-space); the audit is not implemented.
 
 **Minimal measured missed violation.**
 
@@ -1010,8 +992,7 @@ same context without specification I/O. External values remain explicit
 assumptions, not independently authenticated host truth. Native trace versions
 are unchanged. Input bounds and exact supported forms are documented in
 [host inputs](user/modules.md#host-inputs-and-explicit-grants) and [recorded startup host inputs design](decisions/0148-recorded-startup-host-inputs.md).
-Three pinned controls cover admitted counts/words, TXT demand order, and the
-otherwise verdict-changing IOEnv construction-order boundary.
+
 
 ---
 
@@ -1066,7 +1047,7 @@ These are recorded candidates. They are not decided, and nothing in dive behaves
     - `[]` applied to an action hidden inside a `LET`;
     - an action and a temporal formula mixed inside `IF`.
 
-  A future opt-in lenient or strict mode could differ deliberately. The cases and SANY's
+  A future opt-in lenient or strict mode could differ. The cases and SANY's
   verdicts are in `crates/dive-sema/tests/sany-cases/` and `docs/divergences.md`.
 - **Line breaking of printed values.** TLC wraps long values at 80 columns by re-parsing their printed form. It gives up, and prints the whole value on one line, when the value contains a model value with `_` in its name, a negative interval such as `-1..1000`, or a string with an escaped quote (fixture `PrintWide` in `crates/dive-value/tests/fixtures/`). dive's printer matches TLC exactly. A future option could wrap these too. It would change only human-readable output, never a result.
 - **`\div` on negative numbers in a spec that extends only `Naturals`.** TLC then uses `Naturals`' own Java division, which rounds toward zero when the quotient truncates to 0: `(0 - 1) \div 2` and `1 \div (0 - 2)` are `0`, although `(0 - 1) % 2` is `1` and `(0 - 7) \div 2` is `-4`. With `Integers` loaded, `(0 - 1) \div 2` is `-1`, as `a = b * (a \div b) + (a % b)` requires. `-2147483648 \div -1` also wraps under `Naturals` instead of overflowing. With TLC's 32-bit integers (`--int=tlc`, part of `--compat=tlc`) dive matches TLC exactly; with dive's default arbitrary-precision integers, `\div` is floored division under both modules (fixture `RvNatDiv` in `crates/dive-value/tests/fixtures/`). A spec that relies on negative numbers should extend `Integers`.
@@ -1102,7 +1083,7 @@ These are recorded candidates. They are not decided, and nothing in dive behaves
 
 ## Where dive is currently more limited than TLC
 
-dive refuses rather than approximates (soundness contract rule 3). These are honest refusals, and we track them here so that nobody mistakes them for features.
+dive refuses rather than approximates (soundness contract rule 3). We track these refusals here so that nobody mistakes them for features.
 
 - **Extremely deep nesting** (`DIVE-S0040`). dive refuses expressions nested more than 256 levels deep, and syntax trees more than 2,048 levels high (for example a chain of thousands of `+`). SANY accepts these. No module in the corpus comes close. Removing the limit is a tracked follow-up.
 - **Very deeply nested values** (`DIVE-V0030`). dive refuses to print, to convert to JSON, or to compare, test for equality or test for membership with TLC's rules, a value nested more than 500 levels deep, such as `<<<<<<...>>>>>>`. Its own equality, ordering, hashing and fingerprints handle any depth, and so does dropping a value. TLC works recursively up to the limit of its JVM stack (`-Xss`; the harness uses 8 MiB). The limit keeps dive safe on a 2 MiB worker stack even in debug builds. No spec in the corpus is known to come close.
@@ -1167,8 +1148,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
 ---
 
 Independent replay refuses every random draw encountered while checking a
-supplied trace ([trace validator independence design](decisions/0016-trace-validator-independence.md) amendment 3). A matching seed does not establish which
-search branches consumed draws before those states. Seed and fingerprint
+supplied trace ([trace validator independence design](decisions/0016-trace-validator-independence.md) amendment 3). Seed and fingerprint
 settings still describe run-dependent model binding; they do not authorize
 random replay or a successful validation result.
 
@@ -1201,18 +1181,17 @@ depth 2. Replacing `Next` with `UNCHANGED x` gives a liveness violation (exit 13
 with 2 generated states, 1 distinct state and depth 1. The same paired controls
 exist for record sets, Cartesian products and subsets. All eight match dive's
 explicit final/short path in both profiles and stores, at requested widths
-1/4/8; actual graph capture is still one worker. Every violation validates
+1/4/8; graph capture still uses one worker. Every violation validates
 independently, and alternating/stuttering word controls distinguish true from
 false properties.
 
 The binding limit bounds domain entries, intermediate materialization work
 (component entries and generated value slots), and Cartesian bindings separately.
-No resource default was increased. Preflight uses raw cardinality upper bounds
+ Preflight uses raw cardinality upper bounds
 without changing TLC's normalization state or running deferred predicates.
 Infinite/opaque deferred domains and oversized/work-heavy constructors still fail by
 name; a small cardinality alone does not justify allocating a huge function.
-Both profiles use this support. Strict TLC phase-L scheduling and exact lasso
-selection remain pending; this is not strict temporal conformance.
+Both profiles use this support.
 
 Evidence: `crates/dive-api/tests/fixtures/lazy-domains/` contains the eight
 minimal specs and clean pinned oracle captures; `tests/lazy_domains.rs` checks
@@ -1245,16 +1224,14 @@ filter expression at a new state creates a new capture; primed predicates use
 the successor state. These semantics are preserved through finite preflight and
 periodic closing edges. The input's structural upper bound is charged before
 predicate evaluation, even for an already materialized filter or one that would
-select nothing. No resource defaults or effect permissions changed.
+select nothing.
 
 This support is shared by both profiles on the explicit final/short path.
 Effectful/unresolved predicates, infinite/opaque inputs, non-filter deferred set
 operations and local recursive-function scope analysis still refuse by name.
-Strict TLC phase-L timing, exact lasso choice and full domain/scoping coverage
-remain pending. Evidence is in `conformance/probes/finite-deferred-audit/`,
+ Evidence is in `conformance/probes/finite-deferred-audit/`,
 `crates/dive-api/tests/deferred_domains.rs` and the bounded evaluator controls.
-The prior ten-model report is unchanged: passing these minimal guards is not
-credit for its nine refusals/bounds and one timeout.
+
 
 
 Captured operators passed through the Rust scope API remain an explicit limit:
@@ -1276,7 +1253,7 @@ value or a nested substituted module body. The pinned direct/local/body pairs
 hold or violate with 3 generated states, 2 distinct states and depth 2. On the
 explicit final/short path both profiles reproduce truth/counts; every returned
 violation is checked independently, including Init, Next, fairness and its
-closing edge. This is not exact TLC lasso/tableau or phase-L conformance.
+closing edge.
 
 An exported INSTANCE parameter is still a limit. The minimal paired examples
 in `conformance/probes/temporal-forwarding/specs/TfInstanceHolds/` and
@@ -1293,7 +1270,7 @@ P == I!Claim([]<>x)
 dive's temporal planning and independent periodic validation refuse temporal
 arguments inside retained INSTANCE contexts. The accepted body-forwarding
 example uses a zero-arity `Claim == []<>v` in Leaf and `Identity(I!Claim)` at the
-root. No broader acceptance option or new default is adopted from this finding.
+root.
 Opaque captured operators, recursive local-function domain proofs and more
 complex ENABLED scope covers remain unsupported. The existing recursive paired
 probes are retained; their self-binding and branch-sensitive finite preflight
@@ -1306,8 +1283,7 @@ scoped definitions. Missing references have no invented source span. The raw
 native `native-unchecked-context-before.*` repro in the probe directory records
 the prior panics; it is not an oracle result. Constructing an evaluator with an
 invalid redirect target can still panic before these endpoints run.
-General caller-created IR/context validation remains a separate partial API
-obligation; this increment does not redesign the evaluator constructor.
+
 
 ### Runtime names in TLC order
 
@@ -1320,14 +1296,13 @@ seed 7 stops at 23 generated/distinct states; seeds 0 and 14 stop at 30.
 The raw pinned captures preserve this evidence.
 
 In TLC value or exploration order, reachable string constructors now force
-inline checking, with the reason and one actual worker reported. The default
+inline checking, with the reason and one worker reported. The default
 canonical order remains parallel. This is a temporary admission restriction,
 not a different answer: an ordered parallel runtime interner is still needed
 for those TLC-mode models to scale. The conservative analysis includes tuple
 uses of operators that can also construct strings, record-name constructors,
 and wrappers or native overrides. Explicit final/short graph capture admits pure runtime-name models through the
-same reported inline fallback. Genuine live-counter, random and I/O effects
-remain refused. Strict temporal timing and lasso selection remain unsupported.
+same reported inline fallback.
 
 ### Independent runtime-name trace validation
 
@@ -1345,8 +1320,7 @@ capture, source hashes and reproduction flags.
 
 TLC-order trace validation follows one rule. Names interned when dive binds
 the model (SANY's encounter order, constants and configuration, and the
-checker's own start-up names) have the same order as in TLC. The validator
-validates as usual. If decoding the trace or evaluating any check interned a
+checker's own start-up names) have the same order as in TLC. If decoding the trace or evaluating any check interned a
 name after binding, it reports **unsupported: runtime string encounter order**,
 whether the trace would otherwise be valid or invalid. A seed and fingerprint
 do not supply missing namespace history. The rule applies to dive's documents,
@@ -1389,9 +1363,7 @@ default; raising it is explicit. Hitting it returns a resource refusal with
 ordered partial evidence, never a completed graph. This is a conservative
 capture limit relative to TLC, not an enhancement to TLA+ semantics. Existing
 logical graph limits are unchanged. See [the bound and controls](temporal-api.md#bounded-parallel-graph-retention).
-VIEW, symmetry, randomness and stateful effects remain graph refusals. This
-does not prove exact TLC lasso selection, periodic scheduling or phase-L error
-precedence. Ordinary strict temporal checking still refuses.
+VIEW, symmetry, randomness and stateful effects remain graph refusals.
 
 ## D-018: A DFID zero exit may mean only a depth-bounded check
 
@@ -1455,11 +1427,11 @@ print only `1`, with 4 generated and 3 distinct states. State 1 satisfies
 Its invariant printer therefore walks the previous root's stack depth. This is
 a concrete witness bug, separate from DFID's unseeded worker choices ([D-002](#d-002-randomness-is-always-replayable)).
 
-**Dive.** Native DFID keeps the actual concrete path, returns `1,2`, and accepts
+**Dive.** Native DFID keeps the concrete path, returns `1,2`, and accepts
 the violation only after independent validation. A printed-witness restoration
 mode is explicitly unsupported in this slice; `--compat=tlc` retains the
 verified search/counting contract but does not label a malformed word valid.
-Reports state this witness policy. No TLC-matching trace claim is made here.
+
 
 **Status and evidence.** Source and primary raw observations are in
 `crates/dive-api/tests/fixtures/checker/dfid/`; `oracle-controls.json` records the clean
@@ -1476,9 +1448,7 @@ and emits validated enclosing modules. Macro expansion, processes/procedures,
 branch-internal labelled expansion, unproved name disambiguation, multiline/binding
 expression substitution and historical translator options/checksums remain named
 refusals. Bounded sequential automatic labels, default model-value initialization
-and `L:+` / `L:-` are now matched separately; see
-[the normalization contract](pluscal-translation.md). See
-[the translation contract](pluscal-translation.md).
+and `L:+` / `L:-` are now matched separately; see [the translation contract](pluscal-translation.md).
 
 The [single-process contract](pluscal-translation.md) now admits unfair literal-ID
 and finite-membership process bodies. Locals are scalar for a constant-ID process
@@ -1515,8 +1485,7 @@ The pinned translator exits **0** and prints successful translation. Its output
 then declares variable `Next` and operator `Next`; pinned SANY rejects the module.
 Changing `Next` to `vars` has the same outcome. The retained complete matrix also
 contains three other SANY-rejected translator outputs: two `define` cases and a
-shadowing `with` binder. All five remain invalid-artifact evidence, never parity
-credit. Raw output and module/config hashes are in
+shadowing `with` binder. Raw output and module/config hashes are in
 `crates/dive-pluscal/translation-acceptance/fixtures/manifest.json`.
 
 Native translation refuses generated-name collisions and unproved binder
@@ -1525,7 +1494,7 @@ syntax/name/level admission. This is a documented current limitation in both
 profiles, not an approved alternative name-disambiguation algorithm. Precise
 TLC-equivalent disambiguation and rewrite/checksum parity remain pending.
 
-**[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents) public Rust context update:** a caller-created invalid evaluator redirect
+**[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools) public Rust context update:** a caller-created invalid evaluator redirect
 previously panicked after interning a literal, while malformed lazy expression
 IDs could enter captured scopes. Constructor and scope admission now produce
 stable `DIVE-EVAL-C001`–`C005` refusals before evaluation or interning. Independent
@@ -1565,12 +1534,11 @@ including this measured constant CRC. It does not certify source identity.
 If an exact algorithm CRC is unavailable, rewriting disables that value and
 retains the real body CRC. Both `--checksums full` and `--checksums tla` select
 this best-effort policy in either profile. The native body overwrite grant and
-ordinary primary overwrite behavior are described under [D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents). A future
-corrected fair option still needs its own approved default decision.
+ordinary primary overwrite behavior are described under [D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools).
 
 All six primary sources/artifacts and four unchanged-body source-edit controls
 remain in `crates/dive-pluscal/rewrite-acceptance/fair-checksum/`. Body CRC and
-usable artifact admission are separate contracts ([D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents)). See
+usable artifact admission are separate contracts ([D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools)). See
 [block rewriting](pluscal-translation.md) for executable CLI/Rust usage and limits.
 
 Bounded final scope evidence now distinguishes configured names from
@@ -1582,7 +1550,7 @@ default or ordinary liveness certificate. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
 
 
-**Historical checksum-era scope (superseded by):** **[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents) checksum continuation:** nested `elsif` and multiple `with` binders now
+**Historical checksum-era scope (superseded by):** **[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools) checksum continuation:** nested `elsif` and multiple `with` binders now
 have bounded reference AST serialization. Strict operator-tree comparisons
 caught dive omitting the pinned empty-`else` TRUE conjunct; the original mismatch
 and paired empty/explicit-Skip controls remain visible. Native now preserves
@@ -1604,14 +1572,14 @@ invalid namespaces, effects and existing50k/128 bounds as refusals. Public
 callers must supply sets/records/general functions with the evaluator's stored
 ordering profile; same-owned atoms alone do not preserve cached CHOOSE order.
 Tuples have profile-independent integer domains, but nested values still match.
-The pre-order-guard observations and interrupted gate remain blocked evidence.
+
 This matches
 the reference and does not change any approved default. The original failed
 selection remains evidence; see the concrete capture guide.
-Ordinary periodic checking and full family certification remain unfinished.
 
 
-**Historical checksum-era scope (superseded by):** **[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents) finite-process Full reports.** Declared-fairness finite process records
+
+**Historical checksum-era scope (superseded by):** **[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools) finite-process Full reports.** Declared-fairness finite process records
 now have proved native post-translation AST/CRC derivation, separately checked
 from admitted generated modules. Raw multiline process checksum matching does
 not lift the generator's layout refusal. Supported explicit process fairness and
@@ -1677,7 +1645,7 @@ context under `--compat=tlc`. Both checksum flag spellings now select best-effor
 CRC derivation; unavailable algorithm CRCs are disabled in either profile. The unchanged `--fair algorithm` weakness ([D-020](#d-020-fair-algorithm-checksums-do-not-detect-source-edits))
 can also hide changes, and its `NO_DIVERGENCE` result does not certify identity.
 Raw AST/CRC agreement, usable artifact admission, finite checking and independent
-witness validation stay separate ([D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents)).
+witness validation stay separate ([D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools)).
 
 See [runnable option examples and limits](pluscal-translation.md)
 and `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`
@@ -1727,7 +1695,7 @@ application. This is an explicit bounded unsupported disposition, **not** a
 new corrected checksum or fairness default. A source declaration overriding
 CLI fairness is intended reference behavior and is tested separately. Artifact
 acceptance still requires enclosing-module analysis; zero from the translator
-never proves model correctness or a usable artifact ([D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents)).
+never proves model correctness or a usable artifact ([D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools)).
 
 ## D-022: Action composition works by default, with its TLA+ meaning
 
@@ -1738,7 +1706,7 @@ Its `Reduction` control has 3 distinct states, depth 2 and 7 final generated
 states; pinned TLC with the switch has 13 generated states. Duplicate final
 candidates remain counted. Other shapes retain named refusals, and Core's
 nominal compatibility policy still refuses TLC's intermediate-accounting mode.
-The historical Reference-engine measurements below are unchanged.
+
 
 Ordinary TLC-profile bounded final checking accepts the existing
 `--action-composition=tlc` option with otherwise default resident settings.
@@ -1778,7 +1746,7 @@ Without the switch, `TLCGet("-Dtlc2.tool.impl.Tool.cdot")` returns its own key; 
 
 **What dive does.** By default, dive evaluates `A \cdot B` with its TLA+ meaning: `s -> u` is a step iff some state `t` has `A` from `s` to `t` and `B` from `t` to `u`. Only the composed successors count as generated, so the first spec above is reported as deadlocked. Where the composition sits inside a conjunction (conjuncts after it, or variables already assigned before it) and TLC's algorithm would give a different answer, dive refuses by name rather than approximate. `TLCGet("-Dtlc2.tool.impl.Tool.cdot")` is `"true"` whenever composition is enabled.
 
-Under `--compat=tlc` composition is off, as in TLC. `--action-composition=tlc` reproduces TLC with the switch, including the counts and the hidden deadlock. dive runs it in sequential mode, because the intermediate states count as generated but are not successors. The conformance harness passes it for models with the Examples `action composition` feature, as it passes the switch to TLC. DFID and simulation count only emitted successors in both enabled modes, following their pinned TLC functors. For `CdDeadlock`, each reports deadlock (2114) with one generated state even in `tlc` composition mode; the pinned TLC exits 11. Composition being disabled retains the named refusal of an unverified DFID/simulation evaluation-error context. Ordinary temporal composition and its captured intermediate accounting remain unfinished.
+Under `--compat=tlc` composition is off, as in TLC. `--action-composition=tlc` reproduces TLC with the switch, including the counts and the hidden deadlock. dive runs it in sequential mode, because the intermediate states count as generated but are not successors. The conformance harness passes it for models with the Examples `action composition` feature, as it passes the switch to TLC. DFID and simulation count only emitted successors in both enabled modes, following their pinned TLC functors. For `CdDeadlock`, each reports deadlock (2114) with one generated state even in `tlc` composition mode; the pinned TLC exits 11. Composition being disabled retains the named refusal of an unverified DFID/simulation evaluation-error context.
 
 **Independent bounded replay and fairness.** In `tla` mode, replay admits pure
 finite complete intermediates with at most one complete tail successor, using
@@ -1833,7 +1801,7 @@ new complete matrix results and the original floors remain separate.
 
 
 The earlier accounting correction preserved the then-default statuses described
-in [D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents): property violations exited 10 and rejected inputs exited 1. Those
+in [D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools): property violations exited 10 and rejected inputs exited 1. Those
 statuses now require `--exit-codes native`; ordinary checking selects the pinned
 TLC status independently of evaluation. For example:
 
@@ -1844,7 +1812,7 @@ dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterVio
 
 The same invariant violation exits 10 with the native convention and 12 with
 the default TLC convention. Both commands retain native evaluator semantics.
-The corpus harness now compares actual numeric process exits exactly in both
+The corpus harness now compares numeric process exits in both
 its ordinary and worker-specific paths. A registered default difference can
 be ExpectedDivergence, with the exact TLC/native numeric pair and every other
 obligation met; it is never Agree. Absent, signaled and unrelated statuses or
@@ -1859,7 +1827,7 @@ omitted this required observable; [truthful default numeric exit conformance des
 qualifies them, and [the scoreboard](scoreboard.md#corpus-scoreboard) has the current measurements.
 
 
-[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-agents) PlusCal checksum/API continuation: schema2 translation reports contain real
+[D-008](#d-008-results-are-data-and-diagnostics-are-built-for-people-and-tools) PlusCal checksum/API continuation: schema2 translation reports contain real
 artifact/replacement acceptance, whole-module analysis and requested/effective
 settings without proof-only fields or duplicate option-context dumps. The one
 best-effort checksum policy retains exact procedure-free CRCs and the real TLA
@@ -1928,7 +1896,7 @@ profiles follow the measured cutoff/captured-context distinctions documented in
 Independent INSTANCE query-word validation and general callable/temporal
 integration remain unfinished. Under [D-022](#d-022-action-composition-works-by-default-with-its-tla-meaning), composition still requires root-only
 intermediates; assigned hidden query names refuse instead of being silently
-dropped. This changes no comparison, model limit or approved default.
+dropped.
 
 ## D-026: Run budgets stop a run with a structured result
 
@@ -1997,8 +1965,7 @@ ceiling is still reported. TLC has no such ceiling for liveness checking. See
 the [checking guide](user/checking.md) for worker and recovery semantics.
 
 
-Native `dive debug` and Rust sessions observe actual compiled Core safety
-execution in either semantic profile. They use a bounded DAP protocol and
+Native `dive debug` and Rust sessions observe compiled Core safety execution in either semantic profile. They use a bounded DAP protocol and
 stop-scoped readable scalar storage; broader maps/inspection and TLC `-debugger`
 transport remain unfinished. Ordinary checking leaves observation off. See
 [the native debugging guide](user/debugging.md).
@@ -2015,7 +1982,7 @@ such as `1 = "a"`, still report an error.
 Canonical enumeration can also reduce generated counts. The pinned
 `NxInLazyCup` example (`r' \in [a : {1}] \cup [a : {1, 2}]`) generates
 10 states in TLC and 7 on default Core; both find the same 3 distinct states
-at depth 2. This exact [D-028](#d-028-canonical-finite-sets) difference is separate from exploration-order
+at depth 2. This [D-028](#d-028-canonical-finite-sets) difference is separate from exploration-order
 changes ([D-010](#d-010-the-order-in-which-sets-are-explored)).
 
 Symbolic powersets, function sets and sequence sets retain lazy membership and
@@ -2037,8 +2004,7 @@ with exact tested counts. Malformed graph fields, non-function arguments to
 `AntiFunction`, and empty arguments to `LongestCommonPrefix` still report their
 real errors. Core also reaches the non-set operand error in
 `UnknownFirstProjection` and `PrefixUnknownFirst`; it refuses the unproved
-infinite enumeration in `PrefixInfiniteFirst`. These checks do not require
-constructor or receiver history.
+infinite enumeration in `PrefixInfiniteFirst`.
 
 ### Compat gaps
 
@@ -2078,21 +2044,20 @@ With `Init == x=0`, TLC generates three states (Init plus two identical
 successors); Core generates two, with the same one distinct state, depth one
 and successful verdict. Original Examples `byzpaxos/VoteProof.cfg` likewise
 succeeds with 6,962 distinct states and depth 14, generating 27,727 states on
-Core versus TLC's 318,877. Core reports its actual counts.
+Core versus TLC's 318,877.
 
-This approved default avoids redundant predicate-witness bookkeeping.
+
 The exact two generated-count pairs are registered as default expected
 divergences. For these controls, verdicts, distinct counts, depth, properties,
 error classes/exits, queue counts and independent word validity keep their
 contracts.
 
-Boolean short-circuiting is also deliberate. In the pinned `OrError.cfg` control,
+ In the pinned `OrError.cfg` control,
 the predicate is already true, so Core does not demand a later `1 \div 0`
 alternative. Core succeeds with 1 distinct / 2 generated / depth 1 and exit 0;
 TLC's action generator instead reports division by zero (2179, exit 255) with an
 error prefix. A separate exact-model default registration records only those
-verdict/class/error-prefix and exit-pair differences. Counts and independent
-word-validation obligations remain unchanged; other findings are not waived.
+verdict/class/error-prefix and exit-pair differences.
 
 Nominal `--compat=tlc` uses the same Boolean evaluation on Core; it does not
 reconstruct TLC's duplicate witness expansion. Strict TLC comparisons still
