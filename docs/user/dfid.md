@@ -4,73 +4,66 @@
 dive dfid docs/user/examples/Counter.tla --max-level 8 --seed 7 --output json
 ```
 
-DFID explores finite iterations with increasing depth. The pure safety slice
-supports one actual worker and reports its iterations and termination.
-Inspect `model_proved` and `termination`; merely finishing an iteration or
-reaching `--max-level` cannot establish safety. TLC-profile depth exhaustion can
-exit zero, so exit status is especially insufficient in this mode.
+`dive dfid` explores the model depth first, one iteration per depth bound, up
+to `--max-level`. It checks pure safety models with one worker and reports each
+iteration and how the run ended.
 
-The default seed drives replayable native selection. TLC's fresh per-iteration
-worker seeds are a separate qualification. Explicit `--worker-seeds S,...`
-records replay choices and makes a TLC request mixed; it does not pretend that
-TLC's unrecorded iteration seeds are deterministic.
+Read `model_proved` and `termination` in the report. Finishing an iteration or
+reaching `--max-level` does not prove safety, and in the TLC profile a
+depth-bounded run can exit 0. 
 
-VIEW, symmetry, liveness and unsupported runtime/storage combinations are named
-refusals. Real counterexamples must pass independent validation. Rust callers
-cannot inject effectful operator arguments through a captured scope: DFID
-checks the actual callable and refuses before output or exploration. Pure
-captured operator scopes remain supported. Callers use `DfidRequest` and `dfid_file`; `to_json()` carries the completion evidence
-and `exit_status()` the process disposition.
+The default seed drives a replayable native selection. TLC instead draws fresh,
+unrecorded worker seeds for each iteration. `--worker-seeds S,...` records the
+replay choices explicitly and labels a TLC-profile request as mixed; dive does
+not treat TLC's unrecorded seeds as deterministic.
 
-See [DFID reference controls](../../crates/dive-api/tests/fixtures/checker/dfid/README.md),
-the [storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md) and [report interpretation](reports-and-errors.md).
+VIEW, symmetry, liveness and unsupported runtime or storage combinations refuse
+by name. Every counterexample must pass independent validation.
+
+Rust callers use `DfidRequest` and `dfid_file`. `to_json()` carries the
+completion evidence and `exit_status()` the process status. From Rust, an
+operator argument with effects passed through a captured scope refuses before
+any output or exploration; pure ones work. See
+[reports and errors](reports-and-errors.md) and
+[how DFID differs from TLC](../tlc-differences.md#d-018-a-dfid-zero-exit-may-mean-only-a-depth-bounded-check).
 
 ## Run budgets
 
-`dive dfid Spec.tla --max-level 100 --time-limit 10s --max-memory 2g`
-uses the same budget settings as checking: no default time limit and half
-physical memory in both profiles.
-`none` removes a limit; memory also accepts `auto`. An explicit TLC-profile
-time limit labels the profile `tlc+overrides`.
-
-The clock starts after model loading. Assumptions, Init and execution loops
-receive cooperative control, including evaluator loop checkpoints. Retained
-traces are serialized with state checkpoints and independently replayed on fresh
-runtimes under the same budget. Exhaustion skips unprocessed retained traces.
-Initial model loading and individual value encoding/decoding remain
-uninterruptible. A final resource sample runs before publication. Memory is sampled process usage,
-not an allocation-time hard cap. `options.budget` states these boundaries.
-
-Exhaustion gives `result: stopped`, exit 5, actual resource/limit/observation,
-phase and reached progress. It never certifies safety or a violation. Retained
-prefix traces and earlier observations remain diagnostic. Rust requests expose
-`time_limit` and `max_memory` through `BudgetSetting`; one budget covers the run,
-rather than restarting the clock for each trace or iteration.
-
-## Execution engines
-
-DFID runs on Core; `--engine reference` was removed.
-Core is the default of `dive dfid` and `dfid_file`. The core runs the supported pure
-finite slice through compiled Init/Next and predicate plans in both profiles,
-with fingerprint-plus-exact-collision-guard or exact membership. Actual
-normalization/view demand stays separate from canonical membership keys.
-
 ```sh
-dive dfid docs/user/examples/Counter.tla --max-level 8 --seed 7 --output json
+dive dfid Spec.tla --max-level 100 --time-limit 10s --max-memory 2g
 ```
 
-Reports name `engine`, `engine_requested` and `engine_fallback`, which is always
-`null` because Core is the only engine.
-A reached refusal never restarts DFID. Native candidate batches release their
-transients after real checking/key demand and retention of required DFS rows;
-persistent values, seen keys, DFS frames and reports remain separate consumers,
-so this is not a total-memory bound. Unsupported raw/lazy lifetimes refuse.
-One actual worker, depth-bound incompleteness and independently validated
-concrete violations retain their existing contracts. Native recovery and disk
-membership integration remain separate work.
+DFID uses the same budgets as checking: no default time limit and half of
+physical memory, in both profiles. `none` removes a limit, and memory also
+accepts `auto`. An explicit time limit in the TLC profile labels the profile
+`tlc+overrides`.
 
-Native DFID keeps only the current eager Init/action candidate batch transiently
-live, including generator continuations, until its normal deferred checks finish.
-It then retains required DFS rows and reclaims that batch before the next one.
-Persistent values, seen keys and the active DFS path consume separate memory;
-this is not a bound on total process memory.
+The clock starts after the model loads. Assumptions, Init and the search loops
+check the budget as they run, including inside evaluator loops. Counterexample
+validation runs under the same budget; when it runs out, counterexamples not
+yet validated are skipped and not reported. Initial model loading and encoding
+or decoding a single value cannot be interrupted. A final resource sample runs before the report is
+written. Memory is sampled process usage, not a hard cap at allocation.
+`options.budget` records these settings.
+
+When a budget runs out the result is `stopped`, exit 5, with the resource,
+limit, observed value, phase and progress reached. A stopped run proves neither
+safety nor a violation; retained prefix traces and earlier observations are
+diagnostic only. Rust requests set `time_limit` and `max_memory` through
+`BudgetSetting`. One budget covers the whole run; the clock does not restart for
+each trace or iteration.
+
+## Storage and memory
+
+DFID stores fingerprints of seen states and checks every fingerprint match
+against the full state: a collision stops the run without a
+conclusion. Rust
+callers can set `DfidRequest.exact` to store full states instead. The report's
+`store` field says which (`fingerprint+exact-collision-guard` or `exact`).
+Recovery and disk membership are not supported, and a refusal reached during
+the search never restarts DFID. Reports carry `engine`, `engine_requested` and
+`engine_fallback` (always `null`).
+
+Successor candidates are freed level by level, but seen states, the search
+stack and stored values use memory of their own, so peak memory is not
+bounded by depth. `--max-memory` is the bound.

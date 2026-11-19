@@ -7,7 +7,7 @@ states, commits successors in breadth-first order, owns the seen set, the counts
 and the first error, and replays any counterexample locally. Workers only
 compute the successors of one source state at a time.
 
-The result is the result of an ordinary one-worker local check. Verdict, counts,
+The result is the result of a one-worker local check. Verdict, counts,
 depth, property and counterexample are identical, in both profiles and both
 stores, and every counterexample is validated independently as usual. A run that
 cannot finish its distributed work never reports success: it stops with a named
@@ -25,7 +25,7 @@ with cheap states runs much slower than it does locally. For most models a local
 
 ## Supported checks
 
-Workers run pure safety checking on Core: invariants, action properties
+Workers run pure safety checking: invariants, action properties
 (`[][A]_v` in `PROPERTY`), deadlock, `CONSTRAINT` and `ACTION_CONSTRAINT`,
 evaluation errors, `--max-states`, `--max-depth`, `--time-limit` and
 `--max-memory`, `--compat=tlc`, `--store fp|exact`, and frontier and predecessor

@@ -1,0 +1,19 @@
+[book]
+title = "Dive"
+authors = ["Dive contributors"]
+description = "A faster TLA+ toolchain: model checking, simulation, PlusCal and trace validation in one Rust binary."
+language = "en"
+src = "src"
+
+[build]
+create-missing = false
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/Chelis-Lang/dive"
+site-url = "/docs/dive/"
+
+[preprocessor.source-links]
+command = "python3 ../scripts/book-links.py"
+after = ["links"]

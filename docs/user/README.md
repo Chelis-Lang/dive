@@ -1,42 +1,47 @@
 # Using dive
 
-dive provides parsing, semantic analysis, native PlusCal translation, explicit
-safety checking, finite simulation, DFID, independent trace validation and
-temporal checking. Core is the only engine. On the tested tlaplus/Examples
-corpus it gives TLC's answer on every model it checks, apart from
-[registered differences](../tlc-differences.md), and at one worker it takes about a
+dive checks TLA+ specifications without a JVM. It reads your existing `.tla`
+and `.cfg` files and gives TLC's answer on every model it checks in the
+tlaplus/Examples corpus, apart from the
+[documented differences](../tlc-differences.md). At one worker it takes about a
 fifth of TLC's time on the geometric mean, with no model above twice TLC's
-time. What dive does not implement is a named refusal, and a named refusal or
-resource stop does not establish safety.
+time.
 
-| Task | Guide | Current boundary |
+One binary covers parsing and analysis, PlusCal translation, safety and
+temporal model checking, simulation, iterative deepening and independent trace
+validation. When dive meets something it does not implement, it refuses by
+name. A refusal or a run stopped by a budget proves nothing about
+the model.
+
+| Task | Guide | Scope |
 | --- | --- | --- |
-| Build and run a first model | [Getting started](getting-started.md) | Native binary; source checkout |
-| Parse, analyze and resolve modules | [Front end](front-end.md) | Source/config acceptance is not model checking |
-| Use modules and library operators | [Modules](modules.md) | Resolution and executable support are separate |
-| Explore safety properties | [Checking](checking.md) | Supported explicit BFS and pure safety symmetry |
-| Invoke TLC checking arguments | [TLC checking entrypoints](checking.md#tlc-checking-entrypoints) | Checking-only adapter; tool messages and other TLC mode protocols refuse |
-| Match TLC behavior | [Compatibility](compatibility.md) | Proven supported counterparts; explicit mixed modes |
-| Sample executions | [Simulation](simulation.md) | Finite seeded sampling; never exhaustive proof |
-| Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
-| Coverage (`--coverage`, `--source-coverage`) | [Checking](checking.md#coverage) | Not implemented on Core: a named refusal |
-| Debug compiled safety checking (experimental) | [Debugging](debugging.md) | One actual local Core worker; source/exception stops, forward steps and bounded captured-scalar inspection |
-| Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, checksummed in-memory editing or explicit module/cfg/backup publication; separate original-AST file operation |
-| Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
-| Check temporal properties | [Temporal checking](temporal.md) | Bounded pure subset; ordinary dive profile uses deterministic level checks, TLC profile uses final checking; explicit final/short in both |
-| Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate spill budgets, opt-in Core value reclamation and bounded native recovery |
-| Use trusted native safety workers | [Distributed safety](distributed-safety.md) | Explicit authenticated pure Core safety with ordered commit/retry; no durable coordinator or temporal recovery |
-| Use private disk membership in Rust | [Disk seen-state library](disk-seen-library.md) | Fallible additive library; the separate opt-in safety route is available |
-| Embed dive in Rust | [Rust API](rust-api.md) | Per-operation reports, errors and explicit options |
-| Interpret structured results | [Reports and errors](reports-and-errors.md) | Versioned schemas; exit zero alone is insufficient |
+| Install dive | [Install](install.md) | crates.io, Linux archives, source |
+| Check a first model | [Getting started](getting-started.md) | Included example |
+| Check safety properties | [Safety checking](checking.md) | Exhaustive BFS, safety symmetry |
+| Run with TLC's arguments | [TLC checking entrypoints](checking.md#tlc-checking-entrypoints) | Checking only; `-tool` and other TLC protocols refuse |
+| Match TLC's behavior | [Compatibility](compatibility.md) | `--compat=tlc` and its gaps |
+| Check temporal properties | [Temporal checking](temporal.md) | Bounded pure subset |
+| Sample executions | [Simulation](simulation.md) | Seeded and finite; never a proof |
+| Use iterative deepening | [DFID](dfid.md) | Pure safety, depth-bounded |
+| Validate implementation traces | [Trace validation](traces.md) | Complete states, independent replay |
+| Translate or edit PlusCal | [PlusCal](pluscal.md) | C and P syntax |
+| Debug a safety check (experimental) | [Debugging](debugging.md) | DAP, one local worker |
+| Parse and analyze | [Parsing and analysis](front-end.md) | Acceptance only, no checking |
+| Use modules and library operators | [Modules](modules.md) | Standard, TLAPS and CommunityModules |
+| Coverage (`--coverage`, `--source-coverage`) | [Checking](checking.md#coverage) | Refused by name |
+| Interpret results | [Reports and errors](reports-and-errors.md) | Versioned JSON; read more than the exit code |
+| Embed dive in Rust | [Rust API](rust-api.md) | Reports, errors and options per operation |
+| Spill to disk or resume a search | [Storage and recovery](storage-recovery.md) | Spill budgets, checkpoints |
+| Keep seen states on disk | [Disk seen-state checking](disk-seen-safety.md) | Opt-in, one worker |
+| Use disk membership from Rust | [Disk seen-state library](disk-seen-library.md) | Library API |
+| Spread safety work across machines | [Distributed safety](distributed-safety.md) | Trusted workers, pure safety |
 
 ## Command-line surface
 
-`dive --help` and `dive <command> --help` list only the commands and options
-that Core implements; `crates/dive-cli/tests/golden/command-help.txt` pins
-them. Options that Core always refuses are not listed. They still parse, so
-existing scripts get the same named refusal (verdict `unsupported`, exit 3,
-the feature named) rather than a usage error:
+`dive --help` and `dive <command> --help` list the commands and options dive
+implements. Options it always refuses are left out of the help but still parse,
+so an existing script gets a named refusal (verdict `unsupported`, exit 3, the
+feature named) instead of a usage error:
 
 | Command | Unlisted option | Refusal names |
 | --- | --- | --- |
@@ -48,20 +53,14 @@ the feature named) rather than a usage error:
 | `dfid` | `--workers N` with N > 1 | DFID multiple workers |
 | `tlc` | `-coverage 0`, `-lncheck final` | coverage; bounded final checking |
 
-Without temporal properties, `--lncheck final --lasso short` changes
-nothing and the check runs; `--workers 1` is accepted by `simulate` and
-`dfid`. `--compat=tlc` and `dive tlc` check temporal properties once at
-exhaustion without the explicit flags. `--symmetry-liveness tlc` stays
-listed: it is the `--compat=tlc` default and runs unless `SYMMETRY` meets
-temporal properties, which it refuses by name. `lsp` is not a listed
-command and refuses by name.
+Without temporal properties, `--lncheck final --lasso short` changes nothing
+and the check runs, and `simulate` and `dfid` accept `--workers 1`.
+`--compat=tlc` and `dive tlc` check temporal properties once at exhaustion
+without these flags. `--symmetry-liveness tlc` is listed because it is the
+`--compat=tlc` default; it runs unless the model has both `SYMMETRY` and
+temporal properties, and that combination refuses by name. There is no
+language server: `dive lsp` refuses by name.
 
-These guides describe the implementation in this checkout. Read the
-[scoreboard](../scoreboard.md) for current coverage and the
-[maintained TLC differences log](../tlc-differences.md) for known limitations
-and approved better defaults. LSP, native compilation and distributed recovery
-are not exposed as completed functionality here.
-
-Strict TLC-mode trace replay also admits bounded tuple-valued variables, tuple
-sequence calls and finite process-owned tuple stacks; arbitrary states and general
-saved stacks still refuse. See [trace validation](traces.md).
+The [differences from TLC](../tlc-differences.md) list the known limitations
+and every place where dive's default answer differs from TLC's. The
+[scoreboard](../scoreboard.md) has current coverage numbers.

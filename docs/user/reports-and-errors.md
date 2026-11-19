@@ -9,11 +9,9 @@ command's report carries `schema_version: 3`, also exposed as
 A counterexample nested inside a report is a `dive-trace` document with its own
 version; do not read it as a report version.
 
-`check` also reports `check_kind: "safety" | "temporal"`. The kind names the
-request and report family, not what ran or what was proved: a final/short
-safety stop is still a temporal-family report, with its actual
-`capture_completed: false`. Ordinary safety reports carry no temporal capture or
-exhaustive-temporal claim. Read each command's own result fields rather than
+`check` also reports `check_kind: "safety" | "temporal"`. The kind names the request and its report family. It does not say what ran or what was proved: a final/short safety stop is still a temporal report, with
+`capture_completed: false`. Safety reports carry no temporal capture and make
+no temporal claim. Read each command's own result fields rather than
 interpreting every command through the safety-check keys.
 
 | Operation | What to inspect |
@@ -39,27 +37,26 @@ This reports schema 3, `command: "check"`, `check_kind: "safety"`,
 capture.
 
 For `check`, inspect `verdict` and `exit_code` first. `statistics`, `tlc` and
-`counterexample` are nullable: missing checking work or a refusal does not
-establish a result. A `stopped` report records an incomplete search and its
-budget; it is never a successful verification. The `stopped` verdict appears
+`counterexample` are nullable,
+and a null field or a refusal is not a result. A `stopped` report
+records an incomplete search and the budget that ended it, never a successful
+check. The `stopped` verdict appears
 only when a budget runs out, and `options.budget` records the configured
 budgets. Automation that pins the verdict vocabulary should treat an unknown
 verdict as "no result".
 
-`unsupported` names a feature that was not checked. A resource limit, timeout,
-incomplete bound, failed storage or internal error supplies no successful model
-result, and missing counters or worker facts stay absent rather than invented.
+`unsupported` names a feature that was not checked. A resource limit, timeout, incomplete bound, storage failure or internal error
+is never a successful result, and counters or worker details dive did not
+measure are left out, not invented.
 A valid finite implementation trace shows that this trace satisfies the checked
 relation; it does not establish every possible behavior of the implementation.
-Parse, analysis and translation acceptance, simulation samples, DFID bounds and
-trace validation each keep their own qualifications.
+Parse, analysis and translation results, simulation samples, DFID bounds and
+trace validation each have their own meaning, described in their guides.
 
 For a liveness violation, `property` is the display form of the complete
-`properties` list: `P`, `P and Q`, or `P, Q, and R`. The human headline and the
-Rust word's `properties` name the same list, established on the reported word
-itself. Another valid counterexample, including TLC's, can have a different set
-of false properties; names are never copied from another behavior or unioned
-over the model. In Rust, `target_property` identifies the analysis target and
+`properties` list: `P`, `P and Q`, or `P, Q, and R`. The human headline and the Rust counterexample's `properties` give the same
+list, computed on the reported counterexample. Another valid counterexample,
+including TLC's, can falsify a different set of properties. In Rust, `target_property` identifies the analysis target and
 `properties` carries the complete attribution.
 
 A false `ASSUME` reports `verdict: "assumption-failure"`, TLC code 2104 and
@@ -81,19 +78,18 @@ contains them. The Rust `ConfigReport::to_json` helper emits such a fragment,
 not a complete command report.
 
 `core.metrics.store.memory.construction_history_view_bytes` is deprecated and
-always 0, because Core keeps no construction history. Schema 3 keeps the field;
+always 0, because dive keeps no construction history. Schema 3 keeps the field;
 a later schema version will remove it.
 
-The test suite pins complete Core JSON examples for success, invariant
+The test suite pins complete JSON examples for success, invariant
 violation, deadlock, liveness violation, evaluation error, named refusal and
 budget stop. The tests normalize only fixture paths, elapsed times and the
 host's memory metric. See the
 [fixture guide](../../crates/dive-cli/tests/fixtures/report-schema/README.md).
 
 Stable diagnostic codes and spans belong to the report; display text is for
-people. Not every TLC deciding error class is classified. The harness reports
-in [conformance](../conformance.md) are test evidence, not the schema of user
-commands. Record the profile and schema version in any automation protocol.
+people. Not every TLC deciding error class is classified. Record the profile
+and schema version in any automation that reads reports.
 
 ## Exit codes
 
@@ -132,14 +128,14 @@ When an evaluation error has a TLC class that dive can prove, the report carries
 a finite counterexample whose ending names the error. The validator replays
 each ending kind below before accepting it: it reruns the specification and
 must reproduce the same original error, source location and deciding TLC code.
-A producer flag, matching metadata or a valid word alone never establishes the
-class. When dive cannot prove the class, the report keeps the actual error,
+Flags, matching metadata or a valid trace on their own are not enough. When dive cannot prove the class, the report keeps the error,
 output and stopping counts, and is `unsupported` or carries
 `tlc.verified: false` instead of a formal word.
 
-These proofs cover pure evaluation. Unless a section says otherwise, VIEW,
-symmetry, extra safety roles, mutable effects, earlier unproved candidates,
-multiple initial emissions and unproved value lifetimes keep named refusals.
+These proofs cover pure evaluation. Unless a section says otherwise, the
+following refuse by name: VIEW, symmetry, extra safety roles, mutable effects,
+earlier unproved candidates, multiple initial emissions and value lifetimes
+dive has not proved.
 
 ### Initial-state errors
 
@@ -165,9 +161,8 @@ not establish a deciding TLC class. These reports keep `tlc.verified: false`,
 the observed wrapper 2103, reported context 2102, physical exit 75 and the
 actual stopping counts. They carry `counterexample: null`, no
 `diagnostic_witness` and no `error_witness`; the message keeps the original
-cause and the recorded initial state, and a note says that no formal word or
-class proof exists. Treat the unverified class as a refusal even when its
-numbers match another report:
+cause and the recorded initial state, and a note says that the class is not proved. Treat it as a refusal, even when
+its numbers match another report:
 
 ```sh
 dive check crates/dive-api/tests/fixtures/comparison-receiver-unclassified/InitialTool.tla --compat=tlc --workers 1 --seed 19 --fp 0 --output json
@@ -184,7 +179,7 @@ case reconstructs one initial state and one new successor, checks that each
 recurrence is total and true on the first row, then repeats the error and its
 diagnostic at the next source. The word uses the version-1
 `next-ordered-terminal` ending with reported and deciding code 2179 and exit
-255. It proves a finite error, not a temporal property.
+255. It shows a finite error; it checks no temporal property.
 
 ```sh
 dive check conformance/corpus/next-error-temporal/specifications/GenError/GenError.tla --config conformance/corpus/next-error-temporal/specifications/GenError/Record.cfg --compat=tlc --workers 1 --seed 0 --fp 0 --output json
@@ -215,14 +210,13 @@ error at the first admitted initial source before any temporal row completes;
 the fresh Init run, not the submitted word, determines that source.
 
 `Session::invariant_error_class` and `SpecModel::invariant_error_class` prove the
-diagnostic identity of a version-2 word. The certificate they return is
-in-memory state, never a serialized proof, and ordinary word validation is not
-enough. Every successor-invariant class, including 2111, needs this fresh
-certificate before dive reports it, before a source-bound conformance mapping
-and before a report word is admitted; a mapping without source refuses it. A
+diagnostic identity of a version-2 word. The certificate they return lives in memory and is never serialized; ordinary
+trace validation does not produce it. Dive reports a successor-invariant
+class, including 2111, only with a fresh certificate, and a conformance mapping
+without source refuses it. A
 quiet completion or a predicate or partial-state stop can keep 2111; a later
-exception decides its own class. A forged class, report exit and physical exit
-that agree with each other still do not authorize 2111. The validator checks
+exception decides its own class. A class and exit codes that merely agree with each other are not enough for
+2111. The validator checks
 the TLC class and physical status against the proof and the caller's exit
 convention; `check_result_with_model_and_exit_convention` and
 `validate_counterexample_with_exit_convention` accept native status 13 for
@@ -261,8 +255,8 @@ ending once the Boolean-role check raises `TLC_EXPECTED_VALUE`. A non-Boolean
 value returned by a named constraint, action or property role is not proved by
 this ending. An error raised inside expression evaluation, such as `[A]_e`
 rejecting a non-Boolean inner action, is a different operation that replay can
-prove; the validator decides from what actually runs, never from a fixture name
-or a rendered message.
+prove; the validator decides from what runs, never from a fixture name or a rendered
+message.
 
 ### VIEW errors
 
@@ -295,8 +289,8 @@ ignores part of it can certify a failure.
 A temporal `evaluation-error` at `error_site: "temporal-state-row"` keeps the
 actual partial statistics and `capture_completed: false`. Its finite trace may
 end in an independently replayed error, with no violated property or lasso.
-Human output prints the same certified states as JSON, and an uncertified
-diagnostic prefix gains no behavior claim.
+Human output prints the same certified states as JSON. A diagnostic prefix that
+is not certified says nothing about the model's behavior.
 
 An error at `error_site: "temporal-source-row"` reports GENERAL (1000) and TLC
 exit 255 after the source row runs, the diagnostic is suppressed and the
@@ -308,7 +302,7 @@ does not inherit the class.
 ## Diagnostics and `dive explain`
 
 `dive explain DIVE-L0020` (or with `--output json`) gives a cause and a next
-action. The catalogue covers every assigned parser `DIVE-S` code, the assigned
+action. The catalog covers every assigned parser `DIVE-S` code, the assigned
 temporal codes `DIVE-L0020` to `DIVE-L0038`, temporal API codes `DIVE-A0030` to
 `DIVE-A0034`, watchdog start-up `DIVE-R0001`, memory observation `DIVE-R0002`
 and command adapter codes `DIVE-X0001` to `DIVE-X0004`. It does not cover every
@@ -351,7 +345,7 @@ finite callback source walk keep the innermost valid expression through
 aliases, lazy actuals and substituted scopes; projection and opaque-storage
 failures may have only their enclosing context. Stage-wide failures have
 `span: null` and `location: null`. A report's own cause takes precedence over
-the catalogue explanation. Budget exhaustion uses its resource-specific
+the catalog explanation. Budget exhaustion uses its resource-specific
 `stopped.hint`; raising a time or memory budget does not lift a named count
 limit or add a missing feature.
 
@@ -362,18 +356,17 @@ Check reports carry `resources.memory`. The configured ceiling is in
 observations. `metric` is `rss+swap` on Linux and `rss` on macOS. `samples` and
 `observed_max_bytes` describe successful observations, with a `null` maximum
 when none succeeded; they are not a true process peak. `initial_sampled`,
-`final_sampled` and `unavailable_at` describe the boundaries actually reached.
+`final_sampled` and `unavailable_at` describe the boundaries reached.
 `status` is sampled, not-started, disabled or unavailable; disabled means an
 explicit unlimited setting, never an unknown measurement replaced by zero.
 
 A known excess at start-up uses the `stopped` outcome, exit 5, phase
 `check-startup`, no statistics and `resources.checking_started: false`; binding
 and graph capture have not started. Safety reports omit `execution`; temporal
-reports add `execution.started: false` and `capture_completed: false`. A time or
-memory budget spent by start-up work after binding begins (constant
-definitions, constant folding while Core compiles its plan, the ASSUMEs) also
-stops in phase `check-startup`, before `Init`, with no statistics and the
-start-up output printed so far. Refusals that hold at any budget are reported
+reports add `execution.started: false` and `capture_completed: false`. Start-up work after binding begins includes constant definitions, constant
+folding while dive compiles its plan, and the ASSUMEs. A time or memory budget
+that runs out there also stops in phase `check-startup`, before `Init`, with no
+statistics and whatever start-up output was printed. Refusals that hold at any budget are reported
 first. `resources.checking_started` is then omitted, since binding started, and
 temporal reports give `execution.stage: check-startup` and
 `capture_completed: false` without `started`.
@@ -384,8 +377,7 @@ with no invented `stopped.observed` value or TLC class. An excess at the end
 uses phase `finalization` and keeps the actual capture completion and progress.
 Stops and measurement failures mark the retained statistics
 `exhaustive: false`; a completed capture alone does not prove the checked
-claim. `DIVE-R0001` is the separate watchdog start-up failure. An earlier
-genuine error or an already validated witness keeps its precedence, and a
+claim. `DIVE-R0001` is the separate watchdog start-up failure. An earlier error or validated witness takes precedence, and a
 later sampling failure is reported as unavailable rather than as an enforced
 ceiling.
 
@@ -397,11 +389,10 @@ Check reports may add `options.symmetry_liveness`, its source and a nullable
 Earlier schema-3 reports may omit these fields; do not infer an unreduced mode
 from their absence. The requested mode is one of `unreduced`, `refuse` and
 `tlc`; unknown or contradictory values fail closed. The summary names the
-declared symmetry and whether it applies to the bound temporal properties. It
-is not an execution claim or a proof.
+declared symmetry and whether it applies to the bound temporal properties. It describes the configuration, not what ran.
 
 Simulation and DFID reports include `engine`, `engine_requested` and a nullable
-`engine_fallback`. Core is the only engine, so `engine_fallback` is always
+`engine_fallback`. dive is the only engine, so `engine_fallback` is always
 `null`. Check reports do not carry `engine_requested` or `engine_fallback`.
 
 ## Report compatibility
@@ -429,8 +420,7 @@ meanings, units and result meanings stay stable. This includes `dive-trace`
 fields, tagged values, property endings and the zero-based `ending.back_to`
 loop target; the report's `counterexample.back_to` summary is one-based. New
 optional fields and diagnostic codes may be added without a version change.
-Fields are never removed, repurposed, made mandatory or changed in type within
-a version, and a new closed outcome needs a new version. Human display text,
+A new closed outcome needs a new version. Human display text,
 timings and JSON member order are not stable. Different valid lassos are
 allowed, and each still needs independent validation.
 
@@ -455,27 +445,10 @@ buffer mode. These are configured settings, not proof that a run reached them.
 The JSON wire format is versioned this way; the Rust library API has no such
 stability promise.
 
-## Conformance comparisons
+## Exit codes in comparisons
 
-The conformance harness compares the physical numeric exit exactly, even when a
-worker-specific comparison leaves out counts, so native exit 10 against TLC's 12
-is a real difference. Only an explicitly registered TLC and native exit pair is
-labelled `expected-divergence`, conditioned on its declared verdict, the other
-permitted fields and independent trace validation; it never counts as `agree`.
-See [distinct process exits](../tlc-differences.md#d-023-default-process-exits-are-distinct-conformance-observables).
-A registered generated-count pair is checked at every worker count: both
-observed values must match the registry, and at one worker the pair must also
-appear among the compared differences.
-
-A safety, action-property, liveness or deadlock verdict earns agreement only
-with a whole, independently validated counterexample, also in comparisons that
-leave out the witness shape. A selected TLC error witness is required even when
-verdicts match; metadata cannot stand in for a missing word. Success,
-assumption, front-end and evaluation outcomes whose contract has no witness
-need none. Exit pairs cannot excuse an absent, invalid, unconfirmed or refused
-word.
-
-The harness still reads version-1 safety, parse and analyze reports and
-version-2 temporal reports. A version-2 check report without `check_kind` gets
-every strict temporal check, so relabelling a temporal result as safety cannot
-bypass them.
+The exit status is part of the result. Native exit 10 against TLC's 12 is a
+real difference unless it is a
+[documented exit difference](../tlc-differences.md#d-023-default-process-exits-are-distinct-conformance-observables),
+and a matching exit does not make up for a missing, invalid or refused
+counterexample.

@@ -4,116 +4,123 @@
 dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --output json
 ```
 
-Simulation samples a positive finite number of traces instead of exhaustively
-exploring the model. The example returns `result: sampled`, with
-`exhaustive: false` and `model_proved: false`, even though its sample is valid.
-A zero exit without an observed error is never proof of safety or liveness.
+`dive simulate` samples a finite number of traces instead of exploring the
+whole state space. The example returns `result: sampled`, with
+`exhaustive: false` and `model_proved: false`, although every sampled trace is
+valid.  Exit 0 is never proof of safety or liveness.
 
-Use `--compat=tlc` for the implemented Java/TLC selection stream and `--aril N`
-for its supported seed adjustment. Record the seed and the complete options.
-The current mode supports one actual worker and finite safety models, including
-runtime `Print` and `PrintT` through captured operators. Their normal arguments,
-rendering and return values are evaluated. A reached `RandomElement`,
-register, Randomization operator or other unsupported host effect refuses by
-name; an untaken branch does not run it.
-Core provides `TLCGet("level")` with the values the pinned TLC simulator
-gives: 0 in `Init`, a state's 1-based position in its trace in invariants and
-`CONSTRAINT`s, and the position of the step's source state in `Next`,
-`ACTION_CONSTRAINT`s and action properties. Independent replay recomputes the
-level from each state's position. A primed `TLCGet("level")`, which TLC
-evaluates at the successor's level, refuses by name.
-As in TLC's simulator, a step only chooses among successors that satisfy every
-`CONSTRAINT` and then every `ACTION_CONSTRAINT`. A state none of whose
-successors satisfies them is reported as a deadlock (exit 11) when deadlock
-checking is on, even though `dive check` does not report one there: exhaustive
+Record the seed and the complete options to reproduce a sample. Use
+`--compat=tlc` for TLC's selection stream and `--aril N` for its seed
+adjustment. Simulation runs one worker on finite safety models.
+
+## What a sample covers
+
+`Print` and `PrintT` run through captured operators, with their arguments,
+rendering and return values evaluated. A `RandomElement`, register,
+Randomization operator or other unsupported host effect refuses by name when
+the simulation reaches it; a branch that is never taken does not run it.
+
+`TLCGet("level")` returns what the pinned TLC simulator returns: 0 in `Init`,
+the state's 1-based position in its trace in invariants and `CONSTRAINT`s, and
+the position of the step's source state in `Next`, `ACTION_CONSTRAINT`s and
+action properties. Independent replay recomputes the level from each state's
+position. A primed `TLCGet("level")`, which TLC evaluates at the successor's
+level, refuses by name.
+
+As in TLC's simulator, each step chooses only among successors that satisfy
+every `CONSTRAINT` and then every `ACTION_CONSTRAINT`. When no successor of a
+state satisfies them and deadlock checking is on, the simulation reports a
+deadlock (exit 11). `dive check` reports no deadlock there, because exhaustive
 checking only stops exploring past such successors. Independent validation
 regenerates every successor of the deadlocked state and accepts the deadlock
 only if each one falls outside the constraints.
-Initial states may hold compound values (sets, functions, records, sequences).
-A `SPECIFICATION` with fairness conjuncts is simulated: fairness constrains only
-infinite behaviors, so it cannot change a finite safety result.
-Configured temporal `PROPERTY` checking, VIEW, symmetry and unproved sampling
-interactions refuse. `ALIAS` is not applied, as in `dive check`: the traces
-show the states themselves and the report's `notes` say so. An `ALIAS` that
-names no definition refuses. Returned violations require independent trace validation;
-unknown replay alignment returns `unsupported`.
-Configured VIEW is rejected before assumptions, Init or sampling; exhausted budgets do not rewrite that
-named refusal as a stopped run.
 
-Use `--stats basic --output json` to collect action flows, corresponding to TLC's
-`-simulate num=N,stats=basic`. The default is `--stats none`. Rust callers set
-`SimulateRequest::action_stats` to `true`. The optional `action_flow` object lists
-source-location groups and nonzero `{from, to, count}` transitions. Parameter
-contexts at the same predicate location share a group; `bound_action_ids` lists
-its original actions, and `label` describes the first context.
-Unused actions remain in the inventory. A reference to a definition already
-bound to a value retains its invocation name and source location, so two
-unused references to `Disabled == FALSE` form two groups. A definition override
-`Op <- Replacement` retains its target predicate instead. Configured operators
-are checked when actually evaluated, including Print/PrintT loggers. Reached
-register/I/O and other unsupported effects refuse; an unexecuted
-branch is not refused solely for its effect annotation.
+Initial states may hold compound values: sets, functions, records and
+sequences. A `SPECIFICATION` with fairness conjuncts is simulated, since
+fairness constrains only infinite behaviors and cannot change a finite safety
+result.
 
-Counts record consecutive **chosen** actions: the first edge starts at the Init
-predicate that produced the selected initial state. Every chosen transition,
-including a stutter, adds one edge. Generated duplicates, rejected constraints,
-disabled attempts and a failing candidate do not add edges. An error or resource
-limit retains only earlier chosen transitions. Empty flow counts can therefore
-accompany generated candidates or a valid violation. These are sample action
-statistics, not state-space or expression coverage. Collecting them does not
-change the seed, RNG draws, trace selection, property checks or validation.
-Full context statistics, alternative schedulers,
-additional workers, DFID completion and general coverage remain unsupported.
+These refuse by name: temporal `PROPERTY` checking, symmetry, and sampling
+interactions dive has not proved sound. A configured VIEW refuses before
+assumptions, Init or sampling, and a budget that runs out does not turn that
+refusal into a stopped run. `ALIAS` is not applied, as in `dive check`: the
+traces show the states themselves, and the report's `notes` say so. An `ALIAS`
+that names no definition refuses. Every returned violation must pass
+independent trace validation; if replay cannot align the trace, the result is
+`unsupported`.
+
+## Action statistics
 
 ```sh
 dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --stats basic --output json
 ```
 
+`--stats basic` collects action flows, like TLC's
+`-simulate num=N,stats=basic`. The default is `--stats none`; Rust callers set
+`SimulateRequest::action_stats` to `true`. The `action_flow` object lists
+source-location groups and nonzero `{from, to, count}` transitions.
+
+Parameter contexts at the same predicate location share a group;
+`bound_action_ids` lists the group's original actions, and `label` describes
+the first context. Unused actions stay in the inventory. A reference to a
+definition already bound to a value keeps its own name and source location, so
+two unused references to `Disabled == FALSE` form two groups. A definition
+override `Op <- Replacement` keeps its target predicate. Configured operators,
+including `Print` and `PrintT` loggers, are checked when evaluated.
+
+Counts record consecutive **chosen** actions. The first edge starts at the Init
+predicate that produced the selected initial state, and every chosen
+transition, including a stutter, adds one edge. Generated duplicates, states
+rejected by constraints, disabled attempts and a failing candidate add nothing.
+After an error or resource limit, only the transitions chosen before it remain,
+so a report can show generated candidates or a valid violation with empty flow
+counts.
+
+These counts describe the sample. They are not state-space or expression
+coverage. Collecting them does not change the seed, the random draws, trace
+selection, property checks or validation, and `Print` output is the same with
+`--stats none` and `--stats basic`. Full context statistics, other schedulers,
+more workers, DFID completion and general coverage are not supported.
+
+## Rust API
+
 Rust callers use `SimulateRequest` and `simulate_file`; `traces` is required and
-`depth` is optional. `SimulateReport::to_json()` exposes actual traces,
-statistics, observed/pending outcomes and validation; `exit_code()` exposes the
-process disposition. The report keeps each trace as its serialized entry;
+`depth` is optional. `SimulateReport::to_json()` holds the traces, statistics,
+observed and pending outcomes and validation, and `exit_code()` the process
+status. The report keeps each trace as its serialized entry;
 `SimulateReport::write_json` writes the same text as `to_json()` without
-building the JSON tree, which for many traces costs several times the text. See [the detailed simulation contract](../../crates/dive-sim/CONTRACT.md)
-and [reports](reports-and-errors.md).
+building the JSON tree, which for many traces costs several times the text.
+See the [simulation contract](../../crates/dive-sim/CONTRACT.md) and
+[reports](reports-and-errors.md).
 
-Simulation reports binding output once in `startup_output` and actual backend
-Print/PrintT events in `runtime_output`, in evaluation order. Init printing is
-runtime initialization output, not binding output. Independent validation freshly
-reconstructs the model, preserves Print's argument/rendering errors and return
-values, and discards its output without calling a sink. Replay events never
-appear in either producer-output field. A violation still requires a valid
-independent word; sampling remains no proof of safety or liveness.
+## Output
 
-The backend retains at most 100,000 runtime Print events and 16 MiB of their
-UTF-8 text by default. `dive_sim::Options` exposes `max_output_events` and
-`max_output_bytes`. Crossing either limit returns `resource-limit` with retained
-output and actual completed-prefix work, never `sampled`. The limits cover
-retained Print text/events, not temporary rendering allocations, existing warning
-records or total process memory. Alternative schedulers, Randomization operators
-and further host-effect work remain unfinished.
+The report lists binding output once, in `startup_output`, and the `Print` and
+`PrintT` events of the run in `runtime_output`, in evaluation order. Printing
+from Init counts as runtime output. Independent validation rebuilds the model
+from scratch, keeps `Print`'s argument and rendering errors and return values,
+and discards its output; replay events never appear in either output field.
 
-Print preserves both `--stats none` and `--stats basic`; source controls compare
-output, seed/choices, outcomes and independently validated words with statistics
-toggled. Historical Print oracle/scoped measurements retain their actual source
-revisions.
+By default the backend keeps at most 100,000 runtime `Print` events and 16 MiB
+of their UTF-8 text. `dive_sim::Options` sets `max_output_events` and
+`max_output_bytes`. Crossing either limit returns `resource-limit`, never
+`sampled`, with the output kept so far and the work completed. The limits
+cover retained `Print` text and events only: not temporary rendering
+allocations, existing warning records or total process memory.
 
+## One simulation per evaluator core
 
-## Shared evaluator simulation ownership
+A simulation owns its bound evaluator core until host cleanup. A low-level
+`simulate(&Model, ...)` call on a core that is already simulating, including
+through a cloned model, refuses at once: the result is `unsupported`, naming
+concurrent or reentrant simulation, in the preflight stage, with no work, no
+output and no host change. Option and feature refusals found in preflight take
+priority. Separate bound cores, including separate API loads, can run
+concurrently. Do not mix other evaluator or host operations with an active
+simulation.
 
-One simulation owns a bound evaluator core through host cleanup. Low-level
-`simulate(&Model, ...)` calls on that same core, including cloned models, refuse
-overlap or reentry without waiting: `unsupported` names concurrent/reentrant
-simulation, with preflight stage, zero work and no output or host change. Existing
-preflight option/feature refusals retain priority. Separate bound cores, including
-separate API loads, can run concurrently. Callers must not mix foreign evaluator
-or host operations with an active simulation; ordinary evaluator APIs are unchanged.
-
-The run lease is operational ownership of the actual shared core. It releases
-after the original host is restored, including error, limit and unsupported
-returns. It introduces no TLS, callback admission or cache authority. The earlier
-external overlap diagnostic and each scoped qualification retain their original
-source bindings.
+The core is released after the original host is restored, including on error,
+limit and unsupported returns.
 
 ## Random choices
 
@@ -124,100 +131,98 @@ verdict `unsupported`:
 dive simulate crates/dive-sim/tests/fixtures/random-init/InitRandomNextBoundary.tla --compat=tlc --traces 2 --depth 3 --seed 7 --output json
 ```
 
-Matching TLC's individual random draws is not a parity requirement in either
-profile.
+Dive does not try to match TLC's individual random draws, in either profile.
+Reproduce a sample with the same seed, options and source.
 
-The file API creates the host automatically. Low-level callers that bind source
-should create `dive_sim::Runtime::new(options)`, install `runtime.host()` in
-`BindOptions`, then run a backend with `runtime.simulate_with_backend`. A
-runtime admits one execution and preserves startup RNG consumption.
-
-`TLCGet("config")` is available after binding with the actual seed and settings.
-Print/output bounds and evaluator ownership remain in force. Core refuses
-reached random effects, such as `RandomElement` in `Init` or `Next`, by name. Broader simulation, parallel workers and
-remaining effects are not complete.
+The file API creates the host for you. A low-level caller that binds source
+creates `dive_sim::Runtime::new(options)`, installs `runtime.host()` in
+`BindOptions`, then runs a backend with `runtime.simulate_with_backend`. A
+runtime runs one execution and keeps the random draws consumed at startup.
+`TLCGet("config")` is available after binding, with the seed and settings in
+use.
 
 ## Constructive successors
 
-`dive simulate Spec.tla --generate --traces 3 --depth 100 --seed 7` selects a
-constructive successor traversal. The ordinary
-simulation default still enumerates successors. Rust callers set
-`SimulateRequest::generation`; low-level callers set `dive_sim::Options::generation`.
-JSON reports `options.algorithm: constructive` and `probabilistic: true`.
-The TLC equivalent is `dive tlc -generate num=3 -depth 100 Spec`; the shim requires
-an explicit finite positive `num=N`. `-simulate num=N` retains ordinary traversal.
+```sh
+dive simulate Spec.tla --generate --traces 3 --depth 100 --seed 7
+```
 
-The generator visits actual Next disjunctions and bounded existential contexts
-in a seeded cyclic order and stops after the first complete candidate that
-passes the ordinary checks and constraints. Intervals use direct indices;
-already stored finite sets use their existing normalized members. It does not
-build every possible successor just to choose one. Disabled and constrained-out
-candidates continue traversal. Partial assignments and reached errors remain
-errors. All source domains of an existential binder are evaluated before its
-contexts, even when an earlier domain is empty.
+`--generate` builds one successor at a time instead of enumerating them all,
+which is the default. Rust callers set `SimulateRequest::generation`, and
+low-level callers `dive_sim::Options::generation`. The JSON reports
+`options.algorithm: constructive` and `probabilistic: true`. The TLC
+equivalent is `dive tlc -generate num=3 -depth 100 Spec`; the adapter needs an
+explicit finite positive `num=N`, and `-simulate num=N` keeps the enumerating
+traversal.
 
-Init selection, predicate quantifiers, CHOOSE, function construction and ENABLED
-keep their ordinary evaluator semantics and do not consume generation choices.
-CASE generation, action composition and unproved opaque/lazy domains refuse by
-name when reached. Generation uses one worker. Seed replay requires the same
-options and source; matching TLC's random choices is not required.
+The generator walks the Next disjunctions and bounded existential contexts in a
+seeded cyclic order and stops at the first complete candidate that passes the
+usual checks and constraints. Intervals are indexed directly, and finite sets
+already stored use their normalized members, so no step builds every successor
+to choose one. Disabled candidates and candidates outside the constraints are
+skipped. Partial assignments and errors reached are errors. Every source domain
+of an existential binder is evaluated before its contexts, even when an earlier
+domain is empty.
 
-Every retained finite Behavior sample is independently checked with the explicit
-sample-validation operation: Init/Next, constraints, invariants and implied
-initial/action properties must hold on its actual rows. This establishes the
-sample's validity, not exhaustive safety, liveness or a prescribed RNG history.
-Independent replay can still examine many relation choices, so a constant-space
-producer does not imply constant-time end-to-end replay. `validate-trace --sample`
-requests the same operation for an exported native Behavior word and labels its
-JSON result `validation_goal: sample`; ordinary Behavior validation stays a
-relation-only prefix check.
+Init selection, predicate quantifiers, CHOOSE, function construction and
+ENABLED evaluate as usual and consume no generation choices. CASE generation,
+action composition and opaque or lazy domains that dive has not proved sound
+refuse by name when reached. Generation uses one worker.
 
-`--exit-codes native|tlc` selects physical process dispositions explicitly.
-For example an invariant violation exits 10 under native and 12 under TLC.
-The flag changes neither words nor their validation. Without the flag existing
-profile-dependent simulation exits stay unchanged. The TLC shim always selects
-TLC dispositions. Rust callers use `SimulateReport::exit_code_for` and
-`to_json_with_exit_convention`.
+Each retained finite behavior is checked independently by sample validation:
+Init and Next, constraints, invariants and implied initial and action
+properties must hold on its rows. That shows the sample is a valid behavior. It
+does not show exhaustive safety, liveness or a particular random history.
+Replay can examine many relation choices, so a generator that runs in constant
+space can still take longer to replay. `validate-trace --sample` runs the same
+validation on an exported behavior and labels its JSON result
+`validation_goal: sample`; plain behavior validation checks only the relation
+on a prefix.
+
+## Exit codes
+
+`--exit-codes native|tlc` selects the process status convention. An invariant
+violation exits 10 under native and 12 under TLC. The flag does not change the
+traces or their validation. Without the flag, simulation keeps its
+profile-dependent statuses. The TLC adapter always uses TLC statuses. Rust
+callers use `SimulateReport::exit_code_for` and `to_json_with_exit_convention`.
 
 ## Run budgets
 
-`dive simulate Spec.tla --traces 100 --depth 100 --time-limit 10s --max-memory 2g`
-uses the same budget settings as checking: no default time limit and half
-physical memory in both profiles.
-`none` removes a limit; memory also accepts `auto`. An explicit TLC-profile
-time limit labels the profile `tlc+overrides`.
-
-The clock starts after model loading. Assumptions, Init and execution loops
-receive cooperative control, including evaluator loop checkpoints. Retained
-traces are serialized with state checkpoints and independently replayed on fresh
-runtimes under the same budget. Exhaustion skips unprocessed retained traces.
-Initial model loading and individual value encoding/decoding remain
-uninterruptible. A final resource sample runs before publication. Memory is sampled process usage,
-not an allocation-time hard cap. `options.budget` states these boundaries.
-
-Exhaustion gives `result: stopped`, exit 5, actual resource/limit/observation,
-phase and reached progress. It never certifies safety or a violation. Retained
-prefix traces and earlier observations remain diagnostic. Rust requests expose
-`time_limit` and `max_memory` through `BudgetSetting`; one budget covers the run,
-rather than restarting the clock for each trace or iteration.
-
-## Execution
-
-Core runs simulation with compiled Init, Next and predicate execution for
-finite safety models in either profile:
-
 ```sh
-dive simulate docs/user/examples/Counter.tla --traces 3 --depth 8 --seed 7 --output json
+dive simulate Spec.tla --traces 100 --depth 100 --time-limit 10s --max-memory 2g
 ```
 
-What Core does not implement, such as random choices and registers, is a
-named refusal. A reached refusal is not retried and does not repeat output.
-JSON reports `engine: "core"`, plus `engine_requested` and `engine_fallback`,
-which is always `null`; requested and actual workers are reported separately.
-Simulation uses one worker.
+Simulation uses the same budgets as checking: no default time limit and half of
+physical memory, in both profiles. `none` removes a limit, and memory also
+accepts `auto`. An explicit time limit in the TLC profile labels the profile
+`tlc+overrides`.
 
-Native compound states, fairness-only specifications, Print and basic action
-flows retain independent word validation. Unsupported native runtime effects,
-unproved lazy receivers and warning/output interleaving refuse by name.
-Reproduce a sample with the same seed and options; TLC's internal draw sequence is not a parity
-obligation, including under `--compat=tlc`.
+The clock starts after the model loads. Assumptions, Init and the execution
+loops check the budget as they run, including inside evaluator loops. Retained
+traces are serialized with state checkpoints and replayed independently on
+fresh runtimes under the same budget; when the budget runs out, unprocessed
+retained traces are skipped. Initial model loading and encoding or decoding a
+single value cannot be interrupted. A final resource sample runs before the
+report is written. Memory is sampled process usage, not a hard cap at
+allocation. `options.budget` records these settings.
+
+When a budget runs out the result is `stopped`, exit 5, with the resource,
+limit, observed value, phase and progress reached. A stopped run proves neither
+safety nor a violation; retained prefix traces and earlier observations are
+diagnostic only. Rust requests set `time_limit` and `max_memory` through
+`BudgetSetting`. One budget covers the whole run; the clock does not restart for
+each trace.
+
+## Engine
+
+dive runs simulation with compiled Init, Next and predicates for finite safety
+models in either profile. What dive does not implement, such as random choices
+and registers, refuses by name. A refusal is not retried and does not repeat
+output. JSON reports `engine: "core"`, `engine_requested` and
+`engine_fallback`, which is always `null`, and reports requested and used
+workers separately.
+
+Compound states, fairness-only specifications, `Print` and basic action flows
+are all validated independently. Unsupported runtime effects, lazy receivers
+dive has not proved sound, and interleaved warnings and output refuse by name.
