@@ -1,0 +1,22 @@
+#!/bin/zsh
+# n <node-name> <command...>: run a shell command on a named node via SSM and print
+# its status, stdout and stderr. Node names map to instance ids in the state file
+# $DIVE_PERF_STATE (lines like `small=<instance-id>`), so ids never appear on the
+# command line or in logs. Needs AWS_PROFILE; AWS_REGION defaults to us-east-1.
+: ${DIVE_PERF_STATE:?set DIVE_PERF_STATE to the node-name=instance-id state file}
+: ${AWS_PROFILE:?set AWS_PROFILE}
+export AWS_REGION=${AWS_REGION:-us-east-1} AWS_PAGER=""
+source $DIVE_PERF_STATE
+N=$1; shift; I=${(P)N}
+[ -n "$I" ] || { echo "no node $N"; exit 2; }
+P=$(jq -nc --arg c "$*" '{commands:[$c],executionTimeout:["7200"]}')
+ID=$(aws ssm send-command --instance-ids $I --document-name AWS-RunShellScript --parameters "$P" --query Command.CommandId --output text 2>/dev/null) || { echo "send failed"; exit 1; }
+for i in $(seq 1 1440); do
+  St=$(aws ssm get-command-invocation --command-id $ID --instance-id $I --query Status --output text 2>/dev/null)
+  case $St in Success|Failed|Cancelled|TimedOut) break;; esac; sleep 5
+done
+echo "[$St]"
+aws ssm get-command-invocation --command-id $ID --instance-id $I --query StandardOutputContent --output text 2>/dev/null
+E=$(aws ssm get-command-invocation --command-id $ID --instance-id $I --query StandardErrorContent --output text 2>/dev/null)
+[ -n "$E" ] && { echo "--- stderr"; echo "$E"; }
+true

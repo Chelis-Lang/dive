@@ -1,0 +1,16 @@
+#!/bin/zsh
+# watch: print new progress lines from every node (one line per change), polling every 5 min.
+# Node names (small, shard1..4, mac) are the 0.1.0 layout; edit the list for another campaign.
+B=${0:A:h}
+ST=${DIVE_PERF_STATE:?set DIVE_PERF_STATE}.watch
+touch $ST
+while true; do
+  cur=$( {
+    echo "small $($B/n small 'tail -1 /home/bench/chain.log' | sed -n 2p)"
+    for i in 1 2 3 4; do echo "shard$i $($B/n shard$i 'tail -1 /home/bench/r2/large/log.txt; tail -1 /home/bench/chain.log 2>/dev/null' | sed -n '2,3p' | tr '\n' ' ')"; done
+    [ -f $B/../macready ] && echo "mac $($B/n mac 'tail -1 /Users/ec2-user/chain.log 2>/dev/null' | sed -n 2p)"
+  } 2>/dev/null )
+  comm -13 <(sort $ST) <(echo "$cur" | sort)
+  echo "$cur" > $ST
+  sleep 300
+done

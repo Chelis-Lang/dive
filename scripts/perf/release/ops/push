@@ -1,0 +1,6 @@
+#!/bin/zsh
+# push <node> <local-file> <remote-path>: copy a small file (< ~40 KB) to a node as user bench (or $PUSH_OWNER)
+B=${0:A:h}
+OWN=${PUSH_OWNER:-bench}
+D=$(gzip -c "$2" | base64 | tr -d '\n')
+$B/n $1 "mkdir -p \$(dirname $3) && echo $D | base64 -d | gunzip > $3 && chown $OWN: $3 \$(dirname $3) 2>/dev/null; chmod +x $3; sha256sum $3 | cut -c1-16"

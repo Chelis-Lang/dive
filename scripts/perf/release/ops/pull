@@ -1,0 +1,15 @@
+#!/bin/zsh
+# pull <node> <remote-file> <local-file>: fetch a file from a node via SSM in gzip+base64 chunks
+B=${0:A:h}
+N=$1; R=$2; L=$3
+SZ=$($B/n $N "gzip -nc $R | base64 -w0 | wc -c" | sed -n 2p | tr -d ' ')
+[ -n "$SZ" ] && [ "$SZ" -gt 0 ] || { echo "pull: cannot size $R"; exit 1; }
+: > $L.b64
+C=20000; i=1
+while [ $i -le $SZ ]; do
+  j=$((i + C - 1))
+  $B/n $N "gzip -nc $R | base64 -w0 | cut -c$i-$j" | sed -n 2p | tr -d '\n' >> $L.b64
+  i=$((j + 1))
+done
+base64 -d -i $L.b64 | gunzip > $L && rm -f $L.b64
+ls -l $L | awk '{print $5, $9}'

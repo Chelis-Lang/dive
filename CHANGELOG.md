@@ -109,3 +109,11 @@ The first release.
   and LSP.
 - EWD998ChanID imports resolve, but checking refuses it by name because it
   combines VIEW with a liveness property.
+
+### Known issues
+
+- With temporal properties, extra workers may not help and can make a check
+  slower: on some models a check at 8 workers took up to twice as long as at
+  1 worker, and the report does not say why. Results are the same at every
+  worker count. Use `--workers 1` for specifications with temporal properties
+  until this is fixed.
