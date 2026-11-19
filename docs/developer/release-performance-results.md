@@ -19,6 +19,7 @@ names its record.
 | D5, startup and throughput | `dive --version` 1.5 ms, `dive parse` 1.3 ms and a full `dive check` of a small model 4.9 ms (medians of 50). Trace validation 7 to 47 ms per trace, all valid. The bosco simulation stops at its 16 GiB budget (#1024). | `2026-11-18-release-d5-throughput-08a14fba.json` |
 | D6, stop latency | Time budgets stop 4 to 40 ms after the limit (median per cell, load time subtracted; worst single run 170 ms). State and depth ceilings stop exactly at the ceiling, with no overshoot. | `2026-11-18-release-d6-stop-latency-08a14fba.json` |
 | D7, macOS (informational) | On an Apple M3 laptop, Core / TLC geomean 0.354x at 1 worker and 0.347x at 4 workers over six benchmark models, all agreeing. | `2026-11-18-release-d7-macos-08a14fba.json` |
+| S7, Sail+dive against standard TLC (release gate) | Best case 27x to 39x faster than TLC per check on the smallest specifications (warm MCP 18.4 ms and `sail runtime execute` 12.8 ms against 491 ms on DieHard), and 12.6x over 100 mixed small checks in one MCP session (6.7 s against 84.5 s). Typical: 9x to 17x on small liveness models, 2.4x at 14,365 states, 1.1x on MCLamportMutex. Before the Sail #765 fix the same paths were 0.9x to 4.0x. All jobs agreed with their goldens. | `2026-11-19-release-s7-sail-vs-tlc-ce94df74.json` |
 
 ## Source, machine and method
 
@@ -350,6 +351,53 @@ Geomean dive / TLC: 0.354x at 1 worker, 0.347x at 4 workers.
 
 Startup on the laptop, 50 runs each: `dive --version` 2.75 ms, `dive parse`
 2.93 ms and `dive check` of `Counter.tla` 5.44 ms (medians).
+
+## S7: Sail+dive against standard TLC
+
+The release gate added to the plan on 2026-11-18. It compares the whole
+Sail+dive workflow with the standard one: a fresh `java -XX:+UseParallelGC
+-jar tla2tools.jar -workers 1 -config <cfg> <module>` per check (pinned
+oracle jar and JRE, default heap). Sail ran D.I.V.E. `3d5923a1` in its
+isolated worker with its fixed policy (exact store, seed and fingerprint
+zero, one worker, explicit bounds). One fresh c7i.8xlarge in us-east-1
+(Intel Xeon Platinum 8488C, 32 vCPUs, SMT and turbo on, no binding, nothing
+else running), not the D1 bench nodes. Five repetitions per cell, path order
+rotated; multiples are TLC time over Sail time within each repetition, then
+the median. Every job in every path agreed with its golden on the
+holds/refuted class and the distinct-state count, and every Sail refutation
+carried an independently validated trace. The Sail page with every table is
+`docs/validation/sail-dive-vs-tlc.md` on Sail PR #763's branch.
+
+Sail after the #765 fix (`ce94df74`), median milliseconds:
+
+| Fixture | TLC | dive CLI | Sail execute | Sail MCP (warm) | TLC / execute | TLC / MCP |
+|---|---:|---:|---:|---:|---:|---:|
+| DieHard (14 states) | 491 | 6.4 | 12.8 | 18.4 | 38.9x | 26.5x |
+| EWD840 (302) | 684 | 33.5 | 40.3 | 46.1 | 17.0x | 14.8x |
+| MCRealTimeHourClock (216) | 568 | 10.4 | 18.9 | 24.8 | 29.6x | 22.8x |
+| MCLiveInternalMemory (4,408) | 1,500 | 144 | 160 | 164 | 9.3x | 9.1x |
+| MCDisruptor_MPMC_liveliness (14,365) | 2,648 | 1,032 | 1,087 | 1,101 | 2.4x | 2.4x |
+| MCLamportMutex (724,274) | 12,765 | 11,477 | 11,704 | 11,730 | 1.1x | 1.1x |
+
+- **Agent loop.** 100 checks cycling over the four small fixtures: TLC 84.5 s,
+  one warm MCP session 6.70 s (12.6x), `sail runtime execute` 6.14 s
+  (13.8x), the dive CLI 5.14 s (16.5x). Two concurrent clients on one daemon
+  complete 29.7 jobs/s against 2.2 for two concurrent TLC processes (13.3x);
+  beyond two active executions Sail refuses jobs with `SAIL6201 busy`.
+- **Before the fix** (Sail `6592db0c`) a warm MCP call on DieHard took 376 ms
+  (1.2x faster than TLC) and the loop 42.7 s (1.8x): every job hashed and
+  copied the 76 MB worker, and the socket and MCP paths hashed it once more.
+  The fix reuses the verified copy under settled stamps (Sail ADR 0173),
+  links mimalloc into the worker (MCLamportMutex worker time 1.17x to 1.02x
+  the CLI's) and wakes the service at once for new connections. The first
+  job after installing a worker still takes 207 ms, then 12.3 ms.
+- **Memory.** Sail jobs peak at 21 to 270 MiB against TLC's 164 MiB to
+  3.5 GiB on the same models; a warm `sail serve` holds 12 MiB.
+- **Large models** are D1's engine comparison and were not rerun: the worker
+  is now within 2% of the CLI, so D1's ratios (for example 0.66x on
+  MCLamportMutex, 0.26x on CoffeeCan1000Beans) carry over to Sail up to the
+  exact-store cost of D3. On this turbo-enabled host the direct
+  MCLamportMutex comparison is 1.1x rather than D1's 1.5x.
 
 ## Issues
 
