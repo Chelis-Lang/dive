@@ -8,7 +8,7 @@ a measurement is repeated; history is in git.
 | Gate | Status | Evidence |
 |---|---|---|
 | R1 Coverage | **Met on main.** Core alone, default profile, one worker, full Examples tier including the long tier: 169 covered (162 agree, 7 registered expected divergences), 0 disagreements, 7 named refusals and no stops. The frozen historical floor on the same selection rule is 140 (see the [R1 gate](RELEASE.md#gates)). 48 models are out of scope and 9 have no TLC golden. | Quiet-node run in #784; #338 |
-| R2 Speed | **Met on main** under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure): one checker at a time on quiet nodes, small models as the median of six alternating repetitions. Geomean 0.195x TLC over the 169 agreeing models (fixed-set geomean 0.211x, counting the six refused models at 2x); no model above 2x. Above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `conformance/reports/perf/2026-11-10-r2-procedure-7024d1fd.json`; #784 |
+| R2 Speed | **Met on the 0.1.0 candidate** (`08a14fba`) under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure): one checker at a time on quiet nodes, small models as the median of six alternating repetitions. Geomean 0.195x TLC over the 169 agreeing models (fixed-set geomean 0.211x, counting the six refused models at 2x); no model above 2x. Above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json`; [release results](developer/release-performance-results.md) |
 | R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass on main. | #803; #784 |
 | R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main. In that run Core in the TLC profile ran the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors; the committed TLC-profile baseline, refreshed from a later run with the same counts, records them as the ratchet floor. | #810; #784 |
 | R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-3 JSON-report golden tests pass on main. | #802, #804; #784 |
@@ -87,14 +87,15 @@ nested TLC run through `IOUtils!IOEnvExec` and names its output file with
 
 ## Speed
 
-Measured under the [R2 measurement procedure](developer/performance.md#r2-measurement-procedure)
-on main: five c7i.metal-24xl nodes (SMT off, fixed 2.4 GHz, one NUMA
-node, provisioned storage), one checker at a time, one worker, seed and
-fingerprint 0, pinned TLC timed on the same node as Core. The 127 models where
-TLC takes under 10 s are the median of six alternating repetitions (largest
-spread between repetitions 1.31x); larger models are one pass, with three fresh
-pairs for `KeyValueStore/MCKVSSafetyMedium` (0.89x) and `ewd998/EWD998Chan`
-(0.98x), which landed near 1x. The geomean over the 169 agreeing models is
+Measured for the 0.1.0 release candidate (`08a14fba`) under the
+[R2 measurement procedure](developer/performance.md#r2-measurement-procedure):
+five c7i.metal-24xl nodes (SMT off, fixed 2.4 GHz, one NUMA node, provisioned
+storage), one checker at a time, one worker, seed and fingerprint 0, pinned
+TLC timed on the same node as Core. The 121 agreeing models where TLC takes
+under 10 s are the median of six alternating repetitions (geomean 0.161x);
+the 48 larger models are one pass (geomean 0.315x), with three fresh pairs
+for `KeyValueStore/MCKVSSafetyMedium` (0.90x) and `ewd998/EWD998Chan`
+(0.99x), which landed near 1x. The geomean over the 169 agreeing models is
 0.195x TLC. No model is above 2x. Models above 1x:
 
 | Model | Core / TLC | Issue |
@@ -104,8 +105,21 @@ pairs for `KeyValueStore/MCKVSSafetyMedium` (0.89x) and `ewd998/EWD998Chan`
 
 The largest models: `SlushProtocol/SlushLarge` 0.53x, `NanoBlockchain/MCNanoLarge`
 0.42x, `MultiPaxos-SMR/MultiPaxos_MC` 0.54x, `MultiCarElevator/ElevatorSafetyLarge`
-0.58x, `ElevatorSafetyMedium` 0.67x, `bosco/bosco` 0.47x and
+0.57x, `ElevatorSafetyMedium` 0.66x, `bosco/bosco` 0.47x and
 `bcastFolklore/bcastFolklore` 0.30x.
+
+### Release qualification
+
+The 0.1.0 measurements of the [release performance plan](developer/release-performance-plan.md);
+methodology and tables are in [release performance results](developer/release-performance-results.md).
+
+- D1, R2 gate: pass, geomean 0.195x TLC, none above 2x ([record](../conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json)).
+- D2, memory: benchmark set 37 to 286 MiB peak RSS against 795 to 1,449 MiB for TLC at `-Xmx3g`; 64 liveness models, largest 4,523 MiB ([record](../conformance/reports/perf/2026-11-18-release-d2-memory-08a14fba.json)).
+- D3, exact store: 1.00x to 1.30x the fingerprint store's time, 0.95x to 2.68x its peak RSS ([record](../conformance/reports/perf/2026-11-18-release-d3-store-08a14fba.json)).
+- D4, worker scaling: in progress.
+- D5, startup: `dive check` of a small model 4.9 ms; bosco simulation stops at its memory budget (#1024) ([record](../conformance/reports/perf/2026-11-18-release-d5-throughput-08a14fba.json)).
+- D6, stop latency: 4 to 40 ms after a time limit; ceilings with no overshoot ([record](../conformance/reports/perf/2026-11-18-release-d6-stop-latency-08a14fba.json)).
+- D7, macOS (informational, shared M3 laptop): geomean 0.354x TLC at 1 worker ([record](../conformance/reports/perf/2026-11-18-release-d7-macos-08a14fba.json)).
 
 ## Feature families
 

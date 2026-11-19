@@ -1,0 +1,2238 @@
+{
+ "measurement": "D2",
+ "plan": "docs/developer/release-performance-plan.md#d2-memory",
+ "date": "2026-11-18",
+ "source": "08a14fbac83ff71a3247623fb10bf0584bc83be5",
+ "dive_binary_sha256": "97675f9d446dbd188684f9f519e1313a86ae7e7faf57a7964d42d1115498e014",
+ "oracle": "tlc-2026.10.06.014338",
+ "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "host": {
+  "instance": "c7i.metal-24xl, us-east-1",
+  "cpu": "Intel Xeon Platinum 8488C",
+  "smt": "off",
+  "turbo": "off",
+  "frequency_khz": 2400000,
+  "governor": "performance",
+  "numa_nodes": 1,
+  "cpus": 48,
+  "binding": "numactl --cpunodebind=0 --membind=0 (all 48 CPUs of the single NUMA node)",
+  "storage": "gp3, 16000 IOPS, 1000 MiB/s",
+  "thp": "madvise",
+  "kernel": "7.0.0-1017-aws",
+  "ami": "Ubuntu 24.04.5 LTS (Canonical, x86_64)"
+ },
+ "command": {
+  "benchmark_set": "dive-bench --dive-bin ~/bins/dive --dive-revision 08a14fbac83ff71a3247623fb10bf0584bc83be5 --profile both --workers 1,8 --reps 5 --tlc --timeout 900 --xmx 3g (crates/dive-bench/benchmarks.toml)",
+  "liveness": "dive check <module.tla> --config <model.cfg> --workers 1 --seed 0 --fp 0 --time-limit <max(60s, 2.5 x D1 TLC time)> --max-memory 64g --output json under GNU /usr/bin/time -v; 3 repetitions"
+ },
+ "raw": {
+  "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-18/",
+  "files": {
+   "small-node-raw.tar.gz": "cba0a9cbcb4d6f86a26aa611c4b3419863f2af5eab75ff84a8df1227d7fd9ce1",
+   "shard2-d4-d2-raw.tar.gz": "3532a3508a7c264853f10c6167aabf4e5af5cb92278b67a80b17c8099e15f495"
+  }
+ },
+ "deviations": [
+  "Release binary built on one bench node and copied to the others (independent builds were not byte-identical); dive_binary_sha256 names the copied binary.",
+  "The second liveness batch was split to finish sooner: the small-class node ran the first 16 models and EWD998Chan repetitions 1-2; a D1 large-shard node of the same type and setup ran cf1s_folklore, the DijkstraMutex LSpec-model and EWD998Chan repetition 3, after its own D4 runs had stopped. One measured process at a time on each node."
+ ],
+ "benchmark_set_sha256": "5d539b1ba02458121a60b5f8f92f11e312e202e5441fd07fe2be32458eac0555",
+ "tlc_memory_note": "TLC peak RSS depends on -Xmx3g (dive-bench --xmx 3g); it is the JVM's footprint, not TLC's minimum.",
+ "liveness_selection": "Every R1 agreeing model whose config has PROPERTY or PROPERTIES was run once (the probe, at the same budget); those whose report says check_kind temporal were kept. Refinement-only and safety-reducible properties report safety and drop out.",
+ "summary": {
+  "benchmark_set_cells": 40,
+  "benchmark_set_all_correct": true,
+  "liveness_models": 64,
+  "liveness_all_agree": false,
+  "liveness_stopped": [],
+  "liveness_max_peak_rss": [
+   4742819840,
+   "specifications/aba-asyn-byz/aba_asyn_byz.cfg"
+  ],
+  "liveness_all_agree_or_registered": true
+ },
+ "rows": {
+  "benchmark_set": [
+   {
+    "model": "BufferedRandomAccessFile",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 38707200,
+    "dive_rss_min": 38207488,
+    "dive_rss_max": 38809600,
+    "dive_wall_ms_median": 18977.0,
+    "dive_wall_ms_range": [
+     18977.0,
+     19128.0
+    ],
+    "tlc_rss_median": 1157185536,
+    "tlc_rss_range": [
+     1146474496,
+     1158299648
+    ],
+    "tlc_wall_ms_median": 50814.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "BufferedRandomAccessFile",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 42934272,
+    "dive_rss_min": 42274816,
+    "dive_rss_max": 43143168,
+    "dive_wall_ms_median": 22036.0,
+    "dive_wall_ms_range": [
+     21986.0,
+     22062.0
+    ],
+    "tlc_rss_median": 1157185536,
+    "tlc_rss_range": [
+     1146474496,
+     1158299648
+    ],
+    "tlc_wall_ms_median": 50814.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "BufferedRandomAccessFile",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 154361856,
+    "dive_rss_min": 148344832,
+    "dive_rss_max": 175685632,
+    "dive_wall_ms_median": 2675.0,
+    "dive_wall_ms_range": [
+     2650.0,
+     2675.0
+    ],
+    "tlc_rss_median": 1227218944,
+    "tlc_rss_range": [
+     1202081792,
+     1255350272
+    ],
+    "tlc_wall_ms_median": 8090.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "BufferedRandomAccessFile",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 160968704,
+    "dive_rss_min": 158650368,
+    "dive_rss_max": 171159552,
+    "dive_wall_ms_median": 3076.0,
+    "dive_wall_ms_range": [
+     3051.0,
+     3076.0
+    ],
+    "tlc_rss_median": 1227218944,
+    "tlc_rss_range": [
+     1202081792,
+     1255350272
+    ],
+    "tlc_wall_ms_median": 8090.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "CoffeeCan1000BeansSafety",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 115728384,
+    "dive_rss_min": 115269632,
+    "dive_rss_max": 116023296,
+    "dive_wall_ms_median": 1371.0,
+    "dive_wall_ms_range": [
+     1371.0,
+     1371.0
+    ],
+    "tlc_rss_median": 838930432,
+    "tlc_rss_range": [
+     835473408,
+     844902400
+    ],
+    "tlc_wall_ms_median": 2249.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "CoffeeCan1000BeansSafety",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 116097024,
+    "dive_rss_min": 115851264,
+    "dive_rss_max": 116191232,
+    "dive_wall_ms_median": 1371.0,
+    "dive_wall_ms_range": [
+     1371.0,
+     1371.0
+    ],
+    "tlc_rss_median": 838930432,
+    "tlc_rss_range": [
+     835473408,
+     844902400
+    ],
+    "tlc_wall_ms_median": 2249.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "CoffeeCan1000BeansSafety",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 225427456,
+    "dive_rss_min": 212557824,
+    "dive_rss_max": 227508224,
+    "dive_wall_ms_median": 819.0,
+    "dive_wall_ms_range": [
+     794.0,
+     819.0
+    ],
+    "tlc_rss_median": 833548288,
+    "tlc_rss_range": [
+     830959616,
+     846065664
+    ],
+    "tlc_wall_ms_median": 1671.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "CoffeeCan1000BeansSafety",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 231706624,
+    "dive_rss_min": 227008512,
+    "dive_rss_max": 258732032,
+    "dive_wall_ms_median": 870.0,
+    "dive_wall_ms_range": [
+     845.0,
+     894.0
+    ],
+    "tlc_rss_median": 833548288,
+    "tlc_rss_range": [
+     830959616,
+     846065664
+    ],
+    "tlc_wall_ms_median": 1671.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "EWD998PCal",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 52015104,
+    "dive_rss_min": 52011008,
+    "dive_rss_max": 52363264,
+    "dive_wall_ms_median": 15115.0,
+    "dive_wall_ms_range": [
+     15089.0,
+     15115.0
+    ],
+    "tlc_rss_median": 1267683328,
+    "tlc_rss_range": [
+     1250189312,
+     1300717568
+    ],
+    "tlc_wall_ms_median": 41940.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "EWD998PCal",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 52830208,
+    "dive_rss_min": 51814400,
+    "dive_rss_max": 53641216,
+    "dive_wall_ms_median": 16419.0,
+    "dive_wall_ms_range": [
+     16394.0,
+     16520.0
+    ],
+    "tlc_rss_median": 1267683328,
+    "tlc_rss_range": [
+     1250189312,
+     1300717568
+    ],
+    "tlc_wall_ms_median": 41940.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "EWD998PCal",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 222650368,
+    "dive_rss_min": 219353088,
+    "dive_rss_max": 233799680,
+    "dive_wall_ms_median": 2624.0,
+    "dive_wall_ms_range": [
+     2599.0,
+     2650.0
+    ],
+    "tlc_rss_median": 1519566848,
+    "tlc_rss_range": [
+     1506197504,
+     1537515520
+    ],
+    "tlc_wall_ms_median": 7589.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "EWD998PCal",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 219824128,
+    "dive_rss_min": 214290432,
+    "dive_rss_max": 232087552,
+    "dive_wall_ms_median": 2850.0,
+    "dive_wall_ms_range": [
+     2825.0,
+     2900.0
+    ],
+    "tlc_rss_median": 1519566848,
+    "tlc_rss_range": [
+     1506197504,
+     1537515520
+    ],
+    "tlc_wall_ms_median": 7589.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "GameOfLife",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 59449344,
+    "dive_rss_min": 59408384,
+    "dive_rss_max": 59564032,
+    "dive_wall_ms_median": 10826.0,
+    "dive_wall_ms_range": [
+     10801.0,
+     10851.0
+    ],
+    "tlc_rss_median": 1161719808,
+    "tlc_rss_range": [
+     1153822720,
+     1169633280
+    ],
+    "tlc_wall_ms_median": 12077.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "GameOfLife",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 59441152,
+    "dive_rss_min": 59068416,
+    "dive_rss_max": 59703296,
+    "dive_wall_ms_median": 20583.0,
+    "dive_wall_ms_range": [
+     20481.0,
+     20657.0
+    ],
+    "tlc_rss_median": 1161719808,
+    "tlc_rss_range": [
+     1153822720,
+     1169633280
+    ],
+    "tlc_wall_ms_median": 12077.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "GameOfLife",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 174632960,
+    "dive_rss_min": 143269888,
+    "dive_rss_max": 175181824,
+    "dive_wall_ms_median": 1697.0,
+    "dive_wall_ms_range": [
+     1672.0,
+     1697.0
+    ],
+    "tlc_rss_median": 1161125888,
+    "tlc_rss_range": [
+     1155411968,
+     1163059200
+    ],
+    "tlc_wall_ms_median": 2649.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "GameOfLife",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 156774400,
+    "dive_rss_min": 132014080,
+    "dive_rss_max": 160825344,
+    "dive_wall_ms_median": 2951.0,
+    "dive_wall_ms_range": [
+     2950.0,
+     2976.0
+    ],
+    "tlc_rss_median": 1161125888,
+    "tlc_rss_range": [
+     1155411968,
+     1163059200
+    ],
+    "tlc_wall_ms_median": 2649.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCBakery",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 93118464,
+    "dive_rss_min": 92221440,
+    "dive_rss_max": 95477760,
+    "dive_wall_ms_median": 7741.0,
+    "dive_wall_ms_range": [
+     7691.0,
+     7791.0
+    ],
+    "tlc_rss_median": 1336553472,
+    "tlc_rss_range": [
+     1318166528,
+     1342668800
+    ],
+    "tlc_wall_ms_median": 11125.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCBakery",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 95145984,
+    "dive_rss_min": 94765056,
+    "dive_rss_max": 96256000,
+    "dive_wall_ms_median": 7741.0,
+    "dive_wall_ms_range": [
+     7715.0,
+     7741.0
+    ],
+    "tlc_rss_median": 1336553472,
+    "tlc_rss_range": [
+     1318166528,
+     1342668800
+    ],
+    "tlc_wall_ms_median": 11125.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCBakery",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 220368896,
+    "dive_rss_min": 218726400,
+    "dive_rss_max": 238870528,
+    "dive_wall_ms_median": 5860.0,
+    "dive_wall_ms_range": [
+     5835.0,
+     5860.0
+    ],
+    "tlc_rss_median": 1355108352,
+    "tlc_rss_range": [
+     1342574592,
+     1368100864
+    ],
+    "tlc_wall_ms_median": 7790.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCBakery",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 226799616,
+    "dive_rss_min": 203980800,
+    "dive_rss_max": 263831552,
+    "dive_wall_ms_median": 5910.0,
+    "dive_wall_ms_range": [
+     5835.0,
+     5960.0
+    ],
+    "tlc_rss_median": 1355108352,
+    "tlc_rss_range": [
+     1342574592,
+     1368100864
+    ],
+    "tlc_wall_ms_median": 7790.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCDisruptor_MPMC",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 44810240,
+    "dive_rss_min": 44658688,
+    "dive_rss_max": 44933120,
+    "dive_wall_ms_median": 1115.0,
+    "dive_wall_ms_range": [
+     1110.0,
+     1120.0
+    ],
+    "tlc_rss_median": 1125285888,
+    "tlc_rss_range": [
+     1117962240,
+     1145503744
+    ],
+    "tlc_wall_ms_median": 4455.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCDisruptor_MPMC",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 44740608,
+    "dive_rss_min": 44679168,
+    "dive_rss_max": 45084672,
+    "dive_wall_ms_median": 1145.0,
+    "dive_wall_ms_range": [
+     1135.0,
+     1145.0
+    ],
+    "tlc_rss_median": 1125285888,
+    "tlc_rss_range": [
+     1117962240,
+     1145503744
+    ],
+    "tlc_wall_ms_median": 4455.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCDisruptor_MPMC",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 168820736,
+    "dive_rss_min": 147312640,
+    "dive_rss_max": 183476224,
+    "dive_wall_ms_median": 368.0,
+    "dive_wall_ms_range": [
+     367.0,
+     368.0
+    ],
+    "tlc_rss_median": 1133834240,
+    "tlc_rss_range": [
+     1127804928,
+     1160318976
+    ],
+    "tlc_wall_ms_median": 1571.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCDisruptor_MPMC",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 149925888,
+    "dive_rss_min": 141508608,
+    "dive_rss_max": 150290432,
+    "dive_wall_ms_median": 368.0,
+    "dive_wall_ms_range": [
+     367.0,
+     368.0
+    ],
+    "tlc_rss_median": 1133834240,
+    "tlc_rss_range": [
+     1127804928,
+     1160318976
+    ],
+    "tlc_wall_ms_median": 1571.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCLamportMutex",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 113836032,
+    "dive_rss_min": 113553408,
+    "dive_rss_max": 114143232,
+    "dive_wall_ms_median": 12479.0,
+    "dive_wall_ms_range": [
+     12478.0,
+     12554.0
+    ],
+    "tlc_rss_median": 1337053184,
+    "tlc_rss_range": [
+     1320185856,
+     1353056256
+    ],
+    "tlc_wall_ms_median": 17167.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCLamportMutex",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 116711424,
+    "dive_rss_min": 116260864,
+    "dive_rss_max": 116817920,
+    "dive_wall_ms_median": 13306.0,
+    "dive_wall_ms_range": [
+     13230.0,
+     13331.0
+    ],
+    "tlc_rss_median": 1337053184,
+    "tlc_rss_range": [
+     1320185856,
+     1353056256
+    ],
+    "tlc_wall_ms_median": 17167.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCLamportMutex",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 300236800,
+    "dive_rss_min": 290324480,
+    "dive_rss_max": 302817280,
+    "dive_wall_ms_median": 3101.0,
+    "dive_wall_ms_range": [
+     3101.0,
+     3126.0
+    ],
+    "tlc_rss_median": 1393475584,
+    "tlc_rss_range": [
+     1391349760,
+     1410887680
+    ],
+    "tlc_wall_ms_median": 4380.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCLamportMutex",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 284119040,
+    "dive_rss_min": 281915392,
+    "dive_rss_max": 302448640,
+    "dive_wall_ms_median": 3427.0,
+    "dive_wall_ms_range": [
+     3402.0,
+     3427.0
+    ],
+    "tlc_rss_median": 1393475584,
+    "tlc_rss_range": [
+     1391349760,
+     1410887680
+    ],
+    "tlc_wall_ms_median": 4380.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCbtree",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 60960768,
+    "dive_rss_min": 60825600,
+    "dive_rss_max": 61534208,
+    "dive_wall_ms_median": 5528.0,
+    "dive_wall_ms_range": [
+     5503.0,
+     5533.0
+    ],
+    "tlc_rss_median": 1223983104,
+    "tlc_rss_range": [
+     1198592000,
+     1234497536
+    ],
+    "tlc_wall_ms_median": 40835.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCbtree",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 58568704,
+    "dive_rss_min": 58392576,
+    "dive_rss_max": 58826752,
+    "dive_wall_ms_median": 5733.0,
+    "dive_wall_ms_range": [
+     5708.0,
+     5759.0
+    ],
+    "tlc_rss_median": 1223983104,
+    "tlc_rss_range": [
+     1198592000,
+     1234497536
+    ],
+    "tlc_wall_ms_median": 40835.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "MCbtree",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 217137152,
+    "dive_rss_min": 200400896,
+    "dive_rss_max": 232017920,
+    "dive_wall_ms_median": 1196.0,
+    "dive_wall_ms_range": [
+     1195.0,
+     1221.0
+    ],
+    "tlc_rss_median": 1348468736,
+    "tlc_rss_range": [
+     1334816768,
+     1372049408
+    ],
+    "tlc_wall_ms_median": 7790.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "MCbtree",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 206753792,
+    "dive_rss_min": 198258688,
+    "dive_rss_max": 211161088,
+    "dive_wall_ms_median": 1245.0,
+    "dive_wall_ms_range": [
+     1220.0,
+     1271.0
+    ],
+    "tlc_rss_median": 1348468736,
+    "tlc_rss_range": [
+     1334816768,
+     1372049408
+    ],
+    "tlc_wall_ms_median": 7790.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "SimpleRegular",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 60751872,
+    "dive_rss_min": 60424192,
+    "dive_rss_max": 61001728,
+    "dive_wall_ms_median": 3503.0,
+    "dive_wall_ms_range": [
+     3497.0,
+     3503.0
+    ],
+    "tlc_rss_median": 1191383040,
+    "tlc_rss_range": [
+     1189314560,
+     1204105216
+    ],
+    "tlc_wall_ms_median": 5453.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "SimpleRegular",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 59809792,
+    "dive_rss_min": 59359232,
+    "dive_rss_max": 60002304,
+    "dive_wall_ms_median": 3502.0,
+    "dive_wall_ms_range": [
+     3497.0,
+     3527.0
+    ],
+    "tlc_rss_median": 1191383040,
+    "tlc_rss_range": [
+     1189314560,
+     1204105216
+    ],
+    "tlc_wall_ms_median": 5453.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "SimpleRegular",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 227475456,
+    "dive_rss_min": 223461376,
+    "dive_rss_max": 250523648,
+    "dive_wall_ms_median": 844.0,
+    "dive_wall_ms_range": [
+     819.0,
+     845.0
+    ],
+    "tlc_rss_median": 1265000448,
+    "tlc_rss_range": [
+     1256996864,
+     1301217280
+    ],
+    "tlc_wall_ms_median": 2324.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "SimpleRegular",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 244199424,
+    "dive_rss_min": 225251328,
+    "dive_rss_max": 248332288,
+    "dive_wall_ms_median": 844.0,
+    "dive_wall_ms_range": [
+     844.0,
+     869.0
+    ],
+    "tlc_rss_median": 1265000448,
+    "tlc_rss_range": [
+     1256996864,
+     1301217280
+    ],
+    "tlc_wall_ms_median": 2324.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "TLCSailfish1",
+    "profile": "default",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 80257024,
+    "dive_rss_min": 80027648,
+    "dive_rss_max": 80494592,
+    "dive_wall_ms_median": 39567.0,
+    "dive_wall_ms_range": [
+     39545.0,
+     39643.0
+    ],
+    "tlc_rss_median": 1203478528,
+    "tlc_rss_range": [
+     1199624192,
+     1218580480
+    ],
+    "tlc_wall_ms_median": 51694.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "TLCSailfish1",
+    "profile": "tlc",
+    "workers": 1,
+    "reps": 5,
+    "dive_rss_median": 80646144,
+    "dive_rss_min": 80330752,
+    "dive_rss_max": 80777216,
+    "dive_wall_ms_median": 72701.0,
+    "dive_wall_ms_range": [
+     72697.0,
+     72802.0
+    ],
+    "tlc_rss_median": 1203478528,
+    "tlc_rss_range": [
+     1199624192,
+     1218580480
+    ],
+    "tlc_wall_ms_median": 51694.0,
+    "all_correct": true,
+    "workers_used": [
+     "1"
+    ]
+   },
+   {
+    "model": "TLCSailfish1",
+    "profile": "default",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 231755776,
+    "dive_rss_min": 212033536,
+    "dive_rss_max": 257576960,
+    "dive_wall_ms_median": 5608.0,
+    "dive_wall_ms_range": [
+     5583.0,
+     5634.0
+    ],
+    "tlc_rss_median": 1414520832,
+    "tlc_rss_range": [
+     1391697920,
+     1421078528
+    ],
+    "tlc_wall_ms_median": 8116.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   },
+   {
+    "model": "TLCSailfish1",
+    "profile": "tlc",
+    "workers": 8,
+    "reps": 5,
+    "dive_rss_median": 239263744,
+    "dive_rss_min": 218177536,
+    "dive_rss_max": 248332288,
+    "dive_wall_ms_median": 10197.0,
+    "dive_wall_ms_range": [
+     10171.0,
+     10197.0
+    ],
+    "tlc_rss_median": 1414520832,
+    "tlc_rss_range": [
+     1391697920,
+     1421078528
+    ],
+    "tlc_wall_ms_median": 8116.0,
+    "all_correct": true,
+    "workers_used": [
+     "8"
+    ]
+   }
+  ],
+  "liveness": {
+   "specifications/CoffeeCan/CoffeeCan1000Beans.cfg": {
+    "model": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 296665088,
+     "min": 296255488,
+     "max": 297021440
+    },
+    "observed_max_bytes": 297443328,
+    "known_retained_lb": 48212354,
+    "distinct": 501500,
+    "wall_ms": 9069.36,
+    "bytes_per_state": 591.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/CoffeeCan/CoffeeCan100Beans.cfg": {
+    "model": "specifications/CoffeeCan/CoffeeCan100Beans.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 49061888,
+     "min": 48898048,
+     "max": 49364992
+    },
+    "observed_max_bytes": 49229824,
+    "known_retained_lb": 1774722,
+    "distinct": 5150,
+    "wall_ms": 100.01,
+    "bytes_per_state": 9526.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/CoffeeCan/CoffeeCan3000Beans.cfg": {
+    "model": "specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 2838659072,
+     "min": 2838568960,
+     "max": 2838941696
+    },
+    "observed_max_bytes": 2839552000,
+    "known_retained_lb": 671721858,
+    "distinct": 4504500,
+    "wall_ms": 88496.91,
+    "bytes_per_state": 630.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/DiningPhilosophers/DiningPhilosophers.cfg": {
+    "model": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 32608256,
+     "min": 32501760,
+     "max": 32792576
+    },
+    "observed_max_bytes": 32923648,
+    "known_retained_lb": 1088715,
+    "distinct": 67,
+    "wall_ms": 16.81,
+    "bytes_per_state": 486690.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg": {
+    "model": "specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 48791552,
+     "min": 48611328,
+     "max": 49078272
+    },
+    "observed_max_bytes": 49553408,
+    "known_retained_lb": 1908012,
+    "distinct": 14365,
+    "wall_ms": 1498.84,
+    "bytes_per_state": 3396.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Disruptor/MCDisruptor_SPMC.cfg": {
+    "model": "specifications/Disruptor/MCDisruptor_SPMC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 45252608,
+     "min": 45006848,
+     "max": 45314048
+    },
+    "observed_max_bytes": 45494272,
+    "known_retained_lb": 1908027,
+    "distinct": 8496,
+    "wall_ms": 437.16,
+    "bytes_per_state": 5326.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/FiniteMonotonic/MCCRDT.cfg": {
+    "model": "specifications/FiniteMonotonic/MCCRDT.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 86925312,
+     "min": 86659072,
+     "max": 87310336
+    },
+    "observed_max_bytes": 87375872,
+    "known_retained_lb": 13673362,
+    "distinct": 25000,
+    "wall_ms": 10069.51,
+    "bytes_per_state": 3477.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/FiniteMonotonic/MCReplicatedLog.cfg": {
+    "model": "specifications/FiniteMonotonic/MCReplicatedLog.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 39243776,
+     "min": 38981632,
+     "max": 39424000
+    },
+    "observed_max_bytes": 39497728,
+    "known_retained_lb": 1244672,
+    "distinct": 1363,
+    "wall_ms": 142.07,
+    "bytes_per_state": 28792.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/FlashProtocol/MCFlashWithMutexLive.cfg": {
+    "model": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 76263424,
+     "min": 76181504,
+     "max": 76398592
+    },
+    "observed_max_bytes": 76816384,
+    "known_retained_lb": 1248222,
+    "distinct": 8096,
+    "wall_ms": 1043.02,
+    "bytes_per_state": 9419.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Huang/Huang.cfg": {
+    "model": "specifications/Huang/Huang.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 101212160,
+     "min": 100843520,
+     "max": 101531648
+    },
+    "observed_max_bytes": 102502400,
+    "known_retained_lb": 6488419,
+    "distinct": 81256,
+    "wall_ms": 36713.55,
+    "bytes_per_state": 1245.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/KeyValueStore/MCKVsnap.cfg": {
+    "model": "specifications/KeyValueStore/MCKVsnap.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 128180224,
+     "min": 128073728,
+     "max": 128270336
+    },
+    "observed_max_bytes": 128532480,
+    "known_retained_lb": 4148731,
+    "distinct": 189664,
+    "wall_ms": 16832.71,
+    "bytes_per_state": 675.8,
+    "agrees_with_golden": false,
+    "stopped": null,
+    "registered_divergence": "symmetry-liveness-unreduced-mckvsnap (D-005): verdict, exit, depth and the registered distinct/generated counts (189664/365596) match conformance/expected-divergences.toml"
+   },
+   "specifications/LoopInvariance/MCBinarySearch.cfg": {
+    "model": "specifications/LoopInvariance/MCBinarySearch.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 137240576,
+     "min": 137224192,
+     "max": 137629696
+    },
+    "observed_max_bytes": 135811072,
+    "known_retained_lb": 1537837,
+    "distinct": 27953,
+    "wall_ms": 1036.09,
+    "bytes_per_state": 4909.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/LoopInvariance/MCQuicksort.cfg": {
+    "model": "specifications/LoopInvariance/MCQuicksort.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 46161920,
+     "min": 45936640,
+     "max": 46452736
+    },
+    "observed_max_bytes": 46821376,
+    "known_retained_lb": 1087213,
+    "distinct": 4548,
+    "wall_ms": 5760.71,
+    "bytes_per_state": 10149.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/MisraReachability/MCParReach.cfg": {
+    "model": "specifications/MisraReachability/MCParReach.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 104034304,
+     "min": 103960576,
+     "max": 104357888
+    },
+    "observed_max_bytes": 104226816,
+    "known_retained_lb": 935019,
+    "distinct": 393,
+    "wall_ms": 3240.36,
+    "bytes_per_state": 264718.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/MisraReachability/MCReachable.cfg": {
+    "model": "specifications/MisraReachability/MCReachable.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 66359296,
+     "min": 66125824,
+     "max": 66519040
+    },
+    "observed_max_bytes": 66510848,
+    "known_retained_lb": 1181629,
+    "distinct": 8,
+    "wall_ms": 447.72,
+    "bytes_per_state": 8294912.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg": {
+    "model": "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 24166400,
+     "min": 24027136,
+     "max": 24293376
+    },
+    "observed_max_bytes": 24322048,
+    "known_retained_lb": 867585,
+    "distinct": 48,
+    "wall_ms": 7.89,
+    "bytes_per_state": 503466.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg": {
+    "model": "specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 24068096,
+     "min": 23900160,
+     "max": 24207360
+    },
+    "observed_max_bytes": 24227840,
+    "known_retained_lb": 867585,
+    "distinct": 30,
+    "wall_ms": 7.37,
+    "bytes_per_state": 802269.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg": {
+    "model": "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 122994688,
+     "min": 121835520,
+     "max": 123650048
+    },
+    "observed_max_bytes": 123817984,
+    "known_retained_lb": 1382239,
+    "distinct": 50653,
+    "wall_ms": 450745.1,
+    "bytes_per_state": 2428.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg": {
+    "model": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 51146752,
+     "min": 50872320,
+     "max": 51425280
+    },
+    "observed_max_bytes": 51478528,
+    "known_retained_lb": 1249439,
+    "distinct": 4122,
+    "wall_ms": 6681.39,
+    "bytes_per_state": 12408.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners/Prisoners.cfg": {
+    "model": "specifications/Prisoners/Prisoners.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 28540928,
+     "min": 28356608,
+     "max": 28688384
+    },
+    "observed_max_bytes": 28704768,
+    "known_retained_lb": 931496,
+    "distinct": 214,
+    "wall_ms": 13.92,
+    "bytes_per_state": 133368.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners_Single_Switch/Prisoner.cfg": {
+    "model": "specifications/Prisoners_Single_Switch/Prisoner.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 26439680,
+     "min": 26292224,
+     "max": 26443776
+    },
+    "observed_max_bytes": 26607616,
+    "known_retained_lb": 889348,
+    "distinct": 16,
+    "wall_ms": 9.42,
+    "bytes_per_state": 1652480.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg": {
+    "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 26087424,
+     "min": 25989120,
+     "max": 26181632
+    },
+    "observed_max_bytes": 26456064,
+    "known_retained_lb": 897668,
+    "distinct": 62,
+    "wall_ms": 9.92,
+    "bytes_per_state": 420764.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg": {
+    "model": "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 26021888,
+     "min": 25923584,
+     "max": 26312704
+    },
+    "observed_max_bytes": 26419200,
+    "known_retained_lb": 875926,
+    "distinct": 2,
+    "wall_ms": 8.6,
+    "bytes_per_state": 13010944.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg": {
+    "model": "specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 25989120,
+     "min": 25726976,
+     "max": 26275840
+    },
+    "observed_max_bytes": 26382336,
+    "known_retained_lb": 875926,
+    "distinct": 4,
+    "wall_ms": 8.59,
+    "bytes_per_state": 6497280.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ReadersWriters/MC.cfg": {
+    "model": "specifications/ReadersWriters/MC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 53211136,
+     "min": 52932608,
+     "max": 53268480
+    },
+    "observed_max_bytes": 53821440,
+    "known_retained_lb": 1986737,
+    "distinct": 21527,
+    "wall_ms": 1872.16,
+    "bytes_per_state": 2471.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg": {
+    "model": "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 55967744,
+     "min": 55332864,
+     "max": 56041472
+    },
+    "observed_max_bytes": 55988224,
+    "known_retained_lb": 1227618,
+    "distinct": 2881,
+    "wall_ms": 477.58,
+    "bytes_per_state": 19426.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SingleLaneBridge/MC.cfg": {
+    "model": "specifications/SingleLaneBridge/MC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 53686272,
+     "min": 53497856,
+     "max": 53800960
+    },
+    "observed_max_bytes": 53907456,
+    "known_retained_lb": 1611816,
+    "distinct": 3605,
+    "wall_ms": 683.6,
+    "bytes_per_state": 14892.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpanningTree/SpanTree.cfg": {
+    "model": "specifications/SpanningTree/SpanTree.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 32677888,
+     "min": 32575488,
+     "max": 32796672
+    },
+    "observed_max_bytes": 32931840,
+    "known_retained_lb": 1222766,
+    "distinct": 1236,
+    "wall_ms": 219.52,
+    "bytes_per_state": 26438.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpanningTree/SpanTreeRandom.cfg": {
+    "model": "specifications/SpanningTree/SpanTreeRandom.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 76144640,
+     "min": 76001280,
+     "max": 76316672
+    },
+    "observed_max_bytes": 76902400,
+    "known_retained_lb": 2003100,
+    "distinct": 22040,
+    "wall_ms": 7078.73,
+    "bytes_per_state": 3454.8,
+    "agrees_with_golden": false,
+    "stopped": null,
+    "registered_divergence": "d002-spantreerandom-default-streams (D-002): verdict, exit, depth and the registered distinct/generated counts (22040/293361) match conformance/expected-divergences.toml"
+   },
+   "specifications/SpanningTree/SpanTreeTest4Nodes.cfg": {
+    "model": "specifications/SpanningTree/SpanTreeTest4Nodes.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 36909056,
+     "min": 36798464,
+     "max": 37064704
+    },
+    "observed_max_bytes": 37167104,
+    "known_retained_lb": 1201448,
+    "distinct": 3984,
+    "wall_ms": 416.7,
+    "bytes_per_state": 9264.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpanningTree/SpanTreeTest5Nodes.cfg": {
+    "model": "specifications/SpanningTree/SpanTreeTest5Nodes.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 250363904,
+     "min": 248381440,
+     "max": 250716160
+    },
+    "observed_max_bytes": 251080704,
+    "known_retained_lb": 1927726,
+    "distinct": 410112,
+    "wall_ms": 113168.7,
+    "bytes_per_state": 610.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg": {
+    "model": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 41185280,
+     "min": 40685568,
+     "max": 41197568
+    },
+    "observed_max_bytes": 41234432,
+    "known_retained_lb": 1589834,
+    "distinct": 3528,
+    "wall_ms": 262.57,
+    "bytes_per_state": 11673.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg": {
+    "model": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 44797952,
+     "min": 44732416,
+     "max": 45481984
+    },
+    "observed_max_bytes": 45694976,
+    "known_retained_lb": 1902197,
+    "distinct": 195,
+    "wall_ms": 4310.47,
+    "bytes_per_state": 229733.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg": {
+    "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 24002560,
+     "min": 23953408,
+     "max": 24018944
+    },
+    "observed_max_bytes": 24231936,
+    "known_retained_lb": 864144,
+    "distinct": 12,
+    "wall_ms": 7.26,
+    "bytes_per_state": 2000213.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg": {
+    "model": "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 38645760,
+     "min": 38539264,
+     "max": 38780928
+    },
+    "observed_max_bytes": 38928384,
+    "known_retained_lb": 1239626,
+    "distinct": 4408,
+    "wall_ms": 191.15,
+    "bytes_per_state": 8767.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg": {
+    "model": "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 46899200,
+     "min": 46882816,
+     "max": 47022080
+    },
+    "observed_max_bytes": 47378432,
+    "known_retained_lb": 1062265,
+    "distinct": 5196,
+    "wall_ms": 1067.01,
+    "bytes_per_state": 9026.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg": {
+    "model": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 26341376,
+     "min": 25985024,
+     "max": 26374144
+    },
+    "observed_max_bytes": 26411008,
+    "known_retained_lb": 865808,
+    "distinct": 216,
+    "wall_ms": 9.66,
+    "bytes_per_state": 121950.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg": {
+    "model": "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 28069888,
+     "min": 27631616,
+     "max": 28217344
+    },
+    "observed_max_bytes": 28368896,
+    "known_retained_lb": 938396,
+    "distinct": 240,
+    "wall_ms": 25.23,
+    "bytes_per_state": 116957.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/YoYo/MCYoYoNoPruning.cfg": {
+    "model": "specifications/YoYo/MCYoYoNoPruning.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 32894976,
+     "min": 32645120,
+     "max": 33222656
+    },
+    "observed_max_bytes": 33181696,
+    "known_retained_lb": 1167226,
+    "distinct": 60,
+    "wall_ms": 54.19,
+    "bytes_per_state": 548249.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/YoYo/MCYoYoPruning.cfg": {
+    "model": "specifications/YoYo/MCYoYoPruning.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 45568000,
+     "min": 45432832,
+     "max": 45694976
+    },
+    "observed_max_bytes": 45645824,
+    "known_retained_lb": 1300037,
+    "distinct": 102,
+    "wall_ms": 74.22,
+    "bytes_per_state": 446745.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/YoYo/YoYoAllGraphs.cfg": {
+    "model": "specifications/YoYo/YoYoAllGraphs.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 76783616,
+     "min": 76750848,
+     "max": 76783616
+    },
+    "observed_max_bytes": 77131776,
+    "known_retained_lb": 5934165,
+    "distinct": 26731,
+    "wall_ms": 4077.9,
+    "bytes_per_state": 2872.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/aba-asyn-byz/aba_asyn_byz.cfg": {
+    "model": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 4742819840,
+     "min": 4742561792,
+     "max": 4742893568
+    },
+    "observed_max_bytes": 4743823360,
+    "known_retained_lb": 1285397,
+    "distinct": 5843977,
+    "wall_ms": 517268.86,
+    "bytes_per_state": 811.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/acp/ACP_NB_TLC.cfg": {
+    "model": "specifications/acp/ACP_NB_TLC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 49631232,
+     "min": 49520640,
+     "max": 49639424
+    },
+    "observed_max_bytes": 49713152,
+    "known_retained_lb": 1399813,
+    "distinct": 4284,
+    "wall_ms": 360.28,
+    "bytes_per_state": 11585.3,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/allocator/AllocatorImplementation.cfg": {
+    "model": "specifications/allocator/AllocatorImplementation.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 68231168,
+     "min": 68145152,
+     "max": 68272128
+    },
+    "observed_max_bytes": 68722688,
+    "known_retained_lb": 1879790,
+    "distinct": 17701,
+    "wall_ms": 11375.86,
+    "bytes_per_state": 3854.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/allocator/AllocatorRefinement.cfg": {
+    "model": "specifications/allocator/AllocatorRefinement.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 47517696,
+     "min": 47390720,
+     "max": 47648768
+    },
+    "observed_max_bytes": 47726592,
+    "known_retained_lb": 1030278,
+    "distinct": 1690,
+    "wall_ms": 490.1,
+    "bytes_per_state": 28117.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/allocator/SchedulingAllocator.cfg": {
+    "model": "specifications/allocator/SchedulingAllocator.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 42983424,
+     "min": 42917888,
+     "max": 43560960
+    },
+    "observed_max_bytes": 43495424,
+    "known_retained_lb": 1030278,
+    "distinct": 1690,
+    "wall_ms": 293.01,
+    "bytes_per_state": 25434.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/allocator/SimpleAllocator.cfg": {
+    "model": "specifications/allocator/SimpleAllocator.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 32555008,
+     "min": 32419840,
+     "max": 32997376
+    },
+    "observed_max_bytes": 32968704,
+    "known_retained_lb": 1003390,
+    "distinct": 400,
+    "wall_ms": 98.42,
+    "bytes_per_state": 81387.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/bcastByz/bcastByz.cfg": {
+    "model": "specifications/bcastByz/bcastByz.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 66215936,
+     "min": 66187264,
+     "max": 66326528
+    },
+    "observed_max_bytes": 66596864,
+    "known_retained_lb": 2582592,
+    "distinct": 14424,
+    "wall_ms": 4454.4,
+    "bytes_per_state": 4590.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/bcastByz/bcastByzNoBcast.cfg": {
+    "model": "specifications/bcastByz/bcastByzNoBcast.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 39116800,
+     "min": 39038976,
+     "max": 39202816
+    },
+    "observed_max_bytes": 39362560,
+    "known_retained_lb": 1037680,
+    "distinct": 45,
+    "wall_ms": 48.72,
+    "bytes_per_state": 869262.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/bcastFolklore/bcastFolklore.cfg": {
+    "model": "specifications/bcastFolklore/bcastFolklore.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 1069756416,
+     "min": 1069600768,
+     "max": 1069916160
+    },
+    "observed_max_bytes": 1070612480,
+    "known_retained_lb": 10331712,
+    "distinct": 501552,
+    "wall_ms": 632142.32,
+    "bytes_per_state": 2132.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/byzpaxos/Consensus.cfg": {
+    "model": "specifications/byzpaxos/Consensus.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 28725248,
+     "min": 28057600,
+     "max": 28950528
+    },
+    "observed_max_bytes": 28774400,
+    "known_retained_lb": 870930,
+    "distinct": 4,
+    "wall_ms": 18.77,
+    "bytes_per_state": 7181312.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/cf1s-folklore/cf1s_folklore.cfg": {
+    "model": "specifications/cf1s-folklore/cf1s_folklore.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 1327656960,
+     "min": 1326473216,
+     "max": 1328013312
+    },
+    "observed_max_bytes": 1328349184,
+    "known_retained_lb": 1384351,
+    "distinct": 2057174,
+    "wall_ms": 177584.41,
+    "bytes_per_state": 645.4,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/chang_roberts/MCChangRoberts.cfg": {
+    "model": "specifications/chang_roberts/MCChangRoberts.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 28430336,
+     "min": 28360704,
+     "max": 28663808
+    },
+    "observed_max_bytes": 28672000,
+    "known_retained_lb": 970907,
+    "distinct": 137,
+    "wall_ms": 15.41,
+    "bytes_per_state": 207520.7,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg": {
+    "model": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 107614208,
+     "min": 107171840,
+     "max": 107634688
+    },
+    "observed_max_bytes": 107892736,
+    "known_retained_lb": 1442982,
+    "distinct": 90882,
+    "wall_ms": 6971.66,
+    "bytes_per_state": 1184.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd426/TokenRing.cfg": {
+    "model": "specifications/ewd426/TokenRing.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 64135168,
+     "min": 63074304,
+     "max": 64147456
+    },
+    "observed_max_bytes": 64352256,
+    "known_retained_lb": 7918352,
+    "distinct": 46656,
+    "wall_ms": 1240.34,
+    "bytes_per_state": 1374.6,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd687a/MCEWD687a.cfg": {
+    "model": "specifications/ewd687a/MCEWD687a.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 67874816,
+     "min": 67751936,
+     "max": 68132864
+    },
+    "observed_max_bytes": 68571136,
+    "known_retained_lb": 1120596,
+    "distinct": 18028,
+    "wall_ms": 3070.73,
+    "bytes_per_state": 3765.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd840/EWD840.cfg": {
+    "model": "specifications/ewd840/EWD840.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 74399744,
+     "min": 74301440,
+     "max": 74575872
+    },
+    "observed_max_bytes": 74604544,
+    "known_retained_lb": 900866,
+    "distinct": 302,
+    "wall_ms": 36.12,
+    "bytes_per_state": 246356.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd840/SyncTerminationDetection.cfg": {
+    "model": "specifications/ewd840/SyncTerminationDetection.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 27987968,
+     "min": 27926528,
+     "max": 28172288
+    },
+    "observed_max_bytes": 28217344,
+    "known_retained_lb": 1087376,
+    "distinct": 129,
+    "wall_ms": 12.89,
+    "bytes_per_state": 216961.0,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd998/AsyncTerminationDetection.cfg": {
+    "model": "specifications/ewd998/AsyncTerminationDetection.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 36487168,
+     "min": 36450304,
+     "max": 36544512
+    },
+    "observed_max_bytes": 36777984,
+    "known_retained_lb": 1145360,
+    "distinct": 4097,
+    "wall_ms": 124.85,
+    "bytes_per_state": 8905.8,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/ewd998/EWD998Chan.cfg": {
+    "model": "specifications/ewd998/EWD998Chan.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 916631552,
+     "min": 916258816,
+     "max": 916668416
+    },
+    "observed_max_bytes": 917331968,
+    "known_retained_lb": 2236436,
+    "distinct": 1524022,
+    "wall_ms": 921094.39,
+    "bytes_per_state": 601.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/glowingRaccoon/product.cfg": {
+    "model": "specifications/glowingRaccoon/product.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 72241152,
+     "min": 72105984,
+     "max": 72343552
+    },
+    "observed_max_bytes": 72630272,
+    "known_retained_lb": 869727,
+    "distinct": 305,
+    "wall_ms": 102.64,
+    "bytes_per_state": 236856.2,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/glowingRaccoon/stages.cfg": {
+    "model": "specifications/glowingRaccoon/stages.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 26025984,
+     "min": 25919488,
+     "max": 26124288
+    },
+    "observed_max_bytes": 26226688,
+    "known_retained_lb": 868319,
+    "distinct": 83,
+    "wall_ms": 11.52,
+    "bytes_per_state": 313566.1,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/nbacg_guer01/nbacg_guer01.cfg": {
+    "model": "specifications/nbacg_guer01/nbacg_guer01.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 66355200,
+     "min": 66174976,
+     "max": 66686976
+    },
+    "observed_max_bytes": 66584576,
+    "known_retained_lb": 1107359,
+    "distinct": 24922,
+    "wall_ms": 860.22,
+    "bytes_per_state": 2662.5,
+    "agrees_with_golden": true,
+    "stopped": null
+   },
+   "specifications/tcp/MCtcp.cfg": {
+    "model": "specifications/tcp/MCtcp.cfg",
+    "workers": 1,
+    "store": "fingerprint",
+    "reps": 3,
+    "check_kind": "temporal",
+    "peak_rss_bytes": {
+     "median": 40984576,
+     "min": 40607744,
+     "max": 41222144
+    },
+    "observed_max_bytes": 41259008,
+    "known_retained_lb": 1234594,
+    "distinct": 1182,
+    "wall_ms": 105.39,
+    "bytes_per_state": 34673.9,
+    "agrees_with_golden": true,
+    "stopped": null
+   }
+  }
+ }
+}

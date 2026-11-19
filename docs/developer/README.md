@@ -17,6 +17,7 @@
 | Release procedure and crates.io publication | [Releasing](releasing.md) |
 | Benchmark method and measurements | [Performance](performance.md) |
 | Release performance runbook, dive and Sail | [Release performance qualification](release-performance-plan.md) |
+| Release performance measurements for 0.1.0 | [Release performance results](release-performance-results.md) |
 | New execution core: design, status and handoff (ADR 0117) | [Core](core/README.md) |
 | Documentation acceptance | [Documentation policy](documentation-policy.md) |
 
