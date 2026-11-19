@@ -632,8 +632,11 @@ order rotated. Record per path the session total, the per-job median, p90
 and maximum, and the number of jobs that disagree with their golden (must
 be zero). Then throughput at Sail's admission limit: the same 100 jobs with
 two concurrent clients against one warm daemon (two active executions) and
-with eight (the connection limit; extra jobs queue), against TLC with two
-concurrent JVMs. Record jobs per second and the daemon's `VmHWM`.
+with eight (the connection limit), against TLC with two concurrent JVMs.
+Record jobs per second and the daemon's `VmHWM`. The service refuses jobs
+beyond its two active executions with `SAIL6201 busy` instead of queueing
+them, so the eight-client case records how many were refused, not a
+throughput.
 
 **(c) Large models.** Do not rerun the engine comparison. Quote D1's
 per-model Core/TLC ratios for the large R1 models that Sail admits (for
