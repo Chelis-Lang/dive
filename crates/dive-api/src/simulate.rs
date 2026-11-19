@@ -60,17 +60,95 @@ pub struct SimulateRequest {
 }
 
 /// Concrete sampled traces and independently checked violation evidence.
+///
+/// Each trace entry is kept as its compact serialized JSON rather than as a
+/// JSON tree, which costs many times its text (issue #1024); the `traces`
+/// key of `document` is an empty placeholder that keeps its key order.
 #[derive(Debug)]
 pub struct SimulateReport {
     document: Value,
+    traces: Vec<String>,
     exit: u8,
 }
 
 impl SimulateReport {
     /// Versioned JSON. `exhaustive` and `model_proved` are always false.
+    ///
+    /// This builds every trace document as a JSON tree; [`Self::write_json`]
+    /// writes the same text without building it.
     #[must_use]
     pub fn to_json(&self) -> Value {
-        self.document.clone()
+        let mut document = self.document.clone();
+        self.fill_traces(&mut document);
+        document
+    }
+
+    fn fill_traces(&self, document: &mut Value) {
+        if !self.traces.is_empty() {
+            document["traces"] = Value::Array(
+                self.traces
+                    .iter()
+                    .map(|entry| serde_json::from_str(entry).unwrap_or(Value::Null))
+                    .collect(),
+            );
+        }
+    }
+
+    /// Bytes of the retained serialized trace entries: what the report holds
+    /// per trace beyond its fixed summary.
+    #[must_use]
+    pub fn retained_trace_bytes(&self) -> usize {
+        self.traces.iter().map(String::len).sum()
+    }
+
+    /// Writes the compact JSON text of [`Self::to_json`], or of
+    /// [`Self::to_json_with_exit_convention`] when `convention` is given,
+    /// without materializing the trace documents as a JSON tree. No newline
+    /// is written.
+    ///
+    /// ```
+    /// # fn show(report: &dive_api::SimulateReport) -> std::io::Result<()> {
+    /// let mut text = Vec::new();
+    /// report.write_json(&mut text, None)?;
+    /// assert_eq!(String::from_utf8_lossy(&text), report.to_json().to_string());
+    /// # Ok(()) }
+    /// ```
+    ///
+    /// # Errors
+    /// The writer's errors.
+    pub fn write_json(
+        &self,
+        out: &mut dyn std::io::Write,
+        convention: Option<crate::ExitConvention>,
+    ) -> std::io::Result<()> {
+        let header = match convention {
+            Some(convention) => self.header_with_exit_convention(convention),
+            None => self.document.clone(),
+        };
+        let Value::Object(map) = &header else {
+            return write!(out, "{header}");
+        };
+        out.write_all(b"{")?;
+        for (index, (key, value)) in map.iter().enumerate() {
+            if index > 0 {
+                out.write_all(b",")?;
+            }
+            serde_json::to_writer(&mut *out, key)?;
+            out.write_all(b":")?;
+            if key == "traces" && !self.traces.is_empty() {
+                out.write_all(b"[")?;
+                for (number, entry) in self.traces.iter().enumerate() {
+                    if number > 0 {
+                        out.write_all(b",")?;
+                    }
+                    out.write_all(entry.as_bytes())?;
+                }
+                out.write_all(b"]")?;
+            } else {
+                serde_json::to_writer(&mut *out, value)?;
+            }
+        }
+        out.write_all(b"}")
     }
 
     /// Profile-specific exit status; sampling without an error exits zero.
@@ -109,7 +187,13 @@ impl SimulateReport {
     /// The simulation remains non-exhaustive under either convention.
     #[must_use]
     pub fn to_json_with_exit_convention(&self, convention: crate::ExitConvention) -> Value {
-        let mut document = self.to_json();
+        let mut document = self.header_with_exit_convention(convention);
+        self.fill_traces(&mut document);
+        document
+    }
+
+    fn header_with_exit_convention(&self, convention: crate::ExitConvention) -> Value {
+        let mut document = self.document.clone();
         document["exit_code"] = json!(self.exit_code_for(convention));
         document["options"]["exit_codes"] = json!(match convention {
             crate::ExitConvention::Native => "native",
@@ -290,6 +374,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             Ok(result) => result,
             Err((workers_used, message)) => {
                 return Ok(SimulateReport {
+                    traces: Vec::new(),
                     exit: 4,
                     document: json!({
                         "schema_version": SIMULATE_SCHEMA_VERSION, "command": "simulate",
@@ -331,9 +416,14 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         ),
         Outcome::Internal(s) => ("internal-error", None, Some(s.clone()), 4),
     };
-    let mut traces = Vec::new();
+    // Each trace's concrete states are released once its entry is serialized,
+    // and only the entry's text and validation verdict are kept (issue #1024).
+    let mut result = result;
+    let sampled = std::mem::take(&mut result.traces);
+    let mut traces = Vec::<String>::new();
+    let mut verdicts = Vec::<TraceVerdict>::new();
     let mut trace_refusal = None;
-    'documents: for (number, trace) in result.traces.iter().enumerate() {
+    'documents: for (number, trace) in sampled.into_iter().enumerate() {
         if run_budget.budget.poll() != Ok(None) {
             break;
         }
@@ -428,21 +518,24 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             .iter()
             .map(|&i| document.states[i].clone())
             .collect();
-        traces.push(json!({ "id": trace.id, "document": document.to_json(), "tlc_states": tlc_states, "validation": crate::trace::report_json(&validation) }));
+        let validation = crate::trace::report_json(&validation);
+        verdicts.push(TraceVerdict {
+            result: validation["result"].as_str().map(str::to_owned),
+            unsupported: validation["unsupported"].as_str().map(str::to_owned),
+        });
+        traces.push(
+            json!({ "id": trace.id, "document": document.to_json(), "tlc_states": tlc_states, "validation": validation })
+                .to_string(),
+        );
     }
-    let validation_failed = traces
-        .iter()
-        .any(|t| t["validation"]["result"] == "invalid");
+    let validation_failed = verdicts.iter().any(|t| t.is("invalid"));
     let violation_validated = match &result.outcome {
-        Outcome::Violation { trace, .. } => traces
-            .get(*trace)
-            .is_some_and(|t| t["validation"]["result"] == "valid"),
+        Outcome::Violation { trace, .. } => verdicts.get(*trace).is_some_and(|t| t.is("valid")),
         _ => false,
     };
     let undecidable = trace_refusal.is_some()
         || (matches!(result.outcome, Outcome::Violation { .. }) && !violation_validated)
-        || (matches!(result.outcome, Outcome::Sampled)
-            && traces.iter().any(|t| t["validation"]["result"] != "valid"));
+        || (matches!(result.outcome, Outcome::Sampled) && verdicts.iter().any(|t| !t.is("valid")));
     let (reported_kind, reported_code, reported_message) = if validation_failed {
         (
             "internal-error",
@@ -452,9 +545,9 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     } else if let Some(feature) = trace_refusal {
         ("unsupported", None, Some(feature))
     } else if undecidable {
-        let reasons: Vec<_> = traces
+        let reasons: Vec<_> = verdicts
             .iter()
-            .filter_map(|t| t["validation"]["unsupported"].as_str())
+            .filter_map(|t| t.unsupported.as_deref())
             .collect();
         (
             "unsupported",
@@ -527,7 +620,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "max_output_events": options.max_output_events, "max_output_bytes": options.max_output_bytes },
         "statistics": { "generated": result.generated, "initial_candidates": result.initial_candidates, "traces_started": result.traces_started,
             "scope": if matches!(result.outcome, Outcome::Sampled) { "complete-request" } else { "completed-prefix" } },
-        "traces": traces, "action_flow": action_flow,
+        "traces": [], "action_flow": action_flow,
         "runtime_output": result.runtime_output.iter().map(|event| json!({
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
@@ -555,7 +648,23 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         &mut exit,
         matches!(result.outcome, Outcome::Cancelled),
     )?;
-    Ok(SimulateReport { document, exit })
+    Ok(SimulateReport {
+        document,
+        traces,
+        exit,
+    })
+}
+
+/// The parts of one trace's validation report that decide the run's result.
+struct TraceVerdict {
+    result: Option<String>,
+    unsupported: Option<String>,
+}
+
+impl TraceVerdict {
+    fn is(&self, result: &str) -> bool {
+        self.result.as_deref() == Some(result)
+    }
 }
 
 fn tlc_exit(code: u32) -> u8 {
