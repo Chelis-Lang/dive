@@ -93,8 +93,17 @@ Simulation and checkpoint widths have their own limits.
 
 Under TLC value or exploration order, creating strings at run time can also
 force an inline run. Sequence concatenation does not, when dive can show from
-the source that every reachable call has a tuple operand. Requested and used
-widths stay in the report either way.
+the source that every reachable call has a tuple operand: literal tuples,
+unchanged `Append` results, and transparent calls and branches establish that.
+A configured literal value counts as a leaf; unknown state values, configured
+native origins, operator overrides and opaque captured providers keep the
+inline run. Requested and used widths stay in the report either way.
+
+In temporal checks, `\o` is accepted when the source shows that at least one
+operand cannot produce a string, following lexical aliases and every result arm
+of an `IF` or `CASE`. dive does not evaluate an operand or trust a state
+invariant for this. Both operands still get the usual effect and resource
+checks, and a context dive cannot prove refuses with `DIVE-L0033`.
 
 With temporal properties, more workers may not make a check faster and can
 make it slower. On models with many cheap states, a check at 8 workers has
@@ -226,7 +235,8 @@ recursive call, or is applied as an action inside the recursive function.
 
 - `SelectSeq(sequence, Test)'` works when `Test` is pure and depends only on
   its element parameter and constants; the sequence reads the successor state.
-  This also works through `INSTANCE` refinement substitutions. A callback that
+  This also works through `INSTANCE` refinement substitutions, for example
+  counting messages selected by `msg.type = "pl"`. A callback that
   reads state, captures an enclosing local, reaches an effect or makes an
   unproved recursive call refuses under a prime, as do other higher-order
   operators under a prime.
@@ -277,8 +287,12 @@ exit 5 and no verdict.
   applied as `F[x, y]`, evaluates `e` for that argument alone, so a domain such
   as `Nat` and entries whose bodies would fail do not stop the check.
 - A lazy filter ignored by `VIEW` is not evaluated: `x = {i \in Nat : Print(i,
-  TRUE)}`, `Next == UNCHANGED x` and `VIEW 0` finish with no output. Spilling
-  or archiving such a value refuses.
+  TRUE)}`, `Next == UNCHANGED x` and `VIEW 0` finish with 2 generated states,
+  1 distinct state, depth 1 and no output, as in TLC. Spilling or archiving
+  such a value refuses.
+- `VIEW` normalizes every variable of a concrete state before computing its
+  key, including variables the view ignores. A value that cannot be normalized
+  refuses, so a state that cannot be printed never becomes a counterexample.
 - At startup, `CHOOSE` over finite function spaces with scalar domains and
   ranges generates candidates as needed, with the same choice order,
   cardinality limits, errors and interruption checks.
@@ -296,16 +310,24 @@ setting.
 `x \in lo..hi` in Init and `x' \in lo..hi` in Next stream ascending integers
 without building the whole domain, and so does `ENABLED`, which stops at its
 first witness. Quantifiers stream interval domains too, but every domain is
-still evaluated before the first body. A filtered set over a concrete source
-evaluates its predicate only as candidates are needed. Powersets, Cartesian
+still evaluated before the first body, and the first variable varies fastest.
+A filtered set over a concrete source evaluates its predicate only as
+candidates are needed, so an accepted empty set reaches the action before a
+later candidate's failing predicate. A powerset of an empty base yields its
+empty subset without normalizing the base. For a closed filter of the form
+`{A \in SUBSET B : \A b \in A : P(b)}`, dive runs the whole predicate on the
+empty set and on each singleton in order, then builds larger candidates only
+from base elements whose singletons passed, in the same order. Powersets, Cartesian
 products, function sets and record sets of concrete finite components also
 yield candidates one at a time; `SUBSET ({1, TRUE} \X {})` yields the empty
 set without comparing the dead mixed column.
 
 Candidate loops poll the run budget even when every candidate is rejected, so
-a time limit can stop a search such as `x' \in 0..50000000 /\ FALSE`. Other
-constructors can still build a domain before binding, and a single long
-evaluation may not be interruptible.
+a time limit can stop a search such as `x' \in 0..50000000 /\ FALSE`. A
+parallel stop keeps its ordered prefix and leaves the unfinished state queued,
+so a later worker's violation cannot jump ahead of an earlier incomplete
+expansion. Other constructors can still build a domain before binding, and a
+single long evaluation may not be interruptible.
 
 ```sh
 dive check conformance/corpus/interval-streaming/specifications/WideIntervalInit/WideIntervalInit.tla --compat=tlc --time-limit 1s --max-memory 1g --output json
@@ -313,7 +335,10 @@ dive check conformance/corpus/interval-streaming/specifications/WideIntervalInit
 
 From a source checkout, this fails on `x = 0` over a billion-element domain
 (TLC class `TLC_INVARIANT_VIOLATED_INITIAL`, exit 12), with a validated
-witness. The rest of the interval is not checked.
+witness. The rest of the interval is not checked. TLC also enumerates an
+`IntervalValue` in ascending order, so `x # x` fails on the first initial state;
+a constant `FALSE` invariant instead fails configuration validation before any
+enumeration. The `interval-streaming` corpus holds these models.
 
 ### Randomness
 
@@ -343,9 +368,14 @@ and explicit homogeneous atomic sets. These refuse by name:
 - configured `Randomization` replacements, `SYMMETRY` with randomness, graph
   capture, temporal random checking and seeded recovery.
 
+A model that replaces a constant with a pure user operator, rather than a
+random one, still uses the parallel engine.
+
 A specification counts as random when a definition in a non-standard module,
 used or not, reaches a random operator. Extending `Randomization` or `TLC`
-without calling one does not count. On the random-witness test set, the
+without calling one does not count: the standard modules' own helpers, such
+as `TestRandomSetOfSubsets`, count only when something outside them calls
+them. On the random-witness test set, the
 validator accepts 144 of 180 witnesses, refuses 36 whose draw positions it
 cannot prove (two draws, a discarded random branch, conditional random Init)
 and rejects all 180 with a changed Init.
@@ -371,8 +401,9 @@ double-dash aliases (also with inline values) and `--output human|json`.
 Missing `.tla` and `.cfg` suffixes are added. With an absolute module path, a
 relative `-config` is resolved from the module's directory; with a relative
 module path, from the current directory. The default configuration is the
-module's sibling `.cfg`. There is no fallback between directories, and a
-configuration embedded in a `.tla` file refuses by name.
+module's sibling `.cfg`, and an absolute configuration path stays absolute.
+There is no fallback between directories, and a configuration embedded in a
+`.tla` file refuses by name.
 
 `-lncheck default` checks eligible temporal properties once at exhaustion,
 reports profile `tlc` with final/short metadata and validates the word
@@ -383,7 +414,9 @@ properties, refuses by name (exit 3). See
 Every counterexample is replayed from fresh source and configuration before it
 is reported, and `counterexample.validation` is `valid` only after that.
 Replay that dive cannot perform exits 3 and an invalid replay exits 4; both
-drop the trace and its violation claim.
+drop the trace and its violation claim. Startup output and the statistics
+observed so far can stay in that JSON report; they do not show a completed
+check.
 
 Finite `-simulate num=N` and `-generate num=N` run the matching sampling
 algorithm with TLC's exits and validated samples; see
@@ -393,7 +426,7 @@ storage, debugger, coverage and dump flags. Unknown or malformed arguments
 exit 1, and recognized unsupported options exit 3 before reading input. As in
 TLC, the configuration is read first: a missing or malformed configuration
 exits 151 even when the module is also missing, and a missing module exits
-150. Rust callers get the same order from `dive_api::check_file_tlc_inputs`,
+150. Input errors go to stderr. Rust callers get the same order from `dive_api::check_file_tlc_inputs`,
 with filenames that already include their extensions. The adapter covers
 checking and finite sampling, not the whole TLC toolchain.
 
@@ -450,7 +483,7 @@ operations such as allocation and sorting, and rebuilding a diagnostic path
 after the result is decided.
 
 Memory is the whole process's: resident plus swapped pages on Linux, resident
-pages on macOS. `resources.memory` reports the metric (`rss+swap` or `rss`),
+pages on macOS, where swapped and compressed memory are not counted. `resources.memory` reports the metric (`rss+swap` or `rss`),
 sample count, observed maximum, first and last sample flags and availability.
 The observed maximum is not the true peak, and memory can exceed the limit
 between samples. If memory cannot be measured, or physical memory cannot be
@@ -458,7 +491,7 @@ read when resolving `auto`, checking fails with `DIVE-R0002`; it never assumes
 zero or drops the ceiling.
 
 If the host cannot start the budget watchdog, checking does not begin: the CLI
-prints `DIVE-R0001` on stderr and exits 4.  Free host resources and retry, or pass
+prints `DIVE-R0001` on stderr and exits 4. Free host resources and retry, or pass
 `--time-limit none --max-memory none`. `dive_api::check_file` returns
 `ApiError::BudgetStartup`, and liveness analysis returns
 `AnalysisError::BudgetStartup`.
@@ -480,7 +513,11 @@ Both stop with exit 5 before the fourth state, with no counterexample. Raise
 the ceiling to five to finish the counter.
 
 The first new identity past either ceiling is not admitted, and duplicates do
-not count. States at the depth boundary can still reach already discovered
+not count. When constraints exclude every initial candidate, the empty graph
+completes even with both ceilings at zero. Parallel workers keep their
+requested width and publish candidates in reference order up to the ceiling;
+speculative candidates never push the distinct count, trace log or graph past
+it. States at the depth boundary can still reach already discovered
 states, so a graph exactly at both limits may finish normally. A truncated
 search reports `verdict: "stopped"`, exit 5, resource `states` or `depth`, the
 attempted count or depth in `observed`, the progress reached, a hint and
@@ -532,9 +569,10 @@ dive check docs/user/examples/Counter.tla --seed 7 --workers 1 --exit-codes nati
 given wins regardless of `--compat` or `DIVE_COMPAT`. Native statuses with TLC
 evaluation are labeled `tlc+overrides`. JSON adds `exit_code`,
 `options.exit_codes` and `options.semantic_profile`; `options.profile`
-includes overrides. The `tlc` object describes the deciding error class
-whichever convention you pick,. This
-applies only to `check`; other commands keep their own statuses.
+includes overrides. Human output shows the selected convention and status.
+The `tlc` object describes the deciding error class whichever convention you
+pick, and `verified: false` stays unverified. This applies only to `check`;
+other commands keep their own statuses.
 
 Rust callers keep `CheckReport::exit_code()`, `to_json()` and
 `render_human()`, or pick a convention with `ExitConvention::Tlc` or `Native`
@@ -550,10 +588,13 @@ A few TLC error codes need care:
   `diagnostic_witness`. The default profile keeps its mathematical comparisons.
 - For errors during Init, `tlc.code` can stay GENERAL (1000) while
   `tlc.exit_status` is 75, because TLC reports the original exception and then
-  sets the status from its diagnostic replay.
+  sets the status from its diagnostic replay. The Init site and where an
+  override came from tell these cases apart; the error text alone does not.
 - A division by zero, or values that cannot be compared, while preparing a pure
   `SYMMETRY` set reports `model-error`, TLC GENERAL (1000), exit 255 (1 with
-  `--exit-codes native`), before any state is explored. Effectful,
+  `--exit-codes native`), before any state is explored. In the default
+  profile a mixed set can give a different explanatory message with the same
+  class. Effectful,
   state-dependent and parameterized symmetry declarations refuse.
 - The finite temporal 2116/exit 12 runtime case refuses; TLC statuses do not
   change that.

@@ -167,7 +167,9 @@ dive validate-trace crates/dive-api/tests/fixtures/checker/errors/specs/ErNextIn
 
 From a source checkout, this replays the prefix with every constraint,
 invariant and implied safety property, then the generator, which must produce
-the same first incomplete candidate.
+the same first incomplete candidate. Earlier complete candidates get the same
+ordered checks; `RoActions` and `SplitThrows` are examples. A resource or
+control failure returns no completed validation report.
 
 An incomplete Init keeps `counterexample` null and gives an `error_witness`
 instead; extract that in the example above and use `ErInitIncomplete`. Its
@@ -267,7 +269,9 @@ fingerprint, and is available after constant binding and before `ASSUME`s.
   `x=0` stuttering word. TLC's experimental implementation differs
   ([D-022](../tlc-differences.md#d-022-action-composition-works-by-default-with-its-tla-meaning)).
   Modes `off` and `tlc`, nested composition, partial rows, several tail
-  successors, effects and preassigned variables refuse.
+  successors, effects and preassigned variables refuse. The runnable sources
+  and TLC facts are in `crates/dive-trace/tests/fixtures/composition/`; run
+  `cargo test -p dive-trace --test composition --locked`.
 
 ## Rust APIs
 

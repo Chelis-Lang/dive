@@ -19,6 +19,19 @@ counterexample, with `counterexample.validation: "valid"`. Adding
 Check temporal specifications at `--workers 1`. More workers give the same
 result but can be slower; see [workers and stores](checking.md#workers-and-stores).
 
+Under `--compat=tlc`, temporal capture can use every requested worker when the
+model creates no names beyond its start-up name table. From a source checkout:
+
+```sh
+dive check crates/dive-api/tests/fixtures/core-liveness/FixedNames/TupleSubSeq.tla --compat=tlc --workers 8 --seed 0 --fp 0 --output json
+```
+
+This tuple `SubSeq` cycle succeeds with 3 distinct states, 4 generated states
+and depth 3, as TLC does at one worker, and the default profile gives the same.
+No list of models or operator names is involved: a name missing from the
+start-up table, or one created inside a temporal atom, refuses before any
+result is reported.
+
 ## Reading the result
 
 A violation's `properties` lists every configured property that is false on
@@ -157,7 +170,8 @@ matters when TLC tells a function constructor from a record.
 ### Errors on a source row
 
 At one worker, dive can report an evaluation error at the state where it
-happens:
+happens (the `MinChooseFair` and `MinChooseFairSafeNext` models in
+`conformance/corpus/fairness-primary/` agree with TLC):
 
 - TLC GENERAL (1000), exit 255, when the first source after exactly one Init
   state has only itself as successor. This covers a `Next` failure before any
@@ -178,11 +192,16 @@ effects, `VIEW` or symmetry, cached values, parallel source events and an
 action error with pending temporal obligations refuse, with their counters,
 output and context. `WF` and `SF` syntax alone gives no classification.
 
-Of four atom error-timing controls, dive matches the delayed sibling state
-error (2179, exit 255, with its partial counts) and the bare action after `<>`
-that SANY rejects (3002, exit 150); an unused failing atom combined with
-another claim, and a tableau Init atom error, refuse. In `<<ActionBad>>_x`,
-TLC reports the state concatenation error (2182, exit 255).
+Of the four models in the `liveness-atom-error-timing` corpus, dive matches
+`DelayedSiblingStateError` (2179, exit 255, with 4 distinct and generated
+states, 2 queued and depth 3) and the bare action after `<>` that SANY rejects
+(3002, exit 150). `CombinedUnusedAtom`, where TLC still evaluates the failing
+atom (2179, exit 255, 2 states, depth 2), and `TableauInitAtomError` (GENERAL
+1000, exit 255, 1 state, depth 1) refuse. In the
+`liveness-atom-action-error-order` corpus, `<<ActionBad>>_x` makes TLC report
+the state concatenation error (2182, exit 255) with 2 states, 1 queued and
+depth 2; that formula sets no general priority between action and state
+errors.
 
 ## Language support
 
@@ -235,9 +254,10 @@ nonconstant constant redirects and missing finite `ENABLED` covers refuse.
 State predicates can call `Sequences!SelectSeq` with a unary definition or
 `LAMBDA`, including a forwarded operator and lexical captures:
 `SelectSeq(<<0,1,0>>, LAMBDA y: y=x)` returns `<<0,0>>` when `x=0` and `<<1>>`
-when `x=1`. Nested `SelectSeq` calls, bounded binders such as
+when `x=1`, keeping duplicate positions and order. Nested `SelectSeq` calls, bounded binders such as
 `SelectSeq(<<0,1,0>>, LAMBDA y: \E z \in {y}: z=0)`, and captured function,
-filter and map sources work too. Atoms are evaluated as TLC evaluates them:
+filter and map sources work too; the `selectseq-captures` corpus pairs
+holding and violating models. Atoms are evaluated as TLC evaluates them:
 the callback runs on each element and stops at the first error, an empty
 sequence calls nothing, and only reached branches run.
 
@@ -303,8 +323,11 @@ unreached errors stay unreached.
 On a lasso, `WF_v(A)` holds when `<<A>>_v` occurs on the cycle or `A` is
 disabled at some cycle state, and `SF_v(A)` when it occurs or `A` is disabled
 at every cycle state. An action whose guard reads a primed variable, such as
-`ack' = IF x' = 1 THEN ~ack ELSE ack`, is decided like any other. Replay can
-also prove fairness from an action that recurs on the cycle.
+`ack' = IF x' = 1 THEN ~ack ELSE ack`, is decided like any other (corpus
+`fairness-replay`). Replay can also prove fairness from an action that recurs
+on the cycle. The replayed `WF` and `SF` controls cover continuous and
+intermittent starvation, a disabled stutter and an occurrence on the closing
+edge.
 
 ```sh
 dive check crates/dive-liveness/tests/fixtures/nested-enabled/NestedEnabled.tla --config crates/dive-liveness/tests/fixtures/nested-enabled/hold.cfg --compat=tlc --workers 1 --fp 0 --seed 0 --output json
@@ -326,7 +349,8 @@ should use the `RECOMMENDED_STACK` thread size.
 `D == {k \in SUBSET {0} : 1 \div 0 = 0}`, `[]<>ENABLED A` is violated (2116,
 exit 13; 2 generated, 1 distinct, depth 1) with no division error. Without the
 `FALSE` prefix, the TLC profile reaches the division by zero, which TLC
-reports with exit 255.
+reports with exit 255. Two controls with a `TRUE` filter predicate hold, and
+forged counterexamples for them are rejected (corpus `enabled-false-prefix`).
 
 ## INSTANCE query namespace controls
 
@@ -338,7 +362,8 @@ variable instantiates both `y` and `z` and the action needs `y' = FALSE` and
 `P` in the initial state (TLC 2107, exit 12), even when the caller has no
 variables named `y` or `z`. A nested instance that sends both through `q`
 returns false. Fresh substitutions inside a query differ from bindings captured
-before it. Both profiles use the same rules.
+before it. Both profiles use the same rules. The ten controls are in the
+`instance-temporal` corpus.
 
 Hidden query variables never enter graph states, fingerprints or trace
 variable lists, which hold only the root variables. Composition with assigned
@@ -350,14 +375,26 @@ Lazy values inside queries follow TLC's caching:
 
 - An exported query that assigns `a' = 1`, captures `LET Cut == a'` and
   filters `<<1, 2, 3>>` with `SelectSeq(..., LAMBDA e : e /= Cut)` sees `Cut`
-  as the successor value. Replay accepts the resulting initial violation of
-  `Inv` (2107, exit 12) and rejects the same word where `Inv` holds.
+  as the successor value. Requiring the filtered result to stay
+  `<<1, 2, 3>>` makes the query false, which the invariant exposes as an
+  initial violation of `Inv` (2107, exit 12); requiring `<<2, 3>>` makes it
+  true, and the check succeeds with 1 distinct state, 2 generated and depth 1.
+  Replay accepts the violation and rejects the same word where `Inv` holds
+  (corpus `lazy-enabled-capture`).
 - A lazy argument cached before a hidden choice `a' \in {1, 2}` stays cached
   across both candidates, because TLC compares only root variable names when it
   reuses a lazy value. dive compares the assigned root names the same way.
+  With `b' = 42` assigned and `Step(a')` filtering `<<1, 2, 3>>` through the
+  lazy `Cut`, requiring `<<1, 3>>` leaves the query disabled (2107, exit 12),
+  while requiring `<<2, 3>>`, using only one candidate, inlining `a'` or moving
+  the query to the root module succeeds. TLC run with
+  `-Dtlc2.value.impl.LazyValue.off=true` changes only the `<<1, 3>>` case
+  (corpus `lazy-enabled-cache`).
 - A `LET` reached before a hidden membership choice keeps one binding across
   the choices, and one reached after it gets a binding per choice. Replay
-  evaluates lazy query sources the same way.
+  evaluates lazy query sources the same way. The `lazy-query-lifetimes`
+  corpus has 24 controls for this, with leading and delayed helper arguments,
+  nested queries, sibling Boolean expressions and false leading guards.
 
 Rust callers can build a partial query assignment with `Evaluator::named_state`
 from IR variable declaration ids and values. `StateRef::Named` keeps it for
@@ -380,8 +417,9 @@ by several properties, in at most the smaller of 16 MiB and 1/256 of the
 memory limit. `fairness_reuse` metrics count reuse. There is no flag for this,
 and it changes no result.
 
-From a source checkout, a strong-fairness model with three toggles (8 states,
-25 generated) exercises holding and failing properties, including
+From a source checkout, a strong-fairness model with three toggles
+(`crates/dive-liveness/tests/fixtures/solutions/Solutions.tla`, 8 states, 25
+generated) exercises holding and failing properties, including
 multiple-property attribution, in both profiles:
 
 ```sh

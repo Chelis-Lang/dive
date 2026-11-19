@@ -178,7 +178,7 @@ predecessor and the ordinal of the successor where it stopped, the frozen
 `unproved_print_output` and any `halted_by` error. Keys admitted during replay
 are not new predecessor or frontier rows. If replay hits an I/O or entry limit,
 the result is `resource-limit`, keeping the original error and the completed
-prefix. The trace is diagnostic and is not independently validated.  An error at a site dive does
+prefix. The trace is diagnostic and is not independently validated. An error at a site dive does
 not recognize reports an unverified error class.
 
 For the smallest case, where the successor was already seen, pinned TLC and
@@ -199,6 +199,14 @@ definitions do not. Draining the output does not erase the event. This rule
 can also refuse a cached or Init-only print that would not repeat. An earlier
 storage or resource failure stays the first cause. In-memory checking prints
 as usual.
+
+The replay controls include real `VIEW` and symmetry counterexamples, checked
+by the independent validator in both profiles and stores at 1, 4 and 8
+requested workers: 144 original counterexamples validate and all 864 mutants
+are rejected. The `VIEW` case has its own configured `VIEW`. The 576 disk runs
+match every concrete result field of the 384 in-memory runs, and the replay
+tests add 432 pure disk comparisons and 504 `Print` refusals against 104 inline
+references.
 
 A pure action `PROPERTY` uses the same replay. The pinned `ErInvReplayProp`
 model reports exit 76 (error class 2111), four generated and four distinct

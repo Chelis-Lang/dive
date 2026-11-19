@@ -46,7 +46,7 @@ Five on-demand nodes ran the speed measurement. One ran its small class and
 then the startup, store, stop-latency and memory measurements. Four each ran
 one large shard and then worker scaling on that shard's models.
 Large models were sharded by longest processing time on the golden TLC times,
-and each node timed TLC and dive on its own shard. the scaling measurement's later repetitions ran in parallel on five additional spot nodes of the same type, image and setup; the scaling record names the node of every repetition.
+and each node timed TLC and dive on its own shard. The scaling measurement's later repetitions ran in parallel on five additional spot nodes of the same type, image and setup; the scaling record names the node of every repetition.
 
 The binary was built once and copied, because independent builds of the same
 source on different nodes were not byte-identical. Every node ran the binary

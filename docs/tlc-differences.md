@@ -202,7 +202,11 @@ TLC printed and the text of all 10 error cases. `RndTraceAssume` and
 `RndLetRedraw` are the two examples above. `java.util.Random` and TLC's
 `RandomGenerator` match bit for bit, the first six draws of `-seed 0` reproduce
 the Examples result for `SpanTreeRandom`, and dive's streams replay identically
-at 1 to 8 threads and in any processing order.
+at 1 to 8 threads and in any processing order. The tests are `tlc_random.rs`,
+`java_random.rs`, `examples_random.rs` and `dive_mode.rs` in
+`crates/dive-stdlib/tests/`. `TmRandom` and `TmRandomStartup` in
+`crates/dive-api/tests/fixtures/checker/tlc-module/` check that checking draws
+match TLC's under `--compat=tlc`, for the per-state and start-up streams.
 
 ---
 
@@ -225,7 +229,8 @@ TLC's simulation uses two kinds of generator, and neither is tied to the trace b
 has one stream keyed by seed and trace number, driving state and action
 selection, so adding more traces leaves the earlier ones unchanged. That makes
 simulation usable in tests and CI. Extra workers and random operators in the
-spec refuse by name.
+spec refuse by name, as do liveness and fairness simulation and runtime
+effects; `crates/dive-sim/CONTRACT.md` lists every limit.
 
 TLC's `SimulationWorker.getTrace` removes finite stuttering: at seed 0 and
 aril 0, its third trace has five states although six were chosen. dive keeps
@@ -235,7 +240,7 @@ TLC's display. A finite sample always reports `exhaustive: false` and
 
 **Measured.** Against the pinned TLC, dive reproduces all 30 published traces
 (172 states after stutter removal) and 304 generated states across five seeds
-and two arils. Twelve more probes compare error classes, exits and counts. In
+and two arils (`crates/dive-sim/tests/fixtures/choice-oracle.json`). Twelve more probes compare error classes, exits and counts. In
 a thirteenth, TLC reports 2112 for an action property checked before a
 constraint, which dive's simulation refuses by name. The validator accepts the
 real violations, rejects a corrupted sampled edge and refuses a deadlock whose
@@ -249,7 +254,7 @@ absence of successors it cannot decide.
 |---|---|
 | **Kind** | Different answer |
 | **Default** | Arbitrary-precision integers |
-| **TLC behavior** | `--compat=tlc`: 32-bit integers with TLC's overflow error |
+| **TLC behavior** | `--compat=tlc`: 32-bit integers with TLC's overflow error. The JSON report's `options.int` reads `"tlc"`, and `"big"` by default |
 | **Status** | default, in both profiles |
 
 **What TLC does.** TLA+ defines integers as the mathematical integers, but TLC stores them in 32 bits. Anything outside −2,147,483,648 … 2,147,483,647 stops the run:
@@ -272,14 +277,17 @@ Measured on the pinned TLC:
 | `Cardinality(SUBSET (1..31))` | `Overflow when computing the number of elements in: SUBSET (1..31)` |
 | `Cardinality(-2147483647..2147483647)` | `Size of interval value exceeds the maximum representable size (32bits)` |
 
-`Cardinality(SUBSET (SUBSET (1..5)))` makes TLC fail during Init with GENERAL
-(1000) and exit 75, wrapping the size overflow. The default profile computes
+`Cardinality(SUBSET (SUBSET (1..5)))` (the `ExplicitOuterPowersetCardinality`
+model in `conformance/corpus/nested-powerset-primary/`) makes TLC fail during
+Init with GENERAL (1000) and exit 75, wrapping the size overflow. The default profile computes
 4,294,967,296 and completes with one distinct state, two generated states and
 depth one. The TLC profile keeps the overflow and exit.
 
 **What dive does.** dive computes with unbounded integers, as the language intends; small numbers use an inline 64-bit fast path. Under `--compat=tlc` every report above is reproduced word for word. When a run would have stopped with TLC's overflow error, dive's output says so, so the difference is never silent.
 
-**Reproduce.** The fixtures `Ov*`, `Ar*` and `ErrCardSubset`/`ErrIntvSize` in `crates/dive-value/tests/fixtures/` hold TLC's transcripts, and dive's messages match them byte for byte.
+**Why it matters.** Four of the five other Rust or Go TLA+ checkers we measured widen integers silently, with no TLC mode and no sign of it in their output.
+
+**Reproduce.** The fixtures `Ov*`, `Ar*` and `ErrCardSubset`/`ErrIntvSize` in `crates/dive-value/tests/fixtures/` hold TLC's transcripts, and dive's messages match them byte for byte. The `Overflow` model in `crates/dive-conformance/tests/fixtures/specs/` runs the first example end to end.
 
 ---
 
@@ -329,7 +337,7 @@ are reported separately. Reduced checking with `VIEW` is not supported. See
 |---|---|
 | **Kind** | Different answer |
 | **Default** | A canonical order, independent of the module text |
-| **TLC behavior** | `--compat=tlc`: TLC's order, including string interning order |
+| **TLC behavior** | `--compat=tlc`: TLC's order, including string interning order. The JSON report's `options.choose_order` reads `"tlc"`, and `"canonical"` by default |
 | **Status** | default. Under `--compat=tlc`, names are recorded in TLC's encounter order; on 556 corpus models, no name is out of TLC's order. |
 
 **What TLC does.** `CHOOSE x \in S : P` picks the first element of `S` that satisfies `P`, in TLC's internal value order. For strings, that order is the order in which each string *first appears in the module text*, not alphabetical order. So adding an unused definition can change what `CHOOSE` returns, and can flip a verdict:
@@ -498,7 +506,8 @@ initial state, and exits **12**, normally the safety status, with 2 generated,
 1 distinct and depth 1, because `LiveCheck.printErrorTrace` stores invariant
 code 2110 after printing 2116. A script that classifies by exit status alone
 mislabels this violation. dive refuses this finite case by name; cyclic
-temporal violations exit 13.
+temporal violations exit 13. TLC's raw output for it is in
+`crates/dive-conformance/tests/fixtures/temporal-prefix/`.
 
 **Coverage.** `--source-coverage` and `--coverage 0` (TLC `-coverage 0`)
 refuse by name in both profiles. Both are off by default, as in TLC. See
@@ -515,8 +524,9 @@ substitution of changed variables, across LF and CRLF, tabs, blank and comment
 lines and UTF-8 comments; junction indentation, binders and multiline
 expressions inside macros, processes or procedures refuse. `dive translate
 --ast` returns the original-stage `AST.tla` in memory (exit 0,
-`artifact_available: true`, `accepted: false`), and `-writeAST` writes it and
-exits 255 as TLC does. Debug labeled compounds and flat procedure headers carry
+`artifact_available: true`, with `accepted` and `generated_module_accepted`
+false), and `-writeAST` writes it and exits 255 as TLC does. `dive translate
+--write` writes an accepted generated module to disk. Debug labeled compounds and flat procedure headers carry
 TLC's exact CRCs; compound procedures, procedures owned by processes,
 renaming and ordering data and historical fields are not supported. A checksum
 match or a translation report says nothing about the model. [D-020](#d-020-fair-algorithm-checksums-do-not-detect-source-edits)'s
@@ -531,7 +541,7 @@ weakness for fair algorithms is kept. See [PlusCal](user/pluscal.md) and the
 |---|---|
 | **Kind** | Different answer |
 | **Default** | **TLA+ answers** for `=` and `\in` between functions, records, tuples and sets. The error is kept only where TLA+ leaves the answer unspecified, such as `1 = "a"`. Finite sets are built canonically ([D-028](#d-028-canonical-finite-sets)); direct scalar type errors are unchanged. |
-| **TLC behavior** | `--compat=tlc` |
+| **TLC behavior** | `--compat=tlc`. The JSON report's `options.comparisons` reads `"tlc"`, and `"tla"` by default |
 | **Status** | default; TLC's comparisons are implemented under `--compat=tlc` |
 
 **What TLC does.** TLC refuses to compare values of different kinds, which catches real mistakes such as `1 = "a"`. But it also refuses comparisons whose answer TLA+ defines, and its refusals are asymmetric and depend on the order in which elements are written. Measured on the pinned TLC:
@@ -576,9 +586,11 @@ comparison. Some heterogeneous set literals still refuse; see
 For example, with a configured model value `a`, `a \in {1,a}` is `TRUE` by
 reflexivity: the default finishes with two states, while TLC hits a
 typed-model comparison error before reaching that element and exits 75 after
-one state (`ModelBadPrefix`). Eleven more comparison models, with tuple and
-record domains and nested tuple values, complete by default where TLC stops at
-construction-dependent comparison errors.
+one state (`ModelBadPrefix`). Eleven more comparison models in
+`conformance/corpus/comparison-receiver-primary/`, with tuple and record
+domains and nested tuple values, complete by default where TLC stops at
+construction-dependent comparison errors; its `Next` division-by-zero control
+agrees with TLC.
 
 **Reproduce.** In `crates/dive-value/tests/fixtures/`: `AsymSetRecFirst`,
 `AsymSetTupleFirst`, `AsymEqTupleRec`, `AsymEqRecTuple`, `ErrMemRcdTuple`,
@@ -593,7 +605,7 @@ and `RvCanonAsym` hold TLC's transcripts.
 |---|---|
 | **Kind** | Different answer, only at a violation |
 | **Default** | **Canonical order**: sets are explored in the run's value order, which is canonical in the default profile ([D-006](#d-006-choose-does-not-depend-on-unrelated-text-in-the-module)) |
-| **TLC behavior** | `--compat=tlc` |
+| **TLC behavior** | `--compat=tlc`. The JSON report's `options.explore_order` reads `"tlc"`, and `"value"` by default |
 | **Status** | default. In the default profile, every stop at a violation, deadlock or error notes that the result may differ under `--compat=tlc`; dive does not detect whether the order mattered in that run. |
 
 **What TLC does.** TLC explores the elements of a set in its internal value order: the elements of `\E x \in S`, `\A x \in S`, `{x \in S : P}`, `{e : x \in S}`, `[x \in S |-> e]` and `x' \in S`. For strings and model values, that order is the order in which names first appear in the module ([D-006](#d-006-choose-does-not-depend-on-unrelated-text-in-the-module)). So the module text decides which successor TLC generates first, and with it which of two violations at the same depth TLC reports:
@@ -620,6 +632,11 @@ the stop differ. Under `--compat=tlc` they agree with TLC exactly.
 | `MissionariesAndCannibals` (`Solution`) | 61 / 225 / 11 | 61 / 226 / 11 |
 | `acp/ACP_NB_WRONG_TLC` (`AC1`) | 11,852 / 59,286 / 1,248 | 12,645 / 64,357 / 970 |
 | PlusCal `SBB` (`Immutability`, depth 15) | 1,617 / 3,126 | 1,581 / 3,042 |
+
+From Rust, setting only the evaluator's `Options::exploration` to
+`ExplorationOrder::Tlc` reproduces TLC's `SBB` counts with every other default
+unchanged. Both PlusCal label variants of `SBB` were checked, and all six
+15-state counterexamples validate.
 
 **Reproduce.** `StringOrderViolation` in
 `crates/dive-api/tests/fixtures/checker/tlc-probes/`.
@@ -679,7 +696,10 @@ the behavior, and that exactly the claimed properties are false. A
 non-stuttering occurrence on the cycle proves both weak and strong fairness;
 occurrences only in the prefix, stutters and empty subscripts do not. Without
 one, weak fairness needs a disabled cycle position and strong fairness needs
-every cycle position disabled. TLC adds implicit stuttering even under
+every cycle position disabled. Ten pinned liveness traces validate, among
+them recurring fair actions, intermittent enabledness (`LvWFIntermittent`) and
+a fair disabled-action stutter (`LvStutterEnd`), all in
+`crates/dive-liveness/tests/fixtures/tlc-probes/`. TLC adds implicit stuttering even under
 `ACTION_CONSTRAINT x' # x`, reporting a one-state stuttering violation at
 `x = FALSE` (exit 13, 3 generated, 2 distinct, depth 2), and dive allows that
 stutter too (`LvStutterActionConstraint`).
@@ -719,7 +739,16 @@ omitted or extra claims are rejected. Under `--compat=tlc`,
 `dive_liveness::tlc_plan::classify` reproduces TLC's two liveness formula
 refusals (errors 2213 and 2214). dive also reproduces TLC's negation,
 simplification, DNF and grouping order for its diagnostics; this does not
-change which counterexample `dive check` returns. TLC's selection, timing and
+change which counterexample `dive check` returns. For example, `TpMultiple`
+combines weak fairness with three properties, and TLC produces two
+order-of-solution groups and three possible-error models; dive reproduces their
+predicate-bin order and index arrays while keeping the original property names.
+TLC's configured action name `Live` and derived temporal name `Identity` are
+recorded separately, as TLC records them. Of 84 supplied-formula controls, four
+refuse by shape and one hits TLC's integer-overflow bound on DNF expansion.
+Temporal formulas can quantify over finite constant domains and bind tuples,
+and the configured property names stay attached even when a binder splits
+roles. TLC's selection, timing and
 SCC order are not reproduced. The TLC profile checks once after exhaustion,
 and the default profile on the schedule of [D-014](#d-014-periodic-liveness-checking-has-a-replayable-schedule).
 See [temporal checking](user/temporal.md#ordinary-checking-in-the-tlc-profile).
@@ -745,13 +774,17 @@ are checked once at the end, and the schedule is the same at every worker
 count. An exhausted frontier gets only the final check. A prefix check never
 proves that a property holds, searches only the first configured property, and
 reports a violation only after fresh validation, with the actual partial counts
-and `capture_completed: false`.
+and `capture_completed: false`. Reports name the schedule and its growth,
+check, boundary and exhaustion facts. Capture limits are cumulative over the
+run, while analysis bounds apply per property and per check, so repeated checks
+add work: there is no total-run work or byte cap and no promised speedup.
 
 A violation found on a prefix stops with fewer states than TLC's
 `-lncheck final` run. As with TLC's own periodic checking, it can also preempt
 an invariant violation or evaluation error beyond the checked prefix that a
 final-only run would report instead. TLC's wall-clock schedule is not
-reproduced, and explicit `--lncheck final --lasso short` refuses by name. See
+reproduced, and neither is a `--lncheck default` timing emulation. Explicit
+`--lncheck final --lasso short` refuses by name. See
 [ordinary checking in the dive profile](user/temporal.md#ordinary-checking-in-the-dive-profile).
 
 ---
@@ -789,7 +822,11 @@ The collapsing map merges the violating state into the initial state's key.
 show concrete states and validate independently. dive matches TLC's warnings
 for a too-small or unused symmetry set, and its early declaration errors:
 `Sym == 1 \div 0` is GENERAL (1000), exit 255, with a nested 2179 message, and
-`Sym == {1, TRUE}` wraps its normalization error in GENERAL. With temporal
+`Sym == {1, TRUE}` wraps its normalization error in GENERAL. dive's
+symmetry-closure code has a checked setting, which rejects non-bijective maps
+including collisions with implicitly fixed model values, and a TLC setting,
+which keeps TLC's closure of malformed maps and its insertion order; all 1,329
+direct inputs to TLC's closure code match. With temporal
 properties, symmetry follows [D-005](#d-005-symmetry-with-liveness-uses-the-full-state-space).
 
 **Reproduce.** The `SyNonBiject`, `SyNonBijectNone`, `SyDivZero` and
@@ -1009,7 +1046,8 @@ Domain size, construction work and Cartesian bindings are bounded separately,
 using cardinality upper bounds charged before any predicate runs. Infinite or
 opaque domains, oversized constructors, effectful or unresolved predicates,
 non-filter deferred set operations and recursive local functions as domains
-refuse by name.
+refuse by name. The eight paired function, record, product and subset models,
+with TLC's captures, are in `crates/dive-api/tests/fixtures/lazy-domains/`.
 
 Pure expression arguments such as `Identity([]<>x)` keep their caller context,
 including a captured `LET` value or a substituted module body. A temporal
@@ -1023,7 +1061,9 @@ Claim(p) == Identity(p)
 P == I!Claim([]<>x)
 ```
 
-TLC reports 2213, exit 255, at the inner formal for this. A zero-arity
+TLC reports 2213, exit 255, at the inner formal for this (`TfInstanceHolds`
+and `TfInstanceFails` in `crates/dive-api/tests/fixtures/temporal-forwarding/specs/`
+pass SANY). A zero-arity
 `Claim == []<>v` in Leaf with `Identity(I!Claim)` at the root works. Opaque
 captured operators, recursive local-function domains and more complex `ENABLED`
 scopes refuse. Operators passed by a Rust caller refuse unless their purity is
@@ -1033,7 +1073,8 @@ can still panic before reaching them.
 
 TLC's liveness evaluator skips an action body on a subscript stutter, while
 ordinary action evaluation checks the body first. dive follows TLC's liveness
-order, also on replay.
+order, also on replay. The division-by-zero example and 36 controls are in
+`crates/dive-liveness/tests/fixtures/probes/temporal-action-order/`.
 
 ### Runtime names in TLC order
 
@@ -1145,7 +1186,8 @@ previous root's stack depth.
 reports the violation only after independent validation. `--compat=tlc` keeps
 TLC's search and counts but never labels a malformed trace valid, and there is
 no mode that prints TLC's truncated witness. The observations are in
-`crates/dive-api/tests/fixtures/checker/dfid/`.
+`crates/dive-api/tests/fixtures/checker/dfid/`, where `oracle-controls.json`
+lists the clean TLC runs.
 
 ## PlusCal limitations
 
@@ -1158,10 +1200,17 @@ options and refusals. These are the differences from TLC's translator:
 - The minimal `process P = 1 variables x=self` translates in TLC with exit 0
   but leaves `self` unbound, and SANY rejects the output. dive refuses it in
   both profiles.
+- A process with missing labels always needs `--label`, unlike a sequential
+  algorithm, where TLC's translator adds the labels by default.
+- Against TLC's translator, dive's PlusCal parser was compared on 222 inputs
+  and markers: 200 give the same AST field for field, 13 are rejected by both,
+  four differ at the macro-expansion stage, one times out in TLC's translator,
+  and four are documentation markers that are not standalone inputs.
 - Errors in public Rust contexts (an invalid evaluator redirect, a malformed
   lazy expression id) refuse with `DIVE-EVAL-C001` to `C005` before evaluation,
   and trace and predicate APIs reject metadata from another model. Opaque
-  deferred Rust bindings refuse instead of running user code.
+  deferred Rust bindings refuse instead of running user code. The cases are
+  in `crates/dive-api/tests/fixtures/public-context/`.
 
 ### Translator success does not ensure a valid TLA module
 
@@ -1207,8 +1256,7 @@ algorithm CRC for the procedure-free shapes it supports, including this
 constant one, so the checksum does not prove the source is unchanged. When an
 exact algorithm CRC is unavailable, rewriting disables that value and keeps the body CRC. `--checksums full` and `--checksums tla` both select this
 best-effort policy in either profile. See [PlusCal](user/pluscal.md) and the
-[block rewriting](pluscal-translation.md) contract. The sources are in
-`crates/dive-pluscal/rewrite-acceptance/fair-checksum/`.
+[block rewriting](pluscal-translation.md) contract.
 
 ## D-021: PlusCal checksums need the generation options
 
@@ -1240,13 +1288,12 @@ refuse by name. Keep the options with the artifact, and validate with the same
 ones: a Validator run without them proves nothing about edits. Under
 `--compat=tlc` the same CRC and options context applies. The fair-algorithm
 weakness ([D-020](#d-020-fair-algorithm-checksums-do-not-detect-source-edits))
-can also hide changes. See [source options](pluscal-translation.md) and
-`crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`.
+can also hide changes. See [source options](pluscal-translation.md).
 
 A declaration inside a previous translation block is still read by TLC's
 translator. dive refuses before masking the old block, instead of producing
 output without the requested fairness
-(`conformance/probes/pluscal-source-option-masking/`).
+(`crates/dive-api/tests/fixtures/pluscal-source-option-masking/`).
 
 ### Bounded pure native operator arguments
 
@@ -1335,14 +1382,18 @@ compositions, partial states and nondeterministic tails. See
 The `Reduction` example on the [compatibility page](user/compatibility.md#action-composition)
 succeeds with 3 distinct states, 7 generated states and depth 2, where TLC with
 the switch counts 13 generated states, including six intermediate ones.
-`MCCRDT` and `MCReplicatedLog` get past the composition in both profiles. The
+`MCCRDT` and `MCReplicatedLog` get past the composition in both profiles.
+Checked for safety without their `PROPERTIES`, at one worker,
+`--compat=tlc --action-composition=tlc` matches TLC's counts exactly, and the
 default profile's generated counts leave out TLC's 450,000 and 5,808
 intermediate states:
 
-| Model | TLC (generated / distinct / depth) | dive default |
-|---|---|---|
-| `MCCRDT` | 1,350,001 / 25,000 / 16 | 900,001 / 25,000 / 16 |
-| `MCReplicatedLog` | 17,425 / 1,363 / 13 | 11,617 / 1,363 / 13 |
+| Model | TLC (generated / distinct / depth) | `--compat=tlc --action-composition=tlc` | dive default |
+|---|---|---|---|
+| `MCCRDT` | 1,350,001 / 25,000 / 16 | 1,350,001 / 25,000 / 16 | 900,001 / 25,000 / 16 |
+| `MCReplicatedLog` | 17,425 / 1,363 / 13 | 17,425 / 1,363 / 13 | 11,617 / 1,363 / 13 |
+
+The finite replay controls are in `crates/dive-trace/tests/fixtures/composition/`.
 
 ## D-023: Default process exits are distinct conformance observables
 
