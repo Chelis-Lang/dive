@@ -117,7 +117,7 @@ methodology and tables are in [release performance results](developer/release-pe
 - D1, R2 gate: pass, geomean 0.195x TLC, none above 2x ([record](../conformance/reports/perf/2026-11-18-r2-procedure-08a14fba.json)).
 - D2, memory: benchmark set 37 to 286 MiB peak RSS against 795 to 1,449 MiB for TLC at `-Xmx3g`; 64 liveness models, largest 4,523 MiB ([record](../conformance/reports/perf/2026-11-18-release-d2-memory-08a14fba.json)).
 - D3, exact store: 1.00x to 1.30x the fingerprint store's time, 0.95x to 2.68x its peak RSS ([record](../conformance/reports/perf/2026-11-18-release-d3-store-08a14fba.json)).
-- D4, worker scaling: median 8-worker speed-up 4.04x over the 47 large models; 16 of 18 temporal models 0.50x to 1.40x (#1028) ([record](../conformance/reports/perf/2026-11-18-release-d4-scaling-08a14fba.json)).
+- D4, worker scaling: median 8-worker speed-up 4.04x over the 47 large models; 15 of 17 temporal models 0.50x to 1.40x (#1028) ([record](../conformance/reports/perf/2026-11-18-release-d4-scaling-08a14fba.json)).
 - D5, startup: `dive check` of a small model 4.9 ms; bosco simulation stops at its memory budget (#1024) ([record](../conformance/reports/perf/2026-11-18-release-d5-throughput-08a14fba.json)).
 - D6, stop latency: 4 to 40 ms after a time limit; ceilings with no overshoot ([record](../conformance/reports/perf/2026-11-18-release-d6-stop-latency-08a14fba.json)).
 - D7, macOS (informational, shared M3 laptop): geomean 0.354x TLC at 1 worker ([record](../conformance/reports/perf/2026-11-18-release-d7-macos-08a14fba.json)).
