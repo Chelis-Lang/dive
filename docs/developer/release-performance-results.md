@@ -17,7 +17,7 @@ record. The scripts that produced them are in
 | D1, R2 gate | **Pass.** Core / TLC geomean 0.195x over the 169 agreeing models (fixed-set geomean 0.211x), median 0.148x. No model above 2x. Two above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `2026-11-18-r2-procedure-08a14fba.json` |
 | D2, memory | Benchmark set, default profile: dive peaks at 37 to 110 MiB at 1 worker and 147 to 286 MiB at 8, against 795 to 1,449 MiB for TLC at `-Xmx3g`. Liveness capture: 64 temporal models, none stopped; 62 match their golden and 2 match a registered divergence; the largest is `aba_asyn_byz` at 4,523 MiB for 5.8 million states. | `2026-11-18-release-d2-memory-08a14fba.json` |
 | D3, exact store | All 15 models agree under both stores. Exact costs 1.00x to 1.30x the fingerprint store's time and 0.95x to 2.68x its peak RSS. | `2026-11-18-release-d3-store-08a14fba.json` |
-| D4, worker scaling | Safety models scale: median speed-up over the 47 large-class models 2.26x at 4 workers and 4.04x at 8, up to 7.6x (`PConProof`). Models with temporal properties mostly do not: 16 of the 18 that run at 8 workers stay between 0.50x and 1.40x, six of them slower than at 1 worker (#1028). Two refuse at more than one worker (#1020). | `2026-11-18-release-d4-scaling-08a14fba.json` |
+| D4, worker scaling | Safety models scale: median speed-up over the 47 large-class models 2.26x at 4 workers and 4.04x at 8, up to 7.6x (`PConProof`). Models with temporal properties mostly do not: 15 of the 17 that run at 8 workers stay between 0.50x and 1.40x, six of them slower than at 1 worker (#1028). Two refuse at more than one worker (#1020). | `2026-11-18-release-d4-scaling-08a14fba.json` |
 | D5, startup and throughput | `dive --version` 1.5 ms, `dive parse` 1.3 ms and a full `dive check` of a small model 4.9 ms (medians of 50). Trace validation 7 to 47 ms per trace, all valid. The bosco simulation stops at its 16 GiB budget (#1024). | `2026-11-18-release-d5-throughput-08a14fba.json` |
 | D6, stop latency | Time budgets stop 4 to 40 ms after the limit (median per cell, load time subtracted; worst single run 170 ms). State and depth ceilings stop exactly at the ceiling, with no overshoot. | `2026-11-18-release-d6-stop-latency-08a14fba.json` |
 | D7, macOS (informational) | On an Apple M3 laptop, Core / TLC geomean 0.354x at 1 worker and 0.347x at 4 workers over six benchmark models, all agreeing. | `2026-11-18-release-d7-macos-08a14fba.json` |
@@ -262,8 +262,8 @@ names the node of every repetition.
 - **Safety models scale.** The median 8-worker speed-up over all 47 models is
   4.04x (2.26x at 4 workers); the best are `PConProof` 7.64x,
   `FastPaxos` 7.32x and `bosco` 7.16x.
-- **Temporal models mostly do not.** Of the 18 models with temporal
-  properties that run at 8 workers, 16 stay between 0.50x and 1.40x of their
+- **Temporal models mostly do not.** Of the 17 models with temporal
+  properties that run at 8 workers, 15 stay between 0.50x and 1.40x of their
   1-worker time (`Huang` reaches 1.73x and `MCInnerSerial` 2.08x). Six get slower as workers
   are added (`CoffeeCan1000Beans` 0.50x, `CoffeeCan3000Beans` 0.52x,
   `LSpec-model` 0.80x, `cf1s_folklore` 0.82x, `aba_asyn_byz` 0.84x,
@@ -345,8 +345,7 @@ below uses D2's liveness list (models whose report said `check_kind:
 temporal`). By that list, the 28 safety models have a median 8-worker
 speed-up of 5.2x (lowest `MCBakery`, 1.32x) and the 17 temporal models that
 ran at 8 workers have a median of 1.00x; 15 of the 17 stay between 0.50x and
-1.40x. (The summary and bullet above say 16 of 18; that count was made
-without this list. The conclusion is the same.) The 17 temporal models:
+1.40x. The 17 temporal models:
 
 | Model | Distinct states | 1 worker s | 4 workers s | 8 workers s | Speed-up 4 | Speed-up 8 | Peak RSS MiB 1w / 8w |
 |---|---:|---:|---:|---:|---:|---:|---|
