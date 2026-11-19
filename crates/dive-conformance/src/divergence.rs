@@ -186,13 +186,9 @@ struct ResultFacts<'a> {
 }
 
 impl ResultFacts<'_> {
-    fn generated_matches(self, pair: GeneratedCountPair, diffs: &[FieldDiff]) -> bool {
-        if !pair.observed(self.expected, self.actual) {
-            return false;
-        }
-        if diffs.iter().any(|diff| pair.matches(diff)) {
-            return true;
-        }
+    /// Native multi-worker policy omits the generated-count comparison
+    /// (ADR 0086), so no generated difference exists to match or to require.
+    fn generated_uncompared(self, diffs: &[FieldDiff]) -> bool {
         self.context.is_some_and(|context| {
             context.workers > 1
                 && context.counts_comparable
@@ -201,10 +197,19 @@ impl ResultFacts<'_> {
                     .any(|diff| diff.field == "counts.states_generated")
         })
     }
+
+    fn generated_matches(self, pair: GeneratedCountPair, diffs: &[FieldDiff]) -> bool {
+        if !pair.observed(self.expected, self.actual) {
+            return false;
+        }
+        diffs.iter().any(|diff| pair.matches(diff)) || self.generated_uncompared(diffs)
+    }
 }
 
 /// Exact expected/native `(distinct, generated, depth)` counts for D-005.
-/// Every count is bound, even when a compared field did not differ. This pair
+/// Every compared count is bound, even when it did not differ. Above one
+/// worker native policy does not compare the generated count (ADR 0086), so
+/// that component is then not compared rather than matched. This pair
 /// additionally requires an actual native report's bound unreduced mode.
 ///
 /// ```
@@ -221,23 +226,39 @@ pub struct UnreducedSymmetryCounts {
     pub actual: [u64; 3],
 }
 impl UnreducedSymmetryCounts {
-    fn observed(
+    const FIELDS: [&'static str; 3] = [
+        "counts.distinct_states",
+        "counts.states_generated",
+        "counts.depth",
+    ];
+
+    /// Whether every tuple component that the comparison compared holds
+    /// exactly, in the facts and in the differences. `generated` is false
+    /// when native multi-worker policy did not compare the generated count
+    /// (ADR 0086); that component is then neither required nor matched.
+    fn holds(
         self,
         expected: &crate::tlc::result::Counts,
         actual: &crate::tlc::result::Counts,
+        generated: bool,
+        diffs: &[FieldDiff],
     ) -> bool {
         let counts =
             |c: &crate::tlc::result::Counts| [c.distinct_states, c.states_generated, c.depth];
-        counts(expected) == self.expected.map(Some) && counts(actual) == self.actual.map(Some)
+        let (expected, actual) = (counts(expected), counts(actual));
+        (0..3)
+            .filter(|&index| generated || index != 1)
+            .all(|index| {
+                expected[index] == Some(self.expected[index])
+                    && actual[index] == Some(self.actual[index])
+                    && (self.expected[index] == self.actual[index]
+                        || diffs
+                            .iter()
+                            .any(|diff| diff.field == Self::FIELDS[index] && self.matches(diff)))
+            })
     }
     fn matches(self, diff: &FieldDiff) -> bool {
-        let Some(index) = [
-            "counts.distinct_states",
-            "counts.states_generated",
-            "counts.depth",
-        ]
-        .iter()
-        .position(|field| *field == diff.field) else {
+        let Some(index) = Self::FIELDS.iter().position(|field| *field == diff.field) else {
             return false;
         };
         diff.expected.as_u64() == Some(self.expected[index])
@@ -567,20 +588,12 @@ impl Registry {
                 && d.unreduced_symmetry_counts.is_none_or(|pair| {
                     facts.is_some_and(|facts| {
                         facts.unreduced
-                            && pair.observed(facts.expected, facts.actual)
-                            && [
-                                "counts.distinct_states",
-                                "counts.states_generated",
-                                "counts.depth",
-                            ]
-                            .iter()
-                            .enumerate()
-                            .all(|(index, field)| {
-                                pair.expected[index] == pair.actual[index]
-                                    || diffs
-                                        .iter()
-                                        .any(|diff| diff.field == *field && pair.matches(diff))
-                            })
+                            && pair.holds(
+                                facts.expected,
+                                facts.actual,
+                                !facts.generated_uncompared(diffs),
+                                diffs,
+                            )
                     })
                 })
                 && d.exit_code_pair
@@ -1509,6 +1522,78 @@ link = "docs/divergences.md#symmetry-with-liveness"
                 .excuse_observed(Some(&Profile::Dive), &[], PATH, &expected, &bad, &diffs)
                 .is_none()
         );
+    }
+    fn compared(
+        registry: &Registry,
+        expected: &OracleResult,
+        actual: &OracleResult,
+        workers: u32,
+        counts_comparable: bool,
+        differences: &[FieldDiff],
+    ) -> bool {
+        let comparison = ObservedComparison {
+            expected,
+            actual,
+            context: crate::compare::CompareContext {
+                workers,
+                counts_comparable,
+            },
+            differences,
+        };
+        registry
+            .excuse_compared(Some(&Profile::Dive), &[], PATH, comparison)
+            .is_some()
+    }
+    #[test]
+    fn multi_worker_report_matches_without_the_uncompared_generated_count() {
+        let (registry, expected, actual, diffs) = facts();
+        // A w4 report: native policy compares no generated count (ADR 0086).
+        let w4: Vec<FieldDiff> = diffs
+            .iter()
+            .filter(|diff| diff.field != "counts.states_generated")
+            .cloned()
+            .collect();
+        assert!(compared(&registry, &expected, &actual, 1, true, &diffs));
+        assert!(compared(&registry, &expected, &actual, 4, true, &w4));
+        // At one worker the generated difference is still required.
+        assert!(!compared(&registry, &expected, &actual, 1, true, &w4));
+        // The uncompared generated count is not compared, not matched.
+        let mut other = actual.clone();
+        other.counts.states_generated = Some(7);
+        assert!(compared(&registry, &expected, &other, 4, true, &w4));
+        // A generated difference that is present must still be the exact one.
+        let mut wrong = diffs.clone();
+        wrong[1].actual = json!(7);
+        assert!(!compared(&registry, &expected, &other, 4, true, &wrong));
+        assert!(compared(&registry, &expected, &actual, 4, true, &diffs));
+        // Compared components stay exact, and the unreduced mode stays required.
+        for index in [0, 1] {
+            let mut missing = w4.clone();
+            missing.remove(index);
+            assert!(!compared(&registry, &expected, &actual, 4, true, &missing));
+            let mut bad = w4.clone();
+            bad[index].actual = json!(99);
+            assert!(!compared(&registry, &expected, &actual, 4, true, &bad));
+        }
+        let mut bad = actual.clone();
+        bad.counts.distinct_states = Some(3);
+        assert!(!compared(&registry, &expected, &bad, 4, true, &w4));
+        let mut bad = actual.clone();
+        bad.counts.depth = Some(3);
+        assert!(!compared(&registry, &expected, &bad, 4, true, &w4));
+        let mut bad = actual.clone();
+        bad.native_unreduced_symmetry = false;
+        assert!(!compared(&registry, &expected, &bad, 4, true, &w4));
+        // Without comparable counts nothing waives the generated component.
+        assert!(!compared(&registry, &expected, &actual, 4, false, &w4));
+        // No other observable rides along at w4.
+        let mut extra = w4.clone();
+        extra.push(FieldDiff {
+            field: "verdict".into(),
+            expected: json!("success"),
+            actual: json!("liveness_violation"),
+        });
+        assert!(!compared(&registry, &expected, &actual, 4, true, &extra));
     }
     #[test]
     fn tuple_schema_rejects_missing_noninteger_equal_and_overlapping_authority() {
