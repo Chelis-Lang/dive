@@ -11,7 +11,7 @@ are in git history.
   printing its report. Each trace is kept as its serialized entry and its
   concrete states are released once that entry is written, so memory per trace
   falls about tenfold: bosco at 1,000 traces x depth 100 peaks at 0.36 GB
-  instead of 4.0 GB. Reports are byte-for-byte unchanged (#1024).
+  instead of 4.0 GB. Reports are byte-for-byte unchanged.
 - Library users: `SimulateReport::write_json` writes the report text without
   building the JSON tree that `to_json` returns.
 
