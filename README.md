@@ -64,9 +64,10 @@ switches to TLC's behavior, and
 ## Performance
 
 Each comparison above was measured at one worker on the same host, with
-every run checked against TLC's result. TLC's times include JVM startup, and its
-memory was measured at `-Xmx3g`. The 169 models are the tlaplus/Examples models both checkers finish with the
-same result. The method and per-model numbers are in
+every run checked against TLC's result. TLC's times include JVM startup, and
+its memory was measured at `-Xmx3g`. The 169 models are the tlaplus/Examples
+models both checkers finish with the same result. The method and per-model
+numbers are in
 [release performance results](docs/developer/release-performance-results.md).
 
 ## Documentation
