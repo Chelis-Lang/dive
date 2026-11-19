@@ -12,7 +12,7 @@ a measurement is repeated; history is in git.
 | R3 Bare use | **Met on Core.** All ten smoke models resolve with no library flags; nine check and EWD998ChanID refuses by name. The CI conformance gate and the x86_64 release archive with an empty `PATH` both pass on main. | #803; #784 |
 | R4 Compat exists | **Met.** `cargo xtask gate --full` passes on main. In that run Core in the TLC profile ran the small tier with 142 agreements, 13 named refusals, one registered gap and no internal errors; the committed TLC-profile baseline, refreshed from a later run with the same counts, records them as the ratchet floor. | #810; #784 |
 | R5 Stable surface | **Met.** Command help, `--version` naming the source commit, hidden unimplemented commands (`lsp`); the help and schema-3 JSON-report golden tests pass on main. | #802, #804; #784 |
-| R6 Shipped | **Open: only the tag remains.** The workspace version is `0.1.0`, the curated 0.1.0 changelog is on main, and the release dry run built both Linux archives with checksums. | #794 |
+| R6 Shipped | **Met.** v0.1.0 is released: the GitHub Release has both Linux archives with checksums, all 18 crates are on crates.io, and `cargo install dive-cli --locked` works in a clean Cargo home. | #794 |
 | R7 Sail with dive | **Met.** Through Sail, a DieHard check is 38.9x faster than TLC (12.8 ms against 491 ms) and a 100-check MCP session is 12.6x faster, with golden verdicts and counts throughout ([S7 results](developer/release-performance-results.md)). | #1011 |
 
 Required CI compares Core alone with the TLC goldens on 29 smoke models (#840)
