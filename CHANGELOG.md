@@ -25,6 +25,12 @@ are in git history.
   caveats and no maintainer process notes. Stale statements about the removed
   Reference engine, host-input support and final/short temporal checking are
   corrected.
+- [Getting started](docs/user/getting-started.md) and
+  [temporal checking](docs/user/temporal.md) write the counter example inline,
+  so their commands run in an empty directory after a crates.io or archive
+  install.
+- [Install](docs/user/install.md) describes the `dive --version` output of a
+  crates.io build, which names the published commit's first 12 hex digits.
 - `skills/dive/SKILL.md` describes how to run dive from an AI coding tool: the
   check command, exit codes, refusals, temporal checking and trace validation.
 

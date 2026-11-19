@@ -55,12 +55,20 @@ dive --version
 dive --help
 ```
 
-`dive --version` names the build's commit: the nearest release tag in
-`git describe` form (`v0.1.0-0-g<hash>` on a tagged release), or the
-abbreviated commit hash when no release tag precedes it. A build from a
-source archive without Git reports `unknown`. `dive --help` lists the
-commands, and `dive <command> --help` lists a command's options. Help needs
-no input files.
+`dive --version` prints the package version and, in parentheses, the commit
+the build came from: `dive 0.1.0 (<commit>)`. The commit takes one of these
+forms:
+
+- From crates.io (`cargo install dive-cli`), the first 12 hex digits of the
+  commit Cargo recorded when the package was published, with `-dirty` if it
+  was packaged from uncommitted changes.
+- From a Git checkout, including the Linux release archives, the nearest
+  release tag in `git describe` form (`v0.1.0-0-g<hash>` on a tagged
+  release), or the abbreviated commit hash when no release tag precedes it.
+- From a source tree with neither, `unknown`.
+
+`dive --help` lists the commands, and `dive <command> --help` lists a
+command's options. Help needs no input files.
 
 The standard modules, TLAPS and the CommunityModules TLA+ sources are built
 in, so most specifications need no library path or separate download.
