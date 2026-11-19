@@ -1,22 +1,18 @@
 # dive
 
-dive is a TLA+ model checker. It reads specifications and configurations
-written for TLC and gets the same results, faster. It also parses and
-analyzes specifications, translates PlusCal, and validates counterexample
-traces.
+**A faster TLA+ toolchain.** Same specs, same results as TLC, about 5x faster.
 
-## Performance
+- **5x faster than TLC** on average across 169 models from tlaplus/Examples. 118 of them run at least 3x faster, and 31 at least 10x faster.
+- **Minutes become seconds.** `MCInnerSerial` takes 8.9 minutes in TLC and 4.4 seconds in dive. `MCLeastCircularSubstringMedium` drops from 3.3 minutes to 2 seconds.
+- **Instant on small specs.** `DieHard` checks in about 6 ms. TLC takes about half a second.
+- **A fraction of the memory.** 37–110 MiB where TLC uses 0.8–1.4 GiB.
+- **Drop-in.** Reads your existing `.tla` and `.cfg` files. Includes a `tlc` command that accepts TLC's arguments.
+- **One binary** for model checking, simulation, parsing, PlusCal translation and trace validation.
 
-We timed dive and TLC on the 169 tlaplus/Examples models where both finish
-with the same result. At one worker, dive took about a fifth of TLC's wall
-time (geometric mean 0.195x, median 0.148x), and no model took more than
-twice TLC's time. dive is a native binary, so there is no JVM to start: a
-full check of a small model takes about 5 ms. It also uses far less memory.
-On the benchmark models dive peaked at 37 to 110 MiB at one worker, where TLC
-used 795 to 1,449 MiB.
-
-The measurements and how they were taken are in
-[release performance results](docs/developer/release-performance-results.md).
+```sh
+cargo install dive-cli --locked
+dive check MySpec.tla
+```
 
 ## Install
 
@@ -64,6 +60,14 @@ dive's results match TLC's. In a few places the default follows standard
 TLA+ semantics where TLC's behavior is an implementation detail. `--compat=tlc`
 switches to TLC's behavior, and
 [where dive differs from TLC](docs/tlc-differences.md) lists each case.
+
+## Performance
+
+Each comparison above was measured at one worker on the same host, with
+every run checked against TLC's result. TLC's times include JVM startup, and its
+memory was measured at `-Xmx3g`. The 169 models are the tlaplus/Examples models both checkers finish with the
+same result. The method and per-model numbers are in
+[release performance results](docs/developer/release-performance-results.md).
 
 ## Documentation
 
