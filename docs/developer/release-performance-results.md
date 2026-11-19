@@ -5,8 +5,10 @@ for dive 0.1.0. R2 is the only hard gate. Every other figure is directional:
 it is an aim and is recorded so that regressions are visible. Correctness is
 never directional: every timed run below agrees with its TLC golden unless
 the table says otherwise. The records are compact JSON files in
-[`conformance/reports/perf/`](../../conformance/reports/perf/); each section
-names its record.
+[`conformance/reports/perf/`](../../conformance/reports/perf/README.md), whose
+README is the data-set index and field dictionary; each section names its
+record. The scripts that produced them are in
+[`scripts/perf/release/`](../../scripts/perf/release/README.md).
 
 ## Summary
 
@@ -332,6 +334,142 @@ names the node of every repetition.
 | `byzpaxos/VoteProof` | 0.9 | 0.4 | 0.3 | 2.21 | 3.25 | 1 worker: registered divergence |
 | `MisraReachability/MCReachable` | 0.5 | 0.5 | 0.5 | 1.00 | 1.00 |  |
 
+### Open finding: #1028
+
+Temporal checks do not scale with workers, and six models run slower at
+8 workers than at 1. The cause is not known yet. This subsection is a brief
+for whoever investigates it; every hypothesis below is unverified.
+
+**What was measured.** The D4 record does not mark check kinds, so the split
+below uses D2's liveness list (models whose report said `check_kind:
+temporal`). By that list, the 28 safety models have a median 8-worker
+speed-up of 5.2x (lowest `MCBakery`, 1.32x) and the 17 temporal models that
+ran at 8 workers have a median of 1.00x; 15 of the 17 stay between 0.50x and
+1.40x. (The summary and bullet above say 16 of 18; that count was made
+without this list. The conclusion is the same.) The 17 temporal models:
+
+| Model | Distinct states | 1 worker s | 4 workers s | 8 workers s | Speed-up 4 | Speed-up 8 | Peak RSS MiB 1w / 8w |
+|---|---:|---:|---:|---:|---:|---:|---|
+| `CoffeeCan/CoffeeCan1000Beans` | 501,500 | 9.1 | 14.5 | 18.4 | 0.62 | 0.50 | 283 / 283 |
+| `CoffeeCan/CoffeeCan3000Beans` | 4,504,500 | 88.0 | 136.4 | 169.8 | 0.65 | 0.52 | 2,707 / 2,713 |
+| `dijkstra-mutex/.../LSpec-model/MC` | 90,882 | 7.0 | 8.0 | 8.8 | 0.88 | 0.80 | 102 / 104 |
+| `cf1s-folklore/cf1s_folklore` | 2,057,174 | 177.7 | 198.7 | 215.4 | 0.89 | 0.82 | 1,266 / 1,284 |
+| `aba-asyn-byz/aba_asyn_byz` | 5,843,977 | 518.7 | 575.7 | 619.5 | 0.90 | 0.84 | 4,522 / 4,573 |
+| `FlashProtocol/MCFlashWithMutexLive` | 8,096 | 1.1 | 1.2 | 1.2 | 0.94 | 0.90 | 72 / 78 |
+| `MultiCarElevator/ElevatorLivenessMedium` | 4,122 | 6.8 | 6.8 | 6.8 | 1.00 | 0.99 | 50 / 58 |
+| `MisraReachability/MCReachable` | 8 | 0.5 | 0.5 | 0.5 | 1.00 | 1.00 | 63 / 63 |
+| `MultiCarElevator/ElevatorLivenessLarge` | 50,653 | 449.8 | 450.9 | 450.8 | 1.00 | 1.00 | 112 / 133 |
+| `SpanningTree/SpanTreeTest5Nodes` | 410,112 | 113.2 | 111.6 | 113.3 | 1.01 | 1.00 | 238 / 241 |
+| `bcastFolklore/bcastFolklore` | 501,552 | 633.0 | 630.3 | 630.1 | 1.00 | 1.01 | 1,036 / 1,033 |
+| `MisraReachability/MCParReach` | 393 | 3.3 | 3.2 | 3.2 | 1.05 | 1.05 | 98 / 98 |
+| `ewd998/EWD998Chan` | 1,524,022 | 962.0 | 864.8 | 856.7 | 1.11 | 1.12 | 876 / 870 |
+| `bcastByz/bcastByz` | 14,424 | 4.5 | 4.0 | 3.9 | 1.14 | 1.17 | 62 / 83 |
+| `FiniteMonotonic/MCCRDT` | 25,000 | 10.1 | 7.6 | 7.2 | 1.33 | 1.40 | 82 / 96 |
+| `Huang/Huang` | 81,256 | 36.8 | 23.7 | 21.2 | 1.55 | 1.73 | 96 / 121 |
+| `SpecifyingSystems/AdvancedExamples/MCInnerSerial` | 195 | 4.4 | 2.5 | 2.1 | 1.71 | 2.08 | 42 / 79 |
+
+`MCKVsnap` and `SpanTreeRandom` are temporal too, but refuse at more than one
+worker (#1020). Every run above agrees with its golden.
+
+**What the reports say.** Every 8-worker report has `options.workers` =
+`{"requested": 8, "used": 8, "sequential": false, "reason": null}`, so the D4
+record shows `workers_used: [8]` and no `sequential_reason`. The temporal
+report's resource limits include `max_expansion_units: 8`, the only hint that
+temporal capture works in waves of at most eight source states. `core.metrics`
+has `explore_ms`, `expand_ms` and `commit_ms`, which separate the search from
+the liveness analysis that follows it (`elapsed_ms` minus `explore_ms`).
+
+**A local observation.** On a laptop (Apple M3, 4 performance and
+4 efficiency cores, in use by other work; informational, not comparable with
+the bench nodes), dive `95ee21a4` on `CoffeeCan1000Beans`:
+
+| Workers | `elapsed_ms` | `explore_ms` | `expand_ms` | Wall s | System CPU s |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 4,290 | 1,164 | 0 | 4.30 | 0.03 |
+| 2 | 5,923 | 2,760 | 2,159 | 5.93 | 1.44 |
+| 4 | 6,333 | 3,178 | 2,560 | 6.34 | 3.29 |
+| 8 | 8,229 | 5,054 | 4,415 | 8.23 | 11.00 |
+
+The time outside the search (`elapsed_ms - explore_ms`, about 3.1 s) is the
+same at 1 and 8 workers. All of the slowdown is in the search, and kernel time
+grows with the worker count.
+
+**Hypotheses, unverified.**
+
+1. *Thread churn in fixed eight-source waves.* With a graph sink, the explorer
+   sizes each parallel chunk by `GraphSink::max_expansion_units()`
+   (`crates/dive-explore/src/lib.rs`, around the "chunk of states" comment),
+   and `NativeSink` returns `MAX_EXPANSION_UNITS = 8`
+   (`crates/dive-runtime/src/capture.rs`). Safety runs use
+   `workers x 4096` states per chunk instead. Each chunk calls
+   `parallel::expand_level` (`crates/dive-explore/src/parallel.rs`), which
+   opens a `std::thread::scope`, spawns one thread per worker, allocates a
+   fresh claim table and joins. With eight sources and eight workers each
+   thread expands about one state. `CoffeeCan1000Beans` then needs about
+   62,700 waves, about 500,000 thread spawns at 8 workers. The extra wall time
+   divided by (distinct states / 8 x workers) is 17 to 20 µs per worker per
+   wave at 8 workers and 19 to 22 µs at 4 workers for all six models that slow
+   down, which fits a fixed per-thread cost independent of the model. Models
+   with expensive states (`Huang`, `MCInnerSerial`, `MCCRDT`) still gain,
+   because one state per thread is then worth the cost. Test: `strace -f -c`
+   or `perf record` at 8 workers, looking for `clone3`, `futex`, `mmap` and
+   `munmap`; then try a persistent pool or wider waves. Wider waves change the
+   documented capture buffer bound ("parallel capture buffers at most eight
+   source states" in `docs/user/checking.md`), so that is a decision, not a
+   tweak.
+2. *Sequential ordered commit.* `NativeSink::record_admitted`
+   (`crates/dive-api/src/core_native_graph.rs`) requires sources in discovery
+   order and runs on the committing thread: row retention, the fingerprint
+   discovery index and edge buffers are single-threaded. This caps the
+   speed-up (Amdahl) but should not make more workers slower. Test: the share
+   of commit in a 1-worker profile. Note that `commit_ms` reads 0 in these
+   reports even at 1 worker, so check how the graph path fills it before
+   relying on it.
+3. *Sequential liveness analysis after a parallel search.* The final check
+   (`GraphCheck::finish_native_with_reader`, called from
+   `crates/dive-api/src/core_temporal.rs`) runs on the calling thread;
+   `dive-liveness` spawns no threads. Models that stay
+   at 1.00x with large wall times for few states (`ElevatorLivenessLarge`,
+   450 s for 50,653 states; `bcastFolklore`; `SpanTreeTest5Nodes`;
+   `EWD998Chan`) are probably dominated by it. Test: `elapsed_ms - explore_ms`
+   at 1 and 8 workers on those models.
+4. *Periodic completed-level checks.* In the default profile, `level_done`
+   calls the liveness check at completed levels on the committing thread, with
+   no expansion running meanwhile (D-014). The schedule depends on distinct counts, so the
+   number of checks does not change with workers; it adds serial time but
+   should not grow with workers. Test: the same model with `--compat=tlc`
+   (final check only) at 1 and 8 workers.
+5. *Reporting.* Whatever the cause, a run with 8 workers that is slower than
+   with 1 reports nothing about it. The issue asks for either no cost from the
+   extra workers or a fallback to one worker with a stated
+   `options.workers.reason`.
+
+**Reproduce.** With the oracle and corpora fetched (`cargo run -p
+dive-conformance --release -- corpus fetch`), the smallest affected model:
+
+```sh
+cargo build --release --locked -p dive-cli --bins
+EX=$(ls -d ~/.cache/dive/git/examples/*/)
+cd "$EX/specifications/CoffeeCan"
+for w in 1 2 4 8; do
+  /usr/bin/time -v "$OLDPWD/target/release/dive" check CoffeeCan.tla \
+    --config CoffeeCan1000Beans.cfg --workers $w --seed 0 --fp 0 --output json \
+    > "/tmp/cc-w$w.json"   # time -v prints wall, system time and peak RSS on stderr
+  python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); m=r["core"]["metrics"]; print(sys.argv[1], r["verdict"], r["check_kind"], r["elapsed_ms"], round(m["explore_ms"]), round(m["expand_ms"]), r["options"]["workers"])' "/tmp/cc-w$w.json"
+done
+```
+
+On macOS use `/usr/bin/time -l`. The bench-node figures came from
+`dive-bench --profile default --workers 1,4,8 --reps 3` under `numactl
+--cpunodebind=0 --membind=0` (see
+[`scripts/perf/release/`](../../scripts/perf/release/README.md)). To
+profile, build symbols with `cargo build --profile profiling -p dive-cli
+--bins` (binary in `target/profiling/dive`) and run, on Linux,
+`perf record -g --call-graph dwarf target/profiling/dive check ...
+--workers 8` followed by `perf report`, or `strace -f -c -o syscalls.txt`
+for system-call counts. Compare against `--workers 1` and, for hypothesis 4,
+against `--compat=tlc`.
+
 ## D5: startup, simulation and trace validation
 
 Fifty fresh processes each, timed with `perf_counter` around
@@ -486,7 +624,7 @@ Sail after the #765 fix (`ce94df74`), median milliseconds:
 
 - #979 and #940: the two models above 1x in D1, unchanged from the 2026-11-10 record.
 - #1024: `dive simulate` memory grows with the number of traces, and peak RSS reaches about 1.8x `--max-memory` after the stop (D5).
-- #1028: temporal checks do not scale with workers, and six models run slower at 8 workers than at 1 (D4).
+- #1028: temporal checks do not scale with workers, and six models run slower at 8 workers than at 1 (D4; brief and hypotheses in [Open finding: #1028](#open-finding-1028)).
 - #1020: `MCKVsnap` and `SpanTreeRandom` refuse temporal checking at more than one worker (D4).
 
 Against the 2026-11-10 R2 record on the same host type, the median per-model change in the Core / TLC ratio is zero and the largest increase is 8% (`MCConsensus`, 0.081x to 0.088x), inside the spread between repetitions. D2 to D7 have no earlier release record, so these figures are their baseline.

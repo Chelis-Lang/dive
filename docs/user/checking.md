@@ -735,6 +735,14 @@ reads and some modes can require an inline run. A requested pool width is not
 a claim that every step used that many active threads. `--sequential` explicitly
 selects inline checking. Simulation and checkpoint widths have separate limits.
 
+With temporal properties, more workers may not make a check faster and can
+make it slower. On models with many states that are cheap to compute, a check
+at 8 workers has taken up to twice as long as at 1 worker, while the report
+still says `"used": 8` with no `reason`. The result is the same either way.
+Until this is fixed, check specifications with temporal properties with
+`--workers 1`, and try more workers only when each state is expensive to
+compute.
+
 Under TLC value or exploration order, runtime string creation can also require
 an inline run. Concatenation alone does not add this restriction when a complete
 source inspection proves that every reachable call has a tuple operand: literal

@@ -1,0 +1,36 @@
+#!/bin/zsh
+# mac-up: allocate one ${MACTYPE:-mac-m4.metal} dedicated host and launch the latest
+# macOS arm64 AMI on it, appending machost=, macaz=, macami= and mac= to the state
+# file. In the 0.1.0 campaign no zone had capacity, so D7 ran on a laptop instead.
+# Environment: DIVE_PERF_STATE, AWS_PROFILE, DIVE_AWS_INSTANCE_PROFILE (IAM instance
+# profile with SSM access), AWS_REGION (default us-east-1). Release the dedicated host
+# afterwards (it bills for at least 24 hours).
+: ${DIVE_PERF_STATE:?set DIVE_PERF_STATE}
+: ${AWS_PROFILE:?set AWS_PROFILE}
+: ${DIVE_AWS_INSTANCE_PROFILE:?set DIVE_AWS_INSTANCE_PROFILE}
+export AWS_REGION=${AWS_REGION:-us-east-1} AWS_PAGER=""
+S=$DIVE_PERF_STATE
+source $S
+if [ -z "${machost:-}" ]; then
+  for az in ${AWS_REGION}a ${AWS_REGION}b ${AWS_REGION}c ${AWS_REGION}d; do
+    h=$(aws ec2 allocate-hosts --instance-type ${MACTYPE:-mac-m4.metal} --availability-zone $az --quantity 1 \
+      --tag-specifications 'ResourceType=dedicated-host,Tags=[{Key=project,Value=dive},{Key=Name,Value=dive-mac-perf}]' \
+      --query 'HostIds[0]' --output text 2>/dev/null)
+    if [ -n "$h" ] && [ "$h" != None ]; then
+      echo "machost=$h" >> $S; echo "macaz=$az" >> $S; machost=$h; macaz=$az
+      echo "allocated in $az"; break
+    fi
+    echo "no capacity in $az"
+  done
+fi
+[ -n "${machost:-}" ] || exit 1
+ami=$(aws ec2 describe-images --owners amazon --filters 'Name=name,Values=amzn-ec2-macos-15*-arm64' 'Name=state,Values=available' \
+  --query 'sort_by(Images,&CreationDate)[-1].ImageId' --output text 2>/dev/null)
+echo "macami=$ami" >> $S
+id=$(aws ec2 run-instances --image-id $ami --instance-type ${MACTYPE:-mac-m4.metal} --placement "HostId=$machost,Tenancy=host" \
+  --iam-instance-profile Name="$DIVE_AWS_INSTANCE_PROFILE" \
+  --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=200,VolumeType=gp3,Iops=6000,Throughput=500,DeleteOnTermination=true}' \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=project,Value=dive},{Key=Name,Value=dive-mac-perf}]' \
+  --query 'Instances[0].InstanceId' --output text 2>/dev/null)
+[ -n "$id" ] && [ "$id" != None ] && { echo "mac=$id" >> $S; echo "mac instance launched"; }
+aws ec2 describe-hosts --host-ids $machost --query 'Hosts[0].AllocationTime' --output text 2>/dev/null

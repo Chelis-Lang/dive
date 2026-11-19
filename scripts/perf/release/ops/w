@@ -1,0 +1,7 @@
+#!/bin/zsh
+# w <file>...: wait up to ~170 s for any listed file to become non-empty; print the ones that are.
+for i in $(seq 1 17); do
+  for f in "$@"; do [ -s "$f" ] && { echo "== $f"; cat "$f"; exit 0; }; done
+  sleep 10
+done
+echo "(still waiting)"
