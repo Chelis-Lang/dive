@@ -15,6 +15,12 @@ are in git history.
 - Library users: `SimulateReport::write_json` writes the report text without
   building the JSON tree that `to_json` returns.
 
+### Performance
+
+- Parallel Core temporal checks keep one worker team across graph-capture
+  batches. In the CoffeeCan3000Beans eight-worker comparison, elapsed time
+  fell from 107.3 s to 49.4 s.
+
 ### Documentation
 
 - The user guides build as an mdBook: `mdbook build book`, then

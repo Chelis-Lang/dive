@@ -105,12 +105,12 @@ of an `IF` or `CASE`. dive does not evaluate an operand or trust a state
 invariant for this. Both operands still get the usual effect and resource
 checks, and a context dive cannot prove refuses with `DIVE-L0033`.
 
-With temporal properties, more workers may not make a check faster and can
-make it slower. On models with many cheap states, a check at 8 workers has
-taken up to twice as long as at 1 worker, while the report still says
-`"used": 8` with no `reason`. The result is the same either way. Check
-specifications with temporal properties at `--workers 1`, and try more workers
-only when each state is expensive to compute.
+Temporal checking expands a bounded batch on a reusable worker team, then
+commits its edges in discovery order. Cheap state transitions can leave little
+work to do in parallel. On CoffeeCan3000Beans, eight workers took 49.4 s and
+one took 48.8 s after worker reuse. Compare `--workers 1` with the desired
+width on the actual model. The report's worker count describes expansion;
+ordered commit and temporal analysis can still dominate elapsed time.
 
 Fingerprint storage is the default. `--store exact` keeps canonical concrete
 keys for supported values; a fingerprint run's collision figures do not turn
