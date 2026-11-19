@@ -16,7 +16,7 @@ the model.
 | Task | Guide | Scope |
 | --- | --- | --- |
 | Install dive | [Install](install.md) | crates.io, Linux archives, source |
-| Check a first model | [Getting started](getting-started.md) | Included example |
+| Check a first model | [Getting started](getting-started.md) | Counter example, written inline |
 | Check safety properties | [Safety checking](checking.md) | Exhaustive BFS, safety symmetry |
 | Run with TLC's arguments | [TLC checking entrypoints](checking.md#tlc-checking-entrypoints) | Checking only; `-tool` and other TLC protocols refuse |
 | Match TLC's behavior | [Compatibility](compatibility.md) | `--compat=tlc` and its gaps |

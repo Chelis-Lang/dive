@@ -5,8 +5,28 @@ without effects. The default profile checks at completed BFS levels as the
 search grows; the TLC profile checks once, after exhaustion. Every
 counterexample is replayed independently before it is reported.
 
+In an empty directory, write the counter from
+[getting started](getting-started.md) and a configuration that checks one
+temporal property:
+
 ```sh
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --workers 1 --seed 7 --output json
+cat > Counter.tla <<'TLA'
+---- MODULE Counter ----
+EXTENDS Naturals
+VARIABLE x
+Init == x = 0
+Next == x' = IF x < 4 THEN x + 1 ELSE x
+Bound == x <= 4
+StrictBound == x < 4
+EventuallyFour == <>(x = 4)
+====
+TLA
+cat > CounterTemporal.cfg <<'CFG'
+INIT Init
+NEXT Next
+PROPERTY EventuallyFour
+CFG
+dive check Counter.tla --config CounterTemporal.cfg --workers 1 --seed 7 --output json
 ```
 
 This returns `liveness-violation` for `EventuallyFour`, exit 13, with 5
@@ -96,8 +116,10 @@ always uses the default.
 
 ## Ordinary checking in the TLC profile
 
+With the two files from the start of this page:
+
 ```sh
-dive check docs/user/examples/Counter.tla --config docs/user/examples/CounterTemporal.cfg --compat=tlc --fp 0 --seed 7 --output json
+dive check Counter.tla --config CounterTemporal.cfg --compat=tlc --fp 0 --seed 7 --output json
 ```
 
 Under `--compat=tlc`, dive finishes exploring the graph, then checks temporal
