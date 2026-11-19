@@ -1,53 +1,36 @@
 # dive
 
-**D.I.V.E. (Deterministic Invariant Verification Engine)** is a native Rust
-TLA+ toolchain. It parses and analyzes specifications, checks supported models,
-translates supported PlusCal algorithms, and independently validates
-counterexamples. Checking needs no JVM.
+**A faster TLA+ toolchain.** Same specs, same results as TLC, about 5x faster.
 
-## dive and TLC
+- **5x faster than TLC** on average across 169 models from tlaplus/Examples. 118 of them run at least 3x faster, and 31 at least 10x faster.
+- **Minutes become seconds.** `MCInnerSerial` takes 8.9 minutes in TLC and 4.4 seconds in dive. `MCLeastCircularSubstringMedium` drops from 3.3 minutes to 2 seconds.
+- **Instant on small specs.** `DieHard` checks in about 6 ms. TLC takes about half a second.
+- **A fraction of the memory.** 37–110 MiB where TLC uses 0.8–1.4 GiB.
+- **Drop-in.** Reads your existing `.tla` and `.cfg` files. Includes a `tlc` command that accepts TLC's arguments.
+- **One binary** for model checking, simulation, parsing, PlusCal translation and trace validation.
 
-- **Same answers.** On the tested tlaplus/Examples corpus, dive gives TLC's
-  result on every model it checks, apart from a short list of registered
-  differences. At one worker, counting TLC's JVM start-up, it takes about a
-  fifth of TLC's time on the geometric mean.
-- **No JVM.** dive is a native binary.
-- **Named refusals.** When a specification needs something dive does not
-  implement, the run ends as `unsupported` and names the feature. dive never
-  approximates a result.
-- **One switch for TLC behaviour.** The default profile uses canonical TLA+
-  semantics where TLC's behaviour is an implementation artifact. `--compat=tlc`
-  selects TLC's behaviour instead.
-
-[Where dive differs from TLC](docs/tlc-differences.md) lists every difference,
-its TLC-compatible setting and the known gaps in `--compat=tlc`.
+```sh
+cargo install dive-cli --locked
+dive check MySpec.tla
+```
 
 ## Install
 
-With Rust 1.99 and a C compiler installed, from crates.io:
+From crates.io, with Rust 1.99 and a C compiler installed:
 
 ```sh
 cargo install dive-cli --locked
 ```
 
-or from the repository:
+This installs `dive` and `tlc`, a command adapter that accepts TLC's
+command-line arguments. Linux x86_64 and aarch64 archives with both binaries
+and SHA-256 checksums are on the Releases page.
 
-```sh
-cargo install --git https://github.com/Chelis-Lang/dive --locked dive-cli
-```
+To build from a checkout, run `cargo build --release -p dive-cli`.
 
-Either installs `dive` and the `tlc` command adapter, which accepts TLC's
-checking arguments.
+## Quickstart
 
-Linux x86_64 and aarch64 archives with both binaries, their license notices
-and SHA-256 checksum files are on the repository's Releases page. Verify an
-archive with `sha256sum --check ARCHIVE.tar.gz.sha256`, extract it, and put the
-binaries on your PATH. The archives are built on Ubuntu 24.04 and need
-compatible system libraries.
-
-## Three-command quickstart
-
-Create a small specification and its configuration, then check it:
+Write a small specification and its configuration, then check it:
 
 ```sh
 cat > Counter.tla <<'TLA'
@@ -67,46 +50,37 @@ CFG
 dive check Counter.tla
 ```
 
-The invariant holds over five distinct states. The self-loop at four prevents
-a deadlock. Existing specifications use the same `dive check Spec.tla` command;
-the adjacent configuration is discovered automatically.
+dive finds five distinct states and reports no error. It picks up
+`Counter.cfg` because it sits next to the module. Use `--output json` for
+machine-readable results, and `dive check --help` for the other options.
 
-Use `dive analyze Spec.tla` for semantic analysis, `dive translate Spec.tla` for
-PlusCal, and `dive check --help` for checking options. Use `--output json` for
-automation. See [getting started](docs/user/getting-started.md) and
-[reports and errors](docs/user/reports-and-errors.md) for exits and report fields.
+## Compatibility with TLC
 
-## Supported and refused
+dive's results match TLC's. In a few places the default follows standard
+TLA+ semantics where TLC's behavior is an implementation detail. `--compat=tlc`
+switches to TLC's behavior, and
+[where dive differs from TLC](docs/tlc-differences.md) lists each case.
 
-| Area | Current boundary |
-|---|---|
-| TLA+ and PlusCal | Native parsing/analysis and supported translation; unsupported constructs are named explicitly. |
-| Model checking | Explicit-state safety and supported liveness/fairness checks; resource limits and unimplemented combinations remain explicit. |
-| Counterexamples | Independent validation against the specification; a stopped or unsupported run proves no completed result. |
-| Core values | Finite sets use canonical mathematical identity; unsupported symbolic identities refuse. |
-| TLC compatibility | `--compat=tlc` selects TLC's behaviour; [known gaps](docs/tlc-differences.md) are listed. |
+## Performance
 
-A result is never reported as proved when its required checking or validation
-is unsupported. Not every TLC mode is covered; what is missing refuses by name.
+Each comparison above was measured at one worker on the same host, with
+every run checked against TLC's result. TLC's times include JVM startup, and
+its memory was measured at `-Xmx3g`. The 169 models are the tlaplus/Examples
+models both checkers finish with the same result. The method and per-model
+numbers are in
+[release performance results](docs/developer/release-performance-results.md).
 
 ## Documentation
 
-- [User manual](docs/user/README.md), [checking](docs/user/checking.md),
-  [PlusCal](docs/user/pluscal.md) and [temporal checking](docs/user/temporal.md).
-- [Rust API](docs/user/rust-api.md) and [trace validation](docs/user/traces.md).
-- [Changelog](CHANGELOG.md).
-
-## Building from source
-
-The source checkout pins its toolchain in
-[rust-toolchain.toml](rust-toolchain.toml). Build with
-`cargo build --release -p dive-cli`. `cargo xtask gate --fast` runs the same
-format, lint, test and documentation checks as CI.
+Start with [getting started](docs/user/getting-started.md) and the
+[user manual](docs/user/README.md). The [changelog](CHANGELOG.md) lists
+changes by release. Maintainer documentation starts at [AGENTS.md](AGENTS.md).
 
 ## Contributing
 
-dive does not accept outside pull requests at this time; issues are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+dive does not accept outside pull requests at this time. Issues are welcome.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Maintainers: [AGENTS.md](AGENTS.md), the [charter](docs/CHARTER.md),
-[provenance](docs/provenance.md), the [developer guide](docs/developer/README.md),
-the [release gates](docs/RELEASE.md) and the [scoreboard](docs/scoreboard.md).
+## License
+
+MIT. See [LICENSE](LICENSE).
