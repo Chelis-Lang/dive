@@ -16,7 +16,7 @@ Everything on this page follows from that user.
 
 ## Gates
 
-Each gate is measured on a commit on `main`. All six must hold to tag `v0.1.0`.
+Each gate is measured on a commit on `main`. All seven must hold to tag `v0.1.0`.
 
 | Gate | Requirement | How it is measured |
 |---|---|---|
@@ -26,10 +26,11 @@ Each gate is measured on a commit on `main`. All six must hold to tag `v0.1.0`.
 | **R4 Compat exists** | `--compat=tlc` runs on Core. Its known gaps are listed in `docs/tlc-differences.md`. It is not measured against an agreement target. | Small-tier run in the TLC profile reports no internal errors |
 | **R5 Stable surface** | Per-command `--help` works. `--version` names the commit. Unimplemented commands such as `lsp` are hidden. The JSON report (`schema_version` 3) and the CLI help are pinned by golden tests. | Golden tests in the workspace gate |
 | **R6 Shipped** | A release workflow builds Linux x86_64 and aarch64 archives with checksums. `cargo install --git … --locked dive-cli` is documented. The README is a user landing page. `CHANGELOG.md` has a curated `0.1.0` section. One release-candidate qualification (`cargo xtask gate --full`) passes on the tagged source. | Release workflow run on the tag |
+| **R7 Sail with dive** | Through Sail's native temporal backend, checks on small specs and a session of many small checks are much faster than the standard TLC approach (a fresh JVM per check), with the same verdicts and distinct-state counts as the goldens and independently replayed counterexamples. A slower or disagreeing case blocks the release. | S7 of the [release performance qualification](developer/release-performance-plan.md), on one quiet host, 5 alternating repetitions, pinned TLC with its standard invocation |
 
 The [release performance qualification](developer/release-performance-plan.md)
-runs on the release-candidate source before the tag. Its R2 run is the gate
-run; its other measurements are directional, and each regression gets a
+runs on the release-candidate source before the tag. Its R2 and S7 runs are
+gate runs; its other measurements are directional, and each regression gets a
 `perf` issue.
 
 Not required for v0.1:
