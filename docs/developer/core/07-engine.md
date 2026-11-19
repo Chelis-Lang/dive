@@ -41,16 +41,13 @@ It appends paired canonical/original handle rows directly and decodes at most
 and a private nonreused process token; original/history views remain exact.
 This is same-process transient storage, not a value snapshot or recovery format.
 
-**Seen set.** An open-addressing table of 64-bit state hashes.
-- Each slot stores the hash and a claim: the minimum position that produced
-  that hash in the current level.
-- Claims use compare-and-swap on a packed 64-bit position word, so no lock is
-  needed. This is safe Rust using `AtomicU64`.
-- **Collision reporting.** Core prints no fingerprint collision estimate
-  (`collision: None` in `crates/dive-api/src/core_engine.rs`). Only TLC's
-  minimum-gap scan remains, as `dive_store::seen::DiskSeen::tlc_min_gap`.
-- **Growth.** The table grows at level boundaries. Within a level, sizing
-  uses the level's upper bound or a resize protocol, decided in M1.
+**Seen set.** The in-memory fingerprint store uses 256 open-addressing shards.
+The high eight fingerprint bits select a shard and the low bits select the
+initial linear probe. A shard doubles at three-quarters occupancy when a new
+key arrives. The old and new allocations overlap for one shard during a resize.
+The separate per-batch claim table uses atomic minimum positions to suppress
+duplicate work before the ordered commit. Core reports no collision estimate
+for fingerprint searches.
 
 **Exact store.** `--store exact` keeps complete mathematical state identities
 in Core's exact collision index (`crates/dive-explore/src/storage.rs`).
@@ -273,8 +270,9 @@ the incremental hash before any interning, so only new states are interned.
   `(parent, ordinal)`. The ordinal is the successor's index among all
   emissions of its parent's expansion, across actions in order, or its index
   among the initial states. The frontier carries the log ids beside the
-  handle arrays. The log costs 16 bytes per distinct state: MCLamportMutex
-  peaks at 92–97 MB instead of 73 MB (M3, indicative, load 10).
+  handle arrays. The unbudgeted resident log indexes blocks of 64 records. Small
+  parent deltas and ordinals share a byte. Wider values use variable-length
+  integers. A lookup scans at most one block.
 - At a stop, the explorer records where the behavior ends: the parent and the
   violating successor (interned from the buffer before the arena is reset),
   or the deadlocked state. `dive_explore::trace::replay` regenerates the path
