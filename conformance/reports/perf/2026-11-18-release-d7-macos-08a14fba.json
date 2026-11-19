@@ -1,0 +1,413 @@
+{
+ "measurement": "D7",
+ "informational": true,
+ "plan": "docs/developer/release-performance-plan.md#d7-macos-arm64-spot-check",
+ "date": "2026-11-18",
+ "source": "08a14fbac83ff71a3247623fb10bf0584bc83be5",
+ "dive_binary_sha256": "3021d8e855c1487dccadc81134d2d69e166f4b7d10f0aa23b8f52b9a62c8fd81",
+ "dive_bench_sha256": "cff2afbd9961d78f9f913b19852fa9651d1dbfcf7ab2a5085adb67ddf493ab00",
+ "oracle": "tlc-2026.10.06.014338",
+ "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "host": {
+  "machine": "MacBook Air (Mac15,13), owner's shared laptop",
+  "chip": "Apple M3, 8 cores (4 performance, 4 efficiency)",
+  "memory": "24 GB",
+  "os": "macOS 26.5 (25F71), arm64",
+  "java": "openjdk version \"17.0.20.1\" 2026-08-18",
+  "quiet": false,
+  "binding": "none (macOS has no NUMA binding); one measured process at a time",
+  "load_average_1m_range": [
+   2.9,
+   12.6
+  ]
+ },
+ "command": {
+  "benchmark_set": "dive-bench --dive-bin target/release/dive --dive-revision 08a14fbac83ff71a3247623fb10bf0584bc83be5 --profile default --workers 1,4 --reps 3 --tlc --xmx 3g --timeout 300 --filter MCDisruptor_MPMC --filter SimpleRegular --filter MCbtree --filter MCBakery --filter MCLamportMutex --filter CoffeeCan1000BeansSafety (crates/dive-bench/benchmarks.toml), under env -i",
+  "startup": "50 fresh runs each of dive --version, dive parse docs/user/examples/Counter.tla and dive check docs/user/examples/Counter.tla --config docs/user/examples/Counter.cfg --workers 1 --seed 0 --fp 0 --output json, timed with perf_counter around subprocess.run",
+  "build": "cargo build --release --locked -p dive-cli --bins and -p dive-bench, CARGO_BUILD_JOBS=4, no RUSTFLAGS"
+ },
+ "benchmark_set_sha256": "5d539b1ba02458121a60b5f8f92f11e312e202e5441fd07fe2be32458eac0555",
+ "raw": {
+  "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-18/mac-local-raw.tar.gz",
+  "sha256": "be0eb9651205780699c5593174d95554d0736cb4186a900c5ecf13d0fc396452"
+ },
+ "deviations": [
+  "AWS mac capacity was unavailable, so D7 ran on the owner's laptop instead of the Sail mac-m4.metal host; the laptop was in use by other work (see load averages), so timings are indicative only.",
+  "A reduced selection by owner direction: six of the ten benchmark-set models at 1 and 4 workers (the laptop has 4 performance cores), default profile only, three repetitions.",
+  "Peak RSS from /usr/bin/time -l (macOS)."
+ ],
+ "summary": {
+  "models": 6,
+  "all_correct": true,
+  "geomean_dive_over_tlc_w1": 0.354,
+  "geomean_dive_over_tlc_w4": 0.347,
+  "max_dive_over_tlc_w1": 0.644,
+  "max_dive_over_tlc_w4": 0.666
+ },
+ "rows": {
+  "benchmark_set": {
+   "CoffeeCan1000BeansSafety": {
+    "model": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+    "dive-default-w1": {
+     "reps": 3,
+     "wall_ms_median": 683.7,
+     "wall_ms_range": [
+      655.1,
+      708.1
+     ],
+     "peak_rss_median": 97042432,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "dive-default-w4": {
+     "reps": 3,
+     "wall_ms_median": 441.4,
+     "wall_ms_range": [
+      416.2,
+      443.2
+     ],
+     "peak_rss_median": 141950976,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "tlc-w1": {
+     "reps": 3,
+     "wall_ms_median": 1275.7,
+     "wall_ms_range": [
+      1250.9,
+      1290.6
+     ],
+     "peak_rss_median": 608239616,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "tlc-w4": {
+     "reps": 3,
+     "wall_ms_median": 935.0,
+     "wall_ms_range": [
+      923.5,
+      952.2
+     ],
+     "peak_rss_median": 608387072,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "dive_over_tlc_w1": 0.536,
+    "dive_over_tlc_w4": 0.472
+   },
+   "MCBakery": {
+    "model": "specifications/Bakery-Boulangerie/MCBakery.cfg",
+    "dive-default-w1": {
+     "reps": 3,
+     "wall_ms_median": 3808.4,
+     "wall_ms_range": [
+      3646.0,
+      5459.7
+     ],
+     "peak_rss_median": 92602368,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "dive-default-w4": {
+     "reps": 3,
+     "wall_ms_median": 2985.3,
+     "wall_ms_range": [
+      2922.7,
+      3052.7
+     ],
+     "peak_rss_median": 136757248,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "tlc-w1": {
+     "reps": 3,
+     "wall_ms_median": 6266.9,
+     "wall_ms_range": [
+      6264.4,
+      9442.9
+     ],
+     "peak_rss_median": 1298202624,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "tlc-w4": {
+     "reps": 3,
+     "wall_ms_median": 4480.3,
+     "wall_ms_range": [
+      4377.8,
+      4599.4
+     ],
+     "peak_rss_median": 1294221312,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "dive_over_tlc_w1": 0.608,
+    "dive_over_tlc_w4": 0.666
+   },
+   "MCDisruptor_MPMC": {
+    "model": "specifications/Disruptor/MCDisruptor_MPMC.cfg",
+    "dive-default-w1": {
+     "reps": 3,
+     "wall_ms_median": 557.4,
+     "wall_ms_range": [
+      540.8,
+      560.4
+     ],
+     "peak_rss_median": 18333696,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "dive-default-w4": {
+     "reps": 3,
+     "wall_ms_median": 236.5,
+     "wall_ms_range": [
+      233.1,
+      254.9
+     ],
+     "peak_rss_median": 42188800,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "tlc-w1": {
+     "reps": 3,
+     "wall_ms_median": 2523.1,
+     "wall_ms_range": [
+      2380.9,
+      2554.5
+     ],
+     "peak_rss_median": 969654272,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "tlc-w4": {
+     "reps": 3,
+     "wall_ms_median": 1158.6,
+     "wall_ms_range": [
+      1139.7,
+      1208.2
+     ],
+     "peak_rss_median": 972324864,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "dive_over_tlc_w1": 0.221,
+    "dive_over_tlc_w4": 0.204
+   },
+   "MCLamportMutex": {
+    "model": "specifications/lamport_mutex/MCLamportMutex.cfg",
+    "dive-default-w1": {
+     "reps": 3,
+     "wall_ms_median": 6621.0,
+     "wall_ms_range": [
+      6566.0,
+      6977.4
+     ],
+     "peak_rss_median": 107642880,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "dive-default-w4": {
+     "reps": 3,
+     "wall_ms_median": 2620.0,
+     "wall_ms_range": [
+      2543.2,
+      2940.2
+     ],
+     "peak_rss_median": 190431232,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "tlc-w1": {
+     "reps": 3,
+     "wall_ms_median": 10287.9,
+     "wall_ms_range": [
+      10032.6,
+      10465.2
+     ],
+     "peak_rss_median": 1320763392,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "tlc-w4": {
+     "reps": 3,
+     "wall_ms_median": 3976.0,
+     "wall_ms_range": [
+      3861.9,
+      4199.8
+     ],
+     "peak_rss_median": 1348501504,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "dive_over_tlc_w1": 0.644,
+    "dive_over_tlc_w4": 0.659
+   },
+   "MCbtree": {
+    "model": "specifications/btree/MCbtree.cfg",
+    "dive-default-w1": {
+     "reps": 3,
+     "wall_ms_median": 2377.1,
+     "wall_ms_range": [
+      2366.0,
+      2446.8
+     ],
+     "peak_rss_median": 42827776,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "dive-default-w4": {
+     "reps": 3,
+     "wall_ms_median": 878.3,
+     "wall_ms_range": [
+      861.3,
+      887.0
+     ],
+     "peak_rss_median": 117293056,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "tlc-w1": {
+     "reps": 3,
+     "wall_ms_median": 27877.9,
+     "wall_ms_range": [
+      27622.1,
+      28364.9
+     ],
+     "peak_rss_median": 1235533824,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "tlc-w4": {
+     "reps": 3,
+     "wall_ms_median": 8219.3,
+     "wall_ms_range": [
+      8215.1,
+      8426.6
+     ],
+     "peak_rss_median": 1346568192,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "dive_over_tlc_w1": 0.085,
+    "dive_over_tlc_w4": 0.107
+   },
+   "SimpleRegular": {
+    "model": "specifications/TeachingConcurrency/SimpleRegular.cfg",
+    "dive-default-w1": {
+     "reps": 3,
+     "wall_ms_median": 1631.1,
+     "wall_ms_range": [
+      1617.3,
+      1702.5
+     ],
+     "peak_rss_median": 43843584,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "dive-default-w4": {
+     "reps": 3,
+     "wall_ms_median": 618.4,
+     "wall_ms_range": [
+      605.0,
+      709.7
+     ],
+     "peak_rss_median": 120373248,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "tlc-w1": {
+     "reps": 3,
+     "wall_ms_median": 3258.3,
+     "wall_ms_range": [
+      3186.3,
+      3376.3
+     ],
+     "peak_rss_median": 1096122368,
+     "all_correct": true,
+     "workers_used": [
+      1
+     ]
+    },
+    "tlc-w4": {
+     "reps": 3,
+     "wall_ms_median": 1615.8,
+     "wall_ms_range": [
+      1488.3,
+      1634.0
+     ],
+     "peak_rss_median": 1104494592,
+     "all_correct": true,
+     "workers_used": [
+      4
+     ]
+    },
+    "dive_over_tlc_w1": 0.501,
+    "dive_over_tlc_w4": 0.383
+   }
+  },
+  "startup": {
+   "version": {
+    "n": 50,
+    "median_ms": 2.75,
+    "p90_ms": 2.84,
+    "max_ms": 3.34
+   },
+   "parse": {
+    "n": 50,
+    "median_ms": 2.93,
+    "p90_ms": 3.18,
+    "max_ms": 17.87
+   },
+   "check": {
+    "n": 50,
+    "median_ms": 5.44,
+    "p90_ms": 5.54,
+    "max_ms": 6.04
+   }
+  }
+ }
+}

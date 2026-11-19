@@ -1,0 +1,768 @@
+{
+ "measurement": "D3",
+ "plan": "docs/developer/release-performance-plan.md#d3-exact-versus-fingerprint-store",
+ "date": "2026-11-18",
+ "source": "08a14fbac83ff71a3247623fb10bf0584bc83be5",
+ "dive_binary_sha256": "97675f9d446dbd188684f9f519e1313a86ae7e7faf57a7964d42d1115498e014",
+ "oracle": "tlc-2026.10.06.014338",
+ "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "host": {
+  "instance": "c7i.metal-24xl, us-east-1",
+  "cpu": "Intel Xeon Platinum 8488C",
+  "smt": "off",
+  "turbo": "off",
+  "frequency_khz": 2400000,
+  "governor": "performance",
+  "numa_nodes": 1,
+  "cpus": 48,
+  "binding": "numactl --cpunodebind=0 --membind=0 (all 48 CPUs of the single NUMA node)",
+  "storage": "gp3, 16000 IOPS, 1000 MiB/s",
+  "thp": "madvise",
+  "kernel": "7.0.0-1017-aws",
+  "ami": "Ubuntu 24.04.5 LTS (Canonical, x86_64)"
+ },
+ "command": "dive check <module.tla> --config <model.cfg> --workers 1 --seed 0 --fp 0 --store fp|exact --time-limit 1800s --max-memory 64g --output json under GNU /usr/bin/time -v; 3 repetitions, fp first on odd repetitions and exact first on even ones",
+ "raw": {
+  "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-18/small-node-raw.tar.gz",
+  "sha256": "cba0a9cbcb4d6f86a26aa611c4b3419863f2af5eab75ff84a8df1227d7fd9ce1"
+ },
+ "deviations": [
+  "Release binary built on one bench node and copied to the others (independent builds were not byte-identical); dive_binary_sha256 names the copied binary."
+ ],
+ "selection": "safety: the ten crates/dive-bench/benchmarks.toml models (CoffeeCan as the benchmark's safety-only config); liveness: CoffeeCan1000Beans, ElevatorLivenessMedium, MCLiveInternalMemory, MCFlashWithMutexLive, aba_asyn_byz",
+ "previous_record": null,
+ "summary": {
+  "models": 15,
+  "all_agree_under_both_stores": true,
+  "wall_exact_over_fp_range": [
+   0.997,
+   1.295
+  ],
+  "rss_exact_over_fp_range": [
+   0.95,
+   2.681
+  ]
+ },
+ "rows": {
+  "CoffeeCan/CoffeeCan1000Beans (safety-only config: MaxBeanCount = 1000, INVARIANTS TypeInvariant)": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 1700.29,
+    "wall_range_ms": [
+     1697.21,
+     1712.09
+    ],
+    "peak_rss_bytes": 224993280,
+    "rss_range": [
+     224727040,
+     224997376
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 501500,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 1313.21,
+    "wall_range_ms": [
+     1308.99,
+     1319.62
+    ],
+    "peak_rss_bytes": 115859456,
+    "rss_range": [
+     115576832,
+     115879936
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 501500,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.295,
+    "rss": 1.942
+   }
+  },
+  "specifications/Bakery-Boulangerie/MCBakery.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 8936.61,
+    "wall_range_ms": [
+     8931.3,
+     8937.07
+    ],
+    "peak_rss_bytes": 242167808,
+    "rss_range": [
+     241717248,
+     242679808
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 655200,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 7672.63,
+    "wall_range_ms": [
+     7661.1,
+     7683.3
+    ],
+    "peak_rss_bytes": 95277056,
+    "rss_range": [
+     94822400,
+     95907840
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 655200,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.165,
+    "rss": 2.542
+   }
+  },
+  "specifications/CoffeeCan/CoffeeCan1000Beans.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 9421.8,
+    "wall_range_ms": [
+     9392.89,
+     9429.11
+    ],
+    "peak_rss_bytes": 319496192,
+    "rss_range": [
+     319111168,
+     319619072
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 501500,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 9041.75,
+    "wall_range_ms": [
+     9029.33,
+     9046.81
+    ],
+    "peak_rss_bytes": 296599552,
+    "rss_range": [
+     296566784,
+     296923136
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 501500,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.042,
+    "rss": 1.077
+   }
+  },
+  "specifications/Disruptor/MCDisruptor_MPMC.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 1329.09,
+    "wall_range_ms": [
+     1326.72,
+     1330.06
+    ],
+    "peak_rss_bytes": 65732608,
+    "rss_range": [
+     65597440,
+     65925120
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 112929,
+    "depth": 81,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 1068.76,
+    "wall_range_ms": [
+     1067.68,
+     1071.46
+    ],
+    "peak_rss_bytes": 44515328,
+    "rss_range": [
+     44494848,
+     44703744
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 112929,
+    "depth": 81,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.244,
+    "rss": 1.477
+   }
+  },
+  "specifications/FlashProtocol/MCFlashWithMutexLive.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 1091.38,
+    "wall_range_ms": [
+     1090.55,
+     1091.89
+    ],
+    "peak_rss_bytes": 72503296,
+    "rss_range": [
+     72200192,
+     72613888
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 8096,
+    "depth": 21,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 1043.17,
+    "wall_range_ms": [
+     1042.55,
+     1043.51
+    ],
+    "peak_rss_bytes": 76353536,
+    "rss_range": [
+     76222464,
+     76533760
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 8096,
+    "depth": 21,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.046,
+    "rss": 0.95
+   }
+  },
+  "specifications/GameOfLife/GameOfLife.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 10930.22,
+    "wall_range_ms": [
+     10923.45,
+     10935.95
+    ],
+    "peak_rss_bytes": 71745536,
+    "rss_range": [
+     71651328,
+     71749632
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 65536,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 10779.87,
+    "wall_range_ms": [
+     10768.37,
+     10807.72
+    ],
+    "peak_rss_bytes": 59359232,
+    "rss_range": [
+     59174912,
+     59469824
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 65536,
+    "depth": 1,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.014,
+    "rss": 1.209
+   }
+  },
+  "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 6669.84,
+    "wall_range_ms": [
+     6667.67,
+     6675.69
+    ],
+    "peak_rss_bytes": 53243904,
+    "rss_range": [
+     53219328,
+     57622528
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 4122,
+    "depth": 36,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 6690.93,
+    "wall_range_ms": [
+     6669.62,
+     6710.57
+    ],
+    "peak_rss_bytes": 51118080,
+    "rss_range": [
+     50712576,
+     51122176
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 4122,
+    "depth": 36,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 0.997,
+    "rss": 1.042
+   }
+  },
+  "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 201.75,
+    "wall_range_ms": [
+     201.69,
+     202.15
+    ],
+    "peak_rss_bytes": 38584320,
+    "rss_range": [
+     38510592,
+     38645760
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 4408,
+    "depth": 10,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 192.97,
+    "wall_range_ms": [
+     191.86,
+     192.98
+    ],
+    "peak_rss_bytes": 38686720,
+    "rss_range": [
+     38567936,
+     38723584
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 4408,
+    "depth": 10,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.045,
+    "rss": 0.997
+   }
+  },
+  "specifications/TeachingConcurrency/SimpleRegular.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 3955.09,
+    "wall_range_ms": [
+     3953.29,
+     3970.01
+    ],
+    "peak_rss_bytes": 122548224,
+    "rss_range": [
+     122335232,
+     122617856
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 277726,
+    "depth": 25,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 3463.73,
+    "wall_range_ms": [
+     3458.61,
+     3465.63
+    ],
+    "peak_rss_bytes": 61165568,
+    "rss_range": [
+     60932096,
+     61308928
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 277726,
+    "depth": 25,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.142,
+    "rss": 2.004
+   }
+  },
+  "specifications/aba-asyn-byz/aba_asyn_byz.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 530519.15,
+    "wall_range_ms": [
+     530463.37,
+     531718.78
+    ],
+    "peak_rss_bytes": 5444743168,
+    "rss_range": [
+     5444640768,
+     5445263360
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 5843977,
+    "depth": 45,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 516979.33,
+    "wall_range_ms": [
+     516647.13,
+     517105.63
+    ],
+    "peak_rss_bytes": 4743196672,
+    "rss_range": [
+     4743143424,
+     4743303168
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "temporal",
+    "verdict": "success",
+    "distinct": 5843977,
+    "depth": 45,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.026,
+    "rss": 1.148
+   }
+  },
+  "specifications/braf/BufferedRandomAccessFile.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 18950.02,
+    "wall_range_ms": [
+     18934.05,
+     18957.09
+    ],
+    "peak_rss_bytes": 42823680,
+    "rss_range": [
+     42766336,
+     42860544
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 3316,
+    "depth": 10,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 18937.85,
+    "wall_range_ms": [
+     18912.04,
+     18939.61
+    ],
+    "peak_rss_bytes": 42852352,
+    "rss_range": [
+     42332160,
+     42942464
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 3316,
+    "depth": 10,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.001,
+    "rss": 0.999
+   }
+  },
+  "specifications/btree/MCbtree.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 6508.25,
+    "wall_range_ms": [
+     6484.5,
+     6537.18
+    ],
+    "peak_rss_bytes": 156979200,
+    "rss_range": [
+     156897280,
+     157179904
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 374727,
+    "depth": 38,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 5472.69,
+    "wall_range_ms": [
+     5467.35,
+     5473.39
+    ],
+    "peak_rss_bytes": 58544128,
+    "rss_range": [
+     58245120,
+     58863616
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 374727,
+    "depth": 38,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.189,
+    "rss": 2.681
+   }
+  },
+  "specifications/dag-consensus/TLCSailfish1.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 39858.56,
+    "wall_range_ms": [
+     39851.04,
+     39917.63
+    ],
+    "peak_rss_bytes": 103952384,
+    "rss_range": [
+     103555072,
+     104054784
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 109604,
+    "depth": 16,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 39648.15,
+    "wall_range_ms": [
+     39602.58,
+     39658.67
+    ],
+    "peak_rss_bytes": 80502784,
+    "rss_range": [
+     79855616,
+     80539648
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 109604,
+    "depth": 16,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.005,
+    "rss": 1.291
+   }
+  },
+  "specifications/ewd998/EWD998PCal.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 16183.2,
+    "wall_range_ms": [
+     16179.63,
+     16203.38
+    ],
+    "peak_rss_bytes": 114180096,
+    "rss_range": [
+     114106368,
+     114491392
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 321370,
+    "depth": 47,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 15055.4,
+    "wall_range_ms": [
+     15012.89,
+     15087.88
+    ],
+    "peak_rss_bytes": 51363840,
+    "rss_range": [
+     49827840,
+     51826688
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 321370,
+    "depth": 47,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.075,
+    "rss": 2.223
+   }
+  },
+  "specifications/lamport_mutex/MCLamportMutex.cfg": {
+   "exact": {
+    "reps": 3,
+    "wall_ms": 14217.61,
+    "wall_range_ms": [
+     14180.85,
+     14228.23
+    ],
+    "peak_rss_bytes": 278802432,
+    "rss_range": [
+     278720512,
+     278999040
+    ],
+    "options_store": [
+     "exact"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 724274,
+    "depth": 61,
+    "agrees_with_golden": true
+   },
+   "fp": {
+    "reps": 3,
+    "wall_ms": 12407.49,
+    "wall_range_ms": [
+     12392.43,
+     12412.68
+    ],
+    "peak_rss_bytes": 113750016,
+    "rss_range": [
+     113664000,
+     114065408
+    ],
+    "options_store": [
+     "fingerprint"
+    ],
+    "check_kind": "safety",
+    "verdict": "success",
+    "distinct": 724274,
+    "depth": 61,
+    "agrees_with_golden": true
+   },
+   "exact_over_fp": {
+    "wall": 1.146,
+    "rss": 2.451
+   }
+  }
+ }
+}
