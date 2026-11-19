@@ -15,7 +15,7 @@ names its record.
 | D1, R2 gate | **Pass.** Core / TLC geomean 0.195x over the 169 agreeing models (fixed-set geomean 0.211x), median 0.148x. No model above 2x. Two above 1x: `MCKVsnap` 1.20x (#979) and `AllocatorImplementation` 1.17x (#940). | `2026-11-18-r2-procedure-08a14fba.json` |
 | D2, memory | Benchmark set, default profile: dive peaks at 37 to 110 MiB at 1 worker and 147 to 286 MiB at 8, against 795 to 1,449 MiB for TLC at `-Xmx3g`. Liveness capture: 64 temporal models, none stopped; 62 match their golden and 2 match a registered divergence; the largest is `aba_asyn_byz` at 4,523 MiB for 5.8 million states. | `2026-11-18-release-d2-memory-08a14fba.json` |
 | D3, exact store | All 15 models agree under both stores. Exact costs 1.00x to 1.30x the fingerprint store's time and 0.95x to 2.68x its peak RSS. | `2026-11-18-release-d3-store-08a14fba.json` |
-| D4, worker scaling | **In progress.** The runs at 1, 4 and 8 workers are still timing; a follow-up change adds the record and this section's table. | pending |
+| D4, worker scaling | Safety models scale: median speed-up over the 47 large-class models 2.26x at 4 workers and 4.04x at 8, up to 7.6x (`PConProof`). Models with temporal properties mostly do not: 16 of the 18 that run at 8 workers stay between 0.50x and 1.40x, six of them slower than at 1 worker (#1028). Two refuse at more than one worker (#1020). | `2026-11-18-release-d4-scaling-08a14fba.json` |
 | D5, startup and throughput | `dive --version` 1.5 ms, `dive parse` 1.3 ms and a full `dive check` of a small model 4.9 ms (medians of 50). Trace validation 7 to 47 ms per trace, all valid. The bosco simulation stops at its 16 GiB budget (#1024). | `2026-11-18-release-d5-throughput-08a14fba.json` |
 | D6, stop latency | Time budgets stop 4 to 40 ms after the limit (median per cell, load time subtracted; worst single run 170 ms). State and depth ceilings stop exactly at the ceiling, with no overshoot. | `2026-11-18-release-d6-stop-latency-08a14fba.json` |
 | D7, macOS (informational) | On an Apple M3 laptop, Core / TLC geomean 0.354x at 1 worker and 0.347x at 4 workers over six benchmark models, all agreeing. | `2026-11-18-release-d7-macos-08a14fba.json` |
@@ -37,7 +37,7 @@ names its record.
 Five on-demand nodes ran D1. One ran D1's small class and then D5, D3, D6 and
 D2. Four each ran one D1 large shard and then D4 on that shard's models.
 Large models were sharded by longest processing time on the golden TLC times,
-and each node timed TLC and Core on its own shard. D4's later repetitions run on additional nodes of the same type, image and setup; the D4 record will say which node ran each repetition.
+and each node timed TLC and Core on its own shard. D4's later repetitions ran in parallel on five additional spot nodes of the same type, image and setup; the D4 record names the node of every repetition.
 
 The binary was built once and copied, because independent builds of the same
 source on different nodes were not byte-identical. Every node ran the binary
@@ -247,7 +247,90 @@ behaviour graph dominates memory, it costs 0.95x to 1.15x.
 
 ## D4: worker scaling
 
-**In progress.** 1, 4 and 8 workers on the 47 large-class models that have a success golden (`dive-bench` needs one, so `MCCheckpointCoordinationFailure` is left out), three repetitions, `--timeout 3600`. The record and table land in a follow-up change.
+`dive-bench --profile default --workers 1,4,8 --reps 3 --timeout 3600 --xmx 24g` on the 47
+large-class models that have a success golden (`dive-bench` needs one, so
+`MCCheckpointCoordinationFailure` is left out), bound with `numactl
+--cpunodebind=0 --membind=0`, so 8 workers have all 48 CPUs. The speed-up is
+the median over the three repetitions of the 1-worker time divided by the
+same repetition's N-worker time. To finish in time, the four D1 shard nodes
+ran the first repetitions and five spot nodes of the same type, image and
+setup ran the rest, with the binary copied and checked by SHA-256; the record
+names the node of every repetition.
+
+- **Safety models scale.** The median 8-worker speed-up over all 47 models is
+  4.04x (2.26x at 4 workers); the best are `PConProof` 7.64x,
+  `FastPaxos` 7.32x and `bosco` 7.16x.
+- **Temporal models mostly do not.** Of the 18 models with temporal
+  properties that run at 8 workers, 16 stay between 0.50x and 1.40x of their
+  1-worker time (`Huang` reaches 1.73x and `MCInnerSerial` 2.08x). Six get slower as workers
+  are added (`CoffeeCan1000Beans` 0.50x, `CoffeeCan3000Beans` 0.52x,
+  `LSpec-model` 0.80x, `cf1s_folklore` 0.82x, `aba_asyn_byz` 0.84x,
+  `MCFlashWithMutexLive` 0.90x), and the reports name 8 workers used with no
+  sequential reason. Issue #1028.
+- **Refusals.** `MCKVsnap` and `SpanTreeRandom` refuse at 4 and 8 workers
+  (exit 3, "temporal properties: concrete pool capture with effects or
+  runtime names"), #1020. At one worker both succeed.
+- **SlushLarge at one worker** stops at `dive-bench`'s 3,570 s time limit in
+  all three repetitions, so its speed-ups are lower bounds (1.55x and 2.71x).
+  Against D1's completed 1-worker time on the same binary and host type
+  (6,544.78 s) they are 2.84x and 4.97x.
+- At one worker `MCCRDT`, `VoteProof`, `MCKVsnap` and `SpanTreeRandom`
+  differ from the golden counts exactly as registered in
+  `conformance/expected-divergences.toml`; every other run agrees with its
+  golden. Generated counts at more than one worker are diagnostics only
+  (ADR 0086).
+
+### D4 worker scaling (median of 3)
+
+| Model | 1 worker s | 4 workers s | 8 workers s | Speed-up 4 | Speed-up 8 | Note |
+|---|---:|---:|---:|---:|---:|---|
+| `SlushProtocol/SlushLarge` | 3,570.1 (stopped) | 2,307.9 | 1,316.4 | ≥1.55 | ≥2.71 | 1 worker stopped at the 3570 s limit; speed-ups are lower bounds |
+| `MultiPaxos-SMR/MultiPaxos_MC` | 2,617.2 | 747.3 | 392.9 | 3.50 | 6.65 |  |
+| `NanoBlockchain/MCNanoLarge` | 2,444.4 | 841.5 | 505.0 | 2.90 | 4.84 |  |
+| `MultiCarElevator/ElevatorSafetyLarge` | 1,488.1 | 516.7 | 307.0 | 2.88 | 4.86 |  |
+| `KeyValueStore/MCKVSSafetyMedium` | 1,037.1 | 353.9 | 197.1 | 2.93 | 5.26 |  |
+| `ewd998/EWD998Chan` | 962.0 | 864.8 | 856.7 | 1.11 | 1.12 |  |
+| `byzpaxos/PConProof` | 845.6 | 219.4 | 110.8 | 3.85 | 7.64 |  |
+| `bcastFolklore/bcastFolklore` | 633.0 | 630.3 | 630.1 | 1.00 | 1.01 |  |
+| `MultiCarElevator/ElevatorSafetyMedium` | 520.3 | 172.3 | 99.6 | 3.02 | 5.23 |  |
+| `aba-asyn-byz/aba_asyn_byz` | 518.7 | 575.7 | 619.5 | 0.90 | 0.84 |  |
+| `MultiCarElevator/ElevatorLivenessLarge` | 449.8 | 450.9 | 450.8 | 1.00 | 1.00 |  |
+| `bosco/bosco` | 305.4 | 83.8 | 42.7 | 3.64 | 7.16 |  |
+| `dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC` | 270.2 | 142.0 | 84.6 | 1.91 | 3.18 |  |
+| `cf1s-folklore/cf1s_folklore` | 177.7 | 198.7 | 215.4 | 0.89 | 0.82 |  |
+| `Bakery-Boulangerie/MCBoulanger` | 177.6 | 60.9 | 35.5 | 2.92 | 5.00 |  |
+| `SlushProtocol/SlushMedium` | 163.8 | 59.5 | 35.6 | 2.75 | 4.60 |  |
+| `KeyValueStore/MCKVSSafetySmall` | 115.4 | 40.9 | 24.3 | 2.82 | 4.76 |  |
+| `SpanningTree/SpanTreeTest5Nodes` | 113.2 | 111.6 | 113.3 | 1.01 | 1.00 |  |
+| `CoffeeCan/CoffeeCan3000Beans` | 88.0 | 136.4 | 169.8 | 0.65 | 0.52 |  |
+| `CheckpointCoordination/MCCheckpointCoordination` | 87.9 | 27.5 | 14.6 | 3.22 | 6.02 |  |
+| `transaction_commit/PaxosCommit` | 77.9 | 24.4 | 13.5 | 3.19 | 5.79 |  |
+| `PaxosHowToWinATuringAward/MCPaxosSmall` | 55.4 | 15.2 | 7.8 | 3.66 | 7.09 |  |
+| `dag-consensus/TLCSailfish1` | 39.6 | 10.9 | 5.6 | 3.63 | 7.07 |  |
+| `Huang/Huang` | 36.8 | 23.7 | 21.2 | 1.55 | 1.73 |  |
+| `ewd998/EWD998Small` | 21.1 | 8.8 | 5.1 | 2.41 | 4.13 |  |
+| `braf/BufferedRandomAccessFile` | 19.0 | 5.2 | 2.7 | 3.69 | 7.11 |  |
+| `SimplifiedFastPaxos/FastPaxos` | 18.1 | 4.8 | 2.5 | 3.75 | 7.32 |  |
+| `KeyValueStore/MCKVsnap` | 16.9 | refused | refused |  |  | 1 worker: registered divergence; refused at 4 and 8 workers (#1020) |
+| `ewd998/EWD998PCal` | 15.1 | 4.8 | 2.6 | 3.17 | 5.80 |  |
+| `lamport_mutex/MCLamportMutex` | 12.5 | 5.5 | 3.1 | 2.26 | 4.04 |  |
+| `GameOfLife/GameOfLife` | 10.8 | 3.0 | 1.7 | 3.57 | 6.40 |  |
+| `FiniteMonotonic/MCCRDT` | 10.1 | 7.6 | 7.2 | 1.33 | 1.40 | 1 worker: registered divergence |
+| `MultiPaxos-SMR/MultiPaxos_MC_small` | 9.4 | 3.0 | 1.6 | 3.20 | 5.74 |  |
+| `CoffeeCan/CoffeeCan1000Beans` | 9.1 | 14.5 | 18.4 | 0.62 | 0.50 |  |
+| `NanoBlockchain/MCNanoMedium` | 8.8 | 2.9 | 1.7 | 3.05 | 5.29 |  |
+| `Bakery-Boulangerie/MCBakery` | 7.7 | 6.3 | 5.8 | 1.23 | 1.32 |  |
+| `SpanningTree/SpanTreeRandom` | 7.1 | refused | refused |  |  | 1 worker: registered divergence; refused at 4 and 8 workers (#1020) |
+| `dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC` | 7.0 | 8.0 | 8.8 | 0.88 | 0.80 |  |
+| `MultiCarElevator/ElevatorLivenessMedium` | 6.8 | 6.8 | 6.8 | 1.00 | 0.99 |  |
+| `btree/MCbtree` | 5.5 | 2.1 | 1.2 | 2.63 | 4.51 |  |
+| `bcastByz/bcastByz` | 4.5 | 4.0 | 3.9 | 1.14 | 1.17 |  |
+| `SpecifyingSystems/AdvancedExamples/MCInnerSerial` | 4.4 | 2.5 | 2.1 | 1.71 | 2.08 |  |
+| `MisraReachability/MCParReach` | 3.3 | 3.2 | 3.2 | 1.05 | 1.05 |  |
+| `LeastCircularSubstring/MCLeastCircularSubstringMedium` | 2.0 | 1.1 | 0.9 | 1.77 | 2.23 |  |
+| `FlashProtocol/MCFlashWithMutexLive` | 1.1 | 1.2 | 1.2 | 0.94 | 0.90 |  |
+| `byzpaxos/VoteProof` | 0.9 | 0.4 | 0.3 | 2.21 | 3.25 | 1 worker: registered divergence |
+| `MisraReachability/MCReachable` | 0.5 | 0.5 | 0.5 | 1.00 | 1.00 |  |
 
 ## D5: startup, simulation and trace validation
 
@@ -403,5 +486,7 @@ Sail after the #765 fix (`ce94df74`), median milliseconds:
 
 - #979 and #940: the two models above 1x in D1, unchanged from the 2026-11-10 record.
 - #1024: `dive simulate` memory grows with the number of traces, and peak RSS reaches about 1.8x `--max-memory` after the stop (D5).
+- #1028: temporal checks do not scale with workers, and six models run slower at 8 workers than at 1 (D4).
+- #1020: `MCKVsnap` and `SpanTreeRandom` refuse temporal checking at more than one worker (D4).
 
 Against the 2026-11-10 R2 record on the same host type, the median per-model change in the Core / TLC ratio is zero and the largest increase is 8% (`MCConsensus`, 0.081x to 0.088x), inside the spread between repetitions. D2 to D7 have no earlier release record, so these figures are their baseline.

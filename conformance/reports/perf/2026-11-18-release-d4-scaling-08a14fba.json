@@ -1,0 +1,5234 @@
+{
+ "measurement": "D4",
+ "plan": "docs/developer/release-performance-plan.md#d4-worker-scaling",
+ "date": "2026-11-18",
+ "source": "08a14fbac83ff71a3247623fb10bf0584bc83be5",
+ "dive_binary_sha256": "97675f9d446dbd188684f9f519e1313a86ae7e7faf57a7964d42d1115498e014",
+ "oracle": "tlc-2026.10.06.014338",
+ "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "host": {
+  "instance": "c7i.metal-24xl, us-east-1",
+  "cpu": "Intel Xeon Platinum 8488C",
+  "smt": "off",
+  "turbo": "off",
+  "frequency_khz": 2400000,
+  "governor": "performance",
+  "numa_nodes": 1,
+  "cpus": 48,
+  "binding": "numactl --cpunodebind=0 --membind=0 (all 48 CPUs of the single NUMA node), so 8 workers have 48 CPUs",
+  "storage": "gp3, 16000 IOPS, 1000 MiB/s",
+  "thp": "madvise",
+  "kernel": "7.0.0-1017-aws",
+  "ami": "Ubuntu 24.04.5 LTS (Canonical, x86_64)"
+ },
+ "command": "dive-bench --set <shard-set.toml> --dive-bin ~/bins/dive --dive-revision 08a14fbac83ff71a3247623fb10bf0584bc83be5 --profile default --workers 1,4,8 --reps 3 --timeout 3600 --xmx 24g on od-1..od-4; the parallel repetitions ran the same command with --reps 1 (and, for SlushLarge, one worker count per call) on a set file holding the same entries; each row records its repetition and node",
+ "raw": {
+  "location": "dive evidence archive bucket (us-east-1), prefix release-perf/2026-11-18/ (archive shardN is node od-N, spotN is spot-N)",
+  "files": {
+   "shard4-d1-raw.tar.gz": "5cf595a5f206072b6ac1f2adc22743f08746793853e179e2a828164ce163afd8",
+   "shard2-d4-d2-raw.tar.gz": "3532a3508a7c264853f10c6167aabf4e5af5cb92278b67a80b17c8099e15f495",
+   "shard1-d4-raw.tar.gz": "c8975f2bb9bcdf8f27e9e145dfe73c7f65231b990fdedbab9bcc70c629d0ca89",
+   "shard3-d4-raw.tar.gz": "358084fb9229c80a5af6a84f91f4c172fd4f88520e0b11a8110e7842299d9e74",
+   "spot1-d4-raw.tar.gz": "77ebc8360a3776416fbec743ce72877310bfc55d237302f4284605c7e3453a6a",
+   "spot2-d4-raw.tar.gz": "278acd7b29ba7bfc5142e0540a52cd42a4bd994e3e8c94b48449ad0d42f45e96",
+   "shard4-d4-raw.tar.gz": "03339a6c1b22a59e5b543edcc313c904569b00c3b0fa6b1bd1dceed3153898ca",
+   "spot3-d4-raw.tar.gz": "07e63503915b3a440f1ab483358d2626dce611ec3a2e1a052ab79cec65a89610",
+   "spot4-d4-raw.tar.gz": "008789de21dd9101c8b96a49b2f5116053f4b8c3e3538bd849e68cc42984944c",
+   "spot5-d4-raw.tar.gz": "a5a85f892fb5a28da5e08de8efca41f2b61c21bb64567bae4554f4e7ef4e0567"
+  }
+ },
+ "deviations": [
+  "Repetitions were spread across nodes of one type to finish sooner: an on-demand shard node ran repetition 1 (and 2 on od-1, od-3 and od-4, and 3 on od-4), spot nodes ran the rest. A shard node's dive-bench was stopped once its last kept repetition was recorded; the run in progress at that moment was discarded, never recorded. Each row's runs_rep_node_wall_ms names the node of every repetition.",
+  "dive-bench's golden check compares raw TLC counts and does not read conformance/expected-divergences.toml. At one worker MCCRDT, VoteProof, MCKVsnap and SpanTreeRandom differ from the golden exactly as registered there; the record names the entry (registered_divergence). Generated counts at more than one worker are diagnostics only (ADR 0086).",
+  "Release binary built on one bench node and copied to the others (independent builds were not byte-identical); dive_binary_sha256 names the copied binary."
+ ],
+ "nodes": {
+  "od-1..od-4": "the four on-demand D1 large-shard nodes, each on its own shard's models after its D1 pass",
+  "spot-1..spot-5": "five spot instances of the same type, AMI and bootstrap (scripts/aws/bench-node.sh), volume provisioned at 16000 IOPS and 1000 MiB/s, launched to run later repetitions in parallel; dive and dive-bench copied from the first node and checked by SHA-256 before timing"
+ },
+ "dive_bench_sha256": "24189573d2872c63f9aead869ea6c60f988fa534cd9f9ef2199446a358ee7dfe",
+ "benchmark_set_sha256": {
+  "od-1 set (SlushLarge), also s1r3-w1, s1r3-w4, s1r3-w8": "d624be38a045514c48de87b73d8698481a40eaa4e0418a5d9fcd1246d3c18ddb",
+  "od-2 set": "a2b2244f00525101ed81450af833983bc7e221e1c498e6aaa68bf5d6a421898a",
+  "od-3 set": "4bb9f6206b4bcb75e11dad530ae6ab3c82467620176bf726a0950e735106a63b",
+  "od-4 set": "569933d03ba6aac100d697e8f1f4a88c81ec0866f5f48085e0cee7f0adfdecaf",
+  "s2r2-nano, s2r3-nano": "2ae5070cd66000cf293cc246803870f92e547f3c7cd307d4a2549da290f0056e",
+  "s3r3-small": "8a7786e08501e916498fd9cc5b85f06d5c4c09f669bd6156565f0cafdb556a33",
+  "s2r2-rest": "b02066c09199ddd361c145e3f6257d89cafc4bf97271f50e65e83274a717d3bf",
+  "s3r3-aba": "1f2e99eab90e3a3bd02a5f68f3a5dffb1676f78a92eb91bff4671dbeb6d6d06d",
+  "s2r3-rest": "b02066c09199ddd361c145e3f6257d89cafc4bf97271f50e65e83274a717d3bf",
+  "s3r3-esl": "7fa43b2bdc98a818afb7257dffd04d251b02079971d8d8eb420b7a0d5824b50e",
+  "s3r3-mpaxos": "0d8e27163e1af2e9ce45ee3bcf961f1dc2204036a7117a70c180b039f1cdcb85"
+ },
+ "selection": "The 48-model large class of the D1 record, less specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg: dive-bench needs a success golden, and that model's golden is a violation.",
+ "summary": {
+  "models": 47,
+  "cells_missing_reps": [],
+  "speedup8_median": 4.04,
+  "speedup4_median": 2.26,
+  "stopped_cells": [
+   "specifications/SlushProtocol/SlushLarge.cfg w1"
+  ],
+  "not_correct_cells": [],
+  "unsupported_cells": [
+   "specifications/KeyValueStore/MCKVsnap.cfg w4",
+   "specifications/KeyValueStore/MCKVsnap.cfg w8",
+   "specifications/SpanningTree/SpanTreeRandom.cfg w4",
+   "specifications/SpanningTree/SpanTreeRandom.cfg w8"
+  ],
+  "registered_divergence_cells": [
+   "specifications/FiniteMonotonic/MCCRDT.cfg w1: d022-finitemonotonic-mccrdt",
+   "specifications/KeyValueStore/MCKVsnap.cfg w1: symmetry-liveness-unreduced-mckvsnap",
+   "specifications/SpanningTree/SpanTreeRandom.cfg w1: d002-spantreerandom-default-streams",
+   "specifications/byzpaxos/VoteProof.cfg w1: d029-voteproof"
+  ],
+  "SlushLarge_with_D1_one_worker_time": {
+   "note": "D4's 1-worker SlushLarge runs stop at dive-bench's 3570 s time limit; D1 timed the same binary on the same host type at 6544.78 s to completion. Speed-ups against that time:",
+   "speedup4": 2.84,
+   "speedup8": 4.97
+  }
+ },
+ "rows": {
+  "specifications/Bakery-Boulangerie/MCBakery.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 7716.0,
+    "wall_ms_range": [
+     7715.1,
+     7765.7
+    ],
+    "peak_rss_median": 92422144,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      7716.0
+     ],
+     [
+      2,
+      "od-4",
+      7765.7
+     ],
+     [
+      3,
+      "od-4",
+      7715.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 6311.6,
+    "wall_ms_range": [
+     6260.4,
+     6361.9
+    ],
+    "peak_rss_median": 146046976,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      6361.9
+     ],
+     [
+      2,
+      "od-4",
+      6311.6
+     ],
+     [
+      3,
+      "od-4",
+      6260.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 5835.5,
+    "wall_ms_range": [
+     5835.1,
+     5885.6
+    ],
+    "peak_rss_median": 228364288,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      5835.5
+     ],
+     [
+      2,
+      "od-4",
+      5835.1
+     ],
+     [
+      3,
+      "od-4",
+      5885.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.23,
+   "speedup8": 1.32
+  },
+  "specifications/Bakery-Boulangerie/MCBoulanger.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 177628.9,
+    "wall_ms_range": [
+     177425.3,
+     177660.7
+    ],
+    "peak_rss_median": 384253952,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      177628.9
+     ],
+     [
+      2,
+      "od-4",
+      177425.3
+     ],
+     [
+      3,
+      "od-4",
+      177660.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 60945.9,
+    "wall_ms_range": [
+     60896.3,
+     61120.8
+    ],
+    "peak_rss_median": 487452672,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      60896.3
+     ],
+     [
+      2,
+      "od-4",
+      61120.8
+     ],
+     [
+      3,
+      "od-4",
+      60945.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 35522.3,
+    "wall_ms_range": [
+     35521.8,
+     35547.2
+    ],
+    "peak_rss_median": 620302336,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      35522.3
+     ],
+     [
+      2,
+      "od-4",
+      35521.8
+     ],
+     [
+      3,
+      "od-4",
+      35547.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.92,
+   "speedup8": 5.0
+  },
+  "specifications/CheckpointCoordination/MCCheckpointCoordination.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 87870.1,
+    "wall_ms_range": [
+     87721.5,
+     88572.8
+    ],
+    "peak_rss_median": 107720704,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      87721.5
+     ],
+     [
+      2,
+      "od-4",
+      88572.8
+     ],
+     [
+      3,
+      "od-4",
+      87870.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 27547.5,
+    "wall_ms_range": [
+     27145.7,
+     27748.2
+    ],
+    "peak_rss_median": 272687104,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      27748.2
+     ],
+     [
+      2,
+      "od-4",
+      27547.5
+     ],
+     [
+      3,
+      "od-4",
+      27145.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 14634.4,
+    "wall_ms_range": [
+     14509.3,
+     14710.0
+    ],
+    "peak_rss_median": 432603136,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      14634.4
+     ],
+     [
+      2,
+      "od-4",
+      14710.0
+     ],
+     [
+      3,
+      "od-4",
+      14509.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.22,
+   "speedup8": 6.02
+  },
+  "specifications/CoffeeCan/CoffeeCan1000Beans.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 9093.5,
+    "wall_ms_range": [
+     9068.5,
+     9093.6
+    ],
+    "peak_rss_median": 296316928,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      9093.6
+     ],
+     [
+      2,
+      "spot-3",
+      9068.5
+     ],
+     [
+      3,
+      "spot-4",
+      9093.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 14529.5,
+    "wall_ms_range": [
+     14529.3,
+     14555.1
+    ],
+    "peak_rss_median": 298532864,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      14555.1
+     ],
+     [
+      2,
+      "spot-3",
+      14529.5
+     ],
+     [
+      3,
+      "spot-4",
+      14529.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 18363.2,
+    "wall_ms_range": [
+     18263.1,
+     18413.8
+    ],
+    "peak_rss_median": 297197568,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      18413.8
+     ],
+     [
+      2,
+      "spot-3",
+      18263.1
+     ],
+     [
+      3,
+      "spot-4",
+      18363.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 0.62,
+   "speedup8": 0.5
+  },
+  "specifications/CoffeeCan/CoffeeCan3000Beans.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 87999.2,
+    "wall_ms_range": [
+     87947.5,
+     88275.0
+    ],
+    "peak_rss_median": 2837999616,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      87947.5
+     ],
+     [
+      2,
+      "od-4",
+      87999.2
+     ],
+     [
+      3,
+      "od-4",
+      88275.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 136395.7,
+    "wall_ms_range": [
+     135568.3,
+     136419.8
+    ],
+    "peak_rss_median": 2841620480,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      136419.8
+     ],
+     [
+      2,
+      "od-4",
+      136395.7
+     ],
+     [
+      3,
+      "od-4",
+      135568.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 169770.5,
+    "wall_ms_range": [
+     169597.6,
+     178263.8
+    ],
+    "peak_rss_median": 2844454912,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      178263.8
+     ],
+     [
+      2,
+      "od-4",
+      169770.5
+     ],
+     [
+      3,
+      "od-4",
+      169597.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 0.65,
+   "speedup8": 0.52
+  },
+  "specifications/FiniteMonotonic/MCCRDT.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 10123.5,
+    "wall_ms_range": [
+     10098.0,
+     10123.9
+    ],
+    "peak_rss_median": 86355968,
+    "stopped": 0,
+    "all_correct": false,
+    "registered_divergence": [
+     "d022-finitemonotonic-mccrdt"
+    ],
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      10098.0
+     ],
+     [
+      2,
+      "od-3",
+      10123.9
+     ],
+     [
+      3,
+      "spot-2",
+      10123.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 7639.7,
+    "wall_ms_range": [
+     7639.5,
+     7663.5
+    ],
+    "peak_rss_median": 90546176,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      7663.5
+     ],
+     [
+      2,
+      "od-3",
+      7639.5
+     ],
+     [
+      3,
+      "spot-2",
+      7639.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 7238.4,
+    "wall_ms_range": [
+     7238.4,
+     7239.5
+    ],
+    "peak_rss_median": 101126144,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      7239.5
+     ],
+     [
+      2,
+      "od-3",
+      7238.4
+     ],
+     [
+      3,
+      "spot-2",
+      7238.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.33,
+   "speedup8": 1.4
+  },
+  "specifications/FlashProtocol/MCFlashWithMutexLive.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 1095.0,
+    "wall_ms_range": [
+     1095.0,
+     1095.1
+    ],
+    "peak_rss_median": 75857920,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      1095.0
+     ],
+     [
+      2,
+      "od-3",
+      1095.1
+     ],
+     [
+      3,
+      "spot-2",
+      1095.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 1170.1,
+    "wall_ms_range": [
+     1170.0,
+     1170.2
+    ],
+    "peak_rss_median": 77721600,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      1170.2
+     ],
+     [
+      2,
+      "od-3",
+      1170.1
+     ],
+     [
+      3,
+      "spot-2",
+      1170.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 1220.2,
+    "wall_ms_range": [
+     1195.1,
+     1220.3
+    ],
+    "peak_rss_median": 82026496,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      1195.1
+     ],
+     [
+      2,
+      "od-3",
+      1220.3
+     ],
+     [
+      3,
+      "spot-2",
+      1220.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 0.94,
+   "speedup8": 0.9
+  },
+  "specifications/GameOfLife/GameOfLife.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 10826.6,
+    "wall_ms_range": [
+     10801.0,
+     10851.6
+    ],
+    "peak_rss_median": 58343424,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      10826.6
+     ],
+     [
+      2,
+      "od-4",
+      10801.0
+     ],
+     [
+      3,
+      "od-4",
+      10851.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 3025.6,
+    "wall_ms_range": [
+     3025.5,
+     3050.8
+    ],
+    "peak_rss_median": 107069440,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      3050.8
+     ],
+     [
+      2,
+      "od-4",
+      3025.5
+     ],
+     [
+      3,
+      "od-4",
+      3025.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 1696.7,
+    "wall_ms_range": [
+     1672.0,
+     1696.8
+    ],
+    "peak_rss_median": 172519424,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      1696.8
+     ],
+     [
+      2,
+      "od-4",
+      1672.0
+     ],
+     [
+      3,
+      "od-4",
+      1696.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.57,
+   "speedup8": 6.4
+  },
+  "specifications/Huang/Huang.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 36755.9,
+    "wall_ms_range": [
+     36755.9,
+     36780.6
+    ],
+    "peak_rss_median": 100544512,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      36780.6
+     ],
+     [
+      2,
+      "spot-3",
+      36755.9
+     ],
+     [
+      3,
+      "spot-4",
+      36755.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 23728.9,
+    "wall_ms_range": [
+     23606.0,
+     23755.2
+    ],
+    "peak_rss_median": 124231680,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      23755.2
+     ],
+     [
+      2,
+      "spot-3",
+      23728.9
+     ],
+     [
+      3,
+      "spot-4",
+      23606.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 21199.4,
+    "wall_ms_range": [
+     21173.7,
+     21225.1
+    ],
+    "peak_rss_median": 126390272,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      21173.7
+     ],
+     [
+      2,
+      "spot-3",
+      21199.4
+     ],
+     [
+      3,
+      "spot-4",
+      21225.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.55,
+   "speedup8": 1.73
+  },
+  "specifications/KeyValueStore/MCKVSSafetyMedium.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 1037074.4,
+    "wall_ms_range": [
+     1036256.9,
+     1037466.8
+    ],
+    "peak_rss_median": 1023352832,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      1037074.4
+     ],
+     [
+      2,
+      "od-4",
+      1036256.9
+     ],
+     [
+      3,
+      "od-4",
+      1037466.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 353920.6,
+    "wall_ms_range": [
+     352775.1,
+     356013.4
+    ],
+    "peak_rss_median": 1295757312,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      353920.6
+     ],
+     [
+      2,
+      "od-4",
+      356013.4
+     ],
+     [
+      3,
+      "od-4",
+      352775.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 197099.2,
+    "wall_ms_range": [
+     195837.6,
+     198796.2
+    ],
+    "peak_rss_median": 1404911616,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      198796.2
+     ],
+     [
+      2,
+      "od-4",
+      197099.2
+     ],
+     [
+      3,
+      "od-4",
+      195837.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.93,
+   "speedup8": 5.26
+  },
+  "specifications/KeyValueStore/MCKVSSafetySmall.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 115411.4,
+    "wall_ms_range": [
+     115114.1,
+     115442.4
+    ],
+    "peak_rss_median": 242737152,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      115114.1
+     ],
+     [
+      2,
+      "spot-3",
+      115411.4
+     ],
+     [
+      3,
+      "spot-4",
+      115442.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 40936.4,
+    "wall_ms_range": [
+     40257.3,
+     42991.6
+    ],
+    "peak_rss_median": 414732288,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      40257.3
+     ],
+     [
+      2,
+      "spot-3",
+      42991.6
+     ],
+     [
+      3,
+      "spot-4",
+      40936.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 24262.7,
+    "wall_ms_range": [
+     23785.8,
+     24689.2
+    ],
+    "peak_rss_median": 529543168,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      24689.2
+     ],
+     [
+      2,
+      "spot-3",
+      24262.7
+     ],
+     [
+      3,
+      "spot-4",
+      23785.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.82,
+   "speedup8": 4.76
+  },
+  "specifications/KeyValueStore/MCKVsnap.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 16918.8,
+    "wall_ms_range": [
+     16868.4,
+     16969.5
+    ],
+    "peak_rss_median": 127332352,
+    "stopped": 0,
+    "all_correct": false,
+    "registered_divergence": [
+     "symmetry-liveness-unreduced-mckvsnap"
+    ],
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      16969.5
+     ],
+     [
+      2,
+      "spot-3",
+      16918.8
+     ],
+     [
+      3,
+      "spot-4",
+      16868.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 66.9,
+    "wall_ms_range": [
+     66.8,
+     66.9
+    ],
+    "peak_rss_median": 35680256,
+    "stopped": 0,
+    "all_correct": false,
+    "all_correct_or_registered": false,
+    "workers_used": [
+     0
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      66.9
+     ],
+     [
+      2,
+      "spot-3",
+      66.8
+     ],
+     [
+      3,
+      "spot-4",
+      66.9
+     ]
+    ],
+    "verdicts": [
+     "unsupported"
+    ],
+    "unsupported": "refused at more than one worker: temporal properties: concrete pool capture with effects or runtime names (core); #1020"
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 66.6,
+    "wall_ms_range": [
+     66.5,
+     66.8
+    ],
+    "peak_rss_median": 36012032,
+    "stopped": 0,
+    "all_correct": false,
+    "all_correct_or_registered": false,
+    "workers_used": [
+     0
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      66.5
+     ],
+     [
+      2,
+      "spot-3",
+      66.8
+     ],
+     [
+      3,
+      "spot-4",
+      66.6
+     ]
+    ],
+    "verdicts": [
+     "unsupported"
+    ],
+    "unsupported": "refused at more than one worker: temporal properties: concrete pool capture with effects or runtime names (core); #1020"
+   },
+   "speedup4": null,
+   "speedup8": null
+  },
+  "specifications/LeastCircularSubstring/MCLeastCircularSubstringMedium.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 2047.8,
+    "wall_ms_range": [
+     2022.5,
+     2047.9
+    ],
+    "peak_rss_median": 75653120,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      2047.8
+     ],
+     [
+      2,
+      "od-4",
+      2022.5
+     ],
+     [
+      3,
+      "od-4",
+      2047.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 1144.9,
+    "wall_ms_range": [
+     1144.3,
+     1170.0
+    ],
+    "peak_rss_median": 144707584,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      1170.0
+     ],
+     [
+      2,
+      "od-4",
+      1144.9
+     ],
+     [
+      3,
+      "od-4",
+      1144.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 918.7,
+    "wall_ms_range": [
+     918.7,
+     919.4
+    ],
+    "peak_rss_median": 189173760,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      919.4
+     ],
+     [
+      2,
+      "od-4",
+      918.7
+     ],
+     [
+      3,
+      "od-4",
+      918.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.77,
+   "speedup8": 2.23
+  },
+  "specifications/MisraReachability/MCParReach.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 3301.5,
+    "wall_ms_range": [
+     3296.4,
+     3301.6
+    ],
+    "peak_rss_median": 103141376,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      3301.6
+     ],
+     [
+      2,
+      "spot-3",
+      3301.5
+     ],
+     [
+      3,
+      "spot-4",
+      3296.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 3151.3,
+    "wall_ms_range": [
+     3151.2,
+     3151.4
+    ],
+    "peak_rss_median": 103251968,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      3151.3
+     ],
+     [
+      2,
+      "spot-3",
+      3151.2
+     ],
+     [
+      3,
+      "spot-4",
+      3151.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 3151.2,
+    "wall_ms_range": [
+     3151.0,
+     3151.2
+    ],
+    "peak_rss_median": 102977536,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      3151.0
+     ],
+     [
+      2,
+      "spot-3",
+      3151.2
+     ],
+     [
+      3,
+      "spot-4",
+      3151.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.05,
+   "speedup8": 1.05
+  },
+  "specifications/MisraReachability/MCReachable.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 493.2,
+    "wall_ms_range": [
+     488.2,
+     493.3
+    ],
+    "peak_rss_median": 65732608,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      493.2
+     ],
+     [
+      2,
+      "od-3",
+      488.2
+     ],
+     [
+      3,
+      "spot-2",
+      493.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 493.0,
+    "wall_ms_range": [
+     492.8,
+     493.3
+    ],
+    "peak_rss_median": 65757184,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      493.0
+     ],
+     [
+      2,
+      "od-3",
+      492.8
+     ],
+     [
+      3,
+      "spot-2",
+      493.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 493.1,
+    "wall_ms_range": [
+     483.1,
+     493.2
+    ],
+    "peak_rss_median": 65753088,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      483.1
+     ],
+     [
+      2,
+      "od-3",
+      493.1
+     ],
+     [
+      3,
+      "spot-2",
+      493.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.0,
+   "speedup8": 1.0
+  },
+  "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 449803.4,
+    "wall_ms_range": [
+     449564.2,
+     450444.3
+    ],
+    "peak_rss_median": 117870592,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      449803.4
+     ],
+     [
+      2,
+      "spot-3",
+      450444.3
+     ],
+     [
+      3,
+      "spot-4",
+      449564.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 450864.3,
+    "wall_ms_range": [
+     450846.9,
+     450961.4
+    ],
+    "peak_rss_median": 131006464,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      450846.9
+     ],
+     [
+      2,
+      "spot-3",
+      450961.4
+     ],
+     [
+      3,
+      "spot-4",
+      450864.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 450789.2,
+    "wall_ms_range": [
+     450337.5,
+     450952.5
+    ],
+    "peak_rss_median": 139141120,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      450789.2
+     ],
+     [
+      2,
+      "spot-3",
+      450952.5
+     ],
+     [
+      3,
+      "spot-4",
+      450337.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.0,
+   "speedup8": 1.0
+  },
+  "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 6763.2,
+    "wall_ms_range": [
+     6738.5,
+     6763.2
+    ],
+    "peak_rss_median": 52830208,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      6738.5
+     ],
+     [
+      2,
+      "od-4",
+      6763.2
+     ],
+     [
+      3,
+      "od-4",
+      6763.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 6763.3,
+    "wall_ms_range": [
+     6738.4,
+     6763.3
+    ],
+    "peak_rss_median": 61005824,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      6763.3
+     ],
+     [
+      2,
+      "od-4",
+      6738.4
+     ],
+     [
+      3,
+      "od-4",
+      6763.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 6813.5,
+    "wall_ms_range": [
+     6788.7,
+     6863.6
+    ],
+    "peak_rss_median": 61014016,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      6788.7
+     ],
+     [
+      2,
+      "od-4",
+      6863.6
+     ],
+     [
+      3,
+      "od-4",
+      6813.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.0,
+   "speedup8": 0.99
+  },
+  "specifications/MultiCarElevator/ElevatorSafetyLarge.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 1488120.1,
+    "wall_ms_range": [
+     1487427.6,
+     1491045.3
+    ],
+    "peak_rss_median": 2526064640,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      1487427.6
+     ],
+     [
+      2,
+      "od-3",
+      1488120.1
+     ],
+     [
+      3,
+      "spot-4",
+      1491045.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 516681.7,
+    "wall_ms_range": [
+     512270.8,
+     524977.6
+    ],
+    "peak_rss_median": 2815619072,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      516681.7
+     ],
+     [
+      2,
+      "od-3",
+      512270.8
+     ],
+     [
+      3,
+      "spot-4",
+      524977.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 307022.1,
+    "wall_ms_range": [
+     306165.5,
+     308370.7
+    ],
+    "peak_rss_median": 3012526080,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      308370.7
+     ],
+     [
+      2,
+      "od-3",
+      306165.5
+     ],
+     [
+      3,
+      "spot-4",
+      307022.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.88,
+   "speedup8": 4.86
+  },
+  "specifications/MultiCarElevator/ElevatorSafetyMedium.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 520274.2,
+    "wall_ms_range": [
+     519530.8,
+     521030.1
+    ],
+    "peak_rss_median": 835719168,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      519530.8
+     ],
+     [
+      2,
+      "od-3",
+      521030.1
+     ],
+     [
+      3,
+      "spot-2",
+      520274.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 172346.3,
+    "wall_ms_range": [
+     172269.3,
+     172644.5
+    ],
+    "peak_rss_median": 1069465600,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      172269.3
+     ],
+     [
+      2,
+      "od-3",
+      172644.5
+     ],
+     [
+      3,
+      "spot-2",
+      172346.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 99558.1,
+    "wall_ms_range": [
+     99134.4,
+     99559.5
+    ],
+    "peak_rss_median": 1342504960,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      99558.1
+     ],
+     [
+      2,
+      "od-3",
+      99559.5
+     ],
+     [
+      3,
+      "spot-2",
+      99134.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.02,
+   "speedup8": 5.23
+  },
+  "specifications/MultiPaxos-SMR/MultiPaxos_MC.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 2617227.2,
+    "wall_ms_range": [
+     2610177.5,
+     2618517.6
+    ],
+    "peak_rss_median": 1935396864,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      2618517.6
+     ],
+     [
+      2,
+      "od-3",
+      2617227.2
+     ],
+     [
+      3,
+      "spot-5",
+      2610177.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 747250.4,
+    "wall_ms_range": [
+     746869.2,
+     753437.8
+    ],
+    "peak_rss_median": 2189176832,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      746869.2
+     ],
+     [
+      2,
+      "od-3",
+      747250.4
+     ],
+     [
+      3,
+      "spot-5",
+      753437.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 392938.7,
+    "wall_ms_range": [
+     392165.5,
+     393577.9
+    ],
+    "peak_rss_median": 2403610624,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      392165.5
+     ],
+     [
+      2,
+      "od-3",
+      393577.9
+     ],
+     [
+      3,
+      "spot-5",
+      392938.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.5,
+   "speedup8": 6.65
+  },
+  "specifications/MultiPaxos-SMR/MultiPaxos_MC_small.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 9444.6,
+    "wall_ms_range": [
+     9444.5,
+     9445.0
+    ],
+    "peak_rss_median": 87203840,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      9445.0
+     ],
+     [
+      2,
+      "spot-3",
+      9444.5
+     ],
+     [
+      3,
+      "spot-4",
+      9444.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 2950.7,
+    "wall_ms_range": [
+     2950.3,
+     2950.8
+    ],
+    "peak_rss_median": 224067584,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      2950.8
+     ],
+     [
+      2,
+      "spot-3",
+      2950.7
+     ],
+     [
+      3,
+      "spot-4",
+      2950.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 1646.4,
+    "wall_ms_range": [
+     1621.7,
+     1646.7
+    ],
+    "peak_rss_median": 314265600,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      1646.7
+     ],
+     [
+      2,
+      "spot-3",
+      1621.7
+     ],
+     [
+      3,
+      "spot-4",
+      1646.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.2,
+   "speedup8": 5.74
+  },
+  "specifications/NanoBlockchain/MCNanoLarge.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 2444443.2,
+    "wall_ms_range": [
+     2442385.0,
+     2447709.8
+    ],
+    "peak_rss_median": 14512975872,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      2447709.8
+     ],
+     [
+      2,
+      "spot-1",
+      2444443.2
+     ],
+     [
+      3,
+      "spot-2",
+      2442385.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 841488.8,
+    "wall_ms_range": [
+     833500.8,
+     845803.2
+    ],
+    "peak_rss_median": 14556479488,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      845803.2
+     ],
+     [
+      2,
+      "spot-1",
+      841488.8
+     ],
+     [
+      3,
+      "spot-2",
+      833500.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 505041.5,
+    "wall_ms_range": [
+     502544.5,
+     508713.4
+    ],
+    "peak_rss_median": 14708436992,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      508713.4
+     ],
+     [
+      2,
+      "spot-1",
+      505041.5
+     ],
+     [
+      3,
+      "spot-2",
+      502544.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.9,
+   "speedup8": 4.84
+  },
+  "specifications/NanoBlockchain/MCNanoMedium.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 8842.7,
+    "wall_ms_range": [
+     8842.6,
+     8842.8
+    ],
+    "peak_rss_median": 184430592,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      8842.7
+     ],
+     [
+      2,
+      "od-4",
+      8842.8
+     ],
+     [
+      3,
+      "od-4",
+      8842.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 2900.5,
+    "wall_ms_range": [
+     2850.4,
+     2925.4
+    ],
+    "peak_rss_median": 334110720,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      2925.4
+     ],
+     [
+      2,
+      "od-4",
+      2900.5
+     ],
+     [
+      3,
+      "od-4",
+      2850.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 1672.0,
+    "wall_ms_range": [
+     1672.0,
+     1672.2
+    ],
+    "peak_rss_median": 446865408,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      1672.0
+     ],
+     [
+      2,
+      "od-4",
+      1672.2
+     ],
+     [
+      3,
+      "od-4",
+      1672.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.05,
+   "speedup8": 5.29
+  },
+  "specifications/PaxosHowToWinATuringAward/MCPaxosSmall.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 55444.1,
+    "wall_ms_range": [
+     55443.8,
+     55468.3
+    ],
+    "peak_rss_median": 96624640,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      55443.8
+     ],
+     [
+      2,
+      "od-3",
+      55468.3
+     ],
+     [
+      3,
+      "spot-2",
+      55444.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 15161.5,
+    "wall_ms_range": [
+     15086.1,
+     15236.5
+    ],
+    "peak_rss_median": 194195456,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      15161.5
+     ],
+     [
+      2,
+      "od-3",
+      15236.5
+     ],
+     [
+      3,
+      "spot-2",
+      15086.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 7814.9,
+    "wall_ms_range": [
+     7764.5,
+     7864.9
+    ],
+    "peak_rss_median": 244310016,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      7814.9
+     ],
+     [
+      2,
+      "od-3",
+      7764.5
+     ],
+     [
+      3,
+      "spot-2",
+      7864.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.66,
+   "speedup8": 7.09
+  },
+  "specifications/SimplifiedFastPaxos/FastPaxos.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 18123.9,
+    "wall_ms_range": [
+     18098.0,
+     18123.9
+    ],
+    "peak_rss_median": 43937792,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      18123.9
+     ],
+     [
+      2,
+      "spot-3",
+      18098.0
+     ],
+     [
+      3,
+      "spot-4",
+      18123.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 4830.6,
+    "wall_ms_range": [
+     4830.1,
+     4831.0
+    ],
+    "peak_rss_median": 125202432,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      4830.6
+     ],
+     [
+      2,
+      "spot-3",
+      4830.1
+     ],
+     [
+      3,
+      "spot-4",
+      4831.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 2473.6,
+    "wall_ms_range": [
+     2473.5,
+     2499.1
+    ],
+    "peak_rss_median": 210558976,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      2473.6
+     ],
+     [
+      2,
+      "spot-3",
+      2473.5
+     ],
+     [
+      3,
+      "spot-4",
+      2499.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.75,
+   "speedup8": 7.32
+  },
+  "specifications/SlushProtocol/SlushLarge.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 3570106.4,
+    "wall_ms_range": [
+     3570090.1,
+     3570110.4
+    ],
+    "peak_rss_median": 6335111168,
+    "stopped": 3,
+    "all_correct": false,
+    "all_correct_or_registered": false,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-1",
+      3570090.1
+     ],
+     [
+      2,
+      "od-1",
+      3570106.4
+     ],
+     [
+      3,
+      "spot-5",
+      3570110.4
+     ]
+    ],
+    "verdicts": [
+     "stopped"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 2307938.8,
+    "wall_ms_range": [
+     2289687.7,
+     2340546.0
+    ],
+    "peak_rss_median": 10860138496,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-1",
+      2307938.8
+     ],
+     [
+      2,
+      "od-1",
+      2289687.7
+     ],
+     [
+      3,
+      "spot-1",
+      2340546.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 1316446.5,
+    "wall_ms_range": [
+     1305534.0,
+     1323991.6
+    ],
+    "peak_rss_median": 11004522496,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-1",
+      1316446.5
+     ],
+     [
+      2,
+      "od-1",
+      1305534.0
+     ],
+     [
+      3,
+      "spot-2",
+      1323991.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.55,
+   "speedup4_is_lower_bound": true,
+   "speedup8": 2.71,
+   "speedup8_is_lower_bound": true
+  },
+  "specifications/SlushProtocol/SlushMedium.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 163774.7,
+    "wall_ms_range": [
+     163440.9,
+     163882.3
+    ],
+    "peak_rss_median": 431259648,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      163882.3
+     ],
+     [
+      2,
+      "spot-3",
+      163774.7
+     ],
+     [
+      3,
+      "spot-4",
+      163440.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 59529.4,
+    "wall_ms_range": [
+     58763.3,
+     60993.4
+    ],
+    "peak_rss_median": 564989952,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      60993.4
+     ],
+     [
+      2,
+      "spot-3",
+      59529.4
+     ],
+     [
+      3,
+      "spot-4",
+      58763.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 35595.6,
+    "wall_ms_range": [
+     35415.6,
+     35947.8
+    ],
+    "peak_rss_median": 681201664,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      35595.6
+     ],
+     [
+      2,
+      "spot-3",
+      35415.6
+     ],
+     [
+      3,
+      "spot-4",
+      35947.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.75,
+   "speedup8": 4.6
+  },
+  "specifications/SpanningTree/SpanTreeRandom.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 7139.1,
+    "wall_ms_range": [
+     7134.3,
+     7139.3
+    ],
+    "peak_rss_median": 75538432,
+    "stopped": 0,
+    "all_correct": false,
+    "registered_divergence": [
+     "d002-spantreerandom-default-streams"
+    ],
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      7139.3
+     ],
+     [
+      2,
+      "od-3",
+      7134.3
+     ],
+     [
+      3,
+      "spot-2",
+      7139.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 66.7,
+    "wall_ms_range": [
+     56.5,
+     66.9
+    ],
+    "peak_rss_median": 23040000,
+    "stopped": 0,
+    "all_correct": false,
+    "all_correct_or_registered": false,
+    "workers_used": [
+     0
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      66.9
+     ],
+     [
+      2,
+      "od-3",
+      56.5
+     ],
+     [
+      3,
+      "spot-2",
+      66.7
+     ]
+    ],
+    "verdicts": [
+     "unsupported"
+    ],
+    "unsupported": "refused at more than one worker: temporal properties: concrete pool capture with effects or runtime names (core); #1020"
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 66.7,
+    "wall_ms_range": [
+     56.7,
+     66.8
+    ],
+    "peak_rss_median": 23162880,
+    "stopped": 0,
+    "all_correct": false,
+    "all_correct_or_registered": false,
+    "workers_used": [
+     0
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      66.7
+     ],
+     [
+      2,
+      "od-3",
+      66.8
+     ],
+     [
+      3,
+      "spot-2",
+      56.7
+     ]
+    ],
+    "verdicts": [
+     "unsupported"
+    ],
+    "unsupported": "refused at more than one worker: temporal properties: concrete pool capture with effects or runtime names (core); #1020"
+   },
+   "speedup4": null,
+   "speedup8": null
+  },
+  "specifications/SpanningTree/SpanTreeTest5Nodes.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 113178.7,
+    "wall_ms_range": [
+     113149.9,
+     113226.5
+    ],
+    "peak_rss_median": 249896960,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      113149.9
+     ],
+     [
+      2,
+      "spot-3",
+      113226.5
+     ],
+     [
+      3,
+      "spot-4",
+      113178.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 111560.3,
+    "wall_ms_range": [
+     111358.4,
+     111708.6
+    ],
+    "peak_rss_median": 267190272,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      111560.3
+     ],
+     [
+      2,
+      "spot-3",
+      111708.6
+     ],
+     [
+      3,
+      "spot-4",
+      111358.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 113289.3,
+    "wall_ms_range": [
+     113239.1,
+     113412.0
+    ],
+    "peak_rss_median": 253018112,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      113239.1
+     ],
+     [
+      2,
+      "spot-3",
+      113412.0
+     ],
+     [
+      3,
+      "spot-4",
+      113289.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.01,
+   "speedup8": 1.0
+  },
+  "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 4355.7,
+    "wall_ms_range": [
+     4355.5,
+     4380.9
+    ],
+    "peak_rss_median": 44441600,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      4355.7
+     ],
+     [
+      2,
+      "od-3",
+      4355.5
+     ],
+     [
+      3,
+      "spot-2",
+      4380.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 2549.7,
+    "wall_ms_range": [
+     2549.6,
+     2549.9
+    ],
+    "peak_rss_median": 63442944,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      2549.7
+     ],
+     [
+      2,
+      "od-3",
+      2549.6
+     ],
+     [
+      3,
+      "spot-2",
+      2549.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 2098.5,
+    "wall_ms_range": [
+     2098.4,
+     2098.5
+    ],
+    "peak_rss_median": 82460672,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      2098.5
+     ],
+     [
+      2,
+      "od-3",
+      2098.4
+     ],
+     [
+      3,
+      "spot-2",
+      2098.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.71,
+   "speedup8": 2.08
+  },
+  "specifications/aba-asyn-byz/aba_asyn_byz.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 518656.1,
+    "wall_ms_range": [
+     518123.3,
+     520109.7
+    ],
+    "peak_rss_median": 4742111232,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      520109.7
+     ],
+     [
+      2,
+      "od-3",
+      518656.1
+     ],
+     [
+      3,
+      "spot-3",
+      518123.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 575684.4,
+    "wall_ms_range": [
+     574040.2,
+     576036.0
+    ],
+    "peak_rss_median": 4770975744,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      576036.0
+     ],
+     [
+      2,
+      "od-3",
+      575684.4
+     ],
+     [
+      3,
+      "spot-3",
+      574040.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 619484.8,
+    "wall_ms_range": [
+     616624.9,
+     621250.1
+    ],
+    "peak_rss_median": 4794986496,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      621250.1
+     ],
+     [
+      2,
+      "od-3",
+      619484.8
+     ],
+     [
+      3,
+      "spot-3",
+      616624.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 0.9,
+   "speedup8": 0.84
+  },
+  "specifications/bcastByz/bcastByz.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 4506.2,
+    "wall_ms_range": [
+     4506.0,
+     4506.2
+    ],
+    "peak_rss_median": 65236992,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      4506.2
+     ],
+     [
+      2,
+      "od-4",
+      4506.0
+     ],
+     [
+      3,
+      "od-4",
+      4506.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 3953.8,
+    "wall_ms_range": [
+     3953.7,
+     3953.9
+    ],
+    "peak_rss_median": 79826944,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      3953.9
+     ],
+     [
+      2,
+      "od-4",
+      3953.8
+     ],
+     [
+      3,
+      "od-4",
+      3953.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 3853.4,
+    "wall_ms_range": [
+     3853.3,
+     3853.5
+    ],
+    "peak_rss_median": 86519808,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      3853.5
+     ],
+     [
+      2,
+      "od-4",
+      3853.4
+     ],
+     [
+      3,
+      "od-4",
+      3853.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.14,
+   "speedup8": 1.17
+  },
+  "specifications/bcastFolklore/bcastFolklore.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 633023.6,
+    "wall_ms_range": [
+     631964.3,
+     636316.5
+    ],
+    "peak_rss_median": 1086763008,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      633023.6
+     ],
+     [
+      2,
+      "od-4",
+      631964.3
+     ],
+     [
+      3,
+      "od-4",
+      636316.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 630347.3,
+    "wall_ms_range": [
+     628950.5,
+     634731.3
+    ],
+    "peak_rss_median": 1089470464,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      628950.5
+     ],
+     [
+      2,
+      "od-4",
+      630347.3
+     ],
+     [
+      3,
+      "od-4",
+      634731.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 630124.3,
+    "wall_ms_range": [
+     629744.1,
+     630366.5
+    ],
+    "peak_rss_median": 1083269120,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      629744.1
+     ],
+     [
+      2,
+      "od-4",
+      630124.3
+     ],
+     [
+      3,
+      "od-4",
+      630366.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.0,
+   "speedup8": 1.01
+  },
+  "specifications/bosco/bosco.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 305430.1,
+    "wall_ms_range": [
+     304166.6,
+     305464.9
+    ],
+    "peak_rss_median": 136572928,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      305430.1
+     ],
+     [
+      2,
+      "od-4",
+      304166.6
+     ],
+     [
+      3,
+      "od-4",
+      305464.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 83836.6,
+    "wall_ms_range": [
+     82658.9,
+     84687.9
+    ],
+    "peak_rss_median": 368738304,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      84687.9
+     ],
+     [
+      2,
+      "od-4",
+      82658.9
+     ],
+     [
+      3,
+      "od-4",
+      83836.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 42666.4,
+    "wall_ms_range": [
+     42591.3,
+     42668.1
+    ],
+    "peak_rss_median": 582975488,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      42666.4
+     ],
+     [
+      2,
+      "od-4",
+      42668.1
+     ],
+     [
+      3,
+      "od-4",
+      42591.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.64,
+   "speedup8": 7.16
+  },
+  "specifications/braf/BufferedRandomAccessFile.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 19027.3,
+    "wall_ms_range": [
+     19002.5,
+     19027.5
+    ],
+    "peak_rss_median": 38076416,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      19002.5
+     ],
+     [
+      2,
+      "od-3",
+      19027.3
+     ],
+     [
+      3,
+      "spot-2",
+      19027.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 5156.7,
+    "wall_ms_range": [
+     5131.8,
+     5156.8
+    ],
+    "peak_rss_median": 94515200,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      5156.8
+     ],
+     [
+      2,
+      "od-3",
+      5156.7
+     ],
+     [
+      3,
+      "spot-2",
+      5131.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 2674.6,
+    "wall_ms_range": [
+     2649.5,
+     2674.7
+    ],
+    "peak_rss_median": 162201600,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      2649.5
+     ],
+     [
+      2,
+      "od-3",
+      2674.6
+     ],
+     [
+      3,
+      "spot-2",
+      2674.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.69,
+   "speedup8": 7.11
+  },
+  "specifications/btree/MCbtree.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 5508.5,
+    "wall_ms_range": [
+     5507.9,
+     5533.2
+    ],
+    "peak_rss_median": 60358656,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      5508.5
+     ],
+     [
+      2,
+      "od-3",
+      5507.9
+     ],
+     [
+      3,
+      "spot-2",
+      5533.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 2098.1,
+    "wall_ms_range": [
+     2048.0,
+     2118.0
+    ],
+    "peak_rss_median": 176431104,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      2098.1
+     ],
+     [
+      2,
+      "od-3",
+      2048.0
+     ],
+     [
+      3,
+      "spot-2",
+      2118.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 1220.5,
+    "wall_ms_range": [
+     1195.4,
+     1220.5
+    ],
+    "peak_rss_median": 212160512,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      1220.5
+     ],
+     [
+      2,
+      "od-3",
+      1220.5
+     ],
+     [
+      3,
+      "spot-2",
+      1195.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.63,
+   "speedup8": 4.51
+  },
+  "specifications/byzpaxos/PConProof.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 845566.6,
+    "wall_ms_range": [
+     844835.1,
+     847861.9
+    ],
+    "peak_rss_median": 356659200,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      847861.9
+     ],
+     [
+      2,
+      "od-4",
+      845566.6
+     ],
+     [
+      3,
+      "od-4",
+      844835.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 219408.4,
+    "wall_ms_range": [
+     216469.5,
+     220538.7
+    ],
+    "peak_rss_median": 1228505088,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      216469.5
+     ],
+     [
+      2,
+      "od-4",
+      220538.7
+     ],
+     [
+      3,
+      "od-4",
+      219408.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 110791.8,
+    "wall_ms_range": [
+     110589.4,
+     110989.1
+    ],
+    "peak_rss_median": 1837199360,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      110989.1
+     ],
+     [
+      2,
+      "od-4",
+      110791.8
+     ],
+     [
+      3,
+      "od-4",
+      110589.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.85,
+   "speedup8": 7.64
+  },
+  "specifications/byzpaxos/VoteProof.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 869.4,
+    "wall_ms_range": [
+     844.4,
+     869.6
+    ],
+    "peak_rss_median": 48635904,
+    "stopped": 0,
+    "all_correct": false,
+    "registered_divergence": [
+     "d029-voteproof"
+    ],
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      844.4
+     ],
+     [
+      2,
+      "spot-3",
+      869.4
+     ],
+     [
+      3,
+      "spot-4",
+      869.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 387.9,
+    "wall_ms_range": [
+     387.8,
+     393.0
+    ],
+    "peak_rss_median": 97038336,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      387.9
+     ],
+     [
+      2,
+      "spot-3",
+      393.0
+     ],
+     [
+      3,
+      "spot-4",
+      387.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 262.5,
+    "wall_ms_range": [
+     262.5,
+     267.5
+    ],
+    "peak_rss_median": 111681536,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      262.5
+     ],
+     [
+      2,
+      "spot-3",
+      267.5
+     ],
+     [
+      3,
+      "spot-4",
+      262.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.21,
+   "speedup8": 3.25
+  },
+  "specifications/cf1s-folklore/cf1s_folklore.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 177664.6,
+    "wall_ms_range": [
+     177491.5,
+     177722.5
+    ],
+    "peak_rss_median": 1327935488,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      177491.5
+     ],
+     [
+      2,
+      "spot-3",
+      177664.6
+     ],
+     [
+      3,
+      "spot-4",
+      177722.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 198679.7,
+    "wall_ms_range": [
+     198427.3,
+     199552.4
+    ],
+    "peak_rss_median": 1338490880,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      199552.4
+     ],
+     [
+      2,
+      "spot-3",
+      198679.7
+     ],
+     [
+      3,
+      "spot-4",
+      198427.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 215393.2,
+    "wall_ms_range": [
+     215366.3,
+     216623.0
+    ],
+    "peak_rss_median": 1346686976,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      216623.0
+     ],
+     [
+      2,
+      "spot-3",
+      215366.3
+     ],
+     [
+      3,
+      "spot-4",
+      215393.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 0.89,
+   "speedup8": 0.82
+  },
+  "specifications/dag-consensus/TLCSailfish1.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 39643.2,
+    "wall_ms_range": [
+     39517.5,
+     39668.9
+    ],
+    "peak_rss_median": 79638528,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      39643.2
+     ],
+     [
+      2,
+      "od-3",
+      39517.5
+     ],
+     [
+      3,
+      "spot-2",
+      39668.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 10924.0,
+    "wall_ms_range": [
+     10899.2,
+     10948.6
+    ],
+    "peak_rss_median": 156995584,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      10924.0
+     ],
+     [
+      2,
+      "od-3",
+      10948.6
+     ],
+     [
+      3,
+      "spot-2",
+      10899.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 5608.2,
+    "wall_ms_range": [
+     5608.1,
+     5608.4
+    ],
+    "peak_rss_median": 241414144,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      5608.1
+     ],
+     [
+      2,
+      "od-3",
+      5608.2
+     ],
+     [
+      3,
+      "spot-2",
+      5608.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.63,
+   "speedup8": 7.07
+  },
+  "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 7038.8,
+    "wall_ms_range": [
+     7038.8,
+     7039.1
+    ],
+    "peak_rss_median": 107409408,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      7038.8
+     ],
+     [
+      2,
+      "od-4",
+      7038.8
+     ],
+     [
+      3,
+      "od-4",
+      7039.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 8015.7,
+    "wall_ms_range": [
+     7990.4,
+     8015.7
+    ],
+    "peak_rss_median": 111169536,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      8015.7
+     ],
+     [
+      2,
+      "od-4",
+      8015.7
+     ],
+     [
+      3,
+      "od-4",
+      7990.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 8817.2,
+    "wall_ms_range": [
+     8717.3,
+     8867.5
+    ],
+    "peak_rss_median": 109178880,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      8717.3
+     ],
+     [
+      2,
+      "od-4",
+      8817.2
+     ],
+     [
+      3,
+      "od-4",
+      8867.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 0.88,
+   "speedup8": 0.8
+  },
+  "specifications/dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 270199.4,
+    "wall_ms_range": [
+     269446.5,
+     271179.5
+    ],
+    "peak_rss_median": 1400614912,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      271179.5
+     ],
+     [
+      2,
+      "spot-3",
+      270199.4
+     ],
+     [
+      3,
+      "spot-4",
+      269446.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 142005.5,
+    "wall_ms_range": [
+     135512.6,
+     142556.0
+    ],
+    "peak_rss_median": 1588641792,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      142005.5
+     ],
+     [
+      2,
+      "spot-3",
+      142556.0
+     ],
+     [
+      3,
+      "spot-4",
+      135512.6
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 84642.8,
+    "wall_ms_range": [
+     84488.8,
+     85725.0
+    ],
+    "peak_rss_median": 1766264832,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      84488.8
+     ],
+     [
+      2,
+      "spot-3",
+      85725.0
+     ],
+     [
+      3,
+      "spot-4",
+      84642.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.91,
+   "speedup8": 3.18
+  },
+  "specifications/ewd998/EWD998Chan.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 962044.5,
+    "wall_ms_range": [
+     921493.4,
+     962595.0
+    ],
+    "peak_rss_median": 918110208,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      921493.4
+     ],
+     [
+      2,
+      "spot-3",
+      962595.0
+     ],
+     [
+      3,
+      "spot-4",
+      962044.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 864811.9,
+    "wall_ms_range": [
+     864338.7,
+     868166.2
+    ],
+    "peak_rss_median": 898097152,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      864338.7
+     ],
+     [
+      2,
+      "spot-3",
+      868166.2
+     ],
+     [
+      3,
+      "spot-4",
+      864811.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 856728.0,
+    "wall_ms_range": [
+     856578.1,
+     862595.2
+    ],
+    "peak_rss_median": 912248832,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      856578.1
+     ],
+     [
+      2,
+      "spot-3",
+      856728.0
+     ],
+     [
+      3,
+      "spot-4",
+      862595.2
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 1.11,
+   "speedup8": 1.12
+  },
+  "specifications/ewd998/EWD998PCal.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 15089.7,
+    "wall_ms_range": [
+     15084.9,
+     15089.7
+    ],
+    "peak_rss_median": 48599040,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      15089.7
+     ],
+     [
+      2,
+      "od-3",
+      15089.7
+     ],
+     [
+      3,
+      "spot-2",
+      15084.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 4755.9,
+    "wall_ms_range": [
+     4705.4,
+     4781.0
+    ],
+    "peak_rss_median": 153690112,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      4781.0
+     ],
+     [
+      2,
+      "od-3",
+      4755.9
+     ],
+     [
+      3,
+      "spot-2",
+      4705.4
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 2599.5,
+    "wall_ms_range": [
+     2599.4,
+     2624.4
+    ],
+    "peak_rss_median": 214700032,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      2624.4
+     ],
+     [
+      2,
+      "od-3",
+      2599.4
+     ],
+     [
+      3,
+      "spot-2",
+      2599.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.17,
+   "speedup8": 5.8
+  },
+  "specifications/ewd998/EWD998Small.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 21104.5,
+    "wall_ms_range": [
+     21104.4,
+     21153.9
+    ],
+    "peak_rss_median": 84246528,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      21153.9
+     ],
+     [
+      2,
+      "spot-3",
+      21104.4
+     ],
+     [
+      3,
+      "spot-4",
+      21104.5
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 8767.1,
+    "wall_ms_range": [
+     8740.4,
+     8917.8
+    ],
+    "peak_rss_median": 198557696,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      8740.4
+     ],
+     [
+      2,
+      "spot-3",
+      8917.8
+     ],
+     [
+      3,
+      "spot-4",
+      8767.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 5106.7,
+    "wall_ms_range": [
+     5056.7,
+     5130.4
+    ],
+    "peak_rss_median": 289648640,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-2",
+      5130.4
+     ],
+     [
+      2,
+      "spot-3",
+      5056.7
+     ],
+     [
+      3,
+      "spot-4",
+      5106.7
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.41,
+   "speedup8": 4.13
+  },
+  "specifications/lamport_mutex/MCLamportMutex.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 12472.9,
+    "wall_ms_range": [
+     12423.0,
+     12503.1
+    ],
+    "peak_rss_median": 112885760,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      12472.9
+     ],
+     [
+      2,
+      "od-3",
+      12503.1
+     ],
+     [
+      3,
+      "spot-2",
+      12423.0
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 5508.1,
+    "wall_ms_range": [
+     5482.8,
+     5583.2
+    ],
+    "peak_rss_median": 211066880,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      5508.1
+     ],
+     [
+      2,
+      "od-3",
+      5583.2
+     ],
+     [
+      3,
+      "spot-2",
+      5482.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 3076.1,
+    "wall_ms_range": [
+     3076.1,
+     3120.8
+    ],
+    "peak_rss_median": 302194688,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-3",
+      3076.1
+     ],
+     [
+      2,
+      "od-3",
+      3120.8
+     ],
+     [
+      3,
+      "spot-2",
+      3076.1
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 2.26,
+   "speedup8": 4.04
+  },
+  "specifications/transaction_commit/PaxosCommit.cfg": {
+   "w1": {
+    "reps": 3,
+    "wall_ms_median": 77919.9,
+    "wall_ms_range": [
+     77919.4,
+     78047.6
+    ],
+    "peak_rss_median": 308961280,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     1
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      78047.6
+     ],
+     [
+      2,
+      "od-4",
+      77919.4
+     ],
+     [
+      3,
+      "od-4",
+      77919.9
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w4": {
+    "reps": 3,
+    "wall_ms_median": 24438.3,
+    "wall_ms_range": [
+     23987.3,
+     24563.6
+    ],
+    "peak_rss_median": 486232064,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     4
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      23987.3
+     ],
+     [
+      2,
+      "od-4",
+      24563.6
+     ],
+     [
+      3,
+      "od-4",
+      24438.3
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "w8": {
+    "reps": 3,
+    "wall_ms_median": 13456.8,
+    "wall_ms_range": [
+     13351.0,
+     13481.6
+    ],
+    "peak_rss_median": 555368448,
+    "stopped": 0,
+    "all_correct": true,
+    "all_correct_or_registered": true,
+    "workers_used": [
+     8
+    ],
+    "runs_rep_node_wall_ms": [
+     [
+      1,
+      "od-4",
+      13481.6
+     ],
+     [
+      2,
+      "od-4",
+      13351.0
+     ],
+     [
+      3,
+      "od-4",
+      13456.8
+     ]
+    ],
+    "verdicts": [
+     "success"
+    ]
+   },
+   "speedup4": 3.19,
+   "speedup8": 5.79
+  }
+ }
+}
