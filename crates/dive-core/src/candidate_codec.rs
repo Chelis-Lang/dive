@@ -11,13 +11,13 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-const MAGIC: &[u8; 8] = b"DIVECD01";
+const MAGIC: &[u8; 8] = b"DIVECD02";
+/// The previous format, whose nodes carried a retired construction-origin word.
+const LEGACY_MAGIC: &[u8; 8] = b"DIVECD01";
 const HEADER: usize = 32;
-const NODE_HEADER: usize = 42;
+const NODE_HEADER: usize = 34;
 const REFERENCE: usize = 9;
 const MAX_DEPTH: usize = 128;
-/// Legacy report limit retained for schema stability; canonical records use zero.
-pub const MAX_ORIGIN_INDEX_BYTES: usize = 1024 * 1024;
 static NEXT: AtomicU64 = AtomicU64::new(1);
 
 fn invalid(message: impl std::fmt::Display) -> Error {
@@ -51,11 +51,11 @@ impl CandidateCodec {
     /// Copies closed local roots into an owned child-first DAG without promotion.
     ///
     /// Existing persistent subtrees remain checked references to this live Store.
-    /// Byte limits bound traversal/deduplication scratch. No new evaluation,
-    /// normalization demand or persistent origin allocation is performed.
+    /// Byte limits bound traversal/deduplication scratch. No new evaluation or
+    /// normalization demand is performed.
     ///
     /// # Errors
-    /// A foreign/stale/lazy value, legacy history, nesting/byte limit or allocation.
+    /// A foreign/stale/lazy value, nesting/byte limit or allocation.
     pub fn encode(
         &self,
         heap: &mut Heap,
@@ -101,10 +101,10 @@ impl CandidateCodec {
 
     /// Imports one unchanged record only when ordered commit consumes it.
     ///
-    /// Shared children retain their aliases. Legacy constructor origins are refused.
+    /// Shared children retain their aliases. A `DIVECD01` record is refused by name.
     ///
     /// # Errors
-    /// Invalid format, owner, shape, reference, allocation or construction origin.
+    /// Invalid format, owner, shape, reference or allocation.
     pub fn decode(
         &mut self,
         heap: &mut Heap,
@@ -116,13 +116,19 @@ impl CandidateCodec {
             return Err(invalid("record exceeds byte bound"));
         }
         let mut input = Read { bytes, at: 0 };
-        if input.take(8)? != MAGIC || input.word()? != self.token {
+        let magic = input.take(8)?;
+        if magic == LEGACY_MAGIC {
+            return Err(invalid(
+                "format DIVECD01 (legacy construction history) is no longer read",
+            ));
+        }
+        if magic != MAGIC || input.word()? != self.token {
             return Err(invalid("version or lifetime owner mismatch"));
         }
         let count = input.count(NODE_HEADER)?;
         let roots = input.count(REFERENCE)?;
-        // Reject obsolete metadata across the whole record before any valid
-        // prefix can promote nodes. The normal pass retains shape/reference checks.
+        // Check framing and representation flags across the whole record before
+        // any valid prefix can promote nodes. The normal pass checks shape/references.
         let mut metadata = Read {
             bytes,
             at: input.at,
@@ -132,9 +138,8 @@ impl CandidateCodec {
             metadata.take(1)?; // kind
             let fl = metadata.take(1)?[0];
             metadata.take(3 * 8)?; // lo, hash, sum
-            let origin = metadata.word()?;
-            if fl & flags::HISTORY != 0 || origin != 0 {
-                return Err(invalid("legacy construction history"));
+            if fl & !flags::VIEW != 0 {
+                return Err(invalid("unknown representation flags"));
             }
             let len = metadata.count(REFERENCE)?;
             metadata.take(len * REFERENCE)?;
@@ -152,7 +157,6 @@ impl CandidateCodec {
             let lo = input.word()?.cast_signed();
             let hash = input.word()?;
             let sum = input.word()?;
-            let origin = input.word()?;
             let len = input.count(REFERENCE)?;
             let mut children = Vec::new();
             children.try_reserve_exact(len).map_err(invalid)?;
@@ -160,7 +164,7 @@ impl CandidateCodec {
                 heap.work_poll()?;
                 children.push(input.reference(&self.store, &nodes)?);
             }
-            shape(kind, fl, lo, origin, &children)?;
+            shape(kind, fl, lo, &children)?;
             let handle = self
                 .store
                 .intern(&mut heap.cache, kind, fl, lo, hash, sum, &children);
@@ -177,12 +181,6 @@ impl CandidateCodec {
         }
         self.owner(heap)?;
         Ok(values)
-    }
-
-    /// Retained legacy report metric. Canonical candidates allocate no origins.
-    #[must_use]
-    pub const fn origin_index_bytes(&self) -> usize {
-        0
     }
 
     fn owner(&self, heap: &Heap) -> Result<(), Error> {
@@ -245,7 +243,6 @@ impl Write {
         if depth >= MAX_DEPTH {
             return Err(Error::unsupported("candidate payload nesting exceeds 128"));
         }
-        let origin = 0;
         if let Some(&value) = self.nodes.get(&value) {
             return Ok(Reference { local: true, value });
         }
@@ -255,9 +252,6 @@ impl Write {
             .ok_or_else(|| invalid("stale Arena value"))?;
         if view.is_lazy() || view.kind.is_lazy() {
             return Err(invalid("unclosed lazy value"));
-        }
-        if view.flags & flags::HISTORY != 0 {
-            return Err(invalid("unowned construction history"));
         }
         let scratch = view
             .data
@@ -297,7 +291,6 @@ impl Write {
         self.word(lo.cast_unsigned())?;
         self.word(hash)?;
         self.word(sum)?;
-        self.word(origin)?;
         self.word(refs.len() as u64)?;
         for reference in refs {
             self.reference(reference)?;
@@ -374,8 +367,8 @@ fn checked(store: &Store, bits: u64) -> Result<Handle, Error> {
             let view = store
                 .retained_view(handle)
                 .ok_or_else(|| invalid("unknown persistent coordinate"))?;
-            if view.is_lazy() || view.kind.is_lazy() || view.flags & flags::HISTORY != 0 {
-                Err(invalid("lazy or unowned persistent value"))
+            if view.is_lazy() || view.kind.is_lazy() {
+                Err(invalid("lazy persistent value"))
             } else {
                 Ok(handle)
             }
@@ -384,13 +377,7 @@ fn checked(store: &Store, bits: u64) -> Result<Handle, Error> {
     }
 }
 
-pub(crate) fn shape(
-    kind: Kind,
-    fl: u8,
-    lo: i64,
-    origin: u64,
-    data: &[Handle],
-) -> Result<(), Error> {
+pub(crate) fn shape(kind: Kind, fl: u8, lo: i64, data: &[Handle]) -> Result<(), Error> {
     let len = data.len();
     if data.iter().any(|h| h.is_empty())
         || fl & !flags::VIEW != 0
@@ -403,8 +390,6 @@ pub(crate) fn shape(
         || fl & flags::TUPLE != 0 && (kind != Kind::IntFcn || lo != 1)
         || fl & flags::RECORD != 0 && kind != Kind::Fcn
         || fl & flags::UNNORM != 0 && kind != Kind::SetEnum
-        || fl & flags::HISTORY != 0
-        || origin != 0
         || kind == Kind::BigInt
             && (len == 0
                 || !matches!(lo, -1 | 1)
@@ -467,7 +452,7 @@ mod tests {
     }
 
     #[test]
-    fn canonical_candidates_keep_zero_origins_and_reject_legacy_history() {
+    fn candidates_refuse_the_legacy_format_and_unknown_flags() {
         for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
             let store = Arc::new(Store::with_semantics(true, semantics));
             let mut heap = Heap::new(Arc::clone(&store), false, false);
@@ -475,28 +460,30 @@ mod tests {
             let one = Handle::int(1).unwrap();
             let value = heap.canonical_test_set(&[one, Handle::TRUE, one]).unwrap();
             let bytes = codec.encode(&mut heap, &[value, value], 4096).unwrap();
-            assert_eq!(&bytes[58..66], &[0; 8], "legacy origin field is zero");
+            assert_eq!(&bytes[..8], b"DIVECD02");
             heap.reset();
-            for (at, byte) in [(58, 1), (33, flags::HISTORY)] {
-                let mut forged = bytes.clone();
-                forged[at] = byte;
-                let before = store.stats().nodes;
-                assert!(codec.decode(&mut heap, &forged, 4096).is_err());
-                assert_eq!(
-                    store.stats().nodes,
-                    before,
-                    "invalid origin cannot promote nodes"
-                );
-            }
+            let mut legacy = bytes.clone();
+            legacy[..8].copy_from_slice(LEGACY_MAGIC);
+            let error = codec.decode(&mut heap, &legacy, 4096).unwrap_err();
+            assert!(error.message().contains("format DIVECD01"));
+            // Byte 33 is the first node's flags; 32 is the retired history bit.
+            let mut forged = bytes.clone();
+            forged[33] |= 32;
+            let before = store.stats().nodes;
+            assert!(codec.decode(&mut heap, &forged, 4096).is_err());
+            assert_eq!(
+                store.stats().nodes,
+                before,
+                "invalid flags cannot promote nodes"
+            );
             let roots = codec.decode(&mut heap, &bytes, 4096).unwrap();
             assert_eq!(roots[0], roots[1]);
             assert_eq!(heap.view(roots[0]).data, &[Handle::TRUE, one]);
-            assert_eq!(codec.origin_index_bytes(), 0);
         }
     }
 
     #[test]
-    fn later_legacy_metadata_cannot_promote_an_earlier_valid_node() {
+    fn later_unknown_flags_cannot_promote_an_earlier_valid_node() {
         for semantics in [crate::Semantics::default(), crate::Semantics::tlc()] {
             let store = Arc::new(Store::with_semantics(true, semantics));
             let mut heap = Heap::new(Arc::clone(&store), false, false);
@@ -508,18 +495,13 @@ mod tests {
             assert_eq!(&bytes[16..24], &2u64.to_le_bytes());
             let second = HEADER + NODE_HEADER + REFERENCE;
             heap.reset();
-            for (at, byte) in [
-                (second + 26, 1),
-                (second + 1, flags::TUPLE | flags::HISTORY),
-            ] {
-                let mut forged = bytes.clone();
-                forged[at] = byte;
-                let before = store.stats();
-                let error = codec.decode(&mut heap, &forged, 4096).unwrap_err();
-                assert!(error.message().contains("legacy construction history"));
-                assert_eq!(store.stats().nodes, before.nodes);
-                assert_eq!(store.stats().handles, before.handles);
-            }
+            let mut forged = bytes.clone();
+            forged[second + 1] = flags::TUPLE | 32;
+            let before = store.stats();
+            let error = codec.decode(&mut heap, &forged, 4096).unwrap_err();
+            assert!(error.message().contains("unknown representation flags"));
+            assert_eq!(store.stats().nodes, before.nodes);
+            assert_eq!(store.stats().handles, before.handles);
             let roots = codec.decode(&mut heap, &bytes, 4096).unwrap();
             let row = heap.view(roots[0]);
             assert!(row.is_tuple_literal());

@@ -77,9 +77,12 @@ Nested configuration and diagnostic objects take the version of the report that
 contains them. The Rust `ConfigReport::to_json` helper emits such a fragment,
 not a complete command report.
 
-`core.metrics.store.memory.construction_history_view_bytes` is deprecated and
-always 0, because dive keeps no construction history. Schema 3 keeps the field;
-a later schema version will remove it.
+Core reports no longer carry the construction-history metrics, which were
+always 0 because dive keeps no construction history:
+`core.metrics.store.memory.construction_history_view_bytes` and, under
+`core.metrics.candidate_storage`, `origin_index_bytes`,
+`peak_origin_index_bytes` and `origin_index_bytes_limit_per_worker`. Readers
+that required them should treat them as absent.
 
 The test suite pins complete JSON examples for success, invariant
 violation, deadlock, liveness violation, evaluation error, named refusal and

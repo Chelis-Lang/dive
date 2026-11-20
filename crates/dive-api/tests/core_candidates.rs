@@ -275,14 +275,13 @@ fn candidate_closure_keeps_an_actual_shared_dag_compact() {
                         .expect("spill bytes")
                         < 4096
                 );
-                assert_eq!(usage["origin_index_bytes"], 0);
             }
         }
     }
 }
 
 #[test]
-fn canonical_candidates_need_no_constructor_history_index() {
+fn spilled_candidates_match_resident_rows_without_an_origin_index() {
     for tlc in [false, true] {
         let mut req = request(
             "tests/fixtures/core-candidates/OriginRows.tla",
@@ -298,13 +297,12 @@ fn canonical_candidates_need_no_constructor_history_index() {
         assert_eq!(observed(&actual), observed(&resident));
         let usage = &actual["core"]["metrics"]["candidate_storage"];
         assert_eq!(usage["peak_retained_bytes"], 0);
-        assert_eq!(usage["origin_index_bytes"], 0);
-        let peak = usage["peak_origin_index_bytes"]
-            .as_u64()
-            .expect("actual origin workspace");
-        assert_eq!(
-            peak, 0,
-            "canonical candidates retain no constructor history"
-        );
+        for retired in [
+            "origin_index_bytes",
+            "peak_origin_index_bytes",
+            "origin_index_bytes_limit_per_worker",
+        ] {
+            assert!(usage.get(retired).is_none(), "{retired} is retired");
+        }
     }
 }

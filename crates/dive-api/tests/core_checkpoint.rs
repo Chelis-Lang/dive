@@ -268,7 +268,7 @@ fn malformed_archive_identity_no_replace_and_storage_failures_never_certify() {
     assert_ne!(duplicate["verdict"], "success");
     assert!(duplicate["checkpoint"].is_null());
     assert_eq!(std::fs::read(&file).expect("still exists"), before);
-    let (payload, _, _) = checkpoint::read_payload(&file, b"DIVECC01").expect("envelope");
+    let (payload, _, _) = checkpoint::read_payload(&file, b"DIVECC02").expect("envelope");
     let ranges = section_ranges(&payload);
     // Alter real search facts while recomputing the enclosing checksum: framing
     // integrity alone cannot admit a bad parent/frontier/key/owned coordinate.
@@ -277,7 +277,7 @@ fn malformed_archive_identity_no_replace_and_storage_failures_never_certify() {
         let mut bytes = payload.clone();
         let at = ranges[3].start + offset;
         bytes[at..at + 8].copy_from_slice(&word.to_le_bytes());
-        checkpoint::write_payload(&bad, b"DIVECC01", &bytes).expect("negative envelope");
+        checkpoint::write_payload(&bad, b"DIVECC02", &bytes).expect("negative envelope");
         let request = checkpoint::Request {
             path: bad.clone(),
             action: checkpoint::Action::Recover,

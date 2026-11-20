@@ -20,7 +20,6 @@ pub(crate) struct Spool {
     pending: Vec<u8>,
     account: Account,
     retained: u64,
-    origin_retained: u64,
     written: u64,
     identity_width: usize,
     unkeyed_outside: bool,
@@ -41,7 +40,6 @@ impl Spool {
             pending: Vec::new(),
             account,
             retained: 0,
-            origin_retained: 0,
             written: 0,
             identity_width,
             unkeyed_outside,
@@ -189,10 +187,6 @@ impl Spool {
     }
     fn refresh(&mut self) {
         let stats = self.queue.stats();
-        let origin_bytes = self
-            .codec
-            .as_ref()
-            .map_or(0, CandidateCodec::origin_index_bytes) as u64;
         let mut usage = self.account.lock().unwrap_or_else(PoisonError::into_inner);
         usage.retained_bytes = usage
             .retained_bytes
@@ -202,12 +196,6 @@ impl Spool {
         usage.spilled_bytes = usage
             .spilled_bytes
             .saturating_add(stats.spilled_bytes.saturating_sub(self.written));
-        usage.origin_index_bytes = usage
-            .origin_index_bytes
-            .saturating_sub(self.origin_retained)
-            .saturating_add(origin_bytes);
-        usage.peak_origin_index_bytes = usage.peak_origin_index_bytes.max(usage.origin_index_bytes);
-        self.origin_retained = origin_bytes;
         self.retained = stats.retained_bytes;
         self.written = stats.spilled_bytes;
     }

@@ -1,9 +1,8 @@
 //! Bounded quiescent Store images for completed-level native recovery.
 //!
 //! These trusted local images preserve issued coordinates and names. They are
-//! not value interchange or reachability proofs. The image keeps its retired
-//! construction-history table as an empty count; an image with a history entry
-//! or a history-flagged node is refused ("legacy construction history").
+//! not value interchange or reachability proofs. Format `DIVEST02` carries no
+//! construction-history table; a `DIVEST01` image, which did, is refused by name.
 //! A fresh startup must match before a restored owner can be constructed.
 //!
 //! ```
@@ -28,7 +27,9 @@ use crate::Error;
 use crate::handle::{Handle, Tag};
 use crate::node::{Kind, flags};
 
-const MAGIC: &[u8; 8] = b"DIVEST01";
+const MAGIC: &[u8; 8] = b"DIVEST02";
+/// The previous format, which ended with a retired construction-history table.
+const LEGACY_MAGIC: &[u8; 8] = b"DIVEST01";
 const RECORD: usize = 42;
 
 fn invalid(message: impl Into<String>) -> Error {
@@ -426,9 +427,6 @@ pub fn capture(
                         .retained_view(h)
                         .ok_or_else(|| invalid("unissued node"))?;
                     if leaving {
-                        if v.flags & flags::HISTORY != 0 {
-                            return Err(invalid("legacy construction history"));
-                        }
                         active.remove(&h.bits());
                         done.insert(h.bits());
                         out.word(h.bits())?;
@@ -458,8 +456,6 @@ pub fn capture(
             }
         }
     }
-    // The retired construction-history table, always empty (format DIVEST01).
-    out.word(0)?;
     if lengths(store) != lens || store.strings.texts_from(0) != names {
         return Err(invalid("owner changed during snapshot"));
     }
@@ -515,9 +511,6 @@ fn validate_node(
         node.data.as_slice(),
     );
     let len = children.len();
-    if bits & flags::HISTORY != 0 {
-        return Err(invalid("legacy construction history"));
-    }
     if children
         .iter()
         .any(|&handle_value| !scalar(handle_value, names, seen))
@@ -580,8 +573,14 @@ fn validate_node(
 )]
 pub(super) fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result<Image, Error> {
     let mut input = Read { bytes, at: 0 };
-    if input.take(8)? != MAGIC {
-        return Err(invalid("format/version"));
+    match input.take(8)? {
+        magic if magic == MAGIC => {}
+        magic if magic == LEGACY_MAGIC => {
+            return Err(invalid(
+                "format DIVEST01 (legacy construction history) is no longer read; recreate the archive",
+            ));
+        }
+        _ => return Err(invalid("format/version")),
     }
     let mut sem = [0; 6];
     sem.copy_from_slice(input.take(6)?);
@@ -665,9 +664,6 @@ pub(super) fn parse(bytes: &[u8], proceed: &(dyn Fn() -> bool + Sync)) -> Result
         };
         validate_node(&node, &lens, names.len(), &mut seen)?;
         nodes.push(node);
-    }
-    if input.word()? != 0 {
-        return Err(invalid("legacy construction history"));
     }
     if input.at != bytes.len() {
         return Err(invalid("trailing image bytes"));
@@ -858,7 +854,7 @@ pub(super) fn install(
 /// Resolves a saved row through the newly validated owner without forging handles.
 ///
 /// # Errors
-/// Unknown/scalar-invalid coordinates, deferred values or legacy history.
+/// Unknown/scalar-invalid coordinates or deferred values.
 pub fn row(
     store: &Store,
     bits: &[u64],
@@ -886,11 +882,7 @@ pub fn row(
                 let v = store
                     .retained_view(value)
                     .ok_or_else(|| invalid("unknown row coordinate"))?;
-                if v.is_lazy()
-                    || v.kind.is_lazy()
-                    || canonical && v.flags & flags::VIEW != 0
-                    || v.flags & flags::HISTORY != 0
-                {
+                if v.is_lazy() || v.kind.is_lazy() || canonical && v.flags & flags::VIEW != 0 {
                     return Err(invalid("row provider/canonical/ownership mismatch"));
                 }
                 pending.extend_from_slice(v.data);
@@ -980,23 +972,26 @@ mod tests {
         let set = heap.canonical_test_set(&[one]).expect("set");
         heap.intern_exact(set).expect("persistent set");
         let image = capture(&startup, 1 << 20, &|| true).expect("image");
-        assert_eq!(
-            image[image.len() - 8..],
-            [0; 8],
-            "empty retired history table"
-        );
+        assert_eq!(&image[..8], b"DIVEST02");
+        // A DIVEST01 image: the same body followed by its empty history table.
         let mut legacy = image.clone();
-        let last = legacy.len() - 8;
-        legacy[last] = 1;
-        let error = parse(&legacy, &|| true).err().expect("legacy table");
+        legacy[..8].copy_from_slice(LEGACY_MAGIC);
+        legacy.extend_from_slice(&[0; 8]);
+        let error = parse(&legacy, &|| true).err().expect("legacy format");
+        assert!(
+            error.message().contains("format DIVEST01"),
+            "{}",
+            error.message()
+        );
         assert!(error.message().contains("legacy construction history"));
+        let error = validate_extension(&legacy, &legacy, &|| true).expect_err("legacy archive");
+        assert!(error.message().contains("format DIVEST01"));
+        // The retired history bit is now an unknown flag.
         let mut parsed = parse(&image, &|| true).expect("image");
         let node = parsed.nodes.last_mut().expect("node");
-        node.flags |= flags::HISTORY;
+        node.flags |= 32;
         let mut seen = HashSet::new();
-        let error = validate_node(node, &parsed.lens, parsed.names.len(), &mut seen)
-            .expect_err("legacy flag");
-        assert!(error.message().contains("legacy construction history"));
+        assert!(validate_node(node, &parsed.lens, parsed.names.len(), &mut seen).is_err());
     }
 
     #[test]

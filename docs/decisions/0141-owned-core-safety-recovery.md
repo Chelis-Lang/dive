@@ -47,6 +47,9 @@ New evaluator-driven deferred providers after startup refuse explicitly.
 Amendment (#791): the raw/normalized origin table is retired. `DIVEST01` keeps
 its layout with an always-empty table; a nonempty table or a history-flagged
 node is refused as legacy construction history.
+Amendment (#1038): the empty table is removed. The Store image is now
+`DIVEST02` and the archive `DIVECC02`; `DIVEST01` images and `DIVECC01`
+archives are refused by name as legacy construction history.
 
 The initial workflow admits currently supported pure Core safety, fingerprint or
 exact membership, VIEW, safety symmetry, requested worker widths and optional

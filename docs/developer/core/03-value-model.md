@@ -490,11 +490,13 @@ The `SetEnum` kind remains a finite symbolic representation for existing callers
 Core source literals use canonical sets, and direct unnormalized membership has
 a named refusal rather than an emulated TLC search.
 
-Candidate DAG records retain their existing fields, with the legacy origin word
-fixed at zero. Decoding rejects nonzero origins or history flags. The retained
-report fields for the constructor-origin index stay zero; no trace version or
-report schema changes. Store snapshot and exchange compatibility code is separate
-from ordinary execution and does not grant an identity proof.
+No binary format carries construction history. Candidate DAG records
+(`DIVECD02`), Store snapshots (`DIVEST02`), worker exchange packets
+(`DIVEOW02`) and Core checkpoint archives (`DIVECC02`) dropped the retired
+origin words, origin counts and history table of their `01` predecessors, and
+each decoder refuses its `01` format by name ("legacy construction history").
+Bit 32 of the view flags is unassigned; decoders refuse it as an unknown flag.
+Reports carry no constructor-origin or history-view metrics.
 
 ## 9. Integers
 

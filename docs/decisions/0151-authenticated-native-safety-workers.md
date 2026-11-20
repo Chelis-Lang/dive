@@ -106,3 +106,7 @@ scratch, socket buffers, allocator overhead and remote process memory remain
 separate owners. Existing `max_memory` observes the coordinator process only.
 Authentication trusts correct worker execution; independent trace validation
 continues to validate actual reported words and falsified ending controls.
+
+Amendment (#1038): constructor-origin indexes are retired. Packets use format
+`DIVEOW02`, without the origin count and per-node origin fields; a `DIVEOW01`
+packet is refused by name as legacy construction history.

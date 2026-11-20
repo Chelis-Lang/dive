@@ -11,7 +11,9 @@ use dive_runtime::{CheckOptions, Verdict};
 
 use crate::core_engine::{self, CoreRun, Prepared, Search};
 
-const MAGIC: &[u8; 8] = b"DIVECC01";
+const MAGIC: &[u8; 8] = b"DIVECC02";
+/// The previous format, whose Store images carried a retired construction-history table.
+const LEGACY_MAGIC: &[u8; 8] = b"DIVECC01";
 const PARTS: usize = 4;
 type Parts<'a> = [&'a [u8]; PARTS];
 
@@ -54,10 +56,25 @@ fn join(parts: Parts<'_>) -> Result<Vec<u8>, String> {
     Ok(bytes)
 }
 
+/// Reads a Core archive payload, refusing the previous format by name.
+fn read(path: &Path) -> Result<(Vec<u8>, String, u64), String> {
+    checkpoint::read_payload(path, MAGIC).map_err(|message| {
+        let mut magic = [0; 8];
+        let legacy = std::fs::File::open(path)
+            .and_then(|mut file| std::io::Read::read_exact(&mut file, &mut magic))
+            .is_ok_and(|()| &magic == LEGACY_MAGIC);
+        if legacy {
+            "archive format DIVECC01 (legacy construction history) is no longer read; recreate the checkpoint with this executable".into()
+        } else {
+            message
+        }
+    })
+}
+
 /// Saved seed and fingerprint defaults of a Core archive, without model
 /// evaluation. An archive in any other format is a framing error.
 pub(crate) fn metadata(path: &Path) -> Result<(i64, usize), String> {
-    let (bytes, _, _) = checkpoint::read_payload(path, MAGIC)?;
+    let (bytes, _, _) = read(path)?;
     let parts = split(&bytes)?;
     checkpoint::owned_identity_seed_fp(parts[0])
 }
@@ -136,8 +153,7 @@ pub(crate) fn check(
             .map_err(|feature| Verdict::Unsupported { feature })?;
         let identity = checkpoint::owned_identity(ir, cfg, options, request, &opts.describe())?;
         let imported = if request.action == Action::Recover {
-            let (bytes, sha, len) =
-                checkpoint::read_payload(&request.path, MAGIC).map_err(failure)?;
+            let (bytes, sha, len) = read(&request.path).map_err(failure)?;
             let sections = split(&bytes).map_err(failure)?;
             if sections[0] != identity {
                 return Err(failure(

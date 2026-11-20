@@ -145,17 +145,12 @@ Candidate spill works with both profiles, fingerprint and exact membership,
 VIEW, safety symmetry, disk seen states, frontier and predecessor spill, and
 Safety checkpoints and recovery. Encoding one record uses a workspace
 limited to 64 MiB and 128 levels of nesting; shared subvalues stay shared, and
-the per-operation workspaces are bounded. A separate index of how values were
-built keeps at most 1 MiB per pending source state, preserving aliases across
-that source's records. When it fills, the run stops with `DIVE-S0202`
-resource-limit; the index never counts as Store payload. The queue budget does
-not cover the workers' active generators and arenas, dynamic names, the Store
-and its history, other caches or total process memory.
+the per-operation workspaces are bounded. The queue budget does not cover the
+workers' active generators and arenas, dynamic names, the Store, other caches or
+total process memory.
 
 JSON `core.metrics.candidate_storage` reports the per-worker budget, aggregate
 peak encoded capacity, committed spill bytes, remaining bytes and failures.
-`peak_origin_index_bytes` and `origin_index_bytes` report the capacity of that
-index, and the per-worker index limit is reported too.
 Read, write, checksum and cleanup failures produce a resource stop without a certified counterexample. Completed queues are removed; they cannot be recovered after
 restart or used as trace evidence. See the [owned candidate payload spill design](../decisions/0143-owned-candidate-payload-spill.md).
 
@@ -218,10 +213,11 @@ dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --workers 8 --r
 ```
 
 The Rust API is `check_file_checkpoint(request, checkpoint)`. dive's
-`DIVECC01` archive retains the compiled startup prefix, owned Store DAG,
+`DIVECC02` archive retains the compiled startup prefix, owned Store DAG,
 complete original/canonical discovery rows, keys, parents/ordinals and ordered
-frontier. An archive whose Store image records construction history is
-rejected with `DIVE-S0400` ("legacy construction history"). A recovered run
+frontier. A `DIVECC01` archive, whose Store images carried a retired
+construction-history table, is rejected with `DIVE-S0400` ("archive format
+DIVECC01 (legacy construction history) is no longer read"). A recovered run
 creates new transient files and never reuses the old run's frontier files.
 State values are not re-encoded. Source, executable, config
 bytes, semantic policy, seed/fingerprint and strategy switches (`DIVE_CORE_OPT`) must match.
@@ -279,7 +275,7 @@ and can be independently validated.
 - **Commits.** Archives are written to a private staging file, synced and
   atomically committed without replacing an existing file. Failures are reported;
   partial staging files are not checkpoints.
-- **Format.** Archives use format `DIVECC01`. Archives in older pre-release
+- **Format.** Archives use format `DIVECC02`. Archives in older pre-release
   formats refuse with `DIVE-S0400` rather than guess; recreate them with the
   current executable.
 - **Refusals.** Liveness, random or effectful execution, checker reads,

@@ -130,7 +130,7 @@ impl Remap {
     /// introduced.
     ///
     /// # Errors
-    /// A stale/transient/history-flagged value, new deferred provider, allocation
+    /// A stale/transient value, new deferred provider, allocation
     /// or cancellation.
     #[allow(
         clippy::too_many_lines,
@@ -173,9 +173,6 @@ impl Remap {
                 .ok_or_else(|| invalid("unknown live coordinate"))?;
             if v.is_lazy() || v.kind.is_lazy() {
                 return Err(invalid("deferred provider added after startup"));
-            }
-            if v.flags & flags::HISTORY != 0 {
-                return Err(invalid("legacy construction history"));
             }
             active
                 .try_reserve(1)

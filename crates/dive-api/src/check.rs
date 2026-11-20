@@ -1750,7 +1750,7 @@ impl CheckReport {
                 doc["frontier_storage"] = json!({
                     "mode": if r.frontier.memory_bytes_per_queue.is_some() { "encoded-spill" } else { "memory-reference" },
                     "scope": if self.core.is_some() && r.frontier.memory_bytes_per_queue.is_some() {
-                        "encoded current and next frontier capacities observed at queue operations only; retained live Store and construction history, decoded chunks, seen sets, candidates, arenas, traces, allocator workspace and native archives are not measured or bounded"
+                        "encoded current and next frontier capacities observed at queue operations only; retained live Store, decoded chunks, seen sets, candidates, arenas, traces, allocator workspace and native archives are not measured or bounded"
                     } else { "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded" },
                     "memory_bytes_per_queue": r.frontier.memory_bytes_per_queue,
                     "max_record_bytes": r.frontier.max_record_bytes,
