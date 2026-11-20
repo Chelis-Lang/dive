@@ -11,6 +11,7 @@ from time import perf_counter_ns
 
 MODELS = {
     "kvs": ("MCKVS.tla", "MCKVSSafetyMedium.cfg", "tlx"),
+    "kvs-small": ("MCKVS.tla", "MCKVSSafetySmall.cfg", "tlx"),
     "lamport": ("MCLamportMutex.tla", "MCLamportMutex.cfg", "tlx"),
     "counters": ("counters.tla", "counters.cfg", "manyan"),
     "counters-wide": ("counters.tla", "counters.cfg", "manyan"),

@@ -36,6 +36,7 @@ pub mod graph;
 mod graph_schedule;
 mod packed_probe;
 mod parallel;
+mod rank_layout;
 mod reclaim;
 pub mod sample;
 pub mod storage;
@@ -1622,6 +1623,7 @@ fn explore_inner<'p>(
     owned: bool,
     distributed: Option<&'p distributed::Coordinator>,
 ) -> Outcome {
+    rank_layout::observe(plan, store, config);
     if graph.is_none()
         && checkpoint.is_none()
         && distributed.is_none()
@@ -1642,6 +1644,7 @@ fn explore_inner<'p>(
         && plan.code.debugger.is_none()
         && plan.code.source_map.is_none()
         && let Some(result) = packed_probe::try_run(plan, store, config, poll)
+            .or_else(|| rank_layout::try_explore(plan, store, config, poll, control))
     {
         return result;
     }

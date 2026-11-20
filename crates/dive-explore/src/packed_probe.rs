@@ -477,6 +477,24 @@ fn run(
         .iter()
         .map(|action| shape.action(action))
         .collect::<Option<Vec<_>>>()?;
+    if let Some(path) = std::env::var_os("DIVE_EXPERIMENT_RESIDENT_PLAN") {
+        let program = json!({
+            "width": width,
+            "cells": cells,
+            "allowed": allowed,
+            "transitions": transitions.iter().map(|step| json!({
+                "lane": step.lane, "shift": step.shift, "next": step.next.as_slice(),
+            })).collect::<Vec<_>>(),
+        });
+        if let Ok(mut out) = OpenOptions::new()
+            .truncate(true)
+            .write(true)
+            .create(true)
+            .open(path)
+        {
+            let _ = writeln!(out, "{program}");
+        }
+    }
     let stats = explore(&shape, &cells, &transitions, &allowed, stop)?;
     Some((stats, width * u32::try_from(cells.len()).ok()?))
 }
