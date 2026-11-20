@@ -26,18 +26,8 @@ fn role(m: &dive_model::Model, p: &dive_model::Pred) -> Result<dive_ir::ExprId, 
     Ok(p.expr)
 }
 
-fn run(module: &Path, config: &Path) -> Result<Value, String> {
-    let analysis = dive_sema::analyze_file(module, &dive_sema::Options::default())
-        .map_err(|e| e.to_string())?;
-    if !analysis.accepted() {
-        return Err(format!("semantic analysis: {:?}", analysis.diagnostics()));
-    }
-    let ir = Arc::new(dive_ir::lower(&analysis).map_err(|e| format!("{e:?}"))?);
-    let cfg = dive_config::parse(&fs::read_to_string(config).map_err(|e| e.to_string())?)
-        .into_config()
-        .ok_or("invalid configuration")?;
+fn check_config(cfg: &dive_config::ModelConfig) -> Result<(), String> {
     if !cfg.properties.is_empty()
-        || !cfg.constraints.is_empty()
         || !cfg.action_constraints.is_empty()
         || cfg.view.is_some()
         || cfg.alias.is_some()
@@ -54,6 +44,20 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
     }) {
         return Err("unsupported scoped or operator constant binding".into());
     }
+    Ok(())
+}
+
+fn run(module: &Path, config: &Path) -> Result<Value, String> {
+    let analysis = dive_sema::analyze_file(module, &dive_sema::Options::default())
+        .map_err(|e| e.to_string())?;
+    if !analysis.accepted() {
+        return Err(format!("semantic analysis: {:?}", analysis.diagnostics()));
+    }
+    let ir = Arc::new(dive_ir::lower(&analysis).map_err(|e| format!("{e:?}"))?);
+    let cfg = dive_config::parse(&fs::read_to_string(config).map_err(|e| e.to_string())?)
+        .into_config()
+        .ok_or("invalid configuration")?;
+    check_config(&cfg)?;
     let m = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc())
         .map_err(|e| format!("{e:?}"))?;
     let symmetry = m
@@ -84,10 +88,8 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
     {
         return Err("temporal or implied obligations".into());
     }
-    if !m.assumptions.is_empty() || m.init.len() != 1 || m.stateful_checking().is_some() {
-        return Err(
-            "unsupported assumption, initial-role multiplicity or stateful operator".into(),
-        );
+    if m.init.len() != 1 || m.stateful_checking().is_some() {
+        return Err("unsupported initial-role multiplicity or stateful operator".into());
     }
     let init = role(&m, &m.init[0].pred)?;
     let next = role(&m, m.next.as_ref().ok_or("missing NEXT")?)?;
@@ -96,6 +98,19 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
         .iter()
         .map(|x| Ok(json!([x.name, role(&m, &x.pred)?])))
         .collect::<Result<Vec<_>, String>>()?;
+    let assumptions = m
+        .assumptions
+        .iter()
+        .map(|id| {
+            let def = ir.def(*id);
+            (def.name.as_str(), def.body)
+        })
+        .collect::<Vec<_>>();
+    let constraints = m
+        .constraints
+        .iter()
+        .map(|p| role(&m, &p.pred))
+        .collect::<Result<Vec<_>, _>>()?;
     let ctx = m.evaluator.options().ctx;
     let permutations = symmetry.and_then(|p| p.reduction).map(|r| json!({
         "atoms": r.universe().iter().map(dive_value::Atom::as_str).collect::<Vec<_>>(),
@@ -122,8 +137,8 @@ fn run(module: &Path, config: &Path) -> Result<Value, String> {
         }
     }
     Ok(
-        json!({"format": "dive-symbolic-input-v1", "ir": &*ir, "constants": constants, "overrides": overrides,
-        "init": init, "next": next, "invariants": invariants, "symmetry": permutations,
+        json!({"format": "dive-symbolic-input-v2", "ir": &*ir, "constants": constants, "overrides": overrides,
+        "assumptions": assumptions, "constraints": constraints, "init": init, "next": next, "invariants": invariants, "symmetry": permutations,
         "specification": cfg.specification.as_ref().map(|n| &n.text),
         "check_deadlock": m.settings.check_deadlock}),
     )

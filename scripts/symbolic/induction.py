@@ -74,12 +74,12 @@ def load(path, model):
 
 
 def verify(model, states):
-    r"""Init => P, P /\ Next => P', and P => each requested safety obligation."""
+    r"""Init => P, P /\ Constraint /\ Next => P', and P => each requested safety obligation."""
     if model.initial & ~states != model.b.false:
         return "Init inclusion"
     for ending, _ in model.violations(states):
         return ending.get("name", ending["kind"])
     for guard, partitions in model.actions:
-        if model.image(states, guard, partitions) & ~states != model.b.false:
+        if model.image(states & model.constraint, guard, partitions) & ~states != model.b.false:
             return "Next closure"
     return None

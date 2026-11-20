@@ -104,8 +104,7 @@ an actual counterexample.
 
 The configured layout invariant, named `TypeInvariant` by default, supplies
 one finite bound per state variable. Select another with `--type-invariant`.
-Supported fields are finite strings and untyped model values from finite sets, subsets of those
-sets and fixed-domain functions over them. Each enabled Init witness must give a ground, complete assignment. Next can use bounded choices, disjunction,
+Finite scalar fields can contain integers, strings, untyped model values and records over supported scalars. Subsets and fixed-domain functions can use those finite domains. Ground assumptions must evaluate to TRUE. Boolean configuration flags can select constant branches. Each enabled Init witness must give a ground, complete assignment. Next can use bounded choices, disjunction,
 `UNCHANGED` and deterministic assignments to all variables per action
 witness. A primed value must be assigned before it is read. The expression
 subset includes Boolean guards, equality, membership, set union,
@@ -123,10 +122,14 @@ initial state or successor.
 Use `INIT` and `NEXT`, or a safety `SPECIFICATION` of the form
 `Init /\ [][Next]_vars` covering every variable. The checker can reduce a
 full permutation group of up to six model values that occur as field indices
-or set members. It checks invariance of Init, each property and the complete
-multiset of guarded updates. Partial groups, temporal properties, fairness,
-constraints, VIEW, stateful operations, substitutions and expressions
+or set members. It checks invariance of Init, each state constraint, each property and the complete
+multiset of guarded updates. Record-valued domains with symmetry, partial groups, temporal properties, fairness,
+action constraints, VIEW, stateful operations, substitutions and expressions
 outside the implemented fragment give an explicit refusal.
+
+A CFG `CONSTRAINT` limits which states enter the search queue. Every Init witness and every successor generated from an admitted state contributes to the generated count. The checker tests invariants even on emissions that fail the constraint. An excluded emission can end a validated counterexample. Distinct counts include only admitted states, and deadlock checking and successor generation use only admitted sources. A finite-set bound such as `Cardinality(network) <= MaxNetwork` uses those same rules.
+
+A saved predicate also covers excluded emissions so a later invariant must hold on them. The receiver rechecks Init, the obligations on the whole candidate, and closure under steps from sources satisfying its current constraint. Widening the constraint can invalidate a previous proof.
 
 The tool emits one JSON line per check. Search and proof rows identify their
 module and configuration and use format `dive-symbolic-report-v1`. A

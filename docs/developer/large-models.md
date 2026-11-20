@@ -410,6 +410,8 @@ eight physical cores. Core finished Base in 1.77 s and the quarantine case in
 RSS was 3.89 GiB for Core and 15.58 GiB for TLC. Both matched the author's
 verdict, distinct, generated, depth and exhausted queue on both configurations.
 
+The symbolic strategy checks the five ground assumptions and admits the state constraint. The unedited models still exceed its 512-bit dense layout. Pinned TLC evaluated `<<Cardinality(Msg), MaxNetwork>>` with the released constants: Base has 1,008 possible messages, QuarantineEqualsProposer 608, and Retry and RenewRetry 1,320 each. All limit the admitted network to four messages. To reproduce the diagnostic, extend `PaxosLeaseChecked, TLC`, print that pair in a ground assumption, and run the original Init with a single stuttering step. These are type cardinalities. A sparse representation must preserve set equality, duplicate message elimination, all generated witnesses, and invariant checking on emissions beyond four. [Symbolic state-constraint semantics](../user/symbolic.md#admission-and-reports).
+
 For Retry, use the original configuration with its `StateConstraint` and
 all its invariants. From the same directory, set `TLA2TOOLS_JAR` to the pinned jar and
 `TLC_SCRATCH` to a fresh path on the scratch volume, then run
