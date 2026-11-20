@@ -615,8 +615,12 @@ class SourceModel(FiniteRelation):
         else:
             require(
                 tag in ("Bool", "Not")
-                or (tag == "Quant" and x["kind"] == "Forall"
-                    and self.ir["exprs"][i]["level"] in ("Constant", "State"))
+                or (
+                    tag == "Quant" and x["kind"] == "Forall"
+                    and self.ir["exprs"][i]["level"] in ("Constant", "State")
+                    and self.node(x["body"])[0] == "Builtin"
+                    and self.node(x["body"])[1]["op"] in ("Eq", "Neq", "In", "NotIn", "Subseteq")
+                )
                 or (tag == "Builtin" and x["op"] in ("Eq", "Neq", "In", "NotIn", "Subseteq")),
                 "unsupported action guard: " + tag,
             )
