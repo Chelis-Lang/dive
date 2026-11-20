@@ -2522,7 +2522,7 @@ fn temporal_human(report: &crate::temporal::Report) -> String {
     out
 }
 
-fn temporal_limits_json(configuration: crate::temporal::Configuration) -> Value {
+pub(crate) fn temporal_limits_json(configuration: crate::temporal::Configuration) -> Value {
     use dive_liveness::analyze::GraphLabelPolicy;
     use dive_liveness::product::AcceptancePolicy;
     let limits = configuration.limits;

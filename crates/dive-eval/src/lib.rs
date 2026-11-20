@@ -200,6 +200,20 @@ impl Evaluator {
     pub fn shares_run_state(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.core, &other.core)
     }
+    /// Inspects a binary set union created by this exact evaluator. Only the
+    /// evaluator's own union provider has these two closed operands. This
+    /// direct downcast never invokes or enumerates a deferred provider.
+    #[must_use]
+    pub fn owned_union_operands<'a>(
+        &self,
+        set: &'a dive_value::Set,
+    ) -> Option<(&'a Value, &'a Value)> {
+        let provider: &dyn ::std::any::Any = set.as_deferred()?.as_ref();
+        let op = provider.downcast_ref::<lazy::SetOp>()?;
+        (Arc::ptr_eq(&op.core, &self.core) && op.kind == dive_value::DeferredKind::Cup)
+            .then_some((&op.a, &op.b))
+    }
+
     /// An evaluator that collects `Print` output (see [`Evaluator::take_output`]).
     /// Admission checks IR references, override signatures/cycles and captured
     /// values before interning literals or invoking caller code. Bare numeric IDs

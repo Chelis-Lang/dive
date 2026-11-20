@@ -51,3 +51,16 @@ and Booleans can be read across the store boundary. Once all ordinary periodic
 checks continue, run the ordinary final product, SCC, attribution and independent
 word validation. Any terminal prefix or source-row route defers to fresh checking.
 The complete graph cannot certify the final verdict of a check that stops earlier.
+
+A complete native temporal Holds may also qualify retention of exactly its
+first original property, given two freshly bound closed inputs and an
+authenticated previous report. The state cap excludes scheduled prefix
+analysis. Core's final search completes each product in order; the first
+property starts with empty fairness-column reuse. Both inventories must pass
+ordinary startup planning, and their retained bound formula, fairness atoms,
+transition inputs, argument slots and name domains must agree. Requiring an
+actual fallback-free, unaudited previous execution avoids treating native
+compilation eligibility as an execution receipt. This contract returns the
+retained name. The embedding application authenticates the previous worker,
+input and report before using its verdict. See the
+[Rust embedding guide](../user/rust-api.md#retain-the-first-temporal-property).

@@ -27,7 +27,7 @@ enum Resolved {
     Standard,
 }
 #[derive(Debug, Eq, PartialEq)]
-struct Module {
+pub(crate) struct Module {
     name: String,
     origin: Resolved,
     source: String,
@@ -77,46 +77,7 @@ impl Transitions {
                 _ => Err(miss("unsupported constant override or assignment")),
             })
             .collect::<Result<Vec<_>, _>>()?;
-        let root_dir = analysis
-            .model()
-            .root()
-            .and_then(|id| analysis.model().node(id).span)
-            .and_then(|span| analysis.file(span.file))
-            .and_then(|f| match &f.origin {
-                Origin::File(path) => path.parent(),
-                _ => None,
-            });
-        let mut modules = Vec::new();
-        for f in analysis.files() {
-            let name = f
-                .parse
-                .module()
-                .and_then(|m| m.name())
-                .ok_or_else(|| miss("unnamed module"))?;
-            let origin = match &f.origin {
-                Origin::File(path) => Resolved::File(
-                    root_dir
-                        .and_then(|d| path.strip_prefix(d).ok())
-                        .unwrap_or(path)
-                        .to_owned(),
-                ),
-                Origin::Text => Resolved::Text(f.display.clone()),
-                Origin::Standard
-                    if matches!(
-                        name.as_str(),
-                        "Naturals" | "Integers" | "FiniteSets" | "Sequences"
-                    ) =>
-                {
-                    Resolved::Standard
-                }
-                _ => return Err(miss("external or non-admitted standard module")),
-            };
-            modules.push(Module {
-                name,
-                origin,
-                source: f.text.clone(),
-            });
-        }
+        let modules = closed_modules(analysis)?;
         Ok(Self {
             modules,
             init: cfg.init.as_ref().map(|n| n.text.clone()),
@@ -127,4 +88,49 @@ impl Transitions {
             deadlock: cfg.checks_deadlock(),
         })
     }
+}
+
+/// Exact source and loader origins admitted by the projection APIs.
+pub(crate) fn closed_modules(analysis: &Analysis) -> Result<Vec<Module>, Miss> {
+    let root_dir = analysis
+        .model()
+        .root()
+        .and_then(|id| analysis.model().node(id).span)
+        .and_then(|span| analysis.file(span.file))
+        .and_then(|f| match &f.origin {
+            Origin::File(path) => path.parent(),
+            _ => None,
+        });
+    let mut modules = Vec::new();
+    for f in analysis.files() {
+        let name = f
+            .parse
+            .module()
+            .and_then(|m| m.name())
+            .ok_or_else(|| miss("unnamed module"))?;
+        let origin = match &f.origin {
+            Origin::File(path) => Resolved::File(
+                root_dir
+                    .and_then(|d| path.strip_prefix(d).ok())
+                    .unwrap_or(path)
+                    .to_owned(),
+            ),
+            Origin::Text => Resolved::Text(f.display.clone()),
+            Origin::Standard
+                if matches!(
+                    name.as_str(),
+                    "Naturals" | "Integers" | "FiniteSets" | "Sequences"
+                ) =>
+            {
+                Resolved::Standard
+            }
+            _ => return Err(miss("external or non-admitted standard module")),
+        };
+        modules.push(Module {
+            name,
+            origin,
+            source: f.text.clone(),
+        });
+    }
+    Ok(modules)
 }
