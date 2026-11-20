@@ -241,6 +241,11 @@ only sealed facts and any independently validated selected word.
 Producers retaining their own state rows can supply borrowed adjacency through
 `capture::CsrCaptureInput`. `CsrCapture::checked` checks bounds, roots, ordinals,
 original row ids and implicit stutters under the run's `EvaluationControl`.
+The action field of `CsrCaptureInput` accepts the existing borrowed slice of
+optional 32-bit IDs. Producers with at most 255 labels can supply a
+`CsrCaptureColumns` with `CsrActions::Bytes`. Values 0 through 254 index
+the action table and 255 denotes an unnamed entry. Both forms undergo the
+same checked capture and replay.
 `CsrComplete::from_producer` additionally requires the producer's successful EOF
 and matching statistics; `CsrPrefix::from_producer` requires a successful committed
 boundary with an unfinished frontier. Both preserve original failures and budget

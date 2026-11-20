@@ -78,12 +78,57 @@ impl<'a> From<&'a Vec<Option<u64>>> for CsrOrdinals<'a> {
     }
 }
 
-/// Borrowed producer arrays before structural checking.
+/// Storage for the action label of each transition occurrence.
+#[derive(Clone, Copy, Debug)]
+pub enum CsrActions<'a> {
+    /// Full-width producer labels. Generated unnamed and stutter entries use `None`.
+    Expanded(&'a [Option<u32>]),
+    /// Dense action indices 0 through 254; 255 marks the absence of a label.
+    Bytes(&'a [u8]),
+}
+
+impl CsrActions<'_> {
+    fn len(self) -> usize {
+        match self {
+            Self::Expanded(values) => values.len(),
+            Self::Bytes(values) => values.len(),
+        }
+    }
+
+    // Structural checks bind every access to the shared physical edge range.
+    fn at(self, edge: usize) -> Option<u32> {
+        match self {
+            Self::Expanded(values) => values[edge],
+            Self::Bytes(values) => (values[edge] != u8::MAX).then(|| u32::from(values[edge])),
+        }
+    }
+
+    /// Keeps the first `edges` action entries for a checked graph prefix.
+    #[must_use]
+    pub fn prefix(self, edges: usize) -> Option<Self> {
+        match self {
+            Self::Expanded(values) => Some(Self::Expanded(values.get(..edges)?)),
+            Self::Bytes(values) => Some(Self::Bytes(values.get(..edges)?)),
+        }
+    }
+}
+
+impl<'a> From<&'a [Option<u32>]> for CsrActions<'a> {
+    fn from(values: &'a [Option<u32>]) -> Self {
+        Self::Expanded(values)
+    }
+}
+
+/// Borrowed producer arrays with full-width optional action indices.
+/// The fixed slice field accepts arrays, mutable slices and other slice-coercible buffers.
+pub type CsrCaptureInput<'a, O = &'a [Option<u64>]> = CsrCaptureColumns<'a, O, &'a [Option<u32>]>;
+
+/// Borrowed producer arrays with selectable ordinal and action storage.
 ///
 /// Row ids identify opaque retained state rows, not semantically equal values.
 /// This metadata neither evaluates states nor proves a temporal property.
 #[derive(Clone, Copy, Debug)]
-pub struct CsrCaptureInput<'a, O = &'a [Option<u64>]> {
+pub struct CsrCaptureColumns<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>> {
     /// One start offset per representative, followed by the total edge count.
     pub offsets: &'a [usize],
     /// Dense representative destination ids, including implicit stutters.
@@ -91,7 +136,7 @@ pub struct CsrCaptureInput<'a, O = &'a [Option<u64>]> {
     /// Original generation ordinals; only implicit stutters have no ordinal.
     pub ordinals: O,
     /// Index in `action_labels`, or no named action. Stutters have no action.
-    pub actions: &'a [Option<u32>],
+    pub actions: A,
     /// Exact original state row for each edge, including seen destinations.
     pub edge_rows: &'a [u32],
     /// First-discovery state row for every dense representative.
@@ -106,13 +151,13 @@ pub struct CsrCaptureInput<'a, O = &'a [Option<u64>]> {
     pub closed_rows: usize,
 }
 
-impl<'a, O: Into<CsrOrdinals<'a>>> CsrCaptureInput<'a, O> {
-    fn columns(self) -> CsrCaptureInput<'a, CsrOrdinals<'a>> {
-        CsrCaptureInput {
+impl<'a, O: Into<CsrOrdinals<'a>>, A: Into<CsrActions<'a>>> CsrCaptureColumns<'a, O, A> {
+    fn columns(self) -> CsrCaptureColumns<'a> {
+        CsrCaptureColumns {
             offsets: self.offsets,
             targets: self.targets,
             ordinals: self.ordinals.into(),
-            actions: self.actions,
+            actions: self.actions.into(),
             edge_rows: self.edge_rows,
             representatives: self.representatives,
             roots: self.roots,
@@ -129,7 +174,7 @@ impl<'a, O: Into<CsrOrdinals<'a>>> CsrCaptureInput<'a, O> {
 /// remain intact. A successful shape check alone cannot establish exhaustion.
 #[derive(Clone, Copy, Debug)]
 pub struct CsrCapture<'a> {
-    input: CsrCaptureInput<'a, CsrOrdinals<'a>>,
+    input: CsrCaptureColumns<'a>,
     limits: Limits,
     concrete: usize,
 }
@@ -141,7 +186,7 @@ impl<'a> CsrCapture<'a> {
     /// # Errors
     /// Malformed metadata, retained-entry limits, or an actual run interruption.
     pub fn checked(
-        input: CsrCaptureInput<'a, impl Into<CsrOrdinals<'a>>>,
+        input: CsrCaptureColumns<'a, impl Into<CsrOrdinals<'a>>, impl Into<CsrActions<'a>>>,
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
@@ -206,7 +251,7 @@ impl<'a> CsrCapture<'a> {
             };
             if input.targets[last] as usize != source
                 || input.ordinals.get(last) != Some(None)
-                || input.actions[last].is_some()
+                || input.actions.at(last).is_some()
                 || input.edge_rows[last] != representative
             {
                 return Err(bug("invalid CSR implicit stutter"));
@@ -222,7 +267,9 @@ impl<'a> CsrCapture<'a> {
                 }
                 if input.targets[edge] as usize >= states
                     || input.edge_rows[edge] as usize >= input.retained_rows
-                    || input.actions[edge]
+                    || input
+                        .actions
+                        .at(edge)
                         .is_some_and(|action| action as usize >= input.action_labels.len())
                     || previous_ordinal.is_some_and(|previous| previous >= ordinal)
                 {
@@ -304,8 +351,8 @@ impl<'a> CsrCapture<'a> {
         if ordinal.is_none() {
             return Some(None);
         }
-        Some(Some(match self.input.actions.get(edge)? {
-            Some(action) => self.input.action_labels.get(*action as usize)?.as_str(),
+        Some(Some(match self.input.actions.at(edge) {
+            Some(action) => self.input.action_labels.get(action as usize)?.as_str(),
             None => "",
         }))
     }
@@ -353,7 +400,7 @@ impl<'a> CsrComplete<'a> {
     /// The original non-success safety verdict, missing/inconsistent statistics,
     /// malformed or incomplete CSR, a capture limit, or actual run interruption.
     pub fn from_producer(
-        input: CsrCaptureInput<'a, impl Into<CsrOrdinals<'a>>>,
+        input: CsrCaptureColumns<'a, impl Into<CsrOrdinals<'a>>, impl Into<CsrActions<'a>>>,
         safety: CheckResult,
         options: CheckOptions,
         limits: Limits,
@@ -423,7 +470,7 @@ impl<'a> CsrPrefix<'a> {
     /// The original safety failure, missing/inconsistent statistics, exhausted
     /// frontier, malformed CSR, a capture limit, or actual run interruption.
     pub fn from_producer(
-        input: CsrCaptureInput<'a, impl Into<CsrOrdinals<'a>>>,
+        input: CsrCaptureColumns<'a, impl Into<CsrOrdinals<'a>>, impl Into<CsrActions<'a>>>,
         level: u64,
         safety: CheckResult,
         options: CheckOptions,

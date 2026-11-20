@@ -266,6 +266,17 @@ memory limit. The larger compact run generated 526,836,645 transitions and
 still had 13,760,692 states queued. The same record includes the four
 individual observations under `capacity`.
 
+### Action labels in temporal graphs
+
+Core retains one action ID per edge so it can distinguish named transitions during replay. For up to 255 action names, it stores a byte per edge, with 255 reserved for an unnamed entry. Larger action tables retain full-width IDs. Duplicate destinations, successor ordinals and implicit stutter edges keep their identities.
+
+| Two-million-state prefix | Generated | Collector buffers, before / after | Mean peak RSS, before / after | Mean wall seconds, before / after |
+|---|---:|---:|---:|---:|
+| BlockingQueuePoisonApple | 6,009,057 | 232 / 176 MiB | 614 / 558 MiB | 18.04 / 18.53 |
+| c1cs | 41,819,682 | 1,256 / 808 MiB | 1,582 / 1,224 MiB | 79.47 / 79.31 |
+
+Both binaries already used narrow successor ordinals. The two rotations per binary agreed on every search counter within each model. Under the same 2 GiB sampled process limit, c1cs reached 2,644,879 distinct and 56,343,707 generated before, and 3,130,942 distinct and 65,470,460 generated after. Both stopped with a nonempty queue. The configuration with more transitions per state sees the bigger gain because each retained edge saves seven bytes. [Individual readings, terminal statistics, machine and hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same
@@ -455,6 +466,8 @@ Use the pinned `slatedb/SlateDBWAL.tla` and `SlateDBWAL.cfg`. All runs retain th
 
 Restarts raised the completed two-writer graph from 74,637 to 3,761,377 distinct states. Adding a third writer with restarts disabled raised it to 30,114,878. A separate completed TLC run matched Core’s 117,007,147 generated, depth 114 and empty queue for that configuration. The three-writer, one-restart original remained open at the 180 s cutoff. Holding just one packed 64-bit fingerprint for each of the reported 49 billion states would occupy about 365 GiB before table overhead, predecessor records and the frontier. Under an independent uniform 64-bit hash assumption, that many distinct states would yield about 65 colliding pairs in expectation. An exact-state or symbolic control is important at this scale. [Configuration edits, input hashes and all measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
+Allowing two writer restarts instead of one raised the complete two-writer graph from **3,761,377 to 98,416,351 distinct states**. Core and TLC independently generated 398,235,951 states, reached depth 114 and exhausted the queue. On the same eight physical cores, Core took 396.33 s at 1.65 GiB peak RSS and TLC took 804.47 s at 5.02 GiB. With all three original writers and two restarts, Core reached a 30-million-state prefix in 135.87 s, with 102,653,606 generated and 6,184,868 still queued. That larger model's total size remains unknown. [Pinned configurations, per-engine commands and measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
 #### Symmetry comparison costs
 
 A SlateDB successor changes a subset of 19 variables. Selecting its symmetry representative can compare the same function domains and nested values many times. Core now compares borrowed slices and stops reading at the first differing entry. It also reuses per-worker buffers for competing images. On the original configuration at five million discoveries, the three-run median fell from 19.97 to 17.92 s at eight physical cores, and from 10.12 to 9.62 s at 32. All twelve terminal reports agreed on counts, depth and pending queue. [Individual runs, profile and binary identities](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
@@ -514,6 +527,8 @@ than the standalone ratio. The prefix stopped at its discovery limit.
 A negative lookup used to read a 4 KiB page even when none of its 512 fingerprints could match. Each smaller run now keeps a blocked Bloom filter for each page. A negative hint skips that read. A possible match still checks the stored key, and the closing audit streams all keys. On the same trace, page reads fell from 2,908,642 to 886,751 with identical decisions. Under ordinary parallel Core on 16 physical cores, 20 million discoveries took 118.16 s before and 74.06 s with filters. Mean peak RSS moved from 1381 to 1402 MiB. Both figures average two runs per build. The filtered comparison and the earlier resident comparison used different hardware.
 
 The unfiltered external checker also exhausted the full one-value configuration on a separate r7i.16xlarge with 32 physical cores. It matched resident Core and TLC at 242,213,642 distinct, 1,068,416,158 generated, depth 126 and an empty queue. Its 2,322.19 s includes auditing all fingerprints and removing the run files. Peak process RSS was 3.99 GiB and peak cgroup memory was 5.64 GiB. Resident Core used 8.70 GiB and finished in 551.82 s. Before the closing audit the external key collections occupied 11.21 MiB and active runs contained 1.94 GB. The native minimum fingerprint gap was 127.
+
+On that same machine the filtered external checker finished in **1,431.80 s**, down from 2,322.19 s. Both runs audited all 242,213,642 stored keys, found the same minimum gap and reported the same depth, generated count and empty queue. Filtering raised peak RSS from 3.99 to 4.06 GiB and peak cgroup memory from 5.64 to 5.69 GiB, including the filesystem cache. For this model, filtered disk membership took 2.59× the wall time of resident Core with less than half its peak process RSS. [Both complete runs and the resident/TLC controls](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
 With no discovery limit, eight workers exhausted the two-writer, one-restart
 configuration using sorted runs. Core and pinned TLC both reached 3,761,377

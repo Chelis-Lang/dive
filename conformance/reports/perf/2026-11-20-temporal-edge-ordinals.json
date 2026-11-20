@@ -322,5 +322,248 @@
         "peak_rss_kib": 21912260
       }
     ]
+  },
+  "action_ids": {
+    "method": "Exclusive c7i.4xlarge, 8 physical cores 0-7, 24 GiB cgroup, no swap. Each model ran base/action/action/base with a 2,000,000-state cap, followed by c1cs base/action with a 2 GiB sampled process limit. GNU time wall and peak process RSS. The 2 GiB comparisons stop at different discovery counts and can overshoot the sampled limit.",
+    "kernel": "7.0.0-1018-aws",
+    "inputs": "Same author files as sources_sha256 above. BlockingQueuePoisonApple and c1cs use their matching CFG.",
+    "command": "dive check MODULE --config CFG --workers 8 --fp 0 --seed 0 --compat=tlc --output json; prefix adds --max-memory 8g --time-limit 400s --max-states 2000000; capacity adds --max-memory 2g --time-limit 600s",
+    "binaries_sha256": {
+      "graph-base": "3af5e61926039de5356f2d90bc4d770236228b8fd58edcfb9d66a86111f3fcc6",
+      "graph-action": "dd35099006143197938d6f40de04308886f9d5d13993a7cffbc468fff4f66375"
+    },
+    "comparison": "Both executables already use narrow successor ordinals. The candidate changes the action-ID column. These rotations precede the public slice-coercion compatibility fix.",
+    "samples": [
+      {
+        "case": "BlockingQueuePoisonApple-action1",
+        "wall_s": 18.95,
+        "peak_rss_kib": 568032,
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 184550443,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2000000,
+          "observed": 2000001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        }
+      },
+      {
+        "case": "BlockingQueuePoisonApple-action2",
+        "wall_s": 18.11,
+        "peak_rss_kib": 575308,
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 184550443,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2000000,
+          "observed": 2000001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        }
+      },
+      {
+        "case": "BlockingQueuePoisonApple-base1",
+        "wall_s": 17.94,
+        "peak_rss_kib": 630076,
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 243270699,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2000000,
+          "observed": 2000001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        }
+      },
+      {
+        "case": "BlockingQueuePoisonApple-base2",
+        "wall_s": 18.14,
+        "peak_rss_kib": 628352,
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 243270699,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2000000,
+          "observed": 2000001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-action1",
+        "wall_s": 78.96,
+        "peak_rss_kib": 1258736,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 847251564,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2000000,
+          "observed": 2000001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-action2",
+        "wall_s": 79.66,
+        "peak_rss_kib": 1248484,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 847251564,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2000000,
+          "observed": 2000001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-base1",
+        "wall_s": 79.0,
+        "peak_rss_kib": 1620048,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 1317013612,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2000000,
+          "observed": 2000001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-base2",
+        "wall_s": 79.94,
+        "peak_rss_kib": 1620152,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 1317013612,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2000000,
+          "observed": 2000001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-capacity-action",
+        "wall_s": 121.23,
+        "peak_rss_kib": 2351016,
+        "statistics": {
+          "depth": 15,
+          "distinct": 3130942,
+          "exhaustive": false,
+          "generated": 65470460,
+          "initial_generated": 16,
+          "left_on_queue": 1485965,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 1694500972,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2147483648,
+          "observed": 2349260800,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        }
+      },
+      {
+        "case": "c1cs-capacity-base",
+        "wall_s": 106.39,
+        "peak_rss_kib": 2171920,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2644879,
+          "exhaustive": false,
+          "generated": 56343707,
+          "initial_generated": 16,
+          "left_on_queue": 1189950,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 1426065516,
+        "exit_code": 5,
+        "stop": {
+          "limit": 2147483648,
+          "observed": 2224549888,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        }
+      }
+    ]
   }
 }
