@@ -28,6 +28,12 @@ are in git history.
   builds the behavior graph with one worker and gives the one-worker result;
   the report's `options.workers.reason` and the human header say so.
 
+### Performance
+
+- Parallel Core temporal checks keep one worker team across graph-capture
+  batches. In the CoffeeCan3000Beans eight-worker comparison, elapsed time
+  fell from 107.3 s to 49.4 s.
+
 ### Documentation
 
 - The user guides build as an mdBook: `mdbook build book`, then

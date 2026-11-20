@@ -62,6 +62,10 @@ const MAX_SLOTS: usize = 1 << 23;
 impl Claims {
     fn new(capacity: usize) -> Self {
         let size = capacity.next_power_of_two().clamp(1 << 12, MAX_SLOTS);
+        Self::with_size(size)
+    }
+
+    fn with_size(size: usize) -> Self {
         Self {
             keys: (0..size).map(|_| AtomicU64::new(0)).collect(),
             pos: (0..size).map(|_| AtomicU64::new(u64::MAX)).collect(),
@@ -577,6 +581,75 @@ fn expand_one(
     sink.out
 }
 
+/// Created on the first multi-worker graph wave and dropped at the end of search.
+#[derive(Default)]
+pub(crate) struct WaveWorkers {
+    pool: Option<rayon_core::ThreadPool>,
+    claims: Option<Claims>,
+}
+
+impl Claims {
+    fn for_wave(saved: &mut Option<Self>, capacity: usize) -> &Self {
+        // The commit fence guarantees no readers remain from the last wave.
+        // Size for this bounded wave rather than applying the safety-table floor.
+        let size = capacity.next_power_of_two().max(32);
+        match saved {
+            Some(table) => {
+                if table.keys.len() != size {
+                    *table = Self::with_size(size);
+                    return table;
+                }
+                for key in &mut table.keys {
+                    *key.get_mut() = 0;
+                }
+                for pos in &mut table.pos {
+                    *pos.get_mut() = u64::MAX;
+                }
+                table
+            }
+            None => saved.insert(Self::with_size(size)),
+        }
+    }
+}
+
+fn run_workers(
+    machines: &mut [Machine],
+    persistent: Option<&mut Option<rayon_core::ThreadPool>>,
+    work: impl Fn(&mut Machine) -> WorkerResult + Sync,
+) -> Result<Vec<Option<WorkerResult>>, Error> {
+    if let Some(persistent) = persistent {
+        let team = match persistent {
+            Some(existing) => existing,
+            None => persistent.insert(
+                rayon_core::ThreadPoolBuilder::new()
+                    .num_threads(machines.len())
+                    .build()
+                    .map_err(|e| Error::internal(format!("temporal worker pool: {e}")))?,
+            ),
+        };
+        let mut results: Vec<_> = (0..machines.len()).map(|_| None).collect();
+        team.in_place_scope(|scope| {
+            for (machine, slot) in machines.iter_mut().zip(&mut results) {
+                let work = &work;
+                scope.spawn(move |_| {
+                    *slot =
+                        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(machine)))
+                            .ok();
+                });
+            }
+        });
+        Ok(results)
+    } else {
+        Ok(std::thread::scope(|scope| {
+            let handles: Vec<_> = machines
+                .iter_mut()
+                .map(|machine| scope.spawn(|| work(machine)))
+                .collect();
+            handles.into_iter().map(|h| h.join().ok()).collect()
+        }))
+    }
+}
+
 /// Phase 1 over the frontier `cur` (`nvars` handles per state): the
 /// expansion of each state in position order, or `None` for a state no
 /// worker expanded because the budget ran out first.
@@ -595,6 +668,7 @@ pub(crate) fn expand_level(
     capture_limit: Option<u64>,
     candidates: Option<(&crate::storage::Storage, &crate::candidate::Account)>,
     poll: &(dyn Fn() -> bool + Sync),
+    wave_workers: &mut WaveWorkers,
     estimate: usize,
     metrics: &mut Metrics,
 ) -> Result<Vec<Option<Expanded>>, Error> {
@@ -608,55 +682,59 @@ pub(crate) fn expand_level(
     let batch = (n / (workers * 16)).clamp(1, 64);
     let next = AtomicUsize::new(0);
     let halt = AtomicBool::new(false);
-    let claims = Claims::new(estimate.saturating_mul(2));
-    let results: Vec<Option<WorkerResult>> = std::thread::scope(|scope| {
-        let handles: Vec<_> = machines
-            .iter_mut()
-            .map(|m| {
-                let (next, halt, claims) = (&next, &halt, &claims);
-                scope.spawn(move || {
-                    let mut done = Vec::new();
-                    let mut local = Metrics::default();
-                    loop {
-                        let start = next.fetch_add(batch, Ordering::Relaxed);
-                        if start >= n || halt.load(Ordering::Relaxed) {
-                            break;
-                        }
-                        for k in start..(start + batch).min(n) {
-                            if poll() {
-                                halt.store(true, Ordering::Relaxed);
-                                break;
-                            }
-                            let s0 = &cur[k * nvars..(k + 1) * nvars];
-                            done.push((
-                                k,
-                                expand_one(
-                                    m,
-                                    plan,
-                                    seen,
-                                    claims,
-                                    k,
-                                    opts,
-                                    preserve_originals,
-                                    capture_limit,
-                                    candidates,
-                                    poll,
-                                    s0,
-                                    &mut local,
-                                    None,
-                                ),
-                            ));
-                        }
-                        if candidates.is_some() {
-                            break;
-                        }
-                    }
-                    (done, local)
-                })
-            })
-            .collect();
-        handles.into_iter().map(|h| h.join().ok()).collect()
-    });
+    let capacity = estimate.saturating_mul(2).min(MAX_SLOTS);
+    let local_claims;
+    let claims = if capture_limit.is_some() {
+        Claims::for_wave(&mut wave_workers.claims, capacity)
+    } else {
+        local_claims = Claims::new(capacity);
+        &local_claims
+    };
+    let work = |m: &mut Machine| {
+        let (next, halt) = (&next, &halt);
+        let mut done = Vec::new();
+        let mut local = Metrics::default();
+        loop {
+            let start = next.fetch_add(batch, Ordering::Relaxed);
+            if start >= n || halt.load(Ordering::Relaxed) {
+                break;
+            }
+            for k in start..(start + batch).min(n) {
+                if poll() {
+                    halt.store(true, Ordering::Relaxed);
+                    break;
+                }
+                let s0 = &cur[k * nvars..(k + 1) * nvars];
+                done.push((
+                    k,
+                    expand_one(
+                        m,
+                        plan,
+                        seen,
+                        claims,
+                        k,
+                        opts,
+                        preserve_originals,
+                        capture_limit,
+                        candidates,
+                        poll,
+                        s0,
+                        &mut local,
+                        None,
+                    ),
+                ));
+            }
+            if candidates.is_some() {
+                break;
+            }
+        }
+        (done, local)
+    };
+    let results = run_workers(
+        machines,
+        capture_limit.map(|_| &mut wave_workers.pool),
+        work,
+    )?;
     let mut out: Vec<Option<Expanded>> = (0..n).map(|_| None).collect();
     for r in results {
         let Some((done, local)) = r else {
@@ -942,6 +1020,107 @@ mod tests {
     use std::collections::HashMap;
 
     use super::Claims;
+
+    #[test]
+    fn temporal_claims_start_empty_after_each_commit_fence() {
+        let mut saved = None;
+        for capacity in [32, 32, 64, 32] {
+            let claims = Claims::for_wave(&mut saved, capacity);
+            assert!(!claims.held_before(7, 100));
+            assert!(claims.claim(7, 3));
+            assert!(!claims.claim(7, 4));
+        }
+    }
+
+    #[test]
+    fn scoped_tasks_reuse_search_threads_and_join_before_return() -> Result<(), dive_core::Error> {
+        use dive_core::memo::Memo;
+        use dive_core::{Machine, Opts, Store};
+        use std::collections::HashSet;
+        use std::sync::{Arc, Mutex};
+
+        let store = Arc::new(Store::new(true));
+        let mut machines: Vec<_> = (0..3)
+            .map(|_| Machine::new(Arc::clone(&store), 1, Opts::default(), Memo::new(&[])))
+            .collect();
+        let mut pool = None;
+        let calls = Mutex::new(Vec::new());
+        let mut original_threads = None;
+        for _ in 0..3 {
+            let result = super::run_workers(&mut machines, Some(&mut pool), |_| {
+                calls
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner)
+                    .push(std::thread::current().id());
+                (Vec::new(), crate::Metrics::default())
+            })?;
+            assert_eq!(result.len(), 3);
+            assert!(result.iter().all(Option::is_some));
+            let team = pool
+                .as_ref()
+                .ok_or_else(|| dive_core::Error::internal("missing worker pool"))?;
+            let threads: HashSet<_> = team
+                .broadcast(|_| std::thread::current().id())
+                .into_iter()
+                .collect();
+            assert_eq!(threads.len(), 3);
+            let original = original_threads.get_or_insert_with(|| threads.clone());
+            assert_eq!(&threads, original);
+            let mut ids = calls
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            assert_eq!(ids.len(), 3);
+            assert!(ids.drain(..).all(|id| threads.contains(&id)));
+        }
+        // A failed task is reported to the coordinator only after its peers join.
+        let first = std::sync::atomic::AtomicBool::new(true);
+        let results = super::run_workers(&mut machines, Some(&mut pool), |_| {
+            if first.swap(false, std::sync::atomic::Ordering::Relaxed) {
+                std::panic::resume_unwind(Box::new("worker fault control"));
+            }
+            (Vec::new(), crate::Metrics::default())
+        })?;
+        assert_eq!(results.iter().filter(|slot| slot.is_none()).count(), 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn cancellation_during_a_capture_wave_preserves_the_unexpanded_sources()
+    -> Result<(), dive_core::Error> {
+        use dive_core::memo::Memo;
+        use dive_core::{Handle, Machine, Opts, Store};
+        use std::sync::Arc;
+        let opts = Opts::default();
+        let store = Arc::new(Store::new(true));
+        let plan = crate::tests::frontier_plan(&store, false)?;
+        let mut machines: Vec<_> = (0..3)
+            .map(|_| Machine::new(Arc::clone(&store), 1, opts, Memo::new(&[])))
+            .collect();
+        let mut waves = super::WaveWorkers::default();
+        let rows = [Handle::TRUE; 16];
+        let seen = crate::Seen::default();
+        for cancel in [true, false] {
+            let out = super::expand_level(
+                &plan,
+                &mut machines,
+                &rows,
+                1,
+                &seen,
+                opts,
+                false,
+                Some(128),
+                None,
+                &|| cancel,
+                &mut waves,
+                32,
+                &mut crate::Metrics::default(),
+            )?;
+            assert_eq!(out.len(), rows.len());
+            assert!(out.iter().all(|source| source.is_none() == cancel));
+        }
+        Ok(())
+    }
 
     /// A claim may report a duplicate only when an earlier position
     /// claimed the key, also when the table is too crowded to place keys.

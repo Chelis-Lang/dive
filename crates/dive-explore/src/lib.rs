@@ -2187,6 +2187,7 @@ fn run(
     let mut cur_originals = std::mem::take(&mut ex.next_originals);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
     ex.advance_frontier()?;
+    let mut wave_workers = parallel::WaveWorkers::default();
     let mut generated_before = 0;
     loop {
         let states = cur.len().checked_div(nvars).map_or(0, |in_memory| {
@@ -2305,6 +2306,7 @@ fn run(
                             .as_ref()
                             .map(|account| (&ex.candidate_storage, account)),
                         ex.poll,
+                        &mut wave_workers,
                         estimate.saturating_mul(end - k) / states.max(1),
                         &mut metrics,
                     )
