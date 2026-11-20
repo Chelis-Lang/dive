@@ -9,6 +9,7 @@
 mod debug;
 mod explain;
 mod help;
+mod symbolic;
 mod tlc;
 mod translate;
 
@@ -1766,6 +1767,7 @@ pub fn main() -> ExitCode {
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
         Some("dfid") => dfid_command(&args[1..], &mut stdout, &mut stderr),
         Some("translate") => translate::command(&args[1..], &mut stdout, &mut stderr),
+        Some("check") if symbolic::requested(&args[1..]) => symbolic::run(&args[1..], &mut stderr),
         Some("check") => check_command(&args[1..], &mut stdout, &mut stderr),
         Some("worker") => check_command_mode(&args[1..], &mut stdout, &mut stderr, true),
         Some("tlc") => tlc::command(&args[1..], &mut stdout, &mut stderr),
