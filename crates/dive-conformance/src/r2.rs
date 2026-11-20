@@ -396,6 +396,7 @@ mod tests {
                 xmx: "3g".to_owned(),
                 timeout_policy: String::new(),
                 crosscheck_manifest: false,
+                observe_missing_goldens: false,
                 sany_phase: crate::sany::SanyPhase::Full,
                 impl_options: Vec::new(),
                 impl_profile: None,

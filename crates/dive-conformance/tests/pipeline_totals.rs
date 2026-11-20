@@ -145,6 +145,7 @@ fn options(repo: &Path, filters: Vec<String>) -> RunOptions {
             budget_cap: None,
         },
         crosscheck_manifest: true,
+        observe_missing_goldens: false,
         models: true,
         sany: true,
         report_dir: repo.join("reports"),
@@ -236,6 +237,55 @@ fn success() -> OracleResult {
         unresolved_modules: vec![],
         note: None,
     }
+}
+
+#[test]
+fn ungraded_observations_are_available_without_claiming_agreement() -> TestResult {
+    let tmp = dive_conformance::util::TempDir::new("ungraded")?;
+    let (repo, cache) = setup(tmp.path())?;
+    let config = Config::load(&repo)?;
+    let mut opts = options(&repo, vec![]);
+    opts.sany = false;
+    opts.workers = vec![1, 4];
+    let checker = Optioned {
+        options: vec![],
+        profile: None,
+        result: success(),
+    };
+    let strict = pipeline::run(&config, &cache, &checker, None, &opts)?;
+    assert!(strict.models.iter().all(|m| m.runs.is_empty()));
+    opts.observe_missing_goldens = true;
+    let observed = pipeline::run(&config, &cache, &checker, None, &opts)?;
+    let model = observed
+        .models
+        .iter()
+        .find(|m| m.outcome == Outcome::OracleError)
+        .ok_or("expected ungraded model")?;
+    assert!(model.golden_verdict.is_none());
+    assert_eq!(
+        model.runs.iter().map(|r| r.workers).collect::<Vec<_>>(),
+        [1, 4]
+    );
+    assert!(model.runs.iter().all(|r| r.outcome == Outcome::OracleError
+        && r.verdict == Some(Verdict::Success)
+        && r.distinct_states == Some(4)
+        && r.diffs.is_empty()));
+    assert!(
+        observed
+            .models
+            .iter()
+            .any(|m| m.outcome == Outcome::OutOfScope && m.runs.is_empty())
+    );
+    assert_eq!(
+        observed
+            .summary
+            .models
+            .get(&Outcome::Agree)
+            .copied()
+            .unwrap_or(0),
+        0
+    );
+    Ok(())
 }
 
 /// A non-oracle implementation that reproduces the golden exactly, under

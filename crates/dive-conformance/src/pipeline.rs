@@ -803,6 +803,10 @@ fn golden_generate_loaded(
 }
 
 /// Options of `run`.
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent CLI selections for model, SANY, manifest and ungraded observations"
+)]
 #[derive(Debug, Clone)]
 pub struct RunOptions {
     /// Corpus ids, run in order into one report.
@@ -820,6 +824,8 @@ pub struct RunOptions {
     pub limits: Limits,
     /// Compare goldens with the Examples manifests.
     pub crosscheck_manifest: bool,
+    /// Observe implementation results even when a selected model has no golden.
+    pub observe_missing_goldens: bool,
     /// Compare model-checking goldens. Disable for module-only runs.
     pub models: bool,
     /// Also compare SANY goldens.
@@ -961,6 +967,57 @@ fn combine(outcomes: impl Iterator<Item = Outcome>) -> Outcome {
         .unwrap_or(Outcome::OracleError)
 }
 
+/// Record ungraded attempts at the configured widths. They never establish
+/// conformance, even if a complete check returns success or a counterexample.
+fn observe_missing(
+    imp: &dyn Implementation,
+    corpus: &CorpusIndex,
+    model: &ModelEntry,
+    opts: &RunOptions,
+) -> Vec<RunRecord> {
+    opts.workers
+        .iter()
+        .map(|&workers| {
+            let request = ModelRequest {
+                corpus_root: &corpus.root,
+                model,
+                workers,
+                timeout: opts.model_timeout(&corpus.id, model, None),
+                xmx: &opts.limits.xmx,
+                budgets: opts.limits.budget_cap.is_some(),
+            };
+            match imp.check_model(&request) {
+                Ok(ImplResult::Completed {
+                    result, elapsed, ..
+                }) => record_from(
+                    workers,
+                    Outcome::OracleError,
+                    Some(&result),
+                    vec![],
+                    elapsed,
+                    result.note.clone(),
+                ),
+                Ok(ImplResult::Unsupported(why)) => record_from(
+                    workers,
+                    Outcome::Unsupported,
+                    None,
+                    vec![],
+                    Duration::ZERO,
+                    Some(why),
+                ),
+                Err(error) => record_from(
+                    workers,
+                    Outcome::OracleError,
+                    None,
+                    vec![],
+                    Duration::ZERO,
+                    Some(error.to_string()),
+                ),
+            }
+        })
+        .collect()
+}
+
 #[allow(
     clippy::too_many_lines,
     reason = "the validation steps read best in order"
@@ -1018,6 +1075,9 @@ fn run_model(
             "no golden from `{}` for this model",
             opts.golden_oracle
         ));
+        if opts.observe_missing_goldens {
+            report.runs = observe_missing(imp, corpus, m, opts);
+        }
         return report;
     };
     report.golden_verdict = Some(golden.result.verdict);
@@ -1728,6 +1788,7 @@ pub fn run(
             xmx: opts.limits.xmx.clone(),
             timeout_policy: opts.timeout_policy(),
             crosscheck_manifest: opts.crosscheck_manifest,
+            observe_missing_goldens: opts.observe_missing_goldens,
             sany_phase: opts.sany_phase,
             impl_options: imp.options().to_vec(),
             impl_profile: imp.profile(),
@@ -1878,6 +1939,7 @@ mod tests {
                 budget_cap: Some(Duration::from_mins(15)),
             },
             crosscheck_manifest: false,
+            observe_missing_goldens: false,
             models: true,
             sany: false,
             report_dir: PathBuf::new(),

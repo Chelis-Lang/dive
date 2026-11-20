@@ -189,6 +189,9 @@ pub struct Settings {
     pub timeout_policy: String,
     /// Whether the manifest cross-check ran.
     pub crosscheck_manifest: bool,
+    /// Whether missing model goldens were accompanied by ungraded observations.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub observe_missing_goldens: bool,
     /// Which SANY verdict modules were compared on.
     #[serde(default)]
     pub sany_phase: SanyPhase,
