@@ -8,7 +8,7 @@ are in git history.
 ### Added
 
 - Core uses one worker for temporal captures with a wide initial frontier and simple actions, and reports why in `options.workers`.
-
+- Core temporal checks use compact successor ordinals while retaining exact trace and saved-graph identities. See the [matched memory comparison](docs/developer/large-models.md#successor-ordinals-in-temporal-graphs).
 - Core supports inclusive subsequence predicate searches and folds multikey
   bags in canonical key order. See [bag fold order](docs/tlc-differences.md#d-030-bag-fold-order).
 
