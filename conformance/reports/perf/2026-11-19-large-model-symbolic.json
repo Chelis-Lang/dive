@@ -1,0 +1,408 @@
+{
+  "backend": "Python dd 0.6.0 with CUDD, finite safety only",
+  "c1cs_postdecision": {
+    "damaged_path": "rejected",
+    "delivery_edges": 8724152320,
+    "reachable_states": 671088640,
+    "regions": 10,
+    "scope": "postdecision regions only; no full fairness or termination result",
+    "validated_paths": 20,
+    "witnesses": 34896609280
+  },
+  "date": "2026-11-19",
+  "example_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "host": "shared Ryzen AI MAX+ 395 workstation",
+  "large_predicate_bytes": 24809,
+  "runs": {
+    "final-analytic-Large": {
+      "backend": "hand-translated KVS transition relation / CUDD",
+      "depth": 30,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 626636,
+      "model": "Large",
+      "process_wall_s": 155.57,
+      "reachable_bdd_nodes": 1961
+    },
+    "final-analytic-Medium": {
+      "backend": "hand-translated KVS transition relation / CUDD",
+      "depth": 22,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 57248,
+      "model": "Medium",
+      "process_wall_s": 0.83,
+      "reachable_bdd_nodes": 328
+    },
+    "final-analytic-Small": {
+      "backend": "hand-translated KVS transition relation / CUDD",
+      "depth": 23,
+      "distinct": 3409605,
+      "generated": 56349379,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 110564,
+      "model": "Small",
+      "process_wall_s": 4.11,
+      "reachable_bdd_nodes": 867
+    },
+    "growth-4": {
+      "max_rss_kib": 126912,
+      "process_wall_s": 4.51,
+      "steps": [
+        {
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.67023,
+          "verdict": "success"
+        },
+        {
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 3.68118,
+          "verdict": "success"
+        }
+      ]
+    },
+    "growth-5": {
+      "max_rss_kib": 200588,
+      "process_wall_s": 14.77,
+      "steps": [
+        {
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.644394,
+          "verdict": "success"
+        },
+        {
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 13.974999,
+          "verdict": "success"
+        }
+      ]
+    },
+    "growth-large3v": {
+      "max_rss_kib": 630756,
+      "process_wall_s": 248.58,
+      "steps": [
+        {
+          "depth": 30,
+          "distinct": 13408088064,
+          "generated": 422642244865,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "reachable_bdd_nodes": 2112,
+          "reused": false,
+          "seconds": 248.437112,
+          "verdict": "success"
+        }
+      ]
+    },
+    "induct-12": {
+      "failed_obligation": null,
+      "max_rss_kib": 86988,
+      "process_wall_s": 0.46,
+      "proof": "inductive-safety",
+      "seconds": 0.308727
+    },
+    "induct-16": {
+      "failed_obligation": null,
+      "max_rss_kib": 86456,
+      "process_wall_s": 0.65,
+      "proof": "inductive-safety",
+      "seconds": 0.499429
+    },
+    "induct-5": {
+      "failed_obligation": null,
+      "max_rss_kib": 64772,
+      "process_wall_s": 0.23,
+      "proof": "inductive-safety",
+      "seconds": 0.073678
+    },
+    "induct-8": {
+      "failed_obligation": null,
+      "max_rss_kib": 69136,
+      "process_wall_s": 0.3,
+      "proof": "inductive-safety",
+      "seconds": 0.152989
+    },
+    "kvs-symbolic-Large": {
+      "backend": "hand-translated KVS transition relation / CUDD",
+      "depth": 30,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 623952,
+      "model": "Large",
+      "process_wall_s": 121.67,
+      "reachable_bdd_nodes": 1961
+    },
+    "kvs-symbolic-Medium": {
+      "backend": "hand-translated KVS transition relation / CUDD",
+      "depth": 22,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 56400,
+      "model": "Medium",
+      "process_wall_s": 0.65,
+      "reachable_bdd_nodes": 328
+    },
+    "kvs-symbolic-Small": {
+      "backend": "hand-translated KVS transition relation / CUDD",
+      "depth": 23,
+      "distinct": 3409605,
+      "generated": 56349379,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 110076,
+      "model": "Small",
+      "process_wall_s": 2.5,
+      "reachable_bdd_nodes": 867
+    },
+    "large-portable": {
+      "max_rss_kib": 628076,
+      "process_wall_s": 129.36,
+      "steps": [
+        {
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 129.231296,
+          "verdict": "success"
+        }
+      ]
+    },
+    "shape-grouped": {
+      "depth": 22,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 68692,
+      "process_wall_s": 0.58,
+      "reachable_bdd_nodes": 328,
+      "reused": false,
+      "seconds": 0.475233,
+      "verdict": "success"
+    },
+    "shape-grouped_single": {
+      "depth": 22,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 68732,
+      "process_wall_s": 0.62,
+      "reachable_bdd_nodes": 328,
+      "reused": false,
+      "seconds": 0.490422,
+      "verdict": "success"
+    },
+    "shape-path": {
+      "depth": 22,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 206960,
+      "process_wall_s": 9.99,
+      "reachable_bdd_nodes": 3552,
+      "reused": false,
+      "seconds": 9.828782,
+      "verdict": "success"
+    },
+    "shape-path_single": {
+      "depth": 22,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 195020,
+      "process_wall_s": 8.48,
+      "reachable_bdd_nodes": 3552,
+      "reused": false,
+      "seconds": 8.325516,
+      "verdict": "success"
+    },
+    "source-Large": {
+      "max_rss_kib": 627588,
+      "process_wall_s": 165.42
+    },
+    "source-Medium": {
+      "max_rss_kib": 70044,
+      "process_wall_s": 0.84
+    },
+    "source-Small": {
+      "max_rss_kib": 121820,
+      "process_wall_s": 4.4
+    },
+    "source-edits": {
+      "max_rss_kib": 628156,
+      "process_wall_s": 123.05,
+      "steps": [
+        {
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 122.85293,
+          "verdict": "success"
+        },
+        {
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle",
+            "TxIsClean"
+          ],
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.032936,
+          "verdict": "success"
+        },
+        {
+          "depth": 3,
+          "ending": {
+            "kind": "invariant",
+            "name": "NoWrites"
+          },
+          "reused": true,
+          "seconds": 0.029456,
+          "trace_validated": true,
+          "verdict": "violation"
+        }
+      ]
+    },
+    "source-generic-Large": {
+      "depth": 30,
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 627716,
+      "process_wall_s": 165.72,
+      "reachable_bdd_nodes": 1961,
+      "verdict": "success"
+    },
+    "source-generic-Medium": {
+      "depth": 22,
+      "distinct": 17220672,
+      "generated": 365609473,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 70296,
+      "process_wall_s": 0.94,
+      "reachable_bdd_nodes": 328,
+      "verdict": "success"
+    },
+    "source-generic-Small": {
+      "depth": 23,
+      "distinct": 3409605,
+      "generated": 56349379,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "max_rss_kib": 129872,
+      "process_wall_s": 6.74,
+      "reachable_bdd_nodes": 1278,
+      "verdict": "success"
+    },
+    "standalone-proof": {
+      "steps": [
+        {
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.052318
+        },
+        {
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.033597
+        },
+        {
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.036963
+        }
+      ]
+    }
+  },
+  "schema": 1,
+  "scope": "Engineering measurements. Samples from different hosts or builds are identified separately. See the performance data index for definitions."
+}
