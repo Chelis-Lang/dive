@@ -112,6 +112,17 @@ taken up to twice as long as at 1 worker, while the report still says
 specifications with temporal properties at `--workers 1`, and try more workers
 only when each state is expensive to compute.
 
+A temporal check whose model has effects or run-time names, such as a constant
+drawn with `RandomElement` at start-up, builds its behavior graph with one
+worker at any requested width, so it gives exactly the `--workers 1` result.
+The report says `"used": 1` and gives the `reason`, and the human report
+prints it under the header:
+
+```text
+dive check SpanTreeRandom.tla: profile dive, store fingerprint (fp 0), seed 0, 4 worker(s) requested, 1 used
+the temporal capture has effects or runtime names (start-up or configured effects): the core captures the behavior graph in order with one worker
+```
+
 Fingerprint storage is the default. `--store exact` keeps canonical concrete
 keys for supported values; a fingerprint run's collision figures do not turn
 into an exact-state proof. Safety checks support ordered frontier spill and

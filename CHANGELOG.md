@@ -18,6 +18,11 @@ are in git history.
   instead of 4.0 GB. Reports are byte-for-byte unchanged.
 - Library users: `SimulateReport::write_json` writes the report text without
   building the JSON tree that `to_json` returns.
+- A temporal check whose model has effects or run-time names (for example
+  `SpanTreeRandom.cfg` and `MCKVsnap.cfg`) no longer refuses at `--workers`
+  above 1 with "concrete pool capture with effects or runtime names". It
+  builds the behavior graph with one worker and gives the one-worker result;
+  the report's `options.workers.reason` and the human header say so.
 
 ### Documentation
 
