@@ -1,6 +1,6 @@
 # Finite symbolic safety checking
 
-Use the source-checkout tool `scripts/symbolic/check.py` when a finite TLA+
+Use `dive check --strategy symbolic` in a Linux release bundle when a finite TLA+
 model has many combinations of the same few fields. It can search the complete
 reachable set, check a new invariant against that set, or prove safety by
 induction. It reads the original TLA+ module and configuration through Dive's
@@ -8,7 +8,26 @@ binder.
 
 ## Run a check
 
-On Linux x86-64, in a Dive source checkout, build the binder and validator
+Keep the extracted Linux release directory together. The bundled worker and
+validator run offline. From the directory containing an existing finite spec:
+
+```sh
+dive check Model.tla --config Model.cfg --strategy symbolic --output json
+dive check Model.tla --config Model.cfg --strategy symbolic --write-predicate closed.json
+dive check Model.tla --config Edited.cfg --strategy symbolic --verify-predicate closed.json
+```
+
+The configuration defaults to the module basename with a `.cfg` extension.
+Select the finite layout with `--type-invariant NAME`. The explicit symbolic
+strategy emits symbolic JSON, including on an unsupported feature. Its exit
+codes are 0 for success, 1 for a validated violation, 2 for an unsupported
+model or inconclusive proof, 3 for a worker error, and 4 for a resource stop.
+`--time-limit` accepts the normal duration units, including milliseconds.
+`--max-memory` takes a per-process address-space budget of at least 1 MiB.
+The Linux archives contain the worker. A binary-only Cargo installation
+requires the companion from a matching release to use this strategy.
+
+For source development on Linux x86-64, build the binder and validator
 from the same source as the script. Install the optional CUDD Python binding
 in a Python 3.11 virtual environment.
 
