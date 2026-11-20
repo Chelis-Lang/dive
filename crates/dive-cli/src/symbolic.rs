@@ -38,6 +38,13 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
             "--type-invariant" | "--write-predicate" | "--verify-predicate" | "--trace" => {
                 command.arg(key).arg(value()?);
             }
+            "--recheck" if inline.is_none() => {
+                let revision = value()?;
+                let config = args
+                    .next()
+                    .ok_or_else(|| "--recheck needs MODULE CONFIG".to_owned())?;
+                command.arg(key).arg(revision).arg(config);
+            }
             "--prove-inductive" | "--refine-domains" if inline.is_none() => {
                 command.arg(key);
             }

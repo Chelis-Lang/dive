@@ -1102,17 +1102,22 @@ class SourceModel(FiniteRelation):
         )
 
 
-def refined_search(args):
-    """Retry with new coordinates in a fresh CUDD process under the caller's deadline."""
-    require(not (args.verify_predicate or args.prove_inductive or args.recheck or args.write_predicate),
-            "set-domain refinement supports a single search and validated trace")
+def refine_one(args, module, config, hints):
+    """Freshly bind and search one revision. Hints only select initial coordinates."""
     started = time.monotonic()
     flags = ["-Es"] if sys.flags.ignore_environment else []
-    command = [sys.executable, *flags, __file__, json.dumps({**vars(args), "domain_pass": True})]
-    learned = {}
-    for attempt in range(1, 514):
+    options = {**vars(args), "module": module, "config": config, "recheck": [], "domain_pass": True}
+    command = [sys.executable, *flags, __file__, json.dumps(options)]
+    learned = hints.copy()
+    discarded_hints = False
+    # Growth must add a member and is capped at 512. A warm start can reset once.
+    for attempt in itertools.count(1):
         child = subprocess.run(command, input=json.dumps(list(learned.values())),
                                capture_output=True, text=True)
+        if hints and not discarded_hints and (child.returncode < 0 or child.returncode in (2, 4)):
+            learned.clear()
+            discarded_hints = True
+            continue
         if child.returncode < 0:
             diagnostic = child.stderr.strip()[-500:]
             raise Stopped(f"refinement worker terminated by signal {-child.returncode}: {diagnostic}")
@@ -1124,16 +1129,36 @@ def refined_search(args):
                     learned[key] = item
                     added = True
             require(added, "no progress refining finite set domains")
+            if len(learned) > 512 and hints and not discarded_hints:
+                learned.clear()
+                discarded_hints = True
+                continue
             require(len(learned) <= 512, "refined set domains exceed 512 state bits")
             continue
         if not child.stdout.strip():
             raise RuntimeError(f"refinement worker ended without a result (exit {child.returncode})")
         row = json.loads(child.stdout)
-        row.update(refinement_rounds=attempt, learned_members=len(learned),
+        selected = row.pop("domain_members", [])
+        current = {json.dumps(item): item for item in selected}
+        row.update(refinement_rounds=attempt, learned_members=len(current),
+                   initial_hint_members=0 if discarded_hints else len(hints.keys() & current.keys()),
                    seconds=round(time.monotonic() - started, 6))
         print(json.dumps(row), flush=True)
-        return child.returncode
-    raise Unsupported("set-domain refinement round limit")
+        return child.returncode, current
+
+
+def refined_search(args):
+    require(not (args.verify_predicate or args.prove_inductive or args.write_predicate),
+            "set-domain refinement supports reachability and validated traces")
+    hints = {}
+    violated = False
+    for module, config in [(args.module, args.config), *args.recheck]:
+        status, members = refine_one(args, module, config, hints)
+        if status not in (0, 1):
+            return status
+        violated |= status == 1
+        hints = members if status == 0 else {}
+    return int(violated)
 
 
 def run(args):
@@ -1191,6 +1216,12 @@ def run(args):
                 return 2
             continue
         row, trace = model.refined_reachability() if args.refine_domains else model.check(previous)
+        if args.refine_domains:
+            # Private child-to-parent payload. Retire stale coordinates on each edit.
+            row["domain_members"] = sorted(
+                ((path, k) for path in model.whole_domains for k in model.types[path[0]].domain),
+                key=repr,
+            )
         if args.write_predicate and model.complete is not None:
             induction.store(Path(args.write_predicate), model, model.complete[0])
         if trace is not None:

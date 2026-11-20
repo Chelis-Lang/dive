@@ -63,7 +63,7 @@ def main():
         metavar=("MODULE", "CONFIG"),
         action="append",
         default=[],
-        help="bind an edit and reuse a completed closure when its relation is identical",
+        help="check the edited input, reusing an identical closure or seeding refined set coordinates",
     )
     parser.add_argument("--time-limit", type=positive_seconds, metavar="SECONDS",
                         help="wall-time budget for the whole invocation, including binding and validation")

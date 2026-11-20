@@ -276,6 +276,26 @@ Escapes == /\ mail' = {Message(300)} /\ UNCHANGED step
     compare(row, explicit(module, config))
     assert row["learned_members"] == 3 and row["refinement_rounds"] >= 3
     assert (row["generated"], row["distinct"], row["depth"]) == (3, 2, 2)
+    edited = folder / "edited.cfg"
+    edited.write_text(common + "NEXT Next\nINVARIANT Safe\n")
+    cold, warm, bad, fresh = run(module, config, *flags, "--recheck", module, config,
+                                  "--recheck", module, edited, "--recheck", module, config, code=1)
+    for success in (cold, warm, fresh):
+        compare(success, explicit(module, config))
+        assert not success["reused"] and "domain_members" not in success
+    assert warm["refinement_rounds"] == 1 and warm["initial_hint_members"] == 3
+    assert fresh["initial_hint_members"] == 0 and fresh["refinement_rounds"] == cold["refinement_rounds"]
+    assert bad["ending"]["name"] == "Safe" and bad["depth"] == 3 and bad["trace_validated"]
+    shifted = folder / "Shifted.tla"
+    shifted.write_text(module.read_text().replace("MODULE Mail", "MODULE Shifted")
+                       .replace("0..299", "300..599").replace("Message(0)", "Message(300)")
+                       .replace("step + 1 IN", "step + 301 IN"))
+    _, disjoint = run(module, config, *flags, "--recheck", shifted, config)
+    compare(disjoint, explicit(shifted, config))
+    assert disjoint["initial_hint_members"] == 0 and disjoint["learned_members"] == 3
+    edited.write_text(common + "NEXT Escapes\n")
+    _, refused = run(module, config, *flags, "--recheck", module, edited, code=2)
+    assert refused["verdict"] == "unsupported" and "outside finite layout" in refused["reason"]
     config.write_text(common + "NEXT Next\nINVARIANT Safe\n")
     (bad,) = run(module, config, *flags, code=1)
     assert bad["ending"]["name"] == "Safe" and bad["depth"] == 3 and bad["trace_validated"]
