@@ -468,6 +468,8 @@ The default in-memory fingerprint store grows one shard at a time. Core keeps
 trace parents and successor numbers in a packed log and can still replay a
 counterexample from any discovered state. In ordinary parallel safety runs,
 each worker handles at most 128 source states per batch before ordered commit.
+Core reduces the batch when the previous level generated many successors per source.
+See the [matched high-fanout measurements](../developer/large-models.md#high-fanout-parallel-safety).
 A wide frontier or a single state with many successors can still require
 substantial memory. [Core storage measurements](../developer/core/07-engine.md#resident-storage-measurements).
 

@@ -6,7 +6,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 
 ## Next experiments
 
-- **Frontier storage.** Start with [the matched 300,000-state prefixes](#what-occupies-memory-at-the-same-discovery-prefix). BPConProof queued 299,867 rows. Moving handles to disk took peak RSS from 767 to 778 MiB because unread rows still held the value store alive. Test independently decodable chunks against both existing frontiers, with DiskSynod and TLCSailfish2 as controls. At a larger equal-work BPConProof prefix, target at least 25% lower peak RSS than the better baseline within 25% of its wall time before attempting the original 24 GiB run.
+- **Frontier storage.** [Matched runs at one million discoveries](#high-fanout-parallel-safety) qualified narrower resident batches and independent chunks for the original BPConProof budget. The deciding test for the chunks is how far the search gets at 24 GiB, including the file cache.
 - **Symbolic admission.** Use the unedited [PaxosLease configurations](#reproduce-the-released-paxoslease-runs). Check assumptions and state constraints against tiny TLC controls, then reproduce Base (491,037 distinct) and QuarantineEqualsProposer (76,749,192) before attempting Retry. Preserve counts of out-of-constraint generated successors and validate negative witnesses.
 - **Published scale.** RenewRetry is the next direct explicit comparison (2,411,951,538 distinct, depth 49 in the author log). For the 10.59-billion-state EmergencyCall result, establish the unconstrained initial states, properties and configuration from the authors’ artifacts before timing. The four released constrained cases have independent baselines in the [literature table](#published-model-sizes-and-reproducible-comparisons).
 - **Remaining work.** The [thirteen original outcomes](#where-the-thirteen-historical-non-finishes-stand) identify each memory or feature limit. Kafka still needs bounded lowering of repeated scoped fairness predicates. The all-17-model temporal worker comparison belongs at the integrated qualification boundary. Use [Sail’s measured edit cases](#which-evidence-can-decide-a-source-edit) as regression controls when changing proof reuse.
@@ -295,6 +295,21 @@ matched prefix demonstrates a useful reduction. They leave open the
 component breakdown at tens of millions of states and the retained temporal graph.
 
 Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. That option uses one worker and bounds its membership workspace. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
+
+### High-fanout parallel safety
+
+A worker expands each source before the coordinator commits its successors in discovery order. The amount awaiting commit scales with **sources per batch × successors per source**. On BPConProof, 478 of the first million discovered states had left the queue, yet the checker had generated 1,119,749 states. Spilling frontier rows cannot release successor batches already under construction. Core now uses the previous completed level's mean fanout to target 65,536 successor occurrences per batch, with at least one source per requested worker. One source can still exceed that target.
+
+| Model and discovery limit | Original resident, s / MiB | Adaptive resident, s / MiB | Original disk frontier, s / MiB | Adaptive disk frontier, s / MiB |
+| --- | ---: | ---: | ---: | ---: |
+| BPConProof, 300,000 | 4.43 / 1,068 | 0.90 / 318 | 4.99 / 1,038 | 1.38 / 282 |
+| BPConProof, 1,000,000 | 4.64 / 1,143 | 2.68 / 473 | 6.35 / 1,034 | 4.28 / 420 |
+| DiskSynod, 300,000 | 3.19 / 189 | 3.22 / 192 | 4.76 / 168 | 4.78 / 168 |
+| TLCSailfish2, 300,000 | 12.72 / 228 | 12.88 / 231 | 13.60 / 212 | 13.74 / 216 |
+
+Each cell is the median of three interleaved runs on the same isolated eight-core allocation. All arms reached identical generated, distinct, depth and queue counts. These were state-limited prefixes. DiskSynod and TLCSailfish2 showed little change.
+
+On a second node, storing BPConProof rows as independently decodable 64-row chunks and reclaiming the value store between batches used 355 MiB and 4.83 s at one million states. Its matched adaptive disk-handle baseline used 428 MiB and 4.31 s. Reclaiming only at level boundaries used 1,039 MiB and 6.74 s. The independent-chunk path is experimental. [All 132 trials, source pins, binary identities and counters](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
 ### Where the thirteen historical non-finishes stand
 
