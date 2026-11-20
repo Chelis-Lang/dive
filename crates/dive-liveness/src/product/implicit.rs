@@ -22,6 +22,9 @@ use std::collections::{BTreeSet, HashSet};
 /// nodes per behavior vertex (64 bytes), and an exact hash set beyond that.
 const DENSE_NODES: usize = 512;
 
+/// Optional product adjacency is retained only within this extra space.
+const PRODUCT_ROWS_BYTES: usize = 8 << 20;
+
 enum Seen {
     Dense { words: Vec<u64>, width: usize },
     Sparse(HashSet<(usize, usize)>),
@@ -187,6 +190,7 @@ pub(crate) struct ImplicitProduct<'a, T: TruthAccess> {
     offsets: Vec<usize>,
     /// The discovered product is the whole behavior graph with identical ids.
     identity: bool,
+    rows: Option<ProductRows>,
     roots: Vec<usize>,
     edge_count: usize,
     acceptance: CompactAcceptance,
@@ -194,6 +198,11 @@ pub(crate) struct ImplicitProduct<'a, T: TruthAccess> {
     policy: AcceptancePolicy,
     /// Setup work is cumulative; alternative scratch buffers live sequentially.
     solution_setup_work: std::cell::Cell<usize>,
+}
+
+struct ProductRows {
+    offsets: Vec<u32>,
+    edges: Vec<(u32, u32)>,
 }
 
 impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
@@ -313,6 +322,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             nodes,
             offsets,
             identity,
+            rows: None,
             roots: Vec::new(),
             edge_count,
             acceptance,
@@ -329,7 +339,68 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             );
         }
         product.roots = roots;
+        if !identity
+            && std::env::var_os("DIVE_EXPERIMENT_PRODUCT_ROWS").as_deref()
+                == Some(std::ffi::OsStr::new("1"))
+        {
+            product.rows = product.materialize_rows()?;
+        }
         Ok(product)
+    }
+
+    fn materialize_rows(&self) -> Result<Option<ProductRows>, ProductError> {
+        let offsets = self.states.len() + 1;
+        let bytes = offsets.checked_mul(size_of::<u32>()).and_then(|bytes| {
+            self.edge_count
+                .checked_mul(size_of::<(u32, u32)>())
+                .and_then(|edges| bytes.checked_add(edges))
+        });
+        if bytes.is_none_or(|bytes| bytes > PRODUCT_ROWS_BYTES) {
+            return Ok(None);
+        }
+        let mut rows = ProductRows {
+            offsets: Vec::new(),
+            edges: Vec::new(),
+        };
+        if rows.offsets.try_reserve_exact(offsets).is_err()
+            || rows.edges.try_reserve_exact(self.edge_count).is_err()
+        {
+            return Ok(None);
+        }
+        rows.offsets.push(0);
+        for source in 0..self.states.len() {
+            if source.is_multiple_of(1024) {
+                csr::poll()?;
+            }
+            let mut cursor = self.cursor(source);
+            while let Some((to, edge)) = self
+                .advance(source, &mut cursor)
+                .map_err(ProductError::search)?
+            {
+                if rows.edges.len().is_multiple_of(1024) {
+                    csr::poll()?;
+                }
+                let (Ok(to), Ok(edge)) = (u32::try_from(to), u32::try_from(edge)) else {
+                    return Ok(None);
+                };
+                if rows.edges.len() >= self.edge_count {
+                    return Err(ProductError::Shape(
+                        "product rows exceed discovery cardinality".into(),
+                    ));
+                }
+                rows.edges.push((to, edge));
+            }
+            rows.offsets.push(
+                u32::try_from(rows.edges.len())
+                    .map_err(|_| ProductError::Limit("packed product edge index"))?,
+            );
+        }
+        if rows.edges.len() != self.edge_count {
+            return Err(ProductError::Shape(
+                "product rows differ from discovery cardinality".into(),
+            ));
+        }
+        Ok(Some(rows))
     }
 
     fn id(&self, v: usize, n: usize) -> Option<usize> {
@@ -445,6 +516,15 @@ impl<T: TruthAccess> Adjacency for ImplicitProduct<'_, T> {
         source: usize,
         cursor: &mut (usize, usize),
     ) -> Result<Option<(usize, usize)>, SearchError> {
+        if let Some(rows) = &self.rows {
+            let at = rows.offsets[source] as usize + cursor.0;
+            if at >= rows.offsets[source + 1] as usize {
+                return Ok(None);
+            }
+            let (to, edge) = rows.edges[at];
+            cursor.0 += 1;
+            return Ok(Some((to as usize, edge as usize)));
+        }
         if self.identity {
             let edge = cursor.0;
             if edge >= self.graph.row_len(source) {
