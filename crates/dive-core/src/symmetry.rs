@@ -94,6 +94,9 @@ pub struct ImageCache {
     domain_keys: usize,
     /// Buffers for [`cmp_image`], kept between calls.
     scratch: (Vec<Handle>, Vec<Handle>),
+    /// Emptied after each canonicalization. Only their capacities cross a state boundary.
+    rows: (Vec<Option<Handle>>, Vec<Option<Handle>>),
+    deltas: Vec<Option<Delta>>,
 }
 
 /// One map's [`DomainImage`]s, keyed by the sorted keys of the domain.
@@ -263,7 +266,7 @@ impl Symmetry {
             heap.sym_images.domain_keys = 0;
         }
         heap.sym_images.epoch += 1;
-        let mut deltas: Vec<Option<Delta>> = Vec::with_capacity(state.len());
+        let mut deltas = std::mem::take(&mut heap.sym_images.deltas);
         if base.len() == state.len() && !self.maps.is_empty() && !heap.speculative {
             if heap.sym_images.roots.len() != state.len() {
                 heap.sym_images.roots.clear();
@@ -275,30 +278,27 @@ impl Symmetry {
                 deltas.push(Delta::of(heap, i, h, b));
             }
         }
-        let identity: Vec<usize>;
-        let order = match &self.tlc {
-            Some(order) if order.len() == state.len() => order.as_slice(),
-            Some(_) => return Err(Error::internal("a SYMMETRY variable order of another size")),
-            None => {
-                identity = (0..state.len()).collect();
-                &identity
-            }
-        };
+        let order = self.tlc.as_deref();
+        if order.is_some_and(|order| order.len() != state.len()) {
+            return Err(Error::internal("a SYMMETRY variable order of another size"));
+        }
         // The best image so far is the state under map `best_map` (`None`:
         // the state itself), built lazily: `best[i]` is its value of
         // variable `i` once built. A candidate is built only up to the
         // variable that decides it, and a winner's other variables only
         // when a later candidate is compared with them, or at the end.
         let mut best_map: Option<u32> = None;
-        let mut best: Vec<Option<Handle>> = state.iter().copied().map(Some).collect();
-        let mut cand: Vec<Option<Handle>> = vec![None; state.len()];
+        let (mut best, mut cand) = std::mem::take(&mut heap.sym_images.rows);
+        best.extend(state.iter().copied().map(Some));
+        cand.resize(state.len(), None);
         for (k, map) in self.maps.iter().enumerate() {
             let k = u32::try_from(k).map_err(|_| {
                 Error::unsupported("SYMMETRY with more than 2^32 permutations (core)")
             })?;
             cand.fill(None);
             let mut ord = Ordering::Equal;
-            for &i in order {
+            for position in 0..state.len() {
+                let i = order.map_or(position, |order| order[position]);
                 let Some(&h) = state.get(i) else {
                     return Err(Error::internal("a SYMMETRY variable outside the state"));
                 };
@@ -333,6 +333,11 @@ impl Symmetry {
             };
             out.push(img);
         }
+        best.clear();
+        cand.clear();
+        deltas.clear();
+        heap.sym_images.rows = (best, cand);
+        heap.sym_images.deltas = deltas;
         Ok(())
     }
 
@@ -580,6 +585,7 @@ const MAX_DELTA: usize = 8;
 /// plus `added`: then the image of `h` under a map is the base value's
 /// image less the images of `removed` plus the images of `added`, since a
 /// map is injective.
+#[derive(Debug)]
 struct Delta {
     var: usize,
     base: Handle,
@@ -789,11 +795,11 @@ fn tlc_cmp(heap: &Heap, a: Handle, b: Handle) -> Result<Ordering, Error> {
     }
     let (va, vb) = (heap.view(a), heap.view(b));
     if va.kind == Kind::Set {
-        let (xa, xb) = (va.data.to_vec(), vb.data.to_vec());
+        let (xa, xb) = (va.data, vb.data);
         if xa.len() != xb.len() {
             return Ok(xa.len().cmp(&xb.len()));
         }
-        for (x, y) in xa.into_iter().zip(xb) {
+        for (&x, &y) in xa.iter().zip(xb) {
             let c = tlc_cmp(heap, x, y)?;
             if c != Ordering::Equal {
                 return Ok(c);
@@ -805,14 +811,9 @@ fn tlc_cmp(heap: &Heap, a: Handle, b: Handle) -> Result<Ordering, Error> {
     if n != vb.len() {
         return Ok(n.cmp(&vb.len()));
     }
-    let keys_a: Vec<Handle> = (0..n).map(|i| crate::heap::fcn_key(&va, i)).collect();
-    let keys_b: Vec<Handle> = (0..n).map(|i| crate::heap::fcn_key(&vb, i)).collect();
-    let (vals_a, vals_b) = (va.values().to_vec(), vb.values().to_vec());
-    for (x, y) in keys_a
-        .into_iter()
-        .zip(keys_b)
-        .chain(vals_a.into_iter().zip(vals_b))
-    {
+    let keys = (0..n).map(|i| (crate::heap::fcn_key(&va, i), crate::heap::fcn_key(&vb, i)));
+    let values = va.values().iter().copied().zip(vb.values().iter().copied());
+    for (x, y) in keys.chain(values) {
         let c = tlc_cmp(heap, x, y)?;
         if c != Ordering::Equal {
             return Ok(c);
