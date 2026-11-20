@@ -181,3 +181,15 @@ jobs:
         run: |
           python3 scripts/test-bare-use-smoke.py
           python3 scripts/bare-use-smoke.py
+      - name: Set up Python for finite symbolic checks
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: scripts/symbolic/requirements.txt
+      - name: Finite symbolic safety, independent traces, proofs and TLC goldens
+        run: |
+          cargo build --release --locked -p dive-api --example symbolic_input
+          python -m venv "$RUNNER_TEMP/dive-symbolic"
+          "$RUNNER_TEMP/dive-symbolic/bin/pip" install --only-binary=dd -r scripts/symbolic/requirements.txt
+          "$RUNNER_TEMP/dive-symbolic/bin/python" scripts/symbolic/check_source.py

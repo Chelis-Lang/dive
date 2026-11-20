@@ -1,0 +1,6 @@
+# Linux x86-64, CPython 3.11. The dd wheel includes CUDD.
+dd==0.6.0
+astutils==0.0.6
+networkx==3.6.1
+ply==3.10
+setuptools==84.2.1
