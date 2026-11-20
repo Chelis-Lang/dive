@@ -606,5 +606,208 @@
         }
       }
     }
+  },
+  "original_rows": {
+    "method": "One exclusive c7i.4xlarge, Intel Xeon Platinum 8488C, Linux 7.0.0-1018-aws, 27 GiB cgroup without swap, CPUs 0-7 (one logical CPU per physical core). GNU time measures the whole process. Each model ran sequentially in control/candidate/candidate/control order at equal work. Capacity runs use the original c1cs model.",
+    "configuration": "8 workers, TLC compatibility, fp 0, seed 0. Fixed prefixes: --max-states 2000000 --max-memory 8g --time-limit 400s. Capacity: --max-memory 20g --time-limit 2200s.",
+    "binaries_sha256": {
+      "candidate": "a47cedfc7bf5ec6603930e5885b4c62840c11c327af1a3c1686cb77b2de8653d",
+      "control": "fa619d750c1578f025f35d2f4dd0d54893ca069aa8c4785e86fc831773ca2184"
+    },
+    "input_hashes": "sources_sha256 in this record identifies the same original specifications and configurations.",
+    "samples": [
+      {
+        "case": "BlockingQueuePoisonApple-control1",
+        "wall_s": 17.34,
+        "peak_rss_kib": 570216,
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 184550443,
+        "retained_rows": 2000400,
+        "exit_code": 5,
+        "stop": {
+          "resource": "states",
+          "phase": "graph-capture",
+          "limit": 2000000,
+          "observed": 2000001,
+          "unit": "states"
+        }
+      },
+      {
+        "case": "BlockingQueuePoisonApple-candidate1",
+        "wall_s": 16.66,
+        "peak_rss_kib": 547568,
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 151323691,
+        "retained_rows": 2000400,
+        "exit_code": 5,
+        "stop": {
+          "resource": "states",
+          "phase": "graph-capture",
+          "limit": 2000000,
+          "observed": 2000001,
+          "unit": "states"
+        }
+      },
+      {
+        "case": "BlockingQueuePoisonApple-candidate2",
+        "wall_s": 16.1,
+        "peak_rss_kib": 556636,
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 151323691,
+        "retained_rows": 2000400,
+        "exit_code": 5,
+        "stop": {
+          "resource": "states",
+          "phase": "graph-capture",
+          "limit": 2000000,
+          "observed": 2000001,
+          "unit": "states"
+        }
+      },
+      {
+        "case": "BlockingQueuePoisonApple-control2",
+        "wall_s": 18.14,
+        "peak_rss_kib": 576256,
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 184550443,
+        "retained_rows": 2000400,
+        "exit_code": 5,
+        "stop": {
+          "resource": "states",
+          "phase": "graph-capture",
+          "limit": 2000000,
+          "observed": 2000001,
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-control1",
+        "wall_s": 78.76,
+        "peak_rss_kib": 1248680,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 847251564,
+        "retained_rows": 2000000,
+        "exit_code": 5,
+        "stop": {
+          "resource": "states",
+          "phase": "graph-capture",
+          "limit": 2000000,
+          "observed": 2000001,
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-candidate1",
+        "wall_s": 79.02,
+        "peak_rss_kib": 1101184,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 580913260,
+        "retained_rows": 2000000,
+        "exit_code": 5,
+        "stop": {
+          "resource": "states",
+          "phase": "graph-capture",
+          "limit": 2000000,
+          "observed": 2000001,
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-candidate2",
+        "wall_s": 78.33,
+        "peak_rss_kib": 1092452,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 580913260,
+        "retained_rows": 2000000,
+        "exit_code": 5,
+        "stop": {
+          "resource": "states",
+          "phase": "graph-capture",
+          "limit": 2000000,
+          "observed": 2000001,
+          "unit": "states"
+        }
+      },
+      {
+        "case": "c1cs-control2",
+        "wall_s": 78.57,
+        "peak_rss_kib": 1264016,
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 847251564,
+        "retained_rows": 2000000,
+        "exit_code": 5,
+        "stop": {
+          "resource": "states",
+          "phase": "graph-capture",
+          "limit": 2000000,
+          "observed": 2000001,
+          "unit": "states"
+        }
+      }
+    ]
   }
 }

@@ -63,7 +63,7 @@ def main():
         metavar=("MODULE", "CONFIG"),
         action="append",
         default=[],
-        help="bind an edit and reuse a completed closure when its relation is identical",
+        help="check the edited input, reusing an identical closure or seeding refined set coordinates",
     )
     parser.add_argument("--time-limit", type=positive_seconds, metavar="SECONDS",
                         help="wall-time budget for the whole invocation, including binding and validation")
@@ -72,8 +72,17 @@ def main():
     args = parser.parse_args()
     if sys.platform != "linux":
         parser.error("the symbolic checker currently supports Linux")
-    if args.trace and args.write_predicate and args.trace.resolve() == args.write_predicate.resolve():
-        parser.error("trace and predicate need separate output files")
+    if args.trace or args.write_predicate:
+        try:
+            outputs = [path.resolve() for path in (args.trace, args.write_predicate) if path]
+            sources = {Path(path).resolve() for pair in [(args.module, args.config), *args.recheck]
+                       for path in pair}
+            if args.verify_predicate:
+                sources.add(args.verify_predicate.resolve())
+        except (OSError, RuntimeError) as error:
+            parser.error(f"cannot resolve symbolic input or output path: {error}")
+        if len(outputs) != len(set(outputs)) or any(path in sources for path in outputs):
+            parser.error("trace, predicate output and checked inputs need separate paths")
 
     # A supervisor can interrupt a long CUDD operation and stop its process group.
     # The normal Dive binary and other sessions keep their own limits.
@@ -106,6 +115,17 @@ def main():
         process.wait()
         reason = "time limit" if isinstance(error, subprocess.TimeoutExpired) else "interrupted"
     else:
+        if status == 11:
+            return 1
+        if status == 1:
+            # Only the worker's private status 11 certifies a validated witness.
+            if args.max_memory:
+                print(json.dumps(dict(verdict="stopped", reason="native worker exited under its memory budget")),
+                      flush=True)
+                return 4
+            print(json.dumps(dict(verdict="error", reason="native worker exited before returning a result")),
+                  flush=True)
+            return 3
         if status >= 0:
             return status
         reason = "worker terminated by " + signal.Signals(-status).name

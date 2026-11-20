@@ -119,16 +119,145 @@ impl<'a> From<&'a [Option<u32>]> for CsrActions<'a> {
     }
 }
 
+/// Original state rows for generated occurrences and implicit stutters.
+#[derive(Clone, Copy, Debug)]
+pub enum CsrEdgeRows<'a> {
+    /// One exact original row ID per edge, in physical order.
+    Expanded(&'a [u32]),
+    /// A block uses its targets' representative rows unless it retains explicit IDs.
+    /// Directory entries are cumulative counts of explicit blocks. Each increment
+    /// adds one block to `rows`, truncated to the actual edge count in the last block.
+    Blocks {
+        /// Number of physical edges represented, including stutters.
+        edges: usize,
+        /// Cumulative explicit block count through each physical block.
+        directory: &'a [usize],
+        /// Original IDs for explicit blocks, concatenated in graph order.
+        rows: &'a [u32],
+    },
+}
+
+impl CsrEdgeRows<'_> {
+    /// Number of physical edges in a block.
+    pub const BLOCK: usize = 256;
+
+    /// Reads a physical edge's original row from the producer's columns.
+    /// Also usable during capture, before the current source has a synthetic stutter.
+    #[must_use]
+    pub fn row(self, edge: usize, targets: &[u32], representatives: &[u32]) -> Option<u32> {
+        let target = *targets.get(edge)? as usize;
+        match self {
+            Self::Expanded(rows) => rows.get(edge).copied(),
+            Self::Blocks {
+                edges,
+                directory,
+                rows,
+            } => {
+                if edge >= edges {
+                    return None;
+                }
+                let block = edge / Self::BLOCK;
+                let before = block
+                    .checked_sub(1)
+                    .map_or(Some(0), |i| directory.get(i).copied())?;
+                if *directory.get(block)? == before {
+                    representatives.get(target).copied()
+                } else {
+                    rows.get(
+                        before
+                            .checked_mul(Self::BLOCK)?
+                            .checked_add(edge % Self::BLOCK)?,
+                    )
+                    .copied()
+                }
+            }
+        }
+    }
+
+    /// Retains exactly the rows used by the first `edges` physical entries.
+    #[must_use]
+    pub fn prefix(self, edges: usize) -> Option<Self> {
+        match self {
+            Self::Expanded(rows) => Some(Self::Expanded(rows.get(..edges)?)),
+            Self::Blocks {
+                edges: full,
+                directory,
+                rows,
+            } => {
+                if edges > full {
+                    return None;
+                }
+                let directory = directory.get(..edges.div_ceil(Self::BLOCK))?;
+                let count = match directory.split_last() {
+                    None => 0,
+                    Some((&end, previous)) => {
+                        let before = previous.last().copied().unwrap_or(0);
+                        let width = (edges - 1) % Self::BLOCK + 1;
+                        before
+                            .checked_mul(Self::BLOCK)?
+                            .checked_add(if before == end { 0 } else { width })?
+                    }
+                };
+                Some(Self::Blocks {
+                    edges,
+                    directory,
+                    rows: rows.get(..count)?,
+                })
+            }
+        }
+    }
+
+    fn check(self, edges: usize, control: &EvaluationControl) -> Result<(), Verdict> {
+        match self {
+            Self::Expanded(rows) if rows.len() == edges => Ok(()),
+            Self::Blocks {
+                edges: full,
+                directory,
+                rows,
+            } if full == edges && directory.len() == edges.div_ceil(Self::BLOCK) => {
+                let mut previous = 0usize;
+                let mut retained = 0usize;
+                for (block, &end) in directory.iter().enumerate() {
+                    checkpoint(control, block)?;
+                    if end != previous {
+                        if end != previous + 1 {
+                            return Err(bug("invalid CSR original row block directory"));
+                        }
+                        retained += Self::BLOCK.min(edges - block * Self::BLOCK);
+                    }
+                    previous = end;
+                }
+                if retained == rows.len() {
+                    Ok(())
+                } else {
+                    Err(bug("invalid CSR original row blocks"))
+                }
+            }
+            _ => Err(bug("inconsistent CSR array dimensions")),
+        }
+    }
+}
+
+impl<'a> From<&'a [u32]> for CsrEdgeRows<'a> {
+    fn from(rows: &'a [u32]) -> Self {
+        Self::Expanded(rows)
+    }
+}
+
 /// Borrowed producer arrays with full-width optional action indices.
 /// The fixed slice field accepts arrays, mutable slices and other slice-coercible buffers.
 pub type CsrCaptureInput<'a, O = &'a [Option<u64>]> = CsrCaptureColumns<'a, O, &'a [Option<u32>]>;
 
-/// Borrowed producer arrays with selectable ordinal and action storage.
+/// Borrowed producer arrays with selectable ordinals and actions and a slice of original row IDs.
+pub type CsrCaptureColumns<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>> =
+    CsrStorage<'a, O, A, &'a [u32]>;
+
+/// Borrowed producer arrays with selectable ordinal, action and original row storage.
 ///
 /// Row ids identify opaque retained state rows, not semantically equal values.
 /// This metadata neither evaluates states nor proves a temporal property.
 #[derive(Clone, Copy, Debug)]
-pub struct CsrCaptureColumns<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>> {
+pub struct CsrStorage<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>, R = CsrEdgeRows<'a>> {
     /// One start offset per representative, followed by the total edge count.
     pub offsets: &'a [usize],
     /// Dense representative destination ids, including implicit stutters.
@@ -138,7 +267,7 @@ pub struct CsrCaptureColumns<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>> {
     /// Index in `action_labels`, or no named action. Stutters have no action.
     pub actions: A,
     /// Exact original state row for each edge, including seen destinations.
-    pub edge_rows: &'a [u32],
+    pub edge_rows: R,
     /// First-discovery state row for every dense representative.
     pub representatives: &'a [u32],
     /// Distinct initial representatives, in discovery order.
@@ -151,14 +280,16 @@ pub struct CsrCaptureColumns<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>> {
     pub closed_rows: usize,
 }
 
-impl<'a, O: Into<CsrOrdinals<'a>>, A: Into<CsrActions<'a>>> CsrCaptureColumns<'a, O, A> {
-    fn columns(self) -> CsrCaptureColumns<'a> {
-        CsrCaptureColumns {
+impl<'a, O: Into<CsrOrdinals<'a>>, A: Into<CsrActions<'a>>, R: Into<CsrEdgeRows<'a>>>
+    CsrStorage<'a, O, A, R>
+{
+    fn columns(self) -> CsrStorage<'a> {
+        CsrStorage {
             offsets: self.offsets,
             targets: self.targets,
             ordinals: self.ordinals.into(),
             actions: self.actions.into(),
-            edge_rows: self.edge_rows,
+            edge_rows: self.edge_rows.into(),
             representatives: self.representatives,
             roots: self.roots,
             action_labels: self.action_labels,
@@ -168,13 +299,21 @@ impl<'a, O: Into<CsrOrdinals<'a>>, A: Into<CsrActions<'a>>> CsrCaptureColumns<'a
     }
 }
 
+impl CsrStorage<'_> {
+    /// Looks up the retained original row for a physical edge, including stutters.
+    #[must_use]
+    pub fn edge_row(&self, edge: usize) -> Option<u32> {
+        self.edge_rows.row(edge, self.targets, self.representatives)
+    }
+}
+
 /// Immutable, structurally checked CSR capture, without completion authority.
 ///
 /// Generated duplicates, ordinal gaps, action labels and original row identities
 /// remain intact. A successful shape check alone cannot establish exhaustion.
 #[derive(Clone, Copy, Debug)]
 pub struct CsrCapture<'a> {
-    input: CsrCaptureColumns<'a>,
+    input: CsrStorage<'a>,
     limits: Limits,
     concrete: usize,
 }
@@ -186,7 +325,12 @@ impl<'a> CsrCapture<'a> {
     /// # Errors
     /// Malformed metadata, retained-entry limits, or an actual run interruption.
     pub fn checked(
-        input: CsrCaptureColumns<'a, impl Into<CsrOrdinals<'a>>, impl Into<CsrActions<'a>>>,
+        input: CsrStorage<
+            'a,
+            impl Into<CsrOrdinals<'a>>,
+            impl Into<CsrActions<'a>>,
+            impl Into<CsrEdgeRows<'a>>,
+        >,
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
@@ -202,12 +346,12 @@ impl<'a> CsrCapture<'a> {
             || input.offsets.last() != Some(&edges)
             || input.ordinals.len() != edges
             || input.actions.len() != edges
-            || input.edge_rows.len() != edges
             || input.closed_rows > states
             || (states != 0 && input.roots.is_empty())
         {
             return Err(bug("inconsistent CSR array dimensions"));
         }
+        input.edge_rows.check(edges, control)?;
         if let CsrOrdinals::Compact(words, large) = input.ordinals {
             let mut previous = None;
             for (i, &(edge, ordinal)) in large.iter().enumerate() {
@@ -252,7 +396,7 @@ impl<'a> CsrCapture<'a> {
             if input.targets[last] as usize != source
                 || input.ordinals.get(last) != Some(None)
                 || input.actions.at(last).is_some()
-                || input.edge_rows[last] != representative
+                || input.edge_row(last) != Some(representative)
             {
                 return Err(bug("invalid CSR implicit stutter"));
             }
@@ -266,7 +410,9 @@ impl<'a> CsrCapture<'a> {
                     return Err(limit("CSR source successors"));
                 }
                 if input.targets[edge] as usize >= states
-                    || input.edge_rows[edge] as usize >= input.retained_rows
+                    || input
+                        .edge_row(edge)
+                        .is_none_or(|row| row as usize >= input.retained_rows)
                     || input
                         .actions
                         .at(edge)
@@ -375,7 +521,7 @@ impl<'a> CsrCapture<'a> {
         if edge >= range.end || self.input.ordinals.get(edge)?.is_none() {
             return None;
         }
-        self.input.edge_rows.get(edge).map(|&row| row as usize)
+        self.input.edge_row(edge).map(|row| row as usize)
     }
 
     /// Generated originals in one source row, excluding the implicit stutter.
@@ -400,7 +546,12 @@ impl<'a> CsrComplete<'a> {
     /// The original non-success safety verdict, missing/inconsistent statistics,
     /// malformed or incomplete CSR, a capture limit, or actual run interruption.
     pub fn from_producer(
-        input: CsrCaptureColumns<'a, impl Into<CsrOrdinals<'a>>, impl Into<CsrActions<'a>>>,
+        input: CsrStorage<
+            'a,
+            impl Into<CsrOrdinals<'a>>,
+            impl Into<CsrActions<'a>>,
+            impl Into<CsrEdgeRows<'a>>,
+        >,
         safety: CheckResult,
         options: CheckOptions,
         limits: Limits,
@@ -470,7 +621,12 @@ impl<'a> CsrPrefix<'a> {
     /// The original safety failure, missing/inconsistent statistics, exhausted
     /// frontier, malformed CSR, a capture limit, or actual run interruption.
     pub fn from_producer(
-        input: CsrCaptureColumns<'a, impl Into<CsrOrdinals<'a>>, impl Into<CsrActions<'a>>>,
+        input: CsrStorage<
+            'a,
+            impl Into<CsrOrdinals<'a>>,
+            impl Into<CsrActions<'a>>,
+            impl Into<CsrEdgeRows<'a>>,
+        >,
         level: u64,
         safety: CheckResult,
         options: CheckOptions,
