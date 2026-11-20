@@ -27,7 +27,21 @@ pub(super) fn boundary(
             ex.metrics.storage.reclamation.skipped = Some(error.message().to_owned());
             Ok(())
         }
+        Err(error) if error.kind() == dive_core::ErrorKind::Stop => {
+            ex.stop = Some(super::Verdict::Budget);
+            ex.stats.left_on_queue = ex.queued_states() as u64;
+            Err(error)
+        }
         other => other,
+    }
+}
+
+fn block_error(error: dive_core::packed_rows::BlockError) -> Error {
+    match error {
+        dive_core::packed_rows::BlockError::Allocation => {
+            Error::internal("DIVE-S0203: resident frontier block allocation")
+        }
+        other => other.into(),
     }
 }
 
@@ -67,6 +81,31 @@ fn collect(
         }
         Ok::<_, Error>(copied)
     };
+    let packed = ex
+        .packed
+        .as_ref()
+        .map(|blocks| {
+            let mut result = Vec::new();
+            result
+                .try_reserve_exact(blocks.len())
+                .map_err(|_| Error::internal("DIVE-S0203: resident frontier block index"))?;
+            let mut values = Vec::new();
+            for block in blocks {
+                values.clear();
+                block
+                    .append(0, dive_core::packed_rows::ROWS, &mut values)
+                    .map_err(block_error)?;
+                for h in &mut values {
+                    *h = remap.copy(*h, &|| !(ex.poll)())?;
+                }
+                result.push(
+                    dive_core::packed_rows::Block::encode(&values, ex.plan.vars.len())
+                        .map_err(block_error)?,
+                );
+            }
+            Ok::<_, Error>(result)
+        })
+        .transpose()?;
     let next = copy(&ex.next, &mut remap)?;
     let originals = copy(&ex.next_originals, &mut remap)?;
     let frontier = ex
@@ -103,6 +142,7 @@ fn collect(
         fresh.set_work_control(control.cloned());
         *machine = fresh;
     }
+    ex.packed = packed;
     ex.next = next;
     ex.next_originals = originals;
     if let Some(mut replacement_frontier) = frontier {
@@ -165,6 +205,99 @@ mod tests {
                 "no startup or worker may retain the old payload owner"
             );
         }
+    }
+
+    #[test]
+    fn only_capacity_failures_may_skip_default_frontier_remapping() {
+        use dive_core::packed_rows::BlockError;
+        assert!(skippable(&block_error(BlockError::Allocation)));
+        assert!(!skippable(&block_error(BlockError::Layout)));
+    }
+
+    #[test]
+    fn one_shot_cancellation_during_capture_or_remap_cannot_certify_completion() -> Result<(), Error>
+    {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        for (preload, stop_at, queued) in [(false, 0, 0), (true, 128, 128), (true, 129, 128)] {
+            let mut store = Arc::new(Store::new(true));
+            let plan = crate::tests::frontier_plan(&store, false)?;
+            let permanent = preload
+                .then(|| Permanent::capture(&store, &|| true))
+                .transpose()?;
+            let calls = AtomicUsize::new(0);
+            let out = explore_owned(
+                &plan,
+                &mut store,
+                Config {
+                    opts: dive_core::Opts::default(),
+                    max_states: None,
+                    max_depth: None,
+                    workers: 1,
+                    warn: true,
+                    sample: None,
+                },
+                &|| calls.fetch_add(1, Ordering::Relaxed) == stop_at,
+                None,
+                &storage::Storage {
+                    store_compact_bytes: Some(0),
+                    store_compact_default: true,
+                    ..storage::Storage::default()
+                },
+                None,
+                permanent.as_ref(),
+            );
+            assert_eq!(out.verdict, Verdict::Budget, "poll {stop_at}");
+            assert_eq!(out.stats.left_on_queue, queued);
+            assert_eq!(out.metrics.storage.reclamation.collections, 0);
+            assert!(out.trace.is_none());
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn sealed_resident_rows_and_tail_survive_reclamation_and_parallel_expansion()
+    -> Result<(), Error> {
+        for workers in [1, 3, 8] {
+            for trigger in [None, Some(0)] {
+                let mut store = Arc::new(Store::new(true));
+                let mut plan = crate::tests::frontier_plan(&store, false)?;
+                let mut heap = dive_core::Heap::new(Arc::clone(&store), true, false);
+                let domain = heap.interval(0, 769);
+                plan.code.nodes[0] = dive_core::plan::Node::Const(heap.intern_const(domain)?);
+                drop(heap);
+                let out = explore_owned(
+                    &plan,
+                    &mut store,
+                    Config {
+                        opts: dive_core::Opts::default(),
+                        max_states: None,
+                        max_depth: None,
+                        workers,
+                        warn: true,
+                        sample: None,
+                    },
+                    &|| false,
+                    None,
+                    &storage::Storage {
+                        store_compact_bytes: trigger,
+                        ..storage::Storage::default()
+                    },
+                    None,
+                    None,
+                );
+                assert_eq!(out.verdict, Verdict::Success);
+                assert_eq!(out.stats.initial_generated, 770);
+                assert_eq!(out.stats.distinct, 770);
+                assert_eq!(out.stats.generated, 1540);
+                assert_eq!(out.stats.left_on_queue, 0);
+                assert_eq!(
+                    out.metrics.storage.reclamation.collections,
+                    if trigger.is_some() { 2 } else { 0 }
+                );
+            }
+        }
+        Ok(())
     }
 
     #[test]
