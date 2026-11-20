@@ -35,6 +35,10 @@ fn policy(limits: Limits) -> Result<(), Miss> {
     if std::env::var_os("DIVE_NATIVE_ATOM_AUDIT").is_some() {
         return Err(miss("requires the ordinary native atom policy"));
     }
+    state_cap(limits)
+}
+
+fn state_cap(limits: Limits) -> Result<(), Miss> {
     if !limits
         .max_states
         .is_some_and(|n| n > 0 && n < Schedule::DEFAULT.min_states)
@@ -47,7 +51,8 @@ fn policy(limits: Limits) -> Result<(), Miss> {
 }
 
 /// Check public native report fields and deterministic limits without binding
-/// either program. Callers must separately authenticate the prior worker and
+/// either program. This checks the reported worker policy independently of
+/// the consuming process’s environment. Callers must authenticate the worker and
 /// exact input. Only [`Program::first_claim`] checks the real first product and
 /// the previous execution's atom inventory against the freshly bound programs.
 ///
@@ -55,7 +60,7 @@ fn policy(limits: Limits) -> Result<(), Miss> {
 /// A missing or malformed field, non-default policy, incomplete search,
 /// earlier failure, diagnostic or actual reference fallback returns a miss.
 pub fn qualify_execution(report: &serde_json::Value, limits: Limits) -> Result<(), Miss> {
-    policy(limits)?;
+    state_cap(limits)?;
     execution::qualify(report, limits).map(|_| ())
 }
 
