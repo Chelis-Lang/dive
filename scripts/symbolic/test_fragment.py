@@ -21,6 +21,7 @@ Outside == x \notin Colors
 ====
 """
     check_initial_choices(folder, run, explicit, compare)
+    check_constraints(folder, run, explicit, compare)
 
     model = template.replace("GUARD", "TRUE").replace("UPDATE", "x").replace("STORE", "got")
     module.write_text(model.replace("x = A", r"x \in Colors /\ x \in Colors"))
@@ -72,7 +73,6 @@ Outside == x \notin Colors
     (bounded,) = run(module, config, "--max-memory", "2048")
     compare(bounded, explicit(module, config))
     for cfg, reason in [
-        (base + "CONSTRAINT NeverBlue\n", "safety invariants and deadlock"),
         (base + "ACTION_CONSTRAINT NeverBlue\n", "safety invariants and deadlock"),
         (base + "VIEW NeverBlue\n", "safety invariants and deadlock"),
         (base + "PROPERTY NeverBlue\n", "safety invariants and deadlock"),
@@ -164,3 +164,86 @@ NoA == \A u \in Roleset: chosen[u] = B
     cfg.write_text(base + "INIT Init\nINVARIANT NoA\n")
     (bad,) = run(module, cfg, code=1)
     assert bad["depth"] == 1 and bad["trace_validated"] and bad["ending"]["name"] == "NoA"
+
+
+def check_constraints(folder, run, explicit, compare):
+    # A filtered state counts as generated and is checked for invariant
+    # violations, although it will never be a source or a deadlock.
+    src = folder / "Limits.tla"
+    cfg = folder / "Limits.cfg"
+    src.write_text(r"""---- MODULE Limits ----
+EXTENDS Integers, FiniteSets
+CONSTANT Cap
+VARIABLE x
+ASSUME Cap <= 2
+TypeInvariant == x \in 0..2
+Init == x \in {0, 1}
+Single == x = 0
+Next == x' = IF x = 0 THEN 1 ELSE IF x = 1 THEN 2 ELSE x
+Keep == x = Cap
+Bad == x = 0
+BelowTwo == x < 2
+Wider == x <= 1
+NoneKept == x > 1
+Mixed == x # "zero"
+====
+""")
+    def config(init="Init", constraint="Keep", prop="", cap=0):
+        return (f"CONSTANT Cap = {cap}\nINIT {init}\nNEXT Next\nINVARIANT TypeInvariant\n"
+                f"CONSTRAINT {constraint}\n" + (f"INVARIANT {prop}\n" if prop else ""))
+
+    cfg.write_text(config())
+    (passed,) = run(src, cfg)
+    compare(passed, explicit(src, cfg))
+    assert (passed["generated"], passed["distinct"], passed["depth"]) == (3, 1, 1)
+    empty = folder / "empty-limit.cfg"
+    empty.write_text(config(constraint="NoneKept"))
+    _, changed = run(src, cfg, "--recheck", src, empty)
+    compare(changed, explicit(src, empty))
+    assert not changed["reused"] and (changed["generated"], changed["distinct"], changed["depth"]) == (2, 0, 1)
+    for init, depth in [("Init", 1), ("Single", 2)]:
+        cfg.write_text(config(init))
+        edited = folder / "bad-limit.cfg"
+        edited.write_text(config(init, prop="Bad"))
+        _, failed = run(src, cfg, "--recheck", src, edited, code=1)
+        assert failed["reused"] and failed["trace_validated"]
+        assert failed["ending"]["name"] == "Bad" and failed["depth"] == depth
+        assert explicit(src, edited)["verdict"] == "invariant-violation"
+        (proof,) = run(src, edited, "--prove-inductive", code=2)
+        assert proof["proof"] == "inconclusive"
+    predicate = folder / "boundary.json"
+    cfg.write_text(config("Single", prop="BelowTwo"))
+    run(src, cfg, "--write-predicate", predicate)
+    (proved,) = run(src, cfg, "--verify-predicate", predicate)
+    assert proved["proof"] == "inductive-safety"
+    cfg.write_text(config("Single", constraint="Wider", prop="BelowTwo"))
+    (inconclusive,) = run(src, cfg, "--verify-predicate", predicate, code=2)
+    assert inconclusive["proof"] == "inconclusive"
+    (failed,) = run(src, cfg, code=1)
+    assert failed["trace_validated"] and failed["depth"] == 3
+    cfg.write_text(config(prop="Mixed"))
+    (mixed,) = run(src, cfg, code=2)
+    assert mixed["verdict"] == "unsupported" and "incomparable" in mixed["reason"]
+    cfg.write_text(config(cap=3))
+    (refusal,) = run(src, cfg, code=2)
+    assert refusal["verdict"] == "unsupported" and "ASSUME" in refusal["reason"]
+
+    src.write_text(r"""---- MODULE Limits ----
+EXTENDS Naturals, FiniteSets
+VARIABLE net
+Msg == [n : 0..1, key : {"a"}]
+TypeInvariant == net \subseteq Msg
+Init == net = {}
+Next == \/ \E m \in Msg : net' = net \cup {m}
+        \/ UNCHANGED net
+Capacity == Cardinality(net) <= 1
+NoOne == [key |-> "a", n |-> 1] \notin net
+====
+""")
+    cfg.write_text("INIT Init\nNEXT Next\nINVARIANT TypeInvariant\nCONSTRAINT Capacity\n")
+    (net,) = run(src, cfg)
+    compare(net, explicit(src, cfg))
+    assert (net["distinct"], net["generated"], net["depth"]) == (3, 10, 2)
+    cfg.write_text(cfg.read_text() + "INVARIANT NoOne\n")
+    (bad,) = run(src, cfg, code=1)
+    assert bad["ending"]["name"] == "NoOne" and bad["trace_validated"]

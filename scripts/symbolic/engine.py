@@ -7,6 +7,8 @@ from dataclasses import dataclass
 import errno
 import itertools
 import json
+import math
+import operator
 from pathlib import Path
 import resource
 import subprocess
@@ -92,7 +94,7 @@ def unpack(expr):
 
 class SourceModel(FiniteRelation):
     def __init__(self, doc, type_invariant, manager=None, order_by_path=False, single_partition=False):
-        require(doc["format"] == "dive-symbolic-input-v1", "incompatible bound IR exporter")
+        require(doc["format"] == "dive-symbolic-input-v2", "incompatible bound IR exporter")
         self.doc = doc
         self.ir = doc["ir"]
         self.b = cudd.BDD(memory_estimate=512 << 20) if manager is None else manager
@@ -106,6 +108,11 @@ class SourceModel(FiniteRelation):
         require(len(set(self.names)) == len(self.names), "ambiguous state variable names")
         self.state = {}
         self.reading_init = True
+        for index, (name, expr) in enumerate(doc["assumptions"], 1):
+            # Only ground operators implemented by this interpreter can discharge
+            # an assumption. A false or unevaluable premise never yields Holds.
+            holds = self.boolean(self.eval(expr, {}, {})) == self.b.true
+            require(holds, f"ASSUME {name or index} did not evaluate to TRUE")
         if doc["specification"] is not None:
             self.check_specification(doc["specification"])
         decls = [expr for name, expr in doc["invariants"] if name == type_invariant]
@@ -140,6 +147,7 @@ class SourceModel(FiniteRelation):
             self.initial_generated += 1
         require(self.initial_generated > 0, "empty Init")
         self.reading_init = False
+        self.constraint = self.conjunction(self.boolean(self.eval(expr, {}, {})) for expr in doc["constraints"])
         self.properties = [(name, self.boolean(self.eval(expr, {}, {}))) for name, expr in doc["invariants"]]
         updates = []
         for index, (guard, assigns) in enumerate(self.branches(doc["next"], {}, False, self.b.true, {})):
@@ -233,7 +241,7 @@ class SourceModel(FiniteRelation):
         def indices(domain):
             keys = set(self.static_set(domain))
             require(not keys & permuted or permuted <= keys, "asymmetric finite index domain")
-            return sorted(keys)
+            return sorted(keys, key=repr)
 
         # Check the size while traversing the proposed type. Nested functions
         # can expand overwhelmingly before the first BDD variable is allocated.
@@ -252,16 +260,16 @@ class SourceModel(FiniteRelation):
             if isinstance(bound, PowerSet):
                 keys = indices(bound.domain)
                 planned_bits += len(keys)
-                require(planned_bits <= 512, "finite layout exceeds 512 state bits")
+                require(planned_bits <= 512, f"finite layout exceeds 512 state bits at {path[0]} ({planned_bits} bits so far)")
                 for k in keys:
                     leaves.append(((*path, k), None))
                 domains[tuple(keys)] += len(keys)
                 return
-            choices = tuple(sorted(self.static_set(bound)))
+            choices = tuple(self.static_set(bound))
             require(choices, "empty scalar domain")
             require(not set(choices) & permuted, "permuted atoms in a scalar field")
             planned_bits += max(1, (len(choices) - 1).bit_length())
-            require(planned_bits <= 512, "finite layout exceeds 512 state bits")
+            require(planned_bits <= 512, f"finite layout exceeds 512 state bits at {path[0]} ({planned_bits} bits so far)")
             domains[inner_domain] += 1
             leaves.append((path, choices))
 
@@ -275,13 +283,13 @@ class SourceModel(FiniteRelation):
             group = next((clusters.index(k) for k in reversed(path[1:]) if k in clusters), -1)
             roles = [atoms.index(k) for k in path[1:] if k in atoms]
             require(len(roles) <= 1, "multiple permuted indices in one path")
-            return group, (roles[0] if roles else -1), self.names.index(path[0]), path
+            return group, (roles[0] if roles else -1), self.names.index(path[0]), tuple(map(repr, path))
 
         # Record relative path identities as well as bit positions. This lets a
         # permutation of outer OR inner function indices move the right fields.
         role_fields = {a: {} for a in atoms}
         for path, choices in sorted(
-            leaves, key=(lambda leaf: (self.names.index(leaf[0][0]), leaf[0])) if order_by_path else order
+            leaves, key=(lambda leaf: (self.names.index(leaf[0][0]), tuple(map(repr, leaf[0])))) if order_by_path else order
         ):
             width = max(1, (len(choices) - 1).bit_length()) if choices else 1
             group, role, _, _ = order((path, choices))
@@ -327,8 +335,10 @@ class SourceModel(FiniteRelation):
                 return self.b.let(swap, value)
 
             require(
-                permute(self.initial) == self.initial and all(permute(p) == p for _, p in self.properties),
-                "asymmetric Init or invariant",
+                permute(self.initial) == self.initial
+                and permute(self.constraint) == self.constraint
+                and all(permute(p) == p for _, p in self.properties),
+                "asymmetric Init, constraint or invariant",
             )
             after = Counter(
                 (permute(g), frozenset((swap.get(k, k), permute(rhs)) for k, rhs in v.items()))
@@ -364,8 +374,13 @@ class SourceModel(FiniteRelation):
         return Atom({key: self.b.true})
 
     def literal(self, value):
+        if isinstance(value, bool):
+            return self.b.true if value else self.b.false
+        if type(value) is int:
+            return self.atom(self.integer(value))
         if isinstance(value, str):
             return self.atom(("string", value))
+        require(isinstance(value, dict), "unsupported configuration value")
         if set(value) == {"model"}:
             require("_" not in value["model"], "typed model values")
             return self.atom(value["model"])
@@ -383,6 +398,7 @@ class SourceModel(FiniteRelation):
         require(
             isinstance(value, Members) and all(v == self.b.true for v in value.values()), "nonconstant domain"
         )
+        self.comparable(value)
         return sorted(value, key=repr)
 
     def boolean(self, value):
@@ -392,13 +408,32 @@ class SourceModel(FiniteRelation):
     def any(self, terms):
         return ~self.conjunction(~self.boolean(t) for t in terms)
 
+    def comparable(self, *groups):
+        """Refuse a mixed scalar comparison that the nominal TLC profile can reject."""
+        kinds = {}
+
+        def visit(key, path):
+            if isinstance(key, str) or self.padding(key):
+                return  # Untyped model values compare with every class.
+            kind, value = key
+            require(kinds.setdefault(path, kind) == kind, "incomparable finite values")
+            if kind == "record":
+                for field, member in value:
+                    visit(member, (*path, field))
+
+        for group in groups:
+            for key in group:
+                visit(key, ())
+
     def same(self, a, b):
         require(type(a) is type(b), "mixed-type equality")
         if isinstance(a, (Atom, Members)):
+            self.comparable(a, b)
             return self.conjunction(
                 a.get(k, self.b.false).equiv(b.get(k, self.b.false)) for k in a.keys() | b.keys()
             )
         if isinstance(a, Function):
+            self.comparable(a, b)
             if a.keys() != b.keys():
                 return self.b.false
             return self.conjunction(self.same(v, b[k]) for k, v in a.items())
@@ -406,6 +441,7 @@ class SourceModel(FiniteRelation):
 
     def subset(self, a, b):
         require(isinstance(a, Members) and isinstance(b, Members), "subset of non-set")
+        self.comparable(a, b)
         return self.conjunction(~v | b.get(k, self.b.false) for k, v in a.items())
 
     def contains(self, value, space):
@@ -418,6 +454,7 @@ class SourceModel(FiniteRelation):
         if isinstance(space, PowerSet):
             return self.subset(value, space.domain)
         require(isinstance(space, Members) and isinstance(value, Atom), "membership kind")
+        self.comparable(value, space)
         return self.any(bit & space.get(k, self.b.false) for k, bit in value.items())
 
     def select(self, cond, a, b):
@@ -464,12 +501,92 @@ class SourceModel(FiniteRelation):
             scope = {**env, **{slot: self.atom(key) for slot, key in zip(slots, keys)}}
             yield keys, self.conjunction(domain[key] for key in keys), scope
 
+    @staticmethod
+    def padding(key):
+        return isinstance(key, tuple) and key[0] == "padding"
+
+    @staticmethod
+    def integer(value):
+        require(-(2**31) <= value < 2**31, "integer outside the nominal TLC range")
+        return ("int", value)
+
+    def cardinality_bound(self, members, bound):
+        """Whether at most bound membership bits hold; omit larger partial sums."""
+        require(isinstance(members, Members), "Cardinality requires a finite set")
+        if bound < 0:
+            return self.b.false
+        if bound >= len(members):
+            return self.b.true
+        # more[i] means at least i+1 of the processed members are present.
+        more = [self.b.false] * (bound + 1)
+        for present in reversed(list(members.values())):
+            more = [self.b.ite(present, more[i - 1] if i else self.b.true, old)
+                    for i, old in enumerate(more)]
+        return ~more[-1]
+
+    def numeric(self, op, args):
+        if op == "FiniteSetsCardinality":
+            members, = args
+            require(isinstance(members, Members), "Cardinality requires a finite set")
+            counts = [self.b.true]
+            for present in members.values():
+                counts = [self.b.ite(present, counts[n - 1] if n else self.b.false,
+                                     counts[n] if n < len(counts) else self.b.false)
+                          for n in range(len(counts) + 1)]
+            return Atom((self.integer(n), possible) for n, possible in enumerate(counts)
+                        if possible != self.b.false)
+        if op.startswith("Integers"):
+            op = "Naturals" + op.removeprefix("Integers")
+        arithmetic = {"NaturalsPlus": operator.add, "NaturalsMinus": operator.sub, "NaturalsTimes": operator.mul}
+        compares = {"NaturalsLeq": operator.le, "NaturalsGeq": operator.ge,
+                    "NaturalsLt": operator.lt, "NaturalsGt": operator.gt}
+        require(op in arithmetic or op in compares or op == "NaturalsDotDot", "IR standard operator " + op)
+        a, b = args
+        require(isinstance(a, Atom) and isinstance(b, Atom), "integer operands for " + op)
+        result = Atom()
+        truth = self.b.false
+        for left, lg in a.items():
+            for right, rg in b.items():
+                guard = lg & rg
+                if guard == self.b.false:
+                    continue
+                # Spare bit patterns cannot be produced from a ground Init or
+                # a valid assignment. Their arithmetic value is immaterial.
+                if self.padding(left) or self.padding(right):
+                    continue
+                require(isinstance(left, tuple) and left[0] == "int"
+                        and isinstance(right, tuple) and right[0] == "int", "integer operands for " + op)
+                x, y = left[1], right[1]
+                if op == "NaturalsDotDot":
+                    require(guard == self.b.true and y - x < 16384, "nonconstant or oversized integer interval")
+                    return Members((self.integer(n), self.b.true) for n in range(x, y + 1))
+                if op in compares:
+                    if compares[op](x, y):
+                        truth |= guard
+                else:
+                    k = self.integer(arithmetic[op](x, y))
+                    result[k] = result.get(k, self.b.false) | guard
+        return truth if op in compares else result
+
     def eval(self, i, env, assigned):
         tag, x = self.node(i)
 
         def sub(expr):
             return self.eval(expr, env, assigned)
 
+        if tag == "Num":
+            return self.atom(self.integer(int(x)))
+        if tag == "Apply" and "Std" in x["callee"]:
+            if x["callee"]["Std"] in ("NaturalsLeq", "IntegersLeq"):
+                lhs, rhs = [arg["Expr"]["expr"] for arg in x["args"]]
+                ltag, left = self.node(lhs)
+                if ltag == "Apply" and left["callee"] == {"Std": "FiniteSetsCardinality"}:
+                    upper = sub(rhs)
+                    if isinstance(upper, Atom) and len(upper) == 1:
+                        key, guard = next(iter(upper.items()))
+                        if guard == self.b.true and isinstance(key, tuple) and key[0] == "int":
+                            return self.cardinality_bound(sub(left["args"][0]["Expr"]["expr"]), key[1])
+            return self.numeric(x["callee"]["Std"], [sub(arg["Expr"]["expr"]) for arg in x["args"]])
         if tag == "Str":
             return self.atom(("string", x))
         if tag == "Bool":
@@ -490,6 +607,37 @@ class SourceModel(FiniteRelation):
         if tag in ("Def", "Apply"):
             body, args = self.call(tag, x, env, assigned)
             return self.eval(body, args, assigned)
+        if tag in ("Record", "RecordSet"):
+            require(not self.doc["symmetry"], "symmetry on record-valued finite domains")
+            fields = sorted(x, key=lambda field: field["name"])
+            names = [f["name"] for f in fields]
+            require(len(names) == len(set(names)), "duplicate record field")
+            values = [sub(f["value"]) for f in fields]
+            kind = Atom if tag == "Record" else Members
+            require(all(isinstance(v, kind) for v in values), "record fields must have finite scalar values")
+            total = math.prod(len(v) for v in values)
+            require(total <= 16384, "record domain exceeds 16384 alternatives")
+            result = kind()
+            for choices in itertools.product(*(v.items() for v in values)):
+                guard = self.conjunction(bit for _, bit in choices)
+                if guard != self.b.false:
+                    fields_key = tuple((n, k) for n, (k, _) in zip(names, choices))
+                    result[("record", fields_key)] = guard
+            return result
+        if tag == "RecordSelect":
+            records = sub(x["record"])
+            require(isinstance(records, Atom), "field selection on a non-record")
+            result = Atom()
+            for record, guard in records.items():
+                if self.padding(record):
+                    continue
+                require(isinstance(record, tuple) and record[0] == "record",
+                        "field selection outside a finite record domain")
+                fields = dict(record[1])
+                require(x["field"] in fields, "record lacks field " + x["field"])
+                key = fields[x["field"]]
+                result[key] = result.get(key, self.b.false) | guard
+            return result
         if tag == "FcnSet":
             return FunctionSpace(sub(x["domain"]), sub(x["range"]))
         if tag in ("FcnCons", "Quant"):
@@ -520,6 +668,7 @@ class SourceModel(FiniteRelation):
                 require(isinstance(atom, Atom), "set of nonscalars")
                 for k, g in atom.items():
                     out[k] = out.get(k, self.b.false) | g
+            self.comparable(out)
             return out
         if tag == "ExceptAt":
             return env["@"]
@@ -547,7 +696,12 @@ class SourceModel(FiniteRelation):
         if tag == "Implies":
             return ~self.boolean(sub(x[0])) | self.boolean(sub(x[1]))
         if tag == "If":
-            return self.select(self.boolean(sub(x["cond"])), sub(x["then"]), sub(x["other"]))
+            cond = self.boolean(sub(x["cond"]))
+            if cond == self.b.true:
+                return sub(x["then"])
+            if cond == self.b.false:
+                return sub(x["other"])
+            return self.select(cond, sub(x["then"]), sub(x["other"]))
         if tag == "Builtin":
             op = x["op"]
             a = sub(x["args"][0])
@@ -564,6 +718,8 @@ class SourceModel(FiniteRelation):
                 return self.subset(a, b)
             if op in ("Cup", "Cap", "SetMinus"):
                 require(isinstance(a, Members) and isinstance(b, Members), "set operation kind")
+
+                self.comparable(a, b)
 
                 def merge(k):
                     u, v = a.get(k, self.b.false), b.get(k, self.b.false)
@@ -688,7 +844,9 @@ class SourceModel(FiniteRelation):
         def scalar(key):
             if isinstance(key, str):
                 return {"model": key}
-            require(key[0] == "string", "invalid encoded scalar in witness")
+            if key[0] == "record":
+                return {"record": {n: scalar(v) for n, v in key[1]}}
+            require(key[0] in ("string", "int"), "invalid encoded scalar in witness")
             return key[1]
 
         def read(schema, path):
@@ -715,7 +873,7 @@ class SourceModel(FiniteRelation):
                         pred = cudd.and_exists(
                             self.b.let({v: k for k, v in rename.items()}, pred), rel, list(rename)
                         )
-                    target = layers[depth - 1] & guard & pred
+                    target = layers[depth - 1] & self.constraint & guard & pred
                     if target != self.b.false:
                         break
                 require(target != self.b.false, "missing predecessor")
@@ -729,6 +887,7 @@ class SourceModel(FiniteRelation):
             and self.types == other.types
             and self.layout == other.layout
             and self.names == other.names
+            and self.constraint == other.constraint
             and self.initial == other.initial
             and self.initial_generated == other.initial_generated
             and self.effects == other.effects
@@ -741,7 +900,7 @@ class SourceModel(FiniteRelation):
             if states & ~prop != self.b.false:
                 yield dict(kind="invariant", name=name), ~prop
         if self.doc["check_deadlock"]:
-            bad = ~self.any(g for g, _ in self.actions)
+            bad = self.constraint & ~self.any(g for g, _ in self.actions)
             if states & bad != self.b.false:
                 yield dict(kind="deadlock"), bad
 
@@ -760,7 +919,7 @@ class SourceModel(FiniteRelation):
                     for ending, bad in self.violations(layer):
                         return self.failure(layers[:depth], layer & bad, ending, reused=True)
             self.complete = previous.complete
-            return self.success(len(layers), reached, distinct, generated, True), None
+            return self.success(self.depth(layers), reached & self.constraint, distinct, generated, True), None
 
         reached = frontier = self.initial
         layers = []
@@ -768,14 +927,20 @@ class SourceModel(FiniteRelation):
             layers.append(frontier)
             for ending, bad in self.violations(frontier):
                 return self.failure(layers, frontier & bad, ending, reused=False)
+            # TLC checks invariants on excluded emissions too. They form
+            # terminal states in the witness layers and never become sources.
+            sources = frontier & self.constraint
             successors = self.b.false
             for guard, updates in self.actions:
-                successors |= self.image(frontier, guard, updates)
+                successors |= self.image(sources, guard, updates)
             frontier = successors & ~reached
             reached |= frontier
-        distinct, generated = self.counts(reached, self.symmetry, self.initial_generated)
+        distinct, generated = self.counts(reached & self.constraint, self.symmetry, self.initial_generated)
         self.complete = reached, layers, distinct, generated
-        return self.success(len(layers), reached, distinct, generated, False), None
+        return self.success(self.depth(layers), reached & self.constraint, distinct, generated, False), None
+
+    def depth(self, layers):
+        return max(1, len(layers) - int(layers[-1] & self.constraint == self.b.false))
 
     def failure(self, layers, target, ending, reused):
         verdict = "deadlock" if ending["kind"] == "deadlock" else "invariant-violation"
