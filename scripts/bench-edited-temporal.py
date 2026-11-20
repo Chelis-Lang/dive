@@ -35,7 +35,7 @@ def compare(root, args, name, old, edited):
         assert a["result"] == b["result"], (name, a, b)
     outcome = records[-1]["result"]
     return {
-        "outcome": {k: v for k, v in outcome.items() if k != "word"},
+        "outcome": {k: v for k, v in outcome.items() if k not in ("word", "native_word")},
         "false_properties": (outcome["word"] or {}).get("properties", []),
         "capture_elapsed_us": records[0]["elapsed_us"],
         "original_fresh_us": fresh[0]["elapsed_us"],

@@ -803,5 +803,267 @@
     "process_memory_budget": "unlimited in both arms",
     "max_states": null,
     "max_depth": null
+  },
+  "qualified_typed_words_and_current_graph_limits": {
+    "star-3000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 4218,
+      "original_fresh_us": 3155,
+      "edited_recheck_us": [
+        1248,
+        1123,
+        1020
+      ],
+      "edited_bind_us": [
+        792,
+        713,
+        608
+      ],
+      "edited_analysis_us": [
+        359,
+        348,
+        351
+      ],
+      "edited_fresh_us": [
+        2593,
+        2417,
+        2393
+      ],
+      "capture_and_edits_peak_kib": 12776,
+      "fresh_series_peak_kib": 12136
+    },
+    "star-3000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 3201,
+      "original_fresh_us": 3151,
+      "edited_recheck_us": [
+        1468,
+        1350,
+        1234
+      ],
+      "edited_bind_us": [
+        738,
+        732,
+        619
+      ],
+      "edited_analysis_us": [
+        622,
+        537,
+        534
+      ],
+      "edited_fresh_us": [
+        3073,
+        2946,
+        2871
+      ],
+      "capture_and_edits_peak_kib": 13472,
+      "fresh_series_peak_kib": 12708
+    },
+    "star-20000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 15830,
+      "original_fresh_us": 14453,
+      "edited_recheck_us": [
+        2827,
+        2717,
+        2842
+      ],
+      "edited_bind_us": [
+        756,
+        635,
+        710
+      ],
+      "edited_analysis_us": [
+        2003,
+        2017,
+        2067
+      ],
+      "edited_fresh_us": [
+        12460,
+        11880,
+        11706
+      ],
+      "capture_and_edits_peak_kib": 18392,
+      "fresh_series_peak_kib": 19248
+    },
+    "star-20000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 15525,
+      "original_fresh_us": 14071,
+      "edited_recheck_us": [
+        2782,
+        2673,
+        2588
+      ],
+      "edited_bind_us": [
+        679,
+        631,
+        631
+      ],
+      "edited_analysis_us": [
+        2019,
+        1961,
+        1879
+      ],
+      "edited_fresh_us": [
+        13040,
+        12693,
+        12443
+      ],
+      "capture_and_edits_peak_kib": 18624,
+      "fresh_series_peak_kib": 20100
+    },
+    "tree-65535-hold": {
+      "outcome": {
+        "depth": 17,
+        "distinct": 131071,
+        "generated": 196607,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 1,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 124639,
+      "original_fresh_us": 116283,
+      "edited_recheck_us": [
+        20545,
+        20248,
+        20147
+      ],
+      "edited_bind_us": [
+        1107,
+        933,
+        889
+      ],
+      "edited_analysis_us": [
+        19337,
+        19225,
+        19173
+      ],
+      "edited_fresh_us": [
+        107999,
+        102393,
+        105147
+      ],
+      "capture_and_edits_peak_kib": 59912,
+      "fresh_series_peak_kib": 65864
+    },
+    "tree-131071-hold": {
+      "outcome": {
+        "depth": 18,
+        "distinct": 262143,
+        "generated": 393215,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 2,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 286572,
+      "original_fresh_us": 274403,
+      "edited_recheck_us": [
+        47172,
+        46965,
+        46953
+      ],
+      "edited_bind_us": [
+        1088,
+        1031,
+        1029
+      ],
+      "edited_analysis_us": [
+        45936,
+        45785,
+        45774
+      ],
+      "edited_fresh_us": [
+        241009,
+        239460,
+        252114
+      ],
+      "capture_and_edits_peak_kib": 110772,
+      "fresh_series_peak_kib": 116640
+    },
+    "DieHard": {
+      "outcome": {
+        "depth": 8,
+        "distinct": 16,
+        "generated": 97,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A"
+      ],
+      "capture_elapsed_us": 2619,
+      "original_fresh_us": 1885,
+      "edited_recheck_us": [
+        2171,
+        1914,
+        1550
+      ],
+      "edited_bind_us": [
+        1338,
+        1229,
+        987
+      ],
+      "edited_analysis_us": [
+        617,
+        575,
+        475
+      ],
+      "edited_fresh_us": [
+        1848,
+        1706,
+        1694
+      ],
+      "capture_and_edits_peak_kib": 12276,
+      "fresh_series_peak_kib": 11864
+    }
   }
 }

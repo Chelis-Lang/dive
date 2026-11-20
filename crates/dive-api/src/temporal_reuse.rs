@@ -298,6 +298,26 @@ impl Boundary {
     }
 }
 
+/// Captured edges index the unchanged transition plan. A preceding property
+/// edit can move Next's source location without changing that plan.
+fn current_labels<'a>(
+    old: &'a [String],
+    model: &dive_model::Model,
+) -> Result<std::borrow::Cow<'a, [String]>, Miss> {
+    if model.actions.len() != old.len() {
+        return Err(miss("current action inventory differs from captured graph"));
+    }
+    if model.actions.iter().zip(old).all(|(a, l)| a.label() == l) {
+        return Ok(std::borrow::Cow::Borrowed(old));
+    }
+    let mut current = Vec::new();
+    current
+        .try_reserve_exact(old.len())
+        .map_err(|_| miss("current action labels allocation"))?;
+    current.extend(model.actions.iter().map(|a| a.label().to_owned()));
+    Ok(std::borrow::Cow::Owned(current))
+}
+
 /// Complete graph from its exact producer. No serialization or reconstruction
 /// from counts, an arbitrary caller-supplied graph, or a previous word.
 pub struct Artifact {
@@ -346,9 +366,15 @@ impl Artifact {
         .map_err(|e| miss(format!("current native atoms: {e:?}")))?;
         let mut reader = core_native_atoms::Reader::new(&self.graph, &mut values, &mut atoms);
         reader.allow_inline_rows();
+        let input = self.graph.input();
+        let labels = current_labels(input.action_labels, model)?;
+        let input = CsrCaptureInput {
+            action_labels: &labels,
+            ..input
+        };
         let mut offsets = Vec::new();
         for b in &self.boundaries {
-            let prefix = b.input(self.graph.input(), &mut offsets)?;
+            let prefix = b.input(input, &mut offsets)?;
             let csr = CsrCapture::checked(prefix, limits.graph, &control)
                 .map_err(|e| miss(format!("captured level: {e:?}")))?;
             if !driver.native_level_due(b.stats) {
@@ -363,7 +389,7 @@ impl Artifact {
             }
         }
         let complete = CsrComplete::from_producer(
-            self.graph.input(),
+            input,
             self.safety.clone(),
             options.clone(),
             limits.graph,
@@ -402,7 +428,7 @@ impl Artifact {
                 "word did not validate against immutable current binding",
             ));
         }
-        Ok(report)
+        Ok(report.with_graph_limits(limits.graph))
     }
 }
 
@@ -428,6 +454,14 @@ mod tests {
         let l = Limits::default();
         let p = program("<>(x = 0)", "<>(x < 2)", "", CFG);
         let (graph, original) = p.capture(l).expect("completed graph with held properties");
+        assert_eq!(
+            original
+                .configuration()
+                .expect("effective graph limits")
+                .limits
+                .capture,
+            l.graph
+        );
         assert!(matches!(
             original.outcome(),
             temporal::Outcome::NativeHolds(_)
@@ -542,5 +576,39 @@ P == <>(x=1)
         let a = crate::analyze_source("TLC.tla", src, &AnalyzeOptions::default());
         let cfg = crate::parse_config_source("TLC.cfg", "SPECIFICATION Spec\nPROPERTY Q P\n");
         assert!(Program::from_reports(&a, &cfg).is_err_and(|e| e.to_string().contains("shadows")));
+    }
+    #[test]
+    fn typed_word_edges_use_current_action_name_module_and_source_span() {
+        fn moved(property: &str) -> Program {
+            let source = format!(
+                "---- MODULE Move ----\nEXTENDS Naturals\nVARIABLE x\nP == {property}\nB == <>(x<2)\nInit == x=0\nNext == x'=1\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\n====\n"
+            );
+            let a = crate::analyze_source("Move.tla", &source, &AnalyzeOptions::default());
+            let c = crate::parse_config_source("Move.cfg", "SPECIFICATION Spec\nPROPERTY P B\n");
+            Program::from_reports(&a, &c).expect("valid model")
+        }
+        let old = moved("<>(x=0)");
+        let l = Limits::default();
+        let (captured, _) = old.capture(l).expect("complete graph");
+        for (edit, line) in [("<>(x=2)", 7), ("<>\n (x=2)", 8)] {
+            let now = moved(edit);
+            let reused = captured.recheck(&now, l).expect("current word");
+            let (_, fresh) = now.capture(l).expect("current fresh graph");
+            let (temporal::Outcome::NativeViolation(a), temporal::Outcome::NativeViolation(b)) =
+                (reused.outcome(), fresh.outcome())
+            else {
+                panic!("fair word required")
+            };
+            assert_eq!(a.word().edges, b.word().edges);
+            assert_eq!(a.document(), b.document());
+            assert_eq!(
+                a.word().edges[0].label.as_deref(),
+                Some(
+                    format!("<Next line {line}, col 9 to line {line}, col 12 of module Move>")
+                        .as_str()
+                )
+            );
+            assert_eq!(a.word().edges[0].ordinal, Some(0));
+        }
     }
 }

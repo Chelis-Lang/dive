@@ -131,7 +131,9 @@ scheduled completed-level boundaries. Each edit rebuilds temporal plans, runs
 all due prefix analyses in order, then checks the complete graph on the
 ordinary Core product/SCC path. The returned `temporal::Report` includes the
 complete independently validated false-property set of the actual reported
-word. `Artifact::original_safety` returns the establishing search and counts.
+word. The graph retains original action indices and occurrence ordinals.
+Typed word edges use the freshly bound action name and source span, including
+after an edit moves the action to a new line. `Artifact::original_safety` returns the establishing search and counts.
 
 `Limits` binds the ordinary state and depth limits, completed-level schedule,
 and the separate graph cap on states, edges, generated states and per-source

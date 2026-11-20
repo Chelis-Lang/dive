@@ -109,6 +109,13 @@ pub struct Report {
     configuration: Option<Configuration>,
 }
 impl Report {
+    pub(crate) fn with_graph_limits(mut self, limits: capture::Limits) -> Self {
+        if let Some(config) = &mut self.configuration {
+            config.limits.capture = limits;
+        }
+        self
+    }
+
     /// Original declared symmetry and effective whole-run policy after binding.
     /// `None` means no successfully bound model is available; this is not proof.
     #[must_use]

@@ -8,15 +8,22 @@ use serde_json::{Value, json};
 use std::{path::Path, time::Instant};
 
 fn result(report: &Report) -> Option<Value> {
-    let (evidence, word) = match report.outcome() {
-        Outcome::NativeHolds(e) => (e.as_ref(), None),
-        Outcome::NativeViolation(v) => (v.evidence(), Some(v.document())),
+    let (evidence, word, native_word) = match report.outcome() {
+        Outcome::NativeHolds(e) => (e.as_ref(), None, None),
+        Outcome::NativeViolation(v) => (
+            v.evidence(),
+            Some(v.document()),
+            Some(
+                json!({"target_property":v.word().target_property,"properties":v.word().properties,"back_to":v.word().back_to,
+                "edges":v.word().edges.iter().map(|e|json!({"to":e.to,"ordinal":e.ordinal,"label":e.label})).collect::<Vec<_>>() }),
+            ),
+        ),
         _ => return None,
     };
     let stats = evidence.stats();
     Some(
         json!({"verdict":if word.is_some() {"liveness-violation"} else {"success"},
-                "prefix_checks":report.periodic().map(|c|c.prefixes),"word":word.map(dive_trace::TraceDoc::to_json),"generated":stats.generated,
+                "prefix_checks":report.periodic().map(|c|c.prefixes),"native_word":native_word,"word":word.map(dive_trace::TraceDoc::to_json),"generated":stats.generated,
                 "distinct":stats.distinct,"depth":stats.depth,"initial_generated":stats.initial_generated,
                 "left_on_queue":stats.left_on_queue}),
     )

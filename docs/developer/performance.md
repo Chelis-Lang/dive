@@ -1168,7 +1168,7 @@ one Core worker, exact storage, seed/fingerprint zero and no state/depth limit.
 The temporal example captures an exact labelled graph, then binds and analyzes
 edits. The benchmark compares the entire typed result exported by the example,
 including ordinary counters, number of scheduled prefix analyses and every
-field of a reported lasso. These runs use one pinned Linux CPU on an AMD
+field of a reported lasso and its typed edge labels and ordinals. These runs use one pinned Linux CPU on an AMD
 Ryzen AI MAX+ 395, Rust 1.99.0, one Core worker and its default completed-level
 schedule. Both arms use unlimited process memory and wall budgets. The measurements include current binding, analysis, independent word
 validation when applicable and report construction.
