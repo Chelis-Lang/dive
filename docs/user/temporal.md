@@ -42,7 +42,9 @@ distinct roots and the compiled plan has one variable and at most eight
 short, non-enumerating action branches that pass its structural check.
 This avoids dispatching each small expansion to workers before its ordered
 commit. The JSON report gives the requested and actual width and the reason
-in `options.workers`. See [workers and stores](checking.md#workers-and-stores).
+in `options.workers`. For multiworker Core temporal reports, `width_applies_to`
+identifies source expansion. `serial_phases` lists the phases that use one
+thread when reached, including ordered commit and temporal analysis. See [workers and stores](checking.md#workers-and-stores).
 
 Under `--compat=tlc`, temporal capture can use every requested worker when the
 model creates no names beyond its start-up name table. From a source checkout:

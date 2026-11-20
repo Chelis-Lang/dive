@@ -1068,6 +1068,10 @@ impl CheckReport {
         matches!(&self.phase, Phase::Temporal(_) | Phase::TemporalError(_))
     }
 
+    fn multiworker_temporal_request(&self) -> bool {
+        self.workers_requested > 1 && self.core.is_some() && self.temporal_schema()
+    }
+
     /// The safety checker's result, including a safety stop in final/short
     /// checking. Temporal holds/violations use [`Self::temporal_result`].
     #[must_use]
@@ -1393,6 +1397,15 @@ impl CheckReport {
                 "scope": "the check after loading: evaluator-backed fresh model binding after structural configuration/evaluator construction, safety search, graph capture, temporal analysis and fresh native temporal-candidate validation including its rebinding, and producer ASSUME using existing amortized loop checkpoints; structural binding, independent validation ASSUME, post-binding symmetry preparation, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
             },
         });
+        if self.multiworker_temporal_request() {
+            options["workers"]["width_applies_to"] = json!("source-expansion");
+            options["workers"]["serial_phases"] = json!([
+                "initial-states",
+                "ordered-commit",
+                "temporal-analysis",
+                "trace-validation"
+            ]);
+        }
         if let Some(disk) = &o.seen_disk {
             options["seen_disk"] = json!({"entries_limit": disk.limits.entries, "key_bytes_limit": disk.limits.key_bytes, "probe_steps_limit": disk.limits.probe_steps, "summary_pairs_limit": disk.limits.summary_pairs, "directory": disk.directory, "execution": "inline-fallback", "resident_key_collection_bytes": 0, "total_memory_budget": false});
         }
@@ -1961,6 +1974,9 @@ impl CheckReport {
             self.workers_requested,
             self.workers_used()
         );
+        if self.multiworker_temporal_request() {
+            out.push_str("Worker width applies to source expansion. Initial states, ordered commits, temporal analysis and trace validation each use one thread when run.\n");
+        }
         if !o.eval.host_access.is_empty() {
             let _ = writeln!(
                 out,

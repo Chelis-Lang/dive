@@ -98,6 +98,16 @@ fn temporal_capture_reports_inline_width_only_for_wide_cheap_initial_frontiers()
         assert_eq!(eight["statistics"], one["statistics"]);
         let workers = &eight["options"]["workers"];
         assert_eq!(workers["used"], expected, "{workers}");
+        assert_eq!(workers["width_applies_to"], "source-expansion");
+        assert_eq!(
+            workers["serial_phases"],
+            serde_json::json!([
+                "initial-states",
+                "ordered-commit",
+                "temporal-analysis",
+                "trace-validation"
+            ])
+        );
         if expected == 1 {
             assert_eq!(workers["sequential"], true);
             assert!(
