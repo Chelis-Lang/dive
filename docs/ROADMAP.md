@@ -53,15 +53,18 @@ compact edges and evidence reuse for eligible property edits.
    replay witnesses at every tested width.
    [Temporal scaling](https://github.com/Chelis-Lang/dive/issues/1028) ·
    [Large holdouts](https://github.com/Chelis-Lang/dive/issues/1034)
-3. **Evaluate compilation on one hot path.** Compare shape-specialized or
-   bytecode evaluation with native code generated from the same bound
-   Core IR on KVS Medium and an aggregate consensus model. Preserve ordered
-   discovery, handling of effects and errors, and duplicate witnesses. Measure
-   cold compile-and-check, cached runs, and break-even against ordinary Core.
-   Promote a tier only when it improves both profiles in its intended workload,
-   with equivalent results, independent replay, and small-model regressions
-   checked. Expand spill or distributed execution when a pinned practical
-   workload still exceeds the tuned single-host envelope.
+3. **Qualify a compiled finite safety tier.** Reuse the bound finite relation
+   to generate complete actions over packed states. KVS and transaction
+   commit give starting controls for an order-of-magnitude gain on eligible
+   models. Use aggregate consensus as the wider-layout holdout. Measure
+   source admission, fallback work, cold compile-and-check, warm search,
+   and exact membership capacity at one and eight workers. Preserve
+   generated multiplicity, diagnostics, resource stops and independently
+   replayable shortest witnesses. Keep work on Core's evaluator and
+   temporal checking for cases outside the finite fragment. Expand spill or
+   distributed execution when a pinned practical workload still exceeds the
+   tuned single-host envelope.
+   [Compiled safety measurements](internal/survey/verification-workloads.md#compiling-the-finite-relation)
 4. **Complete practitioner workflows.** Rank named blockers by workflow impact.
    Start with the aggregate message bags in etcd Raft, the Kafka KIP-996
    fairness planner and the VIEW/liveness refusal. Qualify PlusCal, fairness
