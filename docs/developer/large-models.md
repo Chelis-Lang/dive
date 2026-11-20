@@ -139,6 +139,16 @@ refutation, 2.00× for the temporal star and 1.46× for the DieHard
 fail-then-fix sequence. The original 100-check loop took 1.462 s with 76
 exact receipt hits per trial. [Sail methods and reproduction](https://github.com/Chelis-Lang/sail/blob/e609cad17b45d6e8b3d1259d45561bd269a53041/docs/validation/temporal-reuse-s7.md#native-checks-after-substantive-edits) · [Every substantive edit, control and sample](https://github.com/Chelis-Lang/sail/blob/e609cad17b45d6e8b3d1259d45561bd269a53041/docs/validation/data/2026-11-20-native-edit-session.json) · [All 333 exact-replay checks](https://github.com/Chelis-Lang/sail/blob/e609cad17b45d6e8b3d1259d45561bd269a53041/docs/validation/data/2026-11-20-integrated-s7.json).
 
+Sail also qualified the original S7 internal-memory property removal on
+aggregate states. A new process checked the remaining `LivenessProperty` in
+**15.565 ms versus 86.734 ms** fresh. All five trials agreed on the original
+8 initial states, 21,400 generated, 4,408 distinct, depth 10 and empty queue.
+Including establishment, the two-check session took 156.053 ms versus
+231.862 ms. The same native build checked the mutex invariant removal in
+20.347 ms versus 9.576 s fresh. The 100-check exact-receipt workload took
+1.344 s and had 76 hits per trial. The separate-process figures use an
+already established ordinary proof. [All five paired trials and Mac control](https://github.com/Chelis-Lang/sail/blob/main/docs/validation/data/2026-11-20-first-temporal-claim-native.json) · [All 333 repeat-workload results](https://github.com/Chelis-Lang/sail/blob/main/docs/validation/data/2026-11-20-first-temporal-claim-s7.json) · [Admission rules and reproduction](https://github.com/Chelis-Lang/sail/blob/main/docs/validation/temporal-reuse-s7.md#retaining-the-first-temporal-property).
+
 ## Explicit Core and temporal checking
 
 Six of the thirteen original non-finishes reached a memory ceiling and seven reported feature refusals. The latter need support for the named constructs. Frontier width also differs within the memory cases. BPConProof had 41.07 million rows queued at 41.10 million distinct states. TLCSailfish2 reported an empty queue at its stop. A queue count alone cannot identify the retained allocation in that case.
