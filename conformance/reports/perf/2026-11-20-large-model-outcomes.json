@@ -521,6 +521,50 @@
     },
     {
       "model": "kraft/kip_996/model_liveness.cfg",
+      "scoped_fairness_experiments": {
+        "platform": "AWS c7i.4xlarge native Linux. Unmodified KIP-996 module/config at the holdout pin. Engineering probes only. Release builds; GNU time wall and KiB RSS.",
+        "command": "dive check kraft_kip_996.tla --config model_liveness.cfg --library-path modules --workers 8 --seed 0 --fp 0 --max-memory 4g --time-limit 120s --output json. The 80-million-step probe also set --max-states 50 and 140s. None reached state exploration.",
+        "visits_at_one_million_steps": {
+          "source_967_column_40": {
+            "purity": 19058,
+            "level": 18895
+          },
+          "source_903_column_44": {
+            "purity": 16326,
+            "level": 16263
+          },
+          "source_356_log_index": {
+            "purity": 14237
+          }
+        },
+        "experiments": [
+          {
+            "experiment": "memoize successful pure/level checks per retained lazy argument and depth",
+            "work_allowance": 1000000,
+            "seconds": 0.85,
+            "peak_rss_kib": 140252,
+            "exit_code": 3,
+            "reason": "DIVE-L0021 at line 1319, col 5 to line 1335, col 52 of module kraft_kip_996: temporal formula resource limit: predicate lowering steps"
+          },
+          {
+            "experiment": "also attach successful purity and level checks to freshly bound pure first-order actuals",
+            "work_allowance": 1000000,
+            "seconds": 0.94,
+            "peak_rss_kib": 144348,
+            "exit_code": 3,
+            "reason": "DIVE-L0021 at line 1319, col 5 to line 1335, col 52 of module kraft_kip_996: temporal formula resource limit: predicate lowering steps"
+          },
+          {
+            "experiment": "unchanged traversal with a diagnostic 80-million-step allowance",
+            "work_allowance": 80000000,
+            "seconds": 47.38,
+            "peak_rss_kib": 138112,
+            "exit_code": 3,
+            "reason": "DIVE-L0021 at line 1319, col 5 to line 1335, col 52 of module kraft_kip_996: temporal formula resource limit: predicate lowering steps"
+          }
+        ],
+        "conclusion": "Exact lazy-binding identity caching and repeated validation of bound formals alone both leave the same work limit. The source expands quantified fairness clauses over servers and ordered server pairs. A reusable first-order operator summary needs to account for lexical substitution, eager constant evaluation, query context and error order."
+      },
       "corpus": "holdout-kafka",
       "grade": "out-of-scope",
       "historical_8_worker_observation": "unsupported: a temporal validation failure (core): its report is not implemented on Core",

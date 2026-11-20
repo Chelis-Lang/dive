@@ -4,6 +4,7 @@
 //! the same plan/frame rules as the BFS core. Report conversion is a boundary.
 
 pub(crate) mod dfid;
+mod sample;
 #[cfg(test)]
 mod sim_tests;
 
@@ -15,8 +16,7 @@ use dive_core::plan::{Action, Check, Code, Plan};
 use dive_core::{Error, ErrorKind, Handle, Machine, Opts};
 use dive_eval::next::StateVals;
 use dive_model::Model;
-use dive_sim::{Outcome, Report, Trace};
-use dive_stdlib::random::{RandomSource, Streams};
+use dive_sim::{Outcome, Report};
 
 pub(crate) enum SetupError {
     Unsupported(String),
@@ -97,16 +97,17 @@ impl Native {
             .ok()
             .map_or(Ok(Opts::default()), |text| Opts::parse(&text))
             .map_err(SetupError::Unsupported)?;
-        Self::prepare_with_options(model, budget, opts)
+        Self::prepare_with_options(model, budget, opts, 1)
     }
 
     fn prepare_with_options(
         model: &Model,
         budget: &dive_runtime::budget::Budget,
         opts: Opts,
+        workers: usize,
     ) -> Result<Self, SetupError> {
         let opts = Opts {
-            memo_cap: crate::core_engine::memo_cap(budget.memory, 1),
+            memo_cap: crate::core_engine::memo_cap(budget.memory, workers),
             ..opts
         };
         let store = crate::core_engine::store_for(
@@ -387,417 +388,6 @@ fn assumptions(model: &Model) -> Option<Outcome> {
     }
 }
 
-impl Native {
-    pub(crate) fn simulate(
-        &mut self,
-        model: &Model,
-        options: &dive_sim::Options,
-        runtime: &dive_sim::Runtime,
-        poll: &dyn Fn() -> bool,
-    ) -> Report {
-        if let Some(outcome) = dive_sim::preflight(model, options) {
-            return preflight_report(outcome);
-        }
-        runtime.simulate_with_backend(model, |remaining| {
-            let mut report = self.sample(model, options, poll, remaining);
-            report.runtime_output.extend(
-                std::mem::take(&mut self.machine.printed)
-                    .into_iter()
-                    .map(|text| dive_eval::capture::Captured {
-                        text,
-                        warning: false,
-                    }),
-            );
-            if let Some(reason) = self.machine.output_failure() {
-                report.outcome = Outcome::Limit(reason.into());
-            }
-            if self.machine.heap.poisoned() {
-                report.outcome = Outcome::Internal("native finite mode read a stale value".into());
-            }
-            if !self.machine.warnings.is_empty() {
-                report.outcome =
-                    Outcome::Unsupported("native simulation warning/output interleaving".into());
-            }
-            report
-        })
-    }
-
-    #[allow(
-        clippy::too_many_lines,
-        reason = "finite simulation keeps emitted-candidate checks and chosen transitions in one driver"
-    )]
-    fn sample(
-        &mut self,
-        model: &Model,
-        options: &dive_sim::Options,
-        poll: &dyn Fn() -> bool,
-        remaining: &dyn Fn() -> (usize, usize),
-    ) -> Report {
-        let mut report = preflight_report(Outcome::Sampled);
-        let (events, bytes) = remaining();
-        self.machine.set_output_limits(events, bytes);
-        if options.action_stats {
-            match dive_sim::ActionFlow::new(model) {
-                Ok(flow) => report.action_flow = Some(flow),
-                Err(error) => {
-                    report.outcome = Outcome::Unsupported(error.to_string());
-                    return report;
-                }
-            }
-        }
-        if poll() {
-            report.outcome = Outcome::Cancelled;
-            return report;
-        }
-        report.stage = "assumptions";
-        if let Some(outcome) = assumptions(model) {
-            report.outcome = outcome;
-            return report;
-        }
-        let budget = &self.budget;
-        match Self::prepare_with_options(model, budget, self.machine.opts) {
-            Ok(actual) => *self = actual,
-            Err(error) => {
-                report.outcome = error.simulation();
-                return report;
-            }
-        }
-        let (events, bytes) = remaining();
-        self.machine.set_output_limits(events, bytes);
-        let Self { machine, plan, .. } = self;
-        // TLC's simulator: `TLCGet("level")` is 0 in Init, a state's 1-based
-        // trace position in its state checks and in the next-state relation
-        // and action checks of the step it starts.
-        machine.allow_finite_level();
-        machine.level = 0;
-        report.stage = "initialization";
-        let mut initial = Vec::new();
-        for (index, action) in plan.init.iter().enumerate() {
-            let mark = machine.heap.mark();
-            let mut limited = false;
-            let result = generate(machine, &plan.code, action, &mut |machine| {
-                if poll() {
-                    return Err(Error::stop());
-                }
-                if initial.len() >= options.max_candidates
-                    || report.initial_candidates >= options.max_generated
-                {
-                    limited = true;
-                    return Err(Error::stop());
-                }
-                report.initial_candidates += 1;
-                initial.push((retain(machine)?, index));
-                Ok(())
-            });
-            if let Err(error) = finish_batch(machine, mark) {
-                report.outcome = classify(&error, None);
-                return report;
-            }
-            if let Err(error) = result {
-                report.outcome = if limited {
-                    Outcome::Limit("simulation initial-state bound".into())
-                } else {
-                    classify(&error, Some(1000))
-                };
-                return report;
-            }
-        }
-        report.generated = report.initial_candidates;
-        let mut eligible = Vec::new();
-        for (state, action) in initial {
-            let mark = machine.heap.mark();
-            if state.iter().any(|value| value.is_empty()) {
-                report.outcome = Outcome::Error {
-                    code: 2106,
-                    message: "incomplete initial state".into(),
-                };
-                return report;
-            }
-            machine.s1.clone_from(&state);
-            machine.level = 1;
-            // As `dive check` orders an initial state's checks: invariants,
-            // then implied initial predicates (2108, D-036), then constraints.
-            // An implied initial predicate's evaluation error has no proved
-            // TLC wrapper here and stays a named refusal.
-            if let Some(outcome) = roles(
-                machine,
-                plan,
-                &plan.invariants,
-                false,
-                "invariant",
-                2107,
-                2102,
-            )
-            .or_else(|| implied_initial(machine, plan))
-            {
-                if options.max_retained == 0 {
-                    report.pending_violation = pending(&outcome);
-                    report.outcome = Outcome::Limit("simulation retained-state bound".into());
-                    return report;
-                }
-                report.outcome = outcome;
-                match values(machine, model, &state) {
-                    Ok(state) => report.traces.push(Trace {
-                        id: 0,
-                        states: vec![state],
-                        actions: Vec::new(),
-                    }),
-                    Err(message) => report.outcome = Outcome::Unsupported(message),
-                }
-                return report;
-            }
-            match allowed(machine, plan, &plan.constraints, false) {
-                Ok(true) => eligible.push((state, action)),
-                Ok(false) => {}
-                Err(error) => {
-                    report.outcome = classify(&error, None);
-                    return report;
-                }
-            }
-            if let Err(error) = finish_batch(machine, mark) {
-                report.outcome = classify(&error, None);
-                return report;
-            }
-        }
-        if eligible.is_empty() {
-            report.outcome = Outcome::Error {
-                code: if report.initial_candidates == 0 {
-                    2118
-                } else {
-                    2256
-                },
-                message: "no initial state satisfies the specification and constraints".into(),
-            };
-            return report;
-        }
-        let streams = Streams::new(options.seed, options.mode);
-        let mut retained = 0usize;
-        report.stage = "sampling";
-        for id in 0..options.traces {
-            if poll() {
-                report.outcome = Outcome::Cancelled;
-                return report;
-            }
-            let mut rng = streams.simulation_trace(id);
-            for _ in 0..options.aril {
-                if poll() {
-                    report.outcome = Outcome::Cancelled;
-                    return report;
-                }
-                let _ = rng.next_double();
-            }
-            report.traces_started += 1;
-            let choice = usize::try_from(rng.next_index(eligible.len() as u64)).unwrap_or(0);
-            let (mut current, action) = eligible[choice].clone();
-            let mut previous = model.init_actions[action].id();
-            if retained >= options.max_retained {
-                report.outcome = Outcome::Limit("simulation retained-state bound".into());
-                return report;
-            }
-            let mut states = match values(machine, model, &current) {
-                Ok(state) => vec![state],
-                Err(message) => {
-                    report.outcome = Outcome::Unsupported(message);
-                    return report;
-                }
-            };
-            retained += 1;
-            let mut actions = Vec::new();
-            for _ in 0..options.depth {
-                if poll() {
-                    report.traces.push(Trace {
-                        id,
-                        states,
-                        actions,
-                    });
-                    report.outcome = Outcome::Cancelled;
-                    return report;
-                }
-                machine.s0.clone_from(&current);
-                let source = level_of(states.len());
-                let target = level_of(states.len() + 1);
-                machine.level = source;
-                let mut candidates = Vec::new();
-                let mut index =
-                    usize::try_from(rng.next_index(plan.next.len() as u64)).unwrap_or(0);
-                let sampled_prime = usize::try_from(rng.next_prime()).unwrap_or(0);
-                let prime = if options.generation { 1 } else { sampled_prime };
-                let mut failed = None;
-                for _ in 0..plan.next.len() {
-                    let mark = machine.heap.mark();
-                    let mut selected = false;
-                    let mut emit = |machine: &mut Machine| {
-                        if poll() {
-                            return Err(Error::stop());
-                        }
-                        if candidates.len() >= options.max_candidates
-                            || report.generated >= options.max_generated
-                        {
-                            failed = Some(Outcome::Limit("simulation successor bound".into()));
-                            return Err(Error::stop());
-                        }
-                        if machine.assigned != machine.s1.len() {
-                            failed = Some(Outcome::Error {
-                                code: 2109,
-                                message: "incomplete successor state".into(),
-                            });
-                            return Err(Error::stop());
-                        }
-                        report.generated += 1;
-                        failed = at_level(machine, target, |machine| {
-                            roles(
-                                machine,
-                                plan,
-                                &plan.invariants,
-                                false,
-                                "invariant",
-                                2110,
-                                2111,
-                            )
-                        })
-                        .or_else(|| {
-                            roles(
-                                machine,
-                                plan,
-                                &plan.implied_actions,
-                                true,
-                                "property",
-                                2112,
-                                2113,
-                            )
-                        });
-                        if failed.is_some() {
-                            if retained >= options.max_retained {
-                                // As at Init: the observed violation stays
-                                // pending evidence of the retained-state stop.
-                                report.pending_violation = failed.as_ref().and_then(pending);
-                                failed =
-                                    Some(Outcome::Limit("simulation retained-state bound".into()));
-                            } else {
-                                match values(machine, model, &machine.s1.clone()) {
-                                    Ok(next) => {
-                                        states.push(next);
-                                        actions.push(index);
-                                        retained += 1;
-                                    }
-                                    Err(message) => failed = Some(Outcome::Unsupported(message)),
-                                }
-                            }
-                            return Err(Error::stop());
-                        }
-                        if at_level(machine, target, |machine| {
-                            allowed(machine, plan, &plan.constraints, false)
-                        })? && allowed(machine, plan, &plan.action_constraints, true)?
-                        {
-                            candidates.push(retain(machine)?);
-                            if options.generation {
-                                selected = true;
-                                return Err(Error::stop());
-                            }
-                        }
-                        Ok(())
-                    };
-                    let mut choose = |bound| rng.next_index(bound);
-                    let choices = if options.generation {
-                        Some(&mut choose as &mut dyn FnMut(u64) -> u64)
-                    } else {
-                        None
-                    };
-                    let result = generate_selected(
-                        machine,
-                        &plan.code,
-                        &plan.next[index],
-                        &mut emit,
-                        choices,
-                    );
-                    if let Err(error) = finish_batch(machine, mark) {
-                        failed = Some(classify(&error, None));
-                    }
-                    if let Err(error) = result
-                        && failed.is_none()
-                        && !(selected && error.kind() == ErrorKind::Stop)
-                    {
-                        failed = Some(classify(&error, None));
-                    }
-                    if failed.is_some() || !candidates.is_empty() {
-                        break;
-                    }
-                    index = (index + prime) % plan.next.len();
-                }
-                if let Some(mut outcome) = failed {
-                    if let Outcome::Violation { trace, .. } = &mut outcome {
-                        *trace = report.traces.len();
-                    }
-                    report.traces.push(Trace {
-                        id,
-                        states,
-                        actions,
-                    });
-                    report.outcome = outcome;
-                    return report;
-                }
-                if candidates.is_empty() {
-                    if plan.check_deadlock {
-                        report.outcome = Outcome::Violation {
-                            kind: "deadlock",
-                            name: None,
-                            code: 2114,
-                            trace: report.traces.len(),
-                        };
-                        report.traces.push(Trace {
-                            id,
-                            states,
-                            actions,
-                        });
-                        return report;
-                    }
-                    break;
-                }
-                if retained >= options.max_retained {
-                    report.outcome = Outcome::Limit("simulation retained-state bound".into());
-                    return report;
-                }
-                retained += 1;
-                let choice = if options.generation {
-                    0
-                } else {
-                    usize::try_from(rng.next_index(candidates.len() as u64)).unwrap_or(0)
-                };
-                current = candidates.swap_remove(choice);
-                match values(machine, model, &current) {
-                    Ok(next) => {
-                        states.push(next);
-                        actions.push(index);
-                    }
-                    Err(message) => {
-                        report.outcome = Outcome::Unsupported(message);
-                        return report;
-                    }
-                }
-                let chosen = model.actions[index].id();
-                if let Some(flow) = &mut report.action_flow
-                    && let Err(error) = flow.record(previous, chosen)
-                {
-                    report.outcome = Outcome::Internal(error.to_string());
-                    report.traces.push(Trace {
-                        id,
-                        states,
-                        actions,
-                    });
-                    return report;
-                }
-                previous = chosen;
-            }
-            report.traces.push(Trace {
-                id,
-                states,
-                actions,
-            });
-        }
-        report
-    }
-}
-
 /// The first implied initial predicate (`PROPERTY` part) the initial state in
 /// `machine.s1` violates, as `dive check` reports it (2108).
 fn implied_initial(machine: &mut Machine, plan: &Plan) -> Option<Outcome> {
@@ -870,7 +460,9 @@ mod tests {
                 &|| false,
             );
             assert!(matches!(stopped.outcome, Outcome::Limit(_)), "{stopped:?}");
-            assert_eq!(stopped.generated, 3);
+            // Trace 0's four successors would cross the bound of three
+            // after Init's one state, so only Init is counted.
+            assert_eq!(stopped.generated, 1);
         }
         Ok(())
     }

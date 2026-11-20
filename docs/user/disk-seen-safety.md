@@ -43,7 +43,7 @@ Workers expand states concurrently. The coordinator looks up fingerprints in
 batches and admits each discovery in source and successor order. It keeps up
 to 262,144 recent keys, a window of up to 32,768 queries, and a small page
 index in memory. Sealed runs use eight bytes per key and two resident index
-words per 512 keys before allocator overhead. Compaction temporarily needs
+words per 512 keys before allocator overhead. Smaller runs also keep a one-byte-per-key membership filter in RAM. Filters are limited to runs with at most 33,554,432 keys. Active filters use less than 64 MiB at the normal flush size. A merge can briefly retain the old filters, an intermediate and the replacement together. Files contain the complete keys, and the closing audit reads every page. Compaction temporarily needs
 space for both inputs and their replacement. The OS can also cache file pages
 in memory. Frontier rows and the parent log still need their own capacity.
 
