@@ -444,7 +444,18 @@ The WAL specification has 19 state variables. Each resident queue row in this sa
 
 For the full target, membership capacity changes the choice of machine. With 49 billion uniformly distributed fingerprints, the resident table's 256 shards would each require 2²⁸ eight-byte slots under the 75% growth threshold, or 512 GiB for slots alone. On a 64-bit host the packed resident parent log adds at least 57 GiB for one byte per discovery and one 16-byte index entry per 64 discoveries. The fixed-width disk parent log would write 784 GB at that count. These are size calculations. The live frontier, resize peaks and worker allocations add to the resident requirement. The indexed disk store caps membership at 4,294,967,295 entries. Sorted runs use a global 64-bit count and a streaming audit. A capacity bound alone does not establish a completed run. [Fingerprint table](../../crates/dive-explore/src/lib.rs) · [Packed parents](../../crates/dive-store/src/predecessor/packed.rs) · [Disk membership limits](../user/disk-seen-safety.md).
 
-Reducing only `Values` from two values to one kept the three writers, one restart, symmetry and all six invariants. On the same machine, 32 resident workers reached **208,042,815 distinct states** and 901,441,896 generated at depth 88 in 480.08 s, peaking at 7.80 GiB RSS. The time limit stopped the run with 4,089,873 states queued. This gives a lower bound for the one-value configuration. It provides neither a completed count nor a safety verdict for either configuration. [Individual runs and reproduction settings](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+#### Three writers and one value to exhaustion
+
+Changing only `Values` from two values to one retains all six invariants,
+symmetry, three writers and one restart. Both checkers exhausted the queue at
+**242,213,642 distinct states, 1,068,416,158 generated and depth 126**.
+Core took 551.82 s at 8.70 GiB peak RSS. Pinned TLC took 2,113.87 s at
+44.62 GiB. The two processes ran consecutively on the same 32 physical cores
+of an isolated r7i.16xlarge. For this configuration, Core was 3.83× faster.
+Both searches used fingerprints with seed and polynomial zero. TLC estimated
+collision probabilities of 0.011 (optimistic) and 0.026 (actual gap).
+The earlier 480-second Core run reached 208,042,815 distinct at depth 88.
+[Commands, pins and individual measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
 #### External fingerprint membership
 

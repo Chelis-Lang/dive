@@ -620,7 +620,50 @@
           },
           "collision": null
         }
-      ]
+      ],
+      "unbounded_discovery_comparison": {
+        "input": "Unmodified original module. Change only Values from {v1, v2} to {v1} in the original three-writer, one-restart CFG. Same six invariants, garbage collection, symmetry and deadlock setting.",
+        "hardware": "Dedicated EC2 r7i.16xlarge, 32 physical Xeon Platinum 8488C cores, single NUMA node, SMT enabled. Both processes pinned to CPUs 0–31. 400 GiB gp3 scratch.",
+        "method": "One fresh process per checker, Core then TLC, each alone. 450 GiB cgroup, swap disabled. Common 16200-second limit. Process wall includes startup and cleanup. Peak RSS via GNU time. No discovery or depth limit.",
+        "kernel": "7.0.0-1018-aws",
+        "jre": "OpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)",
+        "hashes": {
+          "CommunityModules-202610040242.jar": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+          "CommunityModules-deps-202610040242.jar": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+          "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+          "dive": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+          "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+          "spec/OneValue.cfg": "a38c2cd3b7711bfc8dfdec7c0d1900266a66e7ede85cff1ad4c34b5eeb9f6094"
+        },
+        "measurements": {
+          "core": {
+            "verdict": "success",
+            "exit_code": 0,
+            "wall_s": 551.82,
+            "peak_rss_kib": 9121748,
+            "generated": 1068416158,
+            "distinct": 242213642,
+            "left_on_queue": 0,
+            "depth": 126,
+            "command": "./dive check spec/SlateDBWAL.tla --config spec/OneValue.cfg --library-path modules --workers 32 --compat=tlc --seed 0 --fp 0 --time-limit 16200s --max-memory 360g --output json"
+          },
+          "tlc": {
+            "verdict": "success",
+            "exit_code": 0,
+            "wall_s": 2113.87,
+            "peak_rss_kib": 46790116,
+            "generated": 1068416158,
+            "distinct": 242213642,
+            "left_on_queue": 0,
+            "depth": 126,
+            "command": "./jre/bin/java -DTLA-Library=modules -Xmx100g -XX:+UseParallelGC -XX:ActiveProcessorCount=32 -cp tla2tools.jar:CommunityModules-202610040242.jar:CommunityModules-deps-202610040242.jar tlc2.TLC -workers 32 -seed 0 -fp 0 -metadir tlc-scratch -config spec/OneValue.cfg spec/SlateDBWAL.tla",
+            "fingerprint_optimistic": 0.011,
+            "fingerprint_actual_gap_estimate": 0.026
+          }
+        },
+        "tlc_over_core_wall": 3.8307,
+        "scope": "Two fingerprint searches, seed and polynomial 0. Equal counters do not independently establish collision-free state identities. TLC uses MSBDiskFPSet and DiskStateQueue."
+      }
     },
     "structural_size_estimate": {
       "assumed_distinct": 49000000000,
