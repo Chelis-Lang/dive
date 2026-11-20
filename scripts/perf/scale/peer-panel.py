@@ -81,6 +81,9 @@ def parse_result(arm, stdout, stderr, code):
 
 def measure(root, output, model, workers, repetition, arm, abi_profile, profile_perf=False):
     directory = output / f"{model}-{workers}-{repetition}-{arm}-{abi_profile}"
+    if directory.exists():
+        interrupted = directory.with_name(directory.name + "-interrupted")
+        directory.rename(interrupted)
     directory.mkdir()
     module, config = MODELS[model]
     cwd = root / "models" / model
@@ -96,6 +99,8 @@ def measure(root, output, model, workers, repetition, arm, abi_profile, profile_
     if abi_profile == "dive":
         argv.remove("--compat=tlc")
     if profile_perf:
+        if arm == "core":
+            argv[argv.index("--time-limit") + 1] = "40s"
         argv = [
             "perf", "record", "-e", "cpu-clock:u", "-F", "197", "--call-graph", "dwarf,8192",
             "-o", str(directory / "perf.data"), "--", *argv,
@@ -131,6 +136,7 @@ def measure(root, output, model, workers, repetition, arm, abi_profile, profile_
                  "--no-children", "-g", "none", "--sort", "dso,symbol,srcline"],
                 stdout=report, check=False,
             )
+    return data
 
 
 def main():
@@ -140,9 +146,16 @@ def main():
     parser.add_argument("--part", choices=("profile", "panel", "spike", "spike-stats", "smoke"), required=True)
     parser.add_argument("--models", nargs="+", choices=MODELS, default=list(MODELS))
     parser.add_argument("--repetitions", type=int, default=3)
+    parser.add_argument("--resume", action="store_true",
+                        help="resume a stopped panel and run eight-worker KVS first")
     args = parser.parse_args()
     root, output = args.root.resolve(), args.output.resolve()
-    output.mkdir()
+    output.mkdir(exist_ok=args.resume)
+    old = output / "cells.jsonl"
+    rows = [json.loads(line) for line in old.read_text().splitlines()] if old.exists() else []
+    observed = {(r["model"], r["workers_requested"], r["repetition"], r["arm"]) for r in rows}
+    stopped = {(r["model"], r["workers_requested"], r["arm"]) for r in rows
+               if r["status"] in ("stopped", "timeout")}
     digests = {str(f.relative_to(root)): hashlib.sha256(f.read_bytes()).hexdigest()
                for m in args.models for f in sorted((root / "models" / m).iterdir())
                if f.suffix in (".tla", ".cfg")}
@@ -158,7 +171,8 @@ def main():
         return
     for model in args.models:
         for rep in range(args.repetitions if args.part != "smoke" else 1):
-            for workers in (1, 8)[::(-1 if rep % 2 else 1)] if args.part != "smoke" else (1,):
+            widths = (8, 1) if args.resume and model == "kvs" else (1, 8)
+            for workers in widths[::(-1 if rep % 2 else 1)] if args.part != "smoke" else (1,):
                 if args.part == "spike":
                     for profile in ("tlc", "dive"):
                         for arm in ("spike-off", "spike")[::(-1 if rep % 2 else 1)]:
@@ -174,7 +188,13 @@ def main():
                     blocks = [b for b in blocks if b[0] != "tlc-1.8.0"]
                 for block in blocks[::(-1 if rep % 2 else 1)]:
                     for arm in block:
-                        measure(root, output, model, workers, rep, arm, "tlc")
+                        if (model, workers, rep, arm) in observed:
+                            continue
+                        if (model, workers, arm) in stopped:
+                            continue
+                        row = measure(root, output, model, workers, rep, arm, "tlc")
+                        if args.resume and model == "kvs" and workers == 1 and row["status"] in ("stopped", "timeout"):
+                            stopped.add((model, workers, arm))
 
 
 if __name__ == "__main__":
