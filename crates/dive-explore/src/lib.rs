@@ -36,6 +36,7 @@ pub mod graph;
 mod graph_schedule;
 mod parallel;
 mod reclaim;
+mod resident;
 pub mod sample;
 pub mod storage;
 mod storage_owned;
@@ -553,6 +554,7 @@ struct Explorer<'p> {
     disk: Option<storage::Disk>,
     checkpoint: Option<&'p mut checkpoint::Session>,
     distributed: Option<&'p distributed::Coordinator>,
+    packed: Option<Vec<dive_core::packed_rows::Block>>,
     next: Vec<Handle>,
     /// Opt-in encoded current/next queues tied to this live Store.
     frontier: Option<storage::Frontiers>,
@@ -716,7 +718,7 @@ impl Explorer<'_> {
             return 0;
         }
         self.frontier.as_ref().map_or_else(
-            || self.next.len() / self.plan.vars.len(),
+            || resident::len(self.packed.as_deref(), &self.next, self.plan.vars.len()),
             storage::Frontiers::next_len,
         )
     }
@@ -1136,6 +1138,18 @@ impl Explorer<'_> {
         .map_err(|e| Error::internal(format!("predecessor log: {e}")))?;
         self.confirm_logged(id)?;
         self.next_ids.push(id);
+        if let Some(blocks) = &mut self.packed
+            && self.next.len() == self.plan.vars.len() * dive_core::packed_rows::ROWS
+        {
+            blocks
+                .try_reserve(1)
+                .map_err(|_| Error::internal("resident frontier block index"))?;
+            blocks.push(
+                dive_core::packed_rows::Block::encode(&self.next, self.plan.vars.len())
+                    .map_err(dive_core::packed_rows::BlockError::exploration_error)?,
+            );
+            self.next.clear();
+        }
         Ok(())
     }
 
@@ -1769,7 +1783,16 @@ fn explore_inner<'p>(
             m
         })
         .collect();
+    let packed = (nvars != 0
+        && nvars <= 256
+        && graph.is_none()
+        && checkpoint.is_none()
+        && distributed.is_none()
+        && frontier.is_none()
+        && storage.candidate_memory_bytes.is_none())
+    .then(Vec::new);
     let mut ex = Explorer {
+        packed,
         plan,
         graph,
         stats: Stats::default(),
@@ -1839,6 +1862,9 @@ fn explore_inner<'p>(
     } else if let Some(feature) = reclaim_refusal {
         Err(Error::unsupported(feature))
     } else if let Some(error) = permanent_error.or(disk_setup_error).or(storage_setup_error) {
+        if error.kind() == ErrorKind::Stop {
+            ex.stop = Some(Verdict::Budget);
+        }
         Err(error)
     } else if distributed.is_some()
         && (ex.graph.is_some()
@@ -2270,6 +2296,7 @@ fn run(
     let parallel = machines.len() > 1 || ex.candidates.is_some() || ex.distributed.is_some();
     checkpoint::boundary(ex)?;
     reclaim::boundary(machines, ex, store, permanent, control)?;
+    let mut blocks = ex.packed.as_mut().map(std::mem::take);
     let mut cur = std::mem::take(&mut ex.next);
     let mut cur_originals = std::mem::take(&mut ex.next_originals);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
@@ -2277,12 +2304,14 @@ fn run(
     let mut wave_workers = parallel::WaveWorkers::default();
     let mut generated_before = 0;
     let mut previous_sources = 0;
+    if nvars == 0 {
+        return Ok(());
+    }
     loop {
-        let states = cur.len().checked_div(nvars).map_or(0, |in_memory| {
-            ex.frontier
-                .as_ref()
-                .map_or(in_memory, storage::Frontiers::current_len)
-        });
+        let states = ex.frontier.as_ref().map_or_else(
+            || resident::len(blocks.as_deref(), &cur, nvars),
+            storage::Frontiers::current_len,
+        );
         if states == 0 {
             break;
         }
@@ -2342,6 +2371,18 @@ fn run(
                     return Err(error);
                 }
                 let queued = ex.queued_states();
+                if let Some(sealed) = blocks.as_ref().filter(|sealed| !sealed.is_empty())
+                    && let Err(error) = resident::read(
+                        sealed,
+                        &cur,
+                        nvars,
+                        k..(k + chunk).min(states),
+                        &mut decoded.identity,
+                    )
+                {
+                    ex.stats.left_on_queue = (states - k + queued) as u64;
+                    return Err(error);
+                }
                 if let Some(frontier) = &mut ex.frontier {
                     decoded = match frontier.chunk(k, (k + chunk).min(states), ex.poll) {
                         Ok(Some(decoded)) => decoded,
@@ -2358,7 +2399,8 @@ fn run(
                 }
             }
             let local = k % chunk;
-            let state = if ex.frontier.is_some() {
+            let compressed = blocks.as_ref().is_some_and(|b| !b.is_empty());
+            let state = if ex.frontier.is_some() || compressed {
                 &decoded.identity[local * nvars..(local + 1) * nvars]
             } else {
                 &cur[k * nvars..(k + 1) * nvars]
@@ -2391,6 +2433,8 @@ fn run(
                         machines,
                         if ex.frontier.is_some() {
                             &decoded.original
+                        } else if compressed {
+                            &decoded.identity
                         } else if ex.graph.is_some() || ex.checkpoint.is_some() {
                             &cur_originals[k * nvars..end * nvars]
                         } else {
@@ -2608,6 +2652,9 @@ fn run(
             ex.metrics.expand_time += expand_time;
             ex.metrics.commit_time += level_started.elapsed().saturating_sub(expand_time);
         }
+        if let Some(b) = &mut blocks {
+            b.clear();
+        }
         cur.clear();
         cur_originals.clear();
         cur_ids.clear();
@@ -2616,6 +2663,7 @@ fn run(
         drop(expanded);
         drop(decoded);
         reclaim::boundary(machines, ex, store, permanent, control)?;
+        std::mem::swap(&mut blocks, &mut ex.packed);
         std::mem::swap(&mut cur, &mut ex.next);
         std::mem::swap(&mut cur_originals, &mut ex.next_originals);
         std::mem::swap(&mut cur_ids, &mut ex.next_ids);
@@ -2765,6 +2813,46 @@ mod tests {
                 .is_some_and(|facts| !facts.audit_completed
                     && facts.after_cleanup.is_some_and(|s| s.cleanup_completed))
         );
+        Ok(())
+    }
+
+    #[test]
+    fn zero_width_frontier_agrees_with_the_resident_search() -> Result<(), Error> {
+        use dive_core::plan::{GNode, Node};
+        let mut store = Arc::new(Store::new(true));
+        let mut plan = frontier_plan(&store, false)?;
+        plan.vars.clear();
+        plan.code.nodes = vec![Node::Const(Handle::TRUE), Node::Const(Handle::FALSE)];
+        plan.code.gnodes = vec![GNode::Guard(0), GNode::Guard(1)];
+        let mut reference = None;
+        for workers in [1, 4] {
+            for frontier_memory_bytes in [None, Some(0)] {
+                let out = explore_owned(
+                    &plan,
+                    &mut store,
+                    Config {
+                        opts: dive_core::Opts::default(),
+                        max_states: None,
+                        max_depth: None,
+                        workers,
+                        warn: true,
+                        sample: None,
+                    },
+                    &|| false,
+                    None,
+                    &storage::Storage {
+                        frontier_memory_bytes,
+                        ..storage::Storage::default()
+                    },
+                    None,
+                    None,
+                );
+                assert_eq!(out.verdict, Verdict::Success);
+                assert_eq!(out.stats.generated, 1);
+                assert_eq!(out.stats.distinct, 1);
+                assert_eq!(*reference.get_or_insert(out.stats), out.stats);
+            }
+        }
         Ok(())
     }
 

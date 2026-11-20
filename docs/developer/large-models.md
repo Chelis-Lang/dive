@@ -6,7 +6,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 
 ## Next experiments
 
-- **Frontier storage.** Use the [100-million-state BPConProof comparison](#high-fanout-parallel-safety) to size scratch. After reducing the cost per frontier row, measure predecessor and membership growth independently at the same discovery count.
+- **Frontier storage.** [Resident row compression](#resident-frontier-rows) cut peak memory most on SlateDB and DiskSynod. Compare admissions at the same memory ceiling, then separate the contributions of predecessor links, seen fingerprints and the compound-value store using matched counts.
 - **Symbolic checking.** Keep Base and QuarantineEqualsProposer as [exact sparse-message controls](#reproduce-the-released-paxoslease-runs). Compare alternative BDD orders on Retry using reachable intermediate sizes, then cross-check a completed result against both explicit runs.
 - **Published scale.** The [original SlateDB WAL configuration](#reproduce-the-released-slatedb-wal-model) provides a public 49-billion-state target. Compare [external membership](#external-fingerprint-membership) at full exhaustion to its resident and TLC controls. Use the completed two-writer model for a full-count comparison and small exact-state runs for collision controls. The EmergencyCall 10.59-billion case still needs the original unconstrained configuration.
 - **Remaining work.** The [thirteen original outcomes](#where-the-thirteen-historical-non-finishes-stand) identify each memory or feature limit. Kafka still needs bounded lowering of repeated scoped fairness predicates. The all-17-model temporal worker comparison belongs at the integrated qualification boundary. Use [Sail’s measured edit cases](#which-evidence-can-decide-a-source-edit) as regression controls when changing proof reuse.
@@ -296,7 +296,22 @@ component breakdown at tens of millions of states and the retained temporal grap
 
 Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. The indexed store uses one worker. Sorted fingerprint runs also support parallel expansion. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
 
-### High-fanout parallel safety
+### Resident frontier rows
+
+Ordinary breadth-first safety search queues one handle for each variable in each discovered state. In the first million SlateDB admissions, many consecutive rows point to the same compound values. Storing 999,424 rows as 19 full-width handles took 152 MB. Encoding each variable relative to its first handle in a block took 30 MB in the offline layout experiment. A six-variable BPConProof prefix fell from 48 MB to 3.6 MB by the same measure.
+
+Core now packs consecutive blocks of 256 rows in RAM. Each variable gets the smallest of zero, one, two, four or eight bytes needed for its differences. An incompressible block keeps full-width rows. Expansion recovers the original handles in discovery order. Store replacement remaps them before releasing their owner. The product effect depends on how much of the process those rows occupy.
+
+| Original configuration | Distinct limit | Queued at stop | Mean peak MiB, original / packed | Mean seconds, original / packed |
+|---|---:|---:|---:|---:|
+| SlateDBWAL | 5,000,000 | 1,043,043 | 714 / 414 | 21.83 / 21.97 |
+| MC_HDiskSynod | 3,000,000 | 1,177,825 | 338 / 196 | 44.78 / 44.22 |
+| BPConProof | 3,000,000 | 2,997,546 | 1341 / 1110 | 11.77 / 11.84 |
+| TLCSailfish2 | 1,000,000 | 772,636 | 523 / 508 | 39.85 / 39.73 |
+
+Each pair averages two runs on eight physical cores of an isolated EC2 r7i.8xlarge. Both representations stopped with identical verdict, depth, generated, initial, distinct and queue counts in all 16 runs. TLCSailfish2 saved about 3% of whole-process RSS despite a much smaller representation for its rows. The fixed prefixes establish memory cost per search and leave the full configurations open. [Every sample, binary, input hash and layout comparison](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
+
+## High-fanout parallel safety
 
 A worker expands each source before the coordinator commits its successors in discovery order. The amount awaiting commit scales with **sources per batch × successors per source**. On BPConProof, 478 of the first million discovered states had left the queue, yet the checker had generated 1,119,749 states. Spilling frontier rows cannot release successor batches already under construction. Core now uses the previous completed level's mean fanout to target 65,536 successor occurrences per batch, with at least one source per requested worker. One source can still exceed that target.
 
@@ -444,7 +459,18 @@ The WAL specification has 19 state variables. Each resident queue row in this sa
 
 For the full target, membership capacity changes the choice of machine. With 49 billion uniformly distributed fingerprints, the resident table's 256 shards would each require 2²⁸ eight-byte slots under the 75% growth threshold, or 512 GiB for slots alone. On a 64-bit host the packed resident parent log adds at least 57 GiB for one byte per discovery and one 16-byte index entry per 64 discoveries. The fixed-width disk parent log would write 784 GB at that count. These are size calculations. The live frontier, resize peaks and worker allocations add to the resident requirement. The indexed disk store caps membership at 4,294,967,295 entries. Sorted runs use a global 64-bit count and a streaming audit. A capacity bound alone does not establish a completed run. [Fingerprint table](../../crates/dive-explore/src/lib.rs) · [Packed parents](../../crates/dive-store/src/predecessor/packed.rs) · [Disk membership limits](../user/disk-seen-safety.md).
 
-Reducing only `Values` from two values to one kept the three writers, one restart, symmetry and all six invariants. On the same machine, 32 resident workers reached **208,042,815 distinct states** and 901,441,896 generated at depth 88 in 480.08 s, peaking at 7.80 GiB RSS. The time limit stopped the run with 4,089,873 states queued. This gives a lower bound for the one-value configuration. It provides neither a completed count nor a safety verdict for either configuration. [Individual runs and reproduction settings](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+#### Three writers and one value to exhaustion
+
+Changing only `Values` from two values to one retains all six invariants,
+symmetry, three writers and one restart. Both checkers exhausted the queue at
+**242,213,642 distinct states, 1,068,416,158 generated and depth 126**.
+Core took 551.82 s at 8.70 GiB peak RSS. Pinned TLC took 2,113.87 s at
+44.62 GiB. The two processes ran consecutively on the same 32 physical cores
+of an isolated r7i.16xlarge. For this configuration, Core was 3.83× faster.
+Both searches used fingerprints with seed and polynomial zero. TLC estimated
+collision probabilities of 0.011 (optimistic) and 0.026 (actual gap).
+The earlier 480-second Core run reached 208,042,815 distinct at depth 88.
+[Commands, pins and individual measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
 #### External fingerprint membership
 
@@ -469,6 +495,8 @@ workers remain, which explains why peak process memory fell by much less
 than the standalone ratio. The prefix stopped at its discovery limit.
 
 A negative lookup used to read a 4 KiB page even when none of its 512 fingerprints could match. Each smaller run now keeps a blocked Bloom filter for each page. A negative hint skips that read. A possible match still checks the stored key, and the closing audit streams all keys. On the same trace, page reads fell from 2,908,642 to 886,751 with identical decisions. Under ordinary parallel Core on 16 physical cores, 20 million discoveries took 118.16 s before and 74.06 s with filters. Mean peak RSS moved from 1381 to 1402 MiB. Both figures average two runs per build. The filtered comparison and the earlier resident comparison used different hardware.
+
+The unfiltered external checker also exhausted the full one-value configuration on a separate r7i.16xlarge with 32 physical cores. It matched resident Core and TLC at 242,213,642 distinct, 1,068,416,158 generated, depth 126 and an empty queue. Its 2,322.19 s includes auditing all fingerprints and removing the run files. Peak process RSS was 3.99 GiB and peak cgroup memory was 5.64 GiB. Resident Core used 8.70 GiB and finished in 551.82 s. Before the closing audit the external key collections occupied 11.21 MiB and active runs contained 1.94 GB. The native minimum fingerprint gap was 127.
 
 With no discovery limit, eight workers exhausted the two-writer, one-restart
 configuration using sorted runs. Core and pinned TLC both reached 3,761,377
