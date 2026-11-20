@@ -103,6 +103,15 @@ through required fast CI. Do not launch broad qualification for every candidate.
 `cargo-deny` when the dependency policy inputs change. On a shared machine,
 set `CARGO_BUILD_JOBS` and `NEXTEST_TEST_THREADS`.
 
+To serialise gate and corpus runs across the worktrees of one clone, wrap them in
+`scripts/gate-lock.sh <command...>`. `gate --fast` runs take a fast lane and
+everything else a heavy lane; each lane is first in, first out. The queue head
+reclaims a lock whose holder pid is gone or was reused (the lock records the
+pid's start time), and a lock directory with no holder record once it is older
+than `DIVE_GATE_LOCK_GRACE` seconds (default 60). Setting `DIVE_GATE_LOCK_MAX_AGE`
+also reclaims a lock held longer than that many seconds by a live holder, with a
+message on stderr. `scripts/test-gate-lock.sh` tests these cases.
+
 Both local gate modes and CI compile `dive-trace` alone with
 `cargo build -p dive-trace --locked --target-dir target/standalone-trace`.
 Locally the dedicated directory is under the selected `CARGO_TARGET_DIR`;
