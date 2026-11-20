@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Core names the temporal formula planning bound and source location when checking reaches it.
+
 - Core supports inclusive subsequence predicate searches and folds multikey
   bags in canonical key order. See [bag fold order](docs/tlc-differences.md#d-030-bag-fold-order).
 
