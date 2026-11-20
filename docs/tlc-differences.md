@@ -1676,7 +1676,7 @@ its model-checking control B-U12.
 
 | | |
 |---|---|
-| **Kind** | Different answer (owner-approved default, 2026-11-20) |
+| **Kind** | Different answer |
 | **Default** | `--sample-unbounded geometric`: draw members of `Nat`, `Int` and `Seq(S)` with a stated, seeded distribution |
 | **TLC behavior** | `--sample-unbounded off`, and the default under `--compat=tlc`: GENERAL 1000, "not enumerable" (exit 255 under TLC exit codes) |
 | **Status** | implemented for `dive simulate` |

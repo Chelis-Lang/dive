@@ -9,7 +9,7 @@ mode. `Counter.tla` has five reachable states and a self-loop at four.
 | `CounterViolation.cfg` | `StrictBound` invariant violation at four; TLC-profile exit 12 |
 | `CounterTemporal.cfg` with final/short flags | Liveness violation: stuttering at zero falsifies eventual four |
 | `CheckpointCounter.cfg` | Pure safety pause/recovery; five states after recovery |
-| `Unbounded.tla` | Simulation draws from `Nat` in Init and Next (D-040); `--compat=tlc` gives GENERAL 1000 |
+| `Unbounded.tla` | Simulation draws from `Nat` in Init and Next ([sampling unbounded sets](../simulation.md#unbounded-sets)); `--compat=tlc` gives GENERAL 1000 |
 | `Algorithm.tla` | Admitted in-memory native sequential PlusCal artifact |
 
 The sample commands for parse, analysis, safety, violation, simulation, DFID,
