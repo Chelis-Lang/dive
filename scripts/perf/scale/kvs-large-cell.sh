@@ -2,8 +2,8 @@
 # Run one bounded cell in a new directory, inside the host's 24 GiB cgroup.
 # Inputs and exact tool versions are described in the performance data index.
 set -eu
-if [[ $# -ne 4 ]]; then
-    echo "usage: $0 core|tlc|symbolic WORKERS INPUT-DIRECTORY NEW-RESULT-DIRECTORY" >&2
+if [[ $# -ne 4 && $# -ne 6 ]]; then
+    echo "usage: $0 core|tlc|symbolic WORKERS INPUT-DIRECTORY NEW-RESULT-DIRECTORY [MODULE CONFIG]" >&2
     exit 2
 fi
 mode=$1
@@ -14,8 +14,8 @@ if [[ $workers != 1 && $workers != 8 ]]; then
     echo 'expected one or eight workers' >&2
     exit 2
 fi
-module=$input/KVS/MCKVS.tla
-cfg=$input/KVS/MCKVSSafetyLarge.cfg
+module=$(realpath "${5:-$input/KVS/MCKVS.tla}")
+cfg=$(realpath "${6:-$input/KVS/MCKVSSafetyLarge.cfg}")
 case $mode in
     core)
         cmd=("$input/dive" check "$module" --config "$cfg" --workers "$workers"

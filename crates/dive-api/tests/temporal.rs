@@ -2577,3 +2577,41 @@ fn fairness_validation_controls(
         "a forever-stuttering ending must fail temporal fairness: {validation:?}"
     );
 }
+
+/// Pinned TLC at one worker, seed/fingerprint zero and final liveness
+/// generated three states, kept two and reached depth two in every cell.
+#[test]
+fn collection_callbacks_and_successor_domains_match_pinned_periodic_claims() {
+    let source = r"---- MODULE EdgeDomains ----
+EXTENDS Integers, Functions, FiniteSetsExt
+VARIABLE x
+Init == x = 0
+Next == x' = 1 - x
+Domain(v) == IF v = 1 THEN {1} ELSE {}
+Collect(s) == {i \in s : i = 1}
+Edge == \E i \in Collect(Domain(x')) : i = 1
+Count == Quantify({0,1}, LAMBDA i: i = x)
+Sum == FoldFunctionOnSet(+, 0, <<x,1-x>>, {1,2})
+Hold == []<>(Count = 1 /\ Sum = 1) /\ <>[][Edge \/ x'=0]_x
+BadEdge == []<><<Edge>>_x
+BadCount == []<>(Count = 0)
+BadSum == []<>(Sum = 2)
+====
+";
+    for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+        for property in ["Hold", "BadEdge", "BadCount", "BadSum"] {
+            let cfg = format!("INIT Init\nNEXT Next\nPROPERTY {property}\n");
+            let run = core_final::check(source, cfg, &base).expect(property);
+            let stats = match run.outcome() {
+                Outcome::Holds(c) if property == "Hold" => c.stats,
+                Outcome::Violation(v) if property != "Hold" => {
+                    assert_eq!(v.document().properties, [property]);
+                    assert_eq!(v.validation().validation, Validation::Valid);
+                    v.candidate().exploration.stats
+                }
+                other => panic!("{property}: {other:?}"),
+            };
+            assert_eq!((stats.generated, stats.distinct, stats.depth), (3, 2, 2));
+        }
+    }
+}

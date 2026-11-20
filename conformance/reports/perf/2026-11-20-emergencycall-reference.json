@@ -1,0 +1,248 @@
+{
+  "schema": "dive-emergencycall-reference-v1",
+  "date": "2026-11-20",
+  "scope": "One fresh process per cell on a dedicated host. Full process wall seconds and GNU time peak RSS. Counts and empty frontier checked against the authors' released TLC logs.",
+  "source_repo": "https://github.com/FormalCellular/EmergencyCall",
+  "revision": "093684f1bb02d733cae95d50f1690f1cb792296a",
+  "license": "MIT",
+  "core_commit": "e4ab6a1314b9e65233a96a96ef2c4d40f9dceea7",
+  "tlc_version": "2026.10.06.014338",
+  "tools_sha256": {
+    "dive": "b27d7824226ae41c90bb65da3f329ad9a313f284ea1413ae63c0ff06cff9004d",
+    "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "input_sha256": {
+    "EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+    "config/f1.cfg": "5297515fd200ca513f0553ca86157e369aa0a4f89095a04c13d6c7b2db213805",
+    "config/f2.cfg": "86cab1e704a9cd5ab15ba45a8fc1a4a814a714809830c7920f031785884c6bb4",
+    "config/f3.cfg": "90e80cd05411cd0108ec9f7314345df31b9c72213ce1314f37d3e054c8f2b160",
+    "config/f4.cfg": "083c49ef045959c19ddc7243949297be2805e564d0d91c255567148d236999ab"
+  },
+  "host": {
+    "instance": "c7i.metal-24xl",
+    "region": "us-east-1",
+    "ami": "ami-0109d2b556bd3d7e1",
+    "kernel": "7.0.0-1017-aws",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "online_physical_cores": 48,
+    "affinity": "0-15",
+    "memory_node": 0,
+    "smt": false,
+    "turbo": false,
+    "governor": "performance",
+    "min_cpu_khz": 2400000,
+    "max_cpu_khz": 2400000,
+    "memory_limit_bytes": 25769803776,
+    "swap_limit_bytes": 0,
+    "time_limit_seconds": 600,
+    "tlc_java": "Eclipse Temurin 17.0.20.1+1, -Xmx16g, ParallelGC, ActiveProcessorCount=8",
+    "tlc_store": "MSBDiskFPSet, DiskStateQueue",
+    "order": [
+      "f3-core-8",
+      "f3-tlc-8",
+      "f3-core-1",
+      "f3-tlc-1",
+      "f1-core-8",
+      "f1-tlc-8",
+      "f1-core-1",
+      "f1-tlc-1",
+      "f2-core-8",
+      "f2-tlc-8",
+      "f2-core-1",
+      "f2-tlc-1",
+      "f4-core-8",
+      "f4-tlc-8",
+      "f4-core-1",
+      "f4-tlc-1"
+    ]
+  },
+  "authors": {
+    "f1": {
+      "generated": 23650304,
+      "distinct": 3932160,
+      "depth": 19,
+      "time": "01min 57s"
+    },
+    "f2": {
+      "generated": 39053696,
+      "distinct": 6248960,
+      "depth": 25,
+      "time": "02min 34s"
+    },
+    "f3": {
+      "generated": 135871232,
+      "distinct": 21255936,
+      "depth": 27,
+      "time": "06min 00s"
+    },
+    "f4": {
+      "generated": 56734720,
+      "distinct": 8872832,
+      "depth": 27,
+      "time": "03min 15s"
+    }
+  },
+  "cells": {
+    "f3-core-8": {
+      "generated": 135871232,
+      "distinct": 21255936,
+      "depth": 27,
+      "workers": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 178.86,
+      "peak_rss_kib": 2033696
+    },
+    "f3-tlc-8": {
+      "generated": 135871232,
+      "distinct": 21255936,
+      "depth": 27,
+      "workers": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 111.79,
+      "peak_rss_kib": 7588236
+    },
+    "f3-core-1": {
+      "generated": 135871232,
+      "distinct": 21255936,
+      "depth": 27,
+      "workers": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 394.44,
+      "peak_rss_kib": 1860960
+    },
+    "f3-tlc-1": {
+      "generated": 135871232,
+      "distinct": 21255936,
+      "depth": 27,
+      "workers": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 580.68,
+      "peak_rss_kib": 4478168
+    },
+    "f1-core-8": {
+      "generated": 23650304,
+      "distinct": 3932160,
+      "depth": 19,
+      "workers": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 113.38,
+      "peak_rss_kib": 647284
+    },
+    "f1-tlc-8": {
+      "generated": 23650304,
+      "distinct": 3932160,
+      "depth": 19,
+      "workers": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 45.56,
+      "peak_rss_kib": 6445000
+    },
+    "f1-core-1": {
+      "generated": 23650304,
+      "distinct": 3932160,
+      "depth": 19,
+      "workers": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 150.95,
+      "peak_rss_kib": 505816
+    },
+    "f1-tlc-1": {
+      "generated": 23650304,
+      "distinct": 3932160,
+      "depth": 19,
+      "workers": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 126.91,
+      "peak_rss_kib": 2761672
+    },
+    "f2-core-8": {
+      "generated": 39053696,
+      "distinct": 6248960,
+      "depth": 25,
+      "workers": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 123.11,
+      "peak_rss_kib": 581276
+    },
+    "f2-tlc-8": {
+      "generated": 39053696,
+      "distinct": 6248960,
+      "depth": 25,
+      "workers": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 53.77,
+      "peak_rss_kib": 6641104
+    },
+    "f2-core-1": {
+      "generated": 39053696,
+      "distinct": 6248960,
+      "depth": 25,
+      "workers": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 183.39,
+      "peak_rss_kib": 552876
+    },
+    "f2-tlc-1": {
+      "generated": 39053696,
+      "distinct": 6248960,
+      "depth": 25,
+      "workers": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 185.94,
+      "peak_rss_kib": 3067812
+    },
+    "f4-core-8": {
+      "generated": 56734720,
+      "distinct": 8872832,
+      "depth": 27,
+      "workers": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 131.62,
+      "peak_rss_kib": 849844
+    },
+    "f4-tlc-8": {
+      "generated": 56734720,
+      "distinct": 8872832,
+      "depth": 27,
+      "workers": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 63.59,
+      "peak_rss_kib": 6753436
+    },
+    "f4-core-1": {
+      "generated": 56734720,
+      "distinct": 8872832,
+      "depth": 27,
+      "workers": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 223.76,
+      "peak_rss_kib": 725112
+    },
+    "f4-tlc-1": {
+      "generated": 56734720,
+      "distinct": 8872832,
+      "depth": 27,
+      "workers": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "wall_seconds": 259.74,
+      "peak_rss_kib": 4139812
+    }
+  },
+  "reproduce": "scripts/perf/scale/kvs-large-cell.sh MODE WORKERS INPUT OUTPUT MODULE CONFIG"
+}

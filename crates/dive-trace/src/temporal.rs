@@ -1361,7 +1361,7 @@ impl Word<'_> {
         if let Expr::Apply { callee, args } = &node.expr {
             let mut work = 100_000_usize.saturating_sub(*steps);
             if let Some((sequence, bodies)) = ev
-                .scope_selectseq_call(scope, callee, args, &mut work)
+                .scope_collection_predicate(scope, callee, args, &mut work)
                 .map_err(TemporalError::from)?
             {
                 *steps = 100_000 - work;
@@ -1419,7 +1419,8 @@ impl Word<'_> {
                 .domain
                 .ok_or_else(|| TemporalError::Unsupported("unbounded predicate domain".into()))?;
             let level = self.scoped_level(dom, scope, depth + 1, steps)?;
-            if level > Level::State {
+            let edge_binder = !matches!(self.model.ir.expr(expr), Expr::RecFcn { .. });
+            if level > Level::State && !(edge_binder && level == Level::Action) {
                 return Err(TemporalError::Unsupported(
                     "action/temporal predicate domain".into(),
                 ));
@@ -1777,10 +1778,13 @@ impl Word<'_> {
                         "higher-order configured temporal argument".into(),
                     ));
                 }
-                if standard == Some(StdOp::SequencesSelectSeq) {
+                if matches!(
+                    standard,
+                    Some(StdOp::SequencesSelectSeq | StdOp::FiniteSetsExtQuantify)
+                ) {
                     let mut work = 100_000_usize.saturating_sub(*steps);
                     let (sequence, bodies) = ev
-                        .scope_selectseq_call(&scope, &op, args, &mut work)
+                        .scope_collection_predicate(&scope, &op, args, &mut work)
                         .map_err(TemporalError::from)?
                         .ok_or_else(|| {
                             TemporalError::Unsupported("SelectSeq callback context/level".into())
@@ -1798,6 +1802,30 @@ impl Word<'_> {
                     }
                     todo.push((sequence, scope.clone(), depth + 1));
                     continue;
+                }
+                if standard == Some(StdOp::FunctionsFoldFunctionOnSet)
+                    && let [
+                        Arg::Op { op: function, .. },
+                        Arg::Expr { .. },
+                        Arg::Expr { .. },
+                        Arg::Expr { .. },
+                    ] = args
+                {
+                    let mut work = 100_000_usize.saturating_sub(*steps);
+                    let native = ev
+                        .scope_native_operator_analysis(&scope, function, &mut work)
+                        .map_err(TemporalError::from)?;
+                    *steps = 100_000 - work;
+                    if matches!(native, Some(StdOp::IntegersPlus | StdOp::NaturalsPlus)) {
+                        self.operator_context(function, &scope, depth + 1, steps)?;
+                        todo.extend(
+                            meta.expr
+                                .children()
+                                .into_iter()
+                                .map(|child| (child, scope.clone(), depth + 1)),
+                        );
+                        continue;
+                    }
                 }
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                     return Err(TemporalError::Unsupported(

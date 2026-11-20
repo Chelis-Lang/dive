@@ -62,6 +62,7 @@ COMMANDS:
 === dive check --help ===
 USAGE: dive check FILE.tla [OPTIONS]
 
+--strategy symbolic     exact finite safety, symbolic JSON reports (Linux release bundle)
 --config FILE.cfg       configuration (default FILE.cfg beside the source)
 --compat=tlc            select existing TLC-compatible behavior
 --workers N|auto        worker count; --sequential forces sequential search
