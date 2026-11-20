@@ -64,8 +64,12 @@ def parse_result(arm, stdout, stderr, code):
         }
     text = stdout + "\n" + stderr
     states = re.findall(r"(\d+) states generated,\s*(\d+) distinct states found", text)
-    depths = re.findall(r"(?:depth of the complete state graph search is\s*|Depth\s+)(\d+)", text, re.I)
-    workers = re.search(r"with\s+(\d+)\s+workers?\b", text, re.I)
+    # Final stdout counters and the explicit final depth take precedence
+    # over a peer's stderr progress lines (which may print a smaller depth).
+    depths = re.findall(r"(?:depth of the complete state graph search is\s*|Depth\s+)(\d+)", stdout, re.I)
+    if not depths:
+        depths = re.findall(r"(?:depth of the complete state graph search is\s*|Depth\s+)(\d+)", stderr, re.I)
+    workers = re.search(r"(?:with |,\s*)(\d+)\s+workers?\b", text, re.I)
     status = "completed" if code == 0 and re.search(r"No error has been found", text, re.I) else (
         "timeout" if code == 124 else "tool-error" if code else "unclassified"
     )
@@ -196,7 +200,7 @@ def main():
                         if (model, workers, arm) in stopped:
                             continue
                         row = measure(root, output, model, workers, rep, arm, "tlc")
-                        if args.resume and model == "kvs" and workers == 1 and row["status"] in ("stopped", "timeout"):
+                        if args.resume and model in ("kvs", "emergency") and workers == 1 and row["status"] in ("stopped", "timeout"):
                             stopped.add((model, workers, arm))
 
 
