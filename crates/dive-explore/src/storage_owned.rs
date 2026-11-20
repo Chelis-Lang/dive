@@ -3,14 +3,59 @@ use super::storage::{Chunk, frontier_error};
 use dive_core::owned_exchange::{decode_frontier, encode_frontier};
 use dive_core::{Error, Handle, Heap, Store};
 use dive_store::spill::{MAX_RECORD_BYTES, OrderedFrontier, SpillError};
+use std::borrow::Cow;
 use std::sync::Arc;
 
 const ROWS: usize = 64;
+const COMPRESSED: &[u8; 8] = b"DIVEFZ01";
+const HEADER: usize = COMPRESSED.len() + size_of::<u32>();
+
+fn pack<'a>(raw: &'a [u8], scratch: &'a mut Vec<u8>) -> Result<&'a [u8], SpillError> {
+    let capacity = lz4_flex::block::get_maximum_output_size(raw.len()) + HEADER;
+    if capacity > MAX_RECORD_BYTES || raw.len() <= HEADER {
+        return Ok(raw);
+    }
+    scratch.clear();
+    scratch.try_reserve(capacity).map_err(frontier_error)?;
+    scratch.extend_from_slice(COMPRESSED);
+    let len = u32::try_from(raw.len()).map_err(frontier_error)?;
+    scratch.extend_from_slice(&len.to_le_bytes());
+    scratch.resize(capacity, 0);
+    let written =
+        lz4_flex::block::compress_into(raw, &mut scratch[HEADER..]).map_err(frontier_error)?;
+    if written + HEADER < raw.len() {
+        Ok(&scratch[..written + HEADER])
+    } else {
+        Ok(raw)
+    }
+}
+
+fn unpack(record: &[u8]) -> Result<Cow<'_, [u8]>, SpillError> {
+    let Some(body) = record.strip_prefix(COMPRESSED) else {
+        return Ok(Cow::Borrowed(record));
+    };
+    let (size, payload) = body
+        .split_at_checked(size_of::<u32>())
+        .ok_or_else(|| frontier_error("truncated compressed frontier header"))?;
+    let len = u32::from_le_bytes(size.try_into().map_err(frontier_error)?) as usize;
+    if len > MAX_RECORD_BYTES || len <= record.len() {
+        return Err(frontier_error("invalid expanded frontier size"));
+    }
+    let mut raw = Vec::new();
+    raw.try_reserve_exact(len).map_err(frontier_error)?;
+    raw.resize(len, 0);
+    let actual = lz4_flex::block::decompress_into(payload, &mut raw).map_err(frontier_error)?;
+    if actual != len {
+        return Err(frontier_error("expanded frontier length mismatch"));
+    }
+    Ok(Cow::Owned(raw))
+}
 
 pub(super) struct Owned {
     heap: Heap,
     width: usize,
     pending: Vec<Handle>,
+    compression_scratch: Vec<u8>,
     pub(super) next: usize,
     pub(super) current: usize,
 }
@@ -21,6 +66,7 @@ impl Owned {
             heap: Heap::new(Arc::clone(store), true, false),
             width,
             pending: Vec::new(),
+            compression_scratch: Vec::new(),
             next: 0,
             current: 0,
         }
@@ -69,7 +115,7 @@ impl Owned {
             first
                 .checked_add(offset as u64)
                 .ok_or_else(|| frontier_error("chunk id overflow"))?,
-            &encoded,
+            pack(&encoded, &mut self.compression_scratch)?,
         )?;
         self.pending.clear();
         Ok(())
@@ -88,7 +134,8 @@ impl Owned {
         if first.checked_add(offset as u64) != Some(id) {
             return Err(frontier_error("owned chunk discovery position"));
         }
-        let roots = decode_frontier(heap, &bytes, MAX_RECORD_BYTES).map_err(frontier_error)?;
+        let roots =
+            decode_frontier(heap, &unpack(&bytes)?, MAX_RECORD_BYTES).map_err(frontier_error)?;
         if Some(roots.len())
             != (count - offset)
                 .min(ROWS)
@@ -193,8 +240,40 @@ impl Owned {
             heap: Heap::new(Arc::clone(remap.store()), true, false),
             width: self.width,
             pending: roots,
+            compression_scratch: Vec::new(),
             current: self.current,
             next: self.next,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{COMPRESSED, HEADER, MAX_RECORD_BYTES, pack, unpack};
+
+    #[test]
+    #[allow(
+        clippy::expect_used,
+        reason = "successful bounded codec roundtrips are the test oracle"
+    )]
+    fn compressed_blocks_roundtrip_and_invalid_lengths_refuse() {
+        let raw = b"DIVEOW02 contiguous repeated frontier roots".repeat(100);
+        let mut scratch = Vec::new();
+        let packed = pack(&raw, &mut scratch).expect("pack");
+        assert!(packed.starts_with(COMPRESSED));
+        assert!(packed.len() < raw.len());
+        assert_eq!(unpack(packed).expect("unpack").as_ref(), raw);
+        assert_eq!(
+            unpack(b"DIVEOW02").expect("uncompressed").as_ref(),
+            b"DIVEOW02"
+        );
+        assert!(unpack(COMPRESSED).is_err());
+        for claimed in [0, raw.len() + 1, MAX_RECORD_BYTES + 1] {
+            let mut broken = packed.to_vec();
+            broken[COMPRESSED.len()..HEADER]
+                .copy_from_slice(&u32::try_from(claimed).expect("test bound").to_le_bytes());
+            assert!(unpack(&broken).is_err());
+        }
+        assert!(unpack(&packed[..=HEADER]).is_err());
     }
 }

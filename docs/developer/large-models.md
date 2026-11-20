@@ -311,6 +311,8 @@ Each cell is the median of three interleaved runs on the same isolated eight-cor
 
 On a second node, storing BPConProof rows as independently decodable 64-row chunks and reclaiming the value store between batches used 355 MiB and 4.83 s at one million states. Its matched adaptive disk-handle baseline used 428 MiB and 4.31 s. Reclaiming only at level boundaries used 1,039 MiB and 6.74 s. The measured independent-chunk prototype underlies the opt-in [independent frontier](../user/storage-recovery.md#independently-stored-frontier-values). [All 132 trials, source pins, binary identities and counters](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
+At 100 million discoveries on BPConProof, independent chunks with LZ4 wrote **10.55 GB** versus **49.69 GB** with the same chunks uncompressed. That is 78.8% less disk traffic measured as bytes committed to the frontier. In one matched pair on an isolated c7i.4xlarge, process wall time was 534.03 s versus 553.51 s and peak RSS was 1.88 versus 1.89 GiB. Both produced 201,557,438 generated states, depth four and 99,914,031 queued, and both collected the value store 185 times. The state limit stopped each check. [Block samples, binary identities and paired measurements](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
+
 ### Where the thirteen historical non-finishes stand
 
 The original set contains six memory stops and seven feature refusals. The

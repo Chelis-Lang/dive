@@ -7,7 +7,7 @@ are in git history.
 
 ### Added
 
-- Ordinary Core safety searches can put [self-contained frontier chunks](docs/user/storage-recovery.md#independently-stored-frontier-values) on disk and reclaim compound values between worker batches.
+- Ordinary Core safety searches can put [independently compressed frontier chunks](docs/user/storage-recovery.md#independently-stored-frontier-values) on disk and reclaim compound values between worker batches.
 
 - Core reduces the number of sources expanded together in high-fanout parallel safety searches. On BPConProof this cut peak RSS by 59% at one million discoveries. [Measurements](docs/developer/large-models.md#high-fanout-parallel-safety).
 - `dive simulate` accepts `SYMMETRY` and `VIEW`, which do not change a

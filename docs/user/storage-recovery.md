@@ -165,7 +165,7 @@ mkdir -p spill
 dive check BPConProof.tla --config BPConProof.cfg --workers 8 --independent-frontier --frontier-directory spill --output json
 ```
 
-This option applies to ordinary fingerprint safety checking with resident candidates and membership. Both profiles retain the concrete original values for trace replay. A chunk can hold up to 64 MiB of encoded data, with DAG nesting limited to 128. Files are transient. Invalid records, storage failures or a budget stop prevent certification. JSON reports `frontier_storage.mode = "independent-chunks"`, committed spill bytes and Store collections. The [matched prefixes](../developer/large-models.md#high-fanout-parallel-safety) show the RAM and wall-time tradeoff against the ordinary disk frontier.
+This option applies to ordinary fingerprint safety checking with resident candidates and membership. Both profiles retain the concrete original values for trace replay. Each chunk uses LZ4 when doing so saves disk space. Both the stored record and decoded DAG have a 64 MiB limit, with DAG nesting limited to 128. Files are transient. Invalid records, storage failures or a budget stop prevent certification. JSON reports `frontier_storage.mode = "independent-chunks"`, committed spill bytes and Store collections. The [matched prefixes](../developer/large-models.md#high-fanout-parallel-safety) show the RAM and wall-time tradeoff against the ordinary disk frontier.
 
 ### Frontier handles and predecessor records
 
