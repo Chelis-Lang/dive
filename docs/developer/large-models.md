@@ -6,9 +6,9 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 
 ## Next experiments
 
-- **Frontier storage.** [Matched runs at one million discoveries](#high-fanout-parallel-safety) qualified narrower resident batches and independent chunks for the original BPConProof budget. The deciding test for the chunks is how far the search gets at 24 GiB, including the file cache.
-- **Symbolic admission.** Use the unedited [PaxosLease configurations](#reproduce-the-released-paxoslease-runs). Check assumptions and state constraints against tiny TLC controls, then reproduce Base (491,037 distinct) and QuarantineEqualsProposer (76,749,192) before attempting Retry. Preserve counts of out-of-constraint generated successors and validate negative witnesses.
-- **Published scale.** RenewRetry is the next direct explicit comparison (2,411,951,538 distinct, depth 49 in the author log). For the 10.59-billion-state EmergencyCall result, establish the unconstrained initial states, properties and configuration from the authors’ artifacts before timing. The four released constrained cases have independent baselines in the [literature table](#published-model-sizes-and-reproducible-comparisons).
+- **Frontier storage.** Use the [100-million-state BPConProof comparison](#high-fanout-parallel-safety) to size scratch. After reducing the cost per frontier row, measure predecessor and membership growth independently at the same discovery count.
+- **Symbolic checking.** Keep Base and QuarantineEqualsProposer as [exact sparse-message controls](#reproduce-the-released-paxoslease-runs). Compare alternative BDD orders on Retry using reachable intermediate sizes, then cross-check a completed result against both explicit runs.
+- **Published scale.** The [original SlateDB WAL configuration](#reproduce-the-released-slatedb-wal-model) provides a public 49-billion-state target. Use the smaller writer/restart comparisons to select an approach before allocating for the full run. The EmergencyCall 10.59-billion case still needs the original unconstrained configuration.
 - **Remaining work.** The [thirteen original outcomes](#where-the-thirteen-historical-non-finishes-stand) identify each memory or feature limit. Kafka still needs bounded lowering of repeated scoped fairness predicates. The all-17-model temporal worker comparison belongs at the integrated qualification boundary. Use [Sail’s measured edit cases](#which-evidence-can-decide-a-source-edit) as regression controls when changing proof reuse.
 
 ## Results on KeyValueStore
@@ -309,6 +309,8 @@ A worker expands each source before the coordinator commits its successors in di
 
 Each cell is the median of three interleaved runs on the same isolated eight-core allocation. All arms reached identical generated, distinct, depth and queue counts. These were state-limited prefixes. DiskSynod and TLCSailfish2 showed little change.
 
+On the unchanged BPConProof input, the 18 GiB sampled process limit stopped the resident checker at 83,955,924 distinct states in 289.73 s. Independent chunks reached the 100-million state limit in 583.00 s at 1.87 GiB peak RSS. Both shared the same 24 GiB hard limit including file cache. The uncompressed frontier wrote 49.69 GB. An ordinary resident rerun under the original 24 GiB budget was kernel-killed with no final counters. The independent uncompressed prototype reached 662,795,501 distinct, 1,411,214,748 generated, depth 4 and 662,194,098 still queued. It stopped after 4,453.30 s when its 320 GiB root volume filled. The checker reported a frontier write failure after committing 329.40 GB. At 501 million discoveries the cgroup had about 10.85 GiB of anonymous memory and 11.89 GiB of file cache. [Limits, counters, file-cache pressure and binary identities](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
+
 On a second node, storing BPConProof rows as independently decodable 64-row chunks and reclaiming the value store between batches used 355 MiB and 4.83 s at one million states. Its matched adaptive disk-handle baseline used 428 MiB and 4.31 s. Reclaiming only at level boundaries used 1,039 MiB and 6.74 s. The measured independent-chunk prototype underlies the opt-in [independent frontier](../user/storage-recovery.md#independently-stored-frontier-values). [All 132 trials, source pins, binary identities and counters](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
 At 100 million discoveries on BPConProof, independent chunks with LZ4 wrote **10.55 GB** versus **49.69 GB** with the same chunks uncompressed. That is 78.8% less disk traffic measured as bytes committed to the frontier. In one matched pair on an isolated c7i.4xlarge, process wall time was 534.03 s versus 553.51 s and peak RSS was 1.88 versus 1.89 GiB. Both produced 201,557,438 generated states, depth four and 99,914,031 queued, and both collected the value store 185 times. The state limit stopped each check. [Block samples, binary identities and paired measurements](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
@@ -387,10 +389,11 @@ size of intermediate sets. Specification length measures a third quantity.
 
 | Study and configuration | What was checked | Historical result | Reproduction status |
 |---|---|---|---|
+| SlateDB WAL, three writers with restarts | Six safety invariants under the author’s symmetry group | About 49 billion unique states in 2 h 37 min with 40 workers on a Threadripper 9980X. Exact counts, engine version and final log are unreported. | Public MIT-licensed module and CFG. Dive and TLC controls and bounded original runs are recorded below. [Author’s model-checking notes](https://github.com/Vanlightly/s3-wal-collection/blob/35fdc537af4d226f43b4574cded1764375f264ac/slatedb/SlateDBWAL_notes.md#model-checking) |
 | EmergencyCall, unconstrained | Original cellular state machine, 36 configurable variables | 10.59 billion distinct, diameter 26 transitions. The paper gives separate times for constrained cases. | Public source. The released f1–f4 runs have individual configurations and final counts. The unconstrained count lacks an identified matching configuration and final log. [Hou et al., §3](https://users.cs.northwestern.edu/~ychen/Papers/MobiSys21_ENL_OpenAccessVersion.pdf) |
 | EmergencyCall, f3 | Three safety invariants, 49,152 distinct initial states | 21,255,936 distinct, 135,871,232 generated, TLC depth 27. The released TLC log records six minutes. | Reproduced by ordinary Core and pinned TLC at one and eight workers. [Authors’ configuration and raw output](https://github.com/FormalCellular/EmergencyCall/tree/093684f1bb02d733cae95d50f1690f1cb792296a/model) |
 | PaxosLease, quarantine bound | Original passing consensus config with two proposers, the released constants, state constraint and invariants | 76,749,192 distinct, 391,849,185 generated, depth 43 in 10 min 55 s in the author log. | Both ordinary Core and pinned TLC reproduced all counters and the successful verdict at eight workers. [Trencséni](https://arxiv.org/abs/2609.14640) · [Released inputs and raw results](https://github.com/mtrencseni/paxoslease-revisited/tree/5ca959624c5a2560ab1ad86dc71e8b161621d9bc) |
-| PaxosLease, Retry and RenewRetry | The same module with original retry configurations | The author logs report 2,179,760,458 distinct and depth 48 in 7 h 03 min for Retry, and 2,411,951,538 distinct and depth 49 in 8 h 03 min for RenewRetry. | Core and pinned TLC reproduced Retry on 32 physical cores. RenewRetry is a historical result. The author’s logs give the fingerprint polynomial and estimated collision probability for each run. [Retry](https://github.com/mtrencseni/paxoslease-revisited/blob/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/results/retry.txt) · [RenewRetry](https://github.com/mtrencseni/paxoslease-revisited/blob/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/results/renew-retry.txt) |
+| PaxosLease, Retry and RenewRetry | The same module with original retry configurations | The author logs report 2,179,760,458 distinct and depth 48 in 7 h 03 min for Retry, and 2,411,951,538 distinct and depth 49 in 8 h 03 min for RenewRetry. | Core and pinned TLC also completed both configurations on 32 physical cores. The tables below give the counters for each run. The author’s logs give the fingerprint polynomial and estimated collision probability for each run. [Retry](https://github.com/mtrencseni/paxoslease-revisited/blob/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/results/retry.txt) · [RenewRetry](https://github.com/mtrencseni/paxoslease-revisited/blob/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/results/renew-retry.txt) |
 | AWS industrial example | Historical industrial TLC check | Kukovec attributes roughly 31 billion explored states over five weeks on one 16-vCPU EC2 instance to Newcombe. | The available account does not identify the generated/distinct convention or a released matching configuration. It sets a historical scale target only. [Kukovec, p. 25](https://repositum.tuwien.at/bitstream/20.500.12708/209338/1/Kukovec%20Jure%20-%202024%20-%20SMT-driven%20techniques%20for%20verifying%20distributed%20systems.pdf) · [Newcombe, ABZ 2014](https://abz-conf.org/publication/newcombe14/) |
 | Pasture, node model | Invariants with parameters 2, 1, 2, 2, 2 | 4,234,887,880 distinct, depth 53 in 3,596 minutes on a 48-core Opteron with 128 GB. A repeat using another fingerprint polynomial found the same count. | The publication prints the modules. A run from a verified machine-readable original is outstanding. Its smallest published control is 47,742 distinct at depth 31. [Rodeheffer and Kotla, Table 1 and appendices](https://conf.tlapl.us/2012/rodeheffer-kotla.pdf) |
 | LuPastry, simplified five-node configuration | Distributed hash-table routing | 141,786,762 distinct, 7,070,872,610 generated, depth 54 in one week. The full four-node run stopped after over five weeks and 331,300,918,096 generated. | Original configuration unverified. Later LuPastry+ specifications contain changes. [Lu, Table 5.3](https://doi.org/10.22028/D291-26550) · [Subsequent model versions](https://homepages.loria.fr/SMerz/projects/pastry/index.html) |
@@ -400,6 +403,25 @@ These records establish a lower bound on published workloads. A global maximum
 would require knowing the counting convention and input of every contender,
 including proprietary models. The enlarged KVS and transaction-commit runs
 above demonstrate concrete reachable cardinalities on their own programs.
+
+### Reproduce the released SlateDB WAL model
+
+Use the pinned `slatedb/SlateDBWAL.tla` and `SlateDBWAL.cfg`. All runs retain the six invariants, the garbage collector, symmetry and the original action definitions. The four comparative configurations with two values vary just the writer count and the maximum restarts. The one-writer smoke control also reduces the value domain. Each comparison used sequential fresh processes on an isolated r7i.4xlarge. The larger configurations used eight physical cores and the smoke control used one.
+
+| Writers / values / restarts | Engine | Outcome | Distinct | Generated | Depth | Wall, s |
+|---|---|---|---:|---:|---:|---:|
+| 1 / 1 / 0 | Core | complete | 268 | 460 | 27 | 0.02 |
+| 1 / 1 / 0 | TLC | complete | 268 | 460 | 27 | 1.21 |
+| 2 / 2 / 0 | Core | complete | 74,637 | 198,123 | 69 | 0.25 |
+| 2 / 2 / 0 | TLC | complete | 74,637 | 198,123 | 69 | 2.01 |
+| 2 / 2 / 1 | Core | complete | 3,761,377 | 12,508,420 | 93 | 13.78 |
+| 2 / 2 / 1 | TLC | complete | 3,761,377 | 12,508,420 | 93 | 31.73 |
+| 3 / 2 / 0 | Core | complete | 30,114,878 | 117,007,147 | 114 | 163.11 |
+| 3 / 2 / 0 | TLC | last progress before timeout | 23,054,567 | 86,651,441 | 67 | 300.19 |
+| 3 / 2 / 1 | Core | stopped, time | 40,059,666 | 139,660,563 | 51 | 180.06 |
+| 3 / 2 / 1 | TLC | last progress before timeout | 12,422,969 | 41,624,289 | 45 | 180.16 |
+
+Restarts raised the completed two-writer graph from 74,637 to 3,761,377 distinct states. Adding a third writer with restarts disabled raised it to 30,114,878. A separate completed TLC run matched Core’s 117,007,147 generated, depth 114 and empty queue for that configuration. The three-writer, one-restart original remained open at the 180 s cutoff. Holding just one packed 64-bit fingerprint for each of the reported 49 billion states would occupy about 365 GiB before table overhead, predecessor records and the frontier. Under an independent uniform 64-bit hash assumption, that many distinct states would yield about 65 colliding pairs in expectation. An exact-state or symbolic control is important at this scale. [Configuration edits, input hashes and all measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
 ### Reproduce the released PaxosLease runs
 
@@ -445,11 +467,23 @@ occupied 16 GiB in total, in addition to its queues and trace files.
 
 The Core report counts 12.64 billion seen-set probes and 9.33 billion
 successors discarded as already seen before interning. The cost of checking
-duplicates still grows with the number of generated transitions. A symbolic run
-of this configuration currently refuses at input admission. The ordinary runs
-retain the authors’ state constraint and module assumptions.
+duplicates still grows with the number of generated transitions. The ordinary runs retain the authors’ state constraint and module assumptions.
+
+For RenewRetry substitute `PaxosLeaseRenewRetry.cfg` in both commands. The only change to the original Retry configuration enables lease renewal. Each engine ran on a fresh instance with the same 32-core allocation and limits.
+
+| RenewRetry run | Distinct | Generated | Depth | Wall time | Peak process RSS |
+|---|---:|---:|---:|---:|---:|
+| Authors’ TLC | 2,411,951,538 | 14,096,750,859 | 49 | 8 h 03 min | Unreported |
+| Core | 2,411,951,538 | 14,096,750,859 | 49 | 5,264.86 s | 118.17 GiB |
+| Pinned TLC | 2,411,951,538 | 14,096,750,859 | 49 | 5,422.06 s | 94.60 GiB |
+
+All three runs reported success and exhausted their queues. The final counts and depth agreed. The author used fingerprint 95; the two reproductions used fingerprint 0. At 2.147 billion distinct states the pinned TLC’s two fingerprint files occupied 16 GiB. [Terminal counters, memory, collision estimates and reproduction settings](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
+
+With `--strategy symbolic --type-invariant TypeOK --refine-domains`, one physical core learned 138 of the 1,008 possible messages on Base and 80 of 608 on QuarantineEqualsProposer. It matched all explicit counters at depths 29 and 43, in 46.97 s / 324 MiB and 405.84 s / 1.14 GiB respectively. Ordinary Core took 1.77 s and 243.70 s with eight workers. Ordering message bits with the acceptor fields reduced the quarantine reachable-set diagram from 8,532,809 nodes to 630,485. The otherwise comparable variable-order trials took 1,664.30 s and 432.51 s on separate instances of the same size. The unedited symbolic Retry run ended with `stopped` (time limit) after 1,800.03 s, with at least 3.17 GiB observed on a live worker.
 
 ### Reproduce the released EmergencyCall runs
+
+The paper reports 10.59 billion distinct states and a maximum diameter of 26 for the unconstrained study. It gives timings for six constrained cases. The released repository contains seven original CFGs and six solution CFGs. Its `s0.cfg` uses `Init0 == Init /\ System_Constraint`; the released log ends at an F1 violation after 7,892,939 distinct states, depth seven and 203 seconds. A like-for-like comparison at 10.59 billion still needs the original initial predicate, properties and completion conditions. [Paper, §3.2](https://users.cs.northwestern.edu/~ychen/Papers/MobiSys21_ENL_OpenAccessVersion.pdf) · [Configuration inventory and log digest](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
 
 Check out the [pinned authors’ repository](https://github.com/FormalCellular/EmergencyCall/tree/093684f1bb02d733cae95d50f1690f1cb792296a).
 Set `MODEL` to its `model` directory and `INPUT` to the same binary, JRE and

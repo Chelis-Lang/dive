@@ -1,0 +1,290 @@
+{
+  "schema": "dive-slatedb-wal-reference-v1",
+  "date": "2026-11-20",
+  "source_repo": "https://github.com/Vanlightly/s3-wal-collection",
+  "source_revision": "35fdc537af4d226f43b4574cded1764375f264ac",
+  "license": "MIT",
+  "source": "slatedb/SlateDBWAL.tla",
+  "source_sha256": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+  "author_cfg": "slatedb/SlateDBWAL.cfg",
+  "author_notes": "slatedb/SlateDBWAL_notes.md",
+  "author_notes_sha256": "b21309781c9c0d9021ad32ca601d68f4c47aaa37a448e556b04949c5ffbd4f8d",
+  "historical": {
+    "reported_rounded_distinct": "49 billion",
+    "reported_seconds": 9420,
+    "reported_workers": 40,
+    "reported_cpu": "Threadripper 9980X",
+    "exact_final_count": null,
+    "generated": null,
+    "checker_version": null,
+    "raw_log_identified": false
+  },
+  "configuration": {
+    "SlateDBWAL": {
+      "writers": 3,
+      "values": 2,
+      "max_writer_restarts": 1
+    },
+    "Small": {
+      "writers": 1,
+      "values": 1,
+      "max_writer_restarts": 0
+    },
+    "Medium": {
+      "writers": 2,
+      "values": 2,
+      "max_writer_restarts": 0
+    },
+    "TwoRetry": {
+      "writers": 2,
+      "values": 2,
+      "max_writer_restarts": 1
+    },
+    "ThreeNoRetry": {
+      "writers": 3,
+      "values": 2,
+      "max_writer_restarts": 0
+    }
+  },
+  "configuration_scope": "The named controls change only Writers, Values and MaxWriterRestarts as shown. GC={gc1}, EnableFix=TRUE, the six invariants, symmetry, Spec and deadlock setting are retained. All runs use the original module.",
+  "cfg_sha256": {
+    "Small": "1f0910bf0f81932e8b58810e34e016ca904142add818162d95baa43f3a29236e",
+    "Medium": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10",
+    "SlateDBWAL": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+    "TwoRetry": "91f6681396fc569e13cf614c2cfca4007761b69911a8e0782502cfaad856986f",
+    "ThreeNoRetry": "e7b9e91a44499b87e7b83fa2df735059dbcff02a59439143bc072d42811d61b9"
+  },
+  "platform": {
+    "instance": "r7i.4xlarge",
+    "AZ": "us-east-1a",
+    "kernel": "7.0.0-1018-aws",
+    "physical_cpu_ids": "0,1,2,3,4,5,6,7",
+    "hard_memory_gib": 24,
+    "swap_gib": 0,
+    "root_gp3_gib": 100,
+    "order": [
+      "Small-core",
+      "Small-tlc",
+      "Medium-tlc",
+      "Medium-core",
+      "SlateDBWAL-core",
+      "SlateDBWAL-tlc",
+      "TwoRetry-core",
+      "TwoRetry-tlc",
+      "ThreeNoRetry-tlc",
+      "ThreeNoRetry-core"
+    ]
+  },
+  "tools": {
+    "dive": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+    "CommunityModules-202610040242.jar": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+    "CommunityModules-deps-202610040242.jar": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+    "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "module_library": "tlaplus/CommunityModules, 78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3, modules directory; pinned jars for TLC",
+  "protocol": "Small, Medium and original ran sequentially on one isolated host. The two single-parameter changes ran sequentially on a second host of the same shape with a 300 s budget per cell. Whole-process GNU time, fresh process per row, CPU affinity fixed, default clock. Small uses one worker; medium and original use eight. Core --compat=tlc --workers N --library-path MODULES --fp 0 --seed 0 --max-memory 18g --time-limit Ns --output json. Pinned TLC -Xmx12g -XX:+UseParallelGC -XX:ActiveProcessorCount=N -DTLA-Library=MODULES -cp TOOLS:COMMUNITY:DEPS tlc2.TLC -workers N -seed 0 -fp 0 -config CFG SlateDBWAL.tla. Time budget 240 s for controls, 180 s on original. TLC last progress is a sampled lower bound.",
+  "rows": [
+    {
+      "config": "Small",
+      "engine": "core",
+      "workers": 1,
+      "exit_code": 0,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 36856,
+      "verdict": "success",
+      "statistics": {
+        "depth": 27,
+        "distinct": 268,
+        "generated": 460,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stopped": null,
+      "message": null
+    },
+    {
+      "config": "Small",
+      "engine": "tlc",
+      "workers": 1,
+      "exit_code": 0,
+      "wall_seconds": 1.21,
+      "peak_rss_kib": 153160,
+      "verdict": "success",
+      "statistics": {
+        "generated": 460,
+        "distinct": 268,
+        "left_on_queue": 0,
+        "depth": 27
+      }
+    },
+    {
+      "config": "Medium",
+      "engine": "tlc",
+      "workers": 8,
+      "exit_code": 0,
+      "wall_seconds": 2.01,
+      "peak_rss_kib": 1018808,
+      "verdict": "success",
+      "statistics": {
+        "generated": 198123,
+        "distinct": 74637,
+        "left_on_queue": 0,
+        "depth": 69
+      }
+    },
+    {
+      "config": "Medium",
+      "engine": "core",
+      "workers": 8,
+      "exit_code": 0,
+      "wall_seconds": 0.25,
+      "peak_rss_kib": 115084,
+      "verdict": "success",
+      "statistics": {
+        "depth": 69,
+        "distinct": 74637,
+        "generated": 198123,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stopped": null,
+      "message": null
+    },
+    {
+      "config": "SlateDBWAL",
+      "engine": "core",
+      "workers": 8,
+      "exit_code": 5,
+      "wall_seconds": 180.06,
+      "peak_rss_kib": 3079940,
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 51,
+        "distinct": 40059666,
+        "exhaustive": false,
+        "generated": 139660563,
+        "initial_generated": 1,
+        "left_on_queue": 7111341,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 180028,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 180000,
+        "observed": 180027,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "message": "stopped during safety-search after 180027 ms: the time limit is 180000 ms"
+    },
+    {
+      "config": "SlateDBWAL",
+      "engine": "tlc",
+      "workers": 8,
+      "exit_code": 124,
+      "wall_seconds": 180.16,
+      "peak_rss_kib": 5639812,
+      "verdict": "external-timeout",
+      "statistics": null,
+      "last_progress": {
+        "generated": 41624289,
+        "distinct": 12422969,
+        "left_on_queue": 2500523,
+        "depth": 45
+      }
+    },
+    {
+      "config": "TwoRetry",
+      "engine": "core",
+      "workers": 8,
+      "exit_code": 0,
+      "wall_seconds": 13.78,
+      "peak_rss_kib": 289492,
+      "verdict": "success",
+      "statistics": {
+        "depth": 93,
+        "distinct": 3761377,
+        "generated": 12508420,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stopped": null,
+      "message": null
+    },
+    {
+      "config": "TwoRetry",
+      "engine": "tlc",
+      "workers": 8,
+      "exit_code": 0,
+      "wall_seconds": 31.73,
+      "peak_rss_kib": 4956836,
+      "verdict": "success",
+      "statistics": {
+        "generated": 12508420,
+        "distinct": 3761377,
+        "left_on_queue": 0,
+        "depth": 93
+      }
+    },
+    {
+      "config": "ThreeNoRetry",
+      "engine": "tlc",
+      "workers": 8,
+      "exit_code": 124,
+      "wall_seconds": 300.19,
+      "peak_rss_kib": 5757332,
+      "verdict": "external-timeout",
+      "statistics": null,
+      "last_progress": {
+        "generated": 86651441,
+        "distinct": 23054567,
+        "left_on_queue": 873103,
+        "depth": 67
+      }
+    },
+    {
+      "config": "ThreeNoRetry",
+      "engine": "core",
+      "workers": 8,
+      "exit_code": 0,
+      "wall_seconds": 163.11,
+      "peak_rss_kib": 1319932,
+      "verdict": "success",
+      "statistics": {
+        "depth": 114,
+        "distinct": 30114878,
+        "generated": 117007147,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "stopped": null,
+      "message": null
+    }
+  ],
+  "cfg_generation": "Apply literal replacement of Writers = {w1, w2, w3} (and Values = {v1, v2} for Small) in the original file, preserving all other whitespace. Small and Medium replace MaxWriterRestarts = 1 at the end of every line, including one comment. ThreeNoRetry replaces that constant assignment on its own indented line, and TwoRetry changes Writers only.",
+  "additional_oracle_control": {
+    "configuration": "ThreeNoRetry",
+    "purpose": "Completed oracle counters for comparison after the isolated TLC budget; shared workstation timing is excluded from the AWS comparison.",
+    "workers": 8,
+    "fp": 0,
+    "seed": 0,
+    "heap_gib": 12,
+    "hard_cgroup_gib": 24,
+    "swap_gib": 0,
+    "rc": 0,
+    "wall_seconds": 179.35,
+    "peak_rss_kib": 5792732,
+    "verdict": "success",
+    "statistics": {
+      "generated": 117007147,
+      "distinct": 30114878,
+      "left_on_queue": 0,
+      "depth": 114
+    }
+  }
+}
