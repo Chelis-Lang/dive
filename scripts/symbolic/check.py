@@ -72,14 +72,17 @@ def main():
     args = parser.parse_args()
     if sys.platform != "linux":
         parser.error("the symbolic checker currently supports Linux")
-    if args.trace and args.write_predicate and args.trace.resolve() == args.write_predicate.resolve():
-        parser.error("trace and predicate need separate output files")
-
-    sources = {Path(path).resolve() for pair in [(args.module, args.config), *args.recheck] for path in pair}
-    if args.verify_predicate:
-        sources.add(args.verify_predicate.resolve())
-    if any(path and path.resolve() in sources for path in (args.trace, args.write_predicate)):
-        parser.error("trace and predicate output must be separate from the checked inputs")
+    if args.trace or args.write_predicate:
+        try:
+            outputs = [path.resolve() for path in (args.trace, args.write_predicate) if path]
+            sources = {Path(path).resolve() for pair in [(args.module, args.config), *args.recheck]
+                       for path in pair}
+            if args.verify_predicate:
+                sources.add(args.verify_predicate.resolve())
+        except (OSError, RuntimeError) as error:
+            parser.error(f"cannot resolve symbolic input or output path: {error}")
+        if len(outputs) != len(set(outputs)) or any(path in sources for path in outputs):
+            parser.error("trace, predicate output and checked inputs need separate paths")
 
     # A supervisor can interrupt a long CUDD operation and stop its process group.
     # The normal Dive binary and other sessions keep their own limits.
