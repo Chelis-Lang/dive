@@ -81,6 +81,22 @@ aws s3 cp s3://<evidence-bucket>/release-perf/2026-11-18/small-node-raw.tar.gz .
 shasum -a 256 small-node-raw.tar.gz   # must equal the record's value
 ```
 
+## Later R2 records
+
+| File | Question | Source | Host |
+|---|---|---|---|
+| `2026-11-20-r2-procedure-c14687e6.json` | Does the harness-driven R2 (`dive-conformance r2`, #983) reproduce the 08a14fba record? | `c14687e6` | 5 x c7i.metal-24xl |
+
+The 2026-11-20 run is the first R2 that the harness carried out end to end,
+with no driver script and no hand-recorded deviations. It used the same
+175-model selection and found the same 127/48 class split. The geomean is
+0.190x over 169 agreeing models, against 0.195x in the reference. No model is
+above 2x. Only `MCKVsnap` is above 1x, at 1.11x. `AllocatorImplementation` is
+now 0.96x. Its `versus_reference` field lists each model whose ratio moved
+outside [0.9, 1.1] of the reference ratio. All of them moved because Core got
+faster; the large-model TLC times stayed within 2.5 % of the reference. Raw
+files are under the `release-perf/2026-11-20-r2-983/` prefix.
+
 ## Field dictionary
 
 Units are in the field names: `_ms` milliseconds of wall time, `_bytes` bytes,
