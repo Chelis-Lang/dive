@@ -217,7 +217,7 @@ match TLC's under `--compat=tlc`, for the per-state and start-up streams.
 | **Kind** | Different answer only when you fix a seed |
 | **Default** | Seed reported; `--seed S` replays finite sampling; extra workers refuse |
 | **TLC behavior** | Under `--compat=tlc` |
-| **Status** | implemented for finite single-worker safety simulation without effects, with TLC's worker seeding and dive's per-trace streams. Other modes, random operators and effects in the spec, and extra workers refuse by name. |
+| **Status** | implemented for finite single-worker safety simulation without effects, with dive's per-trace streams in both profiles; `--compat=tlc` does not reproduce TLC's worker selection stream. Other modes, random operators and effects in the spec, and extra workers refuse by name. |
 
 **What TLC does.** Even with `-seed 0` and one worker, the number of states TLC generates in simulation varies between runs. On Examples `EWD840_anim` it ranged from about 267k to 271k.
 
@@ -238,9 +238,11 @@ the uncompressed trace for validation and gives `tlc_states` separately for
 TLC's display. A finite sample always reports `exhaustive: false` and
 `model_proved: false`; a zero exit never claims the model was proved.
 
-**Measured.** Against the pinned TLC, dive reproduces all 30 published traces
-(172 states after stutter removal) and 304 generated states across five seeds
-and two arils (`crates/dive-sim/tests/fixtures/choice-oracle.json`). Twelve more probes compare error classes, exits and counts. In
+**Measured.** `crates/dive-sim/tests/fixtures/choice-oracle.json` holds the
+pinned TLC's traces and generated counts for five seeds and two arils. dive
+does not reproduce them in either profile, because it samples with its own
+per-trace stream; every trace it samples for those rows validates
+independently. Twelve more probes compare error classes, exits and counts. In
 a thirteenth, TLC reports 2112 for an action property checked before a
 constraint, which dive's simulation refuses by name. The validator accepts the
 real violations, rejects a corrupted sampled edge and refuses a deadlock whose

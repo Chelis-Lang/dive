@@ -9,9 +9,13 @@ whole state space. The example returns `result: sampled`, with
 `exhaustive: false` and `model_proved: false`, although every sampled trace is
 valid.  Exit 0 is never proof of safety or liveness.
 
-Record the seed and the complete options to reproduce a sample. Use
-`--compat=tlc` for TLC's selection stream and `--aril N` for its seed
-adjustment. Simulation runs one worker on finite safety models.
+Record the seed and the complete options to reproduce a sample. dive samples
+with its own per-trace stream in both profiles, so the same seed gives
+different traces than TLC, including under `--compat=tlc`. A nonzero
+`--aril N` is refused in the default profile. Under `--compat=tlc` it skips
+the first N draws of each trace's stream, and it has no effect without an
+explicit `--seed`. Simulation runs one worker on finite
+safety models.
 
 ## What a sample covers
 
