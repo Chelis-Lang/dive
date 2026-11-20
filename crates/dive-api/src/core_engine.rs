@@ -485,7 +485,7 @@ fn binding_failure(
 /// `SYMMETRY`, prepared by `dive-model`'s binder: its maps by
 /// model-value name, its start-up warnings and the default profile's
 /// canonical-order note.
-#[derive(Default)]
+#[derive(Clone, Default)]
 struct Symmetry {
     maps: Vec<Vec<(String, String)>>,
     warnings: Vec<(u32, String)>,
@@ -908,6 +908,7 @@ pub(crate) struct Search<'a> {
 
 /// What the start-up adds to a report: `SYMMETRY`'s warnings and note, and
 /// the binder's output.
+#[derive(Clone)]
 pub(crate) struct Startup {
     sym: Symmetry,
     startup: Vec<String>,

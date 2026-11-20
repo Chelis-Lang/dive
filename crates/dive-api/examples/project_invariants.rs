@@ -31,6 +31,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 file: tla.into(),
                 config: Some(cfg.into()),
                 store: Store::Exact,
+                time_limit: dive_api::BudgetSetting::Unlimited,
+                max_memory: dive_api::BudgetSetting::Unlimited,
                 workers: Some(1),
                 seed: Some(0),
                 fp: Some(0),

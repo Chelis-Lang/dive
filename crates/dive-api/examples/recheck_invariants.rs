@@ -73,6 +73,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 file: file.into(),
                 config: Some(config.into()),
                 store: Store::Exact,
+                time_limit: dive_api::BudgetSetting::Unlimited,
+                max_memory: dive_api::BudgetSetting::Unlimited,
                 seed: Some(0),
                 fp: Some(0),
                 workers: Some(1),

@@ -1,0 +1,1069 @@
+{
+  "machine": {
+    "cpu": "AMD Ryzen AI MAX+ 395",
+    "cpu_affinity": "one Linux logical CPU",
+    "kernel": "7.1.5-100.fc43.x86_64",
+    "rustc": "1.99.0",
+    "cargo_profile": "release without LTO, 16 codegen units"
+  },
+  "examples_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "samples": {
+    "star-3000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 4201,
+      "original_fresh_us": 3124,
+      "edited_recheck_us": [
+        1226,
+        1129,
+        1030
+      ],
+      "edited_bind_us": [
+        781,
+        707,
+        608
+      ],
+      "edited_analysis_us": [
+        356,
+        356,
+        359
+      ],
+      "edited_fresh_us": [
+        2594,
+        2445,
+        2458
+      ],
+      "capture_and_edits_peak_kib": 12608,
+      "fresh_series_peak_kib": 12476
+    },
+    "star-3000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 3206,
+      "original_fresh_us": 3075,
+      "edited_recheck_us": [
+        1473,
+        1330,
+        1252
+      ],
+      "edited_bind_us": [
+        741,
+        705,
+        606
+      ],
+      "edited_analysis_us": [
+        632,
+        547,
+        568
+      ],
+      "edited_fresh_us": [
+        3061,
+        2820,
+        2770
+      ],
+      "capture_and_edits_peak_kib": 13532,
+      "fresh_series_peak_kib": 13036
+    },
+    "star-20000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 16737,
+      "original_fresh_us": 14459,
+      "edited_recheck_us": [
+        2904,
+        2737,
+        2730
+      ],
+      "edited_bind_us": [
+        765,
+        630,
+        618
+      ],
+      "edited_analysis_us": [
+        2070,
+        2037,
+        2051
+      ],
+      "edited_fresh_us": [
+        12436,
+        12297,
+        11887
+      ],
+      "capture_and_edits_peak_kib": 18440,
+      "fresh_series_peak_kib": 19504
+    },
+    "star-20000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 15975,
+      "original_fresh_us": 14584,
+      "edited_recheck_us": [
+        2774,
+        2677,
+        2628
+      ],
+      "edited_bind_us": [
+        703,
+        637,
+        621
+      ],
+      "edited_analysis_us": [
+        1989,
+        1965,
+        1937
+      ],
+      "edited_fresh_us": [
+        14026,
+        13376,
+        13088
+      ],
+      "capture_and_edits_peak_kib": 18620,
+      "fresh_series_peak_kib": 20092
+    },
+    "tree-65535-hold": {
+      "outcome": {
+        "depth": 17,
+        "distinct": 131071,
+        "generated": 196607,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 1,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 128664,
+      "original_fresh_us": 120616,
+      "edited_recheck_us": [
+        21015,
+        21000,
+        20698
+      ],
+      "edited_bind_us": [
+        1083,
+        949,
+        895
+      ],
+      "edited_analysis_us": [
+        19822,
+        19961,
+        19697
+      ],
+      "edited_fresh_us": [
+        109690,
+        108545,
+        107987
+      ],
+      "capture_and_edits_peak_kib": 62396,
+      "fresh_series_peak_kib": 66084
+    },
+    "tree-131071-hold": {
+      "outcome": {
+        "depth": 18,
+        "distinct": 262143,
+        "generated": 393215,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 2,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 280175,
+      "original_fresh_us": 316828,
+      "edited_recheck_us": [
+        47501,
+        47415,
+        47874
+      ],
+      "edited_bind_us": [
+        1113,
+        1040,
+        1060
+      ],
+      "edited_analysis_us": [
+        46254,
+        46227,
+        46669
+      ],
+      "edited_fresh_us": [
+        245770,
+        246427,
+        248581
+      ],
+      "capture_and_edits_peak_kib": 115236,
+      "fresh_series_peak_kib": 117972
+    },
+    "DieHard": {
+      "outcome": {
+        "depth": 8,
+        "distinct": 16,
+        "generated": 97,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A"
+      ],
+      "capture_elapsed_us": 2102,
+      "original_fresh_us": 1854,
+      "edited_recheck_us": [
+        1960,
+        1711,
+        1646
+      ],
+      "edited_bind_us": [
+        1264,
+        1122,
+        1034
+      ],
+      "edited_analysis_us": [
+        581,
+        493,
+        504
+      ],
+      "edited_fresh_us": [
+        1866,
+        1737,
+        1676
+      ],
+      "capture_and_edits_peak_kib": 12284,
+      "fresh_series_peak_kib": 11840
+    }
+  },
+  "prior_qualification_file_api_default_memory": {
+    "star-3000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 4234,
+      "original_fresh_us": 3411,
+      "edited_recheck_us": [
+        1321,
+        1201,
+        1093
+      ],
+      "edited_bind_us": [
+        847,
+        762,
+        659
+      ],
+      "edited_analysis_us": [
+        378,
+        371,
+        368
+      ],
+      "edited_fresh_us": [
+        2942,
+        2740,
+        2672
+      ],
+      "capture_and_edits_peak_kib": 11940,
+      "fresh_series_peak_kib": 12268
+    },
+    "star-3000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 3441,
+      "original_fresh_us": 3266,
+      "edited_recheck_us": [
+        1545,
+        1391,
+        1291
+      ],
+      "edited_bind_us": [
+        774,
+        737,
+        651
+      ],
+      "edited_analysis_us": [
+        653,
+        581,
+        557
+      ],
+      "edited_fresh_us": [
+        3334,
+        3069,
+        3071
+      ],
+      "capture_and_edits_peak_kib": 12776,
+      "fresh_series_peak_kib": 13320
+    },
+    "star-20000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 17080,
+      "original_fresh_us": 14384,
+      "edited_recheck_us": [
+        2921,
+        2843,
+        2840
+      ],
+      "edited_bind_us": [
+        693,
+        664,
+        658
+      ],
+      "edited_analysis_us": [
+        2160,
+        2112,
+        2116
+      ],
+      "edited_fresh_us": [
+        12964,
+        12525,
+        12462
+      ],
+      "capture_and_edits_peak_kib": 18108,
+      "fresh_series_peak_kib": 19660
+    },
+    "star-20000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 16518,
+      "original_fresh_us": 14657,
+      "edited_recheck_us": [
+        2892,
+        2767,
+        2744
+      ],
+      "edited_bind_us": [
+        720,
+        672,
+        667
+      ],
+      "edited_analysis_us": [
+        2080,
+        2021,
+        1993
+      ],
+      "edited_fresh_us": [
+        14548,
+        14375,
+        14056
+      ],
+      "capture_and_edits_peak_kib": 18216,
+      "fresh_series_peak_kib": 20264
+    },
+    "tree-65535-hold": {
+      "outcome": {
+        "depth": 17,
+        "distinct": 131071,
+        "generated": 196607,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 1,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 132949,
+      "original_fresh_us": 123690,
+      "edited_recheck_us": [
+        21478,
+        20930,
+        20720
+      ],
+      "edited_bind_us": [
+        1120,
+        938,
+        801
+      ],
+      "edited_analysis_us": [
+        20244,
+        19896,
+        19836
+      ],
+      "edited_fresh_us": [
+        108191,
+        104837,
+        105035
+      ],
+      "capture_and_edits_peak_kib": 60684,
+      "fresh_series_peak_kib": 65884
+    },
+    "tree-131071-hold": {
+      "outcome": {
+        "depth": 18,
+        "distinct": 262143,
+        "generated": 393215,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 2,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 273896,
+      "original_fresh_us": 265064,
+      "edited_recheck_us": [
+        46326,
+        46095,
+        46194
+      ],
+      "edited_bind_us": [
+        1159,
+        1014,
+        999
+      ],
+      "edited_analysis_us": [
+        45023,
+        44961,
+        45041
+      ],
+      "edited_fresh_us": [
+        255701,
+        244255,
+        252085
+      ],
+      "capture_and_edits_peak_kib": 114092,
+      "fresh_series_peak_kib": 116580
+    },
+    "DieHard": {
+      "outcome": {
+        "depth": 8,
+        "distinct": 16,
+        "generated": 97,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A"
+      ],
+      "capture_elapsed_us": 2128,
+      "original_fresh_us": 1958,
+      "edited_recheck_us": [
+        2101,
+        1810,
+        1624
+      ],
+      "edited_bind_us": [
+        1348,
+        1175,
+        1034
+      ],
+      "edited_analysis_us": [
+        630,
+        544,
+        504
+      ],
+      "edited_fresh_us": [
+        1964,
+        1876,
+        1848
+      ],
+      "capture_and_edits_peak_kib": 12144,
+      "fresh_series_peak_kib": 11944
+    }
+  },
+  "qualification_after_whole_source_guard_file_api_default_memory": {
+    "star-3000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 3936,
+      "original_fresh_us": 3500,
+      "edited_recheck_us": [
+        1236,
+        1135,
+        1037
+      ],
+      "edited_bind_us": [
+        781,
+        712,
+        616
+      ],
+      "edited_analysis_us": [
+        361,
+        361,
+        360
+      ],
+      "edited_fresh_us": [
+        2884,
+        2541,
+        2549
+      ],
+      "capture_and_edits_peak_kib": 12744,
+      "fresh_series_peak_kib": 12620
+    },
+    "star-3000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 3220,
+      "original_fresh_us": 3228,
+      "edited_recheck_us": [
+        1459,
+        1315,
+        1299
+      ],
+      "edited_bind_us": [
+        738,
+        691,
+        614
+      ],
+      "edited_analysis_us": [
+        609,
+        545,
+        605
+      ],
+      "edited_fresh_us": [
+        3057,
+        2872,
+        2857
+      ],
+      "capture_and_edits_peak_kib": 13520,
+      "fresh_series_peak_kib": 13116
+    },
+    "star-20000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 16372,
+      "original_fresh_us": 13765,
+      "edited_recheck_us": [
+        2824,
+        2752,
+        2709
+      ],
+      "edited_bind_us": [
+        749,
+        644,
+        620
+      ],
+      "edited_analysis_us": [
+        2012,
+        2042,
+        2027
+      ],
+      "edited_fresh_us": [
+        12326,
+        12235,
+        11860
+      ],
+      "capture_and_edits_peak_kib": 18380,
+      "fresh_series_peak_kib": 19560
+    },
+    "star-20000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 16196,
+      "original_fresh_us": 14034,
+      "edited_recheck_us": [
+        2851,
+        2642,
+        2634
+      ],
+      "edited_bind_us": [
+        765,
+        639,
+        636
+      ],
+      "edited_analysis_us": [
+        2001,
+        1924,
+        1912
+      ],
+      "edited_fresh_us": [
+        13920,
+        13383,
+        12636
+      ],
+      "capture_and_edits_peak_kib": 18352,
+      "fresh_series_peak_kib": 20300
+    },
+    "tree-65535-hold": {
+      "outcome": {
+        "depth": 17,
+        "distinct": 131071,
+        "generated": 196607,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 1,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 125764,
+      "original_fresh_us": 123570,
+      "edited_recheck_us": [
+        20692,
+        20329,
+        20256
+      ],
+      "edited_bind_us": [
+        1085,
+        848,
+        750
+      ],
+      "edited_analysis_us": [
+        19487,
+        19397,
+        19424
+      ],
+      "edited_fresh_us": [
+        110355,
+        108297,
+        109096
+      ],
+      "capture_and_edits_peak_kib": 63504,
+      "fresh_series_peak_kib": 66056
+    },
+    "tree-131071-hold": {
+      "outcome": {
+        "depth": 18,
+        "distinct": 262143,
+        "generated": 393215,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 2,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 284101,
+      "original_fresh_us": 276126,
+      "edited_recheck_us": [
+        47125,
+        46805,
+        46772
+      ],
+      "edited_bind_us": [
+        1136,
+        1076,
+        1041
+      ],
+      "edited_analysis_us": [
+        45847,
+        45592,
+        45592
+      ],
+      "edited_fresh_us": [
+        246823,
+        243685,
+        240664
+      ],
+      "capture_and_edits_peak_kib": 111496,
+      "fresh_series_peak_kib": 118172
+    },
+    "DieHard": {
+      "outcome": {
+        "depth": 8,
+        "distinct": 16,
+        "generated": 97,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A"
+      ],
+      "capture_elapsed_us": 2141,
+      "original_fresh_us": 1858,
+      "edited_recheck_us": [
+        1873,
+        1641,
+        1540
+      ],
+      "edited_bind_us": [
+        1218,
+        1073,
+        982
+      ],
+      "edited_analysis_us": [
+        542,
+        477,
+        464
+      ],
+      "edited_fresh_us": [
+        2130,
+        1739,
+        1729
+      ],
+      "capture_and_edits_peak_kib": 12280,
+      "fresh_series_peak_kib": 12752
+    }
+  },
+  "policy": {
+    "profile": "Dive",
+    "workers": 1,
+    "store": "exact",
+    "seed": 0,
+    "fingerprint": 0,
+    "wall_deadline": "none in both arms",
+    "process_memory_budget": "unlimited in both arms",
+    "max_states": null,
+    "max_depth": null
+  },
+  "qualified_typed_words_and_current_graph_limits": {
+    "star-3000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 4218,
+      "original_fresh_us": 3155,
+      "edited_recheck_us": [
+        1248,
+        1123,
+        1020
+      ],
+      "edited_bind_us": [
+        792,
+        713,
+        608
+      ],
+      "edited_analysis_us": [
+        359,
+        348,
+        351
+      ],
+      "edited_fresh_us": [
+        2593,
+        2417,
+        2393
+      ],
+      "capture_and_edits_peak_kib": 12776,
+      "fresh_series_peak_kib": 12136
+    },
+    "star-3000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 3201,
+      "original_fresh_us": 3151,
+      "edited_recheck_us": [
+        1468,
+        1350,
+        1234
+      ],
+      "edited_bind_us": [
+        738,
+        732,
+        619
+      ],
+      "edited_analysis_us": [
+        622,
+        537,
+        534
+      ],
+      "edited_fresh_us": [
+        3073,
+        2946,
+        2871
+      ],
+      "capture_and_edits_peak_kib": 13472,
+      "fresh_series_peak_kib": 12708
+    },
+    "star-20000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 15830,
+      "original_fresh_us": 14453,
+      "edited_recheck_us": [
+        2827,
+        2717,
+        2842
+      ],
+      "edited_bind_us": [
+        756,
+        635,
+        710
+      ],
+      "edited_analysis_us": [
+        2003,
+        2017,
+        2067
+      ],
+      "edited_fresh_us": [
+        12460,
+        11880,
+        11706
+      ],
+      "capture_and_edits_peak_kib": 18392,
+      "fresh_series_peak_kib": 19248
+    },
+    "star-20000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 15525,
+      "original_fresh_us": 14071,
+      "edited_recheck_us": [
+        2782,
+        2673,
+        2588
+      ],
+      "edited_bind_us": [
+        679,
+        631,
+        631
+      ],
+      "edited_analysis_us": [
+        2019,
+        1961,
+        1879
+      ],
+      "edited_fresh_us": [
+        13040,
+        12693,
+        12443
+      ],
+      "capture_and_edits_peak_kib": 18624,
+      "fresh_series_peak_kib": 20100
+    },
+    "tree-65535-hold": {
+      "outcome": {
+        "depth": 17,
+        "distinct": 131071,
+        "generated": 196607,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 1,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 124639,
+      "original_fresh_us": 116283,
+      "edited_recheck_us": [
+        20545,
+        20248,
+        20147
+      ],
+      "edited_bind_us": [
+        1107,
+        933,
+        889
+      ],
+      "edited_analysis_us": [
+        19337,
+        19225,
+        19173
+      ],
+      "edited_fresh_us": [
+        107999,
+        102393,
+        105147
+      ],
+      "capture_and_edits_peak_kib": 59912,
+      "fresh_series_peak_kib": 65864
+    },
+    "tree-131071-hold": {
+      "outcome": {
+        "depth": 18,
+        "distinct": 262143,
+        "generated": 393215,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 2,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 286572,
+      "original_fresh_us": 274403,
+      "edited_recheck_us": [
+        47172,
+        46965,
+        46953
+      ],
+      "edited_bind_us": [
+        1088,
+        1031,
+        1029
+      ],
+      "edited_analysis_us": [
+        45936,
+        45785,
+        45774
+      ],
+      "edited_fresh_us": [
+        241009,
+        239460,
+        252114
+      ],
+      "capture_and_edits_peak_kib": 110772,
+      "fresh_series_peak_kib": 116640
+    },
+    "DieHard": {
+      "outcome": {
+        "depth": 8,
+        "distinct": 16,
+        "generated": 97,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A"
+      ],
+      "capture_elapsed_us": 2619,
+      "original_fresh_us": 1885,
+      "edited_recheck_us": [
+        2171,
+        1914,
+        1550
+      ],
+      "edited_bind_us": [
+        1338,
+        1229,
+        987
+      ],
+      "edited_analysis_us": [
+        617,
+        575,
+        475
+      ],
+      "edited_fresh_us": [
+        1848,
+        1706,
+        1694
+      ],
+      "capture_and_edits_peak_kib": 12276,
+      "fresh_series_peak_kib": 11864
+    }
+  }
+}

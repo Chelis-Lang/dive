@@ -670,6 +670,7 @@ struct RowProofs<'a> {
     graph: &'a NativeGraph,
     bits: Vec<u8>,
     initialized: bool,
+    allow_foreign_scalars: bool,
     metrics: RowProofMetrics,
 }
 
@@ -679,6 +680,7 @@ impl<'a> RowProofs<'a> {
             graph,
             bits: Vec::new(),
             initialized: false,
+            allow_foreign_scalars: false,
             metrics: RowProofMetrics::default(),
         }
     }
@@ -687,8 +689,15 @@ impl<'a> RowProofs<'a> {
         let roots = self.graph.row(row)?;
         // Persistent coordinates do not identify their issuing Store. Current
         // poison is deliberately not cached, including after an earlier success.
-        if !self.graph.owns_store(heap.store()) || heap.poisoned() {
+        if heap.poisoned() {
             return Ok(false);
+        }
+        if !self.graph.owns_store(heap.store()) {
+            // Only immediates carry their entire value across freshly bound stores.
+            return Ok(self.allow_foreign_scalars
+                && roots
+                    .iter()
+                    .all(|h| h.as_int().is_some() || h.as_bool().is_some()));
         }
         if !self.initialized {
             self.bits = row_proof_storage(self.graph.input().retained_rows, |bits, bytes| {
@@ -729,6 +738,13 @@ impl<'a, 'model> Reader<'a, 'model> {
             values,
             atoms,
         }
+    }
+}
+
+impl Reader<'_, '_> {
+    /// Retain the ordinary owner check for every store-relative handle.
+    pub(crate) fn allow_inline_rows(&mut self) {
+        self.proofs.allow_foreign_scalars = true;
     }
 }
 

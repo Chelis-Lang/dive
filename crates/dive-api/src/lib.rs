@@ -65,6 +65,7 @@ pub mod debug;
 pub mod diagnostics;
 pub mod safety_reuse;
 pub mod temporal;
+pub mod temporal_reuse;
 pub mod trace;
 
 pub use config::{ConfigReport, parse_config_file, parse_config_source};

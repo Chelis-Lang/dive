@@ -36,3 +36,18 @@ row cap. The artifact has no serialized representation or cross-build identity.
 Its storage and capture overhead pay back when repeated transition generation,
 queueing and identity checks cost more than evaluating the edited predicates.
 Checking temporal properties needs the complete labelled edge relation.
+
+## Temporal property edits
+
+A separate typed API retains Core's complete native CSR with representatives,
+actual concrete generated-target rows, implicit stutters and labels. It records
+the sizes and counters Core observed at each due completed-level boundary.
+Replay borrows the original append-only arrays through each recorded boundary.
+The closed source offsets are final. Every then-unexpanded source has an empty
+outgoing row. The standard CSR checker validates each reconstructed view.
+
+New scalar predicates use the newly bound model's store. Only inline integers
+and Booleans can be read across the store boundary. Once all ordinary periodic
+checks continue, run the ordinary final product, SCC, attribution and independent
+word validation. Any terminal prefix or source-row route defers to fresh checking.
+The complete graph cannot certify the final verdict of a check that stops earlier.
