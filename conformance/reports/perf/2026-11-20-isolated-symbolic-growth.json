@@ -1,0 +1,235 @@
+{
+  "schema": "dive-symbolic-isolated-v1",
+  "corpus": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "host": {
+    "instance": "c7i.metal-24xl",
+    "region": "us-east-1",
+    "ami": "ami-0109d2b556bd3d7e1",
+    "kernel": "7.0.0-1017-aws",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "online_physical_cores": 48,
+    "affinity": "0-15",
+    "memory_node": 0,
+    "smt": false,
+    "turbo": false,
+    "governor": "performance",
+    "min_cpu_khz": 2400000,
+    "max_cpu_khz": 2400000,
+    "memory_limit_bytes": 25769803776,
+    "swap_limit_bytes": 0
+  },
+  "time_limit_seconds": 480,
+  "method": "One cold process per trial, sequential in listed order on one exclusive host. GNU time measures full process wall seconds and peak resident KiB. CPython 3.11, dd 0.6.0 with CUDD. State counts are arbitrary-precision JSON integers; use a lossless reader.",
+  "implementation": "Source exporter and Core binary from e4ab6a13. The four Python files are identified by digest. The measured engine predates the conservative universal-guard restriction merged in #1062. All reported counts, depth, BDD nodes and verdict agree with the merged-source controls.",
+  "sha256": {
+    "dive": "b27d7824226ae41c90bb65da3f329ad9a313f284ea1413ae63c0ff06cff9004d",
+    "symbolic_input": "d750651fb62ef36759dc1f8f41018c2c34dda273a2321ff53a5a0f95f2d717a4",
+    "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+    "check.py": "b56da7035a27925dc3c86958e53594e9796cb1614f9538398a0bfdf6c269751f",
+    "engine.py": "96e218a1e2ea9acbfe2b989eb11ed851963651b72e3c01a4f126d2b6a0604f75",
+    "finite_relation.py": "faa102863f318f71d19a3f9d6a664224418a914de4ffbb0b97d84cffa9098dde",
+    "induction.py": "0c38dc5508bc85f09fdf066acfed9ee0e194851e09c197f3e5b43b189fa89b7e"
+  },
+  "reproduce": "Use the same-host procedure in docs/developer/large-models.md. Run check.py MODULE CFG --type-invariant TypeInvariant (KVS) or TCTypeOK (TCommit) --time-limit 480. Seven and SevenRaw expand the Medium key domain to seven, the latter omits SYMMETRY. check_transaction_commit.py generates the four RM domains.",
+  "rows": [
+    {
+      "config": "Seven",
+      "config_sha256": "faf40431465308881d8bdfea6ccb60b44311a225897863322849e85284438ce2",
+      "distinct": 80269130471718912,
+      "generated": 3618160532973355009,
+      "depth": 42,
+      "reachable_bdd_nodes": 852,
+      "verdict": "success",
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "trials": [
+        {
+          "trial": 1,
+          "wall_seconds": 86.33,
+          "peak_rss_kib": 622636,
+          "checker_seconds": 85.294425
+        },
+        {
+          "trial": 2,
+          "wall_seconds": 85.55,
+          "peak_rss_kib": 619864,
+          "checker_seconds": 85.259071
+        },
+        {
+          "trial": 3,
+          "wall_seconds": 85.6,
+          "peak_rss_kib": 619892,
+          "checker_seconds": 85.323218
+        }
+      ]
+    },
+    {
+      "config": "SevenRaw",
+      "config_sha256": "e981a902569e30b976d092b47ed42700b5aca7b53aecfa56919dc6081526ea83",
+      "distinct": 160538259663421440,
+      "generated": 7236321007066677249,
+      "depth": 42,
+      "reachable_bdd_nodes": 887,
+      "verdict": "success",
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "trials": [
+        {
+          "trial": 1,
+          "wall_seconds": 114.8,
+          "peak_rss_kib": 609464,
+          "checker_seconds": 114.545215
+        },
+        {
+          "trial": 2,
+          "wall_seconds": 116.95,
+          "peak_rss_kib": 609480,
+          "checker_seconds": 116.67635
+        },
+        {
+          "trial": 3,
+          "wall_seconds": 114.15,
+          "peak_rss_kib": 609284,
+          "checker_seconds": 113.889605
+        }
+      ]
+    },
+    {
+      "config": "3",
+      "config_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415",
+      "distinct": 34,
+      "generated": 94,
+      "depth": 7,
+      "reachable_bdd_nodes": 15,
+      "verdict": "success",
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "trials": [
+        {
+          "trial": 1,
+          "wall_seconds": 0.25,
+          "peak_rss_kib": 52700,
+          "checker_seconds": 0.014462
+        },
+        {
+          "trial": 2,
+          "wall_seconds": 0.25,
+          "peak_rss_kib": 52968,
+          "checker_seconds": 0.01391
+        },
+        {
+          "trial": 3,
+          "wall_seconds": 0.25,
+          "peak_rss_kib": 52804,
+          "checker_seconds": 0.014479
+        }
+      ]
+    },
+    {
+      "config": "32",
+      "config_sha256": "2471617a12a723c66fd16ff5f1885b336e375d97d60a94af6ee58dee74721445",
+      "distinct": 1853024483819136,
+      "generated": 59296714762735649,
+      "depth": 65,
+      "reachable_bdd_nodes": 247,
+      "verdict": "success",
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "trials": [
+        {
+          "trial": 1,
+          "wall_seconds": 0.7,
+          "peak_rss_kib": 55324,
+          "checker_seconds": 0.482905
+        },
+        {
+          "trial": 2,
+          "wall_seconds": 0.7,
+          "peak_rss_kib": 54992,
+          "checker_seconds": 0.48667
+        },
+        {
+          "trial": 3,
+          "wall_seconds": 0.75,
+          "peak_rss_kib": 55408,
+          "checker_seconds": 0.48729
+        }
+      ]
+    },
+    {
+      "config": "64",
+      "config_sha256": "5f6e8888706016e281e60a4c6cb5ec54739982698f7a0c093180f68e358dbb85",
+      "distinct": 3433683820310959228731558640896,
+      "generated": 219755764499311094828461047365697,
+      "depth": 129,
+      "reachable_bdd_nodes": 503,
+      "verdict": "success",
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "trials": [
+        {
+          "trial": 1,
+          "wall_seconds": 7.11,
+          "peak_rss_kib": 110532,
+          "checker_seconds": 6.882407
+        },
+        {
+          "trial": 2,
+          "wall_seconds": 7.31,
+          "peak_rss_kib": 110444,
+          "checker_seconds": 7.060137
+        },
+        {
+          "trial": 3,
+          "wall_seconds": 7.11,
+          "peak_rss_kib": 110428,
+          "checker_seconds": 6.849716
+        }
+      ]
+    },
+    {
+      "config": "128",
+      "config_sha256": "1bdc04130e27be9a1f78adb7e40c763fb6e13919e4a42e30ca2d4764a27aa4b4",
+      "distinct": 11790184577738583171521213143779439604141674966883272877308416,
+      "generated": 1509143625950538645954693504332285329268472739786183295129944193,
+      "depth": 257,
+      "reachable_bdd_nodes": 1015,
+      "verdict": "success",
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "trials": [
+        {
+          "trial": 1,
+          "wall_seconds": 152.47,
+          "peak_rss_kib": 323408,
+          "checker_seconds": 152.139813
+        },
+        {
+          "trial": 2,
+          "wall_seconds": 153.27,
+          "peak_rss_kib": 323052,
+          "checker_seconds": 152.930917
+        },
+        {
+          "trial": 3,
+          "wall_seconds": 153.22,
+          "peak_rss_kib": 323436,
+          "checker_seconds": 152.874808
+        }
+      ]
+    }
+  ]
+}
