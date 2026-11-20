@@ -1182,9 +1182,29 @@ def run(args):
             return tuple(map(key, obj)) if isinstance(obj, list) else obj
 
         learned = set(map(key, json.load(sys.stdin)))
+    revisions = [(args.module, args.config), *args.recheck]
+    if args.verify_predicate or args.prove_inductive:
+        for revision in revisions:
+            status = check_in_manager(args, learned, [revision])
+            if status:
+                return status
+        return 0
+    return check_in_manager(args, learned, revisions)
+
+
+def check_in_manager(args, learned, revisions):
+    # Release cyclic Python node wrappers while their native manager is still alive.
+    manager = cudd.BDD(memory_estimate=512 << 20)
+    try:
+        return check_revisions(args, learned, revisions, manager)
+    finally:
+        gc.collect()
+
+
+def check_revisions(args, learned, revisions, manager):
     previous = None
     violated = False
-    for module, config in [(args.module, args.config), *args.recheck]:
+    for module, config in revisions:
         start = time.monotonic()
         exported = run_helper([args.exporter, module, config], "Dive frontend", args.max_memory)
         require(exported.returncode == 0, "Dive frontend: " + exported.stderr.strip())
@@ -1192,7 +1212,7 @@ def run(args):
         model = SourceModel(
             doc,
             args.type_invariant,
-            previous.b if previous is not None else None,
+            manager,
             args.order_by_path,
             args.single_partition,
             learned,
