@@ -121,10 +121,23 @@ impl Program {
         let analysis = analysis.analysis();
         let identity = Identity::new(analysis, cfg)?;
         let ir = Arc::new(dive_ir::lower(analysis).map_err(|e| miss(format!("lowering: {e:?}")))?);
+        if !dive_model::local_java_class_digests(&ir)
+            .map_err(miss)?
+            .is_empty()
+        {
+            return Err(miss("local Java module override"));
+        }
         let mut options = dive_runtime::CheckOptions::dive(0);
         options.store = dive_store::StoreMode::Exact;
         let prepared = core_engine::prepare(&ir, cfg, &options, false, Opts::default(), false)
             .map_err(|r| miss(format!("binding or compilation: {:?}", r.verdict)))?;
+        // The binder installs a supported local class by replacing its IR.
+        // Catch even a class that appeared between the identity read and bind.
+        if !Arc::ptr_eq(&ir, &prepared.model.ir) || prepared.start.has_diagnostics() {
+            return Err(miss(
+                "bound model changed IR or produced startup diagnostics",
+            ));
+        }
         let plan = &prepared.plan;
         if plan.vars.is_empty()
             || plan.effects.any
@@ -261,6 +274,9 @@ impl Program {
             &dive_model::BindOptions::dive(),
         )
         .map_err(|_| miss("independent validation binding failed"))?;
+        if !Arc::ptr_eq(&model.ir, &self.prepared.model.ir) || !model.unsupported.is_empty() {
+            return Err(miss("independent validation changed the bound model"));
+        }
         if !dive_trace::validate_doc(&model, &trace, &self.cfg.model_values)
             .0
             .validation

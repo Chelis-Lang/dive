@@ -231,3 +231,61 @@ fn specification_role_scope_and_non_scalar_rows() {
     let aggregate = program(&source("x' = x", "TRUE").replace("x = 0", "x = <<0>>"), CFG);
     assert!(aggregate.capture(l).is_err());
 }
+
+#[test]
+fn adjacent_override_and_transitive_file_edit_never_reuse_old_rows() {
+    use std::{fs, path::PathBuf};
+
+    struct Files(PathBuf);
+    impl Drop for Files {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.0);
+        }
+    }
+    let files = (0u32..)
+        .find_map(|i| {
+            let p =
+                std::env::temp_dir().join(format!("dive-edit-inputs-{}-{i}", std::process::id()));
+            match fs::create_dir(&p) {
+                Ok(()) => Some(Files(p)),
+                Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => None,
+                Err(e) => panic!("temporary model directory: {e}"),
+            }
+        })
+        .expect("temporary directory");
+    let config = files.0.join("Test.cfg");
+    let spec = files.0.join("Test.tla");
+    let bits = files.0.join("Bits.tla");
+    fs::write(&config, "INIT Init\nNEXT Next\nINVARIANT Inv Dummy\n").expect("cfg");
+    fs::write(&spec,"---- MODULE Test ----\nEXTENDS Naturals, Bits\nVARIABLE x\nGate == And(7,3,0,7)\nDummy == Gate = Gate\nInit == x = 0\nNext == x' = Gate\nInv == x /= 3\n====\n").expect("root");
+    let helper = "---- MODULE Bits ----\nAnd(a,b,c,d) == 99\n====\n";
+    fs::write(&bits, helper).expect("helper");
+    let l = Limits::default();
+    let p = Program::load(&spec, &config).expect("normal binding");
+    let (artifact, result) = p.capture(l).expect("ordinary closure");
+    assert!(matches!(result, Decision::Holds(_)));
+    fs::write(&bits, helper.replace("99", "3")).expect("transitive edit");
+    let edited = Program::load(&spec, &config).expect("edited source");
+    assert!(artifact.recheck(&edited, l).is_err());
+    fs::write(&bits, helper).expect("restore helper");
+    fs::write(
+        files.0.join("Bits.class"),
+        include_bytes!("../../../dive-model/tests/fixtures/bits/Bits.class"),
+    )
+    .expect("local override");
+    assert!(
+        matches!(Program::load(&spec,&config),Err(Miss(reason)) if reason.contains("local Java"))
+    );
+    let req = crate::CheckRequest {
+        file: spec,
+        config: Some(config),
+        store: crate::Store::Exact,
+        seed: Some(0),
+        fp: Some(0),
+        workers: Some(1),
+        ..Default::default()
+    };
+    let fresh = crate::check_file(&req).expect("fresh check").to_json();
+    assert_eq!(fresh["verdict"], "invariant-violation");
+    assert_eq!(fresh["statistics"]["generated"], 2);
+}

@@ -913,6 +913,12 @@ pub(crate) struct Startup {
     startup: Vec<String>,
 }
 
+impl Startup {
+    pub(crate) fn has_diagnostics(&self) -> bool {
+        !self.startup.is_empty() || !self.sym.warnings.is_empty()
+    }
+}
+
 /// The safety result of a core search, as a `dive_runtime::CheckResult`.
 #[allow(
     clippy::too_many_lines,
