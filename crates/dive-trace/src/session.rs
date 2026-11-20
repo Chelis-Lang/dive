@@ -181,7 +181,7 @@ impl Session {
     /// Endpoint descriptors are independently compiled and replayed; no producer
     /// validation flag is authority. This new controlled fresh-session path
     /// supports native source error endpoints and finite behavior, invariant,
-    /// action-property and deadlock words. TLC JSON interpretation retains its
+    /// action-property, deadlock and bad-prefix words. TLC JSON interpretation retains its
     /// existing entrypoints.
     ///
     /// ```no_run
@@ -1213,6 +1213,7 @@ fn finite_word(doc: &TraceDoc) -> bool {
                     | crate::Ending::Invariant(_)
                     | crate::Ending::Property(_)
                     | crate::Ending::Deadlock
+                    | crate::Ending::BadPrefix(_)
             )
         )
 }

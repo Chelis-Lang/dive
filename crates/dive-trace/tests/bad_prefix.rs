@@ -104,3 +104,35 @@ fn the_name_must_be_a_configured_property() {
         Validation::Invalid(f) if f.check == Check::Ending
     ));
 }
+
+#[derive(Debug)]
+struct Continue;
+impl dive_eval::HostControl for Continue {
+    fn check(&self) -> Result<(), dive_eval::Interrupted> {
+        Ok(())
+    }
+}
+
+/// A fresh controlled session reads a bad-prefix word as a finite word.
+#[test]
+fn a_controlled_session_validates_bad_prefixes() {
+    let analysis = dive_sema::analyze_source("Grow.tla", SPEC, &dive_sema::Options::default());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
+    let config = dive_config::parse("SPECIFICATION FairSpec\nPROPERTY StartsBounded\n")
+        .into_config()
+        .expect("config");
+    let session = dive_trace::Session::new(
+        dive_model::Recipe::new(ir, config, dive_eval::Options::dive(), false),
+        None,
+    );
+    let control: Arc<dyn dive_eval::HostControl> = Arc::new(Continue);
+    let read = |n| {
+        session
+            .read_controlled(&prefix(n, "StartsBounded"), Arc::clone(&control))
+            .expect("read")
+            .0
+            .validation
+    };
+    assert_eq!(read(4), Validation::Valid);
+    assert!(matches!(read(3), Validation::Invalid(f) if f.check == Check::Temporal));
+}
