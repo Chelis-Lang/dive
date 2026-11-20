@@ -8,7 +8,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 
 - **Frontier storage.** Use the [100-million-state BPConProof comparison](#high-fanout-parallel-safety) to size scratch. After reducing the cost per frontier row, measure predecessor and membership growth independently at the same discovery count.
 - **Symbolic checking.** Keep Base and QuarantineEqualsProposer as [exact sparse-message controls](#reproduce-the-released-paxoslease-runs). Compare alternative BDD orders on Retry using reachable intermediate sizes, then cross-check a completed result against both explicit runs.
-- **Published scale.** The [original SlateDB WAL configuration](#reproduce-the-released-slatedb-wal-model) provides a public 49-billion-state target. Use the smaller writer/restart comparisons to select an approach before allocating for the full run. The EmergencyCall 10.59-billion case still needs the original unconstrained configuration.
+- **Published scale.** The [original SlateDB WAL configuration](#reproduce-the-released-slatedb-wal-model) provides a public 49-billion-state target. Prototype partitioned fingerprint membership that admits each worker batch in source order. Compare it to the five-million-state resident prefix before allocating for the full run. Use the completed two-writer model for a full-count comparison and small exact-state runs for collision controls. The EmergencyCall 10.59-billion case still needs the original unconstrained configuration.
 - **Remaining work.** The [thirteen original outcomes](#where-the-thirteen-historical-non-finishes-stand) identify each memory or feature limit. Kafka still needs bounded lowering of repeated scoped fairness predicates. The all-17-model temporal worker comparison belongs at the integrated qualification boundary. Use [Sail’s measured edit cases](#which-evidence-can-decide-a-source-edit) as regression controls when changing proof reuse.
 
 ## Results on KeyValueStore
@@ -422,6 +422,25 @@ Use the pinned `slatedb/SlateDBWAL.tla` and `SlateDBWAL.cfg`. All runs retain th
 | 3 / 2 / 1 | TLC | last progress before timeout | 12,422,969 | 41,624,289 | 45 | 180.16 |
 
 Restarts raised the completed two-writer graph from 74,637 to 3,761,377 distinct states. Adding a third writer with restarts disabled raised it to 30,114,878. A separate completed TLC run matched Core’s 117,007,147 generated, depth 114 and empty queue for that configuration. The three-writer, one-restart original remained open at the 180 s cutoff. Holding just one packed 64-bit fingerprint for each of the reported 49 billion states would occupy about 365 GiB before table overhead, predecessor records and the frontier. Under an independent uniform 64-bit hash assumption, that many distinct states would yield about 65 colliding pairs in expectation. An exact-state or symbolic control is important at this scale. [Configuration edits, input hashes and all measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
+#### Worker count and storage on the original configuration
+
+Eight Core runs on one isolated r7i.16xlarge stopped at exactly 5,000,000 distinct states. All eight generated 16,458,236 states, reached depth 41 and left 1,043,043 queued. Each row gives the median of two fresh processes with one logical CPU per physical core. Bytes written are cumulative per run.
+
+| Workers | Storage | Wall, s | Peak RSS, MiB | Spill bytes written |
+|---:|---|---:|---:|---:|
+| 8 | Resident | 20.72 | 714 | 0 |
+| 32 | Resident | 10.91 | 1,183 | 0 |
+| 8 | Only predecessors on disk | 25.18 | 701 | 80,000,024 |
+| 8 | Only frontier on disk, handle rows | 63.10 | 347 | 1,840,000,656 |
+
+At this prefix, four times as many workers gave 1.90× the throughput and used 66% more peak RAM. Spilling predecessors saved 13 MiB. Spilling the frontier saved 367 MiB at a cost of about three times the elapsed time. The two spill settings ran separately at eight workers. These figures apply to the ordinary handle frontier. The independent compressed frontier has a separate [BPConProof comparison](#high-fanout-parallel-safety).
+
+The WAL specification has 19 state variables. Each resident queue row in this safety search holds 19 eight-byte handles and an eight-byte discovery ID, or 160 bytes. The 1,043,043 pending rows alone represent about 159 MiB of payload. BFS retains space for the current and next levels, including slots for parents already expanded during the current level. By comparison, Core reported about 2 MiB of measured retained value-store memory in both resident worker configurations. Many frontier rows therefore share underlying values while still paying for every handle in every row. [Queue implementation](../../crates/dive-explore/src/lib.rs) · [Handle representation](../../crates/dive-core/src/handle.rs).
+
+For the full target, membership capacity changes the choice of machine. With 49 billion uniformly distributed fingerprints, the resident table's 256 shards would each require 2²⁸ eight-byte slots under the 75% growth threshold, or 512 GiB for slots alone. On a 64-bit host the packed resident parent log adds at least 57 GiB for one byte per discovery and one 16-byte index entry per 64 discoveries. The fixed-width disk parent log would write 784 GB at that count. These are size calculations. The live frontier, resize peaks and worker allocations add to the resident requirement. The existing disk membership path runs on one worker and caps a store at 4,294,967,295 entries. A route to 49 billion needs capacity across partitions or a larger index, plus a scalable final fingerprint-gap calculation when the TLC profile requests one. [Fingerprint table](../../crates/dive-explore/src/lib.rs) · [Packed parents](../../crates/dive-store/src/predecessor/packed.rs) · [Disk membership limits](../user/disk-seen-safety.md).
+
+Reducing only `Values` from two values to one kept the three writers, one restart, symmetry and all six invariants. On the same machine, 32 resident workers reached **208,042,815 distinct states** and 901,441,896 generated at depth 88 in 480.08 s, peaking at 7.80 GiB RSS. The time limit stopped the run with 4,089,873 states queued. This gives a lower bound for the one-value configuration. It provides neither a completed count nor a safety verdict for either configuration. [Individual runs and reproduction settings](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
 ### Reproduce the released PaxosLease runs
 
