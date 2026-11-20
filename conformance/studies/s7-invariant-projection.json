@@ -10,31 +10,31 @@
   "model": "specifications/lamport_mutex/MCLamportMutex",
   "edit": "INVARIANTS TypeOK BoundedNetwork Mutex -> INVARIANTS TypeOK Mutex",
   "samples": {
-    "capture_elapsed_us": 9732884,
-    "capture_bind_us": 4096,
-    "original_fresh_us": 9870399,
+    "capture_elapsed_us": 9799144,
+    "capture_bind_us": 4014,
+    "original_fresh_us": 10007903,
     "edited_fresh_us": [
-      10245353,
-      10313169,
-      9207427
+      9205297,
+      9251098,
+      10164710
     ],
     "edited_load_and_project_us": [
-      3593,
-      14088,
-      3240
+      3617,
+      3308,
+      3161
     ],
     "proof_comparison_us": [
       4,
-      5,
-      3
+      3,
+      2
     ],
     "fresh_process_bind_both_and_attest_relation_us": [
-      9136,
-      8038,
-      7735
+      9882,
+      9777,
+      9515
     ],
-    "capture_and_project_process_peak_kib": 236928,
-    "fresh_series_process_peak_kib": 238864,
+    "capture_and_project_process_peak_kib": 236952,
+    "fresh_series_process_peak_kib": 239044,
     "statistics": {
       "depth": 61,
       "distinct": 724274,
@@ -76,5 +76,50 @@
       "initial_generated": 1,
       "left_on_queue": 0
     }
+  },
+  "prior_qualification_file_api_default_memory": {
+    "capture_elapsed_us": 9732884,
+    "capture_bind_us": 4096,
+    "original_fresh_us": 9870399,
+    "edited_fresh_us": [
+      10245353,
+      10313169,
+      9207427
+    ],
+    "edited_load_and_project_us": [
+      3593,
+      14088,
+      3240
+    ],
+    "proof_comparison_us": [
+      4,
+      5,
+      3
+    ],
+    "fresh_process_bind_both_and_attest_relation_us": [
+      9136,
+      8038,
+      7735
+    ],
+    "capture_and_project_process_peak_kib": 236928,
+    "fresh_series_process_peak_kib": 238864,
+    "statistics": {
+      "depth": 61,
+      "distinct": 724274,
+      "generated": 2729079,
+      "initial_generated": 1,
+      "left_on_queue": 0
+    }
+  },
+  "policy": {
+    "profile": "Dive",
+    "workers": 1,
+    "store": "exact",
+    "seed": 0,
+    "fingerprint": 0,
+    "wall_deadline": "none in both arms",
+    "process_memory_budget": "unlimited in both arms",
+    "max_states": null,
+    "max_depth": null
   }
 }

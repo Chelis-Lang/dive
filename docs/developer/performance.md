@@ -1072,17 +1072,17 @@ sets require no decoding when the only change removes a proved obligation.
 
 | Operation | Wall time |
 | --- | ---: |
-| Original exact capture, one observation | 9.733 s |
-| Original ordinary fresh check, one observation | 9.870 s |
-| Edited ordinary fresh check, median of three | 10.245 s |
-| Bind edited input and project the previous proof, median of three | 3.593 ms |
-| Compare the already-bound proof inputs, median of three | 4 µs |
-| Start a new process, bind both inputs, and attest their relation, median of three | 8.038 ms |
+| Original exact capture, one observation | 9.799 s |
+| Original ordinary fresh check, one observation | 10.008 s |
+| Edited ordinary fresh check, median of three | 9.251 s |
+| Bind edited input and project the previous proof, median of three | 3.308 ms |
+| Compare the already-bound proof inputs, median of three | 3 µs |
+| Start a new process, bind both inputs, and attest their relation, median of three | 9.777 ms |
 
-The complete in-process decision improved by roughly 2,850× over repeating
+Both arms use unlimited process memory and wall budgets. The complete in-process decision improved by roughly 2,797× over repeating
 the edited check. The last row checks the input relation alone. A service must
 authenticate the previous complete result separately. Four-revision process
-peak RSS was 231.4 MiB with projection and 233.3 MiB with fresh checking.
+peak RSS was 231.4 MiB with projection and 233.4 MiB with fresh checking.
 The [samples](../../conformance/studies/s7-invariant-projection.json) include
 individual observations, CPU/build settings and the earlier qualification run.
 
@@ -1138,14 +1138,14 @@ ordinary exact Core, including the complete serialized witness with current acti
 
 | Model and edit | Original capture | Original fresh | Edited recheck | Edited fresh |
 | --- | ---: | ---: | ---: | ---: |
-| Star, late refutation, 200,002 states/400,001 generated | 127.87 ms | 107.14 ms | 7.57 ms | 102.30 ms |
-| Star, completed closure, 200,002 states/400,002 generated | 117.56 ms | 101.21 ms | 7.32 ms | 100.27 ms |
-| DieHard, late refutation, 14 states/73 generated | 2.34 ms | 1.72 ms | 1.39 ms | 1.27 ms |
+| Star, late refutation, 200,002 states/400,001 generated | 135.21 ms | 109.09 ms | 7.42 ms | 103.22 ms |
+| Star, completed closure, 200,002 states/400,002 generated | 123.80 ms | 105.78 ms | 7.41 ms | 104.21 ms |
+| DieHard, late refutation, 14 states/73 generated | 2.33 ms | 1.58 ms | 1.45 ms | 1.14 ms |
 
 Edited times are medians of three wall-clock observations including the
 current bind, witness validation when applicable and report construction.
-Original times are single observations. The star's edited refutation takes
-13.5× less time than a fresh check and the edited closure takes 13.7× less.
+Both arms use unlimited process memory and wall budgets. Original times are single observations. The star's edited refutation takes
+13.9× less time than a fresh check and the edited closure takes 14.1× less.
 For DieHard, binding dominates and the full recheck takes longer than fresh.
 The benchmark times each revision inside one process, excluding process
 launch and writing its JSON to stdout. The stored [individual
@@ -1170,22 +1170,22 @@ edits. The benchmark compares the entire typed result exported by the example,
 including ordinary counters, number of scheduled prefix analyses and every
 field of a reported lasso. These runs use one pinned Linux CPU on an AMD
 Ryzen AI MAX+ 395, Rust 1.99.0, one Core worker and its default completed-level
-schedule. The measurements include current binding, analysis, independent word
+schedule. Both arms use unlimited process memory and wall budgets. The measurements include current binding, analysis, independent word
 validation when applicable and report construction.
 
 | Edited outcome | Distinct / generated | Prefix checks | Recheck | Fresh | Capture process peak / fresh peak |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Star, both properties hold | 20,001 / 40,001 | 0 | 2.84 ms | 12.53 ms | 17.7 / 19.2 MiB |
-| Star, both false on the reported word | 20,001 / 40,001 | 0 | 2.77 ms | 14.38 ms | 17.8 / 19.8 MiB |
-| Binary tree, both hold | 131,071 / 196,607 | 1 | 20.93 ms | 105.04 ms | 59.3 / 64.3 MiB |
-| Binary tree, both hold | 262,143 / 393,215 | 2 | 46.19 ms | 252.09 ms | 111.4 / 113.8 MiB |
-| DieHard with added temporal obligations | 16 / 97 | 0 | 1.81 ms | 1.88 ms | 11.9 / 11.7 MiB |
+| Star, both properties hold | 20,001 / 40,001 | 0 | 2.74 ms | 12.30 ms | 18.0 / 19.0 MiB |
+| Star, both false on the reported word | 20,001 / 40,001 | 0 | 2.68 ms | 13.38 ms | 18.2 / 19.6 MiB |
+| Binary tree, both hold | 131,071 / 196,607 | 1 | 21.00 ms | 108.55 ms | 60.9 / 64.5 MiB |
+| Binary tree, both hold | 262,143 / 393,215 | 2 | 47.50 ms | 246.43 ms | 112.5 / 115.2 MiB |
+| DieHard with added temporal obligations | 16 / 97 | 0 | 1.71 ms | 1.74 ms | 12.0 / 11.6 MiB |
 
 Times are medians of three edited revisions in the same process. Each peak RSS
 covers a four-revision process including its original run. The larger tree's
-original capture took 273.90 ms versus 265.06 ms fresh. Its two scheduled
+original capture took 280.18 ms versus 316.83 ms fresh. Its two scheduled
 prefix analyses and final product still run on every edit. Reusing transition
-generation and graph construction reduced the edited wall time by 5.46×.
+generation and graph construction reduced the edited wall time by 5.19×.
 The [samples](../../conformance/studies/edited-temporal-recheck.json) include
 the smaller star, all original runs, and separate bind and analysis timings.
 
