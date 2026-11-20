@@ -872,6 +872,110 @@
           "reused": false
         }
       ]
+    },
+    "installed_candidate": {
+      "host": "Dedicated EC2 c7i.4xlarge, us-east-1a, search pinned to physical CPU 0, no swap. Single ordered invocation per case, small validation checks on other cores. Earlier installed candidate before trace-file and manager lifetime fixes. Per-revision seconds are reported by the checker; native GNU time and peak RSS apply to complete invocations only.",
+      "hashes": {
+        "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+        "libexec/dive-symbolic/engine.py": "92f68153b49cbb34701c40b7510b31aa937d94a79acadf29ba7d56ac3009c682",
+        "libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+        "spec/PaxosLease.tla": "3ac9f462afc48698eac87519530abc227c9f47d44d305bed31104543e3c6ca1a",
+        "spec/PaxosLeaseBase.cfg": "03f0be6f3ae3faa879415477994958e480fdb88d7186f4dd9fc4f0577235c711",
+        "spec/PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+        "spec/PaxosLeaseQuarantineEqualsProposer.cfg": "5f69288c3b80cbab777da4aa4f573fd9e8e42527ce77297e29adf192a2c804f2",
+        "spec/PaxosLeaseRetry.cfg": "3df08aeb5bd1771b0ed045e8436fad72dba04371c86240b265e1107841a351d7"
+      },
+      "command": "dive check PaxosLeaseChecked.tla --config FIRST --strategy symbolic --type-invariant TypeOK --refine-domains --time-limit 2400s --max-memory 6g --output json; session adds --recheck PaxosLeaseChecked.tla PaxosLeaseBase.cfg --recheck PaxosLeaseChecked.tla PaxosLeaseQuarantineEqualsProposer.cfg",
+      "cold_quarantine": {
+        "metrics": {
+          "wall_s": 482.1,
+          "peak_rss_kib": 1192284
+        },
+        "row": {
+          "verdict": "success",
+          "distinct": 76749192,
+          "generated": 391849185,
+          "depth": 43,
+          "reused": false,
+          "reachable_bdd_nodes": 630485,
+          "invariants": [
+            "TypeOK",
+            "Safety"
+          ],
+          "format": "dive-symbolic-report-v1",
+          "module": "spec/PaxosLeaseChecked.tla",
+          "config": "spec/PaxosLeaseQuarantineEqualsProposer.cfg",
+          "seconds": 481.880654,
+          "refinement_rounds": 11,
+          "learned_members": 80,
+          "initial_hint_members": 0
+        }
+      },
+      "base_then_base_then_quarantine": {
+        "metrics": {
+          "wall_s": 623.08,
+          "peak_rss_kib": 753728
+        },
+        "rows": [
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "invariants": [
+              "TypeOK",
+              "Safety"
+            ],
+            "format": "dive-symbolic-report-v1",
+            "module": "spec/PaxosLeaseChecked.tla",
+            "config": "spec/PaxosLeaseBase.cfg",
+            "seconds": 61.320373,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "invariants": [
+              "TypeOK",
+              "Safety"
+            ],
+            "format": "dive-symbolic-report-v1",
+            "module": "spec/PaxosLeaseChecked.tla",
+            "config": "spec/PaxosLeaseBase.cfg",
+            "seconds": 40.698494,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 706609,
+            "invariants": [
+              "TypeOK",
+              "Safety"
+            ],
+            "format": "dive-symbolic-report-v1",
+            "module": "spec/PaxosLeaseChecked.tla",
+            "config": "spec/PaxosLeaseQuarantineEqualsProposer.cfg",
+            "seconds": 520.864801,
+            "refinement_rounds": 3,
+            "learned_members": 104,
+            "initial_hint_members": 92
+          }
+        ]
+      }
     }
   }
 }
