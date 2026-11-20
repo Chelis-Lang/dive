@@ -1061,39 +1061,6 @@ profiling binaries frozen before the matrix. Raw artifacts remain external;
 the campaign instance, root volume, bucket and security group were independently
 verified removed after preserving all original objects.
 
-## Assumption control and interval context cursors, 2026-10-23
-
-Controlled producer `ASSUME` evaluation now uses the existing cooperative run
-budget. Primitive interval contexts avoid a bulk domain vector while retaining
-the original size checks and binding order. Eight loop controls stopped during
-startup with their earlier output retained; four scalar false/error controls kept
-their original classes. At compiled source `1ba776da`, the full gate passed
-2,308 tests and all 13 phases, with the existing 150 TLC-profile and 144
-default-profile agreements unchanged.
-
-The complete eight-pair instruction screen kept all reported state, depth and
-queue counters identical and every pair within the 1% overhead limit
-(geometric mean −0.5968%). This qualifies the capacity change; it establishes no wall-clock or throughput milestone.
-Structural, quiet/native/bulk and independent-validation exclusions remain.
-The [compact record](../internal/survey/data/assumption-control-overhead-2026-10-23.json)
-distinguishes the compiled source from its later delivery, retains both earlier
-setup HOLDs, and records preservation plus independent resource cleanup.
-
-## Native source observation: disabled-path diagnostic
-
-The source-work feature adds no counter storage, callback or atomic update to
-ordinary unobserved evaluators. Its optional branch sits in the existing
-non-inlined dispatch. A focused optimized scalar-evaluator diagnostic compared
-observation-disabled source against `a86a1531`, with five matched pairs in each
-semantic profile. Median candidate/base runtime was 0.98547 default and 1.02107
-TLC. Three of five TLC pairs exceeded 1.02; the other two were about 0.96.
-The shared host was not quiet-certified, so causality and the <=1% inactive
-observation target remain unproved. This is not stock-TLC throughput, a benchmark
-panel acceptance or qualification of a later rebased source. The compact
-[record](../../conformance/reports/perf/2026-11-03-native-source-observation.json)
-binds actual ELF/patch/input identities and verified external archive. No
-rescue/repetition or broad performance claim follows from these rows.
-
 ## Removing BoundedNetwork from MCLamportMutex
 
 The S7 edit removes `BoundedNetwork` from `TypeOK BoundedNetwork Mutex` in
@@ -1129,3 +1096,36 @@ python3 scripts/bench-project-invariants.py target/release/examples/project_inva
 The script checks all five counters and the verdict on every fresh and projected
 revision. Use the examples checkout from `conformance/corpora.toml`. GNU time
 is optional and supplies process RSS on Linux.
+
+## Assumption control and interval context cursors, 2026-10-23
+
+Controlled producer `ASSUME` evaluation now uses the existing cooperative run
+budget. Primitive interval contexts avoid a bulk domain vector while retaining
+the original size checks and binding order. Eight loop controls stopped during
+startup with their earlier output retained; four scalar false/error controls kept
+their original classes. At compiled source `1ba776da`, the full gate passed
+2,308 tests and all 13 phases, with the existing 150 TLC-profile and 144
+default-profile agreements unchanged.
+
+The complete eight-pair instruction screen kept all reported state, depth and
+queue counters identical and every pair within the 1% overhead limit
+(geometric mean −0.5968%). This qualifies the capacity change; it establishes no wall-clock or throughput milestone.
+Structural, quiet/native/bulk and independent-validation exclusions remain.
+The [compact record](../internal/survey/data/assumption-control-overhead-2026-10-23.json)
+distinguishes the compiled source from its later delivery, retains both earlier
+setup HOLDs, and records preservation plus independent resource cleanup.
+
+## Native source observation: disabled-path diagnostic
+
+The source-work feature adds no counter storage, callback or atomic update to
+ordinary unobserved evaluators. Its optional branch sits in the existing
+non-inlined dispatch. A focused optimized scalar-evaluator diagnostic compared
+observation-disabled source against `a86a1531`, with five matched pairs in each
+semantic profile. Median candidate/base runtime was 0.98547 default and 1.02107
+TLC. Three of five TLC pairs exceeded 1.02; the other two were about 0.96.
+The shared host was not quiet-certified, so causality and the <=1% inactive
+observation target remain unproved. This is not stock-TLC throughput, a benchmark
+panel acceptance or qualification of a later rebased source. The compact
+[record](../../conformance/reports/perf/2026-11-03-native-source-observation.json)
+binds actual ELF/patch/input identities and verified external archive. No
+rescue/repetition or broad performance claim follows from these rows.

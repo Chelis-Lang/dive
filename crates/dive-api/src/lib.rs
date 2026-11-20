@@ -59,9 +59,10 @@ pub use translate::{
     translate_source,
 };
 
+pub mod safety_projection;
+
 pub mod debug;
 pub mod diagnostics;
-pub mod safety_projection;
 pub mod temporal;
 pub mod trace;
 
