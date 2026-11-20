@@ -13,7 +13,7 @@ use dive_explore::graph::{GraphSink, SourceRow, Step, Stopped};
 use dive_liveness::analyze::AnalysisError;
 use dive_runtime::budget::{EvaluationControl, Phase};
 use dive_runtime::capture::{
-    CsrActions, CsrCaptureColumns, CsrOrdinals, Limits, MAX_EXPANSION_UNITS,
+    CsrActions, CsrEdgeRows, CsrOrdinals, CsrStorage, Limits, MAX_EXPANSION_UNITS,
 };
 use dive_runtime::{CheckOptions, Stats, Verdict};
 
@@ -143,6 +143,58 @@ impl ActionIds {
     }
 }
 
+#[derive(Default)]
+struct OriginalRows {
+    directory: Vec<usize>,
+    rows: Vec<u32>,
+}
+
+impl OriginalRows {
+    fn view(&self, edges: usize) -> CsrEdgeRows<'_> {
+        CsrEdgeRows::Blocks {
+            edges,
+            directory: &self.directory,
+            rows: &self.rows,
+        }
+    }
+
+    fn append(
+        &mut self,
+        targets: &[u32],
+        representatives: &[u32],
+        target: u32,
+        original: u32,
+        memory: &mut NativeMemory,
+        control: &EvaluationControl,
+    ) -> Result<(), Verdict> {
+        let position = targets.len() % CsrEdgeRows::BLOCK;
+        if position == 0 {
+            let previous = self.directory.last().copied().unwrap_or(0);
+            reserve(&mut self.directory, 1, memory, control)?;
+            self.directory.push(previous);
+        }
+        // Every previous explicit block is full. A partial explicit block is the current one.
+        if self.rows.len().is_multiple_of(CsrEdgeRows::BLOCK) {
+            if original == representatives[target as usize] {
+                return Ok(());
+            }
+            // Only this block's earlier entries need materialization. Until now
+            // every one used its destination's first-discovery original.
+            reserve(&mut self.rows, CsrEdgeRows::BLOCK, memory, control)?;
+            for &to in &targets[targets.len() - position..] {
+                self.rows.push(representatives[to as usize]);
+            }
+            let end = self
+                .directory
+                .last_mut()
+                .ok_or_else(|| bug("missing native original row block"))?;
+            *end += 1;
+        }
+        self.rows.push(original);
+        Ok(())
+    }
+}
+
 /// Persistent exact originals and one CSR, kept alive through analysis.
 pub(crate) struct NativeGraph {
     store: Arc<Store>,
@@ -155,7 +207,7 @@ pub(crate) struct NativeGraph {
     ordinals: Vec<u16>,
     large_ordinals: Vec<(usize, u64)>,
     actions: ActionIds,
-    edge_rows: Vec<u32>,
+    edge_rows: OriginalRows,
     roots: Vec<usize>,
     action_labels: Vec<String>,
     closed_rows: usize,
@@ -168,13 +220,13 @@ impl NativeGraph {
         Arc::ptr_eq(&self.store, store)
     }
 
-    pub(crate) fn input(&self) -> CsrCaptureColumns<'_> {
-        CsrCaptureColumns {
+    pub(crate) fn input(&self) -> CsrStorage<'_> {
+        CsrStorage {
             offsets: &self.offsets,
             targets: &self.targets,
             ordinals: CsrOrdinals::Compact(&self.ordinals, &self.large_ordinals),
             actions: self.actions.view(),
-            edge_rows: &self.edge_rows,
+            edge_rows: self.edge_rows.view(self.targets.len()),
             representatives: &self.representatives,
             roots: &self.roots,
             action_labels: &self.action_labels,
@@ -248,8 +300,7 @@ impl NativeGraph {
         if ordinal.is_some_and(|n| n >= u64::from(CsrOrdinals::EXTENDED)) {
             reserve(&mut self.large_ordinals, 1, &mut self.memory, control)?;
         }
-        self.actions.reserve(&mut self.memory, control)?;
-        reserve(&mut self.edge_rows, 1, &mut self.memory, control)
+        self.actions.reserve(&mut self.memory, control)
     }
 
     fn push_edge(
@@ -258,7 +309,16 @@ impl NativeGraph {
         ordinal: Option<u64>,
         action: Option<u32>,
         row: u32,
+        control: &EvaluationControl,
     ) -> Result<(), Verdict> {
+        self.edge_rows.append(
+            &self.targets,
+            &self.representatives,
+            to,
+            row,
+            &mut self.memory,
+            control,
+        )?;
         self.actions.push(action)?;
         self.targets.push(to);
         let entry = match ordinal {
@@ -272,7 +332,6 @@ impl NativeGraph {
             },
         };
         self.ordinals.push(entry);
-        self.edge_rows.push(row);
         Ok(())
     }
 }
@@ -320,7 +379,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             ordinals: Vec::new(),
             large_ordinals: Vec::new(),
             actions: ActionIds::for_labels(model.actions.len()),
-            edge_rows: Vec::new(),
+            edge_rows: OriginalRows::default(),
             roots: Vec::new(),
             action_labels: Vec::new(),
             closed_rows: 0,
@@ -548,7 +607,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
         if parent.is_some() {
             self.graph.reserve_edge(Some(step.ordinal), &self.control)?;
             self.graph
-                .push_edge(target, Some(step.ordinal), action, original)?;
+                .push_edge(target, Some(step.ordinal), action, original, &self.control)?;
         } else {
             if self.graph.closed_rows != 0 || !self.graph.targets.is_empty() {
                 return Err(bug("native root emitted after source expansion"));
@@ -606,7 +665,8 @@ impl GraphSink for NativeSink<'_, '_> {
                 .get(source as usize)
                 .ok_or_else(|| bug("native stutter source not discovered"))?;
             self.graph.reserve_edge(None, &self.control)?;
-            self.graph.push_edge(source, None, None, row)?;
+            self.graph
+                .push_edge(source, None, None, row, &self.control)?;
             self.graph.closed_rows += 1;
             self.graph.offsets[self.graph.closed_rows] = self.graph.targets.len();
             Ok(())
@@ -661,7 +721,12 @@ impl GraphSink for NativeSink<'_, '_> {
             let mut targets = Vec::new();
             for index in start..self.graph.targets.len() {
                 if self.graph.ordinals[index] != u16::MAX {
-                    let retained = self.graph.edge_rows[index] as usize;
+                    let retained = self
+                        .graph
+                        .input()
+                        .edge_row(index)
+                        .ok_or_else(|| bug("native source row original"))?
+                        as usize;
                     targets.try_reserve(1).map_err(|_| Verdict::ResourceLimit {
                         message: "native source-row targets allocation".into(),
                     })?;

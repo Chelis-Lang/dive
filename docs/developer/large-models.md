@@ -277,6 +277,22 @@ Core retains one action ID per edge so it can distinguish named transitions duri
 
 Both binaries already used narrow successor ordinals. The two rotations per binary agreed on every search counter within each model. Under the same 2 GiB sampled process limit, c1cs reached 2,644,879 distinct and 56,343,707 generated before, and 3,130,942 distinct and 65,470,460 generated after. Both stopped with a nonempty queue. The configuration with more transitions per state sees the bigger gain because each retained edge saves seven bytes. [Individual readings, terminal statistics, machine and hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+The native graph also stores original row IDs in blocks of 256 physical edges.
+A block initially uses the representative row of each destination. On the first
+edge whose persistent original differs, Core records explicit IDs for that
+block, including its earlier edges. Seen aliases, generated self-loops and
+synthetic stutters retain their original identities. The directory costs one
+machine word per block. Each explicit entry costs four bytes.
+
+| Two-million-state prefix | Retained original rows | Collector capacity, dense / blocks | Mean peak RSS, dense / blocks | Mean wall seconds, dense / blocks |
+|---|---:|---:|---:|---:|
+| BlockingQueuePoisonApple | 2,000,400 | 176 / 144 MiB | 560 / 539 MiB | 17.74 / 16.38 |
+| c1cs | 2,000,000 | 808 / 554 MiB | 1,227 / 1,071 MiB | 78.67 / 78.68 |
+
+Two trials per binary on the same eight physical cores produced identical
+counts, queue sizes and depths at each prefix. The dense control already used
+byte action IDs and compact ordinals. [Inputs, individual timings and collector capacities](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same
