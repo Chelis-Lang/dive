@@ -633,6 +633,90 @@
       "existing_disk_seen_entry_limit": 4294967295
     }
   },
+  "symmetry_comparisons": {
+    "platform": "Isolated r7i.16xlarge, us-east-1a, 64 GiB cgroup, no swap. First N physical cores, one logical CPU each. Sequential fresh processes, order as listed.",
+    "kernel": "7.0.0-1018-aws",
+    "hashes": {
+      "dive-base": "f6204336c2b5842e8e66a6e2e5bc17f29777dd2bc67ed17e65ecc2a5107cee9f",
+      "dive-symmetry": "58106d4f57356196e33dbc24f20a0396db18a0f470e5071949ac9b503f41f29e",
+      "spec/SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c"
+    },
+    "command": "dive check spec/SlateDBWAL.tla --config spec/SlateDBWAL.cfg --library-path modules --workers N --compat=tlc --fp 0 --seed 0 --max-states 5000000 --output json",
+    "control": "Cargo --release --locked, baseline with per-comparison allocations and candidate with borrowed comparison plus reusable row storage, same compiler and profile. All cells exited 5 at the states limit.",
+    "matching_statistics": {
+      "depth": 41,
+      "distinct": 5000000,
+      "exhaustive": false,
+      "generated": 16458236,
+      "initial_generated": 1,
+      "left_on_queue": 1043043,
+      "reported_by_tlc": false
+    },
+    "rows": [
+      {
+        "cell": "8-base1",
+        "wall_seconds": 19.96,
+        "peak_rss_kib": 741384
+      },
+      {
+        "cell": "8-symmetry1",
+        "wall_seconds": 17.93,
+        "peak_rss_kib": 729968
+      },
+      {
+        "cell": "8-symmetry2",
+        "wall_seconds": 17.9,
+        "peak_rss_kib": 739140
+      },
+      {
+        "cell": "8-base2",
+        "wall_seconds": 19.97,
+        "peak_rss_kib": 722360
+      },
+      {
+        "cell": "8-base3",
+        "wall_seconds": 20.23,
+        "peak_rss_kib": 721588
+      },
+      {
+        "cell": "8-symmetry3",
+        "wall_seconds": 17.92,
+        "peak_rss_kib": 726564
+      },
+      {
+        "cell": "32-base1",
+        "wall_seconds": 10.11,
+        "peak_rss_kib": 1203520
+      },
+      {
+        "cell": "32-symmetry1",
+        "wall_seconds": 9.65,
+        "peak_rss_kib": 1200000
+      },
+      {
+        "cell": "32-symmetry2",
+        "wall_seconds": 9.62,
+        "peak_rss_kib": 1232480
+      },
+      {
+        "cell": "32-base2",
+        "wall_seconds": 10.12,
+        "peak_rss_kib": 1177044
+      },
+      {
+        "cell": "32-base3",
+        "wall_seconds": 10.17,
+        "peak_rss_kib": 1196656
+      },
+      {
+        "cell": "32-symmetry3",
+        "wall_seconds": 9.62,
+        "peak_rss_kib": 1218888
+      }
+    ],
+    "profile": "Separate isolated c7i.4xlarge on eight physical cores: system-wide perf cpu-clock at 199 Hz, filtered to dive-base. Self samples: Symmetry::canonical_from 10.18%, Heap::view 8.07%, symmetry::tlc_cmp 5.56%, _mi_page_malloc_zero 3.84%, mi_free 2.88%."
+  },
   "external_fingerprint_membership": {
     "input": "Original unmodified module and two-value configuration pinned above. Same fingerprint scheme both storage modes.",
     "ordered_trace_prototype": {

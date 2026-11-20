@@ -99,6 +99,8 @@ are in git history.
 
 ### Performance
 
+- Symmetry reduction compares nested function and set values without copying their contents. On the [SlateDB WAL comparison](docs/developer/large-models.md#symmetry-comparison-costs) this reduced eight-worker elapsed time by 10%.
+
 - The finite symbolic checker supports string-valued fields and grouped bounded
   quantifiers in state predicates, including the original TCommit safety model.
 

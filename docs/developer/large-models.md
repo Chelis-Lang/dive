@@ -423,6 +423,10 @@ Use the pinned `slatedb/SlateDBWAL.tla` and `SlateDBWAL.cfg`. All runs retain th
 
 Restarts raised the completed two-writer graph from 74,637 to 3,761,377 distinct states. Adding a third writer with restarts disabled raised it to 30,114,878. A separate completed TLC run matched Core’s 117,007,147 generated, depth 114 and empty queue for that configuration. The three-writer, one-restart original remained open at the 180 s cutoff. Holding just one packed 64-bit fingerprint for each of the reported 49 billion states would occupy about 365 GiB before table overhead, predecessor records and the frontier. Under an independent uniform 64-bit hash assumption, that many distinct states would yield about 65 colliding pairs in expectation. An exact-state or symbolic control is important at this scale. [Configuration edits, input hashes and all measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
+#### Symmetry comparison costs
+
+A SlateDB successor changes a subset of 19 variables. Selecting its symmetry representative can compare the same function domains and nested values many times. Core now compares borrowed slices and stops reading at the first differing entry. It also reuses per-worker buffers for competing images. On the original configuration at five million discoveries, the three-run median fell from 19.97 to 17.92 s at eight physical cores, and from 10.12 to 9.62 s at 32. All twelve terminal reports agreed on counts, depth and pending queue. [Individual runs, profile and binary identities](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
 #### Worker count and storage on the original configuration
 
 Eight Core runs on one isolated r7i.16xlarge stopped at exactly 5,000,000 distinct states. All eight generated 16,458,236 states, reached depth 41 and left 1,043,043 queued. Each row gives the median of two fresh processes with one logical CPU per physical core. Bytes written are cumulative per run.
