@@ -53,7 +53,7 @@
       30,
       31
     ],
-    "affinity": "First eight listed physical CPU IDs for Base and QuarantineEqualsProposer; all 32 for Retry. Guest default clock and turbo. One fresh process per cell.",
+    "affinity": "First eight listed physical CPU IDs for Base and QuarantineEqualsProposer; all 32 for Retry and RenewRetry. Guest default clock and turbo. One fresh process per cell.",
     "memory_cgroup_gib": 448,
     "swap_gib": 0,
     "ami": "ami-0a951420c495183dc"
@@ -367,7 +367,231 @@
       "author_time": "08h 03min",
       "generated": 14096750859,
       "distinct": 2411951538,
-      "depth": 49
+      "depth": 49,
+      "author_workers": 8,
+      "author_fp": 95,
+      "author_seed": 8549217103045502877,
+      "author_TLC_version": "2.19",
+      "historical": {
+        "generated": 14096750859,
+        "distinct": 2411951538,
+        "queue": 0,
+        "depth": 49
+      },
+      "isolated": [
+        {
+          "mode": "core",
+          "workers": 32,
+          "rc": 0,
+          "wall_seconds": 5264.86,
+          "peak_rss_kib": 123911712,
+          "kernel": "7.0.0-1018-aws",
+          "verdict": "success",
+          "statistics": {
+            "depth": 49,
+            "distinct": 2411951538,
+            "generated": 14096750859,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "stopped": null,
+          "message": null,
+          "checker_ms": 5264746,
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "collision": null,
+          "checker_peak_sample_bytes": 126458490880,
+          "core_metrics": {
+            "commit_ms": 160456.16888699998,
+            "expand_ms": 2552029.780803,
+            "explore_ms": 5264609.838628,
+            "compile_ms": 3.726728,
+            "arena_peak": {
+              "handles": 470,
+              "nodes": 145
+            },
+            "probed": 14096750859,
+            "discarded_before_intern": 10381793500,
+            "store_reclamation": {
+              "collections": 0,
+              "failures": [],
+              "peak_after_bytes_lower_bound": 0,
+              "peak_after_nodes": 0,
+              "peak_before_bytes_lower_bound": 0,
+              "reclaimed_nodes": 0,
+              "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+              "skipped": null,
+              "trigger_bytes": 268435456,
+              "trigger_source": "default"
+            },
+            "store": {
+              "handles": 554819,
+              "hits": 10725360109,
+              "memory": {
+                "accounting_complete": false,
+                "boxed_payload_bytes": 168104,
+                "construction_history_view_bytes": 0,
+                "current_table_bytes": 2097152,
+                "external_shared_owners": {
+                  "printer_names": true,
+                  "random_streams": false,
+                  "registers": false
+                },
+                "fixed_bytes": 862480,
+                "known_retained_bytes_lower_bound": 18305814,
+                "largest_individual_rehash_scratch_bytes": 8192,
+                "rehash_scratch_bytes_cumulative": 4063232,
+                "retired_table_bytes": 0,
+                "retired_tables": 0,
+                "retirement_tracking_bytes": 16384,
+                "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+                "slab_bytes": 15128704,
+                "strings": {
+                  "count": 600,
+                  "index_capacity": 896,
+                  "index_entries_bytes_lower_bound": 12000,
+                  "text_slots_bytes": 16384,
+                  "unique_payload_bytes": 4606
+                }
+              },
+              "misses": 135601,
+              "nodes": 135601
+            }
+          },
+          "workers_report": {
+            "chaos": null,
+            "reason": null,
+            "requested": 32,
+            "sequential": false,
+            "used": 32
+          },
+          "distinct": 2411951538,
+          "generated": 14096750859,
+          "depth": 49
+        },
+        {
+          "mode": "tlc",
+          "workers": 32,
+          "rc": 0,
+          "wall_seconds": 5422.06,
+          "peak_rss_kib": 99194764,
+          "kernel": "7.0.0-1018-aws",
+          "verdict": "success",
+          "statistics": {
+            "generated": 14096750859,
+            "distinct": 2411951538,
+            "queue": 0,
+            "depth": 49
+          },
+          "progress_samples": [
+            {
+              "progress_number": 1,
+              "depth": 14,
+              "generated": 4293807,
+              "distinct": 1104585,
+              "queue": 614374
+            },
+            {
+              "progress_number": 11,
+              "depth": 24,
+              "generated": 1471558707,
+              "distinct": 309231613,
+              "queue": 97787870
+            },
+            {
+              "progress_number": 21,
+              "depth": 26,
+              "generated": 3013314937,
+              "distinct": 614707275,
+              "queue": 164120756
+            },
+            {
+              "progress_number": 31,
+              "depth": 28,
+              "generated": 4611173398,
+              "distinct": 914153579,
+              "queue": 203773552
+            },
+            {
+              "progress_number": 41,
+              "depth": 29,
+              "generated": 6241670629,
+              "distinct": 1203362195,
+              "queue": 218965458
+            },
+            {
+              "progress_number": 51,
+              "depth": 31,
+              "generated": 7893811996,
+              "distinct": 1480118295,
+              "queue": 209566764
+            },
+            {
+              "progress_number": 61,
+              "depth": 32,
+              "generated": 9581047144,
+              "distinct": 1749053090,
+              "queue": 177319733
+            },
+            {
+              "progress_number": 71,
+              "depth": 34,
+              "generated": 11228417133,
+              "distinct": 2000582929,
+              "queue": 129763665
+            },
+            {
+              "progress_number": 81,
+              "depth": 36,
+              "generated": 12625334332,
+              "distinct": 2209295573,
+              "queue": 80719547
+            },
+            {
+              "progress_number": 89,
+              "depth": 41,
+              "generated": 13943665376,
+              "distinct": 2393512774,
+              "queue": 13089861
+            }
+          ],
+          "reported_collision_estimate": {
+            "optimistic": "1.5",
+            "observed": ".25"
+          },
+          "largest_sampled_queue": {
+            "depth": 29,
+            "generated": 6406991918,
+            "distinct": 1232131779,
+            "queue": 220361574
+          },
+          "fingerprint_files_sample": {
+            "utc": "2026-11-20T16:13:26Z",
+            "bytes": {
+              "PaxosLeaseChecked_1.fp": 8589934680,
+              "PaxosLeaseChecked_0.fp": 8589934696
+            },
+            "last_progress": {
+              "depth": 35,
+              "generated": 12202812079,
+              "distinct": 2147493413,
+              "queue": 98205499
+            },
+            "scope": "TLC .fp files only. Its queues and trace are additional."
+          },
+          "distinct": 2411951538,
+          "generated": 14096750859,
+          "depth": 49
+        }
+      ],
+      "author_reported_collision_estimate": {
+        "optimistic": "1.5",
+        "observed": "1.0"
+      }
     }
   ],
   "dive_source": "e4ab6a1314b9e65233a96a96ef2c4d40f9dceea7",
@@ -379,5 +603,210 @@
     "configuration_has": "CONSTRAINT StateConstraint and module assumptions",
     "diagnostic_copy_without_cfg_constraint": "Dive frontend: Error: \"unsupported assumption, initial-role multiplicity or stateful operator\"",
     "scope": "Input-admission observations only. The authors’ constraints and assumptions were preserved in all reported performance runs."
+  },
+  "renew_retry_method": "Two independent isolated r7i.16xlarge instances in us-east-1a with default guest frequency policy. Pinned to the same 32 physical cores (one logical CPU/core). Each process had an external 448 GiB cgroup, no swap, and a four-hour check budget. Ordinary Core used --compat=tlc --workers 32 --fp 0 --seed 0 --max-memory 400g --time-limit 14400s on a 160 GiB gp3 root. Pinned TLC used -Xmx192g -XX:+UseParallelGC -XX:ActiveProcessorCount=32 -workers 32 -seed 0 -fp 0 with external timeout 14400s and 1 TiB gp3 (16000 IOPS / 1000 MiB/s) for its disk-backed queues. RenewRetry used the same runner on two fresh instances. Actual terminal results and GNU time measurements are distinct from the author’s eight-worker TLC 2.19 numbers.",
+  "symbolic_refinement": {
+    "feature_pr": 1093,
+    "dd_version": "0.6.0",
+    "interpreter": "packaged CPython 3.11 with dd.cudd on Linux",
+    "command": "dive check --strategy symbolic PaxosLeaseChecked.tla --config CFG --type-invariant TypeOK --refine-domains --max-memory 24g --time-limit SECONDS --output json",
+    "platform": "Dedicated r7i.4xlarge, us-east-1a, one physical core via taskset, default clock, 32 GiB cgroup, zero swap. GNU time covers supervisor, domain-learning passes and all binding. Base budget 900 s, quarantine and Retry 1800 s. One observation per cell.",
+    "programs": {
+      "dive_sha256": "2a1e1e4ea1f12536945843d93335907f9df04d296a3f60c17599883288f9caa0",
+      "scripts": {
+        "check.py": "d1f726a6d7e588b52bc6a43e3e9925106c0bbb9d838682f2454394b01bc51909",
+        "engine.py": "e4530ae6f3136debf0bdc3dadc8e91ba138531b852349771155951b11c95e2aa",
+        "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+        "induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8"
+      }
+    },
+    "declared_message_alphabet": {
+      "Base": 1008,
+      "QuarantineEqualsProposer": 608,
+      "Retry": 1320,
+      "RenewRetry": 1320
+    },
+    "maximum_admitted_network_members": 4,
+    "rows": [
+      {
+        "variant": "unclustered",
+        "model": "Base",
+        "engine_sha256": "9ae7e71b5fa71d079ea138893b1149198da01110ea48ec44f77f2d336a7ec35e",
+        "exit_code": 4,
+        "verdict": "stopped",
+        "reason": "refinement worker terminated by signal 6",
+        "wall_seconds": 3.4,
+        "peak_rss_kib": 87860
+      },
+      {
+        "variant": "unclustered",
+        "model": "QuarantineEqualsProposer",
+        "engine_sha256": "9ae7e71b5fa71d079ea138893b1149198da01110ea48ec44f77f2d336a7ec35e",
+        "exit_code": 0,
+        "verdict": "success",
+        "distinct": 76749192,
+        "generated": 391849185,
+        "depth": 43,
+        "reachable_bdd_nodes": 8532809,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 1664.116133,
+        "refinement_rounds": 11,
+        "learned_members": 80,
+        "wall_seconds": 1664.3,
+        "peak_rss_kib": 3365848
+      },
+      {
+        "variant": "participant-order",
+        "model": "Base",
+        "engine_sha256": "52e6491bc6d6e8e5e03ea896c4ec6183783f11de9aa98fe81aa5437589d9a354",
+        "exit_code": 0,
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "reachable_bdd_nodes": 390276,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 56.103279,
+        "refinement_rounds": 11,
+        "learned_members": 138,
+        "wall_seconds": 56.28,
+        "peak_rss_kib": 331952
+      },
+      {
+        "variant": "participant-order",
+        "model": "QuarantineEqualsProposer",
+        "engine_sha256": "52e6491bc6d6e8e5e03ea896c4ec6183783f11de9aa98fe81aa5437589d9a354",
+        "exit_code": 0,
+        "verdict": "success",
+        "distinct": 76749192,
+        "generated": 391849185,
+        "depth": 43,
+        "reachable_bdd_nodes": 630485,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 432.321985,
+        "refinement_rounds": 11,
+        "learned_members": 80,
+        "wall_seconds": 432.51,
+        "peak_rss_kib": 1190488
+      },
+      {
+        "variant": "participant-order-controlled-gc",
+        "model": "Base",
+        "engine_sha256": "e4530ae6f3136debf0bdc3dadc8e91ba138531b852349771155951b11c95e2aa",
+        "exit_code": 0,
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "reachable_bdd_nodes": 390276,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 46.791499,
+        "refinement_rounds": 11,
+        "learned_members": 138,
+        "wall_seconds": 46.97,
+        "peak_rss_kib": 331888
+      },
+      {
+        "variant": "participant-order-controlled-gc",
+        "model": "QuarantineEqualsProposer",
+        "engine_sha256": "e4530ae6f3136debf0bdc3dadc8e91ba138531b852349771155951b11c95e2aa",
+        "exit_code": 0,
+        "verdict": "success",
+        "distinct": 76749192,
+        "generated": 391849185,
+        "depth": 43,
+        "reachable_bdd_nodes": 630485,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 405.666405,
+        "refinement_rounds": 11,
+        "learned_members": 80,
+        "wall_seconds": 405.84,
+        "peak_rss_kib": 1192180
+      },
+      {
+        "variant": "participant-order-controlled-gc",
+        "model": "Retry",
+        "engine_sha256": "e4530ae6f3136debf0bdc3dadc8e91ba138531b852349771155951b11c95e2aa",
+        "exit_code": 4,
+        "verdict": "stopped",
+        "reason": "time limit",
+        "wall_seconds": 1800.03,
+        "gnu_time_maxrss_kib": 653572,
+        "observed_worker_rss_kib_lower_bound": 3325924,
+        "observed_worker_elapsed_seconds": 1638,
+        "memory_scope": "Single live ps RSS sample of the largest process. The supervisor killed the entire process group on timeout. GNU time did not account for that worker’s terminal high-water mark."
+      }
+    ],
+    "workstation_hash_seed_controls": [
+      {
+        "python_hash_seed": 0,
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "reachable_bdd_nodes": 390276,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 45.185985,
+        "refinement_rounds": 11,
+        "learned_members": 138,
+        "wall_seconds": 45.33,
+        "peak_rss_kib": 339648
+      },
+      {
+        "python_hash_seed": 3,
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "reachable_bdd_nodes": 390276,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 45.453707,
+        "refinement_rounds": 11,
+        "learned_members": 138,
+        "wall_seconds": 45.57,
+        "peak_rss_kib": 341688
+      },
+      {
+        "python_hash_seed": 789,
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "reachable_bdd_nodes": 390276,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 44.864782,
+        "refinement_rounds": 11,
+        "learned_members": 138,
+        "wall_seconds": 45.02,
+        "peak_rss_kib": 340868
+      }
+    ],
+    "interpretation": "Cluster the sparse set membership bits with local-state fields indexed by the same participant. Each learning pass starts from the original Init. A constrained-out target remains an invariant obligation. Counts in successful symbolic rows are exact over the represented sets. Explicit reference counts use fingerprint stores.",
+    "rejected_probe": "Precomposing the complete state constraint with every simultaneous update made the compilation intermediates expensive. The released positive pass instead streams each action image and intersects the target constraint before retaining the next frontier.",
+    "initial_ablation": "On the shared workstation, the ungrouped generic Base run completed in 185.42 s. For the quarantine case at depth 18 the ungrouped admitted layer had about 3.87 million BDD nodes, compared with about 0.88 million after participant ordering."
   }
 }

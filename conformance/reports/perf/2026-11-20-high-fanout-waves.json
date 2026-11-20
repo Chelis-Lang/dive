@@ -1,6 +1,386 @@
 {
   "schema": "dive-parallel-safety-prefix-v1",
   "date": "2026-11-20",
+  "product_capacity": {
+    "feature_pr": 1092,
+    "binary_sha256": "aac4eca9d3a76a6e986880ca133dda626352dce572309f1ea0d2eb26426ca38d",
+    "stage": "release candidate, before final metric labeling and checks",
+    "module_sha256": "daa731dcadf12a892415131881d82d5b23e56c53097e90b986a24b1408a2e3c6",
+    "cfg_sha256": "8a3af0fba0f0ed0d96827717e0edacf7ad9bedc23b9f7aebf82f3c2bb5434e9a",
+    "platform": "Sequential fresh processes on one c7i.4xlarge, Ubuntu Linux 7.0.0-1018-aws, first eight physical cores, 24 GiB hard memory cgroup including file cache, no swap, 320 GiB gp3 root. GNU time wall seconds and peak RSS.",
+    "command": "dive check BPConProof.tla --config BPConProof.cfg --workers 8 --compat=tlc --fp 0 --seed 0 --max-states 100000000 --max-memory 18g --time-limit 1800s --output json",
+    "arm_flags": {
+      "resident": [],
+      "chunks": [
+        "--independent-frontier"
+      ]
+    },
+    "rows": [
+      {
+        "arm": "resident",
+        "rc": 5,
+        "wall_seconds": 289.73,
+        "peak_rss_kib": 18879712,
+        "verdict": "stopped",
+        "stopped": {
+          "elapsed_ms": 288721,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 19327352832,
+          "observed": 19333382144,
+          "phase": "safety-search",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "message": "stopped during safety-search: resident memory 19333382144 bytes exceeds the ceiling of 19327352832 bytes",
+        "statistics": {
+          "depth": 4,
+          "distinct": 83955924,
+          "exhaustive": false,
+          "generated": 169001194,
+          "initial_generated": 1,
+          "left_on_queue": 83883825,
+          "reported_by_tlc": false
+        },
+        "elapsed_ms": 289612,
+        "resources": {
+          "memory": {
+            "final_sampled": true,
+            "initial_sampled": true,
+            "metric": "rss+swap",
+            "observed_max_bytes": 19333382144,
+            "samples": 2870,
+            "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+            "status": "sampled",
+            "unavailable_at": null
+          }
+        },
+        "frontier_storage": {
+          "committed_spill_bytes": 0,
+          "failures": [],
+          "max_codec_nodes_per_value": null,
+          "max_record_bytes": null,
+          "memory_bytes_per_queue": null,
+          "mode": "memory-reference",
+          "peak_retained_bytes": 0,
+          "retained_bytes": 0,
+          "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded",
+          "search_event_before_storage_failure": null,
+          "write_accounting_complete": true
+        },
+        "core_storage": {
+          "commit_ms": 0.0,
+          "discarded_before_intern": 84641018,
+          "expand_ms": 6517.350373,
+          "explore_ms": 288641.2191,
+          "probed": 169001194,
+          "store": {
+            "handles": 256799763,
+            "hits": 87141276,
+            "memory": {
+              "accounting_complete": false,
+              "boxed_payload_bytes": 1186248,
+              "current_table_bytes": 1073741824,
+              "external_shared_owners": {
+                "printer_names": true,
+                "random_streams": false,
+                "registers": false
+              },
+              "fixed_bytes": 862480,
+              "known_retained_bytes_lower_bound": 10745027818,
+              "largest_individual_rehash_scratch_bytes": 4194304,
+              "rehash_scratch_bytes_cumulative": 2147035136,
+              "retired_table_bytes": 0,
+              "retired_tables": 0,
+              "retirement_tracking_bytes": 32768,
+              "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+              "slab_bytes": 9669139712,
+              "strings": {
+                "count": 1145,
+                "index_capacity": 1792,
+                "index_entries_bytes_lower_bound": 22900,
+                "text_slots_bytes": 32768,
+                "unique_payload_bytes": 9118
+              }
+            },
+            "misses": 83740659,
+            "nodes": 83740659
+          },
+          "store_reclamation": {
+            "collections": 1,
+            "failures": [],
+            "peak_after_bytes_lower_bound": 339629546,
+            "peak_after_nodes": 2729641,
+            "peak_before_bytes_lower_bound": 339629546,
+            "reclaimed_nodes": 24,
+            "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+            "skipped": null,
+            "trigger_bytes": 268435456,
+            "trigger_source": "default"
+          }
+        }
+      },
+      {
+        "arm": "chunks",
+        "rc": 5,
+        "wall_seconds": 583.0,
+        "peak_rss_kib": 1959044,
+        "verdict": "stopped",
+        "stopped": {
+          "elapsed_ms": 582850,
+          "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+          "limit": 100000000,
+          "observed": 100000001,
+          "phase": "safety-search",
+          "resource": "states",
+          "unit": "states"
+        },
+        "message": "stopped during safety-search: the next states would be 100000001, exceeding the limit of 100000000",
+        "statistics": {
+          "depth": 4,
+          "distinct": 100000000,
+          "exhaustive": false,
+          "generated": 201557438,
+          "initial_generated": 1,
+          "left_on_queue": 99914031,
+          "reported_by_tlc": false
+        },
+        "elapsed_ms": 582921,
+        "resources": {
+          "memory": {
+            "final_sampled": true,
+            "initial_sampled": true,
+            "metric": "rss+swap",
+            "observed_max_bytes": 1990008832,
+            "samples": 5801,
+            "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+            "status": "sampled",
+            "unavailable_at": null
+          }
+        },
+        "frontier_storage": {
+          "committed_spill_bytes": 49686973771,
+          "failures": [],
+          "max_codec_nodes_per_value": null,
+          "max_record_bytes": 67108864,
+          "memory_bytes_per_queue": 0,
+          "mode": "independent-chunks",
+          "peak_retained_bytes": 0,
+          "retained_bytes": 0,
+          "scope": "encoded disk queues only. Partial chunk roots, decoded pairs, codec scratch, file cache and other search memory are outside this count",
+          "search_event_before_storage_failure": null,
+          "write_accounting_complete": true
+        },
+        "core_storage": {
+          "commit_ms": 0.0,
+          "discarded_before_intern": 101069096,
+          "expand_ms": 6885.6938549999995,
+          "explore_ms": 582833.708302,
+          "probed": 201557438,
+          "store": {
+            "handles": 1407356,
+            "hits": 434873,
+            "memory": {
+              "accounting_complete": false,
+              "boxed_payload_bytes": 1163976,
+              "current_table_bytes": 8388608,
+              "external_shared_owners": {
+                "printer_names": true,
+                "random_streams": false,
+                "registers": false
+              },
+              "fixed_bytes": 862480,
+              "known_retained_bytes_lower_bound": 52365418,
+              "largest_individual_rehash_scratch_bytes": 32768,
+              "rehash_scratch_bytes_cumulative": 16328704,
+              "retired_table_bytes": 3025408,
+              "retired_tables": 213,
+              "retirement_tracking_bytes": 16384,
+              "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+              "slab_bytes": 38843776,
+              "strings": {
+                "count": 1145,
+                "index_capacity": 1792,
+                "index_entries_bytes_lower_bound": 22900,
+                "text_slots_bytes": 32768,
+                "unique_payload_bytes": 9118
+              }
+            },
+            "misses": 430976,
+            "nodes": 430976
+          },
+          "store_reclamation": {
+            "collections": 185,
+            "failures": [],
+            "peak_after_bytes_lower_bound": 3077994,
+            "peak_after_nodes": 9582,
+            "peak_before_bytes_lower_bound": 88410826,
+            "reclaimed_nodes": 100045551,
+            "scope": "measured Store trigger between committed waves and levels. Only partial chunk roots, permanent startup and names need remapping. Total RSS and disk are outside the trigger",
+            "skipped": null,
+            "trigger_bytes": 67108864,
+            "trigger_source": "requested"
+          }
+        }
+      }
+    ]
+  },
+  "original_budget": {
+    "platform": "Separate isolated c7i.4xlarge, eight physical cores, 24 GiB cgroup, zero swap, 320 GiB gp3 root; same model, cfg, seed, fp and profile as product_capacity. --max-memory 24g --time-limit 7200s, no state limit.",
+    "binaries": {
+      "resident": "3fa8fd2e4206e2b6bfbdef40964c980151b4af88bcc1ae3ef88430308df8b3cb",
+      "independent-prototype": "44b337670f98ed6e71900c785c3726fa4e1654da089b60b44531feb79382584c"
+    },
+    "prototype_flags": "DIVE_EXPERIMENTAL_FANOUT_WAVES=1 DIVE_EXPERIMENTAL_OWNED_CHUNKS=1 --frontier-memory-bytes 0 --store-compact-bytes 67108864",
+    "sample_method": "Every 15 s, sampled cgroup current/peak, memory.stat anon and file, and total root filesystem use. Independent read-only observer every 20 s read the discovery ID at the last complete disk index entry of each active frontier. This is a lower bound on discoveries, not terminal checker statistics.",
+    "infrastructure_note": "An earlier pair was interrupted during SSH reachability loss. Neither produced a terminal checker report and neither contributed a result.",
+    "rows": [
+      {
+        "arm": "resident",
+        "samples": 36,
+        "peak_cgroup_bytes": 25769803776,
+        "max_sampled_anon_bytes": 25714249728,
+        "max_sampled_file_bytes": 140984320,
+        "root_used_initial_bytes": 2297622528,
+        "max_sampled_root_used_bytes": 2297815040,
+        "termination": "kernel cgroup OOM kill",
+        "terminal_checker_report": null,
+        "unit_start_to_oom_seconds": 528.0
+      },
+      {
+        "arm": "independent-prototype",
+        "samples": 297,
+        "peak_cgroup_bytes": 25769803776,
+        "max_sampled_anon_bytes": 12404830208,
+        "max_sampled_file_bytes": 23700697088,
+        "root_used_initial_bytes": 2333753344,
+        "max_sampled_root_used_bytes": 331329204224,
+        "rc": 3,
+        "wall_seconds": 4453.3,
+        "peak_rss_kib": 13699244,
+        "verdict": "resource-limit",
+        "message": "DIVE-S0200: frontier write record: No space left on device (os error 28)",
+        "statistics": {
+          "depth": 4,
+          "distinct": 662795501,
+          "generated": 1411214748,
+          "initial_generated": 1,
+          "left_on_queue": 662194098,
+          "reported_by_tlc": true
+        },
+        "elapsed_ms": 4453189,
+        "resources": {
+          "memory": {
+            "final_sampled": true,
+            "initial_sampled": true,
+            "metric": "rss+swap",
+            "observed_max_bytes": 13923966976,
+            "samples": 44310,
+            "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+            "status": "sampled",
+            "unavailable_at": null
+          }
+        },
+        "frontier_storage": {
+          "committed_spill_bytes": 329402431624,
+          "failures": [
+            "DIVE-S0200: frontier write record: No space left on device (os error 28)"
+          ],
+          "max_codec_nodes_per_value": null,
+          "max_record_bytes": 67108864,
+          "memory_bytes_per_queue": 0,
+          "mode": "encoded-spill",
+          "peak_retained_bytes": 0,
+          "retained_bytes": 0,
+          "scope": "encoded current and next frontier capacities observed at queue operations only; retained live Store, decoded chunks, seen sets, candidates, arenas, traces, allocator workspace and native archives are not measured or bounded",
+          "search_event_before_storage_failure": "Internal { message: \"DIVE-S0200: frontier write record: No space left on device (os error 28)\" }",
+          "write_accounting_complete": false
+        },
+        "core_storage": {
+          "commit_ms": 0.0,
+          "discarded_before_intern": 744969232,
+          "expand_ms": 7330.562203,
+          "explore_ms": 4453050.943849,
+          "probed": 1411214748,
+          "store": {
+            "handles": 1526071,
+            "hits": 509303,
+            "memory": {
+              "accounting_complete": false,
+              "boxed_payload_bytes": 1161576,
+              "current_table_bytes": 8388608,
+              "external_shared_owners": {
+                "printer_names": true,
+                "random_streams": false,
+                "registers": false
+              },
+              "fixed_bytes": 862480,
+              "known_retained_bytes_lower_bound": 50798483,
+              "largest_individual_rehash_scratch_bytes": 32768,
+              "rehash_scratch_bytes_cumulative": 16328704,
+              "retired_table_bytes": 1444352,
+              "retired_tables": 115,
+              "retirement_tracking_bytes": 16384,
+              "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+              "slab_bytes": 38860288,
+              "strings": {
+                "count": 1145,
+                "index_capacity": 1792,
+                "index_entries_bytes_lower_bound": 22900,
+                "text_slots_bytes": 32768,
+                "unique_payload_bytes": 9127
+              }
+            },
+            "misses": 470541,
+            "nodes": 470541
+          },
+          "store_reclamation": {
+            "collections": 1226,
+            "failures": [],
+            "peak_after_bytes_lower_bound": 3078419,
+            "peak_after_nodes": 9582,
+            "peak_before_bytes_lower_bound": 88528499,
+            "reclaimed_nodes": 664693284,
+            "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+            "skipped": null,
+            "trigger_bytes": 67108864,
+            "trigger_source": "requested"
+          }
+        },
+        "highest_observed_zero_based_discovery_id": 662645549,
+        "minimum_discoveries_at_sample": 662645550,
+        "discovery_sample_count": 217,
+        "sampled_milestones": [
+          {
+            "minimum_discoveries": 101109294,
+            "seconds_from_first_pressure_sample": 629,
+            "pressure_sample_offset_seconds": 2,
+            "cgroup_current_bytes": 25672531968,
+            "anon_bytes": 3127652352,
+            "file_bytes": 21472645120,
+            "root_used_bytes": 52645408768
+          },
+          {
+            "minimum_discoveries": 251117358,
+            "seconds_from_first_pressure_sample": 1629,
+            "pressure_sample_offset_seconds": 7,
+            "cgroup_current_bytes": 25766129664,
+            "anon_bytes": 5962084352,
+            "file_bytes": 18625613824,
+            "root_used_bytes": 127691010048
+          },
+          {
+            "minimum_discoveries": 501142190,
+            "seconds_from_first_pressure_sample": 3329,
+            "pressure_sample_offset_seconds": 4,
+            "cgroup_current_bytes": 25649213440,
+            "anon_bytes": 11648000000,
+            "file_bytes": 12761849856,
+            "root_used_bytes": 251594350592
+          }
+        ]
+      }
+    ]
+  },
   "models": {
     "BPConProof": {
       "corpus": "examples",

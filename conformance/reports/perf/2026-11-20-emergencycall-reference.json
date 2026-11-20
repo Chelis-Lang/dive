@@ -244,5 +244,50 @@
       "peak_rss_kib": 4139812
     }
   },
-  "reproduce": "scripts/perf/scale/kvs-large-cell.sh MODE WORKERS INPUT OUTPUT MODULE CONFIG"
+  "reproduce": "scripts/perf/scale/kvs-large-cell.sh MODE WORKERS INPUT OUTPUT MODULE CONFIG",
+  "unconstrained_artifact_audit": {
+    "publication": "https://users.cs.northwestern.edu/~ychen/Papers/MobiSys21_ENL_OpenAccessVersion.pdf",
+    "section": "3.2",
+    "published_distinct_rounded": "10.59 billion",
+    "published_maximum_diameter": 26,
+    "published_configurable_variables": 36,
+    "matching_wall_seconds": null,
+    "reachable_public_revisions": 1,
+    "available_cfgs": [
+      "model/config/attack1.cfg",
+      "model/config/attack2.cfg",
+      "model/config/f1.cfg",
+      "model/config/f2.cfg",
+      "model/config/f3.cfg",
+      "model/config/f4.cfg",
+      "model/config/s0.cfg",
+      "model/solution/config/attack1_sol.cfg",
+      "model/solution/config/attack2_sol.cfg",
+      "model/solution/config/f1_sol.cfg",
+      "model/solution/config/f2_sol.cfg",
+      "model/solution/config/f3_sol.cfg",
+      "model/solution/config/f4_sol.cfg"
+    ],
+    "matching_cfg_identified": false,
+    "s0_control": {
+      "config": "model/config/s0.cfg",
+      "cfg_sha256": "2db57c19c3a49809a12b6bf3a261088000a00586c77f3dc0f344e38a753960e9",
+      "init": "Init0 == Init /\\ System_Constraint",
+      "invariants": [
+        "TypeInvariant",
+        "SetInvariant",
+        "F1"
+      ],
+      "author_log": "model/raw_output/s0_output.txt",
+      "log_sha256": "615d5cacf12b2904cf841afe7702eb34ae7db098a97d9a96b09c6d0ad5781770",
+      "result": "invariant-violation",
+      "property": "F1",
+      "generated": 32652269,
+      "distinct": 7892939,
+      "left_on_queue": 2626701,
+      "depth": 7,
+      "wall_seconds": 203
+    },
+    "conclusion": "The paper reports the larger graph separately from its six timed constrained cases. The released s0 initial predicate includes System_Constraint and its run ended at a violation. The four released f1–f4 reproductions remain the direct controls."
+  }
 }
