@@ -98,6 +98,8 @@ def measure(root, output, model, workers, repetition, arm, abi_profile, profile_
     argv = command(root, arm, module, config, workers, directory)
     if abi_profile == "dive":
         argv.remove("--compat=tlc")
+    if arm == "spike-stats" and model == "kvs":
+        argv[argv.index("--time-limit") + 1] = "20s"
     if profile_perf:
         if arm == "core":
             argv[argv.index("--time-limit") + 1] = "40s"
@@ -146,6 +148,7 @@ def main():
     parser.add_argument("--part", choices=("profile", "panel", "spike", "spike-stats", "smoke"), required=True)
     parser.add_argument("--models", nargs="+", choices=MODELS, default=list(MODELS))
     parser.add_argument("--repetitions", type=int, default=3)
+    parser.add_argument("--workers", nargs="+", type=int, choices=(1, 8), default=[1, 8])
     parser.add_argument("--resume", action="store_true",
                         help="resume a stopped panel and run eight-worker KVS first")
     args = parser.parse_args()
@@ -171,7 +174,7 @@ def main():
         return
     for model in args.models:
         for rep in range(args.repetitions if args.part != "smoke" else 1):
-            widths = (8, 1) if args.resume and model == "kvs" else (1, 8)
+            widths = args.workers
             for workers in widths[::(-1 if rep % 2 else 1)] if args.part != "smoke" else (1,):
                 if args.part == "spike":
                     for profile in ("tlc", "dive"):
