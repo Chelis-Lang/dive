@@ -50,6 +50,29 @@ fn agrees(p: &Program, l: Limits, result: Decision) {
             },
         ) => {
             assert_eq!(property, fresh);
+            assert_eq!(trace.length, Some(trace.states.len()));
+            assert_eq!(trace.variables, p.prepared.plan.vars);
+            for (label, step) in trace.labels.iter().zip(
+                oracle
+                    .trace
+                    .as_ref()
+                    .expect("ordinary trace")
+                    .as_ref()
+                    .expect("ordinary states"),
+            ) {
+                let expected = step
+                    .action
+                    .and_then(|id| p.prepared.model.actions.get(id))
+                    .and_then(|a| {
+                        core_engine::action_name(&p.prepared.model, a).map(|name| {
+                            dive_trace::Label {
+                                name,
+                                location: Some(a.label().to_owned()),
+                            }
+                        })
+                    });
+                assert_eq!(*label, expected);
+            }
             assert!(
                 dive_trace::validate_doc(&p.prepared.model, &trace, &[])
                     .0

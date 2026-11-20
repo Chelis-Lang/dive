@@ -10,28 +10,28 @@
   "spokes": 200000,
   "samples": {
     "prefix": {
-      "capture_elapsed_us": 134121,
-      "capture_search_us": 132480,
-      "original_fresh_us": 111893,
+      "capture_elapsed_us": 127865,
+      "capture_search_us": 126315,
+      "original_fresh_us": 107142,
       "edited_recheck_us": [
-        7974,
-        7844,
-        8411
+        8136,
+        7569,
+        7389
       ],
       "edited_bind_us": [
-        917,
-        620,
-        603
+        1276,
+        685,
+        583
       ],
       "edited_scan_and_validate_us": [
-        6971,
-        7141,
-        7722
+        6757,
+        6794,
+        6715
       ],
       "edited_fresh_us": [
-        104103,
-        99555,
-        97567
+        102530,
+        102303,
+        98514
       ],
       "counts": {
         "generated": 400001,
@@ -43,28 +43,28 @@
       "verdict": "invariant-violation"
     },
     "closure": {
-      "capture_elapsed_us": 114227,
-      "capture_search_us": 112842,
-      "original_fresh_us": 98303,
+      "capture_elapsed_us": 117558,
+      "capture_search_us": 116125,
+      "original_fresh_us": 101211,
       "edited_recheck_us": [
-        7630,
-        7852,
-        7712
+        7582,
+        7315,
+        7140
       ],
       "edited_bind_us": [
-        1044,
-        607,
-        655
+        1050,
+        806,
+        669
       ],
       "edited_scan_and_validate_us": [
-        6517,
-        7173,
-        6994
+        6448,
+        6436,
+        6404
       ],
       "edited_fresh_us": [
-        94610,
-        95237,
-        92048
+        98212,
+        100274,
+        101465
       ],
       "counts": {
         "generated": 400002,
@@ -76,28 +76,28 @@
       "verdict": "success"
     },
     "DieHard": {
-      "capture_elapsed_us": 2256,
-      "capture_search_us": 521,
-      "original_fresh_us": 1624,
+      "capture_elapsed_us": 2340,
+      "capture_search_us": 591,
+      "original_fresh_us": 1715,
       "edited_recheck_us": [
-        1624,
-        1418,
-        1371
+        1580,
+        1388,
+        1350
       ],
       "edited_bind_us": [
-        1195,
-        1002,
-        972
+        1157,
+        989,
+        958
       ],
       "edited_scan_and_validate_us": [
-        334,
-        323,
-        308
+        332,
+        306,
+        300
       ],
       "edited_fresh_us": [
-        1312,
-        1292,
-        1247
+        1426,
+        1267,
+        1195
       ],
       "counts": {
         "generated": 73,
@@ -108,5 +108,215 @@
       },
       "verdict": "invariant-violation"
     }
-  }
+  },
+  "earlier_qualification": [
+    {
+      "revision_scope": "before local-class admission guard and full serialized-trace comparison",
+      "samples": {
+        "prefix": {
+          "capture_elapsed_us": 134121,
+          "capture_search_us": 132480,
+          "original_fresh_us": 111893,
+          "edited_recheck_us": [
+            7974,
+            7844,
+            8411
+          ],
+          "edited_bind_us": [
+            917,
+            620,
+            603
+          ],
+          "edited_scan_and_validate_us": [
+            6971,
+            7141,
+            7722
+          ],
+          "edited_fresh_us": [
+            104103,
+            99555,
+            97567
+          ],
+          "counts": {
+            "generated": 400001,
+            "distinct": 200002,
+            "depth": 3,
+            "left_on_queue": 0,
+            "initial_generated": 1
+          },
+          "verdict": "invariant-violation"
+        },
+        "closure": {
+          "capture_elapsed_us": 114227,
+          "capture_search_us": 112842,
+          "original_fresh_us": 98303,
+          "edited_recheck_us": [
+            7630,
+            7852,
+            7712
+          ],
+          "edited_bind_us": [
+            1044,
+            607,
+            655
+          ],
+          "edited_scan_and_validate_us": [
+            6517,
+            7173,
+            6994
+          ],
+          "edited_fresh_us": [
+            94610,
+            95237,
+            92048
+          ],
+          "counts": {
+            "generated": 400002,
+            "distinct": 200002,
+            "depth": 3,
+            "left_on_queue": 0,
+            "initial_generated": 1
+          },
+          "verdict": "success"
+        },
+        "DieHard": {
+          "capture_elapsed_us": 2256,
+          "capture_search_us": 521,
+          "original_fresh_us": 1624,
+          "edited_recheck_us": [
+            1624,
+            1418,
+            1371
+          ],
+          "edited_bind_us": [
+            1195,
+            1002,
+            972
+          ],
+          "edited_scan_and_validate_us": [
+            334,
+            323,
+            308
+          ],
+          "edited_fresh_us": [
+            1312,
+            1292,
+            1247
+          ],
+          "counts": {
+            "generated": 73,
+            "distinct": 14,
+            "depth": 7,
+            "left_on_queue": 1,
+            "initial_generated": 1
+          },
+          "verdict": "invariant-violation"
+        }
+      }
+    },
+    {
+      "revision_scope": "local-class admission guard, concrete trace state comparison",
+      "samples": {
+        "prefix": {
+          "capture_elapsed_us": 133554,
+          "capture_search_us": 131999,
+          "original_fresh_us": 122419,
+          "edited_recheck_us": [
+            7869,
+            7524,
+            7425
+          ],
+          "edited_bind_us": [
+            1010,
+            718,
+            610
+          ],
+          "edited_scan_and_validate_us": [
+            6711,
+            6717,
+            6733
+          ],
+          "edited_fresh_us": [
+            114434,
+            112926,
+            104671
+          ],
+          "counts": {
+            "generated": 400001,
+            "distinct": 200002,
+            "depth": 3,
+            "left_on_queue": 0,
+            "initial_generated": 1
+          },
+          "verdict": "invariant-violation"
+        },
+        "closure": {
+          "capture_elapsed_us": 129104,
+          "capture_search_us": 127650,
+          "original_fresh_us": 105183,
+          "edited_recheck_us": [
+            7436,
+            7245,
+            7190
+          ],
+          "edited_bind_us": [
+            1036,
+            826,
+            805
+          ],
+          "edited_scan_and_validate_us": [
+            6302,
+            6334,
+            6313
+          ],
+          "edited_fresh_us": [
+            102320,
+            102784,
+            111547
+          ],
+          "counts": {
+            "generated": 400002,
+            "distinct": 200002,
+            "depth": 3,
+            "left_on_queue": 0,
+            "initial_generated": 1
+          },
+          "verdict": "success"
+        },
+        "DieHard": {
+          "capture_elapsed_us": 2384,
+          "capture_search_us": 560,
+          "original_fresh_us": 1644,
+          "edited_recheck_us": [
+            1739,
+            1461,
+            1404
+          ],
+          "edited_bind_us": [
+            1268,
+            1053,
+            992
+          ],
+          "edited_scan_and_validate_us": [
+            373,
+            313,
+            315
+          ],
+          "edited_fresh_us": [
+            1299,
+            1263,
+            1193
+          ],
+          "counts": {
+            "generated": 73,
+            "distinct": 14,
+            "depth": 7,
+            "left_on_queue": 1,
+            "initial_generated": 1
+          },
+          "verdict": "invariant-violation"
+        }
+      }
+    }
+  ]
 }

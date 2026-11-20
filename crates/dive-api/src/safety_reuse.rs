@@ -253,21 +253,28 @@ impl Program {
                     Ok(
                         core_engine::action_name(model, action).map(|name| dive_trace::Label {
                             name,
-                            location: None,
+                            location: Some(action.label().to_owned()),
                         }),
                     )
                 })
                 .transpose()?
                 .flatten();
             labels.push(label);
-            states.push(serde_json::Value::Object(state));
+            states.push(state);
             cursor = rows.parent(i);
         }
         states.reverse();
-        let mut trace = TraceDoc::behavior(states).map_err(miss)?;
         labels.reverse();
-        trace.labels = labels;
-        trace.ending = Some(Ending::Invariant(property.to_owned()));
+        let trace = TraceDoc {
+            variables: self.prepared.plan.vars.clone(),
+            length: Some(states.len()),
+            states,
+            labels,
+            ending: Some(Ending::Invariant(property.to_owned())),
+            source: dive_trace::Source::Dive,
+            properties: Vec::new(),
+        };
+
         let model = dive_model::bind(
             Arc::clone(&self.prepared.model.ir),
             &self.cfg,

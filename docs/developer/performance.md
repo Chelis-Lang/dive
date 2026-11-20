@@ -1098,18 +1098,18 @@ rescue/repetition or broad performance claim follows from these rows.
 
 The public Rust example scans original scalar state rows after rebinding an
 edited invariant. The benchmark compares its results and all five counters to
-ordinary exact Core, including the concrete states of every reported witness.
+ordinary exact Core, including the complete serialized witness with current action locations and length.
 
 | Model and edit | Original capture | Original fresh | Edited recheck | Edited fresh |
 | --- | ---: | ---: | ---: | ---: |
-| Star, late refutation, 200,002 states/400,001 generated | 134.12 ms | 111.89 ms | 7.97 ms | 99.56 ms |
-| Star, completed closure, 200,002 states/400,002 generated | 114.23 ms | 98.30 ms | 7.71 ms | 94.61 ms |
-| DieHard, late refutation, 14 states/73 generated | 2.26 ms | 1.62 ms | 1.42 ms | 1.29 ms |
+| Star, late refutation, 200,002 states/400,001 generated | 127.87 ms | 107.14 ms | 7.57 ms | 102.30 ms |
+| Star, completed closure, 200,002 states/400,002 generated | 117.56 ms | 101.21 ms | 7.32 ms | 100.27 ms |
+| DieHard, late refutation, 14 states/73 generated | 2.34 ms | 1.72 ms | 1.39 ms | 1.27 ms |
 
 Edited times are medians of three wall-clock observations including the
 current bind, witness validation when applicable and report construction.
 Original times are single observations. The star's edited refutation takes
-12.5× less time than a fresh check and the edited closure takes 12.3× less.
+13.5× less time than a fresh check and the edited closure takes 13.7× less.
 For DieHard, binding dominates and the full recheck takes longer than fresh.
 The benchmark times each revision inside one process, excluding process
 launch and writing its JSON to stdout. The stored [individual

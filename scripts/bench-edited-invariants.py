@@ -36,8 +36,7 @@ def compare(binary, original, edited, samples):
         for key in ["generated", "distinct", "depth", "left_on_queue", "initial_generated"]:
             assert outcome[key] == ordinary["statistics"][key], key
         if "trace" in outcome:
-            states = [s["values"] for s in outcome["trace"]["states"]]
-            assert states == [s["values"] for s in ordinary["counterexample"]["trace"]["states"]]
+            assert outcome["trace"] == ordinary["counterexample"]["trace"]
     return {
         "capture_elapsed_us": reused[0]["elapsed_us"],
         "capture_search_us": reused[0]["capture_us"],
