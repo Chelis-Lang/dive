@@ -200,14 +200,179 @@ tape evaluations and zero fallbacks took 1.31 s with the tape off and 1.38 s
 with it on. The experimental code is available for review on the
 [guard spike branch](https://github.com/Chelis-Lang/dive/tree/perf/peer-guard-spike).
 
-Leave the scalar tape experimental. The next compilation probe should
-specialize one fixed-domain aggregate path in Lamport mutex, such as
-`req[p][q]` reads and updates. Measure how often the admitted actions use
-the representation, how often they fall back, and the effect on the full
-check. Reuse Core's binding and identity rules, and compare successor order,
-generated multiplicity and independently valid witnesses with the general
-path. Use counters and KVS Medium to check transfer beyond Lamport.
+The aggregate and resident experiments below use complete actions and
+finite layouts to reach work outside the scalar tape's admission.
 [tlx mixed-mode lowering](https://github.com/tlaplus-x/tlx/blob/77867a37d59525ce8866e8cce7f2dd32dc5d4d04/docs/mixed-mode.md)
+
+### Packed states and complete actions
+
+The follow-up rebuilt Core with the release profile and reran the pinned
+native peers. The aggregate and temporal experiments ran on dedicated
+eight-core CPU hosts. Core was frozen before the streaming symmetry and
+disk membership changes. Cells compare three interleaved process samples
+on one host, with nominal and default profiles measured separately. Timing includes
+startup. The complete record names the identity mode, cap, result, counts,
+depth, and RSS for each sample.
+[Follow-up observations](../../../conformance/reports/perf/2026-11-20-packed-core-panel.json) ·
+[Panel runner](../../../scripts/perf/scale/native-peer-panel.py)
+
+| Experiment and input | Profile | Workers | Core wall | Candidate wall | Fastest matched peer |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Resident counters | Default | 1 | 4.24 s | 23.2 ms | Manyan 0.87 s |
+| Resident counters | TLC | 1 | 4.27 s | 23.2 ms | Manyan 0.86 s |
+| Resident counters, wider configuration | Default | 1 | 10.06 s | 48.3 ms | Manyan 2.14 s |
+| Resident counters, wider configuration | TLC | 1 | 10.08 s | 48.6 ms | Manyan 2.11 s |
+| Packed KVS Small | Default | 1 | 102.90 s | 106.63 s | — |
+| Packed KVS Small | TLC | 1 | 104.33 s | 108.85 s | — |
+| Aggregate actions on Lamport | Default | 8 | 2.39 s | 2.13 s | tlx 0.27 s |
+| Aggregate actions on Lamport | TLC | 8 | 2.64 s | 2.41 s | tlx 0.27 s |
+| Aggregate actions on KVS Medium | Default | 8 | 164.26 s | 139.87 s | tlx 16.18 s |
+| Aggregate actions on KVS Medium | TLC | 8 | 165.84 s | 140.70 s | tlx 15.98 s |
+| Retained temporal rows | Default | 8 | 0.57 s | 0.49 s | Manyan 70.0 ms |
+| Retained temporal rows | TLC | 8 | 0.76 s | 0.69 s | Manyan 70.0 ms |
+
+The resident integer-function path derives its transition table from the bound
+Core plan. It keeps an exact bitset for membership and updates packed frontier
+words directly. The Manyan counters configurations use 21 and 24 bits per
+state. Their matched results were 823,543 distinct states at depth 43 and
+1,679,616 at depth 41. Each comparison to the Core baseline uses exact
+identity. Manyan ran in fingerprint mode. A late layout miss and an invariant
+violation returned to ordinary Core. In both profiles the violation produced
+the original independently replayable trace.
+[Resident layout experiment](https://github.com/Chelis-Lang/dive/tree/perf/resident-fixed-domain)
+
+Layout inference derives a 32-bit encoding for KVS Medium from the configured
+invariant. The five fields use 6, 2, 12, 6 and 6 bits. Round trips preserved
+equality and the Core value hash for the initial state and 4,095 successor
+emissions in both profiles. The KVS Small experiment used packed exact keys
+and frontier rows throughout search. It used Core to expand those rows and
+check invariants. The resulting RSS and wall-time measurements locate the next
+work in the action evaluator and encoded symmetry. Nominal-profile peak RSS on
+KVS Small fell from 801 MiB to 67 MiB. In the 60 s KVS Medium comparison, the
+packed path reached 2,204,736 distinct and 21,650,441 generated states. Core
+reached 2,421,218 distinct and 24,500,288 generated states.
+[tlx fixed state layouts](https://github.com/tlaplus-x/tlx/blob/77867a37d59525ce8866e8cce7f2dd32dc5d4d04/docs/design.md)
+
+The aggregate path replaces repeated function lookup and update with indexed
+operations and lowers complete deterministic action bodies. It exercised 24
+Lamport leaves in the instrumented run. At eight workers KVS Medium took 14.8%
+less wall time in the default profile and 15.2% less wall time in the TLC
+profile. The gap to compiled tlx is still substantial.
+[Aggregate action experiment](https://github.com/Chelis-Lang/dive/tree/perf/packed-core-actions)
+
+The temporal profile attributed 6.3% of counted instructions to
+implicit-product traversal, plus 1.8% in its inlined slice indexing. The
+trials reused discovered pairs and retained bounded product rows in discovery
+order before converting to witness order. The weakened fairness control
+replayed successfully in both profiles at one and eight workers. At eight
+workers Manyan fairness took 14.0% less wall time in the default profile.
+AllocatorImplementation saw no consistent gain.
+[Temporal experiment](https://github.com/Chelis-Lang/dive/tree/perf/product-vertex-lookup) ·
+[Manyan product layout](https://github.com/soasme/manyan/blob/a39816a873a2c2aabc00dbcef50908e996f3d44b/manyan.c#L15169)
+
+The isolated Wasm batch probe spent most of its time copying 97-word Lamport
+rows. The generated resident kernels instead compiled the bound counters
+transition tables and retained the whole search in linear memory. The Rust and
+Wasm versions matched the counts and depth on both configurations. Warm Rust
+and generated Wasm medians were 18.56/18.65 ms and 47.18/46.42 ms for the two
+configurations. Wasm compilation and instantiation added 2.97 ms and 3.16 ms.
+[Wasmtime typed calls](https://docs.rs/wasmtime/50.0.3/wasmtime/struct.TypedFunc.html)
+
+A profile-guided build trained on MCBakery, MCPaxos and TCommit sped up
+Lamport and one-worker counters in both profiles. It slowed Manyan liveness in
+both profiles. The 13-run startup medians were 4.00 ms for Core and 4.06 ms
+for the profile-guided build.
+[Rust profile-guided builds](https://doc.rust-lang.org/rustc/profile-guided-optimization.html)
+
+On EmergencyCall f3, frozen Core took 254.67 s at one worker and 114.17 s at
+eight, with the same counts and depth. BPConProof reached 29,711,908 distinct
+states at its one-worker limit. The system cgroup killed the eight-worker
+process for memory before it produced a report.
+
+On KVS Medium, replacing general symmetry with exact bit permutations
+increased the generated-state prefix after 60 seconds by a factor of 1.51× in
+the default profile and 1.51× in the TLC profile.
+[Packed symmetry experiment](https://github.com/Chelis-Lang/dive/tree/perf/ranked-symmetry)
+
+### Compiling the finite relation
+
+The finite safety binder already checks whether a configuration can be
+expressed as Boolean guards and updates over a fixed layout. The new probe
+turns those decision diagrams into Rust. It groups adjacent bits that copy
+together, keeps state packed through generation and membership, and sorts
+configured interchangeable lanes to identify exact symmetry orbits. It
+verifies the configured invariants and checks for deadlock where requested.
+The current worker uses one physical core.
+[Source-driven finite checker](../../user/symbolic.md) ·
+[Packed search emitter](../../../scripts/perf/scale/packed-codegen-probe/emit_finite_search.py)
+
+| TLA+ input | Exact distinct states | Exact generated states | Depth | Cold bind, compile and check | Warm check | Same-host control |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| KVS Small | 3,409,605 | 56,349,379 | 23 | 1.00 s | 0.64 s | Core exact 104.33 s |
+| KVS Medium | 17,220,672 | 365,609,473 | 22 | 2.98 s | 2.69 s | tlx 87.25 s at 1 worker |
+| TCommit, 12 resource managers | 535,536 | 6,401,869 | 25 | 0.40 s | 50.0 ms | Core exact 23.36 s |
+
+These medians cover three separate processes on the temporal-panel host. Cold
+time includes loading the source, binding, emission, Rust compilation and
+search. Each warm process uses a built worker. TCommit uses the original
+module and an enlarged `RM` constant. The binder uses nominal TLC semantics.
+The generated and Core controls use exact identity. Compiled tlx uses
+fingerprints. Distinct states count exact orbits when symmetry is configured.
+Generated states count every enabled successor occurrence and each initial
+occurrence. Peak RSS is the maximum reported by GNU time for the measured
+process. On KVS Medium the cold generated worker gave a 29.3× speedup over
+compiled tlx at one worker. The eight-worker tlx run took 13.92 s.
+
+A parallel worker retained canonical packed states and shared an exact atomic
+bitset. On KVS Medium its warm process medians were 2.97 s at one worker and
+0.71 s at eight. Both widths matched all counts and depth. At eight workers
+the cold medians were 1.18 s for generated Rust and 13.92 s for tlx, giving a
+11.8× speedup. The warm tlx median was 13.91 s.
+[Parallel experiment](https://github.com/Chelis-Lang/dive/tree/perf/finite-atomic-source)
+
+The KVS worker checks the unmodified source. A separate handwritten transition
+loop reached the same counts in 1.49 s on the same host. This measures
+the throughput of direct action code and packed membership on that input. On a deliberately
+nonholding KVS edit, the generated worker declined. Ordinary Core reported
+`NeverOpen` at depth two and the independent trace validator accepted both
+profiles' witnesses.
+
+For KVS Large the same lowering fitted each state into 45 bits and assigned
+each orbit a dense rank among 23,299,718,715 possibilities. It completed in
+236.11 s at 1 worker and 37.29 s at 8 workers on the dedicated host. The
+search checked 594,616,815 distinct states and 13,385,471,536 generated states
+at depth 30. Peak RSS on the 8-worker run was 4.91 GiB. A sparse exact
+hash-table trial on the shared workstation stopped at its 620 s limit.
+[Large controls and BDD fixed point](../../developer/large-models.md#repeat-on-the-r2-reference-hardware) ·
+[Parallel dense orbit experiment](https://github.com/Chelis-Lang/dive/tree/perf/finite-atomic-orbits)
+
+Use the symbolic development environment from the user guide to reproduce the
+one-worker generated search. Set `module` and `config` to the original closed
+input paths. For TCommit, pass `--type-invariant TCTypeOK`.
+
+```sh
+cargo build --release --locked -p dive-api --example symbolic_input
+probe_dir=$(mktemp -d)
+target/symbolic-python/bin/python scripts/perf/scale/packed-codegen-probe/emit_finite_search.py \
+  target/release/examples/symbolic_input "$module" "$config" "$probe_dir/worker.rs"
+rustc --edition 2024 -Copt-level=3 -Cpanic=abort -Clto=off -Ccodegen-units=1 \
+  "$probe_dir/worker.rs" -o "$probe_dir/worker"
+"$probe_dir/worker"
+```
+
+The existing binder declined the original Lamport configuration at its
+operator override, MCPaxos at its temporal property, and BPConProof at the
+configured `Value` binding. The dedicated gains establish the value of
+complete action lowering within the admitted safety fragment. These three
+refusals bound the transfer to general models.
+
+Use the finite relation as the starting point for a compiled safety tier.
+Qualify it on a consensus model with a wider layout, check compiler admission
+and all exit paths against Core, and keep witness replay and budget
+enforcement in the qualification. Preserve separate cold and warm
+measurements. Qualify the parallel path at the same worker widths as Core. The
+aggregate evaluator and bounded temporal rows merit targeted work on cases
+that stay in the general engine.
 
 ## TLAPS options and evidence
 

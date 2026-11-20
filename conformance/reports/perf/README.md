@@ -316,6 +316,12 @@ model key; the keys are stable corpus config paths.
 
 ## Large-model structure and edit reuse
 
+The packed safety follow-up records cold and warm source-generated checks,
+native peers, exact orbit ranks, packed aggregate actions, temporal product
+rows and profile-guided compilation on two dedicated CPU hosts.
+[Packed safety benchmark observations](2026-11-20-packed-core-panel.json) ·
+[Methods and results](../../../docs/internal/survey/verification-workloads.md#packed-states-and-complete-actions)
+
 [Next large-model experiments and their baselines](../../../docs/developer/large-models.md#next-experiments).
 
 [Transaction-commit domain growth](2026-11-20-tcommit-domain-growth.json) records four complete searches, including 128 resource managers.
