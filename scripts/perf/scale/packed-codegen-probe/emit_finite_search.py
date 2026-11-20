@@ -5,6 +5,7 @@ import argparse
 from collections import defaultdict
 import itertools
 import json
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -82,6 +83,41 @@ class Rust:
     def rank(self, point):
         return sum(1 << bit for name, bit in self.bits.items() if point[name])
 
+    def coordinates(self):
+        model = self.model
+        require(2 <= len(model.roles) <= 6, "ranked orbits require full interchangeable lanes")
+        require(self.fixed < 16 and len(model.roles[0]) < 16, "rank tables need bounded fields")
+        legal = model.conjunction(prop for _, prop in model.properties)
+
+        def valid_words(fields):
+            projected = model.b.exist(set(self.bits) - set(fields), legal)
+            words = sorted(sum(1 << i for i, name in enumerate(fields) if point[name])
+                           for point in model.b.pick_iter(projected, set(fields)))
+            require(words, "no values satisfy the configured invariants")
+            return words
+
+        fixed_valid = valid_words(list(self.bits)[:self.fixed])
+        lane_valid = valid_words(model.roles[0])
+        require(all(valid_words(lane) == lane_valid for lane in model.roles), "asymmetric projected ranks")
+        orbit_count = math.comb(len(lane_valid) + len(model.roles) - 1, len(model.roles))
+        total = orbit_count * len(fixed_valid)
+        require(total <= 1 << 36, "exact dense orbit membership exceeds 8 GiB")
+
+        def table(words, width):
+            entries = ["INVALID"] * (1 << width)
+            for rank, word in enumerate(words):
+                entries[word] = str(rank)
+            return ", ".join(entries)
+
+        self.orbit_size = total
+        return {
+            "FIXED_RANKS": table(fixed_valid, self.fixed),
+            "LANE_RANKS": table(lane_valid, len(model.roles[0])),
+            "FIXED_SPACE": len(fixed_valid),
+            "MEMBERSHIP_BITS": total,
+            "LANE_RANGE": len(lane_valid),
+        }
+
     def emit(self):
         model = self.model
         require(model.constraint == model.b.true, "state constraints in the explicit prototype")
@@ -103,6 +139,7 @@ class Rust:
             properties.append("{ " + " ".join(lines) + f" {holds} }}")
         condition = " && ".join(f"({part})" for part in properties) or "true"
         values = dict(
+            **self.coordinates(),
             WIDTH=len(self.bits),
             FIXED=self.fixed,
             ROLES=len(model.roles),
@@ -120,6 +157,7 @@ class Rust:
             "width": len(self.bits),
             "symmetry_lanes": len(model.roles),
             "decision_nodes": self.total_nodes,
+            "identity_bits": self.orbit_size,
             "actions": model.effects.total(),
         }
         return worker
