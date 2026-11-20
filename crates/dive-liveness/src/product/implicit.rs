@@ -83,6 +83,7 @@ struct Discovery<'a, T: TruthAccess> {
     pairs: Vec<(usize, usize)>,
     edge_count: usize,
     steps: usize,
+    record: Option<DiscoveryRows>,
 }
 
 impl<T: TruthAccess> Discovery<'_, T> {
@@ -125,6 +126,10 @@ impl<T: TruthAccess> Discovery<'_, T> {
         }
         self.acceptance_cells(size, self.edge_count)?;
         csr::grow(&mut self.pairs, 1)?;
+        if let Some(record) = &mut self.record {
+            record.ids[v * record.width + n] = u32::try_from(self.pairs.len())
+                .map_err(|_| ProductError::Limit("packed product vertex index"))?;
+        }
         self.pairs.push((v, n));
         Ok(())
     }
@@ -151,7 +156,17 @@ impl<T: TruthAccess> Discovery<'_, T> {
                     .ok_or(ProductError::Limit("edges"))?;
                 self.acceptance_cells(self.pairs.len(), self.edge_count)?;
                 self.visit(target, next)?;
+                if let Some(record) = &mut self.record
+                    && record.edge(target, next, e).is_none()
+                {
+                    self.record = None;
+                }
             }
+        }
+        if let Some(record) = &mut self.record
+            && record.end_row().is_none()
+        {
+            self.record = None;
         }
         Ok(())
     }
@@ -205,6 +220,96 @@ struct ProductRows {
     edges: Vec<(u32, u32)>,
 }
 
+struct DiscoveryRows {
+    width: usize,
+    ids: Vec<u32>,
+    rows: ProductRows,
+}
+
+impl DiscoveryRows {
+    fn new(vertices: usize, width: usize) -> Option<Self> {
+        let count = vertices.checked_mul(width)?;
+        if count > (1 << 20) {
+            return None;
+        }
+        let mut ids = Vec::new();
+        ids.try_reserve_exact(count).ok()?;
+        ids.resize(count, u32::MAX);
+        Some(Self {
+            width,
+            ids,
+            rows: ProductRows {
+                offsets: vec![0],
+                edges: Vec::new(),
+            },
+        })
+    }
+
+    fn edge(&mut self, to: usize, node: usize, edge: usize) -> Option<()> {
+        let id = self.ids[to * self.width + node];
+        let bytes = self.rows.offsets.len() * size_of::<u32>()
+            + (self.rows.edges.len() + 1) * size_of::<(u32, u32)>();
+        if id == u32::MAX || bytes > PRODUCT_ROWS_BYTES {
+            return None;
+        }
+        self.rows.edges.try_reserve(1).ok()?;
+        self.rows.edges.push((id, u32::try_from(edge).ok()?));
+        Some(())
+    }
+
+    fn end_row(&mut self) -> Option<()> {
+        let bytes = (self.rows.offsets.len() + 1) * size_of::<u32>()
+            + self.rows.edges.len() * size_of::<(u32, u32)>();
+        if bytes > PRODUCT_ROWS_BYTES {
+            return None;
+        }
+        self.rows.offsets.try_reserve(1).ok()?;
+        self.rows
+            .offsets
+            .push(u32::try_from(self.rows.edges.len()).ok()?);
+        Some(())
+    }
+
+    fn order(
+        self,
+        order: &[usize],
+        mut renumber: Vec<usize>,
+    ) -> Result<Option<ProductRows>, ProductError> {
+        let Self { rows, ids, .. } = self;
+        drop(ids);
+        let mut out = ProductRows {
+            offsets: Vec::new(),
+            edges: Vec::new(),
+        };
+        if out.offsets.try_reserve_exact(rows.offsets.len()).is_err()
+            || out.edges.try_reserve_exact(rows.edges.len()).is_err()
+        {
+            return Ok(None);
+        }
+        for (new, &old) in order.iter().enumerate() {
+            renumber[old] = new;
+        }
+        out.offsets.push(0);
+        for (new, &old) in order.iter().enumerate() {
+            if new.is_multiple_of(1024) {
+                csr::poll()?;
+            }
+            for &(target, edge) in
+                &rows.edges[rows.offsets[old] as usize..rows.offsets[old + 1] as usize]
+            {
+                let target = u32::try_from(renumber[target as usize])
+                    .map_err(|_| ProductError::Limit("packed product vertex index"))?;
+                out.edges.push((target, edge));
+            }
+            out.offsets.push(
+                u32::try_from(out.edges.len())
+                    .map_err(|_| ProductError::Limit("packed product edge index"))?,
+            );
+        }
+        Ok(Some(out))
+    }
+}
+
 impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
     /// Discovers the reachable product of `graph` and `tableau`, as the
     /// materialized `CompactProduct` does.
@@ -217,6 +322,13 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
     ) -> Result<Self, ProductError> {
         let graph = graph.into();
         super::validate(graph, tableau, labels)?;
+        let record = if std::env::var_os("DIVE_EXPERIMENT_PRODUCT_ROWS").as_deref()
+            == Some(std::ffi::OsStr::new("2"))
+        {
+            DiscoveryRows::new(graph.vertex_count(), tableau.nodes.len())
+        } else {
+            None
+        };
         let mut discovery = Discovery {
             graph,
             tableau,
@@ -227,6 +339,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             pairs: Vec::new(),
             edge_count: 0,
             steps: 0,
+            record,
         };
         let mut root_pairs = BTreeSet::new();
         for &v in graph.roots() {
@@ -261,13 +374,18 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             seen,
             pairs,
             edge_count,
+            record,
             ..
         } = discovery;
         drop(seen);
         // Discovery order never chooses the witness: ids follow the
         // Cartesian `(behavior vertex, tableau node)` order.
         let (ordered, scratch) = pair_order::cartesian(&pairs)?;
-        drop(scratch);
+        let rows = if let Some(record) = record {
+            record.order(&ordered, scratch)?
+        } else {
+            None
+        };
         let input = Ordered {
             pairs: &pairs,
             order: &ordered,
@@ -322,7 +440,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             nodes,
             offsets,
             identity,
-            rows: None,
+            rows,
             roots: Vec::new(),
             edge_count,
             acceptance,
