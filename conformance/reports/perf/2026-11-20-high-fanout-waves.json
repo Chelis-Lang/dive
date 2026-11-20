@@ -1406,5 +1406,66 @@
   "platform": "Separate isolated c7i.4xlarge in us-east-1 per cohort, gp3 storage, 24 GiB cgroup, 8 physical cores, one process at a time. GNU time measures wall seconds and process peak RSS.",
   "command": "dive check MODULE --config CFG --workers 8 --fp 0 --seed 0 --compat=tlc --max-states PREFIX --max-memory 8g --time-limit 300s --output json",
   "build_recipe": "Linux x86_64 release, CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16; fingerprint store. Base built from main 167813374.",
-  "experimental_branch": "perf/frontier-independent-chunks"
+  "experimental_branch": "perf/frontier-independent-chunks",
+  "block_compression": {
+    "codec": "lz4_flex 0.14.2 safe block encoder and decoder, original bytes when compression would expand the chunk. Each compressed record carries its decoded size and is checked before import.",
+    "sample": {
+      "samples": 128,
+      "source_sha256": "bf72c0717b44fb262aa6469b70a83673af5eaa66b8f3154f88d2beac9bebe05a",
+      "bytes": 4014450,
+      "compressed_bytes": 849886,
+      "min_ratio": 4.356630572352693,
+      "max_ratio": 5.128114478114478,
+      "liblz4_version": 11000,
+      "discovery_id_range": [
+        23513,
+        341976429
+      ],
+      "selection": "64 evenly spaced full records per active frontier during the longer uncompressed BPConProof run. Sizes exclude the index and outer queue record. Reference liblz4 verified every decompressed payload byte for byte."
+    },
+    "platform": "Two sequential fresh processes on one isolated c7i.4xlarge, us-east-1a, eight physical cores pinned, 320 GiB gp3 root, hard 24 GiB cgroup with zero swap. Ubuntu Linux 7.0.0-1018-aws. Same release settings, compiled parent and compression change. GNU time measures wall seconds and process peak RSS.",
+    "command": "dive check BPConProof.tla --config BPConProof.cfg --workers 8 --compat=tlc --fp 0 --seed 0 --max-states 100000000 --max-memory 18g --time-limit 1800s --independent-frontier --output json",
+    "rows": [
+      {
+        "mode": "compressed",
+        "binary_sha256": "91af208a07601a4a8f67f16f191d0e711327181122d3689d35233642a524e7f9",
+        "rc": 5,
+        "wall_seconds": 534.03,
+        "peak_rss_kib": 1972000,
+        "statistics": {
+          "depth": 4,
+          "distinct": 100000000,
+          "exhaustive": false,
+          "generated": 201557438,
+          "initial_generated": 1,
+          "left_on_queue": 99914031,
+          "reported_by_tlc": false
+        },
+        "verdict": "stopped",
+        "stop_reason": "states",
+        "committed_frontier_bytes": 10553374998,
+        "collections": 185
+      },
+      {
+        "mode": "raw",
+        "binary_sha256": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+        "rc": 5,
+        "wall_seconds": 553.51,
+        "peak_rss_kib": 1984392,
+        "statistics": {
+          "depth": 4,
+          "distinct": 100000000,
+          "exhaustive": false,
+          "generated": 201557438,
+          "initial_generated": 1,
+          "left_on_queue": 99914031,
+          "reported_by_tlc": false
+        },
+        "verdict": "stopped",
+        "stop_reason": "states",
+        "committed_frontier_bytes": 49686973771,
+        "collections": 185
+      }
+    ]
+  }
 }

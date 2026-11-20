@@ -20,6 +20,7 @@ dive-core.workspace = true
 dive-store.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+lz4_flex.workspace = true
 sha2.workspace = true
 hmac.workspace = true
 getrandom.workspace = true
