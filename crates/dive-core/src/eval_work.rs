@@ -133,7 +133,11 @@ impl Machine {
 
     /// Central bounded boundary for every interpreter/library normalization.
     pub(crate) fn work_norm(&mut self, h: Handle) -> Result<Handle, Error> {
-        if self.fuel != u64::MAX && h.is_compound() && self.heap.view(h).kind.is_symbolic() {
+        // `Heap::norm` returns a scalar or a non-symbolic node unchanged.
+        if !h.is_compound() || !self.heap.view(h).kind.is_symbolic() {
+            return Ok(h);
+        }
+        if self.fuel != u64::MAX {
             self.domain_work(h, true, 0)?;
         }
         self.heap.norm(h)

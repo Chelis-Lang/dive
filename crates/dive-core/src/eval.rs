@@ -23,6 +23,11 @@ mod work;
 /// before unbounded model recursion consumes the host interpreter's stack.
 const MAX_CALL_DEPTH: usize = 64;
 
+/// Below this many elements, membership of a compound value in an enumerated
+/// set scans element hashes instead of binary-searching by canonical order:
+/// one header read per element instead of a structural comparison per probe.
+const SMALL_MEMBER_SCAN: usize = 16;
+
 /// Charged units between polls of the installed [`WorkControl`]. Every
 /// charge counts at least one unit, so the checkpoint runs at least once per
 /// this many charges and before any charge that would carry the units since
@@ -500,13 +505,25 @@ impl Machine {
     ///
     /// The inline path only counts down to the next [`WorkControl`] poll
     /// ([`WORK_POLL_UNITS`]). Its countdown is armed only while fuel and the
-    /// start-up transient bound are unbounded, so a bounded machine checks
-    /// both exactly on every charge ([`Machine::charge_slow`]).
+    /// start-up transient bound are unbounded. A machine with finite fuel and
+    /// no transient bound spends its fuel inline while the poll countdown and
+    /// the fuel both cover the charge, exactly as [`Machine::charge_slow`]
+    /// would; every other bounded charge takes the slow path.
     #[inline]
     pub(crate) fn charge(&mut self, n: usize) -> Result<(), Error> {
         let units = (n as u64).max(1);
         if units < self.work_countdown {
             self.work_countdown -= units;
+            return Ok(());
+        }
+        let n64 = n as u64;
+        if units < self.bounded_countdown
+            && self.fuel != u64::MAX
+            && n64 <= self.fuel
+            && self.transient_bound == usize::MAX
+        {
+            self.bounded_countdown -= units;
+            self.fuel -= n64;
             return Ok(());
         }
         self.charge_slow(units, n)
@@ -1593,13 +1610,13 @@ impl Machine {
     /// `set` is not a set, or membership is undefined.
     #[allow(clippy::too_many_lines, reason = "one arm per set kind")]
     pub fn member(&mut self, x: Handle, set: Handle) -> Result<bool, Error> {
-        if self.fuel != u64::MAX && set.is_compound() && self.heap.view(set).kind == Kind::SetEnum {
-            self.domain_work(set, false, 0)?;
-        }
         if !set.is_compound() {
             return Err(eval_err("membership in a value that is not a set"));
         }
         let kind = self.heap.view(set).kind;
+        if self.fuel != u64::MAX && kind == Kind::SetEnum {
+            self.domain_work(set, false, 0)?;
+        }
         if kind != Kind::Set
             && kind != Kind::Product
             && kind != Kind::Subset
@@ -1619,20 +1636,39 @@ impl Machine {
                     None
                 };
                 if indexed.is_none() {
-                    for h in [x, set] {
-                        // A node carrying the cached proof takes the O(1)
-                        // check; only the others scan the recorded proofs.
-                        if !h.is_compound()
-                            || self.heap.view(h).flags & crate::node::flags::CONCRETE != 0
-                            || !self.proven(h)
-                        {
+                    for (h, flags) in [
+                        (x, x.is_compound().then(|| self.heap.view(x).flags)),
+                        (set, Some(v.flags)),
+                    ] {
+                        // A node carrying the cached proof is materialized
+                        // (`compare::materialized` accepts it at once), and so
+                        // is a recorded proven handle; only the others walk.
+                        let proved = flags.is_some_and(|flags| {
+                            flags & crate::node::flags::CONCRETE != 0 || self.proven(h)
+                        });
+                        if !proved {
                             compare::require_materialized(&self.heap, &[h])?;
                         }
                     }
                 }
-                if indexed
-                    .unwrap_or_else(|| v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok())
-                {
+                let found = match indexed {
+                    Some(found) => found,
+                    // Both sides were proven materialized above, where equal
+                    // values have equal hashes (the member index's
+                    // admission). A small set is scanned by hash, and each
+                    // hash match is confirmed by the canonical comparison.
+                    None if x.is_compound()
+                        && v.data.len() < SMALL_MEMBER_SCAN
+                        && !self.heap.store.semantics().tlc_comparisons =>
+                    {
+                        let hash = self.heap.hash(x);
+                        v.data
+                            .iter()
+                            .any(|&e| self.heap.hash(e) == hash && self.heap.cmp(e, x).is_eq())
+                    }
+                    None => v.data.binary_search_by(|&e| self.heap.cmp(e, x)).is_ok(),
+                };
+                if found {
                     return Ok(true);
                 }
                 compare::miss_cached(&self.heap, &mut self.memo, x, set, v.data)?;
@@ -3351,6 +3387,36 @@ mod work_poll_bound {
         assert_eq!(polls(&control), 2);
         assert_eq!(m.charge(1), Ok(()));
         assert_eq!(polls(&control), 3);
+    }
+
+    #[test]
+    fn bounded_inline_charges_spend_fuel_and_poll_exactly_as_the_slow_path() {
+        let units = WORK_POLL_UNITS;
+        let (mut m, control) = machine(usize::MAX);
+        m.set_fuel(100);
+        // The first charge polls; each later poll comes after `units` poll
+        // units, where a zero charge counts one unit and spends no fuel.
+        let mut fuel = 100u64;
+        let mut since_poll = 0u64;
+        let mut expected_polls = 0usize;
+        for n in [0usize, 1, 5, 0, 3, 7, 2, 0, 9, 4, 1, 6, 0, 8, 2, 5, 3] {
+            let poll_units = (n as u64).max(1);
+            if expected_polls == 0 || since_poll + poll_units >= units {
+                expected_polls += 1;
+                since_poll = 0;
+            } else {
+                since_poll += poll_units;
+            }
+            assert_eq!(m.charge(n), Ok(()));
+            fuel -= n as u64;
+            assert_eq!(m.fuel, fuel);
+            assert_eq!(polls(&control), expected_polls);
+        }
+        // Fuel that does not cover a charge refuses it and is spent.
+        let left = usize::try_from(fuel).unwrap_or(usize::MAX);
+        let error = m.charge(left + 1).err();
+        assert!(error.is_some_and(|e| e.kind() == crate::ErrorKind::Unsupported));
+        assert!(m.fuel_exhausted());
     }
 
     #[test]

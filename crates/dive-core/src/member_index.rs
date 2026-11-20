@@ -443,6 +443,67 @@ mod tests {
     }
 
     #[test]
+    fn small_sets_scan_hashes_and_confirm_every_hash_match_by_comparison() {
+        for tlc in [false, true] {
+            for fuel in [u64::MAX, 1 << 20] {
+                let mut m = machine(tlc, true);
+                m.set_fuel(fuel);
+                // Equal hashes, unequal values: a hash match alone is no hit.
+                let mut colliding: Vec<_> = (0..15)
+                    .map(|i| {
+                        m.heap
+                            .arena
+                            .alloc(Kind::IntFcn, 0, 1, 7, 0, &[Handle::int(i).unwrap()])
+                    })
+                    .collect();
+                let set = m.heap.set_from(&mut colliding);
+                for i in -1..16 {
+                    let query =
+                        m.heap
+                            .arena
+                            .alloc(Kind::IntFcn, 0, 1, 7, 0, &[Handle::int(i).unwrap()]);
+                    assert_eq!(m.member(query, set), Ok((0..15).contains(&i)));
+                }
+                // An equal value in another representation, with the
+                // construction hash every representation shares, is a hit.
+                let mut tuples: Vec<_> = (0..15)
+                    .map(|i| {
+                        let tuple = m.heap.tuple(&[Handle::int(i).unwrap()]);
+                        m.heap.intern(tuple).unwrap()
+                    })
+                    .collect();
+                let actual = tuples[5];
+                let set = m.heap.set_from(&mut tuples);
+                let set = m.heap.intern(set).unwrap();
+                let view = m.heap.view(actual);
+                let query = m.heap.store.intern(
+                    &mut crate::store::InternCache::default(),
+                    Kind::Fcn,
+                    0,
+                    0,
+                    view.hash,
+                    view.sum,
+                    &[Handle::int(1).unwrap(), Handle::int(5).unwrap()],
+                );
+                assert!(!m.heap.eq(actual, query));
+                assert_eq!(m.member(query, set), Ok(true));
+                for len in 0..17 {
+                    let mut values: Vec<_> = (0..len)
+                        .map(|i| m.heap.tuple_literal(&[Handle::int(2 * i).unwrap()]))
+                        .collect();
+                    let set = m.heap.set_from(&mut values);
+                    for i in -1..=2 * len {
+                        let query = m.heap.tuple_literal(&[Handle::int(i).unwrap()]);
+                        let expected = Ok(i >= 0 && i % 2 == 0 && i < 2 * len);
+                        assert_eq!(m.member(query, set), expected, "len {len}, query {i}");
+                    }
+                }
+                assert!(!m.heap.poisoned());
+            }
+        }
+    }
+
+    #[test]
     fn warm_cache_rebinds_to_a_different_store_without_using_old_handles() {
         let mut m = machine(false, true);
         let set = tuple_set(&mut m);
