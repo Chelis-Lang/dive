@@ -76,8 +76,11 @@ def main():
     # A supervisor can interrupt a long CUDD operation and stop its process group.
     # The normal Dive binary and other sessions keep their own limits.
     worker = Path(__file__).with_name("engine.py")
+    class Cancelled(Exception):
+        """Cancel without the extra grace in Popen.wait for KeyboardInterrupt."""
+
     def interrupted(signum, _frame):
-        raise KeyboardInterrupt(signum)
+        raise Cancelled(signum)
 
     watched = {signal.SIGINT, signal.SIGTERM, signal.SIGHUP}
     # Defer cancellation until the supervisor owns the new process group.
@@ -92,7 +95,7 @@ def main():
     try:
         signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
         status = process.wait(timeout=args.time_limit)
-    except (subprocess.TimeoutExpired, KeyboardInterrupt) as error:
+    except (subprocess.TimeoutExpired, Cancelled) as error:
         signal.pthread_sigmask(signal.SIG_BLOCK, watched)
         try:
             os.killpg(process.pid, signal.SIGKILL)
