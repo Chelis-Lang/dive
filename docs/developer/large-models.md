@@ -118,6 +118,19 @@ and Huang worker observations matched the pinned verdict, exit class, counts
 and depth. See the [performance evidence index](../../conformance/reports/perf/README.md)
 for the isolated probes and source identities.
 
+To record a bounded ordinary Core observation for a model without a pinned
+TLC golden, use the normal harness with `--observe-missing-goldens`.
+For example, run the following from a checkout with the pinned Examples corpus
+and a release CLI. Each worker count gets its own record under `models[].runs`.
+The model retains its missing-oracle outcome and contributes zero parity agreements.
+
+```sh
+cargo run --release --locked -p dive-conformance -- run --impl dive:core \
+  --impl-profile tlc --corpus examples --tier all --no-sany --workers 1,8 \
+  --filter '**/MCKVSSafetyLarge.cfg' --observe-missing-goldens \
+  --tlc-budgets --budget-cap 600 --xmx 24g --report-dir /tmp/dive-large --no-summary
+```
+
 The motivating measurements cover [the large non-finishes](https://github.com/Chelis-Lang/dive/issues/1034),
 [slow-TLC models](https://github.com/Chelis-Lang/dive/issues/799) and
 [temporal worker scaling](https://github.com/Chelis-Lang/dive/issues/1028).

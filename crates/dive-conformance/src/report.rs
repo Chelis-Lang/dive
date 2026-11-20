@@ -80,6 +80,9 @@ pub struct RunRecord {
     pub violated_property: Option<String>,
     /// Distinct states.
     pub distinct_states: Option<u64>,
+    /// Number left on the queue in an ungraded observation, when available.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub states_left_on_queue: Option<u64>,
     /// Generated states.
     pub states_generated: Option<u64>,
     /// Depth.
@@ -189,6 +192,9 @@ pub struct Settings {
     pub timeout_policy: String,
     /// Whether the manifest cross-check ran.
     pub crosscheck_manifest: bool,
+    /// Whether missing model goldens were accompanied by ungraded observations.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub observe_missing_goldens: bool,
     /// Which SANY verdict modules were compared on.
     #[serde(default)]
     pub sany_phase: SanyPhase,
@@ -845,6 +851,7 @@ mod tests {
                 violated_property: None,
                 distinct_states: None,
                 states_generated: None,
+                states_left_on_queue: None,
                 depth: None,
                 trace_length: None,
                 diffs: vec![],

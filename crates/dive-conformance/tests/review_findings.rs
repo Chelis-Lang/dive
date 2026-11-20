@@ -300,6 +300,7 @@ impl World {
                 budget_cap: None,
             },
             crosscheck_manifest: false,
+            observe_missing_goldens: false,
             models: true,
             sany: true,
             report_dir: self.repo.join("reports"),

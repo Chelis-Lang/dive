@@ -79,6 +79,7 @@ RUN:
                            each report row records the engine that ran)
     --golden-oracle <id>   oracle whose goldens are compared (default: the default oracle)
     --workers <list>       worker counts, e.g. 1,4 (default: 1)
+    --observe-missing-goldens  run selected models without a golden and record ungraded results
     --crosscheck-manifest  compare goldens with the Examples manifests (oracle drift)
     --no-sany              skip SANY goldens
     --sany-only            compare modules only, without running model checking
@@ -172,6 +173,7 @@ struct Opts {
     golden_oracle: Option<String>,
     workers: Option<Vec<u32>>,
     crosscheck: bool,
+    observe_missing_goldens: bool,
     report_dir: Option<PathBuf>,
     summary: Option<PathBuf>,
     no_summary: bool,
@@ -236,6 +238,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
                 }
                 o.workers = Some(list);
             }
+            "--observe-missing-goldens" => o.observe_missing_goldens = true,
             "--crosscheck-manifest" => o.crosscheck = true,
             "--report-dir" => o.report_dir = Some(args.value(&a)?.into()),
             "--summary" => o.summary = Some(args.value(&a)?.into()),
@@ -587,6 +590,7 @@ fn cmd_final_study(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Res
         || o.no_sany
         || o.sany_only
         || o.sany_phase.is_some()
+        || o.observe_missing_goldens
         || o.crosscheck
         || o.summary.is_some()
         || o.lncheck.is_some()
@@ -695,6 +699,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         workers: o.workers.clone().unwrap_or_else(|| vec![1]),
         limits: limits(o),
         crosscheck_manifest: o.crosscheck,
+        observe_missing_goldens: o.observe_missing_goldens,
         models: !o.sany_only,
         sany: !o.no_sany,
         report_dir: o

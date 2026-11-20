@@ -7,6 +7,9 @@ are in git history.
 
 ### Added
 
+- The conformance harness can run selected models without TLC goldens with
+  `--observe-missing-goldens` and record their ungraded outcomes.
+
 - The optional [finite symbolic checker](docs/user/symbolic.md) searches finite safety models using decision diagrams, rechecks invariant edits and verifies inductive predicates against the current source.
 
 ### Fixed
