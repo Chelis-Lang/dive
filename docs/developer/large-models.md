@@ -447,6 +447,12 @@ would require knowing the counting convention and input of every contender,
 including proprietary models. The enlarged KVS and transaction-commit runs
 above demonstrate concrete reachable cardinalities on their own programs.
 
+### Reproduce the ZooKeeper protocol specification
+
+Three completed no-restart configurations reproduce the state counts and diameters in Ouyang et al., Table 1. The paper’s count matches **generated** states in each. With four servers, two transactions and one timeout, Core and pinned TLC exhausted the queue at 6,634,696 distinct states, 21,393,294 generated and depth 64. Core took 623.70 s and 452 MiB peak RSS. TLC took 136.24 s and 46.3 GiB on the same host. Core used one of the 32 requested workers because the released specification contains twelve diagnostic `PrintT` calls. The completed Core run emitted no lines. With two timeouts the paper reports 1,599,588,210 states at its 24-hour cutoff. [Paper, Table 1](https://arxiv.org/pdf/2302.02703#page=7).
+
+The release supplies the module and a Toolbox guide. The reproduction record supplies the missing wrapper and configuration template, the ten invariants, hashes, individual measurements and unsuccessful reconstructions. Restart increments the source’s timeout counter as well as its restart counter. Treating the published timeout parameter as a joint or an independent allowance produced different state spaces. Neither interpretation reproduced the two-server restart rows. [Source and reconstruction data](../../conformance/reports/perf/2026-11-20-zookeeper-reference.json).
+
 ### Reproduce the released SlateDB WAL model
 
 Use the pinned `slatedb/SlateDBWAL.tla` and `SlateDBWAL.cfg`. All runs retain the six invariants, the garbage collector, symmetry and the original action definitions. The four comparative configurations with two values vary just the writer count and the maximum restarts. The one-writer smoke control also reduces the value domain. Each comparison used sequential fresh processes on an isolated r7i.4xlarge. The larger configurations used eight physical cores and the smoke control used one.
