@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Core reduces memory per transition for temporal checks with up to 255 action names. [Measurements and capacity limits](docs/developer/large-models.md#action-labels-in-temporal-graphs).
+
 - Core packs ordinary in-memory safety frontiers by variable. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
 - `dive check --partitioned-fingerprints` supports parallel safety search with disk membership beyond four billion entries. The [storage guide](docs/user/disk-seen-safety.md#multi-worker-fingerprint-membership) covers capacity, audit results and the measured throughput cost.
