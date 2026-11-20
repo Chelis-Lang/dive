@@ -835,14 +835,14 @@ impl Session {
                 Ok(runtime) => runtime,
                 Err(feature) => return Ok((refusal(feature, doc.logical_length()), None)),
             };
+            // VIEW, SYMMETRY and ALIAS identify or render states; none is an
+            // obligation of a sampled behavior, which is checked on its
+            // concrete states.
             if scope == FiniteScope::Sample
                 && (!model.implied_temporals.is_empty()
-                    || model.view.is_some()
-                    || model.symmetry.is_some()
-                    || model.alias.is_some()
                     || !matches!(&model.postconditions, Ok(postconditions) if postconditions.is_empty()))
             {
-                return Ok((refusal("finite sample validation does not discharge temporal PROPERTY, VIEW, symmetry, ALIAS or POSTCONDITION obligations".into(), doc.logical_length()), None));
+                return Ok((refusal("finite sample validation does not discharge temporal PROPERTY or POSTCONDITION obligations".into(), doc.logical_length()), None));
             }
             let trace = match Trace::decode(&model, doc) {
                 Ok(trace) => trace,

@@ -437,6 +437,12 @@ pub struct TraceDoc {
     /// All temporal properties claimed to be false on this periodic word.
     /// Empty for other endings, or for an older unnamed liveness document.
     pub properties: Vec<String>,
+    /// The producer closes loops only on concrete state equality, never on a
+    /// `VIEW` or symmetric image (`"closure": "concrete"`, set by simulation).
+    /// It carries no trust: the validator still checks the closing step on
+    /// the concrete states, and only then admits a periodic word under `VIEW`
+    /// or `SYMMETRY`. Readers that ignore it keep refusing such words.
+    pub concrete_closure: bool,
 }
 
 impl TraceDoc {
@@ -476,6 +482,7 @@ impl TraceDoc {
             length: None,
             source: Source::Dive,
             properties: Vec::new(),
+            concrete_closure: false,
         })
     }
 
@@ -483,6 +490,14 @@ impl TraceDoc {
     #[must_use]
     pub fn with_ending(mut self, ending: Ending) -> Self {
         self.ending = Some(ending);
+        self
+    }
+
+    /// Declares that the word's loop closes on concrete state equality
+    /// ([`Self::concrete_closure`]).
+    #[must_use]
+    pub const fn with_concrete_closure(mut self) -> Self {
+        self.concrete_closure = true;
         self
     }
 
@@ -664,12 +679,8 @@ impl TraceDoc {
             ending,
             length,
             source: Source::Dive,
-            properties: match j.get("properties") {
-                None => Vec::new(),
-                Some(names) => {
-                    strings(Some(names)).ok_or("`properties` must be a list of names")?
-                }
-            },
+            properties: property_names(j)?,
+            concrete_closure: closure_claim(j)?,
         })
     }
 
@@ -773,6 +784,7 @@ impl TraceDoc {
             length: None,
             source: Source::Tlc,
             properties: Vec::new(),
+            concrete_closure: false,
         })
     }
 
@@ -820,7 +832,29 @@ impl TraceDoc {
         if !self.properties.is_empty() {
             j["properties"] = J::from(self.properties.clone());
         }
+        if self.concrete_closure {
+            j["closure"] = J::from("concrete");
+        }
         j
+    }
+}
+
+/// A document's `properties`: absent (none), or a list of names.
+fn property_names(j: &J) -> Result<Vec<String>, String> {
+    match j.get("properties") {
+        None => Ok(Vec::new()),
+        Some(names) => {
+            strings(Some(names)).ok_or_else(|| "`properties` must be a list of names".into())
+        }
+    }
+}
+
+/// A document's `closure` claim: absent, or `"concrete"`.
+fn closure_claim(j: &J) -> Result<bool, String> {
+    match j.get("closure") {
+        None | Some(J::Null) => Ok(false),
+        Some(J::String(closure)) if closure == "concrete" => Ok(true),
+        Some(other) => Err(format!("`closure` must be \"concrete\", not {other}")),
     }
 }
 

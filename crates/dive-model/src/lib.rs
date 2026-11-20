@@ -108,6 +108,7 @@ pub struct Recipe {
     options: dive_eval::Options,
     no_deadlock: bool,
     symmetry_liveness: SymmetryLiveness,
+    concrete_states: bool,
 }
 
 impl Recipe {
@@ -125,7 +126,25 @@ impl Recipe {
             options,
             no_deadlock,
             symmetry_liveness: SymmetryLiveness::Refuse,
+            concrete_states: false,
         }
+    }
+
+    /// Declares that the words this recipe replays come from a producer that
+    /// never fingerprints, views or canonicalizes states (simulation). Replay
+    /// then admits randomness under `VIEW` or `SYMMETRY`, which only matter
+    /// for state identity; every other admission check is unchanged.
+    ///
+    /// ```
+    /// # fn example(recipe: dive_model::Recipe) {
+    /// let recipe = recipe.with_concrete_states();
+    /// # let _ = recipe;
+    /// # }
+    /// ```
+    #[must_use]
+    pub const fn with_concrete_states(mut self) -> Self {
+        self.concrete_states = true;
+        self
     }
 
     /// Whether the source/config inventory may invoke a native random operator.
@@ -166,9 +185,10 @@ impl Recipe {
     /// # Errors
     /// The ordinary binding errors. Randomness combined with VIEW or SYMMETRY
     /// refuses after structural checks and before any startup evaluation, using
-    /// the shared [`transformed_randomness`] policy.
+    /// the shared [`transformed_randomness`] policy, unless the recipe replays
+    /// concrete states ([`Self::with_concrete_states`]).
     pub fn bind(&self, host: Arc<dyn dive_eval::Host>) -> Result<Model, Box<Failure>> {
-        bind_in(
+        bind_replay_in(
             self.ir.clone(),
             &self.config,
             &BindOptions {
@@ -180,6 +200,7 @@ impl Recipe {
             true,
             None,
             false,
+            self.concrete_states,
         )
         .map_err(ControlledBindError::into_uncontrolled)
     }
@@ -197,7 +218,7 @@ impl Recipe {
         host: Arc<dyn dive_eval::Host>,
         control: Arc<dyn dive_eval::HostControl>,
     ) -> Result<Model, ControlledBindError> {
-        bind_in(
+        bind_replay_in(
             self.ir.clone(),
             &self.config,
             &BindOptions {
@@ -209,7 +230,14 @@ impl Recipe {
             true,
             Some(control),
             false,
+            self.concrete_states,
         )
+    }
+
+    /// The bound configuration this recipe replays.
+    #[must_use]
+    pub const fn config(&self) -> &ModelConfig {
+        &self.config
     }
 
     /// Configuration model values, as text rather than interner atoms.
@@ -261,7 +289,7 @@ impl Recipe {
         control: Option<Arc<dyn dive_eval::HostControl>>,
         predicate_only: bool,
     ) -> Result<Model, ControlledBindError> {
-        bind_in(
+        bind_replay_in(
             self.ir.clone(),
             &self.config,
             &BindOptions {
@@ -273,6 +301,7 @@ impl Recipe {
             predicate_only,
             control,
             true,
+            self.concrete_states,
         )
     }
 }
@@ -317,7 +346,7 @@ pub fn bind_deferring_constants(
     cfg: &ModelConfig,
     opts: &BindOptions,
 ) -> Result<Model, Box<Failure>> {
-    bind_in_deferring(ir, cfg, opts, false, None, false, true)
+    bind_in_deferring(ir, cfg, opts, false, None, false, true, false)
         .map_err(ControlledBindError::into_uncontrolled)
 }
 
@@ -363,7 +392,7 @@ fn bind_in(
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
 ) -> Result<Model, ControlledBindError> {
-    bind_in_deferring(
+    bind_replay_in(
         ir,
         cfg,
         opts,
@@ -374,9 +403,33 @@ fn bind_in(
     )
 }
 
+/// [`bind_in`] for Recipe replay; `concrete` skips the randomness refusal
+/// under `VIEW` or `SYMMETRY` ([`Recipe::with_concrete_states`]).
+fn bind_replay_in(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    predicates_only: bool,
+    control: Option<Arc<dyn dive_eval::HostControl>>,
+    fallible_errors: bool,
+    concrete: bool,
+) -> Result<Model, ControlledBindError> {
+    bind_in_deferring(
+        ir,
+        cfg,
+        opts,
+        predicates_only,
+        control,
+        fallible_errors,
+        false,
+        concrete,
+    )
+}
+
 #[allow(
     clippy::too_many_arguments,
-    reason = "existing binder ownership inputs plus the core route's deferral switch"
+    clippy::fn_params_excessive_bools,
+    reason = "existing binder ownership inputs plus the core route's deferral and replay's concrete-state switches"
 )]
 fn bind_in_deferring(
     ir: Arc<Ir>,
@@ -386,6 +439,7 @@ fn bind_in_deferring(
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
     defer: bool,
+    concrete: bool,
 ) -> Result<Model, ControlledBindError> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
@@ -397,6 +451,7 @@ fn bind_in_deferring(
     // Reconstructing actions does not waive independent replay's pre-startup
     // admission policy, even when a random reference is unused.
     if (predicates_only || fallible_errors)
+        && !concrete
         && let Some(feature) = transformed_randomness(&ir, cfg)
     {
         return Err(Box::new(Failure {

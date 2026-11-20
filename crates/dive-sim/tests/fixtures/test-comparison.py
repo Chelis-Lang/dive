@@ -43,6 +43,15 @@ class ComparisonControls(unittest.TestCase):
                 forged = dict(report, **mutation)
                 self.assertEqual(comparison.error_comparison(row, forged, 3)[0], 'disagree')
 
+    def test_a_former_refusal_now_supported_must_agree(self):
+        row = dict(self.row, native_scope='unsupported')
+        self.assertEqual(comparison.error_comparison(row, self.report, 12), ('agree', []))
+        for mutation in [dict(violation_validated=False), dict(tlc_code=2110 + 1),
+                         dict(result='sampled')]:
+            with self.subTest(mutation=mutation):
+                forged = dict(self.report, **mutation)
+                self.assertEqual(comparison.error_comparison(row, forged, 12)[0], 'disagree')
+
     def test_corrupt_ending_or_uncertified_witness_cannot_agree(self):
         for field, value in [('tlc_states', [dict(x=0), dict(x=7)]),
                              ('validation', dict(result='unsupported'))]:

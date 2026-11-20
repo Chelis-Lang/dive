@@ -44,14 +44,37 @@ sequences. A `SPECIFICATION` with fairness conjuncts is simulated, since
 fairness constrains only infinite behaviors and cannot change a finite safety
 result.
 
-These refuse by name: temporal `PROPERTY` checking, symmetry, and sampling
-interactions dive has not proved sound. A configured VIEW refuses before
-assumptions, Init or sampling, and a budget that runs out does not turn that
-refusal into a stopped run. `ALIAS` is not applied, as in `dive check`: the
-traces show the states themselves, and the report's `notes` say so. An `ALIAS`
-that names no definition refuses. Every returned violation must pass
-independent trace validation; if replay cannot align the trace, the result is
-`unsupported`.
+Every configured safety property is checked as `dive check` checks it.
+Invariants and `[]P` parts of a `PROPERTY` are checked on every state, and
+`[][A]_v` parts on every step, before the constraints decide whether the
+state stays in the sample, so a violation can end at a state the constraints
+exclude. A state-level part of a `PROPERTY`, such as `PROPERTY x = 1`, is
+checked on every initial state and reported as error 2108; TLC's simulator
+never checks it ([D-036](../tlc-differences.md#d-036-simulation-checks-implied-initial-properties)).
+
+`SYMMETRY` and `VIEW` do not affect simulation, which never merges equal or
+equivalent states: the traces, counts and verdicts are the ones you get
+without them, and the report's `notes` say so. The `SYMMETRY` declaration is
+still prepared at startup, so its warnings and errors are the ones
+`dive check` reports.
+
+With an `ALIAS`, each trace entry carries an `alias` array: the `ALIAS` value
+of each state, in order, evaluated on the same states with
+`TLCGet("level")` as the state's position. The `document` keeps the states
+themselves, which is what validation checks. When the `ALIAS` cannot be
+evaluated on a trace (an evaluation error, or `Print`, a random draw or a
+register inside it) the trace's `alias` is `null` and a note names the
+reason; the verdict is unchanged. An `ALIAS` that names no definition
+refuses.
+
+Each step in a trace document carries the action that produced it, with its
+name and source location, as in `dive check` counterexamples. Validation
+checks each label on its step.
+
+These refuse by name: temporal `PROPERTY` checking, `POSTCONDITION`, and
+sampling interactions dive has not proved sound. Every returned violation must
+pass independent trace validation; if replay cannot align the trace, the
+result is `unsupported`.
 
 ## Action statistics
 

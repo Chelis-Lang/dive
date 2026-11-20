@@ -195,50 +195,62 @@ fn compound_states_and_fairness_only_specs_produce_independent_violations() -> R
     Ok(())
 }
 
+/// VIEW does not affect simulation: the same traces, statistics and output
+/// as without it, a note saying so, and an exhausted budget still stops.
 #[test]
-fn view_refuses_before_execution_and_budget_exhaustion_in_every_engine() -> Result {
+fn view_samples_as_without_it_and_budgets_still_stop() -> Result {
     use dive_api::BudgetSetting;
     use std::time::Duration;
 
     let file =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../dive-sim/tests/fixtures/SimView.tla");
+    let (_scratch, plain) = source(
+        "SimView",
+        &std::fs::read_to_string(&file)?,
+        "INIT Init\nNEXT Next\n",
+    )?;
     for compat_tlc in [false, true] {
-        {
-            for limited in [false, true] {
-                let report = simulate_file(&SimulateRequest {
-                    file: file.clone(),
-                    compat_tlc,
-                    seed: Some(7),
-                    traces: 1,
-                    depth: Some(1),
-                    time_limit: if limited {
-                        BudgetSetting::Explicit(Duration::from_nanos(1))
-                    } else {
-                        BudgetSetting::Unlimited
-                    },
-                    max_memory: if limited {
-                        BudgetSetting::Explicit(1)
-                    } else {
-                        BudgetSetting::Unlimited
-                    },
-                    ..Default::default()
-                })?
-                .to_json();
-                assert_eq!(report["result"], "unsupported", "{report}");
-                assert_eq!(
-                    report["message"], "simulation VIEW declarations",
-                    "{report}"
-                );
-                assert_eq!(report["options"]["workers_used"], 0);
-                assert_eq!(report["statistics"]["generated"], 0);
-                assert_eq!(report["statistics"]["traces_started"], 0);
-                assert!(report["stopped"].is_null());
-                assert!(report["engine_fallback"].is_null());
-                for field in ["startup_output", "runtime_output", "traces"] {
-                    assert_eq!(report[field], serde_json::json!([]), "{field}: {report}");
-                }
-            }
+        let request = SimulateRequest {
+            file: file.clone(),
+            compat_tlc,
+            seed: Some(7),
+            traces: 2,
+            depth: Some(3),
+            ..Default::default()
+        };
+        let viewed = simulate_file(&request)?.to_json();
+        checked(&viewed);
+        assert_eq!(viewed["result"], "sampled", "{viewed}");
+        assert_eq!(
+            viewed["notes"],
+            serde_json::json!([
+                "VIEW V does not affect simulation, which never deduplicates states."
+            ])
+        );
+        let unviewed = simulate_file(&SimulateRequest {
+            file: plain.clone(),
+            ..request.clone()
+        })?
+        .to_json();
+        for field in ["result", "statistics", "startup_output", "runtime_output"] {
+            assert_eq!(viewed[field], unviewed[field], "{field}");
         }
+        for (left, right) in viewed["traces"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .zip(unviewed["traces"].as_array().into_iter().flatten())
+        {
+            assert_eq!(left["document"], right["document"]);
+        }
+        let limited = simulate_file(&SimulateRequest {
+            time_limit: BudgetSetting::Explicit(Duration::from_nanos(1)),
+            max_memory: BudgetSetting::Unlimited,
+            ..request
+        })?
+        .to_json();
+        assert_eq!(limited["result"], "stopped", "{limited}");
+        assert_eq!(limited["violation_validated"], false);
     }
     Ok(())
 }
@@ -315,11 +327,11 @@ fn native_prefix_stops_do_not_start_unbounded_independent_replay() -> Result {
     Ok(())
 }
 
-/// `ALIAS` is not applied in simulation, as in checking: the traces show the
-/// states themselves and the report says so. A failed lookup, which TLC
-/// reports only when it prints a trace, stays a named refusal.
+/// `ALIAS` renders each trace's validated states beside them; the states
+/// themselves are unchanged. A failed lookup, which TLC reports only when it
+/// prints a trace, stays a named refusal.
 #[test]
-fn alias_is_noted_not_applied_and_a_failed_lookup_refuses() -> Result {
+fn alias_renders_and_a_failed_lookup_refuses() -> Result {
     let text = "---- MODULE SimAlias ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nInv == x < 3\nAlias == [y |-> x * 2]\n====\n";
     let (_scratch, file) = source(
         "SimAlias",
@@ -332,43 +344,45 @@ fn alias_is_noted_not_applied_and_a_failed_lookup_refuses() -> Result {
         "INIT Init\nNEXT Next\nINVARIANT Inv\nALIAS Missing\n",
     )?;
     for compat_tlc in [false, true] {
-        {
-            let request = SimulateRequest {
-                file: file.clone(),
-                compat_tlc,
-                seed: Some(7),
-                traces: 3,
-                depth: Some(10),
-                ..Default::default()
-            };
-            let report = simulate_file(&request)?.to_json();
-            assert_eq!(report["result"], "violation", "{report}");
-            assert_eq!(report["observed_violation"]["name"], "Inv");
-            assert_eq!(report["violation_validated"], true, "{report}");
-            assert_eq!(
-                report["notes"],
-                serde_json::json!([
-                    "ALIAS Alias is not applied: the traces show the states themselves (not implemented yet)."
-                ]),
-                "{report}"
-            );
-            let last = report["traces"][0]["document"]["states"]
-                .as_array()
-                .and_then(|states| states.last())
-                .cloned()
-                .unwrap_or_default();
-            assert_eq!(last["values"], serde_json::json!({"x": 3}), "{report}");
-            let refused = simulate_file(&SimulateRequest {
-                file: missing.clone(),
-                ..request
-            })?
-            .to_json();
-            assert_eq!(refused["result"], "unsupported", "{refused}");
-            assert_eq!(
-                refused["message"], "simulation ALIAS whose definition lookup fails",
-                "{refused}"
-            );
-        }
+        let request = SimulateRequest {
+            file: file.clone(),
+            compat_tlc,
+            seed: Some(7),
+            traces: 3,
+            depth: Some(10),
+            ..Default::default()
+        };
+        let report = simulate_file(&request)?.to_json();
+        assert_eq!(report["result"], "violation", "{report}");
+        assert_eq!(report["observed_violation"]["name"], "Inv");
+        assert_eq!(report["violation_validated"], true, "{report}");
+        assert_eq!(report["notes"], serde_json::json!([]), "{report}");
+        assert_eq!(
+            report["traces"][0]["alias"],
+            serde_json::json!([
+                {"record": {"y": 0}},
+                {"record": {"y": 2}},
+                {"record": {"y": 4}},
+                {"record": {"y": 6}}
+            ]),
+            "{report}"
+        );
+        let last = report["traces"][0]["document"]["states"]
+            .as_array()
+            .and_then(|states| states.last())
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(last["values"], serde_json::json!({"x": 3}), "{report}");
+        let refused = simulate_file(&SimulateRequest {
+            file: missing.clone(),
+            ..request
+        })?
+        .to_json();
+        assert_eq!(refused["result"], "unsupported", "{refused}");
+        assert_eq!(
+            refused["message"], "simulation ALIAS whose definition lookup fails",
+            "{refused}"
+        );
     }
     Ok(())
 }

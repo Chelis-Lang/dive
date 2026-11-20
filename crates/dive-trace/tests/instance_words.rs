@@ -68,6 +68,7 @@ fn replay_primary(case: &str) {
             ending: Ending::Invariant("P".to_owned()),
             length: Some(1),
             properties: Vec::new(),
+            concrete_closure: false,
         };
         let mut forged = genuine.clone();
         let mut changed = state;

@@ -45,24 +45,36 @@ fn run_with_name(
     })
 }
 
+/// Simulation never deduplicates states, so a VIEW changes neither the
+/// sampled traces, the statistics nor the output (ADR 0162).
 #[test]
-fn configured_view_refuses_without_assumption_init_or_step_effects() {
+fn configured_view_changes_nothing_sampled() {
     for mode in [RandomMode::Tlc, RandomMode::Dive] {
-        let report = run_with_name(
-            "SimView.tla",
-            include_str!("../../../../dive-sim/tests/fixtures/SimView.tla"),
-            include_str!("../../../../dive-sim/tests/fixtures/SimView.cfg"),
-            &Options::new(7, mode, 1, 1),
-            |_| {},
+        let source = include_str!("../../../../dive-sim/tests/fixtures/SimView.tla");
+        let config = include_str!("../../../../dive-sim/tests/fixtures/SimView.cfg");
+        let options = Options::new(7, mode, 3, 2);
+        let viewed = run_with_name("SimView.tla", source, config, &options, |_| {});
+        let plain = run_with_name("SimView.tla", source, config, &options, |model| {
+            model.view = None;
+        });
+        assert!(matches!(viewed.outcome, Outcome::Sampled), "{viewed:?}");
+        assert_eq!(viewed.stage, "sampling");
+        assert_eq!(viewed.generated, 7);
+        assert_eq!(viewed.traces_started, 2);
+        assert_eq!(viewed.generated, plain.generated);
+        assert_eq!(viewed.runtime_output, plain.runtime_output);
+        assert_eq!(
+            viewed
+                .traces
+                .iter()
+                .map(|t| (&t.states, &t.actions))
+                .collect::<Vec<_>>(),
+            plain
+                .traces
+                .iter()
+                .map(|t| (&t.states, &t.actions))
+                .collect::<Vec<_>>()
         );
-        assert!(matches!(report.outcome,
-            Outcome::Unsupported(ref feature) if feature == "simulation VIEW declarations"
-        ));
-        assert_eq!(report.stage, "preflight");
-        assert_eq!(report.generated, 0);
-        assert_eq!(report.traces_started, 0);
-        assert_eq!(report.runtime_output, []);
-        assert!(report.traces.is_empty());
     }
 }
 

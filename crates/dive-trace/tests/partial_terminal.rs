@@ -88,6 +88,7 @@ fn init_request(model: &dive_model::Model) -> Result<TraceDoc, Box<dyn std::erro
         length: Some(1),
         source: dive_trace::Source::Dive,
         properties: Vec::new(),
+        concrete_closure: false,
     })
 }
 
@@ -425,6 +426,7 @@ fn level_request(
         length: Some(if initial { 1 } else { 2 }),
         source: dive_trace::Source::Dive,
         properties: Vec::new(),
+        concrete_closure: false,
     })
 }
 

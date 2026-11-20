@@ -57,6 +57,7 @@ impl Input {
             },
             length: None,
             properties: Vec::new(),
+            concrete_closure: false,
         };
         Ok(trace.to_doc(&model)?)
     }

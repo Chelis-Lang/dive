@@ -492,7 +492,7 @@ fn validate_tlc_in(
     if !doc.properties.is_empty() {
         // The interpretation heuristic scores initial predicates. Preflight
         // before that evaluation too, so a refusal cannot execute effects.
-        let preflight = Run::new(model).prepare_periodic(&ending, &doc.properties);
+        let preflight = Run::new(model).prepare_periodic(&ending, &doc.properties, false);
         if let Err(stop) = preflight {
             return TlcReading {
                 report: report(stop.into(), Vec::new()),
@@ -673,6 +673,19 @@ struct Search<'a> {
 }
 
 impl Search<'_> {
+    /// A TLC document's states under one interpretation; TLC closes loops on
+    /// fingerprints, so its words never claim a concrete closure.
+    fn trace(&self, states: Vec<crate::State>) -> Trace {
+        Trace {
+            states,
+            labels: self.labels.to_vec(),
+            ending: self.ending.clone(),
+            length: self.length,
+            properties: self.properties.to_vec(),
+            concrete_closure: false,
+        }
+    }
+
     fn evaluate(&mut self, choice: &[bool]) -> Outcome {
         self.tried.insert(choice.to_vec());
         let mut map = self.forced.clone();
@@ -744,13 +757,7 @@ impl Search<'_> {
                     .count() as u64
             })
         };
-        let trace = Trace {
-            states,
-            labels: self.labels.to_vec(),
-            ending: self.ending.clone(),
-            length: self.length,
-            properties: self.properties.to_vec(),
-        };
+        let trace = self.trace(states);
         if let Some(session) = self.session {
             let doc = match trace.to_doc(model) {
                 Ok(doc) => doc,

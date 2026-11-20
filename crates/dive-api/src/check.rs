@@ -1888,6 +1888,7 @@ impl CheckReport {
                         length: Some(1),
                         source: dive_trace::Source::Dive,
                         properties: Vec::new(),
+                        concrete_closure: false,
                     };
                     doc["error_witness"] = witness.to_json();
                 }
@@ -2194,6 +2195,7 @@ fn trace_doc(
         length: Some(recorded.len()),
         source: dive_trace::Source::Dive,
         properties: Vec::new(),
+        concrete_closure: false,
     };
     Ok(doc.to_json())
 }

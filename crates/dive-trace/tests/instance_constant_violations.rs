@@ -56,6 +56,7 @@ fn absent_constants_validate_genuine_words_and_reject_forged_edges() {
                 states,
                 ending: Ending::Lasso { back_to: 0 },
                 properties: vec!["Bad".into()],
+                concrete_closure: false,
             };
             for _ in 0..2 {
                 assert_eq!(

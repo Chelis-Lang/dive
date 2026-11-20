@@ -36,6 +36,7 @@ fn foreign_scopes_and_replaced_model_arenas_never_certify() {
                 ending: Ending::Behavior,
                 length: Some(1),
                 properties: vec![],
+                concrete_closure: false,
             };
             let next = pred(&m, "Next");
             let mut inv = pred(&m, "Inv");
@@ -105,6 +106,7 @@ fn admitted_clones_and_complete_words_remain_valid() {
             ending: Ending::Behavior,
             length: Some(1),
             properties: vec![],
+            concrete_closure: false,
         };
         assert_eq!(
             dive_trace::validate(&m, &trace).validation,
@@ -141,6 +143,7 @@ fn malformed_public_predicate_roots_and_locations_are_refused_before_replay() {
                         ending: Ending::Behavior,
                         length: None,
                         properties: Vec::new(),
+                        concrete_closure: false,
                     };
                     // A true Init must not hide malformed metadata; a false
                     // Init must not panic when rendering its source location.

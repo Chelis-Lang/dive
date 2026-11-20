@@ -80,6 +80,11 @@ pub struct Trace {
     pub id: u64,
     /// Initial state and chosen transitions; the final state is included.
     pub states: Vec<StateVals>,
+    /// For each step, the index into the model's `actions` of the action
+    /// that produced it: `actions[k]` leads from `states[k]` to
+    /// `states[k + 1]`. Shorter than the steps only when a trace ends at a
+    /// violating candidate, whose action is the last entry.
+    pub actions: Vec<usize>,
 }
 
 /// The result of a simulation; a sample never proves absence of violations.
@@ -305,11 +310,15 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     }
     // A temporal property's binding refusal names the liveness backend, which
     // simulation never uses; the simulation-specific refusal below names it.
-    if let Some(u) = model
-        .unsupported
-        .iter()
-        .find(|u| u.kind != dive_model::UnsupportedKind::TemporalProperty)
-    {
+    // Simulation never deduplicates or canonicalizes states, so an unprepared
+    // SYMMETRY changes nothing it reports (ADR 0162); its declaration is
+    // still prepared at startup as `dive check` prepares it.
+    if let Some(u) = model.unsupported.iter().find(|u| {
+        !matches!(
+            u.kind,
+            dive_model::UnsupportedKind::TemporalProperty | dive_model::UnsupportedKind::Symmetry
+        )
+    }) {
         return refusal(&u.feature);
     }
     // Fairness (`model.temporals`) constrains only infinite behaviors and is
@@ -326,27 +335,15 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
             names.join(", ")
         ));
     }
-    if !model.implied_inits.is_empty() {
-        return refusal(
-            "simulation implied initial properties require a separate validation contract",
-        );
-    }
-    if !model.implied_actions.is_empty()
-        && (!model.constraints.is_empty() || !model.action_constraints.is_empty())
-    {
-        return refusal(
-            "simulation implied action properties with state/action constraints require a separate validation contract",
-        );
-    }
-    if model.symmetry.is_some() {
-        return refusal("simulation SYMMETRY declarations");
-    }
-    if model.view.is_some() {
-        return refusal("simulation VIEW declarations");
-    }
-    // ALIAS only projects printed traces; as in checking, the report shows
-    // the states themselves and says so (`dive_api::simulate`). A failed
-    // lookup is TLC's error when it prints a trace, which is not reproduced.
+    // Implied initial predicates are checked on every initial state (2108),
+    // and implied action properties on every candidate before the
+    // constraints, as in `dive check`; the validator accepts a last state
+    // outside the constraints for both. SYMMETRY and VIEW identify states
+    // only for deduplication, which simulation never does: neither changes
+    // a sampled trace or its verdict.
+    // ALIAS only renders a separate view of the validated states
+    // (`dive_api::simulate`). A failed lookup is TLC's error when it prints
+    // a trace, which is not reproduced.
     if matches!(model.alias, Some(Err(_))) {
         return refusal("simulation ALIAS whose definition lookup fails");
     }

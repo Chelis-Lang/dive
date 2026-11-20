@@ -221,7 +221,7 @@ enumerates the state space. The parity gaps are in the branching:
   exit 255 (G3 to G6). dive refuses with "unverified native finite
   evaluation-error context". Parity: report the same error class. Better:
   an opt-in option that samples unbounded sets with a stated distribution
-  (D-035, §9).
+  (D-040, §9).
 
 ### 3.3 Deep bugs
 
@@ -374,7 +374,7 @@ violation found there is reported like any other. The trace class becomes
 Ruling (owner, 2026-11-20): the default is `auto` in the default profile and
 `0` under `--compat=tlc`. It is result-changing relative to TLC's `-depth` (it
 can find a violation, safety or temporal, that a trace cut at the depth would
-not show), registered as D-034; every extra verdict is a validated real
+not show), registered as D-039; every extra verdict is a validated real
 violation that the exhaustive check also reports (ADR 0116 §6), and it never
 weakens a result. The report's `options` block records the setting and the
 `extended_*` trace classes show what it did.
@@ -428,7 +428,7 @@ which are not behavior obligations.
 **Liveness.** Loops close only on concrete equality (§11.1). The view and the
 symmetric canonical form are never used for closure or node identity, so V1's
 spurious lasso and Y2's missed violation cannot happen. This differs from TLC
-in both directions and is registered as D-032. Under `--compat=tlc` the same
+in both directions and is registered as D-037. Under `--compat=tlc` the same
 concrete rule applies: TLC's view closures are not behaviors, so they could
 not pass validation; the gap is documented.
 
@@ -466,7 +466,7 @@ sampler side:
    path). The compiled `Plan` already carries `implied_inits`; the sampler
    reads only `plan.invariants`, `plan.implied_actions`, `plan.constraints`
    and `plan.action_constraints` today. TLC simulation never checks these (U12), so
-   this is D-031; dive checks them in both profiles because skipping a
+   this is D-036; dive checks them in both profiles because skipping a
    configured property is a silent wrong answer, and documents the compat gap.
 2. **Implied action properties with constraints.** The sampler already checks
    implied actions on each candidate before the constraints, matching TLC in
@@ -567,7 +567,7 @@ coordinate with whoever owns #910, not a change to `eval.rs` in this design.
 3. **Init.** Enumerated once per run and shared by all workers, with no fixed
    count bound. Under `--generate`, each trace builds its initial state with
    `run_action_generation` over the Init actions, so Init is never enumerated.
-4. **Sampling unbounded sets (D-035, on by default).** When Init or a
+4. **Sampling unbounded sets (D-040, on by default).** When Init or a
    successor binds a variable from a set dive cannot enumerate (`Nat`, `Int`,
    an infinite `Seq(S)`), the default profile draws one member per binding
    instead of failing: `Nat` from a geometric distribution with mean 8
@@ -711,15 +711,17 @@ counters O(P). `write_json` streams entries with O(1) extra memory;
 ## 12. Divergences
 
 Registered in `docs/divergences.md` with status `recorded` and described in
-`docs/tlc-differences.md`; they become `implemented` with their code.
+`docs/tlc-differences.md`; they become `implemented` with their code. The
+numbers start at D-036 because D-031 was already registered for bag fold
+order.
 
 | Id | Behavior | TLC | dive default | Kind |
 |---|---|---|---|---|
-| D-031 | implied initial properties in simulation | never checked by `-simulate` (U12) | checked, 2108, both profiles | changing |
-| D-032 | loop closure in simulation liveness | on view or symmetric fingerprints (V1 spurious, Y2 missed) | concrete equality only, both profiles | changing |
-| D-033 | temporal coverage of a sample | silent success when nothing could be decided (C7, U1) | per-property checked and unchecked counts; never "holds" | preserving (report fields only) |
-| D-034 | `--liveness-extend` | traces end at `-depth` | `auto` (default profile); `0` under `--compat=tlc` | changing, owner-approved default |
-| D-035 | `--sample-unbounded` | GENERAL 1000 on `Nat` domains | `geometric`, named in the report (default profile); `off` under `--compat=tlc` | changing, owner-approved default |
+| D-036 | implied initial properties in simulation | never checked by `-simulate` (U12) | checked, 2108, both profiles | changing |
+| D-037 | loop closure in simulation liveness | on view or symmetric fingerprints (V1 spurious, Y2 missed) | concrete equality only, both profiles | changing |
+| D-038 | temporal coverage of a sample | silent success when nothing could be decided (C7, U1) | per-property checked and unchecked counts; never "holds" | preserving (report fields only) |
+| D-039 | `--liveness-extend` | traces end at `-depth` | `auto` (default profile); `0` under `--compat=tlc` | changing, owner-approved default |
+| D-040 | `--sample-unbounded` | GENERAL 1000 on `Nat` domains | `geometric`, named in the report (default profile); `off` under `--compat=tlc` | changing, owner-approved default |
 | D-003 (update) | workers | per-worker streams; `num` per worker; result depends on worker count | lowest violating trace id; `--traces` total; identical at any `W`; draws keyed by trace position (§8) | changing (existing entry) |
 
 ## 13. Phase plan
@@ -750,7 +752,7 @@ holds the TLC controls.
   `SimConstrainedAction`; validator unit tests for concrete closure under
   VIEW and SYMMETRY, and that a non-concrete lasso still refuses.
 - Parity gaps closed: ALIAS rendering, action labels.
-- Docs: `docs/user/simulation.md`, `crates/dive-sim/CONTRACT.md`, D-031 to
+- Docs: `docs/user/simulation.md`, `crates/dive-sim/CONTRACT.md`, D-036 to
   implemented, CHANGELOG.
 
 ### S2: workers, retention and scale
@@ -793,8 +795,8 @@ holds the TLC controls.
   finite check that the residual is false).
 - Tests against `oracle.json`: C1 to C9, T1 to T4, U1 to U10d, F1 to F3,
   S1, S2 (verdict class and property names; validated lasso), V1 and Y2 (dive
-  answers the truth, D-032), C7 and U1 (unchecked counts, D-033), extension on
-  C7 and U1 with `--liveness-extend auto` (D-034), both profiles; budget stop
+  answers the truth, D-037), C7 and U1 (unchecked counts, D-038), extension on
+  C7 and U1 with `--liveness-extend auto` (D-039), both profiles; budget stop
   yields unchecked, never a verdict.
 - Gate: Core small-tier ratchet; ewd687a `EWD687a_anim` and the temporal
   Examples configs that sample.
@@ -818,7 +820,7 @@ holds the TLC controls.
 
 ### S6: unbounded domains
 
-- `--sample-unbounded=geometric|off` (D-035): default `geometric` in the
+- `--sample-unbounded=geometric|off` (D-040): default `geometric` in the
   default profile, `off` under `--compat=tlc`; distributions, report notes
   naming every sampled set, validation of drawn members; TLC's GENERAL 1000
   class when off. Depends on S2 (reservoir choice, error class) and on the
@@ -849,11 +851,11 @@ holds the TLC controls.
 
 The owner accepted the design and answered its four questions:
 
-1. **`--liveness-extend` (D-034):** default `auto` in the default profile, `0`
+1. **`--liveness-extend` (D-039):** default `auto` in the default profile, `0`
    under `--compat=tlc` (§4.6).
 2. **`RandomElement` in sampled traces:** draw at random and validate each draw
    as some element of its set, coordinated with #910 (§8).
-3. **Unbounded sets (D-035):** sampling is on by default in the default
+3. **Unbounded sets (D-040):** sampling is on by default in the default
    profile, because it is coherent with TLA+; the distribution is stated,
    seeded and named in the report notes together with the sets sampled.
    `--compat=tlc` keeps TLC's GENERAL 1000 error (§9).

@@ -246,6 +246,7 @@ impl Program {
             ending: Some(Ending::Invariant(property.to_owned())),
             source: dive_trace::Source::Dive,
             properties: Vec::new(),
+            concrete_closure: false,
         };
 
         let model = dive_model::bind(

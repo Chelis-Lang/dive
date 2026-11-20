@@ -77,7 +77,7 @@ The full design, with evidence and complexity, is
 9. **Trace output** gains per-trace streaming files, TLC's dump formats with
    ALIAS, and replay of selected trace ids.
 
-Divergences D-031 to D-035, and an update of D-003, are registered with the
+Divergences D-036 to D-040, and an update of D-003, are registered with the
 design.
 
 ## Consequences
