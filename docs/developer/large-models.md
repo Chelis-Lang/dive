@@ -226,6 +226,13 @@ At these prefixes the measured benefit is memory capacity. The original
 and compact representations stopped at identical counts, depths and queue
 sizes. [All 18 measurements, controls and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+At equal memory budgets, the original and compact c1cs captures reached
+1,522,699 and 2,645,165 distinct states at 2 GiB (1.74×). At 20 GiB they
+reached 20,394,916 and 23,794,977 (1.17×). All four stopped on the sampled
+memory limit. The larger compact run generated 526,836,645 transitions and
+still had 13,760,692 states queued. The same record includes the four
+individual observations under `capacity`.
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same

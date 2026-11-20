@@ -221,5 +221,106 @@
         }
       ]
     }
-  ]
+  ],
+  "capacity": {
+    "method": "Same original c1cs and exact base/narrow binaries as the fixed-prefix study. One dedicated c7i.4xlarge per variant, eight physical cores, pinned to one hardware thread/core. Each ran 2g then 20g, 24 GiB cgroup, no swap, TLC profile, fp 0, seed 0, 3,600 s. Wall time and maximum process RSS from GNU time. One observation per cell. Memory is sampled and may overshoot the requested threshold.",
+    "rows": [
+      {
+        "variant": "base",
+        "limit": "2g",
+        "statistics": {
+          "depth": 13,
+          "distinct": 1522699,
+          "exhaustive": false,
+          "generated": 32666672,
+          "initial_generated": 16,
+          "left_on_queue": 634921,
+          "reported_by_tlc": false
+        },
+        "stopped": {
+          "elapsed_ms": 69030,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 2147483648,
+          "observed": 2276438016,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 69.07,
+        "peak_rss_kib": 2314892
+      },
+      {
+        "variant": "base",
+        "limit": "20g",
+        "statistics": {
+          "depth": 17,
+          "distinct": 20394916,
+          "exhaustive": false,
+          "generated": 447852999,
+          "initial_generated": 16,
+          "left_on_queue": 11770428,
+          "reported_by_tlc": false
+        },
+        "stopped": {
+          "elapsed_ms": 795554,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 21474836480,
+          "observed": 21474848768,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 796.08,
+        "peak_rss_kib": 20971332
+      },
+      {
+        "variant": "narrow",
+        "limit": "2g",
+        "statistics": {
+          "depth": 14,
+          "distinct": 2645165,
+          "exhaustive": false,
+          "generated": 56350543,
+          "initial_generated": 16,
+          "left_on_queue": 1190069,
+          "reported_by_tlc": false
+        },
+        "stopped": {
+          "elapsed_ms": 99622,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 2147483648,
+          "observed": 2227687424,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 99.69,
+        "peak_rss_kib": 2175264
+      },
+      {
+        "variant": "narrow",
+        "limit": "20g",
+        "statistics": {
+          "depth": 17,
+          "distinct": 23794977,
+          "exhaustive": false,
+          "generated": 526836645,
+          "initial_generated": 16,
+          "left_on_queue": 13760692,
+          "reported_by_tlc": false
+        },
+        "stopped": {
+          "elapsed_ms": 813009,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 21474836480,
+          "observed": 21697974272,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 813.58,
+        "peak_rss_kib": 21912260
+      }
+    ]
+  }
 }
