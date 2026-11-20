@@ -205,6 +205,27 @@ The ordinary eight-worker candidate reduced sampled peak memory on PConProof fro
 
 Sharding alone reached **fewer** states in a sampled 650 MiB whole-process run, 4.76 million versus 6.07 million. Combining sharding, packed parents and shorter batches reached 6.38 million. Threshold samples depend on allocation timing. The isolated resize result is the reproducible claim about the table itself.
 
+### Successor ordinals in temporal graphs
+
+Replay needs the exact original successor ordinal on every generated edge,
+including duplicate destinations. The graph also holds a stutter entry per
+expanded state. Core stores ordinals below 65,534 in two bytes per entry.
+One reserved value marks stutters, the other points to a sparse table with
+the full ordinal indexed by physical edge. A source with many successors
+continues to support full-width ordinals. The checked graph verifies the
+table and source order before temporal analysis or reuse.
+
+| Two-million-state prefix | Generated | Collector buffers, before / after | Peak process RSS, before / after | Wall seconds, before / after |
+|---|---:|---:|---:|---:|
+| BlockingQueuePoisonApple | 6,009,057 | 344 / 232 MiB | 699 / 601 MiB | 17.83 / 17.90 |
+| c1cs | 41,819,682 | 2,152 / 1,256 MiB | 2,500 / 1,584 MiB | 76.95 / 78.18 |
+
+These are three-trial medians on an isolated EC2 c7i.4xlarge. The dense
+graph gains more because it retains more transition occurrences per state.
+At these prefixes the measured benefit is memory capacity. The original
+and compact representations stopped at identical counts, depths and queue
+sizes. [All 18 measurements, controls and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same
