@@ -105,8 +105,7 @@ an actual counterexample.
 The configured layout invariant, named `TypeInvariant` by default, supplies
 one finite bound per state variable. Select another with `--type-invariant`.
 Supported fields are finite strings and untyped model values from finite sets, subsets of those
-sets and fixed-domain functions over them. Init must give one ground,
-complete assignment. Next can use bounded choices, disjunction,
+sets and fixed-domain functions over them. Each enabled Init witness must give a ground, complete assignment. Next can use bounded choices, disjunction,
 `UNCHANGED` and deterministic assignments to all variables per action
 witness. A primed value must be assigned before it is read. The expression
 subset includes Boolean guards, equality, membership, set union,
@@ -158,3 +157,14 @@ integers over the decision diagram. JSON counters are exact decimal integers. Th
 
 For source and host identities, same-host TLC comparisons, growth results and
 the costs of editing an invariant, see [large-model measurements](../developer/large-models.md).
+
+
+### Finite initial choices
+
+An Init predicate can assign a scalar from a finite atom set, use a bounded
+existential choice, or have several finite assignment branches. Each enabled
+branch must assign the complete state to ground values. The checker collects
+all initial states before breadth-first search and checks every initial state
+when verifying an inductive predicate. Generated counts include duplicate
+initial witnesses before symmetry reduction. The compiler currently bounds
+explicit expansion at 100,000 initial witnesses. An empty initial set refuses.

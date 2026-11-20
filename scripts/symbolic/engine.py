@@ -125,15 +125,20 @@ class SourceModel(FiniteRelation):
         self.types = types
         self.allocate(types, atoms, order_by_path)
 
-        # Init is admitted only for a deterministic, total, ground assignment.
-        initial = iter(self.branches(doc["init"], {}, True, self.b.true, {}))
-        first = next(initial, None)
-        require(first is not None and next(initial, None) is None, "expected one Init witness")
-        guard, assigns = first
-        require(guard == self.b.true, "nonconstant or disabled Init")
-        init_bits = self.encode(assigns)
-        require(all(v in (self.b.true, self.b.false) for v in init_bits.values()), "nonground Init")
-        self.initial = self.b.cube({name: val == self.b.true for name, val in init_bits.items()})
+        # TLC counts every enabled Init witness before symmetry or duplicate
+        # elimination. BFS retains their union; induction checks the same union.
+        self.initial = self.b.false
+        self.initial_generated = 0
+        for index, (guard, assignments) in enumerate(self.branches(doc["init"], {}, True, self.b.true, {})):
+            require(index < 100000, "Init exceeds 100000 expanded witnesses")
+            require(guard in (self.b.true, self.b.false), "nonconstant Init guard")
+            if guard == self.b.false:
+                continue
+            bits = self.encode(assignments)
+            require(all(v in (self.b.true, self.b.false) for v in bits.values()), "nonground Init")
+            self.initial |= self.b.cube({name: value == self.b.true for name, value in bits.items()})
+            self.initial_generated += 1
+        require(self.initial_generated > 0, "empty Init")
         self.reading_init = False
         self.properties = [(name, self.boolean(self.eval(expr, {}, {}))) for name, expr in doc["invariants"]]
         updates = []
@@ -604,6 +609,16 @@ class SourceModel(FiniteRelation):
                 result[name] = self.state[name]
             yield guard, result
         elif (
+            init and tag == "Builtin" and x["op"] == "In"
+            and self.node(x["args"][0])[0] == "Var"
+            and not self.node(x["args"][0])[1]["primed"]
+            and (name := self.names[self.node(x["args"][0])[1]["var"]]) not in assigned
+        ):
+            domain = self.eval(x["args"][1], env, assigned)
+            require(isinstance(domain, Members), "Init choice over a non-atomic set")
+            for key, included in domain.items():
+                yield guard & included, {**assigned, name: self.atom(key)}
+        elif (
             tag == "Builtin"
             and x["op"] == "Eq"
             and self.node(x["args"][0])[0] == "Var"
@@ -715,6 +730,7 @@ class SourceModel(FiniteRelation):
             and self.layout == other.layout
             and self.names == other.names
             and self.initial == other.initial
+            and self.initial_generated == other.initial_generated
             and self.effects == other.effects
             and self.roles == other.roles
             and self.symmetry == other.symmetry
@@ -757,7 +773,7 @@ class SourceModel(FiniteRelation):
                 successors |= self.image(frontier, guard, updates)
             frontier = successors & ~reached
             reached |= frontier
-        distinct, generated = self.counts(reached, self.symmetry)
+        distinct, generated = self.counts(reached, self.symmetry, self.initial_generated)
         self.complete = reached, layers, distinct, generated
         return self.success(len(layers), reached, distinct, generated, False), None
 

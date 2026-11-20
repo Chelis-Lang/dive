@@ -10,6 +10,8 @@ are in git history.
 - The Linux release archives include `dive check --strategy symbolic` for
   finite safety checks, validated witnesses and independently verified predicates.
 
+- Symbolic safety checks accept [multiple finite initial choices](docs/user/symbolic.md#finite-initial-choices), including duplicate and symmetric witnesses.
+
 - Embedders can qualify a completed native temporal check after retaining its
   first property on unchanged aggregate-state programs. See [retaining a claim](docs/user/rust-api.md#retain-the-first-temporal-property).
 

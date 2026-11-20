@@ -66,8 +66,8 @@ class FiniteRelation:
             stack.pop()
         return below(root, 0)
 
-    def counts(self, states, symmetry):
-        """Count complete state orbits and outgoing witnesses, including the single Init."""
+    def counts(self, states, symmetry, initial_generated=1):
+        """Count complete state orbits and outgoing witnesses, including enabled Init occurrences."""
         # Burnside also works for the sum of outdegrees: outdegree is invariant
         # under renaming, so each orbit contributes its representative's degree.
         distinct = generated = 0
@@ -87,4 +87,4 @@ class FiniteRelation:
             )
         if distinct % len(perms) or generated % len(perms):
             raise ArithmeticError("incomplete symmetry orbit")
-        return distinct // len(perms), 1 + generated // len(perms)
+        return distinct // len(perms), initial_generated + generated // len(perms)
