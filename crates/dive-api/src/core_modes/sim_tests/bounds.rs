@@ -89,9 +89,11 @@ fn exhausted_budgets_keep_partial_statistics_and_refuse() {
         "{:?}",
         report.outcome
     );
-    assert_eq!(report.generated, 2);
+    // The bound is counted in trace order: trace 0 would cross it, so the
+    // run ends with the statistics of the traces before it (Init only).
+    assert_eq!(report.generated, 1);
     assert_eq!(report.stage, "sampling");
-    assert_eq!(report.traces_started, 1);
+    assert_eq!(report.traces_started, 0);
     options.max_generated = 100;
     options.max_retained = 2;
     assert!(matches!(
@@ -213,10 +215,9 @@ fn failure_traces_respect_zero_and_tiny_retained_budgets() {
     options.max_retained = 1;
     let report = run(source, "INIT Init\nNEXT Next\nINVARIANT Inv\n", &options);
     assert!(matches!(report.outcome, Outcome::Limit(_)), "{report:?}");
-    assert_eq!(
-        report.traces.iter().map(|t| t.states.len()).sum::<usize>(),
-        1
-    );
+    // The violating trace does not fit, so nothing is kept; the violation
+    // stays pending evidence of the retained-state stop.
+    assert!(report.traces.is_empty());
     assert_eq!(report.generated, 2);
     assert_eq!(report.pending_violation.unwrap().code, 2110);
     let report = run(source, "INIT BadInit\nNEXT Next\nINVARIANT Inv\n", &options);
@@ -314,6 +315,7 @@ fn basic_action_flows_preserve_failure_and_budget_prefixes() {
     options.max_generated = 2;
     let report = run(source, "INIT Init\nNEXT Next\n", &options);
     assert!(matches!(report.outcome, Outcome::Limit(_)));
+    // Only committed traces count; the one crossing the bound is not.
     assert_eq!(
         report
             .action_flow
@@ -321,7 +323,7 @@ fn basic_action_flows_preserve_failure_and_budget_prefixes() {
             .transitions
             .values()
             .sum::<u64>(),
-        1
+        0
     );
     let report = run(source, "INIT Init\nNEXT Dead\n", &options);
     assert!(matches!(

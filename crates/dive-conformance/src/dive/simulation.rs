@@ -49,6 +49,9 @@ impl DiveImplementation {
             "100".as_ref(),
             "--workers".as_ref(),
             workers.as_ref(),
+            // Every trace is validated independently below.
+            "--keep-traces".as_ref(),
+            "all".as_ref(),
             "--seed".as_ref(),
             "0".as_ref(),
             "--time-limit".as_ref(),
@@ -259,7 +262,7 @@ fn simulation_result(
     }
     let initial_violation = kind == "violation" && options["execution_stage"] == "initialization";
     if !matches!(kind, "sampled" | "violation")
-        || options["workers_used"] != 1
+        || options["workers_used"] != req.workers
         || (!initial_violation && options["execution_stage"] != "sampling")
         || options["execution_scope"]
             != if engine == "core" {

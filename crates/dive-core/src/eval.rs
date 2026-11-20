@@ -481,6 +481,18 @@ impl Machine {
         self.output_failure
     }
 
+    /// Takes the retained Print output and the first limit it reached, and
+    /// starts counting against the output limits afresh. A finite mode that
+    /// buffers output per unit of work (a simulation trace) admits each
+    /// unit's output in its own order.
+    pub fn take_output(&mut self) -> (Vec<String>, Option<&'static str>) {
+        self.output_used = (0, 0);
+        (
+            std::mem::take(&mut self.printed),
+            self.output_failure.take(),
+        )
+    }
+
     pub(crate) fn print(&mut self, text: String) -> Result<(), Error> {
         if let Some((events, bytes)) = self.output_limits {
             let total = self.output_used.1.checked_add(text.len());

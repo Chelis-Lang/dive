@@ -180,6 +180,7 @@ fn unlimited_and_generous_budgets_preserve_seeded_samples() -> Result {
         );
         let refused = dive_api::simulate_file(&SimulateRequest {
             workers: Some(8),
+            traces: 0,
             max_memory: BudgetSetting::Explicit(1),
             ..simulation(&file, compat)
         })?
@@ -216,6 +217,7 @@ fn preflight_errors_and_refusals_keep_precedence_over_run_budgets() -> Result {
         }
         let request = SimulateRequest {
             workers: Some(2),
+            traces: 0,
             time_limit: BudgetSetting::Unlimited,
             ..simulation(&file, compat)
         };

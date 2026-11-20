@@ -1,7 +1,7 @@
 //! Finite seeded safety simulation with independent trace validation.
 
 use crate::trace::{Ending, SpecModel, TraceDoc, TraceOptions};
-use dive_sim::{Options, Outcome};
+use dive_sim::{KEEP_ALL_TRACES, Options, Outcome, UNLIMITED_TRACES};
 use dive_stdlib::random::RandomMode;
 use serde_json::{Value, json};
 use std::fmt::Write as _;
@@ -10,7 +10,8 @@ use std::path::PathBuf;
 /// Version of simulation reports, separate from exhaustive checking reports.
 pub const SIMULATE_SCHEMA_VERSION: u32 = crate::REPORT_SCHEMA_VERSION;
 
-/// A finite simulation request. The caller must choose a positive trace count.
+/// A simulation request. The caller must choose a positive trace count, or
+/// [`UNLIMITED_TRACES`] with an explicit time limit.
 ///
 /// ```
 /// let request = dive_api::SimulateRequest {
@@ -37,10 +38,29 @@ pub struct SimulateRequest {
     pub aril: u64,
     /// Maximum transitions per trace; `None` selects TLC's depth 100.
     pub depth: Option<usize>,
-    /// Positive, finite number of traces, required by the API and CLI.
+    /// Positive total number of traces at any worker count, required by the
+    /// API and CLI. [`UNLIMITED_TRACES`] samples until a violation, an error
+    /// or the time limit, which must then be explicit.
     pub traces: u64,
-    /// Requested workers; only one is supported in this initial slice.
+    /// Sampling threads (default 1). The report is the same at any count.
     pub workers: Option<usize>,
+    /// Traces kept, validated and reported besides the deciding trace: the
+    /// lowest ids. `None` keeps 10; [`KEEP_ALL_TRACES`] keeps every trace.
+    pub keep_traces: Option<u64>,
+    /// Serialized report size the kept traces may fill: traces are admitted
+    /// in id order while [`SimulateReport::write_json`] stays within it, and
+    /// `statistics.traces_dropped` counts the others. A deciding trace that
+    /// does not fit is replaced by a summary with its length, ending and the
+    /// SHA-256 of its document. `None` admits every kept trace.
+    pub max_report_bytes: Option<usize>,
+    /// Each trace constructs its initial state instead of drawing one from
+    /// Init enumerated once (D-041). Init is never enumerated, so a huge Init
+    /// starts at once, but an initial state that violates an invariant is
+    /// found only if a trace constructs it.
+    pub constructive_init: bool,
+    /// Stop after this many generated states, counted in trace order.
+    /// `None` leaves the run to its time and memory budgets.
+    pub max_generated: Option<u64>,
     /// TLC's `-deadlock`: disable deadlock checking.
     pub no_deadlock: bool,
     /// Collect source-location action flows, corresponding to TLC `stats=basic`.
@@ -274,9 +294,21 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         req.depth.unwrap_or(100),
         req.traces,
     );
+    if req.traces == UNLIMITED_TRACES
+        && !matches!(req.time_limit, crate::BudgetSetting::Explicit(_))
+    {
+        return Err(crate::ApiError::Rejected {
+            message: "unlimited simulation traces need an explicit time limit".to_owned(),
+        });
+    }
+    let workers = req.workers.unwrap_or(1);
     let options = Options {
         action_stats: req.action_stats,
         generation: req.generation,
+        constructive_init: req.constructive_init,
+        workers,
+        keep_traces: req.keep_traces.unwrap_or(10),
+        max_generated: req.max_generated.unwrap_or(u64::MAX),
         aril: if req.compat_tlc && req.seed.is_none() {
             0
         } else {
@@ -318,38 +350,24 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     let mut native = None;
     let mut setup_failure = None;
     let mut symmetry_warnings = Vec::new();
-    if req.workers.is_none_or(|workers| workers == 1) {
-        if let Some(outcome) = dive_sim::preflight(model.model(), &options) {
-            setup_failure = Some(outcome);
-        } else if let Err(outcome) = prepare_symmetry(&model, &mut symmetry_warnings) {
-            setup_failure = Some(outcome);
-        } else {
-            match crate::core_modes::Native::probe(
-                &model,
-                seed,
-                options.mode,
-                &run_budget.budget,
-                control.clone(),
-            ) {
-                Ok(prepared) => native = Some(prepared),
-                Err(error) => setup_failure = Some(error.simulation()),
-            }
+    if let Some(outcome) = dive_sim::preflight(model.model(), &options) {
+        setup_failure = Some(outcome);
+    } else if let Err(outcome) = prepare_symmetry(&model, &mut symmetry_warnings) {
+        setup_failure = Some(outcome);
+    } else {
+        match crate::core_modes::Native::probe(
+            &model,
+            seed,
+            options.mode,
+            &run_budget.budget,
+            control.clone(),
+        ) {
+            Ok(prepared) => native = Some(prepared),
+            Err(error) => setup_failure = Some(error.simulation()),
         }
     }
     let result = if let Some(outcome) = setup_failure {
         crate::core_modes::preflight_report(outcome)
-    } else if req.workers.is_some_and(|n| n != 1) {
-        dive_sim::Report {
-            stage: "preflight",
-            outcome: Outcome::Unsupported("parallel simulation workers".to_owned()),
-            generated: 0,
-            initial_candidates: 0,
-            pending_violation: None,
-            traces_started: 0,
-            traces: Vec::new(),
-            action_flow: None,
-            runtime_output: Vec::new(),
-        }
     } else {
         let executed = std::thread::scope(|scope| {
             std::thread::Builder::new()
@@ -643,14 +661,20 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         "tlc_code": reported_code, "message": reported_message, "exit_code": exit,
         "violation_validated": violation_validated, "observed_violation": violation, "pending_violation": pending_violation, "startup_output": startup,
         "options": { "seed": seed, "seed_given": req.seed.is_some(), "aril": options.aril, "aril_requested": req.aril,
-            "depth": options.depth, "traces": options.traces, "workers_requested": req.workers.unwrap_or(1),
-            "workers_used": u8::from(result.stage != "preflight"),
+            "depth": options.depth,
+            "traces": if options.traces == UNLIMITED_TRACES { Value::Null } else { json!(options.traces) },
+            "keep_traces": if options.keep_traces == KEEP_ALL_TRACES { json!("all") } else { json!(options.keep_traces) },
+            "max_report_bytes": req.max_report_bytes, "max_generated": req.max_generated,
+            "workers_requested": workers,
+            "workers_used": if result.stage == "preflight" { 0 } else { workers },
             "execution_stage": result.stage, "execution_scope": "simulation-backend",
             "mode": "finite-safety", "probabilistic": req.generation,
             "algorithm": if req.generation { "constructive" } else { "enumerating" },
+            "initial_states": if req.constructive_init { "constructed" } else { "enumerated" },
             "action_stats": req.action_stats,
             "max_output_events": options.max_output_events, "max_output_bytes": options.max_output_bytes },
         "statistics": { "generated": result.generated, "initial_candidates": result.initial_candidates, "traces_started": result.traces_started,
+            "traces_kept": traces.len(), "traces_dropped": 0,
             "scope": if matches!(result.outcome, Outcome::Sampled) { "complete-request" } else { "completed-prefix" } },
         "traces": [], "action_flow": action_flow,
         "runtime_output": result.runtime_output.iter().map(|event| json!({
@@ -699,11 +723,99 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         &mut exit,
         matches!(result.outcome, Outcome::Cancelled),
     )?;
-    Ok(SimulateReport {
+    let mut report = SimulateReport {
         document,
         traces,
         exit,
-    })
+    };
+    if let Some(bound) = req.max_report_bytes {
+        report.fit(bound);
+    }
+    Ok(report)
+}
+
+impl SimulateReport {
+    /// The exact number of bytes [`Self::write_json`] writes with
+    /// `convention`, without building the text.
+    ///
+    /// ```
+    /// # fn show(report: &dive_api::SimulateReport) -> std::io::Result<()> {
+    /// let mut text = Vec::new();
+    /// report.write_json(&mut text, None)?;
+    /// assert_eq!(report.json_len(None), text.len());
+    /// # Ok(()) }
+    /// ```
+    #[must_use]
+    pub fn json_len(&self, convention: Option<crate::ExitConvention>) -> usize {
+        struct Count(usize);
+        impl std::io::Write for Count {
+            fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+                self.0 += bytes.len();
+                Ok(bytes.len())
+            }
+            fn flush(&mut self) -> std::io::Result<()> {
+                Ok(())
+            }
+        }
+        let mut count = Count(0);
+        // Writing to a counter cannot fail.
+        let _ = self.write_json(&mut count, convention);
+        count.0
+    }
+
+    /// The longest of the report's renderings, under either exit convention.
+    fn widest_len(&self) -> usize {
+        [
+            None,
+            Some(crate::ExitConvention::Native),
+            Some(crate::ExitConvention::Tlc),
+        ]
+        .into_iter()
+        .map(|convention| self.json_len(convention))
+        .max()
+        .unwrap_or(0)
+    }
+
+    /// Drops kept sample traces from the highest id down until the report
+    /// fits `bound` bytes; then, if needed, replaces the deciding trace by a
+    /// summary. Samples are the lowest ids and the deciding trace the last
+    /// entry, so its position only follows the drops. Its validation is kept
+    /// either way.
+    fn fit(&mut self, bound: usize) {
+        let deciding = self.document["observed_violation"]["trace"].is_u64();
+        let mut dropped = 0u64;
+        while self.widest_len() > bound {
+            let samples = self.traces.len() - usize::from(deciding);
+            if samples == 0 {
+                break;
+            }
+            self.traces.remove(samples - 1);
+            dropped += 1;
+            self.document["statistics"]["traces_dropped"] = json!(dropped);
+            self.document["statistics"]["traces_kept"] = json!(self.traces.len());
+            if deciding {
+                self.document["observed_violation"]["trace"] = json!(self.traces.len() - 1);
+            }
+        }
+        if deciding
+            && self.widest_len() > bound
+            && let Some(entry) = self.traces.last_mut()
+            && let Ok(entry_json) = serde_json::from_str::<Value>(entry)
+        {
+            let document = entry_json["document"].to_string();
+            *entry = json!({
+                "id": entry_json["id"],
+                "summary": {
+                    "reason": "report byte bound",
+                    "length": entry_json["document"]["states"].as_array().map_or(0, Vec::len),
+                    "ending": entry_json["document"]["ending"],
+                    "document_sha256": dive_runtime::checkpoint::hash(document.as_bytes()),
+                },
+                "validation": entry_json["validation"],
+            })
+            .to_string();
+        }
+    }
 }
 
 /// The parts of one trace's validation report that decide the run's result.

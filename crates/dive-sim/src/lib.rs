@@ -19,7 +19,20 @@ use dive_stdlib::random::RandomMode;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-/// A finite simulation request. No unbounded trace count is accepted.
+/// [`Options::traces`] for a run that samples until a violation, an error
+/// or its budget stops it.
+pub const UNLIMITED_TRACES: u64 = u64::MAX;
+
+/// [`Options::keep_traces`] that keeps every trace.
+pub const KEEP_ALL_TRACES: u64 = u64::MAX;
+
+/// A simulation request.
+///
+/// Trace `id` is sampled from its own stream, so its states, its generated
+/// count and its verdict are a function of the seed and `id` alone, whatever
+/// worker runs it. The run reports the lowest-id trace that decides it (a
+/// violation, an error or a refusal), with the statistics of the traces
+/// before it, so the report is the same at any worker count.
 #[derive(Clone, Debug)]
 pub struct Options {
     /// Run seed, always recorded by callers.
@@ -29,15 +42,26 @@ pub struct Options {
     pub aril: u64,
     /// Maximum number of transitions in each trace (TLC's `-depth`).
     pub depth: usize,
-    /// Number of traces to sample, stopping on the first error.
+    /// Total number of traces to sample at any worker count, stopping on the
+    /// first deciding trace; [`UNLIMITED_TRACES`] samples until a budget stops.
     pub traces: u64,
+    /// Sampling threads. Traces are committed in id order, so the report
+    /// does not depend on this.
+    pub workers: usize,
+    /// Traces kept in the report besides the deciding trace: the lowest ids.
+    /// [`KEEP_ALL_TRACES`] keeps every trace.
+    pub keep_traces: u64,
     /// TLC's worker stream or dive's stable trace identities.
     pub mode: RandomMode,
-    /// Maximum initial states or candidates retained for one action.
+    /// Maximum initial states retained by Init enumeration. Unbounded by
+    /// default: the run's memory budget governs.
     pub max_candidates: usize,
-    /// Maximum states retained across all trace documents.
+    /// Maximum states retained across the kept trace documents. Unbounded
+    /// by default; [`Options::keep_traces`] bounds what is kept.
     pub max_retained: usize,
-    /// Maximum generated states, including discarded candidates.
+    /// Maximum generated states, including discarded candidates, counted in
+    /// trace order: a trace that would cross it ends the run with the
+    /// statistics of the traces before it. Unbounded by default.
     pub max_generated: u64,
     /// Collect chosen action flows, combining source locations as TLC `stats=basic`.
     pub action_stats: bool,
@@ -45,6 +69,11 @@ pub struct Options {
     /// of retaining every successor of a selected action. Sampling is never proof.
     /// `true` is TLC `-generate num=N`; the default `false` is `-simulate num=N`.
     pub generation: bool,
+    /// Each trace constructs its initial state with randomized Init choices
+    /// instead of drawing one from Init enumerated once (opt-in, D-041). Init
+    /// is never enumerated, so an initial state that violates an invariant is
+    /// found only if a trace constructs it.
+    pub constructive_init: bool,
     /// Maximum retained runtime Print/PrintT events (startup output is separate).
     pub max_output_events: usize,
     /// Maximum UTF-8 bytes retained in runtime Print/PrintT text. This does not
@@ -53,7 +82,8 @@ pub struct Options {
 }
 
 impl Options {
-    /// Bounds with a finite, explicit number of traces and transitions.
+    /// One worker, the default retention of 10 traces and no state bounds:
+    /// the caller's time and memory budgets govern.
     #[must_use]
     pub const fn new(seed: i64, mode: RandomMode, depth: usize, traces: u64) -> Self {
         Self {
@@ -61,12 +91,15 @@ impl Options {
             aril: 0,
             depth,
             traces,
+            workers: 1,
+            keep_traces: 10,
             mode,
-            max_candidates: 1_000_000,
-            max_retained: 1_000_000,
-            max_generated: 10_000_000,
+            max_candidates: usize::MAX,
+            max_retained: usize::MAX,
+            max_generated: u64::MAX,
             action_stats: false,
             generation: false,
+            constructive_init: false,
             max_output_events: 100_000,
             max_output_bytes: 16 * 1024 * 1024,
         }
@@ -85,6 +118,9 @@ pub struct Trace {
     /// `states[k + 1]`. Shorter than the steps only when a trace ends at a
     /// violating candidate, whose action is the last entry.
     pub actions: Vec<usize>,
+    /// States this trace generated: its successor candidates, and under
+    /// constructive Init its initial candidates.
+    pub generated: u64,
 }
 
 /// The result of a simulation; a sample never proves absence of violations.
@@ -146,9 +182,10 @@ pub struct Report {
     pub initial_candidates: u64,
     /// Observed violation whose complete trace could not be retained.
     pub pending_violation: Option<PendingViolation>,
-    /// Traces started, including a trace that ends with a violation.
+    /// Traces committed in id order, including the deciding trace.
     pub traces_started: u64,
-    /// Concrete trace data, retained subject to the request's bound.
+    /// The kept traces in id order: the [`Options::keep_traces`] lowest ids
+    /// and the deciding trace.
     pub traces: Vec<Trace>,
     /// Optional chosen-action counts; absent when disabled or preflight refused.
     pub action_flow: Option<ActionFlow>,
@@ -295,7 +332,10 @@ fn with_host(
 pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     let refusal = |s: &str| Some(Outcome::Unsupported(s.to_owned()));
     if opts.traces == 0 {
-        return refusal("simulation requires a positive finite trace count");
+        return refusal("simulation requires a positive trace count");
+    }
+    if opts.workers == 0 {
+        return refusal("simulation requires a positive worker count");
     }
     if opts.aril > 1_000_000 {
         return Some(Outcome::Limit("simulation aril skip bound".to_owned()));

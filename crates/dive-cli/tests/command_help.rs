@@ -165,10 +165,6 @@ const HIDDEN: &[(&[&str], &str)] = &[
         "SYMMETRY Perms",
     ),
     (
-        &["simulate", "Counter.tla", "--traces", "2", "--workers", "2"],
-        "parallel simulation workers",
-    ),
-    (
         &["dfid", "Counter.tla", "--max-level", "6", "--workers", "2"],
         "DFID multiple workers",
     ),

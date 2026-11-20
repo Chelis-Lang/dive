@@ -12,10 +12,12 @@ the trace validator. This crate holds the options, report, static admission
 
 ## Implemented contract
 
-This first slice implements ordinary, single-worker, finite safety simulation
-on supported predicates, with runtime Print/PrintT. TLC's optional JVM `Tool.probabilistic` mode is a different
-algorithm and is explicitly unsupported. The initial predicates are enumerated
-once, with duplicates. The entire initial vector is collected before any
+This crate implements safety simulation on supported predicates, with runtime
+Print/PrintT, at any worker count. TLC's optional JVM `Tool.probabilistic`
+mode is a different algorithm and is explicitly unsupported. In the default
+enumerating mode the initial predicates are enumerated once per run, with
+duplicates, and shared by every worker; `Options::max_candidates` bounds them
+only when set. The entire initial vector is collected before any
 completeness, invariant or constraint check. Initial-generation failures retain
 the separate `initial_candidates` prefix; TLC's generated counter is assigned
 only after enumeration finishes. Every initial invariant, then every implied
@@ -24,7 +26,40 @@ before constraints.
 For each trace, select an initial state, choose an action, draw the prime retry
 stride even when there is only one action, try disabled actions in TLC's stride
 order, check every generated candidate, and select a surviving successor.
-Invariant and action-property checks precede state/action constraints.
+Invariant and action-property checks precede state/action constraints. Up to
+1,024 admitted successors the choice is one draw over all of them; beyond that
+the choice switches to reservoir sampling, uniform over every admitted
+successor with one kept, so a step's memory does not grow with its branching.
+With `Options::constructive_init` (`--constructive-init`, D-041) each trace
+builds its own initial state with randomized Init choices, checked like an
+enumerated one; a search that
+finds no admitted state has searched every alternative, so 2118 and 2256 keep
+their meaning. A set the generator cannot enumerate (`Nat`, `Int`) is TLC's
+GENERAL 1000 error; the constructive generator refuses an existential domain
+it cannot index by name.
+
+## Workers and commit order
+
+Trace `id` reads only the shared plan, the initial states and its own stream,
+so its states, generated count, output and verdict are a function of the seed
+and `id`. `Options::workers` threads claim ids from one counter and hand
+finished traces to a committer that takes them in id order. The first deciding
+trace committed (a violation, an evaluation error, a refusal or a limit) is
+the lowest deciding id; traces above it are abandoned, and the statistics,
+action flows, output and kept traces are those of the ids before it. The
+report is therefore the same at any worker count. A worker runs at most
+`4 W` traces ahead of the next to commit, which bounds buffered output and
+states. `Print` output is buffered per trace and admitted in id order against
+the run's allowance, so where an output bound stops does not depend on the
+worker count either.
+
+`Options::keep_traces` (default 10, `KEEP_ALL_TRACES` for every trace) keeps
+the lowest ids besides the deciding trace; a finished trace that is not kept
+releases its states at once. `max_generated` and `max_retained` are unbounded
+by default and, when set, are counted in id order: a trace that would cross
+one ends the run with the statistics of the traces before it, and a deciding
+violation that does not fit stays pending evidence. A budget stop ends the run
+with the committed prefix.
 
 In both profiles each trace has dive's counter-based stream keyed by seed and
 trace number (`Streams::simulation_trace`). `--compat=tlc` does not use TLC's
@@ -35,9 +70,11 @@ without an explicitly supplied `--seed`; nonzero aril in the default profile is
 refused. Adding more traces preserves earlier trace documents. A fresh seed is
 always reported when none is supplied.
 
-`--traces` is required and positive. Depth defaults to TLC's 100 transitions.
-The final chosen state is included, so an uncompressed trace can contain
-`depth + 1` states. No infinite trace count is silently selected.
+`--traces` is required: a positive total at any worker count, or
+`unlimited` (`UNLIMITED_TRACES`) with an explicit time limit. Depth defaults
+to TLC's 100 transitions. The final chosen state is included, so an
+uncompressed trace can contain `depth + 1` states. No infinite trace count is
+silently selected.
 
 ## Basic action flows
 
@@ -58,8 +95,9 @@ properties and evaluation failures do not count as chosen transitions. Init
 failures and depth-zero samples have empty flows. Resource limits retain the
 completed chosen prefix. Disabled/preflight-refused statistics are `null`.
 This does not implement source-expression coverage, full context statistics,
-probabilistic generation or a new scheduling algorithm. Independent validation
-and existing one-worker restrictions continue to apply.
+probabilistic generation or a new scheduling algorithm. Flows are summed over
+the committed traces in id order, so they are the same at any worker count.
+Independent validation continues to apply.
 
 ## Evidence and limits
 
@@ -73,7 +111,8 @@ trace modules are retained. `tests/fixtures/capture.py` regenerates them from
 an explicitly supplied jar and JRE and verifies the pinned jar's SHA-256.
 No `-dumpTrace` flag changes the primary oracle's module overrides.
 
-Every concrete trace is validated independently through `dive-trace`. An
+Every kept trace, and always the deciding trace, is validated independently
+through `dive-trace`. An
 undecidable violation becomes `unsupported`, with the observed candidate code
 and validator refusal retained. A rejected candidate becomes `internal-error`.
 Only an independently valid candidate is returned as a certified violation.
