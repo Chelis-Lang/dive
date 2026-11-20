@@ -192,6 +192,14 @@ pub(crate) struct Expanded {
 }
 
 impl Expanded {
+    pub(crate) fn needs_ordered_evaluation(&self) -> bool {
+        !matches!(self.end, Ending::Done)
+            || !self.warnings.is_empty()
+            || self
+                .occs
+                .iter()
+                .any(|(_, event)| matches!(event, Occ::CheckErr { .. } | Occ::Incomplete { .. }))
+    }
     fn push(&mut self, action: usize, occ: Occ) -> Result<(), Error> {
         if let Some(payloads) = &mut self.payloads {
             payloads.push(action, &occ)
@@ -385,7 +393,8 @@ impl WorkerSink<'_, '_> {
             // retains all possibly distinct collisions for ordered commit.
             false
         } else if inside {
-            self.seen.contains(key) || pos.is_some_and(|p| !self.claims.claim(key, p))
+            (!self.seen.speculative_disk && self.seen.contains(key))
+                || pos.is_some_and(|p| !self.claims.claim(key, p))
         } else if unkeyed {
             false
         } else {
@@ -705,6 +714,10 @@ pub(crate) fn expand_level(
                     break;
                 }
                 let s0 = &cur[k * nvars..(k + 1) * nvars];
+                if seen.speculative_disk {
+                    // An ordered replay decides which speculative warnings actually apply.
+                    m.warnings.clear();
+                }
                 done.push((
                     k,
                     expand_one(
@@ -879,7 +892,7 @@ impl crate::Explorer<'_> {
                 Occ::Old { key, inside, .. } => {
                     self.metrics.probed += 1;
                     // Already inserted: never refused by a limit.
-                    if !self.seen.contains(*key) {
+                    if !self.seen_contains(*key, &[], &m.heap, ("AdmissionMembership", None))? {
                         return Err(Error::internal(
                             "a duplicate successor whose first occurrence was not inserted",
                         ));

@@ -1510,7 +1510,12 @@ pub(crate) fn check(
     // TLC's string order the table is sealed, so no worker creates a token.
     let workers = if let Some((remote, _)) = &distributed {
         remote.workers.len()
-    } else if options.seen_disk.is_some() || debugger.is_some() {
+    } else if options
+        .seen_disk
+        .as_ref()
+        .is_some_and(|s| !s.partitioned || options.sequential)
+        || debugger.is_some()
+    {
         1
     } else {
         options.workers.max(1)
@@ -1579,6 +1584,7 @@ pub(crate) fn check(
             .seen_disk
             .as_ref()
             .map(|options| dive_explore::storage::DiskOptions {
+                partitioned: options.partitioned,
                 limits: options.limits,
                 directory: options.directory.clone(),
             }),
@@ -1644,8 +1650,16 @@ pub(crate) fn check(
             .first_failure
             .as_ref()
             .is_some_and(|failure| failure.phase == "Creation");
-        r.workers.used = usize::from(!creation_failed);
-        r.workers.reason = Some("fallible Core disk membership executes inline; the requested worker width is retained separately".into());
+        if !options.seen_disk.as_ref().is_some_and(|s| s.partitioned) {
+            r.workers.used = usize::from(!creation_failed);
+            r.workers.reason = Some("fallible Core disk membership executes inline; the requested worker width is retained separately".into());
+        } else if creation_failed {
+            r.workers.used = 0;
+        } else if options.sequential {
+            r.workers.used = 1;
+            r.workers.sequential = true;
+            r.workers.reason = Some("--sequential requested inline ordered admission".into());
+        }
         if r.stats.is_none() && !creation_failed {
             r.stats = Some(dive_runtime::Stats {
                 generated: observed_stats.generated,
@@ -1676,6 +1690,7 @@ pub(crate) fn native_seen_usage(
 ) -> dive_runtime::SeenUsage {
     use dive_runtime::SeenPhase;
     dive_runtime::SeenUsage {
+        audited_fingerprint_gap: usage.audited_fingerprint_gap,
         limits: usage.limits,
         admitted_keys: usage.admitted_keys,
         before_cleanup: usage.before_cleanup,

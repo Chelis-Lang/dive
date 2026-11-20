@@ -35,12 +35,28 @@ pub struct FrontierUsage {
 /// on-disk membership and key workspaces, not total search/process memory.
 #[derive(Clone, Debug, Default)]
 pub struct SeenOptions {
+    /// Use batched, sorted fingerprint runs and ordered parallel admission.
+    pub partitioned: bool,
     /// Full key/entry/probe/collision-summary admission limits. Zero entries or
     /// probes are malformed policies; zero summary pairs is a valid refusal bound.
     pub limits: Limits,
     /// Parent for a private owned directory. Omitted uses system temporary storage.
     /// Caller files are never overwritten or recursively removed.
     pub directory: Option<PathBuf>,
+}
+
+impl SeenOptions {
+    /// Validates the limits for the selected storage format.
+    ///
+    /// # Errors
+    /// Invalid bounds or indexed-store options on a sorted fingerprint set.
+    pub fn validate(&self) -> Result<(), SeenError> {
+        if self.partitioned {
+            dive_store::seen::sorted::validate(self.limits)
+        } else {
+            self.limits.validate()
+        }
+    }
 }
 
 /// Ordered engine phase of the first observed storage failure.
@@ -81,6 +97,8 @@ pub struct SeenFailure {
 /// Disk retention and cleanup facts, independent of full model certification.
 #[derive(Clone, Debug)]
 pub struct SeenUsage {
+    /// Minimum gap among ordered native fingerprints in each high-bit half after a complete sorted-run audit.
+    pub audited_fingerprint_gap: Option<u64>,
     /// Resolved policy.
     pub limits: Limits,
     /// Successful key admissions at their original ordered positions. A later

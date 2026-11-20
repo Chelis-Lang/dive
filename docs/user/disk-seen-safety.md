@@ -2,8 +2,8 @@
 
 `dive check --seen-disk-entries N` keeps the set of seen states on disk instead
 of in memory, as fingerprints or, with `--store exact`, exact keys. It is off by
-default. The disk search runs on one worker even when you ask for more, and the
-report says so. The option bounds the disk-membership workspaces, not total
+default. The indexed disk search runs on one worker. For multi-worker fingerprint
+searches, add `--partitioned-fingerprints`. The option bounds the disk-membership workspaces, not total
 search or process memory.
 
 ```sh
@@ -25,6 +25,51 @@ states; use `check_file_checkpoint` or the CLI as described in
 cleanup failure stops the run without a certified result. A canceled audit of
 the retained records still cleans up, and does not vouch for the records it did
 not reach.
+
+## Multi-worker fingerprint membership
+
+For a large breadth-first safety search, create a scratch directory on the
+machine running the checker. Set the entry limit to the maximum number of
+distinct fingerprints that may be admitted across the entire run.
+
+```sh
+mkdir -p scratch
+dive check Model.tla --config Model.cfg --workers 32 \
+  --partitioned-fingerprints --seen-disk-entries 50000000000 \
+  --seen-directory scratch --output json
+```
+
+Workers expand states concurrently. The coordinator looks up fingerprints in
+batches and admits each discovery in source and successor order. It keeps up
+to 262,144 recent keys, a window of up to 32,768 queries, and a small page
+index in memory. Sealed runs use eight bytes per key and two resident index
+words per 512 keys before allocator overhead. Compaction temporarily needs
+space for both inputs and their replacement. The OS can also cache file pages
+in memory. Frontier rows and the parent log still need their own capacity.
+
+Use this option when resident fingerprint tables limit the size of the search.
+At five million SlateDB discoveries it saved 80–100 MiB of peak process memory
+and increased elapsed time. The [scale measurements](../developer/large-models.md#external-fingerprint-membership)
+give the individual runs. A checker using fingerprints still has a collision
+risk. Use `--store exact` on a smaller control to check full state identities.
+
+The global entry limit ranges from 1 through 1,152,921,504,606,846,975. This
+route requires fingerprint safety and resident candidate payloads. Use the
+indexed store for exact keys or checkpoint and recovery. Temporal checking,
+distributed workers and an independent compressed frontier refuse this
+combination. Leave the indexed key, probe and pair limits at their defaults.
+Specify `--sequential` to expand inline. Rust callers set
+`SeenOptions::partitioned` and `limits.entries`.
+
+A completed audit streams the keys in order and checks file lengths, page
+checksums, uniqueness and the entry count. The report then includes
+`seen_storage.native_fingerprint_min_gap`, the smallest gap between adjacent
+native fingerprints in the same high-bit half. The value is 9,223,372,036,854,775,807
+when neither half contains a pair with a smaller gap. It describes the actual
+stored keys, including any replay insertions. It cannot certify collision-free
+state identities. Read `resident_key_collection_bytes` as the capacity of the
+key, query and page-index collections. Use process RSS and cgroup memory for
+host sizing.
 
 ## Run an example
 
@@ -77,7 +122,7 @@ To run it in all four profile and store combinations:
 cargo run -p dive-api --example disk_seen_safety --locked
 ```
 
-## Limits
+## Indexed store limits
 
 `SeenOptions::limits` and `SeenLimits` set the same limits as the CLI:
 
@@ -112,7 +157,7 @@ predecessor or frontier row was written. After a failure, partial writes and
 staging files can exceed the expected byte counts, so that field does not
 measure disk usage.
 
-A fingerprint run that succeeds keeps TLC's optimistic collision estimate.
+The indexed store’s fingerprint summary uses TLC's optimistic collision estimate when supplied by the engine.
 When TLC's threshold calls for the actual-gap estimate and the summary limit is
 exceeded, the run refuses to complete rather than leaving the field out. Exact
 mode reports no fingerprint collision estimate, as in memory.

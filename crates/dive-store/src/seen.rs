@@ -10,6 +10,7 @@
 //! cache, handles, paths and caller-owned keys are outside these bounds.
 
 mod files;
+pub mod sorted;
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -160,7 +161,7 @@ pub struct Stats {
     pub physical_entries: u64,
     /// Current expected data/index lengths, not cumulative rehash traffic.
     pub disk_bytes: u64,
-    /// Zero: there is no resident key/offset collection.
+    /// Resident key/index collection capacity in bytes. The indexed disk format retains none.
     pub resident_key_bytes: u64,
     /// Whether an operation failed and accounting may exclude partial writes.
     pub poisoned: bool,

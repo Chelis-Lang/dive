@@ -51,7 +51,7 @@ Supported storage options:\n\
     --independent-frontier --frontier-memory-bytes N --frontier-directory DIR\n\
     --candidate-memory-bytes N --candidate-directory DIR --store-compact-bytes N\n\
     --predecessor-memory-bytes N --predecessor-directory DIR\n\
-    --seen-disk-entries N --seen-directory DIR --seen-key-bytes N\n\
+    --seen-disk-entries N --partitioned-fingerprints --seen-directory DIR --seen-key-bytes N\n\
     --seen-probe-steps N --seen-summary-pairs N\n\
     --checkpoint FILE --checkpoint-after-levels N | --recover FILE\n\
     --checkpoint-counters tlc|retain\n\n\

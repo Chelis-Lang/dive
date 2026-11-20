@@ -15,8 +15,11 @@ write, corruption or cleanup failure stops the run as a resource stop, with
 storage diagnostics and no certified counterexample.
 
 dive's safety BFS also supports disk membership with `--seen-disk-entries`,
-using one worker and complete canonical keys for exact membership, and
-completed-level checkpoints and recovery with all of these storage choices.
+using one worker and complete canonical keys for exact membership. The indexed
+store supports completed-level checkpoints and recovery. Adding
+`--partitioned-fingerprints` uses sorted runs with parallel expansion and a
+64-bit global entry limit for ordinary safety searches. See the
+[multi-worker fingerprint guide](disk-seen-safety.md#multi-worker-fingerprint-membership).
 dive never falls back to another engine. Exact store, spill and disk options
 combined with temporal checking refuse.
 

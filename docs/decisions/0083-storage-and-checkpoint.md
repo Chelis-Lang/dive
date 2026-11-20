@@ -85,6 +85,19 @@ independently. Unimplemented combinations (liveness, checkpointing, disk storage
 refuse by name. TLC's per-iteration worker random order is not an emulation
 target. Parity is the observable result.
 
+### Multi-worker fingerprint membership
+
+Ordinary Core safety can opt into a transient store of sorted immutable runs.
+The coordinator owns the 64-bit entry count and commits discoveries in the same
+order as the resident search. Parallel lookups supply hints. Only an ordered
+operation can report the first storage failure. Each run contains complete
+fingerprints, with a sparse in-memory page index and checksum per page.
+Compaction preserves the previous runs until the replacement is complete.
+Before certifying completion, the owner streams all retained keys to check
+their order, integrity and count, compute the native gap, and remove its files.
+The indexed single-worker store continues to serve exact identities and
+checkpoint recovery. [Public surface and measured costs](../user/disk-seen-safety.md#multi-worker-fingerprint-membership).
+
 ## Consequences
 
 - Storage options are orthogonal to semantics. The conformance gate can run any

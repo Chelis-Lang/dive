@@ -324,3 +324,119 @@ fn actual_print_events_refuse_unproved_disk_error_output() {
         }
     }
 }
+
+#[test]
+fn partitioned_fingerprints_preserve_ordered_witnesses_and_counts() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-liveness/tests/fixtures/tlc-probes/specs");
+    for name in ["SymOrder", "SymViolation"] {
+        let file = root.join(name).join(format!("{name}.tla"));
+        for compat_tlc in [false, true] {
+            let mut req = CheckRequest {
+                file: file.clone(),
+                config: Some(file.with_extension("cfg")),
+                compat_tlc,
+                seed: Some(7),
+                fp: Some(0),
+                workers: Some(1),
+                ..CheckRequest::default()
+            };
+            let reference = dive_api::check_file(&req).expect("resident").to_json();
+            assert!(!reference["counterexample"].is_null());
+            let validator = SpecModel::load(
+                &file,
+                &file.with_extension("cfg"),
+                &TraceOptions {
+                    compat_tlc,
+                    run: Some((0, 7)),
+                    ..TraceOptions::default()
+                },
+            )
+            .expect("oracle");
+            for width in [1, 4, 8] {
+                req.workers = Some(width);
+                req.seen_disk = Some(SeenOptions {
+                    partitioned: true,
+                    ..SeenOptions::default()
+                });
+                let actual = dive_api::check_file(&req).expect("sorted").to_json();
+                for field in [
+                    "verdict",
+                    "property",
+                    "exit_code",
+                    "error_site",
+                    "statistics",
+                ] {
+                    assert_eq!(
+                        actual[field], reference[field],
+                        "{name} {width} {field}: {actual}"
+                    );
+                }
+                let trace = TraceDoc::from_json(&actual).expect("witness");
+                assert_eq!(
+                    validator.controls(&trace).positive.validation,
+                    Validation::Valid
+                );
+                assert_eq!(
+                    actual["seen_storage"]["after_cleanup"]["cleanup_completed"],
+                    true
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn partitioned_sources_preserve_first_ordered_warning() {
+    let file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-eval/tests/fixtures/next/specs/NxUnchangedChanged/NxUnchangedChanged.tla");
+    let mut req = CheckRequest {
+        config: Some(file.with_extension("cfg")),
+        file,
+        workers: Some(1),
+        seed: Some(7),
+        fp: Some(0),
+        ..CheckRequest::default()
+    };
+    let expected = dive_api::check_file(&req).expect("scalar").to_json();
+    assert!(expected["output"].as_array().is_some_and(|a| !a.is_empty()));
+    req.seen_disk = Some(SeenOptions {
+        partitioned: true,
+        ..SeenOptions::default()
+    });
+    for width in [1, 4] {
+        req.workers = Some(width);
+        let actual = dive_api::check_file(&req).expect("sorted").to_json();
+        assert_eq!(actual["output"], expected["output"]);
+        assert_eq!(actual["statistics"], expected["statistics"]);
+    }
+}
+
+#[test]
+fn partitioned_expansion_reaches_the_parallel_level_loop() {
+    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/seen-safety/Counter.tla");
+    for (width, sequential) in [(1, false), (4, true), (4, false)] {
+        let request = CheckRequest {
+            config: Some(file.with_extension("cfg")),
+            file: file.clone(),
+            workers: Some(width),
+            sequential,
+            seen_disk: Some(SeenOptions {
+                partitioned: true,
+                ..SeenOptions::default()
+            }),
+            ..CheckRequest::default()
+        };
+        let actual = dive_api::check_file(&request).expect("sorted").to_json();
+        assert_eq!(actual["verdict"], "success");
+        let used_parallel = actual["core"]["metrics"]["expand_ms"]
+            .as_f64()
+            .expect("worker phase wall")
+            > 0.0;
+        assert_eq!(used_parallel, width > 1 && !sequential, "{actual}");
+        assert_eq!(
+            actual["options"]["workers"]["used"],
+            if sequential { 1 } else { width }
+        );
+    }
+}
