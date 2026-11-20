@@ -1197,3 +1197,32 @@ python3 scripts/bench-edited-temporal.py target/release/examples/recheck_tempora
 
 Add `--diehard path/to/DieHard.tla` to use the pinned examples corpus and
 `--gnu-time /usr/bin/time` on Linux for both process RSS measurements.
+
+### S7 first temporal property
+
+MCLiveInternalMemory has four variables, including functions for process
+control and buffers. Its behavior includes weak fairness. Removing the last
+claim `Liveness` leaves the first claim `LivenessProperty` unchanged.
+Both ordinary runs held after 4,408 distinct and 21,400 generated states at
+depth 10, with eight initial states and an empty queue. The previous and
+edited products used 198,880 and 78,048 native atom evaluations respectively.
+Both ran zero periodic checks and required zero reference atom evaluations.
+
+On one Ryzen AI MAX+ 395 Linux CPU, seven interleaved samples gave a median
+63.369 ms ordinary edited check and 2.239 ms to load the edited source,
+prepare its ordinary plans and qualify the prior native execution with the
+previous binding present (28.3×). Including a new process, reading the prior
+report and binding both sources gave 6.830 ms against 64.914 ms for a fresh
+edited process (9.5×). The latter assumes the earlier ordinary full check was
+already required. It excludes transport, authentication and Sail dispatch.
+
+[All raw per-run timings and counters](../../conformance/studies/s7-temporal-first-projection.json)
+use the pinned examples revision. Reproduce on one Linux CPU with:
+
+```sh
+CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 \
+  cargo build --locked -p dive-api --release --example project_first_temporal
+taskset -c 7 python3 scripts/bench-project-first-temporal.py \
+  target/release/examples/project_first_temporal \
+  "$EXAMPLES/specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.tla"
+```

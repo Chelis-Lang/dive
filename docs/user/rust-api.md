@@ -426,3 +426,43 @@ cargo run -p dive-api --release --example project_invariants -- \
 
 The example's `--relation` mode binds both inputs and prints an inventory
 without a verdict. See the [S7 projection measurements](../developer/performance.md#removing-boundednetwork-from-mclamportmutex).
+
+## Retain the first temporal property
+
+`dive_api::temporal_projection::Program` qualifies the edit from
+`PROPERTY P Q …` to `PROPERTY P` on an unchanged, closed TLA+ program. It
+can work on records, maps and sets because it compares the inputs to the
+ordinary search and its first temporal product. It retains no reachable rows.
+
+```rust,ignore
+use dive_api::temporal_projection::{Limits, Program};
+
+let limits = Limits { max_states: Some(8_816), max_depth: Some(100_000) };
+let previous = Program::from_reports(&previous_source, &previous_config, limits)?;
+let current = Program::from_reports(&current_source, &current_config, limits)?;
+let retained = previous.first_claim(&current, &authenticated_previous_native_report)?;
+```
+
+Authenticate the previous ordinary result against the exact previous source
+closure, configuration, worker build and request before using the returned
+name. A saved JSON document alone provides no provenance. Use one exact Core
+worker, Dive defaults, seed and fingerprint zero, unlimited internal time
+and memory and identical state/depth limits. Enforce the caller's current
+deadline. A successful projection can carry the actual prior counters.
+
+The previous report must contain a completed native Holds, empty frontier,
+final analysis, zero periodic checks, zero observed atom fallbacks and zero
+reference state/action atom evaluations. The state cap must be positive and
+below the default first periodic threshold of 65,536. Both inputs undergo
+ordinary startup and tableau planning, including a check for mixed safety
+roles and source-row demand. A property can become a startup refusal after
+dropping a sibling even when the previous check held. Changes to fairness,
+bound arguments, constants, ordering or the transition program miss. An
+unknown or oversized startup value also misses. The admitted lazy value is
+a binary union created by that exact evaluator, with two bounded operands
+whose representations can be inspected without invoking callbacks.
+
+The `project_first_temporal` Rust example accepts a previous ordinary native
+report and prints a qualified relation or the refusal. The S7 procedure
+compares the same model against fresh checking. See
+[performance measurements](../developer/performance.md#s7-first-temporal-property).

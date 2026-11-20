@@ -7,6 +7,9 @@ are in git history.
 
 ### Added
 
+- Embedders can qualify a completed native temporal check after retaining its
+  first property on unchanged aggregate-state programs. See [retaining a claim](docs/user/rust-api.md#retain-the-first-temporal-property).
+
 - The conformance harness can run selected models without TLC goldens with
   `--observe-missing-goldens` and record their ungraded outcomes. This includes
   the four holdouts excluded because the pinned TLC exceeded its deadline.

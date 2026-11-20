@@ -1,0 +1,94 @@
+{
+  "machine": {
+    "cpu": "AMD Ryzen AI MAX+ 395",
+    "cpu_affinity": "one Linux logical CPU",
+    "kernel": "7.1.5-100.fc43.x86_64",
+    "rustc": "1.99.0",
+    "cargo_profile": "release without LTO, 16 codegen units"
+  },
+  "examples_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "model": "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory",
+  "edit": "remove the trailing PROPERTY Liveness, retain original LivenessProperty and LISpec fairness",
+  "policy": {
+    "max_states": 8816,
+    "max_depth": 100000,
+    "internal_time_memory": "unlimited",
+    "workers": 1,
+    "store": "exact",
+    "profile": "dive",
+    "seed": 0
+  },
+  "statistics": {
+    "generated": 21400,
+    "distinct": 4408,
+    "depth": 10,
+    "initial_generated": 8,
+    "left_on_queue": 0
+  },
+  "ordinary_previous_process_us": 108322,
+  "previous_atoms": {
+    "total_atoms": 20,
+    "eligible_atoms": 20,
+    "evaluated": 198880,
+    "fallback": 0,
+    "audit": false
+  },
+  "edited_atoms": {
+    "total_atoms": 8,
+    "eligible_atoms": 8,
+    "evaluated": 78048,
+    "fallback": 0,
+    "audit": false
+  },
+  "samples": [
+    {
+      "edited_fresh_us": 63302,
+      "edited_fresh_process_us": 64914,
+      "previous_binding_us": 3237,
+      "edited_binding_and_qualified_relation_us": 2294,
+      "read_receipt_bind_both_process_us": 6918
+    },
+    {
+      "previous_binding_us": 2772,
+      "edited_binding_and_qualified_relation_us": 2218,
+      "read_receipt_bind_both_process_us": 6072,
+      "edited_fresh_us": 60430,
+      "edited_fresh_process_us": 61763
+    },
+    {
+      "edited_fresh_us": 64810,
+      "edited_fresh_process_us": 66401,
+      "previous_binding_us": 3259,
+      "edited_binding_and_qualified_relation_us": 2239,
+      "read_receipt_bind_both_process_us": 6830
+    },
+    {
+      "previous_binding_us": 5521,
+      "edited_binding_and_qualified_relation_us": 2253,
+      "read_receipt_bind_both_process_us": 8775,
+      "edited_fresh_us": 60077,
+      "edited_fresh_process_us": 61312
+    },
+    {
+      "edited_fresh_us": 63668,
+      "edited_fresh_process_us": 65232,
+      "previous_binding_us": 3183,
+      "edited_binding_and_qualified_relation_us": 2197,
+      "read_receipt_bind_both_process_us": 6663
+    },
+    {
+      "previous_binding_us": 2744,
+      "edited_binding_and_qualified_relation_us": 2219,
+      "read_receipt_bind_both_process_us": 5958,
+      "edited_fresh_us": 63369,
+      "edited_fresh_process_us": 64876
+    },
+    {
+      "edited_fresh_us": 65188,
+      "edited_fresh_process_us": 69605,
+      "previous_binding_us": 3329,
+      "edited_binding_and_qualified_relation_us": 2250,
+      "read_receipt_bind_both_process_us": 7001
+    }
+  ]
+}

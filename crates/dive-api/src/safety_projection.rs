@@ -2,7 +2,7 @@
 //! configured invariants. This is independent of row representation. A
 //! relation between two programs alone never establishes a verdict.
 
-mod identity;
+pub(crate) mod identity;
 
 use crate::{AnalyzeOptions, AnalyzeReport, ConfigReport, core_engine};
 use dive_core::Opts;
@@ -19,7 +19,7 @@ impl std::fmt::Display for Miss {
     }
 }
 impl std::error::Error for Miss {}
-fn miss(reason: impl Into<String>) -> Miss {
+pub(crate) fn miss(reason: impl Into<String>) -> Miss {
     Miss(reason.into())
 }
 
@@ -35,7 +35,7 @@ pub struct Limits {
 }
 
 impl Limits {
-    fn options(self) -> dive_runtime::CheckOptions {
+    pub(crate) fn options(self) -> dive_runtime::CheckOptions {
         let mut options = dive_runtime::CheckOptions::dive(0);
         options.store = dive_store::StoreMode::Exact;
         options.max_states = self.max_states;

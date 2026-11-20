@@ -256,6 +256,14 @@ impl<'m> GraphCheck<'m> {
         })
     }
 
+    /// The actual first original claim lowered for final product analysis,
+    /// including its behavior fairness and every bound atom. Inspection of a
+    /// plan establishes neither reachability nor a verdict.
+    #[must_use]
+    pub fn first_plan(&self) -> Option<&crate::plan::Plan> {
+        self.plans.first().map(|property| &property.plan)
+    }
+
     /// The actual retained source-scoped predicates, in configured order.
     /// Inspection grants no evaluation or completion authority. References
     /// remain in these fixed plan allocations until this driver is consumed.
