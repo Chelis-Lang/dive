@@ -294,7 +294,10 @@ Ordinary safety also offers [disk-backed seen-state membership](../user/disk-see
 The original set contains six memory stops and seven feature refusals. The
 [per-model outcomes](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json)
 preserve the original input identities, profiles, budgets, available counts
-and termination reasons. A pinned TLC golden is still unavailable for these
+and termination reasons. Each row also includes its eight-worker ordinary
+Core observation on integrated main, in both the default and nominal TLC
+profiles, at 30 s and 2 GiB. These 26 short runs preserve the original
+missing-golden grades. A pinned TLC golden is still unavailable for these
 inputs. The compact graph, fixed-prefix and symbolic records linked above
 provide comparisons at the same work or against an independent calculation.
 
@@ -310,7 +313,7 @@ provide comparisons at the same work or against an independent calculation.
 | etcdraft | Default Core reached 70,655,639 distinct and 266,068,245 generated, depth 13, at the 18 GiB sampled limit. | 55,290,518 states were queued. Queue width and retained aggregate values are practical targets. |
 | MCetcdraft | The original default run refused mixed record keys after 679 s. Canonical bag construction reached 47,609,227 distinct and 257,868,368 generated, depth 15, before the 18 GiB memory limit. | Message bags use structurally different records. Distinct keys and their multiplicities must survive construction and independent replay. |
 | TestMCReachability | The released CFG reads the host environment. Six ordinary closed CFGs on the unedited source match TLC in both profiles, including the graph 1a deadlock. Graph 7 exceeded a 10 s observation. | The graph selected as input and the reachable checker states of the graph algorithm are separate quantities. |
-| CarTalk Model 3 | The ordinary check refuses to enumerate the function space. The source-bound puzzle calculation returns the single solution 1, 3, 9, 27, 81. | This is a constant constraint-solving problem. An ordinary checker would need a general exact counting or constraint-solving route for this expression. |
+| CarTalk Model 3 | In the default profile the ordinary CLI reports an assumption evaluation error at its finite enumeration ceiling. The nominal profile refuses oversized enumeration. The source-bound puzzle calculation returns the single solution 1, 3, 9, 27, 81. | This is a constant constraint-solving problem. An ordinary checker would need a general exact counting or constraint-solving route for this expression. |
 
 Each 24 GiB rerun used a dedicated EC2 instance with eight physical cores.
 For a kernel OOM there is no final checker report. The 900 s runs used an

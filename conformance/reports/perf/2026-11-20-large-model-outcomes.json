@@ -52,7 +52,27 @@
           "MC.cfg": "d488a15255157895ea6c6e620dd95501f511c5747485f48e18922afbd41bd008"
         }
       },
-      "reference": "scripts/perf/scale/cartalk.py"
+      "reference": "scripts/perf/scale/cartalk.py",
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "assumption-failure",
+          "error_class": "TLC_ASSUMPTION_EVALUATION_ERROR",
+          "exit_code": 10,
+          "elapsed_ms": 63
+        },
+        "tlc": {
+          "outcome": "unsupported",
+          "elapsed_ms": 0,
+          "detail": "unsupported: enumerating, without materializing it, a set too large to size: [1..5 -> 1..121]"
+        }
+      },
+      "ordinary_default_cli": {
+        "verdict": "evaluation-error",
+        "exit_code": 10,
+        "error_site": "assumption",
+        "message": "Evaluating assumption line 20, col 8 to line 20, col 65 of module MC failed.\n@!@!@STARTMSG 2154:0 @!@!@\nAttempted to apply the operator overridden by the Java method\npublic static tlc2.value.impl.Value tlc2.module.TLC.PrintT(tlc2.value.impl.Value),\nbut it produced the following error:\nThe set\n[1..5 -> 1..121]\nhas 25937424601 elements, more than dive enumerates (2147483647).\n@!@!@ENDMSG 2154 @!@!@"
+      }
     },
     {
       "model": "specifications/KeyValueStore/MCKVSSafetyLarge.cfg",
@@ -83,6 +103,30 @@
           "reported_by_tlc": false
         },
         "peak_process_rss_kib": 167528
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 7867932,
+          "states_generated": 68837526,
+          "states_left_on_queue": 4580829,
+          "depth": 16,
+          "elapsed_ms": 30068,
+          "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30003 ms: the time limit is 30000 ms"
+        },
+        "tlc": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 7019774,
+          "states_generated": 60395397,
+          "states_left_on_queue": 4127899,
+          "depth": 15,
+          "elapsed_ms": 30064,
+          "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30004 ms: the time limit is 30000 ms"
+        }
       }
     },
     {
@@ -110,6 +154,18 @@
         "workers": 1,
         "profile": "dive",
         "host": "workstation"
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "unsupported",
+          "elapsed_ms": 0,
+          "detail": "unsupported: the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env"
+        },
+        "tlc": {
+          "outcome": "unsupported",
+          "elapsed_ms": 0,
+          "detail": "unsupported: the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env"
+        }
       }
     },
     {
@@ -137,6 +193,30 @@
           "reported_by_tlc": false
         },
         "peak_process_rss_kib": 785104
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 5397607,
+          "states_generated": 10261334,
+          "states_left_on_queue": 5393228,
+          "depth": 4,
+          "elapsed_ms": 12876,
+          "detail": "dive check stopped at its --max-memory: stopped during safety-search: resident memory 2168475648 bytes exceeds the ceiling of 2147483648 bytes"
+        },
+        "tlc": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 5397616,
+          "states_generated": 10263397,
+          "states_left_on_queue": 5393237,
+          "depth": 4,
+          "elapsed_ms": 17566,
+          "detail": "dive check stopped at its --max-memory: stopped during safety-search: resident memory 2152591360 bytes exceeds the ceiling of 2147483648 bytes"
+        }
       }
     },
     {
@@ -164,6 +244,30 @@
           "reported_by_tlc": false
         },
         "peak_process_rss_kib": 410132
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 168896,
+          "states_generated": 2799376,
+          "states_left_on_queue": 84672,
+          "depth": 9,
+          "elapsed_ms": 30113,
+          "detail": "dive check stopped at its --time-limit: DIVE-L0038: stopped during temporal-analysis after 30046 ms: the time limit is 30000 ms"
+        },
+        "tlc": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 2646048,
+          "states_generated": 56374052,
+          "states_left_on_queue": 1190332,
+          "depth": 14,
+          "elapsed_ms": 29004,
+          "detail": "dive check stopped at its --max-memory: DIVE-L0038: stopped during graph-capture: resident memory 2210086912 bytes exceeds the ceiling of 2147483648 bytes"
+        }
       }
     },
     {
@@ -191,6 +295,30 @@
           "reported_by_tlc": false
         },
         "peak_process_rss_kib": 239584
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 1817465,
+          "states_generated": 3518887,
+          "states_left_on_queue": 1433276,
+          "depth": 14,
+          "elapsed_ms": 30160,
+          "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30047 ms: the time limit is 30000 ms"
+        },
+        "tlc": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 1095863,
+          "states_generated": 2225571,
+          "states_left_on_queue": 848666,
+          "depth": 13,
+          "elapsed_ms": 30205,
+          "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30040 ms: the time limit is 30000 ms"
+        }
       }
     },
     {
@@ -227,6 +355,30 @@
         "observed": 900025,
         "unit": "ms",
         "limit": 900000
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 41902,
+          "states_generated": 115826,
+          "states_left_on_queue": 28086,
+          "depth": 25,
+          "elapsed_ms": 30072,
+          "detail": "dive check stopped at its --time-limit: DIVE-L0038: stopped during graph-capture after 30007 ms: the time limit is 30000 ms"
+        },
+        "tlc": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 43115,
+          "states_generated": 121089,
+          "states_left_on_queue": 28939,
+          "depth": 25,
+          "elapsed_ms": 30094,
+          "detail": "dive check stopped at its --time-limit: DIVE-L0038: stopped during graph-capture after 30004 ms: the time limit is 30000 ms"
+        }
       }
     },
     {
@@ -265,6 +417,30 @@
           "reported_by_tlc": false
         },
         "peak_process_rss_kib": 235288
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 3715100,
+          "states_generated": 37380946,
+          "states_left_on_queue": 1478726,
+          "depth": 18,
+          "elapsed_ms": 30105,
+          "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30047 ms: the time limit is 30000 ms"
+        },
+        "tlc": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 3238954,
+          "states_generated": 32595850,
+          "states_left_on_queue": 1278032,
+          "depth": 18,
+          "elapsed_ms": 30107,
+          "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30049 ms: the time limit is 30000 ms"
+        }
       }
     },
     {
@@ -317,6 +493,30 @@
         "observed": 900021,
         "unit": "ms",
         "limit": 900000
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 3013499,
+          "states_generated": 17686908,
+          "states_left_on_queue": 1647809,
+          "depth": 7,
+          "elapsed_ms": 30110,
+          "detail": "dive check stopped at its --time-limit: DIVE-L0038: stopped during graph-capture after 30047 ms: the time limit is 30000 ms"
+        },
+        "tlc": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 4328009,
+          "states_generated": 27362933,
+          "states_left_on_queue": 2148234,
+          "depth": 8,
+          "elapsed_ms": 30106,
+          "detail": "dive check stopped at its --time-limit: DIVE-L0038: stopped during graph-capture after 30047 ms: the time limit is 30000 ms"
+        }
       }
     },
     {
@@ -348,6 +548,18 @@
         "checker_ms": 43938,
         "published_default_steps": 1000000,
         "host": "workstation"
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "unsupported",
+          "elapsed_ms": 0,
+          "detail": "unsupported: DIVE-L0021 at line 1319, col 5 to line 1335, col 52 of module kraft_kip_996: temporal formula resource limit: predicate lowering steps"
+        },
+        "tlc": {
+          "outcome": "unsupported",
+          "elapsed_ms": 0,
+          "detail": "unsupported: DIVE-L0021 at line 1319, col 5 to line 1335, col 52 of module kraft_kip_996: temporal formula resource limit: predicate lowering steps"
+        }
       }
     },
     {
@@ -375,6 +587,30 @@
           "reported_by_tlc": false
         },
         "peak_process_rss_kib": 171972
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 1661648,
+          "states_generated": 4669101,
+          "states_left_on_queue": 1241555,
+          "depth": 8,
+          "elapsed_ms": 30113,
+          "detail": "dive check stopped at its --time-limit: DIVE-L0038: stopped during temporal-analysis after 30047 ms: the time limit is 30000 ms"
+        },
+        "tlc": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 8407231,
+          "states_generated": 27216569,
+          "states_left_on_queue": 6041606,
+          "depth": 10,
+          "elapsed_ms": 15374,
+          "detail": "dive check stopped at its --max-memory: DIVE-L0038: stopped during graph-capture: resident memory 2287980544 bytes exceeds the ceiling of 2147483648 bytes"
+        }
       }
     },
     {
@@ -423,6 +659,24 @@
         "wall_s": 1201.28,
         "peak_rss_kib": 18958084,
         "checker_ms": 1201191
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 3070204,
+          "states_generated": 15784217,
+          "states_left_on_queue": 2185262,
+          "depth": 13,
+          "elapsed_ms": 30093,
+          "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30004 ms: the time limit is 30000 ms"
+        },
+        "tlc": {
+          "outcome": "unsupported",
+          "elapsed_ms": 0,
+          "detail": "unsupported: BagsExt!FoldBag (a bag of two or more elements: TLC folds in the order it holds the bag in, which may be unnormalized)"
+        }
       }
     },
     {
@@ -459,7 +713,38 @@
         "observed": 19685617664,
         "unit": "bytes",
         "limit": 19327352832
+      },
+      "merged_main_harness": {
+        "dive": {
+          "outcome": "oracle-error",
+          "verdict": "timeout",
+          "exit_code": 5,
+          "distinct_states": 5955241,
+          "states_generated": 20961632,
+          "states_left_on_queue": 4707170,
+          "depth": 11,
+          "elapsed_ms": 14529,
+          "detail": "dive check stopped at its --max-memory: stopped during safety-search: resident memory 2149543936 bytes exceeds the ceiling of 2147483648 bytes"
+        },
+        "tlc": {
+          "outcome": "unsupported",
+          "elapsed_ms": 0,
+          "detail": "unsupported: BagsExt!FoldBag (a bag of two or more elements: TLC folds in the order it holds the bag in, which may be unnormalized)"
+        }
       }
     }
-  ]
+  ],
+  "merged_main_harness": {
+    "revision": "9ef68275558ba356335f8e5ebfe66fdc397dc275",
+    "binary_sha256": "7384c40c8288d4473d564a270526e4a7fd42292a3cade9c9a3af74355faa3ca2",
+    "worker_width": 8,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "host": "Shared Linux x86-64 workstation, one model at a time, affinity 8-15,24-31",
+    "budget": "The missing-golden path passed --time-limit 30000ms and --max-memory 2g (the explicit --timeout 30 sets the deadline). Per-attempt elapsed times are informational.",
+    "command": "dive-conformance run --impl dive:core --impl-profile PROFILE --corpus examples --corpus holdout-etcd-raft --corpus holdout-kafka --corpus holdout-blocking-queue --workers 8 --jobs 1 --tier all --no-sany --observe-missing-goldens --tlc-budgets --budget-cap 5 --xmx 2g --timeout 30 --no-summary --dive-bin DIVE plus one --filter for each model path in rows",
+    "observations": "Raw harness verdicts may be null for named refusals; detail names the reason. A stop can map to harness timeout even when the resource is memory. Each row preserves its original grade. The larger isolated runs use the other profiles described above."
+  }
 }
