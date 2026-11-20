@@ -27,6 +27,15 @@ fn subsequence_search_and_bag_folds_respect_profile_and_callback_order() {
             ),
             ("Low", "evaluation-error"),
             ("High", "evaluation-error"),
+            ("BagCounts", if tlc { "unsupported" } else { "success" }),
+            (
+                "BagFailure",
+                if tlc {
+                    "unsupported"
+                } else {
+                    "invariant-violation"
+                },
+            ),
         ] {
             let cfg = format!("INIT Init\nNEXT Next\nINVARIANT {name}\n");
             let row = core_final::run(SOURCE, &cfg, &options).to_json();
@@ -52,7 +61,7 @@ fn subsequence_search_and_bag_folds_respect_profile_and_callback_order() {
                     dive_api::trace::Validation::Valid
                 );
             }
-            if name == "Positions" {
+            if name == "Positions" || (!tlc && name == "BagCounts") {
                 assert_eq!(row["statistics"]["generated"], json!(3));
                 assert_eq!(row["statistics"]["distinct"], json!(2));
             }

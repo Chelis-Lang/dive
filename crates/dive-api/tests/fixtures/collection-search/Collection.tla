@@ -15,4 +15,14 @@ Asc == Bag = IF x=0 THEN 113 ELSE 1113
 TlcOrder == Bag = IF x=0 THEN 311 ELSE 1311
 Low == SelectInSubSeq(S,0,3,Match)=0
 High == SelectLastInSubSeq(S,2,5,Match)=0
+A == [kind |-> "entry", payload |-> x]
+B == [kind |-> "config", payload |-> [server |-> x]]
+AB == (A :> 1) (+) (B :> 2)
+Dup == AB (+) (A :> 1)
+BagCounts == /\ BagCardinality(AB) = 3
+        /\ AB[A] = 1 /\ AB[B] = 2
+        /\ Dup[A] = 2 /\ Dup[B] = 2
+        /\ (Dup (-) (B :> 1))[B] = 1
+        /\ BagCardinality(BagUnion({A :> 1, B :> 2})) = 3
+BagFailure == x = 0 \/ AB[A] = 2
 ====
