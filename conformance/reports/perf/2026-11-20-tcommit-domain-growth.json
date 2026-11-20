@@ -1,0 +1,53 @@
+{
+  "model": "tlaplus/Examples specifications/transaction_commit/TCommit.tla",
+  "source_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "configuration": "Original TCommit.cfg with only RM expanded, no symmetry, configured TCTypeOK and TCConsistent; deadlock checking disabled in original CFG",
+  "host": "Shared AMD Ryzen AI MAX+ 395 Linux x86-64. CPython 3.11.14, dd 0.6.0 CUDD; single-worker fresh process for each row. GNU time process wall seconds and peak resident KiB.",
+  "reproduce": "scripts/symbolic/check_transaction_commit.py MODEL_DIRECTORY --managers 3 32 64 128",
+  "rows": [
+    {
+      "managers": 3,
+      "cfg_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415",
+      "distinct": 34,
+      "generated": 94,
+      "depth": 7,
+      "reachable_bdd_nodes": 15,
+      "verdict": "success",
+      "wall_seconds": 0.13,
+      "rss_KiB": 62768
+    },
+    {
+      "managers": 32,
+      "cfg_sha256": "2471617a12a723c66fd16ff5f1885b336e375d97d60a94af6ee58dee74721445",
+      "distinct": 1853024483819136,
+      "generated": 59296714762735649,
+      "depth": 65,
+      "reachable_bdd_nodes": 247,
+      "verdict": "success",
+      "wall_seconds": 0.33,
+      "rss_KiB": 64488
+    },
+    {
+      "managers": 64,
+      "cfg_sha256": "5f6e8888706016e281e60a4c6cb5ec54739982698f7a0c093180f68e358dbb85",
+      "distinct": 3433683820310959228731558640896,
+      "generated": 219755764499311094828461047365697,
+      "depth": 129,
+      "reachable_bdd_nodes": 503,
+      "verdict": "success",
+      "wall_seconds": 3.69,
+      "rss_KiB": 120644
+    },
+    {
+      "managers": 128,
+      "cfg_sha256": "1bdc04130e27be9a1f78adb7e40c763fb6e13919e4a42e30ca2d4764a27aa4b4",
+      "distinct": 11790184577738583171521213143779439604141674966883272877308416,
+      "generated": 1509143625950538645954693504332285329268472739786183295129944193,
+      "depth": 257,
+      "reachable_bdd_nodes": 1015,
+      "verdict": "success",
+      "wall_seconds": 119.66,
+      "rss_KiB": 332268
+    }
+  ]
+}

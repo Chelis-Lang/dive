@@ -85,7 +85,7 @@ an actual counterexample.
 
 The configured layout invariant, named `TypeInvariant` by default, supplies
 one finite bound per state variable. Select another with `--type-invariant`.
-Supported fields are untyped model values from finite sets, subsets of those
+Supported fields are finite strings and untyped model values from finite sets, subsets of those
 sets and fixed-domain functions over them. Init must give one ground,
 complete assignment. Next can use bounded choices, disjunction,
 `UNCHANGED` and deterministic assignments to all variables per action
