@@ -3,7 +3,7 @@
 //! A type predicate proposes the layout. Encoding validates every member
 //! against that layout, so a type invariant need not be assumed to be true.
 
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::io::Write;
 use std::sync::Arc;
 
@@ -430,6 +430,7 @@ struct WordSearch<'a> {
     seen: HashSet<u32>,
     next: Vec<u32>,
     image: Vec<Handle>,
+    permutations: Option<Vec<WordPermutation>>,
     stats: crate::Stats,
     metrics: crate::Metrics,
 }
@@ -439,6 +440,99 @@ impl WordSearch<'_> {
         self.stats.depth += u64::from(!self.next.is_empty());
         self.stats.left_on_queue = u64::try_from(unexpanded.checked_add(self.next.len())?).ok()?;
         Some(crate::Verdict::Budget)
+    }
+}
+
+struct WordPermutation(Vec<(u32, u32)>);
+
+impl WordPermutation {
+    fn lower(layout: &Layout, map: &[(u32, u32)]) -> Option<Self> {
+        let mut destinations = [0_u32; 32];
+        let mut offset = 0;
+        for (shape, &width) in layout.fields.iter().zip(&layout.widths) {
+            shape.permuted_positions(map, offset, offset, &mut destinations)?;
+            offset += width;
+        }
+        let mut masks = BTreeMap::<u32, u32>::new();
+        let mut used = 0_u32;
+        for (source, &destination) in destinations[..offset as usize].iter().enumerate() {
+            let bit = 1_u32.checked_shl(destination)?;
+            if destination >= offset || used & bit != 0 {
+                return None;
+            }
+            used |= bit;
+            let source = u32::try_from(source).ok()?;
+            let rotation = (destination + 32 - source) % 32;
+            *masks.entry(rotation).or_default() |= 1_u32 << source;
+        }
+        Some(Self(masks.into_iter().collect()))
+    }
+
+    fn apply(&self, word: u32) -> u32 {
+        self.0.iter().fold(0, |acc, &(rotation, mask)| {
+            acc | (word & mask).rotate_left(rotation)
+        })
+    }
+}
+
+fn moved(handle: Handle, map: &[(u32, u32)]) -> Handle {
+    handle
+        .as_model_id()
+        .and_then(|id| {
+            let index = map.binary_search_by_key(&id, |&(from, _)| from).ok()?;
+            Some(Handle::model(map[index].1))
+        })
+        .unwrap_or(handle)
+}
+
+impl Shape {
+    fn comparable(&self, sym: &dive_core::symmetry::Symmetry, heap: &Heap) -> bool {
+        match self {
+            Self::Atom(atoms) | Self::Set(atoms) => sym.comparable_domain(heap, atoms),
+            // Fixed function keys remain identical throughout the orbit.
+            Self::Function(_, value) => value.comparable(sym, heap),
+        }
+    }
+
+    fn permuted_positions(
+        &self,
+        map: &[(u32, u32)],
+        source: u32,
+        destination: u32,
+        positions: &mut [u32; 32],
+    ) -> Option<()> {
+        match self {
+            Self::Atom(atoms) => {
+                if atoms.iter().any(|&atom| atom != moved(atom, map)) {
+                    return None;
+                }
+                for bit in 0..self.width()? {
+                    *positions.get_mut((source + bit) as usize)? = destination + bit;
+                }
+            }
+            Self::Set(atoms) => {
+                for (index, &atom) in atoms.iter().enumerate() {
+                    let target = atoms
+                        .iter()
+                        .position(|&target| target == moved(atom, map))?;
+                    *positions.get_mut(source as usize + index)? =
+                        destination + u32::try_from(target).ok()?;
+                }
+            }
+            Self::Function(keys, value) => {
+                let width = value.width()?;
+                for (index, &key) in keys.iter().enumerate() {
+                    let target = keys.iter().position(|&target| target == moved(key, map))?;
+                    value.permuted_positions(
+                        map,
+                        source + u32::try_from(index).ok()?.checked_mul(width)?,
+                        destination + u32::try_from(target).ok()?.checked_mul(width)?,
+                        positions,
+                    )?;
+                }
+            }
+        }
+        Some(())
     }
 }
 
@@ -453,7 +547,13 @@ impl Sink for WordSearch<'_> {
             .pack(&m.heap, &m.s1)
             .and_then(|word| u32::try_from(word).ok())
             .ok_or_else(Error::stop)?;
-        let key = if let Some(symmetry) = &self.plan.symmetry {
+        let key = if let Some(permutations) = &self.permutations {
+            // Exact membership needs the orbit identity. The stored frontier
+            // remains the first concrete successor in generator order.
+            permutations
+                .iter()
+                .fold(word, |min, permutation| min.min(permutation.apply(word)))
+        } else if let Some(symmetry) = &self.plan.symmetry {
             symmetry.canonical_from(&mut m.heap, &m.s1, &m.s0, &mut self.image)?;
             self.layout
                 .pack(&m.heap, &self.image)
@@ -517,12 +617,33 @@ pub(crate) fn try_explore(
     if layout.widths.iter().sum::<u32>() > 32 {
         return None;
     }
+    let permutations = if std::env::var_os("DIVE_EXPERIMENT_RANK_SYMMETRY").as_deref()
+        == Some(std::ffi::OsStr::new("1"))
+    {
+        plan.symmetry.as_ref().and_then(|symmetry| {
+            if !layout
+                .fields
+                .iter()
+                .all(|shape| shape.comparable(symmetry, &m.heap))
+            {
+                return None;
+            }
+            symmetry
+                .moved_model_values()
+                .iter()
+                .map(|permutation| WordPermutation::lower(&layout, permutation))
+                .collect::<Option<Vec<_>>>()
+        })
+    } else {
+        None
+    };
     let mut search = WordSearch {
         plan,
         layout: &layout,
         seen: HashSet::new(),
         next: Vec::new(),
         image: Vec::new(),
+        permutations,
         stats: crate::Stats::default(),
         metrics: crate::Metrics::default(),
     };
@@ -572,4 +693,66 @@ pub(crate) fn try_explore(
         sampled: Vec::new(),
         printed: Vec::new(),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use dive_core::symmetry::Symmetry;
+    use std::collections::HashMap;
+
+    #[test]
+    fn ranked_symmetry_preserves_the_orbit_partition() -> Result<(), Error> {
+        let mut heap = Heap::new(Arc::new(Store::default()), false, false);
+        let ids = vec![Handle::model(1), Handle::model(2)];
+        let zero = Handle::int(0).ok_or_else(Error::stop)?;
+        let one = Handle::int(1).ok_or_else(Error::stop)?;
+        let layout = Layout {
+            fields: vec![
+                Shape::Function(ids.clone(), Box::new(Shape::Atom(vec![zero, one]))),
+                Shape::Set(ids),
+            ],
+            widths: vec![2, 2],
+        };
+        let map = vec![(1, 2), (2, 1)];
+        let permutation = WordPermutation::lower(&layout, &map)
+            .ok_or_else(|| Error::internal("expected an exact bit permutation"))?;
+        for symmetry in [
+            Symmetry::new(vec![map.clone()]),
+            Symmetry::new(vec![map.clone()]).tlc(vec![1, 0]),
+        ] {
+            let mut canonical_to_word = HashMap::new();
+            let mut word_to_canonical = HashMap::new();
+            let mut output = Vec::new();
+            for rank in 0..16 {
+                let mut offset = 0;
+                let state = layout
+                    .fields
+                    .iter()
+                    .zip(&layout.widths)
+                    .map(|(shape, &width)| {
+                        let field = extract(rank, offset, width);
+                        offset += width;
+                        shape.unpack(&mut heap, field).ok_or_else(Error::stop)
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                symmetry.canonical(&mut heap, &state, &mut output)?;
+                let ordinary = layout.pack(&heap, &output).ok_or_else(Error::stop)?;
+                let rank = u32::try_from(rank).map_err(|_| Error::stop())?;
+                let packed = rank.min(permutation.apply(rank));
+                assert_eq!(*canonical_to_word.entry(ordinary).or_insert(packed), packed);
+                assert_eq!(
+                    *word_to_canonical.entry(packed).or_insert(ordinary),
+                    ordinary
+                );
+            }
+            assert_eq!(canonical_to_word.len(), 10);
+        }
+        let moving_atoms = Layout {
+            fields: vec![Shape::Atom(vec![Handle::model(1), Handle::model(2)])],
+            widths: vec![1],
+        };
+        assert!(WordPermutation::lower(&moving_atoms, &map).is_none());
+        Ok(())
+    }
 }

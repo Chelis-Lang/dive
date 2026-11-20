@@ -221,6 +221,25 @@ impl Symmetry {
         self.maps.is_empty()
     }
 
+    /// The configured nonidentity permutations over model-value ids.
+    #[doc(hidden)]
+    #[must_use]
+    pub fn moved_model_values(&self) -> &[Vec<(u32, u32)>] {
+        &self.maps
+    }
+
+    /// Whether all pairs in a scalar domain can be compared in this profile.
+    #[doc(hidden)]
+    #[must_use]
+    pub fn comparable_domain(&self, heap: &Heap, values: &[Handle]) -> bool {
+        self.tlc.is_none()
+            || values.iter().enumerate().all(|(index, &value)| {
+                values[index + 1..]
+                    .iter()
+                    .all(|&other| tlc_cmp(heap, value, other).is_ok())
+            })
+    }
+
     /// The canonical image of `state` into `out`: the least image under the
     /// maps, the state itself first, compared variable by variable with
     /// [`Heap::cmp`]. A later image replaces the best one only when it is
