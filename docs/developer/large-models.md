@@ -50,6 +50,17 @@ and `scripts/symbolic/check_transaction_commit.py` include generated counts,
 depth and a validated negative control. The three-manager property forbidding
 commit fails at depth five, after all three managers prepare.
 
+### Isolated symbolic measurements
+
+Three fresh processes per configuration ran sequentially on a fixed 2.4 GHz
+c7i.metal-24xl with SMT and turbo disabled. Seven-key KVS reached depth 42 in
+85.60 seconds median with symmetry and 114.80 seconds without. Transaction
+commit with 128 managers reached depth 257 in 153.22 seconds median. Full
+process times include binding, IR export and BDD construction. Every repetition
+matched the independent counts for its configuration. The record includes all
+18 samples, software digests and the measured worker revision’s scope.
+[Isolated KVS and transaction-commit data](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json)
+
 ## Same-host Large comparison
 
 Each cell ran alone on one EC2 m6id.4xlarge with eight physical Xeon Platinum 8375C cores, SMT enabled and local NVMe. The limit was 600 s and a 24 GiB cgroup with swap disabled. TLC used the pinned rolling jar and JRE, a 16 GiB heap and parallel GC. Explicit Core used the sharded table, packed parents and shorter safety batches, the TLC profile, seed 0 and fingerprint 0. These are bounded engineering runs on a different instance type from the release R2 host.
