@@ -100,11 +100,11 @@
         "memo_entries": 0,
         "memory": {
           "accounting_complete": false,
-          "buffer_bytes": 520,
+          "buffer_bytes": 408,
           "capture_key_capacity": 3,
           "capture_key_entries": 3,
-          "fixed_bytes": 320,
-          "growth_overlap_upper_bound_bytes": 536,
+          "fixed_bytes": 344,
+          "growth_overlap_upper_bound_bytes": 424,
           "key_index_retained_after_capture": false,
           "scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim"
         },

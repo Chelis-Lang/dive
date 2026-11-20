@@ -7,10 +7,11 @@ are in git history.
 
 ### Added
 
-- Scalar CFG assignments can close input-dependent definitions used through a module instance. See [model input selection](docs/user/checking.md#select-a-closed-model-input-in-the-cfg).
+- Core temporal checks use compact successor ordinals while retaining exact trace and saved-graph identities. See the [matched memory comparison](docs/developer/large-models.md#successor-ordinals-in-temporal-graphs).
 - Core supports inclusive subsequence predicate searches and folds multikey
   bags in canonical key order. See [bag fold order](docs/tlc-differences.md#d-030-bag-fold-order).
 
+- Scalar CFG assignments can close input-dependent definitions used through a module instance. See [model input selection](docs/user/checking.md#select-a-closed-model-input-in-the-cfg).
 - Temporal predicates can count a filtered set with `Quantify`, sum a function
   over a set, and inspect finite next-state domains in nonrecursive binders.
   See [temporal checking](docs/user/temporal.md).

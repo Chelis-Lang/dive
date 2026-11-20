@@ -1,0 +1,326 @@
+{
+  "schema": "dive-native-ordinal-comparison-v1",
+  "reference_source": "71c7da2cf",
+  "method": "Single exclusive c7i.4xlarge, us-east-1, Intel Xeon Platinum 8488C. One release binary at a time, eight workers, one thread per physical core, default guest frequency. GNU time full process wall and peak RSS. 24 GiB cgroup without swap. Three interleaved rotations per model: base/wide/narrow, wide/narrow/base, narrow/base/wide.",
+  "affinity": "0,1,2,3,4,5,6,7",
+  "kernel": "7.0.0-1018-aws",
+  "configuration": "--compat=tlc --workers 8 --fp 0 --seed 0 --max-states 2000000 --time-limit 300s --max-memory 8g --output json",
+  "variants": {
+    "base": "Vec<Option<u64>>",
+    "wide": "development control: Vec<u64> with a synthetic stutter sentinel",
+    "narrow": "production layout: Vec<u16> with a sorted sparse extended-ordinal table; measurements precede final validation and public API cleanup"
+  },
+  "binaries_sha256": {
+    "base": "69d30b1eb475b81a6d0e84708f2a350087e3e9ece079b2545c432e59472f35d0",
+    "wide": "604ae79be8b64c4f8d2174d77d612cf39ffc097adfeb3b6394b8ea92e3d6e98c",
+    "narrow": "50f2fa8858a2339cffd7ed6c1891323c5d5845467d990c509b102953a9cf0194"
+  },
+  "sources_sha256": {
+    "blocking/BlockingQueue.cfg": "970d9c419d17c7752613c151556da4eb410d980af2446b9fda5f5437e7aefa04",
+    "blocking/BlockingQueue.tla": "f69a5717596f1989cd5a5b933005f3ea6cccadada4e45438a8cf4500ee68935a",
+    "blocking/BlockingQueueAnim.tla": "f2e804538e3faae72cbc123f6ce08d4ce2dd54bd0fc137b066378bc1bb854d7e",
+    "blocking/BlockingQueueDebug.cfg": "f100ca00cf6e177552ef88eb13ae057821679e4447af43f7c7f511cebe233053",
+    "blocking/BlockingQueueDebug.tla": "80ef5b9d0a53e1e855b38f81f3af7dc978a1533e3ee54f4b96eae60745c90627",
+    "blocking/BlockingQueueFair.cfg": "f0cc3e18aa6c408ab79883fa0626bda721828310bc06e52ee8eb2b34b0269ddd",
+    "blocking/BlockingQueueFair.tla": "96ad89b710a0f38f4ccefa5ae91f9a073ebc043cc72e7b66fd8d5c721dd73a7c",
+    "blocking/BlockingQueueFair_proofs.tla": "9fb8abadff6dfc2de3953fb5aacae5a9faad89023ac58cb3b2aebc813684bd7e",
+    "blocking/BlockingQueueMC.tla": "9c258dd9b91992051d7cf4576435d076aecace65dfbe92b2463ba8dcd72a6dfd",
+    "blocking/BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f",
+    "blocking/BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+    "blocking/BlockingQueuePoisonApple_proofs.tla": "012753fcd33cd2468b603f36bde70125b3c4edcf3f864518997b0ef4c068715f",
+    "blocking/BlockingQueuePoisonApple_stats.tla": "a21c34f90c74fabccb0e2e09594bcc940c01190c463bb7de839f7db00d2d92de",
+    "blocking/BlockingQueuePoisonApple_statsSC.tla": "7e3cc0192b97671e27fbbfd5caabe5651a899bc1070edbf6a345615a3d0ae085",
+    "blocking/BlockingQueuePoisonPill.cfg": "28343800e7b15c4adceb38b36381f5cfaf4b994f875fe87fab87f9406b71dbd5",
+    "blocking/BlockingQueuePoisonPill.tla": "4bb60a1dd82683329cb79ad5eec634c542c7959dc93e9632d8fe8b2e5d80c219",
+    "blocking/BlockingQueueSplit.cfg": "6e82dd8c36ad1a288c25ffad50d648c3b8339862a23acada1b6cbcccbcb4844c",
+    "blocking/BlockingQueueSplit.tla": "4ba5cd6e0dafcb9b532567b6216e9e1ad672bb95176c6a8754c6e66258d5e256",
+    "blocking/BlockingQueueSplitTrace.tla": "15427d45721e065bfa70b0a07fc40ffd1961f76bae959ad4479146582913c717",
+    "blocking/BlockingQueueSplit_proofs.tla": "0f3ec2e11fd39b04d514c8e87ae70a7fabdcc73af11bddf4669e9623b763b55c",
+    "blocking/BlockingQueueTrace.cfg": "641ebc9abd1ecf29f8e99e2be029dd338aa2d46214dba4e114ea71f443259b1a",
+    "blocking/BlockingQueueTrace.tla": "1b612b6ccdca98886dc0308b9221da7e4ce5b6ba7ea292a7a1ddc993c87bcf84",
+    "blocking/BlockingQueue_proofs.tla": "257495e410ddd231d400ae7c418be6c9ee620537519e38d0bed39ca297f1b7e6",
+    "blocking/SimBlockingQueue.cfg": "1fe50b28edfee54d6431a328b7599afa62ba316eda3bb614c18f83def98846bd",
+    "blocking/SimBlockingQueue.tla": "13f8a235186a61324077f735b6e828bb42945bc9f1e90a609474487da4d768f6",
+    "blocking/SpecTE.cfg": "452e6d68bcb4c2104e0b865b7039a1fd86f2abc53197d6678ff0c35011671489",
+    "blocking/SpecTE.tla": "943a1768a59dddf7a22ddcdf17a2301d7a287fee50d5e58ea13ad3343ee53e48",
+    "c1cs/APc1cs.cfg": "66da9a9c13e1f1d22c238460fbf381c438961ecc073ee6b225a6b358671da0ff",
+    "c1cs/APc1cs.tla": "d09488e62cdf94f7313e62e521cea9d7b62150cd4ce457659d3435dbc6e90270",
+    "c1cs/README.md": "0ad6f8969f6eab841a3ed6210e69eb7a46af7f97d7b5b8763a7d34b1b3f4ce7a",
+    "c1cs/c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233",
+    "c1cs/c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0",
+    "c1cs/manifest.json": "4aa66d02359a0f21f7602a4dc771e278e42fa17b39ba77b00a3558e33701699c"
+  },
+  "models": [
+    {
+      "model": "BlockingQueuePoisonApple",
+      "stop": "distinct-state limit during graph capture",
+      "counts": {
+        "distinct": 2000000,
+        "generated": 6009057,
+        "initial_generated": 1,
+        "left_on_queue": 1468514,
+        "depth": 9
+      },
+      "rows": [
+        {
+          "trial": 1,
+          "variant": "base",
+          "wall_s": 17.29,
+          "peak_rss_kib": 723632,
+          "collector_buffer_bytes": 360711211,
+          "retained_rows": 2000400
+        },
+        {
+          "trial": 1,
+          "variant": "wide",
+          "wall_s": 17.14,
+          "peak_rss_kib": 662632,
+          "collector_buffer_bytes": 293602347,
+          "retained_rows": 2000400
+        },
+        {
+          "trial": 1,
+          "variant": "narrow",
+          "wall_s": 17.9,
+          "peak_rss_kib": 615584,
+          "collector_buffer_bytes": 243270699,
+          "retained_rows": 2000400
+        },
+        {
+          "trial": 2,
+          "variant": "base",
+          "wall_s": 17.83,
+          "peak_rss_kib": 710360,
+          "collector_buffer_bytes": 360711211,
+          "retained_rows": 2000400
+        },
+        {
+          "trial": 2,
+          "variant": "wide",
+          "wall_s": 16.75,
+          "peak_rss_kib": 715228,
+          "collector_buffer_bytes": 293602347,
+          "retained_rows": 2000400
+        },
+        {
+          "trial": 2,
+          "variant": "narrow",
+          "wall_s": 17.17,
+          "peak_rss_kib": 628212,
+          "collector_buffer_bytes": 243270699,
+          "retained_rows": 2000400
+        },
+        {
+          "trial": 3,
+          "variant": "base",
+          "wall_s": 18.58,
+          "peak_rss_kib": 715984,
+          "collector_buffer_bytes": 360711211,
+          "retained_rows": 2000400
+        },
+        {
+          "trial": 3,
+          "variant": "wide",
+          "wall_s": 18.43,
+          "peak_rss_kib": 717840,
+          "collector_buffer_bytes": 293602347,
+          "retained_rows": 2000400
+        },
+        {
+          "trial": 3,
+          "variant": "narrow",
+          "wall_s": 19.04,
+          "peak_rss_kib": 605924,
+          "collector_buffer_bytes": 243270699,
+          "retained_rows": 2000400
+        }
+      ]
+    },
+    {
+      "model": "c1cs",
+      "stop": "distinct-state limit during graph capture",
+      "counts": {
+        "distinct": 2000000,
+        "generated": 41819682,
+        "initial_generated": 16,
+        "left_on_queue": 917126,
+        "depth": 14
+      },
+      "rows": [
+        {
+          "trial": 1,
+          "variant": "base",
+          "wall_s": 78.56,
+          "peak_rss_kib": 2560324,
+          "collector_buffer_bytes": 2256537708,
+          "retained_rows": 2000000
+        },
+        {
+          "trial": 1,
+          "variant": "wide",
+          "wall_s": 78.25,
+          "peak_rss_kib": 2048008,
+          "collector_buffer_bytes": 1719666796,
+          "retained_rows": 2000000
+        },
+        {
+          "trial": 1,
+          "variant": "narrow",
+          "wall_s": 78.3,
+          "peak_rss_kib": 1622452,
+          "collector_buffer_bytes": 1317013612,
+          "retained_rows": 2000000
+        },
+        {
+          "trial": 2,
+          "variant": "base",
+          "wall_s": 76.95,
+          "peak_rss_kib": 2564088,
+          "collector_buffer_bytes": 2256537708,
+          "retained_rows": 2000000
+        },
+        {
+          "trial": 2,
+          "variant": "wide",
+          "wall_s": 78.11,
+          "peak_rss_kib": 2031792,
+          "collector_buffer_bytes": 1719666796,
+          "retained_rows": 2000000
+        },
+        {
+          "trial": 2,
+          "variant": "narrow",
+          "wall_s": 78.18,
+          "peak_rss_kib": 1619396,
+          "collector_buffer_bytes": 1317013612,
+          "retained_rows": 2000000
+        },
+        {
+          "trial": 3,
+          "variant": "base",
+          "wall_s": 76.9,
+          "peak_rss_kib": 2554612,
+          "collector_buffer_bytes": 2256537708,
+          "retained_rows": 2000000
+        },
+        {
+          "trial": 3,
+          "variant": "wide",
+          "wall_s": 77.36,
+          "peak_rss_kib": 2033644,
+          "collector_buffer_bytes": 1719666796,
+          "retained_rows": 2000000
+        },
+        {
+          "trial": 3,
+          "variant": "narrow",
+          "wall_s": 76.47,
+          "peak_rss_kib": 1624768,
+          "collector_buffer_bytes": 1317013612,
+          "retained_rows": 2000000
+        }
+      ]
+    }
+  ],
+  "capacity": {
+    "method": "Same original c1cs and exact base/narrow binaries as the fixed-prefix study. One dedicated c7i.4xlarge per variant, eight physical cores, pinned to one hardware thread/core. Each ran 2g then 20g, 24 GiB cgroup, no swap, TLC profile, fp 0, seed 0, 3,600 s. Wall time and maximum process RSS from GNU time. One observation per cell. Memory is sampled and may overshoot the requested threshold.",
+    "rows": [
+      {
+        "variant": "base",
+        "limit": "2g",
+        "statistics": {
+          "depth": 13,
+          "distinct": 1522699,
+          "exhaustive": false,
+          "generated": 32666672,
+          "initial_generated": 16,
+          "left_on_queue": 634921,
+          "reported_by_tlc": false
+        },
+        "stopped": {
+          "elapsed_ms": 69030,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 2147483648,
+          "observed": 2276438016,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 69.07,
+        "peak_rss_kib": 2314892
+      },
+      {
+        "variant": "base",
+        "limit": "20g",
+        "statistics": {
+          "depth": 17,
+          "distinct": 20394916,
+          "exhaustive": false,
+          "generated": 447852999,
+          "initial_generated": 16,
+          "left_on_queue": 11770428,
+          "reported_by_tlc": false
+        },
+        "stopped": {
+          "elapsed_ms": 795554,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 21474836480,
+          "observed": 21474848768,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 796.08,
+        "peak_rss_kib": 20971332
+      },
+      {
+        "variant": "narrow",
+        "limit": "2g",
+        "statistics": {
+          "depth": 14,
+          "distinct": 2645165,
+          "exhaustive": false,
+          "generated": 56350543,
+          "initial_generated": 16,
+          "left_on_queue": 1190069,
+          "reported_by_tlc": false
+        },
+        "stopped": {
+          "elapsed_ms": 99622,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 2147483648,
+          "observed": 2227687424,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 99.69,
+        "peak_rss_kib": 2175264
+      },
+      {
+        "variant": "narrow",
+        "limit": "20g",
+        "statistics": {
+          "depth": 17,
+          "distinct": 23794977,
+          "exhaustive": false,
+          "generated": 526836645,
+          "initial_generated": 16,
+          "left_on_queue": 13760692,
+          "reported_by_tlc": false
+        },
+        "stopped": {
+          "elapsed_ms": 813009,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 21474836480,
+          "observed": 21697974272,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 813.58,
+        "peak_rss_kib": 21912260
+      }
+    ]
+  }
+}

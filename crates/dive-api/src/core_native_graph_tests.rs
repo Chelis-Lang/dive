@@ -784,3 +784,60 @@ fn exact_identities_keep_equal_keys_as_distinct_vertices() {
         );
     }
 }
+
+#[test]
+fn compact_csr_preserves_wide_ordinals_and_rejects_malformed_tables() {
+    let control = EvaluationControl::new(&options(false).budget, Phase::Capture).expect("control");
+    let limits = Limits {
+        successors_per_unit: u64::MAX,
+        ..Limits::default()
+    };
+    let escape = CsrOrdinals::EXTENDED;
+    let large = [(1, u64::from(escape)), (2, u64::MAX - 1)];
+    let words = [0, escape, escape, u16::MAX];
+    let labels = [String::from("advance")];
+    let input = CsrCaptureInput {
+        offsets: &[0, 4],
+        targets: &[0; 4],
+        ordinals: CsrOrdinals::Compact(&words, &large),
+        actions: &[None, Some(0), None, None],
+        edge_rows: &[0; 4],
+        representatives: &[0],
+        roots: &[0],
+        action_labels: &labels,
+        retained_rows: 1,
+        closed_rows: 1,
+    };
+    let checked = CsrCapture::checked(input, limits, &control).expect("valid CSR");
+    let expanded = [Some(0), Some(u64::from(escape)), Some(u64::MAX - 1), None];
+    let previous = CsrCapture::checked(
+        CsrCaptureInput {
+            ordinals: CsrOrdinals::Expanded(&expanded),
+            ..input
+        },
+        limits,
+        &control,
+    )
+    .expect("valid expanded CSR");
+    for edge in 0..=4 {
+        assert_eq!(checked.ordinal(edge), previous.ordinal(edge));
+        assert_eq!(checked.label(edge), previous.label(edge));
+    }
+    assert!(
+        matches!(input.ordinals.prefix(2), Some(CsrOrdinals::Compact(prefix, side)) if prefix == &words[..2] && side == &large[..1])
+    );
+    assert!(input.ordinals.prefix(5).is_none());
+    for bad in [
+        &large[..1],
+        &[large[1], large[0]],
+        &[large[0], large[0]],
+        &[large[0], (3, u64::MAX - 1)],
+        &[(1, 1), large[1]],
+    ] {
+        let malformed = CsrCaptureInput {
+            ordinals: CsrOrdinals::Compact(&words, bad),
+            ..input
+        };
+        assert!(CsrCapture::checked(malformed, limits, &control).is_err());
+    }
+}

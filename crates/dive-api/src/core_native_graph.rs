@@ -12,7 +12,7 @@ use dive_eval::HostControl;
 use dive_explore::graph::{GraphSink, SourceRow, Step, Stopped};
 use dive_liveness::analyze::AnalysisError;
 use dive_runtime::budget::{EvaluationControl, Phase};
-use dive_runtime::capture::{CsrCaptureInput, Limits, MAX_EXPANSION_UNITS};
+use dive_runtime::capture::{CsrCaptureInput, CsrOrdinals, Limits, MAX_EXPANSION_UNITS};
 use dive_runtime::{CheckOptions, Stats, Verdict};
 
 use crate::core_native_values::NativeValues;
@@ -100,7 +100,8 @@ pub(crate) struct NativeGraph {
     representatives: Vec<u32>,
     offsets: Vec<usize>,
     targets: Vec<u32>,
-    ordinals: Vec<Option<u64>>,
+    ordinals: Vec<u16>,
+    large_ordinals: Vec<(usize, u64)>,
     actions: Vec<Option<u32>>,
     edge_rows: Vec<u32>,
     roots: Vec<usize>,
@@ -115,11 +116,11 @@ impl NativeGraph {
         Arc::ptr_eq(&self.store, store)
     }
 
-    pub(crate) fn input(&self) -> CsrCaptureInput<'_> {
+    pub(crate) fn input(&self) -> CsrCaptureInput<'_, CsrOrdinals<'_>> {
         CsrCaptureInput {
             offsets: &self.offsets,
             targets: &self.targets,
-            ordinals: &self.ordinals,
+            ordinals: CsrOrdinals::Compact(&self.ordinals, &self.large_ordinals),
             actions: &self.actions,
             edge_rows: &self.edge_rows,
             representatives: &self.representatives,
@@ -182,19 +183,36 @@ impl NativeGraph {
         Ok(row)
     }
 
-    fn reserve_edge(&mut self, control: &EvaluationControl) -> Result<(), Verdict> {
+    fn reserve_edge(
+        &mut self,
+        ordinal: Option<u64>,
+        control: &EvaluationControl,
+    ) -> Result<(), Verdict> {
         if self.targets.len() >= self.limits.edges {
             return Err(limit("edges"));
         }
         reserve(&mut self.targets, 1, &mut self.memory, control)?;
         reserve(&mut self.ordinals, 1, &mut self.memory, control)?;
+        if ordinal.is_some_and(|n| n >= u64::from(CsrOrdinals::EXTENDED)) {
+            reserve(&mut self.large_ordinals, 1, &mut self.memory, control)?;
+        }
         reserve(&mut self.actions, 1, &mut self.memory, control)?;
         reserve(&mut self.edge_rows, 1, &mut self.memory, control)
     }
 
     fn push_edge(&mut self, to: u32, ordinal: Option<u64>, action: Option<u32>, row: u32) {
         self.targets.push(to);
-        self.ordinals.push(ordinal);
+        let entry = match ordinal {
+            None => u16::MAX,
+            Some(n) => match u16::try_from(n) {
+                Ok(word) if word < CsrOrdinals::EXTENDED => word,
+                _ => {
+                    self.large_ordinals.push((self.ordinals.len(), n));
+                    CsrOrdinals::EXTENDED
+                }
+            },
+        };
+        self.ordinals.push(entry);
         self.actions.push(action);
         self.edge_rows.push(row);
     }
@@ -241,6 +259,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             offsets: Vec::new(),
             targets: Vec::new(),
             ordinals: Vec::new(),
+            large_ordinals: Vec::new(),
             actions: Vec::new(),
             edge_rows: Vec::new(),
             roots: Vec::new(),
@@ -468,7 +487,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             (target, original)
         };
         if parent.is_some() {
-            self.graph.reserve_edge(&self.control)?;
+            self.graph.reserve_edge(Some(step.ordinal), &self.control)?;
             self.graph
                 .push_edge(target, Some(step.ordinal), action, original);
         } else {
@@ -527,7 +546,7 @@ impl GraphSink for NativeSink<'_, '_> {
                 .representatives
                 .get(source as usize)
                 .ok_or_else(|| bug("native stutter source not discovered"))?;
-            self.graph.reserve_edge(&self.control)?;
+            self.graph.reserve_edge(None, &self.control)?;
             self.graph.push_edge(source, None, None, row);
             self.graph.closed_rows += 1;
             self.graph.offsets[self.graph.closed_rows] = self.graph.targets.len();
@@ -582,7 +601,7 @@ impl GraphSink for NativeSink<'_, '_> {
                 .ok_or_else(|| bug("native source row offset"))?;
             let mut targets = Vec::new();
             for index in start..self.graph.targets.len() {
-                if self.graph.ordinals[index].is_some() {
+                if self.graph.ordinals[index] != u16::MAX {
                     let retained = self.graph.edge_rows[index] as usize;
                     targets.try_reserve(1).map_err(|_| Verdict::ResourceLimit {
                         message: "native source-row targets allocation".into(),
