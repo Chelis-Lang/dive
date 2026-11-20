@@ -1,86 +1,116 @@
 # Roadmap
 
-The owner's direction since 2026-11-05 is
-[ADR 0153](decisions/0153-core-is-the-product.md):
-- Core is the product.
-- The default profile does the better thing.
-- `--compat=tlc` is nominal.
-- dive releases at the first point of real user value.
+Dive is a deterministic TLA+ checker for maintaining existing specifications.
+The next work targets three jobs: reaching a verified counterexample quickly,
+finishing demanding safety and fairness checks on practical hardware, and using
+the same model in implementation CI or a proof workflow.
 
-[RELEASE.md](RELEASE.md) defines the release gates and the critical path.
-[scoreboard.md](scoreboard.md) has the current numbers. The
-[2026-11-05 progress review](internal/reviews/2026-11-05-progress-review.md) explains the
-reset. Plans give no dates or effort estimates.
+Core is the product engine. The default follows canonical TLA+ semantics where
+TLC's behavior is an implementation artifact, and TLC compatibility remains
+nominal. Every new checking path must preserve the documented observables or
+register a precise divergence, independently replay counterexamples, and
+give named refusals for unsupported inputs. [ADR 0153](decisions/0153-core-is-the-product.md)
 
-GitHub milestones:
-- `v0.1: first value`, the release work;
-- `Reference retirement`, the remaining cleanup after the old checking runtime's removal;
-- `post-v0.1`, everything frozen or deferred.
+## Starting point
 
-## Where we are
+v0.1.0 has shipped. It met the [first-release gates](RELEASE.md), including
+169 covered Examples configurations with zero disagreements, bundled
+libraries, and stable CLI and JSON reports. The 169 agreeing checks ran
+5.1× faster than pinned TLC by geometric mean at one worker including
+startup. The larger 48-model subset ran 3.2× faster. The
+[scoreboard](scoreboard.md) holds the measured coverage and refusals.
+[Release results](developer/release-performance-results.md)
 
-- **Core is dive's only checking engine.** `dive check`, `dive simulate`,
-  `dive dfid` and `dive tlc` run on Core, with shared start-up (`dive-model`)
-  and the independent trace validator (`dive-trace`, on `dive-eval`). Features
-  Core does not implement are named refusals (#910).
-- **Coverage and speed (R1, R2) are met on the release candidate.** On the full
-  Examples tier Core agrees on 162 models, matches a registered divergence on 7
-  and refuses 7 by name, with no disagreements; its geometric-mean time is
-  0.195x TLC's, with no model above 2x. The [scoreboard](scoreboard.md) holds
-  the numbers and the refusal-reason histogram.
-- **Core's small-tier floor is enforced.** The committed baselines record 141
-  agreements, nine registered divergences and six named refusals in the default
-  profile, and 142 agreements, one registered divergence and 13 named refusals
-  in the TLC profile, with zero disagreements, budget stops or missing goldens
-  ([conformance snapshot](conformance.md)). The full gate and the nightly job
-  ratchet against them.
-- **Bare use, nominal compat and the public surface are met on Core (R3–R5).**
-  Libraries are bundled; the ten-spec bare-use smoke checks nine and refuses
-  EWD998ChanID by name, including from the release archive with an empty
-  `PATH`. `cargo xtask gate --full` passes, and help, `--version` and schema-3
-  JSON are pinned.
-- **The release is prepared but not tagged.** The version is `0.1.0`, the
-  curated changelog is on main and the release dry run built both Linux
-  archives (#805). Only the tag remains (R6, #794).
+Performance depends on the workload. Core beat TLC on EmergencyCall f3
+at one worker and lost at eight. Core completed PaxosLease Retry at 2.18
+billion distinct states on 32 physical cores, about 9% faster than pinned
+TLC with higher peak RSS. The opt-in finite symbolic strategy completed KVS
+Large within a budget where both explicit checkers stopped. Its completion is
+a finite reachability result. Current main also has scoped temporal workers,
+compact edges and evidence reuse for eligible property edits.
+[Large-model results](developer/large-models.md) ·
+[Symbolic strategy](user/symbolic.md)
 
-## Path to v0.1
+## Delivery order
 
-Remaining work follows the [release gates](RELEASE.md), using measured reason
-buckets rather than model-by-model history fixes:
+1. **Establish a shared comparison panel.** Use the
+   [pinned workload selection and measurement procedure](internal/survey/verification-workloads.md)
+   to compare v0.1.0, current Core, pinned and released TLC, and applicable native
+   peers. Publish per-model completion, named refusals, startup, exploration,
+   scaling and memory together. Record comparable whole-run results and use
+   bounded progress for stopped cases. Start with exact input controls before
+   running the large configurations. Extend the current performance evidence
+   and group open work by the measured bottlenecks.
+   [Performance backlog](https://github.com/Chelis-Lang/dive/issues/799)
+2. **Improve single-host scaling.** Rebaseline EmergencyCall f3 and the temporal
+   panel. Profile successor evaluation, allocation and sharing, duplicate
+   detection, ordered commit, graph capture and temporal analysis. Use
+   BPConProof and TLCSailfish2 to distinguish wide frontiers from retained
+   aggregate state and graph costs. The target is to match or beat same-host
+   TLC at eight workers on f3 and to complete one external fairness case that
+   currently stops in the fixed envelope. If current main already completes
+   that case, show a reproducible speedup instead. Check determinism and
+   replay witnesses at every tested width.
+   [Temporal scaling](https://github.com/Chelis-Lang/dive/issues/1028) ·
+   [Large holdouts](https://github.com/Chelis-Lang/dive/issues/1034)
+3. **Evaluate compilation on one hot path.** Compare shape-specialized or
+   bytecode evaluation with native code generated from the same bound
+   Core IR on KVS Medium and an aggregate consensus model. Preserve ordered
+   discovery, handling of effects and errors, and duplicate witnesses. Measure
+   cold compile-and-check, cached runs, and break-even against ordinary Core.
+   Promote a tier only when it improves both profiles in its intended workload,
+   with equivalent results, independent replay, and small-model regressions
+   checked. Expand spill or distributed execution when a pinned practical
+   workload still exceeds the tuned single-host envelope.
+4. **Complete practitioner workflows.** Rank named blockers by workflow impact.
+   Start with the aggregate message bags in etcd Raft, the Kafka KIP-996
+   fairness planner and the VIEW/liveness refusal. Qualify PlusCal, fairness
+   and refinement using original external sources and the Foundation's
+   differential hardening cases where they expose an applicable gap.
+   Extend trace replay through the CLI or Rust API on one upstream CI fixture,
+   with both an accepted trace and a corrupted one. Give test generators the
+   minimum labelled graph export they can consume, with action parameters,
+   reductions and completeness. Keep instrumentation, test generation and
+   alternate event-order search with their callers until a concrete contract
+   shows what dive needs to support.
+   [Remaining Core coverage](https://github.com/Chelis-Lang/dive/issues/910) ·
+   [VIEW and liveness](https://github.com/Chelis-Lang/dive/issues/428) ·
+   [PlusCal scope](https://github.com/Chelis-Lang/dive/issues/798) ·
+   [Trace validator work](https://github.com/Chelis-Lang/dive/issues/490)
+5. **Qualify the finite symbolic strategy on varied models.** Use KVS Small
+   and Medium for count controls, Large for completion, and transaction commit
+   or another differently structured model to test generality. Test a changed
+   transition relation as well as property edits. Keep bounded search, exact
+   finite closure and finite induction distinct in reports. Cross-check a
+   constraint-heavy model with Apalache where the question and semantics match.
+   Use production workloads to decide which symbolic refusals to address.
+   [Current symbolic contract](user/symbolic.md)
 
-1. Resolve the nine absent oracle facts through targeted pinned-oracle work on
-   the original configurations. Keep them unmeasured until a legitimate golden
-   exists.
-2. Run `cargo xtask gate --full` on the release source and tag `v0.1.0` when
-   all gates hold (#794).
+The proof handoff can start alongside the comparison panel. Use proof-bearing
+source as-is, screen candidate invariants in batches where the finite search
+supports it, and show a pinned external TLAPS proof on the same source.
+Start with TCommit and then the Raft induction artifact. Use that workflow
+to evaluate upstream improvements, a companion, and a full proof-system
+reimplementation. The full option has a separate scope and trust decision.
+[TLAPS options and acceptance tests](internal/survey/verification-workloads.md#tlaps-options-and-evidence) ·
+[Open decision](open-questions.md#deductive-proof-system-scope)
 
-Delivered release work: canonical sets and history removal (#786, #807, #815),
-lexically scoped applied LET-recursive functions (#811), the Core-only small-tier
-ratchet (#806), bundled TLAPS and CommunityModules with bare-use smoke (#803),
-nominal compatibility and its known gaps (#810), CLI help/version (#802),
-schema-3 report goldens (#804), Core as the only engine (#879) and removal of
-the `dive-check` crate (#935).
+## Adoption evidence
 
-## After v0.1
+Publish a rerunnable peer comparison, an external CI adoption that the model
+maintainer can reproduce, and a finite-check-to-proof walkthrough. Demonstrate
+agent use through Sail or another external harness with a safety failure, a
+fairness failure and a transition edit that invalidates reuse. Hold the task,
+obligations and check budget constant across checkers, and verify the result
+in a clean environment. Report time to a replayed witness, total session time
+including setup, and whether the task succeeded. Invite upstream maintainers
+to review the inputs and share small cross-tool regression cases with the
+community. [Workloads and sources](internal/survey/verification-workloads.md)
 
-These areas are frozen until v0.1 ships. Code already merged stays, and is not
-advertised where it is incomplete.
-
-- **Breadth:** the remaining TLC feature families, including IOUtils/IOEnv, TLC
-  coverage and logical costs, and the full PlusCal flag matrix.
-- **Modes and storage:** checkpoint, spill and recovery breadth; distributed
-  workers; full simulation and DFID matrices.
-- **Integration:** a DAP debugger; Rust APIs for checking, simulation,
-  translation and checkpoints with `cargo test` integration; a language server
-  built on the checker.
-- **Performance:** ADR 0119 default floors across the full tier, scaling, and
-  native compilation of specifications.
-- **Platforms:** macOS as a release platform.
-- **Verus:** an exporter to `verus-tla` state machines from the IR.
-
-The empty `dive-lsp` and `dive-compile` placeholder crates are retired
-([ADR 0095](decisions/0095-retire-tooling-placeholders.md)). The language server
-and native compilation come back as new implementations after v0.1.
+The post-v0.1 milestone tracks this work. Other existing work on simulation,
+DFID, storage, debugger and editor support, host I/O, macOS packaging and
+Verus export can follow a concrete user need. The
+[v0.1 gates](RELEASE.md) record what shipped.
 
 ## Completed foundation milestones
 

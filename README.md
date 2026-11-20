@@ -1,12 +1,12 @@
 # dive
 
-**A faster TLA+ toolchain.** Same specs, same results as TLC, about 5x faster.
+**A deterministic TLA+ checker with independently validated counterexamples.**
 
-- **5x faster than TLC** on average across 169 models from tlaplus/Examples. 118 of them run at least 3x faster, and 31 at least 10x faster.
+- **5.1× faster than pinned TLC** by geometric mean across 169 agreeing tlaplus/Examples checks at one worker, including startup.
 - **Minutes become seconds.** `MCInnerSerial` takes 8.9 minutes in TLC and 4.4 seconds in dive. `MCLeastCircularSubstringMedium` drops from 3.3 minutes to 2 seconds.
 - **Instant on small specs.** `DieHard` checks in about 6 ms. TLC takes about half a second.
-- **A fraction of the memory.** 37–110 MiB where TLC uses 0.8–1.4 GiB.
-- **Drop-in.** Reads your existing `.tla` and `.cfg` files. Includes a `tlc` command that accepts TLC's arguments.
+- **Lower memory on the ten-model release panel.** At one worker, peak RSS was 37–110 MiB for dive and 0.8–1.4 GiB for TLC.
+- **Existing TLA+ models.** Reads `.tla` and `.cfg` files and includes a `tlc` command for TLC-style invocations.
 - **One binary** for model checking, simulation, parsing, PlusCal translation and trace validation.
 
 ```sh
@@ -56,21 +56,25 @@ machine-readable results, and `dive check --help` for the other options.
 
 ## Compatibility with TLC
 
-dive's results match TLC's. In a few places the default follows standard
-TLA+ semantics where TLC's behavior is an implementation detail. `--compat=tlc`
-switches to TLC's behavior, and
-[where dive differs from TLC](docs/tlc-differences.md) lists each case.
+Dive compares verdicts and state counts with pinned TLC on its conformance
+suite and independently replays counterexamples. Unsupported constructs
+produce a named refusal. The default follows standard TLA+ semantics where
+TLC's behavior is an implementation detail. `--compat=tlc` selects the available
+compatibility options. See the [compatibility guide](docs/user/compatibility.md).
 
 ## Performance
 
-Each comparison above was measured at one worker on the same host, with
-every run checked against TLC's result. TLC's times include JVM startup, and
-its memory was measured at `-Xmx3g`. The 169 models are the tlaplus/Examples
-models both checkers finish with the same result. The method and per-model
-numbers are in
+The release timings compare one-worker runs on the same host and include
+JVM startup. TLC's memory was measured at `-Xmx3g`. The geometric mean covers
+the 169 tlaplus/Examples configurations with matching results or a documented
+expected difference. The 48 larger configurations in that set ran 3.2×
+faster by geometric mean. The methods and per-model timings are in the
 [release performance results](docs/developer/release-performance-results.md).
 
-The optional [finite symbolic checker](docs/user/symbolic.md) completed KeyValueStore Large with 594,616,815 distinct states. See the [large-model measurement record](docs/developer/large-models.md) for timings, memory and independent checks.
+The optional finite symbolic checker completed KeyValueStore Large with
+594,616,815 distinct states. The large-model measurements include timings,
+memory, independent checks and explicit scaling results.
+[Symbolic checking](docs/user/symbolic.md) · [Large-model comparisons](docs/developer/large-models.md)
 
 ## Documentation
 
