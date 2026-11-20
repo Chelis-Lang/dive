@@ -426,6 +426,16 @@ does not fall back to the current state. Assignments from another evaluator
 are refused, and a root projection of a query candidate is not a `Next`
 transition.
 
+A finite state or action predicate can use `Quantify(S, LAMBDA e: P(e))`
+with a pure, inspectable callback, or `FoldFunctionOnSet(+, base, f, S)`
+with the built-in integer addition operator. For example, a temporal
+property can count the voting members that satisfy a state predicate.
+A nonrecursive quantifier, set filter, set map or function constructor inside
+an action predicate can range over a finite next-state domain. Both graph
+capture and counterexample validation read this domain on the actual edge.
+Recursive binders and expansion of a temporal formula retain their existing
+scope and level restrictions.
+
 ## Fairness
 
 Both profiles keep pure recurrence (`[]<>B`) and persistence (`<>[]B`)
