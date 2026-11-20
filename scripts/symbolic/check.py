@@ -42,6 +42,8 @@ def main():
         action="store_true",
         help="ablation: compute each complete simultaneous action image in one operation",
     )
+    parser.add_argument("--refine-domains", action="store_true",
+                        help="learn members of wide finite set fields during exact reachability")
     certificate = parser.add_mutually_exclusive_group()
     certificate.add_argument(
         "--prove-inductive",

@@ -5,6 +5,7 @@ import argparse
 from collections import Counter
 from dataclasses import dataclass
 import errno
+import gc
 import itertools
 import json
 import math
@@ -26,6 +27,10 @@ import induction
 
 class Unsupported(ValueError):
     """The finite fragment or this layout cannot represent the program."""
+
+
+class Grow(Exception):
+    """The current finite coordinate system is missing reachable set members."""
 
 
 class Stopped(RuntimeError):
@@ -93,7 +98,7 @@ def unpack(expr):
 
 
 class SourceModel(FiniteRelation):
-    def __init__(self, doc, type_invariant, manager=None, order_by_path=False, single_partition=False):
+    def __init__(self, doc, type_invariant, manager=None, order_by_path=False, single_partition=False, learned=None):
         require(doc["format"] == "dive-symbolic-input-v2", "incompatible bound IR exporter")
         self.doc = doc
         self.ir = doc["ir"]
@@ -129,11 +134,25 @@ class SourceModel(FiniteRelation):
                 and {indices, *map(tuple, declaration["maps"])} == set(itertools.permutations(indices)),
                 "expected a full finite permutation group",
             )
+        self.refining = learned is not None
+        self.whole_domains = {}
+        self.missing = {}
+        self.initial_missing = set()
+        if self.refining:
+            for name, typ in list(types.items()):
+                if isinstance(typ, PowerSet) and len(typ.domain) > 256:
+                    require(not self.symmetry, "wide set-domain refinement with symmetry")
+                    path = (name,)
+                    self.whole_domains[path] = typ.domain
+                    types[name] = PowerSet(Members(
+                        (k, bit) for k, bit in typ.domain.items() if (path, k) in learned
+                    ))
         self.types = types
         self.allocate(types, atoms, order_by_path)
 
         # TLC counts every enabled Init witness before symmetry or duplicate
         # elimination. BFS retains their union; induction checks the same union.
+        self.invalid_sources = self.b.false
         self.initial = self.b.false
         self.initial_generated = 0
         for index, (guard, assignments) in enumerate(self.branches(doc["init"], {}, True, self.b.true, {})):
@@ -146,13 +165,17 @@ class SourceModel(FiniteRelation):
             self.initial |= self.b.cube({name: value == self.b.true for name, value in bits.items()})
             self.initial_generated += 1
         require(self.initial_generated > 0, "empty Init")
+        if self.initial_missing:
+            raise Grow(self.initial_missing)
         self.reading_init = False
         self.constraint = self.conjunction(self.boolean(self.eval(expr, {}, {})) for expr in doc["constraints"])
         self.properties = [(name, self.boolean(self.eval(expr, {}, {}))) for name, expr in doc["invariants"]]
         updates = []
         for index, (guard, assigns) in enumerate(self.branches(doc["next"], {}, False, self.b.true, {})):
+            if self.refining and index and index % 64 == 0:
+                gc.collect()
             require(index < 100000, "transition exceeds 100000 expanded action witnesses")
-            change = {n: v for n, v in self.encode(assigns).items() if v != self.b.var(n)}
+            change = {n: v for n, v in self.encode(assigns, guard).items() if v != self.b.var(n)}
             if guard != self.b.false:
                 updates.append((guard, change))
         if self.symmetry:
@@ -278,9 +301,26 @@ class SourceModel(FiniteRelation):
         clusters = max((d for d in domains if d), key=domains.get, default=())
         atoms = tuple(sorted(group_atoms))
 
+        # In a sparse network, messages often contain the same participants
+        # that index other local-state fields. Keep related bits near one
+        # another instead of separating the entire network from its endpoints.
+        if self.whole_domains:
+            axes = [domain for domain in domains if domain and all(isinstance(k, str) for k in domain)]
+            clusters = max(axes, key=domains.get, default=())
+
+        def model_values(key):
+            if isinstance(key, str):
+                yield key
+            elif key[0] == "record":
+                for _, field in key[1]:
+                    yield from model_values(field)
+
         def order(leaf):
             path, _ = leaf
             group = next((clusters.index(k) for k in reversed(path[1:]) if k in clusters), -1)
+            if self.whole_domains:
+                group = next((clusters.index(atom) for key in reversed(path[1:])
+                              for atom in model_values(key) if atom in clusters), -1)
             roles = [atoms.index(k) for k in path[1:] if k in atoms]
             require(len(roles) <= 1, "multiple permuted indices in one path")
             return group, (roles[0] if roles else -1), self.names.index(path[0]), tuple(map(repr, path))
@@ -485,21 +525,37 @@ class SourceModel(FiniteRelation):
         return d["body"], {i: self.eval(a["Expr"]["expr"], env, assigned) for i, a in enumerate(args)}
 
     def bindings(self, q, env, assigned, *, multiple=False):
-        require(len(q["bounds"]) == 1, "multiple bound groups")
-        (bound,) = q["bounds"]
-        slots = bound["vars"]
+        slots = []
+        domains = []
+        for bound in q["bounds"]:
+            require(not bound["tuple"] and bound["domain"] is not None, "unbounded or tuple binder")
+            domain = self.eval(bound["domain"], env, assigned)
+            require(isinstance(domain, Members), "binder over a non-atomic set")
+            for slot in bound["vars"]:
+                slots.append(slot)
+                domains.append(domain)
         require(slots and (len(slots) == 1 or multiple), "expected a single bound variable")
-        require(not bound["tuple"] and bound["domain"] is not None, "unbounded or tuple binder")
-        domain = self.eval(bound["domain"], env, assigned)
-        require(isinstance(domain, Members), "binder over a non-atomic set")
-        if len(slots) == 1:
-            for key in sorted(domain, key=repr):
-                yield key, domain[key], {**env, slots[0]: self.atom(key)}
-            return
-        require(len(domain) ** len(slots) <= 100000, "quantifier exceeds 100000 bindings")
-        for keys in itertools.product(domain, repeat=len(slots)):
-            scope = {**env, **{slot: self.atom(key) for slot, key in zip(slots, keys)}}
-            yield keys, self.conjunction(domain[key] for key in keys), scope
+        require(math.prod(map(len, domains)) <= 100000, "quantifier exceeds 100000 bindings")
+        for values in itertools.product(*(domain.items() for domain in domains)):
+            keys = tuple(k for k, _ in values)
+            scope = {**env, **{slot: self.bound_value(k) for slot, k in zip(slots, keys)}}
+            yield keys[0] if len(keys) == 1 else keys, self.conjunction(g for _, g in values), scope
+
+    def bound_value(self, key):
+        if isinstance(key, tuple) and key[0] == "boolean":
+            return self.b.true if key[1] else self.b.false
+        return self.atom(key)
+
+    def let_scope(self, expr, env, assigned):
+        local = dict(env)
+        for idx in expr["defs"]:
+            definition = self.ir["defs"][idx]
+            scope = definition["scope"]
+            require(isinstance(scope, dict) and "LetValue" in scope
+                    and not definition["params"] and not definition["recursive"],
+                    "non-value or recursive LET")
+            local[scope["LetValue"]["slot"]] = self.eval(definition["body"], local, assigned)
+        return local
 
     @staticmethod
     def padding(key):
@@ -574,6 +630,22 @@ class SourceModel(FiniteRelation):
         def sub(expr):
             return self.eval(expr, env, assigned)
 
+        if tag == "Let":
+            return self.eval(x["body"], self.let_scope(x, env, assigned), assigned)
+        if tag in ("SetFilter", "SetMap"):
+            result = Members()
+            q = x if tag == "SetMap" else {"bounds": [x["bound"]]}
+            for key, active, scope in self.bindings(q, env, assigned):
+                if active == self.b.false:
+                    continue
+                if tag == "SetFilter":
+                    result[key] = active & self.boolean(self.eval(x["pred"], scope, assigned))
+                else:
+                    elem = self.eval(x["expr"], scope, assigned)
+                    require(isinstance(elem, Atom), "set map of compound values")
+                    for k, g in elem.items():
+                        result[k] = result.get(k, self.b.false) | (active & g)
+            return result
         if tag == "Num":
             return self.atom(self.integer(int(x)))
         if tag == "Apply" and "Std" in x["callee"]:
@@ -665,6 +737,8 @@ class SourceModel(FiniteRelation):
             out = Members()
             for expr in x:
                 atom = sub(expr)
+                if isinstance(atom, cudd.Function):
+                    atom = Atom({("boolean", False): ~atom, ("boolean", True): atom})
                 require(isinstance(atom, Atom), "set of nonscalars")
                 for k, g in atom.items():
                     out[k] = out.get(k, self.b.false) | g
@@ -730,13 +804,30 @@ class SourceModel(FiniteRelation):
         raise Unsupported("IR expression " + tag)
 
     def branches(self, i, env, init, guard, assigned):
+        if guard == self.b.false:
+            return
         tag, x = self.node(i)
-        if tag in ("Def", "Apply") and not (tag == "Def" and x in self.overrides):
+        if tag == "Let":
+            yield from self.branches(x["body"], self.let_scope(x, env, assigned), init, guard, assigned)
+        elif tag == "Apply" and "Std" in x["callee"]:
+            require(x["callee"]["Std"] in ("NaturalsLeq", "NaturalsGeq", "NaturalsLt", "NaturalsGt"), "nondeterministic standard action guard")
+            yield guard & self.boolean(self.eval(i, env, assigned)), assigned
+        elif tag in ("Def", "Apply") and not (tag == "Def" and x in self.overrides):
             body, args = self.call(tag, x, env, assigned)
             yield from self.branches(body, args, init, guard, assigned)
         elif tag == "Junction":
             items = x["items"]
-            if x["kind"] == "Or":
+            if not init and x["kind"] == "Or" and self.ir["exprs"][i]["level"] in ("State", "Constant"):
+                combined = self.b.false
+                for item in items:
+                    tag, v = self.node(item)
+                    require(tag in ("Const", "Bool") or (tag == "Builtin" and v["op"] in ("Eq", "Neq", "In", "NotIn", "Subseteq")),
+                            "unsupported action guard: " + tag)
+                    alt = self.boolean(self.eval(item, env, assigned))
+                    require((alt & combined & guard) == self.b.false, "unsupported action guard: overlapping boolean alternatives")
+                    combined |= alt
+                yield guard & combined, assigned
+            elif x["kind"] == "Or":
                 for item in items:
                     yield from self.action_alternatives(item, env, init, guard, assigned)
             else:
@@ -751,11 +842,14 @@ class SourceModel(FiniteRelation):
 
                 yield from conjunction(0, guard, assigned)
         elif tag == "Quant" and x["kind"] == "Exists":
-            for _, g, scope in self.bindings(x, env, assigned):
+            for _, g, scope in self.bindings(x, env, assigned, multiple=True):
                 yield from self.action_alternatives(x["body"], scope, init, guard & g, assigned)
         elif tag == "Unchanged":
             require(not init, "UNCHANGED in Init")
             kind, items = self.node(x)
+            while kind == "Def" and items not in self.overrides:
+                x, _ = self.call(kind, items, env, assigned)
+                kind, items = self.node(x)
             result = assigned.copy()
             for item in items if kind == "Tuple" else [x]:
                 kind, v = self.node(item)
@@ -785,7 +879,7 @@ class SourceModel(FiniteRelation):
             yield guard, {**assigned, name: self.eval(x["args"][1], env, assigned)}
         else:
             require(
-                tag in ("Bool", "Not")
+                tag in ("Bool", "Not", "Const")
                 or (
                     tag == "Quant" and x["kind"] == "Forall"
                     and self.ir["exprs"][i]["level"] in ("Constant", "State")
@@ -805,7 +899,7 @@ class SourceModel(FiniteRelation):
             require(len(values) > len(assigned), "choice without assignment in action guard")
             yield active, values
 
-    def encode(self, assigned):
+    def encode(self, assigned, guard=None):
         require(set(assigned) == set(self.names), "incomplete state assignment")
         out = {}
 
@@ -817,20 +911,35 @@ class SourceModel(FiniteRelation):
                 for k in schema:
                     visit(schema[k], value[k], (*path, k))
             elif isinstance(schema, Members):
-                require(
-                    isinstance(value, Members)
-                    and all(v == self.b.false for k, v in value.items() if k not in schema),
-                    "set assignment outside finite layout",
-                )
+                require(isinstance(value, Members), "expected a finite set")
+                invalid = self.b.false
+                for k in value.keys() - schema.keys():
+                    bit = value[k] if guard is None or not self.refining else value[k] & guard
+                    if bit == self.b.false:
+                        continue
+                    if k in self.whole_domains.get(path, ()):
+                        if guard is None:
+                            self.initial_missing.add((path, k))
+                        else:
+                            ident = (path, k)
+                            self.missing[ident] = self.missing.get(ident, self.b.false) | bit
+                    else:
+                        invalid |= bit
+                if guard is None or not self.refining:
+                    require(invalid == self.b.false, "set assignment outside finite layout")
+                else:
+                    self.invalid_sources |= guard & invalid
                 for k in schema:
                     fields, _ = self.layout[(*path, k)]
                     out[fields[0].var] = value.get(k, self.b.false)
             else:
                 fields, alphabet = self.layout[path]
-                require(
-                    isinstance(value, Atom) and value.keys() <= set(alphabet),
-                    "scalar assignment outside finite layout",
-                )
+                require(isinstance(value, Atom), "scalar assignment outside finite layout")
+                invalid = self.any(v for k, v in value.items() if k not in alphabet)
+                if guard is None or not self.refining:
+                    require(invalid == self.b.false, "scalar assignment outside finite layout")
+                else:
+                    self.invalid_sources |= guard & invalid
                 for bit, var in enumerate(fields):
                     out[var.var] = self.any(
                         value.get(k, self.b.false) for j, k in enumerate(alphabet) if j & (1 << bit)
@@ -844,6 +953,8 @@ class SourceModel(FiniteRelation):
         def scalar(key):
             if isinstance(key, str):
                 return {"model": key}
+            if key[0] == "boolean":
+                return key[1]
             if key[0] == "record":
                 return {"record": {n: scalar(v) for n, v in key[1]}}
             require(key[0] in ("string", "int"), "invalid encoded scalar in witness")
@@ -887,6 +998,7 @@ class SourceModel(FiniteRelation):
             and self.types == other.types
             and self.layout == other.layout
             and self.names == other.names
+            and self.invalid_sources == other.invalid_sources
             and self.constraint == other.constraint
             and self.initial == other.initial
             and self.initial_generated == other.initial_generated
@@ -896,6 +1008,12 @@ class SourceModel(FiniteRelation):
         )
 
     def violations(self, states):
+        admitted = states & self.constraint
+        missing = {key for key, predicate in self.missing.items() if (admitted & predicate) != self.b.false}
+        if missing:
+            raise Grow(missing)
+        require(admitted & self.invalid_sources == self.b.false,
+                "reachable source emits an assignment outside finite layout")
         for name, prop in self.properties:
             if states & ~prop != self.b.false:
                 yield dict(kind="invariant", name=name), ~prop
@@ -909,6 +1027,30 @@ class SourceModel(FiniteRelation):
         for relation, old, rename in updates:
             result = self.b.let(rename, cudd.and_exists(result, relation, old))
         return result
+
+    def refined_reachability(self):
+        """Check all emissions, retaining just admitted states during the first pass."""
+        reached = frontier = self.initial & self.constraint
+        if any(self.violations(self.initial)):
+            return self.check()
+        invariant = self.conjunction(prop for _, prop in self.properties)
+        depth = 0
+        while frontier != self.b.false:
+            gc.collect()
+            depth += 1
+            if any(self.violations(frontier)):
+                return self.check()
+            successors = self.b.false
+            for guard, parts in self.actions:
+                emitted = self.image(frontier, guard, parts)
+                if emitted & ~invariant != self.b.false:
+                    # Repeat with ordered layers for an independently replayed shortest witness.
+                    return self.check()
+                successors |= emitted & self.constraint
+            frontier = successors & ~reached
+            reached |= frontier
+        distinct, generated = self.counts(reached, self.symmetry, self.initial_generated)
+        return self.success(max(depth, 1), reached, distinct, generated, False), None
 
     def check(self, previous=None):
         self.complete = None
@@ -960,6 +1102,40 @@ class SourceModel(FiniteRelation):
         )
 
 
+def refined_search(args):
+    """Retry with new coordinates in a fresh CUDD process under the caller's deadline."""
+    require(not (args.verify_predicate or args.prove_inductive or args.recheck or args.write_predicate),
+            "set-domain refinement supports a single search and validated trace")
+    started = time.monotonic()
+    flags = ["-Es"] if sys.flags.ignore_environment else []
+    command = [sys.executable, *flags, __file__, json.dumps({**vars(args), "domain_pass": True})]
+    learned = {}
+    for attempt in range(1, 514):
+        child = subprocess.run(command, input=json.dumps(list(learned.values())),
+                               capture_output=True, text=True)
+        if child.returncode < 0:
+            diagnostic = child.stderr.strip()[-500:]
+            raise Stopped(f"refinement worker terminated by signal {-child.returncode}: {diagnostic}")
+        if child.returncode == 6:
+            added = False
+            for item in json.loads(child.stdout):
+                key = json.dumps(item)
+                if key not in learned:
+                    learned[key] = item
+                    added = True
+            require(added, "no progress refining finite set domains")
+            require(len(learned) <= 512, "refined set domains exceed 512 state bits")
+            continue
+        if not child.stdout.strip():
+            raise RuntimeError(f"refinement worker ended without a result (exit {child.returncode})")
+        row = json.loads(child.stdout)
+        row.update(refinement_rounds=attempt, learned_members=len(learned),
+                   seconds=round(time.monotonic() - started, 6))
+        print(json.dumps(row), flush=True)
+        return child.returncode
+    raise Unsupported("set-domain refinement round limit")
+
+
 def run(args):
     if args.max_memory:
         _, hard = resource.getrlimit(resource.RLIMIT_AS)
@@ -967,6 +1143,19 @@ def run(args):
         if hard != resource.RLIM_INFINITY:
             limit = min(limit, hard)
         resource.setrlimit(resource.RLIMIT_AS, (limit, hard))
+    if args.refine_domains and not getattr(args, "domain_pass", False):
+        return refined_search(args)
+    learned = None
+    if args.refine_domains:
+        # CUDD returns an unreferenced result before dd allocates its Python
+        # wrapper. Collect cyclic compiler objects only between native calls.
+        # Refcounting stays active throughout this single-pass worker.
+        gc.disable()
+
+        def key(obj):
+            return tuple(map(key, obj)) if isinstance(obj, list) else obj
+
+        learned = set(map(key, json.load(sys.stdin)))
     previous = None
     violated = False
     for module, config in [(args.module, args.config), *args.recheck]:
@@ -980,6 +1169,7 @@ def run(args):
             previous.b if previous is not None else None,
             args.order_by_path,
             args.single_partition,
+            learned,
         )
         if args.verify_predicate or args.prove_inductive:
             states = (
@@ -1000,7 +1190,7 @@ def run(args):
             if failed:
                 return 2
             continue
-        row, trace = model.check(previous)
+        row, trace = model.refined_reachability() if args.refine_domains else model.check(previous)
         if args.write_predicate and model.complete is not None:
             induction.store(Path(args.write_predicate), model, model.complete[0])
         if trace is not None:
@@ -1044,19 +1234,27 @@ def run(args):
     return int(violated)
 
 
-if __name__ == "__main__":
+def main():
     try:
-        sys.exit(run(argparse.Namespace(**json.loads(sys.argv[1]))))
+        return run(argparse.Namespace(**json.loads(sys.argv[1])))
+    except Grow as growth:
+        extra, = growth.args
+        print(json.dumps(sorted(extra, key=repr)), flush=True)
+        return 6
     except Stopped as err:
         print(json.dumps(dict(verdict="stopped", reason=str(err))), flush=True)
-        sys.exit(4)
+        return 4
     except MemoryError:
         print(json.dumps(dict(verdict="stopped", reason="memory exhausted")), flush=True)
-        sys.exit(4)
+        return 4
     except (Unsupported, ValueError, KeyError, IndexError, TypeError, OSError, RecursionError) as err:
         print(json.dumps(dict(verdict="unsupported", reason=str(err))), flush=True)
-        sys.exit(2)
+        return 2
     except Exception as err:
         # An internal or CUDD failure can never publish a safety verdict.
         print(json.dumps(dict(verdict="error", reason=f"{type(err).__name__}: {err}")), flush=True)
-        sys.exit(3)
+        return 3
+
+
+if __name__ == "__main__":
+    sys.exit(main())

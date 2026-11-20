@@ -33,6 +33,7 @@ worker proves no model. Give it the same build, FILE.tla, configuration,\n\
 
 const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     --strategy symbolic     exact finite safety, symbolic JSON reports (Linux release bundle)\n\
+    --refine-domains        learn reachable members of wide sets in a symbolic search\n\
     --config FILE.cfg       configuration (default FILE.cfg beside the source)\n\
     --compat=tlc            select existing TLC-compatible behavior\n\
     --workers N|auto        worker count; --sequential forces sequential search\n\
