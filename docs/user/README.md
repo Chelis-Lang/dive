@@ -18,6 +18,7 @@ the model.
 | Install dive | [Install](install.md) | crates.io, Linux archives, source |
 | Check a first model | [Getting started](getting-started.md) | Counter example, written inline |
 | Check safety properties | [Safety checking](checking.md) | Exhaustive BFS, safety symmetry |
+| Check a large finite state space | [Finite symbolic safety](symbolic.md) | Decision diagrams, edited invariants and induction from a source checkout |
 | Run with TLC's arguments | [TLC checking entrypoints](checking.md#tlc-checking-entrypoints) | Checking only; `-tool` and other TLC protocols refuse |
 | Match TLC's behavior | [Compatibility](compatibility.md) | `--compat=tlc` and its gaps |
 | Check temporal properties | [Temporal checking](temporal.md) | Bounded pure subset |

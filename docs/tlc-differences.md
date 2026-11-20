@@ -1570,3 +1570,17 @@ arguments, polls budgets and refuses beyond 64 active calls instead of
 exhausting the stack. Escaping recursive functions, primed applications,
 unproved captures, nested recursion and other unsupported contexts refuse by
 name.
+
+## D-030: Finite symbolic safety evidence
+
+The [finite symbolic checker](user/symbolic.md) has its own opt-in proof
+and search entry point. For example, with `--prove-inductive` it can prove
+the receipt-set bound by checking Init and each action. Its report then
+contains the proof outcome. TLC and Core ordinarily enumerate reachable
+states and report exploration counts.
+
+An exhaustive symbolic search reports generated and distinct counts at its
+fixed point. When an invariant fails, it reports an independently validated
+shortest counterexample. The failing state can differ from TLC's first state
+in the same breadth-first layer. The report omits explicit prefix counts.
+Use `dive check` for Core's usual report and checking order.

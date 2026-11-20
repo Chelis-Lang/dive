@@ -5,6 +5,10 @@ are in git history.
 
 ## Unreleased
 
+### Added
+
+- The optional [finite symbolic checker](docs/user/symbolic.md) searches finite safety models using decision diagrams, rechecks invariant edits and verifies inductive predicates against the current source.
+
 ### Fixed
 
 - Core grows the in-memory fingerprint table one shard at a time, packs trace

@@ -70,6 +70,8 @@ models both checkers finish with the same result. The method and per-model
 numbers are in
 [release performance results](docs/developer/release-performance-results.md).
 
+The optional [finite symbolic checker](docs/user/symbolic.md) completed KeyValueStore Large with 594,616,815 distinct states. See the [large-model measurement record](docs/developer/large-models.md) for timings, memory and independent checks.
+
 ## Documentation
 
 Start with [getting started](docs/user/getting-started.md) and the

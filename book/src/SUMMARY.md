@@ -9,6 +9,7 @@
 # Checking
 
 - [Safety checking](checking.md)
+- [Finite symbolic safety](symbolic.md)
 - [Temporal checking](temporal.md)
 - [Simulation](simulation.md)
 - [Iterative deepening (DFID)](dfid.md)
