@@ -186,3 +186,75 @@ fn a_lazy_startup_value_that_draws_at_each_membership_test_refuses_on_every_engi
         );
     }
 }
+
+fn run_at(spec: &Path, cfg: &Path, seed: i64, workers: usize) -> (Value, String) {
+    let report = check_file(&CheckRequest {
+        config: Some(cfg.to_path_buf()),
+        file: spec.to_path_buf(),
+        workers: Some(workers),
+        seed: Some(seed),
+        fp: Some(0),
+        ..CheckRequest::default()
+    })
+    .expect("check runs");
+    let mut j = report.to_json();
+    j["exit"] = Value::from(report.exit_code());
+    (j, report.render_human())
+}
+
+#[test]
+fn effectful_temporal_captures_run_with_one_worker_at_any_requested_width() {
+    // SpanTreeRandom's class: a constant drawn at start-up (D-002). MCKVsnap's
+    // class: declared SYMMETRY, run unreduced (D-005), with an unused
+    // `Print` definition. Both used to refuse above one worker; they now
+    // capture with one worker and give exactly the one-worker result.
+    let dir = std::env::temp_dir().join(format!("dive-effect-width-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("temp dir");
+    let p4 = repo().join("conformance/corpus/probes/specifications/P4SymLive/P4SymLive");
+    let source = std::fs::read_to_string(p4.with_extension("tla")).expect("probe");
+    let unused = dir.join("P4SymLive.tla");
+    std::fs::write(
+        &unused,
+        source.replace("====", "Test(v) == Print(v, FALSE)\n===="),
+    )
+    .expect("write probe");
+    std::fs::copy(p4.with_extension("cfg"), dir.join("P4SymLive.cfg")).expect("cfg");
+    let edges = fixture("StartupEdges");
+    for (spec, seeds) in [(edges, &[0_i64, 7][..]), (unused, &[0][..])] {
+        let cfg = spec.with_extension("cfg");
+        for &seed in seeds {
+            let (one, _) = run_at(&spec, &cfg, seed, 1);
+            assert_eq!(one["engine"], "core", "{one}");
+            assert_eq!(one["verdict"], "success", "{one}");
+            assert_eq!(one["options"]["workers"]["used"], 1);
+            assert!(one["options"]["workers"]["reason"].is_null(), "{one}");
+            for workers in [4, 8] {
+                let (wide, human) = run_at(&spec, &cfg, seed, workers);
+                assert_eq!(observed(&wide), observed(&one), "{workers}: {wide}");
+                assert_eq!(wide["symmetry_liveness"], one["symmetry_liveness"]);
+                let w = &wide["options"]["workers"];
+                assert_eq!(w["requested"], workers);
+                assert_eq!(w["used"], 1);
+                assert_eq!(w["sequential"], false);
+                let reason = w["reason"].as_str().expect("one-worker reason");
+                assert!(reason.contains("with one worker"), "{reason}");
+                let mut lines = human.lines();
+                let header = lines.next().unwrap_or_default();
+                assert!(
+                    header.ends_with(&format!("{workers} worker(s) requested, 1 used")),
+                    "{human}"
+                );
+                assert!(lines.any(|line| line == reason), "{human}");
+            }
+        }
+    }
+    // What one worker refuses still refuses at every width.
+    let edges = fixture("StartupEdges");
+    let violated = edges.with_file_name("StartupEdgesViolated.cfg");
+    for workers in [1, 4] {
+        let (core, _) = run_at(&edges, &violated, 0, workers);
+        assert_eq!(core["verdict"], "unsupported", "{core}");
+        assert!(core["counterexample"].is_null());
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

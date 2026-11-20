@@ -828,6 +828,14 @@ pub fn runtime_names_only(model: &Model) -> bool {
         && !crate::admission::effectful(model)
 }
 
+/// Whether `model`'s effects or runtime names keep its capture off the
+/// concrete pool: a capture runs inline with one worker, in the order the
+/// one-worker search evaluates, or [`refusal`] refuses the parallel one.
+#[must_use]
+pub fn pool_sequential(model: &Model) -> bool {
+    !model.sequential.is_empty() || crate::admission::effectful(model)
+}
+
 /// Why graph capture refuses `model` under `opts` before any search, or
 /// `None`: the admission checks of the shared capture entry points, in their
 /// order, with their messages. `parallel` selects the concrete-pool checks.
@@ -903,7 +911,7 @@ pub fn refusal(model: &Model, opts: &CheckOptions, parallel: bool) -> Option<Str
     {
         return Some(u.feature.clone());
     }
-    if parallel && (!model.sequential.is_empty() || crate::admission::effectful(model)) {
+    if parallel && pool_sequential(model) {
         return Some("concrete pool capture with effects or runtime names".into());
     }
     None

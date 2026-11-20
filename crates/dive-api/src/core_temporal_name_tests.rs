@@ -64,7 +64,29 @@ fn unused_and_configured_effects_do_not_gain_native_admission() {
     ] {
         let (ir, config, options, prepared) = prepare(&format!("{BODY}{suffix}"), extra);
         assert!(!dive_runtime::capture::runtime_names_only(&prepared.model));
-        assert!(static_refusal(&ir, &config, &options, &prepared).is_some());
+        // Effects gain no parallel width: the requested eight workers
+        // capture inline with one, exactly as one requested worker does.
+        let width = capture_width(&options, &prepared);
+        assert_eq!((width.workers, width.pool), (1, false));
+        assert!(
+            width
+                .one_worker
+                .is_some_and(|why| why.contains("one worker"))
+        );
+        let mut one = options.clone();
+        one.workers = 1;
+        assert_eq!(
+            capture_width(&one, &prepared),
+            CaptureWidth {
+                workers: 1,
+                pool: false,
+                one_worker: None
+            }
+        );
+        assert_eq!(
+            static_refusal(&ir, &config, &options, &prepared),
+            static_refusal(&ir, &config, &one, &prepared)
+        );
     }
 }
 
