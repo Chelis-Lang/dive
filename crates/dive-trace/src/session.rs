@@ -209,9 +209,9 @@ impl Session {
     /// Independently checks a native finite sample on a freshly reconstructed
     /// runtime. The document must retain its ordinary `behavior` ending; this
     /// separate operation also checks every sampled constraint, invariant and
-    /// implied finite property. It proves neither exhaustive safety nor liveness.
-    /// Fairness-only specifications are allowed; configured temporal properties
-    /// remain unsupported. No producer metadata selects this operation.
+    /// implied finite property. It proves neither exhaustive safety nor liveness:
+    /// configured temporal properties are not claimed by a valid sample.
+    /// No producer metadata selects this operation.
     ///
     /// # Errors
     /// The same typed resource, interruption and control failures as
@@ -837,12 +837,22 @@ impl Session {
             };
             // VIEW, SYMMETRY and ALIAS identify or render states; none is an
             // obligation of a sampled behavior, which is checked on its
-            // concrete states.
+            // concrete states. A temporal PROPERTY constrains only infinite
+            // behaviors: a sample's `valid` claims its finite obligations
+            // (constraints, invariants, implied initial and action
+            // properties), never a temporal property, which simulation
+            // refutes only with its own lasso or bad-prefix document.
             if scope == FiniteScope::Sample
-                && (!model.implied_temporals.is_empty()
-                    || !matches!(&model.postconditions, Ok(postconditions) if postconditions.is_empty()))
+                && !matches!(&model.postconditions, Ok(postconditions) if postconditions.is_empty())
             {
-                return Ok((refusal("finite sample validation does not discharge temporal PROPERTY or POSTCONDITION obligations".into(), doc.logical_length()), None));
+                return Ok((
+                    refusal(
+                        "finite sample validation does not discharge POSTCONDITION obligations"
+                            .into(),
+                        doc.logical_length(),
+                    ),
+                    None,
+                ));
             }
             let trace = match Trace::decode(&model, doc) {
                 Ok(trace) => trace,
