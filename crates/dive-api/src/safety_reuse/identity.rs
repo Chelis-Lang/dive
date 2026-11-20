@@ -9,7 +9,7 @@ use std::{
 };
 
 #[derive(Debug)]
-pub(super) struct Identity {
+pub(crate) struct Identity {
     config: ModelConfig,
     properties: Vec<String>,
     modules: Vec<Module>,
@@ -28,12 +28,20 @@ enum Source {
     Standard,
 }
 impl Identity {
-    pub(super) fn new(analysis: &Analysis, cfg: &ModelConfig) -> Result<Self, Miss> {
+    pub(crate) fn new(
+        analysis: &Analysis,
+        cfg: &ModelConfig,
+        temporal: bool,
+    ) -> Result<Self, Miss> {
         let mut config = cfg.clone();
-        let properties = std::mem::take(&mut config.invariants)
-            .into_iter()
-            .map(|n| n.text)
-            .collect();
+        let properties = std::mem::take(if temporal {
+            &mut config.properties
+        } else {
+            &mut config.invariants
+        })
+        .into_iter()
+        .map(|n| n.text)
+        .collect();
         let mut allowed = ModelConfig::default();
         allowed.specification.clone_from(&config.specification);
         allowed.init.clone_from(&config.init);
@@ -52,7 +60,7 @@ impl Identity {
                 .any(|c| matches!(c, dive_config::ConstantEntry::Substitution { .. }))
         {
             return Err(miss(
-                "requires a safety specification or INIT/NEXT, literal constant assignments and ordinary invariants",
+                "requires a specification or INIT/NEXT, literal constants and the requested property role",
             ));
         }
         // Count resolved-source identifier spellings across the *entire* closure.
@@ -93,7 +101,7 @@ impl Identity {
         })
     }
 
-    pub(super) fn compatible(&self, other: &Self) -> bool {
+    pub(crate) fn compatible(&self, other: &Self) -> bool {
         self.config == other.config
             && self.modules.len() == other.modules.len()
             && self.modules.iter().zip(&other.modules).all(|(a, b)| {

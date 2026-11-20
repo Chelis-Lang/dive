@@ -1,0 +1,272 @@
+{
+  "machine": {
+    "cpu": "AMD Ryzen AI MAX+ 395",
+    "cpu_affinity": "one Linux logical CPU",
+    "kernel": "7.1.5-100.fc43.x86_64",
+    "rustc": "1.99.0",
+    "cargo_profile": "release without LTO, 16 codegen units"
+  },
+  "examples_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "samples": {
+    "star-3000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 4234,
+      "original_fresh_us": 3411,
+      "edited_recheck_us": [
+        1321,
+        1201,
+        1093
+      ],
+      "edited_bind_us": [
+        847,
+        762,
+        659
+      ],
+      "edited_analysis_us": [
+        378,
+        371,
+        368
+      ],
+      "edited_fresh_us": [
+        2942,
+        2740,
+        2672
+      ],
+      "capture_and_edits_peak_kib": 11940,
+      "fresh_series_peak_kib": 12268
+    },
+    "star-3000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 3001,
+        "generated": 6001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 3441,
+      "original_fresh_us": 3266,
+      "edited_recheck_us": [
+        1545,
+        1391,
+        1291
+      ],
+      "edited_bind_us": [
+        774,
+        737,
+        651
+      ],
+      "edited_analysis_us": [
+        653,
+        581,
+        557
+      ],
+      "edited_fresh_us": [
+        3334,
+        3069,
+        3071
+      ],
+      "capture_and_edits_peak_kib": 12776,
+      "fresh_series_peak_kib": 13320
+    },
+    "star-20000-hold": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 17080,
+      "original_fresh_us": 14384,
+      "edited_recheck_us": [
+        2921,
+        2843,
+        2840
+      ],
+      "edited_bind_us": [
+        693,
+        664,
+        658
+      ],
+      "edited_analysis_us": [
+        2160,
+        2112,
+        2116
+      ],
+      "edited_fresh_us": [
+        12964,
+        12525,
+        12462
+      ],
+      "capture_and_edits_peak_kib": 18108,
+      "fresh_series_peak_kib": 19660
+    },
+    "star-20000-false": {
+      "outcome": {
+        "depth": 2,
+        "distinct": 20001,
+        "generated": 40001,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A",
+        "B"
+      ],
+      "capture_elapsed_us": 16518,
+      "original_fresh_us": 14657,
+      "edited_recheck_us": [
+        2892,
+        2767,
+        2744
+      ],
+      "edited_bind_us": [
+        720,
+        672,
+        667
+      ],
+      "edited_analysis_us": [
+        2080,
+        2021,
+        1993
+      ],
+      "edited_fresh_us": [
+        14548,
+        14375,
+        14056
+      ],
+      "capture_and_edits_peak_kib": 18216,
+      "fresh_series_peak_kib": 20264
+    },
+    "tree-65535-hold": {
+      "outcome": {
+        "depth": 17,
+        "distinct": 131071,
+        "generated": 196607,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 1,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 132949,
+      "original_fresh_us": 123690,
+      "edited_recheck_us": [
+        21478,
+        20930,
+        20720
+      ],
+      "edited_bind_us": [
+        1120,
+        938,
+        801
+      ],
+      "edited_analysis_us": [
+        20244,
+        19896,
+        19836
+      ],
+      "edited_fresh_us": [
+        108191,
+        104837,
+        105035
+      ],
+      "capture_and_edits_peak_kib": 60684,
+      "fresh_series_peak_kib": 65884
+    },
+    "tree-131071-hold": {
+      "outcome": {
+        "depth": 18,
+        "distinct": 262143,
+        "generated": 393215,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 2,
+        "verdict": "success"
+      },
+      "false_properties": [],
+      "capture_elapsed_us": 273896,
+      "original_fresh_us": 265064,
+      "edited_recheck_us": [
+        46326,
+        46095,
+        46194
+      ],
+      "edited_bind_us": [
+        1159,
+        1014,
+        999
+      ],
+      "edited_analysis_us": [
+        45023,
+        44961,
+        45041
+      ],
+      "edited_fresh_us": [
+        255701,
+        244255,
+        252085
+      ],
+      "capture_and_edits_peak_kib": 114092,
+      "fresh_series_peak_kib": 116580
+    },
+    "DieHard": {
+      "outcome": {
+        "depth": 8,
+        "distinct": 16,
+        "generated": 97,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "prefix_checks": 0,
+        "verdict": "liveness-violation"
+      },
+      "false_properties": [
+        "A"
+      ],
+      "capture_elapsed_us": 2128,
+      "original_fresh_us": 1958,
+      "edited_recheck_us": [
+        2101,
+        1810,
+        1624
+      ],
+      "edited_bind_us": [
+        1348,
+        1175,
+        1034
+      ],
+      "edited_analysis_us": [
+        630,
+        544,
+        504
+      ],
+      "edited_fresh_us": [
+        1964,
+        1876,
+        1848
+      ],
+      "capture_and_edits_peak_kib": 12144,
+      "fresh_series_peak_kib": 11944
+    }
+  }
+}

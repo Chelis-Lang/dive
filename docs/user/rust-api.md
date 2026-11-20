@@ -98,6 +98,57 @@ cargo run -p dive-api --release --example recheck_invariants -- \
 For measurements and the reproduction command see [edited-invariant
 benchmarks](../developer/performance.md#edited-invariants).
 
+## Recheck temporal properties
+
+Use `dive_api::temporal_reuse::Program` for a finite single-worker exact
+model with scalar integer or Boolean variables. Bind each revision through
+`Program::load` or `Program::from_reports`. The transition program can be an
+Init/Next pair or a temporal specification with fairness. Configure genuine
+temporal `PROPERTY` obligations. The current API declines separate invariants,
+properties that also bind as safety checks, effects, constraints, overrides,
+views and symmetry. It uses the same module and isolated-property identity
+rules as safety reuse. A changed fairness condition invalidates the graph.
+
+```rust
+use dive_api::temporal_reuse::{Limits, Program};
+use std::path::Path;
+
+fn check_edit(before: &Path, after: &Path, cfg: &Path)
+    -> Result<(), Box<dyn std::error::Error>>
+{
+    let policy = Limits::default();
+    let (graph, original) = Program::load(before, cfg)?.capture(policy)?;
+    let edited = Program::load(after, cfg)?;
+    let current = graph.recheck(&edited, policy)?;
+    println!("original {:?}, current {:?}", original.outcome(), current.outcome());
+    Ok(())
+}
+```
+
+The opaque graph retains the initial states, concrete successor rows including
+duplicates, generating actions and ordinals, implicit stutters, and the actual
+scheduled completed-level boundaries. Each edit rebuilds temporal plans, runs
+all due prefix analyses in order, then checks the complete graph on the
+ordinary Core product/SCC path. The returned `temporal::Report` includes the
+complete independently validated false-property set of the actual reported
+word. `Artifact::original_safety` returns the establishing search and counts.
+
+`Limits` binds the ordinary state and depth limits, completed-level schedule,
+and the separate graph cap on states, edges, generated states and per-source
+successors. A changed policy misses. An early terminal prefix, a source-row
+evaluation route, a graph stop or an unvalidated current word also misses.
+Fall back to fresh `check_file` to get the current ordinary result. This can
+include an independently validated violation on an unfinished prefix. The
+example implements the fallback and emits a JSON record for each revision.
+
+```sh
+cargo run -p dive-api --release --example recheck_temporal -- \
+  before/Model.tla before/Model.cfg after/Model.tla after/Model.cfg
+```
+
+See the [temporal edit measurements](../developer/performance.md#edited-temporal-properties)
+for the default schedule above and below its first prefix threshold.
+
 For pure safety checks, `CheckRequest.store_compact_bytes = Some(0)` with
 `check_file(&request)` reclaims expanded persistent values
 after each completed level. A positive value triggers reclamation when the

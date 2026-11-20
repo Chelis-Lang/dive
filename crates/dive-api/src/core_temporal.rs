@@ -48,7 +48,7 @@ fn refused(feature: impl Into<String>, options: &CheckOptions, ir: &Ir) -> CoreO
 /// Actual privately bound native and reference domains, never a source-name
 /// projection. Prepared is constructed only from IR/config via fresh binding;
 /// it accepts no external bound model, value provider or callable.
-fn fixed_name_domain(prepared: &Prepared) -> bool {
+pub(crate) fn fixed_name_domain(prepared: &Prepared) -> bool {
     let model = &prepared.model;
     let strings = prepared.store.strings();
     let count = model.evaluator.startup_names();

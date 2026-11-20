@@ -1162,3 +1162,38 @@ Pass `--diehard path/to/DieHard.tla` to include the corpus at the examples
 pin. The script creates both star models in a temporary directory. The saved
 run used one pinned Linux CPU on an AMD Ryzen AI MAX+ 395, Rust 1.99.0,
 one Core worker, exact storage, seed/fingerprint zero and no state/depth limit.
+
+## Edited temporal properties
+
+The temporal example captures an exact labelled graph, then binds and analyzes
+edits. The benchmark compares the entire typed result exported by the example,
+including ordinary counters, number of scheduled prefix analyses and every
+field of a reported lasso. These runs use one pinned Linux CPU on an AMD
+Ryzen AI MAX+ 395, Rust 1.99.0, one Core worker and its default completed-level
+schedule. The measurements include current binding, analysis, independent word
+validation when applicable and report construction.
+
+| Edited outcome | Distinct / generated | Prefix checks | Recheck | Fresh | Capture process peak / fresh peak |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Star, both properties hold | 20,001 / 40,001 | 0 | 2.84 ms | 12.53 ms | 17.7 / 19.2 MiB |
+| Star, both false on the reported word | 20,001 / 40,001 | 0 | 2.77 ms | 14.38 ms | 17.8 / 19.8 MiB |
+| Binary tree, both hold | 131,071 / 196,607 | 1 | 20.93 ms | 105.04 ms | 59.3 / 64.3 MiB |
+| Binary tree, both hold | 262,143 / 393,215 | 2 | 46.19 ms | 252.09 ms | 111.4 / 113.8 MiB |
+| DieHard with added temporal obligations | 16 / 97 | 0 | 1.81 ms | 1.88 ms | 11.9 / 11.7 MiB |
+
+Times are medians of three edited revisions in the same process. Each peak RSS
+covers a four-revision process including its original run. The larger tree's
+original capture took 273.90 ms versus 265.06 ms fresh. Its two scheduled
+prefix analyses and final product still run on every edit. Reusing transition
+generation and graph construction reduced the edited wall time by 5.46×.
+The [samples](../../conformance/studies/edited-temporal-recheck.json) include
+the smaller star, all original runs, and separate bind and analysis timings.
+
+```sh
+CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 \
+  cargo build --locked --release -p dive-api --example recheck_temporal
+python3 scripts/bench-edited-temporal.py target/release/examples/recheck_temporal
+```
+
+Add `--diehard path/to/DieHard.tla` to use the pinned examples corpus and
+`--gnu-time /usr/bin/time` on Linux for both process RSS measurements.

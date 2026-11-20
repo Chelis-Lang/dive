@@ -19,6 +19,11 @@ are in git history.
   refutation includes its current independently validated witness. See
   [the Rust API guide](docs/user/rust-api.md#recheck-edited-safety-invariants).
 
+- Rust embedders can also recheck edited temporal properties over a completed
+  scalar Core graph. The checker replays ordinary scheduled prefix analyses,
+  evaluates fairness on the retained labelled transitions and independently
+  validates liveness witnesses. See [temporal property reuse](docs/user/rust-api.md#recheck-temporal-properties).
+
 ### Fixed
 
 - Core grows the in-memory fingerprint table one shard at a time, packs trace

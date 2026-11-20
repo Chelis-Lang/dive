@@ -5,7 +5,7 @@
 //! a false invariant reached within that prefix. A miss requires an ordinary
 //! fresh check for any verdict. See the Rust API guide for the admitted subset.
 
-mod identity;
+pub(crate) mod identity;
 mod rows;
 
 use crate::{AnalyzeOptions, AnalyzeReport, ConfigReport, core_engine};
@@ -47,7 +47,7 @@ impl std::fmt::Display for Miss {
     }
 }
 impl std::error::Error for Miss {}
-fn miss(reason: impl Into<String>) -> Miss {
+pub(crate) fn miss(reason: impl Into<String>) -> Miss {
     Miss(reason.into())
 }
 
@@ -109,38 +109,7 @@ impl Program {
     /// # Errors
     /// Rejected source, unsupported model roles or compilation failures.
     pub fn from_reports(analysis: &AnalyzeReport, config: &ConfigReport) -> Result<Self, Miss> {
-        if !analysis.accepted() {
-            return Err(miss("source analysis failed"));
-        }
-        if !config.accepted() {
-            return Err(miss("configuration rejected"));
-        }
-        let cfg = config
-            .config()
-            .ok_or_else(|| miss("configuration rejected"))?;
-        let analysis = analysis.analysis();
-        let identity = Identity::new(analysis, cfg)?;
-        let ir = Arc::new(dive_ir::lower(analysis).map_err(|e| miss(format!("lowering: {e:?}")))?);
-        if let Some(reason) = core_engine::edit_input_refusal(&ir, cfg) {
-            return Err(miss(reason));
-        }
-        if !dive_model::local_java_class_digests(&ir)
-            .map_err(miss)?
-            .is_empty()
-        {
-            return Err(miss("local Java module override"));
-        }
-        let mut options = dive_runtime::CheckOptions::dive(0);
-        options.store = dive_store::StoreMode::Exact;
-        let prepared = core_engine::prepare(&ir, cfg, &options, false, Opts::default(), false)
-            .map_err(|r| miss(format!("binding or compilation: {:?}", r.verdict)))?;
-        // The binder installs a supported local class by replacing its IR.
-        // Catch even a class that appeared between the identity read and bind.
-        if !Arc::ptr_eq(&ir, &prepared.model.ir) || prepared.start.has_diagnostics() {
-            return Err(miss(
-                "bound model changed IR or produced startup diagnostics",
-            ));
-        }
+        let (identity, cfg, prepared) = bind(analysis, config, false)?;
         let plan = &prepared.plan;
         if plan.vars.is_empty()
             || plan.effects.any
@@ -155,8 +124,8 @@ impl Program {
             return Err(miss("requires a pure, unreduced ordinary invariant plan"));
         }
         Ok(Self {
-            identity: Arc::new(identity),
-            cfg: cfg.clone(),
+            identity,
+            cfg,
             prepared,
         })
     }
@@ -303,6 +272,53 @@ impl Program {
             trace: Box::new(trace),
         })
     }
+}
+
+pub(crate) fn bind(
+    analysis: &AnalyzeReport,
+    config: &ConfigReport,
+    temporal: bool,
+) -> Result<
+    (
+        Arc<Identity>,
+        dive_config::ModelConfig,
+        core_engine::Prepared,
+    ),
+    Miss,
+> {
+    if !analysis.accepted() {
+        return Err(miss("source analysis failed"));
+    }
+    if !config.accepted() {
+        return Err(miss("configuration rejected"));
+    }
+    let cfg = config
+        .config()
+        .ok_or_else(|| miss("configuration rejected"))?;
+    let analysis = analysis.analysis();
+    let identity = Identity::new(analysis, cfg, temporal)?;
+    let ir = Arc::new(dive_ir::lower(analysis).map_err(|e| miss(format!("lowering: {e:?}")))?);
+    if let Some(reason) = core_engine::edit_input_refusal(&ir, cfg) {
+        return Err(miss(reason));
+    }
+    if !dive_model::local_java_class_digests(&ir)
+        .map_err(miss)?
+        .is_empty()
+    {
+        return Err(miss("local Java module override"));
+    }
+    let mut options = dive_runtime::CheckOptions::dive(0);
+    options.store = dive_store::StoreMode::Exact;
+    let prepared = core_engine::prepare(&ir, cfg, &options, false, Opts::default(), temporal)
+        .map_err(|r| miss(format!("binding or compilation: {:?}", r.verdict)))?;
+    // The binder installs a supported local class by replacing its IR.
+    // Catch even a class that appeared between the identity read and bind.
+    if !Arc::ptr_eq(&ir, &prepared.model.ir) || prepared.start.has_diagnostics() {
+        return Err(miss(
+            "bound model changed IR or produced startup diagnostics",
+        ));
+    }
+    Ok((Arc::new(identity), cfg.clone(), prepared))
 }
 
 /// Private, non-deserializable evidence from this running Core build.
