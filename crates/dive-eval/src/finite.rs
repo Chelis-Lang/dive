@@ -23,7 +23,43 @@ impl Evaluator {
         args: &[Arg],
         work: &mut usize,
     ) -> crate::Result<Option<(ExprId, Vec<(ExprId, Scope)>)>> {
-        let Some((sequence, bodies)) = self.selectseq_projection(scope, operator, args, work)?
+        self.unary_predicate_call(scope, operator, args, work, false)
+    }
+
+    /// Projects the collection and unary callback bodies of `SelectSeq` or
+    /// `Quantify` for temporal predicate analysis. The caller checks the
+    /// returned bodies in their captured lexical scopes.
+    ///
+    /// # Errors
+    /// Returns an error if the binding is opaque or analysis exhausts its budget.
+    #[allow(
+        clippy::type_complexity,
+        reason = "collection and independently scoped callback bodies"
+    )]
+    pub fn scope_collection_predicate(
+        &self,
+        scope: &Scope,
+        operator: &OpRef,
+        args: &[Arg],
+        work: &mut usize,
+    ) -> crate::Result<Option<(ExprId, Vec<(ExprId, Scope)>)>> {
+        self.unary_predicate_call(scope, operator, args, work, true)
+    }
+
+    #[allow(
+        clippy::type_complexity,
+        reason = "same scoped source projection as public wrappers"
+    )]
+    fn unary_predicate_call(
+        &self,
+        scope: &Scope,
+        operator: &OpRef,
+        args: &[Arg],
+        work: &mut usize,
+        quantify: bool,
+    ) -> crate::Result<Option<(ExprId, Vec<(ExprId, Scope)>)>> {
+        let Some((sequence, bodies)) =
+            self.selectseq_projection(scope, operator, args, work, quantify)?
         else {
             return Ok(None);
         };
@@ -56,6 +92,7 @@ impl Evaluator {
         operator: &OpRef,
         args: &[Arg],
         work: &mut usize,
+        quantify: bool,
     ) -> crate::Result<Option<(ExprId, Vec<(ExprId, Scope)>)>> {
         self.validate_scope(scope)?;
         let standard = match operator {
@@ -69,14 +106,12 @@ impl Evaluator {
             }
             _ => None,
         };
-        if standard != Some(StdOp::SequencesSelectSeq) {
+        let Some(standard) = standard.filter(|s| {
+            *s == StdOp::SequencesSelectSeq || (quantify && *s == StdOp::FiniteSetsExtQuantify)
+        }) else {
             return Ok(None);
-        }
-        if self
-            .core
-            .std_redirects
-            .contains_key(&StdOp::SequencesSelectSeq)
-        {
+        };
+        if self.core.std_redirects.contains_key(&standard) {
             return Err(EvalError::unsupported(
                 "SelectSeq configured standard target",
             ));
@@ -1074,7 +1109,7 @@ impl Guard<'_> {
             if standard == Some(StdOp::SequencesSelectSeq) {
                 let ceiling = self.limit.saturating_mul(64).min(100_000);
                 let mut remaining = ceiling.saturating_sub(self.visits);
-                let projected = ev.selectseq_projection(scope, &op, args, &mut remaining);
+                let projected = ev.selectseq_projection(scope, &op, args, &mut remaining, false);
                 self.visits = ceiling - remaining;
                 let Some((sequence, bodies)) = projected? else {
                     return Err(EvalError::unsupported("SelectSeq nested target"));

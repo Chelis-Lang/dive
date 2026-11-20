@@ -7,6 +7,10 @@ are in git history.
 
 ### Added
 
+- Temporal predicates can count a filtered set with `Quantify`, sum a function
+  over a set, and inspect finite next-state domains in nonrecursive binders.
+  See [temporal checking](docs/user/temporal.md).
+
 - The Linux release archives include `dive check --strategy symbolic` for
   finite safety checks, validated witnesses and independently verified predicates.
 

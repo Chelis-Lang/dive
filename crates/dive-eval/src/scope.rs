@@ -229,7 +229,9 @@ impl Evaluator {
         };
         if !matches!(
             native,
-            StdOp::SequencesLen
+            StdOp::IntegersPlus
+                | StdOp::NaturalsPlus
+                | StdOp::SequencesLen
                 | StdOp::SequencesHead
                 | StdOp::SequencesAppend
                 | StdOp::FiniteSetsCardinality
