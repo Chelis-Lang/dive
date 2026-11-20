@@ -1454,6 +1454,139 @@
         }
       ],
       "purpose": "Correctness controls on the c7i.4xlarge build host. Use the separate isolated prefix measurements for performance comparisons."
+    },
+    "complete_filtered_one_value": {
+      "platform": "Isolated EC2 r7i.16xlarge, same instance type and 32 physical cores as the separate paired resident Core/TLC one-value host. 24 GiB memory cgroup with swap disabled, root gp3 EBS.",
+      "command": "dive check SlateDBWAL.tla --config OneValue.cfg --library-path modules --workers 32 --compat=tlc --fp 0 --seed 0 --partitioned-fingerprints --seen-disk-entries 49000000000 --seen-directory scratch --time-limit 10800s --max-memory 20g --output json",
+      "hashes": {
+        "seen-filter": "d9f3e66ca1602956c8ab668ba837bd1f9e799e850da0b2e38c83f357101f67b2",
+        "SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+        "OneValue.cfg": "a38c2cd3b7711bfc8dfdec7c0d1900266a66e7ede85cff1ad4c34b5eeb9f6094"
+      },
+      "stage": "Same physical instance and layout as complete_unfiltered_one_value, after adding the bounded disk page filter. Includes closing checksum and minimum-gap audit.",
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 126,
+        "distinct": 242213642,
+        "generated": 1068416158,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 32,
+        "sequential": false,
+        "used": 32
+      },
+      "seconds": 1431.8,
+      "rss_kib": 4258136,
+      "cgroup_peak_bytes": 6112854016,
+      "starting_cgroup_bytes": 1785856,
+      "seen": {
+        "admitted_keys": 242213642,
+        "after_cleanup": {
+          "cleanup_completed": true,
+          "expected_disk_bytes": 0,
+          "physical_entries": 242213642,
+          "poisoned": false,
+          "resident_key_collection_bytes": 0
+        },
+        "before_cleanup": {
+          "cleanup_completed": false,
+          "expected_disk_bytes": 1935671296,
+          "physical_entries": 242213642,
+          "poisoned": false,
+          "resident_key_collection_bytes": 52387840
+        },
+        "checkpoint_import_supported": false,
+        "checkpoint_key_reconstitution": false,
+        "crash_durable": false,
+        "deciding_event_before_failure": null,
+        "first_failure": null,
+        "mode": "fallible-disk",
+        "native_fingerprint_min_gap": 127,
+        "replay": null,
+        "scope": "seen-key/offset collections only; supplied keys, state values, frontiers, predecessors, candidates, traces, graphs, OS page cache and native archives are outside these bounds"
+      },
+      "root_volume_observation": {
+        "read_operations": 296,
+        "sectors_read": 25552,
+        "write_operations": 25512,
+        "sectors_written": 11636104,
+        "sector_bytes": 512,
+        "scope": "Whole root device delta around the process and close. Page-cache hits do not count as device reads. Other OS writes share the device."
+      }
     }
+  },
+  "second_writer_restart": {
+    "method": "Sequential native measurements on an exclusive c7i.4xlarge, 8 physical cores 0-7, Xeon Platinum 8488C, Linux in us-east-1a, zero swap. GNU time process wall and peak RSS. No discovery cap on two writers. Original author source, Values={v1,v2}, symmetry, all six safety invariants and original action definitions.",
+    "inputs": "Replace MaxWriterRestarts = 1 with 2 for both configurations. Only TwoTwoRestarts additionally changes Writers from {w1,w2,w3} to {w1,w2}.",
+    "hashes": {
+      "row-spans": "a883483bd64f0ac4adbd18959b7813a108fb4ff593f95de41c361cf2ff4cae35",
+      "SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+      "SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+      "TwoTwoRestarts.cfg": "f5a5dabf8c3bd4bb091f0db11922260b494760ef8324aacae78c657281cf4f16",
+      "ThreeTwoRestarts.cfg": "d1630dcd225bfecfe11448c9dcb854cdd559a40374537ef1ffaf05ebd6e261db"
+    },
+    "commands": {
+      "core": "dive check SlateDBWAL.tla --config CFG --library-path modules --workers 8 --compat=tlc --fp 0 --seed 0 --max-memory 16g --time-limit 2400s --output json; ThreeTwoRestarts adds --max-states 30000000",
+      "tlc": "Pinned TLC and JRE from tools; -Xmx10g -XX:+UseParallelGC -XX:ActiveProcessorCount=8, community modules plus dependencies, -workers 8 -fp 0 -seed 0 -metadir SCRATCH -config TwoTwoRestarts.cfg SlateDBWAL.tla; external limit 2450 s."
+    },
+    "rows": [
+      {
+        "trial": "TwoTwoRestarts-core",
+        "verdict": "success",
+        "exit_code": 0,
+        "seconds": 396.33,
+        "rss_kib": 1727740,
+        "statistics": {
+          "depth": 114,
+          "distinct": 98416351,
+          "generated": 398235951,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      {
+        "trial": "TwoTwoRestarts-tlc",
+        "verdict": "success",
+        "exit_code": 0,
+        "seconds": 804.47,
+        "rss_kib": 5266384,
+        "statistics": {
+          "generated": 398235951,
+          "distinct": 98416351,
+          "depth": 114,
+          "left_on_queue": 0
+        }
+      },
+      {
+        "trial": "ThreeTwoRestarts-core",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "seconds": 135.87,
+        "rss_kib": 1465940,
+        "statistics": {
+          "depth": 48,
+          "distinct": 30000000,
+          "exhaustive": false,
+          "generated": 102653606,
+          "initial_generated": 1,
+          "left_on_queue": 6184868,
+          "reported_by_tlc": false
+        },
+        "stop": {
+          "limit": 30000000,
+          "observed": 30000001,
+          "phase": "safety-search",
+          "resource": "states",
+          "unit": "states"
+        }
+      }
+    ]
   }
 }
