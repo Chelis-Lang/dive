@@ -45,6 +45,17 @@ are in git history.
   evaluates fairness on the retained labelled transitions and independently
   validates liveness witnesses. See [temporal property reuse](docs/user/rust-api.md#recheck-temporal-properties).
 
+### Removed
+
+- JSON check reports no longer include the always-zero construction-history
+  metrics `core.metrics.store.memory.construction_history_view_bytes` and
+  `core.metrics.candidate_storage.{origin_index_bytes, peak_origin_index_bytes, origin_index_bytes_limit_per_worker}`.
+  Readers that required them should treat them as absent. See
+  [reports](docs/user/reports-and-errors.md#json-reports).
+- Core checkpoint archives move to format `DIVECC02`. A `DIVECC01` archive is
+  refused with `DIVE-S0400` by name; recreate it with the current executable.
+  Distributed workers must run the same dive build as the coordinator.
+
 ### Fixed
 
 - Core grows the in-memory fingerprint table one shard at a time, packs trace

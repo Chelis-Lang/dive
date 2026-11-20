@@ -229,7 +229,7 @@ fn foreign_archives_are_rejected_by_format_and_damage_by_framing() {
         path: dir.join("damaged.cp"),
         ..resume
     };
-    dive_runtime::checkpoint::write_payload(&resume.path, b"DIVECC01", b"{}")
+    dive_runtime::checkpoint::write_payload(&resume.path, b"DIVECC02", b"{}")
         .expect("framed Core archive");
     let mut bytes = std::fs::read(&resume.path).expect("archive bytes");
     let last = bytes.len() - 1;
@@ -239,6 +239,18 @@ fn foreign_archives_are_rejected_by_format_and_damage_by_framing() {
         dive_api::check_file_checkpoint(&req, &resume),
         Err(dive_api::ApiError::Rejected { message })
             if message.starts_with("DIVE-S0400") && message.contains("checksum")
+    ));
+    let resume = checkpoint::Request {
+        path: dir.join("legacy.cp"),
+        ..resume
+    };
+    dive_runtime::checkpoint::write_payload(&resume.path, b"DIVECC01", b"{}")
+        .expect("framed legacy Core archive");
+    assert!(matches!(
+        dive_api::check_file_checkpoint(&req, &resume),
+        Err(dive_api::ApiError::Rejected { message })
+            if message.starts_with("DIVE-S0400: archive format DIVECC01")
+                && message.contains("legacy construction history")
     ));
     std::fs::remove_dir_all(dir).expect("cleanup");
 }

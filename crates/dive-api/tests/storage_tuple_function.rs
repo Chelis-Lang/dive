@@ -207,7 +207,7 @@ fn verify(name: &str, compat: bool, stores: &[Store], widths: &[usize], schedule
                     assert_eq!(paused["verdict"], "resource-limit");
                     assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
                     assert_eq!(paused["options"]["workers"]["used"], 1);
-                    assert_eq!(&std::fs::read(&cp.path).expect("archive")[..8], b"DIVECC01");
+                    assert_eq!(&std::fs::read(&cp.path).expect("archive")[..8], b"DIVECC02");
                     let resumed = dive_api::check_file_checkpoint(
                         &req,
                         &checkpoint::Request {

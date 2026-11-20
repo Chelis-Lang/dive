@@ -1876,11 +1876,8 @@ pub(crate) fn metrics_json(
         "discarded_before_intern": m.discarded_before_intern,
         "candidate_storage": {
             "memory_bytes_per_worker": m.storage.candidates.memory_bytes_per_worker,
-            "scope": "encoded occurrence/DAG queues and separately reported bounded codec origin index; active Arena roots, per-record codec scratch, names, other caches, accepted Store and total RSS excluded",
+            "scope": "encoded occurrence/DAG queues; active Arena roots, per-record codec scratch, names, other caches, accepted Store and total RSS excluded",
             "max_record_bytes": dive_store::spill::MAX_RECORD_BYTES,
-            "origin_index_bytes_limit_per_worker": dive_core::candidate_codec::MAX_ORIGIN_INDEX_BYTES,
-            "peak_origin_index_bytes": m.storage.candidates.peak_origin_index_bytes,
-            "origin_index_bytes": m.storage.candidates.origin_index_bytes,
             "identity_close_entries_limit": dive_core::heap::MAX_LOCAL_CLOSE_ENTRIES,
             "identity_close_scratch_bytes_limit": dive_core::heap::MAX_LOCAL_CLOSE_SCRATCH_BYTES,
             "peak_retained_bytes": m.storage.candidates.peak_retained_bytes,
@@ -1916,8 +1913,6 @@ pub(crate) fn metrics_json(
                 "retired_table_bytes": m.store_memory.retired_table_bytes,
                 "retired_tables": m.store_memory.retired_tables,
                 "retirement_tracking_bytes": m.store_memory.retirement_tracking_bytes,
-                // Retired construction history (#791): kept at 0 for the report schema.
-                "construction_history_view_bytes": 0,
                 "rehash_scratch_bytes_cumulative": m.store_memory.rehash_scratch_bytes,
                 "largest_individual_rehash_scratch_bytes": m.store_memory.largest_rehash_scratch_bytes,
                 "strings": {

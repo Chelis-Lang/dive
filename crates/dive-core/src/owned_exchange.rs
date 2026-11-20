@@ -1,7 +1,7 @@
 //! Bounded owned DAG exchange for identity-checked trusted worker sessions.
 //!
 //! Persistent coordinates never cross this boundary. A reply may reference only
-//! nodes/origins explicitly issued by its matching request. The transport must
+//! nodes explicitly issued by its matching request. The transport must
 //! authenticate the complete request/reply and bind compiled startup identity.
 
 use std::collections::HashMap;
@@ -11,9 +11,11 @@ use crate::handle::Tag;
 use crate::node::flags;
 use crate::{Error, Handle, Heap, Store};
 
-const MAGIC: &[u8; 8] = b"DIVEOW01";
-const HEADER: usize = 33;
-const NODE: usize = 51;
+const MAGIC: &[u8; 8] = b"DIVEOW02";
+/// The previous format, which carried retired construction-origin fields.
+const LEGACY_MAGIC: &[u8; 8] = b"DIVEOW01";
+const HEADER: usize = 25;
+const NODE: usize = 42;
 const DEPTH: usize = 128;
 
 fn invalid(message: impl std::fmt::Display) -> Error {
@@ -22,9 +24,8 @@ fn invalid(message: impl std::fmt::Display) -> Error {
 
 /// One request's native input-node authority.
 ///
-/// The packet keeps the retired construction-origin count and per-node origin
-/// fields at zero (format DIVEOW01); a nonzero one or a history-flagged node
-/// is refused ("legacy construction history").
+/// Packets use format `DIVEOW02`, which has no construction-origin fields; a
+/// `DIVEOW01` packet is refused by name.
 ///
 /// This owner is process-local and is never serialized. Wire references are
 /// indexes into the matching authenticated request, not raw handles or tokens.
@@ -54,13 +55,9 @@ impl Startup {
         let mut by_node = HashMap::new();
         by_node.try_reserve(nodes.len()).map_err(invalid)?;
         for (index, &handle) in nodes.iter().enumerate() {
-            let node = heap
-                .store()
+            heap.store()
                 .retained_view(handle)
                 .ok_or_else(|| invalid("unissued startup node"))?;
-            if node.flags & flags::HISTORY != 0 {
-                return Err(invalid("legacy construction history"));
-            }
             by_node.insert(handle, index as u64);
         }
         Ok(Self(Arc::new(Exchange {
@@ -289,7 +286,6 @@ impl<'a> Writer<'a> {
         self.put(MAGIC)?;
         self.byte(u8::from(self.input.is_some()) | (u8::from(self.startup.is_some()) * 2))?;
         self.word(0)?;
-        self.word(0)?;
         self.word(roots.len() as u64)?;
         let mut refs = Vec::new();
         refs.try_reserve_exact(roots.len()).map_err(invalid)?;
@@ -299,7 +295,6 @@ impl<'a> Writer<'a> {
         for reference in refs {
             self.reference(reference)?;
         }
-        // Bytes 17..25 keep the retired construction-origin count at zero.
         self.bytes[9..17].copy_from_slice(&(self.nodes.len() as u64).to_le_bytes());
         Ok(std::mem::take(&mut self.bytes))
     }
@@ -332,9 +327,6 @@ impl<'a> Writer<'a> {
             .ok_or_else(|| invalid("unissued source"))?;
         if view.is_lazy() || view.kind.is_lazy() {
             return Err(Error::unsupported("distributed deferred value provider"));
-        }
-        if view.flags & flags::HISTORY != 0 {
-            return Err(invalid("legacy construction history"));
         }
         let (kind, fl, lo, hash, sum) = (
             view.kind,
@@ -375,9 +367,6 @@ impl<'a> Writer<'a> {
         self.word(lo.cast_unsigned())?;
         self.word(hash)?;
         self.word(sum)?;
-        // The retired construction-origin tag and index, always zero.
-        self.byte(0)?;
-        self.word(0)?;
         self.word(refs.len() as u64)?;
         for reference in refs {
             self.reference(reference)?;
@@ -541,17 +530,19 @@ fn decode(
         return Err(invalid("packet size"));
     }
     let mut read = Reader { bytes, at: 0 };
-    if read.take(8)? != MAGIC
+    let magic = read.take(8)?;
+    if magic == LEGACY_MAGIC {
+        return Err(invalid(
+            "format DIVEOW01 (legacy construction history) is no longer read; use the same dive build on every process",
+        ));
+    }
+    if magic != MAGIC
         || read.byte() != Ok(u8::from(input.is_some()) | (u8::from(startup.is_some()) * 2))
     {
         return Err(invalid("version/direction"));
     }
     let count = usize::try_from(read.word()?).map_err(invalid)?;
-    let origin_count = usize::try_from(read.word()?).map_err(invalid)?;
     let roots = usize::try_from(read.word()?).map_err(invalid)?;
-    if origin_count != 0 {
-        return Err(invalid("legacy construction history"));
-    }
     if count > limit / NODE
         || roots > limit / size_of::<Handle>()
         || count
@@ -572,9 +563,6 @@ fn decode(
         let lo = read.word()?.cast_signed();
         let hash = read.word()?;
         let sum = read.word()?;
-        if read.byte()? != 0 || read.word()? != 0 {
-            return Err(invalid("legacy construction history"));
-        }
         let len = read.count(1)?;
         if len > limit / size_of::<Handle>() {
             return Err(invalid("child workspace limit"));
@@ -587,7 +575,7 @@ fn decode(
             }
             children.push(read.reference(heap, &nodes, input, startup)?);
         }
-        crate::candidate_codec::shape(kind, fl, lo, 0, &children)?;
+        crate::candidate_codec::shape(kind, fl, lo, &children)?;
         let h = heap
             .store
             .intern(&mut heap.cache, kind, fl, lo, hash, sum, &children);
@@ -667,7 +655,7 @@ mod tests {
                 let fresh = worker
                     .canonical_test_set(&[two, one, two])
                     .expect("independent constructor");
-                let fresh = worker.intern_exact(fresh).expect("fresh history");
+                let fresh = worker.intern_exact(fresh).expect("fresh constructor");
                 let out = worker.tuple_literal(&[roots[0], fresh, row[0]]);
                 let out = worker.intern_exact(out).expect("reply root");
                 let bytes = remote
@@ -685,32 +673,27 @@ mod tests {
     }
 
     #[test]
-    fn malformed_names_origins_references_limits_and_wrong_owner_refuse() {
+    fn malformed_names_legacy_format_references_limits_and_wrong_owner_refuse() {
         let mut sender = heap(false, true);
         let one = Handle::int(1).expect("one");
         let tuple = sender.tuple_literal(&[one, Handle::string(1)]);
         let tuple = sender.intern_exact(tuple).expect("tuple");
         let (bytes, authority) =
             Exchange::request(&sender, &[tuple], 1 << 20, &|| true).expect("request");
-        // The retired origin count (17) and the first node's origin tag (59)
-        // are zero; a legacy nonzero value is refused by name.
-        assert_eq!((bytes[17], bytes[59]), (0, 0));
-        for at in [17, 59] {
-            let mut legacy = bytes.clone();
-            legacy[at] = 1;
-            let error =
-                Exchange::receive_request(&mut heap(false, true), &legacy, 1 << 20, &|| true)
-                    .err()
-                    .expect("legacy origin");
-            assert!(
-                error.message().contains("legacy construction history"),
-                "byte {at}: {}",
-                error.message()
-            );
-        }
+        assert_eq!(&bytes[..8], b"DIVEOW02");
+        let mut legacy = bytes.clone();
+        legacy[..8].copy_from_slice(LEGACY_MAGIC);
+        let error = Exchange::receive_request(&mut heap(false, true), &legacy, 1 << 20, &|| true)
+            .err()
+            .expect("legacy format");
+        assert!(
+            error.message().contains("format DIVEOW01"),
+            "{}",
+            error.message()
+        );
         assert!(Exchange::request(&sender, &[tuple], 16, &|| true).is_err());
         assert!(Exchange::request(&sender, &[tuple], 1 << 20, &|| false).is_err());
-        for at in [0, 9, 17, 25, 34, 59, 60] {
+        for at in [0, 9, 17, 25, 26, 51, 52] {
             let mut malformed = bytes.clone();
             malformed[at] = 255;
             assert!(

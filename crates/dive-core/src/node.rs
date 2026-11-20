@@ -95,12 +95,10 @@ pub mod flags {
     pub const NESTED_VIEW: u8 = 16;
     /// The view bits: a node carrying one is a lazy view, so it is
     /// interned apart from identities (`03-value-model.md` §11.3).
-    /// Retired: the construction-history bit of older Store images, worker
-    /// exchanges and candidate records (ADR0131). Nothing sets it; every
-    /// decoder refuses it by name ("legacy construction history").
-    pub const HISTORY: u8 = 32;
-    /// All observable representation bits.
-    pub const VIEW: u8 = UNNORM | RECORD | TUPLE | NESTED_VIEW | HISTORY;
+    /// All observable representation bits. Bit 32 is unassigned: it was the
+    /// retired construction-history bit (ADR 0131), and decoders refuse it as
+    /// an unknown flag.
+    pub const VIEW: u8 = UNNORM | RECORD | TUPLE | NESTED_VIEW;
     /// A cached proof, set only by builders that checked every child: the
     /// node is an eager `Set`, `IntFcn` or `Fcn` and every descendant is
     /// materialized (`compare::materialized`). Its absence proves nothing;

@@ -77,3 +77,8 @@ controls compare both profiles and stores at actual widths 1/4/8. High-fanout
 controls additionally verify flat shared compound Store growth during emission,
 encoded queue capacity bounded independently of fanout, and Store growth only
 when ordered consumption imports payloads.
+
+Amendment (#1038): canonical candidates need no constructor-origin index, so the
+index and its report fields (`origin_index_bytes`, `peak_origin_index_bytes`,
+`origin_index_bytes_limit_per_worker`) are removed. Records use format
+`DIVECD02` without the per-node origin word; `DIVECD01` is refused by name.
