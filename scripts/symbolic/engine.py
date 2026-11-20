@@ -3,6 +3,7 @@
 
 import argparse
 from collections import Counter
+from contextlib import suppress
 from dataclasses import dataclass
 import errno
 import gc
@@ -14,6 +15,7 @@ from pathlib import Path
 import resource
 import subprocess
 import sys
+import tempfile
 import time
 
 try:
@@ -31,6 +33,10 @@ class Unsupported(ValueError):
 
 class Grow(Exception):
     """The current finite coordinate system is missing reachable set members."""
+
+
+class ChangedRelation(Exception):
+    """Rebind the edited model in a fresh manager using its surviving coordinates."""
 
 
 class Stopped(RuntimeError):
@@ -1028,6 +1034,33 @@ class SourceModel(FiniteRelation):
             result = self.b.let(rename, cudd.and_exists(result, relation, old))
         return result
 
+    def recheck_refined(self, previous):
+        if previous is None:
+            return self.refined_reachability()
+        if (not hasattr(previous, "refined_result") or not self.same_relation(previous)
+                or self.whole_domains != previous.whole_domains
+                or self.missing != previous.missing):
+            # Release the old closure before exploring a different relation.
+            raise ChangedRelation
+
+        reached, depth, distinct, generated = previous.refined_result
+        proved = {prop for _, prop in previous.properties}
+        added = [prop for _, prop in self.properties if prop not in proved]
+        if added:
+            # Excluded Init and emissions are subject to invariants, even though
+            # they do not enter the reached set or contribute outgoing actions.
+            bad = ~self.conjunction(added)
+            if ((self.initial | reached) & bad != self.b.false
+                    or any(self.image(reached, guard, parts) & bad != self.b.false
+                           for guard, parts in self.actions)):
+                return self.check()
+        if self.doc["check_deadlock"] and not previous.doc["check_deadlock"]:
+            enabled = self.any(guard for guard, _ in self.actions)
+            if reached & ~enabled != self.b.false:
+                return self.check()
+        self.refined_result = previous.refined_result
+        return self.success(depth, reached, distinct, generated, True), None
+
     def refined_reachability(self):
         """Check all emissions, retaining just admitted states during the first pass."""
         reached = frontier = self.initial & self.constraint
@@ -1050,7 +1083,9 @@ class SourceModel(FiniteRelation):
             frontier = successors & ~reached
             reached |= frontier
         distinct, generated = self.counts(reached, self.symmetry, self.initial_generated)
-        return self.success(max(depth, 1), reached, distinct, generated, False), None
+        depth = max(depth, 1)
+        self.refined_result = reached, depth, distinct, generated
+        return self.success(depth, reached, distinct, generated, False), None
 
     def check(self, previous=None):
         self.complete = None
@@ -1102,28 +1137,80 @@ class SourceModel(FiniteRelation):
         )
 
 
-def refine_one(args, module, config, hints, trace):
-    """Freshly bind and search one revision. Hints only select initial coordinates."""
+class RefinementWorker:
+    """One request at a time; only a completed successful pass keeps its manager."""
+
+    def __init__(self, args):
+        flags = ["-Es"] if sys.flags.ignore_environment else []
+        options = {**vars(args), "recheck": [], "trace": None, "domain_pass": True}
+        self.command = [sys.executable, *flags, __file__, json.dumps(options)]
+        self.child = None
+
+    def close(self):
+        if self.child is not None:
+            # EOF releases any saved proof. The global supervisor owns cancellation.
+            with suppress(BrokenPipeError):
+                self.child.stdin.close()
+            self.child.stdout.close()
+            status = self.child.wait()
+            size = self.errors.seek(0, 2)
+            self.errors.seek(max(size - 500, 0))
+            diagnostic = self.errors.read().decode(errors="replace").strip()
+            self.errors.close()
+            self.child = None
+            return status, diagnostic
+        return 0, ""
+
+    def request(self, module, config, learned):
+        if self.child is None:
+            self.errors = tempfile.TemporaryFile()
+            try:
+                self.child = subprocess.Popen(self.command, stdin=subprocess.PIPE,
+                                              stdout=subprocess.PIPE, stderr=self.errors, text=True)
+            except BaseException:
+                self.errors.close()
+                raise
+        with suppress(BrokenPipeError):
+            self.child.stdin.write(json.dumps([module, config, list(learned.values())]) + "\n")
+            self.child.stdin.flush()
+        line = self.child.stdout.readline()
+        reply = None
+        if line.endswith("\n"):
+            with suppress(json.JSONDecodeError):
+                reply = json.loads(line)
+        if isinstance(reply, dict) and reply.get("verdict") == "success" and isinstance(reply.get("domain_members"), list):
+            return 0, reply, ""
+        # Growth, relation changes, validated failures and errors terminate the pass.
+        status, diagnostic = self.close()
+        return status, reply, diagnostic
+
+
+def refine_one(args, worker, module, config, hints, trace, last):
     started = time.monotonic()
-    flags = ["-Es"] if sys.flags.ignore_environment else []
-    options = {**vars(args), "module": module, "config": config, "recheck": [], "domain_pass": True, "trace": trace}
-    command = [sys.executable, *flags, __file__, json.dumps(options)]
     learned = hints.copy()
     discarded_hints = False
-    # Growth must add a member and is capped at 512. A warm start can reset once.
     for attempt in itertools.count(1):
-        child = subprocess.run(command, input=json.dumps(list(learned.values())),
-                               capture_output=True, text=True)
-        if hints and not discarded_hints and (child.returncode < 0 or child.returncode in (2, 4)):
+        resident = worker.child is not None
+        status, row, diagnostic = worker.request(module, config, learned)
+        if status == 0 and last:
+            status, diagnostic = worker.close()
+            if status != 0:
+                row = None
+        if status == 7 and resident:
+            # Retry the edited relation with hints but without the old manager.
+            continue
+        native_oom = status == 1 and args.max_memory and "out of memory" in diagnostic.lower()
+        if (hints or resident) and not discarded_hints and (status < 0 or status in (2, 4) or native_oom):
             learned.clear()
             discarded_hints = True
             continue
-        if child.returncode < 0:
-            diagnostic = child.stderr.strip()[-500:]
-            raise Stopped(f"refinement worker terminated by signal {-child.returncode}: {diagnostic}")
-        if child.returncode == 6:
+        if status < 0:
+            raise Stopped(f"refinement worker terminated by signal {-status}: {diagnostic}")
+        if status == 6:
+            if not isinstance(row, list) or not row:
+                raise RuntimeError("invalid domain growth response from refinement worker")
             added = False
-            for item in json.loads(child.stdout):
+            for item in row:
                 key = json.dumps(item)
                 if key not in learned:
                     learned[key] = item
@@ -1135,13 +1222,24 @@ def refine_one(args, module, config, hints, trace):
                 continue
             require(len(learned) <= 512, "refined set domains exceed 512 state bits")
             continue
-        if child.returncode == 1:
-            if args.max_memory and "out of memory" in child.stderr.lower():
+        if status == 1:
+            if native_oom:
                 raise Stopped("refinement worker exhausted memory during native allocation")
             raise RuntimeError("native refinement worker exited before returning a check result")
-        if not child.stdout.strip():
-            raise RuntimeError(f"refinement worker ended without a result (exit {child.returncode})")
-        row = json.loads(child.stdout)
+        if status == 4 and not isinstance(row, dict):
+            raise Stopped("refinement worker stopped before reporting its result")
+        if status not in (0, 2, 3, 4, 11) or not isinstance(row, dict):
+            raise RuntimeError(f"refinement worker ended without a result (exit {status})")
+        if status == 0 and (row.get("verdict") != "success" or not isinstance(row.get("domain_members"), list)):
+            raise RuntimeError("refinement worker ended without a completed closure")
+        if status == 11:
+            if row.get("trace_validated") is not True or not isinstance(row.get("trace"), dict):
+                raise RuntimeError("refinement worker ended without a validated witness")
+            # Publish only after the validating worker exited successfully. A partial
+            # response or failed warm attempt must never overwrite a user's trace.
+            if trace:
+                induction.write_atomic(Path(trace), (json.dumps(row.pop("trace")) + "\n").encode())
+                row["trace_file"] = trace
         selected = row.pop("domain_members", None)
         current = {} if selected is None else {json.dumps(item): item for item in selected}
         row.update(module=module, config=config, refinement_rounds=attempt,
@@ -1149,7 +1247,7 @@ def refine_one(args, module, config, hints, trace):
                    initial_hint_members=0 if discarded_hints else len(hints.keys() & current.keys()),
                    seconds=round(time.monotonic() - started, 6))
         print(json.dumps(row), flush=True)
-        return (1 if child.returncode == 11 else child.returncode), current
+        return (1 if status == 11 else status), current
 
 
 def refined_search(args):
@@ -1157,12 +1255,18 @@ def refined_search(args):
             "set-domain refinement supports reachability and validated traces")
     hints = {}
     violated = False
-    for module, config in [(args.module, args.config), *args.recheck]:
-        status, members = refine_one(args, module, config, hints, None if violated else args.trace)
-        if status not in (0, 1):
-            return status
-        violated |= status == 1
-        hints = members if status == 0 else {}
+    worker = RefinementWorker(args)
+    try:
+        revisions = [(args.module, args.config), *args.recheck]
+        for index, (module, config) in enumerate(revisions, 1):
+            status, members = refine_one(args, worker, module, config, hints,
+                                         None if violated else args.trace, index == len(revisions))
+            if status not in (0, 1):
+                return status
+            violated |= status == 1
+            hints = members if status == 0 else {}
+    finally:
+        worker.close()
     return int(violated)
 
 
@@ -1175,7 +1279,6 @@ def run(args):
         resource.setrlimit(resource.RLIMIT_AS, (limit, hard))
     if args.refine_domains and not getattr(args, "domain_pass", False):
         return refined_search(args)
-    learned = None
     if args.refine_domains:
         # CUDD returns an unreferenced result before dd allocates its Python
         # wrapper. Collect cyclic compiler objects only between native calls.
@@ -1185,32 +1288,37 @@ def run(args):
         def key(obj):
             return tuple(map(key, obj)) if isinstance(obj, list) else obj
 
-        learned = set(map(key, json.load(sys.stdin)))
-    revisions = [(args.module, args.config), *args.recheck]
+        def requests():
+            for line in sys.stdin:
+                module, config, coordinates = json.loads(line)
+                yield module, config, set(map(key, coordinates))
+
+        return check_in_manager(args, requests())
+    revisions = [(module, config, None) for module, config in [(args.module, args.config), *args.recheck]]
     if args.verify_predicate or args.prove_inductive:
         for revision in revisions:
-            status = check_in_manager(args, learned, [revision])
+            status = check_in_manager(args, [revision])
             if status:
                 return status
         return 0
-    return check_in_manager(args, learned, revisions)
+    return check_in_manager(args, revisions)
 
 
-def check_in_manager(args, learned, revisions):
+def check_in_manager(args, revisions):
     # Release cyclic Python node wrappers while their native manager is still alive.
     # Bind the first input before allocating CUDD so a frontend refusal survives
     # small resource limits. This owner outlives every Python node wrapper.
     owner = []
     try:
-        return check_revisions(args, learned, revisions, owner)
+        return check_revisions(args, revisions, owner)
     finally:
         gc.collect()
 
 
-def check_revisions(args, learned, revisions, owner):
+def check_revisions(args, revisions, owner):
     previous = None
     violated = False
-    for module, config in revisions:
+    for module, config, learned in revisions:
         start = time.monotonic()
         exported = run_helper([args.exporter, module, config], "Dive frontend", args.max_memory)
         require(exported.returncode == 0, "Dive frontend: " + exported.stderr.strip())
@@ -1244,7 +1352,7 @@ def check_revisions(args, learned, revisions, owner):
             if failed:
                 return 2
             continue
-        row, trace = model.refined_reachability() if args.refine_domains else model.check(previous)
+        row, trace = model.recheck_refined(previous) if args.refine_domains else model.check(previous)
         if args.refine_domains:
             # Private child-to-parent payload. Retire stale coordinates on each edit.
             row["domain_members"] = sorted(
@@ -1290,13 +1398,20 @@ def check_revisions(args, learned, revisions, owner):
         row.update(format="dive-symbolic-report-v1", module=str(module), config=str(config))
         row["seconds"] = round(time.monotonic() - start, 6)
         print(json.dumps(row), flush=True)
+        if args.refine_domains and trace is not None:
+            return 1
         previous = model
+        if args.refine_domains:
+            gc.collect()
     return int(violated)
 
 
 def main():
     try:
         return run(argparse.Namespace(**json.loads(sys.argv[1])))
+    except ChangedRelation:
+        print("null", flush=True)
+        return 7
     except Grow as growth:
         extra, = growth.args
         print(json.dumps(sorted(extra, key=repr)), flush=True)
