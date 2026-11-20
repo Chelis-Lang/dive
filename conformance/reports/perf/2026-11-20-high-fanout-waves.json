@@ -2040,5 +2040,116 @@
         ]
       }
     }
+  },
+  "resident_discovery_ids": {
+    "platform": "Isolated AWS c7i.4xlarge, eight physical cores and 24 GiB cgroup without swap. Consecutive fresh processes. GNU time reports wall seconds and peak RSS.",
+    "builds": {
+      "row-final": "30cd9224388dd8eae4090d6143c5bcae7f43a2e7836b2ffd1c57bc285a6bea7c",
+      "row-spans": "a883483bd64f0ac4adbd18959b7813a108fb4ff593f95de41c361cf2ff4cae35"
+    },
+    "kernel": "7.0.0-1018-aws",
+    "command": "taskset -c 0-7 BINARY check MODULE --config CFG --library-path modules --workers 8 --compat=tlc --seed 0 --fp 0 --max-states N --time-limit 900s --max-memory 18g --output json",
+    "inputs": "Identical to resident_rows.models and their module and configuration hashes in this record. Both binaries already pack resident state rows.",
+    "samples": {
+      "SlateDBWAL": {
+        "statistics": {
+          "depth": 45,
+          "distinct": 12000000,
+          "exhaustive": false,
+          "generated": 40130487,
+          "initial_generated": 1,
+          "left_on_queue": 2434928,
+          "reported_by_tlc": false
+        },
+        "trials": [
+          {
+            "span": false,
+            "seconds": 52.04,
+            "rss_kib": 781568
+          },
+          {
+            "span": true,
+            "seconds": 52.72,
+            "rss_kib": 720096
+          },
+          {
+            "span": true,
+            "seconds": 51.84,
+            "rss_kib": 702740
+          },
+          {
+            "span": false,
+            "seconds": 51.83,
+            "rss_kib": 746440
+          }
+        ]
+      },
+      "BPConProof": {
+        "statistics": {
+          "depth": 4,
+          "distinct": 8000000,
+          "exhaustive": false,
+          "generated": 15116416,
+          "initial_generated": 1,
+          "left_on_queue": 7993551,
+          "reported_by_tlc": false
+        },
+        "trials": [
+          {
+            "span": false,
+            "seconds": 30.36,
+            "rss_kib": 1593712
+          },
+          {
+            "span": true,
+            "seconds": 30.34,
+            "rss_kib": 1493304
+          },
+          {
+            "span": true,
+            "seconds": 30.16,
+            "rss_kib": 1501096
+          },
+          {
+            "span": false,
+            "seconds": 30.29,
+            "rss_kib": 1588608
+          }
+        ]
+      },
+      "MC_HDiskSynod": {
+        "statistics": {
+          "depth": 18,
+          "distinct": 3000000,
+          "exhaustive": false,
+          "generated": 30324693,
+          "initial_generated": 8,
+          "left_on_queue": 1177825,
+          "reported_by_tlc": false
+        },
+        "trials": [
+          {
+            "span": false,
+            "seconds": 45.05,
+            "rss_kib": 209368
+          },
+          {
+            "span": true,
+            "seconds": 44.84,
+            "rss_kib": 180960
+          },
+          {
+            "span": true,
+            "seconds": 44.9,
+            "rss_kib": 187452
+          },
+          {
+            "span": false,
+            "seconds": 44.93,
+            "rss_kib": 204080
+          }
+        ]
+      }
+    }
   }
 }
