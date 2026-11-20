@@ -101,17 +101,32 @@ The explicit Core edit experiment also captured 3,599 exact integer rows and par
 | Previously proved invariant inventory | Remove selected invariants from an exhausted ordinary safety proof. Constants, constraints, model source, policy and ordered subset must match. Aggregate state is eligible. | S7 LamportMutex, 724,274 states. Current bind and projection took 3.308 ms, versus 9.251 s fresh. The first complete proof cost 9.799 s. |
 | Ordered exact states and parents | Change a safety predicate on the same admitted transition system. An exhausted closure can prove a holding predicate. A prior failure prefix can establish a currently validated earlier violation. | On a 200,002-state star, a late edited failure took 7.417 ms versus 103.215 ms fresh. A holding edit took 7.413 ms versus 104.208 ms. |
 | Complete labelled graph | Change a temporal predicate on the same admitted state space and edges. Recheck due periodic boundaries, fairness, stuttering and the entire false-property set on the actual reported word. | On a 262,143-state tree with two due periodic checks, the edited check took 46.965 ms versus 241.009 ms fresh. On 16-state DieHard it took 1.914 ms versus 1.706 ms. |
-| Symbolic reachable predicate | Rebind changed properties against the same finite layout, initial condition, symmetry and weighted transition relation. | On KVS Large, the current holding invariant took 35.952 ms; an edited failure took 34.408 ms including witness validation. The preceding fixed point took 131.080 s. |
+| Symbolic reachable predicate | Rebind changed properties against the same finite layout, initial condition, symmetry and weighted transition relation. | On KVS Large, the current holding invariant took 35.952 ms. The edited failure took 34.408 ms including witness validation. The preceding fixed point took 131.080 s. |
 
 The three Rust comparisons used matching one-worker exact-store, state and
 depth limits and unlimited process time and memory. They include current
-binding; a separate caller must also account for transport, worker identity
+binding. An installed caller also pays for transport, worker authentication
 and receipt lookup. The symbolic row is a separate source-checkout experiment.
 [Projection samples](../../conformance/studies/s7-invariant-projection.json),
 [ordered-state samples](../../conformance/studies/edited-invariant-recheck.json),
 [temporal graph samples](../../conformance/studies/edited-temporal-recheck.json)
 and [symbolic samples](../../conformance/reports/perf/2026-11-20-symbolic-qualification.json)
 retain the timing scopes and individual runs.
+
+### What an installed Sail worker saves
+
+For the original S7 LamportMutex invariant removal, Sail authenticated a
+previously completed receipt in a new process and bound the edit to the same
+worker and transition program. The edited check took **22.46 ms** versus
+**10.014 s** for fresh execution. The median paired speedup was **447.4×**
+across five trials. Establishing the original receipt took 10.731 s.
+The Rust-only 3.308 ms result above excludes process startup and transport.
+
+In the installed batch API, counting the initial check and all edited checks,
+the measured speedups were 2.14× for the safety star, 1.51× after a prior
+refutation, 2.00× for the temporal star and 1.46× for the DieHard
+fail-then-fix sequence. The original 100-check loop took 1.462 s with 76
+exact receipt hits per trial. [Sail methods and reproduction](https://github.com/Chelis-Lang/sail/blob/e609cad17b45d6e8b3d1259d45561bd269a53041/docs/validation/temporal-reuse-s7.md#native-checks-after-substantive-edits) · [Every substantive edit, control and sample](https://github.com/Chelis-Lang/sail/blob/e609cad17b45d6e8b3d1259d45561bd269a53041/docs/validation/data/2026-11-20-native-edit-session.json) · [All 333 exact-replay checks](https://github.com/Chelis-Lang/sail/blob/e609cad17b45d6e8b3d1259d45561bd269a53041/docs/validation/data/2026-11-20-integrated-s7.json).
 
 ## Explicit Core and temporal checking
 
@@ -162,6 +177,8 @@ These single samples support keeping the ordinary resident frontier as the
 default and selecting the [existing spill option](../user/storage-recovery.md) for workloads where a
 matched prefix demonstrates a useful reduction. They leave open the
 component breakdown at tens of millions of states and the retained temporal graph.
+
+Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. That option uses one worker and bounds its membership workspace. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
 
 ## Reproduce the comparisons
 
