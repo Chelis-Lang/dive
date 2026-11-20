@@ -8,7 +8,8 @@ are in git history.
 ### Added
 
 - The conformance harness can run selected models without TLC goldens with
-  `--observe-missing-goldens` and record their ungraded outcomes.
+  `--observe-missing-goldens` and record their ungraded outcomes. This includes
+  the four holdouts excluded because the pinned TLC exceeded its deadline.
 - Rust embedders can project an exhausted safety proof onto a smaller
   invariant inventory, including constrained models with aggregate state.
   See [the Rust API guide](docs/user/rust-api.md#drop-an-invariant-from-a-completed-safety-check).

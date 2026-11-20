@@ -288,6 +288,62 @@ fn ungraded_observations_are_available_without_claiming_agreement() -> TestResul
     Ok(())
 }
 
+#[test]
+fn oracle_timeout_exclusions_keep_their_grade_and_can_record_bounded_observations() -> TestResult {
+    let tmp = dive_conformance::util::TempDir::new("holdout-timeout")?;
+    let (repo, cache) = setup(tmp.path())?;
+    let pins = repo.join("conformance/corpora.toml");
+    let mut contents = std::fs::read_to_string(&pins)?;
+    contents.push_str(
+        r#"
+manifest = "conformance/holdout.json"
+[[corpus.exclude]]
+path = "specifications/x/X.cfg"
+reason = "pinned oracle reached its wall time"
+oracle_timeout = true
+"#,
+    );
+    std::fs::write(&pins, contents)?;
+    std::fs::write(repo.join("conformance/holdout.json"), MANIFEST)?;
+    let config = Config::load(&repo)?;
+    let mut opts = options(&repo, vec![]);
+    opts.sany = false;
+    opts.workers = vec![1, 4];
+    let strict = pipeline::run(&config, &cache, &Refuser, None, &opts)?;
+    assert!(
+        strict
+            .models
+            .iter()
+            .all(|m| m.outcome == Outcome::OutOfScope && m.runs.is_empty())
+    );
+    opts.observe_missing_goldens = true;
+    let report = pipeline::run(&config, &cache, &Refuser, None, &opts)?;
+    assert!(
+        report
+            .models
+            .iter()
+            .all(|m| m.outcome == Outcome::OutOfScope)
+    );
+    let attempts = &report
+        .models
+        .iter()
+        .find(|m| m.model.ends_with("/X.cfg"))
+        .ok_or("missing holdout")?
+        .runs;
+    assert_eq!(
+        attempts.iter().map(|r| r.workers).collect::<Vec<_>>(),
+        [1, 4]
+    );
+    assert!(attempts.iter().all(|r| r.outcome == Outcome::Unsupported));
+    assert!(
+        report
+            .models
+            .iter()
+            .any(|m| m.model.ends_with("/Apa.cfg") && m.runs.is_empty())
+    );
+    Ok(())
+}
+
 /// A non-oracle implementation that reproduces the golden exactly, under
 /// the given options.
 struct Optioned {

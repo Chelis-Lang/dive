@@ -418,10 +418,12 @@ manifest = "conformance/holdout/holdout-etcd-raft.json"
 [[corpus.exclude]]
 path = "tla/etcdraft.cfg"
 reason = "pinned TLC does not finish in 600 s at one worker (5.19M distinct states, 4.10M on queue at the cap, 2026-11-08)"
+oracle_timeout = true
 
 [[corpus.exclude]]
 path = "tla/MCetcdraft.cfg"
 reason = "pinned TLC does not finish in 600 s at one worker (1.24M distinct states, 0.88M on queue at the cap, 2026-11-08)"
+oracle_timeout = true
 
 [[corpus]]
 id = "holdout-tidb"
@@ -442,6 +444,7 @@ manifest = "conformance/holdout/holdout-blocking-queue.json"
 [[corpus.exclude]]
 path = "BlockingQueuePoisonApple.cfg"
 reason = "pinned TLC does not finish in 600 s at one worker (2.18M distinct states, 1.62M on queue at the cap, 2026-11-08)"
+oracle_timeout = true
 
 [[corpus]]
 id = "holdout-jgroups-pluscal"
@@ -470,3 +473,4 @@ manifest = "conformance/holdout/holdout-kafka.json"
 [[corpus.exclude]]
 path = "kraft/kip_996/model_liveness.cfg"
 reason = "pinned TLC does not finish in 600 s at one worker (8103 distinct states, 7946 on queue at the cap, 2026-11-08)"
+oracle_timeout = true

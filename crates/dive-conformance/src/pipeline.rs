@@ -1050,12 +1050,20 @@ fn run_model(
         manifest_drift: Vec::new(),
         worker_introspecting: m.worker_introspecting,
     };
+    let path = model_golden_path(golden_root, &opts.golden_oracle, &corpus.id, &m.id);
     if let Some(reason) = &m.out_of_scope {
         report.outcome = Outcome::OutOfScope;
         report.detail = Some(reason.clone());
+        if opts.observe_missing_goldens
+            && corpus.oracle_timeouts.contains(&m.id)
+            && !imp.is_oracle()
+            && imp.models_unsupported().is_none()
+            && !path.exists()
+        {
+            report.runs = observe_missing(imp, corpus, m, opts);
+        }
         return report;
     }
-    let path = model_golden_path(golden_root, &opts.golden_oracle, &corpus.id, &m.id);
     if let Some(why) = imp.models_unsupported() {
         // The implementation checks no model at all; its refusal is the
         // answer, golden or not. A missing golden is still noted.

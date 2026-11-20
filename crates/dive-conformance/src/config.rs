@@ -166,14 +166,17 @@ pub struct Corpus {
     pub exclude: Vec<Exclusion>,
 }
 
-/// A module excluded from a corpus (`[[corpus.exclude]]`).
+/// A module or manifest model excluded from a corpus (`[[corpus.exclude]]`).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Exclusion {
-    /// Corpus-relative path of the excluded `.tla` file.
+    /// Corpus-relative path of the excluded module or model.
     pub path: String,
     /// Why it is excluded, with evidence (e.g. the oracle's crash).
     pub reason: String,
+    /// The manifest model is excluded solely because the pinned oracle timed out.
+    #[serde(default)]
+    pub oracle_timeout: bool,
 }
 
 /// The parsed `corpora.toml`.
@@ -439,6 +442,12 @@ impl CorporaFile {
             {
                 return Err(Error::Config(format!(
                     "corpus `{}`: `include` applies to the modules-only layout only, and `exclude` also to corpora with a `manifest`",
+                    c.id
+                )));
+            }
+            if c.manifest.is_none() && c.exclude.iter().any(|x| x.oracle_timeout) {
+                return Err(Error::Config(format!(
+                    "corpus `{}`: oracle_timeout exclusions require a model manifest",
                     c.id
                 )));
             }

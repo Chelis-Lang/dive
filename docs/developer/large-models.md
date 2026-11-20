@@ -131,6 +131,8 @@ cargo run --release --locked -p dive-conformance -- run --impl dive:core \
   --tlc-budgets --budget-cap 600 --xmx 24g --report-dir /tmp/dive-large --no-summary
 ```
 
+Four selected holdouts lack a golden because the pinned TLC ran past its deadline. The manifest marks these with `oracle_timeout = true`. The same flag records bounded non-oracle attempts for them under their existing `out-of-scope` grade.
+
 The motivating measurements cover [the large non-finishes](https://github.com/Chelis-Lang/dive/issues/1034),
 [slow-TLC models](https://github.com/Chelis-Lang/dive/issues/799) and
 [temporal worker scaling](https://github.com/Chelis-Lang/dive/issues/1028).
