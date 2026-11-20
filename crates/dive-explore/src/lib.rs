@@ -238,10 +238,52 @@ pub struct Config {
     pub sample: Option<sample::Sample>,
 }
 
+/// A resize retains only one old shard while reinserting its keys. Fingerprint
+/// high bits select the shard and low bits select its first probe.
+#[derive(Debug)]
+struct FingerprintShard {
+    slots: Vec<u64>,
+    used: usize,
+}
+
+impl FingerprintShard {
+    #[allow(
+        clippy::cast_possible_truncation,
+        reason = "only low slot bits are used"
+    )]
+    fn probe(slots: &[u64], key: u64) -> usize {
+        let mask = slots.len() - 1;
+        let mut i = key as usize & mask;
+        while slots[i] != 0 && slots[i] != key {
+            i = (i + 1) & mask;
+        }
+        i
+    }
+
+    fn insert(&mut self, key: u64) -> bool {
+        let mut slot = Self::probe(&self.slots, key);
+        if self.slots[slot] == key {
+            return false;
+        }
+        if self.used + 1 > self.slots.len() - self.slots.len() / 4 {
+            let size = self.slots.len() * 2;
+            let old = std::mem::replace(&mut self.slots, vec![0; size]);
+            for k in old.into_iter().filter(|&k| k != 0) {
+                let i = Self::probe(&self.slots, k);
+                self.slots[i] = k;
+            }
+            slot = Self::probe(&self.slots, key);
+        }
+        self.slots[slot] = key;
+        self.used += 1;
+        true
+    }
+}
+
 /// A set of 64-bit state keys (open addressing, linear probing).
 #[derive(Debug)]
 pub struct Seen {
-    table: Vec<u64>,
+    shards: Vec<FingerprintShard>,
     len: usize,
     exact: Option<storage::Exact>,
     /// Test-only key override ([`storage::Storage::collide_keys`]).
@@ -252,7 +294,12 @@ pub struct Seen {
 impl Default for Seen {
     fn default() -> Self {
         Self {
-            table: vec![0; 1 << 16],
+            shards: (0..256)
+                .map(|_| FingerprintShard {
+                    slots: vec![0; 256],
+                    used: 0,
+                })
+                .collect(),
             len: 0,
             exact: None,
             #[cfg(test)]
@@ -337,59 +384,20 @@ impl Seen {
         if k == 0 { 1 } else { k }
     }
 
-    fn mask(&self) -> usize {
-        self.table.len() - 1
-    }
-
-    #[allow(clippy::cast_possible_truncation, reason = "masked to the table size")]
-    fn start(&self, k: u64) -> usize {
-        (k as usize) & self.mask()
-    }
-
     /// Whether `k` is present.
     #[must_use]
     pub fn contains(&self, k: u64) -> bool {
         let k = Self::fix(k);
-        let mut i = self.start(k);
-        loop {
-            match self.table[i] {
-                0 => return false,
-                x if x == k => return true,
-                _ => i = (i + 1) & self.mask(),
-            }
-        }
+        let slots = &self.shards[(k >> 56) as usize].slots;
+        slots[FingerprintShard::probe(slots, k)] == k
     }
 
     /// Inserts `k`; returns whether it was new.
     pub fn insert(&mut self, k: u64) -> bool {
-        if (self.len + 1) * 4 > self.table.len() * 3 {
-            self.grow();
-        }
         let k = Self::fix(k);
-        let mut i = self.start(k);
-        loop {
-            match self.table[i] {
-                0 => {
-                    self.table[i] = k;
-                    self.len += 1;
-                    return true;
-                }
-                x if x == k => return false,
-                _ => i = (i + 1) & self.mask(),
-            }
-        }
-    }
-
-    fn grow(&mut self) {
-        let size = self.table.len() * 2;
-        let old = std::mem::replace(&mut self.table, vec![0; size]);
-        for k in old.into_iter().filter(|&k| k != 0) {
-            let mut i = self.start(k);
-            while self.table[i] != 0 {
-                i = (i + 1) & self.mask();
-            }
-            self.table[i] = k;
-        }
+        let inserted = self.shards[(k >> 56) as usize].insert(k);
+        self.len += usize::from(inserted);
+        inserted
     }
 
     /// The number of keys.
@@ -1698,7 +1706,7 @@ fn explore_inner<'p>(
         seen.collide_keys = storage.collide_keys;
     }
     if storage.seen_disk.is_some() {
-        seen.table = Vec::new();
+        seen.shards = Vec::new();
     }
     let keys: Vec<usize> = plan
         .code
@@ -2121,7 +2129,7 @@ fn level_done(ex: &mut Explorer<'_>, _nvars: usize) -> Result<(), Error> {
 }
 
 /// The states of a parallel level each worker expands per chunk.
-const CHUNK_PER_WORKER: usize = 4096;
+const CHUNK_PER_WORKER: usize = 128;
 /// The optional encoded path decodes at most this many state pairs at once.
 const FRONTIER_CHUNK_STATES: usize = 1024;
 
@@ -2485,6 +2493,31 @@ fn run(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn independently_growing_shards_preserve_probe_chains() {
+        let mut seen = Seen::default();
+        for i in 0..400_u64 {
+            for tag in [0, 17, 255] {
+                let k = tag << 56 | (i << 8) | 5;
+                assert!(!seen.contains(k));
+                assert!(seen.insert(k));
+            }
+        }
+        for i in (0..400_u64).rev() {
+            for tag in [0, 17, 255] {
+                let k = tag << 56 | (i << 8) | 5;
+                assert!(seen.contains(k));
+                assert!(!seen.insert(k));
+            }
+        }
+        assert_eq!(seen.len(), 1200);
+        // Zero used the same reserved-slot spelling before sharding.
+        assert!(seen.insert(0));
+        assert!(seen.contains(1));
+        assert!(!seen.insert(1));
+        assert_eq!(seen.len(), 1201);
+    }
 
     pub(super) fn frontier_plan(store: &Arc<Store>, false_invariant: bool) -> Result<Plan, Error> {
         use dive_core::plan::{Action, CompileStats, Conjunct, Effects, GNode, Node};
