@@ -100,6 +100,12 @@ models above 1x are the same two as in that record and already have issues.
 | `MultiCarElevator/ElevatorLivenessLarge` | large | 0.239 | 1,879.76 | 449.30 |
 | `SpanningTree/SpanTreeTest5Nodes` | large | 0.167 | 676.69 | 113.20 |
 
+`MCKVsnap` is above 1x because of its state count, not its per-state cost.
+Under D-005 dive checks it without symmetry reduction, since TLC's symmetry
+reduction is unsound with liveness, so it explores 189,664 distinct states
+against TLC's 32,293, about 5.9 times as many. Per distinct state dive takes
+about 89 µs against TLC's 437 µs, roughly 5x faster (#979).
+
 ## Memory
 
 Two parts on the small-class node. The benchmark-set part runs the ten
@@ -627,7 +633,7 @@ Sail after the #765 fix (`ce94df74`), median milliseconds:
 
 ## Issues
 
-- #979 and #940: the two models above 1x in the speed measurement, unchanged from the 2026-11-10 record.
+- #979 and #940: the two models above 1x in the speed measurement, unchanged from the 2026-11-10 record. The unreduced state count under D-005 accounts for #979 (see the note under the speed table).
 - #1024: `dive simulate` memory grows with the number of traces, and peak RSS reaches about 1.8x `--max-memory` after the stop (startup measurement).
 - #1028: temporal checks do not scale with workers, and six models run slower at 8 workers than at 1 (scaling measurement; brief and hypotheses in [Open finding: #1028](#open-finding-1028)).
 - #1020: `MCKVsnap` and `SpanTreeRandom` refuse temporal checking at more than one worker (scaling measurement).
