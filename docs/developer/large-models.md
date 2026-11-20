@@ -282,7 +282,16 @@ A block initially uses the representative row of each destination. On the first
 edge whose persistent original differs, Core records explicit IDs for that
 block, including its earlier edges. Seen aliases, generated self-loops and
 synthetic stutters retain their original identities. The directory costs one
-machine word per block; every explicit entry costs four bytes.
+machine word per block. Each explicit entry costs four bytes.
+
+| Two-million-state prefix | Retained original rows | Collector capacity, dense / blocks | Mean peak RSS, dense / blocks | Mean wall seconds, dense / blocks |
+|---|---:|---:|---:|---:|
+| BlockingQueuePoisonApple | 2,000,400 | 176 / 144 MiB | 560 / 539 MiB | 17.74 / 16.38 |
+| c1cs | 2,000,000 | 808 / 554 MiB | 1,227 / 1,071 MiB | 78.67 / 78.68 |
+
+Two trials per binary on the same eight physical cores produced identical
+counts, queue sizes and depths at each prefix. The dense control already used
+byte action IDs and compact ordinals. [Inputs, individual timings and collector capacities](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
 ### What occupies memory at the same discovery prefix?
 
