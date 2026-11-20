@@ -1102,17 +1102,22 @@ class SourceModel(FiniteRelation):
         )
 
 
-def refined_search(args):
-    """Retry with new coordinates in a fresh CUDD process under the caller's deadline."""
-    require(not (args.verify_predicate or args.prove_inductive or args.recheck or args.write_predicate),
-            "set-domain refinement supports a single search and validated trace")
+def refine_one(args, module, config, hints, trace):
+    """Freshly bind and search one revision. Hints only select initial coordinates."""
     started = time.monotonic()
     flags = ["-Es"] if sys.flags.ignore_environment else []
-    command = [sys.executable, *flags, __file__, json.dumps({**vars(args), "domain_pass": True})]
-    learned = {}
-    for attempt in range(1, 514):
+    options = {**vars(args), "module": module, "config": config, "recheck": [], "domain_pass": True, "trace": trace}
+    command = [sys.executable, *flags, __file__, json.dumps(options)]
+    learned = hints.copy()
+    discarded_hints = False
+    # Growth must add a member and is capped at 512. A warm start can reset once.
+    for attempt in itertools.count(1):
         child = subprocess.run(command, input=json.dumps(list(learned.values())),
                                capture_output=True, text=True)
+        if hints and not discarded_hints and (child.returncode < 0 or child.returncode in (2, 4)):
+            learned.clear()
+            discarded_hints = True
+            continue
         if child.returncode < 0:
             diagnostic = child.stderr.strip()[-500:]
             raise Stopped(f"refinement worker terminated by signal {-child.returncode}: {diagnostic}")
@@ -1124,16 +1129,41 @@ def refined_search(args):
                     learned[key] = item
                     added = True
             require(added, "no progress refining finite set domains")
+            if len(learned) > 512 and hints and not discarded_hints:
+                learned.clear()
+                discarded_hints = True
+                continue
             require(len(learned) <= 512, "refined set domains exceed 512 state bits")
             continue
+        if child.returncode == 1:
+            if args.max_memory and "out of memory" in child.stderr.lower():
+                raise Stopped("refinement worker exhausted memory during native allocation")
+            raise RuntimeError("native refinement worker exited before returning a check result")
         if not child.stdout.strip():
             raise RuntimeError(f"refinement worker ended without a result (exit {child.returncode})")
         row = json.loads(child.stdout)
-        row.update(refinement_rounds=attempt, learned_members=len(learned),
+        selected = row.pop("domain_members", None)
+        current = {} if selected is None else {json.dumps(item): item for item in selected}
+        row.update(module=module, config=config, refinement_rounds=attempt,
+                   learned_members=len(learned) if selected is None else len(current),
+                   initial_hint_members=0 if discarded_hints else len(hints.keys() & current.keys()),
                    seconds=round(time.monotonic() - started, 6))
         print(json.dumps(row), flush=True)
-        return child.returncode
-    raise Unsupported("set-domain refinement round limit")
+        return (1 if child.returncode == 11 else child.returncode), current
+
+
+def refined_search(args):
+    require(not (args.verify_predicate or args.prove_inductive or args.write_predicate),
+            "set-domain refinement supports reachability and validated traces")
+    hints = {}
+    violated = False
+    for module, config in [(args.module, args.config), *args.recheck]:
+        status, members = refine_one(args, module, config, hints, None if violated else args.trace)
+        if status not in (0, 1):
+            return status
+        violated |= status == 1
+        hints = members if status == 0 else {}
+    return int(violated)
 
 
 def run(args):
@@ -1156,17 +1186,41 @@ def run(args):
             return tuple(map(key, obj)) if isinstance(obj, list) else obj
 
         learned = set(map(key, json.load(sys.stdin)))
+    revisions = [(args.module, args.config), *args.recheck]
+    if args.verify_predicate or args.prove_inductive:
+        for revision in revisions:
+            status = check_in_manager(args, learned, [revision])
+            if status:
+                return status
+        return 0
+    return check_in_manager(args, learned, revisions)
+
+
+def check_in_manager(args, learned, revisions):
+    # Release cyclic Python node wrappers while their native manager is still alive.
+    # Bind the first input before allocating CUDD so a frontend refusal survives
+    # small resource limits. This owner outlives every Python node wrapper.
+    owner = []
+    try:
+        return check_revisions(args, learned, revisions, owner)
+    finally:
+        gc.collect()
+
+
+def check_revisions(args, learned, revisions, owner):
     previous = None
     violated = False
-    for module, config in [(args.module, args.config), *args.recheck]:
+    for module, config in revisions:
         start = time.monotonic()
         exported = run_helper([args.exporter, module, config], "Dive frontend", args.max_memory)
         require(exported.returncode == 0, "Dive frontend: " + exported.stderr.strip())
         doc = json.loads(exported.stdout)
+        if not owner:
+            owner.append(cudd.BDD(memory_estimate=512 << 20))
         model = SourceModel(
             doc,
             args.type_invariant,
-            previous.b if previous is not None else None,
+            owner[0],
             args.order_by_path,
             args.single_partition,
             learned,
@@ -1191,10 +1245,15 @@ def run(args):
                 return 2
             continue
         row, trace = model.refined_reachability() if args.refine_domains else model.check(previous)
+        if args.refine_domains:
+            # Private child-to-parent payload. Retire stale coordinates on each edit.
+            row["domain_members"] = sorted(
+                ((path, k) for path in model.whole_domains for k in model.types[path[0]].domain),
+                key=repr,
+            )
         if args.write_predicate and model.complete is not None:
             induction.store(Path(args.write_predicate), model, model.complete[0])
         if trace is not None:
-            violated = True
             raw = json.dumps(trace)
             validated = run_helper(
                 [
@@ -1222,11 +1281,12 @@ def run(args):
                 "independent trace validation failed: " + validated.stdout[-1500:],
             )
             row["trace_validated"] = True
-            if args.trace:
+            if args.trace and not violated:
                 induction.write_atomic(Path(args.trace), (raw + "\n").encode("utf-8"))
                 row["trace_file"] = str(args.trace)
             else:
                 row["trace"] = trace
+            violated = True
         row.update(format="dive-symbolic-report-v1", module=str(module), config=str(config))
         row["seconds"] = round(time.monotonic() - start, 6)
         print(json.dumps(row), flush=True)
@@ -1257,4 +1317,7 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    status = main()
+    # CUDD can call exit(1) on allocation failure, bypassing Python. Reserve a
+    # private process status for a validated violation that reached main().
+    sys.exit(11 if status == 1 else status)

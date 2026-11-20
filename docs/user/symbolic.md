@@ -73,7 +73,7 @@ including the initial state, and depth four. For comparison, run
 ```sh
 cp Receipts.cfg Empty.cfg
 echo 'INVARIANT Empty' >> Empty.cfg
-"$PY" scripts/symbolic/check.py Receipts.tla Receipts.cfg \
+dive check Receipts.tla --strategy symbolic --config Receipts.cfg \
   --recheck Receipts.tla Empty.cfg --trace counterexample.json
 ```
 
@@ -83,7 +83,7 @@ checker compares the variable layout, concrete initial state, symmetry group
 and guarded Boolean updates, including duplicate action witnesses. When all
 match a previous completed search, it checks the edited obligations on the
 saved reachable set. A changed relation runs a fresh search. Each violation
-has a concrete trace that Dive independently validates. Without `--trace`,
+has a concrete trace that Dive independently validates. With `--trace`, the first violation writes the requested file and later violations include their own trace in the JSON row. Without `--trace`,
 the row contains the trace.
 
 ```sh
@@ -168,9 +168,18 @@ dive check --strategy symbolic PaxosLeaseChecked.tla --config PaxosLeaseBase.cfg
   --type-invariant TypeOK --refine-domains --time-limit 15m --max-memory 8g
 ```
 
-Use `--refine-domains` for a single search when a top-level set has a wide finite element type. For a declared alphabet above 256 elements the checker starts with no member bits. A missing member in Init or in an emission from a reachable admitted source causes a restart with more bits. Each pass checks the original source configuration. The final pass must discharge every reachable emission before reporting success. An emission outside the declared layout gives a named refusal. Excluded successors still undergo invariant checking and can produce validated counterexamples.
+Use `--refine-domains` when a top-level set has a wide finite element type. For a declared alphabet above 256 elements the checker starts with no member bits. A missing member in Init or in an emission from a reachable admitted source causes a restart with more bits. Each pass checks the original source configuration. The final pass must discharge every reachable emission before reporting success. An emission outside the declared layout gives a named refusal. Excluded successors still undergo invariant checking and can produce validated counterexamples.
 
-The JSON row includes `refinement_rounds` and `learned_members`. The 512-bit limit applies to the refined layout, and the time budget covers all passes. This option supports trace output. Predicate transfer and in-process rechecks use the ordinary symbolic strategy. Refining a wide domain with a configured symmetry group currently refuses. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
+Pass `--recheck MODULE CONFIG` once per revision, in order. After a successful refined search, the next revision starts with the previous set coordinates that belong to its own declared domain. It rebinds Init, actions, constraints and invariants, checks for newly reachable members, and computes a fresh closure. The report has `reused: false`. After a violation the next revision starts cold. Each counterexample is independently validated against its own revision.
+
+```sh
+dive check PaxosLeaseChecked.tla --strategy symbolic --config PaxosLeaseBase.cfg \
+  --type-invariant TypeOK --refine-domains \
+  --recheck PaxosLeaseChecked.tla PaxosLeaseQuarantineEqualsProposer.cfg \
+  --time-limit 30m --max-memory 6g --output json
+```
+
+The checker emits a JSON row for each revision it checks. A refusal, error or exhausted budget ends the session. `refinement_rounds` counts worker attempts, `learned_members` counts coordinates in the final refined set layout, and `initial_hint_members` counts surviving coordinates supplied by the preceding revision. Stale coordinates drop out. If a warm layout fails or exceeds its bounds, the worker can restart cold within the original time budget. The 512-bit limit applies to every layout. Predicate transfer uses the ordinary symbolic strategy. Refining a wide domain with a configured symmetry group currently refuses. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
 
 ### Finite initial choices
 
