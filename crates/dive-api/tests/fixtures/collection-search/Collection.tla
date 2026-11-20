@@ -19,10 +19,15 @@ A == [kind |-> "entry", payload |-> x]
 B == [kind |-> "config", payload |-> [server |-> x]]
 AB == (A :> 1) (+) (B :> 2)
 Dup == AB (+) (A :> 1)
-BagCounts == /\ BagCardinality(AB) = 3
+Entry(v) == [mentries |-> <<[term |-> x, value |-> v]>>]
+EmptyEntry == Entry(<<>>)
+ConfigEntry == Entry([newconf |-> {x}, learners |-> {}])
+Messages == (EmptyEntry :> 2) (+) (ConfigEntry :> 1)
+BagCounts == /\ Messages[EmptyEntry] = 2 /\ Messages[ConfigEntry] = 1
+             /\ BagCardinality(AB) = 3
         /\ AB[A] = 1 /\ AB[B] = 2
         /\ Dup[A] = 2 /\ Dup[B] = 2
         /\ (Dup (-) (B :> 1))[B] = 1
         /\ BagCardinality(BagUnion({A :> 1, B :> 2})) = 3
-BagFailure == x = 0 \/ AB[A] = 2
+BagFailure == x = 0 \/ Messages[ConfigEntry] = 2
 ====
