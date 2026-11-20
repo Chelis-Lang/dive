@@ -15,7 +15,7 @@ is `docs/developer/performance.md#r2-measurement-procedure`. Read both first.
 | Directory | Runs on | Contents |
 |---|---|---|
 | `ops/` | the operator's machine | SSM helpers: run a command on a named node, copy small files in and out, presigned bucket URLs, volume and mac-host helpers |
-| `node/` | each bench node, as user `bench`, from `~/tools/` | build and host facts, the D1 driver, the D2/D3/D5/D6 driver, the chains that run measurements back to back, D4 rebalancing, the D7 mac script |
+| `node/` | each bench node, as user `bench`, from `~/tools/` | build and host facts, the D2/D3/D5/D6 driver, the chains that run measurements back to back, D4 rebalancing, the D7 mac script |
 | `records/` | the operator's machine, from a dive checkout | turn pulled summaries into the compact records and the results-page tables |
 | `sail/` | the Sail node, from `~/tools/` | S1 to S7: node bootstrap, Sail builds, the Sail harnesses, the S7 chains and record builder |
 
@@ -87,22 +87,25 @@ Check `sha256sum ~/bins/dive` on every node against the first node's.
 ### 3. D1: classify, shard, time
 
 The selection is the model list of the previous R2 record (the 175 keys of
-`2026-11-10-r2-procedure-e3835968.json`'s `models`), one per line. Long jobs run
-as transient systemd units so they survive the SSM command:
+`2026-11-10-r2-procedure-e3835968.json`'s `models`), one per line. The harness
+carries out the whole procedure (`dive-conformance r2`, documented in
+`docs/developer/performance.md`). It refuses a dirty environment, binds itself
+with `numactl`, warms the page cache, and times one checker at a time. Long jobs
+run as transient systemd units so they survive the SSM command:
 
 ```sh
 N=scripts/perf/release/ops/n
-$N small 'systemd-run --unit=r2-classify --uid=bench --setenv=HOME=/home/bench --working-directory=/home/bench python3 /home/bench/tools/r2drive.py classify /home/bench/tools/selection.txt /home/bench/r2/classify'
-# pull ~/r2/classify/summary.json, then locally:
-python3 scripts/perf/release/records/shard.py classify-summary.json conformance/golden/tlc-2026.10.06.014338/examples lists/
-# push lists/small.txt to small, lists/shardN.txt to shardN as ~/tools/shard.txt, then:
-$N small  'systemd-run --unit=r2-small --uid=bench ... python3 /home/bench/tools/r2drive.py small /home/bench/tools/small.txt /home/bench/r2/small <classify-report.json>'
-$N shard1 'systemd-run --unit=r2-large --uid=bench ... python3 /home/bench/tools/r2drive.py large /home/bench/tools/shard.txt /home/bench/r2/large'
+R2='env -i PATH=/usr/bin:/bin HOME=/home/bench DIVE_CACHE_DIR=/home/bench/.cache/dive /home/bench/bins/dive-conformance --repo-root /home/bench/dive r2'
+$N small "systemd-run --unit=r2-classify --uid=bench --working-directory=/home/bench $R2 classify --filter-file /home/bench/tools/selection.txt --out /home/bench/r2"
+# copy ~/r2/r2-classes.json to every shard node's ~/r2/, then:
+$N small  "systemd-run --unit=r2-small --uid=bench ... $R2 small --classes /home/bench/r2/r2-classes.json --dive-bin /home/bench/bins/dive --out /home/bench/r2"
+$N shard1 "systemd-run --unit=r2-large --uid=bench ... $R2 large --classes /home/bench/r2/r2-classes.json --shard 1/4 --dive-bin /home/bench/bins/dive --out /home/bench/r2"
 ```
 
-`records/preshard.py` computes the same four shards from the previous record's
-large class and the golden TLC times, so the shard nodes can start before the
-classification pass ends; the 0.1.0 large class matched exactly.
+`--shard K/N` splits the large class by longest processing time on the golden
+TLC times, so the split is fixed before any timing. The shard's model list,
+which `node/chain-shard.sh` reads as `~/tools/shard.txt`, is
+`jq -r '.models | keys[]' ~/r2/r2-large-shardKofN.json`.
 
 ### 4. Chains
 
@@ -119,8 +122,8 @@ measurements back to back, one process at a time, logging to `~/chain.log`:
 - `node/d2-chain.sh <models.json> <out-dir> [<wait-file>]`: the D2 liveness
   part. It waits for `<wait-file>` (default `~/m/CHAIN_DONE`), probes each model
   once, keeps those whose report says `check_kind: temporal`, and runs three
-  repetitions. Build `<models.json>` locally with `records/d2probe.py` (budget
-  `max(60 s, 2.5 x D1 TLC median)`) from the `PROPERTY` models that
+  repetitions. Build `<models.json>` locally with `records/d2probe.py` from the
+  D1 parts (budget `max(60 s, 2.5 x D1 TLC time)`) for the `PROPERTY` models that
   `node/propmodels.py <selection.txt>` lists on a node.
 
 Start each chain with `systemd-run` as in step 3. `ops/watch` prints new
@@ -158,7 +161,7 @@ golden directory `conformance/golden/tlc-2026.10.06.014338/examples`:
 
 | Record | Commands |
 |---|---|
-| D1 | `records/r2record.py <data-dir> <out.json>`; `<data-dir>` holds `classify-summary.json`, `small-summary.json`, `shard{1..4}-summary.json`, `classes.json` and a hand-written `meta.json` (source, digests, host, classification, sharding, not_timed, attempts, raw, deviations) |
+| D1 | `dive-conformance r2 record --classes r2-classes.json --out <out.json> [--note TEXT]... r2-small.json r2-large-shard*.json`; add `attempts` and `raw` (archive digests) by hand |
 | D2 | `records/benchagg.py runs.jsonl > agg.json`; `records/drecords.py d2live rows.jsonl <golden> > live.json` per batch; `records/d2spec.py agg.json <set-sha> <raw-sha> spec.json live*.json`; `records/mkrecord.py D2 spec.json <out.json>`. The `registered_divergence` fields and `liveness_all_agree_or_registered` were added by hand after checking `conformance/expected-divergences.toml`. |
 | D3 | `records/drecords.py d3 rows.jsonl <golden> > d3.json`; `records/d3spec.py d3.json <raw-sha> spec.json`; `records/mkrecord.py D3 spec.json <out.json>` |
 | D4 | `records/d4record.py d4.json raw.json setsha.json od-4:1,2,3:<runs.jsonl> spot-3:rep=2:<runs.jsonl> ...` (one `node:selection:file` per input); `records/d4spec.py d4.json spec.json`; `records/mkrecord.py D4 spec.json <out.json>`; `records/d4table.py <out.json>` prints the results-page table |
@@ -173,8 +176,7 @@ of the results page (its D4 branch predates the D4 record's shape; use
 inspection.
 
 **0.1.0 constants to edit for the next campaign:** `mkrecord.py` (date,
-source, binary digest, oracle, corpus, the host block), `r2record.py` (oracle,
-corpus), `preshard.py` (the previous record's file name), `d2spec.py`,
+source, binary digest, oracle, corpus, the host block), `d2spec.py`,
 `d4spec.py` and `d7record.py` (revision in the command strings, `dive-bench`
 digest, D1's SlushLarge time), `d5spec.py` (the bosco and trace figures quoted
 in notes), `d4record.py` (the #1020 refusal text) and `mktables.py` (date).

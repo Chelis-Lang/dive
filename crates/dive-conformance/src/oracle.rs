@@ -521,27 +521,16 @@ impl OracleEnv {
         })
     }
 
-    /// Runs TLC on one model.
-    ///
-    /// # Errors
-    /// Fails on harness process/scratch errors or an enabled raw-capture
-    /// recording failure. Every TLC outcome, including timeouts, is returned
-    /// when the harness and any requested recording complete successfully.
-    pub fn run_tlc(&self, job: &TlcJob<'_>) -> Result<Invocation> {
-        let constructive = job.features.iter().any(|f| f == "constructive generation");
-        if constructive && !matches!(job.mode, CheckMode::Simulate { .. }) {
-            return Err(Error::Config(
-                "constructive generation requires a finite simulation model".to_owned(),
-            ));
-        }
-        let raw_root = self
-            .raw_invocations
-            .as_deref()
-            .map(|root| raw::checked_root(root, job))
-            .transpose()?;
-        let scratch = raw::Scratch::new(&self.tmp_root, raw_root.as_deref())?;
-        let work = isolate(job.corpus_root, job.module, scratch.path())?;
-        let mut cmd = self.base_command(scratch.path(), &work, job.xmx);
+    /// The TLC command line of `job`, with scratch directory `scratch` and
+    /// working directory `cwd`: the single source of the harness's TLC flags.
+    fn tlc_command(
+        &self,
+        job: &TlcJob<'_>,
+        scratch: &Path,
+        cwd: &Path,
+        constructive: bool,
+    ) -> Command {
+        let mut cmd = self.base_command(scratch, cwd, job.xmx);
         if job.features.iter().any(|f| f == "action composition") {
             cmd.arg("-Dtlc2.tool.impl.Tool.cdot=true");
         }
@@ -564,11 +553,60 @@ impl OracleEnv {
             .args(["-fp", &job.fp.to_string()])
             .args(["-seed", &job.seed.to_string()])
             .arg("-metadir")
-            .arg(scratch.path().join("states"));
-        let trace_file = scratch.path().join("trace.json");
+            .arg(scratch.join("states"));
         if job.dump_trace && self.capabilities.dump_trace_json {
-            cmd.args(["-dumpTrace", "json"]).arg(&trace_file);
+            cmd.args(["-dumpTrace", "json"])
+                .arg(scratch.join("trace.json"));
         }
+        cmd
+    }
+
+    /// The harness's TLC command line for a single-worker exhaustive run at
+    /// `-Xmx<xmx>`, seed and fingerprint 0, with machine paths replaced by
+    /// `$TMP`, `$CWD` and `$DIVE_CACHE_DIR` and the model as `<module>` and
+    /// `<config>`. R2 cached TLC times are valid only under the same line.
+    #[must_use]
+    pub fn tlc_command_template(&self, xmx: &str) -> Vec<String> {
+        let (scratch, cwd) = (Path::new("$TMP"), Path::new("$CWD"));
+        let job = TlcJob {
+            corpus_root: cwd,
+            module: "<module>",
+            config: "<config>",
+            mode: CheckMode::Exhaustive,
+            features: &[],
+            workers: 1,
+            timeout: Duration::ZERO,
+            xmx,
+            seed: 0,
+            lncheck: "final",
+            fp: 0,
+            dump_trace: false,
+        };
+        self.redacted_command(&self.tlc_command(&job, scratch, cwd, false), scratch, cwd)
+    }
+
+    /// Runs TLC on one model.
+    ///
+    /// # Errors
+    /// Fails on harness process/scratch errors or an enabled raw-capture
+    /// recording failure. Every TLC outcome, including timeouts, is returned
+    /// when the harness and any requested recording complete successfully.
+    pub fn run_tlc(&self, job: &TlcJob<'_>) -> Result<Invocation> {
+        let constructive = job.features.iter().any(|f| f == "constructive generation");
+        if constructive && !matches!(job.mode, CheckMode::Simulate { .. }) {
+            return Err(Error::Config(
+                "constructive generation requires a finite simulation model".to_owned(),
+            ));
+        }
+        let raw_root = self
+            .raw_invocations
+            .as_deref()
+            .map(|root| raw::checked_root(root, job))
+            .transpose()?;
+        let scratch = raw::Scratch::new(&self.tmp_root, raw_root.as_deref())?;
+        let work = isolate(job.corpus_root, job.module, scratch.path())?;
+        let mut cmd = self.tlc_command(job, scratch.path(), &work, constructive);
+        let trace_file = scratch.path().join("trace.json");
         let command = self.redacted_command(&cmd, scratch.path(), &work);
         scratch.started(&cmd, job)?;
         let outcome = run_with_timeout(&mut cmd, job.timeout, scratch.path());

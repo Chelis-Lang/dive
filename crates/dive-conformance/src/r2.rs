@@ -9,6 +9,11 @@
 //! lower bound instead of being run to completion. Models without a cached
 //! timing keep the ordinary budget policy and are listed as untimed.
 //!
+//! The `r2` command ([`procedure`]) carries out the whole measurement
+//! procedure of `docs/developer/performance.md`: classification, matched
+//! repetitions, band re-runs at a [`BANDED_FACTOR`] budget, cached-time
+//! validity and canaries, the clean environment ([`host`]) and the record.
+//!
 //! ```
 //! use dive_conformance::r2::{FLOOR, time_limit};
 //! use std::time::Duration;
@@ -28,6 +33,10 @@ use std::fmt::Write as _;
 use std::path::Path;
 use std::time::Duration;
 
+pub mod host;
+pub mod procedure;
+pub mod stats;
+
 /// Least time limit a timed model gets: process start-up dominates below it.
 pub const FLOOR: Duration = Duration::from_secs(10);
 
@@ -44,6 +53,34 @@ pub fn time_limit(tlc_ms: u64, cap: Duration) -> Duration {
         .min(cap)
 }
 
+/// The Core budget factor of a band re-run pair (`performance.md`: 2.5x
+/// that pair's TLC time).
+pub const BANDED_FACTOR: f64 = 2.5;
+
+/// The Core time limit for a model TLC checked in `tlc_ms` at an arbitrary
+/// budget `factor`: `max(FLOOR, factor x tlc_ms)`, hard-capped by `cap`.
+///
+/// ```
+/// use dive_conformance::r2::{FLOOR, time_limit_at};
+/// use std::time::Duration;
+///
+/// let cap = Duration::from_mins(15);
+/// assert_eq!(time_limit_at(10_000, 2.5, cap), Duration::from_secs(25));
+/// assert_eq!(time_limit_at(1_000, 2.5, cap), FLOOR);
+/// ```
+#[must_use]
+pub fn time_limit_at(tlc_ms: u64, factor: f64, cap: Duration) -> Duration {
+    #[allow(
+        clippy::cast_precision_loss,
+        reason = "millisecond wall times are far below 2^52"
+    )]
+    let secs = tlc_ms as f64 / 1000.0 * factor;
+    Duration::try_from_secs_f64(secs)
+        .unwrap_or(cap)
+        .max(FLOOR)
+        .min(cap)
+}
+
 /// Single-worker TLC wall-clock times from one harness report.
 #[derive(Debug, Clone)]
 pub struct TlcTimings {
@@ -55,7 +92,15 @@ pub struct TlcTimings {
     pub host: Host,
     /// `(corpus, model)` to elapsed milliseconds.
     times: BTreeMap<(String, String), u64>,
+    /// The Core budget factor ([`FACTOR`] unless [`Self::with_factor`]).
+    factor: f64,
+    /// The source report's `--jobs`, `--xmx` and `(corpus, commit)` pins,
+    /// when it is a report (not explicit pairs).
+    settings: Option<SourceSettings>,
 }
+
+/// `--jobs`, `--xmx` and `(corpus, commit)` pins of a timing report.
+type SourceSettings = (usize, String, Vec<(String, String)>);
 
 impl TlcTimings {
     /// Reads a harness report of a TLC oracle run.
@@ -101,6 +146,16 @@ impl TlcTimings {
             implementation: report.implementation.clone(),
             host: report.host.clone(),
             times,
+            factor: f64::from(FACTOR),
+            settings: Some((
+                report.settings.jobs,
+                report.settings.xmx.clone(),
+                report
+                    .corpora
+                    .iter()
+                    .map(|c| (c.id.clone(), c.commit.clone()))
+                    .collect(),
+            )),
         })
     }
 
@@ -116,6 +171,80 @@ impl TlcTimings {
             implementation: "tlc".to_owned(),
             host,
             times: times.into_iter().collect(),
+            factor: f64::from(FACTOR),
+            settings: None,
+        }
+    }
+
+    /// Refuses timings taken under another `--jobs`, `--xmx` or corpus pin
+    /// than the run that would reuse them (`pins`: corpus id to pinned
+    /// commit, empty for an in-repository corpus).
+    ///
+    /// # Errors
+    /// Names every difference.
+    pub fn check_compatible(
+        &self,
+        jobs: usize,
+        xmx: &str,
+        pins: &BTreeMap<String, String>,
+    ) -> std::result::Result<(), String> {
+        let Some((t_jobs, t_xmx, corpora)) = &self.settings else {
+            return Ok(());
+        };
+        let mut diff = Vec::new();
+        if *t_jobs != jobs {
+            diff.push(format!("--jobs {t_jobs}, not {jobs}"));
+        }
+        if t_xmx != xmx {
+            diff.push(format!("--xmx {t_xmx}, not {xmx}"));
+        }
+        for (id, commit) in corpora {
+            if let Some(pin) = pins.get(id)
+                && !pin.is_empty()
+                && !commit.starts_with(pin.as_str())
+            {
+                diff.push(format!("corpus {id} at {commit}, not the pinned {pin}"));
+            }
+        }
+        if diff.is_empty() {
+            Ok(())
+        } else {
+            Err(format!(
+                "the TLC timings of {} were taken under {}",
+                self.run_id,
+                diff.join(", ")
+            ))
+        }
+    }
+
+    /// The same timings with Core budgets at `factor` x TLC instead of
+    /// [`FACTOR`] (band re-runs use [`BANDED_FACTOR`]).
+    #[must_use]
+    pub fn with_factor(mut self, factor: f64) -> Self {
+        self.factor = factor;
+        self
+    }
+
+    /// Keeps only the models `keep` accepts.
+    #[must_use]
+    pub fn retain(mut self, keep: impl Fn(&str, &str) -> bool) -> Self {
+        self.times.retain(|(c, m), _| keep(c, m));
+        self
+    }
+
+    /// The Core budget of a model TLC checked in `tlc_ms`, hard-capped by
+    /// `cap`.
+    #[must_use]
+    pub fn limit(&self, tlc_ms: u64, cap: Duration) -> Duration {
+        #[allow(
+            clippy::float_cmp,
+            reason = "FACTOR is exactly representable; the integer path keeps the documented limit exact"
+        )]
+        let default = self.factor == f64::from(FACTOR);
+        if default {
+            time_limit(tlc_ms, cap)
+        } else {
+            time_limit_at(tlc_ms, self.factor, cap)
         }
     }
 
@@ -143,9 +272,10 @@ impl TlcTimings {
     #[must_use]
     pub fn policy(&self, cap: Duration) -> String {
         format!(
-            "--tlc-timings {}: a model with a cached TLC time gets max({} s, {FACTOR} x TLC elapsed), hard cap {} s",
+            "--tlc-timings {}: a model with a cached TLC time gets max({} s, {} x TLC elapsed), hard cap {} s",
             self.run_id,
             FLOOR.as_secs(),
+            self.factor,
             cap.as_secs()
         )
     }
@@ -432,6 +562,24 @@ mod tests {
             ],
         )?;
         TlcTimings::from_report(&tlc).map_err(Error::Config)
+    }
+
+    #[test]
+    fn timings_from_other_settings_are_refused() -> Result<()> {
+        let t = timings()?;
+        let pins = BTreeMap::from([("examples".to_owned(), String::new())]);
+        assert_eq!(t.check_compatible(1, "3g", &pins), Ok(()));
+        let e = t
+            .check_compatible(4, "24g", &pins)
+            .err()
+            .unwrap_or_default();
+        assert!(
+            e.contains("--jobs 1, not 4") && e.contains("--xmx 3g, not 24g"),
+            "{e}"
+        );
+        let explicit = TlcTimings::new("x", host(), []);
+        assert_eq!(explicit.check_compatible(4, "24g", &pins), Ok(()));
+        Ok(())
     }
 
     #[test]

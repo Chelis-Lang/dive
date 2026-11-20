@@ -53,6 +53,7 @@ COMMANDS:
                            --summary (default docs/conformance.md), one per implementation
     report baseline <report.json> --out <file>
                            write the compact baseline of a report (for `run --baseline`)
+    r2 <step>              the R2 measurement procedure (docs/developer/performance.md); see R2
     trace-controls         run every golden counterexample through dive's independent trace
                            validator under --compat=tlc (positive controls) and check that
                            each by-construction mutant is rejected (negative controls;
@@ -62,6 +63,7 @@ SELECTION (corpus list, golden generate, run, trace-controls, study final):
     --corpus <id>          corpus (default: examples); `run` takes several, into one report
     --tier <t>             small | deep | all (default: small)
     --filter <glob>        model/module path glob; repeatable (`*`, `**`, `?`)
+    --filter-file <file>   one --filter per non-empty line (`#` starts a comment line)
 
 GOLDEN GENERATE:
     --oracle <id>          oracle (default: the default oracle)
@@ -128,6 +130,34 @@ LIMITS (golden generate, run; timeout options also apply to study final):
                            default off; excludes Java setup and capability probes)
     --raw-setup-status     also retain bounded setup status/streams in a separate schema
                            requires --raw-invocations; default off
+
+R2 (r2 classify | small | large | canary | probe | record):
+    Timed steps refuse DIVE_* (but DIVE_CACHE_DIR), MALLOC_*, MIMALLOC_*, DYLD_*,
+    GLIBC_TUNABLES, LD_PRELOAD and LD_LIBRARY_PATH, record every other variable by name,
+    re-execute under `numactl --cpunodebind=0 --membind=0` on Linux (absent elsewhere,
+    or with --no-bind), check the JRE's CDS archives against the pinned archive, warm
+    the page cache, time /bin/true (median of five) and run at 1 worker and 1 job with
+    the pinned JRE. Defaults: --corpus examples --tier all --xmx 24g --budget-cap 30000.
+    Anything that breaks a procedure rule is recorded as triage.
+    r2 classify --out DIR [--timeout SECS]
+                           one TLC pass (timeout default 15 s): small < 10 s, large
+                           otherwise; writes DIR/r2-classes.json
+    r2 small --classes FILE --out DIR [--reps N] [--label L]
+                           N (default 6) repetitions of the selected small class,
+                           TLC/Core order alternating; writes DIR/r2-small[-<L>].json
+    r2 large --classes FILE --out DIR [--budget-factor F] [--tlc-cache PART] [--shard K/N]
+                           one pass; a ratio in [0.9,1.1] or [1.8,2.0], or a stop, gets
+                           three alternating pairs at F x TLC (default 2.5); a cache
+                           (an earlier large part) is used only when its controls
+                           match and the canaries pass; --shard K/N times shard K of an
+                           LPT split on golden TLC times; writes DIR/r2-large[-<L>].json
+    r2 canary --tlc-cache PART --out DIR
+                           re-time the cache's three shortest models three times each:
+                           5 % per canary / 2 % mean rule; exit 1 if the cache is stale
+    r2 probe               the harness-overhead probe alone
+    r2 record --classes FILE --out FILE [--note TEXT]... PART...
+                           merge parts into the R2 record; exit 1 if the gate fails
+    Select a shard with --filter; --dive-bin as for run.
 
 EXIT STATUS:
     0 success; 1 findings (failed goldens, or disagree/oracle-error/timeout outcomes,
@@ -204,12 +234,41 @@ struct Opts {
     model_id: Option<String>,
     module_paths: Vec<PathBuf>,
     overall_timeout: Option<u64>,
+    classes: Option<PathBuf>,
+    tlc_cache: Option<PathBuf>,
+    budget_factor: Option<f64>,
+    reps: Option<usize>,
+    no_bind: bool,
+    r2_bound: bool,
+    label: Option<String>,
+    shard: Option<(usize, usize)>,
+    notes: Vec<String>,
     positional: Vec<String>,
 }
 
 fn parse_num<T: std::str::FromStr>(flag: &str, v: &str) -> Result<T> {
     v.parse()
         .map_err(|_| Error::Usage(format!("{flag}: `{v}` is not a valid number")))
+}
+
+/// `--budget-factor F`: finite and at least 1.
+fn parse_factor(v: &str) -> Result<f64> {
+    let f: f64 = parse_num("--budget-factor", v)?;
+    if f.is_finite() && f >= 1.0 {
+        Ok(f)
+    } else {
+        Err(Error::Usage(
+            "--budget-factor must be a finite number of at least 1".to_owned(),
+        ))
+    }
+}
+
+/// `--shard K/N` with `1 <= K <= N`.
+fn parse_shard(v: &str) -> Result<(usize, usize)> {
+    v.split_once('/')
+        .and_then(|(k, n)| Some((k.parse::<usize>().ok()?, n.parse::<usize>().ok()?)))
+        .filter(|&(k, n)| k >= 1 && k <= n)
+        .ok_or_else(|| Error::Usage(format!("--shard: `{v}` is not K/N with 1 <= K <= N")))
 }
 
 fn parse_opts(args: &mut Args) -> Result<Opts> {
@@ -221,6 +280,16 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--corpus" => o.corpus.push(args.value(&a)?),
             "--tier" => o.tier = Some(args.value(&a)?),
             "--filter" => o.filters.push(args.value(&a)?),
+            "--filter-file" => {
+                let path = PathBuf::from(args.value(&a)?);
+                let text = std::fs::read_to_string(&path).map_err(|e| Error::io(&path, &e))?;
+                o.filters.extend(
+                    text.lines()
+                        .map(str::trim)
+                        .filter(|l| !l.is_empty() && !l.starts_with('#'))
+                        .map(str::to_owned),
+                );
+            }
             "--oracle" => o.oracle = Some(args.value(&a)?),
             "--reason" => o.reason = Some(args.value(&a)?),
             "--no-sany" => o.no_sany = true,
@@ -290,6 +359,15 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             }
             "--fp" => o.fp = Some(parse_num(&a, &args.value(&a)?)?),
             "--feature" => o.features.push(args.value(&a)?),
+            "--classes" => o.classes = Some(args.value(&a)?.into()),
+            "--tlc-cache" => o.tlc_cache = Some(args.value(&a)?.into()),
+            "--budget-factor" => o.budget_factor = Some(parse_factor(&args.value(&a)?)?),
+            "--reps" => o.reps = Some(parse_num(&a, &args.value(&a)?)?),
+            "--no-bind" => o.no_bind = true,
+            dive_conformance::r2::host::REEXEC_FLAG => o.r2_bound = true,
+            "--label" => o.label = Some(args.value(&a)?),
+            "--shard" => o.shard = Some(parse_shard(&args.value(&a)?)?),
+            "--note" => o.notes.push(args.value(&a)?),
             s if s.starts_with("--") => return Err(Error::Usage(format!("unknown option `{s}`"))),
             _ => o.positional.push(a),
         }
@@ -393,6 +471,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
         ["report", "summarise"] => report_summarise(&root, o),
         ["report", "baseline"] => report_baseline(o),
         ["trace-controls"] => cmd_trace_controls(&config, &cache, &root, o),
+        ["r2", step] => cmd_r2(&config, &cache, &root, step, o),
         ["compare-models"] => cmd_compare_models(&config, &cache, o),
         ["dev", "capture"] => {
             dev_capture(&config, &cache, o)?;
@@ -686,7 +765,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
     }
     // Load the baseline first: a bad path should not cost a whole run.
     let baseline = o.baseline.as_deref().map(Baseline::load).transpose()?;
-    let tlc_timings = tlc_timings(o, dive_engine.is_some())?;
+    let tlc_timings = tlc_timings(config, o, dive_engine.is_some())?;
     let opts = RunOptions {
         corpora: if o.corpus.is_empty() {
             vec!["examples".to_owned()]
@@ -785,7 +864,11 @@ fn finish_run(
 }
 
 /// `--tlc-timings`: the same-host TLC timing report, checked before the run.
-fn tlc_timings(o: &Opts, dive: bool) -> Result<Option<dive_conformance::r2::TlcTimings>> {
+fn tlc_timings(
+    config: &Config,
+    o: &Opts,
+    dive: bool,
+) -> Result<Option<dive_conformance::r2::TlcTimings>> {
     let Some(path) = o.tlc_timings.as_deref() else {
         return Ok(None);
     };
@@ -799,7 +882,18 @@ fn tlc_timings(o: &Opts, dive: bool) -> Result<Option<dive_conformance::r2::TlcT
             "--tlc-timings and --timeout conflict".to_owned(),
         ));
     }
-    dive_conformance::r2::TlcTimings::load(path).map(Some)
+    let timings = dive_conformance::r2::TlcTimings::load(path)?;
+    let lim = limits(o);
+    let pins = config
+        .corpora
+        .corpus
+        .iter()
+        .map(|c| (c.id.clone(), c.commit.clone()))
+        .collect();
+    timings
+        .check_compatible(lim.jobs, &lim.xmx, &pins)
+        .map_err(Error::Usage)?;
+    Ok(Some(timings))
 }
 
 /// Prints the R2 summary and writes it next to the report.
@@ -821,6 +915,187 @@ fn report_r2(
     )?;
     out(&format!("R2 summary: {}\n", path.display()));
     Ok(())
+}
+
+/// `r2 <step>`: the R2 measurement procedure.
+#[allow(
+    clippy::too_many_lines,
+    reason = "option checks, then one arm per step"
+)]
+fn cmd_r2(config: &Config, cache: &Cache, root: &Path, step: &str, o: &Opts) -> Result<bool> {
+    use dive_conformance::r2::{host, procedure};
+    if !matches!(
+        step,
+        "classify" | "small" | "large" | "canary" | "probe" | "record"
+    ) {
+        return Err(Error::Usage(format!("unknown r2 step `{step}`\n\n{USAGE}")));
+    }
+    if o.jobs.is_some_and(|j| j != 1) || o.workers.as_ref().is_some_and(|w| w != &[1]) {
+        return Err(Error::Usage(
+            "R2 runs time one checker at a time at one worker: --jobs 1, --workers 1".to_owned(),
+        ));
+    }
+    if o.java.is_some() || o.imp.is_some() || o.impl_profile.is_some() || !o.impl_options.is_empty()
+    {
+        return Err(Error::Usage(
+            "R2 runs time pinned TLC against Core in the default profile; --java, --impl, --impl-profile and --impl-option do not apply".to_owned(),
+        ));
+    }
+    if step == "record" {
+        let classes = procedure::Classes::load(
+            o.classes
+                .as_deref()
+                .ok_or_else(|| Error::Usage("r2 record needs --classes".to_owned()))?,
+        )?;
+        let dest = o
+            .out
+            .clone()
+            .ok_or_else(|| Error::Usage("r2 record needs --out <file>".to_owned()))?;
+        let parts = o
+            .positional
+            .iter()
+            .map(|p| procedure::Part::load(Path::new(p)))
+            .collect::<Result<Vec<_>>>()?;
+        let rec = procedure::record(&classes, &parts, o.notes.clone())?;
+        dive_conformance::util::write_atomic(
+            &dest,
+            dive_conformance::golden::to_pretty(&rec)?.as_bytes(),
+        )?;
+        out(&procedure::render(&rec.models, &rec.summary, &rec.triage));
+        out(&format!("R2 record: {}\n", dest.display()));
+        return Ok(rec.summary.gate_result == "fail");
+    }
+    let environment = host::check_environment(std::env::vars_os())?;
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    let binding = host::ensure_binding(o.no_bind, o.r2_bound, &args)?;
+    if step == "probe" {
+        let dir = dive_conformance::util::TempDir::new("r2-probe")?;
+        let probe = host::overhead_probe(dir.path())?;
+        out(&format!(
+            "{}\nbinding: {}\n",
+            serde_json::to_string_pretty(&probe).unwrap_or_default(),
+            binding.description
+        ));
+        return Ok(false);
+    }
+    let dir = o
+        .out
+        .clone()
+        .ok_or_else(|| Error::Usage(format!("r2 {step} needs --out <dir>")))?;
+    std::fs::create_dir_all(&dir).map_err(|e| Error::io(&dir, &e))?;
+    let opts = procedure::Options {
+        corpus: corpus_id(o)?,
+        oracle: match &o.golden_oracle {
+            Some(id) => id.clone(),
+            None => config.oracles.default_oracle()?.id.clone(),
+        },
+        selection: Selection {
+            tier: o.tier.clone().unwrap_or_else(|| "all".to_owned()),
+            filters: o.filters.clone(),
+        },
+        dive_bin: o.dive_bin.clone().unwrap_or_else(|| {
+            root.join("target")
+                .join("release")
+                .join(format!("dive{}", std::env::consts::EXE_SUFFIX))
+        }),
+        xmx: o
+            .xmx
+            .clone()
+            .unwrap_or_else(|| procedure::DEFAULT_XMX.to_owned()),
+        budget_cap: o
+            .budget_cap
+            .map_or(procedure::DEFAULT_BUDGET_CAP, Duration::from_secs),
+        out: dir,
+        label: o.label.clone().unwrap_or_else(|| {
+            o.shard
+                .map(|(k, n)| format!("shard{k}of{n}"))
+                .unwrap_or_default()
+        }),
+        shard: o.shard,
+        binding,
+        environment,
+    };
+    let load_classes = || {
+        procedure::Classes::load(
+            o.classes
+                .as_deref()
+                .ok_or_else(|| Error::Usage(format!("r2 {step} needs --classes")))?,
+        )
+    };
+    let cached = o
+        .tlc_cache
+        .as_deref()
+        .map(procedure::Part::load)
+        .transpose()?;
+    match step {
+        "classify" => {
+            let c = procedure::classify(
+                config,
+                cache,
+                &opts,
+                o.timeout
+                    .map_or(procedure::CLASSIFY_TIMEOUT, Duration::from_secs),
+            )?;
+            let small = c
+                .models
+                .values()
+                .filter(|r| r.class == dive_conformance::r2::stats::SizeClass::Small)
+                .count();
+            out(&format!(
+                "classes: {} small, {} large, {} without a class: {}\n",
+                small,
+                c.models.len() - small,
+                c.not_timed.len(),
+                opts.out.join("r2-classes.json").display()
+            ));
+            Ok(false)
+        }
+        "small" | "large" => {
+            let classes = load_classes()?;
+            let part = if step == "small" {
+                if cached.is_some() || o.budget_factor.is_some() || o.shard.is_some() {
+                    return Err(Error::Usage(
+                        "--tlc-cache, --budget-factor and --shard apply to r2 large".to_owned(),
+                    ));
+                }
+                procedure::small(
+                    config,
+                    cache,
+                    &opts,
+                    &classes,
+                    o.reps
+                        .unwrap_or(dive_conformance::r2::stats::SMALL_REPETITIONS),
+                )?
+            } else {
+                procedure::large(
+                    config,
+                    cache,
+                    &opts,
+                    &classes,
+                    o.budget_factor
+                        .unwrap_or(dive_conformance::r2::BANDED_FACTOR),
+                    cached.as_ref(),
+                )?
+            };
+            let summary = procedure::summarise(&part.models, part.triage.is_empty());
+            out(&procedure::render(&part.models, &summary, &part.triage));
+            out(&format!(
+                "R2 part: {}\n",
+                opts.out.join(opts.file_name(step)).display()
+            ));
+            Ok(false)
+        }
+        _ => {
+            let cached =
+                cached.ok_or_else(|| Error::Usage("r2 canary needs --tlc-cache".to_owned()))?;
+            let v = procedure::canary(config, cache, &opts, &cached)?;
+            out(&format!(
+                "{}\n",
+                serde_json::to_string_pretty(&v).unwrap_or_default()
+            ));
+            Ok(!v.valid)
+        }
+    }
 }
 
 /// Prints the run's summary and returns whether its findings gate (exit 1).
@@ -1029,7 +1304,8 @@ fn main() -> ExitCode {
             };
             let rest = o.positional.split_off(n.min(o.positional.len()));
             let cmd = std::mem::replace(&mut o.positional, rest);
-            let takes_args = matches!(cmd.first().map(String::as_str), Some("dev" | "report"));
+            let takes_args = matches!(cmd.first().map(String::as_str), Some("dev" | "report"))
+                || cmd == ["r2", "record"];
             if !takes_args && !o.positional.is_empty() {
                 return Err(Error::Usage(format!(
                     "unexpected argument(s) {:?} after `{}`",
@@ -1052,6 +1328,19 @@ fn main() -> ExitCode {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn r2_factors_and_shards_are_checked() -> Result<()> {
+        assert!((parse_factor("2.5")? - 2.5).abs() < f64::EPSILON);
+        for bad in ["0.5", "inf", "NaN", "x"] {
+            assert!(parse_factor(bad).is_err(), "{bad}");
+        }
+        assert_eq!(parse_shard("2/4")?, (2, 4));
+        for bad in ["0/4", "5/4", "4", "a/b"] {
+            assert!(parse_shard(bad).is_err(), "{bad}");
+        }
+        Ok(())
+    }
 
     #[test]
     fn raw_invocation_option_is_off_by_default_and_scoped_to_generation() -> Result<()> {
