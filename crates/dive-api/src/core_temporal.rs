@@ -65,6 +65,59 @@ fn fixed_name_domain(prepared: &Prepared) -> bool {
         })
 }
 
+/// How a temporal capture is scheduled, decided before the search from the
+/// bound model alone, so that no parallel capture is started and undone.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct CaptureWidth {
+    /// The workers the capture uses.
+    pub(crate) workers: usize,
+    /// Whether the capture runs on the concrete pool, whose admission checks
+    /// [`dive_runtime::capture::refusal`] then applies.
+    pub(crate) pool: bool,
+    /// Why one worker captures although more were requested.
+    pub(crate) one_worker: Option<String>,
+}
+
+/// The width of this temporal capture.
+///
+/// A model whose effects or runtime names keep its capture off the concrete
+/// pool ([`dive_runtime::capture::pool_sequential`]) is captured inline with
+/// one worker, exactly as `--workers 1` captures it, instead of being refused.
+/// Runtime names in a proved fixed startup domain keep the requested width
+/// off the pool.
+pub(crate) fn capture_width(options: &CheckOptions, prepared: &Prepared) -> CaptureWidth {
+    let requested = options.workers.max(1);
+    let model = &prepared.model;
+    if requested == 1
+        || (fixed_name_domain(prepared) && dive_runtime::capture::runtime_names_only(model))
+    {
+        return CaptureWidth {
+            workers: requested,
+            pool: false,
+            one_worker: None,
+        };
+    }
+    if !dive_runtime::capture::pool_sequential(model) {
+        return CaptureWidth {
+            workers: requested,
+            pool: true,
+            one_worker: None,
+        };
+    }
+    let what = if model.sequential.is_empty() {
+        "start-up or configured effects".to_owned()
+    } else {
+        model.sequential.join("; ")
+    };
+    CaptureWidth {
+        workers: 1,
+        pool: false,
+        one_worker: Some(format!(
+            "the temporal capture has effects or runtime names ({what}): the core captures the behavior graph in order with one worker"
+        )),
+    }
+}
+
 /// Why Core does not run this temporal check before its search.
 pub(crate) fn static_refusal(
     ir: &Arc<Ir>,
@@ -75,13 +128,16 @@ pub(crate) fn static_refusal(
     if let Some(reason) = dive_runtime::admission::route_exclusion(ir, config, options) {
         return Some(format!("temporal properties with {reason} (core)"));
     }
-    let guarded_names =
-        fixed_name_domain(prepared) && dive_runtime::capture::runtime_names_only(&prepared.model);
-    if let Some(reason) = dive_runtime::capture::refusal(
-        &prepared.model,
-        options,
-        options.workers > 1 && !guarded_names,
-    ) {
+    let width = capture_width(options, prepared);
+    // A requested width captured with one worker keeps (and extends to every
+    // predicate scope) the pool's context check, so the fallback never admits
+    // a model the pool would refuse as foreign.
+    if width.one_worker.is_some() && prepared.model.validate_context().is_err() {
+        return Some(
+            "temporal properties: concrete pool capture foreign IR or name table (core)".into(),
+        );
+    }
+    if let Some(reason) = dive_runtime::capture::refusal(&prepared.model, options, width.pool) {
         return Some(format!("temporal properties: {reason} (core)"));
     }
     if prepared.plan.effects.prints {
@@ -205,6 +261,11 @@ fn check_configured_inner(
     if let Some(feature) = static_refusal(ir, config, options, &prepared) {
         return refused(feature, options, ir);
     }
+    let CaptureWidth {
+        workers,
+        one_worker,
+        ..
+    } = capture_width(options, &prepared);
     let Prepared {
         model,
         host: _,
@@ -238,7 +299,6 @@ fn check_configured_inner(
             );
         }
     };
-    let workers = options.workers.max(1);
     let budget = &options.budget;
     let poll = || !matches!(budget.poll(), Ok(None));
     let explore_started = Instant::now();
@@ -404,6 +464,12 @@ fn check_configured_inner(
         .filter(|rows| rows.has_error())
         .and(out.trace.clone());
     let mut safety = crate::core_engine::safety_result(&search, &model, &store, &plan, start, out);
+    if let Some(reason) = one_worker
+        && safety.workers.used == 1
+        && safety.workers.reason.is_none()
+    {
+        safety.workers.reason = Some(reason);
+    }
     if let Some(rows) =
         source_rows.filter(dive_liveness::analyze::owned::SourceRowDriver::has_error)
     {

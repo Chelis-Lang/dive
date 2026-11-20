@@ -7,6 +7,10 @@ are in git history.
 
 ### Fixed
 
+- Core grows the in-memory fingerprint table one shard at a time, packs trace
+  predecessors, and bounds parallel safety candidate batches. On KVS Large
+  the eight-worker checker finished within its 24 GiB memory limit.
+
 - `dive simulate` no longer holds every sampled trace as a JSON tree before
   printing its report. Each trace is kept as its serialized entry and its
   concrete states are released once that entry is written, so memory per trace
@@ -14,6 +18,11 @@ are in git history.
   instead of 4.0 GB. Reports are byte-for-byte unchanged.
 - Library users: `SimulateReport::write_json` writes the report text without
   building the JSON tree that `to_json` returns.
+- A temporal check whose model has effects or run-time names (for example
+  `SpanTreeRandom.cfg` and `MCKVsnap.cfg`) no longer refuses at `--workers`
+  above 1 with "concrete pool capture with effects or runtime names". It
+  builds the behavior graph with one worker and gives the one-worker result;
+  the report's `options.workers.reason` and the human header say so.
 
 ### Performance
 

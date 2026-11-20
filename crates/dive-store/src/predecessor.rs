@@ -4,6 +4,8 @@
 //! no growing offset table or record vector stays resident. Reconstruction
 //! vectors are separate from the retained-record budget.
 
+mod packed;
+
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
@@ -32,9 +34,9 @@ fn error(operation: &str, cause: impl std::fmt::Display) -> StoreError {
 /// Retained predecessor capacity and confirmed complete disk writes.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Usage {
-    /// Current parent/ordinal vector capacity, excluding reconstruction.
+    /// Current resident record and block-index capacity, excluding reconstruction.
     pub retained_bytes: u64,
-    /// Peak vector capacity admitted under the separate log budget.
+    /// Peak resident capacity for records and their block index.
     pub peak_retained_bytes: u64,
     /// Confirmed header/record writes. Failed writes can leave extra bytes.
     pub written_bytes: u64,
@@ -56,6 +58,7 @@ struct Disk {
 #[derive(Debug)]
 pub struct PredecessorLog {
     memory: TraceLog,
+    packed: Option<packed::Packed>,
     budget: Option<usize>,
     parent: PathBuf,
     disk: Option<Disk>,
@@ -67,12 +70,13 @@ pub struct PredecessorLog {
 }
 
 impl PredecessorLog {
-    /// Creates an empty log without filesystem access. No budget retains
-    /// the existing in-memory representation and behavior.
+    /// Creates an empty log without filesystem access. With an unspecified
+    /// budget the resident log uses indexed parent deltas and ordinals.
     #[must_use]
     pub fn new(budget: Option<usize>, directory: Option<&Path>) -> Self {
         Self {
             memory: TraceLog::new(),
+            packed: budget.is_none().then(packed::Packed::default),
             budget,
             parent: directory.map_or_else(std::env::temp_dir, Path::to_path_buf),
             disk: None,
@@ -100,7 +104,11 @@ impl PredecessorLog {
     #[must_use]
     pub fn usage(&self) -> Usage {
         Usage {
-            retained_bytes: self.memory.memory_bytes() as u64,
+            retained_bytes: self
+                .packed
+                .as_ref()
+                .map_or_else(|| self.memory.memory_bytes(), packed::Packed::memory_bytes)
+                as u64,
             ..self.usage
         }
     }
@@ -163,6 +171,17 @@ impl PredecessorLog {
             .checked_add(1)
             .filter(|n| *n != ROOT)
             .ok_or_else(|| error("record count", "overflow"))?;
+        if let Some(packed) = &mut self.packed {
+            packed
+                .append(id, parent, ordinal)
+                .map_err(|e| error("allocation", e))?;
+            self.usage.records = next;
+            self.usage.peak_retained_bytes = self
+                .usage
+                .peak_retained_bytes
+                .max(packed.memory_bytes() as u64);
+            return Ok(id);
+        }
         if self.disk.is_none() {
             if let Some(budget) = self.budget {
                 let n = usize::try_from(next).map_err(|e| error("record count", e))?;
@@ -296,6 +315,9 @@ impl PredecessorLog {
         self.ready()?;
         if id >= self.len() {
             return Err(StoreError::UnknownState(id));
+        }
+        if let Some(packed) = &self.packed {
+            return packed.get(id).ok_or(StoreError::UnknownState(id));
         }
         let Some(disk) = &self.disk else {
             return self.memory.get(id).ok_or(StoreError::UnknownState(id));

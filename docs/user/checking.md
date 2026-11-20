@@ -112,6 +112,17 @@ one took 48.8 s after worker reuse. Compare `--workers 1` with the desired
 width on the actual model. The report's worker count describes expansion.
 Ordered commit and temporal analysis can still dominate elapsed time.
 
+A temporal check whose model has effects or run-time names, such as a constant
+drawn with `RandomElement` at start-up, builds its behavior graph with one
+worker at any requested width, so it gives exactly the `--workers 1` result.
+The report says `"used": 1` and gives the `reason`, and the human report
+prints it under the header:
+
+```text
+dive check SpanTreeRandom.tla: profile dive, store fingerprint (fp 0), seed 0, 4 worker(s) requested, 1 used
+the temporal capture has effects or runtime names (start-up or configured effects): the core captures the behavior graph in order with one worker
+```
+
 Fingerprint storage is the default. `--store exact` keeps canonical concrete
 keys for supported values; a fingerprint run's collision figures do not turn
 into an exact-state proof. Safety checks support ordered frontier spill and
@@ -431,6 +442,13 @@ with filenames that already include their extensions. The adapter covers
 checking and finite sampling, not the whole TLC toolchain.
 
 ## Time and memory budgets
+
+The default in-memory fingerprint store grows one shard at a time. Core keeps
+trace parents and successor numbers in a packed log and can still replay a
+counterexample from any discovered state. In ordinary parallel safety runs,
+each worker handles at most 128 source states per batch before ordered commit.
+A wide frontier or a single state with many successors can still require
+substantial memory. [Core storage measurements](../developer/core/07-engine.md#resident-storage-measurements).
 
 Every `dive check` runs under two budgets:
 

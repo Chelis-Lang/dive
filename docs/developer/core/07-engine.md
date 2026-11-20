@@ -41,23 +41,56 @@ It appends paired canonical/original handle rows directly and decodes at most
 and a private nonreused process token; original/history views remain exact.
 This is same-process transient storage, not a value snapshot or recovery format.
 
-**Seen set.** An open-addressing table of 64-bit state hashes.
-- Each slot stores the hash and a claim: the minimum position that produced
-  that hash in the current level.
-- Claims use compare-and-swap on a packed 64-bit position word, so no lock is
-  needed. This is safe Rust using `AtomicU64`.
-- **Collision reporting.** Core prints no fingerprint collision estimate
-  (`collision: None` in `crates/dive-api/src/core_engine.rs`). Only TLC's
-  minimum-gap scan remains, as `dive_store::seen::DiskSeen::tlc_min_gap`.
-- **Growth.** The table grows at level boundaries. Within a level, sizing
-  uses the level's upper bound or a resize protocol, decided in M1.
+**Seen set.** The in-memory fingerprint store uses 256 open-addressing shards.
+The high eight fingerprint bits select a shard and the low bits select the
+initial linear probe. A shard doubles at three-quarters occupancy when a new
+key arrives. The old and new allocations overlap for one shard during a resize.
+The separate per-batch claim table uses atomic minimum positions to suppress
+duplicate work before the ordered commit. Core reports no collision estimate
+for fingerprint searches.
 
 **Exact store.** `--store exact` keeps complete mathematical state identities
 in Core's exact collision index (`crates/dive-explore/src/storage.rs`).
 
 **Predecessor log.** `dive_store::PredecessorLog`
 (`crates/dive-store/src/predecessor.rs:57`) records parent id and successor
-ordinal, unchanged.
+ordinal. With no log budget, the resident representation uses parent deltas
+and ordinals. An index every 64 records bounds decoding for a random lookup.
+An explicit log budget keeps the existing spill representation.
+
+### Resident storage measurements
+
+On a shared Ryzen AI MAX+ 395 workstation, inserting 402,653,185 distinct
+keys with the probe below grew the previous table through its three-quarters
+load threshold. Peak process RSS went from 12.00 GiB to 6.10 GiB with 256
+independently growing shards. Wall time went from 39.83 s to 36.24 s.
+For 4,000,000 three-child BFS records, the predecessor log's retained capacity
+went from 50,331,648 to 5,242,880 bytes. RSS includes the allocation overlap during a resize. The predecessor
+measurement counts the capacity of the record and index vectors.
+
+At the same KVS Large prefix (800,000 distinct, 5,703,129 generated and
+511,907 queued), reducing the eight-worker batch from 4,096 to 128 sources
+per worker lowered RSS from 343 to 174 MiB. Elapsed time went from 3.03 to
+3.29 s. An eight-worker PConProof comparison went from 1,862 to 512 MB and
+67.8 to 75.2 s. The completed KVS Large run used the fingerprint store and
+eight workers. It reached 594,616,815 distinct, 13,385,471,536 generated and
+depth 30 in 6,693.531 s with an empty frontier. The sampled maximum process
+RSS plus swap was 18.31 GiB on the workstation. The limits were 24 GiB and
+7,200 s. These single engineering runs used release builds with LTO disabled
+and 16 codegen units. The earlier memory stop reported in
+[issue #1034](https://github.com/Chelis-Lang/dive/issues/1034) used a different host.
+
+Run the allocation probes in a checkout with its own target directory.
+
+```sh
+export CARGO_TARGET_DIR=target CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16
+cargo build --release --locked -p dive-explore -p dive-store
+rustc --edition=2024 -O scripts/perf/scale/storage_probe.rs -L dependency=target/release/deps \
+  --extern dive_explore=target/release/libdive_explore.rlib \
+  --extern dive_store=target/release/libdive_store.rlib -o target/storage-probe
+/usr/bin/time -v target/storage-probe seen 402653185
+target/storage-probe parents 4000000
+```
 
 ## 3. One level
 
@@ -273,8 +306,9 @@ the incremental hash before any interning, so only new states are interned.
   `(parent, ordinal)`. The ordinal is the successor's index among all
   emissions of its parent's expansion, across actions in order, or its index
   among the initial states. The frontier carries the log ids beside the
-  handle arrays. The log costs 16 bytes per distinct state: MCLamportMutex
-  peaks at 92–97 MB instead of 73 MB (M3, indicative, load 10).
+  handle arrays. The unbudgeted resident log indexes blocks of 64 records. Small
+  parent deltas and ordinals share a byte. Wider values use variable-length
+  integers. A lookup scans at most one block.
 - At a stop, the explorer records where the behavior ends: the parent and the
   violating successor (interned from the buffer before the arena is reset),
   or the deadlocked state. `dive_explore::trace::replay` regenerates the path

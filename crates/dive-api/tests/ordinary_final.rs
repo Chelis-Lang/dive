@@ -484,18 +484,33 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
         "VARIABLE x\nBoot == Print(\"one-startup\",0)\nInit == x=Boot\nNext == x'=x+1\nSafe == x<0\nP == <>(x=3)",
         "INIT Init\nNEXT Next\nINVARIANT Safe\nPROPERTY P\n",
     )?;
-    let mut request = spec.request(4);
-    request.compat_tlc = false;
-    let report = dive_api::check_file(&request)?;
-    // TLC reports the initial `Safe` violation after printing once. Only the
-    // retired reference engine reached it (#791, #910): Core refuses a
-    // temporal capture whose start-up has an effect.
-    refused::assert_refused(
-        &report.to_json(),
-        report.exit_code(),
-        "temporal properties: concrete pool capture with effects or runtime names",
-    );
-    assert_eq!(report.to_json()["schema_version"], 3);
-    assert!(report.temporal_result().is_none());
+    // TLC reports the initial `Safe` violation after printing once. A
+    // temporal capture whose start-up has an effect runs with one worker at
+    // any requested width, and says why.
+    let mut documents = Vec::new();
+    for workers in [1, 4] {
+        let mut request = spec.request(workers);
+        request.compat_tlc = false;
+        let report = dive_api::check_file(&request)?;
+        let json = report.to_json();
+        assert_eq!(json["schema_version"], 3);
+        assert_eq!(json["verdict"], "invariant-violation", "{json}");
+        assert_eq!(json["property"], "Safe");
+        assert_eq!(json["output"], serde_json::json!(["\"one-startup\"  0"]));
+        assert_eq!(json["statistics"]["distinct"], 1);
+        assert!(report.temporal_result().is_none());
+        let used = &json["options"]["workers"];
+        assert_eq!(used["requested"], workers);
+        assert_eq!(used["used"], 1);
+        if workers == 1 {
+            assert!(used["reason"].is_null());
+        } else {
+            let reason = used["reason"].as_str().ok_or("one-worker reason")?;
+            assert!(reason.contains("with one worker"), "{reason}");
+            assert!(report.render_human().contains(reason));
+        }
+        documents.push((json["statistics"].clone(), json["counterexample"].clone()));
+    }
+    assert_eq!(documents[0], documents[1]);
     Ok(())
 }

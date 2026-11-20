@@ -1,0 +1,2949 @@
+{
+  "date": "2026-11-19",
+  "example_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "host": "shared Ryzen AI MAX+ 395 workstation",
+  "schema": 1,
+  "scope": "Additional timed integration checks, in execution order. Variant configurations can share a filename. Identical captures are listed once. See the source-driven test driver for the edits. These mixed workloads are diagnostic.",
+  "trials": [
+    {
+      "captures": [
+        "controls"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 4.594992,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.024667,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.036477,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.532964,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.018073,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.036909,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 139.825262,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.038349,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.03006,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.354795,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.015186,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.005167,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.005948,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.008038,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.043219,
+          "verdict": "success"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "complete-controls"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 5.46296,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.04999,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.037181,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.043088
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.031312
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.047106
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.026705
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.02906
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.681504,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.038604,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.06064,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.044596
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.031863
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.031071
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.033227
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.030873
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 169.783922,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.058574,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.046144,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.071204
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.029282
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.037406
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.037106
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.038972
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.487802,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.035387
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.797977,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.019178,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.761818,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.054085,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.654646,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 3.839134,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.80287,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 15.752626,
+          "verdict": "success"
+        },
+        {
+          "config": "keys-5.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.295146
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.004803,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.009448,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.005792,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.013272,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.088436,
+          "verdict": "success"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "final-controls"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 4.35997,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.03906,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.03198,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.032207
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.031207
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.02138
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.01842
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.020313
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.48697,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.022806,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.043073,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.025236
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.023432
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.0208
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.024033
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.02117
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 160.383494,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.039813,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.031767,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.038375
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.026607
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.027964
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.031595
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.026276
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.569244,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.019655
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.422909,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.016611,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.516795,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 2.608681,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.415316,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 10.025226,
+          "verdict": "success"
+        },
+        {
+          "config": "keys-5.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.14783
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.005077,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.005172,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.009064,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.052258,
+          "verdict": "success"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "final-quick-controls"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 4.199716,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.028506,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.025394,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.027433
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.0213
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.021538
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.019284
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.018262
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.429664,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.020553,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.042049,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.025084
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.020055
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.02071
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.032156
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.0247
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.389107,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.020961
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.433976,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.014199,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.346769,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 2.35997,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.348373,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 10.586114,
+          "verdict": "success"
+        },
+        {
+          "config": "keys-5.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.153517
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.004692,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.008672,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.005225,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.009654,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.046315,
+          "verdict": "success"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "program-controls"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 6.130311,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.040244,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.041932,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.035963
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.029472
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.043114
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.036337
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.029265
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.669933,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.030169,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.059092,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.04375
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.034956
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.042588
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.032435
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.027597
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.648164,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.026284
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.555745,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.022,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.697017,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.04914,
+          "trace_validated": true,
+          "verdict": "violation"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "source-script-final"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 6.08722,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.060279,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.040502,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.035358
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.035288
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.036984
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.025208
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.033548
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.569963,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.031512,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.067112,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.04259
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.0299
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.027996
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.04405
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.034448
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.665188,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.029232
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.67407,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.024088,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.64435,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.051413,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.667693,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 3.918975,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.785983,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 14.875127,
+          "verdict": "success"
+        },
+        {
+          "config": "keys-5.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.152309
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.757187,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.226438,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.005635,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.008789,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "Swap.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 3,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.005848,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.006478,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.013349,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.092239,
+          "verdict": "success"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "all-controls-final"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 6.036644,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.042945,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.048996,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.036682
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.035397
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.0258
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.041645
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.025293
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.68242,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.033801,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.059655,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.037219
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.041172
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.032364
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.026973
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.041406
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 181.891694,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.067562,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.046489,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.064126
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.044768
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.051493
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.03957
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.045127
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.758848,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.036156
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.991842,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.025004,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.781307,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.044123,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.940216,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 4.19787,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.693771,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 19.435503,
+          "verdict": "success"
+        },
+        {
+          "config": "keys-5.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.244141
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.779506,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.299809,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.011503,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.007149,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.006025,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.021093,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.092587,
+          "verdict": "success"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "final-admission"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 6.743755,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.043306,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.048354,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.031186
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.02718
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.030747
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.031953
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.035037
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.666983,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.033906,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.070129,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.034614
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.02821
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.036146
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.036845
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.033729
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 176.382668,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.065359,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.061235,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.076924
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.037801
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.047233
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.041993
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.037905
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.733732,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.027663
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.760772,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.023417,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.607977,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.043622,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.514732,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 3.862032,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.710569,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 15.589957,
+          "verdict": "success"
+        },
+        {
+          "config": "keys-5.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.182787
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.851876,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.255379,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.005925,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.01442,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "Swap.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 3,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.005973,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.006196,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.010043,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.064873,
+          "verdict": "success"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "final-branch-checks"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 3.815666,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.029371,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.02636,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.023157
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.01939
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.022614
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.019679
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.019008
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.380702,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.019884,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.034156,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.022954
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.020166
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.020126
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.019883
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.018622
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 138.168168,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.043717,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.032907,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.041816
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.02827
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.028914
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.027234
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.025154
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.623146,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.017483
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.620231,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.014995,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.668376,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.028128,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.739326,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 3.408664,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.57417,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 13.394862,
+          "verdict": "success"
+        },
+        {
+          "config": "keys-5.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.141528
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.614707,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.168798,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.004521,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.008335,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "Swap.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 3,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.004581,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.00472,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.008308,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.042321,
+          "verdict": "success"
+        }
+      ]
+    },
+    {
+      "captures": [
+        "source-verified"
+      ],
+      "rows": [
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": false,
+          "seconds": 6.06794,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 23,
+          "distinct": 3409605,
+          "generated": 56349379,
+          "reachable_bdd_nodes": 1278,
+          "reused": true,
+          "seconds": 0.052753,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.05909,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.041235
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.029786
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.027147
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.031293
+        },
+        {
+          "config": "MCKVSSafetySmall.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.028835
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.540646,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.023433,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.05881,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.033885
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.026715
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.029371
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.028962
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.031557
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 188.012301,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.065925,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "depth": 3,
+          "reused": true,
+          "seconds": 0.04947,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "clean.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.059834
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "NoWrites",
+          "proof": "inconclusive",
+          "seconds": 0.034073
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.047004
+        },
+        {
+          "config": "bad.cfg",
+          "failed_obligation": "Next closure",
+          "proof": "inconclusive",
+          "seconds": 0.057945
+        },
+        {
+          "config": "MCKVSSafetyLarge.cfg",
+          "failed_obligation": "Init inclusion",
+          "proof": "inconclusive",
+          "seconds": 0.057282
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.980359,
+          "verdict": "success"
+        },
+        {
+          "config": "changed.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.032307
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.945451,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 3,
+          "distinct": 3,
+          "generated": 7,
+          "reachable_bdd_nodes": 31,
+          "reused": false,
+          "seconds": 0.024139,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.731922,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.058121,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.905806,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 27,
+          "distinct": 4527151872,
+          "generated": 123139562753,
+          "reachable_bdd_nodes": 459,
+          "reused": false,
+          "seconds": 3.951904,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.712402,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 32,
+          "distinct": 1183519405056,
+          "generated": 39234075936769,
+          "reachable_bdd_nodes": 590,
+          "reused": false,
+          "seconds": 16.726822,
+          "verdict": "success"
+        },
+        {
+          "config": "keys-5.cfg",
+          "failed_obligation": null,
+          "proof": "inductive-safety",
+          "seconds": 0.203337
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": false,
+          "seconds": 0.652563,
+          "verdict": "success"
+        },
+        {
+          "config": "MCKVSSafetyMedium.cfg",
+          "depth": 22,
+          "distinct": 17220672,
+          "generated": 365609473,
+          "reachable_bdd_nodes": 328,
+          "reused": true,
+          "seconds": 0.222669,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 5,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.007944,
+          "verdict": "success"
+        },
+        {
+          "config": "Pair.cfg",
+          "depth": 1,
+          "reused": false,
+          "seconds": 0.01131,
+          "trace_validated": true,
+          "verdict": "violation"
+        },
+        {
+          "config": "Swap.cfg",
+          "depth": 2,
+          "distinct": 2,
+          "generated": 3,
+          "reachable_bdd_nodes": 3,
+          "reused": false,
+          "seconds": 0.005786,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 9,
+          "distinct": 256,
+          "generated": 1281,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.005014,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 25,
+          "distinct": 16777216,
+          "generated": 218103809,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.009707,
+          "verdict": "success"
+        },
+        {
+          "config": "Receipts.cfg",
+          "depth": 49,
+          "distinct": 281474976710656,
+          "generated": 7036874417766401,
+          "reachable_bdd_nodes": 1,
+          "reused": false,
+          "seconds": 0.084243,
+          "verdict": "success"
+        }
+      ]
+    }
+  ]
+}

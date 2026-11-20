@@ -7,6 +7,8 @@ evaluator work. Instruction counts assess individual optimizations; wall time
 against the pinned TLC assesses the release goal. Neither substitutes for the
 other, and incomplete or refused runs earn no credit.
 
+Post-release experiments on storage, temporal scheduling, symbolic safety and edited models have a [large-model data index](../../conformance/reports/perf/README.md#large-model-structure-and-edit-reuse). It identifies the workload and hardware for each comparison and gives queries for using the numbers in other documents.
+
 ## R2 measurement procedure
 
 This is how the R2 speed gate (`docs/RELEASE.md`) is measured. A ratio is
