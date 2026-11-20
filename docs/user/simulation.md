@@ -111,14 +111,68 @@ Each step in a trace document carries the action that produced it, with its
 name and source location, as in `dive check` counterexamples. Validation
 checks each label on its step.
 
-An Init or a step that draws from a set dive cannot enumerate, such as
-`x \in Nat`, is an evaluation error with TLC's code 1000 (exit 255 under TLC
-exit codes), as in TLC.
+An Init or a step over a set dive cannot enumerate, such as `x \in Nat`, is
+sampled; see [Unbounded sets](#unbounded-sets).
 
 These refuse by name: temporal `PROPERTY` checking, `POSTCONDITION`, and
 sampling interactions dive has not proved sound. Every returned violation must
 pass independent trace validation; if replay cannot align the trace, the
 result is `unsupported`.
+
+## Unbounded sets
+
+```sh
+dive simulate docs/user/examples/Unbounded.tla --traces 5 --depth 10 --seed 1 --output json
+```
+
+A specification without a finite state space often also has no finite set of
+successors: `x \in Nat` in `Init`, `x' \in Seq(Msgs)`, or
+`\E n \in Nat : x' = x + n` in `Next`. TLC's simulator stops there with
+"not enumerable" (GENERAL 1000). `dive simulate` draws one member of the set
+instead, wherever Init or Next would have enumerated it:
+
+| Set | Distribution |
+|---|---|
+| `Nat` | geometric with mean 8: `P(k) = p(1-p)^k` with `p = 1/9` |
+| `Int` | a geometric magnitude, then for a nonzero one a uniform sign |
+| `Seq(S)` | a geometric length, each element drawn from `S` |
+| `S1 \X S2`, `[a : S, ...]`, `[D -> S]` with finite `D` | each component drawn from its set |
+| a finite component | uniform over its elements |
+
+`--sample-mean N` (1 to 65,536) sets the geometric mean. The draws are fixed
+by the seed and the trace's number, so `--seed` reproduces them at any
+`--workers`. A specification that draws nothing samples the same traces as
+before. The report's notes name the distribution, the seed and every set
+sampled, with the action that drew from it; `statistics.sampled_sets` lists
+the sets and `options.sample_unbounded` the mode.
+
+Every drawn value is a member of its set, so each trace is a behavior of the
+specification, and each kept trace is validated as usual. The values a step
+drew for an `\E` are recorded on that state of the trace document as
+`witnesses`, and the validator checks that each is a member of its set and
+uses it to prove the `\E`; `dive validate-trace --sample` does the same on an
+exported document. Values that were not drawn are not checked: a sample never
+shows that a property holds for every value.
+
+When no drawn value leads to a state, as with
+`\E n \in Nat : n > 1000 /\ x' = n`, the step is drawn again up to 8 times,
+and then the trace ends early. That is counted in `statistics.traces_stalled`
+and never reported as a deadlock. A state whose step drew nothing and has no
+successor is still a deadlock.
+
+Only positions that assign variables draw. A quantifier evaluated as a
+boolean, such as `~(\E n \in Nat : n = x)` or `\A n \in Nat : P(n)`, cannot be
+decided by one draw and keeps TLC's error. Sets with no stated distribution
+(`SUBSET Nat`, `Nat \cup {-1}`, a filter over `Nat` used outside `x' \in`,
+`STRING`, `[Nat -> S]`) refuse by name. An `\E` at the top of `Next` over a
+record or tuple set with an infinite component, such as
+`Next == \E r \in [a : Nat] : ...`, refuses when the next-state relation is
+split into actions, as in `dive check`; putting a conjunct before it, such as
+`Next == x = x /\ \E r \in [a : Nat] : ...`, avoids the split.
+
+`--sample-unbounded off`, or `--compat=tlc`, reports TLC's evaluation error
+with code 1000 (exit 255 under TLC exit codes) instead. See
+[D-040](../tlc-differences.md#d-040-sampling-from-unbounded-sets).
 
 ## Action statistics
 

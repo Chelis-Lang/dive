@@ -208,6 +208,17 @@ pub trait Host: Send + Sync + std::fmt::Debug {
         None
     }
 
+    /// Members a sampled trace records for the existentials of the step
+    /// being checked (simulation's draws from unbounded sets, D-040). A
+    /// boolean `\E v \in S : P` over an infinite `S` tries each recorded
+    /// value that is a member of `S`, and is true when `P` holds for one of
+    /// them. They are untrusted hints: they can only prove an existential
+    /// true, never false; with none that proves it, the quantifier keeps its
+    /// non-enumerable error. `None` (the default) records nothing.
+    fn existential_witnesses(&self) -> Option<Arc<[Value]>> {
+        None
+    }
+
     /// Checks a random operation reached inside an `ENABLED` query, before
     /// evaluating its arguments. Ordinary hosts retain TLC's behavior. Isolated
     /// sampling/replay hosts may refuse until they can prove the query's full
@@ -723,6 +734,13 @@ impl Core {
             Some(host) => host.check_action_composition().map_err(host_error),
             None => Ok(()),
         }
+    }
+
+    /// The host's recorded existential witnesses, if any.
+    pub(crate) fn existential_witnesses(&self) -> Option<Arc<[Value]>> {
+        self.host
+            .get()
+            .and_then(|host| host.existential_witnesses())
     }
 
     /// The cache domain lazy results are read from and written to.

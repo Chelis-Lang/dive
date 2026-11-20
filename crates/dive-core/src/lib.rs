@@ -75,6 +75,7 @@ pub mod stdlib;
 pub mod store;
 pub mod strings;
 pub mod symmetry;
+pub mod unbounded;
 
 pub use compile::{Handoff, Role, compile};
 pub use eval::Machine;

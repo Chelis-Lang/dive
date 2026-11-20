@@ -420,6 +420,18 @@ impl Machine {
                 let mark = self.save(slots.iter().copied());
                 let r = if sink.constructive() {
                     self.generation_exists(code, binds, *body, acts, sink)
+                } else if self.unbounded.is_some() && self.fuel == u64::MAX {
+                    // Simulation draws one member of each infinite domain;
+                    // the members are this path's witnesses.
+                    let path = self.path_mark();
+                    let r = self.sampled_units(code, binds).and_then(|units| {
+                        self.each_unit_binding(binds, &units, &mut |machine| {
+                            machine.gen_node(code, *body, acts, sink)?;
+                            Ok(true)
+                        })
+                    });
+                    self.path_reset(path);
+                    r.map(|_| ())
                 } else {
                     self.for_each_binding(code, binds, &mut |machine| {
                         machine.gen_node(code, *body, acts, sink)?;
@@ -610,7 +622,8 @@ impl Machine {
             // Enumerated without normalizing, so that a symbolic domain's
             // candidates are built one at a time.
             let dom = self.eval(code, bind.domain)?;
-            let mut c = self.work_cursor(dom)?;
+            let path = self.path_mark();
+            let mut c = self.bound_cursor(dom)?;
             let mark = self.save(bind.slots.iter().copied());
             let r = (|| {
                 loop {
@@ -636,6 +649,7 @@ impl Machine {
                 Ok(())
             })();
             self.restore(mark, bind.slots.iter().copied());
+            self.path_reset(path);
             return r;
         }
         let s = self.eval(code, set)?;
@@ -650,10 +664,29 @@ impl Machine {
             return Err(Error::eval("The right side of \\IN is not a set"));
         }
         if !self.heap.is_finite(s) {
-            return Err(Error::eval("The right side of \\IN is not enumerable"));
+            return self.assign_sampled(code, var, s, acts, sink);
         }
         let mut c = self.work_cursor(s)?;
         self.each_in(&mut c, code, var, acts, sink)
+    }
+
+    /// `x' \in S` over an infinite `S`: one drawn member under a sampler,
+    /// else TLC's "not enumerable" error.
+    fn assign_sampled(
+        &mut self,
+        code: &Code,
+        var: u16,
+        s: Handle,
+        acts: u32,
+        sink: &mut dyn Sink,
+    ) -> Result<(), Error> {
+        let Some(member) = self.sample_member(s)? else {
+            return Err(Error::eval("The right side of \\IN is not enumerable"));
+        };
+        self.bind_var(var, member);
+        let r = self.cont(code, acts, sink);
+        self.unbind_var(var);
+        r
     }
 }
 
@@ -720,7 +753,7 @@ impl Machine {
             return Err(Error::eval("The right side of \\IN is not a set"));
         }
         if !self.heap.is_finite(s) {
-            return Err(Error::eval("The right side of \\IN is not enumerable"));
+            return self.assign_sampled(code, var, s, acts, sink);
         }
         let elems = self.raw_elems(code, raw)?;
         let listed = elems.len() as u64;

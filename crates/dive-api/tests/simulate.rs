@@ -390,13 +390,15 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
 /// before they recorded labels: the records and cross-file comparisons pin
 /// the sampled states, while the labels' sources differ between files and the
 /// validator checks each label on its step.
-/// Statistics without the retention counts, which the agreed records
-/// predate.
+/// Statistics without the retention and unbounded-sampling counts, which
+/// the agreed records predate (`simulate_unbounded.rs` tests the latter).
 fn recorded(statistics: &Value) -> Value {
     let mut statistics = statistics.clone();
     if let Some(map) = statistics.as_object_mut() {
         map.remove("traces_kept");
         map.remove("traces_dropped");
+        map.remove("traces_stalled");
+        map.remove("sampled_sets");
     }
     statistics
 }

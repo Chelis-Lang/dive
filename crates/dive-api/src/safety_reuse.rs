@@ -247,6 +247,7 @@ impl Program {
             source: dive_trace::Source::Dive,
             properties: Vec::new(),
             concrete_closure: false,
+            witnesses: Vec::new(),
         };
 
         let model = dive_model::bind(

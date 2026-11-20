@@ -443,6 +443,29 @@ pub struct TraceDoc {
     /// the concrete states, and only then admits a periodic word under `VIEW`
     /// or `SYMMETRY`. Readers that ignore it keep refusing such words.
     pub concrete_closure: bool,
+    /// Members simulation drew for the existentials of the step into each
+    /// state (`"witnesses"` on a state, D-040), in dive's JSON form: empty,
+    /// or one list per state. They carry no trust: the validator tries them
+    /// only to prove a `\E` over an infinite set true, after checking each is
+    /// a member of the set; with none that proves it, the `\E` stays
+    /// unsupported.
+    pub witnesses: Vec<Vec<J>>,
+}
+
+/// Each state's `"witnesses"`: empty when no state has any.
+fn state_witnesses(states: &[J]) -> Result<Vec<Vec<J>>, String> {
+    let mut witnesses = Vec::new();
+    for (k, s) in states.iter().enumerate() {
+        match s.get("witnesses") {
+            None | Some(J::Null) => {}
+            Some(J::Array(values)) => {
+                witnesses.resize(states.len(), Vec::new());
+                witnesses[k].clone_from(values);
+            }
+            Some(_) => return Err(format!("state {k}: `witnesses` must be a list")),
+        }
+    }
+    Ok(witnesses)
 }
 
 impl TraceDoc {
@@ -483,6 +506,7 @@ impl TraceDoc {
             source: Source::Dive,
             properties: Vec::new(),
             concrete_closure: false,
+            witnesses: Vec::new(),
         })
     }
 
@@ -490,6 +514,17 @@ impl TraceDoc {
     #[must_use]
     pub fn with_ending(mut self, ending: Ending) -> Self {
         self.ending = Some(ending);
+        self
+    }
+
+    /// Records `values` as witnesses of the existentials of the step into
+    /// state `state` ([`Self::witnesses`]). Out of range does nothing.
+    #[must_use]
+    pub fn with_witnesses(mut self, state: usize, values: Vec<J>) -> Self {
+        if state < self.states.len() && !values.is_empty() {
+            self.witnesses.resize(self.states.len(), Vec::new());
+            self.witnesses[state] = values;
+        }
         self
     }
 
@@ -609,6 +644,7 @@ impl TraceDoc {
             .ok_or("`states` must be a list")?;
         let mut states = Vec::with_capacity(states_j.len());
         let mut labels = Vec::with_capacity(states_j.len());
+        let witnesses = state_witnesses(states_j)?;
         for (k, s) in states_j.iter().enumerate() {
             let values = s
                 .get("values")
@@ -681,6 +717,7 @@ impl TraceDoc {
             source: Source::Dive,
             properties: property_names(j)?,
             concrete_closure: closure_claim(j)?,
+            witnesses,
         })
     }
 
@@ -785,6 +822,7 @@ impl TraceDoc {
             source: Source::Tlc,
             properties: Vec::new(),
             concrete_closure: false,
+            witnesses: Vec::new(),
         })
     }
 
@@ -796,11 +834,16 @@ impl TraceDoc {
             .states
             .iter()
             .zip(&self.labels)
-            .map(|(s, l)| {
-                json!({
+            .enumerate()
+            .map(|(k, (s, l))| {
+                let mut state = json!({
                     "action": l.as_ref().map(|l| json!({"name": l.name, "location": l.location})),
                     "values": s,
-                })
+                });
+                if let Some(values) = self.witnesses.get(k).filter(|values| !values.is_empty()) {
+                    state["witnesses"] = J::Array(values.clone());
+                }
+                state
             })
             .collect();
         let version = if matches!(

@@ -683,6 +683,7 @@ impl Search<'_> {
             length: self.length,
             properties: self.properties.to_vec(),
             concrete_closure: false,
+            witnesses: Vec::new(),
         }
     }
 

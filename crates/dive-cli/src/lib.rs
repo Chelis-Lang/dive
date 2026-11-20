@@ -1351,6 +1351,8 @@ fn simulate_command(
     let mut json = false;
     let mut exit_convention = None;
     let mut file = None;
+    let mut sample_unbounded: Option<bool> = None;
+    let mut sample_mean: Option<u64> = None;
     let mut it = args.iter().peekable();
     while let Some(arg) = it.next() {
         match arg.as_str() {
@@ -1363,6 +1365,42 @@ fn simulate_command(
                 return ExitCode::from(EXIT_UNSUPPORTED);
             }
             "--compat=tlc" => request.compat_tlc = true,
+            s if s.split('=').next() == Some("--sample-unbounded") => {
+                let value = match s.split_once('=') {
+                    Some((_, value)) => Some(value),
+                    None => it.next().map(String::as_str),
+                };
+                sample_unbounded = Some(match value {
+                    Some("geometric") => true,
+                    Some("off") => false,
+                    _ => {
+                        return simulation_usage_error(
+                            err,
+                            "--sample-unbounded expects geometric or off",
+                        );
+                    }
+                });
+            }
+            s if s.split('=').next() == Some("--sample-mean") => {
+                let value = match s.split_once('=') {
+                    Some((_, value)) => Some(value),
+                    None => it.next().map(String::as_str),
+                };
+                match value.and_then(|value| value.parse::<u64>().ok()) {
+                    Some(mean) if (1..=dive_api::MAX_SAMPLE_MEAN).contains(&mean) => {
+                        sample_mean = Some(mean);
+                    }
+                    _ => {
+                        return simulation_usage_error(
+                            err,
+                            &format!(
+                                "--sample-mean expects an integer from 1 to {}",
+                                dive_api::MAX_SAMPLE_MEAN
+                            ),
+                        );
+                    }
+                }
+            }
             value if value.starts_with("--time-limit=") => match time_limit(&value[13..]) {
                 Some(setting) => request.time_limit = setting,
                 None => {
@@ -1571,6 +1609,16 @@ fn simulate_command(
     {
         return simulation_usage_error(err, "--traces unlimited needs an explicit --time-limit");
     }
+    request.sample_unbounded = match (sample_unbounded, sample_mean) {
+        (Some(false), Some(_)) => {
+            return simulation_usage_error(err, "--sample-mean needs --sample-unbounded geometric");
+        }
+        (Some(false), None) => Some(dive_api::SampleUnbounded::Off),
+        (Some(true), mean) | (None, mean @ Some(_)) => Some(dive_api::SampleUnbounded::Geometric {
+            mean: mean.unwrap_or(dive_api::DEFAULT_SAMPLE_MEAN),
+        }),
+        (None, None) => None,
+    };
     request.file = file.into();
     let report = match dive_api::simulate_file(&request) {
         Ok(report) => report,

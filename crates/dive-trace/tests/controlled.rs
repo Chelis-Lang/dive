@@ -106,6 +106,7 @@ fn trace(states: &[i64]) -> Trace {
         length: None,
         properties: Vec::new(),
         concrete_closure: false,
+        witnesses: Vec::new(),
     }
 }
 fn interruption(error: ValidationRunError, check: Check, state: Option<usize>) {
