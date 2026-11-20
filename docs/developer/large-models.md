@@ -205,6 +205,26 @@ The ordinary eight-worker candidate reduced sampled peak memory on PConProof fro
 
 Sharding alone reached **fewer** states in a sampled 650 MiB whole-process run, 4.76 million versus 6.07 million. Combining sharding, packed parents and shorter batches reached 6.38 million. Threshold samples depend on allocation timing. The isolated resize result is the reproducible claim about the table itself.
 
+### When extra capture workers cost time
+
+CoffeeCan starts with an unusually wide frontier and each action generates at
+most one successor per source. Ordered commits still run on the capture thread.
+For this shape Core now expands each source on that thread, avoiding worker
+dispatch and collection. Requested widths of four and eight report one worker
+used and give the actual number of retained initial states.
+
+| Original configuration | Distinct / generated | Before, 1 / 4 / 8 workers (s) | After, 1 / 4 / 8 requested (s) |
+|---|---:|---:|---:|
+| CoffeeCan1000Beans | 501,500 / 2,000,002 | 9.68 / 14.69 / 18.61 | 9.60 / 9.60 / 9.58 |
+| CoffeeCan3000Beans | 4,504,500 / 18,000,002 | 94.04 / 139.35 / 177.47 | 93.23 / 93.02 / 93.34 |
+
+These are median process wall times from three trials per cell on the same
+isolated CPU at 2.4 GHz. All 54 observations across the four models agreed
+with their pinned TLC verdict, counts, depth and final queue. Flash and
+Dijkstra have much smaller initial frontiers. Their baseline eight-worker
+medians were 1.26 s and 8.77 s versus 1.13 s and 7.01 s at one. This change
+targets the two CoffeeCan models. [Every sample, worker width and input digest](../../conformance/reports/perf/2026-11-20-temporal-worker-selection.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same

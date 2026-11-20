@@ -33,6 +33,7 @@ pub mod ending;
 #[cfg(test)]
 mod exact_identity_tests;
 pub mod graph;
+mod graph_schedule;
 mod parallel;
 mod reclaim;
 pub mod sample;
@@ -154,6 +155,8 @@ pub struct Stats {
 /// Strategy metrics.
 #[derive(Clone, Debug, Default)]
 pub struct Metrics {
+    /// Number of retained initial roots when a cheap temporal capture stayed inline.
+    pub inline_graph_roots: Option<u64>,
     /// Authenticated remote work facts when distributed safety was requested.
     pub distributed: Option<distributed::Usage>,
     /// Actual opt-in native safety storage facts, not whole-process memory.
@@ -2166,7 +2169,7 @@ const FRONTIER_CHUNK_STATES: usize = 1024;
     reason = "TLC's ordered level loop: expansion, stops, replay and deadlock"
 )]
 fn run(
-    machines: &mut [Machine],
+    machines: &mut Vec<Machine>,
     ex: &mut Explorer<'_>,
     plan: &Plan,
     replayed: &mut Option<Replayed>,
@@ -2177,7 +2180,6 @@ fn run(
 ) -> Result<(), Error> {
     let code = &plan.code;
     let nvars = plan.vars.len();
-    let parallel = machines.len() > 1 || ex.candidates.is_some() || ex.distributed.is_some();
     let Some(m) = machines.first_mut() else {
         return Err(Error::internal("no core machine"));
     };
@@ -2208,6 +2210,17 @@ fn run(
         ex.initial = false;
         ex.warnings.clone_from(&m.warnings);
     }
+    if machines.len() > 1
+        && ex.graph.is_some()
+        && ex.candidates.is_none()
+        && ex.distributed.is_none()
+        && ex.checkpoint.is_none()
+        && graph_schedule::inline_initial_frontier(plan, ex.stats.distinct)
+    {
+        machines.truncate(1);
+        ex.metrics.inline_graph_roots = Some(ex.stats.distinct);
+    }
+    let parallel = machines.len() > 1 || ex.candidates.is_some() || ex.distributed.is_some();
     checkpoint::boundary(ex)?;
     reclaim::boundary(machines, ex, store, permanent, control)?;
     let mut cur = std::mem::take(&mut ex.next);

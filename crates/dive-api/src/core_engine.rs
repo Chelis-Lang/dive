@@ -1228,6 +1228,12 @@ pub(crate) fn safety_result(
         } else {
             "the specification uses TLCSet or TLCGet: the core keeps TLC's order of their effects with one worker".into()
         });
+    } else if let Some(roots) = out.metrics.inline_graph_roots {
+        r.workers.sequential = true;
+        r.workers.used = 1;
+        r.workers.reason = Some(format!(
+            "temporal capture has {roots} initial states and short, non-enumerating actions. One worker expands and commits each source inline"
+        ));
     } else if workers > 1 && !expanded {
         r.workers.used = 1;
         r.workers.reason = Some(
