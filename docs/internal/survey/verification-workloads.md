@@ -88,6 +88,87 @@ Store compact results beside the existing scale evidence with a reproducible
 invocation. Use focused controls on incremental changes and wider
 qualification at integrated milestones. [Performance records](../../../conformance/reports/perf/README.md)
 
+## Native peer measurements
+
+The comparison used two dedicated EC2 c7i.4xlarge hosts. Each had eight
+physical cores, one NUMA node, SMT and swap disabled, and a 24 GiB cgroup.
+All arms for a given model ran on the same host. Values below are median process wall seconds across three
+alternating samples. Each listed comparison matches the reference verdict,
+distinct and generated counts, and depth. Worker headings are the requested
+width. The record preserves observed worker use where the checker reports it.
+The frozen Core arm used the nominal TLC profile and a release build with
+line information and LTO disabled. The v0.1.0 arm used the published binary.
+The two TLC jars have separate records. The linked evidence includes the
+first completed cells and elapsed-time stops. Dashes indicate cells that
+have yet to collect three matching samples.
+[Per-cell observations](../../../conformance/reports/perf/2026-11-20-native-peer-panel.json)
+
+| Input | Checker and tier | 1 worker | 8 workers |
+| --- | --- | ---: | ---: |
+| Manyan counters | Core | 2.91 | 1.61 |
+| | Manyan | 0.85 | 0.19 |
+| Manyan liveness | Core | 0.76 | 0.81 |
+| | Manyan | 0.21 | 0.07 |
+| Lamport mutex | Core | 9.26 | 2.69 |
+| | Pinned TLC | 12.11 | 4.09 |
+| | tlx interpreted | 11.72 | 2.00 |
+| | tlx compiled, clean cache | 1.69 | 0.27 |
+| | tla-mc interpreted | 10.79 | 2.95 |
+| | tla-mc compiled, clean cache | 28.62 | 23.80 |
+| | tla-mc compiled, repeat | 5.70 | 0.80 |
+| KVS Medium | Core | stopped | 149.93 |
+| EmergencyCall f3 | Core | — | 104.78 |
+| | Pinned TLC | — | 91.38 |
+
+Lamport mutex finished at 724,274 distinct states, 2,729,079 generated and
+depth 61. On this workload tlx reported a 97-word state layout, 27 fully lowered
+actions and zero boxed or interpreter IR nodes. It started with JIT code.
+At eight workers the run completed before tlx's background C compilation
+threshold. The 0.27 s clean-cache result includes binding and JIT setup.
+tla-mc's generated Rust has a larger first-check cost and pays back on
+repeat checks of the same input.
+
+The initial two eight-worker compiled tlx runs on KVS Medium took 13.61 s
+and 13.74 s, with the golden 17,220,672 distinct states, 365,609,473
+generated and depth 22. tlx reported a 14-word layout and all seven actions
+fully typed. At one worker Core reached 15,996,087 distinct and 292,049,699
+generated before its limit. On EmergencyCall f3 at eight workers, Core and
+pinned TLC agreed on 21,255,936 distinct, 135,871,232 generated and depth 27.
+
+[tlx tier and compilation log](https://github.com/tlaplus-x/tlx/blob/77867a37d59525ce8866e8cce7f2dd32dc5d4d04/docs/usage.md#5-compiled-mode--compile)
+
+Core's one-worker sampled self time included at least 13.2% in heap lookups
+on Lamport mutex and 9.9% on a 40 s KVS Medium prefix. These lower bounds
+sum the source rows at or above 0.4% in the profile. In the short compiled
+tlx Lamport profile, fingerprinting encoded words accounted for at least
+18.8% and the queue's XOR codec for at least 6.8%. The within-tlx tier
+comparison captures the combined effect of layout specialization and native
+execution. The profiles identify where the remaining work went.
+
+### Scalar guard experiment
+
+The experimental branch lowers a bounded pure guard from the existing
+Core plan to a flat tape. It leaves memo keys, lookups and insertion on
+Core and specializes only admitted memo bodies or unmemoized guards.
+Both profiles matched on the duplicate-successor and overflow controls.
+The deliberately failing invariant produced the same independently valid
+witness. The two-model Core small-tier ratchet had zero regressions.
+
+The tape ran zero times on the counters and KVS Medium admission checks.
+It ran six times on completed Lamport mutex. Three same-binary off/on
+repetitions on counters and Lamport at one and eight workers showed no
+10% improvement in either profile. A local synthetic check with 500,002
+tape evaluations and zero fallbacks took 1.31 s with the tape off and 1.38 s
+with it on. The experimental code is available for review on the
+[guard spike branch](https://github.com/Chelis-Lang/dive/tree/perf/peer-guard-spike).
+
+Leave the scalar tape experimental. The next compilation probe should
+specialize one fixed-domain aggregate path in Lamport mutex, such as
+`req[p][q]` reads and updates, then measure the complete action path. Reuse
+Core's binding and identity rules, and check that the optimized and general
+paths generate the same ordered witnesses. Keep the Manyan fairness case
+as a separate temporal control for graph capture and property-product work.
+
 ## TLAPS options and evidence
 
 The charter requires proof-bearing modules to parse and pass semantic
