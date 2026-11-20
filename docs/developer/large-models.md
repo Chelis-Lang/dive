@@ -4,6 +4,13 @@ The [source-driven symbolic checker](../user/symbolic.md) checks finite safety s
 
 The [performance evidence index](../../conformance/reports/perf/README.md) collects compact records for reuse in other reports. The tables below identify which comparisons ran on the same host, which reached a complete fixed point and which stopped at a limit.
 
+## Next experiments
+
+- **Frontier storage.** Start with [the matched 300,000-state prefixes](#what-occupies-memory-at-the-same-discovery-prefix). BPConProof queued 299,867 rows. Moving handles to disk took peak RSS from 767 to 778 MiB because unread rows still held the value store alive. Test independently decodable chunks against both existing frontiers, with DiskSynod and TLCSailfish2 as controls. At a larger equal-work BPConProof prefix, target at least 25% lower peak RSS than the better baseline within 25% of its wall time before attempting the original 24 GiB run.
+- **Symbolic admission.** Use the unedited [PaxosLease configurations](#reproduce-the-released-paxoslease-runs). Check assumptions and state constraints against tiny TLC controls, then reproduce Base (491,037 distinct) and QuarantineEqualsProposer (76,749,192) before attempting Retry. Preserve counts of out-of-constraint generated successors and validate negative witnesses.
+- **Published scale.** RenewRetry is the next direct explicit comparison (2,411,951,538 distinct, depth 49 in the author log). For the 10.59-billion-state EmergencyCall result, establish the unconstrained initial states, properties and configuration from the authors’ artifacts before timing. The four released constrained cases have independent baselines in the [literature table](#published-model-sizes-and-reproducible-comparisons).
+- **Remaining work.** The [thirteen original outcomes](#where-the-thirteen-historical-non-finishes-stand) identify each memory or feature limit. Kafka still needs bounded lowering of repeated scoped fairness predicates. The all-17-model temporal worker comparison belongs at the integrated qualification boundary. Use [Sail’s measured edit cases](#which-evidence-can-decide-a-source-edit) as regression controls when changing proof reuse.
+
 ## Results on KeyValueStore
 
 A row is a completed breadth-first search. The two unmodified smaller configurations agree with their pinned TLC goldens on verdict, generated states, distinct states and depth. Large has no completed TLC golden. Its result agrees with a separate hand translation, a combinatorial count based on possible transaction histories, and the completed eight-worker Core run below. The altered configurations use the original program and change only a finite constant domain.

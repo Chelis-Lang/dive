@@ -296,6 +296,8 @@ model key; the keys are stable corpus config paths.
 
 ## Large-model structure and edit reuse
 
+[Next large-model experiments and their baselines](../../../docs/developer/large-models.md#next-experiments).
+
 [Transaction-commit domain growth](2026-11-20-tcommit-domain-growth.json) records four complete searches, including 128 resource managers.
 
 The [seven-key KVS fixed points](2026-11-20-seven-key-reachability.json) give arbitrary-precision counts for the same source with and without transaction symmetry.
