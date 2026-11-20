@@ -933,7 +933,7 @@ capture is in `crates/dive-model/tests/fixtures/symmetry-group/`).
 - **Java overrides that disagree with the CommunityModules' TLA+ definitions.** TLC runs the Java override, never the definition, and dive does the same. Measured on the pinned TLC and CommunityModules `202610040242` (in `crates/dive-eval/tests/fixtures/specs/`):
   - `Bitwise!shiftR(n, pos)` is Java's `n >>> pos`, which uses only the low five bits of `pos`: `shiftR(16, 32)` is `16` and `shiftR(16, 33)` is `8`, where the definition gives `0` (`CmBitwise`). On negative numbers, outside the definitions' domain, `x ^^ y`, `Not` and `shiftR` follow Java's 32-bit two's complement (`(0 - 5) ^^ 3` is `-8`, `shiftR(-16, 2)` is `1073741820`).
   - `SequencesExt!LongestCommonPrefix` on strings assumes the first string of the normalized set is the shortest. TLC orders strings by when it first met them, not by length, so `LongestCommonPrefix({"q7q", "q7"})` fails with `String index out of range: 2` instead of returning `"q7"` (`ErCmLcpStringOrder`).
-  - `BagsExt!FoldBag` folds in the order TLC happens to hold the bag in, which for a bag built with `:>` and `@@` is the order it was written. dive keeps functions normalized and refuses `FoldBag` on bags of two or more elements instead of guessing.
+  - `BagsExt!FoldBag` folds in the order TLC happens to hold the bag in, which for a bag built with `:>` and `@@` is the order it was written. Dive folds in normalized key order by default ([bag fold order](#d-030-bag-fold-order)). TLC exploration order refuses when source order cannot be recovered.
   - `SetToBag` of a non-set reports its error as `BagToSet`'s (`ErCmSetToBagNonSet`).
 
   dive reproduces these in both profiles. An option could follow the definitions instead.
@@ -967,7 +967,7 @@ dive refuses by name where it cannot match TLC. These are the refusals.
     such a module. No corpus module or mutant has shown this.
 - **Evaluation refusals.** The evaluator refuses, naming the feature, instead of guessing:
   - a Java-overridden operator dive does not implement: `JavaTime`, Json file operations and representation-dependent Array/Object entry points, most of `TLCExt` (`AssertError`, `TLCCache`, `TLCFP`, ...), `Randomization!RandomSubsetSet`, and the CommunityModules operators `FiniteSetsExt!kSubset`, `Combinatorics`, `Statistics!ChiSquare`, `VectorClocks!CausalOrder`, `GraphViz`, SVG layout and element serialization. `SVG!PointOnLine` works on literal stored records, as described in [modules](user/modules.md); other SVG argument forms refuse. TLC never uses these operators' TLA+ definitions, so dive does not either;
-  - cases of implemented overrides whose TLC result depends on something dive does not track: `BagsExt!FoldBag` on a bag of two or more elements, `Bags!BagOfAll` with an operator that has side effects, and the error a few `Bags`, `Functions` and `IsInjective`/`AntiFunction` cases raise when values TLC cannot compare meet in an order dive does not know;
+  - cases of implemented overrides whose TLC result depends on something dive does not track: TLC-order `BagsExt!FoldBag` on a bag of two or more elements, `Bags!BagOfAll` with an operator that has side effects, and the error a few `Bags`, `Functions` and `IsInjective`/`AntiFunction` cases raise when values TLC cannot compare meet in an order dive does not know;
   - `TLCGet` keys that read TLC's internal description of the run (`"spec"`, `"action"`, `"revision"`) or its JVM (`"-D..."`), the live counters (`"generated"`, `"distinct"`, `"queue"`, `"diameter"`, `"stats"`, `"duration"`) while states are being checked (they are provided while assumptions are checked), and `TLCSet("pause", TRUE)`;
   - the random operators when the evaluator runs without a model checker providing a random stream (for example `ASSUME`s evaluated on their own);
   - a function that TLC keeps unevaluated (`[x \in S |-> e]` over an infinite domain, or a recursive function) stored inside another value, when computing it could fail or has side effects;
@@ -1584,3 +1584,12 @@ fixed point. When an invariant fails, it reports an independently validated
 shortest counterexample. The failing state can differ from TLC's first state
 in the same breadth-first layer. The report omits explicit prefix counts.
 Use `dive check` for Core's usual report and checking order.
+
+## D-030. Bag fold order
+
+`FoldBag(op, base, bag)` visits keys in canonical order under the default
+exploration order, once per occurrence. For example, a decimal-digit fold over
+`(3 :> 1) @@ (1 :> 2)` gives 113. Pinned TLC visits 3 first and gives 311.
+The order can change the value of a noncommutative fold, a side effect, or
+which error is reached first. With `--explore-order=tlc` the checker refuses
+when TLC’s historical bag order cannot be recovered.
