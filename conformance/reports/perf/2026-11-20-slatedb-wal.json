@@ -716,5 +716,509 @@
       }
     ],
     "profile": "Separate isolated c7i.4xlarge on eight physical cores: system-wide perf cpu-clock at 199 Hz, filtered to dive-base. Self samples: Symmetry::canonical_from 10.18%, Heap::view 8.07%, symmetry::tlc_cmp 5.56%, _mi_page_malloc_zero 3.84%, mi_free 2.88%."
+  },
+  "external_fingerprint_membership": {
+    "input": "Original unmodified module and two-value configuration pinned above. Same fingerprint scheme both storage modes.",
+    "ordered_trace_prototype": {
+      "method": "Read the same ordered 9-byte (operation, fingerprint) records from a five-million-state source run. Check every membership answer against recorded scalar decisions. Sequential processes on c7i.4xlarge. Page reads count buffered application reads, including cache hits. Write bytes accumulate over all sealed runs and merges.",
+      "rows": [
+        {
+          "cell": "large-1",
+          "process_wall_s": 4.48,
+          "peak_rss_kib": 38512,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 4210303,
+          "hot_keys": 789697,
+          "page_reads": 2233806,
+          "write_bytes": 101047272,
+          "wall_seconds": 4.477716
+        },
+        {
+          "cell": "large-2",
+          "process_wall_s": 4.31,
+          "peak_rss_kib": 38508,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 4210303,
+          "hot_keys": 789697,
+          "page_reads": 2233806,
+          "write_bytes": 101047272,
+          "wall_seconds": 4.31371
+        },
+        {
+          "cell": "resident-1",
+          "process_wall_s": 1.18,
+          "peak_rss_kib": 114144,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 0,
+          "hot_keys": 5000000,
+          "page_reads": 0,
+          "write_bytes": 0,
+          "wall_seconds": 1.177914
+        },
+        {
+          "cell": "resident-2",
+          "process_wall_s": 1.18,
+          "peak_rss_kib": 114204,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 0,
+          "hot_keys": 5000000,
+          "page_reads": 0,
+          "write_bytes": 0,
+          "wall_seconds": 1.176184
+        },
+        {
+          "cell": "small-1",
+          "process_wall_s": 5.22,
+          "peak_rss_kib": 8356,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 4992806,
+          "hot_keys": 7194,
+          "page_reads": 2908642,
+          "write_bytes": 266255800,
+          "wall_seconds": 5.218801
+        },
+        {
+          "cell": "small-2",
+          "process_wall_s": 5.25,
+          "peak_rss_kib": 8264,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 4992806,
+          "hot_keys": 7194,
+          "page_reads": 2908642,
+          "write_bytes": 266255800,
+          "wall_seconds": 5.254483
+        }
+      ],
+      "window": 32768,
+      "hot_keys_at_seal": {
+        "small": 65536,
+        "large": 1048576
+      },
+      "cell_order": [
+        "large-1",
+        "resident-1",
+        "small-1",
+        "small-2",
+        "resident-2",
+        "large-2"
+      ]
+    },
+    "checker_prefix": {
+      "machine": "Isolated EC2 r7i.16xlarge, one logical CPU per physical core, sequential cells.",
+      "affinity": {
+        "8": "0,1,2,3,4,5,6,7",
+        "32": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31"
+      },
+      "binary_sha256": "578ea594b7a2745b20482bbb5478468e735c91fcae6314e31da7b491d4b500a6",
+      "arguments": "check spec/SlateDBWAL.tla --config spec/SlateDBWAL.cfg --library-path modules --workers W --compat=tlc --fp 0 --seed 0 --time-limit 900s --max-states 5000000",
+      "external_additional_arguments": "--partitioned-fingerprints --seen-directory scratch --seen-disk-entries 49000000000",
+      "cell_order_per_width": [
+        "resident1",
+        "external1",
+        "external2",
+        "resident2"
+      ],
+      "all_rows": {
+        "exit_code": 5,
+        "distinct": 5000000,
+        "generated": 16458236,
+        "depth": 41,
+        "left_on_queue": 1043043,
+        "exhaustive": false
+      },
+      "rows": [
+        {
+          "workers": 32,
+          "cell": "external1",
+          "wall_s": 17.71,
+          "peak_rss_kib": 1132552,
+          "disk_bytes_before_cleanup": 39845888,
+          "resident_key_collection_bytes": 4349952
+        },
+        {
+          "workers": 32,
+          "cell": "external2",
+          "wall_s": 17.79,
+          "peak_rss_kib": 1131304,
+          "disk_bytes_before_cleanup": 39845888,
+          "resident_key_collection_bytes": 4349952
+        },
+        {
+          "workers": 32,
+          "cell": "resident1",
+          "wall_s": 10.16,
+          "peak_rss_kib": 1213616,
+          "disk_bytes_before_cleanup": null,
+          "resident_key_collection_bytes": null
+        },
+        {
+          "workers": 32,
+          "cell": "resident2",
+          "wall_s": 10.16,
+          "peak_rss_kib": 1215924,
+          "disk_bytes_before_cleanup": null,
+          "resident_key_collection_bytes": null
+        },
+        {
+          "workers": 8,
+          "cell": "external1",
+          "wall_s": 30.46,
+          "peak_rss_kib": 636632,
+          "disk_bytes_before_cleanup": 39845888,
+          "resident_key_collection_bytes": 3956736
+        },
+        {
+          "workers": 8,
+          "cell": "external2",
+          "wall_s": 30.87,
+          "peak_rss_kib": 633164,
+          "disk_bytes_before_cleanup": 39845888,
+          "resident_key_collection_bytes": 3956736
+        },
+        {
+          "workers": 8,
+          "cell": "resident1",
+          "wall_s": 20.1,
+          "peak_rss_kib": 734728,
+          "disk_bytes_before_cleanup": null,
+          "resident_key_collection_bytes": null
+        },
+        {
+          "workers": 8,
+          "cell": "resident2",
+          "wall_s": 19.75,
+          "peak_rss_kib": 727956,
+          "disk_bytes_before_cleanup": null,
+          "resident_key_collection_bytes": null
+        }
+      ]
+    },
+    "completion_controls": {
+      "binary_sha256": "cfc44591404cfcb371cfa2d91af4a85d63de28a6e206bbb61638f5604c9bf5d9",
+      "cli": [
+        {
+          "audit_min_gap": null,
+          "case": "Small-exact",
+          "depth": 27,
+          "distinct": 268,
+          "exit": 0,
+          "expand_ms": 7.632601,
+          "files_after_cleanup": 0,
+          "generated": 460,
+          "matches_pinned_tlc": true,
+          "peak_rss_kib": 38052,
+          "peak_threads_sampled": 8,
+          "queued": 0,
+          "reported_workers": 8,
+          "sha256": "cfc44591404cfcb371cfa2d91af4a85d63de28a6e206bbb61638f5604c9bf5d9",
+          "thread_samples": 11,
+          "verdict": "success",
+          "wall_s": 0.033
+        },
+        {
+          "audit_min_gap": 302634408068670,
+          "case": "Small-partitioned",
+          "depth": 27,
+          "distinct": 268,
+          "exit": 0,
+          "expand_ms": 7.42562,
+          "files_after_cleanup": 0,
+          "generated": 460,
+          "matches_pinned_tlc": true,
+          "peak_rss_kib": 33680,
+          "peak_threads_sampled": 6,
+          "queued": 0,
+          "reported_workers": 8,
+          "sha256": "cfc44591404cfcb371cfa2d91af4a85d63de28a6e206bbb61638f5604c9bf5d9",
+          "thread_samples": 11,
+          "verdict": "success",
+          "wall_s": 0.032
+        },
+        {
+          "audit_min_gap": 41615,
+          "case": "TwoRetry-partitioned",
+          "depth": 93,
+          "distinct": 3761377,
+          "exit": 0,
+          "expand_ms": 12473.99504,
+          "files_after_cleanup": 0,
+          "generated": 12508420,
+          "matches_pinned_tlc": true,
+          "peak_rss_kib": 180476,
+          "peak_threads_sampled": 9,
+          "queued": 0,
+          "reported_workers": 8,
+          "sha256": "cfc44591404cfcb371cfa2d91af4a85d63de28a6e206bbb61638f5604c9bf5d9",
+          "thread_samples": 8321,
+          "verdict": "success",
+          "wall_s": 26.421
+        }
+      ],
+      "init_and_prefetch_interrupts": [
+        {
+          "audit_completed": true,
+          "control": "none",
+          "coordinator_polls_after_workers": 0,
+          "distinct": 270001,
+          "expanded": true,
+          "files_after_cleanup": 0,
+          "fired": false,
+          "generated": 540002,
+          "parallel_expand_us": 111495,
+          "queued": 0,
+          "source_worker_ids": 0,
+          "verdict": "Success"
+        },
+        {
+          "audit_completed": false,
+          "control": "pulse",
+          "coordinator_polls_after_workers": 0,
+          "distinct": 262144,
+          "expanded": false,
+          "files_after_cleanup": 0,
+          "fired": true,
+          "generated": 262145,
+          "parallel_expand_us": 0,
+          "queued": 262144,
+          "source_worker_ids": 0,
+          "verdict": "Budget"
+        },
+        {
+          "audit_completed": false,
+          "control": "sticky",
+          "coordinator_polls_after_workers": 0,
+          "distinct": 262144,
+          "expanded": false,
+          "files_after_cleanup": 0,
+          "fired": true,
+          "generated": 262145,
+          "parallel_expand_us": 0,
+          "queued": 262144,
+          "source_worker_ids": 0,
+          "verdict": "Budget"
+        },
+        {
+          "audit_completed": false,
+          "control": "prefetch",
+          "coordinator_polls_after_workers": 4,
+          "distinct": 270001,
+          "expanded": true,
+          "files_after_cleanup": 0,
+          "fired": true,
+          "generated": 270001,
+          "parallel_expand_us": 0,
+          "queued": 270001,
+          "source_worker_ids": 8,
+          "verdict": "Budget"
+        }
+      ],
+      "inputs": {
+        "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+        "CommunityModules-202610040242.jar": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "CommunityModules-deps-202610040242.jar": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "FiniteSetsExt.tla": "dc5d6944395dd18e2f8acf696296808a9460cbbf1b9888f88c5ac4c83a5237f9",
+        "SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+        "Small.cfg": "1f0910bf0f81932e8b58810e34e016ca904142add818162d95baa43f3a29236e",
+        "TwoRetry.cfg": "91f6681396fc569e13cf614c2cfca4007761b69911a8e0782502cfaad856986f"
+      },
+      "libraries": {
+        "target/release/deps/libdive_core-4672706f5369652f.rlib": "f15b890210b1a33383b5ea5681165142dbae7eddf78201d92486dbd9aabf924c",
+        "target/release/deps/libdive_explore-80bad607e91fd153.rlib": "f90dd358f056e7372cc8b8d634c7bdea986573886ea98685412e23108e55583c",
+        "target/release/deps/libdive_store-e7298b7046d51818.rlib": "8f9960e400c84e61d73c6ca72030a891b0d1b5a68ae477fceb85eb9c49e78ccc"
+      },
+      "oracle": [
+        {
+          "depth": 27,
+          "distinct": 268,
+          "exit": 0,
+          "fp": "0",
+          "generated": 460,
+          "peak_rss_kib": 196088,
+          "queue": 0,
+          "run": "Small-tlc",
+          "verdict": "success",
+          "wall_s": 0.59,
+          "workers": 8
+        },
+        {
+          "depth": 93,
+          "distinct": 3761377,
+          "exit": 0,
+          "fp": "0",
+          "generated": 12508420,
+          "peak_rss_kib": 4265428,
+          "queue": 0,
+          "run": "TwoRetry-tlc",
+          "verdict": "success",
+          "wall_s": 31.16,
+          "workers": 8
+        }
+      ],
+      "oracle_warnings_tool": {
+        "NxUnchangedChanged": {
+          "exit": 0,
+          "site": "line 9 col 28",
+          "warnings": 1
+        },
+        "OrderedDepth": {
+          "exit": 12,
+          "site": "line 6 col 52",
+          "warnings": 1
+        }
+      },
+      "ordered_words": [
+        {
+          "case": "OrderedDepth",
+          "depth": 3,
+          "distinct": 11,
+          "expand_ms": 0.39428599999999997,
+          "generated": 14,
+          "mutant": "invalid",
+          "profile": "default",
+          "repetitions": 10,
+          "sha256": "cfc44591404cfcb371cfa2d91af4a85d63de28a6e206bbb61638f5604c9bf5d9",
+          "validation": "valid",
+          "warnings": 1
+        },
+        {
+          "case": "OrderedDepth",
+          "depth": 3,
+          "distinct": 11,
+          "expand_ms": 0.375502,
+          "generated": 14,
+          "mutant": "invalid",
+          "profile": "tlc",
+          "repetitions": 10,
+          "sha256": "cfc44591404cfcb371cfa2d91af4a85d63de28a6e206bbb61638f5604c9bf5d9",
+          "validation": "valid",
+          "warnings": 1
+        },
+        {
+          "case": "NxUnchangedChanged",
+          "depth": 3,
+          "distinct": 3,
+          "expand_ms": 0.817566,
+          "generated": 3,
+          "mutant": null,
+          "profile": "default",
+          "repetitions": 10,
+          "sha256": "cfc44591404cfcb371cfa2d91af4a85d63de28a6e206bbb61638f5604c9bf5d9",
+          "validation": null,
+          "warnings": 1
+        },
+        {
+          "case": "NxUnchangedChanged",
+          "depth": 3,
+          "distinct": 3,
+          "expand_ms": 0.733824,
+          "generated": 3,
+          "mutant": null,
+          "profile": "tlc",
+          "repetitions": 10,
+          "sha256": "cfc44591404cfcb371cfa2d91af4a85d63de28a6e206bbb61638f5604c9bf5d9",
+          "validation": null,
+          "warnings": 1
+        }
+      ],
+      "replay_interrupts": [
+        {
+          "audit_completed": true,
+          "control": "none",
+          "coordinator_polls_after_workers": 0,
+          "distinct": 262143,
+          "error_record_present": true,
+          "expanded": true,
+          "files_after_cleanup": 0,
+          "fired": false,
+          "generated": 262143,
+          "parallel_expand_us": 0,
+          "queued": 262141,
+          "source_worker_ids": 0,
+          "trace_present": true,
+          "verdict": "Failed"
+        },
+        {
+          "audit_completed": false,
+          "control": "pulse",
+          "coordinator_polls_after_workers": 0,
+          "distinct": 262143,
+          "error_record_present": true,
+          "expanded": true,
+          "files_after_cleanup": 0,
+          "fired": true,
+          "generated": 262143,
+          "parallel_expand_us": 0,
+          "queued": 262141,
+          "source_worker_ids": 0,
+          "trace_present": false,
+          "verdict": "Budget"
+        },
+        {
+          "audit_completed": false,
+          "control": "sticky",
+          "coordinator_polls_after_workers": 0,
+          "distinct": 262143,
+          "error_record_present": true,
+          "expanded": true,
+          "files_after_cleanup": 0,
+          "fired": true,
+          "generated": 262143,
+          "parallel_expand_us": 0,
+          "queued": 262141,
+          "source_worker_ids": 0,
+          "trace_present": false,
+          "verdict": "Budget"
+        }
+      ],
+      "storage_cancellation": [
+        {
+          "active_file_bytes_before": 2097152,
+          "committed_after_close": 262145,
+          "control": "window",
+          "entries_at_interrupt": 262145,
+          "files_after_cleanup": 0,
+          "polls": 4,
+          "retry_ok": false,
+          "stale_hint_excluded": true
+        },
+        {
+          "active_file_bytes_before": 0,
+          "committed_after_close": 262145,
+          "control": "hot",
+          "entries_at_interrupt": 262144,
+          "files_after_cleanup": 0,
+          "polls": 4,
+          "retry_ok": true,
+          "stale_hint_excluded": false
+        },
+        {
+          "active_file_bytes_before": 2097152,
+          "committed_after_close": 524289,
+          "control": "merge",
+          "entries_at_interrupt": 524288,
+          "files_after_cleanup": 0,
+          "polls": 517,
+          "retry_ok": true,
+          "stale_hint_excluded": false
+        },
+        {
+          "active_file_bytes_before": 2097152,
+          "committed_after_close": 262145,
+          "control": "audit",
+          "entries_at_interrupt": 262145,
+          "files_after_cleanup": 0,
+          "polls": 520,
+          "retry_ok": false,
+          "stale_hint_excluded": false
+        }
+      ],
+      "purpose": "Correctness controls on the c7i.4xlarge build host. Use the separate isolated prefix measurements for performance comparisons."
+    }
   }
 }

@@ -47,6 +47,8 @@ pub struct Storage {
 /// Bounds and owned directory for native disk membership.
 #[derive(Clone, Debug, Default)]
 pub struct DiskOptions {
+    /// Use sorted runs with source-ordered parallel admission.
+    pub partitioned: bool,
     /// Existing disk-key workspace, entry and probe bounds.
     pub limits: dive_store::seen::Limits,
     /// Existing parent for private transient files; defaults to system temporary storage.
@@ -71,6 +73,8 @@ pub struct DiskFailure {
 /// Actual disk-key storage facts. None of these measure retained state values.
 #[derive(Clone, Debug)]
 pub struct DiskUsage {
+    /// Minimum gap among ordered native fingerprints in each high-bit half after a complete sorted-run audit.
+    pub audited_fingerprint_gap: Option<u64>,
     /// Resolved key and index bounds.
     pub limits: dive_store::seen::Limits,
     /// Successfully committed physical keys, including error-replay admissions.
@@ -88,11 +92,39 @@ pub struct DiskUsage {
 }
 
 pub(crate) struct Disk {
-    set: dive_store::seen::DiskSeen,
+    set: DiskSet,
+    /// A required key operation observed cancellation before committing.
+    pub(crate) interrupted: bool,
     pub(crate) usage: DiskUsage,
 }
 
+enum DiskSet {
+    Indexed(dive_store::seen::DiskSeen),
+    Sorted(dive_store::seen::sorted::SortedFingerprints),
+}
+
+impl DiskSet {
+    fn stats(&self) -> dive_store::seen::Stats {
+        match self {
+            Self::Indexed(set) => set.stats(),
+            Self::Sorted(set) => set.stats(),
+        }
+    }
+}
+
 impl Disk {
+    pub(crate) fn prefetch(
+        &mut self,
+        keys: impl Iterator<Item = u64>,
+        poll: &(dyn Fn() -> bool + Sync),
+    ) -> bool {
+        if let DiskSet::Sorted(set) = &mut self.set {
+            set.prefetch(keys.map(super::Seen::fix), &|| !poll())
+        } else {
+            true
+        }
+    }
+
     pub(crate) fn new(
         exact: bool,
         options: &DiskOptions,
@@ -104,8 +136,29 @@ impl Disk {
         };
         let parent = options.directory.clone().unwrap_or_else(std::env::temp_dir);
         Ok(Self {
-            set: dive_store::seen::DiskSeen::create(mode, &parent, options.limits)?,
+            interrupted: false,
+            set: if options.partitioned {
+                if exact {
+                    return Err(dive_store::seen::SeenError {
+                        operation: dive_store::seen::Operation::Admission,
+                        message: "sorted membership requires fingerprints".into(),
+                        cleanup_failure: None,
+                    });
+                }
+                dive_store::seen::sorted::validate(options.limits)?;
+                DiskSet::Sorted(dive_store::seen::sorted::SortedFingerprints::create(
+                    &parent,
+                    options.limits.entries,
+                )?)
+            } else {
+                DiskSet::Indexed(dive_store::seen::DiskSeen::create(
+                    mode,
+                    &parent,
+                    options.limits,
+                )?)
+            },
             usage: DiskUsage {
+                audited_fingerprint_gap: None,
                 limits: options.limits,
                 admitted_keys: 0,
                 before_cleanup: None,
@@ -136,7 +189,10 @@ impl Disk {
         let bytes = if exact {
             match dive_core::key::canonical(heap, row, self.usage.limits.key_bytes, &|| !poll()) {
                 Ok(bytes) => bytes,
-                Err(KeyError::Interrupted) => return Err(Error::stop()),
+                Err(KeyError::Interrupted) => {
+                    self.interrupted = true;
+                    return Err(Error::stop());
+                }
                 Err(KeyError::Unsupported(feature)) => return Err(Error::unsupported(feature)),
                 Err(KeyError::Internal(message)) => return Err(Error::internal(message)),
                 Err(KeyError::Limit(message)) => {
@@ -157,12 +213,27 @@ impl Disk {
         } else {
             Key::Fingerprint(super::Seen::fix(key))
         };
-        let result = if insert {
-            self.set
+        let result = match &mut self.set {
+            DiskSet::Indexed(set) if insert => set
                 .insert(key)
-                .map(|outcome| outcome == InsertOutcome::Inserted)
-        } else {
-            self.set.contains(key)
+                .map(|outcome| outcome == InsertOutcome::Inserted),
+            DiskSet::Indexed(set) => set.contains(key),
+            DiskSet::Sorted(set) => {
+                let Key::Fingerprint(key) = key else {
+                    return Err(Error::internal("non-fingerprint sorted membership key"));
+                };
+                if insert {
+                    match set.insert(key, &|| !poll()) {
+                        Ok(None) => {
+                            self.interrupted = true;
+                            return Err(Error::stop());
+                        }
+                        result => result.map(|outcome| outcome == Some(InsertOutcome::Inserted)),
+                    }
+                } else {
+                    set.contains(key)
+                }
+            }
         };
         self.usage.admitted_keys = self.set.stats().physical_entries;
         result.map_err(|error| {
@@ -192,10 +263,18 @@ impl Disk {
         deciding: crate::Verdict,
     ) -> bool {
         self.usage.before_cleanup = Some(self.set.stats());
-        let result = self.set.close_controlled(validate, &|| !poll());
+        let result = match &mut self.set {
+            DiskSet::Indexed(set) => set
+                .close_controlled(validate, &|| !poll())
+                .map(|(_, done)| done),
+            DiskSet::Sorted(set) => set.close_controlled(validate, &|| !poll()),
+        };
+        if let DiskSet::Sorted(set) = &self.set {
+            self.usage.audited_fingerprint_gap = set.audited_minimum_gap();
+        }
         self.usage.after_cleanup = Some(self.set.stats());
         match result {
-            Ok((_, complete)) => {
+            Ok(complete) => {
                 self.usage.audit_completed = complete;
                 !validate || complete
             }

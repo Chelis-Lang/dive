@@ -379,11 +379,14 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
         });
     }
     if let Some(disk) = &req.seen_disk {
-        disk.limits
-            .validate()
-            .map_err(|error| crate::ApiError::Rejected {
-                message: error.to_string(),
-            })?;
+        if disk.partitioned
+            && (req.store != Store::Fingerprint || req.candidate_memory_bytes.is_some())
+        {
+            return Err(crate::ApiError::Unsupported { feature: "partitioned membership requires fingerprint safety with resident candidate payloads".into() });
+        }
+        disk.validate().map_err(|error| crate::ApiError::Rejected {
+            message: error.to_string(),
+        })?;
     }
     if req.candidate_directory.is_some() && req.candidate_memory_bytes.is_none() {
         return Err(crate::ApiError::Rejected {
@@ -519,6 +522,11 @@ fn check_file_in(
         }
     }
     admit_storage_request(req)?;
+    if checkpoint.is_some() && req.seen_disk.as_ref().is_some_and(|s| s.partitioned) {
+        return Err(crate::ApiError::Unsupported {
+            feature: "partitioned membership with checkpoint or recovery".into(),
+        });
+    }
     if req.independent_frontier && checkpoint.is_some() {
         return Err(crate::ApiError::Unsupported {
             feature: "independent frontier with checkpoint or recovery".into(),
@@ -1426,6 +1434,9 @@ impl CheckReport {
         });
         if let Some(disk) = &o.seen_disk {
             options["seen_disk"] = json!({"entries_limit": disk.limits.entries, "key_bytes_limit": disk.limits.key_bytes, "probe_steps_limit": disk.limits.probe_steps, "summary_pairs_limit": disk.limits.summary_pairs, "directory": disk.directory, "execution": "inline-fallback", "resident_key_collection_bytes": 0, "total_memory_budget": false});
+            if disk.partitioned {
+                options["seen_disk"] = json!({"entries_limit":disk.limits.entries, "directory":disk.directory, "execution":"partitioned-ordered", "query_window_limit":dive_store::seen::sorted::WINDOW, "total_memory_budget":false});
+            }
         }
         if self.temporal_schema() {
             options["lncheck"] = json!(self.temporal_result().map_or_else(
@@ -1773,6 +1784,9 @@ impl CheckReport {
                         "crash_durable": false, "checkpoint_import_supported": false,
                         "checkpoint_key_reconstitution": self.core.is_some() && self.checkpoint_request.is_some(),
                     });
+                    if let Some(gap) = storage.audited_fingerprint_gap {
+                        doc["seen_storage"]["native_fingerprint_min_gap"] = json!(gap);
+                    }
                 }
                 doc["frontier_storage"] = json!({
                     "mode": match (r.frontier.memory_bytes_per_queue, self.opts.independent_frontier) {
