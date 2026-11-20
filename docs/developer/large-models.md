@@ -6,7 +6,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 
 ## Next experiments
 
-- **Frontier storage.** Use the [100-million-state BPConProof comparison](#high-fanout-parallel-safety) to size scratch. After reducing the cost per frontier row, measure predecessor and membership growth independently at the same discovery count.
+- **Frontier storage.** [Resident row compression](#resident-frontier-rows) cut peak memory most on SlateDB and DiskSynod. Compare admissions at the same memory ceiling, then separate the contributions of predecessor links, seen fingerprints and the compound-value store using matched counts.
 - **Symbolic checking.** Keep Base and QuarantineEqualsProposer as [exact sparse-message controls](#reproduce-the-released-paxoslease-runs). Compare alternative BDD orders on Retry using reachable intermediate sizes, then cross-check a completed result against both explicit runs.
 - **Published scale.** The [original SlateDB WAL configuration](#reproduce-the-released-slatedb-wal-model) provides a public 49-billion-state target. Compare [external membership](#external-fingerprint-membership) at full exhaustion to its resident and TLC controls. Use the completed two-writer model for a full-count comparison and small exact-state runs for collision controls. The EmergencyCall 10.59-billion case still needs the original unconstrained configuration.
 - **Remaining work.** The [thirteen original outcomes](#where-the-thirteen-historical-non-finishes-stand) identify each memory or feature limit. Kafka still needs bounded lowering of repeated scoped fairness predicates. The all-17-model temporal worker comparison belongs at the integrated qualification boundary. Use [Sail’s measured edit cases](#which-evidence-can-decide-a-source-edit) as regression controls when changing proof reuse.
@@ -296,7 +296,22 @@ component breakdown at tens of millions of states and the retained temporal grap
 
 Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. The indexed store uses one worker. Sorted fingerprint runs also support parallel expansion. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
 
-### High-fanout parallel safety
+### Resident frontier rows
+
+Ordinary breadth-first safety search queues one handle for each variable in each discovered state. In the first million SlateDB admissions, many consecutive rows point to the same compound values. Storing 999,424 rows as 19 full-width handles took 152 MB. Encoding each variable relative to its first handle in a block took 30 MB in the offline layout experiment. A six-variable BPConProof prefix fell from 48 MB to 3.6 MB by the same measure.
+
+Core now packs consecutive blocks of 256 rows in RAM. Each variable gets the smallest of zero, one, two, four or eight bytes needed for its differences. An incompressible block keeps full-width rows. Expansion recovers the original handles in discovery order. Store replacement remaps them before releasing their owner. The product effect depends on how much of the process those rows occupy.
+
+| Original configuration | Distinct limit | Queued at stop | Mean peak MiB, original / packed | Mean seconds, original / packed |
+|---|---:|---:|---:|---:|
+| SlateDBWAL | 5,000,000 | 1,043,043 | 714 / 414 | 21.83 / 21.97 |
+| MC_HDiskSynod | 3,000,000 | 1,177,825 | 338 / 196 | 44.78 / 44.22 |
+| BPConProof | 3,000,000 | 2,997,546 | 1341 / 1110 | 11.77 / 11.84 |
+| TLCSailfish2 | 1,000,000 | 772,636 | 523 / 508 | 39.85 / 39.73 |
+
+Each pair averages two runs on eight physical cores of an isolated EC2 r7i.8xlarge. Both representations stopped with identical verdict, depth, generated, initial, distinct and queue counts in all 16 runs. TLCSailfish2 saved about 3% of whole-process RSS despite a much smaller representation for its rows. The fixed prefixes establish memory cost per search and leave the full configurations open. [Every sample, binary, input hash and layout comparison](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
+
+## High-fanout parallel safety
 
 A worker expands each source before the coordinator commits its successors in discovery order. The amount awaiting commit scales with **sources per batch × successors per source**. On BPConProof, 478 of the first million discovered states had left the queue, yet the checker had generated 1,119,749 states. Spilling frontier rows cannot release successor batches already under construction. Core now uses the previous completed level's mean fanout to target 65,536 successor occurrences per batch, with at least one source per requested worker. One source can still exceed that target.
 

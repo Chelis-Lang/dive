@@ -6,6 +6,8 @@ resume it later. All of them are opt-in. The
 [storage and checkpoint design](../decisions/0083-storage-and-checkpoint.md)
 has the details.
 
+Ordinary in-memory safety search packs complete blocks of 256 frontier rows by variable. It restores the full handles when expanding a row. Models with fewer than 256 rows in a level keep their original layout. Temporal capture, checkpoints, distributed workers and explicit frontier or candidate spill use their own formats. [Measurements on four original configurations](../developer/large-models.md#resident-frontier-rows).
+
 dive's safety BFS supports `--store exact` and the frontier and predecessor
 budget and directory options. Exact membership resolves hash collisions by
 comparing the complete canonical state; the concrete states used for
