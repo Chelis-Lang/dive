@@ -8,18 +8,88 @@ use super::{CompleteEvidence, GraphCompletion, Limits, PrefixEvidence, bug, limi
 use crate::budget::EvaluationControl;
 use crate::{CheckOptions, CheckResult, Verdict};
 
+/// Storage for original successor ordinals, including the synthetic stutter.
+#[derive(Clone, Copy, Debug)]
+pub enum CsrOrdinals<'a> {
+    /// Original optional ordinals from external producers.
+    Expanded(&'a [Option<u64>]),
+    /// Ordinals 0 through 65533 use one entry. 65535 denotes stutter.
+    /// 65534 refers to a full-width ordinal in the sorted (edge, ordinal) table.
+    Compact(&'a [u16], &'a [(usize, u64)]),
+}
+
+impl CsrOrdinals<'_> {
+    /// First ordinal stored in the full-width side table.
+    pub const EXTENDED: u16 = u16::MAX - 1;
+
+    fn len(self) -> usize {
+        match self {
+            Self::Expanded(v) => v.len(),
+            Self::Compact(v, _) => v.len(),
+        }
+    }
+
+    #[allow(
+        clippy::option_option,
+        reason = "distinguishes missing entries, stutters and generated transitions"
+    )]
+    fn get(self, index: usize) -> Option<Option<u64>> {
+        match self {
+            Self::Expanded(v) => v.get(index).copied(),
+            Self::Compact(v, large) => match *v.get(index)? {
+                u16::MAX => Some(None),
+                Self::EXTENDED => large
+                    .binary_search_by_key(&index, |&(edge, _)| edge)
+                    .ok()
+                    .map(|i| Some(large[i].1)),
+                n => Some(Some(u64::from(n))),
+            },
+        }
+    }
+
+    /// Keeps the first `edges` entries without expanding their representation.
+    #[must_use]
+    pub fn prefix(self, edges: usize) -> Option<Self> {
+        match self {
+            Self::Expanded(v) => Some(Self::Expanded(v.get(..edges)?)),
+            Self::Compact(v, large) => Some(Self::Compact(
+                v.get(..edges)?,
+                &large[..large.partition_point(|&(edge, _)| edge < edges)],
+            )),
+        }
+    }
+}
+
+impl<'a> From<&'a [Option<u64>]> for CsrOrdinals<'a> {
+    fn from(values: &'a [Option<u64>]) -> Self {
+        Self::Expanded(values)
+    }
+}
+
+impl<'a, const N: usize> From<&'a [Option<u64>; N]> for CsrOrdinals<'a> {
+    fn from(values: &'a [Option<u64>; N]) -> Self {
+        Self::Expanded(values)
+    }
+}
+
+impl<'a> From<&'a Vec<Option<u64>>> for CsrOrdinals<'a> {
+    fn from(values: &'a Vec<Option<u64>>) -> Self {
+        Self::Expanded(values)
+    }
+}
+
 /// Borrowed producer arrays before structural checking.
 ///
 /// Row ids identify opaque retained state rows, not semantically equal values.
 /// This metadata neither evaluates states nor proves a temporal property.
 #[derive(Clone, Copy, Debug)]
-pub struct CsrCaptureInput<'a> {
+pub struct CsrCaptureInput<'a, O = &'a [Option<u64>]> {
     /// One start offset per representative, followed by the total edge count.
     pub offsets: &'a [usize],
     /// Dense representative destination ids, including implicit stutters.
     pub targets: &'a [u32],
     /// Original generation ordinals; only implicit stutters have no ordinal.
-    pub ordinals: &'a [Option<u64>],
+    pub ordinals: O,
     /// Index in `action_labels`, or no named action. Stutters have no action.
     pub actions: &'a [Option<u32>],
     /// Exact original state row for each edge, including seen destinations.
@@ -36,13 +106,30 @@ pub struct CsrCaptureInput<'a> {
     pub closed_rows: usize,
 }
 
+impl<'a, O: Into<CsrOrdinals<'a>>> CsrCaptureInput<'a, O> {
+    fn columns(self) -> CsrCaptureInput<'a, CsrOrdinals<'a>> {
+        CsrCaptureInput {
+            offsets: self.offsets,
+            targets: self.targets,
+            ordinals: self.ordinals.into(),
+            actions: self.actions,
+            edge_rows: self.edge_rows,
+            representatives: self.representatives,
+            roots: self.roots,
+            action_labels: self.action_labels,
+            retained_rows: self.retained_rows,
+            closed_rows: self.closed_rows,
+        }
+    }
+}
+
 /// Immutable, structurally checked CSR capture, without completion authority.
 ///
 /// Generated duplicates, ordinal gaps, action labels and original row identities
 /// remain intact. A successful shape check alone cannot establish exhaustion.
 #[derive(Clone, Copy, Debug)]
 pub struct CsrCapture<'a> {
-    input: CsrCaptureInput<'a>,
+    input: CsrCaptureInput<'a, CsrOrdinals<'a>>,
     limits: Limits,
     concrete: usize,
 }
@@ -54,10 +141,11 @@ impl<'a> CsrCapture<'a> {
     /// # Errors
     /// Malformed metadata, retained-entry limits, or an actual run interruption.
     pub fn checked(
-        input: CsrCaptureInput<'a>,
+        input: CsrCaptureInput<'a, impl Into<CsrOrdinals<'a>>>,
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
+        let input = input.columns();
         poll(control)?;
         let states = input.representatives.len();
         let edges = input.targets.len();
@@ -74,6 +162,19 @@ impl<'a> CsrCapture<'a> {
             || (states != 0 && input.roots.is_empty())
         {
             return Err(bug("inconsistent CSR array dimensions"));
+        }
+        if let CsrOrdinals::Compact(words, large) = input.ordinals {
+            let mut previous = None;
+            for (i, &(edge, ordinal)) in large.iter().enumerate() {
+                checkpoint(control, i)?;
+                if previous.is_some_and(|p| p >= edge)
+                    || words.get(edge) != Some(&CsrOrdinals::EXTENDED)
+                    || ordinal < u64::from(CsrOrdinals::EXTENDED)
+                {
+                    return Err(bug("invalid extended CSR ordinal"));
+                }
+                previous = Some(edge);
+            }
         }
         let mut previous_root = None;
         for (i, &root) in input.roots.iter().enumerate() {
@@ -104,7 +205,7 @@ impl<'a> CsrCapture<'a> {
                 return Err(bug("missing CSR source/stutter row"));
             };
             if input.targets[last] as usize != source
-                || input.ordinals[last].is_some()
+                || input.ordinals.get(last) != Some(None)
                 || input.actions[last].is_some()
                 || input.edge_rows[last] != representative
             {
@@ -113,7 +214,7 @@ impl<'a> CsrCapture<'a> {
             let mut previous_ordinal = None;
             for edge in start..last {
                 checkpoint(control, edge)?;
-                let Some(ordinal) = input.ordinals[edge] else {
+                let Some(Some(ordinal)) = input.ordinals.get(edge) else {
                     return Err(bug("CSR generated edge lacks original ordinal"));
                 };
                 if ordinal >= limits.successors_per_unit {
@@ -192,7 +293,7 @@ impl<'a> CsrCapture<'a> {
     /// Generation ordinal of a physical entry; stutters have `Some(None)`.
     #[must_use]
     pub fn ordinal(&self, edge: usize) -> Option<Option<u64>> {
-        self.input.ordinals.get(edge).copied()
+        self.input.ordinals.get(edge)
     }
 
     /// Action label; generated unnamed actions use the empty label.
@@ -252,12 +353,13 @@ impl<'a> CsrComplete<'a> {
     /// The original non-success safety verdict, missing/inconsistent statistics,
     /// malformed or incomplete CSR, a capture limit, or actual run interruption.
     pub fn from_producer(
-        input: CsrCaptureInput<'a>,
+        input: CsrCaptureInput<'a, impl Into<CsrOrdinals<'a>>>,
         safety: CheckResult,
         options: CheckOptions,
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
+        let input = input.columns();
         if safety.verdict != Verdict::Success {
             return Err(safety.verdict);
         }
@@ -321,13 +423,14 @@ impl<'a> CsrPrefix<'a> {
     /// The original safety failure, missing/inconsistent statistics, exhausted
     /// frontier, malformed CSR, a capture limit, or actual run interruption.
     pub fn from_producer(
-        input: CsrCaptureInput<'a>,
+        input: CsrCaptureInput<'a, impl Into<CsrOrdinals<'a>>>,
         level: u64,
         safety: CheckResult,
         options: CheckOptions,
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
+        let input = input.columns();
         if safety.verdict != Verdict::Success {
             return Err(safety.verdict);
         }
