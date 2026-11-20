@@ -242,3 +242,66 @@ P == []<>(\A i \in 1..5000 : Op(i)=i /\ x)
         assert_eq!(model.take_output(), Vec::<String>::new());
     }
 }
+
+#[test]
+fn repeated_fairness_keeps_each_concrete_scope_under_a_small_work_limit() {
+    // Repeated state-dependent LET arguments under quantified fairness, as in
+    // Kafka's KIP-996 model. The retained actions must still read each actual.
+    let definitions = r"
+Copy(v) == v /\ v
+Test(i) == LET a == Copy(x = i) b == Copy(a) c == Copy(b) IN Copy(c)
+Act(i) == Test(i) /\ x' = ~x
+Fair == \A i \in BOOLEAN : WF_x(Act(i))
+";
+    for tlc in [true, false] {
+        let model = model(definitions, tlc);
+        let plan = lower(
+            &model,
+            &predicate(&model, "Fair"),
+            Limits {
+                expansion_steps: 500,
+                ..Limits::default()
+            },
+        )
+        .expect("repeated validated arguments");
+        let edge = St::action(
+            Arc::from([Some(Value::Bool(true))]),
+            Arc::from([Some(Value::Bool(false))]),
+        );
+        let actions: Vec<_> = plan
+            .atoms
+            .iter()
+            .filter(|atom| {
+                matches!(
+                    atom.test,
+                    dive_liveness::plan::AtomTest::Nonstuttering { .. }
+                )
+            })
+            .map(|atom| atom.evaluate(&model, &edge).expect("concrete edge"))
+            .collect();
+        assert_eq!(actions.len(), 2);
+        assert_ne!(actions[0], actions[1]);
+    }
+}
+
+#[test]
+fn repeated_fairness_rechecks_an_unused_eager_actual_in_each_concrete_scope() {
+    let definitions = r"
+Keep(ignored) == TRUE
+Guard(i) == Keep(1 \div (2-i))
+Act(i) == Guard(i) /\ Next
+First == WF_x(Act(1))
+Both == First /\ WF_x(Act(2))
+";
+    for tlc in [true, false] {
+        let model = model(definitions, tlc);
+        lower(&model, &predicate(&model, "First"), Limits::default())
+            .expect("defined first binding");
+        let error = lower(&model, &predicate(&model, "Both"), Limits::default())
+            .expect_err("zero denominator on second binding");
+        assert!(
+            error.to_string().contains("constant temporal argument"),
+            "{error}"
+        );
+    }
+}

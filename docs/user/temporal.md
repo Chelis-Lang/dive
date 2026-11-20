@@ -11,6 +11,12 @@ When the planner reaches a formula construction bound, the Core file checker rep
 including fairness under finite quantifiers. The run returns `unsupported`
 before a model verdict.
 
+Under quantified fairness, Core reuses completed level and purity checks for
+first-order helper calls with the same lexical binding structure when the check
+is independent of concrete scalar values. A constant argument that can fail for
+a particular value is still evaluated in that binding, even if the helper ignores
+it. Each fairness atom keeps its original scope for evaluation on states and edges.
+
 In an empty directory, write the counter from
 [getting started](getting-started.md) and a configuration that checks one
 temporal property:

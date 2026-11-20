@@ -243,7 +243,10 @@ impl std::fmt::Display for PlanningError {
 }
 impl std::error::Error for PlanningError {}
 
+mod memo;
+
 struct Lower<'a> {
+    memo: memo::Memo<'a>,
     model: &'a Model,
     limits: Limits,
     nodes: Vec<Node>,
@@ -489,6 +492,7 @@ impl Lower<'_> {
                 Level::Action
             };
             if level == Level::Temporal {
+                self.memo.demands += 1;
                 if scope.has_substitutions() {
                     return Err(self.refused(*arg, "temporal argument inside INSTANCE context"));
                 }
@@ -507,6 +511,7 @@ impl Lower<'_> {
                 let Arg::Expr { expr: arg, .. } = arg else {
                     return Err(self.refused(expr, "operator argument in temporal call"));
                 };
+                self.memo.eager(ev, scope, *arg);
                 match ev.eval_scoped(scope, *arg, &St::constant()) {
                     Ok(value) => values.push(value),
                     // A constant argument over a static-analysis binder has
@@ -926,10 +931,6 @@ impl Lower<'_> {
         self.scoped_level_mode(expr, scope, depth, false)
     }
 
-    #[allow(
-        clippy::too_many_lines,
-        reason = "scoped actual levels require explicit structural and ownership refusal cases"
-    )]
     fn scoped_level_mode(
         &mut self,
         expr: ExprId,
@@ -938,6 +939,30 @@ impl Lower<'_> {
         query_state: bool,
     ) -> Result<Level, PlanningError> {
         self.step()?;
+        let key = self
+            .memo
+            .key(&self.model.evaluator, scope, expr, query_state);
+        if let Some(&(level, proved)) = key.as_ref().and_then(|k| self.memo.levels.get(k))
+            && depth <= proved
+        {
+            return Ok(level);
+        }
+        let before = self.memo.demands;
+        let level = self.scoped_level_walk(expr, scope, depth, query_state)?;
+        self.memo.record_level(key, before, level, depth);
+        Ok(level)
+    }
+    #[allow(
+        clippy::too_many_lines,
+        reason = "scoped actual levels require explicit structural and ownership refusal cases"
+    )]
+    fn scoped_level_walk(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        query_state: bool,
+    ) -> Result<Level, PlanningError> {
         if depth > 256 {
             return Err(PlanningError::formula(
                 self.model,
@@ -1294,11 +1319,23 @@ impl Lower<'_> {
         inspect_only: bool,
         allow_queries: bool,
     ) -> Result<(), PlanningError> {
-        // The same expression may occur under distinct parameter values. Do not
-        // deduplicate by expression ID: every context must be checked.
         let mut todo = vec![(expr, scope.clone(), depth, allow_queries, false)];
-        while let Some((e, scope, depth, query_allowed, inside_query)) = todo.pop() {
+        let mut pending = Vec::new();
+        loop {
+            self.memo.finish(todo.len(), &mut pending);
+            let Some((e, scope, depth, query_allowed, inside_query)) = todo.pop() else {
+                break;
+            };
             self.step()?;
+            if !inspect_only
+                && !inside_query
+                && let Some(key) = self
+                    .memo
+                    .key(&self.model.evaluator, &scope, e, query_allowed)
+                && self.memo.pure(key, depth, todo.len(), &mut pending)
+            {
+                continue;
+            }
             if depth > 256 {
                 return Err(PlanningError::formula(
                     self.model,
@@ -2005,6 +2042,7 @@ impl Lower<'_> {
 /// constructors, constant evaluation failures and explicit construction bounds.
 pub fn lower(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, PlanningError> {
     let mut cx = Lower {
+        memo: memo::Memo::new(&model.evaluator),
         model,
         limits,
         nodes: Vec::new(),
@@ -2043,6 +2081,7 @@ pub fn lower_violation(
     limits: Limits,
 ) -> Result<Plan, PlanningError> {
     let mut cx = Lower {
+        memo: memo::Memo::new(&model.evaluator),
         model,
         limits,
         nodes: Vec::new(),
@@ -2097,6 +2136,7 @@ fn lower_frozen_claims(
     limits: Limits,
 ) -> Result<(Vec<Plan>, Option<FrozenPrefix>), PlanningError> {
     let mut cx = Lower {
+        memo: memo::Memo::new(&model.evaluator),
         model,
         limits,
         nodes: Vec::new(),
@@ -2130,6 +2170,7 @@ fn lower_frozen_claims(
         .iter()
         .map(|property| {
             let mut claim = Lower {
+                memo: memo::Memo::new(&model.evaluator),
                 model,
                 limits,
                 nodes: cx.nodes.clone(),
