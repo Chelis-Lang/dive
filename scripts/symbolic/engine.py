@@ -1135,8 +1135,10 @@ def refine_one(args, module, config, hints, trace):
                 continue
             require(len(learned) <= 512, "refined set domains exceed 512 state bits")
             continue
-        if child.returncode == 1 and args.max_memory and "out of memory" in child.stderr.lower():
-            raise Stopped("refinement worker exhausted memory during native allocation")
+        if child.returncode == 1:
+            if args.max_memory and "out of memory" in child.stderr.lower():
+                raise Stopped("refinement worker exhausted memory during native allocation")
+            raise RuntimeError("native refinement worker exited before returning a check result")
         if not child.stdout.strip():
             raise RuntimeError(f"refinement worker ended without a result (exit {child.returncode})")
         row = json.loads(child.stdout)
