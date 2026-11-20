@@ -160,13 +160,17 @@ pub(super) fn accumulate(
     Ok(())
 }
 
-/// The bag of `pairs`. Elements of a result come from two bags compared
-/// with `equals`; a mixture TLC cannot normalize is refused, as building a
-/// set of them is.
+/// Build a canonical function over the materialized result keys. TLC comparisons
+/// additionally require the keys to pass checked normalization.
 pub(super) fn bag(m: &mut Machine, pairs: &mut [(Handle, Handle)]) -> Result<Handle, Error> {
+    for &(key, _) in pairs.iter() {
+        compare::require_materialized(&m.heap, &[key])?;
+    }
     pairs.sort_unstable_by(|a, b| m.heap.cmp(a.0, b.0));
     let keys: Vec<Handle> = pairs.iter().map(|p| p.0).collect();
-    compare::check_set(&m.heap, &keys)?;
+    if m.heap.store().semantics().tlc_comparisons {
+        compare::check_set(&m.heap, &keys)?;
+    }
     let vals: Vec<Handle> = pairs.iter().map(|p| p.1).collect();
     Ok(m.heap.fcn_sorted(&keys, &vals))
 }
@@ -271,4 +275,30 @@ fn sq_subseteq(m: &mut Machine, op: StdOp, b1: Handle, b2: Handle) -> Result<Han
         }
     }
     Ok(Handle::TRUE)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use super::*;
+    use crate::memo::Memo;
+    use crate::{ErrorKind, Opts, Store};
+
+    #[test]
+    fn bag_refuses_a_single_unmaterialized_key_before_sorting() {
+        let mut machine = Machine::new(
+            Arc::new(Store::new(false)),
+            0,
+            Opts::default(),
+            Memo::new(&[]),
+        );
+        let domain = machine.heap.interval(0, 200);
+        let power = machine.heap.symbolic(Kind::Subset, 0, &[domain]);
+        let nested = machine.heap.tuple(&[power]);
+        let count = machine.heap.int_from_i64(1);
+        assert!(
+            matches!(bag(&mut machine, &mut [(nested, count)]), Err(e) if e.kind() == ErrorKind::Unsupported)
+        );
+    }
 }

@@ -430,4 +430,4 @@ five-second, one-worker default-profile check, `MCetcdraft.cfg` reached
 51,818 (154,810 generated). Both prefixes reached depth eight on a shared
 workstation using a debug build. Neither configuration has a completed
 TLC golden. The nominal TLC profile still refuses the multikey fold when
-the original order is unknown. See [bag fold order](../tlc-differences.md#d-030-bag-fold-order).
+the original order is unknown. See [bag fold order](../tlc-differences.md#d-031-bag-fold-order).

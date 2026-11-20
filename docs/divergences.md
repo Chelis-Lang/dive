@@ -12,7 +12,7 @@
 
 | Name (dive option) | TLC behaviour (the handcuff) | dive default | dive option | Kind | Status | Evidence / tests |
 |---|---|---|---|---|---|---|
-| Finite symbolic safety (separate source tool, D-030) | Explicit state counts at termination | Core BFS | A completed symbolic search reports exact counts. Refutations report validated shortest witnesses and induction reports proof obligations. | changing evidence | opt-in | `scripts/symbolic/check_source.py` compares TLC goldens and concrete Core results |
+| Finite symbolic safety (opt-in checking strategy, D-030) | Explicit state counts at termination | Core BFS | A completed symbolic search reports exact counts. Refutations report validated shortest witnesses and induction reports proof obligations. | changing evidence | opt-in | `scripts/symbolic/check_source.py` compares TLC goldens and concrete Core results |
 | Boolean recursive predicates (Core; D-029) | Action generation expands duplicate witnesses and can demand an already-unnecessary alternative | Evaluate effect-safe Boolean predicates and count emitted successors | Nominal compat retains Boolean evaluation and documents count/short-circuit gaps | changing | default on Core | Exact ActionCount/VoteProof count pairs and pinned OrError result; unrelated observables remain required |
 | Canonical finite sets (default Core; D-028) | Set construction errors and membership can depend on prior normalization of the same TLC object | Canonical finite literal and mapped sets | Nominal compat keeps canonical producers and names unsupported comparison shapes | changing | default on Core | ADR 0153; `core_receiver_consumers` |
 | Deterministic parallel search (`--workers N`, default `auto`) | Multi-worker BFS is only approximately breadth-first: depth and counterexample length vary with worker count, so exactness needs `-workers 1` (`TLCTrace.java`; tlaplus#883) | Exact BFS results identical to TLC's single-worker run | Any worker count gives the same verdict, counts, depth and chosen shortest counterexample | preserving | **implemented** (`dive check --workers N`, WP-D3: ADR 0015's three-phase level engine; specs using `TLCSet`, live `TLCGet`, randomness, I/O or runtime name constructors under TLC order run in reported sequential mode (#122)) | ADR 0004; harness worker-invariance runs at 1, 3, 4, 8 workers and chaos; `crates/dive-check/tests/invariance.rs`; Examples `DieHard` (TLC depth 9 vs trace 7 at 4 workers); probes in `crates/dive-api/tests/fixtures/checker/tlc-probes/` |
@@ -51,6 +51,11 @@ sets can therefore produce a validated answer where TLC raises a construction
 error. Direct scalar comparison errors remain unchanged. Symbolic domains stay
 lazy; canonical construction does not enumerate every member of a powerset or
 function set merely to test membership.
+
+Bag union, difference, addition and mapping also construct their resulting finite
+function domains in canonical order. They can retain concrete record keys with
+different payload shapes. Nominal TLC comparisons keep checked normalization.
+The `BagCounts` and `BagFailure` controls exercise counts and trace replay.
 
 Identity-demanding operations require complete materialized children, including
 singleton set elements, function keys and values, and compound states. An
@@ -1292,10 +1297,12 @@ states, refuses in Core because of its compiled effects. No lexical-capture,
 prime, escape or nested-recursion guard is removed.
 See [the user explanation](tlc-differences.md#d-029-predicate-witness-counts).
 
-## D-030. Canonical bag fold order
+<a id="d-030-canonical-bag-fold-order"></a>
+
+## D-031. Canonical bag fold order
 
 With value exploration order, the Core evaluator and independent trace
 evaluator apply `BagsExt!FoldBag` in normalized key order. Order-sensitive
 callbacks can produce different values, effects, verdicts, counts, diagnostics
 or traces. With TLC exploration order, both evaluators require a known order
-for the input. [Example and profile behavior](tlc-differences.md#d-030-bag-fold-order).
+for the input. [Example and profile behavior](tlc-differences.md#d-031-bag-fold-order).
