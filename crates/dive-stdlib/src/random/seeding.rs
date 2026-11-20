@@ -40,9 +40,10 @@ pub enum RandomMode {
 ///   [`Streams::tlc_simulation_values`], `new Random(seed)` per worker thread,
 ///   never reseeded; so in TLC every worker draws the same value sequence.
 ///
-/// In [`RandomMode::Dive`], [`Streams::simulation_trace`] replaces both per-worker
-/// generators with one stream per trace number, so traces are reproducible whatever
-/// worker runs them.
+/// dive's simulation uses [`Streams::simulation_trace`] in both modes: it replaces
+/// both per-worker generators with one stream per trace number, so traces are
+/// reproducible whatever worker runs them. The TLC worker seeds are kept for
+/// reference and tests only.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Streams {
     seed: i64,

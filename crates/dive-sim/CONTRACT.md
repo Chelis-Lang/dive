@@ -25,13 +25,14 @@ stride even when there is only one action, try disabled actions in TLC's stride
 order, check every generated candidate, and select a surviving successor.
 Invariant and action-property checks precede state/action constraints.
 
-Under `--compat=tlc`, the worker selection stream is Java's RNG seeded from
-`RandomGenerator(seed, aril).nextLong()`, kept across traces. As TLC does,
-`--aril` has no effect without an explicitly supplied `--seed`. In the default
-profile each trace has the existing counter-based stream keyed by seed and trace
-number. Adding more traces preserves earlier trace documents. A fresh seed is
-always reported when none is supplied. Nonzero aril in the default profile is
-refused, rather than pretending it has TLC's meaning.
+In both profiles each trace has dive's counter-based stream keyed by seed and
+trace number (`Streams::simulation_trace`). `--compat=tlc` does not use TLC's
+Java worker selection stream, so for a given seed and aril dive samples
+different traces than TLC. Under `--compat=tlc`, `--aril N`
+discards the first N draws of each trace's stream and, as in TLC, has no effect
+without an explicitly supplied `--seed`; nonzero aril in the default profile is
+refused. Adding more traces preserves earlier trace documents. A fresh seed is
+always reported when none is supplied.
 
 `--traces` is required and positive. Depth defaults to TLC's 100 transitions.
 The final chosen state is included, so an uncompressed trace can contain
