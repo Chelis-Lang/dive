@@ -152,10 +152,12 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
         .evaluator
         .validate_predicate(&pred.scope, pred.expr)
         .map_err(TemporalError::from)?;
-    let node = model.ir.nodes().get(pred.expr.index()).ok_or_else(|| {
-        TemporalError::Unsupported("missing periodic predicate expression".into())
-    })?;
-    if node.effects.intersects(Effects::IMPURE)
+    if model.ir.nodes().get(pred.expr.index()).is_none() {
+        return Err(TemporalError::Unsupported(
+            "missing periodic predicate expression".into(),
+        ));
+    }
+    if model.evaluator.source_may_have_effects(pred.expr)
         || model.evaluator.scope_shares_side_effects(&pred.scope)
     {
         return Err(TemporalError::Unsupported(
@@ -204,11 +206,7 @@ fn substitution_is_pure(
                 && match binding.value {
                     Arg::Expr { expr, .. } => {
                         ev.validate_predicate(scope, expr).is_ok()
-                            && model
-                                .ir
-                                .nodes()
-                                .get(expr.index())
-                                .is_some_and(|n| !n.effects.intersects(Effects::IMPURE))
+                            && !ev.source_may_have_effects(expr)
                     }
                     Arg::Op { .. } => true,
                 }
@@ -253,7 +251,7 @@ impl Word<'_> {
             .nodes()
             .get(expr.index())
             .ok_or_else(|| TemporalError::Unsupported("missing temporal expression".into()))?;
-        if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
+        if ev.source_may_have_effects(expr) || ev.scope_shares_side_effects(scope) {
             return Err(TemporalError::Unsupported(
                 "side effects or dynamically bound constants in temporal validation".into(),
             ));
@@ -1547,7 +1545,8 @@ impl Word<'_> {
             let meta = ir.nodes().get(e.index()).ok_or_else(|| {
                 TemporalError::Unsupported("missing scoped periodic expression".into())
             })?;
-            if meta.effects.intersects(Effects::IMPURE | Effects::TEMPORAL)
+            if ev.source_may_have_effects(e)
+                || meta.effects.intersects(Effects::TEMPORAL)
                 || ev.scope_shares_side_effects(&scope)
             {
                 return Err(TemporalError::Unsupported(

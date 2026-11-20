@@ -615,8 +615,12 @@ impl Thunk {
 /// Whether `env` holds, directly or through the values it binds, a cached
 /// thunk or a lazy function whose expression has side effects
 /// (`Effects::IMPURE`). See `Evaluator::scope_shares_side_effects`.
-pub(crate) fn shares_side_effects(ir: &dive_ir::Ir, env: &Env) -> bool {
-    captures_with_effects(ir, env, dive_ir::Effects::IMPURE, false, None)
+pub(crate) fn shares_side_effects(
+    ir: &dive_ir::Ir,
+    env: &Env,
+    effects: Option<&[dive_ir::Effects]>,
+) -> bool {
+    captures_with_effects(ir, env, dive_ir::Effects::IMPURE, false, None, effects)
 }
 
 /// Captured operators are opaque here: callers can supply them through the
@@ -627,7 +631,7 @@ pub(crate) fn filter_has_unproved_captures(
     env: &Env,
     forbidden: dive_ir::Effects,
 ) -> bool {
-    captures_with_effects(ir, env, forbidden, true, None)
+    captures_with_effects(ir, env, forbidden, true, None, None)
 }
 
 /// Checks retained executable contexts, including actual captured callables,
@@ -643,6 +647,7 @@ pub(crate) fn scope_has_effects(
         dive_ir::Effects::IMPURE.union(dive_ir::Effects::LIVE_TLCGET),
         false,
         Some(callable_effects),
+        None,
     )
 }
 
@@ -652,15 +657,17 @@ fn captures_with_effects(
     forbidden: dive_ir::Effects,
     reject_operators: bool,
     callable_effects: Option<&dyn Fn(&OpVal) -> bool>,
+    effects: Option<&[dive_ir::Effects]>,
 ) -> bool {
     let mut seen = std::collections::HashSet::new();
     let mut frames: Vec<&Arc<Frame>> = vec![&env.frame];
     let mut svs: Vec<&Sv> = Vec::new();
     let mut dyns: Vec<&Dyn> = vec![&env.dynamic];
     let impure = |e: ExprId| {
-        ir.nodes()
-            .get(e.index())
-            .map_or(reject_operators, |n| n.effects.intersects(forbidden))
+        effects
+            .and_then(|es| es.get(e.index()).copied())
+            .or_else(|| ir.nodes().get(e.index()).map(|n| n.effects))
+            .map_or(reject_operators, |flags| flags.intersects(forbidden))
     };
     loop {
         if let Some(f) = frames.pop() {

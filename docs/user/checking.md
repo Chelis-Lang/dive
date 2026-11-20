@@ -11,6 +11,25 @@ dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers
 
 For finite function and set models, the optional [symbolic safety checker](symbolic.md) can reuse a complete reachable set or prove invariants by induction.
 
+## Select a closed model input in the CFG
+
+When a zero-argument TLA+ definition selects a host input, you can give that
+definition a fixed scalar value in the model configuration. For example, copy
+the Examples corpus's `TLC/TestMCReachability.cfg` to `graph1.cfg` and append
+`CONSTANT GraphName = "1"`. Then run:
+
+```sh
+dive check TestMCReachability.tla --config graph1.cfg
+```
+
+This selects graph 1 with both original temporal properties. No environment
+grant is needed. Core and pinned TLC found 15 distinct states and 21 generated
+at depth 9. For graph `"1a"` both reported a five-state deadlock and the
+independent validator accepted both Core traces. A different reachable use
+of `IOEnv` still requires host input support. Plain boolean, string and
+small integer assignments can flow through module instances this way.
+[Six configurations and oracle results](../../conformance/reports/perf/2026-11-20-closed-graph-inputs.json)
+
 ## Four outcomes
 
 The included counter shows the four results a check can give:

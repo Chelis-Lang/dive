@@ -11,6 +11,7 @@ are in git history.
 - Core supports inclusive subsequence predicate searches and folds multikey
   bags in canonical key order. See [bag fold order](docs/tlc-differences.md#d-030-bag-fold-order).
 
+- Scalar CFG assignments can close input-dependent definitions used through a module instance. See [model input selection](docs/user/checking.md#select-a-closed-model-input-in-the-cfg).
 - Temporal predicates can count a filtered set with `Quantify`, sum a function
   over a set, and inspect finite next-state domains in nonrecursive binders.
   See [temporal checking](docs/user/temporal.md).
