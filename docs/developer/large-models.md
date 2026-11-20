@@ -86,6 +86,15 @@ taskset -c 0-7 target/release/dive check "$KVS/MCKVS.tla" \
   --compat=tlc --time-limit 7200s --max-memory 24g --output json
 ```
 
+On the merged storage implementation, a second run of the same command on
+the shared workstation finished in **6,596.232 s** with **18.26 GiB** peak sampled
+RSS plus swap. It agreed on success, distinct and generated counts, depth and
+the empty queue. At the end the shared value store reported 20,242 nodes and
+3.99 MiB of accounted storage. This is a component lower bound at teardown.
+The process peaked at 18.26 GiB over the full search, which also retains seen
+fingerprints, predecessors and queued states. The 600-second R2 comparison
+above used a different host and budget. [Merged Core source, binary, input hashes, limits and counters](../../conformance/reports/perf/2026-11-20-kvs-large-main.json).
+
 ## Three ways to check an edit
 
 - **Reachability.** Enumerate bounded action witnesses, compile guards and deterministic updates into Boolean functions, and compute exact images to a fixed point. Group writes by index and consume readers before overwriting their inputs. Cyclic dependencies use a simultaneous image. Symmetry counting requires a configured full group and checks that its generators preserve Init, every property and the multiset of guarded updates. Burnside counting preserves duplicate successor witnesses. Reverse images through BFS layers recover a shortest concrete counterexample. The CLI runs `dive validate-trace` on each reported violation.
@@ -101,15 +110,17 @@ The explicit Core edit experiment also captured 3,599 exact integer rows and par
 | Previously proved invariant inventory | Remove selected invariants from an exhausted ordinary safety proof. Constants, constraints, model source, policy and ordered subset must match. Aggregate state is eligible. | S7 LamportMutex, 724,274 states. Current bind and projection took 3.308 ms, versus 9.251 s fresh. The first complete proof cost 9.799 s. |
 | Ordered exact states and parents | Change a safety predicate on the same admitted transition system. An exhausted closure can prove a holding predicate. A prior failure prefix can establish a currently validated earlier violation. | On a 200,002-state star, a late edited failure took 7.417 ms versus 103.215 ms fresh. A holding edit took 7.413 ms versus 104.208 ms. |
 | Complete labelled graph | Change a temporal predicate on the same admitted state space and edges. Recheck due periodic boundaries, fairness, stuttering and the entire false-property set on the actual reported word. | On a 262,143-state tree with two due periodic checks, the edited check took 46.965 ms versus 241.009 ms fresh. On 16-state DieHard it took 1.914 ms versus 1.706 ms. |
+| Previously proved first temporal property | Retain the original first property alone on the same closed pure program. Bind both inputs, compare the compiled first product and verify an authenticated, exhausted all-native execution with no reference fallback or periodic prefix. | On S7 internal memory, loading both inputs and comparing in a new process took 6.830 ms versus 64.914 ms fresh. With the previous binding available, the edit took 2.239 ms versus 63.369 ms fresh. |
 | Symbolic reachable predicate | Rebind changed properties against the same finite layout, initial condition, symmetry and weighted transition relation. | On KVS Large, the current holding invariant took 35.952 ms. The edited failure took 34.408 ms including witness validation. The preceding fixed point took 131.080 s. |
 
-The three Rust comparisons used matching one-worker exact-store, state and
+The Rust comparisons used matching one-worker exact-store, state and
 depth limits and unlimited process time and memory. They include current
 binding. An installed caller also pays for transport, worker authentication
 and receipt lookup. The symbolic row is a separate source-checkout experiment.
 [Projection samples](../../conformance/studies/s7-invariant-projection.json),
 [ordered-state samples](../../conformance/studies/edited-invariant-recheck.json),
-[temporal graph samples](../../conformance/studies/edited-temporal-recheck.json)
+[temporal graph samples](../../conformance/studies/edited-temporal-recheck.json),
+[first temporal property samples](../../conformance/studies/s7-temporal-first-projection.json)
 and [symbolic samples](../../conformance/reports/perf/2026-11-20-symbolic-qualification.json)
 retain the timing scopes and individual runs.
 

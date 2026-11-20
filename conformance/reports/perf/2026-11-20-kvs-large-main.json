@@ -1,0 +1,120 @@
+{
+  "source": "e4ab6a1314b9e65233a96a96ef2c4d40f9dceea7",
+  "binary_sha256": "b27d7824226ae41c90bb65da3f329ad9a313f284ea1413ae63c0ff06cff9004d",
+  "inputs_sha256": {
+    "APKeyValueStore.tla": "bcf588ce6554d21b4d89c38234aa2eeb401a83fcc2338870fa0e5a2deb83d1ff",
+    "ClientCentric.tla": "f3c6e377229e0aeeefbc50dcb4c39805c6aeae88e81376edd3f4765be456c1ba",
+    "KVsnap.tla": "c05c349c4b3f07e06781e2666e73f5ed6c1185d7cc6998c852a6eebd80894582",
+    "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "KeyValueStore_proof.tla": "ed287a9290e55a47e93cb7593ffec5e47169398e797ce7fc170da5758f852f7e",
+    "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964",
+    "MCKVsnap.tla": "c500a1abde66e13467cdb882071601e9b1442487c47510348ded4e86b34e9329",
+    "Util.tla": "7ffa38a940992bec344fe7d033e9ac7acc85e0180aeacee59512a26807e14254"
+  },
+  "wall_seconds_sampled": 6596.232,
+  "peak_rss_plus_swap_kib_sampled": 19147680,
+  "exit_code": 0,
+  "verdict": "success",
+  "statistics": {
+    "depth": 30,
+    "distinct": 594616815,
+    "generated": 13385471536,
+    "initial_generated": 1,
+    "left_on_queue": 0,
+    "reported_by_tlc": true
+  },
+  "schema": "dive-kvs-ordinary-main-v1",
+  "date": "2026-11-20",
+  "host": {
+    "cpu": "AMD Ryzen AI MAX+ 395",
+    "cpus": 32,
+    "kernel": "7.1.5-100.fc43.x86_64",
+    "shared": true,
+    "affinity": "0-7"
+  },
+  "memory_sample": "Maximum of once-per-second /proc/VmRSS + VmSwap process samples.",
+  "checker_elapsed_ms": 6595915,
+  "options": {
+    "workers": 8,
+    "max_memory": "24g",
+    "time_limit": "7200s",
+    "seed": 0,
+    "fp": 0,
+    "compat": "tlc",
+    "store": "fingerprint"
+  },
+  "example_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "reproduction": "docs/developer/large-models.md",
+  "value_store_memory": {
+    "accounting_complete": false,
+    "boxed_payload_bytes": 0,
+    "construction_history_view_bytes": 0,
+    "current_table_bytes": 268288,
+    "external_shared_owners": {
+      "printer_names": true,
+      "random_streams": false,
+      "registers": false
+    },
+    "fixed_bytes": 862480,
+    "known_retained_bytes_lower_bound": 4183332,
+    "largest_individual_rehash_scratch_bytes": 2048,
+    "rehash_scratch_bytes_cumulative": 405504,
+    "retired_table_bytes": 0,
+    "retired_tables": 0,
+    "retirement_tracking_bytes": 16384,
+    "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+    "slab_bytes": 3004928,
+    "strings": {
+      "count": 541,
+      "index_capacity": 896,
+      "index_entries_bytes_lower_bound": 10820,
+      "text_slots_bytes": 16384,
+      "unique_payload_bytes": 4048
+    }
+  },
+  "value_store_nodes": 20242,
+  "arena_peak": {
+    "handles": 2299,
+    "nodes": 530
+  },
+  "candidate_storage": {
+    "committed_spill_bytes": 0,
+    "failures": [],
+    "identity_close_entries_limit": 65536,
+    "identity_close_scratch_bytes_limit": 67108864,
+    "max_record_bytes": 67108864,
+    "memory_bytes_per_worker": null,
+    "origin_index_bytes": 0,
+    "origin_index_bytes_limit_per_worker": 1048576,
+    "peak_origin_index_bytes": 0,
+    "peak_retained_bytes": 0,
+    "retained_bytes": 0,
+    "scope": "encoded occurrence/DAG queues and separately reported bounded codec origin index; active Arena roots, per-record codec scratch, names, other caches, accepted Store and total RSS excluded",
+    "search_event_before_storage_failure": null,
+    "write_accounting_complete": true
+  },
+  "frontier_storage": {
+    "committed_spill_bytes": 0,
+    "failures": [],
+    "max_codec_nodes_per_value": null,
+    "max_record_bytes": null,
+    "memory_bytes_per_queue": null,
+    "mode": "memory-reference",
+    "peak_retained_bytes": 0,
+    "retained_bytes": 0,
+    "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded",
+    "search_event_before_storage_failure": null,
+    "write_accounting_complete": true
+  },
+  "memory_accounting": {
+    "final_sampled": true,
+    "initial_sampled": true,
+    "metric": "rss+swap",
+    "observed_max_bytes": 19611824128,
+    "samples": 65643,
+    "scope": "sampled process memory, not an allocation-time hard cap or a measurement of the true peak; excursions between observations are possible",
+    "status": "sampled",
+    "unavailable_at": null
+  }
+}
