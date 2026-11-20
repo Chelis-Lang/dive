@@ -1,5 +1,7 @@
 # Performance measurement
 
+[Next large-model experiments and their baselines](large-models.md#next-experiments).
+
 Use the pinned inputs and runner described in
 [`crates/dive-bench/README.md`](../../crates/dive-bench/README.md).
 [ADR 0104](../decisions/0104-evaluator-performance-plan.md) orders the remaining
