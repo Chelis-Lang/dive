@@ -289,6 +289,35 @@ component breakdown at tens of millions of states and the retained temporal grap
 
 Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. That option uses one worker and bounds its membership workspace. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
 
+### Where the thirteen historical non-finishes stand
+
+The original set contains six memory stops and seven feature refusals. The
+[per-model outcomes](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json)
+preserve the original input identities, profiles, budgets, available counts
+and termination reasons. A pinned TLC golden is still unavailable for these
+inputs. The compact graph, fixed-prefix and symbolic records linked above
+provide comparisons at the same work or against an independent calculation.
+
+| Original model or CFG | Outcome | What determines the next step |
+|---|---|---|
+| KVS Large | Ordinary Core exhausted 594,616,815 distinct states within the original 24 GiB / 7,200 s limits. The source-driven symbolic result agrees. | Fingerprint-table resize peaks and predecessor size mattered for explicit search. Key-local field dependencies matter for symbolic compression. |
+| BPConProof | The isolated 24 GiB cgroup killed the checker. At the measured 300,000-state prefix, 299,867 states were queued and the persistent-value lower bound alone was 179 MiB. | A frontier on disk still references persistent values. Bound the live value store or give queued states an independent representation. |
+| TLCSailfish2 | The 24 GiB cgroup killed the checker. Spilling the frontier at the fixed prefix changed peak process RSS from 234 MiB to 231 MiB. | Measure and reduce retained value graphs and evaluation working sets independently of frontier placement. |
+| DiskSynod | At 7,200 s, Core had reached 299,192,687 distinct, 4,260,111,630 generated and depth 30, with 65,518,609 queued. The cgroup peak was 18.31 GiB. | At 300,000 distinct states, disk-frontier placement cut peak process RSS from 230 MiB to 177 MiB. The larger run includes membership and predecessor growth as well. |
+| BlockingQueuePoisonApple, c1cs | Both ordinary 24 GiB runs ended in a kernel OOM. At equal work the compact ordinal column reduced RSS on both. | Edges per state and the width of each retained edge field dominate dense prefixes. c1cs still had 13.76 million states queued at the compact 20 GiB stop. |
+| EWD998, EnvironmentController | Default Core reached 19,573,292 and 1,332,012 distinct states respectively before the 900 s capture deadline. | The earlier startup refusals are gone. Success would require exhausting the graph and finishing fair temporal analysis, or an independently validated counterexample. |
+| Kafka KIP-996 liveness | The planner exhausted its scoped predicate-lowering work while preparing `Fairness`, before exploration. A hundredfold experimental step allowance reached the same bound. | Quantification over servers and server pairs duplicates work across action bodies. Share proved facts about lexical bindings and scoped arguments before raising work limits. |
+| etcdraft | Default Core reached 70,655,639 distinct and 266,068,245 generated, depth 13, at the 18 GiB sampled limit. | 55,290,518 states were queued. Queue width and retained aggregate values are practical targets. |
+| MCetcdraft | The original default run refused mixed record keys after 679 s. Canonical bag construction reached 47,609,227 distinct and 257,868,368 generated, depth 15, before the 18 GiB memory limit. | Message bags use structurally different records. Distinct keys and their multiplicities must survive construction and independent replay. |
+| TestMCReachability | The released CFG reads the host environment. Six ordinary closed CFGs on the unedited source match TLC in both profiles, including the graph 1a deadlock. Graph 7 exceeded a 10 s observation. | The graph selected as input and the reachable checker states of the graph algorithm are separate quantities. |
+| CarTalk Model 3 | The ordinary check refuses to enumerate the function space. The source-bound puzzle calculation returns the single solution 1, 3, 9, 27, 81. | This is a constant constraint-solving problem. An ordinary checker would need a general exact counting or constraint-solving route for this expression. |
+
+Each 24 GiB rerun used a dedicated EC2 instance with eight physical cores.
+For a kernel OOM there is no final checker report. The 900 s runs used an
+18 GiB sampled limit inside a 24 GiB cgroup, leaving room for the checker to
+report a stop. The two envelopes and the fixed-prefix study answer different
+questions.
+
 ### Car Talk evaluates a constant expression
 
 Lamport’s five-piece `CarTalkPuzzle.toolbox/Model_3` asks TLC to print

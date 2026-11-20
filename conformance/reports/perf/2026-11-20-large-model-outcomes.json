@@ -1,0 +1,465 @@
+{
+  "schema": "dive-large-model-outcomes-1",
+  "scope": "The original thirteen #1034 inputs. All thirteen have no completed pinned TLC golden. Each observation names its checker, input, resource envelope and outcome. A prefix is evidence of work, not a property result.",
+  "corpora": {
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "holdout-kafka": "823615e8a0962d0160c11d9affb2576c56b7c054+manifest-sha256:f3f2aced952e157923689f433aa32225389e379a9e389945e7ecff5f3d1e1a8f",
+    "holdout-blocking-queue": "68715979666344cbcc66fa621b27039f281bdd5c+manifest-sha256:852208b74615b83a2cf00bf586bbc96614ba7d68c1f67ac1eab91367234cebd5",
+    "holdout-etcd-raft": "c51f010c851edd0dada5af41bafbf68e54617767+manifest-sha256:ec9235b33540b702f5af0efff5dc9dcc6ed6a1dbedf301ba4c56b986f471a1c3"
+  },
+  "profiles": {
+    "explicit24": {
+      "host": "One isolated c7i.4xlarge per configuration, eight physical cores selected by sysfs, one SMT thread per core. Linux 7.0.0-1017-aws, EC2 guest clock.",
+      "binary_sha256": "6f04319cce23ce8ab8bb59bcee8d845e21c239721f6cae39de7178bff43800e6",
+      "command": "dive check MODULE --config CFG --workers 8 --fp 0 --seed 0 --compat=tlc --max-memory 24g --time-limit 7200s --output json",
+      "cgroup_gib": 24,
+      "swap_gib": 0,
+      "accounting": "An equal sampled process cap and kernel cgroup cap can let the kernel act first. In that event the service journal gives the OOM and the service lifetime. No final checker counts exist."
+    },
+    "default18": {
+      "host": "One isolated c7i.4xlarge per configuration with the same eight-core affinity policy. Linux 7.0.0-1018-aws, EC2 guest clock.",
+      "binary_sha256": "3d9059ee3f7669825f459a24db5bf7d20b03550d6e3107f378cd249a235b947f",
+      "command": "dive check MODULE --config CFG --library-path COMMUNITY_MODULES --workers 8 --fp 0 --seed 0 --time-limit 900s --max-memory 18g --output json",
+      "cgroup_gib": 24,
+      "swap_gib": 0,
+      "accounting": "GNU time whole-process wall seconds and peak RSS KiB. The separate checker sample uses RSS plus swap. The worker-selection candidate was used; the capture heuristic did not select these models."
+    }
+  },
+  "rows": [
+    {
+      "model": "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_3/MC.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "unsupported: enumerating, without materializing it, a set too large to size: [1..5 -> 1..121]",
+      "path": "ordinary Core / source-hash-checked puzzle calculation",
+      "outcome": "ordinary enumeration refuses; the independent model-specific calculation completed",
+      "solution": {
+        "expression": "AllSolutions",
+        "total": 121,
+        "pieces": 5,
+        "solutions": [
+          [
+            1,
+            3,
+            9,
+            27,
+            81
+          ]
+        ],
+        "input_sha256": {
+          "CarTalkPuzzle.tla": "e1210a1dc347966f53233095cb2be5b8d17e237342d9f7fb49fc38a14df10d6a",
+          "MC.tla": "d49aa03533a0aee67efbfdbb6f47e3f79683a7751eb7a271ac7e2b239962ef87",
+          "MC.cfg": "d488a15255157895ea6c6e620dd95501f511c5747485f48e18922afbd41bd008"
+        }
+      },
+      "reference": "scripts/perf/scale/cartalk.py"
+    },
+    {
+      "model": "specifications/KeyValueStore/MCKVSSafetyLarge.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "dive check stopped at its --time-limit: stopped during safety-search after 5008 ms: the time limit is 5000 ms",
+      "path": "ordinary Core, nominal profile",
+      "outcome": "success",
+      "statistics": {
+        "depth": 30,
+        "distinct": 594616815,
+        "generated": 13385471536,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "reference": "2026-11-20-kvs-large-main.json",
+      "wall_s": 6596.232,
+      "separate_300k_reference": {
+        "persistent_value_store_lower_bound_bytes": 3969124,
+        "statistics": {
+          "depth": 12,
+          "distinct": 300000,
+          "exhaustive": false,
+          "generated": 1950989,
+          "initial_generated": 1,
+          "left_on_queue": 198106,
+          "reported_by_tlc": false
+        },
+        "peak_process_rss_kib": 167528
+      }
+    },
+    {
+      "model": "specifications/TLC/TestMCReachability.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "unsupported: the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env",
+      "path": "ordinary Core with explicit graph selector",
+      "outcome": "ambient input requires a grant with the released CFG. Closed scalar configurations 1, 1a, 2, 3, 4 and 8 match TLC.",
+      "reference": "2026-11-20-closed-graph-inputs.json",
+      "larger_selector": {
+        "graph": "7",
+        "outcome": "stopped",
+        "phase": "temporal-analysis",
+        "statistics": {
+          "depth": 36,
+          "distinct": 577978,
+          "exhaustive": false,
+          "generated": 863898,
+          "initial_generated": 1,
+          "left_on_queue": 211556,
+          "reported_by_tlc": false
+        },
+        "limit_ms": 10000,
+        "workers": 1,
+        "profile": "dive",
+        "host": "workstation"
+      }
+    },
+    {
+      "model": "specifications/byzpaxos/BPConProof.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "dive check stopped at its --time-limit: stopped during safety-search after 5009 ms: the time limit is 5000 ms",
+      "profile": "explicit24",
+      "inputs_sha256": {
+        "BPConProof.tla": "daa731dcadf12a892415131881d82d5b23e56c53097e90b986a24b1408a2e3c6",
+        "BPConProof.cfg": "8a3af0fba0f0ed0d96827717e0edacf7ad9bedc23b9f7aebf82f3c2bb5434e9a"
+      },
+      "outcome": "kernel-cgroup-oom",
+      "service_elapsed_s": 653,
+      "statistics": null,
+      "separate_300k_reference": {
+        "persistent_value_store_lower_bound_bytes": 187875847,
+        "statistics": {
+          "depth": 3,
+          "distinct": 300000,
+          "exhaustive": false,
+          "generated": 310384,
+          "initial_generated": 1,
+          "left_on_queue": 299867,
+          "reported_by_tlc": false
+        },
+        "peak_process_rss_kib": 785104
+      }
+    },
+    {
+      "model": "specifications/c1cs/c1cs.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "dive check stopped at its --time-limit: DIVE-L0038: stopped during graph-capture after 5009 ms: the time limit is 5000 ms",
+      "profile": "explicit24",
+      "inputs_sha256": {
+        "c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0",
+        "c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233"
+      },
+      "outcome": "kernel-cgroup-oom",
+      "service_elapsed_s": 952,
+      "statistics": null,
+      "separate_300k_reference": {
+        "persistent_value_store_lower_bound_bytes": 22422806,
+        "statistics": {
+          "depth": 10,
+          "distinct": 300000,
+          "exhaustive": false,
+          "generated": 5551513,
+          "initial_generated": 16,
+          "left_on_queue": 138028,
+          "reported_by_tlc": false
+        },
+        "peak_process_rss_kib": 410132
+      }
+    },
+    {
+      "model": "specifications/dag-consensus/TLCSailfish2.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "dive check stopped at its --time-limit: stopped during safety-search after 5007 ms: the time limit is 5000 ms",
+      "profile": "explicit24",
+      "inputs_sha256": {
+        "TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+        "TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f"
+      },
+      "outcome": "kernel-cgroup-oom",
+      "service_elapsed_s": 2928,
+      "statistics": null,
+      "separate_300k_reference": {
+        "persistent_value_store_lower_bound_bytes": 95554464,
+        "statistics": {
+          "depth": 12,
+          "distinct": 300000,
+          "exhaustive": false,
+          "generated": 814424,
+          "initial_generated": 1,
+          "left_on_queue": 217815,
+          "reported_by_tlc": false
+        },
+        "peak_process_rss_kib": 239584
+      }
+    },
+    {
+      "model": "specifications/detector_chan96/EnvironmentController.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "unsupported: a temporal validation failure (core): its report is not implemented on Core",
+      "profile": "default18",
+      "inputs_sha256": {
+        "Age_Channel.tla": "2235e13cbf2e930caeda1ae3a592c1f6e3c166a9903bddb8bef4e931cb413d47",
+        "EPFailureDetector.tla": "34407972eef86a8353374086558ede7a1ae611794ff399ca528112b431414b25",
+        "EnvironmentController.tla": "27d4468fd8dae883b066b2e9aba0b3bae1402260e373362ed7b79935c0480372",
+        "EnvironmentController.cfg": "1cb9f21665fbe58dcc90cf0d05d99f69e8c87a01258d58c5cb952168ff2a3388"
+      },
+      "rc": 5,
+      "outcome": "stopped",
+      "message": "DIVE-L0038: stopped during graph-capture after 900025 ms: the time limit is 900000 ms",
+      "statistics": {
+        "depth": 35,
+        "distinct": 1332012,
+        "exhaustive": false,
+        "generated": 10790788,
+        "initial_generated": 1,
+        "left_on_queue": 158110,
+        "reported_by_tlc": false
+      },
+      "wall_s": 900.04,
+      "peak_rss_kib": 1462016,
+      "checker_ms": 900019,
+      "sampled_memory_bytes": 1497747456,
+      "stop": {
+        "phase": "graph-capture",
+        "resource": "time",
+        "observed": 900025,
+        "unit": "ms",
+        "limit": 900000
+      }
+    },
+    {
+      "model": "specifications/diskpaxos/MC_HDiskSynod.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "dive check stopped at its --time-limit: stopped during safety-search after 5007 ms: the time limit is 5000 ms",
+      "profile": "explicit24",
+      "inputs_sha256": {
+        "MC_HDiskSynod.tla": "f70a04902aaa20b175daddeead891e2f687128b8fe43b30cee3049bbb46af041",
+        "MC_HDiskSynod.cfg": "76994aae4c323b971b05cc6604f92213f7bf6f147cf40074c1b03fecf5d1005c"
+      },
+      "outcome": "stopped",
+      "message": "stopped during safety-search after 7200013 ms: the time limit is 7200000 ms",
+      "statistics": {
+        "depth": 30,
+        "distinct": 299192687,
+        "exhaustive": false,
+        "generated": 4260111630,
+        "initial_generated": 8,
+        "left_on_queue": 65518609,
+        "reported_by_tlc": false
+      },
+      "wall_s": 7200,
+      "cgroup_peak_bytes": 19661692928,
+      "rc": 5,
+      "separate_300k_reference": {
+        "persistent_value_store_lower_bound_bytes": 1557736,
+        "statistics": {
+          "depth": 13,
+          "distinct": 300000,
+          "exhaustive": false,
+          "generated": 2355975,
+          "initial_generated": 8,
+          "left_on_queue": 147238,
+          "reported_by_tlc": false
+        },
+        "peak_process_rss_kib": 235288
+      }
+    },
+    {
+      "model": "specifications/ewd998/EWD998.cfg",
+      "corpus": "examples",
+      "grade": "oracle-error",
+      "historical_8_worker_observation": "unsupported: a temporal validation failure (core): its report is not implemented on Core",
+      "profile": "default18",
+      "inputs_sha256": {
+        "AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+        "AsyncTerminationDetection_proof.tla": "87cc4e25be553691b1819b1be20b0addec2f724cec9ffe081014b23f99722ec7",
+        "EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+        "EWD998Chan.tla": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+        "EWD998ChanID.tla": "c498e5e35a83d84257016fdf4ba359ddb40dbb5f3b2234656e32b419a5499e93",
+        "EWD998ChanID_export.tla": "638f814c422250d6debe1209419971b66ead59c8aa8aca4a2efcc29feb379985",
+        "EWD998ChanID_shiviz.tla": "43739b7a7c0754fbb2cf5a7606df9bd9610fc4bc3f22b79aab559e2f4e630c98",
+        "EWD998ChanTrace.tla": "da182795698ff457ae8979b7d97cd47842d75e3d860323ca02031dc47c940171",
+        "EWD998Chan_opts.tla": "4f29c2b6208a54f1ba954fe455f47c70898789b9549d97b6deca6c9efbeaacab",
+        "EWD998PCal.tla": "d1622e16901edfa5b01d4e9c00779408b97483156d241c7b0f22515a1d81dc0d",
+        "EWD998PCal_proof.tla": "fdf1114b7c47216f4b4a3c81db0cc34dd92c0712bad6c31eef09751835d906fd",
+        "EWD998_anim.tla": "6265b417dc405685a3e860493bb21bc4481b2ac278daff99e281a25e7324e209",
+        "EWD998_opts.tla": "5eab17aa1ab6cff0df0cda646453e240c92ed7378e51b4c97b3597fb732a8f85",
+        "EWD998_optsSC.tla": "bf863afe83e52cc6c08e671100a1c15bb4d9ad6735b7887f8ac5cd254ef2334d",
+        "EWD998_proof.tla": "2469117c5148dd3971326c0cc80cdc7665fbe859688f3c635681d3a069029517",
+        "Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+        "SmokeEWD998.tla": "c59b406bc1d54108b3d842e41bc2444c915adde416ebd8a02cb5fe4f6b13f808",
+        "SmokeEWD998_SC.tla": "063fe7c67a95789aeb793a67b8ac0135be60749356824e5d85fbe1fed09599d3",
+        "Utils.tla": "386c5319fd101fdde36610466f82151e8a39e01d1c6c8c44e894f7589bcc2b7b",
+        "EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59"
+      },
+      "rc": 5,
+      "outcome": "stopped",
+      "message": "DIVE-L0038: stopped during graph-capture after 900021 ms: the time limit is 900000 ms",
+      "statistics": {
+        "depth": 11,
+        "distinct": 19573292,
+        "exhaustive": false,
+        "generated": 172693842,
+        "initial_generated": 1024,
+        "left_on_queue": 5594118,
+        "reported_by_tlc": false
+      },
+      "wall_s": 900.06,
+      "peak_rss_kib": 9593148,
+      "checker_ms": 900017,
+      "sampled_memory_bytes": 9555075072,
+      "stop": {
+        "phase": "graph-capture",
+        "resource": "time",
+        "observed": 900021,
+        "unit": "ms",
+        "limit": 900000
+      }
+    },
+    {
+      "model": "kraft/kip_996/model_liveness.cfg",
+      "corpus": "holdout-kafka",
+      "grade": "out-of-scope",
+      "historical_8_worker_observation": "unsupported: a temporal validation failure (core): its report is not implemented on Core",
+      "profile": "default18",
+      "inputs_sha256": {
+        "kraft_kip_996.tla": "87f9c5d5849195a7f4308f8181b2281a9e5d72dbe689d0a0a1b0b72838eb4a4d",
+        "kraft_kip_996_functions.tla": "72b254e89eaa0227a134d71233563f6dd4f8f34bfcb4983ddb51a3a0b7214585",
+        "kraft_kip_996_liveness.tla": "76726901173d6acffa43be0b4006ff63775370cd028f392f5d71aff501c2c4ed",
+        "kraft_kip_996_properties.tla": "ed8000ef9dd1262655efda56449f609618703df31d00375bf7cb6c1f52f2ab9a",
+        "kraft_kip_996_types.tla": "fbb189bd4f06756c180a8fb743adcf6cd35585184cea70ed65b00e58551508d8",
+        "network.tla": "29e38f6c9cfb0a275581452c330e82f25a75f86fea1437eca52d4863c64a01d8",
+        "model_liveness.cfg": "3de24e3b89db9468dc390f2ddd70bd6a7f47fedc0b7ba3680690b0ed4507030e"
+      },
+      "rc": 3,
+      "outcome": "unsupported",
+      "message": "a temporal validation failure (core): its report is not implemented on Core",
+      "statistics": null,
+      "wall_s": 0.69,
+      "peak_rss_kib": 139328,
+      "checker_ms": 657,
+      "sampled_memory_bytes": 142630912,
+      "typed_diagnostic_control": "DIVE-L0021 at line 1319, col 5 to line 1335, col 52 of module kraft_kip_996: temporal formula resource limit: predicate lowering steps",
+      "experimental_100_million_step_probe": {
+        "result": "same predicate lowering step limit on the same Fairness predicate",
+        "checker_ms": 43938,
+        "published_default_steps": 1000000,
+        "host": "workstation"
+      }
+    },
+    {
+      "model": "BlockingQueuePoisonApple.cfg",
+      "corpus": "holdout-blocking-queue",
+      "grade": "out-of-scope",
+      "historical_8_worker_observation": "dive check stopped at its --time-limit: DIVE-L0038: stopped during graph-capture after 5008 ms: the time limit is 5000 ms",
+      "profile": "explicit24",
+      "inputs_sha256": {
+        "BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+        "BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f"
+      },
+      "outcome": "kernel-cgroup-oom",
+      "service_elapsed_s": 3305,
+      "statistics": null,
+      "separate_300k_reference": {
+        "persistent_value_store_lower_bound_bytes": 2788707,
+        "statistics": {
+          "depth": 7,
+          "distinct": 300000,
+          "exhaustive": false,
+          "generated": 605659,
+          "initial_generated": 1,
+          "left_on_queue": 249637,
+          "reported_by_tlc": false
+        },
+        "peak_process_rss_kib": 171972
+      }
+    },
+    {
+      "model": "tla/MCetcdraft.cfg",
+      "corpus": "holdout-etcd-raft",
+      "grade": "out-of-scope",
+      "historical_8_worker_observation": "unsupported: SequencesExt!SelectLastInSubSeq with an operator argument",
+      "profile": "default18",
+      "inputs_sha256": {
+        "MCetcdraft.tla": "3b206581c4d1e8795b543f6bec1c293ea69241183acbdec6537c0265234a72b6",
+        "Traceetcdraft.tla": "93e46f774c6602674d6f6db90c75ddc4144cfadc101c2f1cb31fd1ce2e90b0bc",
+        "etcdraft.tla": "15c445684529c59a59877951c7fb7df9a40da250aaa445f056ef48f56bb27044",
+        "MCetcdraft.cfg": "5cc769549deb7acdf280a8b2600d87c88810c299f5102b15f5176f64a9ae04a9"
+      },
+      "rc": 3,
+      "outcome": "unsupported",
+      "message": "a set of values of different shapes: TLC's checked normalization may fail (C1, C2; the exact comparison order is not built)",
+      "statistics": null,
+      "wall_s": 678.77,
+      "peak_rss_kib": 12259456,
+      "checker_ms": 678705,
+      "sampled_memory_bytes": 12539191296,
+      "canonical_bag_run": {
+        "binary_sha256": "d598ab147337deb23b233578defd34289628b9273f1d0b478b208dc7af2e615f",
+        "method": "Same original module, CFG, shared library, host class and core affinity as default18. Eight workers, seed/fp 0, no swap, 24 GiB cgroup and 18 GiB checker limit; extended wall budget 1800 seconds.",
+        "outcome": "stopped",
+        "rc": 5,
+        "statistics": {
+          "depth": 15,
+          "distinct": 47609227,
+          "exhaustive": false,
+          "generated": 257868368,
+          "initial_generated": 1,
+          "left_on_queue": 33803042,
+          "reported_by_tlc": false
+        },
+        "stop": {
+          "elapsed_ms": 1200320,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 19327352832,
+          "observed": 19413491712,
+          "phase": "safety-search",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "wall_s": 1201.28,
+        "peak_rss_kib": 18958084,
+        "checker_ms": 1201191
+      }
+    },
+    {
+      "model": "tla/etcdraft.cfg",
+      "corpus": "holdout-etcd-raft",
+      "grade": "out-of-scope",
+      "historical_8_worker_observation": "unsupported: BagsExt!FoldBag (a bag of two or more elements: TLC folds in the order it holds the bag in, which may be unnormalized)",
+      "profile": "default18",
+      "inputs_sha256": {
+        "MCetcdraft.tla": "3b206581c4d1e8795b543f6bec1c293ea69241183acbdec6537c0265234a72b6",
+        "Traceetcdraft.tla": "93e46f774c6602674d6f6db90c75ddc4144cfadc101c2f1cb31fd1ce2e90b0bc",
+        "etcdraft.tla": "15c445684529c59a59877951c7fb7df9a40da250aaa445f056ef48f56bb27044",
+        "etcdraft.cfg": "0279cc6c7c100f622e30230ad56d383eb9d9bd8ac99c996fe707710106a9960e"
+      },
+      "rc": 5,
+      "outcome": "stopped",
+      "message": "stopped during safety-search: resident memory 19685617664 bytes exceeds the ceiling of 19327352832 bytes",
+      "statistics": {
+        "depth": 13,
+        "distinct": 70655639,
+        "exhaustive": false,
+        "generated": 266068245,
+        "initial_generated": 1,
+        "left_on_queue": 55290518,
+        "reported_by_tlc": false
+      },
+      "wall_s": 289.89,
+      "peak_rss_kib": 21240932,
+      "checker_ms": 289789,
+      "sampled_memory_bytes": 19685617664,
+      "stop": {
+        "phase": "safety-search",
+        "resource": "memory",
+        "observed": 19685617664,
+        "unit": "bytes",
+        "limit": 19327352832
+      }
+    }
+  ]
+}
