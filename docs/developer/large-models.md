@@ -35,6 +35,32 @@ Each cell ran alone on one EC2 m6id.4xlarge with eight physical Xeon Platinum 83
 
 Core emitted final counters at its limit. TLC's counters come from its last periodic report, about 543 s into each run. At eight workers TLC had already progressed further by then. The symbolic process also checked a holding edit in 52 ms and a false edit with a validated witness in 51 ms. Its final exit status of 1 records that deliberately false edit. The BDD run counts transition witnesses symbolically. Each explicit run generates them individually.
 
+### Repeat on the R2 reference hardware
+
+On a dedicated EC2 c7i.metal-24xl, the source-driven checker finished the
+unmodified Large model in **133.90 s wall time at 606.6 MiB peak RSS**.
+The two original invariants held. Ordinary Core and pinned TLC both reached
+the common 600-second deadline at one and eight workers. These are single
+engineering runs. The table uses full process wall time and peak RSS from
+GNU time. Core emitted its final counts at the deadline. TLC last sampled at
+about 543 seconds. [Reference-host cells, CPU controls and tool identities](../../conformance/reports/perf/2026-11-20-kvs-large-reference.json).
+
+| Checker | Workers | Process wall, s | Peak RSS, MiB | Distinct | Generated | Depth |
+|---|---:|---:|---:|---:|---:|---:|
+| Source-driven BDD, complete | 1 | 133.90 | 607 | 594,616,815 | 13,385,471,536 | 30 |
+| Core, stopped | 1 | 600.03 | 704 | 10,952,063 | 101,737,056 | 16 |
+| Core, stopped | 8 | 600.07 | 3,148 | 52,475,302 | 586,597,033 | 18 |
+| TLC, last progress | 1 | 600.19 | 5,087 | 10,942,077 | 101,649,631 | 16 |
+| TLC, last progress | 8 | 600.35 | 8,215 | 64,390,612 | 775,088,829 | 20 |
+
+All processes used CPU affinity 0–15 on NUMA node 0 with SMT and turbo
+disabled, the performance governor fixed at 2.4 GHz, a 24 GiB cgroup and
+swap disabled. One cell ran at a time. The [cell runner](../../scripts/perf/scale/kvs-large-cell.sh)
+records exit codes, process measurements and checker output in a new
+directory. The source checker spent 132.889 s binding and checking. The
+eight-worker explicit result shows that adding workers alone could not
+account for the symbolic completion.
+
 ## Ordinary Core completes the original Large configuration
 
 On the shared Ryzen workstation, the experimental eight-worker safety build
@@ -68,6 +94,25 @@ taskset -c 0-7 target/release/dive check "$KVS/MCKVS.tla" \
 
 The explicit Core edit experiment also captured 3,599 exact integer rows and parents. Rebinding and scanning a second property reused the completed closure, and a rebuilt transition produced 3,658 rows. Scanning took about 0.9 ms versus 12 ms for a fresh search, excluding binding. This gives an explicit alternative when a model has poor BDD structure.
 
+### Which evidence can decide a source edit?
+
+| Evidence retained | Eligible change | Measured edited check and ordinary comparison |
+|---|---|---|
+| Previously proved invariant inventory | Remove selected invariants from an exhausted ordinary safety proof. Constants, constraints, model source, policy and ordered subset must match. Aggregate state is eligible. | S7 LamportMutex, 724,274 states. Current bind and projection took 3.308 ms, versus 9.251 s fresh. The first complete proof cost 9.799 s. |
+| Ordered exact states and parents | Change a safety predicate on the same admitted transition system. An exhausted closure can prove a holding predicate. A prior failure prefix can establish a currently validated earlier violation. | On a 200,002-state star, a late edited failure took 7.417 ms versus 103.215 ms fresh. A holding edit took 7.413 ms versus 104.208 ms. |
+| Complete labelled graph | Change a temporal predicate on the same admitted state space and edges. Recheck due periodic boundaries, fairness, stuttering and the entire false-property set on the actual reported word. | On a 262,143-state tree with two due periodic checks, the edited check took 46.965 ms versus 241.009 ms fresh. On 16-state DieHard it took 1.914 ms versus 1.706 ms. |
+| Symbolic reachable predicate | Rebind changed properties against the same finite layout, initial condition, symmetry and weighted transition relation. | On KVS Large, the current holding invariant took 35.952 ms; an edited failure took 34.408 ms including witness validation. The preceding fixed point took 131.080 s. |
+
+The three Rust comparisons used matching one-worker exact-store, state and
+depth limits and unlimited process time and memory. They include current
+binding; a separate caller must also account for transport, worker identity
+and receipt lookup. The symbolic row is a separate source-checkout experiment.
+[Projection samples](../../conformance/studies/s7-invariant-projection.json),
+[ordered-state samples](../../conformance/studies/edited-invariant-recheck.json),
+[temporal graph samples](../../conformance/studies/edited-temporal-recheck.json)
+and [symbolic samples](../../conformance/reports/perf/2026-11-20-symbolic-qualification.json)
+retain the timing scopes and individual runs.
+
 ## Explicit Core and temporal checking
 
 Six of the thirteen original non-finishes reached a memory ceiling and seven reported feature refusals. The latter need support for the named constructs. Frontier width also differs within the memory cases. BPConProof had 41.07 million rows queued at 41.10 million distinct states. TLCSailfish2 reported an empty queue at its stop. A queue count alone cannot identify the retained allocation in that case.
@@ -83,6 +128,40 @@ Six of the thirteen original non-finishes reached a memory ceiling and seven rep
 The ordinary eight-worker candidate reduced sampled peak memory on PConProof from 1,862 to 512 MB, with elapsed time increasing from 67.8 to 75.2 s. KVS Medium went from 1,335 to 812 MB and from 108 to 106 s. Each comparison used the same CPU affinity, input and golden, with other work on the host. At one worker the candidate took 574 s on PConProof and 585 s on Medium. Both benefit from parallel expansion. Extending the persistent pool to ordinary safety increased the two PConProof eight-worker measurements from 84–101 s to 99–109 s in a separate interleaved experiment. The measured candidate retains the pool for temporal capture.
 
 Sharding alone reached **fewer** states in a sampled 650 MiB whole-process run, 4.76 million versus 6.07 million. Combining sharding, packed parents and shorter batches reached 6.38 million. Threshold samples depend on allocation timing. The isolated resize result is the reproducible claim about the table itself.
+
+### What occupies memory at the same discovery prefix?
+
+Each of the six previously memory-limited configurations reached the same
+300,000-state discovery limit at eight workers. For ordinary safety models,
+a second process wrote the frontier to disk. Its generated, distinct, queued
+and depth counters matched the resident run exactly. The persistent value
+store interns TLA+ values shared by states. Its measured component bytes
+are a lower bound before worker teardown. Peak RSS covers the whole process.
+The measurements have different scopes and sampling times. Subtracting them
+would give a misleading frontier size. [Ten fixed-prefix cells and component counts](../../conformance/reports/perf/2026-11-20-six-fixed-prefixes.json).
+
+| Model | Queued | Value-store lower bound, MiB | Resident peak RSS, MiB | Disk-frontier peak RSS, MiB | Resident / disk wall, s |
+|---|---:|---:|---:|---:|---:|
+| KVS Large | 198,106 | 3.8 | 164 | 158 | 1.00 / 2.06 |
+| DiskSynod | 147,238 | 1.5 | 230 | 177 | 2.12 / 3.47 |
+| BPConProof | 299,867 | 179.2 | 767 | 778 | 3.60 / 4.55 |
+| TLCSailfish2 | 217,815 | 91.1 | 234 | 231 | 9.28 / 10.21 |
+| c1cs, temporal capture | 138,028 | 21.4 | 401 | — | 4.42 / — |
+| BlockingQueuePoisonApple, temporal capture | 249,637 | 2.7 | 168 | — | 0.91 / — |
+
+To repeat a prefix, run the pinned module and CFG from the data row with
+`dive check MODULE --config CFG --max-states 300000 --workers 8 --max-memory 2g --time-limit 60s --compat=tlc --fp 0 --seed 0 --output json` on CPUs 8–15. For the disk arm add `--frontier-memory-bytes 0 --frontier-directory DIR` with a new directory on the local SSD.
+
+For DiskSynod, spilling reduced peak RSS by 53 MiB at this prefix, at a cost
+of 1.35 s. BPConProof queued almost every state and wrote 48 MB of frontier
+records, yet its peak RSS rose by 11 MiB. Its interned-value slabs alone
+occupied 145 MiB. A wide queue therefore warrants looking at both the
+frontier references and the shared values those references keep alive.
+For TLCSailfish2 the value store already accounted for at least 91 MiB.
+These single samples support keeping the ordinary resident frontier as the
+default and selecting the [existing spill option](../user/storage-recovery.md) for workloads where a
+matched prefix demonstrates a useful reduction. They leave open the
+component breakdown at tens of millions of states and the retained temporal graph.
 
 ## Reproduce the comparisons
 
@@ -132,6 +211,9 @@ cargo run --release --locked -p dive-conformance -- run --impl dive:core \
 ```
 
 Four selected holdouts lack a golden because the pinned TLC ran past its deadline. The manifest marks these with `oracle_timeout = true`. The same flag records bounded non-oracle attempts for them under their existing `out-of-scope` grade.
+
+The [13-model observation record](../../conformance/reports/perf/2026-11-20-no-golden-observations.json) contains all 26 one- and eight-worker observations from merged main. With five seconds and 2 GiB per run, six configurations emitted exploration prefixes and seven reported named refusals at both widths. The harness records zero parity agreements for these models.
+
 
 The motivating measurements cover [the large non-finishes](https://github.com/Chelis-Lang/dive/issues/1034),
 [slow-TLC models](https://github.com/Chelis-Lang/dive/issues/799) and
