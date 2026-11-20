@@ -19,6 +19,7 @@
 | Release performance runbook, dive and Sail | [Release performance qualification](release-performance-plan.md) |
 | Release performance measurements for 0.1.0 | [Release performance results](release-performance-results.md) |
 | New execution core: design, status and handoff (ADR 0117) | [Core](core/README.md) |
+| Simulation: temporal properties, workers and scale (ADR 0162) | [Simulation design](simulation-design.md) |
 | Documentation acceptance | [Documentation policy](documentation-policy.md) |
 
 Parity means observable results (ADR 0086). Committed evidence is compact JSON or

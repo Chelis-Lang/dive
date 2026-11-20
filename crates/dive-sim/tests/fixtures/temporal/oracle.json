@@ -1,0 +1,1842 @@
+{
+ "oracle": "tlc-2026.10.06.014338",
+ "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+ "java_version": "openjdk version \"17.0.20.1\" 2026-08-18",
+ "reason": "Measure TLC -simulate and -generate on temporal PROPERTY, SYMMETRY, VIEW, ALIAS, implied properties, trace files, large or unbounded domains and workers for the simulation design (#491)",
+ "captured_at": "2026-11-20T12:57:09+00:00",
+ "sources": {
+  "BigNext.tla": "c5a411baece2b9ec47386566b498e1856888337c56c05dcec9865a46bb272df1",
+  "Cycle.tla": "8eb811f1a1e211f4abd61ee19b6be6a9eea46a3bd816e582c1ef295acfd07362",
+  "Fair.tla": "45ebcc2e11ffa5f0866c02a16b7c3297a0914fa2907f24c372ada16c9336e580",
+  "InfInit.tla": "1ecfb57064297f4c082eb1a099e85ad665d040aa55c896623229a3f28cda33b3",
+  "InfNext.tla": "14a90f4f9161d4cca36b0514b9c7794017396dd6357d6d1a9907e0af9fa616a3",
+  "Strong.tla": "dc918836370cc0b8b60c50e3ec57449a78969281adb8e89dcce482af9db954b6",
+  "SymLoop.tla": "8ee11f11878b61bd48085b5a54753457683c86d16ac3d476811e916f398fbde8",
+  "Terminal.tla": "58cd53c9b95b96b92a9a68c5fed97c8b6fd87e1aaea62b128d516567dfcfd052",
+  "Unbounded.tla": "b14a4544cbccaa6f1bcced5abf2ab48d9ef4258206ed75c8bfa0c2e2dab15b7a",
+  "ViewLoop.tla": "1a3676c88098da0b6739e5b027183db42dc3359448eb8aa9d9952781d5e08069",
+  "Walk.tla": "d0ae7649a8b4065e164a26bbbf2ddd33f9a3eed42c0ab784c717c56b97328c0f"
+ },
+ "cases": [
+  {
+   "id": "C1",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyFive",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: lasso found on the first trace",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property EventuallyFive was violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": 1,
+   "stuttering": false,
+   "generated": 11,
+   "stdout_sha256": "2057efdbc86512021bd538bb8d62dd1ab7666ba253a72b5a43ea48d4f9da3db2",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C2",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InfOftenFive",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property InfOftenFive was violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": 1,
+   "stuttering": false,
+   "generated": 11,
+   "stdout_sha256": "cfb166b52ed82476dbc171b910515820c03a43f6e188fad57ebbd35587806bd2",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C3",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY LeadsToFive",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property LeadsToFive was violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2",
+    "x = 0"
+   ],
+   "back_to_state": 2,
+   "stuttering": false,
+   "generated": 11,
+   "stdout_sha256": "4815e8ee363ddfde98d4ad8e2e5fa2f9c2f5492b42e8fe3e1baa8f22c366af67",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C4",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InfOftenZero",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound: no error",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 201,
+   "stdout_sha256": "8c4b3558fccbb70e0522cb7e6c687e1227b050490a71a0fa313e9eed4fdd0f8f",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C5",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY AlwaysSmall",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound: checked as an invariant",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 201,
+   "stdout_sha256": "94c5ec9130ca4b16006dcc32c507736a754b49919192241b82e2d30acc00bb51",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C6",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY AlwaysSmallFalse",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: []P is checked as an invariant (2110, exit 12)",
+   "exit": 12,
+   "deciding": [
+    {
+     "code": 2110,
+     "message": "Invariant AlwaysSmallFalse is violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 41,
+   "stdout_sha256": "ebcba1f56c881fc412abe92671f578f9843fe57bbbce0c73f85083a4d34004e5",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C7",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyFive",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "2",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "silent: depth 2 never closes the loop; reports success without saying liveness went unchecked",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 41,
+   "stdout_sha256": "d6f9cfb3103d6003a7e0e6033ece910d255ddb3b902e2653bc2ed373bb2b7838",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C8",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InfOftenZero",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "2",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound: truncated prefix is not treated as stuttering",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 41,
+   "stdout_sha256": "4456c120d5be8dd1b375930007ff1faa057f9f49d8bf6066e61d81ca6dd743d6",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C9",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION Spec\nPROPERTY InfOftenZero",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: without fairness, stuttering at a state is a behavior",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property InfOftenZero was violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": null,
+   "stuttering": true,
+   "generated": 11,
+   "stdout_sha256": "5bdb425bb3ff0dd5a4b9e2d84261c57d7986bd1cc61b3f67523d75532e3be309",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C10",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyFive",
+   "flags": [
+    "-workers",
+    "4",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=50"
+   ],
+   "truth": "violated",
+   "tlc": "sound; 4 workers",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property EventuallyFive was violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": 1,
+   "stuttering": false,
+   "generated": 261,
+   "stdout_sha256": "6c1e87b1546737a043bd760fbf17af16403e83de87cb10cec238422d3bbaeafd",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "C11",
+   "module": "Cycle",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InfOftenZero",
+   "flags": [
+    "-workers",
+    "4",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=50"
+   ],
+   "truth": "holds",
+   "tlc": "num is per worker: 4 x 50 traces",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 2001,
+   "stdout_sha256": "cf1e401809a64d97529f11525c28c2b3b6ec3a356679f926fbbe7b639ae447c6",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "T1",
+   "module": "Terminal",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyTwo",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-deadlock",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 41,
+   "stdout_sha256": "b2bdb2893a92d8a8be551e180d481f85200c09834d48ddd4e8fdb28651889ea1",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "T2",
+   "module": "Terminal",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyFive",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-deadlock",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: no successor is infinite stuttering",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property EventuallyFive was violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": null,
+   "stuttering": true,
+   "generated": 3,
+   "stdout_sha256": "1e84d959439220a80e8d720c51dfeb21c52972d65d110c16ec7986f9a96e8498",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "T3",
+   "module": "Terminal",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InfOftenZero",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-deadlock",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property InfOftenZero was violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": null,
+   "stuttering": true,
+   "generated": 3,
+   "stdout_sha256": "f0bd3204f3c979a4932ed44dc7701dd521ea4d37b4f770ea5d81e16154c961a5",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "T4",
+   "module": "Terminal",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyFive",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "deadlock (2114) decides before the temporal check",
+   "exit": 11,
+   "deciding": [
+    {
+     "code": 2114,
+     "message": "Deadlock reached."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 41,
+   "stdout_sha256": "f579f170627bda94ab18c9259d6a05e1ce38b6111697386786fbd6780a11fe05",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U1",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyTen",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "silent: truncated, liveness unchecked",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 101,
+   "stdout_sha256": "6229bb4bd9c09d980e86a325a32337a1efd19da2ccd33d308a85d1053518e729",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U2",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InfOftenEven",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "silent: truncated, liveness unchecked",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 101,
+   "stdout_sha256": "a07f4fad2377c6e9101b9c87255764dbf9c88bec7b223081409af352abac1b46",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U3",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY LeadsToTen",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "silent: truncated, liveness unchecked",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 101,
+   "stdout_sha256": "e8b6e8e88813acdb1e832ef3972ca8db4cf59c29145a630a2745f72594aa0412",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U4",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY AlwaysBelowFour",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: bad prefix found",
+   "exit": 12,
+   "deciding": [
+    {
+     "code": 2110,
+     "message": "Invariant AlwaysBelowFour is violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2",
+    "x = 3",
+    "x = 4"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 81,
+   "stdout_sha256": "4d6370d87e357693e79f97893f3f85865c117ae75607efa6d63efc2bf00aa900",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U5",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY AlwaysBelowTen",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "incomplete: violation lies beyond -depth",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 101,
+   "stdout_sha256": "456dabdce5a1c691076a40f1ff944d6bfee9e6d8915bcbecaf8cc23cc58168a1",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U6",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY StepIsIncrement",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 101,
+   "stdout_sha256": "65d79bbe51144cc695592fb423716156b5b5dd2ab9914d0a0d365669ae4eba6c",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U7",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY StepIsDouble",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: [][A]_v checked per step (2112)",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2112,
+     "message": "Action property StepIsDouble is violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 21,
+   "stdout_sha256": "85307c0a95b66df5623a73895dfdd3804cbadeb5ab606f32a7889a703e740a40",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U8",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION Spec\nPROPERTY EventuallyTen",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: stuttering lasso",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property EventuallyTen was violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2",
+    "x = 3",
+    "x = 4",
+    "x = 5"
+   ],
+   "back_to_state": null,
+   "stuttering": true,
+   "generated": 6,
+   "stdout_sha256": "8dd7f7ebfc70cfd0515397f7a2e6fc7824bb37383a244a36970fdeff5e503c98",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U9",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyTen",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "silent: truncated, liveness unchecked",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 401,
+   "stdout_sha256": "bb0cc179222bfd83ef45cb1d827bde8c727b4cab0f2ece4a337ecace09f4efed",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U10",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nCONSTRAINT BelowFour\nPROPERTY EventuallyTen",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "deadlock reported where the constraint excludes every successor",
+   "exit": 11,
+   "deciding": [
+    {
+     "code": 2114,
+     "message": "Deadlock reached."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2",
+    "x = 3"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 81,
+   "stdout_sha256": "ab6dcbfe5de4b9df480adb0bbcac0e4ddcb3dff57c815b31722552f8d57cecb5",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U10d",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nCONSTRAINT BelowFour\nPROPERTY EventuallyTen",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-deadlock",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound: the constraint-cut stutter is unfair because Next stays enabled",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 81,
+   "stdout_sha256": "3d23b862fda8452e7cf93e28a42d86d87f6e0438216d791025ddc1c12b98f3aa",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U11",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InitZero",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 101,
+   "stdout_sha256": "0fac1b74ef0c6d87d28453e37080964bed0d0206a1e10982de15568858049f39",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U12",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InitOne",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "5",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "missed: -simulate never checks implied initial properties (BFS reports 2108)",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 101,
+   "stdout_sha256": "7e5c8e949e5144b4ccdf7f6e0491b8d0cdef33392afcc0e4029f62716c072a3e",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U13",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nCONSTRAINT BelowThree\nPROPERTY StepBelowThree",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "action property checked on a candidate the constraint then excludes, as in BFS",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2112,
+     "message": "Action property StepBelowThree is violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2",
+    "x = 3"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 61,
+   "stdout_sha256": "66d3e14b7e8664d59625484b4bc8efffdc1536e0915f1ae39417104131b25687",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "U14",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nCONSTRAINT BelowFour\nPROPERTY AlwaysBelowFour",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "invariant checked on an excluded candidate, as in BFS",
+   "exit": 12,
+   "deciding": [
+    {
+     "code": 2110,
+     "message": "Invariant AlwaysBelowFour is violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2",
+    "x = 3",
+    "x = 4"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 81,
+   "stdout_sha256": "92c9eace9731616386024a0258848e87e45625989322605ceb840a9fcd195446",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "F1",
+   "module": "Fair",
+   "cfg": "SPECIFICATION Spec\nPROPERTY EventuallyB",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=50"
+   ],
+   "truth": "violated",
+   "tlc": "sound: stuttering",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property EventuallyB was violated."
+    }
+   ],
+   "counterexample": [
+    "/\\ b = FALSE\n/\\ x = 0"
+   ],
+   "back_to_state": null,
+   "stuttering": true,
+   "generated": 11,
+   "stdout_sha256": "f1964d83611b1bf67138edbd8a71f94d4ae1670a0ac9d040dadec234406deec9",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "F2",
+   "module": "Fair",
+   "cfg": "SPECIFICATION WFSpec\nPROPERTY EventuallyB",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=50"
+   ],
+   "truth": "holds",
+   "tlc": "sound: unfair lassos rejected",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 501,
+   "stdout_sha256": "fa6deda847fceb06da3b1f5d2c3455a2488538b8e9bda84bcfaf1a8c51398b76",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "F3",
+   "module": "Fair",
+   "cfg": "SPECIFICATION SFSpec\nPROPERTY EventuallyB",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=50"
+   ],
+   "truth": "holds",
+   "tlc": "sound",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 501,
+   "stdout_sha256": "1696b5842aa84aef11c39bc71259e7824e1ec698e752c638a5903964a420eaf4",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "S1",
+   "module": "Strong",
+   "cfg": "SPECIFICATION WFSpec\nPROPERTY EventuallyB",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=50"
+   ],
+   "truth": "violated",
+   "tlc": "sound: WF admits the toggling lasso",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property EventuallyB was violated."
+    }
+   ],
+   "counterexample": [
+    "/\\ b = FALSE\n/\\ x = 0",
+    "/\\ b = FALSE\n/\\ x = 1"
+   ],
+   "back_to_state": 1,
+   "stuttering": false,
+   "generated": 21,
+   "stdout_sha256": "33af642e66c1d5cbb24b3efbbd3de1307cea15ef57053544a691b5a12cca223f",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "S2",
+   "module": "Strong",
+   "cfg": "SPECIFICATION SFSpec\nPROPERTY EventuallyB",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=50"
+   ],
+   "truth": "holds",
+   "tlc": "sound: SF rejects it",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 501,
+   "stdout_sha256": "e07baafe2b229206498b0c7797a890960a228abbfd97b1bb0816499a66e71b64",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "V1",
+   "module": "ViewLoop",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyThree\nVIEW View",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "unsound: loop closed on the view; spurious counterexample (BFS too)",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property EventuallyThree was violated."
+    }
+   ],
+   "counterexample": [
+    "/\\ x = 0\n/\\ y = 0",
+    "/\\ x = 1\n/\\ y = 1"
+   ],
+   "back_to_state": 1,
+   "stuttering": false,
+   "generated": 11,
+   "stdout_sha256": "26e72b69ea7d9105c35b0e382cb21f82bf82bed7ee26b0bb43984abfad15aacb",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "V2",
+   "module": "ViewLoop",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyThree",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound control without VIEW",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 201,
+   "stdout_sha256": "d581c42a813a839053916e298417c3b6154d127722e5b3780a35cd209550c88c",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "V3",
+   "module": "ViewLoop",
+   "cfg": "SPECIFICATION FairSpec\nINVARIANT BadY\nVIEW View",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: VIEW does not affect safety",
+   "exit": 12,
+   "deciding": [
+    {
+     "code": 2110,
+     "message": "Invariant BadY is violated."
+    }
+   ],
+   "counterexample": [
+    "/\\ x = 0\n/\\ y = 0",
+    "/\\ x = 1\n/\\ y = 1",
+    "/\\ x = 0\n/\\ y = 2"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 41,
+   "stdout_sha256": "f7ea889d6bc2815b756a6664e9db5dc44f294bf5850a43af5a40d9f5163073c5",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "V4",
+   "module": "ViewLoop",
+   "cfg": "SPECIFICATION FairSpec\nINVARIANT SafeY\nVIEW View",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 201,
+   "stdout_sha256": "0cb60538ee7ad52e48accbaef4dd56191535c3befd6dcc19634c461fe598ee33",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "Y1",
+   "module": "SymLoop",
+   "cfg": "CONSTANTS a = a b = b\nSPECIFICATION FairSpec\nPROPERTY EventuallyB\nSYMMETRY Perms",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "holds",
+   "tlc": "sound",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 201,
+   "stdout_sha256": "979dc9b305e2547d70d0a0257050221e84db651780003a0feb9a04ccd302d655",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "Y2",
+   "module": "SymLoop",
+   "cfg": "CONSTANTS a = a b = b\nSPECIFICATION FairSpec\nPROPERTY NeverOther\nSYMMETRY Perms",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=3"
+   ],
+   "truth": "violated",
+   "tlc": "missed: symmetric fingerprints turn the a-b loop into an unfair self-loop",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 31,
+   "stdout_sha256": "63a27a125f33b68aad54b873ab763889a1148d9956cf44219bba30d8924f211c",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "Y3",
+   "module": "SymLoop",
+   "cfg": "CONSTANTS a = a b = b\nSPECIFICATION FairSpec\nPROPERTY NeverOther",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=3"
+   ],
+   "truth": "violated",
+   "tlc": "sound control without SYMMETRY",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property NeverOther was violated."
+    }
+   ],
+   "counterexample": [
+    "x = a",
+    "x = b"
+   ],
+   "back_to_state": 1,
+   "stuttering": false,
+   "generated": 11,
+   "stdout_sha256": "5f6fa20bfce24786602c2172280894bdcbb080484545ff2af61e01e7ecfbd69f",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "Y4",
+   "module": "SymLoop",
+   "cfg": "CONSTANTS a = a b = b\nSPECIFICATION FairSpec\nINVARIANT NotB\nSYMMETRY Perms",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: SYMMETRY does not affect safety",
+   "exit": 12,
+   "deciding": [
+    {
+     "code": 2110,
+     "message": "Invariant NotB is violated."
+    }
+   ],
+   "counterexample": [
+    "x = a",
+    "x = b"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 21,
+   "stdout_sha256": "04d9d8ca4c87c0b917302710311d16e503a03d2a6f351c0b806a74854d72ec69",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "A1",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nINVARIANT BelowFour\nALIAS AliasDef",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "10",
+    "-simulate",
+    "num=20"
+   ],
+   "truth": "violated",
+   "tlc": "sound: ALIAS only renders the trace",
+   "exit": 12,
+   "deciding": [
+    {
+     "code": 2110,
+     "message": "Invariant BelowFour is violated."
+    }
+   ],
+   "counterexample": [
+    "/\\ x = 0\n/\\ double = 0",
+    "/\\ x = 1\n/\\ double = 2",
+    "/\\ x = 2\n/\\ double = 4",
+    "/\\ x = 3\n/\\ double = 6",
+    "/\\ x = 4\n/\\ double = 8"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 81,
+   "stdout_sha256": "3a2bcc248e4ffc7401b65e34fac216762f11b470ebe7034967cb87278af5f9c3",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "A2",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nINVARIANT BelowTen\nALIAS AliasDef",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "3",
+    "-simulate",
+    "num=2,file=FILE"
+   ],
+   "truth": "holds",
+   "tlc": "file= writes one module per trace, named PREFIX_worker_n, without ALIAS",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 7,
+   "stdout_sha256": "9fe77a43426d52b02fbc1ddc45462c3789a3e06f8279f23ab392867099777509",
+   "stderr_empty": true,
+   "trace_files": [
+    "t_0_0",
+    "t_0_1"
+   ],
+   "trace_file_variables": [
+    "x"
+   ]
+  },
+  {
+   "id": "A3",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nINVARIANT BelowFour\nALIAS AliasDef",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "6",
+    "-simulate",
+    "num=2,file=FILE"
+   ],
+   "truth": "violated",
+   "tlc": "the violating trace is printed with ALIAS; file= writes no module for it",
+   "exit": 12,
+   "deciding": [
+    {
+     "code": 2110,
+     "message": "Invariant BelowFour is violated."
+    }
+   ],
+   "counterexample": [
+    "/\\ x = 0\n/\\ double = 0",
+    "/\\ x = 1\n/\\ double = 2",
+    "/\\ x = 2\n/\\ double = 4",
+    "/\\ x = 3\n/\\ double = 6",
+    "/\\ x = 4\n/\\ double = 8"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 9,
+   "stdout_sha256": "3c9f6d590c4b03bec632edb16028ed9a5443b635efea777b087040cb9e410c32",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "G1",
+   "module": "BigNext",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Small",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-simulate",
+    "num=5"
+   ],
+   "truth": "holds",
+   "tlc": "-simulate enumerates all 10^6 initial states and all 10^6 successors of each step",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 101000000,
+   "stdout_sha256": "63994eab3f06da94220c8b9c1f20c4f9def2961554e213f665042494b8ac03b8",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "G2",
+   "module": "BigNext",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Small",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-generate",
+    "num=5"
+   ],
+   "truth": "holds",
+   "tlc": "-generate enumerates Init but builds one successor per step",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 1000100,
+   "stdout_sha256": "3d7f05e491e5ee6a0eca51051e1cc603a823da9cba6aa9f22a6145e49a852950",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "G3",
+   "module": "InfInit",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Small",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-simulate",
+    "num=5"
+   ],
+   "truth": "holds",
+   "tlc": "Init over Nat is not enumerable: GENERAL 1000, exit 255",
+   "exit": 255,
+   "deciding": [
+    {
+     "code": 1000,
+     "message": "TLC threw an unexpected exception."
+    }
+   ],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 0,
+   "stdout_sha256": "52981abc529048bf7d7f6c01c88318bd18f22b41267282b4961412225d59b242",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "G4",
+   "module": "InfInit",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Small",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-generate",
+    "num=5"
+   ],
+   "truth": "holds",
+   "tlc": "same under -generate",
+   "exit": 255,
+   "deciding": [
+    {
+     "code": 1000,
+     "message": "TLC threw an unexpected exception."
+    }
+   ],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": 0,
+   "stdout_sha256": "074723f187b9edee16b4861cf72c0d6d733368f0f3623aa283f200a21fae850a",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "G5",
+   "module": "InfNext",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Small",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-simulate",
+    "num=5"
+   ],
+   "truth": "holds",
+   "tlc": "successors over Nat are not enumerable",
+   "exit": 255,
+   "deciding": [
+    {
+     "code": 1000,
+     "message": "TLC threw an unexpected exception."
+    }
+   ],
+   "counterexample": [
+    "x = 0"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": null,
+   "stdout_sha256": "1518bdc7dca0f4661b59d8636db5804de778edd9c48ab82bd0b19957a4436195",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "G6",
+   "module": "InfNext",
+   "cfg": "INIT Init\nNEXT Next\nINVARIANT Small",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "1",
+    "-depth",
+    "20",
+    "-generate",
+    "num=5"
+   ],
+   "truth": "holds",
+   "tlc": "same under -generate",
+   "exit": 255,
+   "deciding": [
+    {
+     "code": 1000,
+     "message": "TLC threw an unexpected exception."
+    }
+   ],
+   "counterexample": [
+    "x = 0"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": null,
+   "stdout_sha256": "c24aff5033febd613a5400cae0c34fa88f6f7402d9ed30584a123571ee7abc51",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  }
+ ],
+ "repeats": [
+  {
+   "id": "W1",
+   "module": "Walk",
+   "cfg": "SPECIFICATION Spec\nINVARIANT NotFourteen",
+   "flags": [
+    "-workers",
+    "1",
+    "-seed",
+    "7",
+    "-depth",
+    "20",
+    "-simulate",
+    "num=1000000"
+   ],
+   "exits": [
+    12,
+    12,
+    12
+   ],
+   "generated": [
+    6860,
+    8588,
+    16382
+   ],
+   "counterexample_sha256": [
+    "fb30c489889bf046",
+    "fb30c489889bf046",
+    "fb30c489889bf046"
+   ],
+   "counterexample_states": [
+    19,
+    19,
+    19
+   ]
+  },
+  {
+   "id": "W4",
+   "module": "Walk",
+   "cfg": "SPECIFICATION Spec\nINVARIANT NotFourteen",
+   "flags": [
+    "-workers",
+    "4",
+    "-seed",
+    "7",
+    "-depth",
+    "20",
+    "-simulate",
+    "num=1000000"
+   ],
+   "exits": [
+    12,
+    12,
+    12,
+    12,
+    12,
+    12
+   ],
+   "generated": [
+    2685,
+    3203,
+    3187,
+    4736,
+    2652,
+    1875
+   ],
+   "counterexample_sha256": [
+    "eda108f1499050df",
+    "eda108f1499050df",
+    "eda108f1499050df",
+    "eda108f1499050df",
+    "eda108f1499050df",
+    "eda108f1499050df"
+   ],
+   "counterexample_states": [
+    19,
+    19,
+    19,
+    19,
+    19,
+    19
+   ]
+  }
+ ],
+ "bfs_controls": [
+  {
+   "id": "B-U12",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY InitOne",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2108,
+     "message": "Property InitOne is violated by the initial state:"
+    }
+   ],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": null,
+   "stdout_sha256": "1c8e41729e2d2f4c5e6ad0378ba8f3822b654164e9eba836c320c0af4c440abf",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "B-U13",
+   "module": "Unbounded",
+   "cfg": "SPECIFICATION FairSpec\nCONSTRAINT BelowThree\nPROPERTY StepBelowThree",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2112,
+     "message": "Action property StepBelowThree is violated."
+    }
+   ],
+   "counterexample": [
+    "x = 0",
+    "x = 1",
+    "x = 2",
+    "x = 3"
+   ],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": null,
+   "stdout_sha256": "2d22e9a842674a609d6a43d5c73e95f266674117694e76b6c4040950092c19ae",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "B-V1",
+   "module": "ViewLoop",
+   "cfg": "SPECIFICATION FairSpec\nPROPERTY EventuallyThree\nVIEW View",
+   "exit": 13,
+   "deciding": [
+    {
+     "code": 2116,
+     "message": "Temporal property EventuallyThree was violated."
+    }
+   ],
+   "counterexample": [
+    "/\\ x = 0\n/\\ y = 0",
+    "/\\ x = 1\n/\\ y = 1"
+   ],
+   "back_to_state": 1,
+   "stuttering": false,
+   "generated": null,
+   "stdout_sha256": "3653c1a852a980475d3e9cd005a96f4e56647562c009882a888b1ab1675156c7",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  },
+  {
+   "id": "B-Y2",
+   "module": "SymLoop",
+   "cfg": "CONSTANTS a = a b = b\nSPECIFICATION FairSpec\nPROPERTY NeverOther\nSYMMETRY Perms",
+   "exit": 0,
+   "deciding": [],
+   "counterexample": [],
+   "back_to_state": null,
+   "stuttering": false,
+   "generated": null,
+   "stdout_sha256": "b1ccec607692288ab4702a56c12c887fc4584bb9a976100ba0f6e88a2a643d29",
+   "stderr_empty": true,
+   "trace_files": [],
+   "trace_file_variables": []
+  }
+ ]
+}

@@ -891,6 +891,67 @@ called directly; normal binding often disables the singleton case first with
 warning 2300. dive refuses the empty declaration by name (the `SyEmpty`
 capture is in `crates/dive-model/tests/fixtures/symmetry-group/`).
 
+### D-031: Simulation checks implied initial properties
+
+With `PROPERTY x = 1` on a spec whose initial state has `x = 0`, TLC's
+`-simulate` exits 0: it never checks a state-level property in simulation,
+while model checking reports error 2108. dive's simulation will check it on
+every initial state and report the same 2108 as `dive check`, in both
+profiles.
+
+### D-032: Simulation closes loops only on equal states
+
+TLC's simulation closes a liveness loop when two states have the same
+fingerprint. Under `VIEW` that is the view's fingerprint, and under
+`SYMMETRY` the symmetric one. Two measured results:
+
+- `x` toggles while `y` counts up to 3 with weak fairness, `VIEW x`, and the
+  property `<>(y = 3)`. Every behavior reaches `y = 3`, yet TLC reports a
+  violation: its loop goes back from `x = 0, y = 2` to the initial state,
+  which only has the same view.
+- `x` alternates between two symmetric model values `a` and `b` with weak
+  fairness, and the property `<>(x \notin {a, b})` is false on every
+  behavior. Without `SYMMETRY`, TLC reports the violation; with it, TLC's
+  simulation reports none, because the cycle `a, b, a` looks like stuttering
+  at `a`, which weak fairness rules out.
+
+dive's simulation will treat `VIEW` and `SYMMETRY` as having no effect on
+simulation and close a loop only when a state equals an earlier one. Every
+reported loop is then a real behavior that the trace validator checks.
+
+### D-033: Simulation reports how much of a property it checked
+
+TLC's simulation checks a liveness property only on traces that return to an
+earlier state or stop. When every trace is cut by `-depth` first, for example
+`<>(x = 10)` on `x' = x + 1` at depth 5 or a three-state cycle at depth 2,
+TLC reports success exactly as when it checked every trace. dive's simulation
+will report, for each property, how many traces gave a complete behavior on
+which it was checked and how many could not decide it. It never reports that
+a property holds.
+
+### D-034: Extending traces cut by the depth
+
+A trace that reaches `--depth` while a temporal property is still undecided on
+it will continue, by up to `--depth` more steps, until it returns to an
+earlier state or stops. TLC always ends the trace at `-depth`. Every violation
+found this way is a real behavior and is validated, and every extra step is
+checked like any other. `--liveness-extend N` sets the number of extra steps;
+`--liveness-extend 0`, or `--compat=tlc`, ends every trace at the depth as TLC
+does.
+
+### D-035: Sampling from unbounded sets
+
+`x \in Nat` in `Init`, or `\E n \in Nat : x' = x + n` in `Next`, makes
+TLC's `-simulate` and `-generate` fail with "not enumerable". dive's
+simulation will draw one member of such a set instead: from `Nat` with a
+geometric distribution of mean 8 (`--sample-mean` changes it), from `Int` with
+a geometric magnitude and a random sign, and from `Seq(S)` with a geometric
+length. The draws follow the run's seed, so `--seed` reproduces them, and the
+report notes name the distribution and every set that was sampled. Each drawn
+value is a member of its set, so every trace is a real behavior; values that
+were not drawn are not checked. `--sample-unbounded=off`, or `--compat=tlc`,
+reports the same error as TLC.
+
 ### Other candidates
 
 - **Which liveness counterexample is reported.** TLC's liveness counterexample depends on the order of its internal hash tables, so it depends on the fingerprint polynomial (`-fp`), which TLC picks at random unless you set it. On the Examples spec `MCDistributedReplicatedLog`, six polynomials gave five different counterexamples, of 4, 5 or 6 states, naming either `InSync` or `AllExtending and InSync` as violated. TLC's choice is also not the shortest available: for `[]<>(x = 0)` on a counter `0, 1, 2` with no fairness, TLC shows three states and then stuttering, where stuttering after two states already violates the property. dive reports a counterexample with the shortest possible prefix, the same one at any polynomial and any worker count; see [D-013](#d-013-a-deterministic-short-liveness-counterexample). The verdict and the state counts are the same either way.
