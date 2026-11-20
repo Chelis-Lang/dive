@@ -317,6 +317,16 @@ Core now packs consecutive blocks of 256 rows in RAM. Each variable gets the sma
 
 Each pair averages two runs on eight physical cores of an isolated EC2 r7i.8xlarge. Both representations stopped with identical verdict, depth, generated, initial, distinct and queue counts in all 16 runs. TLCSailfish2 saved about 3% of whole-process RSS despite a much smaller representation for its rows. The fixed prefixes establish memory cost per search and leave the full configurations open. [Every sample, binary, input hash and layout comparison](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
+Each ordinary resident level also has consecutive predecessor IDs in admission order. Core checks this as it appends each ID and stores the first ID and count for the level. A separate eight-core comparison measured average peak RSS for the per-row ID vector and the checked range.
+
+| Fixed prefix | Per-row ID / range, MiB | Per-row ID / range, seconds |
+|---|---:|---:|
+| SlateDBWAL, 12,000,000 distinct | 746 / 695 | 51.94 / 52.28 |
+| BPConProof, 8,000,000 distinct | 1554 / 1462 | 30.32 / 30.25 |
+| MC_HDiskSynod, 3,000,000 distinct | 202 / 180 | 44.99 / 44.87 |
+
+Both builds used the same compressed frontier rows and reached identical search counters. The predecessor log still retains the parent and successor ordinal used to regenerate a concrete trace. Checkpoint recovery retains explicit IDs. [All 12 measurements](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
+
 ## High-fanout parallel safety
 
 A worker expands each source before the coordinator commits its successors in discovery order. The amount awaiting commit scales with **sources per batch × successors per source**. On BPConProof, 478 of the first million discovered states had left the queue, yet the checker had generated 1,119,749 states. Spilling frontier rows cannot release successor batches already under construction. Core now uses the previous completed level's mean fanout to target 65,536 successor occurrences per batch, with at least one source per requested worker. One source can still exceed that target.

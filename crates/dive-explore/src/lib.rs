@@ -583,6 +583,8 @@ struct Explorer<'p> {
     log: PredecessorLog,
     /// The log ids of the states in `next`, in order.
     next_ids: Vec<StateId>,
+    /// Ordinary resident admissions have contiguous predecessor IDs at each level.
+    next_span: resident::IdSpan,
     /// The log id of the state being expanded.
     cur_id: Option<StateId>,
     /// The discovery id an in-memory exact seen set recorded for the last
@@ -1137,7 +1139,11 @@ impl Explorer<'_> {
         }
         .map_err(|e| Error::internal(format!("predecessor log: {e}")))?;
         self.confirm_logged(id)?;
-        self.next_ids.push(id);
+        if self.packed.is_some() {
+            self.next_span.push(id)?;
+        } else {
+            self.next_ids.push(id);
+        }
         if let Some(blocks) = &mut self.packed
             && self.next.len() == self.plan.vars.len() * dive_core::packed_rows::ROWS
         {
@@ -1825,6 +1831,7 @@ fn explore_inner<'p>(
             storage.predecessor_directory.as_deref(),
         ),
         next_ids: Vec::new(),
+        next_span: resident::IdSpan::default(),
         cur_id: None,
         predicted: None,
         end: None,
@@ -2300,6 +2307,7 @@ fn run(
     let mut cur = std::mem::take(&mut ex.next);
     let mut cur_originals = std::mem::take(&mut ex.next_originals);
     let mut cur_ids = std::mem::take(&mut ex.next_ids);
+    let mut cur_span = std::mem::take(&mut ex.next_span);
     ex.advance_frontier()?;
     let mut wave_workers = parallel::WaveWorkers::default();
     let mut generated_before = 0;
@@ -2562,6 +2570,8 @@ fn run(
             }
             ex.cur_id = if ex.frontier.is_some() {
                 decoded.ids.get(local).copied()
+            } else if blocks.is_some() {
+                Some(cur_span.get(k)?)
             } else {
                 cur_ids.get(k).copied()
             };
@@ -2667,6 +2677,7 @@ fn run(
         std::mem::swap(&mut cur, &mut ex.next);
         std::mem::swap(&mut cur_originals, &mut ex.next_originals);
         std::mem::swap(&mut cur_ids, &mut ex.next_ids);
+        cur_span = std::mem::take(&mut ex.next_span);
         ex.advance_frontier()?;
     }
     Ok(())
