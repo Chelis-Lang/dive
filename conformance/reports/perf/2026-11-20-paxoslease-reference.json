@@ -808,5 +808,312 @@
     "interpretation": "Cluster the sparse set membership bits with local-state fields indexed by the same participant. Each learning pass starts from the original Init. A constrained-out target remains an invariant obligation. Counts in successful symbolic rows are exact over the represented sets. Explicit reference counts use fingerprint stores.",
     "rejected_probe": "Precomposing the complete state constraint with every simultaneous update made the compilation intermediates expensive. The released positive pass instead streams each action image and intersects the target constraint before retaining the next frontier.",
     "initial_ablation": "On the shared workstation, the ungrouped generic Base run completed in 185.42 s. For the quarantine case at depth 18 the ungrouped admitted layer had about 3.87 million BDD nodes, compared with about 0.88 million after participant ordering."
+  },
+  "refined_edit_sessions": {
+    "prototype": {
+      "host": "EC2 r7i.4xlarge, us-east-1a. One non-sibling physical core 7, 5 GiB per-process virtual memory limit, 900s whole-process deadline. Other experimental single-core searches on separate cores shared the host memory and last-level cache. Single observation per input/arm; GNU time reports wall and maximum child/process RSS.",
+      "source": "Original PaxosLeaseChecked.tla and original Base / QuarantineEqualsProposer CFGs pinned above. A private worker transferred only coordinate names, then rebound and checked each complete input. Both warm trials seeded from Base-cold. Cold/warm on a given configuration must agree on counts, depth, and verdict. Cross-configuration hints can introduce dormant coordinates.",
+      "binaries_sha256": {
+        "worker": "99de83699a5fb279c27a5fe4b3cd65a060c46d5f692db45f2bc6b7d8ce547155",
+        "dive": "2a1e1e4ea1f12536945843d93335907f9df04d296a3f60c17599883288f9caa0",
+        "symbolic_input": "180847c7d8ad10ceedd8c2f065b4d986a497fdd224fa980fa5c8da95ebe161de"
+      },
+      "rows": [
+        {
+          "trial": "Base-cold",
+          "verdict": "success",
+          "distinct": 491037,
+          "generated": 1709874,
+          "depth": 29,
+          "refinement_rounds": 11,
+          "learned_members": 138,
+          "reachable_bdd_nodes": 390276,
+          "seconds": 64.16,
+          "peak_rss_kib": 332596,
+          "reused": false
+        },
+        {
+          "trial": "Base-warm",
+          "verdict": "success",
+          "distinct": 491037,
+          "generated": 1709874,
+          "depth": 29,
+          "refinement_rounds": 1,
+          "learned_members": 138,
+          "reachable_bdd_nodes": 390276,
+          "seconds": 41.8,
+          "peak_rss_kib": 332368,
+          "reused": false
+        },
+        {
+          "trial": "Boundary-cold",
+          "verdict": "success",
+          "distinct": 76749192,
+          "generated": 391849185,
+          "depth": 43,
+          "refinement_rounds": 11,
+          "learned_members": 80,
+          "reachable_bdd_nodes": 630485,
+          "seconds": 486.75,
+          "peak_rss_kib": 1193100,
+          "reused": false
+        },
+        {
+          "trial": "Boundary-warm",
+          "verdict": "success",
+          "distinct": 76749192,
+          "generated": 391849185,
+          "depth": 43,
+          "refinement_rounds": 3,
+          "learned_members": 150,
+          "reachable_bdd_nodes": 706609,
+          "seconds": 528.99,
+          "peak_rss_kib": 754412,
+          "reused": false
+        }
+      ]
+    },
+    "installed_candidate": {
+      "host": "Dedicated EC2 c7i.4xlarge, us-east-1a, search pinned to physical CPU 0, no swap. Single ordered invocation per case, small validation checks on other cores. Earlier installed candidate before trace-file and manager lifetime fixes. Per-revision seconds are reported by the checker; native GNU time and peak RSS apply to complete invocations only.",
+      "hashes": {
+        "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+        "libexec/dive-symbolic/engine.py": "92f68153b49cbb34701c40b7510b31aa937d94a79acadf29ba7d56ac3009c682",
+        "libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+        "spec/PaxosLease.tla": "3ac9f462afc48698eac87519530abc227c9f47d44d305bed31104543e3c6ca1a",
+        "spec/PaxosLeaseBase.cfg": "03f0be6f3ae3faa879415477994958e480fdb88d7186f4dd9fc4f0577235c711",
+        "spec/PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+        "spec/PaxosLeaseQuarantineEqualsProposer.cfg": "5f69288c3b80cbab777da4aa4f573fd9e8e42527ce77297e29adf192a2c804f2",
+        "spec/PaxosLeaseRetry.cfg": "3df08aeb5bd1771b0ed045e8436fad72dba04371c86240b265e1107841a351d7"
+      },
+      "command": "dive check PaxosLeaseChecked.tla --config FIRST --strategy symbolic --type-invariant TypeOK --refine-domains --time-limit 2400s --max-memory 6g --output json; session adds --recheck PaxosLeaseChecked.tla PaxosLeaseBase.cfg --recheck PaxosLeaseChecked.tla PaxosLeaseQuarantineEqualsProposer.cfg",
+      "cold_quarantine": {
+        "metrics": {
+          "wall_s": 482.1,
+          "peak_rss_kib": 1192284
+        },
+        "row": {
+          "verdict": "success",
+          "distinct": 76749192,
+          "generated": 391849185,
+          "depth": 43,
+          "reused": false,
+          "reachable_bdd_nodes": 630485,
+          "invariants": [
+            "TypeOK",
+            "Safety"
+          ],
+          "format": "dive-symbolic-report-v1",
+          "module": "spec/PaxosLeaseChecked.tla",
+          "config": "spec/PaxosLeaseQuarantineEqualsProposer.cfg",
+          "seconds": 481.880654,
+          "refinement_rounds": 11,
+          "learned_members": 80,
+          "initial_hint_members": 0
+        }
+      },
+      "base_then_base_then_quarantine": {
+        "metrics": {
+          "wall_s": 623.08,
+          "peak_rss_kib": 753728
+        },
+        "rows": [
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "invariants": [
+              "TypeOK",
+              "Safety"
+            ],
+            "format": "dive-symbolic-report-v1",
+            "module": "spec/PaxosLeaseChecked.tla",
+            "config": "spec/PaxosLeaseBase.cfg",
+            "seconds": 61.320373,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "invariants": [
+              "TypeOK",
+              "Safety"
+            ],
+            "format": "dive-symbolic-report-v1",
+            "module": "spec/PaxosLeaseChecked.tla",
+            "config": "spec/PaxosLeaseBase.cfg",
+            "seconds": 40.698494,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 706609,
+            "invariants": [
+              "TypeOK",
+              "Safety"
+            ],
+            "format": "dive-symbolic-report-v1",
+            "module": "spec/PaxosLeaseChecked.tla",
+            "config": "spec/PaxosLeaseQuarantineEqualsProposer.cfg",
+            "seconds": 520.864801,
+            "refinement_rounds": 3,
+            "learned_members": 104,
+            "initial_hint_members": 92
+          }
+        ]
+      }
+    }
+  },
+  "retained_refined_closure_edits": {
+    "method": "Separate fresh installed CLI sessions, sequentially on the same physical core of an isolated c7i.4xlarge. Each session checks the original configuration, repeats it, adds EmissionBound, then adds the false EmptyNetwork obligation. Peak RSS is GNU time's maximum for the session. Row seconds come from the checker. Each false result is independently replayed.",
+    "time_limit_seconds": 2300,
+    "memory_limit": "7g",
+    "options": "--type-invariant TypeOK --refine-domains --strategy symbolic --trace <path>",
+    "hashes": {
+      "candidate executable": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "control executable": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+      "PaxosLeaseEdited.tla": "07aebd011f62da5a525a0a11f903e885a499336d087df08c2e0c2bbb9d3c8442",
+      "PaxosLeaseBase.cfg": "03f0be6f3ae3faa879415477994958e480fdb88d7186f4dd9fc4f0577235c711",
+      "BaseEmission.cfg": "c9d0bbb077d68cd2080b9046c53a7bc307598763c065cd98465c87338ceb1322",
+      "BaseEmpty.cfg": "42d5e8eb18115373348fe3490fe8464fc2a5f88598523a4802bf0e2eeef82163",
+      "PaxosLeaseQuarantineEqualsProposer.cfg": "5f69288c3b80cbab777da4aa4f573fd9e8e42527ce77297e29adf192a2c804f2",
+      "QuarantineEmission.cfg": "94508946ab40f28f698c93bbe57f98676e4cff0621cde24de99c4a741dfaf6c4",
+      "QuarantineEmpty.cfg": "bc805d8ccf4bced72dbf8fcc1beede2f5025f73ce11d713b3b2cd8569fcb77ae"
+    },
+    "installed_engines": {
+      "candidate": "001520e7d36e296fb7b685ad844fe73bdbb1bde7934b50874237e5b25575207c",
+      "control": "70a08b42072ac5657017552b2b16397138c5a4c6535b019036ddac802a8fe53e"
+    },
+    "sessions": {
+      "Base-control": {
+        "wall_seconds": 169.84,
+        "max_rss_kib": 363796,
+        "validated_trace_states": 2,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 72.214739,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 47.731871,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 48.843254,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "invariant-violation",
+            "depth": 2,
+            "ending": {
+              "kind": "invariant",
+              "name": "EmptyNetwork"
+            },
+            "reused": false,
+            "trace_validated": true,
+            "seconds": 0.835962,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          }
+        ]
+      },
+      "Base-candidate": {
+        "wall_seconds": 78.71,
+        "max_rss_kib": 332472,
+        "validated_trace_states": 2,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 72.52268,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": true,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 0.598139,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": true,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 4.499806,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "invariant-violation",
+            "depth": 2,
+            "ending": {
+              "kind": "invariant",
+              "name": "EmptyNetwork"
+            },
+            "reused": false,
+            "trace_validated": true,
+            "seconds": 0.876681,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          }
+        ]
+      }
+    }
   }
 }

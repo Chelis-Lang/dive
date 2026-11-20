@@ -8,7 +8,7 @@
 use std::sync::Arc;
 
 use dive_core::node::flags;
-use dive_runtime::capture::{CsrCapture, CsrCaptureInput, CsrComplete};
+use dive_runtime::capture::{CsrCapture, CsrCaptureColumns, CsrCaptureInput, CsrComplete};
 
 use super::*;
 
@@ -223,7 +223,14 @@ fn native_rows_keep_seen_originals_gaps_duplicates_and_stutters() {
                         let last = range.end - 1;
                         assert_eq!(csr.ordinal(last), Some(None));
                         assert_eq!(csr.label(last), Some(None));
-                        assert_eq!(graph.edge_rows[last], graph.representatives[source]);
+                        assert_eq!(
+                            graph.input().edge_rows.row(
+                                last,
+                                &graph.targets,
+                                &graph.representatives
+                            ),
+                            Some(graph.representatives[source])
+                        );
                     }
                     // Retained handles remain readable after all explorer arenas
                     // have reset and their worker heaps have been dropped.
@@ -274,11 +281,15 @@ fn native_new_targets_and_exact_seen_rows_reuse_first_discovery_rows() {
             let csr = CsrCapture::checked(graph.input(), graph.limits(), &control).expect("CSR");
             assert_eq!(graph.state_count(), 3);
             assert_eq!(graph.retained_rows, 3);
+            assert_eq!(graph.edge_rows.rows.len(), 0);
             assert_eq!(csr.targets(), &[1, 0, 2, 1, 0, 2]);
             for edge in 0..6 {
                 assert_eq!(
-                    graph.edge_rows[edge],
-                    graph.representatives[graph.targets[edge] as usize]
+                    graph
+                        .input()
+                        .edge_rows
+                        .row(edge, &graph.targets, &graph.representatives),
+                    Some(graph.representatives[graph.targets[edge] as usize])
                 );
             }
         }
@@ -902,4 +913,115 @@ fn byte_action_ids_preserve_named_unnamed_and_stutter_edges() {
     wide.push(Some(255)).expect("wide label");
     wide.push(None).expect("wide unnamed");
     assert!(matches!(wide.view(), CsrActions::Expanded(ids) if ids == [Some(255),None]));
+}
+
+#[test]
+fn original_row_blocks_promote_late_and_decode_captured_prefixes() {
+    let control = EvaluationControl::new(&options(false).budget, Phase::Capture).expect("control");
+    let mut originals = OriginalRows::default();
+    let mut targets = Vec::new();
+    let mut expanded = Vec::new();
+    let mut memory = NativeMemory::default();
+    // A discovery ID and its retained row ID need not be equal.
+    let representatives = [3];
+    for edge in 0..1031 {
+        let row = if [511, 512, 700, 1030].contains(&edge) {
+            17
+        } else {
+            3
+        };
+        originals
+            .append(&targets, &representatives, 0, row, &mut memory, &control)
+            .expect("append");
+        targets.push(0);
+        expanded.push(row);
+    }
+    assert_eq!(originals.directory, [0, 1, 2, 2, 3]);
+    assert_eq!(originals.rows.len(), 2 * CsrEdgeRows::BLOCK + 7);
+    let view = originals.view(targets.len());
+    for count in [
+        0, 1, 255, 256, 257, 511, 512, 513, 700, 768, 769, 1024, 1030, 1031,
+    ] {
+        let prefix = view.prefix(count).expect("available prefix");
+        for (edge, &row) in expanded[..count].iter().enumerate() {
+            assert_eq!(prefix.row(edge, &targets, &representatives), Some(row));
+        }
+        assert_eq!(prefix.row(count, &targets, &representatives), None);
+    }
+    assert!(view.prefix(1032).is_none());
+}
+
+#[test]
+fn checked_original_row_blocks_validate_directory_bounds_and_stutter() {
+    let control = EvaluationControl::new(&options(false).budget, Phase::Capture).expect("control");
+    let input = CsrStorage {
+        offsets: &[0, 3],
+        targets: &[0; 3],
+        ordinals: &[Some(0), Some(1), None],
+        actions: CsrActions::Bytes(&[255; 3]),
+        edge_rows: CsrEdgeRows::Blocks {
+            edges: 3,
+            directory: &[1],
+            rows: &[2, 3, 1],
+        },
+        representatives: &[1],
+        roots: &[0],
+        action_labels: &[],
+        retained_rows: 4,
+        closed_rows: 1,
+    };
+    let csr = CsrCapture::checked(input, Limits::default(), &control).expect("valid");
+    assert_eq!(csr.original_row(0, 0), Some(2));
+    assert_eq!(csr.original_row(0, 1), Some(3));
+    assert_eq!(csr.original_row(0, 2), None);
+    for (edges, directory, rows) in [
+        (2, &[1][..], &[2, 3][..]),
+        (3, &[], &[]),
+        (3, &[usize::MAX], &[2, 3, 1]),
+        (3, &[0], &[2, 3, 1]),
+        (3, &[1], &[2, 3]),
+        (3, &[1], &[2, 4, 1]),
+        (3, &[1], &[2, 3, 2]),
+    ] {
+        assert!(
+            CsrCapture::checked(
+                CsrStorage {
+                    edge_rows: CsrEdgeRows::Blocks {
+                        edges,
+                        directory,
+                        rows
+                    },
+                    ..input
+                },
+                Limits::default(),
+                &control
+            )
+            .is_err()
+        );
+    }
+}
+
+#[test]
+fn dense_row_inputs_preserve_slice_coercions() {
+    let control = EvaluationControl::new(&options(false).budget, Phase::Capture).expect("control");
+    let mut rows = [7];
+    let input = CsrCaptureInput {
+        offsets: &[0, 1],
+        targets: &[0],
+        ordinals: &[None],
+        actions: &mut [None],
+        edge_rows: rows.as_mut_slice(),
+        representatives: &[7],
+        roots: &[0],
+        action_labels: &[],
+        retained_rows: 8,
+        closed_rows: 1,
+    };
+    assert!(CsrCapture::checked(input, Limits::default(), &control).is_ok());
+    let boxed: Box<[u32]> = vec![7].into_boxed_slice();
+    let changed = CsrCaptureColumns {
+        edge_rows: &boxed,
+        ..input
+    };
+    assert!(CsrCapture::checked(changed, Limits::default(), &control).is_ok());
 }

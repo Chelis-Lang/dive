@@ -277,6 +277,22 @@ Core retains one action ID per edge so it can distinguish named transitions duri
 
 Both binaries already used narrow successor ordinals. The two rotations per binary agreed on every search counter within each model. Under the same 2 GiB sampled process limit, c1cs reached 2,644,879 distinct and 56,343,707 generated before, and 3,130,942 distinct and 65,470,460 generated after. Both stopped with a nonempty queue. The configuration with more transitions per state sees the bigger gain because each retained edge saves seven bytes. [Individual readings, terminal statistics, machine and hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+The native graph also stores original row IDs in blocks of 256 physical edges.
+A block initially uses the representative row of each destination. On the first
+edge whose persistent original differs, Core records explicit IDs for that
+block, including its earlier edges. Seen aliases, generated self-loops and
+synthetic stutters retain their original identities. The directory costs one
+machine word per block. Each explicit entry costs four bytes.
+
+| Two-million-state prefix | Retained original rows | Collector capacity, dense / blocks | Mean peak RSS, dense / blocks | Mean wall seconds, dense / blocks |
+|---|---:|---:|---:|---:|
+| BlockingQueuePoisonApple | 2,000,400 | 176 / 144 MiB | 560 / 539 MiB | 17.74 / 16.38 |
+| c1cs | 2,000,000 | 808 / 554 MiB | 1,227 / 1,071 MiB | 78.67 / 78.68 |
+
+Two trials per binary on the same eight physical cores produced identical
+counts, queue sizes and depths at each prefix. The dense control already used
+byte action IDs and compact ordinals. [Inputs, individual timings and collector capacities](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same
@@ -447,6 +463,12 @@ would require knowing the counting convention and input of every contender,
 including proprietary models. The enlarged KVS and transaction-commit runs
 above demonstrate concrete reachable cardinalities on their own programs.
 
+### Reproduce the ZooKeeper protocol specification
+
+Three completed no-restart configurations reproduce the state counts and diameters in Ouyang et al., Table 1. The paper’s count matches **generated** states in each. With four servers, two transactions and one timeout, Core and pinned TLC exhausted the queue at 6,634,696 distinct states, 21,393,294 generated and depth 64. Core took 623.70 s and 452 MiB peak RSS. TLC took 136.24 s and 46.3 GiB on the same host. Core used one of the 32 requested workers because the released specification contains twelve diagnostic `PrintT` calls. The completed Core run emitted no lines. With two timeouts the paper reports 1,599,588,210 states at its 24-hour cutoff. [Paper, Table 1](https://arxiv.org/pdf/2302.02703#page=7).
+
+The release supplies the module and a Toolbox guide. The reproduction record supplies the missing wrapper and configuration template, the ten invariants, hashes, individual measurements and unsuccessful reconstructions. Restart increments the source’s timeout counter as well as its restart counter. Treating the published timeout parameter as a joint or an independent allowance produced different state spaces. Neither interpretation reproduced the two-server restart rows. [Source and reconstruction data](../../conformance/reports/perf/2026-11-20-zookeeper-reference.json).
+
 ### Reproduce the released SlateDB WAL model
 
 Use the pinned `slatedb/SlateDBWAL.tla` and `SlateDBWAL.cfg`. All runs retain the six invariants, the garbage collector, symmetry and the original action definitions. The four comparative configurations with two values vary just the writer count and the maximum restarts. The one-writer smoke control also reduces the value domain. Each comparison used sequential fresh processes on an isolated r7i.4xlarge. The larger configurations used eight physical cores and the smoke control used one.
@@ -594,6 +616,10 @@ For RenewRetry substitute `PaxosLeaseRenewRetry.cfg` in both commands. The only 
 All three runs reported success and exhausted their queues. The final counts and depth agreed. The author used fingerprint 95; the two reproductions used fingerprint 0. At 2.147 billion distinct states the pinned TLC’s two fingerprint files occupied 16 GiB. [Terminal counters, memory, collision estimates and reproduction settings](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
 With `--strategy symbolic --type-invariant TypeOK --refine-domains`, one physical core learned 138 of the 1,008 possible messages on Base and 80 of 608 on QuarantineEqualsProposer. It matched all explicit counters at depths 29 and 43, in 46.97 s / 324 MiB and 405.84 s / 1.14 GiB respectively. Ordinary Core took 1.77 s and 243.70 s with eight workers. Ordering message bits with the acceptor fields reduced the quarantine reachable-set diagram from 8,532,809 nodes to 630,485. The otherwise comparable variable-order trials took 1,664.30 s and 432.51 s on separate instances of the same size. The unedited symbolic Retry run ended with `stopped` (time limit) after 1,800.03 s, with at least 3.17 GiB observed on a live worker.
+
+For source-edit sessions, `--refine-domains --recheck MODULE CONFIG` can supply set coordinates to the next independently bound search. In the first transfer experiment, repeating Base took 41.80 s with one refinement attempt, compared with 64.16 s and eleven attempts cold. Supplying the same Base coordinates to QuarantineEqualsProposer reduced attempts from eleven to three, but wall time rose from 486.75 to 528.99 s. Its final layout contained 150 coordinates instead of 80 and peak RSS fell from 1.14 GiB to 737 MiB. Both configurations kept their exact counts and depths. On a separate c7i.4xlarge, the installed CLI repeated Base in 40.70 s after a 61.32 s cold search. The changed configuration took 520.86 s seeded and 481.88 s cold. Fewer restarts alone do not predict faster searches when an edit changes the reachable message alphabet. [Individual observations and host sharing](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
+
+If only the obligations change, the checker can keep the completed reachability proof in its worker. On the same PaxosLease Base input, repeating the check took 0.60 s versus 47.73 s with coordinates alone. Adding the true `EmissionBound` invariant took 4.50 s versus 48.84 s. Both returned 491,037 distinct, 1,709,874 generated and depth 29. Adding the false `EmptyNetwork` obligation took 0.88 s and produced a two-state trace accepted by the independent validator. Initial cold checks took 72.52 and 72.21 s. [Per-edit measurements, source hashes and replay](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
 ### Reproduce the released EmergencyCall runs
 
