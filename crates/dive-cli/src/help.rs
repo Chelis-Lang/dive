@@ -38,7 +38,7 @@ const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     --workers N|auto        worker count; --sequential forces sequential search\n\
     --seed N --fp N         replay seed and fingerprint polynomial\n\
     --store fp|exact        fingerprint or exact visited-state keys\n\
-    --output human|json     report format (JSON schema 3)\n\
+    --output human|json     report format (JSON schema 4)\n\
     --exit-codes native|tlc process statuses (default tlc in either profile)\n\
     -deadlock               disable deadlock checking\n\
     --time-limit DURATION|none --max-memory BYTES|auto|none\n\

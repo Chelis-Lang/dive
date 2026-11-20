@@ -69,7 +69,7 @@ mod simulation;
 mod temporal_bounds;
 
 /// The `dive analyze` / `dive parse` JSON schema version the harness reads.
-pub const DIVE_JSON_SCHEMA: u64 = 3;
+pub const DIVE_JSON_SCHEMA: u64 = 4;
 
 /// Exit code `dive` uses for a recognised but unimplemented request.
 const DIVE_EXIT_UNSUPPORTED: i32 = 3;
@@ -526,12 +526,12 @@ fn read_report(outcome: &ProcessOutcome, command: &str) -> std::result::Result<V
         )
     })?;
     let schema = v.get("schema_version").and_then(Value::as_u64);
-    if !matches!(schema, Some(1 | 2 | DIVE_JSON_SCHEMA)) {
+    if !matches!(schema, Some(1..=DIVE_JSON_SCHEMA)) {
         return Err(format!(
-            "dive {command} reported schema_version {schema:?}; the harness reads 1, 2 and {DIVE_JSON_SCHEMA}"
+            "dive {command} reported schema_version {schema:?}; the harness reads 1 to {DIVE_JSON_SCHEMA}"
         ));
     }
-    // Versions 2 and 3 are shared by every operation. The tag must match the command
+    // Versions 2 to 4 are shared by every operation. The tag must match the command
     // we requested before overlapping fields such as `accepted` are read.
     // Historical version-1 fixtures may omit the tag; a present tag is checked.
     if (schema != Some(1) || v.get("command").is_some()) && v["command"] != command {
@@ -1004,14 +1004,14 @@ fn check_result_with_source(
     }
     let temporal = match v.get("schema_version").and_then(Value::as_u64) {
         Some(1) if v.get("check_kind").is_none() => None,
-        Some(version @ (2 | 3)) => match v.get("check_kind").and_then(Value::as_str) {
+        Some(version @ 2..=4) => match v.get("check_kind").and_then(Value::as_str) {
             Some("safety") => {
                 if !v["properties"].is_null()
                     || !v["execution"].is_null()
                     || !v["options"]["lncheck"].is_null()
                     || !v["options"]["lasso"].is_null()
                     || v["verdict"] == "liveness-violation"
-                    || (version == 3 && !v["options"]["temporal_bounds"].is_null())
+                    || (version >= 3 && !v["options"]["temporal_bounds"].is_null())
                 {
                     return unclassified(
                         outcome.exit_code,
@@ -1065,9 +1065,16 @@ fn check_result_with_source(
     )
 }
 
+/// Whether the harness reads this report version. Schema 4 is current; schema 3
+/// differs from it only by always-zero storage metrics the harness never reads,
+/// and stays readable for recorded schema-3 producer output.
+pub(crate) fn supported_report_version(value: &Value) -> bool {
+    matches!(value["schema_version"].as_u64(), Some(3 | 4))
+}
+
 /// Validates only the new owner-policy envelope; it establishes no verdict.
 pub(crate) fn validate_temporal_bounds(value: &Value) -> std::result::Result<(), String> {
-    if value["schema_version"] == 3 {
+    if supported_report_version(value) {
         temporal_bounds::read(&value["options"]["temporal_bounds"])?;
     }
     Ok(())
@@ -1821,7 +1828,7 @@ mod tests {
 
     #[test]
     fn schema_three_requires_its_explicit_family_and_rejects_ambiguous_safety_options() {
-        let value = serde_json::json!({"schema_version":3,"command":"check","check_kind":"safety","verdict":"success", "tlc":{"code":2193,"name":"TLC_SUCCESS","exit_status":0,"verified":true},"statistics":{"reported_by_tlc":true,"distinct":2,"generated":3,"depth":2,"left_on_queue":0}});
+        let value = serde_json::json!({"schema_version":4,"command":"check","check_kind":"safety","verdict":"success", "tlc":{"code":2193,"name":"TLC_SUCCESS","exit_status":0,"verified":true},"statistics":{"reported_by_tlc":true,"distinct":2,"generated":3,"depth":2,"left_on_queue":0}});
         assert!(
             matches!(check_result(&outcome(0,&value.to_string()),true),CheckMapping::Result(r) if r.verdict==Verdict::Success)
         );
@@ -1898,7 +1905,7 @@ mod tests {
     fn frontend_v2_reports_require_the_requested_operation() {
         use serde_json::json;
         for command in ["parse", "analyze"] {
-            for version in [1, 2, 3] {
+            for version in [1, 2, 3, 4] {
                 let document = json!({"schema_version":version,"command":command,
                     "accepted":true,"diagnostics":[]});
                 assert!(read_report(&outcome(0, &document.to_string()), command).is_ok());

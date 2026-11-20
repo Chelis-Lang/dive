@@ -1,10 +1,10 @@
-//! Schema-three configured owner settings. These never certify execution.
+//! Schema-3 and schema-4 configured owner settings. These never certify execution.
 
 use serde_json::Value;
 
 pub(super) fn read(value: &Value) -> Result<(), String> {
     if !value.is_object() || value.get("atom_cells").is_some() {
-        return Err("schema 3 requires explicit temporal cell owners, not atom_cells".into());
+        return Err("schemas 3 and 4 require explicit temporal cell owners, not atom_cells".into());
     }
     let cells = &value["cell_limits"];
     let graph = &cells["graph_labels"];

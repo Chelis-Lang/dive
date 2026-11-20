@@ -1150,7 +1150,7 @@ mapping; its class table and checks are shared with the runner's regression
 controls. Historical dive-on-both-translations measurements keep their narrower
 scope.
 
-The current schema-3 omission inventory follows `dive-api/src/check.rs`,
+The current schema-4 omission inventory follows `dive-api/src/check.rs`,
 `CheckReport::to_json`'s `Phase::Temporal` and `Phase::TemporalError` branches:
 ordinary temporal truth, typed planning `ExpectedValue` and direct action
 GENERAL omit `reported`; binding, startup tautology and certified row endpoints

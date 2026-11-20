@@ -28,7 +28,7 @@ fn ordinary_native_capture_budget_stops_keep_schema_phase_and_actual_work() {
             {
                 let report = check_file(&request).expect("check");
                 let json = report.to_json();
-                assert_eq!(json["schema_version"], 3, "{json:#}");
+                assert_eq!(json["schema_version"], 4, "{json:#}");
                 assert_eq!(json["engine"], "core", "{json:#}");
                 assert_eq!(json["verdict"], "stopped", "{json:#}");
                 assert_eq!(json["stopped"]["resource"], "time");

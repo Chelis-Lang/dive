@@ -57,7 +57,7 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
             let output = run(&file, "tlc", workers, &[])?;
             assert_eq!(output.status.code(), Some(status));
             let json: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-            assert_eq!(json["schema_version"], 3);
+            assert_eq!(json["schema_version"], 4);
             assert_eq!(json["options"]["profile"], "tlc");
             assert_eq!(json["options"]["exit_codes"], "tlc");
             if status != 3 {
@@ -86,7 +86,7 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
         let native = run(&file, "dive", 1, &[])?;
         assert_eq!(native.status.code(), Some(status));
         let native: serde_json::Value = serde_json::from_slice(&native.stdout)?;
-        assert_eq!(native["schema_version"], 3);
+        assert_eq!(native["schema_version"], 4);
         assert_eq!(native["options"]["profile"], "dive");
         if status != 3 {
             assert_eq!(native["options"]["lncheck"], "deterministic");
@@ -108,7 +108,7 @@ fn actual_ordinary_compat_statuses_and_schema_match_the_selected_backend()
         assert_eq!(excluded.status.code(), Some(3));
         assert_eq!(
             serde_json::from_slice::<serde_json::Value>(&excluded.stdout)?["schema_version"],
-            3
+            4
         );
     }
     Ok(())
@@ -154,7 +154,7 @@ fn existing_tlc_composition_option_is_a_named_core_refusal()
                 let output = run(&file, "tlc", workers, &extra)?;
                 let value: serde_json::Value = serde_json::from_slice(&output.stdout)?;
                 assert_eq!(output.status.code(), Some(3), "{extra:?}");
-                assert_eq!(value["schema_version"], 3);
+                assert_eq!(value["schema_version"], 4);
                 assert_eq!(value["verdict"], "unsupported");
                 assert_eq!(value["message"], message, "{extra:?}");
                 assert!(value["counterexample"].is_null());

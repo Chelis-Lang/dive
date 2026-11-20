@@ -152,12 +152,12 @@ pub struct Options {
 }
 
 fn mode(v: &Value, profile: &Profile, workers: u32) -> std::result::Result<(), String> {
-    if !matches!(v["schema_version"].as_u64(), Some(2 | 3))
+    if !matches!(v["schema_version"].as_u64(), Some(2..=4))
         || v["command"] != "check"
         || v.get("check_kind").is_some_and(|kind| kind != "temporal")
-        || (v["schema_version"] == 3 && v["check_kind"] != "temporal")
+        || (v["schema_version"].as_u64() >= Some(3) && v["check_kind"] != "temporal")
     {
-        return Err("expected a schema-2 or schema-3 check document".into());
+        return Err("expected a schema-2, 3 or 4 check document".into());
     }
     crate::dive::validate_temporal_bounds(v)?;
     let o = &v["options"];

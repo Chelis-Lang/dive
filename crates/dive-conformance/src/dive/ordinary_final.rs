@@ -213,7 +213,7 @@ fn finite_error(value: &Value, physical_exit: Option<i32>) -> Result<Option<Fiel
         _ => return Err("unknown finite temporal error class".into()),
     };
     let properties_empty = |v: &Value| v.is_null() || v.as_array().is_some_and(Vec::is_empty);
-    if value["schema_version"] != 3
+    if !crate::dive::supported_report_version(value)
         || value["check_kind"] != "temporal"
         || value["verdict"] != "evaluation-error"
         || physical_exit != Some(255)
@@ -300,7 +300,7 @@ mod tests {
     use serde_json::json;
     fn finite() -> Value {
         json!({
-            "schema_version":3,"check_kind":"temporal","verdict":"evaluation-error","exit_code":255,
+            "schema_version":4,"check_kind":"temporal","verdict":"evaluation-error","exit_code":255,
             "error_site":"temporal-state-row","tlc":{"code":2179,"name":"TLC_MODULE_DIVISION_BY_ZERO","exit_status":255,"verified":true,"reported":2179},
             "execution":{"stage":"capture","capture_completed":false},
             "options":{"profile":"tlc","lncheck":"final","lasso":"short","exit_codes":"tlc","workers":{"requested":1}},

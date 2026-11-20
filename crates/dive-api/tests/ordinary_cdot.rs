@@ -102,7 +102,7 @@ fn composition_option_alone_keeps_noncomposed_positive_and_forged_word_controls(
             }
             let refused = dive_api::check_file(&excluded)?;
             assert_eq!(refused.verdict(), "unsupported");
-            assert_eq!(refused.to_json()["schema_version"], 3);
+            assert_eq!(refused.to_json()["schema_version"], 4);
         }
         // Store, polynomial, sequential and deadlock settings keep the same
         // composed temporal result as the default-option request.
@@ -137,14 +137,14 @@ fn safety_roles_keep_single_startup_and_original_binding_priority() -> TestResul
         let report = dive_api::check_file(&request)?;
         let json = report.to_json();
         refused::assert_refused(&json, report.exit_code(), refused::ACTION_COMPOSITION);
-        assert_eq!(json["schema_version"], 3);
+        assert_eq!(json["schema_version"], 4);
     }
     let missing = Spec::new(
         "---- MODULE CompositionFinal ----\nEXTENDS TLC\nCONSTANT C\nBoot==Print(\"must-not-start\",0)\nVARIABLE x\nInit==x=C\nNext==x'=x\nHold==<>(x=1)\n====\n",
         "INIT Init\nNEXT Next\nPROPERTY Hold\n",
     )?;
     let failure = dive_api::check_file(&missing.request(1))?;
-    assert_eq!(failure.to_json()["schema_version"], 3);
+    assert_eq!(failure.to_json()["schema_version"], 4);
     assert_eq!(failure.to_json()["output"], serde_json::json!([]));
     assert_ne!(failure.verdict(), "success");
     Ok(())

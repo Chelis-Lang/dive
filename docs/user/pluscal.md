@@ -7,7 +7,7 @@ dive translate docs/user/examples/Algorithm.tla --output json
 `dive translate` reads a C- or P-syntax algorithm from a module comment and
 returns the translated module in memory. The sample is a sequential P-syntax
 loop. `accepted: true` means the whole generated module passed dive's syntax, name
-and level analysis. The schema 3 report has no model-checking or exploration
+and level analysis. The schema 4 report has no model-checking or exploration
 fields, because translating a module checks nothing about its behavior.
 
 The JSON includes `module_source`, the generated TLA+ and configuration text,

@@ -68,7 +68,7 @@ USAGE: dive check FILE.tla [OPTIONS]
 --workers N|auto        worker count; --sequential forces sequential search
 --seed N --fp N         replay seed and fingerprint polynomial
 --store fp|exact        fingerprint or exact visited-state keys
---output human|json     report format (JSON schema 3)
+--output human|json     report format (JSON schema 4)
 --exit-codes native|tlc process statuses (default tlc in either profile)
 -deadlock               disable deadlock checking
 --time-limit DURATION|none --max-memory BYTES|auto|none

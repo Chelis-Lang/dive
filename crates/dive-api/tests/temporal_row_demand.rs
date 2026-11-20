@@ -112,7 +112,7 @@ fn the_five_pinned_row_errors_match_original_cause_prefix_and_finite_word() -> T
                     "{name}/{tlc}/{field}"
                 );
             }
-            assert_eq!(actual["schema_version"], 3);
+            assert_eq!(actual["schema_version"], 4);
             assert_eq!(actual["tlc"]["verified"], true);
             assert_eq!(actual["error_site"], "temporal-state-row");
             assert_eq!(actual["execution"]["capture_completed"], false);

@@ -84,7 +84,7 @@ fn file_routes_report_machine_capacity_without_changing_other_owners() {
                 })
                 .expect("real file report");
                 let json = report.to_json();
-                assert_eq!(json["schema_version"], 3);
+                assert_eq!(json["schema_version"], 4);
                 if config != CONFIG {
                     // Genuine binding failures retain the existing safety
                     // report, with or without a refused strategy; no

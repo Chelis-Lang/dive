@@ -263,7 +263,7 @@ absence is not an overwrite gate. Source options overlapping old generated text,
 ambiguous/reversed markers, actual source errors, invalid final modules and real
 generation/rewrite bounds still refuse with their existing diagnostics.
 
-Translation, rewrite and original-AST JSON use report schema 3. Real accepted/status,
+Translation, rewrite and original-AST JSON use report schema 4. Real accepted/status,
 analysis, replacement/artifact bytes and requested/effective options remain.
 `source_options` identifies the deciding declaration. Proof-only model/exhaustive/
 pending/verified fields and duplicate `option_context` dumps are removed. Rewrite
@@ -435,7 +435,7 @@ invariant class cannot stand in for a model, frontend or evaluation error.
 The reported class must match the deciding class for non-evaluation results.
 Evaluation replay may preserve a first evaluator error or a documented site
 wrapper; unrelated terminal/model classes cannot stand in for that report.
-The current schema-3 ordinary temporal producer omits `tlc.reported` for holds
+The current schema-4 ordinary temporal producer omits `tlc.reported` for holds
 and liveness violations, typed planning errors (`TLC_EXPECTED_VALUE`) and direct
 temporal-action GENERAL errors. Admission recognizes those exact temporal
 phase/code/verdict shapes; a present field must match their deciding code.

@@ -12,7 +12,7 @@ pub(super) fn qualify(report: &Value, limits: Limits) -> Result<usize, Miss> {
         .ok_or_else(|| miss("missing positive integer previous atom count"))?;
     let schedule = Schedule::DEFAULT;
     for (field, expected) in [
-        ("/schema_version", json!(3)),
+        ("/schema_version", json!(crate::REPORT_SCHEMA_VERSION)),
         ("/command", json!("check")),
         ("/check_kind", json!("temporal")),
         ("/engine", json!("core")),

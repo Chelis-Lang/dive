@@ -45,7 +45,7 @@ fn assert_core_refusal(request: &CheckRequest, ordinary: &str) -> TestResult {
         ordinary
     };
     refused::assert_refused(&actual, report.exit_code(), feature);
-    assert_eq!(actual["schema_version"], 3);
+    assert_eq!(actual["schema_version"], 4);
     assert!(actual["statistics"].is_null(), "{actual}");
     assert!(report.temporal_result().is_none());
     Ok(())

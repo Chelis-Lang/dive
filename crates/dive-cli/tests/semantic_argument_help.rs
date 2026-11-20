@@ -69,7 +69,7 @@ fn unresolved_reference_codes_have_informational_cli_explanations()
         assert_eq!(output.status.code(), Some(0));
         assert_eq!(output.stderr, [] as [u8; 0]);
         let report: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-        assert_eq!(report["schema_version"], 3);
+        assert_eq!(report["schema_version"], 4);
         assert_eq!(report["command"], "explain");
         assert_eq!(report["code"], code);
         assert_eq!(report["known"], true);

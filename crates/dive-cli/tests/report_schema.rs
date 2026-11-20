@@ -80,7 +80,7 @@ fn report(name: &str, config: &str, extra: &[&str], exit: i32, verdict: &str) ->
     );
     assert!(output.stderr.is_empty(), "{name}: {:?}", output.stderr);
     let mut document: Value = serde_json::from_slice(&output.stdout)?;
-    assert_eq!(document["schema_version"], 3);
+    assert_eq!(document["schema_version"], 4);
     assert_eq!(document["schema_version"], dive_api::REPORT_SCHEMA_VERSION);
     assert_eq!(document["verdict"], verdict);
     assert_eq!(document["engine"], "core");

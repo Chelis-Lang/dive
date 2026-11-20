@@ -271,7 +271,7 @@
       "unavailable_at": null
     }
   },
-  "schema_version": 3,
+  "schema_version": 4,
   "statistics": {
     "depth": 3,
     "distinct": 3,

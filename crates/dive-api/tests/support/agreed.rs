@@ -78,8 +78,18 @@ fn replace_default_memory(text: &str) -> String {
     out
 }
 
-/// A rendering without machine-specific paths or the machine's default
-/// memory budget.
+/// The records were agreed under report schema 3. Schema 4 differs only by
+/// removed always-zero storage metrics, so a current report's version is
+/// rendered as the agreed one; the report-schema tests pin the version itself.
+fn replace_report_version(text: &str) -> String {
+    text.replace(
+        "\"schema_version\": Number(4)",
+        "\"schema_version\": Number(3)",
+    )
+}
+
+/// A rendering without machine-specific paths, the machine's default memory
+/// budget or the current report schema version.
 #[must_use]
 pub fn normalize(rendering: &str) -> String {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -104,7 +114,7 @@ pub fn normalize(rendering: &str) -> String {
             text = replace_component(&text, &format!("{temp}/"), "<tmp>");
         }
     }
-    replace_default_memory(&text)
+    replace_report_version(&replace_default_memory(&text))
 }
 
 /// The recorded form of a rendering: itself when short, else its digest.

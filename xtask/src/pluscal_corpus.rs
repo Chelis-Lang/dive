@@ -525,7 +525,7 @@ fn measure(
 }
 
 fn valid_translation(report: &Value) -> bool {
-    matches!(report["schema_version"].as_u64(), Some(2 | 3))
+    matches!(report["schema_version"].as_u64(), Some(2..=4))
         && report["command"] == "translate-rewrite"
         && report["result"] == "replacement"
         && report["accepted"] == true

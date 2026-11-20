@@ -63,7 +63,7 @@ fn pinned_row_errors_are_named_core_refusals() -> TestResult {
                 )
             })?;
             assert_eq!(output.status.code(), Some(3), "{name}/{profile}: {report}");
-            assert_eq!(report["schema_version"], 3);
+            assert_eq!(report["schema_version"], 4);
             assert_eq!(report["verdict"], "unsupported", "{name}/{profile}");
             assert!(
                 report["message"].as_str().is_some_and(

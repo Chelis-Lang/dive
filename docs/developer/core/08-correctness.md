@@ -25,7 +25,7 @@ This document says how the new core uses them.
   and `--engine auto` are usage errors. `dive_api::check_file` runs Core.
 - **JSON report.** A check that ran on Core names it (`engine: core`).
   Simulation and DFID reports keep `engine_requested` and a `null`
-  `engine_fallback` in schema 3.
+  `engine_fallback` in schema 4.
 - **Harness and bench.** They run any engine unchanged, because they invoke
   the binary as a black box and always pass `--engine`
   (`crates/dive-conformance/src/dive.rs`; `crates/dive-bench/src/main.rs`).

@@ -13,7 +13,7 @@ dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/C
 ```
 
 Pass the seed and fingerprint settings of the original run, which binding may
-depend on, and the same profile. The JSON report has `schema_version: 3`,
+depend on, and the same profile. The JSON report has `schema_version: 4`,
 `command: "validate-trace"` and `result`. The report version is separate from
 the trace document's own version. TLC `dumpTrace` JSON is also accepted.
 

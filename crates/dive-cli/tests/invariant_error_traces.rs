@@ -50,7 +50,7 @@ fn standalone_invariant_error_validation_preserves_cause_and_rejects_forgery() -
         let original = report["counterexample"]["trace"].clone();
         assert_eq!(original["ending"]["kind"], "invariant-error");
         assert_eq!(original["version"], 2);
-        assert_eq!(report["schema_version"], 3);
+        assert_eq!(report["schema_version"], 4);
         assert_eq!(original["ending"]["ec"], "TLC_VALUE_ASSERT_FAILED");
         for (mutation, expected) in [
             (None, "valid"),

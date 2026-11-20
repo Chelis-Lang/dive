@@ -20,8 +20,9 @@ pub(crate) fn inputs_json(inputs: &RecordedInputs) -> Value {
     })
 }
 
-/// Reads explicit external assumptions from a schema-3 check report, without
-/// host access. Supply the result to [`crate::trace::TraceOptions::inputs`].
+/// Reads explicit external assumptions from a schema-3 or schema-4 check report,
+/// without host access; the two versions carry the same `external_inputs`.
+/// Supply the result to [`crate::trace::TraceOptions::inputs`].
 /// The source binder must independently demand every record in order.
 ///
 /// # Errors
@@ -30,7 +31,7 @@ pub fn inputs_from_report(report: &Value) -> Result<RecordedInputs, crate::ApiEr
     let invalid = || crate::ApiError::Rejected {
         message: "DIVE-A0110: malformed external input report context".into(),
     };
-    if report["schema_version"].as_u64() != Some(u64::from(crate::REPORT_SCHEMA_VERSION))
+    if !matches!(report["schema_version"].as_u64(), Some(3 | 4))
         || report["command"].as_str() != Some("check")
     {
         return Err(invalid());

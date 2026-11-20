@@ -4,7 +4,7 @@
 
 Request `--output json` to receive one report object. Keep the whole document,
 the source and configuration, the resolved options and the replay seed. Every
-command's report carries `schema_version: 3`, also exposed as
+command's report carries `schema_version: 4`, also exposed as
 `dive_api::REPORT_SCHEMA_VERSION`, and a `command` field naming the operation.
 A counterexample nested inside a report is a `dive-trace` document with its own
 version; do not read it as a report version.
@@ -32,7 +32,7 @@ For example:
 dive check docs/user/examples/Counter.tla --compat=tlc --seed 0 --fp 0 --workers 1 --output json
 ```
 
-This reports schema 3, `command: "check"`, `check_kind: "safety"`,
+This reports schema 4, `command: "check"`, `check_kind: "safety"`,
 `verdict: "success"` and five distinct states, with no completed temporal
 capture.
 
@@ -76,13 +76,6 @@ is neither `unsupported`, `valid` nor a model verdict.
 Nested configuration and diagnostic objects take the version of the report that
 contains them. The Rust `ConfigReport::to_json` helper emits such a fragment,
 not a complete command report.
-
-Core reports no longer carry the construction-history metrics, which were
-always 0 because dive keeps no construction history:
-`core.metrics.store.memory.construction_history_view_bytes` and, under
-`core.metrics.candidate_storage`, `origin_index_bytes`,
-`peak_origin_index_bytes` and `origin_index_bytes_limit_per_worker`. Readers
-that required them should treat them as absent.
 
 The test suite pins complete JSON examples for success, invariant
 violation, deadlock, liveness violation, evaluation error, named refusal and
@@ -389,7 +382,7 @@ ceiling.
 Check reports may add `options.symmetry_liveness`, its source and a nullable
 `symmetry_liveness` summary (see
 [symmetry with liveness](../tlc-differences.md#d-005-symmetry-with-liveness-uses-the-full-state-space)).
-Earlier schema-3 reports may omit these fields; do not infer an unreduced mode
+Earlier reports may omit these fields; do not infer an unreduced mode
 from their absence. The requested mode is one of `unreduced`, `refuse` and
 `tlc`; unknown or contradictory values fail closed. The summary names the
 declared symmetry and whether it applies to the bound temporal properties. It describes the configuration, not what ran.
@@ -404,7 +397,7 @@ Reports and counterexample documents are versioned contracts.
 
 | Document | Version | What it contains |
 | --- | --- | --- |
-| Command report | `schema_version: 3` | Every command. Temporal limits are reported as `cell_limits.graph_labels`, `cell_limits.attribution_rows` and `cell_limits.word_truth`. |
+| Command report | `schema_version: 4` | Every command. Temporal limits are reported as `cell_limits.graph_labels`, `cell_limits.attribution_rows` and `cell_limits.word_truth`. |
 | `dive-trace` | 1 | Ordinary endings: invariant, action-property and liveness violations, deadlock, and the error endings such as `next-ordered-terminal`. |
 | `dive-trace` | 2 | The `invariant-error` ending: an error while evaluating a named invariant, with its configured name and underlying cause. |
 | `dive-trace` | 3 | A partial terminal candidate: a Next step that leaves variables unassigned. |
@@ -413,7 +406,7 @@ Reports and counterexample documents are versioned contracts.
 | `dive-trace` | 6 | The `view-source-terminal` error ending. |
 
 The trace version is independent of the report version: `validate-trace`
-reports schema 3 and reads trace versions 1 to 6. Each trace version is
+reports schema 4 and reads trace versions 1 to 6. Each trace version is
 reserved for its form, and a lower version cannot carry it; a version-1
 document with an `invariant-error` ending is rejected. The
 [trace guide](traces.md#trace-format-versions) describes each form.
@@ -445,6 +438,15 @@ including zero. The attribution and word-truth defaults are 8,000,000 cells.
 `acceptance_policy` declares either the legacy cell limits or byte and work
 buffers; the byte and work fields are null in legacy mode and integers in
 buffer mode. These are configured settings, not proof that a run reached them.
+
+Schema 4 replaced schema 3 by removing the construction-history metrics,
+which were always 0 because dive keeps no construction history:
+`core.metrics.store.memory.construction_history_view_bytes` and, under
+`core.metrics.candidate_storage`, `origin_index_bytes`,
+`peak_origin_index_bytes` and `origin_index_bytes_limit_per_worker`. A schema-3
+reader moves to schema 4 by no longer requiring those four fields; it can keep
+accepting schema 3 for stored reports.
+
 The JSON wire format is versioned this way; the Rust library API has no such
 stability promise.
 

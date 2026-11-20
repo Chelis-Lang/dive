@@ -2143,7 +2143,7 @@ mod validation_exception_tests {
         let status = super::validation_exception(&mut out, &mut err, &error, true);
         assert_eq!(status, std::process::ExitCode::from(4));
         let value: serde_json::Value = serde_json::from_slice(&out)?;
-        assert_eq!(value["schema_version"], 3);
+        assert_eq!(value["schema_version"], 4);
         assert_eq!(value["command"], "validate-trace");
         assert_eq!(value["validation_completed"], false);
         assert_eq!(value["error"]["kind"], "execution-error");

@@ -26,7 +26,7 @@ fn explicit_one_byte_ceiling_is_enforced_in_native_and_tlc_transports()
         assert_eq!(output.status.code(), Some(5), "{output:?}");
         assert!(output.stderr.is_empty(), "{output:?}");
         let json: serde_json::Value = serde_json::from_slice(&output.stdout)?;
-        assert_eq!(json["schema_version"], 3);
+        assert_eq!(json["schema_version"], 4);
         assert_eq!(json["verdict"], "stopped");
         assert_eq!(json["stopped"]["phase"], "check-startup");
         assert_eq!(json["stopped"]["resource"], "memory");

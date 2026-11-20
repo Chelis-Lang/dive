@@ -519,7 +519,7 @@ pub(super) fn valid_check_report(physical_exit: Option<i32>, report: &Value) -> 
 }
 
 fn temporal_evaluation_kind(report: &Value) -> bool {
-    report["schema_version"] == 3
+    supported_report_version(report)
         && report["check_kind"] == "temporal"
         && ((matches!(report["tlc"]["code"].as_u64(), Some(2215 | 2253))
             && report["execution"]["stage"] == "planning")
@@ -534,7 +534,7 @@ fn temporal_evaluation_kind(report: &Value) -> bool {
 // source of these exact schema-3 shapes. Finite source/state endpoints,
 // binding failures and startup tautologies explicitly carry `reported`.
 fn temporal_omits_reported(report: &Value, verdict: &str, code: u64) -> bool {
-    if report["schema_version"] != 3 || report["check_kind"] != "temporal" {
+    if !supported_report_version(report) || report["check_kind"] != "temporal" {
         return false;
     }
     match (verdict, code) {
@@ -563,11 +563,18 @@ fn temporal_omits_reported(report: &Value, verdict: &str, code: u64) -> bool {
 fn temporal_tautology(report: &Value, verdict: &str, code: u64) -> bool {
     code == 2253
         && verdict == "evaluation-error"
-        && report["schema_version"] == 3
+        && supported_report_version(report)
         && report["check_kind"] == "temporal"
         && report["execution"]["stage"] == "planning"
         && report["execution"]["capture_completed"] == false
         && report["statistics"].is_null()
         && report["error_site"].is_null()
         && report["tlc"]["reported"] == 2253
+}
+
+/// Report versions these envelope checks read: schema 4 is current, and
+/// schema 3 differs only by always-zero storage metrics they never read. This
+/// file is also compiled into xtask, so it cannot use the harness helper.
+fn supported_report_version(report: &Value) -> bool {
+    matches!(report["schema_version"].as_u64(), Some(3 | 4))
 }
