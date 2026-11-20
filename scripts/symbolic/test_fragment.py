@@ -286,6 +286,16 @@ Escapes == /\ mail' = {Message(300)} /\ UNCHANGED step
     assert warm["refinement_rounds"] == 1 and warm["initial_hint_members"] == 3
     assert fresh["initial_hint_members"] == 0 and fresh["refinement_rounds"] == cold["refinement_rounds"]
     assert bad["ending"]["name"] == "Safe" and bad["depth"] == 3 and bad["trace_validated"]
+    first_trace = folder / "first-failure.json"
+    initial_bad = folder / "initial-failure.cfg"
+    initial_bad.write_text(common + "NEXT Next\nINVARIANT NoZero\n")
+    module.write_text(module.read_text().replace("====", r"NoZero == Message(0) \notin mail" + "\n===="))
+    first, second = run(module, edited, *flags, "--recheck", module, initial_bad,
+                        "--trace", first_trace, code=1)
+    assert first["trace_file"] == str(first_trace) and first["ending"]["name"] == "Safe"
+    assert json.loads(first_trace.read_text())["ending"]["name"] == "Safe"
+    assert second["trace"]["ending"]["name"] == "NoZero" and "trace_file" not in second
+    assert first["trace_validated"] and second["trace_validated"]
     shifted = folder / "Shifted.tla"
     shifted.write_text(module.read_text().replace("MODULE Mail", "MODULE Shifted")
                        .replace("0..299", "300..599").replace("Message(0)", "Message(300)")

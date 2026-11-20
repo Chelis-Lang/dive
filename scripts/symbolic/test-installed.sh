@@ -32,6 +32,12 @@ echo 'INVARIANT Empty' >> OnlyEmpty.cfg
 rc=0; run --refine-domains --recheck Receipts.tla OnlyEmpty.cfg > edit-session || rc=$?
 test "$rc" = 1
 jq -se 'length==2 and .[0].distinct==8 and .[1].trace_validated and .[1].ending.name=="Empty" and (.[1].reused|not)' edit-session >/dev/null
+rc=0; run --config OnlyEmpty.cfg --recheck Receipts.tla OnlyEmpty.cfg --trace Keep.json > saved-traces || rc=$?
+test "$rc" = 1
+jq -se 'length==2 and .[0].trace_file=="Keep.json" and (.[1]|has("trace_file")|not) and .[1].trace.ending.name=="Empty"' saved-traces >/dev/null
+cp Receipts.cfg before.cfg
+rc=0; run --recheck Receipts.tla Receipts.cfg --trace Receipts.cfg >/dev/null 2>&1 || rc=$?
+test "$rc" = 2 && cmp before.cfg Receipts.cfg
 echo 'INVARIANT Empty' >> Receipts.cfg
 rc=0; run --max-memory 1g > false-row || rc=$?
 test "$rc" = 1

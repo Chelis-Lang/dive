@@ -83,7 +83,7 @@ checker compares the variable layout, concrete initial state, symmetry group
 and guarded Boolean updates, including duplicate action witnesses. When all
 match a previous completed search, it checks the edited obligations on the
 saved reachable set. A changed relation runs a fresh search. Each violation
-has a concrete trace that Dive independently validates. Without `--trace`,
+has a concrete trace that Dive independently validates. With `--trace`, the first violation writes the requested file and later violations include their own trace in the JSON row. Without `--trace`,
 the row contains the trace.
 
 ```sh
@@ -179,7 +179,7 @@ dive check PaxosLeaseChecked.tla --strategy symbolic --config PaxosLeaseBase.cfg
   --time-limit 30m --max-memory 6g --output json
 ```
 
-Each revision emits a JSON row. `refinement_rounds` counts worker attempts, `learned_members` counts coordinates in the final refined set layout, and `initial_hint_members` counts surviving coordinates supplied by the preceding revision. Stale coordinates drop out. If a warm layout fails or exceeds its bounds, the worker can restart cold within the original time budget. The 512-bit limit applies to every layout. Predicate transfer uses the ordinary symbolic strategy. Refining a wide domain with a configured symmetry group currently refuses. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
+The checker emits a JSON row for each revision it checks. A refusal, error or exhausted budget ends the session. `refinement_rounds` counts worker attempts, `learned_members` counts coordinates in the final refined set layout, and `initial_hint_members` counts surviving coordinates supplied by the preceding revision. Stale coordinates drop out. If a warm layout fails or exceeds its bounds, the worker can restart cold within the original time budget. The 512-bit limit applies to every layout. Predicate transfer uses the ordinary symbolic strategy. Refining a wide domain with a configured symmetry group currently refuses. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
 
 ### Finite initial choices
 

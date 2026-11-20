@@ -75,6 +75,12 @@ def main():
     if args.trace and args.write_predicate and args.trace.resolve() == args.write_predicate.resolve():
         parser.error("trace and predicate need separate output files")
 
+    sources = {Path(path).resolve() for pair in [(args.module, args.config), *args.recheck] for path in pair}
+    if args.verify_predicate:
+        sources.add(args.verify_predicate.resolve())
+    if any(path and path.resolve() in sources for path in (args.trace, args.write_predicate)):
+        parser.error("trace and predicate output must be separate from the checked inputs")
+
     # A supervisor can interrupt a long CUDD operation and stop its process group.
     # The normal Dive binary and other sessions keep their own limits.
     worker = Path(__file__).with_name("engine.py")

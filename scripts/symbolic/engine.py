@@ -1102,11 +1102,11 @@ class SourceModel(FiniteRelation):
         )
 
 
-def refine_one(args, module, config, hints):
+def refine_one(args, module, config, hints, trace):
     """Freshly bind and search one revision. Hints only select initial coordinates."""
     started = time.monotonic()
     flags = ["-Es"] if sys.flags.ignore_environment else []
-    options = {**vars(args), "module": module, "config": config, "recheck": [], "domain_pass": True}
+    options = {**vars(args), "module": module, "config": config, "recheck": [], "domain_pass": True, "trace": trace}
     command = [sys.executable, *flags, __file__, json.dumps(options)]
     learned = hints.copy()
     discarded_hints = False
@@ -1138,9 +1138,10 @@ def refine_one(args, module, config, hints):
         if not child.stdout.strip():
             raise RuntimeError(f"refinement worker ended without a result (exit {child.returncode})")
         row = json.loads(child.stdout)
-        selected = row.pop("domain_members", [])
-        current = {json.dumps(item): item for item in selected}
-        row.update(refinement_rounds=attempt, learned_members=len(current),
+        selected = row.pop("domain_members", None)
+        current = {} if selected is None else {json.dumps(item): item for item in selected}
+        row.update(module=module, config=config, refinement_rounds=attempt,
+                   learned_members=len(learned) if selected is None else len(current),
                    initial_hint_members=0 if discarded_hints else len(hints.keys() & current.keys()),
                    seconds=round(time.monotonic() - started, 6))
         print(json.dumps(row), flush=True)
@@ -1153,7 +1154,7 @@ def refined_search(args):
     hints = {}
     violated = False
     for module, config in [(args.module, args.config), *args.recheck]:
-        status, members = refine_one(args, module, config, hints)
+        status, members = refine_one(args, module, config, hints, None if violated else args.trace)
         if status not in (0, 1):
             return status
         violated |= status == 1
@@ -1225,7 +1226,6 @@ def run(args):
         if args.write_predicate and model.complete is not None:
             induction.store(Path(args.write_predicate), model, model.complete[0])
         if trace is not None:
-            violated = True
             raw = json.dumps(trace)
             validated = run_helper(
                 [
@@ -1253,11 +1253,12 @@ def run(args):
                 "independent trace validation failed: " + validated.stdout[-1500:],
             )
             row["trace_validated"] = True
-            if args.trace:
+            if args.trace and not violated:
                 induction.write_atomic(Path(args.trace), (raw + "\n").encode("utf-8"))
                 row["trace_file"] = str(args.trace)
             else:
                 row["trace"] = trace
+            violated = True
         row.update(format="dive-symbolic-report-v1", module=str(module), config=str(config))
         row["seconds"] = round(time.monotonic() - start, 6)
         print(json.dumps(row), flush=True)
