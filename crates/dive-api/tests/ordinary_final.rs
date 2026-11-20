@@ -67,7 +67,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
             assert!(report.result().is_none());
             assert!(report.temporal_result().is_some());
-            assert_eq!(value["schema_version"], 3);
+            assert_eq!(value["schema_version"], 4);
             assert_eq!(value["check_kind"], "temporal");
             assert_eq!(value["options"]["profile"], "tlc");
             assert_eq!(value["options"]["lncheck"], "final");
@@ -134,7 +134,7 @@ fn ordinary_compat_final_truth_has_actual_counts_and_freshly_validated_words() -
             native.periodic = EVERY_LEVEL;
             let native = dive_api::check_file(&native)?;
             let value = native.to_json();
-            assert_eq!(value["schema_version"], 3);
+            assert_eq!(value["schema_version"], 4);
             assert_eq!(value["options"]["lncheck"], "deterministic");
             assert_eq!(value["periodic"]["exhausted"], !violation);
             assert_eq!(value["execution"]["capture_completed"], !violation);
@@ -205,7 +205,7 @@ fn configured_initial_invariant_action_and_mixed_safety_roles_keep_the_full_tail
             let actual = report.result().ok_or("ordinary safety result")?;
             assert_safety(actual, property, workers);
             assert!(!actual.binding_model_error);
-            assert_eq!(report.to_json()["schema_version"], 3);
+            assert_eq!(report.to_json()["schema_version"], 4);
             assert_eq!(report.to_json()["check_kind"], "safety");
         }
     }
@@ -230,7 +230,7 @@ fn configured_safety_roles_keep_safety_family_and_the_original_print_rng_stream(
             report.exit_code(),
             "RandomElement in Init after constant definitions or ASSUMEs drew",
         );
-        assert_eq!(value["schema_version"], 3);
+        assert_eq!(value["schema_version"], 4);
         assert!(value.get("execution").is_none());
     }
     Ok(())
@@ -254,7 +254,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
     );
     assert_eq!(actual.output.len(), 0, "{:?}", actual.output);
     assert!(actual.binding_model_error);
-    assert_eq!(report.to_json()["schema_version"], 3);
+    assert_eq!(report.to_json()["schema_version"], 4);
     assert_eq!(report.to_json()["check_kind"], "safety");
     let temporal = Spec::new(&format!("{COUNTER}P == <>(x=3)"), CONFIG)?;
     let mut requests = Vec::new();
@@ -271,7 +271,7 @@ fn ordinary_binding_failures_and_excluded_options_keep_their_existing_routes() -
         let report = dive_api::check_file(&request)?;
         assert_eq!(report.verdict(), "unsupported");
         assert!(report.result().is_some());
-        assert_eq!(report.to_json()["schema_version"], 3);
+        assert_eq!(report.to_json()["schema_version"], 4);
         assert_eq!(report.to_json()["check_kind"], "safety");
         let message = report.to_json()["message"].clone();
         assert!(
@@ -356,7 +356,7 @@ fn ordinary_temporal_planning_errors_never_turn_into_holds() -> TestResult {
         report.exit_code(),
         refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
     );
-    assert_eq!(value["schema_version"], 3);
+    assert_eq!(value["schema_version"], 4);
     assert!(value["statistics"].is_null());
     Ok(())
 }
@@ -419,7 +419,7 @@ fn default_periodic_reports_actual_boundary_and_fresh_word_at_all_widths() -> Te
         let report = dive_api::check_file(&request)?;
         let value = report.to_json();
         assert_eq!(value["verdict"], "liveness-violation");
-        assert_eq!(value["schema_version"], 3);
+        assert_eq!(value["schema_version"], 4);
         assert_eq!(value["options"]["lncheck"], "deterministic");
         assert_eq!(value["options"]["seed"], 7);
         assert_eq!(value["options"]["workers"]["used"], workers);
@@ -476,7 +476,7 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
             let actual = report.result().ok_or("ordinary safety route")?;
             assert_safety(actual, property, workers);
             assert_eq!(actual.workers.used, workers);
-            assert_eq!(report.to_json()["schema_version"], 3);
+            assert_eq!(report.to_json()["schema_version"], 4);
             assert_eq!(report.to_json()["check_kind"], "safety");
         }
     }
@@ -493,7 +493,7 @@ fn default_periodic_keeps_safety_startup_and_initial_error_priority() -> TestRes
         request.compat_tlc = false;
         let report = dive_api::check_file(&request)?;
         let json = report.to_json();
-        assert_eq!(json["schema_version"], 3);
+        assert_eq!(json["schema_version"], 4);
         assert_eq!(json["verdict"], "invariant-violation", "{json}");
         assert_eq!(json["property"], "Safe");
         assert_eq!(json["output"], serde_json::json!(["\"one-startup\"  0"]));

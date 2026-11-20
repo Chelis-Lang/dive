@@ -136,7 +136,7 @@ use std::path::Path;
 /// diagnostic codes may be added; readers must reject unknown outcomes and
 /// versions. The compatibility policy is in the
 /// [reports and errors guide](https://github.com/Chelis-Lang/dive/blob/main/docs/user/reports-and-errors.md).
-pub const REPORT_SCHEMA_VERSION: u32 = 3;
+pub const REPORT_SCHEMA_VERSION: u32 = 4;
 
 /// Version of the JSON document produced by [`ParseReport::to_json`].
 ///
@@ -330,7 +330,7 @@ impl ParseReport {
     /// Shape (schema version 3):
     ///
     /// ```text
-    /// { "schema_version": 3, "command": "parse", "file": "...",
+    /// { "schema_version": 4, "command": "parse", "file": "...",
     ///   "accepted": bool, "module": "Name" | null, "modules": ["Name", ...],
     ///   "diagnostics": [ { "code", "severity", "message", "help",
     ///                      "span": { "start", "end", "line", "column",

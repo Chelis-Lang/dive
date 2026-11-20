@@ -24,7 +24,7 @@ pub(super) fn read(
     if value["counterexample"]["trace"]["ending"]["endpoint"]["stage"] == "view-source-terminal" {
         return read_view(value, code, physical_exit, convention, source);
     }
-    if value["schema_version"] != 3
+    if !crate::dive::supported_report_version(value)
         || value["check_kind"] != "safety"
         || value["verdict"].as_str() != Some(native_kind(code))
         || value["error_site"] != "invariant"
@@ -76,7 +76,7 @@ fn read_view(
     convention: ExitConvention,
     source: Option<&SpecModel>,
 ) -> Result<(), String> {
-    if value["schema_version"] != 3
+    if !crate::dive::supported_report_version(value)
         || value["check_kind"] != "safety"
         || value["verdict"].as_str() != Some(native_kind(code))
         || value["error_site"] != "view"

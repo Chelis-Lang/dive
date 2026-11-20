@@ -14,7 +14,7 @@ fn the_best_effort_policy_has_one_exact_procedure_free_crc_and_schema()
             let report = rewrite_source("R.tla", SOURCE, &request);
             assert!(report.accepted(), "{}", report.to_json());
             let doc = report.to_json();
-            assert_eq!(doc["schema_version"], 3);
+            assert_eq!(doc["schema_version"], 4);
             assert_eq!(doc["profile"], if compat_tlc { "tlc" } else { "dive" });
             for field in [
                 "model_proved",

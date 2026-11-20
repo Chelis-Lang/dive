@@ -82,7 +82,7 @@ dive does not reproduce, so `--lasso tlc` is a usage error.
 Exit statuses under TLC's convention: success 0, temporal violation 13, a
 named refusal or resource limit 3, a budget stop 5, and evaluation errors
 their TLC status. Read the verdict and `execution` stage as well as the exit.
-All reports use schema 3. `check_kind: "temporal"` names the report family;
+All reports use schema 4. `check_kind: "temporal"` names the report family;
 it is not evidence that capture completed. See
 [reports and errors](reports-and-errors.md).
 

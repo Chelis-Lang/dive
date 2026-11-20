@@ -1501,7 +1501,7 @@ impl CheckReport {
     /// retain the temporal family and their actual execution evidence:
     ///
     /// ```text
-    /// { "schema_version": 3, "command": "check", "file", "config",
+    /// { "schema_version": 4, "command": "check", "file", "config",
     ///   "verdict": "success" | "invariant-violation" | "property-violation"
     ///            | "action-property-violation" | "deadlock" | "assumption-failure"
     ///            | "postcondition-failure" | "assertion-failure" | "overflow"
@@ -1539,7 +1539,7 @@ impl CheckReport {
     /// `TLC_INVARIANT_EVALUATION_FAILED`, for example); `verified: false`
     /// means dive does not yet reproduce TLC's error class at that site and
     /// does not claim it. `reported_by_tlc` is false where TLC prints no statistics
-    /// (a stop while generating initial states). Explicit final-only schema 3
+    /// (a stop while generating initial states). Explicit final-only schema 4
     /// also declares the schedule/selection, fixed entry/work bounds and actual
     /// failure stage. Periodic traces include all configured property names and
     /// a stuttering ending or one-based lasso target; independent replay precedes

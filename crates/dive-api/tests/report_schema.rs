@@ -7,7 +7,7 @@ use std::path::PathBuf;
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn envelope(value: &Value, command: &str) {
-    assert_eq!(value["schema_version"], 3, "{value}");
+    assert_eq!(value["schema_version"], 4, "{value}");
     assert_eq!(value["command"], command);
 }
 

@@ -145,6 +145,7 @@ class CampaignTests(unittest.TestCase):
         self.assertEqual(CAMPAIGN.parse_document(base, 0), "accept")
         self.assertEqual(CAMPAIGN.parse_document({**base, "schema_version": 2}, 0), "accept")
         self.assertEqual(CAMPAIGN.parse_document({**base, "schema_version": 3}, 0), "accept")
+        self.assertEqual(CAMPAIGN.parse_document({**base, "schema_version": 4}, 0), "accept")
         mismatch = {**base, "accepted": False, "diagnostics": [{"severity": "error", "code": "DIVE-S0006"}]}
         self.assertEqual(CAMPAIGN.parse_document(mismatch, 1), "name-mismatch")
         reject = {**mismatch, "diagnostics": [{"severity": "error", "code": "DIVE-S0001"}]}

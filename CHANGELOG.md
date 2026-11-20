@@ -47,11 +47,14 @@ are in git history.
 
 ### Removed
 
-- JSON check reports no longer include the always-zero construction-history
-  metrics `core.metrics.store.memory.construction_history_view_bytes` and
-  `core.metrics.candidate_storage.{origin_index_bytes, peak_origin_index_bytes, origin_index_bytes_limit_per_worker}`.
-  Readers that required them should treat them as absent. See
-  [reports](docs/user/reports-and-errors.md#json-reports).
+- JSON reports from every command now carry `schema_version: 4`
+  (`dive_api::REPORT_SCHEMA_VERSION`). Schema 4 removes the always-zero
+  construction-history metrics `core.metrics.store.memory.construction_history_view_bytes`
+  and `core.metrics.candidate_storage.{origin_index_bytes, peak_origin_index_bytes, origin_index_bytes_limit_per_worker}`.
+  To migrate, accept version 4 and stop requiring those four fields; readers
+  of stored reports may keep accepting 3. Trace document versions are
+  unchanged. See
+  [report compatibility](docs/user/reports-and-errors.md#report-compatibility).
 - Core checkpoint archives move to format `DIVECC02`. A `DIVECC01` archive is
   refused with `DIVE-S0400` by name; recreate it with the current executable.
   Distributed workers must run the same dive build as the coordinator.

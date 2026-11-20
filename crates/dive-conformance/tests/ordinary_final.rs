@@ -256,7 +256,7 @@ fn actual_pure_state_property_dispatch_has_no_unused_temporal_policy() -> TestRe
         };
         let report =
             dive_api::check_file(&request)?.to_json_with_exit_convention(ExitConvention::Tlc);
-        assert_eq!(report["schema_version"], 3);
+        assert_eq!(report["schema_version"], 4);
         assert_eq!(report["check_kind"], "safety");
         assert_eq!(report["verdict"], "success");
         for field in ["temporal_bounds", "lncheck", "lasso"] {
@@ -289,7 +289,7 @@ fn actual_finite_safety_words_keep_strict_length_and_ending_comparisons() -> Tes
     let source = std::fs::read_to_string(&spec.file)?.replace("P == <>(x=3)", "P == [](x<2)");
     std::fs::write(&spec.file, source)?;
     let report = spec.report()?;
-    assert_eq!(report["schema_version"], 3);
+    assert_eq!(report["schema_version"], 4);
     assert_eq!(report["check_kind"], "safety");
     let CheckMapping::Result(result) = mapped(&report, Some(12), true) else {
         return Err("finite safety result".into());

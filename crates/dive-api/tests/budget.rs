@@ -135,7 +135,7 @@ fn an_exhausted_time_limit_stops_safety_search_in_both_profiles_and_widths()
             })?;
             let json = report.to_json();
             assert_stopped(&json, "time", "safety-search");
-            assert_eq!(json["schema_version"], 3);
+            assert_eq!(json["schema_version"], 4);
             assert_eq!(json["stopped"]["limit"], 300);
             assert!(json["statistics"]["distinct"].as_u64() > Some(0), "{json}");
             assert_eq!(json["options"]["budget"]["time_limit_ms"], 300);

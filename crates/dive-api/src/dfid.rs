@@ -242,7 +242,7 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
         }
     }
     document["engine"] = json!("core");
-    // Retained in report schema 3; there is no automatic fallback.
+    // Retained in the report schema; there is no automatic fallback.
     document["engine_fallback"] = Value::Null;
     document["options"]["execution_scope"] = json!("compiled-plan-dfid");
     let executed = std::thread::scope(|scope| {

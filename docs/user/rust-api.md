@@ -302,7 +302,7 @@ dive's `temporal::Report::outcome()` returns one of these boxed variants, or
 Validated wrappers have private constructors. Each selected word passes fresh
 independent typed and serialized replay after the native graph, converter, store and plan
 are dropped. `NativeWord` alone is unvalidated; a validation marker or
-caller-supplied CSR cannot construct a validated outcome. JSON retains schema 3, existing trace
+caller-supplied CSR cannot construct a validated outcome. JSON keeps the current report schema, existing trace
 endings and completion/worker/collision/output metadata. The core example
 and report meanings are in the [temporal guide](temporal.md#metrics).
 

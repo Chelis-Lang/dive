@@ -146,7 +146,7 @@ fn sample_completed(checked: &ProcessOutcome) -> bool {
         && checked.signal.is_none()
         && !checked.timed_out
         && checked.stderr.trim().is_empty()
-        && report["schema_version"] == 3
+        && crate::dive::supported_report_version(&report)
         && report["command"] == "validate-trace"
         && report["validation_goal"] == "sample"
         && report["result"] == "valid"
@@ -201,7 +201,7 @@ fn simulation_result(
         "tlc"
     };
     let options = &value["options"];
-    if value["schema_version"] != 3
+    if !crate::dive::supported_report_version(&value)
         || value["command"] != "simulate"
         || value["exhaustive"] != false
         || value["model_proved"] != false
@@ -494,13 +494,13 @@ mod tests {
     #[test]
     fn external_validation_must_complete_the_requested_sample_operation() {
         let mut checked = ProcessOutcome { exit_code: Some(0), signal: None, timed_out: false,
-            stdout: serde_json::json!({"schema_version":3,"command":"validate-trace","result":"valid","validation_goal":"sample"}).to_string(),
+            stdout: serde_json::json!({"schema_version":4,"command":"validate-trace","result":"valid","validation_goal":"sample"}).to_string(),
             stderr: String::new(), elapsed: Duration::ZERO };
         assert!(sample_completed(&checked));
         for report in [
-            serde_json::json!({"schema_version":3,"command":"validate-trace","result":"valid"}),
-            serde_json::json!({"schema_version":3,"command":"validate-trace","result":"unsupported","validation_goal":"sample"}),
-            serde_json::json!({"schema_version":3,"command":"validate-trace","validation_completed":false,"validation_goal":"sample"}),
+            serde_json::json!({"schema_version":4,"command":"validate-trace","result":"valid"}),
+            serde_json::json!({"schema_version":4,"command":"validate-trace","result":"unsupported","validation_goal":"sample"}),
+            serde_json::json!({"schema_version":4,"command":"validate-trace","validation_completed":false,"validation_goal":"sample"}),
         ] {
             let mut bad = checked.clone();
             bad.stdout = report.to_string();

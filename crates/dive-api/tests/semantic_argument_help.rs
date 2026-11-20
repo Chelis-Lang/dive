@@ -437,7 +437,7 @@ fn bare_operator_arguments_proofs_and_substitutions_receive_fallback_help() -> R
 fn reference_explanations_are_informational_and_neighbor_codes_stay_unknown() -> Result {
     for code in ["DIVE-E0100", "DIVE-E0101"] {
         let report = dive_api::diagnostics::explanation_json(code);
-        assert_eq!(report["schema_version"], 3);
+        assert_eq!(report["schema_version"], 4);
         assert_eq!(report["command"], "explain");
         assert_eq!(report["code"], code);
         assert_eq!(report["known"], true);

@@ -27,7 +27,7 @@ pub(super) fn read(
         || value["tlc"]["exit_status"] != 75
         || exit != Some(75)
         || value["verdict"] != "evaluation-error"
-        || value["schema_version"] != 3
+        || !crate::dive::supported_report_version(value)
         || value["check_kind"] != "safety"
         || !value["counterexample"].is_null()
         || !value["error_witness"].is_null()
@@ -107,7 +107,7 @@ fn read_next_receiver(
         || value["tlc"]["exit_status"] != 75
         || exit != Some(75)
         || value["verdict"] != "evaluation-error"
-        || value["schema_version"] != 3
+        || !crate::dive::supported_report_version(value)
         || value["check_kind"] != "safety"
         || !value["diagnostic_witness"].is_null()
         || !value["error_witness"].is_null()

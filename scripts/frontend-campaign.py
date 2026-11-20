@@ -208,7 +208,7 @@ def check_report(report, modules, phase):
 
 def parse_document(document, exit_code):
     """A supported schema-1/2/3 parser diagnostic, never an unrecognized process failure."""
-    if document.get("schema_version") not in (1, 2, 3) or document.get("command") != "parse":
+    if document.get("schema_version") not in (1, 2, 3, 4) or document.get("command") != "parse":
         raise ValueError("invalid dive parse schema/command")
     if not isinstance(document.get("accepted"), bool) or not isinstance(document.get("diagnostics"), list):
         raise ValueError("invalid dive parse acceptance/diagnostics")

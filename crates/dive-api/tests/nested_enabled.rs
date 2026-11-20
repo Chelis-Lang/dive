@@ -47,7 +47,7 @@ fn nested_enabled_primary_public_results_keep_existing_schema_and_statuses() -> 
                 request.temporal_refusal = None;
                 let report = dive_api::check_file(&request)?;
                 let value = report.to_json_with_exit_convention(ExitConvention::Tlc);
-                assert_eq!(value["schema_version"], 3);
+                assert_eq!(value["schema_version"], 4);
                 assert_eq!(value["statistics"]["generated"], oracle["generated"]);
                 assert_eq!(value["statistics"]["distinct"], oracle["distinct"]);
                 assert_eq!(value["statistics"]["depth"], oracle["depth"]);

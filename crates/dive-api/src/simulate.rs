@@ -639,7 +639,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     document["notes"] = json!(notes);
     document["engine"] = json!("core");
     document["engine_requested"] = json!("core");
-    // Retained in report schema 3; there is no automatic fallback.
+    // Retained in the report schema; there is no automatic fallback.
     document["engine_fallback"] = Value::Null;
     document["options"]["execution_scope"] = json!("compiled-plan-simulation");
     drop(control_scope);

@@ -87,7 +87,7 @@
       "unavailable_at": null
     }
   },
-  "schema_version": 3,
+  "schema_version": 4,
   "statistics": null,
   "symmetry_liveness": null,
   "tlc": null,
