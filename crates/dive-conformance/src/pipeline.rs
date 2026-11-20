@@ -892,6 +892,7 @@ fn record_from(
         error_class: result.and_then(|r| r.error_class.clone()),
         violated_property: result.and_then(|r| r.violated_property.clone()),
         distinct_states: result.and_then(|r| r.counts.distinct_states),
+        states_left_on_queue: None,
         states_generated: result.and_then(|r| r.counts.states_generated),
         depth: result.and_then(|r| r.counts.depth),
         trace_length: result.and_then(|r| r.trace.as_ref().map(|t| t.length)),
@@ -989,14 +990,18 @@ fn observe_missing(
             match imp.check_model(&request) {
                 Ok(ImplResult::Completed {
                     result, elapsed, ..
-                }) => record_from(
-                    workers,
-                    Outcome::OracleError,
-                    Some(&result),
-                    vec![],
-                    elapsed,
-                    result.note.clone(),
-                ),
+                }) => {
+                    let mut record = record_from(
+                        workers,
+                        Outcome::OracleError,
+                        Some(&result),
+                        vec![],
+                        elapsed,
+                        result.note.clone(),
+                    );
+                    record.states_left_on_queue = result.counts.states_left_on_queue;
+                    record
+                }
                 Ok(ImplResult::Unsupported(why)) => record_from(
                     workers,
                     Outcome::Unsupported,

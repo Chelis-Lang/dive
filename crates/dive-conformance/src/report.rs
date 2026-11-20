@@ -80,6 +80,9 @@ pub struct RunRecord {
     pub violated_property: Option<String>,
     /// Distinct states.
     pub distinct_states: Option<u64>,
+    /// Number left on the queue in an ungraded observation, when available.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub states_left_on_queue: Option<u64>,
     /// Generated states.
     pub states_generated: Option<u64>,
     /// Depth.
@@ -848,6 +851,7 @@ mod tests {
                 violated_property: None,
                 distinct_states: None,
                 states_generated: None,
+                states_left_on_queue: None,
                 depth: None,
                 trace_length: None,
                 diffs: vec![],

@@ -679,6 +679,16 @@ pub enum CheckMapping {
 }
 
 /// A result with only a verdict, an exit code and a note.
+fn observed_counts(stats: &Value) -> Counts {
+    let n = |k: &str| stats.get(k).and_then(Value::as_u64);
+    Counts {
+        distinct_states: n("distinct"),
+        states_generated: n("generated"),
+        states_left_on_queue: n("left_on_queue"),
+        depth: n("depth"),
+    }
+}
+
 fn bare(verdict: Verdict, exit_code: Option<i32>, note: String) -> OracleResult {
     OracleResult {
         native_unreduced_symmetry: false,
@@ -1142,29 +1152,25 @@ fn map_check_document(
             // Out of time is the harness's timeout, reported by dive itself
             // rather than by a kill. Neither stop claims anything about the
             // model.
-            return match v["stopped"]["resource"].as_str() {
-                Some("time") => CheckMapping::Result(Box::new(bare(
-                    Verdict::Timeout,
-                    outcome.exit_code,
-                    format!("dive check stopped at its --time-limit: {message}"),
-                ))),
-                // A finding, like a timeout: the run did not finish within its
-                // budget, and a blowup must not hide among refusals.
-                Some("memory") => CheckMapping::Result(Box::new(bare(
-                    Verdict::Timeout,
-                    outcome.exit_code,
-                    format!("dive check stopped at its --max-memory: {message}"),
-                ))),
-                Some(resource @ ("states" | "depth")) => CheckMapping::Result(Box::new(bare(
-                    Verdict::ResourceLimit,
-                    outcome.exit_code,
-                    format!("dive check stopped at its --max-{resource}: {message}"),
-                ))),
-                _ => unclassified(
-                    outcome.exit_code,
-                    "dive check reported stopped without a resource".into(),
-                ),
+            let (classification, flag) = match v["stopped"]["resource"].as_str() {
+                Some("time") => (Verdict::Timeout, "--time-limit"),
+                Some("memory") => (Verdict::Timeout, "--max-memory"),
+                Some("states") => (Verdict::ResourceLimit, "--max-states"),
+                Some("depth") => (Verdict::ResourceLimit, "--max-depth"),
+                _ => {
+                    return unclassified(
+                        outcome.exit_code,
+                        "dive check reported stopped without a resource".into(),
+                    );
+                }
             };
+            let mut result = bare(
+                classification,
+                outcome.exit_code,
+                format!("dive check stopped at its {flag}: {message}"),
+            );
+            result.counts = observed_counts(&v["statistics"]);
+            return CheckMapping::Result(Box::new(result));
         }
         "rejected" => {
             let errs = errors(v);
@@ -1241,13 +1247,7 @@ fn map_check_document(
     let counts = if let Some(counts) = temporal.as_ref().and_then(|fields| fields.counts.as_ref()) {
         counts.clone()
     } else if stats.get("reported_by_tlc").and_then(Value::as_bool) == Some(true) {
-        let n = |k: &str| stats.get(k).and_then(Value::as_u64);
-        Counts {
-            distinct_states: n("distinct"),
-            states_generated: n("generated"),
-            states_left_on_queue: n("left_on_queue"),
-            depth: n("depth"),
-        }
+        observed_counts(stats)
     } else {
         Counts::default()
     };
