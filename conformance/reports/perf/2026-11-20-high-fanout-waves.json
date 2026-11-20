@@ -2234,7 +2234,33 @@
             "unit": "ms"
           }
         }
-      ]
+      ],
+      "extended_original": {
+        "model": "SlateDBWAL, original module and cfg, row-packed binary, same host and 16 physical cores as pressure runs",
+        "state_limit": 500000000,
+        "memory_limit_bytes": 6442450944,
+        "time_limit_seconds": 3000,
+        "verdict": "stopped",
+        "exit_code": 5,
+        "statistics": {
+          "depth": 60,
+          "distinct": 201344793,
+          "exhaustive": false,
+          "generated": 749768207,
+          "initial_generated": 1,
+          "left_on_queue": 30670132,
+          "reported_by_tlc": false
+        },
+        "seconds": 604.66,
+        "peak_rss_kib": 6311816,
+        "stop": {
+          "limit": 6442450944,
+          "observed": 6465093632,
+          "phase": "safety-search",
+          "resource": "memory",
+          "unit": "bytes"
+        }
+      }
     }
   },
   "resident_discovery_ids": {
