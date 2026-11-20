@@ -1847,5 +1847,198 @@
         "collections": 185
       }
     ]
+  },
+  "resident_rows": {
+    "platform": "Isolated AWS r7i.8xlarge, native x86_64, eight physical cores, 24 GiB cgroup, swap disabled. Each invocation is a fresh release process. Same inputs and hardware for both binaries.",
+    "kernel": "7.0.0-1018-aws",
+    "binaries": {
+      "row-base": "58106d4f57356196e33dbc24f20a0396db18a0f470e5071949ac9b503f41f29e",
+      "row-packed": "70181d89cc388a095dd8ad94396b1d39526d11c8ec90bd4554be8ff56e7d1bfb"
+    },
+    "source": "row-base on main after symmetry-buffer reuse. row-packed is the engineering build with native resident row compression, before final error handling and integration with external membership. Its timing applies to the hashed binary.",
+    "command": "taskset -c 0-7 BINARY check MODULE --config CFG --library-path modules --workers 8 --compat=tlc --seed 0 --fp 0 --max-states N --max-memory 18g --time-limit 600s --output json",
+    "capture": "First 999,424 complete rows from the first million ordinary Core admissions on each input. Byte counts describe an offline row-layout comparison excluding allocator overhead. End-to-end peak RSS is independently measured below.",
+    "models": {
+      "SlateDBWAL": {
+        "module": "spec/SlateDBWAL.tla",
+        "module_sha256": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+        "config_sha256": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+        "admitted_row_capture": {
+          "width": 19,
+          "rows": 999424,
+          "raw_bytes": 151912448,
+          "row_delta_bytes": 35097096,
+          "variable_byte_lanes": 29601728,
+          "byte_dictionary": 17803368,
+          "bit_dictionary": 8407976
+        },
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "runs": [
+          {
+            "build": "row-base",
+            "seconds": 21.6,
+            "rss_kib": 739020
+          },
+          {
+            "build": "row-packed",
+            "seconds": 22.41,
+            "rss_kib": 434880
+          },
+          {
+            "build": "row-packed",
+            "seconds": 21.53,
+            "rss_kib": 413516
+          },
+          {
+            "build": "row-base",
+            "seconds": 22.05,
+            "rss_kib": 722752
+          }
+        ]
+      },
+      "MC_HDiskSynod": {
+        "module": "specifications/diskpaxos/MC_HDiskSynod.tla",
+        "module_sha256": "f70a04902aaa20b175daddeead891e2f687128b8fe43b30cee3049bbb46af041",
+        "config_sha256": "76994aae4c323b971b05cc6604f92213f7bf6f147cf40074c1b03fecf5d1005c",
+        "admitted_row_capture": {
+          "width": 9,
+          "rows": 999424,
+          "raw_bytes": 71958528,
+          "row_delta_bytes": 21654848,
+          "variable_byte_lanes": 15370816,
+          "byte_dictionary": 10942128,
+          "bit_dictionary": 7898000
+        },
+        "statistics": {
+          "depth": 18,
+          "distinct": 3000000,
+          "exhaustive": false,
+          "generated": 30324693,
+          "initial_generated": 8,
+          "left_on_queue": 1177825,
+          "reported_by_tlc": false
+        },
+        "runs": [
+          {
+            "build": "row-base",
+            "seconds": 44.43,
+            "rss_kib": 351908
+          },
+          {
+            "build": "row-packed",
+            "seconds": 44.17,
+            "rss_kib": 200048
+          },
+          {
+            "build": "row-packed",
+            "seconds": 44.27,
+            "rss_kib": 201216
+          },
+          {
+            "build": "row-base",
+            "seconds": 45.13,
+            "rss_kib": 340228
+          }
+        ]
+      },
+      "BPConProof": {
+        "module": "specifications/byzpaxos/BPConProof.tla",
+        "module_sha256": "daa731dcadf12a892415131881d82d5b23e56c53097e90b986a24b1408a2e3c6",
+        "config_sha256": "8a3af0fba0f0ed0d96827717e0edacf7ad9bedc23b9f7aebf82f3c2bb5434e9a",
+        "admitted_row_capture": {
+          "width": 6,
+          "rows": 999424,
+          "raw_bytes": 47972352,
+          "row_delta_bytes": 9154384,
+          "variable_byte_lanes": 3581568,
+          "byte_dictionary": 8326848,
+          "bit_dictionary": 8238624
+        },
+        "statistics": {
+          "depth": 4,
+          "distinct": 3000000,
+          "exhaustive": false,
+          "generated": 5748420,
+          "initial_generated": 1,
+          "left_on_queue": 2997546,
+          "reported_by_tlc": false
+        },
+        "runs": [
+          {
+            "build": "row-base",
+            "seconds": 11.77,
+            "rss_kib": 1370952
+          },
+          {
+            "build": "row-packed",
+            "seconds": 11.95,
+            "rss_kib": 1138448
+          },
+          {
+            "build": "row-packed",
+            "seconds": 11.74,
+            "rss_kib": 1135608
+          },
+          {
+            "build": "row-base",
+            "seconds": 11.77,
+            "rss_kib": 1375500
+          }
+        ]
+      },
+      "TLCSailfish2": {
+        "module": "specifications/dag-consensus/TLCSailfish2.tla",
+        "module_sha256": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+        "config_sha256": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f",
+        "admitted_row_capture": {
+          "width": 4,
+          "rows": 999424,
+          "raw_bytes": 31981568,
+          "row_delta_bytes": 21692272,
+          "variable_byte_lanes": 10178560,
+          "byte_dictionary": 11959032,
+          "bit_dictionary": 10310552
+        },
+        "statistics": {
+          "depth": 13,
+          "distinct": 1000000,
+          "exhaustive": false,
+          "generated": 2057092,
+          "initial_generated": 1,
+          "left_on_queue": 772636,
+          "reported_by_tlc": false
+        },
+        "runs": [
+          {
+            "build": "row-base",
+            "seconds": 39.42,
+            "rss_kib": 533208
+          },
+          {
+            "build": "row-packed",
+            "seconds": 39.76,
+            "rss_kib": 519972
+          },
+          {
+            "build": "row-packed",
+            "seconds": 39.71,
+            "rss_kib": 520012
+          },
+          {
+            "build": "row-base",
+            "seconds": 40.28,
+            "rss_kib": 538252
+          }
+        ]
+      }
+    }
   }
 }
