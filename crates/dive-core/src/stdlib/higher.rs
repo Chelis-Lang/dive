@@ -39,6 +39,8 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::SequencesExtFoldRightDomain
             | StdOp::SequencesExtSelectInSeq
             | StdOp::SequencesExtSelectLastInSeq
+            | StdOp::SequencesExtSelectInSubSeq
+            | StdOp::SequencesExtSelectLastInSubSeq
             | StdOp::SequencesExtRemoveFirstMatch
     )
 }
@@ -67,6 +69,7 @@ pub(super) fn takes_op_value(op: StdOp) -> bool {
 pub(super) fn op_arity(op: StdOp, i: usize) -> Option<usize> {
     match (op, i) {
         (StdOp::BagsBagOfAll, 0)
+        | (StdOp::SequencesExtSelectInSubSeq | StdOp::SequencesExtSelectLastInSubSeq, 3)
         | (
             StdOp::SequencesSelectSeq
             | StdOp::FiniteSetsExtQuantify
@@ -110,25 +113,10 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Ho<'_>]) -> Result<Handle
         | StdOp::SequencesExtFoldRight
         | StdOp::SequencesExtFoldLeftDomain
         | StdOp::SequencesExtFoldRightDomain => fold_seq(m, op, args),
-        StdOp::SequencesExtSelectInSeq | StdOp::SequencesExtSelectLastInSeq => {
-            let s = value(args, 0)?;
-            let Some(t) = tuple(m, op, s)? else {
-                return Err(arg_error("first", op.name(), "sequence"));
-            };
-            let test = func(args, 1)?;
-            let last = op == StdOp::SequencesExtSelectLastInSeq;
-            let positions: Vec<usize> = if last {
-                (0..t.len()).rev().collect()
-            } else {
-                (0..t.len()).collect()
-            };
-            for i in positions {
-                if test_bool(m, op, &test, t[i])? {
-                    return int(i + 1);
-                }
-            }
-            int(0)
-        }
+        StdOp::SequencesExtSelectInSeq
+        | StdOp::SequencesExtSelectLastInSeq
+        | StdOp::SequencesExtSelectInSubSeq
+        | StdOp::SequencesExtSelectLastInSubSeq => select_position(m, op, args),
         StdOp::SequencesExtRemoveFirstMatch => {
             let Some(t) = tuple(m, op, value(args, 0)?)? else {
                 return Err(arg_error("first", "RemoveFirstMatch", "sequence"));
@@ -197,6 +185,62 @@ fn test_bool(m: &mut Machine, op: StdOp, test: &OpFn<'_>, x: Handle) -> Result<b
             "a test that is not boolean-valued (TLC's message prints the operator)",
         )),
     }
+}
+
+/// Search the inclusive one-based bounds in callback order. TLC treats an
+/// inverted interval as empty before checking whether either endpoint exists.
+fn select_position(m: &mut Machine, op: StdOp, args: &[Ho<'_>]) -> Result<Handle, Error> {
+    let Some(items) = tuple(m, op, value(args, 0)?)? else {
+        return Err(arg_error("first", op.name(), "sequence"));
+    };
+    let (first, end, test) = if matches!(
+        op,
+        StdOp::SequencesExtSelectInSubSeq | StdOp::SequencesExtSelectLastInSubSeq
+    ) {
+        let index = |i, which| -> Result<i32, Error> {
+            let h = value(args, i)?;
+            if let Some(n) = h.as_int() {
+                return i32::try_from(n)
+                    .map_err(|_| refuse(op, "an index outside TLC's 32-bit integers"));
+            }
+            if h.is_compound() && m.heap.view(h).kind == Kind::BigInt {
+                return Err(refuse(op, "an index outside TLC's 32-bit integers"));
+            }
+            Err(arg_error(which, op.name(), "natural"))
+        };
+        let from = index(1, "second")?;
+        let to = index(2, "third")?;
+        if from > to {
+            return int(0);
+        }
+        let position = |n, which| {
+            usize::try_from(n).ok().filter(|&v| v > 0 && v <= items.len()).ok_or_else(|| {
+                exc(2183, format!("The {which} argument of {} must be in the domain of its first argument:", op.name()))
+            })
+        };
+        (
+            position(from, "second")? - 1,
+            position(to, "third")?,
+            func(args, 3)?,
+        )
+    } else {
+        (0, items.len(), func(args, 1)?)
+    };
+    let last = matches!(
+        op,
+        StdOp::SequencesExtSelectLastInSeq | StdOp::SequencesExtSelectLastInSubSeq
+    );
+    let mut positions = first..end;
+    while let Some(i) = if last {
+        positions.next_back()
+    } else {
+        positions.next()
+    } {
+        if test_bool(m, op, &test, items[i])? {
+            return int(i + 1);
+        }
+    }
+    int(0)
 }
 
 /// `SelectSeq(s, Test)`.
@@ -286,8 +330,7 @@ fn bag_of_all(m: &mut Machine, op: StdOp, f: OpFn<'_>, b: Handle) -> Result<Hand
 }
 
 /// `FoldBag(op, base, B)`: folds each element as many times as its count,
-/// in the bag's order, which is known only for a sequence or a bag of at
-/// most one element.
+/// in canonical key order. TLC-order mode requires a known iteration order.
 fn fold_bag(
     m: &mut Machine,
     op: StdOp,
@@ -298,7 +341,7 @@ fn fold_bag(
     let Some((keys, vals)) = bags::entries(m, op, b)? else {
         return Err(arg_error("third", "FoldBag", "bag"));
     };
-    if !order_known(m, b) {
+    if m.heap.store().semantics().tlc_exploration && !order_known(m, b) {
         return Err(refuse(
             op,
             "a bag of two or more elements: TLC folds in the order it holds the bag in, which may be unnormalized",

@@ -1291,3 +1291,11 @@ RegisterWitness regression, which TLC violates after three generated/distinct
 states, refuses in Core because of its compiled effects. No lexical-capture,
 prime, escape or nested-recursion guard is removed.
 See [the user explanation](tlc-differences.md#d-029-predicate-witness-counts).
+
+## D-030. Canonical bag fold order
+
+With value exploration order, the Core evaluator and independent trace
+evaluator apply `BagsExt!FoldBag` in normalized key order. Order-sensitive
+callbacks can produce different values, effects, verdicts, counts, diagnostics
+or traces. With TLC exploration order, both evaluators require a known order
+for the input. [Example and profile behavior](tlc-differences.md#d-030-bag-fold-order).
