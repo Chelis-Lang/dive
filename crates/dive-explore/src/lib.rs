@@ -34,6 +34,7 @@ pub mod ending;
 mod exact_identity_tests;
 pub mod graph;
 mod graph_schedule;
+mod packed_probe;
 mod parallel;
 mod reclaim;
 pub mod sample;
@@ -1621,6 +1622,29 @@ fn explore_inner<'p>(
     owned: bool,
     distributed: Option<&'p distributed::Coordinator>,
 ) -> Outcome {
+    if graph.is_none()
+        && checkpoint.is_none()
+        && distributed.is_none()
+        && storage.exact
+        && config.workers == 1
+        && config.max_states.is_none()
+        && config.max_depth.is_none()
+        && config.sample.is_none()
+        && storage.seen_disk.is_none()
+        && storage.frontier_memory_bytes.is_none()
+        && storage.frontier_directory.is_none()
+        && storage.predecessor_memory_bytes.is_none()
+        && storage.predecessor_directory.is_none()
+        && storage.candidate_memory_bytes.is_none()
+        && storage.candidate_directory.is_none()
+        && storage.store_compact_bytes.is_none()
+        && !storage.independent_frontier
+        && plan.code.debugger.is_none()
+        && plan.code.source_map.is_none()
+        && let Some(result) = packed_probe::try_run(plan, store, config, poll)
+    {
+        return result;
+    }
     let start = Instant::now();
     let trigger_bytes = storage.store_compact_bytes;
     let mut compact = trigger_bytes.is_some();
