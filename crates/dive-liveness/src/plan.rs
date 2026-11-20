@@ -1123,7 +1123,7 @@ impl Lower<'_> {
         if let Expr::Apply { callee, args } = &node.expr {
             let mut work = self.limits.expansion_steps.saturating_sub(self.steps);
             if let Some((sequence, bodies)) = ev
-                .scope_selectseq_call(scope, callee, args, &mut work)
+                .scope_collection_predicate(scope, callee, args, &mut work)
                 .map_err(|error| self.refused_evaluation(expr, error, ""))?
             {
                 self.steps = self.limits.expansion_steps - work;
@@ -1174,7 +1174,11 @@ impl Lower<'_> {
                 .domain
                 .ok_or_else(|| self.refused(expr, "unbounded predicate domain"))?;
             let level = self.scoped_level(dom, scope, depth + 1)?;
-            if level > Level::State {
+            // A non-recursive bounded predicate retains its original scope and evaluates
+            // its domain on the concrete edge. Preserve its action level so
+            // an edge-dependent domain cannot become a state predicate.
+            let edge_binder = !matches!(self.model.ir.expr(expr), Expr::RecFcn { .. });
+            if level > Level::State && !(edge_binder && level == Level::Action) {
                 return Err(self.refused(dom, "action/temporal predicate domain"));
             }
             self.pure_scoped(dom, scope, depth + 1)?;
@@ -1599,10 +1603,13 @@ impl Lower<'_> {
                 if inspect_only && args.iter().any(|arg| matches!(arg, Arg::Op { .. })) {
                     return Err(self.refused(e, "higher-order configured predicate argument"));
                 }
-                if standard == Some(StdOp::SequencesSelectSeq) {
+                if matches!(
+                    standard,
+                    Some(StdOp::SequencesSelectSeq | StdOp::FiniteSetsExtQuantify)
+                ) {
                     let mut work = self.limits.expansion_steps.saturating_sub(self.steps);
                     let (sequence, bodies) = ev
-                        .scope_selectseq_call(&scope, &op, args, &mut work)
+                        .scope_collection_predicate(&scope, &op, args, &mut work)
                         .map_err(|error| self.refused_evaluation(e, error, ""))?
                         .ok_or_else(|| self.refused(e, "SelectSeq callback context/level"))?;
                     self.steps = self.limits.expansion_steps - work;
@@ -1616,6 +1623,29 @@ impl Lower<'_> {
                     }
                     todo.push((sequence, scope.clone(), depth + 1, false, inside_query));
                     continue;
+                }
+                if standard == Some(StdOp::FunctionsFoldFunctionOnSet)
+                    && let [
+                        Arg::Op { op: function, .. },
+                        Arg::Expr { .. },
+                        Arg::Expr { .. },
+                        Arg::Expr { .. },
+                    ] = args
+                {
+                    let mut work = self.limits.expansion_steps.saturating_sub(self.steps);
+                    let native = ev
+                        .scope_native_operator_analysis(&scope, function, &mut work)
+                        .map_err(|error| self.refused_evaluation(e, error, ""))?;
+                    self.steps = self.limits.expansion_steps - work;
+                    if matches!(native, Some(StdOp::IntegersPlus | StdOp::NaturalsPlus)) {
+                        self.operator_context(e, function, &scope, depth + 1)?;
+                        todo.extend(
+                            n.expr.children().into_iter().map(|child| {
+                                (child, scope.clone(), depth + 1, false, inside_query)
+                            }),
+                        );
+                        continue;
+                    }
                 }
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                     return Err(self.refused(e, "higher-order predicate argument"));
