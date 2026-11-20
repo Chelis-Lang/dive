@@ -285,6 +285,9 @@ size of intermediate sets. Specification length measures a third quantity.
 |---|---|---|---|
 | EmergencyCall, unconstrained | Original cellular state machine, 36 configurable variables | 10.59 billion distinct, diameter 26 transitions. The paper gives separate times for constrained cases. | Public source. The released f1–f4 runs have individual configurations and final counts. The unconstrained count lacks an identified matching configuration and final log. [Hou et al., §3](https://users.cs.northwestern.edu/~ychen/Papers/MobiSys21_ENL_OpenAccessVersion.pdf) |
 | EmergencyCall, f3 | Three safety invariants, 49,152 distinct initial states | 21,255,936 distinct, 135,871,232 generated, TLC depth 27. The released TLC log records six minutes. | Reproduced by ordinary Core and pinned TLC at one and eight workers. [Authors’ configuration and raw output](https://github.com/FormalCellular/EmergencyCall/tree/093684f1bb02d733cae95d50f1690f1cb792296a/model) |
+| PaxosLease, quarantine bound | Original passing consensus config with two proposers, the released constants, state constraint and invariants | 76,749,192 distinct, 391,849,185 generated, depth 43 in 10 min 55 s in the author log. | Both ordinary Core and pinned TLC reproduced all counters and the successful verdict at eight workers. [Trencséni](https://arxiv.org/abs/2609.14640) · [Released inputs and raw results](https://github.com/mtrencseni/paxoslease-revisited/tree/5ca959624c5a2560ab1ad86dc71e8b161621d9bc) |
+| PaxosLease, Retry and RenewRetry | The same module with original retry configurations | The author logs report 2,179,760,458 distinct and depth 48 in 7 h 03 min for Retry, and 2,411,951,538 distinct and depth 49 in 8 h 03 min for RenewRetry. | Each number refers to one completed run. The author's logs also give the polynomial and estimated collision probability. [Retry](https://github.com/mtrencseni/paxoslease-revisited/blob/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/results/retry.txt) · [RenewRetry](https://github.com/mtrencseni/paxoslease-revisited/blob/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/results/renew-retry.txt) |
+| AWS industrial example | Historical industrial TLC check | Kukovec attributes roughly 31 billion explored states over five weeks on one 16-vCPU EC2 instance to Newcombe. | The available account does not identify the generated/distinct convention or a released matching configuration. It sets a historical scale target only. [Kukovec, p. 25](https://repositum.tuwien.at/bitstream/20.500.12708/209338/1/Kukovec%20Jure%20-%202024%20-%20SMT-driven%20techniques%20for%20verifying%20distributed%20systems.pdf) · [Newcombe, ABZ 2014](https://abz-conf.org/publication/newcombe14/) |
 | Pasture, node model | Invariants with parameters 2, 1, 2, 2, 2 | 4,234,887,880 distinct, depth 53 in 3,596 minutes on a 48-core Opteron with 128 GB. A repeat using another fingerprint polynomial found the same count. | The publication prints the modules. A run from a verified machine-readable original is outstanding. Its smallest published control is 47,742 distinct at depth 31. [Rodeheffer and Kotla, Table 1 and appendices](https://conf.tlapl.us/2012/rodeheffer-kotla.pdf) |
 | LuPastry, simplified five-node configuration | Distributed hash-table routing | 141,786,762 distinct, 7,070,872,610 generated, depth 54 in one week. The full four-node run stopped after over five weeks and 331,300,918,096 generated. | Original configuration unverified. Later LuPastry+ specifications contain changes. [Lu, Table 5.3](https://doi.org/10.22028/D291-26550) · [Subsequent model versions](https://homepages.loria.fr/SMerz/projects/pastry/index.html) |
 | Confidential Consortium Framework | Production consensus specification | 1,134 lines and 13 state variables. The paper describes model checking, trace validation and CI. | A maintenance benchmark requires pinning revisions, configuration and the exact edited property. [Howard et al., Table 1](https://www.microsoft.com/en-us/research/uploads/prod/2024/07/nsdi25spring-final392.pdf) |
@@ -293,6 +296,17 @@ These records establish a lower bound on published workloads. A global maximum
 would require knowing the counting convention and input of every contender,
 including proprietary models. The enlarged KVS and transaction-commit runs
 above demonstrate concrete reachable cardinalities on their own programs.
+
+### Reproduce the released PaxosLease runs
+
+Use the source pin and JVM settings in the [PaxosLease record](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
+From the author's `tla/spec` directory run `dive check PaxosLeaseChecked.tla --config PaxosLeaseQuarantineEqualsProposer.cfg --compat=tlc --workers 8 --fp 0 --seed 0`.
+Use the same module and `-config` with pinned TLC. Each checker ran once per
+configuration on the same isolated r7i.16xlarge, pinned to the same eight
+physical cores. Core finished Base in 1.77 s and the quarantine case in
+243.70 s. TLC took 4.62 s and 332.45 s. On the quarantine case, peak process
+RSS was 3.89 GiB for Core and 15.58 GiB for TLC. Both matched the author's
+verdict, distinct, generated, depth and exhausted queue on both configurations.
 
 ### Reproduce the released EmergencyCall runs
 
