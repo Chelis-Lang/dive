@@ -185,6 +185,8 @@ pub(crate) struct ImplicitProduct<'a, T: TruthAccess> {
     nodes: Vec<usize>,
     /// Product ids of behavior vertex `v` are `offsets[v]..offsets[v + 1]`.
     offsets: Vec<usize>,
+    /// The discovered product is the whole behavior graph with identical ids.
+    identity: bool,
     roots: Vec<usize>,
     edge_count: usize,
     acceptance: CompactAcceptance,
@@ -299,6 +301,9 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
         if id != states.len() {
             return Err(ProductError::Shape("product vertex outside graph".into()));
         }
+        let identity = states.len() == vertices
+            && matches!(tableau.nodes.as_slice(), [node]
+                if node.literals.is_empty() && node.successors.as_slice() == [0]);
         let mut roots = csr::reserve(root_pairs.len())?;
         let mut product = Self {
             graph,
@@ -307,6 +312,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
             states,
             nodes,
             offsets,
+            identity,
             roots: Vec::new(),
             edge_count,
             acceptance,
@@ -328,10 +334,12 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
 
     fn id(&self, v: usize, n: usize) -> Option<usize> {
         let start = self.offsets[v];
-        self.nodes[start..self.offsets[v + 1]]
-            .binary_search(&n)
-            .ok()
-            .map(|i| start + i)
+        let row = &self.nodes[start..self.offsets[v + 1]];
+        match row {
+            [] => None,
+            [only] => (*only == n).then_some(start),
+            _ => row.binary_search(&n).ok().map(|i| start + i),
+        }
     }
 
     /// Product vertices and the edges a full row walk would yield.
@@ -437,6 +445,14 @@ impl<T: TruthAccess> Adjacency for ImplicitProduct<'_, T> {
         source: usize,
         cursor: &mut (usize, usize),
     ) -> Result<Option<(usize, usize)>, SearchError> {
+        if self.identity {
+            let edge = cursor.0;
+            if edge >= self.graph.row_len(source) {
+                return Ok(None);
+            }
+            cursor.0 += 1;
+            return Ok(Some((self.graph.target(source, edge), edge)));
+        }
         let (v, n) = (self.states[source], self.nodes[source]);
         let successors = &self.tableau.nodes[n].successors;
         let row = self.graph.row_len(v);
@@ -454,13 +470,12 @@ impl<T: TruthAccess> Adjacency for ImplicitProduct<'_, T> {
             *cursor = (e, j + 1);
             let target = self.graph.target(v, e);
             let next = successors[j];
-            if !fits_state(self.tableau, self.labels, target, next) {
-                continue;
+            // Discovery already checked these state literals. From a reached
+            // source, an admitted edge reaches every matching destination
+            // pair. A missing pair therefore means the literals failed.
+            if let Some(to) = self.id(target, next) {
+                return Ok(Some((to, e)));
             }
-            let to = self.id(target, next).ok_or(SearchError::Invariant(
-                "product successor was not discovered",
-            ))?;
-            return Ok(Some((to, e)));
         }
     }
 }
