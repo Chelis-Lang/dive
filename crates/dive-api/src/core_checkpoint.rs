@@ -278,6 +278,7 @@ pub(crate) fn check(
                     .seen_disk
                     .as_ref()
                     .map(|o| dive_explore::storage::DiskOptions {
+                        partitioned: o.partitioned,
                         limits: o.limits,
                         directory: o.directory.clone(),
                     }),
