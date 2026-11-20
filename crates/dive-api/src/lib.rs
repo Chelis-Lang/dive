@@ -105,6 +105,7 @@ mod dfid_admission;
 pub use dfid::{DFID_SCHEMA_VERSION, DfidReport, DfidRequest, dfid_file};
 mod simulate;
 mod simulate_alias;
+pub use dive_sim::{KEEP_ALL_TRACES, UNLIMITED_TRACES};
 pub use simulate::{SIMULATE_SCHEMA_VERSION, SimulateReport, SimulateRequest, simulate_file};
 
 pub use check::{

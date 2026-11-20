@@ -37,10 +37,6 @@ fn scratch() -> Result<Scratch, Box<dyn std::error::Error>> {
 
 const CASES: &[(&[&str], &str)] = &[
     (
-        &["simulate", "Counter.tla", "--traces", "2", "--workers", "2"],
-        "parallel simulation workers",
-    ),
-    (
         &["dfid", "Counter.tla", "--max-level", "6", "--workers", "2"],
         "DFID multiple workers",
     ),

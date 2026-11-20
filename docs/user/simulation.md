@@ -14,8 +14,48 @@ with its own per-trace stream in both profiles, so the same seed gives
 different traces than TLC, including under `--compat=tlc`. A nonzero
 `--aril N` is refused in the default profile. Under `--compat=tlc` it skips
 the first N draws of each trace's stream, and it has no effect without an
-explicit `--seed`. Simulation runs one worker on finite
-safety models.
+explicit `--seed`.
+
+## Workers, trace counts and what the report keeps
+
+```sh
+dive simulate Spec.tla --traces 100000 --depth 100 --workers 8 --seed 7
+```
+
+`--traces N` is the total number of traces, whatever `--workers` says. Each
+trace is numbered and sampled from its own stream, and workers hand traces
+over in number order, so the report is the same at any worker count: the
+lowest-numbered trace with a violation or an error decides the run, and the
+statistics, `Print` output and action flows are those of the traces up to
+it. More workers only make it faster. TLC counts `-simulate num=N` per worker
+and its result depends on the worker count; see
+[D-003](../tlc-differences.md#d-003-simulation-is-reproducible).
+
+`--traces unlimited` samples until a violation, an error or the time limit,
+which you must give with `--time-limit`. A run that reaches the limit ends
+`stopped`, with the statistics of the traces it finished.
+
+By default the report keeps the trace that decided the result and the first
+10 other traces, each validated. `--keep-traces K` keeps the first K instead,
+and `--keep-traces 0` only the deciding trace, which is always validated. To
+keep every trace, pass `--keep-traces all`; the report then grows with the
+trace count. Use it to export traces, to animate them with the `alias`
+values, or to generate tests: a trace is fixed by the seed and its number, so
+`--traces N` with the same seed reproduces traces 0 to N-1. Only kept traces
+are validated, which is most of the cost of a large run.
+
+`--max-report-bytes BYTES` bounds the JSON report: kept traces are admitted
+from the lowest number while the report fits, and `statistics.traces_dropped`
+counts the others. If the deciding trace alone does not fit, its entry holds
+a `summary` (its length, its ending and the SHA-256 of its document) and its
+validation instead of the document. Rust callers can size a report with
+`SimulateReport::json_len` before writing it.
+
+Simulation has no fixed state bounds: the time and memory budgets govern, as
+in `dive check`. A trace keeps only its own states, so a depth of millions
+runs in memory proportional to the depth. A step with a million successors
+picks one in constant memory. `--max-generated N` stops after N generated
+states, counted in trace order.
 
 ## What a sample covers
 
@@ -70,6 +110,10 @@ refuses.
 Each step in a trace document carries the action that produced it, with its
 name and source location, as in `dive check` counterexamples. Validation
 checks each label on its step.
+
+An Init or a step that draws from a set dive cannot enumerate, such as
+`x \in Nat`, is an evaluation error with TLC's code 1000 (exit 255 under TLC
+exit codes), as in TLC.
 
 These refuse by name: temporal `PROPERTY` checking, `POSTCONDITION`, and
 sampling interactions dive has not proved sound. Every returned violation must
@@ -129,7 +173,7 @@ from scratch, keeps `Print`'s argument and rendering errors and return values,
 and discards its output; replay events never appear in either output field.
 
 By default the backend keeps at most 100,000 runtime `Print` events and 16 MiB
-of their UTF-8 text. `dive_sim::Options` sets `max_output_events` and
+of their UTF-8 text, admitted in trace order. `dive_sim::Options` sets `max_output_events` and
 `max_output_bytes`. Crossing either limit returns `resource-limit`, never
 `sampled`, with the output kept so far and the work completed. The limits
 cover retained `Print` text and events only: not temporary rendering
@@ -194,7 +238,15 @@ domain is empty.
 Init selection, predicate quantifiers, CHOOSE, function construction and
 ENABLED evaluate as usual and consume no generation choices. CASE generation,
 action composition and opaque or lazy domains that dive has not proved sound
-refuse by name when reached. Generation uses one worker.
+refuse by name when reached. Init is still enumerated once, as in TLC.
+
+`--constructive-init` (`SimulateRequest::constructive_init`) builds each
+trace's initial state the same way instead, so Init is never enumerated and a
+run whose Init has a billion states starts at once. An initial state that
+violates an invariant is then found only if a trace constructs it. When no
+alternative of Init gives an admitted state, the result is the same 2118 or
+2256 error as with enumeration. The report says `options.initial_states:
+constructed`. See [D-041](../tlc-differences.md#d-041-constructed-initial-states-in-simulation).
 
 Each retained finite behavior is checked independently by sample validation:
 Init and Next, constraints, invariants and implied initial and action

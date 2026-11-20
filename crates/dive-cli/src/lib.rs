@@ -1351,7 +1351,7 @@ fn simulate_command(
     let mut json = false;
     let mut exit_convention = None;
     let mut file = None;
-    let mut it = args.iter();
+    let mut it = args.iter().peekable();
     while let Some(arg) = it.next() {
         match arg.as_str() {
             s if matches!(
@@ -1428,6 +1428,44 @@ fn simulate_command(
                     return simulation_usage_error(err, "--seed given twice");
                 }
             }
+            "--traces" if it.peek().is_some_and(|value| *value == "unlimited") => {
+                it.next();
+                request.traces = dive_api::UNLIMITED_TRACES;
+            }
+            "--keep-traces" => match it.next().map(String::as_str) {
+                Some("all") => request.keep_traces = Some(dive_api::KEEP_ALL_TRACES),
+                Some(value) => match value.parse::<u64>() {
+                    Ok(count) => request.keep_traces = Some(count),
+                    Err(_) => {
+                        return simulation_usage_error(
+                            err,
+                            "--keep-traces expects a nonnegative integer or all",
+                        );
+                    }
+                },
+                None => {
+                    return simulation_usage_error(
+                        err,
+                        "--keep-traces expects a nonnegative integer or all",
+                    );
+                }
+            },
+            "--max-report-bytes" | "--max-generated" => {
+                let Some(Ok(number)) = it.next().map(|value| value.parse::<u64>()) else {
+                    return simulation_usage_error(
+                        err,
+                        &format!("{arg} expects a nonnegative integer"),
+                    );
+                };
+                if arg == "--max-generated" {
+                    request.max_generated = Some(number);
+                } else {
+                    let Ok(bytes) = usize::try_from(number) else {
+                        return simulation_usage_error(err, "--max-report-bytes is too large");
+                    };
+                    request.max_report_bytes = Some(bytes);
+                }
+            }
             "--aril" | "--depth" | "--traces" | "--workers" => {
                 let Some(value) = it.next() else {
                     return simulation_usage_error(
@@ -1500,6 +1538,7 @@ fn simulate_command(
                 }
             }
             "--generate" => request.generation = true,
+            "--constructive-init" => request.constructive_init = true,
             "--continue"
             | "--probabilistic"
             | "--rl"
@@ -1525,7 +1564,12 @@ fn simulate_command(
         return simulation_usage_error(err, "simulate needs a specification file and --traces N");
     };
     if request.traces == 0 {
-        return simulation_usage_error(err, "simulate requires a positive finite --traces N");
+        return simulation_usage_error(err, "simulate requires a positive --traces N or unlimited");
+    }
+    if request.traces == dive_api::UNLIMITED_TRACES
+        && !matches!(request.time_limit, dive_api::BudgetSetting::Explicit(_))
+    {
+        return simulation_usage_error(err, "--traces unlimited needs an explicit --time-limit");
     }
     request.file = file.into();
     let report = match dive_api::simulate_file(&request) {

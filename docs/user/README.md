@@ -50,12 +50,11 @@ feature named) instead of a usage error:
 | `check` | `--action-composition tlc`, `-Dtlc2.tool.impl.Tool.cdot true` | `--action-composition=tlc` |
 | `check` | `--allow-io=env,files,exec` | external inputs |
 | `check` | `--source-coverage`, `--coverage 0` | source coverage and TLC logical coverage |
-| `simulate` | `--workers N` with N > 1 | parallel simulation workers |
 | `dfid` | `--workers N` with N > 1 | DFID multiple workers |
 | `tlc` | `-coverage 0`, `-lncheck final` | coverage; bounded final checking |
 
 Without temporal properties, `--lncheck final --lasso short` changes nothing
-and the check runs, and `simulate` and `dfid` accept `--workers 1`.
+and the check runs, and `dfid` accepts `--workers 1`.
 `--compat=tlc` and `dive tlc` check temporal properties once at exhaustion
 without these flags. `--symmetry-liveness tlc` is listed because it is the
 `--compat=tlc` default; it runs unless the model has both `SYMMETRY` and
