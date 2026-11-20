@@ -178,8 +178,11 @@ pub struct CheckRequest {
     /// Opt-in encoded frontier budget per current/next queue, in bytes. This
     /// does not bound seen sets, candidates, traces, graphs or process memory.
     pub frontier_memory_bytes: Option<usize>,
+    /// Store independent DAG chunks on disk for ordinary fingerprint safety.
+    /// This allows value reclamation between committed expansion batches.
+    pub independent_frontier: bool,
     /// Parent directory for private transient frontier spill files. Requires
-    /// [`Self::frontier_memory_bytes`]; a directory alone is rejected.
+    /// [`Self::frontier_memory_bytes`] or [`Self::independent_frontier`].
     pub frontier_directory: Option<PathBuf>,
     /// Encoded candidate bytes per worker for explicit Core pure safety BFS.
     /// Zero forces disk. This excludes active evaluator roots, codec scratch,
@@ -357,6 +360,19 @@ fn distributed_refusal(req: &CheckRequest, checkpoint: bool) -> Option<String> {
 }
 
 fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
+    if req.independent_frontier
+        && (req.store != Store::Fingerprint
+            || req.frontier_memory_bytes.is_some_and(|bytes| bytes != 0)
+            || req.core_sample.is_some()
+            || req.distributed.is_some()
+            || req.debugger.is_some()
+            || req.seen_disk.is_some()
+            || req.candidate_memory_bytes.is_some())
+    {
+        return Err(crate::ApiError::Unsupported {
+            feature: "independent frontier requires ordinary fingerprint safety, immediate frontier spill and resident candidates and membership".into(),
+        });
+    }
     if req.store_compact_bytes.is_some() && req.core_sample.is_some() {
         return Err(crate::ApiError::Unsupported {
             feature: "Store reclamation with temporal capture or sampling".into(),
@@ -374,7 +390,10 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
             message: "DIVE-A0102: candidate_directory requires candidate_memory_bytes".into(),
         });
     }
-    if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
+    if req.frontier_directory.is_some()
+        && req.frontier_memory_bytes.is_none()
+        && !req.independent_frontier
+    {
         return Err(crate::ApiError::Rejected {
             message: "DIVE-A0100: frontier_directory requires frontier_memory_bytes".into(),
         });
@@ -500,6 +519,11 @@ fn check_file_in(
         }
     }
     admit_storage_request(req)?;
+    if req.independent_frontier && checkpoint.is_some() {
+        return Err(crate::ApiError::Unsupported {
+            feature: "independent frontier with checkpoint or recovery".into(),
+        });
+    }
     if req.debugger.is_some()
         && (checkpoint.is_some() || req.temporal_refusal.is_some() || req.core_sample.is_some())
     {
@@ -608,7 +632,10 @@ fn check_file_in(
         opts.eval.action_composition = mode;
     }
     opts.seen_disk.clone_from(&req.seen_disk);
-    opts.frontier_memory_bytes = req.frontier_memory_bytes;
+    opts.independent_frontier = req.independent_frontier;
+    opts.frontier_memory_bytes = req
+        .frontier_memory_bytes
+        .or(req.independent_frontier.then_some(0));
     opts.frontier_directory.clone_from(&req.frontier_directory);
     opts.candidate_memory_bytes = req.candidate_memory_bytes;
     opts.store_compact_bytes = req.store_compact_bytes;
@@ -1748,8 +1775,14 @@ impl CheckReport {
                     });
                 }
                 doc["frontier_storage"] = json!({
-                    "mode": if r.frontier.memory_bytes_per_queue.is_some() { "encoded-spill" } else { "memory-reference" },
-                    "scope": if self.core.is_some() && r.frontier.memory_bytes_per_queue.is_some() {
+                    "mode": match (r.frontier.memory_bytes_per_queue, self.opts.independent_frontier) {
+                        (None, _) => "memory-reference",
+                        (Some(_), true) => "independent-chunks",
+                        (Some(_), false) => "encoded-spill",
+                    },
+                    "scope": if self.opts.independent_frontier {
+                        "encoded disk queues only. Partial chunk roots, decoded pairs, codec scratch, file cache and other search memory are outside this count"
+                    } else if self.core.is_some() && r.frontier.memory_bytes_per_queue.is_some() {
                         "encoded current and next frontier capacities observed at queue operations only; retained live Store, decoded chunks, seen sets, candidates, arenas, traces, allocator workspace and native archives are not measured or bounded"
                     } else { "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded" },
                     "memory_bytes_per_queue": r.frontier.memory_bytes_per_queue,

@@ -309,7 +309,7 @@ A worker expands each source before the coordinator commits its successors in di
 
 Each cell is the median of three interleaved runs on the same isolated eight-core allocation. All arms reached identical generated, distinct, depth and queue counts. These were state-limited prefixes. DiskSynod and TLCSailfish2 showed little change.
 
-On a second node, storing BPConProof rows as independently decodable 64-row chunks and reclaiming the value store between batches used 355 MiB and 4.83 s at one million states. Its matched adaptive disk-handle baseline used 428 MiB and 4.31 s. Reclaiming only at level boundaries used 1,039 MiB and 6.74 s. The independent-chunk path is experimental. [All 132 trials, source pins, binary identities and counters](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
+On a second node, storing BPConProof rows as independently decodable 64-row chunks and reclaiming the value store between batches used 355 MiB and 4.83 s at one million states. Its matched adaptive disk-handle baseline used 428 MiB and 4.31 s. Reclaiming only at level boundaries used 1,039 MiB and 6.74 s. The measured independent-chunk prototype underlies the opt-in [independent frontier](../user/storage-recovery.md#independently-stored-frontier-values). [All 132 trials, source pins, binary identities and counters](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
 ### Where the thirteen historical non-finishes stand
 

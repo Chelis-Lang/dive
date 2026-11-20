@@ -156,6 +156,19 @@ restart or used as trace evidence. See the [owned candidate payload spill design
 
 ## Transient frontier and predecessor storage
 
+### Independently stored frontier values
+
+For a wide frontier of compound values, use `--independent-frontier`. Core writes the identity and original values of up to 64 consecutive rows in one self-contained chunk. This allows the value store to release fully written rows between committed worker batches. The default reclamation trigger for this option is 64 MiB of measured store storage. Set `--store-compact-bytes N` to change it. A partial chunk, worker arenas, fingerprint table, parents and file cache still use memory. Allow sufficient local disk for both active breadth-first levels.
+
+```sh
+mkdir -p spill
+dive check BPConProof.tla --config BPConProof.cfg --workers 8 --independent-frontier --frontier-directory spill --output json
+```
+
+This option applies to ordinary fingerprint safety checking with resident candidates and membership. Both profiles retain the concrete original values for trace replay. A chunk can hold up to 64 MiB of encoded data, with DAG nesting limited to 128. Files are transient. Invalid records, storage failures or a budget stop prevent certification. JSON reports `frontier_storage.mode = "independent-chunks"`, committed spill bytes and Store collections. The [matched prefixes](../developer/large-models.md#high-fanout-parallel-safety) show the RAM and wall-time tradeoff against the ordinary disk frontier.
+
+### Frontier handles and predecessor records
+
 Safety BFS has independent opt-in frontier and predecessor budgets:
 
 ```sh

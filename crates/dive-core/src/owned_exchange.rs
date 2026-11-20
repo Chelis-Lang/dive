@@ -595,6 +595,22 @@ fn decode(
     Ok((values, nodes))
 }
 
+/// Encodes a self-contained chunk of frontier roots, sharing local DAG nodes.
+///
+/// # Errors
+/// Returns an error for an unrepresentable value or an exceeded byte bound.
+pub fn encode_frontier(heap: &Heap, roots: &[Handle], limit: usize) -> Result<Vec<u8>, Error> {
+    Writer::new(heap, limit, None, None, &|| true)?.encode(roots)
+}
+
+/// Decodes an ordered frontier chunk without retaining its producing Store.
+///
+/// # Errors
+/// Returns an error for invalid, oversized or incompatible encoded values.
+pub fn decode_frontier(heap: &mut Heap, data: &[u8], limit: usize) -> Result<Vec<Handle>, Error> {
+    decode(heap, data, limit, None, None, &|| true).map(|(roots, _)| roots)
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(

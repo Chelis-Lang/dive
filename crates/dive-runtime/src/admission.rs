@@ -303,7 +303,10 @@ pub fn route_exclusion(
         Some("candidate spill")
     } else if opts.seen_disk.is_some() {
         Some("disk seen-state storage")
-    } else if opts.frontier_memory_bytes.is_some() || opts.frontier_directory.is_some() {
+    } else if opts.independent_frontier
+        || opts.frontier_memory_bytes.is_some()
+        || opts.frontier_directory.is_some()
+    {
         Some("frontier spill")
     } else if opts.predecessor_memory_bytes.is_some() || opts.predecessor_directory.is_some() {
         Some("predecessor spill")

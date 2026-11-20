@@ -94,7 +94,7 @@ fn engine_from_env() -> Result<(), String> {
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive debug <FILE.tla> [--stdio|--listen 127.0.0.1:PORT] [--compat=tlc]\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tla]\n               [--symmetry-liveness unreduced|refuse|tlc]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite|--write] [--checksums tla|full] [--replace-modified] [--ast|-writeAST] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive debug <FILE.tla> [--stdio|--listen 127.0.0.1:PORT] [--compat=tlc]\n    dive explain <CODE> [--output human|json]\n    dive tlc [OPTIONS] SPEC[.tla] (TLC checking arguments; see dive tlc -help)\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tla]\n               [--symmetry-liveness unreduced|refuse|tlc]\n               [--independent-frontier] [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]\n               [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
@@ -645,6 +645,7 @@ fn check_command_mode(
                 }
             },
             "--sequential" => req.sequential = true,
+            "--independent-frontier" => req.independent_frontier = true,
             "--source-coverage" => req.source_coverage = true,
             "--coverage" => match value().as_deref() {
                 Some("0") => req.tlc_coverage = true,
@@ -875,7 +876,10 @@ fn check_command_mode(
             "--candidate-directory requires --candidate-memory-bytes",
         );
     }
-    if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
+    if req.frontier_directory.is_some()
+        && req.frontier_memory_bytes.is_none()
+        && !req.independent_frontier
+    {
         return usage_error(err, "--frontier-directory requires --frontier-memory-bytes");
     }
     if final_check && short_lasso {
@@ -1496,6 +1500,7 @@ fn simulate_command(
             | "--probabilistic"
             | "--rl"
             | "--distributed"
+            | "--independent-frontier"
             | "--frontier-memory-bytes"
             | "--store-compact-bytes"
             | "--frontier-directory" => {

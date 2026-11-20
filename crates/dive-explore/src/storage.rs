@@ -19,6 +19,9 @@ pub struct Storage {
     pub predecessor_directory: Option<PathBuf>,
     /// Resident encoded capacity, independently for current and next frontiers.
     pub frontier_memory_bytes: Option<usize>,
+    /// Store independent DAG chunks on disk for ordinary fingerprint safety.
+    /// This allows value reclamation between committed expansion batches.
+    pub independent_frontier: bool,
     /// Existing parent directory for private frontier files.
     pub frontier_directory: Option<PathBuf>,
     /// Resident encoded candidate bytes per worker; zero immediately spills.
@@ -248,6 +251,8 @@ pub struct Usage {
 /// Persistent-value reclamation facts; live roots and fixed startup remain mandatory.
 #[derive(Clone, Debug, Default)]
 pub struct ReclamationUsage {
+    /// Independent chunks also permit collection at a committed wave boundary.
+    pub between_waves: bool,
     /// Actual reclamation/key workspace allocation failures.
     pub failures: Vec<String>,
     /// Requested measured-Store-byte trigger; zero forces every boundary.
@@ -313,6 +318,7 @@ pub(crate) struct Chunk {
 /// Two ordered encoded queues sharing a fixed live Store/codec owner.
 pub(crate) struct Frontiers {
     codec: FrontierCodec,
+    owned: Option<super::storage_owned::Owned>,
     variables: usize,
     memory_bytes: usize,
     directory: PathBuf,
@@ -344,6 +350,9 @@ impl Frontiers {
             .clone()
             .unwrap_or_else(std::env::temp_dir);
         Ok(Self {
+            owned: options
+                .independent_frontier
+                .then(|| super::storage_owned::Owned::new(store, variables)),
             codec: FrontierCodec::new(Arc::clone(store), variables)?,
             variables,
             memory_bytes,
@@ -360,11 +369,16 @@ impl Frontiers {
     }
 
     pub(crate) fn next_len(&self) -> usize {
-        self.next.len()
+        self.owned
+            .as_ref()
+            .map_or_else(|| self.next.len(), |o| o.next)
     }
 
     pub(crate) fn current_len(&self) -> usize {
-        self.current.as_ref().map_or(0, OrderedFrontier::len)
+        self.owned.as_ref().map_or_else(
+            || self.current.as_ref().map_or(0, OrderedFrontier::len),
+            |o| o.current,
+        )
     }
 
     /// Streams the live next queue into a fresh Store-bound codec. Old sources
@@ -384,6 +398,10 @@ impl Frontiers {
                 ..Storage::default()
             },
         )?;
+        if let Some(owned) = &self.owned {
+            fresh.owned = Some(owned.remapped(remap, poll)?);
+            return Ok(fresh);
+        }
         let result = (|| {
             for i in 0..self.next.len() {
                 if i.is_multiple_of(128) && poll() {
@@ -435,6 +453,17 @@ impl Frontiers {
         })
     }
 
+    /// Adopt disk files only after the complete replacement Store is ready.
+    pub(crate) fn adopt_independent_queues(&mut self, old: &mut Self) {
+        if self.owned.is_some() {
+            std::mem::swap(&mut self.next, &mut old.next);
+            self.current = old.current.take();
+            self.current_first = old.current_first;
+            self.next_first = old.next_first;
+            self.usage = std::mem::take(&mut old.usage);
+        }
+    }
+
     fn refresh(&mut self) {
         let bytes = self.next.stats().retained_bytes.saturating_add(
             self.current
@@ -455,9 +484,17 @@ impl Frontiers {
         let result = (|| {
             if self
                 .next_first
-                .is_some_and(|first| first.checked_add(self.next.len() as u64) != Some(id))
+                .is_some_and(|first| first.checked_add(self.next_len() as u64) != Some(id))
             {
                 return Err(frontier_error("discovery IDs are not consecutive"));
+            }
+            if let Some(owned) = self.owned.as_mut() {
+                return owned.push(
+                    &mut self.next,
+                    self.next_first.unwrap_or(id),
+                    identity,
+                    original,
+                );
             }
             let bytes = self
                 .codec
@@ -472,6 +509,16 @@ impl Frontiers {
             .saturating_add(self.next.stats().spilled_bytes.saturating_sub(before));
         self.refresh();
         self.observe(result)
+    }
+
+    fn flush_owned(&mut self) -> Result<(), Error> {
+        if let Some(o) = self.owned.as_mut() {
+            let before = self.next.stats().spilled_bytes;
+            let flushed = o.flush(&mut self.next, self.next_first.unwrap_or(0));
+            self.usage.spilled_bytes += self.next.stats().spilled_bytes - before;
+            self.observe(flushed)?;
+        }
+        Ok(())
     }
 
     fn validate(
@@ -502,7 +549,16 @@ impl Frontiers {
         validate: bool,
         poll: &(dyn Fn() -> bool + Sync),
     ) -> Result<bool, Error> {
-        let checked = if validate {
+        let checked = if let Some(o) = self.owned.as_ref().filter(|_| validate) {
+            let count = if first.is_some() && first == self.next_first {
+                o.next
+            } else if first.is_some() {
+                o.current
+            } else {
+                0
+            };
+            o.audit(queue, first.unwrap_or(0), count, poll)
+        } else if validate {
             self.validate(queue, first, poll)
         } else {
             Ok(true)
@@ -519,6 +575,10 @@ impl Frontiers {
         {
             self.refresh();
             return Ok(false);
+        }
+        self.flush_owned()?;
+        if let Some(o) = self.owned.as_mut() {
+            o.current = std::mem::take(&mut o.next);
         }
         let fresh = OrderedFrontier::new(self.memory_bytes, &self.directory);
         self.current = Some(std::mem::replace(&mut self.next, fresh));
@@ -538,6 +598,9 @@ impl Frontiers {
                 .current
                 .as_ref()
                 .ok_or_else(|| frontier_error("missing current queue"))?;
+            if let Some(o) = self.owned.as_mut() {
+                return o.chunk(queue, self.current_first.unwrap_or(0), start, end, poll);
+            }
             let mut chunk = Chunk::default();
             let handles = end
                 .checked_sub(start)
@@ -576,7 +639,7 @@ impl Frontiers {
     }
 
     pub(crate) fn finish(&mut self, validate: bool, poll: &(dyn Fn() -> bool + Sync)) -> bool {
-        let mut complete = true;
+        let mut complete = !validate || self.flush_owned().is_ok();
         if let Some(mut current) = self.current.take() {
             complete &= self
                 .close_queue(&mut current, self.current_first, validate, poll)
@@ -594,7 +657,7 @@ impl Frontiers {
     }
 }
 
-fn frontier_error(cause: impl std::fmt::Display) -> SpillError {
+pub(super) fn frontier_error(cause: impl std::fmt::Display) -> SpillError {
     SpillError {
         code: "DIVE-S0200",
         message: format!("native frontier: {cause}"),
@@ -826,6 +889,76 @@ mod tests {
             queues.push(u64::from(id), &[value], &[value]).unwrap();
         }
         queues
+    }
+
+    #[test]
+    fn independent_blocks_survive_replacement_and_detect_unread_corruption() {
+        for corrupt in [false, true] {
+            let path = directory();
+            let store = Arc::new(Store::new(true));
+            let permanent =
+                dive_core::store::compact::Permanent::capture(&store, &|| true).unwrap();
+            let mut heap = Heap::new(Arc::clone(&store), true, false);
+            let mut queues = Frontiers::new(
+                &store,
+                1,
+                &Storage {
+                    independent_frontier: true,
+                    frontier_memory_bytes: Some(0),
+                    frontier_directory: Some(path.clone()),
+                    ..Storage::default()
+                },
+            )
+            .unwrap();
+            for id in 0..129 {
+                let value = Handle::int(id).unwrap();
+                let original = heap.tuple_literal(&[value]);
+                let original = heap.intern_exact(original).unwrap();
+                let identity = heap.intern(original).unwrap();
+                queues
+                    .push(u64::try_from(id).unwrap(), &[identity], &[original])
+                    .unwrap();
+            }
+            // Two blocks have moved to disk. The final pair of roots must move
+            // to the new Store before the old heap can be dropped.
+            let mut remap = permanent.begin(&store, &|| true).unwrap();
+            let mut fresh = queues.remap(&mut remap, &|| false).unwrap();
+            fresh.adopt_independent_queues(&mut queues);
+            let reader = Heap::new(Arc::clone(remap.store()), true, false);
+            drop((queues, remap, heap, store));
+            assert!(fresh.advance(&|| false).unwrap());
+            let chunk = fresh.chunk(62, 65, &|| false).unwrap().unwrap();
+            assert_eq!(chunk.ids, [62, 63, 64]);
+            for (id, original) in chunk.ids.iter().zip(&chunk.original) {
+                assert!(reader.view(*original).is_tuple_literal());
+                assert_eq!(
+                    reader.view(*original).data,
+                    &[Handle::int(i64::try_from(*id).unwrap()).unwrap()]
+                );
+            }
+            if corrupt {
+                let file = fresh
+                    .current
+                    .as_ref()
+                    .unwrap()
+                    .disk_directory()
+                    .unwrap()
+                    .join("states");
+                let stream = fs::OpenOptions::new().write(true).open(file).unwrap();
+                stream
+                    .set_len(stream.metadata().unwrap().len() - 1)
+                    .unwrap();
+            } else {
+                let last = fresh.chunk(128, 129, &|| false).unwrap().unwrap();
+                assert_eq!(
+                    reader.view(last.original[0]).data,
+                    &[Handle::int(128).unwrap()]
+                );
+            }
+            assert_eq!(fresh.finish(true, &|| false), !corrupt);
+            assert_eq!(fresh.usage.failures.is_empty(), !corrupt);
+            fs::remove_dir(path).unwrap();
+        }
     }
 
     #[test]

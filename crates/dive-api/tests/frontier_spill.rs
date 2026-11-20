@@ -112,3 +112,69 @@ fn disk_creation_failure_has_no_success_and_truthful_worker_evidence() {
     assert_eq!(j["frontier_storage"]["write_accounting_complete"], false);
     assert_eq!(j["counterexample"], serde_json::Value::Null);
 }
+
+#[test]
+fn independent_disk_blocks_preserve_counts_and_the_witness_across_waves() {
+    let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/independent-frontier");
+    let file = fixture.join("Waves.tla");
+    for compat_tlc in [false, true] {
+        for (name, verdict) in [("good", "success"), ("bad", "invariant-violation")] {
+            let config = fixture.join(format!("{name}.cfg"));
+            let mut request = CheckRequest {
+                file: file.clone(),
+                config: Some(config.clone()),
+                workers: Some(8),
+                seed: Some(0),
+                fp: Some(0),
+                compat_tlc,
+                ..CheckRequest::default()
+            };
+            let baseline = dive_api::check_file(&request)
+                .expect("resident check")
+                .to_json();
+            request.independent_frontier = true;
+            request.store_compact_bytes = Some(0);
+            let report = dive_api::check_file(&request)
+                .expect("independent check")
+                .to_json();
+            assert_eq!(report["verdict"], verdict);
+            assert_eq!(report["statistics"], baseline["statistics"]);
+            assert_eq!(report["frontier_storage"]["mode"], "independent-chunks");
+            assert!(
+                report["core"]["metrics"]["store_reclamation"]["collections"]
+                    .as_u64()
+                    .is_some_and(|n| n > 3)
+            );
+            if name == "bad" {
+                let model = SpecModel::load(
+                    &file,
+                    &config,
+                    &TraceOptions {
+                        compat_tlc,
+                        run: Some((0, 0)),
+                        ..TraceOptions::default()
+                    },
+                )
+                .expect("model");
+                let doc = TraceDoc::from_json(&report).expect("counterexample");
+                let controls = model.controls(&doc);
+                assert_eq!(controls.positive.validation, Validation::Valid);
+                assert!(controls.failures().is_empty(), "{:?}", controls.failures());
+            }
+        }
+    }
+}
+
+#[test]
+fn independent_frontier_rejects_conflicting_storage_before_loading_the_file() {
+    let request = CheckRequest {
+        independent_frontier: true,
+        frontier_memory_bytes: Some(1024),
+        ..CheckRequest::default()
+    };
+    assert!(
+        matches!(dive_api::check_file(&request), Err(dive_api::ApiError::Unsupported { feature })
+        if feature.contains("independent frontier"))
+    );
+}

@@ -27,7 +27,7 @@ COMMANDS:
     dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--exit-codes native|tlc] [--store fp|exact] [--seed N] [--fp N]
                [--workers N|auto] [--sequential] [-deadlock] [--action-composition off|tla]
                [--symmetry-liveness unreduced|refuse|tlc]
-               [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]
+               [--independent-frontier] [--frontier-memory-bytes N] [--frontier-directory DIR] [--candidate-memory-bytes N] [--candidate-directory DIR] [--store-compact-bytes N] [--output human|json]
                [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
                [--max-states N|none] [--max-depth N|none]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]
@@ -78,7 +78,7 @@ USAGE: dive check FILE.tla [OPTIONS]
 --library-path DIR --module-path DIR (repeatable)
 
 Supported storage options:
---frontier-memory-bytes N --frontier-directory DIR
+--independent-frontier --frontier-memory-bytes N --frontier-directory DIR
 --candidate-memory-bytes N --candidate-directory DIR --store-compact-bytes N
 --predecessor-memory-bytes N --predecessor-directory DIR
 --seen-disk-entries N --seen-directory DIR --seen-key-bytes N

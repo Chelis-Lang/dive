@@ -535,7 +535,7 @@ impl Session {
     /// # Errors
     /// An unsupported managed-session combination or failed thread creation.
     pub fn launch(mut request: CheckRequest, stop_on_entry: bool) -> Result<Self, DebugError> {
-        if request.store_compact_bytes.is_some() {
+        if request.store_compact_bytes.is_some() || request.independent_frontier {
             return Err(rejected(
                 "compiled debugger with Store reclamation is not implemented",
             ));

@@ -1365,7 +1365,7 @@ pub(crate) fn check(
         Ok(p) => p,
         Err(r) => return (finish(*r), run),
     };
-    if options.store_compact_bytes.is_some()
+    if (options.store_compact_bytes.is_some() || options.independent_frontier)
         && (prepared.plan.effects.any || !prepared.model.implied_temporals.is_empty())
     {
         return (
@@ -1562,12 +1562,14 @@ pub(crate) fn check(
         && options.predecessor_memory_bytes.is_none()
         && options.predecessor_directory.is_none()
         && options.seen_disk.is_none())
-    .then_some(DEFAULT_STORE_COMPACT_BYTES);
+    .then_some(DEFAULT_STORE_COMPACT_BYTES)
+    .or(options.independent_frontier.then_some(64 << 20));
     let storage = dive_explore::storage::Storage {
         exact: options.store == dive_store::StoreMode::Exact,
         predecessor_memory_bytes: options.predecessor_memory_bytes,
         predecessor_directory: options.predecessor_directory.clone(),
         frontier_memory_bytes: options.frontier_memory_bytes,
+        independent_frontier: options.independent_frontier,
         frontier_directory: options.frontier_directory.clone(),
         candidate_memory_bytes: options.candidate_memory_bytes,
         candidate_directory: options.candidate_directory.clone(),
@@ -1892,7 +1894,9 @@ pub(crate) fn metrics_json(
             "trigger_bytes": m.storage.reclamation.trigger_bytes,
             "trigger_source": m.storage.reclamation.trigger_bytes.map(|_| if m.storage.reclamation.default_trigger { "default" } else { "requested" }),
             "skipped": m.storage.reclamation.skipped,
-            "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+            "scope": if m.storage.reclamation.between_waves {
+                "measured Store trigger between committed waves and levels. Only partial chunk roots, permanent startup and names need remapping. Total RSS and disk are outside the trigger"
+            } else { "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound" },
             "collections": m.storage.reclamation.collections,
             "reclaimed_nodes": m.storage.reclamation.reclaimed_nodes,
             "peak_before_bytes_lower_bound": m.storage.reclamation.peak_before_bytes,
