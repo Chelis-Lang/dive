@@ -1129,3 +1129,36 @@ panel acceptance or qualification of a later rebased source. The compact
 [record](../../conformance/reports/perf/2026-11-03-native-source-observation.json)
 binds actual ELF/patch/input identities and verified external archive. No
 rescue/repetition or broad performance claim follows from these rows.
+
+## Edited invariants
+
+The public Rust example scans original scalar state rows after rebinding an
+edited invariant. The benchmark compares its results and all five counters to
+ordinary exact Core, including the complete serialized witness with current action locations and length.
+
+| Model and edit | Original capture | Original fresh | Edited recheck | Edited fresh |
+| --- | ---: | ---: | ---: | ---: |
+| Star, late refutation, 200,002 states/400,001 generated | 127.87 ms | 107.14 ms | 7.57 ms | 102.30 ms |
+| Star, completed closure, 200,002 states/400,002 generated | 117.56 ms | 101.21 ms | 7.32 ms | 100.27 ms |
+| DieHard, late refutation, 14 states/73 generated | 2.34 ms | 1.72 ms | 1.39 ms | 1.27 ms |
+
+Edited times are medians of three wall-clock observations including the
+current bind, witness validation when applicable and report construction.
+Original times are single observations. The star's edited refutation takes
+13.5× less time than a fresh check and the edited closure takes 13.7× less.
+For DieHard, binding dominates and the full recheck takes longer than fresh.
+The benchmark times each revision inside one process, excluding process
+launch and writing its JSON to stdout. The stored [individual
+samples](../../conformance/studies/edited-invariant-recheck.json) include
+separate bind and scan timings and the establishing run.
+
+```sh
+CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 \
+  cargo build --locked --release -p dive-api --example recheck_invariants
+python3 scripts/bench-edited-invariants.py target/release/examples/recheck_invariants
+```
+
+Pass `--diehard path/to/DieHard.tla` to include the corpus at the examples
+pin. The script creates both star models in a temporary directory. The saved
+run used one pinned Linux CPU on an AMD Ryzen AI MAX+ 395, Rust 1.99.0,
+one Core worker, exact storage, seed/fingerprint zero and no state/depth limit.

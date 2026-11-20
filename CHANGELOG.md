@@ -14,6 +14,10 @@ are in git history.
   See [the Rust API guide](docs/user/rust-api.md#drop-an-invariant-from-a-completed-safety-check).
 
 - The optional [finite symbolic checker](docs/user/symbolic.md) searches finite safety models using decision diagrams, rechecks invariant edits and verifies inductive predicates against the current source.
+- Rust embedders can capture a finite single-worker Core safety check and
+  recheck edited invariants on the original state rows. A qualified
+  refutation includes its current independently validated witness. See
+  [the Rust API guide](docs/user/rust-api.md#recheck-edited-safety-invariants).
 
 ### Fixed
 

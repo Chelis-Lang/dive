@@ -1197,6 +1197,33 @@ pub(crate) fn eval_check(
     r
 }
 
+/// Evaluates every configured invariant in its normal order on an original
+/// concrete row of this machine's Store. Returns the first false invariant.
+/// The caller owns representation, phase, effect and resource admission.
+/// No parent-skip assumption is used.
+///
+/// # Errors
+///
+/// Returns the original Core error if an invariant cannot be evaluated.
+pub fn first_false_invariant(
+    m: &mut Machine,
+    plan: &Plan,
+    row: &[Handle],
+) -> Result<Option<usize>, Error> {
+    if m.s1.len() != row.len() {
+        return Err(Error::internal("invariant row width mismatch"));
+    }
+    m.heap.reset();
+    m.s1.copy_from_slice(row);
+    let mut metrics = Metrics::default();
+    for (index, check) in plan.invariants.iter().enumerate() {
+        if !eval_check(m, &plan.code, check, None, &mut metrics)? {
+            return Ok(Some(index));
+        }
+    }
+    Ok(None)
+}
+
 /// Whether the state in `m.s1` satisfies the constraints, and (`step`) the
 /// action constraints on the step from `m.s0`; on an error, its site.
 pub(crate) fn in_model(
