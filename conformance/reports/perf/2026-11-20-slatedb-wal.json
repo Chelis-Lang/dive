@@ -286,5 +286,351 @@
       "left_on_queue": 0,
       "depth": 114
     }
+  },
+  "matched_prefix_and_value_domain": {
+    "platform": "Isolated r7i.16xlarge in us-east-1a. One logical CPU per physical core, pinned to the first 8 or 32 cores. Fresh processes in recorded order. 48 GiB hard cgroup including page cache, zero swap, 100 GiB gp3. GNU time wall seconds and peak process RSS.",
+    "kernel": "7.0.0-1018-aws",
+    "command": "dive check SlateDBWAL.tla --config SlateDBWAL.cfg --library-path MODULES --compat=tlc --seed 0 --fp 0 --workers N --max-states 5000000 --max-memory 40g --time-limit 240s --output json",
+    "binary_and_inputs": "Same pinned Dive binary, module, CFG and CommunityModules as the reference rows above.",
+    "storage_flags": {
+      "ram": [],
+      "disk": [
+        "--predecessor-memory-bytes",
+        "0",
+        "--predecessor-directory",
+        "scratch"
+      ],
+      "frontier": [
+        "--frontier-memory-bytes",
+        "0",
+        "--frontier-directory",
+        "scratch"
+      ]
+    },
+    "rows": [
+      {
+        "cell": "8-ram-1",
+        "wall_seconds": 20.61,
+        "peak_rss_kib": 739744,
+        "rc": 5,
+        "verdict": "stopped",
+        "workers_used": 8,
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "stop_reason": "states",
+        "frontier_bytes_written": 0,
+        "predecessor_bytes_written": null,
+        "store_bytes_lower_bound": 2068016,
+        "cpu_affinity": "0,1,2,3,4,5,6,7",
+        "core_metrics": {
+          "probed": 16458236,
+          "discarded_before_intern": 9652923,
+          "expand_ms": 15137.595576000002,
+          "commit_ms": 0.0,
+          "explore_ms": 20581.704375,
+          "arena_peak": {
+            "handles": 990,
+            "nodes": 179
+          }
+        },
+        "collision": null
+      },
+      {
+        "cell": "32-ram-1",
+        "wall_seconds": 10.81,
+        "peak_rss_kib": 1208208,
+        "rc": 5,
+        "verdict": "stopped",
+        "workers_used": 32,
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "stop_reason": "states",
+        "frontier_bytes_written": 0,
+        "predecessor_bytes_written": null,
+        "store_bytes_lower_bound": 2068016,
+        "cpu_affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31",
+        "core_metrics": {
+          "probed": 16458236,
+          "discarded_before_intern": 9114762,
+          "expand_ms": 6083.829718999999,
+          "commit_ms": 0.0,
+          "explore_ms": 10778.031291,
+          "arena_peak": {
+            "handles": 1049,
+            "nodes": 188
+          }
+        },
+        "collision": null
+      },
+      {
+        "cell": "8-disk-1",
+        "wall_seconds": 25.19,
+        "peak_rss_kib": 724368,
+        "rc": 5,
+        "verdict": "stopped",
+        "workers_used": 8,
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "stop_reason": "states",
+        "frontier_bytes_written": 0,
+        "predecessor_bytes_written": 80000024,
+        "store_bytes_lower_bound": 2068016,
+        "cpu_affinity": "0,1,2,3,4,5,6,7",
+        "core_metrics": {
+          "probed": 16458236,
+          "discarded_before_intern": 9656173,
+          "expand_ms": 15800.150669,
+          "commit_ms": 0.0,
+          "explore_ms": 25163.898497000002,
+          "arena_peak": {
+            "handles": 1096,
+            "nodes": 197
+          }
+        },
+        "collision": null
+      },
+      {
+        "cell": "8-disk-2",
+        "wall_seconds": 25.17,
+        "peak_rss_kib": 710644,
+        "rc": 5,
+        "verdict": "stopped",
+        "workers_used": 8,
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "stop_reason": "states",
+        "frontier_bytes_written": 0,
+        "predecessor_bytes_written": 80000024,
+        "store_bytes_lower_bound": 2068016,
+        "cpu_affinity": "0,1,2,3,4,5,6,7",
+        "core_metrics": {
+          "probed": 16458236,
+          "discarded_before_intern": 9656371,
+          "expand_ms": 15811.031465999999,
+          "commit_ms": 0.0,
+          "explore_ms": 25141.084861,
+          "arena_peak": {
+            "handles": 1023,
+            "nodes": 180
+          }
+        },
+        "collision": null
+      },
+      {
+        "cell": "32-ram-2",
+        "wall_seconds": 11.0,
+        "peak_rss_kib": 1215360,
+        "rc": 5,
+        "verdict": "stopped",
+        "workers_used": 32,
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "stop_reason": "states",
+        "frontier_bytes_written": 0,
+        "predecessor_bytes_written": null,
+        "store_bytes_lower_bound": 2071344,
+        "cpu_affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31",
+        "core_metrics": {
+          "probed": 16458236,
+          "discarded_before_intern": 9115745,
+          "expand_ms": 6390.6418,
+          "commit_ms": 0.0,
+          "explore_ms": 10967.467777,
+          "arena_peak": {
+            "handles": 1119,
+            "nodes": 196
+          }
+        },
+        "collision": null
+      },
+      {
+        "cell": "8-ram-2",
+        "wall_seconds": 20.82,
+        "peak_rss_kib": 722668,
+        "rc": 5,
+        "verdict": "stopped",
+        "workers_used": 8,
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "stop_reason": "states",
+        "frontier_bytes_written": 0,
+        "predecessor_bytes_written": null,
+        "store_bytes_lower_bound": 2068016,
+        "cpu_affinity": "0,1,2,3,4,5,6,7",
+        "core_metrics": {
+          "probed": 16458236,
+          "discarded_before_intern": 9653662,
+          "expand_ms": 15404.348016,
+          "commit_ms": 0.0,
+          "explore_ms": 20793.980095,
+          "arena_peak": {
+            "handles": 1096,
+            "nodes": 197
+          }
+        },
+        "collision": null
+      },
+      {
+        "cell": "8-frontier-1",
+        "wall_seconds": 63.42,
+        "peak_rss_kib": 357032,
+        "rc": 5,
+        "verdict": "stopped",
+        "workers_used": 8,
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "stop_reason": "states",
+        "frontier_bytes_written": 1840000656,
+        "predecessor_bytes_written": null,
+        "store_bytes_lower_bound": 2068016,
+        "cpu_affinity": "0,1,2,3,4,5,6,7",
+        "core_metrics": {
+          "probed": 16458236,
+          "discarded_before_intern": 9652279,
+          "expand_ms": 16329.660433000001,
+          "commit_ms": 10839.873836,
+          "explore_ms": 63401.137843000004,
+          "arena_peak": {
+            "handles": 1096,
+            "nodes": 197
+          }
+        },
+        "collision": null
+      },
+      {
+        "cell": "8-frontier-2",
+        "wall_seconds": 62.77,
+        "peak_rss_kib": 353664,
+        "rc": 5,
+        "verdict": "stopped",
+        "workers_used": 8,
+        "statistics": {
+          "depth": 41,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 16458236,
+          "initial_generated": 1,
+          "left_on_queue": 1043043,
+          "reported_by_tlc": false
+        },
+        "stop_reason": "states",
+        "frontier_bytes_written": 1840000656,
+        "predecessor_bytes_written": null,
+        "store_bytes_lower_bound": 2068016,
+        "cpu_affinity": "0,1,2,3,4,5,6,7",
+        "core_metrics": {
+          "probed": 16458236,
+          "discarded_before_intern": 9653784,
+          "expand_ms": 15761.208032,
+          "commit_ms": 11349.1857,
+          "explore_ms": 62743.83702,
+          "arena_peak": {
+            "handles": 1096,
+            "nodes": 197
+          }
+        },
+        "collision": null
+      }
+    ],
+    "single_value": {
+      "cfg_edit": "Replace Values = {v1, v2} with Values = {v1} on the Values assignment line of the published config. Preserve other bytes.",
+      "cfg_sha256": "a38c2cd3b7711bfc8dfdec7c0d1900266a66e7ede85cff1ad4c34b5eeb9f6094",
+      "method": "Same runner, 32 physical cores and resident storage. Remove the discovery cap and set --time-limit 480s, starting with --fp 0. A successful check is repeated with --fp 1.",
+      "rows": [
+        {
+          "cell": "one-value-0",
+          "wall_seconds": 480.08,
+          "peak_rss_kib": 8181136,
+          "rc": 5,
+          "verdict": "stopped",
+          "workers_used": 32,
+          "statistics": {
+            "depth": 88,
+            "distinct": 208042815,
+            "exhaustive": false,
+            "generated": 901441896,
+            "initial_generated": 1,
+            "left_on_queue": 4089873,
+            "reported_by_tlc": false
+          },
+          "stop_reason": "time",
+          "frontier_bytes_written": 0,
+          "predecessor_bytes_written": null,
+          "store_bytes_lower_bound": 4873562,
+          "cpu_affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31",
+          "core_metrics": {
+            "probed": 901441896,
+            "discarded_before_intern": 562842621,
+            "expand_ms": 279721.98408100003,
+            "commit_ms": 0.0,
+            "explore_ms": 480019.467456,
+            "arena_peak": {
+              "handles": 876,
+              "nodes": 153
+            }
+          },
+          "collision": null
+        }
+      ]
+    },
+    "structural_size_estimate": {
+      "assumed_distinct": 49000000000,
+      "assumptions": "Uniform fingerprint distribution across 256 shards, a 64-bit host, and the packed parent representation. Capacity calculation, not measured process RSS or proof of a completed run. Disk parent figure excludes the file header.",
+      "fingerprint_slots_per_shard": 268435456,
+      "fingerprint_slot_bytes_total": 549755813888,
+      "resident_parent_payload_lower_bound_bytes": 61250000000,
+      "disk_parent_record_bytes_total": 784000000000,
+      "resident_queue_payload_bytes_per_row": 160,
+      "existing_disk_seen_entry_limit": 4294967295
+    }
   }
 }
