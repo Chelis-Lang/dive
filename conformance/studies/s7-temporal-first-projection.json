@@ -90,5 +90,55 @@
       "edited_binding_and_qualified_relation_us": 2250,
       "read_receipt_bind_both_process_us": 7001
     }
-  ]
+  ],
+  "main_acceptance": {
+    "source": "61c654f608093abbe8df388d2d2aa3b112bfb853",
+    "reproduce": "scripts/bench-project-first-temporal.py",
+    "scope": "Three trials on the merged implementation in its exclusive release-build directory using the same frozen S7 model. Each trial qualifies the actual previous ordinary report and compares against fresh checking.",
+    "statistics": {
+      "generated": 21400,
+      "distinct": 4408,
+      "depth": 10,
+      "initial_generated": 8,
+      "left_on_queue": 0
+    },
+    "ordinary_previous_process_us": 115874,
+    "previous_atoms": {
+      "total_atoms": 20,
+      "eligible_atoms": 20,
+      "evaluated": 198880,
+      "fallback": 0,
+      "audit": false
+    },
+    "edited_atoms": {
+      "total_atoms": 8,
+      "eligible_atoms": 8,
+      "evaluated": 78048,
+      "fallback": 0,
+      "audit": false
+    },
+    "samples": [
+      {
+        "edited_fresh_us": 61513,
+        "edited_fresh_process_us": 62958,
+        "previous_binding_us": 3344,
+        "edited_binding_and_qualified_relation_us": 2602,
+        "read_receipt_bind_both_process_us": 7295
+      },
+      {
+        "previous_binding_us": 3052,
+        "edited_binding_and_qualified_relation_us": 2321,
+        "read_receipt_bind_both_process_us": 6481,
+        "edited_fresh_us": 64953,
+        "edited_fresh_process_us": 66252
+      },
+      {
+        "edited_fresh_us": 66393,
+        "edited_fresh_process_us": 67830,
+        "previous_binding_us": 3189,
+        "edited_binding_and_qualified_relation_us": 2268,
+        "read_receipt_bind_both_process_us": 6760
+      }
+    ]
+  }
 }

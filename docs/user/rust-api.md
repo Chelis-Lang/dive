@@ -95,8 +95,7 @@ cargo run -p dive-api --release --example recheck_invariants -- \
   before/Model.tla before/Model.cfg after/Model.tla after/Model.cfg
 ```
 
-For measurements and the reproduction command see [edited-invariant
-benchmarks](../developer/performance.md#edited-invariants).
+For measurements and the reproduction command see [edited-invariant benchmarks](../developer/performance.md#edited-invariants).
 
 ## Recheck temporal properties
 
