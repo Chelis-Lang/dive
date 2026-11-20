@@ -255,17 +255,15 @@ fn specification_role_scope_and_non_scalar_rows() {
     assert!(aggregate.capture(l).is_err());
 }
 
-#[test]
-fn adjacent_override_and_transitive_file_edit_never_reuse_old_rows() {
-    use std::{fs, path::PathBuf};
-
-    struct Files(PathBuf);
-    impl Drop for Files {
-        fn drop(&mut self) {
-            let _ = fs::remove_dir_all(&self.0);
-        }
+use std::{fs, path::PathBuf};
+struct Files(PathBuf);
+impl Drop for Files {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(&self.0);
     }
-    let files = (0u32..)
+}
+fn scratch_files() -> Files {
+    (0u32..)
         .find_map(|i| {
             let p =
                 std::env::temp_dir().join(format!("dive-edit-inputs-{}-{i}", std::process::id()));
@@ -275,7 +273,11 @@ fn adjacent_override_and_transitive_file_edit_never_reuse_old_rows() {
                 Err(e) => panic!("temporary model directory: {e}"),
             }
         })
-        .expect("temporary directory");
+        .expect("temporary directory")
+}
+#[test]
+fn adjacent_override_and_transitive_file_edit_never_reuse_old_rows() {
+    let files = scratch_files();
     let config = files.0.join("Test.cfg");
     let spec = files.0.join("Test.tla");
     let bits = files.0.join("Bits.tla");
@@ -311,4 +313,45 @@ fn adjacent_override_and_transitive_file_edit_never_reuse_old_rows() {
     let fresh = crate::check_file(&req).expect("fresh check").to_json();
     assert_eq!(fresh["verdict"], "invariant-violation");
     assert_eq!(fresh["statistics"]["generated"], 2);
+}
+
+#[test]
+fn synthetic_tlc_module_changes_initial_state_before_search_and_must_miss() {
+    let files = scratch_files();
+    let root = files.0.join("A.tla");
+    let cfg = files.0.join("A.cfg");
+    fs::write(&cfg, "INIT Init\nNEXT Next\nINVARIANT Q P\n").expect("cfg");
+    fs::write(
+        files.0.join("TLC.tla"),
+        "---- MODULE TLC ----\nRandomElement(S) == 999\n====\n",
+    )
+    .expect("synthetic module");
+    for (q, verdict) in [
+        ("TRUE", "success"),
+        ("RandomElement(0..1) \\in 0..1", "invariant-violation"),
+    ] {
+        fs::write(&root,format!("---- MODULE A ----\nEXTENDS Naturals,TLC\nVARIABLE x\nQ == {q}\nDraw == RandomElement(0..1)\nInit == x=Draw\nNext == UNCHANGED x\nP == x=1\n====\n")).expect("source");
+        assert!(
+            matches!(Program::load(&root,&cfg),Err(Miss(reason)) if reason.contains("shadows"))
+        );
+        let request = crate::CheckRequest {
+            file: root.clone(),
+            config: Some(cfg.clone()),
+            store: crate::Store::Exact,
+            workers: Some(1),
+            seed: Some(0),
+            fp: Some(0),
+            ..Default::default()
+        };
+        let fresh = crate::check_file(&request).expect("fresh");
+        assert_eq!(fresh.verdict(), verdict);
+        if verdict == "invariant-violation" {
+            let json = fresh.to_json();
+            assert_eq!(json["property"], "P");
+            assert_eq!(
+                json["counterexample"]["trace"]["states"][0]["values"]["x"],
+                0
+            );
+        }
+    }
 }

@@ -919,6 +919,62 @@ impl Startup {
     }
 }
 
+/// Ordinary file checks honor the process-level strategy override. Reuse
+/// receipts in this API carry only the unmodified compiled default policy.
+pub(crate) fn edit_policy() -> Result<(), &'static str> {
+    if std::env::var_os("DIVE_CORE_OPT").is_some() {
+        return Err("DIVE_CORE_OPT overrides the fixed reuse policy");
+    }
+    Ok(())
+}
+
+/// Whole-source admission before binding can evaluate a constant or assumption.
+/// A file module with a standard module's name can activate native overrides
+/// even when its literal TLA+ body appears pure.
+pub(crate) fn edit_input_refusal(
+    ir: &Arc<Ir>,
+    cfg: &dive_config::ModelConfig,
+) -> Option<&'static str> {
+    use dive_ir::{Effects, OpRef, StdOp, std_op::Phase};
+    fn outside(op: StdOp) -> bool {
+        op.impure()
+            || !matches!(
+                op.module(),
+                "Naturals" | "Integers" | "FiniteSets" | "Sequences"
+            )
+    }
+    if let Err(reason) = edit_policy() {
+        return Some(reason);
+    }
+    if ir.modules().iter().any(|m| {
+        !m.standard
+            && StdOp::ALL
+                .iter()
+                .any(|op| op.module() == m.name && op.phase() != Phase::Native)
+    }) {
+        return Some("source module shadows a native standard module");
+    }
+    if ir
+        .defs()
+        .iter()
+        .any(|d| d.effects.contains(Effects::IMPURE) || d.std.is_some_and(outside))
+        || ir.nodes().iter().any(|n| {
+            n.effects.contains(Effects::IMPURE)
+                || n.expr
+                    .op_refs()
+                    .into_iter()
+                    .any(|op| matches!(op,OpRef::Std(s) if outside(*s)))
+        })
+    {
+        return Some("source includes an impure or unadmitted native operation");
+    }
+    let recipe =
+        dive_model::Recipe::new(ir.clone(), cfg.clone(), dive_eval::Options::dive(), false);
+    recipe
+        .has_randomness()
+        .then_some("source or configuration may invoke randomness")
+}
+
 /// The safety result of a core search, as a `dive_runtime::CheckResult`.
 #[allow(
     clippy::too_many_lines,

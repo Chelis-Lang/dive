@@ -121,6 +121,9 @@ impl Program {
         let analysis = analysis.analysis();
         let identity = Identity::new(analysis, cfg)?;
         let ir = Arc::new(dive_ir::lower(analysis).map_err(|e| miss(format!("lowering: {e:?}")))?);
+        if let Some(reason) = core_engine::edit_input_refusal(&ir, cfg) {
+            return Err(miss(reason));
+        }
         if !dive_model::local_java_class_digests(&ir)
             .map_err(miss)?
             .is_empty()
@@ -164,6 +167,7 @@ impl Program {
     /// Unsupported row types, exhausted limits, evaluator failure, a deadlock,
     /// or any ending other than complete success or a certified invariant violation.
     pub fn capture(&self, limits: Limits) -> Result<(Artifact, Decision), Miss> {
+        core_engine::edit_policy().map_err(miss)?;
         let prepared = &self.prepared;
         let mut rows = Rows::new(prepared.plan.vars.len(), limits.max_rows);
         let out = dive_explore::explore_with_storage(
@@ -325,6 +329,7 @@ impl Artifact {
     /// A changed transition input or limit, an evaluation/validation failure,
     /// or exhausting a prior prefix without reaching a new violation.
     pub fn recheck(&self, program: &Program, limits: Limits) -> Result<Decision, Miss> {
+        core_engine::edit_policy().map_err(miss)?;
         if self.limits != limits || !self.identity.compatible(&program.identity) {
             return Err(miss("transition inputs or limits changed"));
         }

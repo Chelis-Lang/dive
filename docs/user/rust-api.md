@@ -78,7 +78,10 @@ module sources and their origin and resolution relative to the root. It can
 change the list/order of configured invariants, or the body of an isolated
 zero-argument invariant whose identifier occurs only in its own declaration.
 Other edits, constraints, overrides, symmetry, views, unsupported module
-origins and temporal checks produce a miss. The artifact expires with the
+origins and temporal checks produce a miss. Admission runs before binding
+can evaluate an assumption or constant. A file shadowing a native standard
+module, an impure native operation or an explicit `DIVE_CORE_OPT` override
+also misses. The artifact expires with the
 process.
 
 On a miss, capture the current model afresh or use `check_file` to obtain its
