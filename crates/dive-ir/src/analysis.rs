@@ -156,6 +156,20 @@ fn std_effects(op: StdOp, key: Option<&Expr>) -> Effects {
 
 /// Computes node and definition effects to a fixed point.
 pub(crate) fn compute_effects(ir: &mut Ir) {
+    let (node_eff, def_eff) = effect_tables(ir, |_| false);
+    for (n, e) in ir.exprs.iter_mut().zip(node_eff) {
+        n.effects = e;
+    }
+    for (d, e) in ir.defs.iter_mut().zip(def_eff) {
+        d.effects = e;
+    }
+}
+
+/// As in lowering, with the effects of references to configured scalar definitions removed.
+pub(crate) fn effect_tables(
+    ir: &Ir,
+    fixed: impl Fn(usize) -> bool,
+) -> (Vec<Effects>, Vec<Effects>) {
     let locals = local_kinds(ir);
     let mut def_eff = vec![Effects::NONE; ir.defs.len()];
     for (i, d) in ir.defs.iter().enumerate() {
@@ -204,7 +218,7 @@ pub(crate) fn compute_effects(ir: &mut Ir) {
         }
         let mut changed = false;
         for (i, d) in ir.defs.iter().enumerate() {
-            if d.std.is_some() {
+            if d.std.is_some() || fixed(i) {
                 continue;
             }
             let e = node_eff
@@ -223,12 +237,7 @@ pub(crate) fn compute_effects(ir: &mut Ir) {
             break;
         }
     }
-    for (n, e) in ir.exprs.iter_mut().zip(node_eff) {
-        n.effects = e;
-    }
-    for (d, e) in ir.defs.iter_mut().zip(def_eff) {
-        d.effects = e;
-    }
+    (node_eff, def_eff)
 }
 
 fn opref_effects(ir: &Ir, r: &OpRef, def_eff: &[Effects], escape: Effects) -> Effects {

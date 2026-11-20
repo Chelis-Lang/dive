@@ -373,3 +373,81 @@ fn recorded_inputs_do_not_authorize_unproved_next_register_prefixes() {
         );
     }
 }
+
+#[test]
+fn scalar_override_closes_instance_input_but_leaves_live_environment_reads_refused() {
+    let fixture = Fixture::new();
+    let source = fixture.file("Host.tla");
+    let cfg = fixture.file("Host.cfg");
+    std::fs::write(
+        fixture.file("Machine.tla"),
+        r"---- MODULE Machine ----
+CONSTANT Mode
+VARIABLE x
+Init == x = Mode
+Next == x' = x
+Hold == []<>(x = Mode)
+Absent == <>(x # Mode)
+====",
+    )
+    .expect("instance");
+    std::fs::write(
+        &source,
+        r#"---- MODULE Host ----
+EXTENDS IOUtils
+VARIABLE x
+Input == IF "GRAPH" \in DOMAIN IOEnv THEN IOEnv.GRAPH ELSE "missing"
+INSTANCE Machine WITH Mode <- Input
+Other == IF "ANOTHER" \in DOMAIN IOEnv THEN IOEnv.ANOTHER ELSE "empty"
+MatchesOther == x = Other
+===="#,
+    )
+    .expect("source");
+    for (property, binding, expected) in [
+        ("Hold", "CONSTANT Input = \"fixed\"", "success"),
+        ("Absent", "CONSTANT Input = \"fixed\"", "liveness-violation"),
+        ("Hold", "", "unsupported"),
+        (
+            "Hold",
+            "CONSTANT Input = \"fixed\"\nINVARIANT MatchesOther",
+            "unsupported",
+        ),
+    ] {
+        std::fs::write(
+            &cfg,
+            format!("INIT Init\nNEXT Next\nPROPERTY {property}\n{binding}\n"),
+        )
+        .expect("cfg");
+        let request = CheckRequest {
+            file: source.clone(),
+            config: Some(cfg.clone()),
+            library_paths: vec![modules()],
+            seed: Some(0),
+            fp: Some(0),
+            ..CheckRequest::default()
+        };
+        let report = check_file(&request).expect("check").to_json();
+        assert_eq!(report["verdict"], expected, "{report}");
+        if expected == "unsupported" {
+            assert!(
+                report["message"]
+                    .as_str()
+                    .is_some_and(|m| m.contains("IOEnv"))
+            );
+        } else if expected == "liveness-violation" {
+            let model = SpecModel::load(
+                &source,
+                &cfg,
+                &TraceOptions {
+                    library_paths: vec![modules()],
+                    run: Some((0, 0)),
+                    ..Default::default()
+                },
+            )
+            .expect("independent model");
+            let trace =
+                TraceDoc::parse(&report["counterexample"]["trace"].to_string()).expect("trace");
+            assert_eq!(model.validate(&trace).validation, Validation::Valid);
+        }
+    }
+}

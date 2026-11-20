@@ -1,0 +1,66 @@
+{
+  "scope": "Selector comes from a scalar CFG assignment. Original modules and temporal properties. Six graph configurations with final independent TLC counts; no claim of a golden for the original ambient-input row.",
+  "source": "tlaplus/Examples at 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/TLC",
+  "sha256": {
+    "TestMCReachability.tla": "cf5d2ec158de5f0c3253ff62f22b569ffa867612aa6c1d473d04bab4ca32b81e",
+    "TestMCReachability.cfg": "09dc41a1d6208c3161b61e57b3c07ad49df2a319b6a5c92f0a3b034037ea4e16",
+    "StateGraphs.tla": "cb23d28e09f6053d413df0acc37ebb91f7315be8bc833d8a36f954f9a4b5a1bb",
+    "MCReachability.tla": "b2fa7632b3b92cc29fb60760ea1a3078d7a9dabd2a4eaf3baca2641096e05bf2"
+  },
+  "settings": "Both Core profiles, one worker, fp 0, seed 0. Independent pinned TLC on the same CFG in an isolated environment with GRAPH=7. Oracle tlc-2026.10.06.014338 with pinned CommunityModules/deps overrides. No host grant to Core.",
+  "reproduce": "Copy TestMCReachability.cfg, append CONSTANT GraphName = \"1\" (or the chosen graph), and run the original TestMCReachability.tla with that configuration. See docs/user/checking.md.",
+  "rows": [
+    {
+      "graph": "1",
+      "cfg_sha256": "b41b21835dd4886ad467aa14aeaf0fd0502d5b5ee3593a19ae6ed3602625a339",
+      "verdict": "success",
+      "depth": 9,
+      "generated": 21,
+      "distinct": 15
+    },
+    {
+      "graph": "1a",
+      "cfg_sha256": "1c2e8793ae9b922891c635ea97a217e02b7d0c84dc8cfb3e4adc5851aa28a934",
+      "verdict": "deadlock",
+      "depth": 5,
+      "generated": 5,
+      "distinct": 5,
+      "independent_cli_trace_validation": {
+        "dive": "valid",
+        "tlc": "valid"
+      }
+    },
+    {
+      "graph": "2",
+      "cfg_sha256": "1c17333c4f43b499207e0b156f8769650ca2357800cf9e574c86c94bc60ea789",
+      "verdict": "success",
+      "depth": 6,
+      "generated": 14,
+      "distinct": 10
+    },
+    {
+      "graph": "3",
+      "cfg_sha256": "332a461f4170cb216ac47a5b4aa9364528f8b1a3145c36bc3a83426848199381",
+      "verdict": "success",
+      "depth": 10,
+      "generated": 13,
+      "distinct": 10
+    },
+    {
+      "graph": "4",
+      "cfg_sha256": "4fa1fa64a94faeadec670a9491f5cbcc84978a2d7bfabb3abface8ad90e3ee5d",
+      "verdict": "success",
+      "depth": 20,
+      "generated": 310,
+      "distinct": 187
+    },
+    {
+      "graph": "8",
+      "cfg_sha256": "a57a2cec4dbef525154dc39bdbfa4db4badc3293e0ae4c3fb12177d786881521",
+      "verdict": "success",
+      "depth": 12,
+      "generated": 16,
+      "distinct": 12
+    }
+  ]
+}

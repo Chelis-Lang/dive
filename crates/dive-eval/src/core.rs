@@ -71,6 +71,7 @@ pub(crate) struct Core {
     pub(crate) consts: Vec<Option<ConstBinding>>,
     pub(crate) redirects: HashMap<DefId, DefId>,
     pub(crate) def_values: HashMap<DefId, Value>,
+    pub(crate) configured_effects: OnceLock<Option<Vec<dive_ir::Effects>>>,
     /// Configuration overrides of definitions TLC implements in Java
     /// (`Nat <- NatOverride`): the override replaces the Java method.
     pub(crate) std_redirects: HashMap<dive_ir::StdOp, DefId>,
@@ -253,6 +254,7 @@ impl Core {
             warned: Mutex::default(),
             startup,
             startup_eager,
+            configured_effects: OnceLock::new(),
             sink,
             printed: std::sync::atomic::AtomicBool::new(false),
             startup_names: std::sync::atomic::AtomicUsize::new(0),

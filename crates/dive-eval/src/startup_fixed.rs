@@ -109,6 +109,53 @@ impl Evaluator {
             })
     }
 
+    /// Project known plain scalar assignments through INSTANCE and operator
+    /// arguments with the same effect propagation as source lowering. Configured
+    /// redirects can introduce effects absent from the source inventory.
+    pub(crate) fn configured_effects(&self) -> Option<&[Effects]> {
+        self.core
+            .configured_effects
+            .get_or_init(|| {
+                let ir = self.ir();
+                let mut fixed = std::collections::BTreeSet::new();
+                for (&id, value) in &self.core.def_values {
+                    let def = ir.defs().get(id.index())?;
+                    if matches!(value, Value::Str(_) | Value::Bool(_) | Value::Int(_))
+                        && def.std.is_none()
+                        && def.params.is_empty()
+                        && def.effects.intersects(Effects::IMPURE)
+                        && self.redirected(id) == id
+                        && !self.redirect_target(id)
+                    {
+                        fixed.insert(id);
+                    }
+                }
+                if fixed.is_empty() || self.impure_redirect() {
+                    return None;
+                }
+                Some(ir.effects_with_fixed_definitions(&fixed))
+            })
+            .as_deref()
+    }
+
+    /// Whether the source expression is marked impure after accounting for
+    /// plain scalar configuration assignments. Use the evaluator's separate
+    /// scope and callable checks for dynamically supplied arguments.
+    ///
+    /// ```
+    /// # fn example(ev: &dive_eval::Evaluator, e: dive_ir::ExprId, scope: &dive_eval::Scope) {
+    /// let may_run_effect = ev.source_may_have_effects(e) || ev.scope_shares_side_effects(scope);
+    /// # let _ = may_run_effect;
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn source_may_have_effects(&self, expr: ExprId) -> bool {
+        self.configured_effects()
+            .and_then(|es| es.get(expr.index()).copied())
+            .or_else(|| self.ir().nodes().get(expr.index()).map(|n| n.effects))
+            .is_none_or(|flags| flags.intersects(Effects::IMPURE))
+    }
+
     /// Whether evaluating `expr` while checking can have a side effect
     /// (output, registers, randomness, time, I/O or checker state): its
     /// IR [`Effects::IMPURE`] flag, except that a definition
@@ -139,7 +186,7 @@ impl Evaluator {
                     .get(e.index())
                     .is_none_or(|n| n.effects.intersects(Effects::IMPURE))
         };
-        if !impure(expr) {
+        if trust && !self.source_may_have_effects(expr) {
             return false;
         }
         let mut seen_defs = vec![false; ir.defs().len()];

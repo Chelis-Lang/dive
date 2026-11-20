@@ -7,6 +7,7 @@ are in git history.
 
 ### Added
 
+- Scalar CFG assignments can close input-dependent definitions used through a module instance. See [model input selection](docs/user/checking.md#select-a-closed-model-input-in-the-cfg).
 - Core supports inclusive subsequence predicate searches and folds multikey
   bags in canonical key order. See [bag fold order](docs/tlc-differences.md#d-030-bag-fold-order).
 

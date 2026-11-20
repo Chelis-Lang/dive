@@ -71,7 +71,11 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
     // Java overrides dive does not implement, reachable from what is checked.
     let mut refused: BTreeSet<String> = BTreeSet::new();
     for r in ir.refusals() {
-        if reach.get(r.def.index()).copied().unwrap_or(false) {
+        // A configured literal replaces the entire definition. No request in
+        // its former body executes. Redirect targets keep their own rules.
+        if reach.get(r.def.index()).copied().unwrap_or(false)
+            && !(b.ev().is_value_override(r.def) && b.ev().startup_fixed(r.def))
+        {
             if let dive_ir::Feature::StdOp(op) = &r.feature
                 && matches!(op, StdOp::IoUtilsIOEnv | StdOp::IoUtilsDeserialize)
                 && b.ev().options().host_access.allows(*op)

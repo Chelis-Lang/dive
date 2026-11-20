@@ -292,7 +292,8 @@ impl Evaluator {
     /// evaluation, so a parallel checker must not reorder those evaluations.
     #[must_use]
     pub fn scope_shares_side_effects(&self, scope: &Scope) -> bool {
-        self.validate_scope(scope).is_err() || env::shares_side_effects(&self.core.ir, &scope.env)
+        self.validate_scope(scope).is_err()
+            || env::shares_side_effects(&self.core.ir, &scope.env, self.configured_effects())
     }
 
     /// Whether retained lazy expressions or actual captured operators may print,

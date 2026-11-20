@@ -442,6 +442,25 @@ impl Ir {
         false
     }
 
+    /// Recompute expression effects for a binding with known scalar definitions.
+    /// The caller supplies non-native definitions whose values replace
+    /// their original bodies for every use. A direct inspection of the replaced
+    /// body still reports its original primitive operations.
+    ///
+    /// ```
+    /// # fn example(ir: &dive_ir::Ir, fixed: dive_ir::DefId) {
+    /// let flags = ir.effects_with_fixed_definitions(&[fixed].into());
+    /// assert_eq!(flags.len(), ir.nodes().len());
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn effects_with_fixed_definitions(
+        &self,
+        fixed: &std::collections::BTreeSet<DefId>,
+    ) -> Vec<Effects> {
+        analysis::effect_tables(self, |i| fixed.contains(&DefId::from_index(i))).0
+    }
+
     /// Every expression node.
     #[must_use]
     pub fn nodes(&self) -> &[Node] {
