@@ -1141,10 +1141,10 @@ impl Explorer<'_> {
             blocks
                 .try_reserve(1)
                 .map_err(|_| Error::internal("resident frontier block index"))?;
-            blocks.push(dive_core::packed_rows::Block::encode(
-                &self.next,
-                self.plan.vars.len(),
-            )?);
+            blocks.push(
+                dive_core::packed_rows::Block::encode(&self.next, self.plan.vars.len())
+                    .map_err(dive_core::packed_rows::BlockError::exploration_error)?,
+            );
             self.next.clear();
         }
         Ok(())

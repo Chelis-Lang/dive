@@ -21,7 +21,9 @@ pub(super) fn read(
     while pos < rows.end.min(sealed) {
         let first = pos % ROWS;
         let count = (ROWS - first).min(rows.end - pos);
-        blocks[pos / ROWS].append(first, first + count, output)?;
+        blocks[pos / ROWS]
+            .append(first, first + count, output)
+            .map_err(dive_core::packed_rows::BlockError::exploration_error)?;
         pos += count;
     }
     if pos < rows.end {

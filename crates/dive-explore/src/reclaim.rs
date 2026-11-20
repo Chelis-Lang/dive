@@ -41,7 +41,7 @@ fn block_error(error: dive_core::packed_rows::BlockError) -> Error {
         dive_core::packed_rows::BlockError::Allocation => {
             Error::internal("DIVE-S0203: resident frontier block allocation")
         }
-        other => other.into(),
+        other => other.exploration_error(),
     }
 }
 

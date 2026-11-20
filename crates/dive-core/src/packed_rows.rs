@@ -10,9 +10,11 @@ pub enum BlockError {
     Layout,
 }
 
-impl From<BlockError> for Error {
-    fn from(error: BlockError) -> Self {
-        Self::internal(match error {
+impl BlockError {
+    /// Reports a failure while admitting or reading rows during ordinary search.
+    #[must_use]
+    pub fn exploration_error(self) -> Error {
+        Error::internal(match self {
             BlockError::Allocation => "resident frontier block allocation",
             BlockError::Layout => "invalid resident frontier block layout",
         })
@@ -153,7 +155,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn packed_and_raw_blocks_restore_every_bit_in_subrange_order() -> Result<(), Error> {
+    fn packed_and_raw_blocks_restore_every_bit_in_subrange_order() -> Result<(), BlockError> {
         for raw in [false, true] {
             let base = 0x9abc_3210_7654_fedc;
             let masks = if raw {
