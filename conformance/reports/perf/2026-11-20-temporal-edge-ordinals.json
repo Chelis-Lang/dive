@@ -564,6 +564,47 @@
           "unit": "bytes"
         }
       }
-    ]
+    ],
+    "c1cs_20_gib": {
+      "method": "Final action-ID binary, isolated c7i.4xlarge, 8 physical cores, external 27 GiB cgroup and zero swap. Same sampled --max-memory 20g as prior capacity rows; --time-limit 2200s. One process. Compare to the earlier narrow-ordinal 20 GiB capacity trial above.",
+      "hashes": {
+        "graph-final": "fa619d750c1578f025f35d2f4dd0d54893ca069aa8c4785e86fc831773ca2184",
+        "c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233",
+        "c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0"
+      },
+      "collector": {
+        "accounting_complete": false,
+        "buffer_bytes": 15300823148,
+        "capture_key_capacity": 58720256,
+        "capture_key_entries": 38066281,
+        "fixed_bytes": 352,
+        "growth_overlap_upper_bound_bytes": 16643000428,
+        "key_index_retained_after_capture": false,
+        "scope": "native collector buffers and action-label capacities; reserve overlap is an upper bound, not observed RSS; capture key index released before final analysis; opaque hash/allocator/Arc storage, Store, explorer frontiers/waves and transient conversion/analysis storage require separate accounting; no capacity or peak-memory claim"
+      },
+      "sample": {
+        "trial": "c1cs",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "statistics": {
+          "depth": 18,
+          "distinct": 38066281,
+          "exhaustive": false,
+          "generated": 863440173,
+          "initial_generated": 16,
+          "left_on_queue": 22309692,
+          "reported_by_tlc": false
+        },
+        "seconds": 1378.11,
+        "peak_rss_kib": 20994412,
+        "stop": {
+          "limit": 21474836480,
+          "observed": 21498486784,
+          "phase": "graph-capture",
+          "resource": "memory",
+          "unit": "bytes"
+        }
+      }
+    }
   }
 }

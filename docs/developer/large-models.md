@@ -277,6 +277,8 @@ Core retains one action ID per edge so it can distinguish named transitions duri
 
 Both binaries already used narrow successor ordinals. The two rotations per binary agreed on every search counter within each model. Under the same 2 GiB sampled process limit, c1cs reached 2,644,879 distinct and 56,343,707 generated before, and 3,130,942 distinct and 65,470,460 generated after. Both stopped with a nonempty queue. The configuration with more transitions per state sees the bigger gain because each retained edge saves seven bytes. [Individual readings, terminal statistics, machine and hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+At the 20 GiB sampled limit, the final action-label binary reached **38,066,281 distinct states** on c1cs. It generated 863,440,173 states and stopped at depth 18 with 22,309,692 queued. The earlier narrow-ordinal binary reached 23,794,977 distinct on the same instance type and core count. This 60% capacity gain still leaves the published model open. [20 GiB commands, full stop details and memory accounting](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json).
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same
@@ -337,6 +339,8 @@ Each ordinary resident level also has consecutive predecessor IDs in admission o
 | MC_HDiskSynod, 3,000,000 distinct | 202 / 180 | 44.99 / 44.87 |
 
 Both builds used the same compressed frontier rows and reached identical search counters. The predecessor log still retains the parent and successor ordinal used to regenerate a concrete trace. Checkpoint recovery retains explicit IDs. [All 12 measurements](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
+
+At a **6 GiB sampled process budget**, the packed queue raised BPConProof's memory stop from 25,089,035 to 33,560,338 distinct states (34%) and TLCSailfish2's from 13,991,908 to 14,414,379 (3%). DiskSynod stopped on memory at 100,884,308 before packing. After packing it reached 124,170,333 when the 1,500 s budget expired, at 4.55 GiB peak RSS. SlateDBWAL stopped on memory at 94,702,286 before packing and reached the experiment’s 100-million-state cap after packing. The latter two comparisons establish lower bounds on capacity. [All eight process measurements and stop reasons](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
 ## High-fanout parallel safety
 
