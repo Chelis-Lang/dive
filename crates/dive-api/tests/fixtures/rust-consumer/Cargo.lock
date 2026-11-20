@@ -162,6 +162,7 @@ dependencies = [
  "dive-store",
  "getrandom",
  "hmac",
+ "lz4_flex",
  "rayon-core",
  "serde",
  "serde_json",
@@ -343,6 +344,12 @@ name = "libc"
 version = "0.2.191"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
+
+[[package]]
+name = "lz4_flex"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f56455fff36934a9500d69062aec1c77037179b6f0669e4d5d6b72b84722d6a3"
 
 [[package]]
 name = "memchr"
