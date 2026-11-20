@@ -105,8 +105,11 @@ fn collect(
     }
     ex.next = next;
     ex.next_originals = originals;
-    if frontier.is_some() {
-        ex.frontier = frontier;
+    if let Some(mut replacement_frontier) = frontier {
+        if let Some(old) = &mut ex.frontier {
+            replacement_frontier.adopt_independent_queues(old);
+        }
+        ex.frontier = Some(replacement_frontier);
     }
     *store = replacement;
     let usage = &mut ex.metrics.storage.reclamation;

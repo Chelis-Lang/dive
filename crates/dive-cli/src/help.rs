@@ -47,7 +47,7 @@ const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     --core-sample N         compare N sampled states' successors (diagnostic)\n\
     --library-path DIR --module-path DIR (repeatable)\n\n\
 Supported storage options:\n\
-    --frontier-memory-bytes N --frontier-directory DIR\n\
+    --independent-frontier --frontier-memory-bytes N --frontier-directory DIR\n\
     --candidate-memory-bytes N --candidate-directory DIR --store-compact-bytes N\n\
     --predecessor-memory-bytes N --predecessor-directory DIR\n\
     --seen-disk-entries N --seen-directory DIR --seen-key-bytes N\n\

@@ -117,7 +117,7 @@ fn admit_request(request: &CheckRequest) -> Result<(), ApiError> {
             feature: "worker preparation with compiled debugger is not implemented".into(),
         });
     }
-    if request.store_compact_bytes.is_some() {
+    if request.store_compact_bytes.is_some() || request.independent_frontier {
         return Err(ApiError::Unsupported {
             feature: "worker preparation with Store reclamation is not implemented".into(),
         });

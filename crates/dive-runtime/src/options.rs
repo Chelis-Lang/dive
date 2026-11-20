@@ -6,6 +6,10 @@ use dive_store::StoreMode;
 
 /// How to run a check.
 #[derive(Clone, Debug)]
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent public checking options"
+)]
 pub struct CheckOptions {
     /// Optional owned external inputs for source binding. Runtime reads and
     /// checkpoint/recovery are not implemented; evaluator grants stay explicit.
@@ -18,6 +22,9 @@ pub struct CheckOptions {
     /// its disk queue; `None` keeps the in-memory equivalence reference. This
     /// bounds frontier bytes only, not seen sets, candidates, traces or graphs.
     pub frontier_memory_bytes: Option<usize>,
+    /// Store independent DAG chunks on disk for ordinary fingerprint safety.
+    /// This allows value reclamation between committed expansion batches.
+    pub independent_frontier: bool,
     /// Parent directory for private transient frontier files; system temp by
     /// default. Files are explicitly cleaned and failures reported.
     pub frontier_directory: Option<std::path::PathBuf>,
@@ -107,6 +114,7 @@ impl CheckOptions {
             inputs: None,
             seen_disk: None,
             frontier_memory_bytes: None,
+            independent_frontier: false,
             frontier_directory: None,
             candidate_memory_bytes: None,
             candidate_directory: None,
@@ -137,6 +145,7 @@ impl CheckOptions {
             inputs: None,
             seen_disk: None,
             frontier_memory_bytes: None,
+            independent_frontier: false,
             frontier_directory: None,
             candidate_memory_bytes: None,
             candidate_directory: None,

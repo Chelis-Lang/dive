@@ -127,6 +127,7 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     if opts.check.candidate_memory_bytes.is_some()
         || opts.check.candidate_directory.is_some()
         || opts.check.store_compact_bytes.is_some()
+        || opts.check.independent_frontier
     {
         return Some(Outcome::Unsupported(
             "candidate spill or Store reclamation with DFID is not implemented".into(),

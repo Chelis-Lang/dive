@@ -38,6 +38,7 @@ mod parallel;
 mod reclaim;
 pub mod sample;
 pub mod storage;
+mod storage_owned;
 pub mod trace;
 
 use std::sync::Arc;
@@ -1698,6 +1699,7 @@ fn explore_inner<'p>(
         Err(error) => (None, Some(error)),
     };
     let mut initial_metrics = Metrics::default();
+    initial_metrics.storage.reclamation.between_waves = storage.independent_frontier;
     initial_metrics.storage.reclamation.trigger_bytes = trigger_bytes;
     initial_metrics.storage.reclamation.default_trigger = storage.store_compact_default;
     initial_metrics.storage.reclamation.skipped = default_skip;
@@ -1804,7 +1806,18 @@ fn explore_inner<'p>(
     };
     let mut replayed = None;
     let mut reservoir = config.sample.map(sample::Reservoir::new);
-    let result = if let Some(feature) = reclaim_refusal {
+    let result = if storage.independent_frontier
+        && (storage.frontier_memory_bytes != Some(0)
+            || !compact
+            || storage.exact
+            || ex.checkpoint.is_some()
+            || storage.seen_disk.is_some()
+            || storage.candidate_memory_bytes.is_some())
+    {
+        Err(Error::unsupported(
+            "independent frontier requires ordinary compacting fingerprint safety with immediate disk spill",
+        ))
+    } else if let Some(feature) = reclaim_refusal {
         Err(Error::unsupported(feature))
     } else if let Some(error) = permanent_error.or(disk_setup_error).or(storage_setup_error) {
         Err(error)
@@ -2296,6 +2309,16 @@ fn run(
         let mut base = 0;
         for k in 0..states {
             if k % chunk == 0 {
+                // All workers have joined and committed. Independent chunks
+                // on disk carry the complete DAGs of the unread sources.
+                if k != 0
+                    && ex.candidate_storage.independent_frontier
+                    && let Err(error) = reclaim::boundary(machines, ex, store, permanent, control)
+                {
+                    ex.stats.left_on_queue = (states - k + ex.queued_states()) as u64;
+                    ex.stop = Some(Verdict::Budget);
+                    return Err(error);
+                }
                 let queued = ex.queued_states();
                 if let Some(frontier) = &mut ex.frontier {
                     decoded = match frontier.chunk(k, (k + chunk).min(states), ex.poll) {
