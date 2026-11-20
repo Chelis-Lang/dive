@@ -2,7 +2,7 @@
 
 Compact JSON records of dive performance measurements. Each record identifies the experiment and its sources and hosts. Raw release runs (per-run JSON lines,
 console output, reports) are not in the repository; they are tarballs in the
-dive evidence archive bucket (us-east-1), and each record cites its tarball by
+dive evidence archive bucket (us-east-1), and each release record cites its tarball by
 name and SHA-256 so a later reader can fetch it and check that it is the
 same file.
 
@@ -18,6 +18,10 @@ The scripts that produced the records are in
 
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
+
+The [native peer panel](2026-11-20-native-peer-panel.json) records process
+measurements against pinned Manyan, tlx and tla-mc, plus the same-binary
+guard experiment. [Results and interpretation](../../../docs/internal/survey/verification-workloads.md#native-peer-measurements)
 
 ## 0.1.0 release records
 
