@@ -1,6 +1,6 @@
 # 0116: Simulation contract under observable parity
 
-- **Status:** accepted
+- **Status:** accepted; §4 superseded by [ADR 0162](0162-simulation-liveness-and-scale.md)
 - **Date:** 2026-10-26
 - **Supersedes:** [ADR 0020](0020-finite-seeded-simulation.md) (its parity target and refusal rules)
 

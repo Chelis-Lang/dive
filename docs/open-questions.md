@@ -87,9 +87,32 @@ retain a named refusal.
 
 - **Recursive Boolean action predicates and generated counts (#813), resolved by the owner, 2026-11-06.** Keep the faster default and register the precise predicate-witness count divergence (D-029), with its nominal compat gap. The minimal control generates TLC 3 versus Core 2 states, both 1 distinct at depth 1; original VoteProof generates 318,877 versus 27,727, both 6,962 distinct at depth 14. Those two count controls retain every other observable and independent word-validation obligation. Pure Boolean short-circuiting also avoids unnecessary alternatives; the pinned OrError result is registered separately, without a general error waiver. Plans with compiled effects or unknown calls refuse, and recursive calls/arguments are bounded with budget polling. Lexical-capture, prime, escape, operator and other soundness guards remain. The standing correct/faster ruling covers bookkeeping variants without repeated owner questions, with precise registrations rather than a blanket count waiver.
 
-- **Simulation with liveness, answered by the owner, 2026-11-06.** `dive simulate` with a temporal `PROPERTY` stays a named refusal for now (`ewd687a/EWD687a_anim`). It is not a v0.1 gate item.
+- **Simulation with liveness, superseded.** The 2026-11-06 answer (a named refusal) is replaced by the owner's request for at least TLC's simulation capability, liveness included; see [ADR 0162](decisions/0162-simulation-liveness-and-scale.md) and [the simulation design](developer/simulation-design.md). The VIEW ruling below concerns exhaustive checking; simulation closes loops only on concrete states, so it needs no VIEW-soundness argument.
 - **VIEW with liveness, answered by the owner, 2026-11-06.** Stays a named refusal past v0.1. The `VIEW` is what makes these state spaces finite, so a sound quotient liveness check first needs a VIEW-soundness argument (#428). Affects `FiniteMonotonic/MCDistributedReplicatedLog` and `ewd998/EWD998ChanID`; the latter is consistent with the R3 ruling above.
 - **SmokeEWD998_SC, out of scope.** It is a host script that launches a nested TLC through `IOUtils!IOEnvExec`, not a model; it is not counted as a Core refusal.
+
+## Simulation defaults and semantics (ADR 0162)
+
+Questions from [the simulation design](developer/simulation-design.md#15-open-questions):
+
+1. **Extend truncated traces by default (D-034).** `--liveness-extend auto`
+   continues a trace that reached `--depth` with a temporal property still
+   unchecked, for up to `depth` more steps, until it closes or terminates.
+   Every extra verdict is a validated violation the exhaustive check also
+   reports, but it can surface a violation that a trace cut at `--depth`
+   would not show. *Recommended:* default `auto` in the default profile, `0`
+   under `--compat=tlc`. Until answered: opt-in.
+2. **`RandomElement` in sampled traces.** `TLC.tla` defines it with `CHOOSE`;
+   TLC's override draws at random. *Recommended:* validate each draw as some
+   element of its set (the validator's bounded alternative check), coordinated
+   with #910. Until answered: the refusal stays.
+3. **Sampling unbounded sets (D-035).** `--sample-unbounded=geometric` draws
+   from `Nat`, `Int` and `Seq(S)` with a stated distribution, where TLC fails
+   with GENERAL 1000. *Recommended:* offer it as an option only.
+4. **Report retention.** Keep the deciding trace plus the 10 lowest-id
+   samples by default (`--keep-traces`), instead of every trace, and validate
+   only those. *Recommended:* yes; `--keep-traces all` and `--trace-dir` keep
+   every trace for callers that need them.
 
 ## Native recovery counter default (issue152)
 
