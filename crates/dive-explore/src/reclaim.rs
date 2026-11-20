@@ -41,8 +41,32 @@ fn block_error(error: dive_core::packed_rows::BlockError) -> Error {
         dive_core::packed_rows::BlockError::Allocation => {
             Error::internal("DIVE-S0203: resident frontier block allocation")
         }
-        other => other.exploration_error(),
+        dive_core::packed_rows::BlockError::Layout => error.exploration_error(),
     }
+}
+
+fn remap_blocks(
+    blocks: &[dive_core::packed_rows::Block],
+    width: usize,
+    remap: &mut dive_core::store::compact::Remap,
+    proceed: &(dyn Fn() -> bool + Sync),
+) -> Result<Vec<dive_core::packed_rows::Block>, Error> {
+    let mut result = Vec::new();
+    result
+        .try_reserve_exact(blocks.len())
+        .map_err(|_| Error::internal("DIVE-S0203: resident frontier block index"))?;
+    let mut values = Vec::new();
+    for block in blocks {
+        values.clear();
+        block
+            .append(0, dive_core::packed_rows::ROWS, &mut values)
+            .map_err(block_error)?;
+        for h in &mut values {
+            *h = remap.copy(*h, proceed)?;
+        }
+        result.push(dive_core::packed_rows::Block::encode(&values, width).map_err(block_error)?);
+    }
+    Ok(result)
 }
 
 fn collect(
@@ -83,28 +107,8 @@ fn collect(
     };
     let packed = ex
         .packed
-        .as_ref()
-        .map(|blocks| {
-            let mut result = Vec::new();
-            result
-                .try_reserve_exact(blocks.len())
-                .map_err(|_| Error::internal("DIVE-S0203: resident frontier block index"))?;
-            let mut values = Vec::new();
-            for block in blocks {
-                values.clear();
-                block
-                    .append(0, dive_core::packed_rows::ROWS, &mut values)
-                    .map_err(block_error)?;
-                for h in &mut values {
-                    *h = remap.copy(*h, &|| !(ex.poll)())?;
-                }
-                result.push(
-                    dive_core::packed_rows::Block::encode(&values, ex.plan.vars.len())
-                        .map_err(block_error)?,
-                );
-            }
-            Ok::<_, Error>(result)
-        })
+        .as_deref()
+        .map(|blocks| remap_blocks(blocks, ex.plan.vars.len(), &mut remap, &|| !(ex.poll)()))
         .transpose()?;
     let next = copy(&ex.next, &mut remap)?;
     let originals = copy(&ex.next_originals, &mut remap)?;
