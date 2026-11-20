@@ -115,6 +115,17 @@ def main():
         process.wait()
         reason = "time limit" if isinstance(error, subprocess.TimeoutExpired) else "interrupted"
     else:
+        if status == 11:
+            return 1
+        if status == 1:
+            # Only the worker's private status 11 certifies a validated witness.
+            if args.max_memory:
+                print(json.dumps(dict(verdict="stopped", reason="native worker exited under its memory budget")),
+                      flush=True)
+                return 4
+            print(json.dumps(dict(verdict="error", reason="native worker exited before returning a result")),
+                  flush=True)
+            return 3
         if status >= 0:
             return status
         reason = "worker terminated by " + signal.Signals(-status).name

@@ -1135,6 +1135,8 @@ def refine_one(args, module, config, hints, trace):
                 continue
             require(len(learned) <= 512, "refined set domains exceed 512 state bits")
             continue
+        if child.returncode == 1 and args.max_memory and "out of memory" in child.stderr.lower():
+            raise Stopped("refinement worker exhausted memory during native allocation")
         if not child.stdout.strip():
             raise RuntimeError(f"refinement worker ended without a result (exit {child.returncode})")
         row = json.loads(child.stdout)
@@ -1145,7 +1147,7 @@ def refine_one(args, module, config, hints, trace):
                    initial_hint_members=0 if discarded_hints else len(hints.keys() & current.keys()),
                    seconds=round(time.monotonic() - started, 6))
         print(json.dumps(row), flush=True)
-        return child.returncode, current
+        return (1 if child.returncode == 11 else child.returncode), current
 
 
 def refined_search(args):
@@ -1194,14 +1196,16 @@ def run(args):
 
 def check_in_manager(args, learned, revisions):
     # Release cyclic Python node wrappers while their native manager is still alive.
-    manager = cudd.BDD(memory_estimate=512 << 20)
+    # Bind the first input before allocating CUDD so a frontend refusal survives
+    # small resource limits. This owner outlives every Python node wrapper.
+    owner = []
     try:
-        return check_revisions(args, learned, revisions, manager)
+        return check_revisions(args, learned, revisions, owner)
     finally:
         gc.collect()
 
 
-def check_revisions(args, learned, revisions, manager):
+def check_revisions(args, learned, revisions, owner):
     previous = None
     violated = False
     for module, config in revisions:
@@ -1209,10 +1213,12 @@ def check_revisions(args, learned, revisions, manager):
         exported = run_helper([args.exporter, module, config], "Dive frontend", args.max_memory)
         require(exported.returncode == 0, "Dive frontend: " + exported.stderr.strip())
         doc = json.loads(exported.stdout)
+        if not owner:
+            owner.append(cudd.BDD(memory_estimate=512 << 20))
         model = SourceModel(
             doc,
             args.type_invariant,
-            manager,
+            owner[0],
             args.order_by_path,
             args.single_partition,
             learned,
@@ -1309,4 +1315,7 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    status = main()
+    # CUDD can call exit(1) on allocation failure, bypassing Python. Reserve a
+    # private process status for a validated violation that reached main().
+    sys.exit(11 if status == 1 else status)
