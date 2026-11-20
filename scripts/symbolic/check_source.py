@@ -76,6 +76,24 @@ def main():
             stats["depth"],
         )
 
+    # The wide model has free skipped levels, interleaved next-state bits,
+    # and a complemented edge. Its excluded singleton detects float rounding.
+    from dd import cudd
+    from finite_relation import FiniteRelation
+
+    relation = FiniteRelation()
+    relation.b = cudd.BDD()
+    relation.b.configure(reordering=False)
+    relation.variables = [f"s{i}" for i in range(90)]
+    for name in reversed(relation.variables):
+        relation.b.declare(name, name + "_next")
+    cube = relation.b.cube({name: False for name in relation.variables})
+    assert relation.state_count(~cube) == (1 << 90) - 1
+    a, b = (relation.b.var(name) for name in ("s1", "s87"))
+    assert relation.state_count(~a | b) == 3 << 88
+    assert relation.state_count(relation.b.true) == 1 << 90
+    assert relation.state_count(relation.b.false) == 0
+
     module = args.kvs / "MCKVS.tla"
     goldens = ROOT / "conformance/golden/tlc-2026.10.06.014338/examples/specifications/KeyValueStore"
     with tempfile.TemporaryDirectory() as temp:
@@ -203,7 +221,7 @@ OnlyOpenOrRollback == \E t \in TxId : OpenTx(t) \/ RollbackTx(t)
         if args.growth:
             from kvs_symbolic import transaction_history_counts
 
-            for keys in (4, 5):
+            for keys in (4, 5, 7):
                 wider = folder / f"keys-{keys}.cfg"
                 key_names = ", ".join(f"k{i + 1}" for i in range(keys))
                 wider.write_text(cfg.read_text().replace("k1, k2, k3", key_names))
@@ -212,7 +230,7 @@ OnlyOpenOrRollback == \E t \in TxId : OpenTx(t) \/ RollbackTx(t)
                     row["distinct"],
                     row["generated"],
                 ) == transaction_history_counts(keys, 3, 2, True)
-            # The proof path also works above the exact minterm count limit.
+            # Induction can prove safety without building the larger reachable set.
             wider.write_text(cfg.read_text().replace("k1, k2, k3", ", ".join(f"k{i + 1}" for i in range(16))))
             (proof,) = run(module, wider, "--prove-inductive")
             assert proof["proof"] == "inductive-safety"

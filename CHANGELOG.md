@@ -49,6 +49,9 @@ are in git history.
 
 ### Performance
 
+- Exact symbolic reachability now supports layouts above 52 bits and returns
+  integer state and transition counts throughout its 512-bit admission range.
+
 - Parallel Core temporal checks keep one worker team across graph-capture
   batches. In the CoffeeCan3000Beans eight-worker comparison, elapsed time
   fell from 107.3 s to 49.4 s.

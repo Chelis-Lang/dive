@@ -293,6 +293,8 @@ model key; the keys are stable corpus config paths.
 
 ## Large-model structure and edit reuse
 
+The [seven-key KVS fixed points](2026-11-20-seven-key-reachability.json) give arbitrary-precision counts for the same source with and without transaction symmetry.
+
 The November 19 engineering runs separate the cost of storing more states, the cost of expanding more successor choices, and the cost of repeating a previous check. These records preserve the measurements behind [#799](https://github.com/Chelis-Lang/dive/issues/799), [#1028](https://github.com/Chelis-Lang/dive/issues/1028) and [#1034](https://github.com/Chelis-Lang/dive/issues/1034). They use development builds. Quote the model, checker, workload, units and host with any number.
 
 | Question | Record | What to look up |

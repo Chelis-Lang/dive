@@ -715,7 +715,6 @@ class SourceModel(FiniteRelation):
         return result
 
     def check(self, previous=None):
-        require(len(self.variables) <= 52, "exact CUDD floating minterm count bound")
         self.complete = None
         if previous is not None and previous.complete is not None and self.same_relation(previous):
             reached, layers, distinct, generated = previous.complete

@@ -133,9 +133,8 @@ Unproved, refused and interrupted checks establish no safety result.
 processes and rechecks. `--max-memory MIB` limits virtual address space
 per worker process on Linux. Set an external cgroup limit when the budget
 covers aggregate physical memory. Compilation admits up to 512 state bits,
-16,384 visited layout fields and 100,000 expanded action witnesses. Searches
-with exact minterm counts admit up to 52 bits. Proof-only checks use the
-larger limit. The transferred predicate format admits 100,000 nodes and
+16,384 visited layout fields and 100,000 expanded action witnesses. Above 52 state bits, search counts assignments with arbitrary-precision
+integers over the decision diagram. JSON counters are exact decimal integers. The transferred predicate format admits 100,000 nodes and
 16 MiB. Actual time and memory depend on intermediate decision diagrams.
 
 For source and host identities, same-host TLC comparisons, growth results and
