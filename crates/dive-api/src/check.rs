@@ -1068,6 +1068,10 @@ impl CheckReport {
         matches!(&self.phase, Phase::Temporal(_) | Phase::TemporalError(_))
     }
 
+    fn multiworker_temporal_request(&self) -> bool {
+        self.workers_requested > 1 && self.core.is_some() && self.temporal_schema()
+    }
+
     /// The safety checker's result, including a safety stop in final/short
     /// checking. Temporal holds/violations use [`Self::temporal_result`].
     #[must_use]
@@ -1927,6 +1931,12 @@ impl CheckReport {
         if let Some(core) = &self.core {
             doc["engine"] = json!("core");
             doc["core"] = json!({"disabled": core.opts, "metrics": core.metrics});
+            if self.multiworker_temporal_request() {
+                doc["core"]["temporal_workers"] = json!({
+                    "width_applies_to": "source-expansion",
+                    "serial_phases": ["initial-states", "ordered-commit", "temporal-analysis", "trace-validation"]
+                });
+            }
             if !core.sample.is_null() {
                 doc["core"]["sample"] = core.sample.clone();
             }
@@ -1961,6 +1971,9 @@ impl CheckReport {
             self.workers_requested,
             self.workers_used()
         );
+        if self.multiworker_temporal_request() {
+            out.push_str("Worker width applies to source expansion. Initial states, ordered commits, temporal analysis and trace validation each use one thread when run.\n");
+        }
         if !o.eval.host_access.is_empty() {
             let _ = writeln!(
                 out,

@@ -65,3 +65,60 @@ fn a_spill_failure_in_init_reports_one_worker_and_a_full_search_reports_the_widt
     }
     std::fs::remove_dir_all(dir).expect("cleanup");
 }
+
+#[test]
+fn temporal_capture_reports_inline_width_only_for_wide_cheap_initial_frontiers() {
+    let dir = std::env::temp_dir().join(format!("dive-temporal-width-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("private directory");
+    let file = dir.join("Cheap.tla");
+    let config = dir.join("Cheap.cfg");
+    std::fs::write(&config, "INIT Init\nNEXT Next\nPROPERTY Holds\n").expect("config");
+    for (max, next, expected) in [
+        (4095, "x' = x", 1),
+        (4094, "x' = x", 8),
+        (4095, "x' \\in {x, 0}", 8),
+    ] {
+        std::fs::write(&file, format!("---- MODULE Cheap ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..{max}\nNext == {next}\nHolds == []<>(x >= 0)\n====\n")).expect("module");
+        let check = |width| {
+            check_file(&CheckRequest {
+                file: file.clone(),
+                config: Some(config.clone()),
+                workers: Some(width),
+                seed: Some(0),
+                fp: Some(0),
+                ..CheckRequest::default()
+            })
+            .expect("finite check")
+            .to_json()
+        };
+        let one = check(1);
+        let eight = check(8);
+        assert_eq!(eight["check_kind"], "temporal", "{eight}");
+        assert_eq!(eight["verdict"], "success", "{eight}");
+        assert_eq!(eight["statistics"], one["statistics"]);
+        let workers = &eight["options"]["workers"];
+        assert_eq!(workers["used"], expected, "{workers}");
+        let scope = &eight["core"]["temporal_workers"];
+        assert_eq!(scope["width_applies_to"], "source-expansion");
+        assert_eq!(
+            scope["serial_phases"],
+            serde_json::json!([
+                "initial-states",
+                "ordered-commit",
+                "temporal-analysis",
+                "trace-validation"
+            ])
+        );
+        if expected == 1 {
+            assert_eq!(workers["sequential"], true);
+            assert!(
+                workers["reason"]
+                    .as_str()
+                    .is_some_and(|why| why.contains("4096 initial states"))
+            );
+        } else {
+            assert!(workers["reason"].is_null());
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}

@@ -1,0 +1,591 @@
+{
+  "schema": "dive-temporal-worker-selection-1",
+  "corpus": "examples@6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "host": {
+    "instance": "c7i.metal-24xl",
+    "region": "us-east-1",
+    "ami": "ami-0109d2b556bd3d7e1",
+    "kernel": "7.0.0-1017-aws",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "online_physical_cores": 48,
+    "affinity": "0-15",
+    "memory_node": 0,
+    "smt": false,
+    "turbo": false,
+    "governor": "performance",
+    "min_cpu_khz": 2400000,
+    "max_cpu_khz": 2400000,
+    "memory_limit_bytes": 25769803776,
+    "swap_limit_bytes": 0
+  },
+  "base_binary_sha256": "b27d7824226ae41c90bb65da3f329ad9a313f284ea1413ae63c0ff06cff9004d",
+  "candidate_binary_sha256": "3d9059ee3f7669825f459a24db5bf7d20b03550d6e3107f378cd249a235b947f",
+  "method": "Whole CLI processes run sequentially on the same isolated host. GNU time wall seconds and peak resident KiB, three trials per cell. Order 1,4,8 then 8,1,4 then 4,8,1 for each configuration. All base trials preceded candidate trials. Historical D4 timings are a separate cohort.",
+  "reproduce": "taskset -c 0-15 numactl --membind=0 dive check MODULE --config CFG --workers WIDTH --fp 0 --seed 0 --max-memory 24g --time-limit 600s --output json",
+  "models": [
+    {
+      "cfg": "CoffeeCan/CoffeeCan1000Beans.cfg",
+      "sha256": {
+        "CoffeeCan/CoffeeCan1000Beans.cfg": "a57c02854cd0a0f7622df98d45cb70ea607337c35fa3a2ae49424d675f46e00a",
+        "CoffeeCan/CoffeeCan.tla": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90"
+      },
+      "golden": {
+        "verdict": "success",
+        "distinct_states": 501500,
+        "states_generated": 2000002,
+        "states_left_on_queue": 0,
+        "depth": 1
+      },
+      "historical_d4_median_wall_ms": {
+        "1": 9093.5,
+        "4": 14529.5,
+        "8": 18363.2
+      },
+      "variants": {
+        "base": [
+          {
+            "requested": 1,
+            "used": 1,
+            "reason": null,
+            "median_wall_s": 9.68,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 9.68,
+                "peak_rss_kib": 300064,
+                "checker_ms": 9681
+              },
+              {
+                "repetition": 2,
+                "wall_s": 9.69,
+                "peak_rss_kib": 300100,
+                "checker_ms": 9691
+              },
+              {
+                "repetition": 3,
+                "wall_s": 9.65,
+                "peak_rss_kib": 300172,
+                "checker_ms": 9648
+              }
+            ]
+          },
+          {
+            "requested": 4,
+            "used": 4,
+            "reason": null,
+            "median_wall_s": 14.69,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 14.68,
+                "peak_rss_kib": 302068,
+                "checker_ms": 14677
+              },
+              {
+                "repetition": 2,
+                "wall_s": 14.69,
+                "peak_rss_kib": 300924,
+                "checker_ms": 14690
+              },
+              {
+                "repetition": 3,
+                "wall_s": 14.82,
+                "peak_rss_kib": 301936,
+                "checker_ms": 14816
+              }
+            ]
+          },
+          {
+            "requested": 8,
+            "used": 8,
+            "reason": null,
+            "median_wall_s": 18.61,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 18.61,
+                "peak_rss_kib": 314092,
+                "checker_ms": 18605
+              },
+              {
+                "repetition": 2,
+                "wall_s": 18.48,
+                "peak_rss_kib": 315532,
+                "checker_ms": 18482
+              },
+              {
+                "repetition": 3,
+                "wall_s": 19.19,
+                "peak_rss_kib": 298372,
+                "checker_ms": 19186
+              }
+            ]
+          }
+        ],
+        "inline": [
+          {
+            "requested": 1,
+            "used": 1,
+            "reason": null,
+            "median_wall_s": 9.6,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 9.59,
+                "peak_rss_kib": 300840,
+                "checker_ms": 9585
+              },
+              {
+                "repetition": 2,
+                "wall_s": 9.6,
+                "peak_rss_kib": 300216,
+                "checker_ms": 9598
+              },
+              {
+                "repetition": 3,
+                "wall_s": 9.64,
+                "peak_rss_kib": 300812,
+                "checker_ms": 9633
+              }
+            ]
+          },
+          {
+            "requested": 4,
+            "used": 1,
+            "reason": "temporal capture has 501500 initial states and short, non-enumerating actions. One worker expands and commits each source inline",
+            "median_wall_s": 9.6,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 9.66,
+                "peak_rss_kib": 300544,
+                "checker_ms": 9661
+              },
+              {
+                "repetition": 2,
+                "wall_s": 9.6,
+                "peak_rss_kib": 300780,
+                "checker_ms": 9593
+              },
+              {
+                "repetition": 3,
+                "wall_s": 9.59,
+                "peak_rss_kib": 300708,
+                "checker_ms": 9590
+              }
+            ]
+          },
+          {
+            "requested": 8,
+            "used": 1,
+            "reason": "temporal capture has 501500 initial states and short, non-enumerating actions. One worker expands and commits each source inline",
+            "median_wall_s": 9.58,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 9.58,
+                "peak_rss_kib": 299092,
+                "checker_ms": 9579
+              },
+              {
+                "repetition": 2,
+                "wall_s": 9.6,
+                "peak_rss_kib": 299024,
+                "checker_ms": 9599
+              },
+              {
+                "repetition": 3,
+                "wall_s": 9.58,
+                "peak_rss_kib": 299040,
+                "checker_ms": 9576
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cfg": "CoffeeCan/CoffeeCan3000Beans.cfg",
+      "sha256": {
+        "CoffeeCan/CoffeeCan3000Beans.cfg": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+        "CoffeeCan/CoffeeCan.tla": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90"
+      },
+      "golden": {
+        "verdict": "success",
+        "distinct_states": 4504500,
+        "states_generated": 18000002,
+        "states_left_on_queue": 0,
+        "depth": 1
+      },
+      "historical_d4_median_wall_ms": {
+        "1": 87999.2,
+        "4": 136395.7,
+        "8": 169770.5
+      },
+      "variants": {
+        "base": [
+          {
+            "requested": 1,
+            "used": 1,
+            "reason": null,
+            "median_wall_s": 94.04,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 94.04,
+                "peak_rss_kib": 2794216,
+                "checker_ms": 94029
+              },
+              {
+                "repetition": 2,
+                "wall_s": 94.01,
+                "peak_rss_kib": 2792416,
+                "checker_ms": 94000
+              },
+              {
+                "repetition": 3,
+                "wall_s": 94.4,
+                "peak_rss_kib": 2793872,
+                "checker_ms": 94387
+              }
+            ]
+          },
+          {
+            "requested": 4,
+            "used": 4,
+            "reason": null,
+            "median_wall_s": 139.35,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 139.17,
+                "peak_rss_kib": 2790444,
+                "checker_ms": 139154
+              },
+              {
+                "repetition": 2,
+                "wall_s": 139.35,
+                "peak_rss_kib": 2793340,
+                "checker_ms": 139335
+              },
+              {
+                "repetition": 3,
+                "wall_s": 140.19,
+                "peak_rss_kib": 2793444,
+                "checker_ms": 140176
+              }
+            ]
+          },
+          {
+            "requested": 8,
+            "used": 8,
+            "reason": null,
+            "median_wall_s": 177.47,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 176.96,
+                "peak_rss_kib": 2791172,
+                "checker_ms": 176948
+              },
+              {
+                "repetition": 2,
+                "wall_s": 178.13,
+                "peak_rss_kib": 2785400,
+                "checker_ms": 178114
+              },
+              {
+                "repetition": 3,
+                "wall_s": 177.47,
+                "peak_rss_kib": 2787444,
+                "checker_ms": 177464
+              }
+            ]
+          }
+        ],
+        "inline": [
+          {
+            "requested": 1,
+            "used": 1,
+            "reason": null,
+            "median_wall_s": 93.23,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 93.24,
+                "peak_rss_kib": 2831172,
+                "checker_ms": 93228
+              },
+              {
+                "repetition": 2,
+                "wall_s": 93.23,
+                "peak_rss_kib": 2829352,
+                "checker_ms": 93221
+              },
+              {
+                "repetition": 3,
+                "wall_s": 93.01,
+                "peak_rss_kib": 2830864,
+                "checker_ms": 92994
+              }
+            ]
+          },
+          {
+            "requested": 4,
+            "used": 1,
+            "reason": "temporal capture has 4504500 initial states and short, non-enumerating actions. One worker expands and commits each source inline",
+            "median_wall_s": 93.02,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 92.96,
+                "peak_rss_kib": 2831008,
+                "checker_ms": 92946
+              },
+              {
+                "repetition": 2,
+                "wall_s": 93.02,
+                "peak_rss_kib": 2829136,
+                "checker_ms": 93013
+              },
+              {
+                "repetition": 3,
+                "wall_s": 93.64,
+                "peak_rss_kib": 2793108,
+                "checker_ms": 93632
+              }
+            ]
+          },
+          {
+            "requested": 8,
+            "used": 1,
+            "reason": "temporal capture has 4504500 initial states and short, non-enumerating actions. One worker expands and commits each source inline",
+            "median_wall_s": 93.34,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 93.34,
+                "peak_rss_kib": 2827484,
+                "checker_ms": 93324
+              },
+              {
+                "repetition": 2,
+                "wall_s": 93.22,
+                "peak_rss_kib": 2827188,
+                "checker_ms": 93213
+              },
+              {
+                "repetition": 3,
+                "wall_s": 93.81,
+                "peak_rss_kib": 2790668,
+                "checker_ms": 93799
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cfg": "FlashProtocol/MCFlashWithMutexLive.cfg",
+      "sha256": {
+        "FlashProtocol/MCFlashWithMutexLive.cfg": "b8ec2b38b812b4be212eaa3861a17ba94a5d8bb96398e5dc35fc73d7817a2e02",
+        "FlashProtocol/MCFlashWithMutexLive.tla": "aa36c091799c6f0a79f344f40f1adf6f6794cd4999b688eea50bdc7d4d2f05ef"
+      },
+      "golden": {
+        "verdict": "success",
+        "distinct_states": 8096,
+        "states_generated": 30196,
+        "states_left_on_queue": 0,
+        "depth": 21
+      },
+      "historical_d4_median_wall_ms": {
+        "1": 1095.0,
+        "4": 1170.1,
+        "8": 1220.2
+      },
+      "variants": {
+        "base": [
+          {
+            "requested": 1,
+            "used": 1,
+            "reason": null,
+            "median_wall_s": 1.13,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 1.14,
+                "peak_rss_kib": 73532,
+                "checker_ms": 1122
+              },
+              {
+                "repetition": 2,
+                "wall_s": 1.13,
+                "peak_rss_kib": 73456,
+                "checker_ms": 1120
+              },
+              {
+                "repetition": 3,
+                "wall_s": 1.13,
+                "peak_rss_kib": 73324,
+                "checker_ms": 1119
+              }
+            ]
+          },
+          {
+            "requested": 4,
+            "used": 4,
+            "reason": null,
+            "median_wall_s": 1.2,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 1.2,
+                "peak_rss_kib": 73452,
+                "checker_ms": 1183
+              },
+              {
+                "repetition": 2,
+                "wall_s": 1.2,
+                "peak_rss_kib": 73576,
+                "checker_ms": 1182
+              },
+              {
+                "repetition": 3,
+                "wall_s": 1.2,
+                "peak_rss_kib": 71900,
+                "checker_ms": 1185
+              }
+            ]
+          },
+          {
+            "requested": 8,
+            "used": 8,
+            "reason": null,
+            "median_wall_s": 1.26,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 1.26,
+                "peak_rss_kib": 77680,
+                "checker_ms": 1242
+              },
+              {
+                "repetition": 2,
+                "wall_s": 1.26,
+                "peak_rss_kib": 79736,
+                "checker_ms": 1242
+              },
+              {
+                "repetition": 3,
+                "wall_s": 1.26,
+                "peak_rss_kib": 79744,
+                "checker_ms": 1245
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cfg": "dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
+      "sha256": {
+        "dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg": "63ab878b931a5e20e455805d08ea5e0e8acf54429041a6b3667713fba71237c4",
+        "dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.tla": "592100b6baef4ec24cca79c97bdb5c7b83e7f7b7f2174b7a12a3591c69a6786c"
+      },
+      "golden": {
+        "verdict": "success",
+        "distinct_states": 90882,
+        "states_generated": 282810,
+        "states_left_on_queue": 0,
+        "depth": 54
+      },
+      "historical_d4_median_wall_ms": {
+        "1": 7038.8,
+        "4": 8015.7,
+        "8": 8817.2
+      },
+      "variants": {
+        "base": [
+          {
+            "requested": 1,
+            "used": 1,
+            "reason": null,
+            "median_wall_s": 7.01,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 7.01,
+                "peak_rss_kib": 105208,
+                "checker_ms": 7002
+              },
+              {
+                "repetition": 2,
+                "wall_s": 7.01,
+                "peak_rss_kib": 105264,
+                "checker_ms": 7008
+              },
+              {
+                "repetition": 3,
+                "wall_s": 7.03,
+                "peak_rss_kib": 105284,
+                "checker_ms": 7024
+              }
+            ]
+          },
+          {
+            "requested": 4,
+            "used": 4,
+            "reason": null,
+            "median_wall_s": 7.98,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 8.04,
+                "peak_rss_kib": 105848,
+                "checker_ms": 8037
+              },
+              {
+                "repetition": 2,
+                "wall_s": 7.89,
+                "peak_rss_kib": 104644,
+                "checker_ms": 7881
+              },
+              {
+                "repetition": 3,
+                "wall_s": 7.98,
+                "peak_rss_kib": 105760,
+                "checker_ms": 7977
+              }
+            ]
+          },
+          {
+            "requested": 8,
+            "used": 8,
+            "reason": null,
+            "median_wall_s": 8.77,
+            "trials": [
+              {
+                "repetition": 1,
+                "wall_s": 8.79,
+                "peak_rss_kib": 111212,
+                "checker_ms": 8787
+              },
+              {
+                "repetition": 2,
+                "wall_s": 8.77,
+                "peak_rss_kib": 114696,
+                "checker_ms": 8758
+              },
+              {
+                "repetition": 3,
+                "wall_s": 8.77,
+                "peak_rss_kib": 111500,
+                "checker_ms": 8768
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -42,8 +42,15 @@ fairness condition, so the one-state word that stutters at `x = 0` is a real
 counterexample, with `counterexample.validation: "valid"`. Adding
 `--compat=tlc` gives the same result through final-only analysis.
 
-Check temporal specifications at `--workers 1`. More workers give the same
-result but can be slower; see [workers and stores](checking.md#workers-and-stores).
+For temporal checks, compare one worker with the requested width. Core
+expands and commits rows on one thread when Init produces at least 4,096
+distinct roots and the compiled plan has one variable and at most eight
+short, non-enumerating action branches that pass its structural check.
+This avoids dispatching each small expansion to workers before its ordered
+commit. The JSON report gives the requested and actual width and the reason
+in `options.workers`. The `core.temporal_workers` section of multiworker reports explains the execution policy. `width_applies_to`
+identifies source expansion. `serial_phases` lists the phases that use one
+thread when reached, including ordered commit and temporal analysis. See [workers and stores](checking.md#workers-and-stores).
 
 Under `--compat=tlc`, temporal capture can use every requested worker when the
 model creates no names beyond its start-up name table. From a source checkout:
