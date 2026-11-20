@@ -245,7 +245,11 @@ The action field of `CsrCaptureInput` accepts the existing borrowed slice of
 optional 32-bit IDs. Producers with at most 255 labels can supply a
 `CsrCaptureColumns` with `CsrActions::Bytes`. Values 0 through 254 index
 the action table and 255 denotes an unnamed entry. Both forms undergo the
-same checked capture and replay.
+same checked capture and replay. Producers with a dense slice of original row IDs
+can continue using either `CsrCaptureInput` or `CsrCaptureColumns`. To omit
+repeated IDs, `CsrStorage` accepts `CsrEdgeRows::Blocks`. Each 256-edge block
+uses the destinations’ first-discovery rows or supplies all its own row IDs.
+Both encodings return the same opaque row identities through `original_row`.
 `CsrComplete::from_producer` additionally requires the producer's successful EOF
 and matching statistics; `CsrPrefix::from_producer` requires a successful committed
 boundary with an unfinished frontier. Both preserve original failures and budget
