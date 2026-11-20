@@ -35,12 +35,15 @@ mkdir -p "$package/licenses"/{stdlib,pluscal,community-modules,tlaps}
 
 install -m 755 "$binary_dir/dive" "$binary_dir/tlc" "$package/"
 strip --strip-unneeded "$package/dive" "$package/tlc"
+"$repo_root/scripts/symbolic/package-worker.sh" "$binary_dir/examples/symbolic_input" \
+    "$package/libexec/dive-symbolic"
 install -m 644 "$repo_root/LICENSE" "$repo_root/README.md" "$package/"
 install -m 644 "$repo_root/crates/dive-sema/stdlib/LICENSE" "$package/licenses/stdlib/"
 install -m 644 "$repo_root/crates/dive-pluscal/src/translate/pcal/LICENSE" "$package/licenses/pluscal/"
 install -m 644 "$repo_root/crates/dive-sema/bundled/README.md" "$package/licenses/"
 install -m 644 "$repo_root/crates/dive-sema/bundled/community-modules/LICENSE" "$package/licenses/community-modules/"
 install -m 644 "$repo_root/crates/dive-sema/bundled/tlaps/LICENSE" "$package/licenses/tlaps/"
+"$repo_root/scripts/symbolic/test-installed.sh" "$package/dive"
 tar -czf "$output_dir/$name.tar.gz" -C "$stage" "$name"
 (
   cd "$output_dir"
