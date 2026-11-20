@@ -6,6 +6,13 @@ keys in private files on disk. `dive check` uses it when you opt in to
 seen states in memory. Frontier and predecessor spill have budgets of their
 own.
 
+For batched fingerprint lookups, `seen::sorted::SortedFingerprints` exposes
+`prefetch`, `contains`, ordered `insert` and `close_controlled`. A cancelled
+prefetch discards its hints. A failed speculative read is retried at the
+deciding key. Pass a cancellation callback during insert and close so that
+long merges can stop and owned files can be removed. The [checker guide](disk-seen-safety.md#multi-worker-fingerprint-membership)
+describes sizing and audit fields.
+
 Run the Cargo example:
 
 ```sh

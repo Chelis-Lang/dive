@@ -288,6 +288,8 @@ impl FingerprintShard {
 /// A set of 64-bit state keys (open addressing, linear probing).
 #[derive(Debug)]
 pub struct Seen {
+    /// Workers may evaluate an already committed disk key before the ordered lookup.
+    speculative_disk: bool,
     shards: Vec<FingerprintShard>,
     len: usize,
     exact: Option<storage::Exact>,
@@ -306,6 +308,7 @@ impl Default for Seen {
                 })
                 .collect(),
             len: 0,
+            speculative_disk: false,
             exact: None,
             #[cfg(test)]
             collide_keys: None,
@@ -1687,7 +1690,11 @@ fn explore_inner<'p>(
         storage
     };
     let permanent = permanent.or(captured_permanent.as_ref());
-    let config = if storage.seen_disk.is_some() {
+    let sorted = storage
+        .seen_disk
+        .as_ref()
+        .is_some_and(|set| set.partitioned);
+    let config = if storage.seen_disk.is_some() && !sorted {
         Config {
             workers: 1,
             ..config
@@ -1726,6 +1733,7 @@ fn explore_inner<'p>(
         Ok(disk) => (disk, None),
         Err(error) => {
             initial_metrics.storage.seen = Some(storage::DiskUsage {
+                audited_fingerprint_gap: None,
                 limits: storage
                     .seen_disk
                     .as_ref()
@@ -1747,6 +1755,7 @@ fn explore_inner<'p>(
         }
     };
     let mut seen = Seen::with_detached_exact(storage.exact, compact);
+    seen.speculative_disk = sorted;
     #[cfg(test)]
     {
         seen.collide_keys = storage.collide_keys;
@@ -1829,7 +1838,17 @@ fn explore_inner<'p>(
     };
     let mut replayed = None;
     let mut reservoir = config.sample.map(sample::Reservoir::new);
-    let result = if storage.independent_frontier
+    let result = if sorted
+        && (ex.checkpoint.is_some()
+            || ex.distributed.is_some()
+            || storage.exact
+            || storage.candidate_memory_bytes.is_some()
+            || storage.candidate_directory.is_some())
+    {
+        Err(Error::unsupported(
+            "partitioned membership requires local fingerprint safety with resident candidates and no checkpoint",
+        ))
+    } else if storage.independent_frontier
         && (storage.frontier_memory_bytes != Some(0)
             || !compact
             || storage.exact
@@ -1904,13 +1923,16 @@ fn explore_inner<'p>(
             .failures
             .push(error.message().to_owned());
     }
+    let membership_interrupted = ex.disk.as_ref().is_some_and(|disk| disk.interrupted);
     let mut trace = ex
         .end
         .take()
+        .filter(|_| !membership_interrupted)
         .map(|end| reconstruct(plan, store, &config, &ex.log, end));
     let mut verdict = match result {
         Ok(()) => Verdict::Success,
         Err(e) => match e.into_parts() {
+            (ErrorKind::Stop, _) if membership_interrupted => Verdict::Budget,
             (ErrorKind::Stop, _) if ex.failure.is_some() => Verdict::Failed,
             (ErrorKind::Stop, _) => match ex.stop.take() {
                 Some(stop) => stop,
@@ -2442,6 +2464,23 @@ fn run(
                 ex.metrics.conjuncts_skipped += metrics.conjuncts_skipped;
                 ex.metrics.discarded_before_intern += metrics.discarded_before_intern;
                 expand_time += started.elapsed();
+                if let Some(disk) = &mut ex.disk
+                    && !disk.prefetch(
+                        r.iter()
+                            .flatten()
+                            .flat_map(|source| source.occs.iter())
+                            .filter_map(|(_, occ)| match occ {
+                                parallel::Occ::Old { key, .. }
+                                | parallel::Occ::Cand { key, .. } => Some(*key),
+                                _ => None,
+                            }),
+                        ex.poll,
+                    )
+                {
+                    ex.stats.left_on_queue = (states - k + ex.queued_states()) as u64;
+                    ex.stop = Some(Verdict::Budget);
+                    return Err(Error::stop());
+                }
                 expanded = if received.is_some() { None } else { Some(r) };
                 base = k;
             }
@@ -2492,6 +2531,14 @@ fn run(
                 ex.stop = Some(Verdict::Budget);
                 return Err(Error::stop());
             }
+            // Without a resident seen set, an already-committed key may have reached a
+            // speculative check that the scalar path skips. Re-evaluate exceptional sources
+            // before committing any of their occurrences, with authoritative membership.
+            let res = res.filter(|result| ex.disk.is_none() || !result.needs_ordered_evaluation());
+            let reexecute = have_expansion && res.is_none() && ex.seen.speculative_disk;
+            if reexecute {
+                m.warnings.clone_from(&ex.warnings);
+            }
             let source = if ex.frontier.is_some() {
                 &decoded.original[local * nvars..(local + 1) * nvars]
             } else if ex.graph.is_some() || ex.checkpoint.is_some() {
@@ -2521,6 +2568,9 @@ fn run(
                 None => run_actions(m, ex, &plan.next, code),
             }
             .map_err(|e| generator_error(m, ex, state, e));
+            if reexecute {
+                ex.warnings.clone_from(&m.warnings);
+            }
             if r.is_err()
                 && ex
                     .failure
@@ -2549,7 +2599,7 @@ fn run(
                 ex.graph = None;
                 let ordinal = ex.emitted - 1;
                 let saved = std::mem::take(&mut m.warnings);
-                *replayed = Some(ending::replay_after(m, ex, ordinal)?);
+                let replay = ending::replay_after(m, ex, ordinal);
                 for w in std::mem::replace(&mut m.warnings, saved) {
                     if parallel && !ex.warnings.contains(&w) {
                         ex.warnings.push(w);
@@ -2557,6 +2607,9 @@ fn run(
                         m.warnings.push(w);
                     }
                 }
+                *replayed = Some(replay.inspect_err(|_| {
+                    ex.stats.left_on_queue = (states - k - 1 + ex.queued_states()) as u64;
+                })?);
             }
             if let Some(all) = &mut expanded {
                 all[k - base] = None;
@@ -2700,6 +2753,64 @@ mod tests {
             startup_assumptions: Vec::new(),
             startup_assumption_false: None,
         })
+    }
+
+    #[test]
+    fn one_shot_cancellation_during_disk_insert_cannot_complete_a_partial_search()
+    -> Result<(), Error> {
+        use dive_core::plan::Node;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        let store = Arc::new(Store::new(true));
+        let mut plan = frontier_plan(&store, false)?;
+        let mut heap = dive_core::Heap::new(Arc::clone(&store), true, false);
+        let hot_limit = 262_144;
+        let domain = heap.interval(0, hot_limit + 1);
+        plan.code.nodes[0] = Node::Const(heap.intern_const(domain)?);
+        let calls = AtomicUsize::new(0);
+        // Each Init state polls once. The next poll follows a full hot set
+        // and occurs inside flush, before the first replacement is published.
+        let poll = || calls.fetch_add(1, Ordering::Relaxed) == 262_145;
+        let out = explore_with_storage(
+            &plan,
+            &store,
+            Config {
+                opts: Opts::default(),
+                workers: 1,
+                warn: true,
+                max_states: None,
+                max_depth: None,
+                sample: None,
+            },
+            &poll,
+            None,
+            None,
+            &storage::Storage {
+                seen_disk: Some(storage::DiskOptions {
+                    partitioned: true,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+        );
+        assert_eq!(out.verdict, Verdict::Budget);
+        assert_eq!(
+            (
+                out.stats.generated,
+                out.stats.distinct,
+                out.stats.left_on_queue
+            ),
+            (262_145, 262_144, 262_144)
+        );
+        assert!(out.trace.is_none());
+        assert!(
+            out.metrics
+                .storage
+                .seen
+                .is_some_and(|facts| !facts.audit_completed
+                    && facts.after_cleanup.is_some_and(|s| s.cleanup_completed))
+        );
+        Ok(())
     }
 
     #[derive(Clone, Copy, Debug)]

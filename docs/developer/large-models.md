@@ -8,7 +8,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 
 - **Frontier storage.** Use the [100-million-state BPConProof comparison](#high-fanout-parallel-safety) to size scratch. After reducing the cost per frontier row, measure predecessor and membership growth independently at the same discovery count.
 - **Symbolic checking.** Keep Base and QuarantineEqualsProposer as [exact sparse-message controls](#reproduce-the-released-paxoslease-runs). Compare alternative BDD orders on Retry using reachable intermediate sizes, then cross-check a completed result against both explicit runs.
-- **Published scale.** The [original SlateDB WAL configuration](#reproduce-the-released-slatedb-wal-model) provides a public 49-billion-state target. Prototype partitioned fingerprint membership that admits each worker batch in source order. Compare it to the five-million-state resident prefix before allocating for the full run. Use the completed two-writer model for a full-count comparison and small exact-state runs for collision controls. The EmergencyCall 10.59-billion case still needs the original unconstrained configuration.
+- **Published scale.** The [original SlateDB WAL configuration](#reproduce-the-released-slatedb-wal-model) provides a public 49-billion-state target. Compare [external membership](#external-fingerprint-membership) at full exhaustion to its resident and TLC controls. Use the completed two-writer model for a full-count comparison and small exact-state runs for collision controls. The EmergencyCall 10.59-billion case still needs the original unconstrained configuration.
 - **Remaining work.** The [thirteen original outcomes](#where-the-thirteen-historical-non-finishes-stand) identify each memory or feature limit. Kafka still needs bounded lowering of repeated scoped fairness predicates. The all-17-model temporal worker comparison belongs at the integrated qualification boundary. Use [Sail’s measured edit cases](#which-evidence-can-decide-a-source-edit) as regression controls when changing proof reuse.
 
 ## Results on KeyValueStore
@@ -294,7 +294,7 @@ default and selecting the [existing spill option](../user/storage-recovery.md) f
 matched prefix demonstrates a useful reduction. They leave open the
 component breakdown at tens of millions of states and the retained temporal graph.
 
-Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. That option uses one worker and bounds its membership workspace. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
+Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. The indexed store uses one worker. Sorted fingerprint runs also support parallel expansion. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
 
 ### High-fanout parallel safety
 
@@ -442,9 +442,38 @@ At this prefix, four times as many workers gave 1.90× the throughput and used 6
 
 The WAL specification has 19 state variables. Each resident queue row in this safety search holds 19 eight-byte handles and an eight-byte discovery ID, or 160 bytes. The 1,043,043 pending rows alone represent about 159 MiB of payload. BFS retains space for the current and next levels, including slots for parents already expanded during the current level. By comparison, Core reported about 2 MiB of measured retained value-store memory in both resident worker configurations. Many frontier rows therefore share underlying values while still paying for every handle in every row. [Queue implementation](../../crates/dive-explore/src/lib.rs) · [Handle representation](../../crates/dive-core/src/handle.rs).
 
-For the full target, membership capacity changes the choice of machine. With 49 billion uniformly distributed fingerprints, the resident table's 256 shards would each require 2²⁸ eight-byte slots under the 75% growth threshold, or 512 GiB for slots alone. On a 64-bit host the packed resident parent log adds at least 57 GiB for one byte per discovery and one 16-byte index entry per 64 discoveries. The fixed-width disk parent log would write 784 GB at that count. These are size calculations. The live frontier, resize peaks and worker allocations add to the resident requirement. The existing disk membership path runs on one worker and caps a store at 4,294,967,295 entries. A route to 49 billion needs capacity across partitions or a larger index, plus a scalable final fingerprint-gap calculation when the TLC profile requests one. [Fingerprint table](../../crates/dive-explore/src/lib.rs) · [Packed parents](../../crates/dive-store/src/predecessor/packed.rs) · [Disk membership limits](../user/disk-seen-safety.md).
+For the full target, membership capacity changes the choice of machine. With 49 billion uniformly distributed fingerprints, the resident table's 256 shards would each require 2²⁸ eight-byte slots under the 75% growth threshold, or 512 GiB for slots alone. On a 64-bit host the packed resident parent log adds at least 57 GiB for one byte per discovery and one 16-byte index entry per 64 discoveries. The fixed-width disk parent log would write 784 GB at that count. These are size calculations. The live frontier, resize peaks and worker allocations add to the resident requirement. The indexed disk store caps membership at 4,294,967,295 entries. Sorted runs use a global 64-bit count and a streaming audit. A capacity bound alone does not establish a completed run. [Fingerprint table](../../crates/dive-explore/src/lib.rs) · [Packed parents](../../crates/dive-store/src/predecessor/packed.rs) · [Disk membership limits](../user/disk-seen-safety.md).
 
 Reducing only `Values` from two values to one kept the three writers, one restart, symmetry and all six invariants. On the same machine, 32 resident workers reached **208,042,815 distinct states** and 901,441,896 generated at depth 88 in 480.08 s, peaking at 7.80 GiB RSS. The time limit stopped the run with 4,089,873 states queued. This gives a lower bound for the one-value configuration. It provides neither a completed count nor a safety verdict for either configuration. [Individual runs and reproduction settings](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
+#### External fingerprint membership
+
+On the original SlateDB configuration, two paired trials per width reached
+5,000,000 distinct and 16,458,236 generated at depth 41 with the same
+1,043,043 states queued. Each cell used the same binary on an isolated
+r7i.16xlarge. Elapsed time includes normal checker startup and cleanup.
+
+| Physical cores | Store | Wall seconds | Peak RSS (MiB) |
+| ---: | --- | --- | --- |
+| 8 | Resident | 20.10, 19.75 | 718, 711 |
+| 8 | Sorted runs | 30.46, 30.87 | 622, 618 |
+| 32 | Resident | 10.16, 10.16 | 1,185, 1,187 |
+| 32 | Sorted runs | 17.71, 17.79 | 1,106, 1,105 |
+
+A replay of the 23,269,077 ordered membership operations from this prefix
+isolates the tradeoff. With a 65,536-key hot set the standalone prototype
+used about 8 MiB RSS versus 112 MiB for a resident hash set. It took 5.22
+and 5.25 s versus 1.18 s in both resident trials. Buffered page reads and
+merges cost time. In the full checker, the frontier, predecessor log and
+workers remain, which explains why peak process memory fell by much less
+than the standalone ratio. The prefix stopped at its discovery limit.
+
+With no discovery limit, eight workers exhausted the two-writer, one-restart
+configuration using sorted runs. Core and pinned TLC both reached 3,761,377
+distinct, 12,508,420 generated and depth 93. The small exact-state control and
+both fingerprint checkers also agreed on 268 distinct and 460 generated at
+depth 27. These controls establish the counters on smaller complete graphs.
+[Commands, all trial measurements and binary identities](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
 ### Reproduce the released PaxosLease runs
 
