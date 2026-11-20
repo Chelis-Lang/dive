@@ -1,0 +1,148 @@
+{
+  "schema": "dive-published-paxoslease-v1",
+  "date": "2026-11-20",
+  "publication": "https://arxiv.org/abs/2609.14640",
+  "source_repo": "https://github.com/mtrencseni/paxoslease-revisited",
+  "revision": "5ca959624c5a2560ab1ad86dc71e8b161621d9bc",
+  "license": "BSD 2-Clause License",
+  "module": "tla/spec/PaxosLeaseChecked.tla",
+  "module_sha256": {
+    "PaxosLease.tla": "3ac9f462afc48698eac87519530abc227c9f47d44d305bed31104543e3c6ca1a",
+    "PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679"
+  },
+  "sha256": {
+    "dive": "b27d7824226ae41c90bb65da3f329ad9a313f284ea1413ae63c0ff06cff9004d",
+    "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "host": {
+    "instance": "r7i.16xlarge",
+    "region": "us-east-1",
+    "kernel": "7.0.0-1018-aws",
+    "cpu": "Intel(R) Xeon(R) Platinum 8488C",
+    "physical_cpu_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "affinity": "First eight listed physical CPU IDs at eight workers; guest default clock and turbo. One fresh process at a time.",
+    "memory_cgroup_gib": 448,
+    "swap_gib": 0
+  },
+  "method": "Original passing configurations with all published properties and the state constraint; no model edits. One whole-process measurement per mode, pinned TLC rolling jar and JRE 17 with -Xmx32g -XX:+UseParallelGC -XX:ActiveProcessorCount=8. Core used nominal TLC profile, fp 0, seed 0. Authors used a different TLC version, fingerprint and host. All counts are fingerprint-based.",
+  "reproduce": "From tla/spec at the source revision: dive check PaxosLeaseChecked.tla --config CFG --workers 8 --fp 0 --seed 0 --compat=tlc --output json. For TLC use -workers 8 -fp 0 -seed 0 -config CFG PaxosLeaseChecked.tla with the specified JVM.",
+  "rows": [
+    {
+      "configuration": "PaxosLeaseBase.cfg",
+      "cfg_sha256": "03f0be6f3ae3faa879415477994958e480fdb88d7186f4dd9fc4f0577235c711",
+      "author_log": "results/check-base.txt",
+      "author_log_sha256": "dd5c4c9f7b35c42715bff0f4d3febf3ee8a9a2ae6b5d0fce8963d8d7e3c07e38",
+      "author_time": "08s",
+      "generated": 1709874,
+      "distinct": 491037,
+      "depth": 29,
+      "isolated": [
+        {
+          "mode": "core",
+          "workers": 8,
+          "wall_seconds": 1.77,
+          "peak_rss_kib": 165248,
+          "verdict": "success",
+          "generated": 1709874,
+          "distinct": 491037,
+          "depth": 29
+        },
+        {
+          "mode": "tlc",
+          "workers": 8,
+          "wall_seconds": 4.62,
+          "peak_rss_kib": 5489400,
+          "verdict": "success",
+          "generated": 1709874,
+          "distinct": 491037,
+          "depth": 29
+        }
+      ]
+    },
+    {
+      "configuration": "PaxosLeaseQuarantineEqualsProposer.cfg",
+      "cfg_sha256": "5f69288c3b80cbab777da4aa4f573fd9e8e42527ce77297e29adf192a2c804f2",
+      "author_log": "results/check-qep.txt",
+      "author_log_sha256": "3ddcf066061528a8d74d9b26164e924c2c224c638ef544f397219e076465629f",
+      "author_time": "10min 55s",
+      "generated": 391849185,
+      "distinct": 76749192,
+      "depth": 43,
+      "isolated": [
+        {
+          "mode": "core",
+          "workers": 8,
+          "wall_seconds": 243.7,
+          "peak_rss_kib": 4075164,
+          "verdict": "success",
+          "generated": 391849185,
+          "distinct": 76749192,
+          "depth": 43
+        },
+        {
+          "mode": "tlc",
+          "workers": 8,
+          "wall_seconds": 332.45,
+          "peak_rss_kib": 16333272,
+          "verdict": "success",
+          "generated": 391849185,
+          "distinct": 76749192,
+          "depth": 43
+        }
+      ]
+    },
+    {
+      "configuration": "PaxosLeaseRetry.cfg",
+      "cfg_sha256": "3df08aeb5bd1771b0ed045e8436fad72dba04371c86240b265e1107841a351d7",
+      "author_log": "results/retry.txt",
+      "author_log_sha256": "af328f1ad5b8688bd7c0cce26148c533aea3b2685ae1bfb5edf4f765f5c8dd02",
+      "author_time": "07h 03min",
+      "generated": 12642614099,
+      "distinct": 2179760458,
+      "depth": 48
+    },
+    {
+      "configuration": "PaxosLeaseRenewRetry.cfg",
+      "cfg_sha256": "a39011ac4534dc2e0f6ac977e754eefb2654b1d674482cda2dd6241c47e6e0f6",
+      "author_log": "results/renew-retry.txt",
+      "author_log_sha256": "1c075ecfd9b17657f8f93f39e95a62adb2aa6056ccbf218b99684da0f260644c",
+      "author_time": "08h 03min",
+      "generated": 14096750859,
+      "distinct": 2411951538,
+      "depth": 49
+    }
+  ]
+}
