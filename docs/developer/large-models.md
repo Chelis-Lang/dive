@@ -21,6 +21,19 @@ Local timings include source binding, compilation and checking. Peak RSS was 613
 
 **Dependency structure controls the result.** A transaction couples its snapshot, write log, missed-write log and the shared store at each key. Placing fields for the same key together makes many subproblems identical. With Medium, grouping by the common inner index gave 328 final nodes, 0.58 s wall and 67 MiB peak RSS. In declaration order the same model gave 3,552 nodes, 9.99 s and 202 MiB. Switching to a single simultaneous image per action gave 0.62 s and 8.48 s respectively. Layout explains most of this difference. More transaction IDs also couple more fields through conflict checks and commit. Adding keys to the two-transaction model was much cheaper than adding a third transaction to Medium, even when the five-key model had many more states.
 
+### Seven keys with exact counts
+
+Extending Medium to seven keys reached **80,269,130,471,718,912 symmetry classes**
+and **3,618,160,532,973,355,009 generated** at depth 42. Removing transaction
+symmetry gave **160,538,259,663,421,440 concrete reachable states** and
+**7,236,321,007,066,677,249 generated** at the same depth. Both searches reached
+a fixed point with the original invariants. Both counts in each run agree with
+the independent transaction-history formula. The runs took 70.60 s and 97.30 s
+respectively on the shared workstation. The [measurement record](../../conformance/reports/perf/2026-11-20-seven-key-reachability.json)
+identifies the inputs and peak memory. Run the seven-key reduced check with
+`scripts/symbolic/check_source.py --growth`. For the concrete check, remove
+`SYMMETRY TxIdSymmetric` from the expanded configuration and use `check.py`.
+
 ## Same-host Large comparison
 
 Each cell ran alone on one EC2 m6id.4xlarge with eight physical Xeon Platinum 8375C cores, SMT enabled and local NVMe. The limit was 600 s and a 24 GiB cgroup with swap disabled. TLC used the pinned rolling jar and JRE, a 16 GiB heap and parallel GC. Explicit Core used the sharded table, packed parents and shorter safety batches, the TLC profile, seed 0 and fingerprint 0. These are bounded engineering runs on a different instance type from the release R2 host.

@@ -1,0 +1,51 @@
+{
+  "model": "tlaplus/Examples specifications/KeyValueStore/MCKVS.tla",
+  "source_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "base_config": "MCKVSSafetyMedium.cfg",
+  "change": "Extend only Key to {k1, k2, k3, k4, k5, k6, k7}. The unreduced run also removes SYMMETRY TxIdSymmetric.",
+  "host": "Shared AMD Ryzen AI MAX+ 395, Linux x86-64, single worker",
+  "limits": {
+    "wall_seconds": 600,
+    "address_space_MiB": 8192
+  },
+  "measure": "Process wall seconds and maximum resident KiB from GNU time. Each row is a single engineering run.",
+  "tool": {
+    "python": "3.11.14",
+    "dd": "0.6.0",
+    "exporter_sha256": "d750651fb62ef36759dc1f8f41018c2c34dda273a2321ff53a5a0f95f2d717a4",
+    "validator_sha256": "b27d7824226ae41c90bb65da3f329ad9a313f284ea1413ae63c0ff06cff9004d"
+  },
+  "check": "scripts/symbolic/kvs_symbolic.py transaction_history_counts(7, 3, 2, symmetry) agrees on both counts for each configuration.",
+  "rows": [
+    {
+      "symmetry": true,
+      "config_sha256": "faf40431465308881d8bdfea6ccb60b44311a225897863322849e85284438ce2",
+      "wall_seconds": 70.6,
+      "rss_KiB": 628708,
+      "verdict": "success",
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "distinct": 80269130471718912,
+      "generated": 3618160532973355009,
+      "depth": 42,
+      "reachable_bdd_nodes": 852
+    },
+    {
+      "symmetry": false,
+      "config_sha256": "e981a902569e30b976d092b47ed42700b5aca7b53aecfa56919dc6081526ea83",
+      "wall_seconds": 97.3,
+      "rss_KiB": 616524,
+      "verdict": "success",
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "distinct": 160538259663421440,
+      "generated": 7236321007066677249,
+      "depth": 42,
+      "reachable_bdd_nodes": 887
+    }
+  ]
+}
