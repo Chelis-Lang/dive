@@ -1,0 +1,80 @@
+{
+  "machine": {
+    "cpu": "AMD Ryzen AI MAX+ 395",
+    "cpu_affinity": "one Linux logical CPU",
+    "kernel": "7.1.5-100.fc43.x86_64",
+    "rustc": "1.99.0",
+    "cargo_profile": "release without LTO, 16 codegen units"
+  },
+  "examples_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "model": "specifications/lamport_mutex/MCLamportMutex",
+  "edit": "INVARIANTS TypeOK BoundedNetwork Mutex -> INVARIANTS TypeOK Mutex",
+  "samples": {
+    "capture_elapsed_us": 9732884,
+    "capture_bind_us": 4096,
+    "original_fresh_us": 9870399,
+    "edited_fresh_us": [
+      10245353,
+      10313169,
+      9207427
+    ],
+    "edited_load_and_project_us": [
+      3593,
+      14088,
+      3240
+    ],
+    "proof_comparison_us": [
+      4,
+      5,
+      3
+    ],
+    "fresh_process_bind_both_and_attest_relation_us": [
+      9136,
+      8038,
+      7735
+    ],
+    "capture_and_project_process_peak_kib": 236928,
+    "fresh_series_process_peak_kib": 238864,
+    "statistics": {
+      "depth": 61,
+      "distinct": 724274,
+      "generated": 2729079,
+      "initial_generated": 1,
+      "left_on_queue": 0
+    }
+  },
+  "earlier_qualification_before_whole_source_effect_gate": {
+    "capture_elapsed_us": 10157462,
+    "capture_bind_us": 4070,
+    "original_fresh_us": 9920948,
+    "edited_fresh_us": [
+      9252781,
+      9690863,
+      9183758
+    ],
+    "edited_load_and_project_us": [
+      3670,
+      13360,
+      3199
+    ],
+    "proof_comparison_us": [
+      3,
+      3,
+      2
+    ],
+    "fresh_process_bind_both_and_attest_relation_us": [
+      9194,
+      8192,
+      7786
+    ],
+    "capture_and_project_process_peak_kib": 236756,
+    "fresh_series_process_peak_kib": 239112,
+    "statistics": {
+      "depth": 61,
+      "distinct": 724274,
+      "generated": 2729079,
+      "initial_generated": 1,
+      "left_on_queue": 0
+    }
+  }
+}

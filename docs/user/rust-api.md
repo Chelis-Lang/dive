@@ -261,3 +261,54 @@ See the mode guides for the after-loading scope and uninterruptible value units.
 
 `simulate_file` and `dfid_file` run compiled finite execution. A reached refusal is never retried. Reports name the engine that
 ran. Seeded reproduction needs the same request settings.
+
+## Drop an invariant from a completed safety check
+
+When an edit only removes already-proved invariants, the checker can project
+the old complete proof onto the smaller inventory. This works with aggregate
+rows such as functions, records, sets and queues. It retains the bound source
+identity, invariant names and actual search counters, with zero stored state rows.
+
+```rust
+use dive_api::safety_projection::{Limits, Program};
+use std::path::Path;
+
+fn project(file: &Path, before: &Path, after: &Path)
+    -> Result<(), Box<dyn std::error::Error>>
+{
+    let policy = Limits::default();
+    let proof = Program::load(file, before)?.capture(policy)?;
+    let current = Program::load(file, after)?;
+    let counts = proof.project(&current, policy)?;
+    println!("{} states in the establishing run", counts.distinct);
+    Ok(())
+}
+```
+
+Both programs must bind as pure ordinary single-worker exact safety checks in
+the Dive profile with seed/fingerprint zero and matching deterministic
+state/depth limits. Their loaded modules and source bytes must match, including
+assumptions, Init/Next and every property body. The effective current invariant
+names must be an ordered subsequence of the previous inventory. Supported
+fixed configuration includes state constraints, integer/Boolean constants
+and unscoped constant substitutions. Native local classes, impure operations,
+views, symmetry, temporal obligations and strategy overrides miss. A prior
+refutation, incomplete search or error cannot construct a `Complete`.
+
+A service with a previous proof in another process may call
+`previous.subset(&current, old_limits, new_limits)`. It returns the current
+bound inventory and establishes only a relation between the two supplied
+programs. The service must authenticate a successful completed **ordinary
+safety** receipt for the exact previous module closure, CFG, checker build and
+fixed execution policy, including deterministic limits, and enforce its current
+request resource policy. Pairing a relation with an unverified, stale, stopped,
+refuted or temporal receipt cannot establish Holds. A change to an invariant
+body requires value-row rechecking or a fresh search.
+
+```sh
+cargo run -p dive-api --release --example project_invariants -- \
+  Model.tla before.cfg Model.tla edited.cfg
+```
+
+The example's `--relation` mode binds both inputs and prints an inventory
+without a verdict. See the [S7 projection measurements](../developer/performance.md#removing-boundednetwork-from-mclamportmutex).
