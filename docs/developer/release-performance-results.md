@@ -16,6 +16,8 @@ README indexes the data and fields; each section names its record. The scripts
 that produced them are in
 [`scripts/perf/release/`](../../scripts/perf/release/README.md).
 
+For the subsequent large-model investigations, see the [engineering measurements and data files](../../conformance/reports/perf/README.md#large-model-structure-and-edit-reuse).
+
 ## Summary
 
 | Measurement | Result | Record |

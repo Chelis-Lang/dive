@@ -1,0 +1,231 @@
+{
+  "cfg": "MCKVSSafetyLarge.cfg",
+  "date": "2026-11-19",
+  "example_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "host": "Dedicated EC2 m6id.4xlarge, 8 physical Xeon 8375C cores, SMT enabled, local NVMe; 24 GiB cgroup, swap disabled",
+  "runs": {
+    "core-1": {
+      "elapsed_ms": 600049,
+      "exit": 5,
+      "max_rss_kib": 833244,
+      "process_wall_s": 600.06,
+      "sampled_rss_plus_swap_bytes": 853409792,
+      "stats": {
+        "depth": 16,
+        "distinct": 12986018,
+        "exhaustive": false,
+        "generated": 121895574,
+        "initial_generated": 1,
+        "left_on_queue": 7245659,
+        "reported_by_tlc": false
+      },
+      "verdict": "stopped"
+    },
+    "core-8": {
+      "elapsed_ms": 600024,
+      "exit": 5,
+      "max_rss_kib": 3439368,
+      "process_wall_s": 600.06,
+      "sampled_rss_plus_swap_bytes": 3521904640,
+      "stats": {
+        "depth": 18,
+        "distinct": 59795065,
+        "exhaustive": false,
+        "generated": 675515083,
+        "initial_generated": 1,
+        "left_on_queue": 28941599,
+        "reported_by_tlc": false
+      },
+      "verdict": "stopped"
+    },
+    "source-1": {
+      "exit": 1,
+      "max_rss_kib": 618328,
+      "process_wall_s": 200.6,
+      "steps": [
+        {
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ],
+          "reachable_bdd_nodes": 1961,
+          "reused": false,
+          "seconds": 200.267629,
+          "verdict": "success"
+        },
+        {
+          "depth": 30,
+          "distinct": 594616815,
+          "generated": 13385471536,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle",
+            "TxIsClean"
+          ],
+          "reachable_bdd_nodes": 1961,
+          "reused": true,
+          "seconds": 0.052287,
+          "verdict": "success"
+        },
+        {
+          "depth": 3,
+          "ending": {
+            "kind": "invariant",
+            "name": "NoWrites"
+          },
+          "reused": true,
+          "seconds": 0.051441,
+          "trace_validated": true,
+          "verdict": "violation"
+        }
+      ]
+    },
+    "tlc-1": {
+      "exit": 124,
+      "max_rss_kib": 5194408,
+      "periodic_counts": [
+        {
+          "depth": 11,
+          "distinct": 82536,
+          "generated": 496660,
+          "queued": 56026
+        },
+        {
+          "depth": 14,
+          "distinct": 1670313,
+          "generated": 12839450,
+          "queued": 1037134
+        },
+        {
+          "depth": 15,
+          "distinct": 3181011,
+          "generated": 25270516,
+          "queued": 1946271
+        },
+        {
+          "depth": 15,
+          "distinct": 4488294,
+          "generated": 38204779,
+          "queued": 2648231
+        },
+        {
+          "depth": 15,
+          "distinct": 5874481,
+          "generated": 50613787,
+          "queued": 3448113
+        },
+        {
+          "depth": 15,
+          "distinct": 7319120,
+          "generated": 63047905,
+          "queued": 4302243
+        },
+        {
+          "depth": 16,
+          "distinct": 8481908,
+          "generated": 75739101,
+          "queued": 4874696
+        },
+        {
+          "depth": 16,
+          "distinct": 9686519,
+          "generated": 88927562,
+          "queued": 5472034
+        },
+        {
+          "depth": 16,
+          "distinct": 10918932,
+          "generated": 101417680,
+          "queued": 6123975
+        },
+        {
+          "depth": 16,
+          "distinct": 12181287,
+          "generated": 113927331,
+          "queued": 6809626
+        }
+      ],
+      "process_wall_s": 600.2
+    },
+    "tlc-8": {
+      "exit": 124,
+      "max_rss_kib": 8421340,
+      "periodic_counts": [
+        {
+          "depth": 13,
+          "distinct": 477610,
+          "generated": 3312955,
+          "queued": 310346
+        },
+        {
+          "depth": 17,
+          "distinct": 9905734,
+          "generated": 95238214,
+          "queued": 5413655
+        },
+        {
+          "depth": 18,
+          "distinct": 18456148,
+          "generated": 189451999,
+          "queued": 9621444
+        },
+        {
+          "depth": 18,
+          "distinct": 26454812,
+          "generated": 283196538,
+          "queued": 13334101
+        },
+        {
+          "depth": 19,
+          "distinct": 34224302,
+          "generated": 378284657,
+          "queued": 16786554
+        },
+        {
+          "depth": 19,
+          "distinct": 41653392,
+          "generated": 472154995,
+          "queued": 19957275
+        },
+        {
+          "depth": 19,
+          "distinct": 48771011,
+          "generated": 566264596,
+          "queued": 22825249
+        },
+        {
+          "depth": 19,
+          "distinct": 55718244,
+          "generated": 659874923,
+          "queued": 25551610
+        },
+        {
+          "depth": 20,
+          "distinct": 62723968,
+          "generated": 754225275,
+          "queued": 28301651
+        },
+        {
+          "depth": 20,
+          "distinct": 69272647,
+          "generated": 846500254,
+          "queued": 30695208
+        }
+      ],
+      "process_wall_s": 600.34
+    }
+  },
+  "schema": 1,
+  "scope": "Engineering measurements. Samples from different hosts or builds are identified separately. See the performance data index for definitions.",
+  "seconds_limit": 600,
+  "separate_tlc_w1_interrupted_prefix": {
+    "depth": 17,
+    "distinct": 34345610,
+    "generated": 352507943,
+    "queued": 18054321,
+    "scope": "Earlier interrupted run; no terminal verdict or measured RSS. Last periodic report only."
+  }
+}

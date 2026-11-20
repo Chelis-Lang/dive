@@ -1,7 +1,6 @@
 # Performance records
 
-Compact JSON records of dive performance measurements. Each file is one
-measurement on one source revision and host. Raw runs (per-run JSON lines,
+Compact JSON records of dive performance measurements. Each record identifies the experiment and its sources and hosts. Raw release runs (per-run JSON lines,
 console output, reports) are not in the repository; they are tarballs in the
 dive evidence archive bucket (us-east-1), and each record cites its tarball by
 name and SHA-256 so a later reader can fetch it and check that it is the
@@ -291,6 +290,34 @@ EOF
 To compare a later release, build its records with the same scripts and
 compare per-model `ratio` (D1), `speedup8` (D4) or medians (D2, D3, D5, D6) by
 model key; the keys are stable corpus config paths.
+
+## Large-model structure and edit reuse
+
+The November 19 engineering runs separate the cost of storing more states, the cost of expanding more successor choices, and the cost of repeating a previous check. These records preserve the measurements behind [#799](https://github.com/Chelis-Lang/dive/issues/799), [#1028](https://github.com/Chelis-Lang/dive/issues/1028) and [#1034](https://github.com/Chelis-Lang/dive/issues/1034). They use development builds. Quote the model, checker, workload, units and host with any number.
+
+| Question | Record | What to look up |
+|---|---|---|
+| Where did explicit Core run out of memory? | [Explicit storage and scheduling](2026-11-19-large-model-explicit.json) | `fingerprint_resize`, `predecessors` and `runs.local-original`. The resize probe inserted 402,653,185 keys. The original KVS Large run finished in 6,693.531 s with 594,616,815 distinct states and sampled 18.31 GiB RSS plus swap. |
+| What changed with more workers or less buffering? | [Worker observations, prefixes and tradeoffs](2026-11-19-large-model-explicit.json) | `runs` contains the CoffeeCan and Huang worker matrix, PConProof and KVS Medium and the fixed KVS prefixes. `safety_pool_trials` includes the interleaved trial in which pooling ordinary safety workers cost time. |
+| Which models compress under symbolic checking? | [Finite safety and edit samples](2026-11-19-large-model-symbolic.json) | Compare `runs.shape-grouped` and `runs.shape-path` for field order, `growth-5` and `growth-large3v` for coupling, `source-edits` for an invariant change, and `standalone-proof` for checking a candidate predicate independently. `c1cs_postdecision` covers only the specified reachable regions. |
+| How variable were symbolic times across runs? | [Additional timed integration trials](2026-11-19-large-model-symbolic-controls.json) | Each trial lists the observed configuration names and measured steps in their original order. Configurations in different test cases can share a filename. Successful, violated and inconclusive cases have different semantics. |
+| Do the methods agree on one machine? | [Same-host KVS Large comparison](2026-11-19-large-model-ec2.json) | One EC2 m6id.4xlarge, one checker at a time, 600 s and 24 GiB. Core and TLC at one and eight workers reached the deadline. The source-driven symbolic search finished in 200.27 s. TLC counters are its periodic samples. |
+| How much does Sail save when maintenance repeats a check? | [Sail S7 methods and results](https://github.com/Chelis-Lang/sail/blob/89e61512cbcce6be425fcff4959504db33d9eed3/docs/validation/temporal-reuse-s7.md) | The 1,330× mutex rerun and 3.34× mixed-loop speedups compare exact receipts with the v0.3.0 source on c7i.4xlarge. Substantive edits took the fresh route. |
+
+### Reading the development records
+
+The explicit record retains the actual binary digests. In the fixed-prefix runs, `base` used the original table, `shards` grew table shards independently, `packed` added packed parents, and `short` reduced candidate batches. `pred-spill` and `frontier-spill` forced the corresponding data to disk. `cliff-*` runs had a sampled whole-process memory limit. In the temporal matrix `packed` is the comparison build, `pool` reused workers, `claims` reused only the claim table, and `wave` reused both. `integrated` combines the retained changes, while `allpool` also pools ordinary safety expansion. The numeric suffix is the worker count on the named model. A `stopped` run records the exploration prefix and its queue.
+
+`elapsed_ms` is the checker report's elapsed time. `sampled_rss_plus_swap_bytes` is the maximum of its process samples. `process_wall_s` and `max_rss_kib` come from the external process timer. In the symbolic record, `seconds` measures one operation, while the external timer can span multiple steps in one invocation. `final-analytic-*` and `kvs-symbolic-*` used a hand-translated KVS relation. Use `source-*` or `growth-*` for results from the TLA+ source. A completed fixed point reports generated and distinct counts and depth. An inductive safety proof establishes its obligations without enumerating the graph. The records retain both timing scopes where available.
+
+For example, a documentation build can get the original explicit counts and the edited-property times directly with:
+
+```sh
+jq '.runs["local-original"] | {elapsed_ms, sampled_rss_plus_swap_bytes, stats}' \
+  conformance/reports/perf/2026-11-19-large-model-explicit.json
+jq '.runs["source-edits"].steps[] | {verdict, reused, seconds}' \
+  conformance/reports/perf/2026-11-19-large-model-symbolic.json
+```
 
 ## Earlier records
 
