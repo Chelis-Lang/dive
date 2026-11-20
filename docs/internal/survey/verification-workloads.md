@@ -92,16 +92,30 @@ qualification at integrated milestones. [Performance records](../../../conforman
 
 The comparison used two dedicated EC2 c7i.4xlarge hosts. Each had eight
 physical cores, one NUMA node, SMT and swap disabled, and a 24 GiB cgroup.
-All arms for a given model ran on the same host. Values below are median process wall seconds across three
-alternating samples. Each listed comparison matches the reference verdict,
-distinct and generated counts, and depth. Worker headings are the requested
-width. The record preserves observed worker use where the checker reports it.
-The frozen Core arm used the nominal TLC profile and a release build with
-line information and LTO disabled. The v0.1.0 arm used the published binary.
-The two TLC jars have separate records. The linked evidence includes the
-first completed cells and elapsed-time stops. Dashes indicate cells that
-have yet to collect three matching samples.
-[Per-cell observations](../../../conformance/reports/perf/2026-11-20-native-peer-panel.json)
+All arms for a given model ran on the same host. Values below are median
+process wall seconds across three alternating samples. Each numeric cell
+matches the reference verdict, distinct and generated counts, and depth.
+Worker headings are the requested width. The record preserves observed
+worker use where the checker reports it.
+The frozen Core arm used the nominal TLC profile. Each host built Core from
+the same source and release flags, with line information and LTO disabled.
+The v0.1.0 arm used the published binary.
+The full record includes both TLC jars, the release binary and elapsed-time
+stops. Once a one-worker arm reached the cap, later repeats were omitted.
+[Per-cell observations](../../../conformance/reports/perf/2026-11-20-native-peer-panel.json) ·
+[Runner](https://github.com/Chelis-Lang/dive/blob/perf/peer-guard-spike/scripts/perf/scale/peer-panel.py)
+
+To rerun, stage the pinned checker binaries under `bin/`, Java and the TLC
+module jars under `inputs/`, and the staged modules under `models/` in a
+scratch directory, following the names in the runner and evidence. Invoke
+`peer-panel.py STAGE OUT --part panel --models counters liveness lamport`
+within the memory cgroup. On the same host, resume with
+`--models kvs --workers 8 --resume`, then `--models kvs --workers 1 --resume`.
+Run EmergencyCall on its own host and output directory with
+`--models emergency --workers 8 --resume`, then change the worker count to
+one. The runner keeps the compiled cache within each cold/repeat
+pair. Retain the final checker result before any progress samples when
+normalizing counts and depth.
 
 | Input | Checker and tier | 1 worker | 8 workers |
 | --- | --- | ---: | ---: |
@@ -117,8 +131,14 @@ have yet to collect three matching samples.
 | | tla-mc compiled, clean cache | 28.62 | 23.80 |
 | | tla-mc compiled, repeat | 5.70 | 0.80 |
 | KVS Medium | Core | stopped | 149.93 |
-| EmergencyCall f3 | Core | — | 104.78 |
-| | Pinned TLC | — | 91.38 |
+| | tlx interpreted | stopped | 160.39 |
+| | tlx compiled, clean cache | 84.41 | 13.74 |
+| | tlx compiled, repeat | 84.75 | 13.67 |
+| | tla-mc interpreted | 550.48 | 95.18 |
+| | tla-mc compiled, clean cache | 378.83 | 70.28 |
+| | tla-mc compiled, repeat | 358.89 | 47.60 |
+| EmergencyCall f3 | Core | 232.89 | 104.78 |
+| | Pinned TLC | 396.81 | 91.38 |
 
 Lamport mutex finished at 724,274 distinct states, 2,729,079 generated and
 depth 61. On this workload tlx reported a 97-word state layout, 27 fully lowered
@@ -128,14 +148,27 @@ threshold. The 0.27 s clean-cache result includes binding and JIT setup.
 tla-mc's generated Rust has a larger first-check cost and pays back on
 repeat checks of the same input.
 
-The initial two eight-worker compiled tlx runs on KVS Medium took 13.61 s
-and 13.74 s, with the golden 17,220,672 distinct states, 365,609,473
-generated and depth 22. tlx reported a 14-word layout and all seven actions
-fully typed. At one worker Core reached 15,996,087 distinct and 292,049,699
-generated before its limit. On EmergencyCall f3 at eight workers, Core and
-pinned TLC agreed on 21,255,936 distinct, 135,871,232 generated and depth 27.
-
+On KVS Medium at eight workers, Core and compiled tlx matched the golden
+17,220,672 distinct states, 365,609,473 generated and depth 22. tlx reported
+a 14-word layout and all seven actions fully typed. In generated C,
+closing a transaction iterates set bits for open transactions, looks up
+write-set offsets in fixed tables, and copies each updated store slot
+directly into the successor. Its median peak RSS was 1.59 GiB versus
+Core's 0.85 GiB. The pinned TLC cell matched the state counts and reported
+depth 23. At one worker compiled tlx completed in 84.41 s with the same
+golden counts. Core reached 15,996,087 distinct and 292,049,699 generated
+before its limit. Both TLC jars and dive v0.1.0 also hit the cap.
 [tlx tier and compilation log](https://github.com/tlaplus-x/tlx/blob/77867a37d59525ce8866e8cce7f2dd32dc5d4d04/docs/usage.md#5-compiled-mode--compile)
+
+On EmergencyCall f3, Core and pinned TLC agreed on 21,255,936 distinct,
+135,871,232 generated and depth 27 at both widths. From one to eight
+workers Core sped up 2.22× and pinned TLC sped up 4.34×.
+
+On Manyan liveness, Core reported using all eight workers. Its median
+exploration timer rose from 94.12 ms to 145.68 ms with 38,880 distinct
+states at each width. The process wall time includes the subsequent
+temporal check. The case gives a baseline for measuring both phases.
+[Core temporal work](https://github.com/Chelis-Lang/dive/issues/1028)
 
 Core's one-worker sampled self time included at least 13.2% in heap lookups
 on Lamport mutex and 9.9% on a 40 s KVS Medium prefix. These lower bounds
@@ -143,7 +176,12 @@ sum the source rows at or above 0.4% in the profile. In the short compiled
 tlx Lamport profile, fingerprinting encoded words accounted for at least
 18.8% and the queue's XOR codec for at least 6.8%. The within-tlx tier
 comparison captures the combined effect of layout specialization and native
-execution. The profiles identify where the remaining work went.
+execution. tlx also quantifies how much work returns to general evaluation.
+In its published VSR example, changing the representation of one message
+bag reduced host-region entries from 1.21 billion to 6.39 million at the
+same counts and depth. That result motivates measuring actual fallback
+frequency alongside static action coverage.
+[tlx VSR measurements](https://github.com/tlaplus-x/tlx/blob/77867a37d59525ce8866e8cce7f2dd32dc5d4d04/docs/research/native-vsr.md)
 
 ### Scalar guard experiment
 
@@ -164,10 +202,12 @@ with it on. The experimental code is available for review on the
 
 Leave the scalar tape experimental. The next compilation probe should
 specialize one fixed-domain aggregate path in Lamport mutex, such as
-`req[p][q]` reads and updates, then measure the complete action path. Reuse
-Core's binding and identity rules, and check that the optimized and general
-paths generate the same ordered witnesses. Keep the Manyan fairness case
-as a separate temporal control for graph capture and property-product work.
+`req[p][q]` reads and updates. Measure how often the admitted actions use
+the representation, how often they fall back, and the effect on the full
+check. Reuse Core's binding and identity rules, and compare successor order,
+generated multiplicity and independently valid witnesses with the general
+path. Use counters and KVS Medium to check transfer beyond Lamport.
+[tlx mixed-mode lowering](https://github.com/tlaplus-x/tlx/blob/77867a37d59525ce8866e8cce7f2dd32dc5d4d04/docs/mixed-mode.md)
 
 ## TLAPS options and evidence
 

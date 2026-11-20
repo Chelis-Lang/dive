@@ -2,7 +2,7 @@
 
 Compact JSON records of dive performance measurements. Each record identifies the experiment and its sources and hosts. Raw release runs (per-run JSON lines,
 console output, reports) are not in the repository; they are tarballs in the
-dive evidence archive bucket (us-east-1), and each record cites its tarball by
+dive evidence archive bucket (us-east-1), and each release record cites its tarball by
 name and SHA-256 so a later reader can fetch it and check that it is the
 same file.
 
