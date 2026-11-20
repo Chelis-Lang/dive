@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Core reduces the number of sources expanded together in high-fanout parallel safety searches. On BPConProof this cut peak RSS by 59% at one million discoveries. [Measurements](docs/developer/large-models.md#high-fanout-parallel-safety).
+
 - Core uses one worker for temporal captures with a wide initial frontier and simple actions, and reports why in `options.workers`.
 - Core temporal checks use compact successor ordinals while retaining exact trace and saved-graph identities. See the [matched memory comparison](docs/developer/large-models.md#successor-ordinals-in-temporal-graphs).
 - Core supports inclusive subsequence predicate searches and folds multikey

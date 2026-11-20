@@ -2160,6 +2160,18 @@ fn level_done(ex: &mut Explorer<'_>, _nvars: usize) -> Result<(), Error> {
 
 /// The states of a parallel level each worker expands per chunk.
 const CHUNK_PER_WORKER: usize = 128;
+/// Projected successor occurrences in one ordinary parallel safety wave.
+/// A high-fanout source can exceed this on its own.
+const TARGET_WAVE_SUCCESSORS: usize = 65_536;
+
+fn safety_wave(workers: usize, previous_sources: usize, previous_generated: usize) -> usize {
+    if workers == 1 || previous_sources == 0 {
+        return workers * CHUNK_PER_WORKER;
+    }
+    let fanout = previous_generated.div_ceil(previous_sources).max(1);
+    (workers * CHUNK_PER_WORKER).min((TARGET_WAVE_SUCCESSORS / fanout).max(workers))
+}
+
 /// The optional encoded path decodes at most this many state pairs at once.
 const FRONTIER_CHUNK_STATES: usize = 1024;
 
@@ -2229,6 +2241,7 @@ fn run(
     ex.advance_frontier()?;
     let mut wave_workers = parallel::WaveWorkers::default();
     let mut generated_before = 0;
+    let mut previous_sources = 0;
     loop {
         let states = cur.len().checked_div(nvars).map_or(0, |in_memory| {
             ex.frontier
@@ -2258,9 +2271,12 @@ fn run(
         // level's. A chunk's commit fills the seen set before the
         // next chunk is expanded, which reads it as an earlier level's.
         let chunk = ex.graph.as_deref().map_or_else(
-            || (machines.len() * CHUNK_PER_WORKER).max(1),
+            || safety_wave(machines.len(), previous_sources, estimate),
             |sink| sink.max_expansion_units().max(1),
         );
+        if ex.checkpoint.is_none() && ex.distributed.is_none() {
+            previous_sources = states;
+        }
         let chunk = if ex.candidates.is_some() {
             machines.len().max(1)
         } else {
@@ -3014,5 +3030,14 @@ mod tests {
         assert!(!s.insert(0));
         assert!(s.contains(5u64.wrapping_mul(0x9e37_79b9_7f4a_7c15)));
         assert!(!s.contains(7));
+    }
+
+    #[test]
+    fn safety_waves_use_completed_sources_and_keep_the_requested_workers() {
+        assert_eq!(super::safety_wave(8, 0, 100_000), 1024);
+        assert_eq!(super::safety_wave(1, 1, 100_000), 128);
+        assert_eq!(super::safety_wave(8, 1000, 4000), 1024);
+        assert_eq!(super::safety_wave(8, 2, 4097), 31);
+        assert_eq!(super::safety_wave(8, 2, usize::MAX), 8);
     }
 }
