@@ -197,6 +197,8 @@ pub struct CorpusIndex {
     pub modules: Vec<ModuleEntry>,
     /// Models, sorted by id.
     pub models: Vec<ModelEntry>,
+    /// Exhaustive models excluded solely for a pinned oracle timeout.
+    pub oracle_timeouts: Vec<String>,
     /// Submodules declared but not fetched.
     pub unfetched_submodules: Vec<String>,
     /// Spec directories without a manifest, and `.tla` files that no manifest
@@ -571,6 +573,15 @@ pub fn enumerate_manifest(
                 corpus.id, x.path
             )));
         };
+        if x.oracle_timeout {
+            if model.out_of_scope.is_some() || model.mode != ModelMode::Exhaustive {
+                return Err(Error::Config(format!(
+                    "corpus `{}`: oracle_timeout on `{}` requires an ordinary exhaustive model",
+                    corpus.id, x.path
+                )));
+            }
+            index.oracle_timeouts.push(x.path.clone());
+        }
         model.out_of_scope = Some(format!("excluded in corpora.toml: {}", x.reason));
     }
     Ok(index)
@@ -670,6 +681,7 @@ fn enumerate_with(
         root: root.to_path_buf(),
         modules,
         models,
+        oracle_timeouts: Vec::new(),
         unfetched_submodules: submodule_paths(root),
         uncovered,
     })
@@ -745,7 +757,7 @@ mod tests {
                 "0".repeat(40)
             )
         };
-        let excl = "[[corpus.exclude]]\npath = \"tla/Big.cfg\"\nreason = \"TLC exceeds the cap\"\n";
+        let excl = "[[corpus.exclude]]\npath = \"tla/Big.cfg\"\nreason = \"TLC exceeds the cap\"\noracle_timeout = true\n";
         let file = crate::config::CorporaFile::parse(&toml(excl))?;
         let index = enumerate_manifest(&file.corpus[0], dir.path(), &manifest)?;
         assert_eq!(index.modules.len(), 1);
@@ -753,6 +765,7 @@ mod tests {
             index.uncovered.is_empty(),
             "unlisted upstream files are not uncovered"
         );
+        assert_eq!(index.oracle_timeouts, ["tla/Big.cfg"]);
         let big = index.models.iter().find(|m| m.id == "tla/Big.cfg");
         assert!(big.is_some_and(|m| m.out_of_scope.as_deref().is_some_and(|r| r.contains("cap"))));
         let small = index.models.iter().find(|m| m.id == "tla/M.cfg");
