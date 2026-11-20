@@ -38,6 +38,7 @@ mod parallel;
 mod reclaim;
 pub mod sample;
 pub mod storage;
+mod storage_owned;
 pub mod trace;
 
 use std::sync::Arc;
@@ -2229,6 +2230,22 @@ fn run(
     ex.advance_frontier()?;
     let mut wave_workers = parallel::WaveWorkers::default();
     let mut generated_before = 0;
+    let limit_wave = std::env::var_os("DIVE_EXPERIMENTAL_FANOUT_WAVES").as_deref()
+        == Some(std::ffi::OsStr::new("1"));
+    let owned_waves = limit_wave
+        && std::env::var_os("DIVE_EXPERIMENTAL_OWNED_CHUNKS").as_deref()
+            == Some(std::ffi::OsStr::new("1"))
+        && ex.frontier.is_some()
+        && ex.candidate_storage.frontier_memory_bytes == Some(0)
+        && ex.seen.exact.is_none()
+        && ex.disk.is_none()
+        && ex.checkpoint.is_none()
+        && ex.distributed.is_none()
+        && ex.graph.is_none()
+        && ex.candidates.is_none()
+        && reservoir.is_none()
+        && permanent.is_some();
+    let mut prior_sources = 1usize;
     loop {
         let states = cur.len().checked_div(nvars).map_or(0, |in_memory| {
             ex.frontier
@@ -2261,6 +2278,15 @@ fn run(
             || (machines.len() * CHUNK_PER_WORKER).max(1),
             |sink| sink.max_expansion_units().max(1),
         );
+        // The previous level supplies an observed number of successors per source.
+        // Limit projected transient work while preserving at least one source per worker.
+        let chunk = if limit_wave && ex.graph.is_none() {
+            let degree = estimate.div_ceil(prior_sources).max(1);
+            chunk.min((65536 / degree).max(machines.len()))
+        } else {
+            chunk
+        };
+        prior_sources = states;
         let chunk = if ex.candidates.is_some() {
             machines.len().max(1)
         } else {
@@ -2280,6 +2306,12 @@ fn run(
         let mut base = 0;
         for k in 0..states {
             if k % chunk == 0 {
+                if owned_waves && k != 0 {
+                    // Workers have joined and every occurrence in the last wave
+                    // has been committed. Only private independent chunks may
+                    // refer to unexpanded rows, and the next chunk is still unread.
+                    reclaim::boundary(machines, ex, store, permanent, control)?;
+                }
                 let queued = ex.queued_states();
                 if let Some(frontier) = &mut ex.frontier {
                     decoded = match frontier.chunk(k, (k + chunk).min(states), ex.poll) {
