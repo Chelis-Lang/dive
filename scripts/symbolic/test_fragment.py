@@ -51,6 +51,8 @@ Outside == x \notin Colors
 
     (stopped,) = run(module, config, "--time-limit", "0.000001", code=4)
     assert stopped["verdict"] == "stopped" and "proof" not in stopped
+    (stopped,) = run(module, config, "--max-memory", "1", code=4)
+    assert stopped["verdict"] == "stopped" and "proof" not in stopped
     (bounded,) = run(module, config, "--max-memory", "2048")
     compare(bounded, explicit(module, config))
     for cfg, reason in [

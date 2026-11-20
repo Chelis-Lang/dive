@@ -1,4 +1,4 @@
-# 0159. Optional finite symbolic safety evidence
+# 0161. Optional finite symbolic safety evidence
 
 - **Status:** accepted
 - **Date:** 2026-11-20

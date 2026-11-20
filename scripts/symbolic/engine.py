@@ -4,6 +4,7 @@
 import argparse
 from collections import Counter
 from dataclasses import dataclass
+import errno
 import itertools
 import json
 from pathlib import Path
@@ -23,6 +24,34 @@ import induction
 
 class Unsupported(ValueError):
     """The finite fragment or this layout cannot represent the program."""
+
+
+class Stopped(RuntimeError):
+    """A subprocess stopped before it produced a semantic result."""
+
+
+def run_helper(command, label, memory_limited, **options):
+    try:
+        result = subprocess.run(command, text=True, capture_output=True, **options)
+    except OSError as error:
+        if error.errno in (errno.ENOMEM, errno.EAGAIN):
+            raise Stopped(label + " exhausted process resources") from error
+        raise
+    if result.returncode:
+        # A failed loader, allocator or thread startup can terminate before
+        # Rust main returns a diagnostic. Never classify that as a model refusal.
+        if result.returncode < 0:
+            raise Stopped(f"{label} terminated by signal {-result.returncode}")
+        if "cannot start a thread: " in result.stderr and any(
+            f"(os error {code})" in result.stderr for code in (errno.ENOMEM, errno.EAGAIN)
+        ):
+            raise Stopped(label + " could not allocate a binder thread")
+        if not result.stderr.startswith("Error: ") and not result.stdout.strip():
+            reason = result.stderr.strip()[-500:] or f"exit {result.returncode}"
+            if memory_limited:
+                raise Stopped(f"{label} stopped under the memory budget: {reason}")
+            raise RuntimeError(f"{label} failed without a result: {reason}")
+    return result
 
 
 def require(condition, message):
@@ -741,7 +770,7 @@ def run(args):
     violated = False
     for module, config in [(args.module, args.config), *args.recheck]:
         start = time.monotonic()
-        exported = subprocess.run([args.exporter, module, config], text=True, capture_output=True)
+        exported = run_helper([args.exporter, module, config], "Dive frontend", args.max_memory)
         require(exported.returncode == 0, "Dive frontend: " + exported.stderr.strip())
         doc = json.loads(exported.stdout)
         model = SourceModel(
@@ -776,7 +805,7 @@ def run(args):
         if trace is not None:
             violated = True
             raw = json.dumps(trace)
-            validated = subprocess.run(
+            validated = run_helper(
                 [
                     args.dive,
                     "validate-trace",
@@ -793,9 +822,9 @@ def run(args):
                     "--output",
                     "json",
                 ],
+                "Dive trace validator",
+                args.max_memory,
                 input=raw,
-                text=True,
-                capture_output=True,
             )
             require(
                 validated.returncode == 0 and json.loads(validated.stdout)["result"] == "valid",
@@ -817,6 +846,9 @@ def run(args):
 if __name__ == "__main__":
     try:
         sys.exit(run(argparse.Namespace(**json.loads(sys.argv[1]))))
+    except Stopped as err:
+        print(json.dumps(dict(verdict="stopped", reason=str(err))), flush=True)
+        sys.exit(4)
     except MemoryError:
         print(json.dumps(dict(verdict="stopped", reason="memory exhausted")), flush=True)
         sys.exit(4)
