@@ -5,6 +5,12 @@ without effects. The default profile checks at completed BFS levels as the
 search grows; the TLC profile checks once, after exhaustion. Every
 counterexample is replayed independently before it is reported.
 
+When the planner reaches a formula construction bound, the Core file checker reports
+`DIVE-L0021`, the source predicate location and the exhausted bound. For example,
+`predicate lowering steps` counts work expanding and checking scoped operands,
+including fairness under finite quantifiers. The run returns `unsupported`
+before a model verdict.
+
 In an empty directory, write the counter from
 [getting started](getting-started.md) and a configuration that checks one
 temporal property:

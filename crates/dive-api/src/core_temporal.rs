@@ -685,7 +685,21 @@ fn report_outcome(
         {
             CoreOutcome::TemporalFailure(Box::new(failure))
         }
-        Err(_) => refused(VALIDATION_FAILURE, options, ir),
+        Err(failure) => {
+            if let crate::temporal::Error::Analysis(
+                dive_liveness::analyze::AnalysisError::Planning(
+                    planning @ dive_liveness::plan::PlanningError::Formula {
+                        error: dive_liveness::formula::FormulaError::Limit(_),
+                        ..
+                    },
+                ),
+            ) = failure.error()
+            {
+                refused(planning.to_string(), options, ir)
+            } else {
+                refused(VALIDATION_FAILURE, options, ir)
+            }
+        }
     }
 }
 

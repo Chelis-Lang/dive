@@ -385,19 +385,19 @@ fn quantified_word_truth_matches_cycle_algebra_and_empty_domain_identities() {
 
 #[test]
 fn quantifier_limits_and_hidden_constant_effects_are_not_success() {
-    // A domain too large to enumerate, checker introspection or a hidden
-    // effect in a constant is a temporal validation failure: Core refuses it
-    // by name. Under --compat=tlc the module's literal 1000000000000 is
-    // already TLC's integer overflow, a model error.
+    // Default planning reports the precise exhausted bound for Numbers.
+    // Hidden still refuses its dynamic checker effect. In the TLC profile
+    // the literal 1000000000000 already exceeds the integer range.
     let src = "---- MODULE M ----\nEXTENDS Naturals, TLC\nCONSTANT S\nVARIABLE x\nInit == x = 0\nNext == x' = x\nNumbers == 0..1000000000000\nHidden == TLCGet(\"level\")\nP == \\A i \\in S: []<>(x=i)\n====\n";
-    for constant in ["Numbers", "Hidden"] {
+    for (constant, reason) in [
+        (
+            "Numbers",
+            "DIVE-L0021 at line 9, col 6 to line 9, col 26 of module M: temporal formula resource limit: temporal quantifier expansion storage",
+        ),
+        ("Hidden", refused::TEMPORAL_VALIDATION_FAILURE_REPORT),
+    ] {
         let cfg = format!("INIT Init\nNEXT Next\nCONSTANT S <- {constant}\nPROPERTY P\n");
-        refuses(
-            src,
-            &cfg,
-            &CheckOptions::dive(0),
-            refused::TEMPORAL_VALIDATION_FAILURE_REPORT,
-        );
+        refuses(src, &cfg, &CheckOptions::dive(0), reason);
         let r = core_final::check(src, &cfg, &CheckOptions::tlc(0, 0)).expect("model error");
         let Outcome::Safety(r) = r.outcome() else {
             panic!("{constant}: {:?}", r.outcome())

@@ -93,3 +93,38 @@ fn ordinary_native_postcapture_budget_is_a_structured_stop_without_fallback() {
     }
     std::fs::remove_dir_all(directory).expect("cleanup");
 }
+
+#[test]
+fn repeated_fairness_operands_report_the_planning_limit_and_source() {
+    use std::fmt::Write as _;
+    let directory =
+        std::env::temp_dir().join(format!("dive-temporal-plan-limit-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).expect("directory");
+    let file = directory.join("Fan.tla");
+    let mut source = String::from(
+        "---- MODULE Fan ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = 1-x\nA0(p) == x = p\n",
+    );
+    for i in 1..20 {
+        let parent = i - 1;
+        writeln!(source, "A{i}(p) == A{parent}(p) /\\ A{parent}(p)").expect("write source");
+    }
+    source.push_str("Act == Next /\\ A19(0)\nSpec == Init /\\ [][Next]_x /\\ WF_x(Act)\nP == []<>(x = 0)\n====\n");
+    std::fs::write(&file, source).expect("spec");
+    let config = file.with_extension("cfg");
+    std::fs::write(&config, "SPECIFICATION Spec\nPROPERTY P\n").expect("config");
+    let report = check_file(&CheckRequest {
+        file,
+        config: Some(config),
+        ..CheckRequest::default()
+    })
+    .expect("check");
+    assert_eq!(report.exit_code(), 3);
+    let report = report.to_json();
+    assert_eq!(report["verdict"], "unsupported", "{report}");
+    assert!(report["counterexample"].is_null());
+    let reason = report["message"].as_str().expect("reason");
+    for fact in ["DIVE-L0021", "module Fan", "predicate lowering steps"] {
+        assert!(reason.contains(fact), "{reason}");
+    }
+    std::fs::remove_dir_all(directory).expect("cleanup");
+}

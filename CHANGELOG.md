@@ -16,6 +16,8 @@ are in git history.
   over a set, and inspect finite next-state domains in nonrecursive binders.
   See [temporal checking](docs/user/temporal.md).
 
+- Core names the temporal formula planning bound and source location when checking reaches it.
+
 - The Linux release archives include `dive check --strategy symbolic` for
   finite safety checks, validated witnesses and independently verified predicates.
 
