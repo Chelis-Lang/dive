@@ -807,6 +807,9 @@ fn compile_inner(
             );
         }
     }
+    if !mapped {
+        c.code.guard_experiment = crate::guard_experiment::GuardExperiment::lower(&c.code);
+    }
     let mut plan = Plan {
         code: c.code,
         vars,

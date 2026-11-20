@@ -549,7 +549,11 @@ impl Machine {
                 r
             }
             GNode::Guard(p) => {
-                if self.eval_bool(code, *p)? {
+                let guard = match code.guard_experiment.evaluate(code, self, g) {
+                    Some(value) => value,
+                    None => self.eval_bool(code, *p)?,
+                };
+                if guard {
                     self.cont(code, acts, sink)
                 } else {
                     Ok(())

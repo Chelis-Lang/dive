@@ -1393,24 +1393,32 @@ impl Machine {
         }
     }
 
+    #[inline]
+    fn eval_memo_body(&mut self, code: &Code, site: u32, body: P) -> Result<Handle, Error> {
+        match code.guard_experiment.memo_body(code, self, site, body) {
+            Some(value) => Ok(value),
+            None => self.eval(code, body),
+        }
+    }
+
     /// Evaluates a memo site's body through its table.
     fn memo_eval(&mut self, code: &Code, site: u32, body: P) -> Result<Handle, Error> {
         // Step sites intern primed keys even when opts.memo is false. Candidate
         // spill owns transient values instead, so bypass before any promotion.
         if self.heap.speculative {
-            return self.eval(code, body);
+            return self.eval_memo_body(code, site, body);
         }
         let Some(s) = code.sites.get(site as usize) else {
-            return self.eval(code, body);
+            return self.eval_memo_body(code, site, body);
         };
         if !(self.opts.memo || s.step) || !self.memo.active(site) {
-            return self.eval(code, body);
+            return self.eval_memo_body(code, site, body);
         }
         // A candidate site's persistent copies are charged to a bounded
         // budget; once it is spent the site is off (`Memo::charge_kept`).
         if s.candidate && !self.memo.may_keep() {
             self.memo.charge_kept(site, 0);
-            return self.eval(code, body);
+            return self.eval_memo_body(code, site, body);
         }
         let added = self.heap.cache.added;
         let mut key = [Handle::EMPTY; MAX_KEY];
@@ -1423,7 +1431,7 @@ impl Machine {
                 .unwrap_or(Handle::EMPTY);
             if h.is_transient() || h.is_empty() || n >= MAX_KEY {
                 self.memo.bypass(site);
-                return self.eval(code, body);
+                return self.eval_memo_body(code, site, body);
             }
             key[n] = h;
             n += 1;
@@ -1444,7 +1452,7 @@ impl Machine {
                         self.charge_kept(site, added);
                     }
                     self.memo.bypass(site);
-                    return self.eval(code, body);
+                    return self.eval_memo_body(code, site, body);
                 }
             };
             key[n] = h;
@@ -1454,7 +1462,7 @@ impl Machine {
             let h = self.slot(sl);
             if h.is_transient() || h.is_empty() || n >= MAX_KEY {
                 self.memo.bypass(site);
-                return self.eval(code, body);
+                return self.eval_memo_body(code, site, body);
             }
             key[n] = h;
             n += 1;
@@ -1465,7 +1473,7 @@ impl Machine {
         if let Some(r) = self.memo.get(site, &key[..n]) {
             return Ok(r);
         }
-        let r = self.eval(code, body)?;
+        let r = self.eval_memo_body(code, site, body)?;
         let added = self.heap.cache.added;
         // A step site keeps an exact persistent copy of its result; one
         // that cannot be kept (lazy) is returned uncached.
@@ -2708,7 +2716,7 @@ const fn int_op(op: Arith) -> IntOp {
 /// Integer arithmetic on inline operands when its result is certain to be
 /// inline and error-free in `mode`; `None` sends it to
 /// [`crate::Heap::int_arith`], which handles every other case exactly.
-fn fast_arith(op: Arith, x: i64, y: i64, mode: IntMode) -> Option<Handle> {
+pub(crate) fn fast_arith(op: Arith, x: i64, y: i64, mode: IntMode) -> Option<Handle> {
     let r = match op {
         Arith::Add => x.checked_add(y)?,
         Arith::Sub => x.checked_sub(y)?,

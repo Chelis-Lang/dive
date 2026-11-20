@@ -58,6 +58,8 @@ pub mod debug;
 pub mod eval;
 pub mod frontier_codec;
 pub mod generate;
+#[doc(hidden)]
+pub mod guard_experiment;
 pub mod handle;
 pub mod heap;
 pub mod int;

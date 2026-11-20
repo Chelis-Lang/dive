@@ -595,6 +595,9 @@ impl MemoSite {
 /// The node arrays.
 #[derive(Clone, Debug, Default)]
 pub struct Code {
+    /// Optional development-only specialization of generator guards.
+    #[doc(hidden)]
+    pub guard_experiment: crate::guard_experiment::GuardExperiment,
     /// Explicit compiled source maps; None allocates no tables.
     pub source_map: Option<crate::debug::SourceMap>,
     /// Producer observation capability, installed only in search machines.
