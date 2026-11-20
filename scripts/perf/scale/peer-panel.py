@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run one checker at a time. Results and native caches are out of tree."""
 import argparse
+from datetime import datetime
 import hashlib
 import json
 import os
@@ -45,6 +46,35 @@ def command(root, arm, module, config, workers, directory):
     return [str(exe), *([] if tier == "interp" else ["-compile"]), *flags, module]
 
 
+def last_progress(text):
+    tlc = re.findall(
+        r"Progress\((\d+)\) at ([\d: -]+): ([\d,]+) states generated"
+        r"(?: \([^)]+\))?, ([\d,]+) distinct states found", text,
+    )
+    if tlc:
+        depth, stamp, generated, distinct = tlc[-1]
+        started = re.search(r"Starting\.\.\. \(([\d: -]+)\)", text)
+        elapsed = (
+            (datetime.fromisoformat(stamp) - datetime.fromisoformat(started[1])).total_seconds()
+            if started else None
+        )
+        return {
+            "depth": int(depth), "generated": int(generated.replace(",", "")),
+            "distinct": int(distinct.replace(",", "")), "sample_since_start_s": elapsed,
+        }
+    native = re.findall(
+        r"progress: depth (\d+), ([\d,]+) generated, ([\d,]+) distinct[^\n]*?, ([\d.]+)s",
+        text,
+    )
+    if native:
+        depth, generated, distinct, elapsed = native[-1]
+        return {
+            "depth": int(depth), "generated": int(generated.replace(",", "")),
+            "distinct": int(distinct.replace(",", "")), "sample_since_start_s": float(elapsed),
+        }
+    return {}
+
+
 def parse_result(arm, stdout, stderr, code):
     if arm in ("core", "release", "spike", "spike-off", "spike-stats"):
         try:
@@ -61,6 +91,7 @@ def parse_result(arm, stdout, stderr, code):
             "property": data.get("property"), "collision": data.get("collision"),
             "explore_ms": metrics.get("explore_ms"), "compile_ms": metrics.get("compile_ms"),
             "error": data.get("error"),
+            "resource_stop": data.get("stop"),
         }
     text = stdout + "\n" + stderr
     states = re.findall(r"(\d+) states generated,\s*(\d+) distinct states found", text)
@@ -80,6 +111,7 @@ def parse_result(arm, stdout, stderr, code):
         "workers_used": int(workers[1]) if workers else None,
         "tier_lines": [ln for ln in text.splitlines() if re.match(r"(?:compile:|Compiled|Optimizations:)", ln)],
         **({"diagnostic": text[-1600:]} if status in ("tool-error", "unclassified") else {}),
+        **(last_progress(text) if status == "timeout" else {}),
     }
 
 
