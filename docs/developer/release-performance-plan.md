@@ -52,10 +52,9 @@ Prerequisites on the dive side:
   liveness job depend on it. Until it lands, Core refuses `--store exact` and
   `--max-states`/`--max-depth` with temporal properties, and Sail returns
   `Unsupported` for those jobs.
-- #983 (the harness enforcing the R2 procedure) is open at the time of
-  writing. While it is open, D1's repetitions, canaries, clean environment
-  and record are carried out by a driver script, and the record says so in
-  `deviations`, as the 2026-11-10 record did. Check its state before starting.
+- The harness carries out the R2 procedure itself (`dive-conformance r2`,
+  #983): repetitions, band re-runs, cache canaries, the clean environment,
+  the binding and the record. D1 needs no driver script.
 
 ## Where
 
@@ -223,45 +222,31 @@ where this section and the procedure differ, the procedure wins.
   volume raised to 16000 IOPS and 1000 MiB/s, nothing else running. The
   2026-11-10 run used five nodes: one for the small class and four large
   shards.
-- **Binding.** `numactl --cpunodebind=0 --membind=0` around the harness, for
-  both TLC and Core. Not `taskset -c 0-15`.
-- **Environment.** `env -i PATH=... HOME=... DIVE_CACHE_DIR=...`, plus
-  `GH_TOKEN` only for `oracle fetch` and `corpus fetch`.
-- **Page cache.** Before timing, read the corpus checkout, module libraries,
-  JRE tree, `tla2tools.jar` and the dive binary (for example `find <dir>
-  -type f -exec cat {} + >/dev/null`).
-- **Classification.** One `--jobs 1` TLC pass over the selection on the
-  reference host type, recorded before any Core run: small is TLC under
-  10 s, large is 10 s or more.
-- **Commands** (per node, on its shard):
+- **Binding, environment, page cache.** `dive-conformance r2` re-executes
+  itself under `numactl --cpunodebind=0 --membind=0` (not `taskset`), refuses
+  `DIVE_*`, allocator and loader variables, records every other variable by
+  name, and warms the page cache before timing. Start it under
+  `env -i PATH=... HOME=... DIVE_CACHE_DIR=...` (`GH_TOKEN` only for
+  `oracle fetch` and `corpus fetch`).
+- **Commands.** `dive-conformance` is built on the node from the same source
+  (`cargo build --release --locked -p dive-conformance`).
 
   ```sh
-  numactl --cpunodebind=0 --membind=0 env -i PATH="$PATH" HOME="$HOME" DIVE_CACHE_DIR="$DIVE_CACHE_DIR" \
-    target/release/dive-conformance run --impl tlc --corpus examples --tier all --workers 1 \
-    --jobs 1 --xmx 24g --no-sany --report-dir "$TLC_OUT" --no-summary [--filter <model>]...
-  numactl --cpunodebind=0 --membind=0 env -i PATH="$PATH" HOME="$HOME" DIVE_CACHE_DIR="$DIVE_CACHE_DIR" \
-    target/release/dive-conformance run --impl dive:core --impl-profile dive --corpus examples \
-    --tier all --workers 1 --jobs 1 --xmx 24g --dive-bin ~/bins/dive \
-    --tlc-timings "$TLC_OUT"/<run-id>.json --budget-cap 30000 \
-    --report-dir "$OUT" --no-summary [--filter <model>]...
+  R2="env -i PATH=$PATH HOME=$HOME DIVE_CACHE_DIR=$DIVE_CACHE_DIR target/release/dive-conformance r2"
+  $R2 classify --filter-file selection.txt --out ~/r2                # small-class node, first
+  $R2 small --classes ~/r2/r2-classes.json --dive-bin ~/bins/dive --out ~/r2
+  $R2 large --classes ~/r2/r2-classes.json --shard K/4 --dive-bin ~/bins/dive --out ~/r2
+  dive-conformance r2 record --classes r2-classes.json --out <record.json> r2-small.json r2-large-shard*.json
   ```
 
-  `dive-conformance` is built on the node from the same source
-  (`cargo build --release --locked -p dive-conformance`).
-- **Repetitions.** Small class: six repetitions in one session, each timing
-  TLC then Core over the class, order reversed in alternate repetitions;
-  the model's ratio is the median of six. Large class: one pass; a ratio in
-  [0.9, 1.1] or [1.8, 2.0], or a Core budget stop, gets three fresh
-  back-to-back pairs (order alternating) with Core's budget at 2.5x that
-  pair's TLC time, and the median of three is the ratio. The driver script
-  does this until #983 lands.
-- **Canaries.** Only when reusing cached TLC times: re-time the three shortest
-  large models three times each before any Core run; a median off by more
-  than 5 %, or a mean signed difference above 2 %, means re-taking the cache.
-  A fresh release run takes fresh TLC times, so no cache is reused.
-- **Sharding.** Fixed before the run: large models by longest processing time
-  on the classification pass's TLC times, round-robin otherwise. Each node
-  times TLC and Core on its own shard.
+- **Classification, repetitions, sharding.** As the procedure says: one
+  `--jobs 1` TLC pass (`r2 classify`, 15 s timeout) fixes the classes; the
+  small class gets six alternating repetitions; the large class one pass and
+  three alternating pairs at 2.5x for a banded ratio or a stop. `--shard K/N`
+  splits the large class by longest processing time on the golden TLC times.
+- **Canaries.** Only when reusing cached TLC times (`r2 large --tlc-cache`, or
+  `r2 canary`). A fresh release run takes fresh TLC times, so no cache is
+  reused.
 - **Attempts.** The gate number is the first complete conforming attempt.
   List every attempt; discard one only for a recorded host fault.
 - **Record.** `conformance/reports/perf/<date>-r2-procedure-<source8>.json`,
@@ -271,9 +256,11 @@ where this section and the procedure differ, the procedure wins.
   `host` (instance and node count, CPU, SMT, turbo, frequency, governor,
   binding, storage, THP, jobs, xmx, budget cap), `classification`,
   `sharding`, `summary` (`agreeing`, `geomean`, `fixed_set_geomean`,
-  `above_1x`, `above_2x`, `stopped`), `not_timed` with reasons, `deviations`
-  (name #983 while it is open), and `models` with `cls`, `shard`, `cat`,
-  `ratio`, and `reps` (small) or `first_pass` and `pairs` (large banded).
+  `above_1x`, `above_2x`, `stopped`), `not_timed` with reasons, `deviations`,
+  and `models` with `cls`, `shard`, `cat`, `ratio`, and `reps` (small) or
+  `first_pass` and `pairs` (large banded). `r2 record` writes all of these
+  except `attempts` and the raw archive digests, which are added by hand; it
+  names host shortfalls under `triage` instead of `deviations`.
 - **Follow-up.** Post the summary on the pinned v0.1 status issue, update the
   `## Speed` section of the scoreboard, and open or update a `perf` issue for
   every model above 1x. Any model above 2x blocks the tag.

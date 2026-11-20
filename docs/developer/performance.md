@@ -103,9 +103,53 @@ difference exceeds 2 %, re-take the whole cache on that launch.
   max(2, lower bound), excluded rows at 2); models above 1x and 2x; every
   repetition with its order; the sources, binary SHA-256, oracle and JRE; the
   host, controls and binding; and the provenance of any cached TLC time.
-- The harness does not yet automate repetitions, the cache checks, the clean
-  environment or the full record (#983). Until it does, those rules are
-  carried out by a driver script and the record says so.
+
+### Running it
+
+`dive-conformance r2` carries out this procedure. Every timed step refuses
+`DIVE_*` (other than `DIVE_CACHE_DIR`), `MALLOC_*`, `MIMALLOC_*`, `DYLD_*`,
+`GLIBC_TUNABLES`, `LD_PRELOAD` and `LD_LIBRARY_PATH`, and records every other
+variable by name. On Linux it re-executes itself under `numactl
+--cpunodebind=0 --membind=0`; elsewhere, or with `--no-bind`, the binding is
+recorded as absent. It checks the JRE's CDS archives byte for byte against
+the pinned JRE archive and reads every input into the page cache. It then
+times `/bin/true` through `run_with_timeout` five times and records the
+median. It runs the pinned JRE at `--workers 1 --jobs 1`, with `--xmx 24g`
+and `--budget-cap 30000` unless given.
+
+```sh
+R2="env -i PATH=$PATH HOME=$HOME DIVE_CACHE_DIR=$DIVE_CACHE_DIR target/release/dive-conformance r2"
+$R2 classify --filter-file selection.txt --out ~/r2      # -> r2-classes.json
+$R2 small --classes ~/r2/r2-classes.json --dive-bin ~/bins/dive --out ~/r2
+$R2 large --classes ~/r2/r2-classes.json --dive-bin ~/bins/dive --shard 1/4 --out ~/r2
+dive-conformance r2 record --classes r2-classes.json --out record.json r2-small.json r2-large-shard*.json
+```
+
+- `classify`: one TLC pass with a 15 s timeout (`--timeout`). A model it
+  completes in under 10 s is small; one it completes later, or stops, is
+  large; any other outcome has no class.
+- `small`: six repetitions (`--reps`) over the small class. A Core-first
+  repetition takes its budgets from the previous repetition's TLC pass.
+- `large`: the first pass, then the band pairs at `--budget-factor` (default
+  2.5) x TLC. A TLC-first pair takes Core's budget from its own TLC run; a
+  Core-first pair from the model's most recent TLC time. `--shard K/N` splits
+  the class by longest processing time on the golden TLC times.
+  `--tlc-cache <part>` reuses an earlier large part's first-pass TLC times
+  only when every control matches: host type, CPU, storage device, SMT,
+  turbo, governor, frequency, binding, CDS archives, `--jobs`, `--xmx`,
+  oracle, JRE, corpus commit and the TLC command line. It also runs the
+  canaries first and re-takes the whole first pass if they fail.
+  `r2 canary --tlc-cache <part>` runs only the canaries.
+- `record`: merges the parts of one classification into the record above,
+  with the categories, both geomeans and their row counts, every pass with
+  its start time, the binaries' SHA-256, the pins, the host controls and the
+  binding. A part that broke a rule (no binding, extra variables, controls
+  the host does not show or that differ from the reference) is listed under
+  `triage`, and the gate result is then `triage`.
+
+The storage provisioning (IOPS, throughput) and the instance's isolation are
+not observable from the host. The record names the device that holds the
+cache; state the volume's provisioning in a `--note`.
 
 ## AWS rebaseline, 2026-10-26
 

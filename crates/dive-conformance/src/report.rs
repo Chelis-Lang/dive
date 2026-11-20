@@ -38,7 +38,8 @@ impl Host {
             .ok()
             .map(|s| s.trim().to_owned());
         let memory_bytes = if cfg!(target_os = "macos") {
-            crate::util::capture(Command::new("sysctl").args(["-n", "hw.memsize"]))
+            // `/usr/sbin` is not on a minimal `env -i` PATH.
+            crate::util::capture(Command::new("/usr/sbin/sysctl").args(["-n", "hw.memsize"]))
                 .ok()
                 .and_then(|s| s.trim().parse().ok())
         } else {

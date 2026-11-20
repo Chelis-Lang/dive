@@ -357,7 +357,11 @@ report completed (`agree` or `known-upstream-change`) and gives that model a
 Core `--time-limit` of `max(10 s, 2 × TLC elapsed)`, hard-capped by
 `--budget-cap` (default 900 s). It implies `--tlc-budgets`, so models without
 a cached time keep that policy. A Core run that would fail R2 stops at its
-budget instead of running to completion.
+budget instead of running to completion. A TLC report taken at another
+`--jobs` or `--xmx`, or on another corpus pin, is refused. The gate
+number itself comes from `dive-conformance r2`
+([Running it](performance.md#running-it)), which applies every rule of the
+procedure.
 
 After the usual summary the run prints the R2 summary and writes it to
 `<report-dir>/<run-id>-r2.json`: dive/TLC wall-clock ratio (both including

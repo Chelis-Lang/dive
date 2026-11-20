@@ -852,9 +852,9 @@ impl RunOptions {
         let cached = self
             .tlc_timings
             .as_ref()
-            .and_then(|t| t.elapsed_ms(corpus, &m.id));
+            .and_then(|t| Some((t, t.elapsed_ms(corpus, &m.id)?)));
         match (cached, self.limits.timeout, self.limits.budget_cap) {
-            (Some(tlc_ms), None, Some(cap)) => crate::r2::time_limit(tlc_ms, cap),
+            (Some((t, tlc_ms)), None, Some(cap)) => t.limit(tlc_ms, cap),
             _ => self.limits.timeout_for(m, golden_elapsed_ms),
         }
     }
