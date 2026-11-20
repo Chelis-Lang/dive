@@ -109,8 +109,8 @@ Temporal checking expands a bounded batch on a reusable worker team, then
 commits its edges in discovery order. Cheap state transitions can leave little
 work to do in parallel. On CoffeeCan3000Beans, eight workers took 49.4 s and
 one took 48.8 s after worker reuse. Compare `--workers 1` with the desired
-width on the actual model. The report's worker count describes expansion;
-ordered commit and temporal analysis can still dominate elapsed time.
+width on the actual model. The report's worker count describes expansion.
+Ordered commit and temporal analysis can still dominate elapsed time.
 
 Fingerprint storage is the default. `--store exact` keeps canonical concrete
 keys for supported values; a fingerprint run's collision figures do not turn

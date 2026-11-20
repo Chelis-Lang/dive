@@ -9,8 +9,8 @@ Temporal graph capture limits each wave to a small number of source rows.
 Starting OS threads at every wave can cost more than expanding those rows.
 In a CoffeeCan1000Beans ablation, retaining the pool brought the eight-worker
 check from 10.75 to 5.65 seconds. Reusing only the claim table took 10.29
-seconds. At 3,000 beans, the eight-worker check went from 107.3 s to 49.4 s;
-the one-worker times were 50.2 s and 48.8 s. These are engineering runs on
+seconds. At 3,000 beans, the eight-worker check went from 107.3 s to 49.4 s.
+The one-worker times were 50.2 s and 48.8 s. These are engineering runs on
 a shared Ryzen AI MAX+ 395 workstation, with a locked release build, LTO
 disabled, 16 codegen units, and process affinity to eight CPUs. The original
 release D4 survey used a separate host.

@@ -588,6 +588,30 @@ pub(crate) struct WaveWorkers {
     claims: Option<Claims>,
 }
 
+impl Claims {
+    fn for_wave(saved: &mut Option<Self>, capacity: usize) -> &Self {
+        // The commit fence guarantees no readers remain from the last wave.
+        // Size for this bounded wave rather than applying the safety-table floor.
+        let size = capacity.next_power_of_two().max(32);
+        match saved {
+            Some(table) => {
+                if table.keys.len() != size {
+                    *table = Self::with_size(size);
+                    return table;
+                }
+                for key in &mut table.keys {
+                    *key.get_mut() = 0;
+                }
+                for pos in &mut table.pos {
+                    *pos.get_mut() = u64::MAX;
+                }
+                table
+            }
+            None => saved.insert(Self::with_size(size)),
+        }
+    }
+}
+
 fn run_workers(
     machines: &mut [Machine],
     persistent: Option<&mut Option<rayon_core::ThreadPool>>,
@@ -661,21 +685,7 @@ pub(crate) fn expand_level(
     let capacity = estimate.saturating_mul(2).min(MAX_SLOTS);
     let local_claims;
     let claims = if capture_limit.is_some() {
-        // The commit fence guarantees no readers remain from the last wave.
-        // Size for this bounded wave rather than applying the safety-table floor.
-        let size = capacity.next_power_of_two().max(32);
-        match &mut wave_workers.claims {
-            Some(table) if table.keys.len() == size => {
-                for key in &mut table.keys {
-                    *key.get_mut() = 0;
-                }
-                for pos in &mut table.pos {
-                    *pos.get_mut() = u64::MAX;
-                }
-                table
-            }
-            slot => slot.insert(Claims::with_size(size)),
-        }
+        Claims::for_wave(&mut wave_workers.claims, capacity)
     } else {
         local_claims = Claims::new(capacity);
         &local_claims
@@ -1010,6 +1020,107 @@ mod tests {
     use std::collections::HashMap;
 
     use super::Claims;
+
+    #[test]
+    fn temporal_claims_start_empty_after_each_commit_fence() {
+        let mut saved = None;
+        for capacity in [32, 32, 64, 32] {
+            let claims = Claims::for_wave(&mut saved, capacity);
+            assert!(!claims.held_before(7, 100));
+            assert!(claims.claim(7, 3));
+            assert!(!claims.claim(7, 4));
+        }
+    }
+
+    #[test]
+    fn scoped_tasks_reuse_search_threads_and_join_before_return() -> Result<(), dive_core::Error> {
+        use dive_core::memo::Memo;
+        use dive_core::{Machine, Opts, Store};
+        use std::collections::HashSet;
+        use std::sync::{Arc, Mutex};
+
+        let store = Arc::new(Store::new(true));
+        let mut machines: Vec<_> = (0..3)
+            .map(|_| Machine::new(Arc::clone(&store), 1, Opts::default(), Memo::new(&[])))
+            .collect();
+        let mut pool = None;
+        let calls = Mutex::new(Vec::new());
+        let mut original_threads = None;
+        for _ in 0..3 {
+            let result = super::run_workers(&mut machines, Some(&mut pool), |_| {
+                calls
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner)
+                    .push(std::thread::current().id());
+                (Vec::new(), crate::Metrics::default())
+            })?;
+            assert_eq!(result.len(), 3);
+            assert!(result.iter().all(Option::is_some));
+            let team = pool
+                .as_ref()
+                .ok_or_else(|| dive_core::Error::internal("missing worker pool"))?;
+            let threads: HashSet<_> = team
+                .broadcast(|_| std::thread::current().id())
+                .into_iter()
+                .collect();
+            assert_eq!(threads.len(), 3);
+            let original = original_threads.get_or_insert_with(|| threads.clone());
+            assert_eq!(&threads, original);
+            let mut ids = calls
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            assert_eq!(ids.len(), 3);
+            assert!(ids.drain(..).all(|id| threads.contains(&id)));
+        }
+        // A failed task is reported to the coordinator only after its peers join.
+        let first = std::sync::atomic::AtomicBool::new(true);
+        let results = super::run_workers(&mut machines, Some(&mut pool), |_| {
+            if first.swap(false, std::sync::atomic::Ordering::Relaxed) {
+                std::panic::resume_unwind(Box::new("worker fault control"));
+            }
+            (Vec::new(), crate::Metrics::default())
+        })?;
+        assert_eq!(results.iter().filter(|slot| slot.is_none()).count(), 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn cancellation_during_a_capture_wave_preserves_the_unexpanded_sources()
+    -> Result<(), dive_core::Error> {
+        use dive_core::memo::Memo;
+        use dive_core::{Handle, Machine, Opts, Store};
+        use std::sync::Arc;
+        let opts = Opts::default();
+        let store = Arc::new(Store::new(true));
+        let plan = crate::tests::frontier_plan(&store, false)?;
+        let mut machines: Vec<_> = (0..3)
+            .map(|_| Machine::new(Arc::clone(&store), 1, opts, Memo::new(&[])))
+            .collect();
+        let mut waves = super::WaveWorkers::default();
+        let rows = [Handle::TRUE; 16];
+        let seen = crate::Seen::default();
+        for cancel in [true, false] {
+            let out = super::expand_level(
+                &plan,
+                &mut machines,
+                &rows,
+                1,
+                &seen,
+                opts,
+                false,
+                Some(128),
+                None,
+                &|| cancel,
+                &mut waves,
+                32,
+                &mut crate::Metrics::default(),
+            )?;
+            assert_eq!(out.len(), rows.len());
+            assert!(out.iter().all(|source| source.is_none() == cancel));
+        }
+        Ok(())
+    }
 
     /// A claim may report a duplicate only when an earlier position
     /// claimed the key, also when the table is too crowded to place keys.
