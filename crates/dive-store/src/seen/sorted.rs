@@ -14,6 +14,18 @@ const PAGE_BYTES: usize = PAGE * 8;
 /// Maximum speculative lookups in one window. Only ordered inserts change membership.
 pub const WINDOW: usize = 32_768;
 const DELTA: usize = 1 << 18;
+// Power-of-two merging keeps less than twice this many filtered keys active.
+// During replacement, old filtered runs and the intermediate and output coexist.
+const FILTER_RUN_KEYS: u64 = 1 << 25;
+type PageFilter = [u64; 64];
+
+fn filter_bits(key: u64) -> (usize, u64) {
+    let hash = key.wrapping_mul(0x9e37_79b9_7f4a_7c15);
+    let bits = [8, 17, 25, 34]
+        .into_iter()
+        .fold(0, |mask, shift| mask | (1 << ((hash >> shift) & 63_u64)));
+    ((hash >> 58) as usize, bits)
+}
 type Result<T> = std::result::Result<T, SeenError>;
 
 #[derive(Debug)]
@@ -26,6 +38,8 @@ struct Page {
 struct Run {
     path: PathBuf,
     pages: Vec<Page>,
+    // Kept only for smaller runs. No absence hint may skip the full close audit.
+    filters: Option<Vec<PageFilter>>,
     count: u64,
 }
 
@@ -117,6 +131,12 @@ impl Reader<'_> {
             return Ok(false);
         };
         if self.page != Some(page) {
+            if let Some(filters) = &self.run.filters {
+                let (slot, mask) = filter_bits(key);
+                if filters[page][slot] & mask != mask {
+                    return Ok(false);
+                }
+            }
             self.load(page)?;
         }
         let (mut lo, mut hi) = (0, self.words);
@@ -153,11 +173,22 @@ struct Writer {
 }
 
 impl Writer {
-    fn new(path: PathBuf, file: File) -> Self {
+    fn new(path: PathBuf, file: File, keys: u64) -> Self {
+        // Reserve the complete directory before writing. Failure simply omits
+        // the optional filter for this run. Published directories are immutable.
+        let filters = usize::try_from(keys.div_ceil(PAGE as u64))
+            .ok()
+            .filter(|_| keys <= FILTER_RUN_KEYS)
+            .and_then(|pages| {
+                let mut slots = Vec::new();
+                slots.try_reserve_exact(pages).ok()?;
+                Some(slots)
+            });
         Self {
             run: Run {
                 path,
                 pages: Vec::new(),
+                filters,
                 count: 0,
             },
             file: BufWriter::new(file),
@@ -199,6 +230,14 @@ impl Writer {
             first: u64::from_le_bytes(first),
             checksum: checksum(&self.block),
         });
+        if let Some(filters) = &mut self.run.filters {
+            let mut filter = [0; 64];
+            for word in self.block.as_chunks::<8>().0 {
+                let (slot, mask) = filter_bits(u64::from_le_bytes(*word));
+                filter[slot] |= mask;
+            }
+            filters.push(filter);
+        }
         self.block.clear();
         Ok(())
     }
@@ -418,7 +457,7 @@ impl SortedFingerprints {
         self.remember(found)
     }
 
-    fn writer(&mut self) -> Result<Writer> {
+    fn writer(&mut self, keys: u64) -> Result<Writer> {
         let path = self.directory.join(self.serial.to_string());
         self.serial += 1;
         let file = OpenOptions::new()
@@ -427,7 +466,7 @@ impl SortedFingerprints {
             .open(&path)
             .map_err(|e| error(Operation::Create, e))?;
         self.owned.insert(path.clone());
-        Ok(Writer::new(path, file))
+        Ok(Writer::new(path, file, keys))
     }
 
     fn remove(&mut self, path: &Path) -> Result<()> {
@@ -457,7 +496,7 @@ impl SortedFingerprints {
     fn flush_hot(&mut self, proceed: &dyn Fn() -> bool) -> Result<bool> {
         let mut keys: Vec<_> = self.hot.iter().copied().collect();
         keys.sort_unstable();
-        let mut writer = self.writer()?;
+        let mut writer = self.writer(keys.len() as u64)?;
         for chunk in keys.chunks(PAGE) {
             if !proceed() {
                 return Ok(false);
@@ -469,7 +508,8 @@ impl SortedFingerprints {
         let mut merged = writer.finish()?;
         let mut rank = 0;
         while rank < self.runs.len() && self.runs[rank].is_some() {
-            let mut writer = self.writer()?;
+            let total = merged.count + self.runs[rank].as_ref().map_or(0, |run| run.count);
+            let mut writer = self.writer(total)?;
             let old = self.runs[rank]
                 .as_ref()
                 .ok_or_else(|| error(Operation::Corruption, "missing merge input"))?;
@@ -542,7 +582,12 @@ impl SortedFingerprints {
             resident_key_bytes: self.hot.capacity() as u64 * 8
                 + self.window.capacity() as u64 * size_of::<(u64, bool)>() as u64
                 + runs
-                    .map(|r| r.pages.capacity() as u64 * size_of::<Page>() as u64)
+                    .map(|r| {
+                        r.pages.capacity() as u64 * size_of::<Page>() as u64
+                            + r.filters
+                                .as_ref()
+                                .map_or(0, |f| f.capacity() as u64 * size_of::<PageFilter>() as u64)
+                    })
                     .sum::<u64>(),
             poisoned: self.first.is_some(),
             cleanup_completed: self.closed,
@@ -712,6 +757,59 @@ mod tests {
         assert_eq!(set.stats().physical_entries, 1024);
         assert_eq!(set.insert(1024, &|| true)?, Some(InsertOutcome::Inserted));
         assert!(set.close_controlled(true, &|| true)?);
+        Ok(())
+    }
+
+    #[test]
+    fn absence_filter_skips_a_read_but_positive_hints_and_close_still_verify_pages() -> Result<()> {
+        let temporary = std::env::temp_dir();
+        let mut set = SortedFingerprints::create(&temporary, 5000)?;
+        set.threshold = 1024;
+        for i in 0..1025 {
+            set.insert(i * 3, &|| true)?;
+        }
+        let run = set.runs[0]
+            .as_ref()
+            .ok_or_else(|| error(Operation::Read, "test run"))?;
+        let mut reader = run.reader()?;
+        let filters = run
+            .filters
+            .as_ref()
+            .ok_or_else(|| error(Operation::Allocate, "test filter"))?;
+        let miss = (1..1000)
+            .find(|key| {
+                let (slot, mask) = filter_bits(*key);
+                key % 3 != 0 && filters[0][slot] & mask != mask
+            })
+            .ok_or_else(|| error(Operation::Read, "expected a negative page hint"))?;
+        assert!(!reader.contains(miss)?);
+        assert!(reader.page.is_none());
+        assert!(reader.contains(0)?);
+        assert_eq!(reader.page, Some(0));
+        for key in 0..3072 {
+            assert_eq!(reader.contains(key)?, key % 3 == 0);
+        }
+        // An unread page can still have been damaged. Exhaustion needs its contents.
+        let mut file = OpenOptions::new()
+            .write(true)
+            .open(&run.path)
+            .map_err(|e| error(Operation::Write, e))?;
+        file.write_all(&[0xff; 8])
+            .map_err(|e| error(Operation::Write, e))?;
+        drop(file);
+        assert!(!set.contains(miss)?);
+        assert!(set.close_controlled(true, &|| true).is_err());
+        assert_eq!(set.audited_minimum_gap(), None);
+        Ok(())
+    }
+
+    #[test]
+    fn large_runs_keep_only_their_page_indexes() -> Result<()> {
+        let mut set = SortedFingerprints::create(&std::env::temp_dir(), FILTER_RUN_KEYS + 1)?;
+        let writer = set.writer(FILTER_RUN_KEYS + 1)?;
+        assert!(writer.run.filters.is_none());
+        drop(writer);
+        set.close_controlled(false, &|| true)?;
         Ok(())
     }
 
