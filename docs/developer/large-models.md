@@ -266,6 +266,17 @@ memory limit. The larger compact run generated 526,836,645 transitions and
 still had 13,760,692 states queued. The same record includes the four
 individual observations under `capacity`.
 
+### Action labels in temporal graphs
+
+Core retains one action ID per edge so it can distinguish named transitions during replay. For up to 255 action names, it stores a byte per edge, with 255 reserved for an unnamed entry. Larger action tables retain full-width IDs. Duplicate destinations, successor ordinals and implicit stutter edges keep their identities.
+
+| Two-million-state prefix | Generated | Collector buffers, before / after | Mean peak RSS, before / after | Mean wall seconds, before / after |
+|---|---:|---:|---:|---:|
+| BlockingQueuePoisonApple | 6,009,057 | 232 / 176 MiB | 614 / 558 MiB | 18.04 / 18.53 |
+| c1cs | 41,819,682 | 1,256 / 808 MiB | 1,582 / 1,224 MiB | 79.47 / 79.31 |
+
+Both binaries already used narrow successor ordinals. The two rotations per binary agreed on every search counter within each model. Under the same 2 GiB sampled process limit, c1cs reached 2,644,879 distinct and 56,343,707 generated before, and 3,130,942 distinct and 65,470,460 generated after. Both stopped with a nonempty queue. The configuration with more transitions per state sees the bigger gain because each retained edge saves seven bytes. [Individual readings, terminal statistics, machine and hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same

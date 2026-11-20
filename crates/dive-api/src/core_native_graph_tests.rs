@@ -8,7 +8,7 @@
 use std::sync::Arc;
 
 use dive_core::node::flags;
-use dive_runtime::capture::{CsrCapture, CsrComplete};
+use dive_runtime::capture::{CsrCapture, CsrCaptureInput, CsrComplete};
 
 use super::*;
 
@@ -796,11 +796,13 @@ fn compact_csr_preserves_wide_ordinals_and_rejects_malformed_tables() {
     let large = [(1, u64::from(escape)), (2, u64::MAX - 1)];
     let words = [0, escape, escape, u16::MAX];
     let labels = [String::from("advance")];
+    // External producers can hand their mutable slice directly to the public input.
+    let actions: &mut [Option<u32>] = &mut [None, Some(0), None, None];
     let input = CsrCaptureInput {
         offsets: &[0, 4],
         targets: &[0; 4],
         ordinals: CsrOrdinals::Compact(&words, &large),
-        actions: &[None, Some(0), None, None],
+        actions,
         edge_rows: &[0; 4],
         representatives: &[0],
         roots: &[0],
@@ -840,4 +842,64 @@ fn compact_csr_preserves_wide_ordinals_and_rejects_malformed_tables() {
         };
         assert!(CsrCapture::checked(malformed, limits, &control).is_err());
     }
+}
+
+#[test]
+fn byte_action_ids_preserve_named_unnamed_and_stutter_edges() {
+    let control = EvaluationControl::new(&options(false).budget, Phase::Capture).expect("control");
+    let labels: Vec<_> = (0..255).map(|i| format!("action{i}")).collect();
+    let mut ids = ActionIds::for_labels(labels.len());
+    for id in [Some(254), None, None] {
+        ids.push(id).expect("representable ID");
+    }
+    assert!(ids.push(Some(255)).is_err());
+    let input = CsrCaptureColumns {
+        offsets: &[0, 3],
+        targets: &[0; 3],
+        ordinals: &[Some(0), Some(1), None],
+        actions: ids.view(),
+        edge_rows: &[0; 3],
+        representatives: &[0],
+        roots: &[0],
+        action_labels: &labels,
+        retained_rows: 1,
+        closed_rows: 1,
+    };
+    let checked = CsrCapture::checked(input, Limits::default(), &control).expect("valid graph");
+    assert_eq!(checked.label(0), Some(Some("action254")));
+    assert_eq!(checked.label(1), Some(Some("")));
+    assert_eq!(checked.label(2), Some(None));
+    assert_eq!(checked.label(3), None);
+    assert!(
+        matches!(input.actions.prefix(2), Some(CsrActions::Bytes(bytes)) if bytes == [254,255])
+    );
+    assert!(input.actions.prefix(4).is_none());
+    for bad in [CsrActions::Bytes(&[0, 0]), CsrActions::Bytes(&[0, 0, 0])] {
+        assert!(
+            CsrCapture::checked(
+                CsrCaptureColumns {
+                    actions: bad,
+                    ..input
+                },
+                Limits::default(),
+                &control
+            )
+            .is_err()
+        );
+    }
+    assert!(
+        CsrCapture::checked(
+            CsrCaptureColumns {
+                action_labels: &labels[..254],
+                ..input
+            },
+            Limits::default(),
+            &control
+        )
+        .is_err()
+    );
+    let mut wide = ActionIds::for_labels(256);
+    wide.push(Some(255)).expect("wide label");
+    wide.push(None).expect("wide unnamed");
+    assert!(matches!(wide.view(), CsrActions::Expanded(ids) if ids == [Some(255),None]));
 }
