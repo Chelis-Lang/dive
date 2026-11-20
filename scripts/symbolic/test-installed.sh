@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Exercise the release layout without a checkout, system Python, or executables in PATH.
+set -eu
+dive=$(realpath "${1:?expected installed dive executable}")
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+cd "$work"
+cat > Receipts.tla <<'TLA'
+---- MODULE Receipts ----
+CONSTANT IDs
+VARIABLE got
+TypeInvariant == got \subseteq IDs
+Init == got = {}
+Next == \/ \E i \in IDs \ got : got' = got \cup {i}
+        \/ UNCHANGED got
+Empty == got = {}
+====
+TLA
+cat > Receipts.cfg <<'CFG'
+CONSTANT IDs = {red, green, blue}
+INIT Init
+NEXT Next
+INVARIANT TypeInvariant
+CFG
+run() { env -i PATH=/nonexistent "$dive" check Receipts.tla --strategy symbolic --output json "$@"; }
+run --write-predicate closed.json > fresh
+jq -e '.verdict=="success" and .distinct==8 and .generated==21 and .depth==4' fresh >/dev/null
+run --verify-predicate closed.json --time-limit 10s > proof
+jq -e '.proof=="inductive-safety" and (has("distinct")|not)' proof >/dev/null
+echo 'INVARIANT Empty' >> Receipts.cfg
+rc=0; run --max-memory 1g > false-row || rc=$?
+test "$rc" = 1
+jq -e '.trace_validated and .depth==2 and .ending.name=="Empty"' false-row >/dev/null

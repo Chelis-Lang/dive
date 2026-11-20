@@ -11,6 +11,9 @@ are in git history.
   over a set, and inspect finite next-state domains in nonrecursive binders.
   See [temporal checking](docs/user/temporal.md).
 
+- The Linux release archives include `dive check --strategy symbolic` for
+  finite safety checks, validated witnesses and independently verified predicates.
+
 - Embedders can qualify a completed native temporal check after retaining its
   first property on unchanged aggregate-state programs. See [retaining a claim](docs/user/rust-api.md#retain-the-first-temporal-property).
 
@@ -52,6 +55,9 @@ are in git history.
   the report's `options.workers.reason` and the human header say so.
 
 ### Performance
+
+- The finite symbolic checker supports string-valued fields and grouped bounded
+  quantifiers in state predicates, including the original TCommit safety model.
 
 - Exact symbolic reachability now supports layouts above 52 bits and returns
   integer state and transition counts throughout its 512-bit admission range.

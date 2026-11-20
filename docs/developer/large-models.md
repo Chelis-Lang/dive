@@ -34,6 +34,22 @@ identifies the inputs and peak memory. Run the seven-key reduced check with
 `scripts/symbolic/check_source.py --growth`. For the concrete check, remove
 `SYMMETRY TxIdSymmetric` from the expanded configuration and use `check.py`.
 
+## Transaction commit
+
+Lamport's published `transaction_commit/TCommit.tla` includes a global
+consistency invariant. Its original three-manager configuration agrees with
+the pinned TLC golden on success, 34 distinct states, 94 generated and depth 7.
+With only the participant set expanded to 128, the same checker completed
+depth 257 with over **10⁶¹ concrete reachable states** and 1,015 nodes in
+the final decision diagram. The run took 119.66 s on the shared workstation.
+There is no symmetry reduction. If nobody has committed, each manager can be
+working, prepared or aborted. Once a manager commits, each manager must be
+prepared or committed. The all-prepared state is in both regions, giving
+exactly `3^n + 2^n − 1` distinct states. The [data for four domain sizes](../../conformance/reports/perf/2026-11-20-tcommit-domain-growth.json)
+and `scripts/symbolic/check_transaction_commit.py` include generated counts,
+depth and a validated negative control. The three-manager property forbidding
+commit fails at depth five, after all three managers prepare.
+
 ## Same-host Large comparison
 
 Each cell ran alone on one EC2 m6id.4xlarge with eight physical Xeon Platinum 8375C cores, SMT enabled and local NVMe. The limit was 600 s and a 24 GiB cgroup with swap disabled. TLC used the pinned rolling jar and JRE, a 16 GiB heap and parallel GC. Explicit Core used the sharded table, packed parents and shorter safety batches, the TLC profile, seed 0 and fingerprint 0. These are bounded engineering runs on a different instance type from the release R2 host.

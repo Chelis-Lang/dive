@@ -31,6 +31,16 @@ Outside == x \notin Colors
         (row,) = run(module, config)
         compare(row, explicit(module, config))
 
+    # TLC can enumerate overlapping arms inside a universal action guard.
+    # When pick is A both arms hold. Evaluating the guard as one Boolean
+    # would lose a generated witness. Only atomic bodies are admitted here.
+    overlap = template.replace("GUARD", r"(\A q \in Colors : x = q \/ x \in Colors)")
+    module.write_text(overlap.replace("UPDATE", "x").replace("STORE", "got"))
+    (refused,) = run(module, config, code=2)
+    assert refused["verdict"] == "unsupported"
+    module.write_text(template.replace("GUARD", r"pick \notin got").replace("UPDATE", "x")
+                      .replace("STORE", r"got \cup {pick}"))
+
     edited = folder / "bad-paint.cfg"
     edited.write_text(base + "INVARIANT Outside\n")
     _, violation = run(module, config, "--recheck", module, edited, code=1)

@@ -359,6 +359,8 @@ class SourceModel(FiniteRelation):
         return Atom({key: self.b.true})
 
     def literal(self, value):
+        if isinstance(value, str):
+            return self.atom(("string", value))
         if set(value) == {"model"}:
             require("_" not in value["model"], "typed model values")
             return self.atom(value["model"])
@@ -440,16 +442,22 @@ class SourceModel(FiniteRelation):
         require(len(args) == len(d["params"]), "operator arity")
         return d["body"], {i: self.eval(a["Expr"]["expr"], env, assigned) for i, a in enumerate(args)}
 
-    def bindings(self, q, env, assigned):
+    def bindings(self, q, env, assigned, *, multiple=False):
         require(len(q["bounds"]) == 1, "multiple bound groups")
         (bound,) = q["bounds"]
-        require(len(bound["vars"]) == 1, "multiple bound variables")
-        (slot,) = bound["vars"]
+        slots = bound["vars"]
+        require(slots and (len(slots) == 1 or multiple), "expected a single bound variable")
         require(not bound["tuple"] and bound["domain"] is not None, "unbounded or tuple binder")
         domain = self.eval(bound["domain"], env, assigned)
         require(isinstance(domain, Members), "binder over a non-atomic set")
-        for key in sorted(domain, key=repr):
-            yield key, domain[key], {**env, slot: self.atom(key)}
+        if len(slots) == 1:
+            for key in sorted(domain, key=repr):
+                yield key, domain[key], {**env, slots[0]: self.atom(key)}
+            return
+        require(len(domain) ** len(slots) <= 100000, "quantifier exceeds 100000 bindings")
+        for keys in itertools.product(domain, repeat=len(slots)):
+            scope = {**env, **{slot: self.atom(key) for slot, key in zip(slots, keys)}}
+            yield keys, self.conjunction(domain[key] for key in keys), scope
 
     def eval(self, i, env, assigned):
         tag, x = self.node(i)
@@ -457,6 +465,8 @@ class SourceModel(FiniteRelation):
         def sub(expr):
             return self.eval(expr, env, assigned)
 
+        if tag == "Str":
+            return self.atom(("string", x))
         if tag == "Bool":
             return self.b.true if x else self.b.false
         if tag == "Var":
@@ -478,7 +488,7 @@ class SourceModel(FiniteRelation):
         if tag == "FcnSet":
             return FunctionSpace(sub(x["domain"]), sub(x["range"]))
         if tag in ("FcnCons", "Quant"):
-            bindings = self.bindings(x, env, assigned)
+            bindings = self.bindings(x, env, assigned, multiple=(tag == "Quant"))
             if tag == "FcnCons":
                 out = Function()
                 for k, guard, scope in bindings:
@@ -605,6 +615,12 @@ class SourceModel(FiniteRelation):
         else:
             require(
                 tag in ("Bool", "Not")
+                or (
+                    tag == "Quant" and x["kind"] == "Forall"
+                    and self.ir["exprs"][i]["level"] in ("Constant", "State")
+                    and self.node(x["body"])[0] == "Builtin"
+                    and self.node(x["body"])[1]["op"] in ("Eq", "Neq", "In", "NotIn", "Subseteq")
+                )
                 or (tag == "Builtin" and x["op"] in ("Eq", "Neq", "In", "NotIn", "Subseteq")),
                 "unsupported action guard: " + tag,
             )
@@ -654,15 +670,20 @@ class SourceModel(FiniteRelation):
         return out
 
     def decode(self, point):
+        def scalar(key):
+            if isinstance(key, str):
+                return {"model": key}
+            require(key[0] == "string", "invalid encoded scalar in witness")
+            return key[1]
+
         def read(schema, path):
             if isinstance(schema, Function):
-                return {"fcn": [[{"model": k}, read(v, (*path, k))] for k, v in schema.items()]}
+                return {"fcn": [[scalar(k), read(v, (*path, k))] for k, v in schema.items()]}
             if isinstance(schema, Members):
-                return {"set": [{"model": k} for k in schema if point[self.layout[(*path, k)][0][0].var]]}
+                return {"set": [scalar(k) for k in schema if point[self.layout[(*path, k)][0][0].var]]}
             fields, alphabet = self.layout[path]
             key = alphabet[sum(1 << i for i, bit in enumerate(fields) if point[bit.var])]
-            require(isinstance(key, str), "invalid encoded model value in witness")
-            return {"model": key}
+            return scalar(key)
 
         return {name: read(self.state[name], (name,)) for name in self.names}
 
