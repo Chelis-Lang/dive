@@ -61,6 +61,7 @@ pub use translate::{
 
 pub mod debug;
 pub mod diagnostics;
+pub mod safety_reuse;
 pub mod temporal;
 pub mod trace;
 

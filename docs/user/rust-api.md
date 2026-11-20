@@ -37,6 +37,64 @@ report: check its verdict, refusal, completion and validation before you
 treat the model as checked. API errors also distinguish rejected inputs, I/O, named unsupported
 requests and internal failures.
 
+## Recheck edited safety invariants
+
+The source-checkout API in `dive_api::safety_reuse` lets a long-lived caller
+keep a Core search while editing its configured invariants. Bind each
+revision with `Program::load` or `Program::from_reports`. The latter uses the
+same analyzed transitive module closure for eligibility and compilation.
+
+```rust
+use dive_api::safety_reuse::{Limits, Program};
+use std::path::Path;
+
+fn recheck(before: &Path, after: &Path, cfg: &Path)
+    -> Result<(), Box<dyn std::error::Error>>
+{
+    let policy = Limits::default();
+    let (artifact, original) = Program::load(before, cfg)?.capture(policy)?;
+    let edited = Program::load(after, cfg)?;
+    let current = artifact.recheck(&edited, policy)?;
+    println!("original {:?}, current {:?}", original.counts(), current.counts());
+    Ok(())
+}
+```
+
+The artifact owns original concrete rows, discovery parents, generating actions
+and search counters. A successful full exploration can decide an edited true
+or false invariant. An original refutation can decide a still-reachable
+failure at or before its stopping point. Each false result includes the current
+property name and a finite trace validated independently against the current
+program. The reported counts describe where fresh Core would have decided it.
+The scan generates zero successors.
+
+The policy uses exact storage, the Dive profile, one worker, seed/fingerprint
+zero, and the same state, depth and retained-row limits. The default row cap
+is one million. Callers with wall-clock or process-memory requirements must
+enforce them externally. The initial subset admits integer/Boolean state
+variables, pure ordinary invariants, literal constants, and an explicit
+Init/Next pair or equivalent safety specification. It compares all loaded
+module sources and their origin and resolution relative to the root. It can
+change the list/order of configured invariants, or the body of an isolated
+zero-argument invariant whose identifier occurs only in its own declaration.
+Other edits, constraints, overrides, symmetry, views, unsupported module
+origins and temporal checks produce a miss. The artifact expires with the
+process.
+
+On a miss, capture the current model afresh or use `check_file` to obtain its
+ordinary result, including stops and evaluation errors. The example processes
+successive snapshots and implements both fallbacks. It emits one JSON record
+per revision with timings, counts and any independently validated witness.
+Keep each snapshot's module filename the same.
+
+```sh
+cargo run -p dive-api --release --example recheck_invariants -- \
+  before/Model.tla before/Model.cfg after/Model.tla after/Model.cfg
+```
+
+For measurements and the reproduction command see [edited-invariant
+benchmarks](../developer/performance.md#edited-invariants).
+
 For pure safety checks, `CheckRequest.store_compact_bytes = Some(0)` with
 `check_file(&request)` reclaims expanded persistent values
 after each completed level. A positive value triggers reclamation when the
