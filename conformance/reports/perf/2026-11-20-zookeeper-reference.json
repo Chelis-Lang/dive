@@ -1,0 +1,532 @@
+{
+  "reference": "Ouyang et al., Leveraging TLA+ to Improve ZooKeeper Reliability, Table 1",
+  "paper": "https://arxiv.org/pdf/2302.02703#page=7",
+  "released_protocol": "https://github.com/Disalg-ICS-NJU/zookeeper-tla-spec/tree/e34ccd761f95e919e8bce361978b43138b8d1bcc/protocol-spec",
+  "apache_import": "https://github.com/apache/zookeeper/tree/df8a53a974e295cc6d9337800b693751ece4e440/zookeeper-specifications/protocol-spec",
+  "paper_parameters": [
+    "servers",
+    "max_transactions",
+    "max_timeouts",
+    "max_restarts"
+  ],
+  "paper_measure": "Num of states; generated and depth reproduce on the no-restart controls. The paper limits search to 24 hours and 100 GB of disk. A null wall time below denotes a >24 hour entry. Simulation is omitted.",
+  "published_bfs": [
+    {
+      "parameters": [
+        2,
+        2,
+        2,
+        0
+      ],
+      "depth": 38,
+      "states": 19980,
+      "wall_seconds": 3
+    },
+    {
+      "parameters": [
+        2,
+        2,
+        0,
+        2
+      ],
+      "depth": 38,
+      "states": 25959,
+      "wall_seconds": 4
+    },
+    {
+      "parameters": [
+        2,
+        2,
+        1,
+        1
+      ],
+      "depth": 38,
+      "states": 26865,
+      "wall_seconds": 4
+    },
+    {
+      "parameters": [
+        2,
+        3,
+        2,
+        2
+      ],
+      "depth": 60,
+      "states": 10370967,
+      "wall_seconds": 418
+    },
+    {
+      "parameters": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "depth": 43,
+      "states": 610035,
+      "wall_seconds": 28
+    },
+    {
+      "parameters": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "depth": 50,
+      "states": 1902139,
+      "wall_seconds": 156
+    },
+    {
+      "parameters": [
+        3,
+        2,
+        2,
+        0
+      ],
+      "depth": 54,
+      "states": 26126204,
+      "wall_seconds": 1027
+    },
+    {
+      "parameters": [
+        3,
+        2,
+        0,
+        2
+      ],
+      "depth": 68,
+      "states": 245606642,
+      "wall_seconds": 13283
+    },
+    {
+      "parameters": [
+        3,
+        2,
+        1,
+        1
+      ],
+      "depth": 61,
+      "states": 84543312,
+      "wall_seconds": 3618
+    },
+    {
+      "parameters": [
+        3,
+        2,
+        2,
+        1
+      ],
+      "depth": 50,
+      "states": 1721643089,
+      "wall_seconds": null
+    },
+    {
+      "parameters": [
+        3,
+        2,
+        1,
+        2
+      ],
+      "depth": 46,
+      "states": 1825094679,
+      "wall_seconds": null
+    },
+    {
+      "parameters": [
+        4,
+        2,
+        1,
+        0
+      ],
+      "depth": 64,
+      "states": 21393294,
+      "wall_seconds": 1409
+    },
+    {
+      "parameters": [
+        4,
+        2,
+        0,
+        1
+      ],
+      "depth": 71,
+      "states": 79475010,
+      "wall_seconds": 5851
+    },
+    {
+      "parameters": [
+        4,
+        2,
+        2,
+        0
+      ],
+      "depth": 57,
+      "states": 1599588210,
+      "wall_seconds": null
+    }
+  ],
+  "authors_other_measurement": {
+    "source": "https://github.com/Disalg-ICS-NJU/zookeeper-tla-spec/tree/e34ccd761f95e919e8bce361978b43138b8d1bcc/protocol-spec/verification-statistics.md",
+    "parameters": "3 servers, MaxTotalRestartNum=1, MaxElectionNum=1, MaxTransactionNum=2",
+    "method": "BFS",
+    "states": 9602018536,
+    "depth": 45,
+    "wall": "31:01:57",
+    "scope": "The upstream statistics do not disambiguate the count or establish exhaustion for this row."
+  },
+  "input": {
+    "Zab_sha256": "6ae874bb01eb043ee7581f718407d097e85ec256e281ffc5a9b2198236f602f7",
+    "apache_Zab_sha256": "e503f030fe50ef661c070486a4703e338de2e415f93940a5ce5695479f37e720",
+    "module": "Save wrapper as MCZab.tla next to the released Zab.tla. Use LF and a final newline for each file.",
+    "wrapper": [
+      "---- MODULE MCZab ----",
+      "EXTENDS Zab",
+      "CONSTANTS MaxT, MaxF, MaxR, MaxE",
+      "BoundParameters == [MaxTransactionNum |-> MaxT, MaxTimeoutFailures |-> MaxF, MaxRestarts |-> MaxR, MaxEpoch |-> MaxE]",
+      "ServerPerms == Permutations(Server)",
+      "===="
+    ],
+    "wrapper_sha256": "ec0b34455521a411d03f45b001b7c257bac9c728a003c68e764934d1a9291b49",
+    "cfg_template": [
+      "SPECIFICATION Spec",
+      "CHECK_DEADLOCK FALSE",
+      "SYMMETRY ServerPerms",
+      "CONSTANTS",
+      "    Server = {s1, s2, s3}",
+      "    Parameters <- BoundParameters",
+      "    MaxT = 2",
+      "    MaxF = 1",
+      "    MaxR = 0",
+      "    MaxE = 3",
+      "    LOOKING = LOOKING",
+      "    FOLLOWING = FOLLOWING",
+      "    LEADING = LEADING",
+      "    ELECTION = ELECTION",
+      "    DISCOVERY = DISCOVERY",
+      "    SYNCHRONIZATION = SYNCHRONIZATION",
+      "    BROADCAST = BROADCAST",
+      "    CEPOCH = CEPOCH",
+      "    NEWEPOCH = NEWEPOCH",
+      "    ACKEPOCH = ACKEPOCH",
+      "    NEWLEADER = NEWLEADER",
+      "    ACKLD = ACKLD",
+      "    COMMITLD = COMMITLD",
+      "    PROPOSE = PROPOSE",
+      "    ACK = ACK",
+      "    COMMIT = COMMIT",
+      "    NullPoint = NullPoint",
+      "INVARIANT ShouldNotBeTriggered",
+      "INVARIANT Leadership1",
+      "INVARIANT Leadership2",
+      "INVARIANT PrefixConsistency",
+      "INVARIANT Integrity",
+      "INVARIANT Agreement",
+      "INVARIANT TotalOrder",
+      "INVARIANT LocalPrimaryOrder",
+      "INVARIANT GlobalPrimaryOrder",
+      "INVARIANT PrimaryIntegrity"
+    ],
+    "substitutions": "Replace Server with {s1, ..., sN}, MaxT, MaxF and MaxR with the recorded integer parameters. Keep MaxE=3 from the upstream example; the paper omits it. Every run retains the ten invariants, symmetry and original action bodies."
+  },
+  "method": {
+    "oracle": "tlc-2026.10.06.014338, pinned JRE",
+    "core": "dive check MCZab.tla --config <cfg> --workers N --compat=tlc --fp 0 --seed 0 --max-memory <cap> --output json",
+    "tlc": "java -Xmx<heap> -XX:+UseParallelGC -XX:ActiveProcessorCount=N -cp tla2tools.jar tlc2.TLC -workers N -fp 0 -seed 0 -metadir <fresh-directory> -config <cfg> MCZab.tla",
+    "timing": "GNU time wall and maximum process RSS; both engines sequentially pinned to the same physical cores per pair. Structural Print/PrintT detection reduced Core to one worker on every row."
+  },
+  "measurements": [
+    {
+      "host": "c7i.4xlarge",
+      "physical_cores": 4,
+      "binary_sha256": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "core_max_memory": "8g",
+      "tlc_max_heap": "6g",
+      "runs": [
+        {
+          "paper_parameters": [
+            2,
+            2,
+            0,
+            2
+          ],
+          "MaxTimeoutFailures": 0,
+          "cfg_sha256": "6ff3ac1da108b45448c7e03e4fec1b419b9ed9e6ea7a523219fdc1689767e818",
+          "same_as_paper_count_and_depth": false,
+          "verdict": "success",
+          "depth": 20,
+          "generated": 77,
+          "distinct": 52,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 0.04,
+            "peak_rss_kib": 58948,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 0.61,
+            "peak_rss_kib": 145072,
+            "workers": 4
+          }
+        },
+        {
+          "paper_parameters": [
+            2,
+            2,
+            1,
+            1
+          ],
+          "MaxTimeoutFailures": 1,
+          "cfg_sha256": "b9865134ca9322abf460f5744e51bb02e42c5db46da8de4931526cf9e34517fa",
+          "same_as_paper_count_and_depth": false,
+          "verdict": "success",
+          "depth": 29,
+          "generated": 3176,
+          "distinct": 2358,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 0.09,
+            "peak_rss_kib": 58884,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 1.17,
+            "peak_rss_kib": 272592,
+            "workers": 4
+          }
+        },
+        {
+          "paper_parameters": [
+            2,
+            2,
+            2,
+            0
+          ],
+          "MaxTimeoutFailures": 2,
+          "cfg_sha256": "18fcd06e4f9184d1697991bf29e95fff38e49b702b2c972207740149008aeabd",
+          "same_as_paper_count_and_depth": true,
+          "verdict": "success",
+          "depth": 38,
+          "generated": 19980,
+          "distinct": 15497,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 0.4,
+            "peak_rss_kib": 61192,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 1.83,
+            "peak_rss_kib": 929240,
+            "workers": 4
+          }
+        },
+        {
+          "paper_parameters": [
+            3,
+            2,
+            1,
+            0
+          ],
+          "MaxTimeoutFailures": 1,
+          "cfg_sha256": "20927249f40ccc14b02ba2fdbb0e2515fb3b4cbf9aa1d921c193136d5740a729",
+          "same_as_paper_count_and_depth": true,
+          "verdict": "success",
+          "depth": 43,
+          "generated": 610035,
+          "distinct": 251332,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 13.52,
+            "peak_rss_kib": 112584,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 16.25,
+            "peak_rss_kib": 2506220,
+            "workers": 4
+          }
+        }
+      ]
+    },
+    {
+      "host": "c7i.4xlarge",
+      "physical_cores": 8,
+      "binary_sha256": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "core_max_memory": "8g",
+      "tlc_max_heap": "6g",
+      "runs": [
+        {
+          "paper_parameters": [
+            2,
+            2,
+            0,
+            2
+          ],
+          "MaxTimeoutFailures": 2,
+          "cfg_sha256": "add0456af68cd65d78105f11818615999b8ad1a57e40ba7fa0d831e76fedf5f6",
+          "same_as_paper_count_and_depth": false,
+          "verdict": "success",
+          "depth": 38,
+          "generated": 74246,
+          "distinct": 53666,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 1.3,
+            "peak_rss_kib": 58764,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 2.44,
+            "peak_rss_kib": 2217036,
+            "workers": 8
+          }
+        },
+        {
+          "paper_parameters": [
+            2,
+            2,
+            1,
+            1
+          ],
+          "MaxTimeoutFailures": 2,
+          "cfg_sha256": "f680a60dc50e658fac79aea5213142faccc087f9e17b4b014650a899c4a00f0d",
+          "same_as_paper_count_and_depth": false,
+          "verdict": "success",
+          "depth": 38,
+          "generated": 50026,
+          "distinct": 36307,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 0.88,
+            "peak_rss_kib": 58912,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 1.87,
+            "peak_rss_kib": 1424372,
+            "workers": 8
+          }
+        },
+        {
+          "paper_parameters": [
+            2,
+            3,
+            2,
+            2
+          ],
+          "MaxTimeoutFailures": 4,
+          "cfg_sha256": "c6a8c54579054de39b7eea3eec1e0819bbc3dc194dc1d2f914d2252bff72d753",
+          "same_as_paper_count_and_depth": false,
+          "verdict": "success",
+          "depth": 51,
+          "generated": 7573880,
+          "distinct": 3734190,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 92.35,
+            "peak_rss_kib": 217400,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 67.36,
+            "peak_rss_kib": 3174912,
+            "workers": 8
+          }
+        },
+        {
+          "paper_parameters": [
+            3,
+            2,
+            0,
+            1
+          ],
+          "MaxTimeoutFailures": 1,
+          "cfg_sha256": "48f640fd02d7f8e6db7ea5f42c718553e3b8b2b19e8089125165a3f84a935f88",
+          "same_as_paper_count_and_depth": false,
+          "verdict": "success",
+          "depth": 50,
+          "generated": 2503155,
+          "distinct": 1096410,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 55.86,
+            "peak_rss_kib": 116280,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 34.89,
+            "peak_rss_kib": 2871232,
+            "workers": 8
+          }
+        }
+      ]
+    },
+    {
+      "host": "r7i.16xlarge",
+      "physical_cores": 32,
+      "binary_sha256": "a883483bd64f0ac4adbd18959b7813a108fb4ff593f95de41c361cf2ff4cae35",
+      "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "core_max_memory": "424g",
+      "tlc_max_heap": "128g",
+      "runs": [
+        {
+          "paper_parameters": [
+            4,
+            2,
+            1,
+            0
+          ],
+          "MaxTimeoutFailures": 1,
+          "cfg_sha256": "ae6eaa5bba0c2d10bafb8e84825c2eb96a46baacbc3b6be37bdba4709656b127",
+          "same_as_paper_count_and_depth": true,
+          "verdict": "success",
+          "depth": 64,
+          "generated": 21393294,
+          "distinct": 6634696,
+          "queued": 0,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 623.7,
+            "peak_rss_kib": 462884,
+            "workers_used": 1,
+            "print_events": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 136.24,
+            "peak_rss_kib": 48541544,
+            "workers": 32
+          }
+        }
+      ]
+    }
+  ],
+  "interpretation": "RecorderSetFailure increments both counters on Restart, and CheckRestart includes CheckTimeout. Neither tested mapping recovers the two-server restart rows. Reproduction of a larger restart run requires the missing exact paper configuration."
+}
