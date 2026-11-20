@@ -26,6 +26,8 @@ cleanup failure stops the run without a certified result. A canceled audit of
 the retained records still cleans up, and does not vouch for the records it did
 not reach.
 
+Ordinary in-memory safety checking automatically packs the visited fingerprints as the shards grow. The representation keeps all fingerprint bits. The [resident membership measurements](../developer/large-models.md#resident-fingerprint-membership) quantify the memory and lookup costs.
+
 ## Multi-worker fingerprint membership
 
 For a large breadth-first safety search, create a scratch directory on the
