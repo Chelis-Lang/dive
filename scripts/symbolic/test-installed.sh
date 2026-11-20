@@ -29,9 +29,9 @@ run --verify-predicate closed.json --time-limit 10s > proof
 jq -e '.proof=="inductive-safety" and (has("distinct")|not)' proof >/dev/null
 cp Receipts.cfg OnlyEmpty.cfg
 echo 'INVARIANT Empty' >> OnlyEmpty.cfg
-rc=0; run --refine-domains --recheck Receipts.tla OnlyEmpty.cfg > edit-session || rc=$?
+rc=0; run --refine-domains --recheck Receipts.tla Receipts.cfg --recheck Receipts.tla OnlyEmpty.cfg > edit-session || rc=$?
 test "$rc" = 1
-jq -se 'length==2 and .[0].distinct==8 and .[1].trace_validated and .[1].ending.name=="Empty" and (.[1].reused|not)' edit-session >/dev/null
+jq -se 'length==3 and .[0].distinct==8 and .[1].reused and .[1].generated==21 and .[2].trace_validated and .[2].ending.name=="Empty" and (.[2].reused|not)' edit-session >/dev/null
 rc=0; run --config OnlyEmpty.cfg --recheck Receipts.tla OnlyEmpty.cfg --trace Keep.json > saved-traces || rc=$?
 test "$rc" = 1
 jq -se 'length==2 and .[0].trace_file=="Keep.json" and (.[1]|has("trace_file")|not) and .[1].trace.ending.name=="Empty"' saved-traces >/dev/null

@@ -23,6 +23,7 @@ Outside == x \notin Colors
     check_initial_choices(folder, run, explicit, compare)
     check_constraints(folder, run, explicit, compare)
     check_refined_domains(folder, run, explicit, compare)
+    check_refined_edits(folder, run, explicit, compare)
 
     model = template.replace("GUARD", "TRUE").replace("UPDATE", "x").replace("STORE", "got")
     module.write_text(model.replace("x = A", r"x \in Colors /\ x \in Colors"))
@@ -282,7 +283,8 @@ Escapes == /\ mail' = {Message(300)} /\ UNCHANGED step
                                   "--recheck", module, edited, "--recheck", module, config, code=1)
     for success in (cold, warm, fresh):
         compare(success, explicit(module, config))
-        assert not success["reused"] and "domain_members" not in success
+        assert "domain_members" not in success
+    assert not cold["reused"] and warm["reused"] and not fresh["reused"] and not bad["reused"]
     assert warm["refinement_rounds"] == 1 and warm["initial_hint_members"] == 3
     assert fresh["initial_hint_members"] == 0 and fresh["refinement_rounds"] == cold["refinement_rounds"]
     assert bad["ending"]["name"] == "Safe" and bad["depth"] == 3 and bad["trace_validated"]
@@ -314,3 +316,66 @@ Escapes == /\ mail' = {Message(300)} /\ UNCHANGED step
     assert outside["verdict"] == "unsupported" and "outside finite layout" in outside["reason"]
     (incompatible,) = run(module, config, *flags, "--prove-inductive", code=2)
     assert incompatible["verdict"] == "unsupported"
+
+
+def check_refined_edits(folder, run, explicit, compare):
+    module = folder / "Revisions.tla"
+    module.write_text(r"""---- MODULE Revisions ----
+EXTENDS Naturals
+VARIABLES x, mail
+TypeInvariant == /\ x \in 0..1 /\ mail \subseteq 0..299
+Init == /\ x \in 0..1 /\ mail = {0}
+Twice == Init \/ Init
+Keep == x = 0
+Allow == x \in 0..1
+Safe == 2 \notin mail
+OnlyZero == x = 0
+Stay == UNCHANGED <<x, mail>>
+Duplicate == Stay \/ Stay
+Sink == /\ x = 0 /\ x' = 1 /\ UNCHANGED mail
+Blocked == /\ x = 1 /\ UNCHANGED <<x, mail>>
+Add == /\ mail' = mail \cup {1} /\ UNCHANGED x
+Escape == /\ mail' = mail \cup {399} /\ UNCHANGED x
+====
+""")
+
+    def cfg(name, init="Init", step="Stay", constraint="Keep", prop="", deadlock=True):
+        path = folder / (name + ".cfg")
+        path.write_text(f"INIT {init}\nNEXT {step}\nCONSTRAINT {constraint}\nINVARIANT TypeInvariant\n"
+                        + (f"INVARIANT {prop}\n" if prop else "")
+                        + ("" if deadlock else "CHECK_DEADLOCK FALSE\n"))
+        return path
+
+    base = cfg("base")
+    stronger = cfg("stronger", prop="Safe")
+    duplicates = cfg("duplicate-actions", step="Duplicate")
+    double_init = cfg("duplicate-init", init="Twice", step="Duplicate")
+    all_states = cfg("all-states", init="Twice", step="Duplicate", constraint="Allow")
+    extra = cfg("new-emission", step="Add")
+    # Each edit with the same closure but changed multiplicities still needs its own counts.
+    edits = [base, stronger, duplicates, double_init, all_states, extra]
+    rows = run(module, base, "--refine-domains", *(arg for path in edits[1:] for arg in ("--recheck", module, path)))
+    for row, config in zip(rows, edits, strict=True):
+        compare(row, explicit(module, config))
+    assert [r["reused"] for r in rows] == [False, True, False, False, False, False]
+    assert rows[-1]["learned_members"] == 2
+
+    # No admitted predecessor reaches the excluded initial x=1.
+    _, excluded = run(module, base, "--refine-domains", "--recheck", module, cfg("initial-bad", prop="OnlyZero"), code=1)
+    assert excluded["trace_validated"] and excluded["depth"] == 1 and not excluded["reused"]
+    for step, code in [("Sink", 0), ("Blocked", 1)]:
+        _, row = run(module, cfg(step + "-off", step=step, deadlock=False), "--refine-domains",
+                     "--recheck", module, cfg(step + "-on", step=step), code=code)
+        if code:
+            assert row["verdict"] == "deadlock" and row["trace_validated"] and not row["reused"]
+        else:
+            assert row["verdict"] == "success" and row["reused"]
+
+    _, escaped = run(module, base, "--refine-domains", "--recheck", module, cfg("escape", step="Escape"),
+                     "--recheck", module, base, code=2)
+    assert escaped["verdict"] == "unsupported" and "outside finite layout" in escaped["reason"]
+    expanded = folder / "Expanded.tla"
+    expanded.write_text(module.read_text().replace("MODULE Revisions", "MODULE Expanded").replace("0..299", "0..300"))
+    _, row = run(module, base, "--refine-domains", "--recheck", expanded, base)
+    compare(row, explicit(expanded, base))
+    assert not row["reused"] and row["initial_hint_members"] == 1
