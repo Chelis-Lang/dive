@@ -9,6 +9,9 @@ are in git history.
 
 - The conformance harness can run selected models without TLC goldens with
   `--observe-missing-goldens` and record their ungraded outcomes.
+- Rust embedders can project an exhausted safety proof onto a smaller
+  invariant inventory, including constrained models with aggregate state.
+  See [the Rust API guide](docs/user/rust-api.md#drop-an-invariant-from-a-completed-safety-check).
 
 - The optional [finite symbolic checker](docs/user/symbolic.md) searches finite safety models using decision diagrams, rechecks invariant edits and verifies inductive predicates against the current source.
 

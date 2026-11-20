@@ -1093,3 +1093,39 @@ panel acceptance or qualification of a later rebased source. The compact
 [record](../../conformance/reports/perf/2026-11-03-native-source-observation.json)
 binds actual ELF/patch/input identities and verified external archive. No
 rescue/repetition or broad performance claim follows from these rows.
+
+## Removing BoundedNetwork from MCLamportMutex
+
+The S7 edit removes `BoundedNetwork` from `TypeOK BoundedNetwork Mutex` in
+the pinned three-process model. `Nat <- NatOverride`, `MaxNat = 7`,
+`maxClock = 6`, `ClockConstraint` and every module byte stay fixed. Both fresh
+checks held with 724,274 distinct states, 2,729,079 generated, depth 61, one
+initial state and an empty final queue. Its queues, records, functions and
+sets require no decoding when the only change removes a proved obligation.
+
+| Operation | Wall time |
+| --- | ---: |
+| Original exact capture, one observation | 9.733 s |
+| Original ordinary fresh check, one observation | 9.870 s |
+| Edited ordinary fresh check, median of three | 10.245 s |
+| Bind edited input and project the previous proof, median of three | 3.593 ms |
+| Compare the already-bound proof inputs, median of three | 4 µs |
+| Start a new process, bind both inputs, and attest their relation, median of three | 8.038 ms |
+
+The complete in-process decision improved by roughly 2,850× over repeating
+the edited check. The last row checks the input relation alone. A service must
+authenticate the previous complete result separately. Four-revision process
+peak RSS was 231.4 MiB with projection and 233.3 MiB with fresh checking.
+The [samples](../../conformance/studies/s7-invariant-projection.json) include
+individual observations, CPU/build settings and the earlier qualification run.
+
+```sh
+CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 \
+  cargo build --locked --release -p dive-api --example project_invariants
+python3 scripts/bench-project-invariants.py target/release/examples/project_invariants \
+  path/to/examples/specifications/lamport_mutex/MCLamportMutex.tla --gnu-time /usr/bin/time
+```
+
+The script checks all five counters and the verdict on every fresh and projected
+revision. Use the examples checkout from `conformance/corpora.toml`. GNU time
+is optional and supplies process RSS on Linux.
