@@ -2304,6 +2304,9 @@ fn run(
     let mut wave_workers = parallel::WaveWorkers::default();
     let mut generated_before = 0;
     let mut previous_sources = 0;
+    if nvars == 0 {
+        return Ok(());
+    }
     loop {
         let states = ex.frontier.as_ref().map_or_else(
             || resident::len(blocks.as_deref(), &cur, nvars),
@@ -2810,6 +2813,46 @@ mod tests {
                 .is_some_and(|facts| !facts.audit_completed
                     && facts.after_cleanup.is_some_and(|s| s.cleanup_completed))
         );
+        Ok(())
+    }
+
+    #[test]
+    fn zero_width_frontier_agrees_with_the_resident_search() -> Result<(), Error> {
+        use dive_core::plan::{GNode, Node};
+        let mut store = Arc::new(Store::new(true));
+        let mut plan = frontier_plan(&store, false)?;
+        plan.vars.clear();
+        plan.code.nodes = vec![Node::Const(Handle::TRUE), Node::Const(Handle::FALSE)];
+        plan.code.gnodes = vec![GNode::Guard(0), GNode::Guard(1)];
+        let mut reference = None;
+        for workers in [1, 4] {
+            for frontier_memory_bytes in [None, Some(0)] {
+                let out = explore_owned(
+                    &plan,
+                    &mut store,
+                    Config {
+                        opts: dive_core::Opts::default(),
+                        max_states: None,
+                        max_depth: None,
+                        workers,
+                        warn: true,
+                        sample: None,
+                    },
+                    &|| false,
+                    None,
+                    &storage::Storage {
+                        frontier_memory_bytes,
+                        ..storage::Storage::default()
+                    },
+                    None,
+                    None,
+                );
+                assert_eq!(out.verdict, Verdict::Success);
+                assert_eq!(out.stats.generated, 1);
+                assert_eq!(out.stats.distinct, 1);
+                assert_eq!(*reference.get_or_insert(out.stats), out.stats);
+            }
+        }
         Ok(())
     }
 
