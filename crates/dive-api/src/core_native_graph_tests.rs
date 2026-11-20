@@ -8,7 +8,7 @@
 use std::sync::Arc;
 
 use dive_core::node::flags;
-use dive_runtime::capture::{CsrCapture, CsrComplete};
+use dive_runtime::capture::{CsrCapture, CsrCaptureInput, CsrComplete};
 
 use super::*;
 
@@ -796,11 +796,13 @@ fn compact_csr_preserves_wide_ordinals_and_rejects_malformed_tables() {
     let large = [(1, u64::from(escape)), (2, u64::MAX - 1)];
     let words = [0, escape, escape, u16::MAX];
     let labels = [String::from("advance")];
+    // External producers can hand their mutable slice directly to the public input.
+    let actions: &mut [Option<u32>] = &mut [None, Some(0), None, None];
     let input = CsrCaptureInput {
         offsets: &[0, 4],
         targets: &[0; 4],
         ordinals: CsrOrdinals::Compact(&words, &large),
-        actions: &[None, Some(0), None, None],
+        actions,
         edge_rows: &[0; 4],
         representatives: &[0],
         roots: &[0],
@@ -851,7 +853,7 @@ fn byte_action_ids_preserve_named_unnamed_and_stutter_edges() {
         ids.push(id).expect("representable ID");
     }
     assert!(ids.push(Some(255)).is_err());
-    let input = CsrCaptureInput {
+    let input = CsrCaptureColumns {
         offsets: &[0, 3],
         targets: &[0; 3],
         ordinals: &[Some(0), Some(1), None],
@@ -875,7 +877,7 @@ fn byte_action_ids_preserve_named_unnamed_and_stutter_edges() {
     for bad in [CsrActions::Bytes(&[0, 0]), CsrActions::Bytes(&[0, 0, 0])] {
         assert!(
             CsrCapture::checked(
-                CsrCaptureInput {
+                CsrCaptureColumns {
                     actions: bad,
                     ..input
                 },
@@ -887,7 +889,7 @@ fn byte_action_ids_preserve_named_unnamed_and_stutter_edges() {
     }
     assert!(
         CsrCapture::checked(
-            CsrCaptureInput {
+            CsrCaptureColumns {
                 action_labels: &labels[..254],
                 ..input
             },

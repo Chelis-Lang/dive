@@ -13,7 +13,7 @@ use dive_explore::graph::{GraphSink, SourceRow, Step, Stopped};
 use dive_liveness::analyze::AnalysisError;
 use dive_runtime::budget::{EvaluationControl, Phase};
 use dive_runtime::capture::{
-    CsrActions, CsrCaptureInput, CsrOrdinals, Limits, MAX_EXPANSION_UNITS,
+    CsrActions, CsrCaptureColumns, CsrOrdinals, Limits, MAX_EXPANSION_UNITS,
 };
 use dive_runtime::{CheckOptions, Stats, Verdict};
 
@@ -168,8 +168,8 @@ impl NativeGraph {
         Arc::ptr_eq(&self.store, store)
     }
 
-    pub(crate) fn input(&self) -> CsrCaptureInput<'_, CsrOrdinals<'_>, CsrActions<'_>> {
-        CsrCaptureInput {
+    pub(crate) fn input(&self) -> CsrCaptureColumns<'_> {
+        CsrCaptureColumns {
             offsets: &self.offsets,
             targets: &self.targets,
             ordinals: CsrOrdinals::Compact(&self.ordinals, &self.large_ordinals),

@@ -17,7 +17,9 @@ use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 
 mod csr;
 mod evidence;
-pub use csr::{CsrActions, CsrCapture, CsrCaptureInput, CsrComplete, CsrOrdinals, CsrPrefix};
+pub use csr::{
+    CsrActions, CsrCapture, CsrCaptureColumns, CsrCaptureInput, CsrComplete, CsrOrdinals, CsrPrefix,
+};
 pub use evidence::{CompleteEvidence, PrefixEvidence};
 
 /// Refuses an actual Next or action-candidate error whose TLC primary depends
