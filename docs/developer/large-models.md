@@ -260,6 +260,7 @@ streaming evaluator eliminated the bulk allocation but still tried every
 tuple. During printing, tuple hashing forced the deferred filter through an
 infallible path that could outlast the budget. The normal checker retains
 its original refusal.
+
 ## Published model sizes and reproducible comparisons
 
 A published state count is comparable across checkers when the specification,
