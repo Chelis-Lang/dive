@@ -3,6 +3,8 @@
 Gathered 2026-10-08. This is a preliminary pass. The `dive-conformance` harness will redo the
 conformance numbers rigorously against TLC goldens; until then, treat the counts below as a
 well-instrumented first look, not as the record.
+For current comparators and workload selection, see
+[Verification workloads](verification-workloads.md).
 
 Every statement is labelled:
 - **measured**: we ran it, and the raw data is under `docs/internal/survey/data/`;

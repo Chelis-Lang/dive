@@ -16,6 +16,9 @@ and the R2 procedure is in
 The scripts that produced the records are in
 [`scripts/perf/release/`](../../../scripts/perf/release/README.md).
 
+The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
+extend this evidence to native checkers, implementation traces and proofs.
+
 ## 0.1.0 release records
 
 | File | Family | Question | Source | Host |

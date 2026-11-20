@@ -146,3 +146,14 @@ excluded model at 2. Dropping a slow model lowers only the first.
 - **Recommended:** report both; only the agreeing-model mean gates, as
   `docs/RELEASE.md` says now. Open for the owner: should the fixed-set mean
   also have to be below 1x?
+
+## Deductive proof system scope
+
+Should dive support proof handoff to existing TLAPS, maintain a companion
+around `tlapm`, or share its frontend with a separately maintained Rust
+reimplementation of TLAPS? First measure cold and edited proofs against the
+current upstream manager and prove the handoff on real artifacts. A new
+manager needs a repeatable improvement over upstream or a thin companion,
+independent evidence for accepted obligations, and an accountable maintainer.
+Approve a full implementation and its trust contract separately.
+[Options and acceptance tests](internal/survey/verification-workloads.md#tlaps-options-and-evidence)
