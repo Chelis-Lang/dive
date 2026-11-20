@@ -977,5 +977,143 @@
         ]
       }
     }
+  },
+  "retained_refined_closure_edits": {
+    "method": "Separate fresh installed CLI sessions, sequentially on the same physical core of an isolated c7i.4xlarge. Each session checks the original configuration, repeats it, adds EmissionBound, then adds the false EmptyNetwork obligation. Peak RSS is GNU time's maximum for the session. Row seconds come from the checker. Each false result is independently replayed.",
+    "time_limit_seconds": 2300,
+    "memory_limit": "7g",
+    "options": "--type-invariant TypeOK --refine-domains --strategy symbolic --trace <path>",
+    "hashes": {
+      "candidate executable": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "control executable": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+      "PaxosLeaseEdited.tla": "07aebd011f62da5a525a0a11f903e885a499336d087df08c2e0c2bbb9d3c8442",
+      "PaxosLeaseBase.cfg": "03f0be6f3ae3faa879415477994958e480fdb88d7186f4dd9fc4f0577235c711",
+      "BaseEmission.cfg": "c9d0bbb077d68cd2080b9046c53a7bc307598763c065cd98465c87338ceb1322",
+      "BaseEmpty.cfg": "42d5e8eb18115373348fe3490fe8464fc2a5f88598523a4802bf0e2eeef82163",
+      "PaxosLeaseQuarantineEqualsProposer.cfg": "5f69288c3b80cbab777da4aa4f573fd9e8e42527ce77297e29adf192a2c804f2",
+      "QuarantineEmission.cfg": "94508946ab40f28f698c93bbe57f98676e4cff0621cde24de99c4a741dfaf6c4",
+      "QuarantineEmpty.cfg": "bc805d8ccf4bced72dbf8fcc1beede2f5025f73ce11d713b3b2cd8569fcb77ae"
+    },
+    "installed_engines": {
+      "candidate": "001520e7d36e296fb7b685ad844fe73bdbb1bde7934b50874237e5b25575207c",
+      "control": "70a08b42072ac5657017552b2b16397138c5a4c6535b019036ddac802a8fe53e"
+    },
+    "sessions": {
+      "Base-control": {
+        "wall_seconds": 169.84,
+        "max_rss_kib": 363796,
+        "validated_trace_states": 2,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 72.214739,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 47.731871,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 48.843254,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "invariant-violation",
+            "depth": 2,
+            "ending": {
+              "kind": "invariant",
+              "name": "EmptyNetwork"
+            },
+            "reused": false,
+            "trace_validated": true,
+            "seconds": 0.835962,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          }
+        ]
+      },
+      "Base-candidate": {
+        "wall_seconds": 78.71,
+        "max_rss_kib": 332472,
+        "validated_trace_states": 2,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": false,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 72.52268,
+            "refinement_rounds": 11,
+            "learned_members": 138,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": true,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 0.598139,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "success",
+            "distinct": 491037,
+            "generated": 1709874,
+            "depth": 29,
+            "reused": true,
+            "reachable_bdd_nodes": 390276,
+            "seconds": 4.499806,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          },
+          {
+            "verdict": "invariant-violation",
+            "depth": 2,
+            "ending": {
+              "kind": "invariant",
+              "name": "EmptyNetwork"
+            },
+            "reused": false,
+            "trace_validated": true,
+            "seconds": 0.876681,
+            "refinement_rounds": 1,
+            "learned_members": 138,
+            "initial_hint_members": 138
+          }
+        ]
+      }
+    }
   }
 }
