@@ -63,6 +63,7 @@ COMMANDS:
 USAGE: dive check FILE.tla [OPTIONS]
 
 --strategy symbolic     exact finite safety, symbolic JSON reports (Linux release bundle)
+--refine-domains        learn reachable members of wide sets in a symbolic search
 --config FILE.cfg       configuration (default FILE.cfg beside the source)
 --compat=tlc            select existing TLC-compatible behavior
 --workers N|auto        worker count; --sequential forces sequential search

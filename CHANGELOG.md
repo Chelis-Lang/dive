@@ -35,6 +35,8 @@ are in git history.
 - The Linux release archives include `dive check --strategy symbolic` for
   finite safety checks, validated witnesses and independently verified predicates.
 
+- Symbolic safety searches can [learn the members of wide finite sets](docs/user/symbolic.md#learning-which-members-a-wide-set-needs) with `--refine-domains`.
+
 - Symbolic safety checks support [finite state constraints and ground assumptions](docs/user/symbolic.md#admission-and-reports), including independently validated violations on excluded successors.
 
 - Symbolic safety checks accept [multiple finite initial choices](docs/user/symbolic.md#finite-initial-choices), including duplicate and symmetric witnesses.

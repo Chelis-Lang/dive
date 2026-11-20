@@ -22,6 +22,7 @@ Outside == x \notin Colors
 """
     check_initial_choices(folder, run, explicit, compare)
     check_constraints(folder, run, explicit, compare)
+    check_refined_domains(folder, run, explicit, compare)
 
     model = template.replace("GUARD", "TRUE").replace("UPDATE", "x").replace("STORE", "got")
     module.write_text(model.replace("x = A", r"x \in Colors /\ x \in Colors"))
@@ -247,3 +248,39 @@ NoOne == [key |-> "a", n |-> 1] \notin net
     cfg.write_text(cfg.read_text() + "INVARIANT NoOne\n")
     (bad,) = run(src, cfg, code=1)
     assert bad["ending"]["name"] == "NoOne" and bad["trace_validated"]
+
+
+def check_refined_domains(folder, run, explicit, compare):
+    module = folder / "Mail.tla"
+    config = folder / "Mail.cfg"
+    module.write_text(r"""---- MODULE Mail ----
+EXTENDS Naturals, FiniteSets
+VARIABLES mail, step
+Letter == [key : 0..299, body : {"v"}]
+TypeInvariant == /\ mail \subseteq Letter /\ step \in 0..2
+Message(k) == [key |-> k, body |-> "v"]
+Init == /\ mail = {Message(0)} /\ step = 0
+Next == \/ /\ step < 2
+           /\ LET k == step + 1 IN mail' = mail \cup {Message(k)}
+           /\ step' = step + 1
+        \/ /\ step = 2 /\ UNCHANGED <<mail, step>>
+Small == Cardinality(mail) <= 2
+Safe == Message(2) \notin mail
+Escapes == /\ mail' = {Message(300)} /\ UNCHANGED step
+====
+""")
+    common = "INIT Init\nINVARIANT TypeInvariant\nCONSTRAINT Small\n"
+    config.write_text(common + "NEXT Next\n")
+    flags = ("--refine-domains",)
+    (row,) = run(module, config, *flags)
+    compare(row, explicit(module, config))
+    assert row["learned_members"] == 3 and row["refinement_rounds"] >= 3
+    assert (row["generated"], row["distinct"], row["depth"]) == (3, 2, 2)
+    config.write_text(common + "NEXT Next\nINVARIANT Safe\n")
+    (bad,) = run(module, config, *flags, code=1)
+    assert bad["ending"]["name"] == "Safe" and bad["depth"] == 3 and bad["trace_validated"]
+    config.write_text(common + "NEXT Escapes\n")
+    (outside,) = run(module, config, *flags, code=2)
+    assert outside["verdict"] == "unsupported" and "outside finite layout" in outside["reason"]
+    (incompatible,) = run(module, config, *flags, "--prove-inductive", code=2)
+    assert incompatible["verdict"] == "unsupported"

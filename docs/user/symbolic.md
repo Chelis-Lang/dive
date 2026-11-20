@@ -161,6 +161,16 @@ integers over the decision diagram. JSON counters are exact decimal integers. Th
 For source and host identities, same-host TLC comparisons, growth results and
 the costs of editing an invariant, see [large-model measurements](../developer/large-models.md).
 
+### Learning which members a wide set needs
+
+```sh
+dive check --strategy symbolic PaxosLeaseChecked.tla --config PaxosLeaseBase.cfg \
+  --type-invariant TypeOK --refine-domains --time-limit 15m --max-memory 8g
+```
+
+Use `--refine-domains` for a single search when a top-level set has a wide finite element type. For a declared alphabet above 256 elements the checker starts with no member bits. A missing member in Init or in an emission from a reachable admitted source causes a restart with more bits. Each pass checks the original source configuration. The final pass must discharge every reachable emission before reporting success. An emission outside the declared layout gives a named refusal. Excluded successors still undergo invariant checking and can produce validated counterexamples.
+
+The JSON row includes `refinement_rounds` and `learned_members`. The 512-bit limit applies to the refined layout, and the time budget covers all passes. This option supports trace output. Predicate transfer and in-process rechecks use the ordinary symbolic strategy. Refining a wide domain with a configured symmetry group currently refuses. For modest explicit graphs, ordinary Core can be faster even when the refined symbolic search completes.
 
 ### Finite initial choices
 

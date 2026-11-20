@@ -38,7 +38,7 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
             "--type-invariant" | "--write-predicate" | "--verify-predicate" | "--trace" => {
                 command.arg(key).arg(value()?);
             }
-            "--prove-inductive" if inline.is_none() => {
+            "--prove-inductive" | "--refine-domains" if inline.is_none() => {
                 command.arg(key);
             }
             "--output" if value()? == "json" => {}
