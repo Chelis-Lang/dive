@@ -2512,6 +2512,11 @@ mod tests {
             }
         }
         assert_eq!(seen.len(), 1200);
+        // Zero used the same reserved-slot spelling before sharding.
+        assert!(seen.insert(0));
+        assert!(seen.contains(1));
+        assert!(!seen.insert(1));
+        assert_eq!(seen.len(), 1201);
     }
 
     pub(super) fn frontier_plan(store: &Arc<Store>, false_invariant: bool) -> Result<Plan, Error> {

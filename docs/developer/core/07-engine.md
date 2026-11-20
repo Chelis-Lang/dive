@@ -54,7 +54,43 @@ in Core's exact collision index (`crates/dive-explore/src/storage.rs`).
 
 **Predecessor log.** `dive_store::PredecessorLog`
 (`crates/dive-store/src/predecessor.rs:57`) records parent id and successor
-ordinal, unchanged.
+ordinal. With no log budget, the resident representation uses parent deltas
+and ordinals. An index every 64 records bounds decoding for a random lookup.
+An explicit log budget keeps the existing spill representation.
+
+### Resident storage measurements
+
+On a shared Ryzen AI MAX+ 395 workstation, inserting 402,653,185 distinct
+keys with the probe below grew the previous table through its three-quarters
+load threshold. Peak process RSS went from 12.00 GiB to 6.10 GiB with 256
+independently growing shards. Wall time went from 39.83 s to 36.24 s.
+For 4,000,000 three-child BFS records, the predecessor log's retained capacity
+went from 50,331,648 to 5,242,880 bytes. RSS includes the allocation overlap during a resize. The predecessor
+measurement counts the capacity of the record and index vectors.
+
+At the same KVS Large prefix (800,000 distinct, 5,703,129 generated and
+511,907 queued), reducing the eight-worker batch from 4,096 to 128 sources
+per worker lowered RSS from 343 to 174 MiB. Elapsed time went from 3.03 to
+3.29 s. An eight-worker PConProof comparison went from 1,862 to 512 MB and
+67.8 to 75.2 s. The completed KVS Large run used the fingerprint store and
+eight workers. It reached 594,616,815 distinct, 13,385,471,536 generated and
+depth 30 in 6,693.531 s with an empty frontier. The sampled maximum process
+RSS plus swap was 18.31 GiB on the workstation. The limits were 24 GiB and
+7,200 s. These single engineering runs used release builds with LTO disabled
+and 16 codegen units. The earlier memory stop reported in
+[issue #1034](https://github.com/Chelis-Lang/dive/issues/1034) used a different host.
+
+Run the allocation probes in a checkout with its own target directory.
+
+```sh
+export CARGO_TARGET_DIR=target CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16
+cargo build --release --locked -p dive-explore -p dive-store
+rustc --edition=2024 -O scripts/perf/scale/storage_probe.rs -L dependency=target/release/deps \
+  --extern dive_explore=target/release/libdive_explore.rlib \
+  --extern dive_store=target/release/libdive_store.rlib -o target/storage-probe
+/usr/bin/time -v target/storage-probe seen 402653185
+target/storage-probe parents 4000000
+```
 
 ## 3. One level
 

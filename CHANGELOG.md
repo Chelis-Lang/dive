@@ -7,6 +7,10 @@ are in git history.
 
 ### Fixed
 
+- Core grows the in-memory fingerprint table one shard at a time, packs trace
+  predecessors, and bounds parallel safety candidate batches. On KVS Large
+  the eight-worker checker finished within its 24 GiB memory limit.
+
 - `dive simulate` no longer holds every sampled trace as a JSON tree before
   printing its report. Each trace is kept as its serialized entry and its
   concrete states are released once that entry is written, so memory per trace

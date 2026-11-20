@@ -1,9 +1,13 @@
 //! Indexed, lossless parent deltas for the unbounded resident predecessor log.
+use super::ROOT;
 use crate::trace::TraceStep;
 use std::collections::TryReserveError;
 
 const BLOCK: u64 = 64;
-const ROOT: u64 = u64::MAX;
+// The high nibble stores a small parent delta and the low nibble its ordinal.
+// Reserve the high nibble 15 for extension codes. An escape is followed by
+// two little-endian base-128 integers (at most 10 + 5 bytes).
+const ESCAPE: u8 = 0xff;
 
 #[derive(Debug, Default)]
 pub(super) struct Packed {
@@ -54,7 +58,7 @@ impl Packed {
             self.bytes
                 .push(delta.to_le_bytes()[0] << 4 | ordinal.to_le_bytes()[0]);
         } else {
-            self.bytes.push(255);
+            self.bytes.push(ESCAPE);
             write_varint(&mut self.bytes, delta);
             write_varint(&mut self.bytes, u64::from(ordinal));
         }
@@ -67,7 +71,7 @@ impl Packed {
         let mut input = self.bytes.get(offset..)?.iter();
         for index in 0..=id % BLOCK {
             let byte = *input.next()?;
-            let (delta, ordinal) = if byte == 255 {
+            let (delta, ordinal) = if byte == ESCAPE {
                 (
                     read_varint(&mut input)?,
                     u32::try_from(read_varint(&mut input)?).ok()?,
@@ -98,22 +102,22 @@ mod tests {
     #[test]
     fn roundtrip_across_blocks_and_escapes() -> Result<(), TryReserveError> {
         let mut packed = Packed::default();
-        for id in 0..512 {
+        let mut expected = Vec::new();
+        for (id, ordinal) in (0..512).zip([0, 15, 16, 127, 128, u32::MAX].into_iter().cycle()) {
             let parent = match id % 6 {
                 0 => None,
                 1 => Some(0),
                 _ => Some(id - 1),
             };
-            let ordinal = if id % 2 == 0 { u32::MAX } else { 15 };
             packed.append(id, parent, ordinal)?;
-            assert_eq!(
-                packed.get(id),
-                Some(TraceStep {
-                    id,
-                    parent,
-                    ordinal
-                })
-            );
+            expected.push(TraceStep {
+                id,
+                parent,
+                ordinal,
+            });
+        }
+        for step in expected.into_iter().rev() {
+            assert_eq!(packed.get(step.id), Some(step));
         }
         Ok(())
     }
