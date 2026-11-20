@@ -16,7 +16,7 @@ use dive_liveness::analyze::periodic::external::GraphCheck;
 use dive_runtime::{
     CheckOptions, CheckResult, Verdict,
     budget::{EvaluationControl, Phase},
-    capture::{CsrCapture, CsrCaptureInput, CsrComplete, CsrOrdinals},
+    capture::{CsrActions, CsrCapture, CsrCaptureInput, CsrComplete, CsrOrdinals},
 };
 use std::{path::Path, sync::Arc, time::Instant};
 
@@ -267,9 +267,9 @@ impl Boundary {
 
     fn input<'a>(
         &self,
-        full: CsrCaptureInput<'a, CsrOrdinals<'a>>,
+        full: CsrCaptureInput<'a, CsrOrdinals<'a>, CsrActions<'a>>,
         offsets: &'a mut Vec<usize>,
-    ) -> Result<CsrCaptureInput<'a, CsrOrdinals<'a>>, Miss> {
+    ) -> Result<CsrCaptureInput<'a, CsrOrdinals<'a>, CsrActions<'a>>, Miss> {
         let bad = || miss("invalid captured level boundary");
         let closed = self.closed.checked_add(1).ok_or_else(bad)?;
         let len = self.vertices.checked_add(1).ok_or_else(bad)?;
@@ -287,7 +287,7 @@ impl Boundary {
             offsets,
             targets: full.targets.get(..self.edges).ok_or_else(bad)?,
             ordinals: full.ordinals.prefix(self.edges).ok_or_else(bad)?,
-            actions: full.actions.get(..self.edges).ok_or_else(bad)?,
+            actions: full.actions.prefix(self.edges).ok_or_else(bad)?,
             edge_rows: full.edge_rows.get(..self.edges).ok_or_else(bad)?,
             representatives: full.representatives.get(..self.vertices).ok_or_else(bad)?,
             roots: full.roots.get(..self.roots).ok_or_else(bad)?,

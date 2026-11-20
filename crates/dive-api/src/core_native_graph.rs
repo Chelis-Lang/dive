@@ -12,7 +12,9 @@ use dive_eval::HostControl;
 use dive_explore::graph::{GraphSink, SourceRow, Step, Stopped};
 use dive_liveness::analyze::AnalysisError;
 use dive_runtime::budget::{EvaluationControl, Phase};
-use dive_runtime::capture::{CsrCaptureInput, CsrOrdinals, Limits, MAX_EXPANSION_UNITS};
+use dive_runtime::capture::{
+    CsrActions, CsrCaptureInput, CsrOrdinals, Limits, MAX_EXPANSION_UNITS,
+};
 use dive_runtime::{CheckOptions, Stats, Verdict};
 
 use crate::core_native_values::NativeValues;
@@ -91,6 +93,56 @@ pub(crate) struct NativeMemory {
     pub(crate) key_capacity: usize,
 }
 
+enum ActionIds {
+    Bytes(Vec<u8>),
+    Expanded(Vec<Option<u32>>),
+}
+
+impl ActionIds {
+    fn for_labels(count: usize) -> Self {
+        if u8::try_from(count).is_ok() {
+            Self::Bytes(Vec::new())
+        } else {
+            Self::Expanded(Vec::new())
+        }
+    }
+
+    fn view(&self) -> CsrActions<'_> {
+        match self {
+            Self::Bytes(ids) => CsrActions::Bytes(ids),
+            Self::Expanded(ids) => CsrActions::Expanded(ids),
+        }
+    }
+
+    fn reserve(
+        &mut self,
+        memory: &mut NativeMemory,
+        control: &EvaluationControl,
+    ) -> Result<(), Verdict> {
+        match self {
+            Self::Bytes(ids) => reserve(ids, 1, memory, control),
+            Self::Expanded(ids) => reserve(ids, 1, memory, control),
+        }
+    }
+
+    fn push(&mut self, action: Option<u32>) -> Result<(), Verdict> {
+        match self {
+            Self::Bytes(ids) => {
+                let id = match action {
+                    Some(id) => u8::try_from(id)
+                        .ok()
+                        .filter(|&n| n != u8::MAX)
+                        .ok_or_else(|| bug("native action index exceeds compact label range"))?,
+                    None => u8::MAX,
+                };
+                ids.push(id);
+            }
+            Self::Expanded(ids) => ids.push(action),
+        }
+        Ok(())
+    }
+}
+
 /// Persistent exact originals and one CSR, kept alive through analysis.
 pub(crate) struct NativeGraph {
     store: Arc<Store>,
@@ -102,7 +154,7 @@ pub(crate) struct NativeGraph {
     targets: Vec<u32>,
     ordinals: Vec<u16>,
     large_ordinals: Vec<(usize, u64)>,
-    actions: Vec<Option<u32>>,
+    actions: ActionIds,
     edge_rows: Vec<u32>,
     roots: Vec<usize>,
     action_labels: Vec<String>,
@@ -116,12 +168,12 @@ impl NativeGraph {
         Arc::ptr_eq(&self.store, store)
     }
 
-    pub(crate) fn input(&self) -> CsrCaptureInput<'_, CsrOrdinals<'_>> {
+    pub(crate) fn input(&self) -> CsrCaptureInput<'_, CsrOrdinals<'_>, CsrActions<'_>> {
         CsrCaptureInput {
             offsets: &self.offsets,
             targets: &self.targets,
             ordinals: CsrOrdinals::Compact(&self.ordinals, &self.large_ordinals),
-            actions: &self.actions,
+            actions: self.actions.view(),
             edge_rows: &self.edge_rows,
             representatives: &self.representatives,
             roots: &self.roots,
@@ -196,11 +248,18 @@ impl NativeGraph {
         if ordinal.is_some_and(|n| n >= u64::from(CsrOrdinals::EXTENDED)) {
             reserve(&mut self.large_ordinals, 1, &mut self.memory, control)?;
         }
-        reserve(&mut self.actions, 1, &mut self.memory, control)?;
+        self.actions.reserve(&mut self.memory, control)?;
         reserve(&mut self.edge_rows, 1, &mut self.memory, control)
     }
 
-    fn push_edge(&mut self, to: u32, ordinal: Option<u64>, action: Option<u32>, row: u32) {
+    fn push_edge(
+        &mut self,
+        to: u32,
+        ordinal: Option<u64>,
+        action: Option<u32>,
+        row: u32,
+    ) -> Result<(), Verdict> {
+        self.actions.push(action)?;
         self.targets.push(to);
         let entry = match ordinal {
             None => u16::MAX,
@@ -213,8 +272,8 @@ impl NativeGraph {
             },
         };
         self.ordinals.push(entry);
-        self.actions.push(action);
         self.edge_rows.push(row);
+        Ok(())
     }
 }
 
@@ -260,7 +319,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             targets: Vec::new(),
             ordinals: Vec::new(),
             large_ordinals: Vec::new(),
-            actions: Vec::new(),
+            actions: ActionIds::for_labels(model.actions.len()),
             edge_rows: Vec::new(),
             roots: Vec::new(),
             action_labels: Vec::new(),
@@ -489,7 +548,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
         if parent.is_some() {
             self.graph.reserve_edge(Some(step.ordinal), &self.control)?;
             self.graph
-                .push_edge(target, Some(step.ordinal), action, original);
+                .push_edge(target, Some(step.ordinal), action, original)?;
         } else {
             if self.graph.closed_rows != 0 || !self.graph.targets.is_empty() {
                 return Err(bug("native root emitted after source expansion"));
@@ -547,7 +606,7 @@ impl GraphSink for NativeSink<'_, '_> {
                 .get(source as usize)
                 .ok_or_else(|| bug("native stutter source not discovered"))?;
             self.graph.reserve_edge(None, &self.control)?;
-            self.graph.push_edge(source, None, None, row);
+            self.graph.push_edge(source, None, None, row)?;
             self.graph.closed_rows += 1;
             self.graph.offsets[self.graph.closed_rows] = self.graph.targets.len();
             Ok(())
