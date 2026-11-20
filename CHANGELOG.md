@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
+
 - Core packs ordinary in-memory safety frontiers by variable. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
 - `dive check --partitioned-fingerprints` supports parallel safety search with disk membership beyond four billion entries. The [storage guide](docs/user/disk-seen-safety.md#multi-worker-fingerprint-membership) covers capacity, audit results and the measured throughput cost.

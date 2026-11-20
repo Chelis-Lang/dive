@@ -501,6 +501,10 @@ merges cost time. In the full checker, the frontier, predecessor log and
 workers remain, which explains why peak process memory fell by much less
 than the standalone ratio. The prefix stopped at its discovery limit.
 
+A negative lookup used to read a 4 KiB page even when none of its 512 fingerprints could match. Each smaller run now keeps a blocked Bloom filter for each page. A negative hint skips that read. A possible match still checks the stored key, and the closing audit streams all keys. On the same trace, page reads fell from 2,908,642 to 886,751 with identical decisions. Under ordinary parallel Core on 16 physical cores, 20 million discoveries took 118.16 s before and 74.06 s with filters. Mean peak RSS moved from 1381 to 1402 MiB. Both figures average two runs per build. The filtered comparison and the earlier resident comparison used different hardware.
+
+The unfiltered external checker also exhausted the full one-value configuration on a separate r7i.16xlarge with 32 physical cores. It matched resident Core and TLC at 242,213,642 distinct, 1,068,416,158 generated, depth 126 and an empty queue. Its 2,322.19 s includes auditing all fingerprints and removing the run files. Peak process RSS was 3.99 GiB and peak cgroup memory was 5.64 GiB. Resident Core used 8.70 GiB and finished in 551.82 s. Before the closing audit the external key collections occupied 11.21 MiB and active runs contained 1.94 GB. The native minimum fingerprint gap was 127.
+
 With no discovery limit, eight workers exhausted the two-writer, one-restart
 configuration using sorted runs. Core and pinned TLC both reached 3,761,377
 distinct, 12,508,420 generated and depth 93. The small exact-state control and
