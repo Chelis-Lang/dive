@@ -215,9 +215,9 @@ match TLC's under `--compat=tlc`, for the per-state and start-up streams.
 | | |
 |---|---|
 | **Kind** | Different answer only when you fix a seed |
-| **Default** | Seed reported; `--seed S` replays finite sampling; extra workers refuse |
+| **Default** | Seed reported; `--seed S` replays a sample at any worker count; `--traces N` is the total |
 | **TLC behavior** | Under `--compat=tlc` |
-| **Status** | implemented for finite single-worker safety simulation without effects, with dive's per-trace streams in both profiles; `--compat=tlc` does not reproduce TLC's worker selection stream. Other modes, random operators and effects in the spec, and extra workers refuse by name. |
+| **Status** | implemented for safety simulation without effects, at any worker count, with dive's per-trace streams in both profiles; `--compat=tlc` does not reproduce TLC's worker selection stream, and its `num` stays a total rather than per worker. Random operators and effects in the spec refuse by name. |
 
 **What TLC does.** Even with `-seed 0` and one worker, the number of states TLC generates in simulation varies between runs. On Examples `EWD840_anim` it ranged from about 267k to 271k.
 
@@ -225,12 +225,18 @@ TLC's simulation uses two kinds of generator, and neither is tied to the trace b
 - each worker chooses initial states, actions and successors with its own generator. That generator's seed is the next value of a generator seeded with `-seed` and advanced by `-aril`;
 - each worker evaluates `RandomElement` and the `Randomization` operators with a generator seeded with `-seed` itself, and never reseeded, so every worker draws the same sequence of values. What a trace draws depends on which worker generated it and on what that worker generated before.
 
-**What dive does.** The same seed gives the same finite simulation. Each trace
-has one stream keyed by seed and trace number, driving state and action
-selection, so adding more traces leaves the earlier ones unchanged. That makes
-simulation usable in tests and CI. Extra workers and random operators in the
-spec refuse by name, as do liveness and fairness simulation and runtime
-effects; `crates/dive-sim/CONTRACT.md` lists every limit.
+**What dive does.** The same seed gives the same simulation at any worker
+count. Each trace has one stream keyed by seed and trace number, driving state
+and action selection, so adding more traces leaves the earlier ones unchanged.
+Workers hand finished traces over in trace order: the lowest-numbered trace
+with a violation or an error decides the run, the statistics and `Print`
+output are those of the traces up to it, and the kept traces are the lowest
+numbers. `--workers 8` therefore reports exactly what `--workers 1` reports,
+only sooner. `--traces N` counts traces in total; TLC's `num` counts them per
+worker, so `-workers 4 -simulate num=10` runs 40 traces in TLC and 10 in dive,
+also under `--compat=tlc`. Random operators in the spec refuse by name, as do temporal
+properties and runtime effects; `crates/dive-sim/CONTRACT.md` lists every
+limit. That makes simulation usable in tests and CI.
 
 TLC's `SimulationWorker.getTrace` removes finite stuttering: at seed 0 and
 aril 0, its third trace has five states although six were chosen. dive keeps
@@ -242,9 +248,12 @@ TLC's display. A finite sample always reports `exhaustive: false` and
 pinned TLC's traces and generated counts for five seeds and two arils. dive
 does not reproduce them in either profile, because it samples with its own
 per-trace stream; every trace it samples for those rows validates
-independently. Twelve more probes compare error classes, exits and counts. In
-a thirteenth, TLC reports 2112 for an action property checked before a
-constraint, which dive's simulation refuses by name. The validator accepts the
+independently. Thirteen more probes compare error classes, exits and counts,
+including TLC's 2112 for an action property checked before a constraint. The
+receipts W1 and W4 (`crates/dive-sim/tests/fixtures/temporal/oracle.json`)
+show TLC's counts changing with the worker count;
+`crates/dive-api/tests/simulate_workers.rs` checks that dive's report is the
+same at 1, 2, 4 and 8 workers. The validator accepts the
 real violations, rejects a corrupted sampled edge and refuses a deadlock whose
 absence of successors it cannot decide.
 
@@ -1675,3 +1684,24 @@ trace validator checks. It does so in both profiles, because skipping a
 configured property would report a sample as clean when it is not. The
 receipts are `crates/dive-sim/tests/fixtures/temporal/oracle.json` U12 and
 its model-checking control B-U12.
+
+## D-041: Constructed initial states in simulation
+
+| | |
+|---|---|
+| **Kind** | Opt-in option |
+| **Default** | Off: Init is enumerated once and every initial state is checked, as in TLC |
+| **TLC behavior** | The default, in both profiles |
+| **Status** | implemented for `dive simulate --constructive-init` |
+
+TLC's `-simulate` and `-generate` enumerate every initial state before the
+first trace, so a spec whose Init has a billion states never starts (G2
+enumerates a million). `dive simulate --constructive-init` builds each
+trace's initial state with randomized Init choices instead, the way
+`--generate` builds successors, and checks it as an enumerated one is
+checked. Init is never enumerated, so such a spec starts at once. The cost is
+that an initial state that violates an invariant is found only if some trace
+constructs it, where enumeration finds it on the first run. When no
+alternative of Init gives an admitted state, the result is the same 2118 or
+2256 error as with enumeration, because the construction searches every
+alternative before giving up.

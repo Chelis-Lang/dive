@@ -174,6 +174,7 @@ impl Search<'_> {
             self.model,
             &self.options.check.budget,
             self.native.machine.opts,
+            1,
         )
         .map_err(super::SetupError::dfid)?;
         *self.native = actual;
@@ -705,6 +706,7 @@ mod tests {
                     hashcons: false,
                     ..Opts::default()
                 },
+                1,
             )
             .map_err(|_| "native preparation")?;
             let actual = native.dfid(model.model(), &options);
@@ -768,6 +770,7 @@ mod tests {
                             hashcons: false,
                             ..Opts::default()
                         },
+                        1,
                     )
                     .map_err(|_| "native preparation")?;
                     let actual = native.dfid(model.model(), &options);

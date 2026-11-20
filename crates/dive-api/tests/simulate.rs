@@ -94,7 +94,7 @@ fn default_trace_identity_replays_and_is_prefix_stable() {
     agreed::check_core(
         CORE,
         "default_trace_identity_replays_and_is_prefix_stable/0",
-        &serde_json::json!({"traces": unlabelled(&a["traces"]), "statistics": a["statistics"]}),
+        &serde_json::json!({"traces": unlabelled(&a["traces"]), "statistics": recorded(&a["statistics"])}),
     );
     request.traces = 5;
     let b = dive_api::simulate_file(&request).unwrap().to_json();
@@ -102,11 +102,12 @@ fn default_trace_identity_replays_and_is_prefix_stable() {
         &a["traces"].as_array().unwrap()[..],
         &b["traces"].as_array().unwrap()[..2]
     );
+    // Trace identity does not depend on the worker that samples it.
     request.workers = Some(8);
-    let refused = dive_api::simulate_file(&request).unwrap().to_json();
-    assert_eq!(refused["result"], "unsupported");
-    assert_eq!(refused["options"]["workers_used"], 0);
-    assert_eq!(refused["options"]["execution_stage"], "preflight");
+    let parallel = dive_api::simulate_file(&request).unwrap().to_json();
+    assert_eq!(parallel["traces"], b["traces"]);
+    assert_eq!(parallel["statistics"], b["statistics"]);
+    assert_eq!(parallel["options"]["workers_used"], 8);
 }
 
 #[test]
@@ -317,10 +318,10 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
                 "traces",
             ] {
                 assert_eq!(counted[field], plain[field], "{field}");
-                let counted = if field == "traces" {
-                    unlabelled(&counted[field])
-                } else {
-                    counted[field].clone()
+                let counted = match field {
+                    "traces" => unlabelled(&counted[field]),
+                    "statistics" => recorded(&counted[field]),
+                    _ => counted[field].clone(),
                 };
                 if compat_tlc {
                     // The documented compat choice-stream gap: Core's own sample.
@@ -370,12 +371,17 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
                     [] as [Value; 0]
                 );
             }
+            // Flows are summed over the traces in id order, so they do not
+            // depend on the worker count either.
+            let single = dive_api::simulate_file(&request).unwrap().to_json();
             request.workers = Some(4);
-            let refused = dive_api::simulate_file(&request).unwrap().to_json();
-            assert_eq!(refused["result"], "unsupported");
-            assert_eq!(refused["options"]["workers_requested"], 4);
-            assert_eq!(refused["options"]["workers_used"], 0);
-            assert!(refused["action_flow"].is_null());
+            let parallel = dive_api::simulate_file(&request).unwrap().to_json();
+            assert_eq!(parallel["options"]["workers_requested"], 4);
+            assert_eq!(parallel["options"]["workers_used"], 4);
+            for field in ["result", "statistics", "traces", "action_flow"] {
+                assert_eq!(parallel[field], single[field], "{field}");
+            }
+            request.workers = None;
         }
     }
 }
@@ -384,6 +390,17 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
 /// before they recorded labels: the records and cross-file comparisons pin
 /// the sampled states, while the labels' sources differ between files and the
 /// validator checks each label on its step.
+/// Statistics without the retention counts, which the agreed records
+/// predate.
+fn recorded(statistics: &Value) -> Value {
+    let mut statistics = statistics.clone();
+    if let Some(map) = statistics.as_object_mut() {
+        map.remove("traces_kept");
+        map.remove("traces_dropped");
+    }
+    statistics
+}
+
 fn unlabelled(traces: &Value) -> Value {
     let mut traces = traces.clone();
     for trace in traces.as_array_mut().into_iter().flatten() {

@@ -346,18 +346,11 @@ fn finite_simulation_keeps_its_separate_worker_contract() {
         assert_eq!(sampled["result"], "sampled");
         assert_eq!(sampled["model_proved"], false);
         assert_eq!(sampled["traces"][0]["validation"]["result"], "valid");
+        // Workers do not change a sample (ADR 0162 §7).
         req.workers = Some(4);
-        let refused = dive_api::simulate_file(&req)
-            .expect("existing worker boundary")
-            .to_json();
-        assert_eq!(refused["result"], "unsupported");
-        assert_eq!(refused["exit_code"], 3);
-        assert_eq!(refused["options"]["workers_used"], 0);
-        assert!(
-            !refused["message"]
-                .as_str()
-                .expect("reason")
-                .contains("local Bits.class")
-        );
+        let parallel = dive_api::simulate_file(&req).expect("sample").to_json();
+        assert_eq!(parallel["traces"], sampled["traces"]);
+        assert_eq!(parallel["statistics"], sampled["statistics"]);
+        assert_eq!(parallel["options"]["workers_used"], 4);
     }
 }

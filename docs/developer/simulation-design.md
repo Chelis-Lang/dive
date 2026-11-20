@@ -777,6 +777,20 @@ holds the TLC controls.
 - Profile first (CLAUDE.md): name the dominant cost before optimizing
   validation or serialization further.
 
+As built (S2): successor choice draws `next_index(n)` over up to 1,024
+admitted candidates and switches to reservoir sampling above that, so
+existing seeded samples are unchanged and a step's memory stays bounded.
+Output is buffered per trace in the machine (`Machine::take_output`), so
+`dive-sim`'s host needed no change. `max_report_bytes` lives on
+`SimulateRequest`; a deciding trace that does not fit is summarized in the
+report, and writing it to a file is left to S5. Under `--generate`, an
+existential domain the constructive generator cannot index (`\E n \in Nat`,
+G6) stays a named refusal rather than GENERAL 1000. The `dive tlc` adapter
+still passes `num=N` as the total. Constructive Init is opt-in
+(`--constructive-init`, D-041) rather than the `--generate` default: by
+default TLC's `-generate` enumerates Init and so finds every initial
+violation, which constructing one state per trace would miss.
+
 ### S3: temporal PROPERTY
 
 - `crates/dive-sim/src/lib.rs` `preflight`: lift the temporal refusal; keep a

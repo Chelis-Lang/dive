@@ -762,6 +762,198 @@
   },
   "external_fingerprint_membership": {
     "input": "Original unmodified module and two-value configuration pinned above. Same fingerprint scheme both storage modes.",
+    "complete_unfiltered_one_value": {
+      "platform": "Isolated EC2 r7i.16xlarge, same instance type and 32 physical cores as the separate paired resident Core/TLC one-value host. 24 GiB memory cgroup with swap disabled, root gp3 EBS.",
+      "command": "dive check SlateDBWAL.tla --config OneValue.cfg --library-path modules --workers 32 --compat=tlc --fp 0 --seed 0 --partitioned-fingerprints --seen-disk-entries 49000000000 --seen-directory scratch --time-limit 10800s --max-memory 20g --output json",
+      "hashes": {
+        "dive-sorted-checked": "7dff65623379303220ff8feecc88277cb99e91497b17d3f1385cfefae6f3a133",
+        "SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+        "OneValue.cfg": "a38c2cd3b7711bfc8dfdec7c0d1900266a66e7ede85cff1ad4c34b5eeb9f6094"
+      },
+      "stage": "Native parallel sorted-run candidate before the negative page filter and resident row compression. The published result includes the full checksum and minimum-gap audit.",
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 126,
+        "distinct": 242213642,
+        "generated": 1068416158,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 32,
+        "sequential": false,
+        "used": 32
+      },
+      "seconds": 2322.19,
+      "rss_kib": 4186440,
+      "cgroup_peak_bytes": 6059642880,
+      "starting_cgroup_bytes": 1482752,
+      "seen": {
+        "admitted_keys": 242213642,
+        "after_cleanup": {
+          "cleanup_completed": true,
+          "expected_disk_bytes": 0,
+          "physical_entries": 242213642,
+          "poisoned": false,
+          "resident_key_collection_bytes": 0
+        },
+        "before_cleanup": {
+          "cleanup_completed": false,
+          "expected_disk_bytes": 1935671296,
+          "physical_entries": 242213642,
+          "poisoned": false,
+          "resident_key_collection_bytes": 11755520
+        },
+        "checkpoint_import_supported": false,
+        "checkpoint_key_reconstitution": false,
+        "crash_durable": false,
+        "deciding_event_before_failure": null,
+        "first_failure": null,
+        "mode": "fallible-disk",
+        "native_fingerprint_min_gap": 127,
+        "replay": null,
+        "scope": "seen-key/offset collections only; supplied keys, state values, frontiers, predecessors, candidates, traces, graphs, OS page cache and native archives are outside these bounds"
+      },
+      "root_volume_observation": {
+        "read_operations": 2,
+        "sectors_read": 16,
+        "write_operations": 29965,
+        "sectors_written": 13213616,
+        "sector_bytes": 512,
+        "scope": "Whole root device delta around the process and close. Page-cache hits do not count as device reads. Other OS writes share the device."
+      }
+    },
+    "blocked_page_filters": {
+      "platform": "Isolated EC2 r7i.8xlarge x86_64, Ubuntu, 16 physical cores, gp3 EBS, 18 GiB cgroup with swap disabled. Consecutive freshly started processes, order baseline, filtered, filtered, baseline.",
+      "kernel": "7.0.0-1018-aws",
+      "hashes": {
+        "dive-sorted-checked": "7dff65623379303220ff8feecc88277cb99e91497b17d3f1385cfefae6f3a133",
+        "seen-filter": "d9f3e66ca1602956c8ab668ba837bd1f9e799e850da0b2e38c83f357101f67b2",
+        "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+        "spec/SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169"
+      },
+      "command": "taskset -c 0-15 BINARY check spec/SlateDBWAL.tla --config spec/SlateDBWAL.cfg --library-path modules --compat=tlc --fp 0 --seed 0 --workers 16 --max-states N --time-limit 1200s --max-memory 12g --partitioned-fingerprints --seen-directory scratch --seen-disk-entries 49000000000 --output json",
+      "interpretation": "Both builds use parallel sorted membership. The baseline binary predates a cancellation-only replay-count correction. These state-limited runs end before the next new discovery. Neither is a proof of completion.",
+      "prefixes": {
+        "5000000": {
+          "statistics": {
+            "depth": 41,
+            "distinct": 5000000,
+            "exhaustive": false,
+            "generated": 16458236,
+            "initial_generated": 1,
+            "left_on_queue": 1043043,
+            "reported_by_tlc": false
+          },
+          "samples": [
+            {
+              "filter": false,
+              "seconds": 21.31,
+              "rss_kib": 815568
+            },
+            {
+              "filter": true,
+              "seconds": 16.91,
+              "rss_kib": 824628
+            },
+            {
+              "filter": true,
+              "seconds": 16.8,
+              "rss_kib": 829344
+            },
+            {
+              "filter": false,
+              "seconds": 21.31,
+              "rss_kib": 803480
+            }
+          ]
+        },
+        "20000000": {
+          "statistics": {
+            "depth": 47,
+            "distinct": 20000000,
+            "exhaustive": false,
+            "generated": 68037994,
+            "initial_generated": 1,
+            "left_on_queue": 3856840,
+            "reported_by_tlc": false
+          },
+          "samples": [
+            {
+              "filter": false,
+              "seconds": 117.1,
+              "rss_kib": 1404736
+            },
+            {
+              "filter": true,
+              "seconds": 73.9,
+              "rss_kib": 1425828
+            },
+            {
+              "filter": true,
+              "seconds": 74.22,
+              "rss_kib": 1446100
+            },
+            {
+              "filter": false,
+              "seconds": 119.23,
+              "rss_kib": 1423652
+            }
+          ]
+        }
+      },
+      "trace": [
+        {
+          "filter": false,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 4992806,
+          "hot_keys": 7194,
+          "page_reads": 2908642,
+          "write_bytes": 266255800,
+          "wall_seconds": 5.273223,
+          "rss_kib": 8232
+        },
+        {
+          "filter": true,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 4992806,
+          "hot_keys": 7194,
+          "page_reads": 886751,
+          "write_bytes": 266255800,
+          "wall_seconds": 3.471574,
+          "rss_kib": 19976
+        },
+        {
+          "filter": true,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 4992806,
+          "hot_keys": 7194,
+          "page_reads": 886751,
+          "write_bytes": 266255800,
+          "wall_seconds": 3.498147,
+          "rss_kib": 19992
+        },
+        {
+          "filter": false,
+          "events": 23269077,
+          "distinct": 5000000,
+          "disk_keys": 4992806,
+          "hot_keys": 7194,
+          "page_reads": 2908642,
+          "write_bytes": 266255800,
+          "wall_seconds": 5.211471,
+          "rss_kib": 8340
+        }
+      ],
+      "trace_method": "Ordered replay from the same original five-million-SlateDB-discovery input. The replay asserts all 23,269,077 membership decisions against the capture; 65,536 hot entries, 32,768 queries per window. This row counts buffered page loads in the standalone trace program."
+    },
     "ordered_trace_prototype": {
       "method": "Read the same ordered 9-byte (operation, fingerprint) records from a five-million-state source run. Check every membership answer against recorded scalar decisions. Sequential processes on c7i.4xlarge. Page reads count buffered application reads, including cache hits. Write bytes accumulate over all sealed runs and merges.",
       "rows": [

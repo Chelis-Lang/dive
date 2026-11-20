@@ -14,6 +14,7 @@ fn report(traces: u64) -> dive_api::SimulateReport {
         seed: Some(7),
         depth: Some(5),
         traces,
+        keep_traces: Some(dive_api::KEEP_ALL_TRACES),
         ..Default::default()
     })
     .unwrap()

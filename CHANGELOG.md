@@ -9,9 +9,19 @@ are in git history.
 
 - Core packs ordinary in-memory safety frontiers by variable and stores consecutive discovery IDs once per level. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
+- Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
+
+- Core packs ordinary in-memory safety frontiers by variable. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
+
 - `dive check --partitioned-fingerprints` supports parallel safety search with disk membership beyond four billion entries. The [storage guide](docs/user/disk-seen-safety.md#multi-worker-fingerprint-membership) covers capacity, audit results and the measured throughput cost.
 
 - Ordinary Core safety searches can put [independently compressed frontier chunks](docs/user/storage-recovery.md#independently-stored-frontier-values) on disk and reclaim compound values between worker batches.
+- `dive simulate --workers N` runs in parallel and reports exactly what one
+  worker reports: the lowest-numbered failing trace decides, and `--traces`
+  is the total. `--traces unlimited` (with `--time-limit`), `--keep-traces
+  K|all`, `--max-report-bytes` and `--max-generated` control the run and the
+  report, and `--constructive-init` builds each trace's initial state instead
+  of enumerating Init. See [simulation](docs/user/simulation.md#workers-trace-counts-and-what-the-report-keeps).
 
 - Core reduces the number of sources expanded together in high-fanout parallel safety searches. On BPConProof this cut peak RSS by 59% at one million discoveries. [Measurements](docs/developer/large-models.md#high-fanout-parallel-safety).
 - `dive simulate` accepts `SYMMETRY` and `VIEW`, which do not change a
@@ -65,6 +75,14 @@ are in git history.
   scalar Core graph. The checker replays ordinary scheduled prefix analyses,
   evaluates fairness on the retained labelled transitions and independently
   validates liveness witnesses. See [temporal property reuse](docs/user/rust-api.md#recheck-temporal-properties).
+
+### Changed
+
+- `dive simulate` keeps and validates the deciding trace and the first 10
+  other traces by default, instead of every trace; `--keep-traces all` keeps
+  them all. It no longer stops at 1,000,000 initial or retained states or
+  10,000,000 generated states: the time and memory budgets govern. A set it
+  cannot enumerate is TLC's evaluation error 1000 instead of a refusal.
 
 ### Removed
 

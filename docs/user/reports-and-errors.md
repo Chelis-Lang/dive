@@ -452,6 +452,15 @@ Schema-4 `simulate` reports add to each trace entry an `alias` array (the
 their trace documents label each step with its action instead of null. A
 reader that ignores unknown fields needs no change.
 
+Schema-4 `simulate` reports also keep only some traces: by default the
+deciding trace and the 10 lowest-numbered others (`options.keep_traces`), so
+`traces` no longer lists every trace started. `statistics.traces_kept` and
+`statistics.traces_dropped` count what the report holds and what
+`--max-report-bytes` left out; a trace entry may carry a `summary` instead of
+its `document`; `options.traces` is null for `--traces unlimited`; and
+`options.workers_used` is the worker count. A reader that walked `traces` to
+count the run should read `statistics.traces_started` instead.
+
 The JSON wire format is versioned this way; the Rust library API has no such
 stability promise.
 
