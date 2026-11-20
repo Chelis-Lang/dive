@@ -230,6 +230,59 @@ component breakdown at tens of millions of states and the retained temporal grap
 
 Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. That option uses one worker and bounds its membership workspace. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
 
+## Published model sizes and reproducible comparisons
+
+A published state count is comparable across checkers when the specification,
+configuration, properties, reductions and termination condition match. TLC
+counts each generated successor occurrence separately from the distinct
+states retained. A compact symbolic set can represent many concrete states at
+once. The memory costs depend on the dependencies among the fields and the
+size of intermediate sets. Specification length measures a third quantity.
+
+| Study and configuration | What was checked | Historical result | Reproduction status |
+|---|---|---|---|
+| EmergencyCall, unconstrained | Original cellular state machine, 36 configurable variables | 10.59 billion distinct, diameter 26 transitions. The paper gives separate times for constrained cases. | Public source. The released f1–f4 runs have individual configurations and final counts. The unconstrained count lacks an identified matching configuration and final log. [Hou et al., §3](https://users.cs.northwestern.edu/~ychen/Papers/MobiSys21_ENL_OpenAccessVersion.pdf) |
+| EmergencyCall, f3 | Three safety invariants, 49,152 distinct initial states | 21,255,936 distinct, 135,871,232 generated, TLC depth 27. The released TLC log records six minutes. | Reproduced by ordinary Core and pinned TLC at one and eight workers. [Authors’ configuration and raw output](https://github.com/FormalCellular/EmergencyCall/tree/093684f1bb02d733cae95d50f1690f1cb792296a/model) |
+| Pasture, node model | Invariants with parameters 2, 1, 2, 2, 2 | 4,234,887,880 distinct, depth 53 in 3,596 minutes on a 48-core Opteron with 128 GB. A repeat using another fingerprint polynomial found the same count. | The publication prints the modules. A run from a verified machine-readable original is outstanding. Its smallest published control is 47,742 distinct at depth 31. [Rodeheffer and Kotla, Table 1 and appendices](https://conf.tlapl.us/2012/rodeheffer-kotla.pdf) |
+| LuPastry, simplified five-node configuration | Distributed hash-table routing | 141,786,762 distinct, 7,070,872,610 generated, depth 54 in one week. The full four-node run stopped after over five weeks and 331,300,918,096 generated. | Original configuration unverified. Later LuPastry+ specifications contain changes. [Lu, Table 5.3](https://doi.org/10.22028/D291-26550) · [Subsequent model versions](https://homepages.loria.fr/SMerz/projects/pastry/index.html) |
+| Confidential Consortium Framework | Production consensus specification | 1,134 lines and 13 state variables. The paper describes model checking, trace validation and CI. | A maintenance benchmark requires pinning revisions, configuration and the exact edited property. [Howard et al., Table 1](https://www.microsoft.com/en-us/research/uploads/prod/2024/07/nsdi25spring-final392.pdf) |
+
+These records establish a lower bound on published workloads. A global maximum
+would require knowing the counting convention and input of every contender,
+including proprietary models. The enlarged KVS and transaction-commit runs
+above demonstrate concrete reachable cardinalities on their own programs.
+
+### Reproduce the released EmergencyCall runs
+
+Check out the [pinned authors’ repository](https://github.com/FormalCellular/EmergencyCall/tree/093684f1bb02d733cae95d50f1690f1cb792296a).
+Set `MODEL` to its `model` directory and `INPUT` to the same binary, JRE and
+jar layout used for the KVS reference comparison. Run cells individually from
+a 24 GiB cgroup on the reference hardware. Each requires a new result directory.
+
+```sh
+scripts/perf/scale/kvs-large-cell.sh core 8 "$INPUT" "$OUT/f3-core-8" \
+    "$MODEL/EmergencyCall_Model_auto.tla" "$MODEL/config/f3.cfg"
+scripts/perf/scale/kvs-large-cell.sh tlc 8 "$INPUT" "$OUT/f3-tlc-8" \
+    "$MODEL/EmergencyCall_Model_auto.tla" "$MODEL/config/f3.cfg"
+```
+
+With f3, Core took 394.44 s versus TLC’s 580.68 s at one worker and
+178.86 s versus 111.79 s at eight. Both checkers matched the authors’ verdict,
+counts and depth. Going from one worker to eight sped up Core 2.21× and TLC
+5.19×. Core used 1.94 GiB peak RSS at eight workers, TLC 7.24 GiB. Timings
+are one process per cell on the same isolated, fixed-frequency EC2 host.
+
+All 16 checks agreed on the verdict and final queue, counts and depth with the corresponding author log. Each timing is full process wall time in seconds. [All cells, RSS, CPU settings and input digests](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
+
+| Configuration | Distinct | Generated | Depth | Core 1 | TLC 1 | Core 8 | TLC 8 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| f1 | 3,932,160 | 23,650,304 | 19 | 150.95 | 126.91 | 113.38 | 45.56 |
+| f2 | 6,248,960 | 39,053,696 | 25 | 183.39 | 185.94 | 123.11 | 53.77 |
+| f3 | 21,255,936 | 135,871,232 | 27 | 394.44 | 580.68 | 178.86 | 111.79 |
+| f4 | 8,872,832 | 56,734,720 | 27 | 223.76 | 259.74 | 131.62 | 63.59 |
+
+On the historical CCF single-node commit control, ordinary Core found the original property violation after 17 distinct states, 20 generated and depth five. The three revisions with temporal obligations received a named refusal from symbolic safety checking. The [Sail evidence](https://github.com/Chelis-Lang/sail/blob/df6ffaca82b3aacdea301616411de1c0c726b12f/docs/validation/data/2026-11-20-symbolic-predicates.json) pins the production inputs and records the successful five-key KVS maintenance comparison separately.
+
 ## Reproduce the comparisons
 
 Build the checker's exporter and validator and install the Python dependencies
