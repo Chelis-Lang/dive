@@ -67,10 +67,10 @@ class Rust:
                 pass
             elif root == self.model.b.var(root.var):
                 src = self.bits[root.var]
-                copies[(index - src) % 32] |= 1 << src
+                copies[(index - src) % 64] |= 1 << src
             else:
-                compute.append(f"((({self.edge(root, nodes, after_guard)}) as u32) << {index})")
-        terms = [f"row & {~written & 0xffffffff:#x}"]
+                compute.append(f"((({self.edge(root, nodes, after_guard)}) as u64) << {index})")
+        terms = [f"row & {~written & 0xffffffffffffffff:#x}"]
         if set_bits:
             terms.append(f"{set_bits:#x}")
         terms.extend(f"(row & {mask:#x}).rotate_left({shift})" for shift, mask in sorted(copies.items()))
@@ -85,7 +85,7 @@ class Rust:
     def emit(self):
         model = self.model
         require(model.constraint == model.b.true, "state constraints in the explicit prototype")
-        require(0 < len(self.bits) <= 32, "expected one to 32 state bits")
+        require(0 < len(self.bits) < 64, "expected one to 63 state bits")
         require(len(model.roles) <= 6, "too many symmetry lanes")
         root_words = [self.rank(point) for point in model.b.pick_iter(model.initial, self.bits)]
         require(model.effects.total() <= 512, "generated worker exceeds 512 action witnesses")
