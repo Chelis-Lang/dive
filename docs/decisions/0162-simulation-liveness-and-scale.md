@@ -1,6 +1,6 @@
 # 0162: Simulation checks temporal properties and runs at TLC's scale
 
-- **Status:** proposed
+- **Status:** accepted (owner, 2026-11-20)
 - **Date:** 2026-11-20
 - **Supersedes:** [ADR 0116](0116-simulation-observable-contract.md) §4 (temporal `PROPERTY` under simulation stays a named refusal), and the owner's 2026-11-06 answer in `docs/open-questions.md` that kept simulation with liveness a named refusal
 
@@ -49,9 +49,9 @@ The full design, with evidence and complexity, is
    truncated, violated, cancelled), and each property has checked and
    unchecked trace counts with reasons. A truncated trace that holds no fair
    behavior counts as unchecked, never as passed.
-3. **Truncated traces can be extended** with `--liveness-extend`, until they
-   close or terminate within a step budget. Opt-in now; proposed as the
-   default.
+3. **Truncated traces are extended** with `--liveness-extend`, until they
+   close or terminate within a step budget: `auto` by default in the default
+   profile, `0` under `--compat=tlc`.
 4. **SYMMETRY and VIEW** do not affect simulation: no deduplication, no
    canonical forms, loops close only on concrete equality, in both profiles.
    The validator accepts lassos under VIEW and SYMMETRY that carry concrete
@@ -65,11 +65,15 @@ The full design, with evidence and complexity, is
    count. `--traces` is the total. Output is released in id order.
 7. **Scale.** The current trace is O(d) per worker; the report keeps the
    deciding trace plus K samples (`--keep-traces`, default 10), validates only
-   those, and honors a byte bound. Successors are chosen by reservoir sampling;
-   fixed candidate and generated-state bounds become budgets.
-8. **Random operators** in Init and Next use a draw stream keyed by trace
-   position, coordinated with #910; validation treats each draw as a choice of
-   some element of its set.
+   those, and honors a byte bound; `--keep-traces all` and `--trace-dir` give
+   complete output, and the user guide says how. Successors are chosen by
+   reservoir sampling; fixed candidate and generated-state bounds become
+   budgets. Sets dive cannot enumerate (`Nat`, `Int`, infinite `Seq(S)`) are
+   sampled with a stated, seeded distribution named in the report, by default
+   in the default profile; `--compat=tlc` keeps TLC's GENERAL 1000 error.
+8. **Random operators** in Init and Next draw at random from a stream keyed by
+   trace position, coordinated with #910; validation checks each draw as some
+   element of its set.
 9. **Trace output** gains per-trace streaming files, TLC's dump formats with
    ALIAS, and replay of selected trace ids.
 
@@ -88,6 +92,6 @@ design.
   their public API; their owners' internals are unchanged.
 - The default report shape changes (kept traces, new statistics); callers
   that read every trace must ask for `--keep-traces all` or `--trace-dir`.
-- Revisit `--liveness-extend` and `--keep-traces` defaults after the owner's
-  answers in `docs/open-questions.md`, and the `RandomElement` validation
-  semantics with #910.
+- The owner's rulings of 2026-11-20 on extension, `RandomElement`, unbounded
+  sets and retention are recorded in the design's §15 and in
+  `docs/open-questions.md`.

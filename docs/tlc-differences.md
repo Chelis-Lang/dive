@@ -931,20 +931,26 @@ a property holds.
 
 ### D-034: Extending traces cut by the depth
 
-An option `--liveness-extend` will let a trace that reached `--depth` with a
-property still undecided continue, up to a stated number of steps, until it
-returns to an earlier state or stops. TLC always ends the trace at `-depth`.
-Every violation found this way is a real behavior and is validated. The
-option is off by default.
+A trace that reaches `--depth` while a temporal property is still undecided on
+it will continue, by up to `--depth` more steps, until it returns to an
+earlier state or stops. TLC always ends the trace at `-depth`. Every violation
+found this way is a real behavior and is validated, and every extra step is
+checked like any other. `--liveness-extend N` sets the number of extra steps;
+`--liveness-extend 0`, or `--compat=tlc`, ends every trace at the depth as TLC
+does.
 
 ### D-035: Sampling from unbounded sets
 
 `x \in Nat` in `Init`, or `\E n \in Nat : x' = x + n` in `Next`, makes
-TLC's `-simulate` and `-generate` fail with "not enumerable". An option
-`--sample-unbounded` will draw such values with a stated distribution, so a
-spec over unbounded sets can still be sampled. Each drawn value is a member of
-its set, so every trace is a real behavior. Without the option dive reports
-the same error as TLC.
+TLC's `-simulate` and `-generate` fail with "not enumerable". dive's
+simulation will draw one member of such a set instead: from `Nat` with a
+geometric distribution of mean 8 (`--sample-mean` changes it), from `Int` with
+a geometric magnitude and a random sign, and from `Seq(S)` with a geometric
+length. The draws follow the run's seed, so `--seed` reproduces them, and the
+report notes name the distribution and every set that was sampled. Each drawn
+value is a member of its set, so every trace is a real behavior; values that
+were not drawn are not checked. `--sample-unbounded=off`, or `--compat=tlc`,
+reports the same error as TLC.
 
 ### Other candidates
 

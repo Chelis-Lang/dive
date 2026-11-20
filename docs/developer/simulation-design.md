@@ -2,8 +2,9 @@
 
 Handover design for lifting the remaining `dive simulate` refusals (#491). The
 decision is [ADR 0162](../decisions/0162-simulation-liveness-and-scale.md),
-which supersedes ADR 0116 §4. This document carries the evidence, the
-semantics, the complexity analysis and the phase plan. It changes no code.
+accepted 2026-11-20, which supersedes ADR 0116 §4. This document carries the
+evidence, the semantics, the complexity analysis, the owner's rulings (§15)
+and the phase plan. It changes no code.
 
 The bar: correct TLA+ semantics, at least TLC's simulation capability on every
 use case below, and better where TLC is unsound, silent or limited. Soundness
@@ -25,7 +26,7 @@ Contents:
 12. [Divergences](#12-divergences)
 13. [Phase plan](#13-phase-plan)
 14. [Acceptance metrics](#14-acceptance-metrics)
-15. [Open questions](#15-open-questions)
+15. [Owner rulings](#15-owner-rulings-2026-11-20)
 
 ## 1. Current state
 
@@ -370,13 +371,13 @@ steps are real steps: every safety obligation is checked on them, and a
 violation found there is reported like any other. The trace class becomes
 `extended-closed`, `extended-terminal` or stays `truncated`.
 
-Ruling: this is result-changing relative to TLC's `-depth` (it can find a
-violation, safety or temporal, that a trace cut at the depth would not show),
-so by the project rules it is opt-in until the owner approves it as the
-default. It is registered as D-034 and proposed as the default in
-`docs/open-questions.md`, because every extra verdict is a validated real
+Ruling (owner, 2026-11-20): the default is `auto` in the default profile and
+`0` under `--compat=tlc`. It is result-changing relative to TLC's `-depth` (it
+can find a violation, safety or temporal, that a trace cut at the depth would
+not show), registered as D-034; every extra verdict is a validated real
 violation that the exhaustive check also reports (ADR 0116 §6), and it never
-weakens a result. `--compat=tlc` keeps `E = 0`.
+weakens a result. The report's `options` block records the setting and the
+`extended_*` trace classes show what it did.
 
 ### 4.7 Order of verdicts within a trace
 
@@ -543,10 +544,12 @@ coordinate with whoever owns #910, not a change to `eval.rs` in this design.
   nondeterministic choice over its argument set. A sampled step is valid if
   some choice reproduces it. This validates the trace as a behavior in which
   each draw picked some element of its set.
-- **Semantics question.** `TLC.tla` defines `RandomElement(S)` as
-  `CHOOSE x \in S : TRUE`; TLC's override draws at random. The validation
-  above takes "some element of `S`", which is what any simulation means.
-  Escalated in `docs/open-questions.md`.
+- **Semantics (owner ruling, 2026-11-20).** `TLC.tla` defines
+  `RandomElement(S)` as `CHOOSE x \in S : TRUE`; TLC's override draws at
+  random. Simulation draws at random, and validation checks each draw as some
+  element of its set. Before starting this work, read #910's latest comments
+  and the recent `dive-core/src/eval.rs` history, and coordinate with its
+  owner.
 - **VIEW and SYMMETRY.** With no fingerprints in simulation, randomness under
   VIEW or SYMMETRY needs nothing extra.
 
@@ -564,16 +567,23 @@ coordinate with whoever owns #910, not a change to `eval.rs` in this design.
 3. **Init.** Enumerated once per run and shared by all workers, with no fixed
    count bound. Under `--generate`, each trace builds its initial state with
    `run_action_generation` over the Init actions, so Init is never enumerated.
-4. **Not enumerable.** An Init or successor set over `Nat`, `Int`, `Real` or
-   an infinite `Seq(S)` reports the TLC error class (GENERAL 1000, exit 255
-   under TLC exit codes) instead of "unverified native finite evaluation-error
-   context".
-5. **Sampling unbounded sets (opt-in, D-035).** `--sample-unbounded=geometric`
-   draws from `Nat` with a geometric distribution (mean set by
-   `--sample-mean`, default 8), from `Int` symmetrically, and from `Seq(S)` with
-   a geometric length. Each drawn value is a member of the set, so each trace
-   is a real behavior and validates as one; nothing is claimed about values
-   not drawn. Proposed as an option only.
+4. **Sampling unbounded sets (D-035, on by default).** When Init or a
+   successor binds a variable from a set dive cannot enumerate (`Nat`, `Int`,
+   an infinite `Seq(S)`), the default profile draws one member per binding
+   instead of failing: `Nat` from a geometric distribution with mean 8
+   (`--sample-mean`), `Int` as a geometric magnitude with a uniform sign,
+   `Seq(S)` with a geometric length and members drawn from `S` recursively.
+   Draws come from the per-trace draw stream (§8), so they are seeded and
+   replayable. The report's notes name the distribution, its parameters, the
+   seed and every set that was sampled (source location and set expression).
+   Each drawn value is a member of its set, so each trace is a real behavior
+   and validates as one; nothing is claimed about values not drawn. A set
+   without a supported distribution (for example `Real` or `SUBSET Nat`) keeps
+   the named refusal. `--sample-unbounded=off` turns it off.
+5. **Not enumerable under compat.** With `--compat=tlc` (or
+   `--sample-unbounded=off`), an Init or successor set over such a domain
+   reports TLC's error class (GENERAL 1000, exit 255 under TLC exit codes)
+   instead of "unverified native finite evaluation-error context".
 
 ## 10. Report scale and trace output
 
@@ -582,10 +592,24 @@ which costs 7 to 47 ms per trace in validation (release performance D5) and
 grows memory with the trace count (#1024). An external caller (Sail #767)
 reached a 16 MiB report bound after 160 s.
 
-- **Retention.** `--keep-traces K` (default 10, `all` allowed): the report
-  keeps the deciding trace plus the K lowest-id other traces. Only kept
-  traces are validated; the deciding trace is always validated even when it is
-  not emitted.
+- **Retention (owner ruling, 2026-11-20: efficient by default).**
+  `--keep-traces K` (default 10, `all` allowed): the report keeps the deciding
+  trace plus the K lowest-id other traces. Only kept traces are validated; the
+  deciding trace is always validated even when it is not emitted.
+- **Complete output.** `--keep-traces all` keeps and validates every trace in
+  the report; `--trace-dir DIR` (S5) writes every trace to its own file as it
+  finishes, with memory independent of the trace count. The user guide
+  (`docs/user/simulation.md`) must say, in the phase that adds each flag, how
+  to get complete output for trace export, animation (ALIAS), test
+  generation and trace validation. Draft text for it:
+
+  > By default the report keeps the trace that decided the result and the
+  > first 10 other traces, each validated. To keep every trace, pass
+  > `--keep-traces all` (the report grows with the trace count) or
+  > `--trace-dir DIR` (one file per trace, written as it finishes). For
+  > animation, the files include each state's ALIAS value. For test
+  > generation, a trace is fixed by the seed and its number, and
+  > `--trace-ids A..B` regenerates only those traces.
 - **Byte bound.** `SimulateRequest::max_report_bytes`: sample traces are
   admitted in id order while the serialized report stays under the bound;
   dropped samples are counted in `statistics.traces_dropped`. If the deciding
@@ -694,8 +718,8 @@ Registered in `docs/divergences.md` with status `recorded` and described in
 | D-031 | implied initial properties in simulation | never checked by `-simulate` (U12) | checked, 2108, both profiles | changing |
 | D-032 | loop closure in simulation liveness | on view or symmetric fingerprints (V1 spurious, Y2 missed) | concrete equality only, both profiles | changing |
 | D-033 | temporal coverage of a sample | silent success when nothing could be decided (C7, U1) | per-property checked and unchecked counts; never "holds" | preserving (report fields only) |
-| D-034 | `--liveness-extend` | traces end at `-depth` | opt-in; proposed default `auto` | changing |
-| D-035 | `--sample-unbounded` | GENERAL 1000 on `Nat` domains | opt-in | changing |
+| D-034 | `--liveness-extend` | traces end at `-depth` | `auto` (default profile); `0` under `--compat=tlc` | changing, owner-approved default |
+| D-035 | `--sample-unbounded` | GENERAL 1000 on `Nat` domains | `geometric`, named in the report (default profile); `off` under `--compat=tlc` | changing, owner-approved default |
 | D-003 (update) | workers | per-worker streams; `num` per worker; result depends on worker count | lowest violating trace id; `--traces` total; identical at any `W`; draws keyed by trace position (§8) | changing (existing entry) |
 
 ## 13. Phase plan
@@ -789,10 +813,18 @@ holds the TLC controls.
 - `--trace-dir DIR` streaming per-trace documents; TLC `json` and `tla`
   formats with ALIAS for the deciding trace; `--trace-ids A..B` to regenerate
   selected traces; TTrace-style exploration module (named gap until done).
+- User guide: the complete-output section drafted in §10, covering
+  `--keep-traces all` (from S2) and `--trace-dir`.
 
-### S6: unbounded domains (opt-in)
+### S6: unbounded domains
 
-- `--sample-unbounded`, D-035, after the owner rules on §15 Q3.
+- `--sample-unbounded=geometric|off` (D-035): default `geometric` in the
+  default profile, `off` under `--compat=tlc`; distributions, report notes
+  naming every sampled set, validation of drawn members; TLC's GENERAL 1000
+  class when off. Depends on S2 (reservoir choice, error class) and on the
+  §8 draw stream.
+- Tests: `InfInit`, `InfNext` (G3 to G6) in both profiles; the same seed
+  reproduces the same draws at 1 and 4 workers; report notes list the sets.
 
 ## 14. Acceptance metrics
 
@@ -813,14 +845,19 @@ holds the TLC controls.
 4. **Throughput.** traces/s against TLC on a quiet node at 1, 4 and 8 workers
    (S4); result identical across worker counts.
 
-## 15. Open questions
+## 15. Owner rulings, 2026-11-20
 
-Recorded in `docs/open-questions.md` for the owner:
+The owner accepted the design and answered its four questions:
 
-1. Make `--liveness-extend auto` the default (D-034)?
-2. Validate `RandomElement` in sampled traces as "some element of the set"
-   rather than by `TLC.tla`'s `CHOOSE` definition (§8)?
-3. Offer `--sample-unbounded` (D-035), and with which distributions?
-4. Change the default report retention from every trace to the deciding trace
-   plus 10 (`--keep-traces`), which changes the report for callers that read
-   every trace?
+1. **`--liveness-extend` (D-034):** default `auto` in the default profile, `0`
+   under `--compat=tlc` (§4.6).
+2. **`RandomElement` in sampled traces:** draw at random and validate each draw
+   as some element of its set, coordinated with #910 (§8).
+3. **Unbounded sets (D-035):** sampling is on by default in the default
+   profile, because it is coherent with TLA+; the distribution is stated,
+   seeded and named in the report notes together with the sets sampled.
+   `--compat=tlc` keeps TLC's GENERAL 1000 error (§9).
+4. **Retention:** efficient by default (the deciding trace plus a bounded,
+   validated sample), with documented flags for complete output
+   (`--keep-traces all`, `--trace-dir`); the user guide must explain how to get
+   full output for export, animation and test generation (§10).

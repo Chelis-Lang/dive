@@ -91,28 +91,21 @@ retain a named refusal.
 - **VIEW with liveness, answered by the owner, 2026-11-06.** Stays a named refusal past v0.1. The `VIEW` is what makes these state spaces finite, so a sound quotient liveness check first needs a VIEW-soundness argument (#428). Affects `FiniteMonotonic/MCDistributedReplicatedLog` and `ewd998/EWD998ChanID`; the latter is consistent with the R3 ruling above.
 - **SmokeEWD998_SC, out of scope.** It is a host script that launches a nested TLC through `IOUtils!IOEnvExec`, not a model; it is not counted as a Core refusal.
 
-## Simulation defaults and semantics (ADR 0162)
+## Simulation defaults and semantics (ADR 0162), answered by the owner, 2026-11-20
 
-Questions from [the simulation design](developer/simulation-design.md#15-open-questions):
+The owner accepted [the simulation design](developer/simulation-design.md#15-owner-rulings-2026-11-20):
 
-1. **Extend truncated traces by default (D-034).** `--liveness-extend auto`
-   continues a trace that reached `--depth` with a temporal property still
-   unchecked, for up to `depth` more steps, until it closes or terminates.
-   Every extra verdict is a validated violation the exhaustive check also
-   reports, but it can surface a violation that a trace cut at `--depth`
-   would not show. *Recommended:* default `auto` in the default profile, `0`
-   under `--compat=tlc`. Until answered: opt-in.
-2. **`RandomElement` in sampled traces.** `TLC.tla` defines it with `CHOOSE`;
-   TLC's override draws at random. *Recommended:* validate each draw as some
-   element of its set (the validator's bounded alternative check), coordinated
-   with #910. Until answered: the refusal stays.
-3. **Sampling unbounded sets (D-035).** `--sample-unbounded=geometric` draws
-   from `Nat`, `Int` and `Seq(S)` with a stated distribution, where TLC fails
-   with GENERAL 1000. *Recommended:* offer it as an option only.
-4. **Report retention.** Keep the deciding trace plus the 10 lowest-id
-   samples by default (`--keep-traces`), instead of every trace, and validate
-   only those. *Recommended:* yes; `--keep-traces all` and `--trace-dir` keep
-   every trace for callers that need them.
+1. **Extending truncated traces (D-034):** `--liveness-extend auto` is the
+   default in the default profile; `0` under `--compat=tlc`.
+2. **`RandomElement` in sampled traces:** draw at random and validate each
+   draw as some element of its set, coordinated with #910.
+3. **Unbounded sets (D-035):** sampled by default in the default profile with
+   a stated, seeded distribution that the report names, together with the
+   sets sampled; `--compat=tlc` keeps TLC's GENERAL 1000 error.
+4. **Report retention:** the deciding trace plus a bounded, validated sample by
+   default; `--keep-traces all` and `--trace-dir` give complete output, and
+   the user guide explains how to get it for export, animation and test
+   generation.
 
 ## Native recovery counter default (issue152)
 
