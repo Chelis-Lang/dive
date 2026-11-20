@@ -368,3 +368,12 @@ The [13-model observation record](../../conformance/reports/perf/2026-11-20-no-g
 The motivating measurements cover [the large non-finishes](https://github.com/Chelis-Lang/dive/issues/1034),
 [slow-TLC models](https://github.com/Chelis-Lang/dive/issues/799) and
 [temporal worker scaling](https://github.com/Chelis-Lang/dive/issues/1028).
+
+The two pinned etcd Raft configurations exercise inclusive subsequence
+search and a bag fold which filters pending messages by sender. In a
+five-second, one-worker default-profile check, `MCetcdraft.cfg` reached
+14,246 distinct states (64,037 generated) and `etcdraft.cfg` reached
+51,818 (154,810 generated). Both prefixes reached depth eight on a shared
+workstation using a debug build. Neither configuration has a completed
+TLC golden. The nominal TLC profile still refuses the multikey fold when
+the original order is unknown. See [bag fold order](../tlc-differences.md#d-030-bag-fold-order).

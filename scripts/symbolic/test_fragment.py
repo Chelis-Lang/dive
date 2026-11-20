@@ -20,6 +20,12 @@ NeverBlue == B \notin got
 Outside == x \notin Colors
 ====
 """
+    check_initial_choices(folder, run, explicit, compare)
+
+    model = template.replace("GUARD", "TRUE").replace("UPDATE", "x").replace("STORE", "got")
+    module.write_text(model.replace("x = A", r"x \in Colors /\ x \in Colors"))
+    (member,) = run(module, config)
+    compare(member, explicit(module, config))
     # Change guards, value flow, and dynamic set membership independently.
     # All eight comparisons include overlapping self-loops and duplicate targets.
     for guard, step, store in product(
@@ -123,3 +129,38 @@ Next == ACTION
             compare(symbolic, ordinary)
         else:
             assert symbolic["verdict"] == "unsupported" and "action guard" in symbolic["reason"]
+
+
+def check_initial_choices(folder, run, explicit, compare):
+    module = folder / "Roles.tla"
+    module.write_text(r"""---- MODULE Roles ----
+EXTENDS TLC
+CONSTANTS Roleset, Colors, A, B
+VARIABLE chosen
+TypeInvariant == chosen \in [Roleset -> Colors]
+Init == \E r \in Roleset : chosen = [u \in Roleset |-> IF u=r THEN A ELSE B]
+Duplicates == Init \/ Init
+Next == UNCHANGED chosen
+Sym == Permutations(Roleset)
+NoA == \A u \in Roleset: chosen[u] = B
+====
+""")
+    base = "CONSTANTS Roleset={r1,r2} Colors={red,blue} A=red B=blue\nNEXT Next\nINVARIANT TypeInvariant\n"
+    for symmetry in (False, True):
+        paths = []
+        for init in ("Init", "Duplicates"):
+            cfg = folder / f"Roles-{init}-{symmetry}.cfg"
+            cfg.write_text(base + f"INIT {init}\n" + ("SYMMETRY Sym\n" if symmetry else ""))
+            paths.append(cfg)
+            (row,) = run(module, cfg)
+            compare(row, explicit(module, cfg))
+            # Pinned TLC counts Init before deduplication, even with symmetry.
+            distinct = 1 if symmetry else 2
+            initial = 2 if init == "Init" else 4
+            assert (row["distinct"], row["generated"], row["depth"]) == (distinct, initial + distinct, 1)
+        first, second = run(module, paths[0], "--recheck", module, paths[1])
+        assert not second["reused"] and second["generated"] == first["generated"] + 2
+    cfg = folder / "Roles-bad.cfg"
+    cfg.write_text(base + "INIT Init\nINVARIANT NoA\n")
+    (bad,) = run(module, cfg, code=1)
+    assert bad["depth"] == 1 and bad["trace_validated"] and bad["ending"]["name"] == "NoA"

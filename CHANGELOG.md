@@ -7,12 +7,17 @@ are in git history.
 
 ### Added
 
+- Core supports inclusive subsequence predicate searches and folds multikey
+  bags in canonical key order. See [bag fold order](docs/tlc-differences.md#d-030-bag-fold-order).
+
 - Temporal predicates can count a filtered set with `Quantify`, sum a function
   over a set, and inspect finite next-state domains in nonrecursive binders.
   See [temporal checking](docs/user/temporal.md).
 
 - The Linux release archives include `dive check --strategy symbolic` for
   finite safety checks, validated witnesses and independently verified predicates.
+
+- Symbolic safety checks accept [multiple finite initial choices](docs/user/symbolic.md#finite-initial-choices), including duplicate and symmetric witnesses.
 
 - Embedders can qualify a completed native temporal check after retaining its
   first property on unchanged aggregate-state programs. See [retaining a claim](docs/user/rust-api.md#retain-the-first-temporal-property).

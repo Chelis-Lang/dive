@@ -936,7 +936,7 @@ impl Core {
         let Value::Fcn(bf) = bag else {
             return Err(self.arg_error("third", "FoldBag", "bag", bag));
         };
-        if !Self::domain_order_known(bf) {
+        if self.opts.exploration == crate::ExplorationOrder::Tlc && !Self::domain_order_known(bf) {
             return Err(refuse_case(
                 op,
                 "a bag of two or more elements: TLC folds in the order it holds the bag in, which may be unnormalized",
@@ -955,7 +955,8 @@ impl Core {
                     ),
                 ));
             }
-            let n = small_int(x).unwrap_or(0);
+            let n = small_int(x)
+                .ok_or_else(|| refuse_case(op, "a count outside TLC's 32-bit integers"))?;
             for _ in 0..n {
                 acc = self.apply_op_values(env, st, f, &[acc, d.clone()], e)?;
             }
