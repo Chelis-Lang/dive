@@ -49,6 +49,9 @@ are in git history.
 
 ### Performance
 
+- The finite symbolic checker supports string-valued fields and grouped bounded
+  quantifiers in state predicates, including the original TCommit safety model.
+
 - Exact symbolic reachability now supports layouts above 52 bits and returns
   integer state and transition counts throughout its 512-bit admission range.
 
