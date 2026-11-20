@@ -1,0 +1,3145 @@
+{
+ "schema": "dive-source-checker-qualification-1",
+ "issue_ids": [
+  799,
+  1034
+ ],
+ "date": "2026-11-20",
+ "host": "Shared AMD Ryzen AI MAX+ 395 workstation, Linux x86-64. Timing includes source binding and independent validation where requested. Runs are development integration checks.",
+ "upstream_pr": 1051,
+ "examples_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "driver": "scripts/symbolic/check_source.py",
+ "scope": "Ordered trials from development of the merged checker. The resource-smoke includes the final resource classification changes. The large-growth trial predates that final adjustment. Unmeasured named refusals and resource stops retain their outcome.",
+ "trials": {
+  "smoke": [
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 16,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005788
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 16,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004885
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 4,
+    "generated": 13,
+    "depth": 3,
+    "reachable_bdd_nodes": 2,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005132
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 7,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004512
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 10,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005417
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 12,
+    "depth": 4,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004906
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 4,
+    "generated": 9,
+    "depth": 3,
+    "reachable_bdd_nodes": 2,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.006035
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.00604
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005285
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad-paint.cfg",
+    "reused": true,
+    "depth": 1,
+    "seconds": 0.005902,
+    "ending": {
+     "kind": "invariant",
+     "name": "Outside"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "proof": "inconclusive",
+    "config": "bad-paint.cfg",
+    "seconds": 0.004673,
+    "failed_obligation": "Outside"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "invalid predicate edge"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "stopped",
+    "reason": "time limit"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005579
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetySmall.cfg",
+    "reused": false,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 4.353017
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.033312
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.030651,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.021981,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.020165,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.022472,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.021506,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.020701,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.415766
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.022132
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.038711,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.023319,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.023339,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.023067,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.02163,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.021542,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.431813
+   },
+   {
+    "initial_config": "changed.cfg",
+    "proof": "inductive-safety",
+    "config": "changed.cfg",
+    "seconds": 0.017803,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.409109
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "changed.cfg",
+    "reused": false,
+    "distinct": 3,
+    "generated": 7,
+    "depth": 3,
+    "reachable_bdd_nodes": 31,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.014768
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.43602
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "deadlock",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.028865,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"unsupported startup diagnostic [Warning { code: TlcSubscriptContainNoStateVar, message: \\\"The subscript of the next-state relation specified by the specification\\\\ndoes not seem to contain the state variable missed\\\" }]\""
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "success",
+    "config": "Pair.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 5,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "Bounds"
+    ],
+    "seconds": 0.005197
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "deadlock",
+    "config": "Pair.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.009224,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "scalar assignment outside finite layout"
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "unbound state read in Init or layout: current"
+   },
+   {
+    "initial_config": "Swap.cfg",
+    "verdict": "success",
+    "config": "Swap.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 3,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004017
+   },
+   {
+    "initial_config": "Asymmetric.cfg",
+    "verdict": "unsupported",
+    "reason": "asymmetric finite index domain"
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 256,
+    "generated": 1281,
+    "depth": 9,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004572
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 16777216,
+    "generated": 218103809,
+    "depth": 25,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.008772
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 281474976710656,
+    "generated": 7036874417766401,
+    "depth": 49,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.039967
+   }
+  ],
+  "large-growth": [
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetySmall.cfg",
+    "reused": false,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 4.005876
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.03031
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.026085,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.022874,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.020392,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.021168,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.021072,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.019455,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.375925
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.020327
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.038592,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.023479,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.023005,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.021632,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.019937,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.01956,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyLarge.cfg",
+    "reused": false,
+    "distinct": 594616815,
+    "generated": 13385471536,
+    "depth": 30,
+    "reachable_bdd_nodes": 1961,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 131.033189
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 594616815,
+    "generated": 13385471536,
+    "depth": 30,
+    "reachable_bdd_nodes": 1961,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.036464
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "verdict": "violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.037081,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.041545,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.027275,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetyLarge.cfg",
+    "seconds": 0.027207,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.026167,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetyLarge.cfg",
+    "seconds": 0.024597,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.446592
+   },
+   {
+    "initial_config": "changed.cfg",
+    "proof": "inductive-safety",
+    "config": "changed.cfg",
+    "seconds": 0.017007,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.431413
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "changed.cfg",
+    "reused": false,
+    "distinct": 3,
+    "generated": 7,
+    "depth": 3,
+    "reachable_bdd_nodes": 31,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.015457
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.448026
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "deadlock",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.026886,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"unsupported startup diagnostic [Warning { code: TlcSubscriptContainNoStateVar, message: \\\"The subscript of the next-state relation specified by the specification\\\\ndoes not seem to contain the state variable missed\\\" }]\""
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.446784
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "keys-4.cfg",
+    "reused": false,
+    "distinct": 4527151872,
+    "generated": 123139562753,
+    "depth": 27,
+    "reachable_bdd_nodes": 459,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 2.612977
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.426294
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "keys-5.cfg",
+    "reused": false,
+    "distinct": 1183519405056,
+    "generated": 39234075936769,
+    "depth": 32,
+    "reachable_bdd_nodes": 590,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 9.984841
+   },
+   {
+    "initial_config": "keys-5.cfg",
+    "proof": "inductive-safety",
+    "config": "keys-5.cfg",
+    "seconds": 0.118585,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.364405
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "extra-checks.cfg",
+    "reused": true,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "AdditionalChecks"
+    ],
+    "seconds": 0.151585
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "success",
+    "config": "Pair.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 5,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "Bounds"
+    ],
+    "seconds": 0.004691
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "deadlock",
+    "config": "Pair.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.009603,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "scalar assignment outside finite layout"
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "unbound state read in Init or layout: current"
+   },
+   {
+    "initial_config": "Swap.cfg",
+    "verdict": "success",
+    "config": "Swap.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 3,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005495
+   },
+   {
+    "initial_config": "Asymmetric.cfg",
+    "verdict": "unsupported",
+    "reason": "asymmetric finite index domain"
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 256,
+    "generated": 1281,
+    "depth": 9,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005451
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 16777216,
+    "generated": 218103809,
+    "depth": 25,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.011143
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 281474976710656,
+    "generated": 7036874417766401,
+    "depth": 49,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.033216
+   }
+  ],
+  "final-smoke": [
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 16,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004518
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 16,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004152
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 4,
+    "generated": 13,
+    "depth": 3,
+    "reachable_bdd_nodes": 2,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004283
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 7,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004198
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 10,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004846
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 12,
+    "depth": 4,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004512
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 4,
+    "generated": 9,
+    "depth": 3,
+    "reachable_bdd_nodes": 2,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005007
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004772
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.003966
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad-paint.cfg",
+    "reused": true,
+    "depth": 1,
+    "seconds": 0.004586,
+    "ending": {
+     "kind": "invariant",
+     "name": "Outside"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "proof": "inconclusive",
+    "config": "bad-paint.cfg",
+    "seconds": 0.004544,
+    "failed_obligation": "Outside"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "invalid predicate edge"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "stopped",
+    "reason": "time limit"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004087
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 3,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.003891
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 3,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004202
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 2,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.003924
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: FcnApply"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: Local"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: Local"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: If"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: Implies"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: Quant"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetySmall.cfg",
+    "reused": false,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 4.291442
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.030923
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.028606,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.024833,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.019483,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.02192,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.02209,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.017483,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.403301
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.020667
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.038681,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.022688,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.020991,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.022615,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.022102,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.019024,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.498474
+   },
+   {
+    "initial_config": "changed.cfg",
+    "proof": "inductive-safety",
+    "config": "changed.cfg",
+    "seconds": 0.01707,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.403762
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "changed.cfg",
+    "reused": false,
+    "distinct": 3,
+    "generated": 7,
+    "depth": 3,
+    "reachable_bdd_nodes": 31,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.014772
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.425014
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "deadlock",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.027709,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"unsupported startup diagnostic [Warning { code: TlcSubscriptContainNoStateVar, message: \\\"The subscript of the next-state relation specified by the specification\\\\ndoes not seem to contain the state variable missed\\\" }]\""
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "success",
+    "config": "Pair.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 5,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "Bounds"
+    ],
+    "seconds": 0.00507
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "deadlock",
+    "config": "Pair.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.007971,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "scalar assignment outside finite layout"
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "unbound state read in Init or layout: current"
+   },
+   {
+    "initial_config": "Swap.cfg",
+    "verdict": "success",
+    "config": "Swap.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 3,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005144
+   },
+   {
+    "initial_config": "Asymmetric.cfg",
+    "verdict": "unsupported",
+    "reason": "asymmetric finite index domain"
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 256,
+    "generated": 1281,
+    "depth": 9,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004736
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 16777216,
+    "generated": 218103809,
+    "depth": 25,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.00901
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 281474976710656,
+    "generated": 7036874417766401,
+    "depth": 49,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.040551
+   }
+  ],
+  "final-large-growth": [
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 16,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004914
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 16,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004111
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 4,
+    "generated": 13,
+    "depth": 3,
+    "reachable_bdd_nodes": 2,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004633
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 7,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.00483
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 10,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004869
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 12,
+    "depth": 4,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005622
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 4,
+    "generated": 9,
+    "depth": 3,
+    "reachable_bdd_nodes": 2,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.00553
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004827
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005289
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad-paint.cfg",
+    "reused": true,
+    "depth": 1,
+    "seconds": 0.006386,
+    "ending": {
+     "kind": "invariant",
+     "name": "Outside"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "proof": "inconclusive",
+    "config": "bad-paint.cfg",
+    "seconds": 0.004987,
+    "failed_obligation": "Outside"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "invalid predicate edge"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "stopped",
+    "reason": "time limit"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004348
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 3,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005143
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 3,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004352
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 2,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005191
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "control flow in action guard: If"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "control flow in action guard: Implies"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "control flow in action guard: Quant"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetySmall.cfg",
+    "reused": false,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 4.918322
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.041554
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.029437,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.029276,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.02115,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.020361,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.019758,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.021643,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.701253
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.020626
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.048631,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.026217,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.024284,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.023341,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.022352,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.020455,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyLarge.cfg",
+    "reused": false,
+    "distinct": 594616815,
+    "generated": 13385471536,
+    "depth": 30,
+    "reachable_bdd_nodes": 1961,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 131.07977
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 594616815,
+    "generated": 13385471536,
+    "depth": 30,
+    "reachable_bdd_nodes": 1961,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.035952
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.034408,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.032285,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.026103,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetyLarge.cfg",
+    "seconds": 0.030467,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.026005,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetyLarge.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetyLarge.cfg",
+    "seconds": 0.024885,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.341429
+   },
+   {
+    "initial_config": "changed.cfg",
+    "proof": "inductive-safety",
+    "config": "changed.cfg",
+    "seconds": 0.017296,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.36291
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "changed.cfg",
+    "reused": false,
+    "distinct": 3,
+    "generated": 7,
+    "depth": 3,
+    "reachable_bdd_nodes": 31,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.01445
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.584866
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "deadlock",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.02602,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"unsupported startup diagnostic [Warning { code: TlcSubscriptContainNoStateVar, message: \\\"The subscript of the next-state relation specified by the specification\\\\ndoes not seem to contain the state variable missed\\\" }]\""
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.574565
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "keys-4.cfg",
+    "reused": false,
+    "distinct": 4527151872,
+    "generated": 123139562753,
+    "depth": 27,
+    "reachable_bdd_nodes": 459,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 3.020179
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.352517
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "keys-5.cfg",
+    "reused": false,
+    "distinct": 1183519405056,
+    "generated": 39234075936769,
+    "depth": 32,
+    "reachable_bdd_nodes": 590,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 10.766751
+   },
+   {
+    "initial_config": "keys-5.cfg",
+    "proof": "inductive-safety",
+    "config": "keys-5.cfg",
+    "seconds": 0.141433,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.514946
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "extra-checks.cfg",
+    "reused": true,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "AdditionalChecks"
+    ],
+    "seconds": 0.151109
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "success",
+    "config": "Pair.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 5,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "Bounds"
+    ],
+    "seconds": 0.005675
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "deadlock",
+    "config": "Pair.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.008479,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "scalar assignment outside finite layout"
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "unbound state read in Init or layout: current"
+   },
+   {
+    "initial_config": "Swap.cfg",
+    "verdict": "success",
+    "config": "Swap.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 3,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004605
+   },
+   {
+    "initial_config": "Asymmetric.cfg",
+    "verdict": "unsupported",
+    "reason": "asymmetric finite index domain"
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 256,
+    "generated": 1281,
+    "depth": 9,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005708
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 16777216,
+    "generated": 218103809,
+    "depth": 25,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.009181
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 281474976710656,
+    "generated": 7036874417766401,
+    "depth": 49,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.04155
+   }
+  ],
+  "resource-smoke": [
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 16,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.006039
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 16,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004665
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 4,
+    "generated": 13,
+    "depth": 3,
+    "reachable_bdd_nodes": 2,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005769
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 7,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005876
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 10,
+    "depth": 3,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004812
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 5,
+    "generated": 12,
+    "depth": 4,
+    "reachable_bdd_nodes": 5,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005972
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 4,
+    "generated": 9,
+    "depth": 3,
+    "reachable_bdd_nodes": 2,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005181
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005348
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005018
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad-paint.cfg",
+    "reused": true,
+    "depth": 1,
+    "seconds": 0.006767,
+    "ending": {
+     "kind": "invariant",
+     "name": "Outside"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "proof": "inconclusive",
+    "config": "bad-paint.cfg",
+    "seconds": 0.004933,
+    "failed_obligation": "Outside"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "invalid predicate edge"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "stopped",
+    "reason": "time limit"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "stopped",
+    "reason": "Dive frontend terminated by signal 11"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 6,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005522
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "bad-paint.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\""
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 3,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.004567
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 3,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005233
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "success",
+    "config": "Paint.cfg",
+    "reused": false,
+    "distinct": 1,
+    "generated": 2,
+    "depth": 1,
+    "reachable_bdd_nodes": 4,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005322
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: FcnApply"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: Local"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: Local"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: If"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: Implies"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "unsupported action guard: Quant"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "Paint.cfg",
+    "verdict": "unsupported",
+    "reason": "choice without assignment in action guard"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetySmall.cfg",
+    "reused": false,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 4.507408
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 3409605,
+    "generated": 56349379,
+    "depth": 23,
+    "reachable_bdd_nodes": 1278,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.032627
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.02779,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.028565,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.020615,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.020341,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.020247,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetySmall.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetySmall.cfg",
+    "seconds": 0.018747,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.421325
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "clean.cfg",
+    "reused": true,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle",
+     "Clean"
+    ],
+    "seconds": 0.020604
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "invariant-violation",
+    "config": "bad.cfg",
+    "reused": true,
+    "depth": 3,
+    "seconds": 0.039333,
+    "ending": {
+     "kind": "invariant",
+     "name": "NoWrites"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "clean.cfg",
+    "proof": "inductive-safety",
+    "config": "clean.cfg",
+    "seconds": 0.02306,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.020726,
+    "failed_obligation": "NoWrites"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inductive-safety",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.018948,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "bad.cfg",
+    "proof": "inconclusive",
+    "config": "bad.cfg",
+    "seconds": 0.021655,
+    "failed_obligation": "Next closure"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "proof": "inconclusive",
+    "config": "MCKVSSafetyMedium.cfg",
+    "seconds": 0.02166,
+    "failed_obligation": "Init inclusion"
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.422594
+   },
+   {
+    "initial_config": "changed.cfg",
+    "proof": "inductive-safety",
+    "config": "changed.cfg",
+    "seconds": 0.015709,
+    "failed_obligation": null
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.423013
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "changed.cfg",
+    "reused": false,
+    "distinct": 3,
+    "generated": 7,
+    "depth": 3,
+    "reachable_bdd_nodes": 31,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.013678
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "success",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "distinct": 17220672,
+    "generated": 365609473,
+    "depth": 22,
+    "reachable_bdd_nodes": 328,
+    "invariants": [
+     "TypeInvariant",
+     "TxLifecycle"
+    ],
+    "seconds": 0.422924
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "deadlock",
+    "config": "MCKVSSafetyMedium.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.028848,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "MCKVSSafetyMedium.cfg",
+    "verdict": "unsupported",
+    "reason": "Dive frontend: Error: \"unsupported startup diagnostic [Warning { code: TlcSubscriptContainNoStateVar, message: \\\"The subscript of the next-state relation specified by the specification\\\\ndoes not seem to contain the state variable missed\\\" }]\""
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "success",
+    "config": "Pair.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 5,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "Bounds"
+    ],
+    "seconds": 0.004776
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "deadlock",
+    "config": "Pair.cfg",
+    "reused": false,
+    "depth": 1,
+    "seconds": 0.008873,
+    "ending": {
+     "kind": "deadlock"
+    },
+    "trace_validated": true
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "scalar assignment outside finite layout"
+   },
+   {
+    "initial_config": "Pair.cfg",
+    "verdict": "unsupported",
+    "reason": "unbound state read in Init or layout: current"
+   },
+   {
+    "initial_config": "Swap.cfg",
+    "verdict": "success",
+    "config": "Swap.cfg",
+    "reused": false,
+    "distinct": 2,
+    "generated": 3,
+    "depth": 2,
+    "reachable_bdd_nodes": 3,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.005721
+   },
+   {
+    "initial_config": "Asymmetric.cfg",
+    "verdict": "unsupported",
+    "reason": "asymmetric finite index domain"
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 256,
+    "generated": 1281,
+    "depth": 9,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.006246
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 16777216,
+    "generated": 218103809,
+    "depth": 25,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.008992
+   },
+   {
+    "initial_config": "Receipts.cfg",
+    "verdict": "success",
+    "config": "Receipts.cfg",
+    "reused": false,
+    "distinct": 281474976710656,
+    "generated": 7036874417766401,
+    "depth": 49,
+    "reachable_bdd_nodes": 1,
+    "invariants": [
+     "TypeInvariant"
+    ],
+    "seconds": 0.042737
+   }
+  ]
+ }
+}

@@ -1,0 +1,283 @@
+{
+  "schema": "dive-kvs-reference-host-v1",
+  "date": "2026-11-20",
+  "scope": "Engineering comparison using R2 hardware and CPU controls, one cold process per cell. TLC counts come from periodic progress messages. Core reports its final prefix at its own deadline. The symbolic cell checks the two original invariants in one fixed point.",
+  "host": {
+    "instance": "c7i.metal-24xl",
+    "region": "us-east-1",
+    "ami": "ami-0109d2b556bd3d7e1",
+    "kernel": "7.0.0-1017-aws",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "online_physical_cores": 48,
+    "affinity": "0-15",
+    "memory_node": 0,
+    "smt": false,
+    "turbo": false,
+    "governor": "performance",
+    "min_cpu_khz": 2400000,
+    "max_cpu_khz": 2400000,
+    "memory_limit_bytes": 25769803776,
+    "swap_limit_bytes": 0,
+    "time_limit_seconds": 600,
+    "tlc_java": "Eclipse Temurin 17.0.20.1+1, -Xmx16g, ParallelGC, ActiveProcessorCount=8",
+    "tlc_store": "MSBDiskFPSet, DiskStateQueue",
+    "order": [
+      "symbolic-1",
+      "tlc-8",
+      "core-8",
+      "tlc-1",
+      "core-1"
+    ]
+  },
+  "core_commit": "e4ab6a1314b9e65233a96a96ef2c4d40f9dceea7",
+  "symbolic_commit": "0d2e9f958bc09efe6c0d5f12beefff9e91485267",
+  "tlc_version": "2026.10.06.014338",
+  "tools_sha256": {
+    "dive": "b27d7824226ae41c90bb65da3f329ad9a313f284ea1413ae63c0ff06cff9004d",
+    "symbolic_input": "d750651fb62ef36759dc1f8f41018c2c34dda273a2321ff53a5a0f95f2d717a4",
+    "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "example_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "input_sha256": {
+    "APKeyValueStore.tla": "bcf588ce6554d21b4d89c38234aa2eeb401a83fcc2338870fa0e5a2deb83d1ff",
+    "ClientCentric.tla": "f3c6e377229e0aeeefbc50dcb4c39805c6aeae88e81376edd3f4765be456c1ba",
+    "KVsnap.tla": "c05c349c4b3f07e06781e2666e73f5ed6c1185d7cc6998c852a6eebd80894582",
+    "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "KeyValueStore_proof.tla": "ed287a9290e55a47e93cb7593ffec5e47169398e797ce7fc170da5758f852f7e",
+    "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964",
+    "MCKVsnap.tla": "c500a1abde66e13467cdb882071601e9b1442487c47510348ded4e86b34e9329",
+    "Util.tla": "7ffa38a940992bec344fe7d033e9ac7acc85e0180aeacee59512a26807e14254"
+  },
+  "reproduce": "scripts/perf/scale/kvs-large-cell.sh",
+  "cells": {
+    "symbolic-1": {
+      "workers": 1,
+      "wall_seconds": 133.9,
+      "peak_rss_kib": 621184,
+      "exit_code": 0,
+      "verdict": "success",
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30,
+      "reused": false,
+      "reachable_bdd_nodes": 1961,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "format": "dive-symbolic-report-v1",
+      "seconds": 132.889011
+    },
+    "tlc-8": {
+      "workers": 8,
+      "wall_seconds": 600.35,
+      "peak_rss_kib": 8412504,
+      "exit_code": 124,
+      "outcome": "external-timeout",
+      "samples": [
+        {
+          "depth": 13,
+          "time_utc": "2026-11-20 00:25:31",
+          "generated": 2790360,
+          "distinct": 412345,
+          "queued": 269915
+        },
+        {
+          "depth": 17,
+          "time_utc": "2026-11-20 00:26:31",
+          "generated": 86277517,
+          "distinct": 9094563,
+          "queued": 5014947
+        },
+        {
+          "depth": 18,
+          "time_utc": "2026-11-20 00:27:31",
+          "generated": 170744390,
+          "distinct": 16929334,
+          "queued": 8950102
+        },
+        {
+          "depth": 18,
+          "time_utc": "2026-11-20 00:28:31",
+          "generated": 255394168,
+          "distinct": 24097618,
+          "queued": 12246222
+        },
+        {
+          "depth": 18,
+          "time_utc": "2026-11-20 00:29:31",
+          "generated": 341761710,
+          "distinct": 31582586,
+          "queued": 15792441
+        },
+        {
+          "depth": 19,
+          "time_utc": "2026-11-20 00:30:31",
+          "generated": 428301957,
+          "distinct": 38143181,
+          "queued": 18428806
+        },
+        {
+          "depth": 19,
+          "time_utc": "2026-11-20 00:31:31",
+          "generated": 514692953,
+          "distinct": 44878011,
+          "queued": 21261372
+        },
+        {
+          "depth": 19,
+          "time_utc": "2026-11-20 00:32:31",
+          "generated": 599871763,
+          "distinct": 51906567,
+          "queued": 24431757
+        },
+        {
+          "depth": 19,
+          "time_utc": "2026-11-20 00:33:31",
+          "generated": 687573833,
+          "distinct": 58448685,
+          "queued": 27020227
+        },
+        {
+          "depth": 20,
+          "time_utc": "2026-11-20 00:34:31",
+          "generated": 775088829,
+          "distinct": 64390612,
+          "queued": 29017706
+        }
+      ]
+    },
+    "core-8": {
+      "workers": 8,
+      "wall_seconds": 600.07,
+      "peak_rss_kib": 3223848,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 18,
+        "distinct": 52475302,
+        "exhaustive": false,
+        "generated": 586597033,
+        "initial_generated": 1,
+        "left_on_queue": 25620558,
+        "reported_by_tlc": false
+      },
+      "time_ms": 600036,
+      "stop": {
+        "elapsed_ms": 600036,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 600000,
+        "observed": 600035,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    "tlc-1": {
+      "workers": 1,
+      "wall_seconds": 600.19,
+      "peak_rss_kib": 5209444,
+      "exit_code": 124,
+      "outcome": "external-timeout",
+      "samples": [
+        {
+          "depth": 11,
+          "time_utc": "2026-11-20 00:45:31",
+          "generated": 436358,
+          "distinct": 74355,
+          "queued": 50714
+        },
+        {
+          "depth": 14,
+          "time_utc": "2026-11-20 00:46:31",
+          "generated": 11357303,
+          "distinct": 1506844,
+          "queued": 943259
+        },
+        {
+          "depth": 14,
+          "time_utc": "2026-11-20 00:47:31",
+          "generated": 22497076,
+          "distinct": 2846957,
+          "queued": 1746048
+        },
+        {
+          "depth": 15,
+          "time_utc": "2026-11-20 00:48:31",
+          "generated": 33937405,
+          "distinct": 4051602,
+          "queued": 2412124
+        },
+        {
+          "depth": 15,
+          "time_utc": "2026-11-20 00:49:31",
+          "generated": 45127552,
+          "distinct": 5259013,
+          "queued": 3091366
+        },
+        {
+          "depth": 15,
+          "time_utc": "2026-11-20 00:50:31",
+          "generated": 56211264,
+          "distinct": 6482799,
+          "queued": 3794578
+        },
+        {
+          "depth": 16,
+          "time_utc": "2026-11-20 00:51:31",
+          "generated": 67273754,
+          "distinct": 7728824,
+          "queued": 4514557
+        },
+        {
+          "depth": 16,
+          "time_utc": "2026-11-20 00:52:31",
+          "generated": 78814364,
+          "distinct": 8755846,
+          "queued": 5006418
+        },
+        {
+          "depth": 16,
+          "time_utc": "2026-11-20 00:53:31",
+          "generated": 90662173,
+          "distinct": 9825034,
+          "queued": 5531836
+        },
+        {
+          "depth": 16,
+          "time_utc": "2026-11-20 00:54:31",
+          "generated": 101649631,
+          "distinct": 10942077,
+          "queued": 6136451
+        }
+      ]
+    },
+    "core-1": {
+      "workers": 1,
+      "wall_seconds": 600.03,
+      "peak_rss_kib": 720916,
+      "exit_code": 5,
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 16,
+        "distinct": 10952063,
+        "exhaustive": false,
+        "generated": 101737056,
+        "initial_generated": 1,
+        "left_on_queue": 6142330,
+        "reported_by_tlc": false
+      },
+      "time_ms": 600024,
+      "stop": {
+        "elapsed_ms": 600023,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 600000,
+        "observed": 600023,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      }
+    }
+  }
+}

@@ -1,0 +1,698 @@
+{
+  "schema": "dive-fixed-prefix-large-structure-1",
+  "date": "2026-11-20",
+  "core_commit": "e4ab6a1314b9e65233a96a96ef2c4d40f9dceea7",
+  "binary_sha256": "b27d7824226ae41c90bb65da3f329ad9a313f284ea1413ae63c0ff06cff9004d",
+  "purpose": "Compare resident and disk frontier at a fixed discovery prefix on the six models previously stopped by a memory limit. Persistent-value-store bytes are the checker lower bound; they exclude frontier, fingerprint table, parents, worker arenas and graph. Total RSS includes all components.",
+  "platform": "Shared AMD Ryzen AI MAX+ 395, Linux x86-64, SSD, CPU affinity 8-15. One arm at a time. Engineering comparisons, single sample per arm.",
+  "settings": {
+    "max_states": 300000,
+    "max_memory": "2g",
+    "time_limit": "60s",
+    "workers": 8,
+    "store": "fp",
+    "seed": 0,
+    "fingerprint": 0,
+    "profile": "tlc",
+    "frontier_disk_args": [
+      "--frontier-memory-bytes",
+      "0",
+      "--frontier-directory",
+      "NEW-DIRECTORY"
+    ]
+  },
+  "rows": [
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/KeyValueStore/MCKVSSafetyLarge.cfg",
+      "module": "specifications/KeyValueStore/MCKVS.tla",
+      "arm": "resident",
+      "process_wall_seconds": 1.0,
+      "peak_process_rss_kib": 167528,
+      "checker_sampled_process_max_bytes": 171810816,
+      "persistent_value_store_lower_bound_bytes": 3969124,
+      "value_store_nodes": 14901,
+      "frontier_storage": {
+        "committed_spill_bytes": 0,
+        "mode": "memory-reference",
+        "peak_retained_bytes": 0
+      },
+      "check_kind": "safety",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 12,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 1950989,
+        "initial_generated": 1,
+        "left_on_queue": 198106,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 1002,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "safety-search",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 0,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 248320,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 3969124,
+        "largest_individual_rehash_scratch_bytes": 1024,
+        "rehash_scratch_bytes_cumulative": 365568,
+        "retired_table_bytes": 512,
+        "retired_tables": 1,
+        "retirement_tracking_bytes": 14656,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 2811904,
+        "strings": {
+          "count": 541,
+          "index_capacity": 896,
+          "index_entries_bytes_lower_bound": 10820,
+          "text_slots_bytes": 16384,
+          "unique_payload_bytes": 4048
+        }
+      },
+      "arena_peak": {
+        "handles": 2239,
+        "nodes": 534
+      }
+    },
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/KeyValueStore/MCKVSSafetyLarge.cfg",
+      "module": "specifications/KeyValueStore/MCKVS.tla",
+      "arm": "frontier-disk",
+      "process_wall_seconds": 2.06,
+      "peak_process_rss_kib": 161312,
+      "checker_sampled_process_max_bytes": 165511168,
+      "persistent_value_store_lower_bound_bytes": 3969124,
+      "value_store_nodes": 14897,
+      "frontier_storage": {
+        "committed_spill_bytes": 43200192,
+        "mode": "encoded-spill",
+        "peak_retained_bytes": 0
+      },
+      "check_kind": "safety",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 12,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 1950989,
+        "initial_generated": 1,
+        "left_on_queue": 198106,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 2056,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "safety-search",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 0,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 248320,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 3969124,
+        "largest_individual_rehash_scratch_bytes": 1024,
+        "rehash_scratch_bytes_cumulative": 365568,
+        "retired_table_bytes": 512,
+        "retired_tables": 1,
+        "retirement_tracking_bytes": 14656,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 2811904,
+        "strings": {
+          "count": 541,
+          "index_capacity": 896,
+          "index_entries_bytes_lower_bound": 10820,
+          "text_slots_bytes": 16384,
+          "unique_payload_bytes": 4048
+        }
+      },
+      "arena_peak": {
+        "handles": 2251,
+        "nodes": 529
+      }
+    },
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/byzpaxos/BPConProof.cfg",
+      "module": "specifications/byzpaxos/BPConProof.tla",
+      "arm": "resident",
+      "process_wall_seconds": 3.6,
+      "peak_process_rss_kib": 785104,
+      "checker_sampled_process_max_bytes": 805027840,
+      "persistent_value_store_lower_bound_bytes": 187875847,
+      "value_store_nodes": 1876197,
+      "frontier_storage": {
+        "committed_spill_bytes": 0,
+        "mode": "memory-reference",
+        "peak_retained_bytes": 0
+      },
+      "check_kind": "safety",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 3,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 310384,
+        "initial_generated": 1,
+        "left_on_queue": 299867,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 3468,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "safety-search",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 1186248,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 33554432,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 187875847,
+        "largest_individual_rehash_scratch_bytes": 131072,
+        "rehash_scratch_bytes_cumulative": 66977792,
+        "retired_table_bytes": 0,
+        "retired_tables": 0,
+        "retirement_tracking_bytes": 32768,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 152175104,
+        "strings": {
+          "count": 1145,
+          "index_capacity": 1792,
+          "index_entries_bytes_lower_bound": 22900,
+          "text_slots_bytes": 32768,
+          "unique_payload_bytes": 9147
+        }
+      },
+      "arena_peak": {
+        "handles": 167074,
+        "nodes": 23453
+      }
+    },
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/byzpaxos/BPConProof.cfg",
+      "module": "specifications/byzpaxos/BPConProof.tla",
+      "arm": "frontier-disk",
+      "process_wall_seconds": 4.55,
+      "peak_process_rss_kib": 796248,
+      "checker_sampled_process_max_bytes": 816365568,
+      "persistent_value_store_lower_bound_bytes": 187875847,
+      "value_store_nodes": 1876197,
+      "frontier_storage": {
+        "committed_spill_bytes": 48000048,
+        "mode": "encoded-spill",
+        "peak_retained_bytes": 0
+      },
+      "check_kind": "safety",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 3,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 310384,
+        "initial_generated": 1,
+        "left_on_queue": 299867,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 4415,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "safety-search",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 1186248,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 33554432,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 187875847,
+        "largest_individual_rehash_scratch_bytes": 131072,
+        "rehash_scratch_bytes_cumulative": 66977792,
+        "retired_table_bytes": 0,
+        "retired_tables": 0,
+        "retirement_tracking_bytes": 32768,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 152175104,
+        "strings": {
+          "count": 1145,
+          "index_capacity": 1792,
+          "index_entries_bytes_lower_bound": 22900,
+          "text_slots_bytes": 32768,
+          "unique_payload_bytes": 9147
+        }
+      },
+      "arena_peak": {
+        "handles": 167074,
+        "nodes": 23453
+      }
+    },
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/c1cs/c1cs.cfg",
+      "module": "specifications/c1cs/c1cs.tla",
+      "arm": "resident",
+      "process_wall_seconds": 4.42,
+      "peak_process_rss_kib": 410132,
+      "checker_sampled_process_max_bytes": 419454976,
+      "persistent_value_store_lower_bound_bytes": 22422806,
+      "value_store_nodes": 184136,
+      "frontier_storage": {},
+      "check_kind": "temporal",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 10,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 5551513,
+        "initial_generated": 16,
+        "left_on_queue": 138028,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 4404,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "graph-capture",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 2943904,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 2146304,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 22422806,
+        "largest_individual_rehash_scratch_bytes": 16384,
+        "rehash_scratch_bytes_cumulative": 4161536,
+        "retired_table_bytes": 16384,
+        "retired_tables": 2,
+        "retirement_tracking_bytes": 16768,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 16405248,
+        "strings": {
+          "count": 562,
+          "index_capacity": 896,
+          "index_entries_bytes_lower_bound": 11240,
+          "text_slots_bytes": 16384,
+          "unique_payload_bytes": 4094
+        }
+      },
+      "arena_peak": {
+        "handles": 512,
+        "nodes": 227
+      }
+    },
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/dag-consensus/TLCSailfish2.cfg",
+      "module": "specifications/dag-consensus/TLCSailfish2.tla",
+      "arm": "resident",
+      "process_wall_seconds": 9.28,
+      "peak_process_rss_kib": 239584,
+      "checker_sampled_process_max_bytes": 246018048,
+      "persistent_value_store_lower_bound_bytes": 95554464,
+      "value_store_nodes": 301530,
+      "frontier_storage": {
+        "committed_spill_bytes": 0,
+        "mode": "memory-reference",
+        "peak_retained_bytes": 0
+      },
+      "check_kind": "safety",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 12,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 814424,
+        "initial_generated": 1,
+        "left_on_queue": 217815,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 9248,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "safety-search",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 60953416,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 4194304,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 95554464,
+        "largest_individual_rehash_scratch_bytes": 16384,
+        "rehash_scratch_bytes_cumulative": 8257536,
+        "retired_table_bytes": 0,
+        "retired_tables": 0,
+        "retirement_tracking_bytes": 16384,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 29494656,
+        "strings": {
+          "count": 604,
+          "index_capacity": 896,
+          "index_entries_bytes_lower_bound": 12080,
+          "text_slots_bytes": 16384,
+          "unique_payload_bytes": 4760
+        }
+      },
+      "arena_peak": {
+        "handles": 10293,
+        "nodes": 4658
+      }
+    },
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/dag-consensus/TLCSailfish2.cfg",
+      "module": "specifications/dag-consensus/TLCSailfish2.tla",
+      "arm": "frontier-disk",
+      "process_wall_seconds": 10.21,
+      "peak_process_rss_kib": 236596,
+      "checker_sampled_process_max_bytes": 234504192,
+      "persistent_value_store_lower_bound_bytes": 95570848,
+      "value_store_nodes": 301530,
+      "frontier_storage": {
+        "committed_spill_bytes": 38400192,
+        "mode": "encoded-spill",
+        "peak_retained_bytes": 0
+      },
+      "check_kind": "safety",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 12,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 814424,
+        "initial_generated": 1,
+        "left_on_queue": 217815,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 10175,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "safety-search",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 60953416,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 4194304,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 95570848,
+        "largest_individual_rehash_scratch_bytes": 16384,
+        "rehash_scratch_bytes_cumulative": 8257536,
+        "retired_table_bytes": 0,
+        "retired_tables": 0,
+        "retirement_tracking_bytes": 32768,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 29494656,
+        "strings": {
+          "count": 604,
+          "index_capacity": 896,
+          "index_entries_bytes_lower_bound": 12080,
+          "text_slots_bytes": 16384,
+          "unique_payload_bytes": 4760
+        }
+      },
+      "arena_peak": {
+        "handles": 10293,
+        "nodes": 4658
+      }
+    },
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/diskpaxos/MC_HDiskSynod.cfg",
+      "module": "specifications/diskpaxos/MC_HDiskSynod.tla",
+      "arm": "resident",
+      "process_wall_seconds": 2.12,
+      "peak_process_rss_kib": 235288,
+      "checker_sampled_process_max_bytes": 241098752,
+      "persistent_value_store_lower_bound_bytes": 1557736,
+      "value_store_nodes": 3861,
+      "frontier_storage": {
+        "committed_spill_bytes": 0,
+        "mode": "memory-reference",
+        "peak_retained_bytes": 0
+      },
+      "check_kind": "safety",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 13,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 2355975,
+        "initial_generated": 8,
+        "left_on_queue": 147238,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 2112,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "safety-search",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 88,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 131072,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 1557736,
+        "largest_individual_rehash_scratch_bytes": 512,
+        "rehash_scratch_bytes_cumulative": 131072,
+        "retired_table_bytes": 0,
+        "retired_tables": 0,
+        "retirement_tracking_bytes": 0,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 531456,
+        "strings": {
+          "count": 593,
+          "index_capacity": 896,
+          "index_entries_bytes_lower_bound": 11860,
+          "text_slots_bytes": 16384,
+          "unique_payload_bytes": 4396
+        }
+      },
+      "arena_peak": {
+        "handles": 2243,
+        "nodes": 1924
+      }
+    },
+    {
+      "corpus": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/diskpaxos/MC_HDiskSynod.cfg",
+      "module": "specifications/diskpaxos/MC_HDiskSynod.tla",
+      "arm": "frontier-disk",
+      "process_wall_seconds": 3.47,
+      "peak_process_rss_kib": 181316,
+      "checker_sampled_process_max_bytes": 186540032,
+      "persistent_value_store_lower_bound_bytes": 1557736,
+      "value_store_nodes": 3861,
+      "frontier_storage": {
+        "committed_spill_bytes": 62400208,
+        "mode": "encoded-spill",
+        "peak_retained_bytes": 0
+      },
+      "check_kind": "safety",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 13,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 2355975,
+        "initial_generated": 8,
+        "left_on_queue": 147238,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 3459,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "safety-search",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 88,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 131072,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 1557736,
+        "largest_individual_rehash_scratch_bytes": 512,
+        "rehash_scratch_bytes_cumulative": 131072,
+        "retired_table_bytes": 0,
+        "retired_tables": 0,
+        "retirement_tracking_bytes": 0,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 531456,
+        "strings": {
+          "count": 593,
+          "index_capacity": 896,
+          "index_entries_bytes_lower_bound": 11860,
+          "text_slots_bytes": 16384,
+          "unique_payload_bytes": 4396
+        }
+      },
+      "arena_peak": {
+        "handles": 2203,
+        "nodes": 1951
+      }
+    },
+    {
+      "corpus": "holdout-blocking-queue",
+      "commit": "68715979666344cbcc66fa621b27039f281bdd5c+manifest-sha256:852208b74615b83a2cf00bf586bbc96614ba7d68c1f67ac1eab91367234cebd5",
+      "model": "BlockingQueuePoisonApple.cfg",
+      "module": "BlockingQueuePoisonApple.tla",
+      "arm": "resident",
+      "process_wall_seconds": 0.91,
+      "peak_process_rss_kib": 171972,
+      "checker_sampled_process_max_bytes": 176369664,
+      "persistent_value_store_lower_bound_bytes": 2788707,
+      "value_store_nodes": 9686,
+      "frontier_storage": {},
+      "check_kind": "temporal",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 7,
+        "distinct": 300000,
+        "exhaustive": false,
+        "generated": 605659,
+        "initial_generated": 1,
+        "left_on_queue": 249637,
+        "reported_by_tlc": false
+      },
+      "stopped": {
+        "elapsed_ms": 904,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 300000,
+        "observed": 300001,
+        "phase": "graph-capture",
+        "resource": "states",
+        "unit": "states"
+      },
+      "value_store_memory": {
+        "accounting_complete": false,
+        "boxed_payload_bytes": 24720,
+        "construction_history_view_bytes": 0,
+        "current_table_bytes": 135680,
+        "external_shared_owners": {
+          "printer_names": true,
+          "random_streams": false,
+          "registers": false
+        },
+        "fixed_bytes": 862480,
+        "known_retained_bytes_lower_bound": 2788707,
+        "largest_individual_rehash_scratch_bytes": 1024,
+        "rehash_scratch_bytes_cumulative": 140288,
+        "retired_table_bytes": 2560,
+        "retired_tables": 5,
+        "retirement_tracking_bytes": 576,
+        "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+        "slab_bytes": 1732096,
+        "strings": {
+          "count": 520,
+          "index_capacity": 896,
+          "index_entries_bytes_lower_bound": 10400,
+          "text_slots_bytes": 16384,
+          "unique_payload_bytes": 3811
+        }
+      },
+      "arena_peak": {
+        "handles": 306,
+        "nodes": 117
+      }
+    }
+  ]
+}
