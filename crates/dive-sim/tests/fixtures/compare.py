@@ -39,8 +39,10 @@ def selection_mismatches(row, report, process_exit):
 
 def error_comparison(row, report, process_exit):
     mismatches = metadata_mismatches(report, process_exit)
-    if row['native_scope'] == 'unsupported':
-        if (process_exit != 3 or report.get('result') != 'unsupported'
+    # `native_scope` records the scope when the control was captured; a row
+    # that dive refused then and supports now must agree like any other.
+    if row['native_scope'] == 'unsupported' and report.get('result') == 'unsupported':
+        if (process_exit != 3
                 or not isinstance(report.get('message'), str) or not report['message'].strip()):
             mismatches.append('named-refusal')
         return ('disagree' if mismatches else 'unsupported'), mismatches

@@ -38,6 +38,8 @@ pub struct Trace {
     pub length: Option<usize>,
     /// All temporal properties claimed false on a periodic word.
     pub properties: Vec<String>,
+    /// The loop closes on concrete state equality ([`TraceDoc::concrete_closure`]).
+    pub concrete_closure: bool,
 }
 
 /// The model's variable names, by [`dive_ir::VarId`].
@@ -104,6 +106,7 @@ impl Trace {
             ending,
             length: doc.length,
             properties: doc.properties.clone(),
+            concrete_closure: doc.concrete_closure,
         })
     }
 
@@ -131,6 +134,7 @@ impl Trace {
             length: self.length,
             source: Source::Dive,
             properties: self.properties.clone(),
+            concrete_closure: self.concrete_closure,
         })
     }
 }

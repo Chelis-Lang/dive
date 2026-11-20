@@ -317,8 +317,11 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             })?;
     let mut native = None;
     let mut setup_failure = None;
+    let mut symmetry_warnings = Vec::new();
     if req.workers.is_none_or(|workers| workers == 1) {
         if let Some(outcome) = dive_sim::preflight(model.model(), &options) {
+            setup_failure = Some(outcome);
+        } else if let Err(outcome) = prepare_symmetry(&model, &mut symmetry_warnings) {
             setup_failure = Some(outcome);
         } else {
             match crate::core_modes::Native::probe(
@@ -423,6 +426,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     let mut traces = Vec::<String>::new();
     let mut verdicts = Vec::<TraceVerdict>::new();
     let mut trace_refusal = None;
+    let mut alias_failures = Vec::<String>::new();
     'documents: for (number, trace) in sampled.into_iter().enumerate() {
         if run_budget.budget.poll() != Ok(None) {
             break;
@@ -469,9 +473,24 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             },
             _ => Ending::Behavior,
         };
-        let document = TraceDoc::behavior(states)
+        let mut document = TraceDoc::behavior(states)
             .map_err(|message| crate::ApiError::Rejected { message })?
             .with_ending(ending);
+        // The step into state `k + 1` is labelled with the action the sampler
+        // chose; the validator checks each label's definition on its step.
+        for (step, &action) in trace.actions.iter().enumerate() {
+            if let (Some(slot), Some(action)) = (
+                document.labels.get_mut(step + 1),
+                model.model().actions.get(action),
+            ) {
+                *slot = crate::core_engine::action_name(model.model(), action).map(|name| {
+                    dive_trace::Label {
+                        name,
+                        location: Some(action.label().to_owned()),
+                    }
+                });
+            }
+        }
         // Validation replays the given states; it never reruns the simulation.
         let validated = if matches!(result.outcome, Outcome::Sampled | Outcome::Violation { .. }) {
             model.validate_sample_mode(&document, control.clone())
@@ -523,10 +542,18 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             result: validation["result"].as_str().map(str::to_owned),
             unsupported: validation["unsupported"].as_str().map(str::to_owned),
         });
-        traces.push(
-            json!({ "id": trace.id, "document": document.to_json(), "tlc_states": tlc_states, "validation": validation })
-                .to_string(),
-        );
+        let mut entry = json!({ "id": trace.id, "document": document.to_json(), "tlc_states": tlc_states, "validation": validation });
+        if let Some(Ok(alias)) = &model.model().alias {
+            let poll = || run_budget.budget.poll() != Ok(None);
+            match crate::simulate_alias::render(model.model(), alias, &trace.states, &poll) {
+                Ok(rendered) => entry["alias"] = Value::Array(rendered),
+                Err(reason) => {
+                    entry["alias"] = Value::Null;
+                    alias_failures.push(format!("trace {}: {reason}", trace.id));
+                }
+            }
+        }
+        traces.push(entry.to_string());
     }
     let validation_failed = verdicts.iter().any(|t| t.is("invalid"));
     let violation_validated = match &result.outcome {
@@ -579,6 +606,11 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                 json!({"kind": "warning", "code": code.code(), "text": message})
             }
         })
+        .chain(
+            symmetry_warnings
+                .iter()
+                .map(|(code, text)| json!({"kind": "warning", "code": code, "text": text})),
+        )
         .collect();
     let violation = match &result.outcome {
         Outcome::Violation {
@@ -625,15 +657,34 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
     });
-    // ALIAS is not applied, as in checking:
-    // the traces show the states themselves, and the report says so.
+    // Each trace entry's `alias` renders its validated states; a trace whose
+    // ALIAS could not be rendered says why here.
     let mut notes = Vec::new();
-    if !traces.is_empty()
-        && let Some(Ok(alias)) = &model.model().alias
-    {
+    if let Some(Ok(alias)) = &model.model().alias {
+        for failure in &alias_failures {
+            notes.push(format!("ALIAS {} not rendered for {failure}", alias.name));
+        }
+    }
+    let declared: Vec<String> = [
+        model
+            .model()
+            .symmetry
+            .as_ref()
+            .map(|name| format!("SYMMETRY {name}")),
+        model
+            .model()
+            .view
+            .as_ref()
+            .map(|view| format!("VIEW {}", view.name)),
+    ]
+    .into_iter()
+    .flatten()
+    .collect();
+    if !declared.is_empty() {
         notes.push(format!(
-            "ALIAS {} is not applied: the traces show the states themselves (not implemented yet).",
-            alias.name
+            "{} {} not affect simulation, which never deduplicates states.",
+            declared.join(" and "),
+            if declared.len() == 1 { "does" } else { "do" }
         ));
     }
     document["notes"] = json!(notes);
@@ -667,10 +718,46 @@ impl TraceVerdict {
     }
 }
 
+/// Prepares a `SYMMETRY` declaration exactly as `dive check` does at
+/// startup, for its errors and warnings; simulation then uses no reduction.
+fn prepare_symmetry(spec: &SpecModel, warnings: &mut Vec<(u32, String)>) -> Result<(), Outcome> {
+    let model = spec.model();
+    if model.symmetry.is_none() {
+        return Ok(());
+    }
+    let prepared = model
+        .prepare_symmetry(
+            spec.config(),
+            dive_model::symmetry::Mode::Checked,
+            dive_model::symmetry::Limits::default(),
+        )
+        .map_err(|error| match &error.kind {
+            dive_model::ErrorKind::Tlc(_) | dive_model::ErrorKind::Eval { .. } => Outcome::Error {
+                code: error.code().unwrap_or(1000),
+                message: error.message.clone(),
+            },
+            dive_model::ErrorKind::Unsupported { feature } => Outcome::Unsupported(feature.clone()),
+            dive_model::ErrorKind::Bug => Outcome::Internal(error.message.clone()),
+        })?;
+    for message in prepared.iter().flat_map(|prepared| &prepared.warnings) {
+        match message {
+            dive_model::Message::Warning { code, message } => {
+                warnings.push((code.code(), message.clone()));
+            }
+            dive_model::Message::Print(_) => {
+                return Err(Outcome::Unsupported(
+                    "printed output while preparing SYMMETRY".to_owned(),
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
 fn tlc_exit(code: u32) -> u8 {
     match code {
         2107 | 2110 => 12,
-        2112 | 2113 => 13,
+        2108 | 2112 | 2113 => 13,
         2114 => 11,
         2104 | 2105 => 10,
         2109 => 75,

@@ -140,6 +140,7 @@ fn validate_word(
         },
         length: Some(word.states.len()),
         properties: word.properties.clone(),
+        concrete_closure: false,
     };
     let report = dive_trace::validate_controlled(&model, &trace, control.clone())
         .map_err(|error| interrupted(&control, error))?;

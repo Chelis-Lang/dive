@@ -94,7 +94,7 @@ fn default_trace_identity_replays_and_is_prefix_stable() {
     agreed::check_core(
         CORE,
         "default_trace_identity_replays_and_is_prefix_stable/0",
-        &serde_json::json!({"traces": a["traces"], "statistics": a["statistics"]}),
+        &serde_json::json!({"traces": unlabelled(&a["traces"]), "statistics": a["statistics"]}),
     );
     request.traces = 5;
     let b = dive_api::simulate_file(&request).unwrap().to_json();
@@ -128,19 +128,26 @@ fn simulation_error_sites_match_pinned_messages_and_statuses() {
         .unwrap();
         let json = report.to_json();
         if row["native_scope"] == "unsupported" {
+            // Formerly refused: TLC checks the action property on the
+            // candidate before the constraint excludes it, and the validator
+            // accepts that excluded last state (ADR 0162). No agreed record
+            // exists for this row, so it is compared with the oracle alone.
             assert_eq!(
                 row["codes"][0], 2112,
                 "oracle checks action property before constraints"
             );
-            assert_eq!(json["result"], "unsupported", "{json}");
-            assert_eq!(report.exit_code(), 3);
-            assert_eq!(json["options"]["execution_stage"], "preflight");
-            assert!(
-                json["message"]
-                    .as_str()
-                    .unwrap()
-                    .contains("action properties with state/action constraints")
-            );
+            assert_eq!(json["result"], "violation", "{json}");
+            assert_eq!(json["violation_validated"], true, "{json}");
+            assert_eq!(u64::from(report.exit_code()), row["exit"].as_u64().unwrap());
+            assert_eq!(json["tlc_code"], row["codes"][0], "{name}: {json}");
+            assert_eq!(json["statistics"]["generated"], row["generated"], "{json}");
+            let states: Vec<_> = json["traces"][0]["tlc_states"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|s| s["x"].clone())
+                .collect();
+            assert_eq!(serde_json::json!(states), row["states"], "{name}");
             continue;
         }
         agreed::check_eq(
@@ -310,18 +317,23 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
                 "traces",
             ] {
                 assert_eq!(counted[field], plain[field], "{field}");
+                let counted = if field == "traces" {
+                    unlabelled(&counted[field])
+                } else {
+                    counted[field].clone()
+                };
                 if compat_tlc {
                     // The documented compat choice-stream gap: Core's own sample.
                     agreed::check_core(
                         CORE,
                         "basic_action_statistics_preserve_replay_and_independent_safety_validation/0",
-                        &(counted[field]),
+                        &counted,
                     );
                 } else {
                     agreed::check(
                         AGREED,
                         "basic_action_statistics_preserve_replay_and_independent_safety_validation/0",
-                        &(counted[field]),
+                        &counted,
                     );
                 }
             }
@@ -366,4 +378,22 @@ fn basic_action_statistics_preserve_replay_and_independent_safety_validation() {
             assert!(refused["action_flow"].is_null());
         }
     }
+}
+
+/// `traces` with each step's action label cleared, as sampled documents were
+/// before they recorded labels: the records and cross-file comparisons pin
+/// the sampled states, while the labels' sources differ between files and the
+/// validator checks each label on its step.
+fn unlabelled(traces: &Value) -> Value {
+    let mut traces = traces.clone();
+    for trace in traces.as_array_mut().into_iter().flatten() {
+        for state in trace["document"]["states"]
+            .as_array_mut()
+            .into_iter()
+            .flatten()
+        {
+            state["action"] = Value::Null;
+        }
+    }
+    traces
 }

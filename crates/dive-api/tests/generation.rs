@@ -19,12 +19,21 @@ fn request(config: &str, tlc: bool) -> SimulateRequest {
     }
 }
 
+/// Each trace's state values. Step labels name the action that ran, which
+/// differs between the specifications compared here, so they are left out.
 fn words(report: &Value) -> Vec<Value> {
     report["traces"]
         .as_array()
         .into_iter()
         .flatten()
-        .map(|trace| trace["document"]["states"].clone())
+        .map(|trace| {
+            trace["document"]["states"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(|state| state["values"].clone())
+                .collect()
+        })
         .collect()
 }
 

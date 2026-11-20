@@ -95,11 +95,11 @@ retain a named refusal.
 
 The owner accepted [the simulation design](developer/simulation-design.md#15-owner-rulings-2026-11-20):
 
-1. **Extending truncated traces (D-034):** `--liveness-extend auto` is the
+1. **Extending truncated traces (D-039):** `--liveness-extend auto` is the
    default in the default profile; `0` under `--compat=tlc`.
 2. **`RandomElement` in sampled traces:** draw at random and validate each
    draw as some element of its set, coordinated with #910.
-3. **Unbounded sets (D-035):** sampled by default in the default profile with
+3. **Unbounded sets (D-040):** sampled by default in the default profile with
    a stated, seeded distribution that the report names, together with the
    sets sampled; `--compat=tlc` keeps TLC's GENERAL 1000 error.
 4. **Report retention:** the deciding trace plus a bounded, validated sample by

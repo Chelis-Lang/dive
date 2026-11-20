@@ -8,6 +8,15 @@ are in git history.
 ### Added
 
 - Core reduces the number of sources expanded together in high-fanout parallel safety searches. On BPConProof this cut peak RSS by 59% at one million discoveries. [Measurements](docs/developer/large-models.md#high-fanout-parallel-safety).
+- `dive simulate` accepts `SYMMETRY` and `VIEW`, which do not change a
+  simulation, checks state-level `PROPERTY` parts on initial states (2108),
+  and checks action properties together with constraints. Reports render
+  `ALIAS` beside each trace's states and label each step with its action. See
+  [simulation](docs/user/simulation.md#what-a-sample-covers).
+- `dive_trace::TraceDoc` and `Trace` gain `concrete_closure`
+  (`"closure": "concrete"`), which lets a periodic word whose loop closes on
+  equal states validate under `VIEW` and `SYMMETRY`. Code that builds these
+  structs field by field must set it.
 
 - Core uses one worker for temporal captures with a wide initial frontier and simple actions, and reports why in `options.workers`.
 - Core temporal checks use compact successor ordinals while retaining exact trace and saved-graph identities. See the [matched memory comparison](docs/developer/large-models.md#successor-ordinals-in-temporal-graphs).

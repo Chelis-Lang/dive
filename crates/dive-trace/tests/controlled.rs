@@ -105,6 +105,7 @@ fn trace(states: &[i64]) -> Trace {
         ending: Ending::Behavior,
         length: None,
         properties: Vec::new(),
+        concrete_closure: false,
     }
 }
 fn interruption(error: ValidationRunError, check: Check, state: Option<usize>) {

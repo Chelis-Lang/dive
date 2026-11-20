@@ -62,6 +62,7 @@ fn direct_and_instantiated_fairness_words_match_primary_observations() {
                 states,
                 ending: Ending::Lasso { back_to: 0 },
                 properties: vec!["P".into()],
+                concrete_closure: false,
             };
             let doc = trace.to_doc(&model).expect("serialize actual word");
             let transport = TraceDoc::parse(&doc.to_json().to_string()).expect("parse transport");

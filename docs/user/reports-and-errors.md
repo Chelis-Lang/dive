@@ -447,6 +447,11 @@ which were always 0 because dive keeps no construction history:
 reader moves to schema 4 by no longer requiring those four fields; it can keep
 accepting schema 3 for stored reports.
 
+Schema-4 `simulate` reports add to each trace entry an `alias` array (the
+`ALIAS` value of each state, or null when it could not be rendered), and
+their trace documents label each step with its action instead of null. A
+reader that ignores unknown fields needs no change.
+
 The JSON wire format is versioned this way; the Rust library API has no such
 stability promise.
 

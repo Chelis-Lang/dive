@@ -109,6 +109,7 @@ fn a_deadlock_claim_with_a_real_successor_is_not_validated() {
         ending: dive_trace::Ending::Deadlock,
         length: Some(1),
         properties: vec![],
+        concrete_closure: false,
     };
     let report = dive_trace::validate(&model, &trace);
     assert!(

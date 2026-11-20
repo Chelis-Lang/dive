@@ -28,5 +28,7 @@ from its sample. Regenerate with the pinned jar and JRE:
 python3 -I capture.py --java "$JAVA" --jar "$JAR" --reason "..."
 ```
 
-No test reads these receipts yet. The simulation phases S1 to S3 add the
-dive-side tests that compare against them.
+`crates/dive-api/tests/simulate_safety_roles.rs` compares the safety cases
+(C5, C6, U4, U6, U7, U11 to U14, V3, V4, Y4, A1) under `--compat=tlc`; U12
+is compared with its model-checking control B-U12 (D-036). The workers and
+temporal phases add tests for the other cases.

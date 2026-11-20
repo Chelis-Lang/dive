@@ -65,7 +65,7 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
     {
         out.push(Unsupported {
             feature: format!("SYMMETRY {s}"),
-            kind: UnsupportedKind::Feature,
+            kind: UnsupportedKind::Symmetry,
         });
     }
     // Java overrides dive does not implement, reachable from what is checked.

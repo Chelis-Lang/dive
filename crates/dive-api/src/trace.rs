@@ -216,7 +216,11 @@ impl SpecModel {
         dive_eval::validate_ir(&ir).map_err(|error| ApiError::Unsupported {
             feature: error.to_string(),
         })?;
-        if let Some(feature) = dive_model::transformed_randomness(&ir, &cfg) {
+        // A simulation (the only owner of a host here) never fingerprints,
+        // views or canonicalizes states, so randomness under VIEW or SYMMETRY
+        // needs nothing extra there (ADR 0162); other loads keep the refusal.
+        let concrete = owned_host.is_some();
+        if !concrete && let Some(feature) = dive_model::transformed_randomness(&ir, &cfg) {
             return Err(ApiError::Unsupported {
                 feature: feature.to_owned(),
             });
@@ -281,6 +285,11 @@ impl SpecModel {
         let recipe =
             dive_model::Recipe::new(ir.clone(), cfg.clone(), bind_opts.eval, opts.no_deadlock)
                 .with_symmetry_liveness(bind_opts.symmetry_liveness);
+        let recipe = if concrete {
+            recipe.with_concrete_states()
+        } else {
+            recipe
+        };
         let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
         if let Some(replay) = &replay {
             replay
@@ -334,6 +343,11 @@ impl SpecModel {
     #[must_use]
     pub fn model(&self) -> &dive_model::Model {
         &self.model
+    }
+
+    /// The bound configuration.
+    pub(crate) const fn config(&self) -> &dive_config::ModelConfig {
+        self.recipe.config()
     }
 
     /// Private feasibility runtime: fixed inputs, fresh names/caches and no ASSUMEs.

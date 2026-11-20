@@ -68,6 +68,9 @@ pub struct Settings {
 pub enum UnsupportedKind {
     /// A temporal property requires the liveness backend.
     TemporalProperty,
+    /// A `SYMMETRY` declaration the checking route has not prepared.
+    /// Simulation, which never deduplicates or canonicalizes states, skips it.
+    Symmetry,
     /// Another unimplemented feature, which graph capture cannot defer.
     Feature,
 }

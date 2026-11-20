@@ -533,7 +533,7 @@ impl<'a> Run<'a> {
         let named_lasso = !trace.properties.is_empty();
         if named_lasso {
             self.host.startup.store(false, Ordering::Relaxed);
-            self.prepare_periodic(&trace.ending, &trace.properties)?;
+            self.prepare_periodic(&trace.ending, &trace.properties, trace.concrete_closure)?;
             self.host
                 .startup
                 .store(self.private_init, Ordering::Relaxed);
@@ -728,7 +728,7 @@ impl<'a> Run<'a> {
             return Ok(None);
         }
         if let Ending::Lasso { back_to } = trace.ending {
-            if m.view.is_some() {
+            if m.view.is_some() && !trace.concrete_closure {
                 // TLC closes the loop on the VIEW's value, not the state's:
                 // the last state's successor only has the same view as the
                 // state it loops to (Examples' MCDistributedReplicatedLog).
@@ -785,10 +785,15 @@ impl<'a> Run<'a> {
         })
     }
 
+    /// `concrete`: the producer closed the loop on concrete state equality
+    /// ([`crate::TraceDoc::concrete_closure`]); the closing step is then
+    /// checked on the concrete states under `VIEW` and `SYMMETRY` as without
+    /// them, so neither needs other evidence.
     pub(crate) fn prepare_periodic(
         &mut self,
         ending: &Ending,
         properties: &[String],
+        concrete: bool,
     ) -> Result<(), Stop> {
         if !matches!(ending, Ending::Lasso { .. } | Ending::Stuttering) {
             return Err(invalid(
@@ -797,9 +802,10 @@ impl<'a> Run<'a> {
                 "temporal property names require a periodic ending",
             ));
         }
-        if self.model.view.is_some()
-            || self.model.symmetry_reduction.is_some()
-            || (self.model.symmetry.is_some() && !self.model.unreduced_symmetry_liveness())
+        if !concrete
+            && (self.model.view.is_some()
+                || self.model.symmetry_reduction.is_some()
+                || (self.model.symmetry.is_some() && !self.model.unreduced_symmetry_liveness()))
         {
             return Err(Stop::Unsupported(
                 "periodic validation under VIEW or SYMMETRY needs concrete closing-state evidence"

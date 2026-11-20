@@ -515,6 +515,10 @@ impl Native {
             }
             machine.s1.clone_from(&state);
             machine.level = 1;
+            // As `dive check` orders an initial state's checks: invariants,
+            // then implied initial predicates (2108, D-036), then constraints.
+            // An implied initial predicate's evaluation error has no proved
+            // TLC wrapper here and stays a named refusal.
             if let Some(outcome) = roles(
                 machine,
                 plan,
@@ -523,7 +527,9 @@ impl Native {
                 "invariant",
                 2107,
                 2102,
-            ) {
+            )
+            .or_else(|| implied_initial(machine, plan))
+            {
                 if options.max_retained == 0 {
                     report.pending_violation = pending(&outcome);
                     report.outcome = Outcome::Limit("simulation retained-state bound".into());
@@ -534,6 +540,7 @@ impl Native {
                     Ok(state) => report.traces.push(Trace {
                         id: 0,
                         states: vec![state],
+                        actions: Vec::new(),
                     }),
                     Err(message) => report.outcome = Outcome::Unsupported(message),
                 }
@@ -595,9 +602,14 @@ impl Native {
                 }
             };
             retained += 1;
+            let mut actions = Vec::new();
             for _ in 0..options.depth {
                 if poll() {
-                    report.traces.push(Trace { id, states });
+                    report.traces.push(Trace {
+                        id,
+                        states,
+                        actions,
+                    });
                     report.outcome = Outcome::Cancelled;
                     return report;
                 }
@@ -665,6 +677,7 @@ impl Native {
                                 match values(machine, model, &machine.s1.clone()) {
                                     Ok(next) => {
                                         states.push(next);
+                                        actions.push(index);
                                         retained += 1;
                                     }
                                     Err(message) => failed = Some(Outcome::Unsupported(message)),
@@ -715,7 +728,11 @@ impl Native {
                     if let Outcome::Violation { trace, .. } = &mut outcome {
                         *trace = report.traces.len();
                     }
-                    report.traces.push(Trace { id, states });
+                    report.traces.push(Trace {
+                        id,
+                        states,
+                        actions,
+                    });
                     report.outcome = outcome;
                     return report;
                 }
@@ -727,7 +744,11 @@ impl Native {
                             code: 2114,
                             trace: report.traces.len(),
                         };
-                        report.traces.push(Trace { id, states });
+                        report.traces.push(Trace {
+                            id,
+                            states,
+                            actions,
+                        });
                         return report;
                     }
                     break;
@@ -744,7 +765,10 @@ impl Native {
                 };
                 current = candidates.swap_remove(choice);
                 match values(machine, model, &current) {
-                    Ok(next) => states.push(next),
+                    Ok(next) => {
+                        states.push(next);
+                        actions.push(index);
+                    }
                     Err(message) => {
                         report.outcome = Outcome::Unsupported(message);
                         return report;
@@ -755,15 +779,43 @@ impl Native {
                     && let Err(error) = flow.record(previous, chosen)
                 {
                     report.outcome = Outcome::Internal(error.to_string());
-                    report.traces.push(Trace { id, states });
+                    report.traces.push(Trace {
+                        id,
+                        states,
+                        actions,
+                    });
                     return report;
                 }
                 previous = chosen;
             }
-            report.traces.push(Trace { id, states });
+            report.traces.push(Trace {
+                id,
+                states,
+                actions,
+            });
         }
         report
     }
+}
+
+/// The first implied initial predicate (`PROPERTY` part) the initial state in
+/// `machine.s1` violates, as `dive check` reports it (2108).
+fn implied_initial(machine: &mut Machine, plan: &Plan) -> Option<Outcome> {
+    for check in &plan.implied_inits {
+        match predicate(machine, &plan.code, check, false) {
+            Ok(true) => {}
+            Ok(false) => {
+                return Some(Outcome::Violation {
+                    kind: "property",
+                    name: Some(check.name.clone()),
+                    code: 2108,
+                    trace: 0,
+                });
+            }
+            Err(error) => return Some(classify(&error, None)),
+        }
+    }
+    None
 }
 
 #[cfg(test)]

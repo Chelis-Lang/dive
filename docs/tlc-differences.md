@@ -891,15 +891,7 @@ called directly; normal binding often disables the singleton case first with
 warning 2300. dive refuses the empty declaration by name (the `SyEmpty`
 capture is in `crates/dive-model/tests/fixtures/symmetry-group/`).
 
-### D-031: Simulation checks implied initial properties
-
-With `PROPERTY x = 1` on a spec whose initial state has `x = 0`, TLC's
-`-simulate` exits 0: it never checks a state-level property in simulation,
-while model checking reports error 2108. dive's simulation will check it on
-every initial state and report the same 2108 as `dive check`, in both
-profiles.
-
-### D-032: Simulation closes loops only on equal states
+### D-037: Simulation closes loops only on equal states
 
 TLC's simulation closes a liveness loop when two states have the same
 fingerprint. Under `VIEW` that is the view's fingerprint, and under
@@ -919,7 +911,7 @@ dive's simulation will treat `VIEW` and `SYMMETRY` as having no effect on
 simulation and close a loop only when a state equals an earlier one. Every
 reported loop is then a real behavior that the trace validator checks.
 
-### D-033: Simulation reports how much of a property it checked
+### D-038: Simulation reports how much of a property it checked
 
 TLC's simulation checks a liveness property only on traces that return to an
 earlier state or stop. When every trace is cut by `-depth` first, for example
@@ -929,7 +921,7 @@ will report, for each property, how many traces gave a complete behavior on
 which it was checked and how many could not decide it. It never reports that
 a property holds.
 
-### D-034: Extending traces cut by the depth
+### D-039: Extending traces cut by the depth
 
 A trace that reaches `--depth` while a temporal property is still undecided on
 it will continue, by up to `--depth` more steps, until it returns to an
@@ -939,7 +931,7 @@ checked like any other. `--liveness-extend N` sets the number of extra steps;
 `--liveness-extend 0`, or `--compat=tlc`, ends every trace at the depth as TLC
 does.
 
-### D-035: Sampling from unbounded sets
+### D-040: Sampling from unbounded sets
 
 `x \in Nat` in `Init`, or `\E n \in Nat : x' = x + n` in `Next`, makes
 TLC's `-simulate` and `-generate` fail with "not enumerable". dive's
@@ -1050,7 +1042,7 @@ dive refuses by name where it cannot match TLC. These are the refusals.
   - anything the binding stage or the evaluator refuses (for example `IOUtils`, Json file operations and the CommunityModules operators listed above);
   - evaluation errors whose exact TLC error class depends on where a value came from, which dive does not record. dive reports their messages but marks the deciding class as unverified.
 
-  `ALIAS` is not applied to printed counterexamples or simulation traces: dive prints the states themselves, and says so. `dive simulate` runs with one worker; parallel simulation workers are refused.
+  `ALIAS` is not applied to printed counterexamples: dive prints the states themselves, and says so. `dive simulate` renders the `ALIAS` beside each trace's states (the trace's `alias` array), but refuses an `ALIAS` that names no definition, and leaves a trace without a rendering, with a note, when evaluating the `ALIAS` fails, prints, draws or reads other runtime state. `dive simulate` does not evaluate a `VIEW`, so it does not report an error that evaluating the `VIEW` on a sampled state would raise. `dive simulate` runs with one worker; parallel simulation workers are refused.
 - **Trace validation.** The validator refuses, naming the reason, instead of trusting the checker:
   - deadlock endings whose absence of successors the finite-cover check cannot decide. A concrete successor refutes the ending, and exhausting a complete finite cover validates it;
   - liveness claims that lack a complete named-property list, or need fairness or `ENABLED` facts the evaluator cannot decide on the trace's states, effects, or `VIEW` or symmetry closing evidence;
@@ -1664,3 +1656,22 @@ exploration order, once per occurrence. For example, a decimal-digit fold over
 The order can change the value of a noncommutative fold, a side effect, or
 which error is reached first. With `--explore-order=tlc` the checker refuses
 when TLC’s historical bag order cannot be recovered.
+
+## D-036: Simulation checks implied initial properties
+
+| | |
+|---|---|
+| **Kind** | Different answer |
+| **Default** | Checked on every initial state a simulation keeps, reported as 2108 |
+| **TLC behavior** | Not reproduced; documented gap under `--compat=tlc` |
+| **Status** | implemented for `dive simulate` |
+
+With `PROPERTY x = 1` on a spec whose initial state has `x = 0`, TLC's
+`-simulate` exits 0: it never checks a state-level property in simulation,
+while model checking reports error 2108. `dive simulate` checks it on every
+initial state, after the invariants and before the constraints as
+`dive check` does, and reports the same 2108 with a one-state trace that the
+trace validator checks. It does so in both profiles, because skipping a
+configured property would report a sample as clean when it is not. The
+receipts are `crates/dive-sim/tests/fixtures/temporal/oracle.json` U12 and
+its model-checking control B-U12.

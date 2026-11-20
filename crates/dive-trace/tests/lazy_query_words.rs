@@ -167,6 +167,7 @@ fn check_words(cases: &[(&str, &str, bool)]) {
                 ending: Ending::Invariant("Inv".into()),
                 length: Some(1),
                 properties: Vec::new(),
+                concrete_closure: false,
             };
             let mut bad_init = trace.clone();
             let mut forged = state;

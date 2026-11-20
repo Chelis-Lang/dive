@@ -18,8 +18,9 @@ algorithm and is explicitly unsupported. The initial predicates are enumerated
 once, with duplicates. The entire initial vector is collected before any
 completeness, invariant or constraint check. Initial-generation failures retain
 the separate `initial_candidates` prefix; TLC's generated counter is assigned
-only after enumeration finishes. Every initial invariant is checked before
-constraints.
+only after enumeration finishes. Every initial invariant, then every implied
+initial predicate (a state-level `PROPERTY` part, 2108, D-036), is checked
+before constraints.
 For each trace, select an initial state, choose an action, draw the prime retry
 stride even when there is only one action, try disabled actions in TLC's stride
 order, check every generated candidate, and select a surviving successor.
@@ -87,10 +88,14 @@ it is not substituted for the concrete validation input. All reports contain
 `sampled` means the requested finite sample completed without finding a bug.
 
 Compound initial values and fairness-bearing specifications are simulated
-(ADR 0116). Temporal property checking, unsupported runtime effects and random
-operators outside the direct scalar Init subset, unresolved constant-operator
-effects, implied-initial properties, action properties combined with state/action constraints, an ALIAS whose
-lookup fails, POSTCONDITION,
+(ADR 0116). `SYMMETRY` and `VIEW` are accepted and change nothing, since
+simulation never deduplicates states (ADR 0162); `SYMMETRY` is still prepared
+at startup as `dive check` prepares it, for its warnings and errors. `ALIAS`
+is rendered per trace in a separate `alias` array evaluated on the validated
+states. Each step's document label names the chosen action and its location,
+and validation checks it. Temporal property checking, unsupported runtime
+effects and random operators outside the direct scalar Init subset, unresolved
+constant-operator effects, an ALIAS whose lookup fails, POSTCONDITION,
 probabilistic/RL simulation, generation, distributed execution, continuation
 after violations, and additional workers remain named refusals. The core
 sampling stream is replayable; this slice does not claim worker scaling or
@@ -121,11 +126,11 @@ claims only their measured agreement. It does not certify the full simulation
 feature family.
 
 The pinned `SimConstrainedAction` probe reports action-property violation 2112
-before its candidate is excluded by a state constraint. The exhaustive trace
-validator currently requires constraints on property-ending edges. This slice
-refuses the combination by name before sampling rather than weakening that
-validator or reporting a false internal error. The control report accounts for
-22 agreements and this one named refusal separately.
+before its candidate is excluded by a state constraint. Simulation reports the
+same violation, and the validator accepts the excluded last state of an
+invariant, implied initial or action-property ending. All 13 error controls
+agree. The ten selection controls differ because dive does not reproduce TLC's
+choice stream (D-003); the API tests pin that gap.
 
 If a chosen value cannot be represented as a concrete JSON trace, or TLC
 projection cannot compare two states, the API returns named `unsupported`

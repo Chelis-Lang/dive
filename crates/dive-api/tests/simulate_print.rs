@@ -312,7 +312,7 @@ fn print_domains_preserve_every_existing_seeded_choice_and_count() {
             row["generated"] == printed["statistics"]["generated"]
                 && row["traces"] == json!(words(&printed)),
         );
-        assert_eq!(printed["traces"], plain["traces"]);
+        assert_eq!(unlabelled(&printed["traces"]), unlabelled(&plain["traces"]));
         assert_ne!(texts(&printed["runtime_output"]), Vec::<&str>::new());
         agreed::check_eq(
             AGREED,
@@ -385,7 +385,7 @@ fn print_domains_keep_the_default_stream_and_prefix() {
         .join("SimChoice.tla");
     let plain = dive_api::simulate_file(&req).expect("plain").to_json();
     assert_eq!(printed["statistics"], plain["statistics"]);
-    assert_eq!(printed["traces"], plain["traces"]);
+    assert_eq!(unlabelled(&printed["traces"]), unlabelled(&plain["traces"]));
     req.file = fixtures().join("SimChoicePrinted.tla");
     req.traces = 5;
     let longer = dive_api::simulate_file(&req).expect("longer").to_json();
@@ -396,4 +396,22 @@ fn print_domains_keep_the_default_stream_and_prefix() {
     assert_ne!(texts(&printed["runtime_output"]), Vec::<&str>::new());
     assert_eq!(printed["exhaustive"], false);
     assert_eq!(printed["model_proved"], false);
+}
+
+/// `traces` with each step's action label cleared, as sampled documents were
+/// before they recorded labels: the records and cross-file comparisons pin
+/// the sampled states, while the labels' sources differ between files and the
+/// validator checks each label on its step.
+fn unlabelled(traces: &Value) -> Value {
+    let mut traces = traces.clone();
+    for trace in traces.as_array_mut().into_iter().flatten() {
+        for state in trace["document"]["states"]
+            .as_array_mut()
+            .into_iter()
+            .flatten()
+        {
+            state["action"] = Value::Null;
+        }
+    }
+    traces
 }
