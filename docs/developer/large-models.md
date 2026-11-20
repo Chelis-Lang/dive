@@ -230,6 +230,37 @@ component breakdown at tens of millions of states and the retained temporal grap
 
 Ordinary safety also offers [disk-backed seen-state membership](../user/disk-seen-safety.md) for fingerprints and exact keys. That option uses one worker and bounds its membership workspace. Live TLA+ values and other search structures still consume memory. The paired measurements above changed only frontier placement.
 
+### Car Talk evaluates a constant expression
+
+Lamport’s five-piece `CarTalkPuzzle.toolbox/Model_3` asks TLC to print
+`AllSolutions` for a 121-pound stone. It configures neither Init nor Next.
+The expensive expression filters 25,937,424,601 functions of five indices
+before testing the ability to measure every target weight. BFS frontier or
+fingerprint storage cannot improve this calculation.
+
+The sole solution is **1, 3, 9, 27, 81**. The original predicate allows
+placing each piece on either pan or on neither, giving coefficients −1, 0, 1.
+For pieces summing to N, shifting every coefficient by one turns full signed
+coverage of −N through N into coverage of 0 through 2N with digits 0, 1, 2.
+Suppose the sorted prefix sums to S and covers 0 through 2S. Its next weight
+w adds two translated copies starting at w and 2w. All three intervals touch
+or overlap exactly when w ≤ 2S+1. If w is larger, no later weight can fill
+2S+1. This proves the prefix test in both directions. Five weights give at
+most 243 sums. Achieving all 243 requires the largest admissible weight at
+every position.
+
+`python3 scripts/perf/scale/cartalk.py "$MODEL_3" --check-small` checks all
+three original input hashes and evaluates this expression using the prefix
+test. The control compares every solution against literal disjoint-pan
+enumeration on 64 smaller domains. With seven pounds and three pieces,
+pinned TLC and the prefix calculation both return exactly (1,1,5), (1,2,4)
+and (1,3,3). This is a model-specific expression result. Ordinary Core
+continues to refuse the oversized function enumeration. An experimental
+streaming evaluator eliminated the bulk allocation but still tried every
+tuple. During printing, tuple hashing forced the deferred filter through an
+infallible path that could outlast the budget. The normal checker retains
+its original refusal.
+
 ## Published model sizes and reproducible comparisons
 
 A published state count is comparable across checkers when the specification,
