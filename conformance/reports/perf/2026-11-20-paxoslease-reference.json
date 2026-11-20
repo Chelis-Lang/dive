@@ -53,12 +53,13 @@
       30,
       31
     ],
-    "affinity": "First eight listed physical CPU IDs at eight workers; guest default clock and turbo. One fresh process at a time.",
+    "affinity": "First eight listed physical CPU IDs for Base and QuarantineEqualsProposer; all 32 for Retry. Guest default clock and turbo. One fresh process per cell.",
     "memory_cgroup_gib": 448,
-    "swap_gib": 0
+    "swap_gib": 0,
+    "ami": "ami-0a951420c495183dc"
   },
-  "method": "Original passing configurations with all published properties and the state constraint; no model edits. One whole-process measurement per mode, pinned TLC rolling jar and JRE 17 with -Xmx32g -XX:+UseParallelGC -XX:ActiveProcessorCount=8. Core used nominal TLC profile, fp 0, seed 0. Authors used a different TLC version, fingerprint and host. All counts are fingerprint-based.",
-  "reproduce": "From tla/spec at the source revision: dive check PaxosLeaseChecked.tla --config CFG --workers 8 --fp 0 --seed 0 --compat=tlc --output json. For TLC use -workers 8 -fp 0 -seed 0 -config CFG PaxosLeaseChecked.tla with the specified JVM.",
+  "method": "Original passing configurations with all published properties and the state constraint; no model edits. One whole-process measurement per mode. Eight-worker controls used the pinned TLC rolling jar and JRE 17 with -Xmx32g -XX:+UseParallelGC -XX:ActiveProcessorCount=8. Core used nominal TLC profile, fp 0, seed 0. Authors used a different TLC version, fingerprint and host. All counts are fingerprint-based.",
+  "reproduce": "For the eight-worker controls, from tla/spec at the source revision: dive check PaxosLeaseChecked.tla --config CFG --workers 8 --fp 0 --seed 0 --compat=tlc --output json. For TLC use -workers 8 -fp 0 -seed 0 -config CFG PaxosLeaseChecked.tla with the specified JVM.",
   "rows": [
     {
       "configuration": "PaxosLeaseBase.cfg",
@@ -132,7 +133,231 @@
       "author_time": "07h 03min",
       "generated": 12642614099,
       "distinct": 2179760458,
-      "depth": 48
+      "depth": 48,
+      "author_workers": 8,
+      "author_fp": 123,
+      "author_seed": 6971722686665414362,
+      "author_TLC_version": "2.19",
+      "historical": {
+        "generated": 12642614099,
+        "distinct": 2179760458,
+        "queue": 0,
+        "depth": 48
+      },
+      "isolated": [
+        {
+          "mode": "core",
+          "workers": 32,
+          "rc": 0,
+          "wall_seconds": 4873.74,
+          "peak_rss_kib": 104573956,
+          "kernel": "7.0.0-1018-aws",
+          "verdict": "success",
+          "statistics": {
+            "depth": 48,
+            "distinct": 2179760458,
+            "generated": 12642614099,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "stopped": null,
+          "message": null,
+          "checker_ms": 4873607,
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "collision": null,
+          "checker_peak_sample_bytes": 106983952384,
+          "core_metrics": {
+            "commit_ms": 46512.458253,
+            "expand_ms": 2413458.82381,
+            "explore_ms": 4873513.586143,
+            "compile_ms": 3.524832,
+            "arena_peak": {
+              "handles": 278,
+              "nodes": 91
+            },
+            "probed": 12642614099,
+            "discarded_before_intern": 9329547175,
+            "store_reclamation": {
+              "collections": 0,
+              "failures": [],
+              "peak_after_bytes_lower_bound": 0,
+              "peak_after_nodes": 0,
+              "peak_before_bytes_lower_bound": 0,
+              "reclaimed_nodes": 0,
+              "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+              "skipped": null,
+              "trigger_bytes": 268435456,
+              "trigger_source": "default"
+            },
+            "store": {
+              "handles": 545023,
+              "hits": 9383914115,
+              "memory": {
+                "accounting_complete": false,
+                "boxed_payload_bytes": 168104,
+                "construction_history_view_bytes": 0,
+                "current_table_bytes": 2097152,
+                "external_shared_owners": {
+                  "printer_names": true,
+                  "random_streams": false,
+                  "registers": false
+                },
+                "fixed_bytes": 862480,
+                "known_retained_bytes_lower_bound": 18305814,
+                "largest_individual_rehash_scratch_bytes": 8192,
+                "rehash_scratch_bytes_cumulative": 4063232,
+                "retired_table_bytes": 0,
+                "retired_tables": 0,
+                "retirement_tracking_bytes": 16384,
+                "scope": "requested persistent-store component storage before explorer worker teardown; lower bound, not RSS or peak; excludes allocator and Arc metadata, opaque string-index bucket overhead/spare capacity, external shared objects, worker arenas/caches, graph buffers and in-progress growth; rehash scratch fields are allocation traffic and largest individual temporary, not retained or concurrent peak bytes",
+                "slab_bytes": 15128704,
+                "strings": {
+                  "count": 600,
+                  "index_capacity": 896,
+                  "index_entries_bytes_lower_bound": 12000,
+                  "text_slots_bytes": 16384,
+                  "unique_payload_bytes": 4606
+                }
+              },
+              "misses": 132695,
+              "nodes": 132695
+            }
+          },
+          "workers_report": {
+            "chaos": null,
+            "reason": null,
+            "requested": 32,
+            "sequential": false,
+            "used": 32
+          },
+          "depth": 48,
+          "distinct": 2179760458,
+          "generated": 12642614099
+        },
+        {
+          "mode": "tlc",
+          "workers": 32,
+          "rc": 0,
+          "wall_seconds": 5336.64,
+          "peak_rss_kib": 98731688,
+          "kernel": "7.0.0-1018-aws",
+          "verdict": "success",
+          "statistics": {
+            "generated": 12642614099,
+            "distinct": 2179760458,
+            "queue": 0,
+            "depth": 48
+          },
+          "progress_samples": [
+            {
+              "progress_number": 1,
+              "depth": 15,
+              "generated": 4354014,
+              "distinct": 1203372,
+              "queue": 670159
+            },
+            {
+              "progress_number": 11,
+              "depth": 25,
+              "generated": 1347783835,
+              "distinct": 291041339,
+              "queue": 90743325
+            },
+            {
+              "progress_number": 21,
+              "depth": 27,
+              "generated": 2750076192,
+              "distinct": 572824229,
+              "queue": 151244415
+            },
+            {
+              "progress_number": 31,
+              "depth": 28,
+              "generated": 4191252774,
+              "distinct": 846873048,
+              "queue": 189227822
+            },
+            {
+              "progress_number": 41,
+              "depth": 30,
+              "generated": 5669951862,
+              "distinct": 1111452805,
+              "queue": 203244314
+            },
+            {
+              "progress_number": 51,
+              "depth": 31,
+              "generated": 7172151518,
+              "distinct": 1363834836,
+              "queue": 193528648
+            },
+            {
+              "progress_number": 61,
+              "depth": 32,
+              "generated": 8711285732,
+              "distinct": 1608924793,
+              "queue": 163345779
+            },
+            {
+              "progress_number": 71,
+              "depth": 34,
+              "generated": 10216058434,
+              "distinct": 1835841500,
+              "queue": 115409585
+            },
+            {
+              "progress_number": 81,
+              "depth": 37,
+              "generated": 11721612095,
+              "distinct": 2056536588,
+              "queue": 56261884
+            },
+            {
+              "progress_number": 88,
+              "depth": 42,
+              "generated": 12526474916,
+              "distinct": 2166257624,
+              "queue": 10532834
+            }
+          ],
+          "reported_collision_estimate": {
+            "optimistic": "1.2",
+            "observed": ".25"
+          },
+          "largest_sampled_queue": {
+            "depth": 29,
+            "generated": 5519993864,
+            "distinct": 1085716711,
+            "queue": 203681378
+          },
+          "fingerprint_files_sample": {
+            "utc": "2026-11-20T14:15:05Z",
+            "bytes": {
+              "PaxosLeaseChecked_1.fp": 8589934672,
+              "PaxosLeaseChecked_0.fp": 8589934680
+            },
+            "last_progress": {
+              "depth": 42,
+              "generated": 12526474916,
+              "distinct": 2166257624,
+              "queue": 10532834
+            },
+            "scope": "Two .fp files at one instant. Queue, trace and other files excluded."
+          },
+          "depth": 48,
+          "distinct": 2179760458,
+          "generated": 12642614099
+        }
+      ],
+      "author_reported_collision_estimate": {
+        "optimistic": "1.2",
+        "observed": ".2"
+      }
     },
     {
       "configuration": "PaxosLeaseRenewRetry.cfg",
@@ -144,5 +369,15 @@
       "distinct": 2411951538,
       "depth": 49
     }
-  ]
+  ],
+  "dive_source": "e4ab6a1314b9e65233a96a96ef2c4d40f9dceea7",
+  "tlc_build": "TLC2 2026.10.06.014338 (94d0c50), Eclipse Adoptium JRE 17.0.20.1, MSBDiskFPSet and DiskStateQueue",
+  "retry_method": "Two independent isolated r7i.16xlarge instances in us-east-1a with default guest frequency policy. Pinned to the same 32 physical cores (one logical CPU/core). Each process had an external 448 GiB cgroup, no swap, and a four-hour check budget. Ordinary Core used --compat=tlc --workers 32 --fp 0 --seed 0 --max-memory 400g --time-limit 14400s on a 160 GiB gp3 root. Pinned TLC used -Xmx192g -XX:+UseParallelGC -XX:ActiveProcessorCount=32 -workers 32 -seed 0 -fp 0 with external timeout 14400s and 1 TiB gp3 (16000 IOPS / 1000 MiB/s) for its disk-backed queues. Actual terminal results and GNU time measurements are distinct from the author’s eight-worker TLC 2.19 numbers.",
+  "symbolic_retry_probe": {
+    "outcome": "unsupported",
+    "original_reason": "Dive frontend: Error: \"symbolic checking admits safety invariants and deadlock only\"",
+    "configuration_has": "CONSTRAINT StateConstraint and module assumptions",
+    "diagnostic_copy_without_cfg_constraint": "Dive frontend: Error: \"unsupported assumption, initial-role multiplicity or stateful operator\"",
+    "scope": "Input-admission observations only. The authors’ constraints and assumptions were preserved in all reported performance runs."
+  }
 }
