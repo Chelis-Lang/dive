@@ -1397,15 +1397,6 @@ impl CheckReport {
                 "scope": "the check after loading: evaluator-backed fresh model binding after structural configuration/evaluator construction, safety search, graph capture, temporal analysis and fresh native temporal-candidate validation including its rebinding, and producer ASSUME using existing amortized loop checkpoints; structural binding, independent validation ASSUME, post-binding symmetry preparation, serialization, quiet value/bulk/native units, deferred providers retained by other evaluators and diagnostic reconstruction after a deciding event are not interrupted; legacy TLC/session and standalone validation are not controlled; memory of the whole process",
             },
         });
-        if self.multiworker_temporal_request() {
-            options["workers"]["width_applies_to"] = json!("source-expansion");
-            options["workers"]["serial_phases"] = json!([
-                "initial-states",
-                "ordered-commit",
-                "temporal-analysis",
-                "trace-validation"
-            ]);
-        }
         if let Some(disk) = &o.seen_disk {
             options["seen_disk"] = json!({"entries_limit": disk.limits.entries, "key_bytes_limit": disk.limits.key_bytes, "probe_steps_limit": disk.limits.probe_steps, "summary_pairs_limit": disk.limits.summary_pairs, "directory": disk.directory, "execution": "inline-fallback", "resident_key_collection_bytes": 0, "total_memory_budget": false});
         }
@@ -1940,6 +1931,12 @@ impl CheckReport {
         if let Some(core) = &self.core {
             doc["engine"] = json!("core");
             doc["core"] = json!({"disabled": core.opts, "metrics": core.metrics});
+            if self.multiworker_temporal_request() {
+                doc["core"]["temporal_workers"] = json!({
+                    "width_applies_to": "source-expansion",
+                    "serial_phases": ["initial-states", "ordered-commit", "temporal-analysis", "trace-validation"]
+                });
+            }
             if !core.sample.is_null() {
                 doc["core"]["sample"] = core.sample.clone();
             }
