@@ -852,7 +852,17 @@ impl Heap {
         let was_concrete = v.flags & flags::CONCRETE != 0;
         // TLC's `RecordValue` and `TupleValue` EXCEPT keep their class.
         let record = v.flags & (flags::RECORD | flags::TUPLE);
-        let mut data = v.data.to_vec();
+        // Small fixed domains are common in actions. Stage their replacement on the
+        // stack before copying it into the arena, avoiding a temporary allocation.
+        let mut inline = [Handle::EMPTY; 16];
+        let mut oversized;
+        let data = if let Some(data) = inline.get_mut(..v.data.len()) {
+            data.copy_from_slice(v.data);
+            data
+        } else {
+            oversized = v.data.to_vec();
+            oversized.as_mut_slice()
+        };
         let (key_hash, slot) = match kind {
             Kind::IntFcn => {
                 #[allow(clippy::cast_possible_wrap, reason = "domains fit in i64")]
@@ -904,7 +914,7 @@ impl Heap {
             lo,
             fcn_hash(n, sum),
             sum,
-            &data,
+            data,
         )
     }
 

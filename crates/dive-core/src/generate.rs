@@ -77,7 +77,7 @@ impl Machine {
         at
     }
 
-    fn save(&mut self, slots: impl Iterator<Item = u32>) -> usize {
+    pub(crate) fn save(&mut self, slots: impl Iterator<Item = u32>) -> usize {
         let mark = self.saved.len();
         for s in slots {
             let v = self.slot(s);
@@ -86,7 +86,7 @@ impl Machine {
         mark
     }
 
-    fn restore(&mut self, mark: usize, slots: impl Iterator<Item = u32>) {
+    pub(crate) fn restore(&mut self, mark: usize, slots: impl Iterator<Item = u32>) {
         for (k, s) in slots.enumerate() {
             let v = self.saved.get(mark + k).copied().unwrap_or(Handle::EMPTY);
             self.set_slot(s, v);
@@ -125,6 +125,18 @@ impl Machine {
         let r = self.gen_node(code, g, NONE, sink);
         self.conts.truncate(mark);
         r
+    }
+
+    /// Enumerates a Next action during an explicit check, using the lowered
+    /// instructions when the bound plan admits this action.
+    ///
+    /// # Errors
+    /// Evaluation errors, refusals, and the sink's stop.
+    pub fn run_next_action(&mut self, code: &Code, g: G, sink: &mut dyn Sink) -> Result<(), Error> {
+        if let Some(result) = code.packed.generate(self, code, g, sink) {
+            return result;
+        }
+        self.run_action(code, g, sink)
     }
 
     /// Runs actual Next traversal with bounded randomized disjunction and

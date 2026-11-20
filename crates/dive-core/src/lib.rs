@@ -67,6 +67,7 @@ pub mod memo;
 pub mod node;
 pub mod opts;
 pub mod owned_exchange;
+mod packed;
 pub mod plan;
 pub mod print;
 pub mod random;

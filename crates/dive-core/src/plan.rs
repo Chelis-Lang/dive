@@ -595,6 +595,9 @@ impl MemoSite {
 /// The node arrays.
 #[derive(Clone, Debug, Default)]
 pub struct Code {
+    /// Experimental aggregate and action instructions built from the bound plan.
+    #[doc(hidden)]
+    pub packed: crate::packed::PackedPlan,
     /// Explicit compiled source maps; None allocates no tables.
     pub source_map: Option<crate::debug::SourceMap>,
     /// Producer observation capability, installed only in search machines.

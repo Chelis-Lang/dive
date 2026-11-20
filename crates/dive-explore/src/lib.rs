@@ -1448,7 +1448,11 @@ fn run_actions(
                 *x = v;
             }
         }
-        let r = m.run_action(code, a.g, ex);
+        let r = if ex.initial {
+            m.run_action(code, a.g, ex)
+        } else {
+            m.run_next_action(code, a.g, ex)
+        };
         m.leave(old);
         r?;
     }

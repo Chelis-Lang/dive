@@ -546,7 +546,7 @@ fn expand_one(
                 *x = v;
             }
         }
-        let r = m.run_action(code, a.g, &mut sink);
+        let r = m.run_next_action(code, a.g, &mut sink);
         m.leave(old);
         match r {
             Ok(()) => {}

@@ -831,6 +831,9 @@ fn compile_inner(
         if let Some(map) = &mut plan.code.source_map {
             map.executable = executable;
         }
+    } else if !plan.effects.any && test.is_none() {
+        plan.code.packed =
+            crate::packed::PackedPlan::lower(&plan.code, &plan.next, plan.vars.len());
     }
     Ok(plan)
 }

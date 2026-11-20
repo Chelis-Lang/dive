@@ -9,7 +9,7 @@ use crate::handle::Handle;
 use crate::heap::{Cursor, Heap};
 use crate::int::{IntMode, IntOp};
 use crate::memo::{MAX_KEY, Memo};
-use crate::node::Kind;
+use crate::node::{Kind, View};
 use crate::opts::Opts;
 use crate::plan::{Arith, Bind, Cmp, Code, LibArg, Node, P, Quant, SetOp, StdFn, Update};
 use crate::store::Store;
@@ -1049,6 +1049,9 @@ impl Machine {
             Node::FcnCons { binds, body } => self.fcn_cons(code, binds, *body),
             Node::Quant { kind, binds, body } => self.quant(code, *kind, binds, *body),
             Node::Apply(f, a) => {
+                if let Some(result) = code.packed.eval(self, code, p) {
+                    return result;
+                }
                 let fv = self.eval(code, *f)?;
                 let av = self.eval_norm(code, *a)?;
                 self.apply(fv, av)
@@ -1062,6 +1065,9 @@ impl Machine {
                 self.domain(fv)
             }
             Node::Except { base, updates } => {
+                if let Some(result) = code.packed.eval(self, code, p) {
+                    return result;
+                }
                 let mut f = self.eval_norm(code, *base)?;
                 for u in updates {
                     f = self.except(code, f, u, 0)?;
@@ -2291,12 +2297,9 @@ impl Machine {
     // Functions and records
     // ------------------------------------------------------------------
 
-    /// The index of `key` in function `f`, if present.
-    pub(crate) fn fcn_index(&self, f: Handle, key: Handle) -> Result<Option<usize>, Error> {
-        if !f.is_compound() {
-            return Err(eval_err("application of a value that is not a function"));
-        }
-        let v = self.heap.view(f);
+    /// Locate `key` within a function view already held by the caller.
+    #[inline]
+    fn fcn_index(&self, v: &View<'_>, key: Handle) -> Result<Option<usize>, Error> {
         match v.kind {
             Kind::IntFcn => Ok(key.as_int().and_then(|k| {
                 let i = k.checked_sub(v.lo)?;
@@ -2355,11 +2358,14 @@ impl Machine {
     /// # Errors
     /// `a` is not in the domain of `f`.
     pub fn apply(&mut self, f: Handle, a: Handle) -> Result<Handle, Error> {
-        if let Some(i) = self.fcn_index(f, a)? {
-            return Ok(self.heap.view(f).values()[i]);
+        if !f.is_compound() {
+            return Err(eval_err("application of a value that is not a function"));
+        }
+        let v = self.heap.view(f);
+        if let Some(i) = self.fcn_index(&v, a)? {
+            return Ok(v.values()[i]);
         }
         let msg = "Attempted to apply function to an argument not in its domain";
-        let v = self.heap.view(f);
         match v.kind {
             // TLC compares the argument with the domain on the way: a value
             // of another class fails that comparison first.
@@ -2426,23 +2432,27 @@ impl Machine {
             return Err(Error::internal("EXCEPT path out of range"));
         };
         let key = self.eval_norm(code, step)?;
-        if !f.is_compound() || !self.heap.view(f).kind.is_fcn() {
+        if !f.is_compound() {
             return Err(eval_err("EXCEPT on a value that is not a function"));
         }
-        self.charge(self.heap.view(f).len())?;
-        let Some(i) = self.fcn_index(f, key)? else {
+        let view = self.heap.view(f);
+        if !view.kind.is_fcn() {
+            return Err(eval_err("EXCEPT on a value that is not a function"));
+        }
+        self.charge(view.len())?;
+        let view = self.heap.view(f);
+        let Some(i) = self.fcn_index(&view, key)? else {
             // TLC leaves the function unchanged when the key is outside its
             // domain, but fails when it had to compare the key with a domain
             // value of another class on the way.
-            let v = self.heap.view(f);
-            if v.kind == Kind::IntFcn {
-                if key.as_int().is_none() && !v.data.is_empty() {
+            if view.kind == Kind::IntFcn {
+                if key.as_int().is_none() && !view.data.is_empty() {
                     return Err(eval_err(
                         "Attempted to apply EXCEPT to a tuple at a non-integral index",
                     ));
                 }
             } else {
-                compare::miss(&self.heap, key, v.keys())?;
+                compare::miss(&self.heap, key, view.keys())?;
             }
             if self.refuse_unrecorded_warnings {
                 return Err(Error::unsupported(
@@ -2451,7 +2461,8 @@ impl Machine {
             }
             return Ok(f);
         };
-        let old = self.heap.view(f).values()[i];
+        let old = view.values()[i];
+        let payload = view.data.len();
         let new = if depth + 1 == u.path.len() {
             self.set_slot(u.at, old);
             self.eval_component(code, u.value)?
@@ -2461,7 +2472,7 @@ impl Machine {
         if new == old {
             return Ok(f);
         }
-        self.charge(self.heap.view(f).data.len())?;
+        self.charge(payload)?;
         Ok(self.heap.fcn_with(f, i, new))
     }
 
