@@ -459,3 +459,24 @@ fn every_entry_limit_remains_a_resource_refusal() {
         );
     }
 }
+
+#[test]
+fn unannotated_dense_storage_coerces_through_a_borrowed_arc() {
+    let targets = Arc::new(vec![0u32]);
+    let control = EvaluationControl::new(&Budget::unlimited(), Phase::Capture).expect("control");
+    let input = capture::CsrStorage {
+        offsets: &[0, 1],
+        targets: &targets,
+        ordinals: &[None],
+        actions: &[None][..],
+        edge_rows: &[0][..],
+        representatives: &[0],
+        roots: &[0],
+        action_labels: &[],
+        retained_rows: 1,
+        closed_rows: 1,
+    };
+    let graph = CsrCapture::checked(input, Limits::default(), &control).expect("valid graph");
+    assert_eq!(graph.targets().as_ptr(), targets.as_ptr());
+    assert_eq!(graph.target(0), Some(0));
+}

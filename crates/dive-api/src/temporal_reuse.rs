@@ -16,7 +16,7 @@ use dive_liveness::analyze::periodic::external::GraphCheck;
 use dive_runtime::{
     CheckOptions, CheckResult, Verdict,
     budget::{EvaluationControl, Phase},
-    capture::{CsrCapture, CsrComplete, CsrStorage},
+    capture::{CsrCapture, CsrComplete, CsrTargetStorage},
 };
 use std::{path::Path, sync::Arc, time::Instant};
 
@@ -267,9 +267,9 @@ impl Boundary {
 
     fn input<'a>(
         &self,
-        full: &CsrStorage<'a>,
+        full: &CsrTargetStorage<'a>,
         offsets: &'a mut Vec<usize>,
-    ) -> Result<CsrStorage<'a>, Miss> {
+    ) -> Result<CsrTargetStorage<'a>, Miss> {
         let bad = || miss("invalid captured level boundary");
         let closed = self.closed.checked_add(1).ok_or_else(bad)?;
         let len = self.vertices.checked_add(1).ok_or_else(bad)?;
@@ -283,9 +283,9 @@ impl Boundary {
             .map_err(|_| miss("level offsets allocation"))?;
         offsets.extend_from_slice(fixed);
         offsets.resize(len, self.edges);
-        Ok(CsrStorage {
+        Ok(CsrTargetStorage {
             offsets,
-            targets: full.targets.get(..self.edges).ok_or_else(bad)?,
+            targets: full.targets.prefix(self.edges).ok_or_else(bad)?,
             ordinals: full.ordinals.prefix(self.edges).ok_or_else(bad)?,
             actions: full.actions.prefix(self.edges).ok_or_else(bad)?,
             edge_rows: full.edge_rows.prefix(self.edges).ok_or_else(bad)?,
@@ -368,14 +368,14 @@ impl Artifact {
         reader.allow_inline_rows();
         let input = self.graph.input();
         let labels = current_labels(input.action_labels, model)?;
-        let input = CsrStorage {
+        let input = CsrTargetStorage {
             action_labels: &labels,
             ..input
         };
         let mut offsets = Vec::new();
         for b in &self.boundaries {
             let prefix = b.input(&input, &mut offsets)?;
-            let csr = CsrCapture::checked(prefix, limits.graph, &control)
+            let csr = CsrCapture::checked_targets(prefix, limits.graph, &control)
                 .map_err(|e| miss(format!("captured level: {e:?}")))?;
             if !driver.native_level_due(b.stats) {
                 return Err(miss(
@@ -388,7 +388,7 @@ impl Artifact {
                 ));
             }
         }
-        let complete = CsrComplete::from_producer(
+        let complete = CsrComplete::from_target_producer(
             input,
             self.safety.clone(),
             options.clone(),

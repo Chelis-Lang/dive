@@ -208,7 +208,10 @@ impl<T: TruthAccess, R: RowStorage> Builder<'_, T, R> {
         let (v, n) = self.pairs[id];
         for e in 0..self.graph.row_len(v) {
             self.inspect()?;
-            let target = self.graph.target(v, e);
+            let target = self
+                .graph
+                .target(v, e)
+                .ok_or_else(|| ProductError::Shape("missing behavior target".into()))?;
             // Current action literals constrain this outgoing edge, including
             // loop closure. A destination's action literals constrain its own
             // outgoing edges when that pair is expanded.

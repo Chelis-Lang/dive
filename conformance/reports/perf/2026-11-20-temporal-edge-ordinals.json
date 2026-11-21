@@ -1205,5 +1205,678 @@
       "states_in_trace": 2,
       "validation": "valid with both binaries"
     }
+  },
+  "packed_targets": {
+    "machine": "EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, 8 physical cores / 16 SMT threads, 30 GiB, Linux 7.0.0-1018-aws. One checker process at a time.",
+    "flags": "--workers 8 --fp 0 --seed 0 --max-memory 8g --time-limit 400s --output json; ordinary periodic schedule. Kafka and tree use the default profile. BlockingQueuePoisonApple and c1cs use --compat=tlc.",
+    "scope": "The same four inputs and cutoff flags as adaptive_columns. All binaries in the final checker comparison include the same fairness source guard and adaptive action/ordinal columns. GNU time measures wall and peak RSS. Initial policy ablations and decode probes measure storage and decoding, not proof throughput. One timed sample per cell.",
+    "source_scope": "Timed controls use the integrated collector and source guards before the external dense-constructor coercion repair. The repair preserves the packed codec and validated native path.",
+    "encoding": "64 occurrences per completed block. For each, choose base-relative packed values or a 64-bit run-start bitmap and packed values at run starts. A popcount of starts through the requested position finds the run. Full-width incompressible leading blocks remain contiguous dense u32 values. Later incompressible blocks store the original full-width IDs. Capture, prefix checks and product traversal use the checked target view directly. Only an explicit dense-slice request materializes a compatibility copy.",
+    "ablation": "Dense, base-relative bit packing alone, run bitmap with full-width IDs alone, and both. Measurements include physical stutters and duplicates in order. Raw replay excludes final graph analysis; source layouts and cutoff counters are checked independently in the CLI panel.",
+    "raw_probe_schema": [
+      "physical_edges",
+      "storage_bytes",
+      "sequential_full_scan_s",
+      "2500000_random_lookups_s",
+      "combined_checksum",
+      "encode_seconds",
+      "directory_bytes",
+      "payload_bytes",
+      "reserved_bytes",
+      "bitmap_blocks"
+    ],
+    "raw_target_probe": {
+      "kafka": {
+        "dense": [
+          36120197,
+          144480788,
+          0.027347,
+          0.033261,
+          3615906838647
+        ],
+        "Delta": [
+          36120197,
+          47915024,
+          0.085639,
+          0.074673,
+          3615906838647,
+          0.102731,
+          9030064,
+          38884960,
+          67108864,
+          0
+        ],
+        "Run": [
+          36120197,
+          72697840,
+          0.148373,
+          0.142782,
+          3615906838647,
+          0.089371,
+          9030064,
+          63667776,
+          92274688,
+          564346
+        ],
+        "Adaptive": [
+          36120197,
+          31323816,
+          0.182388,
+          0.096824,
+          3615906838647,
+          0.081804,
+          9030064,
+          22293752,
+          50331648,
+          564126
+        ],
+        "ByteRuns": [
+          36120197,
+          39356616,
+          0.149187,
+          0.111902,
+          3615906838647,
+          0.089084,
+          9030064,
+          30326552,
+          50331648,
+          564346
+        ]
+      },
+      "c1cs": {
+        "dense": [
+          42902538,
+          171610152,
+          0.032846,
+          0.034911,
+          44489118345497
+        ],
+        "Delta": [
+          42902538,
+          111893960,
+          0.10438,
+          0.090575,
+          44489118345497,
+          0.152046,
+          10725648,
+          101168312,
+          134217728,
+          0
+        ],
+        "Run": [
+          42902538,
+          69283520,
+          0.181795,
+          0.16314,
+          44489118345497,
+          0.113167,
+          10725648,
+          58557872,
+          83886080,
+          670352
+        ],
+        "Adaptive": [
+          42902538,
+          49029712,
+          0.219456,
+          0.129479,
+          44489118345497,
+          0.105485,
+          10725648,
+          38304064,
+          75497472,
+          670352
+        ],
+        "ByteRuns": [
+          42902538,
+          68014320,
+          0.180418,
+          0.146192,
+          44489118345497,
+          0.105915,
+          10725648,
+          57288672,
+          83886080,
+          670352
+        ]
+      },
+      "blocking": {
+        "dense": [
+          6540540,
+          26162160,
+          0.003442,
+          0.012122,
+          6651366887237
+        ],
+        "Delta": [
+          6540540,
+          18055352,
+          0.015407,
+          0.039182,
+          6651366887237,
+          0.026389,
+          1635136,
+          16420216,
+          29360128,
+          0
+        ],
+        "Run": [
+          6540540,
+          23700320,
+          0.022431,
+          0.063789,
+          6651366887237,
+          0.021048,
+          1635136,
+          22065184,
+          32505856,
+          66723
+        ],
+        "Adaptive": [
+          6540540,
+          15909896,
+          0.022807,
+          0.079919,
+          6651366887237,
+          0.012969,
+          1635136,
+          14274760,
+          29360128,
+          58770
+        ],
+        "ByteRuns": [
+          6540540,
+          23444120,
+          0.022612,
+          0.074953,
+          6651366887237,
+          0.014217,
+          1635136,
+          21808984,
+          35651584,
+          66520
+        ]
+      },
+      "bfs": {
+        "dense": [
+          655357,
+          2621428,
+          0.000265,
+          0.007814,
+          455084713403
+        ],
+        "Delta": [
+          655357,
+          1147088,
+          0.001554,
+          0.017423,
+          455084713403,
+          0.002116,
+          163840,
+          983248,
+          1966080,
+          0
+        ],
+        "Run": [
+          655357,
+          2326520,
+          0.00198,
+          0.030885,
+          455084713403,
+          0.002241,
+          163840,
+          2162680,
+          4456448,
+          4096
+        ],
+        "Adaptive": [
+          655357,
+          1114320,
+          0.00203,
+          0.034099,
+          455084713403,
+          0.00136,
+          163840,
+          950480,
+          1966080,
+          4096
+        ],
+        "ByteRuns": [
+          655357,
+          1539704,
+          0.001966,
+          0.029771,
+          455084713403,
+          0.001418,
+          163840,
+          1375864,
+          2359296,
+          4096
+        ]
+      },
+      "random32": {
+        "dense": [
+          4194304,
+          16777216,
+          0.002674,
+          0.013329,
+          14380973872811900
+        ],
+        "Delta": [
+          4194304,
+          17825792,
+          0.00939,
+          0.032118,
+          14380973872811900,
+          0.01424,
+          1048576,
+          16777216,
+          17825792,
+          0
+        ],
+        "Run": [
+          4194304,
+          17825792,
+          0.00938,
+          0.029814,
+          14380973872811900,
+          0.012758,
+          1048576,
+          16777216,
+          17825792,
+          0
+        ],
+        "Adaptive": [
+          4194304,
+          17825792,
+          0.009498,
+          0.029472,
+          14380973872811900,
+          0.008327,
+          1048576,
+          16777216,
+          17825792,
+          0
+        ],
+        "ByteRuns": [
+          4194304,
+          17825792,
+          0.009333,
+          0.029522,
+          14380973872811900,
+          0.008278,
+          1048576,
+          16777216,
+          17825792,
+          0
+        ]
+      },
+      "alternating": {
+        "dense": [
+          4194304,
+          16777216,
+          0.001599,
+          0.009317,
+          14371660652087226
+        ],
+        "Delta": [
+          4194304,
+          17825792,
+          0.009374,
+          0.031042,
+          14371660652087226,
+          0.013119,
+          1048576,
+          16777216,
+          17825792,
+          0
+        ],
+        "Run": [
+          4194304,
+          17825792,
+          0.009436,
+          0.029241,
+          14371660652087226,
+          0.00822,
+          1048576,
+          16777216,
+          17825792,
+          0
+        ],
+        "Adaptive": [
+          4194304,
+          17825792,
+          0.00941,
+          0.029314,
+          14371660652087226,
+          0.008298,
+          1048576,
+          16777216,
+          17825792,
+          0
+        ],
+        "ByteRuns": [
+          4194304,
+          17825792,
+          0.009455,
+          0.02963,
+          14371660652087226,
+          0.008914,
+          1048576,
+          16777216,
+          17825792,
+          0
+        ]
+      }
+    },
+    "production_probe_schema": [
+      "physical_edges",
+      "allocated_bytes",
+      "sequential_full_scan_s",
+      "2500000_random_lookups_s",
+      "combined_checksum",
+      "encode_seconds",
+      "dense_prefix_capacity",
+      "directory_capacity",
+      "word_capacity",
+      "tail_capacity"
+    ],
+    "production_target_probe": {
+      "kafka": [
+        36120197,
+        58720512,
+        0.21698,
+        0.111995,
+        3615906838647,
+        0.159559,
+        0,
+        16777216,
+        41943040,
+        256
+      ],
+      "c1cs": [
+        42902538,
+        75497728,
+        0.274698,
+        0.140842,
+        44489118345497,
+        0.211673,
+        0,
+        16777216,
+        58720256,
+        256
+      ],
+      "blocking": [
+        6540540,
+        29360384,
+        0.031157,
+        0.076331,
+        6651366887237,
+        0.034562,
+        0,
+        2097152,
+        27262976,
+        256
+      ],
+      "bfs": [
+        655357,
+        1966336,
+        0.002863,
+        0.036008,
+        455084713403,
+        0.00273,
+        0,
+        262144,
+        1703936,
+        256
+      ],
+      "random32": [
+        4194304,
+        16777472,
+        0.006699,
+        0.01677,
+        14380973872811900,
+        0.014146,
+        16777216,
+        0,
+        0,
+        256
+      ],
+      "alternating": [
+        4194304,
+        16777472,
+        0.006841,
+        0.014472,
+        14371660652087226,
+        0.013129,
+        16777216,
+        0,
+        0,
+        256
+      ]
+    },
+    "models": {
+      "kafka": {
+        "statistics": {
+          "depth": 4,
+          "distinct": 181982,
+          "exhaustive": false,
+          "generated": 36103626,
+          "initial_generated": 1,
+          "left_on_queue": 165408,
+          "reported_by_tlc": false
+        },
+        "verdict": "stopped",
+        "exit": 5,
+        "measurements": {
+          "dense": {
+            "collector_capacity_bytes": 325091290,
+            "wall_seconds": 49.11,
+            "peak_rss_kib": 875496
+          },
+          "base_delta": {
+            "collector_capacity_bytes": 123764954,
+            "wall_seconds": 41.84,
+            "peak_rss_kib": 660384
+          },
+          "runs": {
+            "collector_capacity_bytes": 148930778,
+            "wall_seconds": 44.26,
+            "peak_rss_kib": 668996
+          },
+          "adaptive": {
+            "collector_capacity_bytes": 115376346,
+            "wall_seconds": 47.83,
+            "peak_rss_kib": 652328
+          }
+        }
+      },
+      "c1cs": {
+        "statistics": {
+          "depth": 14,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 41819682,
+          "initial_generated": 16,
+          "left_on_queue": 917126,
+          "reported_by_tlc": false
+        },
+        "verdict": "stopped",
+        "exit": 5,
+        "measurements": {
+          "dense": {
+            "collector_capacity_bytes": 401607020,
+            "wall_seconds": 72.7,
+            "peak_rss_kib": 919728
+          },
+          "base_delta": {
+            "collector_capacity_bytes": 267389548,
+            "wall_seconds": 72.62,
+            "peak_rss_kib": 841672
+          },
+          "runs": {
+            "collector_capacity_bytes": 229641068,
+            "wall_seconds": 73.7,
+            "peak_rss_kib": 798388
+          },
+          "adaptive": {
+            "collector_capacity_bytes": 208669292,
+            "wall_seconds": 74.05,
+            "peak_rss_kib": 787468
+          }
+        }
+      },
+      "blocking": {
+        "statistics": {
+          "depth": 9,
+          "distinct": 2000000,
+          "exhaustive": false,
+          "generated": 6009057,
+          "initial_generated": 1,
+          "left_on_queue": 1468514,
+          "reported_by_tlc": false
+        },
+        "verdict": "stopped",
+        "exit": 5,
+        "measurements": {
+          "dense": {
+            "collector_capacity_bytes": 135202091,
+            "wall_seconds": 8.83,
+            "peak_rss_kib": 553440
+          },
+          "base_delta": {
+            "collector_capacity_bytes": 131008043,
+            "wall_seconds": 6.92,
+            "peak_rss_kib": 529876
+          },
+          "runs": {
+            "collector_capacity_bytes": 134153771,
+            "wall_seconds": 7.14,
+            "peak_rss_kib": 543800
+          },
+          "adaptive": {
+            "collector_capacity_bytes": 131008043,
+            "wall_seconds": 7.12,
+            "peak_rss_kib": 540916
+          }
+        }
+      },
+      "bfs": {
+        "statistics": {
+          "depth": 18,
+          "distinct": 262143,
+          "generated": 393215,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "verdict": "success",
+        "exit": 0,
+        "measurements": {
+          "dense": {
+            "collector_capacity_bytes": 10600886,
+            "wall_seconds": 0.71,
+            "peak_rss_kib": 70552
+          },
+          "base_delta": {
+            "collector_capacity_bytes": 8372918,
+            "wall_seconds": 0.81,
+            "peak_rss_kib": 84944
+          },
+          "runs": {
+            "collector_capacity_bytes": 9159350,
+            "wall_seconds": 0.69,
+            "peak_rss_kib": 81020
+          },
+          "adaptive": {
+            "collector_capacity_bytes": 8372918,
+            "wall_seconds": 0.68,
+            "peak_rss_kib": 84888
+          }
+        }
+      }
+    },
+    "inputs_sha256": {
+      "kafka/kraft_kip_996.tla": "87f9c5d5849195a7f4308f8181b2281a9e5d72dbe689d0a0a1b0b72838eb4a4d",
+      "kafka/kraft_kip_996_functions.tla": "72b254e89eaa0227a134d71233563f6dd4f8f34bfcb4983ddb51a3a0b7214585",
+      "kafka/kraft_kip_996_liveness.tla": "76726901173d6acffa43be0b4006ff63775370cd028f392f5d71aff501c2c4ed",
+      "kafka/kraft_kip_996_properties.tla": "ed8000ef9dd1262655efda56449f609618703df31d00375bf7cb6c1f52f2ab9a",
+      "kafka/kraft_kip_996_types.tla": "fbb189bd4f06756c180a8fb743adcf6cd35585184cea70ed65b00e58551508d8",
+      "kafka/network.tla": "29e38f6c9cfb0a275581452c330e82f25a75f86fea1437eca52d4863c64a01d8",
+      "kafka/model_liveness.cfg": "3de24e3b89db9468dc390f2ddd70bd6a7f47fedc0b7ba3680690b0ed4507030e",
+      "layout-input/c1cs/c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0",
+      "layout-input/c1cs/c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233",
+      "layout-input/blocking/BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+      "layout-input/blocking/BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f",
+      "layout-input/blocking/BlockingQueue.tla": "f69a5717596f1989cd5a5b933005f3ea6cccadada4e45438a8cf4500ee68935a",
+      "layout-input/blocking/BlockingQueue.cfg": "970d9c419d17c7752613c151556da4eb410d980af2446b9fda5f5437e7aefa04",
+      "layout-input/blocking/BlockingQueueFair.tla": "96ad89b710a0f38f4ccefa5ae91f9a073ebc043cc72e7b66fd8d5c721dd73a7c",
+      "layout-input/blocking/BlockingQueueFair.cfg": "f0cc3e18aa6c408ab79883fa0626bda721828310bc06e52ee8eb2b34b0269ddd",
+      "layout-input/bfs/Graph.tla": "cdb46a44247b282d9f9cfbd3d43db49bb084fe740a75ee215dc26eb034fd5577",
+      "layout-input/bfs/Graph.cfg": "f246834f131a03243bb442788f8381d74cf93d35d5359f828077a57b8c0a6435",
+      "layout-input/bfs/GraphBad.tla": "8fdbf66a48fe3da2ce1790450e8ca5b895847362f957074f19f10150305377dc",
+      "layout-input/bfs/GraphBad.cfg": "f246834f131a03243bb442788f8381d74cf93d35d5359f828077a57b8c0a6435"
+    },
+    "captured_target_sha256": {
+      "bfs": "3aa32cc2bab87bdb9389926d45ddc5206071bbc965736e16d06eacfa1da08ac6",
+      "blocking": "73cb0e3c6df746d3d6f5a81f25cc7cffa0fb6dadfd260498b4d081478a8a520e",
+      "c1cs": "e1e33990fd406881df33df33dc061f0d88865b9995d43196843a1dcf79b81494",
+      "kafka": "11968b461342bf255fb98cd6981eff368c76b8a6a88db25b1d3e2b5404f922be"
+    },
+    "normal_kafka": {
+      "statistics": {
+        "depth": 5,
+        "distinct": 200000,
+        "exhaustive": false,
+        "generated": 38232770,
+        "initial_generated": 1,
+        "left_on_queue": 182506,
+        "reported_by_tlc": false
+      },
+      "periodic": {
+        "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+        "exhausted": false,
+        "final_check": false,
+        "growth_factor": 2,
+        "last_level": 3,
+        "last_size": 181983,
+        "min_states": 65536,
+        "prefix_checks": 1
+      },
+      "verdict": "stopped",
+      "stopped": {
+        "limit": 200000,
+        "observed": 200001,
+        "phase": "graph-capture",
+        "resource": "states"
+      },
+      "label_states": 47497563,
+      "label_actions": 71333304,
+      "fallbacks": 0,
+      "dense_targets": {
+        "collector_capacity_bytes": 325091290,
+        "wall_seconds": 303.03,
+        "peak_rss_kib": 1948492
+      },
+      "adaptive_targets": {
+        "collector_capacity_bytes": 115376346,
+        "wall_seconds": 306.8,
+        "peak_rss_kib": 1836272
+      }
+    },
+    "bfs_negative": {
+      "verdict": "liveness-violation",
+      "exit": 13,
+      "property": "B",
+      "ending": "lasso",
+      "length": 2,
+      "validation": "valid with both binaries",
+      "same_word": true
+    },
+    "binary_sha256": {
+      "layout-fixed": "ca9033087609bc6011b9744690b186f6462648b12b4e999b7b8979a0a19e17d4",
+      "target-guard": "f50c21e67a903aaf37b7e1ea3337f8ff65f480389fa314a2b0b7831d2649b3c3",
+      "target-ablation": "39067062fa2c9bfe06d89ce39be7b1c4aed14eba25aa9dd2d4b598ea935a311d"
+    }
   }
 }
