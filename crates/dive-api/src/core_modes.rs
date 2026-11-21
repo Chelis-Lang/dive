@@ -4,7 +4,7 @@
 //! the same plan/frame rules as the BFS core. Report conversion is a boundary.
 
 pub(crate) mod dfid;
-mod sample;
+pub(crate) mod sample;
 #[cfg(test)]
 mod sim_tests;
 
@@ -449,6 +449,7 @@ mod tests {
                 &options,
                 &dive_sim::Runtime::new(options.clone()),
                 &|| false,
+                None,
             );
             assert!(matches!(report.outcome, Outcome::Sampled), "{report:?}");
             assert_eq!(report.generated, 13);
@@ -461,6 +462,7 @@ mod tests {
                 &options,
                 &dive_sim::Runtime::new(options.clone()),
                 &|| false,
+                None,
             );
             assert!(matches!(stopped.outcome, Outcome::Limit(_)), "{stopped:?}");
             // Trace 0's four successors would cross the bound of three
@@ -532,6 +534,7 @@ mod tests {
                 &options,
                 &dive_sim::Runtime::new(options.clone()),
                 &|| false,
+                None,
             );
             assert!(matches!(native.outcome, Outcome::Limit(_)));
             let printed = native
@@ -560,6 +563,7 @@ mod tests {
             &options,
             &dive_sim::Runtime::new(options.clone()),
             &|| false,
+            None,
         );
         assert!(matches!(result.outcome, Outcome::Error { code: 1000, .. }));
         assert_eq!(
@@ -621,6 +625,7 @@ mod tests {
                 &options,
                 &dive_sim::Runtime::new(options.clone()),
                 &|| false,
+                None,
             );
             assert!(
                 matches!(&report.outcome, Outcome::Violation { name: Some(name), .. } if name == "Inv"),
@@ -684,6 +689,7 @@ mod tests {
             &options,
             &dive_sim::Runtime::new(options.clone()),
             &|| false,
+            None,
         );
         assert!(
             matches!(&report.outcome, Outcome::Unsupported(why) if why.contains("TLCGet")),
@@ -705,6 +711,7 @@ mod tests {
             &options,
             &dive_sim::Runtime::new(options.clone()),
             &|| false,
+            None,
         );
         assert!(matches!(result.outcome, Outcome::Limit(_)));
         assert_eq!(result.traces.len(), 0);

@@ -24,7 +24,7 @@ fn simulate_in(model: &Model, options: &Options, runtime: &dive_sim::Runtime) ->
         return super::preflight_report(outcome);
     }
     match super::Native::prepare(model, &dive_runtime::budget::Budget::unlimited()) {
-        Ok(mut native) => native.simulate(model, options, runtime, &|| false),
+        Ok(mut native) => native.simulate(model, options, runtime, &|| false, None),
         Err(error) => super::preflight_report(error.simulation()),
     }
 }

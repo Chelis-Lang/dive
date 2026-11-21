@@ -23,6 +23,9 @@ dive-value.workspace = true
 dive-eval.workspace = true
 dive-model.workspace = true
 serde_json.workspace = true
+# Digests of streamed documents (`stream::Measure`); already a dependency of
+# dive-model.
+sha2.workspace = true
 
 [dev-dependencies]
 dive-sema = { path = "../dive-sema" }

@@ -598,7 +598,8 @@ impl TraceDoc {
     }
 
     /// Reads a document in dive's format (or one that carries it as
-    /// `counterexample`), or in TLC's `-dumpTrace json` format.
+    /// `counterexample`, `trace` or `document`, as a simulation report's
+    /// trace entry does), or in TLC's `-dumpTrace json` format.
     ///
     /// # Errors
     /// A message naming what is malformed.
@@ -624,9 +625,12 @@ impl TraceDoc {
             return Ok(doc);
         }
         // `dive check --output json`'s counterexample object carries the
-        // document as `trace`; accept the object or the whole report.
+        // document as `trace`; accept the object or the whole report. A
+        // simulation report's trace entry, and a `--trace-dir` file, carry
+        // it as `document`.
         for t in [
             j.get("trace"),
+            j.get("document"),
             j.get("counterexample").and_then(|c| c.get("trace")),
         ]
         .into_iter()
@@ -858,16 +862,18 @@ impl TraceDoc {
             .zip(&self.labels)
             .enumerate()
             .map(|(k, (s, l))| {
-                let mut state = json!({
-                    "action": l.as_ref().map(|l| json!({"name": l.name, "location": l.location})),
-                    "values": s,
-                });
-                if let Some(values) = self.witnesses.get(k).filter(|values| !values.is_empty()) {
-                    state["witnesses"] = J::Array(values.clone());
-                }
-                state
+                state_json(
+                    s,
+                    l.as_ref(),
+                    self.witnesses.get(k).map_or(&[][..], Vec::as_slice),
+                )
             })
             .collect();
+        self.envelope(J::Array(states))
+    }
+
+    /// The document object around `states`.
+    pub(crate) fn envelope(&self, states: J) -> J {
         let version = if matches!(
             self.ending,
             Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
@@ -890,9 +896,9 @@ impl TraceDoc {
             "format": FORMAT,
             "version": version,
             "variables": self.variables,
-            "states": states,
             "ending": self.ending.as_ref().map(Ending::to_json),
         });
+        j["states"] = states;
         if let Some(n) = self.length {
             j["length"] = J::from(n);
         }
@@ -904,6 +910,19 @@ impl TraceDoc {
         }
         j
     }
+}
+
+/// One state of a document in dive's JSON form, as [`TraceDoc::to_json`]
+/// writes it.
+pub(crate) fn state_json(values: &Map<String, J>, label: Option<&Label>, witnesses: &[J]) -> J {
+    let mut state = json!({
+        "action": label.map(|l| json!({"name": l.name, "location": l.location})),
+        "values": values,
+    });
+    if !witnesses.is_empty() {
+        state["witnesses"] = J::Array(witnesses.to_vec());
+    }
+    state
 }
 
 /// A document's `properties`: absent (none), or a list of names.

@@ -845,6 +845,26 @@ reason code. It runs in the default profile only.
 - User guide: the complete-output section drafted in §10, covering
   `--keep-traces all` (from S2) and `--trace-dir`.
 
+As built (S5): a kept or exported trace is never built as a JSON tree.
+`dive_trace::stream` defines a `StateSource` that produces one state at a
+time; the writer produces the same bytes as `TraceDoc::to_json`, and the
+validator decodes each state into its own interner as it arrives, so the
+independence boundary is still the JSON text of each state. On a deciding
+trace of two million states (two integers), peak RSS fell from 8.5 GB to
+0.95 GB and wall time from 13.3 s to 4.2 s, with byte-identical reports.
+Writing 8,000 traces to a directory at 4 workers peaks at 16 MB, as 2,000
+does. Export runs on the worker, before the trace's rows are released, and
+the committer renames the hidden partial file in id order. The TLC `json`
+and `tla` layouts match the pinned oracle's dumps byte for byte under
+`--compat=tlc`, except that state fields are in declaration order (TLC's
+follow its name table) and the `tla` module is `trace_<id>` (TLC writes the
+whole output path, which does not parse); both are registered as D-042.
+A temporal lasso or stuttering word (S3) is the one trace validated as a
+whole document, since its check needs fairness and the complete
+false-property set; a bad prefix streams like an invariant violation.
+Known gap: TLC's `<Spec>_TTrace_<n>.tla` exploration module is not written;
+`--trace-format tla` gives the `CounterExample` definition it is built on.
+
 ### S6: unbounded domains
 
 - `--sample-unbounded=geometric|off` (D-040): default `geometric` in the

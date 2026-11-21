@@ -400,23 +400,32 @@ impl SpecModel {
         .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }
 
-    /// Validates finite simulation samples; deciding diagnostic endpoints keep
-    /// their ordinary operation through `validate_mode` instead. A simulation
-    /// deadlock is a state with no successor inside the model's constraints.
-    pub(crate) fn validate_sample_mode(
+    /// [`Self::validate_mode`] of a finite word whose states `states`
+    /// produces one at a time (`dive_trace::stream`).
+    pub(crate) fn validate_source(
         &self,
-        doc: &TraceDoc,
+        header: &TraceDoc,
+        states: &dyn dive_trace::stream::StateSource,
+        control: Arc<dyn dive_eval::HostControl>,
+    ) -> Result<Report, ValidationRunError> {
+        on_big_stack(|| self.session.read_controlled_source(header, states, control))
+            .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
+    }
+
+    /// Validates a simulation word whose states `states` produces one at a
+    /// time (`dive_trace::stream`), so the word is never held as JSON. A
+    /// behavior is checked as a finite sample, a simulation deadlock as a
+    /// state with no successor inside the model's constraints, and a
+    /// violation by the ordinary finite check.
+    pub(crate) fn validate_sample_source(
+        &self,
+        header: &TraceDoc,
+        states: &dyn dive_trace::stream::StateSource,
         control: Arc<dyn dive_eval::HostControl>,
     ) -> Result<Report, ValidationRunError> {
         on_big_stack(|| {
-            if doc.ending == Some(Ending::Behavior) {
-                self.session.read_sampled(doc, Some(control))
-            } else if doc.ending == Some(Ending::Deadlock) {
-                self.session.read_sampled_deadlock(doc, Some(control))
-            } else {
-                self.session.read_controlled(doc, control)
-            }
-            .map(|(report, _)| report)
+            self.session
+                .read_sampled_source(header, states, Some(control))
         })
         .map_err(|error| ValidationRunError::ThreadFailure(error.to_string()))?
     }
