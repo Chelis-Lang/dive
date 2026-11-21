@@ -14,6 +14,9 @@ use dive_value::Value;
 use crate::State;
 use crate::enabled::enabled;
 
+mod prefix;
+pub use prefix::refutes_prefix;
+
 /// Why temporal evaluation cannot establish a truth value.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]

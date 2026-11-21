@@ -564,6 +564,34 @@
           "left_on_queue": 0,
           "reported_by_tlc": true
         }
+      },
+      {
+        "cfg": "four-1",
+        "measurements": {
+          "word1": {
+            "wall_seconds": 612.76,
+            "peak_rss_kib": 460276,
+            "workers_used": 1
+          },
+          "ordered1": {
+            "wall_seconds": 51.74,
+            "peak_rss_kib": 3620944,
+            "workers_used": 32
+          },
+          "tlc1": {
+            "wall_seconds": 133.97,
+            "peak_rss_kib": 48582172,
+            "workers_used": 32
+          }
+        },
+        "statistics": {
+          "depth": 64,
+          "distinct": 6634696,
+          "generated": 21393294,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
       }
     ],
     "adversarial_checks": {
