@@ -51,7 +51,7 @@ are in git history.
 
 - Core safety checks can use multiple workers on specifications with conditional diagnostics. The coordinator preserves the order and number of printed lines. [Checking guide](docs/user/checking.md#workers-and-stores).
 
-- The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Relation changes start a fresh search with the previous set coordinates. [Usage and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
+- The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Action edits can also reuse shortest-path layers, including when an edit adds reachable states. [Usage and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
 
 - Ordinary Core safety searches can put [independently compressed frontier chunks](docs/user/storage-recovery.md#independently-stored-frontier-values) on disk and reclaim compound values between worker batches.
 - `dive simulate --trace-dir DIR` writes every trace to its own file as it

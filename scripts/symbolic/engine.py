@@ -1020,21 +1020,27 @@ class SourceModel(FiniteRelation):
                 and self.effects == other.effects)
 
     def recheck_effects(self, previous, reached, generated):
-        """Prove equality of all non-stuttering edges and count the new witnesses."""
+        """Preserve distances when changed edges stutter or land in an admitted root."""
         generated += self.initial_generated - previous.initial_generated
         if self.effects == previous.effects:
             return generated
 
         # An effect is a deterministic simultaneous assignment. For each edited
         # assignment, compare the union of enabling guards on reachable sources.
-        # Adding/removing a self-loop cannot change any shortest-path distance.
+        # Self-loops and edges into Init never precede a shortest path to a new state.
         removed = previous.effects - self.effects
         added = self.effects - previous.effects
         for update, removed_guard, added_guard in self.changed_guards(previous):
             changed = reached & (removed_guard | added_guard)
-            if changed != self.b.false and any(
+            if changed == self.b.false or not any(
                 changed & ~self.b.var(bit).equiv(value) != self.b.false for bit, value in update
             ):
+                continue
+            # Substitute simultaneously into the root predicate. Every changed
+            # edge from the remaining sources must leave its own source fixed.
+            roots = self.initial & self.constraint
+            nonroot = changed & ~self.b.let(dict(update), roots)
+            if any(nonroot & ~self.b.var(bit).equiv(value) != self.b.false for bit, value in update):
                 raise ChangedRelation
 
         # Duplicate witnesses can change the generated count even when every
@@ -1092,8 +1098,10 @@ class SourceModel(FiniteRelation):
             result = self.b.let(rename, cudd.and_exists(result, relation, old))
         return result
 
-    def recheck_refined(self, previous):
+    def recheck_refined(self, previous, keep_layers=False):
         if previous is None:
+            if keep_layers:
+                return self.check_refined_layers(None)
             return self.refined_reachability()
         if (not hasattr(previous, "refined_result") or not self.same_encoding_and_admission(previous)
                 or self.whole_domains != previous.whole_domains
@@ -1102,7 +1110,12 @@ class SourceModel(FiniteRelation):
             raise ChangedRelation
 
         reached, depth, distinct, generated = previous.refined_result
-        generated = self.recheck_effects(previous, reached, generated)
+        try:
+            generated = self.recheck_effects(previous, reached, generated)
+        except ChangedRelation:
+            if keep_layers and getattr(previous, "complete", None) is not None:
+                return self.check_refined_layers(previous)
+            raise
         proved = {prop for _, prop in previous.properties}
         added = [prop for _, prop in self.properties if prop not in proved]
         if added:
@@ -1118,7 +1131,17 @@ class SourceModel(FiniteRelation):
             if reached & ~enabled != self.b.false:
                 return self.check()
         self.refined_result = reached, depth, distinct, generated
+        if keep_layers and previous.complete is not None:
+            all_states, layers, _, _ = previous.complete
+            self.complete = all_states, layers, distinct, generated
         return self.success(depth, reached, distinct, generated, True), None
+
+    def check_refined_layers(self, previous):
+        row, trace = self.check(previous, collect_cycles=True)
+        if trace is None:
+            all_states, _, distinct, generated = self.complete
+            self.refined_result = all_states & self.constraint, row["depth"], distinct, generated
+        return row, trace
 
     def refined_reachability(self):
         """Check all emissions, retaining just admitted states during the first pass."""
@@ -1146,7 +1169,7 @@ class SourceModel(FiniteRelation):
         self.refined_result = reached, depth, distinct, generated
         return self.success(depth, reached, distinct, generated, False), None
 
-    def check(self, previous=None):
+    def check(self, previous=None, collect_cycles=False):
         self.complete = None
         if previous is not None and previous.complete is not None and self.same_relation(previous):
             reached, layers, distinct, generated = previous.complete
@@ -1166,6 +1189,8 @@ class SourceModel(FiniteRelation):
         layers = []
         reused_images = 0
         while frontier != self.b.false:
+            if collect_cycles:
+                gc.collect()
             layers.append(frontier)
             for ending, bad in self.violations(frontier):
                 row, trace = self.failure(layers, frontier & bad, ending, reused=False)
@@ -1226,7 +1251,7 @@ class RefinementWorker:
 
     def __init__(self, args):
         flags = ["-Es"] if sys.flags.ignore_environment else []
-        options = {**vars(args), "recheck": [], "trace": None, "domain_pass": True}
+        options = {**vars(args), "keep_refined_layers": bool(args.recheck), "recheck": [], "trace": None, "domain_pass": True}
         self.command = [sys.executable, *flags, __file__, json.dumps(options)]
         self.child = None
 
@@ -1436,7 +1461,8 @@ def check_revisions(args, revisions, owner):
             if failed:
                 return 2
             continue
-        row, trace = model.recheck_refined(previous) if args.refine_domains else model.check(previous)
+        row, trace = (model.recheck_refined(previous, getattr(args, "keep_refined_layers", False))
+                      if args.refine_domains else model.check(previous))
         if args.refine_domains:
             # Private child-to-parent payload. Retire stale coordinates on each edit.
             row["domain_members"] = sorted(

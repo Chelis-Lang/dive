@@ -402,17 +402,17 @@ def check_layer_edits(folder, run, explicit, compare):
     module = folder / "LayerEdits.tla"
     module.write_text(r"""---- MODULE LayerEdits ----
 EXTENDS Integers
-VARIABLE x
-TypeInvariant == x \in 0..6
-Init == x = 0
+VARIABLES x, mail
+TypeInvariant == /\ x \in 0..6 /\ mail \subseteq 0..1
+Init == /\ x = 0 /\ mail = {0}
 Step == /\ x # 5 /\ x' = IF x=0 THEN 1 ELSE IF x=1 THEN 2 ELSE IF x=2 THEN 3 ELSE IF x=3 THEN 4 ELSE 5
 Reset == x' = 0
 Late == /\ x=3 /\ x'=6
 Shortcut == /\ x=1 /\ x'=4
-Walk == Step \/ UNCHANGED x
-Back == Walk \/ Reset
-Jump == Back \/ Shortcut
-Grow == Jump \/ Late
+Walk == (Step \/ UNCHANGED x) /\ UNCHANGED mail
+Back == Walk \/ (Reset /\ UNCHANGED mail)
+Jump == Back \/ (Shortcut /\ UNCHANGED mail)
+Grow == Jump \/ (Late /\ UNCHANGED mail)
 Keep == x # 6
 Safe == x # 6
 ====
@@ -437,3 +437,16 @@ Safe == x # 6
     _, row = run(module, passed, "--recheck", module, failed, code=1)
     assert row["ending"]["name"] == "Safe" and row["depth"] == 5
     assert row["trace_validated"] and row["reused_layer_images"] == 2
+
+    module.write_text(module.read_text().replace("0..1", "0..299"))
+    flags = ("--refine-domains",)
+    revisions = (arg for cfg in configs[1:] for arg in ("--recheck", module, cfg))
+    rows = run(module, configs[0], *flags, *revisions)
+    for row, cfg in zip(rows, configs, strict=True):
+        compare(row, explicit(module, cfg))
+    assert rows[1]["reused"] and rows[5]["reused"]  # Reset lands in Init.
+    assert rows[2]["reused_layer_images"] == 2 and rows[4]["reused_layer_images"] == 1
+    assert [row["distinct"] for row in rows] == [6, 6, 6, 7, 6, 6]
+    _, bad = run(module, passed, *flags, "--recheck", module, failed, code=1)
+    assert bad["ending"]["name"] == "Safe" and bad["depth"] == 5 and bad["trace_validated"]
+    assert bad["reused_layer_images"] == 2
