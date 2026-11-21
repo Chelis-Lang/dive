@@ -111,8 +111,12 @@ layers. For an edit that only adds transitions, every old state remains reachabl
 by its previous depth. The checker uses the old next layer, applies the added
 actions, and expands states that first arrive at a different depth or were
 unreachable before. This preserves shortest witnesses even after a shortcut.
-If an edit removes an edge that could have supplied a shortest path, the
-checker computes that layer again. It checks all edited obligations, including
+If removing an action could eliminate a shortest path, the checker looks for
+a set of states that contains all removed destinations and that every original
+transition stays inside once entered. It can reuse the old shortest layers
+outside that set. Inside, it expands the surviving actions and includes paths
+entering from outside. If the proof finds no useful region, ordinary
+breadth-first expansion resumes. It checks all edited obligations, including
 invariants on excluded emissions, and counts the edited action witnesses.
 
 A positive `reused_layer_images` gives the number of old layer images used
@@ -229,7 +233,7 @@ Pass `--recheck MODULE CONFIG` once per revision, in order. The checker binds ea
 When the layout, initial states, constraint and domain checks agree, an action edit has two opportunities for reuse.
 
 - If every added or removed edge from an admitted reachable state returns to that state or to an admitted initial state, shortest paths and reachability are preserved. The checker adjusts the generated count for edits to initial or action witness multiplicities. It checks new invariants against every initial state and emission, and checks deadlock freedom when necessary. A successful proof reports `reused: true`.
-- For other action edits, the checker reuses each old layer image whose removed transitions cannot eliminate a new destination. It adds all new destinations from the edited transitions. For additions alone it carries the old images through the changed layers and expands newly reached or earlier-arriving states. For removals it resumes ordinary expansion when the shortest layers differ. The report gives `reused: false` and includes `reused_layer_images` when at least one image was saved.
+- For other action edits, the checker reuses each old layer image whose removed transitions cannot eliminate a new destination. It adds all new destinations from the edited transitions. For additions alone it carries the old images through the changed layers and expands newly reached or earlier-arriving states. For deletions alone it may reuse the part of each later layer outside a region proved closed under the original actions. The report gives `reused: false` and includes `reused_layer_images` when at least one image was saved.
 
 A change to admission or the domain checks starts a fresh search with the surviving coordinates. Every reported counterexample undergoes independent validation against its own revision. After a violation the next revision starts cold.
 

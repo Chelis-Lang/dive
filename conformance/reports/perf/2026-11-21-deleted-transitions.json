@@ -1,0 +1,431 @@
+{
+  "model": "https://github.com/mtrencseni/paxoslease-revisited/tree/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/tla/spec",
+  "construction": "Use the labeled source/configuration and Drain wrapper in 2026-11-20-paxoslease-reference.json. Starting from PaxosLeaseChecked, add an action enabled at now = MaxTime and Cardinality(network) = MaxNetwork. It assigns network to the empty set and leaves all other variables unchanged. The first configuration adds it to Next. The edit restores the published source relation.",
+  "hashes": {
+    "Drain.tla": "226d4d41a6326561a865222647970cc067c64202cca74333ac807eb44230c7bd",
+    "BaseChanged.cfg": "3b4f9817c9ad09eefd6fba771bf8e9b5b4fa50a105716a63649d2669c4e8b5b0",
+    "QuarantineEqualsProposerChanged.cfg": "19239e06b6702dd428503766cd7f68f2efc48aece05261e39c9a49d54be42892",
+    "exporter": "309ec9cc1e4cb91c0e020f47570420681be7dbfdb6f8c36af561f3a3d7d4fc62",
+    "dive": "eafcc5755dd2baad1a26646f52027644d3790e76862207ef10dae7494a551960",
+    "parent engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+    "shipping engine.py": "33c3345d5d2857afbc59238d69fcaaf0662437f07a8a2a14f47d98ed1bf0c6d7"
+  },
+  "host": "EC2 c7i.4xlarge, us-west-2, Xeon Platinum 8488C, Linux 7.0.0-1018-aws. Each process pinned to one logical CPU.",
+  "command": "python scripts/symbolic/check.py Drain.tla SIZEChanged.cfg --refine-domains --type-invariant TypeOK --recheck PaxosLeaseChecked.tla PaxosLeaseSIZE.cfg --time-limit 2900 --max-memory 8000 --exporter EXPORTER --dive DIVE",
+  "timing_scope": "Rows record the initial revision exploration and recheck separately. Peak RSS covers both revisions. Base paired-0..3 ran sequentially on CPU 3 in parent/shipping/shipping/parent order, PYTHONHASHSEED=0. Exploratory and larger trials used separate pinned CPUs on the same host. The first small shipping trial was slower than the parent and is retained.",
+  "validation": {
+    "paired_random_models": 80,
+    "independent_differential_cases": 63,
+    "controls": "Source suite, constrained emissions, shortest counterexamples, deadlocks, duplicates, symmetry, fired and unfired edges, revised and cold symbolic results and explicit Core. Cached backedges on a 64-bit relation preserved all 65 layer images."
+  },
+  "trials": [
+    {
+      "configuration": "Base",
+      "implementation": "eager cube",
+      "trial": "cube-timing",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 67.712161,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 28,
+        "seconds": 32.121198,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 100.02,
+      "process_peak_rss_kib": 538892
+    },
+    {
+      "configuration": "Base",
+      "implementation": "parent",
+      "trial": "current",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 63.791151,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 8,
+        "seconds": 38.071643,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 102.06,
+      "process_peak_rss_kib": 553032
+    },
+    {
+      "configuration": "Base",
+      "implementation": "full repair",
+      "trial": "current",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 63.750089,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 29,
+        "seconds": 113.222334,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 177.16,
+      "process_peak_rss_kib": 1168148
+    },
+    {
+      "configuration": "Base",
+      "implementation": "eager cube with incoming actions",
+      "trial": "face-timing",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 61.467905,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 28,
+        "seconds": 31.640068,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 93.32,
+      "process_peak_rss_kib": 537028
+    },
+    {
+      "configuration": "QuarantineEqualsProposer",
+      "implementation": "parent",
+      "trial": "large",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 77384096,
+        "generated": 401456611,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 466.333649,
+        "reachable_bdd_nodes": 664321,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 76749192,
+        "generated": 391849185,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 4,
+        "seconds": 477.953134,
+        "reachable_bdd_nodes": 630485,
+        "reused": false
+      },
+      "process_wall_seconds": 944.49,
+      "process_peak_rss_kib": 904908
+    },
+    {
+      "configuration": "QuarantineEqualsProposer",
+      "implementation": "eager cube with incoming actions",
+      "trial": "large",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 77384096,
+        "generated": 401456611,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 470.726683,
+        "reachable_bdd_nodes": 664321,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 76749192,
+        "generated": 391849185,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 42,
+        "seconds": 173.427525,
+        "reachable_bdd_nodes": 630485,
+        "reused": false
+      },
+      "process_wall_seconds": 644.34,
+      "process_peak_rss_kib": 824576
+    },
+    {
+      "configuration": "QuarantineEqualsProposer",
+      "implementation": "shipping",
+      "trial": "larger-final",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 77384096,
+        "generated": 401456611,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 499.930471,
+        "reachable_bdd_nodes": 664321,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 76749192,
+        "generated": 391849185,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 41,
+        "seconds": 316.046545,
+        "reachable_bdd_nodes": 630485,
+        "reused": false
+      },
+      "process_wall_seconds": 816.33,
+      "process_peak_rss_kib": 1226136
+    },
+    {
+      "configuration": "Base",
+      "implementation": "shipping",
+      "trial": "lazy-timing",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 69.543493,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 28,
+        "seconds": 55.254994,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 125.04,
+      "process_peak_rss_kib": 540332
+    },
+    {
+      "configuration": "Base",
+      "implementation": "parent",
+      "trial": "paired-0",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 68.351506,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 8,
+        "seconds": 39.584725,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 108.14,
+      "process_peak_rss_kib": 539168
+    },
+    {
+      "configuration": "Base",
+      "implementation": "shipping",
+      "trial": "paired-1",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 63.012604,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 28,
+        "seconds": 31.449238,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 94.66,
+      "process_peak_rss_kib": 540300
+    },
+    {
+      "configuration": "Base",
+      "implementation": "shipping",
+      "trial": "paired-2",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 60.665704,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 28,
+        "seconds": 31.353614,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 92.19,
+      "process_peak_rss_kib": 540348
+    },
+    {
+      "configuration": "Base",
+      "implementation": "parent",
+      "trial": "paired-3",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 598541,
+        "generated": 2016104,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 58.23646,
+        "reachable_bdd_nodes": 478066,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 491037,
+        "generated": 1709874,
+        "depth": 29,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 8,
+        "seconds": 38.631404,
+        "reachable_bdd_nodes": 390276,
+        "reused": false
+      },
+      "process_wall_seconds": 97.04,
+      "process_peak_rss_kib": 539184
+    }
+  ]
+}

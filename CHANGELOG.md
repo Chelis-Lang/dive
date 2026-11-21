@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- [Symbolic rechecks](docs/user/symbolic.md) can reuse shortest-path layers outside the region affected by a deleted action.
+
 - Core and trace validation can find [wide integer powerset witnesses](docs/user/checking.md) while checking the empty set and singleton candidates.
 
 - [Symbolic checking](docs/user/symbolic.md#admission-and-reports) can load models with large, unused pure definitions without constructing their values during startup.
