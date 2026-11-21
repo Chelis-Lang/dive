@@ -71,6 +71,17 @@ def check_certificates(folder, tcommit, cfg, original_cfg, run, compare):
         proved(run(tcommit, cfg, *opts, "--verify-predicate", proof))
         proved(run(tcommit, cfg, *opts, "--prove-inductive"))
         compare(tcommit, cfg, "TCTypeOK")
+    # Proofs only need the bound participant domain and the feasible supports.
+    # Exact counting has a separate bound on its largest integer output.
+    wide = original_cfg.replace("{r1, r2, r3}", "{" + ",".join(f"x{i}" for i in range(8193)) + "}")
+    cfg.write_text(wide)
+    proved(run(tcommit, cfg, *opts, "--verify-predicate", proof))
+    proved(run(tcommit, cfg, *opts, "--prove-inductive"))
+    proof.write_text(json.dumps({**candidate, "masks": []}))
+    refused = run(tcommit, cfg, *opts, "--verify-predicate", proof, code=2)
+    assert refused["proof"] == "inconclusive" and refused["failed_obligation"] == "Init inclusion"
+    proof.write_bytes(raw)
+
     cfg.write_text(original_cfg.replace("{r1, r2, r3}", "{}"))
     assert run(tcommit, cfg, *opts, "--verify-predicate", proof, code=2)["failed_obligation"] == "Init inclusion"
     proved(run(tcommit, cfg, *opts, "--prove-inductive"))
@@ -120,8 +131,8 @@ DirectCommit == TCNext \/ (\E r \in RM : rmState' = [rmState EXCEPT ![r] = "comm
 
 def prepare_edits(original, output, count):
     """Reproduce the measured source/configuration edits in a new directory."""
-    if not 1 <= count <= 8192:
-        raise ValueError("expected 1 to 8192 managers")
+    if not 1 <= count <= 1_000_000:
+        raise ValueError("expected 1 to 1000000 managers")
     cfg = (original / "TCommit.cfg").read_text()
     domain = "{r1, r2, r3}"
     spec = "SPECIFICATION TCSpec"
