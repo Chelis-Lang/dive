@@ -233,6 +233,8 @@ are in git history.
 
 ### Fixed
 
+- `dive simulate` binds the model as `dive check` does in each profile: in the default profile Core evaluates the pure constant definitions its actions use only as values, so a large `CHOOSE` such as `EWD998ChanID`'s ring of seven nodes no longer costs seconds before sampling starts.
+
 - Trace validation replays action composition (`A \cdot B`) whose operands update functions with `EXCEPT`, build functions or use `LET`, so `dive simulate` validates its kept traces of `FiniteMonotonic/MCCRDT` and `MCReplicatedLog` instead of refusing them.
 
 - Updated the CLI allocator to mimalloc 3.7.0. It fixes 16 GiB arena initialization, which could cause large Linux searches to spend most of their time creating small memory mappings. [Storage and measurements](docs/user/storage-recovery.md#large-linux-heaps).

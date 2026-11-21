@@ -290,8 +290,16 @@ impl SpecModel {
         } else {
             recipe
         };
+        let compat_tlc = opts.compat_tlc;
         let bound = on_big_stack(move || {
-            if concrete {
+            if concrete && !compat_tlc {
+                // Simulation runs on Core, which evaluates the pure constant
+                // definitions its roles use only as values when it compiles
+                // its plan, as `dive check` binds in the default profile
+                // (issue #1142). This model's own evaluator computes them
+                // lazily, with the same values, where it needs them.
+                dive_model::bind_deferring_constants(ir, &cfg, &bind_opts)
+            } else if concrete {
                 dive_model::bind(ir, &cfg, &bind_opts)
             } else {
                 dive_model::bind_for_trace(ir, &cfg, &bind_opts)
@@ -367,9 +375,19 @@ impl SpecModel {
             dive_stdlib::random::Streams::new(seed, mode),
             None,
         ));
-        let model = on_big_stack(|| self.recipe.bind_next_fallible(host.clone(), Some(control)))
-            .map_err(|error| error.to_string())?
-            .map_err(|error| error.to_string())?;
+        // Core compiles its plan from this model, so in the default profile
+        // it evaluates the pure constant definitions its roles use only as
+        // values, as `dive check` does (issue #1142).
+        let model = on_big_stack(|| {
+            if mode == dive_stdlib::random::RandomMode::Dive {
+                self.recipe
+                    .bind_next_fallible_for_core(host.clone(), Some(control))
+            } else {
+                self.recipe.bind_next_fallible(host.clone(), Some(control))
+            }
+        })
+        .map_err(|error| error.to_string())?
+        .map_err(|error| error.to_string())?;
         if let Some(config) = self.model.evaluator.host().and_then(|host| host.config()) {
             model.evaluator.intern_checker_names();
             model.evaluator.intern_bfs_config(&config);

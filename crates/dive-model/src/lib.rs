@@ -284,6 +284,43 @@ impl Recipe {
         self.bind_replay(host, control, false)
     }
 
+    /// As [`Self::bind_next_fallible`], leaving to Core the pure constant
+    /// definitions its roles use only as values, as
+    /// [`bind_deferring_constants`] does. For a runtime whose plan Core
+    /// compiles (simulation's preparation); the model's own evaluator
+    /// computes those definitions lazily, with the same values.
+    ///
+    /// ```
+    /// # fn prepare(recipe: &dive_model::Recipe, host: std::sync::Arc<dyn dive_eval::Host>) {
+    /// let fresh = recipe.bind_next_fallible_for_core(host, None);
+    /// # let _ = fresh;
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    /// As [`Self::bind_next_fallible`].
+    pub fn bind_next_fallible_for_core(
+        &self,
+        host: Arc<dyn dive_eval::Host>,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<Model, ControlledBindError> {
+        bind_in_deferring(
+            self.ir.clone(),
+            &self.config,
+            &BindOptions {
+                eval: self.options,
+                symmetry_liveness: self.symmetry_liveness,
+                no_deadlock: self.no_deadlock,
+                host: Some(host),
+            },
+            false,
+            control,
+            true,
+            Some(defer::Mode::Core),
+            self.concrete_states,
+        )
+    }
+
     fn bind_replay(
         &self,
         host: Arc<dyn dive_eval::Host>,
