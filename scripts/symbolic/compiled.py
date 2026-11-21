@@ -1,6 +1,7 @@
 """Compile and run one finite exact safety check under the companion supervisor."""
 
 import argparse
+import gc
 import json
 import os
 from pathlib import Path
@@ -8,6 +9,8 @@ import shutil
 import subprocess
 import sys
 import time
+
+from dd import cudd
 
 from engine import SourceModel, Unsupported, require
 from induction import write_atomic
@@ -65,17 +68,33 @@ def replay(args, candidate_depths):
     return report
 
 
+def emit_worker(document, type_invariant, template, manager):
+    model = SourceModel(document, type_invariant, manager, state_bit_limit=32)
+    emitter = Rust(model)
+    text = emitter.emit(template)
+    return text, emitter.metadata["width"]
+
+
+def lower(document, type_invariant, template):
+    # Dispose of cyclic decision nodes while the manager is still alive.
+    manager = cudd.BDD(memory_estimate=512 << 20)
+    try:
+        return emit_worker(document, type_invariant, template, manager)
+    finally:
+        gc.collect()
+
+
 def run(args):
     limit_memory(args.max_memory)
     rustc = compiler(args.max_memory)
     exported = run_helper([args.exporter, args.module, args.config], "Dive frontend", args.max_memory)
     require(exported.returncode == 0, "Dive frontend: " + exported.stderr.strip())
     template = Path(__file__).with_name("packed_worker.rs.in").read_text()
-    emitter = Rust(SourceModel(json.loads(exported.stdout), args.type_invariant, state_bit_limit=32))
+    text, width = lower(json.loads(exported.stdout), args.type_invariant, template)
     folder = Path(args.scratch)
     source = folder / "worker.rs"
     binary = folder / "worker"
-    source.write_text(emitter.emit(template))
+    source.write_text(text)
     # The supervisor owns this directory, including temporary linker files, across cancellation.
     started = time.monotonic()
     built = run_helper([rustc, "--edition=2024", "-Copt-level=3", "-Cpanic=abort", "-Clto=off",
@@ -98,7 +117,7 @@ def run(args):
                             "deadlock": result["deadlock_depth"]})
     else:
         row = dict(verdict="success", left_on_queue=0, **result)
-    row.update(workers_requested=args.workers, state_bits=emitter.metadata["width"],
+    row.update(workers_requested=args.workers, state_bits=width,
                compile_seconds=round(compile_seconds, 6), search_seconds=round(search_seconds, 6))
     return row, 11 if searched.returncode == 5 else 0
 

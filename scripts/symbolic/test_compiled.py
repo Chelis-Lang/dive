@@ -18,6 +18,8 @@ HERE = Path(__file__).resolve().parent
 def check(command, status=0, **kwargs):
     result = subprocess.run(command, text=True, capture_output=True, check=False, timeout=30, **kwargs)
     assert result.returncode == status, (result.returncode, result.stdout, result.stderr)
+    if "--strategy=compiled" in command:
+        assert not result.stderr, result.stderr
     return json.loads(result.stdout)
 
 
