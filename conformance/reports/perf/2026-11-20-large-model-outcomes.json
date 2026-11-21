@@ -1975,6 +1975,48 @@
             "resource": "time",
             "unit": "ms"
           }
+        },
+        "420": {
+          "kernel": "7.0.0-1018-aws",
+          "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+          "physical_cores": 32,
+          "seed": 0,
+          "fp": 0,
+          "command": "dive check tla/MCetcdraft.tla --config tla/MCetcdraft.cfg --library-path modules --workers 32 --fp 0 --seed 0 --time-limit 14400s --max-memory 420g --output json",
+          "input_sha256": {
+            "MCetcdraft.cfg": "5cc769549deb7acdf280a8b2600d87c88810c299f5102b15f5176f64a9ae04a9",
+            "MCetcdraft.tla": "3b206581c4d1e8795b543f6bec1c293ea69241183acbdec6537c0265234a72b6"
+          },
+          "machine": "Dedicated EC2 r7i.16xlarge",
+          "workers_used": 32,
+          "profile": "dive",
+          "time_limit_s": 14400,
+          "memory_limit_gib": 420,
+          "cgroup_memory_gib": 460,
+          "cgroup_swap_gib": 0,
+          "wall_s": 14419.85,
+          "peak_rss_kib": 314817496,
+          "sampled_memory_bytes": 322381627392,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 18,
+            "distinct": 1554090623,
+            "exhaustive": false,
+            "generated": 8814815144,
+            "initial_generated": 1,
+            "left_on_queue": 1129962521,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 14402904,
+            "limit": 14400000,
+            "observed": 14400029,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          },
+          "source": "https://github.com/Chelis-Lang/dive/issues/1034#issuecomment-7059348006"
         }
       }
     },
@@ -2445,6 +2487,64 @@
           "vma_count": 435342
         },
         "number_of_samples": 24
+      },
+      "full_main": {
+        "executable_sha256": "d2fcf868347c89ea5c74349396d2365deddedd959a8190db987b35188ec144ca",
+        "input_digests": "Same original etcdraft module and CFG as original.",
+        "host": "Dedicated EC2 r7i.16xlarge in us-east-2; CPUs 0–31, one thread per physical core.",
+        "kernel": "7.0.0-1018-aws",
+        "checker_memory_gib": 420,
+        "cgroup_memory_gib": 455,
+        "cgroup_swap_gib": 0,
+        "checker_time_limit_s": 14400,
+        "timeout_s": 14460,
+        "configured_workers": 32,
+        "reported_workers": {
+          "chaos": null,
+          "reason": null,
+          "requested": 32,
+          "sequential": false,
+          "used": 32
+        },
+        "seed": 0,
+        "fp": 0,
+        "max_map_count": 1048576,
+        "overcommit_memory": 0,
+        "wall_s": 4233.8,
+        "peak_rss_kib": 441631904,
+        "exit": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 15,
+          "distinct": 2551366745,
+          "exhaustive": false,
+          "generated": 10263198945,
+          "initial_generated": 1,
+          "left_on_queue": 1987628575,
+          "reported_by_tlc": false
+        },
+        "stop": {
+          "elapsed_ms": 4206394,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 450971566080,
+          "observed": 451846586368,
+          "phase": "safety-search",
+          "resource": "memory",
+          "unit": "bytes"
+        },
+        "checker_elapsed_ms": 4233638,
+        "sampled_process_peak_bytes": 451846586368,
+        "process_memory_samples": 41780,
+        "last_180s_process_sample": {
+          "VmSize": "459319796 kB",
+          "VmRSS": "420228420 kB",
+          "Threads": "34",
+          "VmSwap": "0 kB",
+          "elapsed_s": 4141.0,
+          "vma_count": 443601
+        },
+        "number_of_samples": 24,
+        "revision": "12d15c6c55537ba25692ebf451144835d830d8f8"
       }
     }
   }
