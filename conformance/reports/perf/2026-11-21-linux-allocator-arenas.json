@@ -709,8 +709,8 @@
   "fixed_release": {
     "mimalloc": "3.7.0",
     "native_commit": "1ed67b5156a763441d2ec3c20221a7b3cd866129",
-    "rust_wrapper_commit": "d00f116cc4ab8bdd243b40669a4759918dbd5aa0",
-    "rust_wrapper": "https://github.com/Chelis-Lang/mimalloc_rust",
-    "change": "Only the v3 native submodule pin differs from upstream Rust wrapper v0.1.52."
+    "rust_wrapper": "mimalloc3 0.1.61",
+    "native_package": "libmimalloc-sys3 0.1.58",
+    "native_source_verification": "Both src/ and include/ under c_src/mimalloc/v3 in the registry archive match the upstream v3.7.0 tag byte for byte."
   }
 }

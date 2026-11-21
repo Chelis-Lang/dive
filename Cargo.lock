@@ -222,7 +222,7 @@ name = "dive-cli"
 version = "0.1.0"
 dependencies = [
  "dive-api",
- "mimalloc",
+ "mimalloc3",
  "serde_json",
 ]
 
@@ -527,9 +527,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78"
 
 [[package]]
-name = "libmimalloc-sys"
-version = "0.1.49"
-source = "git+https://github.com/Chelis-Lang/mimalloc_rust?rev=d00f116cc4ab8bdd243b40669a4759918dbd5aa0#d00f116cc4ab8bdd243b40669a4759918dbd5aa0"
+name = "libmimalloc-sys3"
+version = "0.1.58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf8f4b2795be478c937eb4bc5f754b0dde9e1db1227e0ecb8ab0e9111b14173a"
 dependencies = [
  "cc",
 ]
@@ -563,11 +564,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "mimalloc"
-version = "0.1.52"
-source = "git+https://github.com/Chelis-Lang/mimalloc_rust?rev=d00f116cc4ab8bdd243b40669a4759918dbd5aa0#d00f116cc4ab8bdd243b40669a4759918dbd5aa0"
+name = "mimalloc3"
+version = "0.1.61"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8007beedc40123218084597981398a1c5a204ba0034f8375e59b9910f570725"
 dependencies = [
- "libmimalloc-sys",
+ "libmimalloc-sys3",
 ]
 
 [[package]]
