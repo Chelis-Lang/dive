@@ -940,19 +940,6 @@ checked like any other. `--liveness-extend N` sets the number of extra steps;
 `--liveness-extend 0`, or `--compat=tlc`, ends every trace at the depth as TLC
 does.
 
-### D-040: Sampling from unbounded sets
-
-`x \in Nat` in `Init`, or `\E n \in Nat : x' = x + n` in `Next`, makes
-TLC's `-simulate` and `-generate` fail with "not enumerable". dive's
-simulation will draw one member of such a set instead: from `Nat` with a
-geometric distribution of mean 8 (`--sample-mean` changes it), from `Int` with
-a geometric magnitude and a random sign, and from `Seq(S)` with a geometric
-length. The draws follow the run's seed, so `--seed` reproduces them, and the
-report notes name the distribution and every set that was sampled. Each drawn
-value is a member of its set, so every trace is a real behavior; values that
-were not drawn are not checked. `--sample-unbounded=off`, or `--compat=tlc`,
-reports the same error as TLC.
-
 ### Other candidates
 
 - **Which liveness counterexample is reported.** TLC's liveness counterexample depends on the order of its internal hash tables, so it depends on the fingerprint polynomial (`-fp`), which TLC picks at random unless you set it. On the Examples spec `MCDistributedReplicatedLog`, six polynomials gave five different counterexamples, of 4, 5 or 6 states, naming either `InSync` or `AllExtending and InSync` as violated. TLC's choice is also not the shortest available: for `[]<>(x = 0)` on a counter `0, 1, 2` with no fairness, TLC shows three states and then stuttering, where stuttering after two states already violates the property. dive reports a counterexample with the shortest possible prefix, the same one at any polynomial and any worker count; see [D-013](#d-013-a-deterministic-short-liveness-counterexample). The verdict and the state counts are the same either way.
@@ -1684,6 +1671,46 @@ trace validator checks. It does so in both profiles, because skipping a
 configured property would report a sample as clean when it is not. The
 receipts are `crates/dive-sim/tests/fixtures/temporal/oracle.json` U12 and
 its model-checking control B-U12.
+
+## D-040: Sampling from unbounded sets
+
+| | |
+|---|---|
+| **Kind** | Different answer |
+| **Default** | `--sample-unbounded geometric`: draw members of `Nat`, `Int` and `Seq(S)` with a stated, seeded distribution |
+| **TLC behavior** | `--sample-unbounded off`, and the default under `--compat=tlc`: GENERAL 1000, "not enumerable" (exit 255 under TLC exit codes) |
+| **Status** | implemented for `dive simulate` |
+
+`x \in Nat` in `Init`, or `\E n \in Nat : x' = x + n` in `Next`, makes
+TLC's `-simulate` and `-generate` fail with "not enumerable" (receipts G3 to
+G6 in `crates/dive-sim/tests/fixtures/temporal/oracle.json`). dive's
+simulation draws one member of such a set instead, wherever a generator would
+have enumerated it: `x' \in S`, or an `\E` that assigns variables. `Nat` is
+drawn from a geometric distribution with mean 8 (`--sample-mean N` changes
+it), `Int` as a geometric magnitude with a uniform sign, and `Seq(S)` with a
+geometric length and elements drawn from `S`. Tuples, records and functions
+over a finite domain are drawn component by component, and a finite component
+uniformly. The draws come from a stream keyed by the seed, the trace number,
+the step, the action and the attempt, so `--seed` reproduces them at any
+worker count, and the traces of a spec that draws nothing are the same as
+without sampling.
+
+Each drawn value is a member of its set, so every trace is a behavior of the
+specification. A trace records the values it drew for an `\E` as the step's
+`witnesses`; the trace validator checks that each one is a member of the set
+and uses it to prove that the `\E` holds. It never uses a witness to conclude
+that an `\E` is false. Nothing is claimed about values that were not drawn.
+When no value drawn at a step leads to a state, the step is drawn again up to
+8 times, then the trace ends early; this is counted in
+`statistics.traces_stalled` and is never reported as a deadlock. The report's
+notes name the distribution, the seed and every set that was sampled, with
+the action that drew from it (`statistics.sampled_sets`).
+
+Sets with no stated distribution keep a named refusal: `SUBSET Nat`, a union
+or filter with an infinite part, `STRING`, and function sets with an infinite
+domain. A boolean quantifier over an infinite set, such as
+`~(\E n \in Nat : P(n))` or `\A n \in Nat : P(n)`, is never sampled,
+because one draw cannot decide it: it reports TLC's error, as in TLC.
 
 ## D-041: Constructed initial states in simulation
 

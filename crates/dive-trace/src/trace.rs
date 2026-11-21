@@ -40,6 +40,9 @@ pub struct Trace {
     pub properties: Vec<String>,
     /// The loop closes on concrete state equality ([`TraceDoc::concrete_closure`]).
     pub concrete_closure: bool,
+    /// Recorded existential witnesses per state ([`TraceDoc::witnesses`]):
+    /// empty, or one list per state.
+    pub witnesses: Vec<Vec<Value>>,
 }
 
 /// The model's variable names, by [`dive_ir::VarId`].
@@ -100,6 +103,18 @@ impl Trace {
                 })?;
             states.push(state);
         }
+        let mut witnesses = Vec::with_capacity(doc.witnesses.len());
+        for (k, values) in doc.witnesses.iter().enumerate() {
+            let values = values
+                .iter()
+                .map(|j| value_json::from_json(j, &model.names, ctx))
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(|detail| ShapeError {
+                    state: Some(k),
+                    detail: format!("a witness: {detail}"),
+                })?;
+            witnesses.push(values);
+        }
         Ok(Self {
             states,
             labels: doc.labels.clone(),
@@ -107,6 +122,7 @@ impl Trace {
             length: doc.length,
             properties: doc.properties.clone(),
             concrete_closure: doc.concrete_closure,
+            witnesses,
         })
     }
 
@@ -126,6 +142,11 @@ impl Trace {
             }
             states.push(m);
         }
+        let witnesses = self
+            .witnesses
+            .iter()
+            .map(|values| values.iter().map(|v| value_json::to_json(v, ctx)).collect())
+            .collect::<Result<Vec<Vec<J>>, String>>()?;
         Ok(TraceDoc {
             variables: vars,
             states,
@@ -135,6 +156,7 @@ impl Trace {
             source: Source::Dive,
             properties: self.properties.clone(),
             concrete_closure: self.concrete_closure,
+            witnesses,
         })
     }
 }

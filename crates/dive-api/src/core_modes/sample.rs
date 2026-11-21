@@ -11,7 +11,7 @@
 //! any worker count (ADR 0162 §7).
 
 use std::cell::RefCell;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Condvar, Mutex, PoisonError};
 use std::time::Duration;
@@ -39,6 +39,78 @@ const EXACT_CANDIDATES: usize = 1024;
 /// worker, which bounds buffered output and states.
 const WINDOW_PER_WORKER: u64 = 4;
 
+use dive_sim::SAMPLE_ATTEMPTS;
+
+/// The replayable draw stream of `--sample-unbounded` (D-040): one dive
+/// stream per trace, step, action and attempt (`Streams::simulation_draws`).
+#[derive(Debug)]
+struct DrawSource {
+    streams: Streams,
+    stream: Stream,
+}
+
+impl dive_core::unbounded::IndexSource for DrawSource {
+    fn next_index(&mut self, bound: u64) -> u64 {
+        self.stream.next_index(bound)
+    }
+
+    fn restart(&mut self, [trace, step, action, attempt]: [u64; 4]) {
+        self.stream = self.streams.simulation_draws(trace, step, action, attempt);
+    }
+}
+
+/// The sampler `options` ask for, if any.
+fn sampler(options: &dive_sim::Options) -> Result<Option<dive_core::unbounded::Unbounded>, Error> {
+    let dive_sim::SampleUnbounded::Geometric { mean } = options.sample_unbounded else {
+        return Ok(None);
+    };
+    let streams = Streams::new(options.seed, options.mode);
+    dive_core::unbounded::Unbounded::new(
+        mean,
+        Box::new(DrawSource {
+            streams,
+            stream: streams.simulation_draws(0, 0, 0, 0),
+        }),
+    )
+    .map(Some)
+}
+
+/// Positions `machine`'s draw stream; returns its draw count so far.
+fn restart_draws(machine: &mut Machine, site: [u64; 4]) -> u64 {
+    machine.unbounded.as_mut().map_or(0, |unbounded| {
+        unbounded.restart(site);
+        unbounded.draws()
+    })
+}
+
+fn draw_count(machine: &Machine) -> u64 {
+    machine
+        .unbounded
+        .as_ref()
+        .map_or(0, dive_core::unbounded::Unbounded::draws)
+}
+
+/// Records the sets the last action drew from, with the action's label.
+fn note_sets(machine: &mut Machine, label: &str, sampled: &mut Vec<String>) {
+    if let Some(unbounded) = &mut machine.unbounded {
+        for set in unbounded.take_sets() {
+            sampled.push(format!("{set} in {label}"));
+        }
+    }
+}
+
+/// The interned witnesses of the current generator path, if any.
+fn witnesses(machine: &mut Machine) -> Result<Vec<Handle>, Error> {
+    if machine.drawn().is_empty() {
+        return Ok(Vec::new());
+    }
+    let drawn = machine.drawn().to_vec();
+    drawn
+        .into_iter()
+        .map(|value| machine.heap.intern_exact(value))
+        .collect()
+}
+
 /// How one trace ended.
 enum End {
     /// Its depth or a state without successors (deadlock checking off).
@@ -63,6 +135,12 @@ struct Run {
     printed: Vec<String>,
     /// Chosen transitions as (from, to) action ids, for `--stats basic`.
     flow: Vec<(usize, usize)>,
+    /// Existential witnesses drawn for the step into a row, by row index.
+    witnesses: Vec<(usize, Vec<Handle>)>,
+    /// Unbounded sets drawn from, with the drawing action.
+    sampled: Vec<String>,
+    /// Ended early: no drawn member led to an admitted state.
+    stalled: bool,
     end: End,
 }
 
@@ -72,6 +150,9 @@ enum Init {
     Enumerated(Vec<(Vec<Handle>, usize)>),
     /// Under `--constructive-init`, each trace constructs its own.
     Constructive,
+    /// Init draws from an unbounded set, so each trace enumerates it with
+    /// its own draws.
+    Sampled,
 }
 
 /// What every trace reads.
@@ -88,10 +169,19 @@ struct Context<'a> {
     /// Output a trace may retain: what the run's allowance leaves after
     /// startup and enumerated Init.
     output: (usize, usize),
+    /// Action labels for the report's sampled-set notes: Init's, Next's.
+    init_labels: &'a [String],
+    next_labels: &'a [String],
 }
 
-/// A kept trace: id, interned rows, actions and generated count.
-type Kept = (u64, Vec<Vec<Handle>>, Vec<usize>, u64);
+/// A kept trace: interned rows, actions, generated count and witnesses.
+struct Kept {
+    id: u64,
+    rows: Vec<Vec<Handle>>,
+    actions: Vec<usize>,
+    generated: u64,
+    witnesses: Vec<(usize, Vec<Handle>)>,
+}
 
 /// The committed prefix of the run.
 struct Commit {
@@ -104,6 +194,8 @@ struct Commit {
     retained: usize,
     output: (usize, usize),
     printed: Vec<String>,
+    sampled: BTreeSet<String>,
+    stalled: u64,
 }
 
 struct Shared {
@@ -176,6 +268,19 @@ impl Native {
                 return report;
             }
         }
+        let sampling = match sampler(options) {
+            Ok(sampling) => sampling.is_some(),
+            Err(error) => {
+                report.outcome = classify(&error, None);
+                return report;
+            }
+        };
+        // Init is first enumerated once; a draw there means each trace must
+        // enumerate it with its own draws, so the probe only detects it.
+        self.machine.unbounded = sampler(options).ok().flatten();
+        if let Some(unbounded) = &mut self.machine.unbounded {
+            unbounded.set_probe(true);
+        }
         let (events, bytes) = remaining();
         self.machine.set_output_limits(events, bytes);
         // TLC's simulator: `TLCGet("level")` is 0 in Init, a state's 1-based
@@ -200,6 +305,9 @@ impl Native {
             };
             init
         };
+        if let Some(unbounded) = &mut self.machine.unbounded {
+            unbounded.set_probe(false);
+        }
         let (printed, failure) = self.machine.take_output();
         let used = (
             printed.len(),
@@ -238,6 +346,16 @@ impl Native {
             .map(dive_eval::next::Action::id)
             .collect();
         let flows = report.action_flow.is_some();
+        let init_labels: Vec<String> = model
+            .init_actions
+            .iter()
+            .map(|action| action.label().to_owned())
+            .collect();
+        let next_labels: Vec<String> = model
+            .actions
+            .iter()
+            .map(|action| action.label().to_owned())
+            .collect();
         let shared = Shared {
             next: AtomicU64::new(0),
             best: AtomicU64::new(u64::MAX),
@@ -254,6 +372,8 @@ impl Native {
                 retained: 0,
                 output,
                 printed: Vec::new(),
+                sampled: BTreeSet::new(),
+                stalled: 0,
             }),
             ready: Condvar::new(),
         };
@@ -268,6 +388,8 @@ impl Native {
             poll,
             flows,
             output,
+            init_labels: &init_labels,
+            next_labels: &next_labels,
         };
         let budget = &self.budget;
         let store = std::sync::Arc::clone(self.machine.heap.store());
@@ -279,6 +401,9 @@ impl Native {
                     .stack_size(dive_eval::RECOMMENDED_STACK)
                     .spawn_scoped(scope, || {
                         let mut machine = worker_machine(&store, cx.plan, opts, budget);
+                        if sampling {
+                            machine.unbounded = sampler(options).ok().flatten();
+                        }
                         work(&mut machine, &cx, &shared);
                     });
                 if let Err(error) = started {
@@ -301,6 +426,8 @@ impl Native {
             commit.report.outcome = Outcome::Cancelled;
         }
         let mut report = std::mem::replace(&mut commit.report, preflight_report(Outcome::Sampled));
+        report.sampled_sets = std::mem::take(&mut commit.sampled).into_iter().collect();
+        report.traces_stalled = commit.stalled;
         report
             .runtime_output
             .extend(
@@ -312,26 +439,37 @@ impl Native {
                         warning: false,
                     }),
             );
-        for (id, rows, actions, generated) in std::mem::take(&mut commit.rows) {
-            let mut states = Vec::with_capacity(rows.len());
-            for row in &rows {
-                match values(&mut self.machine, model, row) {
-                    Ok(state) => states.push(state),
-                    Err(message) => {
-                        report.outcome = Outcome::Unsupported(message);
-                        report.traces.clear();
-                        return report;
-                    }
+        for kept in std::mem::take(&mut commit.rows) {
+            match self.kept_trace(model, kept) {
+                Ok(trace) => report.traces.push(trace),
+                Err(message) => {
+                    report.outcome = Outcome::Unsupported(message);
+                    report.traces.clear();
+                    return report;
                 }
             }
-            report.traces.push(Trace {
-                id,
-                states,
-                actions,
-                generated,
-            });
         }
         report
+    }
+
+    /// Converts a kept trace's interned rows and witnesses to values.
+    fn kept_trace(&mut self, model: &Model, kept: Kept) -> Result<Trace, String> {
+        let mut states = Vec::with_capacity(kept.rows.len());
+        for row in &kept.rows {
+            states.push(values(&mut self.machine, model, row)?);
+        }
+        let mut drawn = Vec::with_capacity(kept.witnesses.len());
+        for (state, row) in &kept.witnesses {
+            let members = values(&mut self.machine, model, row)?;
+            drawn.push((*state, members.iter().flatten().cloned().collect()));
+        }
+        Ok(Trace {
+            id: kept.id,
+            states,
+            actions: kept.actions,
+            generated: kept.generated,
+            witnesses: drawn,
+        })
     }
 
     fn flush_driver_output(&mut self, report: &mut Report) {
@@ -383,6 +521,10 @@ fn worker_machine(
 /// Enumerates Init once and checks each initial state as `dive check` does:
 /// invariants, implied initial predicates, then constraints. `None` when
 /// the run is decided here, with the report's outcome set.
+#[allow(
+    clippy::too_many_lines,
+    reason = "generation, the initial checks and their outcomes stay in one pass"
+)]
 fn enumerate_init(
     machine: &mut Machine,
     plan: &Plan,
@@ -412,6 +554,9 @@ fn enumerate_init(
         if let Err(error) = finish_batch(machine, mark) {
             report.outcome = classify(&error, None);
             return None;
+        }
+        if result.is_err() && draw_count(machine) > 0 {
+            return Some(sampled_init_instead(machine, report));
         }
         if let Err(error) = result {
             report.outcome = if limited {
@@ -460,6 +605,7 @@ fn enumerate_init(
                     states: vec![state],
                     actions: Vec::new(),
                     generated: 0,
+                    witnesses: Vec::new(),
                 }),
                 Err(message) => report.outcome = Outcome::Unsupported(message),
             }
@@ -491,6 +637,16 @@ fn enumerate_init(
         return None;
     }
     Some(Init::Enumerated(eligible))
+}
+
+/// Init reached an unbounded set while enumerated once: nothing enumerated
+/// so far counts, and nothing it printed is kept; each trace enumerates Init
+/// with its own draws.
+fn sampled_init_instead(machine: &mut Machine, report: &mut Report) -> Init {
+    report.initial_candidates = 0;
+    let _ = machine.take_output();
+    machine.warnings.clear();
+    Init::Sampled
 }
 
 /// One worker: claims trace ids in order and commits each finished trace.
@@ -589,6 +745,9 @@ impl Commit {
             initial,
             printed,
             flow,
+            witnesses,
+            sampled,
+            stalled,
             end,
         } = run;
         let outcome = match end {
@@ -630,6 +789,8 @@ impl Commit {
         self.report.generated = total;
         self.report.initial_candidates += initial;
         self.report.traces_started += 1;
+        self.stalled += u64::from(stalled);
+        self.sampled.extend(sampled);
         if let Some(action_flow) = &mut self.report.action_flow {
             for (from, to) in flow {
                 if let Err(error) = action_flow.record(from, to) {
@@ -637,19 +798,28 @@ impl Commit {
                 }
             }
         }
+        let kept = Kept {
+            id,
+            rows,
+            actions,
+            generated,
+            witnesses,
+        };
         let fits = self
             .retained
-            .checked_add(rows.len())
+            .checked_add(kept.rows.len())
             .is_some_and(|total| total <= cx.options.max_retained);
         match outcome {
             None => {
-                if self.kept < cx.options.keep_traces {
+                // A trace that stalled before its first state has nothing
+                // to keep.
+                if self.kept < cx.options.keep_traces && !kept.rows.is_empty() {
                     if !fits {
                         return self.end(Outcome::Limit("simulation retained-state bound".into()));
                     }
                     self.kept += 1;
-                    self.retained += rows.len();
-                    self.rows.push((id, rows, actions, generated));
+                    self.retained += kept.rows.len();
+                    self.rows.push(kept);
                 }
             }
             Some(mut outcome) => {
@@ -664,9 +834,9 @@ impl Commit {
                 }
                 // An error before the trace had a state (constructive Init)
                 // leaves nothing to keep.
-                if !rows.is_empty() {
-                    self.retained += rows.len();
-                    self.rows.push((id, rows, actions, generated));
+                if !kept.rows.is_empty() {
+                    self.retained += kept.rows.len();
+                    self.rows.push(kept);
                 }
                 self.end(outcome);
             }
@@ -716,6 +886,9 @@ fn trace(machine: &mut Machine, cx: &Context<'_>, id: u64) -> Run {
         initial: 0,
         printed: Vec::new(),
         flow: Vec::new(),
+        witnesses: Vec::new(),
+        sampled: Vec::new(),
+        stalled: false,
         end: End::Completed,
     };
     machine.set_output_limits(cx.output.0, cx.output.1);
@@ -747,6 +920,7 @@ fn trace(machine: &mut Machine, cx: &Context<'_>, id: u64) -> Run {
     if matches!(run.end, End::Completed) && id >= cx.options.keep_traces {
         run.rows = Vec::new();
         run.actions = Vec::new();
+        run.witnesses = Vec::new();
     }
     run
 }
@@ -777,10 +951,22 @@ fn sample_into(
                 usize::try_from(rng.borrow_mut().next_index(eligible.len() as u64)).unwrap_or(0);
             eligible[choice].clone()
         }
-        Init::Constructive => match construct_init(machine, cx, rng, run) {
-            Ok(chosen) => chosen,
-            Err(end) => return end,
-        },
+        Init::Constructive | Init::Sampled => {
+            let chosen = if matches!(cx.init, Init::Sampled) {
+                sampled_init(machine, cx, id, rng, run)
+            } else {
+                construct_init(machine, cx, id, rng, run)
+            };
+            match chosen {
+                Ok((row, action, drawn)) => {
+                    if !drawn.is_empty() {
+                        run.witnesses.push((0, drawn));
+                    }
+                    (row, action)
+                }
+                Err(end) => return end,
+            }
+        }
     };
     let mut previous = cx.init_ids[action];
     run.rows.push(current.clone());
@@ -795,120 +981,145 @@ fn sample_into(
         let source = level_of(run.rows.len());
         let target = level_of(run.rows.len() + 1);
         machine.level = source;
-        let mut exact: Vec<Vec<Handle>> = Vec::new();
-        let mut kept: Option<Vec<Handle>> = None;
+        let mut exact: Vec<(Vec<Handle>, Vec<Handle>)> = Vec::new();
+        let mut kept: Option<(Vec<Handle>, Vec<Handle>)> = None;
         let mut admitted = 0u64;
-        let mut index =
+        let start =
             usize::try_from(rng.borrow_mut().next_index(plan.next.len() as u64)).unwrap_or(0);
+        let mut index;
         let sampled_prime = usize::try_from(rng.borrow_mut().next_prime()).unwrap_or(0);
         let prime = if options.generation { 1 } else { sampled_prime };
         let mut failed = None;
-        for _ in 0..plan.next.len() {
-            let mark = machine.heap.mark();
-            let mut selected = false;
-            let generated = &mut run.generated;
-            let rows = &mut run.rows;
-            let actions = &mut run.actions;
-            let mut emit = |machine: &mut Machine| {
-                if poll() {
-                    return Err(Error::stop());
-                }
-                if machine.assigned != machine.s1.len() {
-                    failed = Some(Outcome::Error {
-                        code: 2109,
-                        message: "incomplete successor state".into(),
-                    });
-                    return Err(Error::stop());
-                }
-                *generated += 1;
-                failed = at_level(machine, target, |machine| {
-                    roles(
-                        machine,
-                        plan,
-                        &plan.invariants,
-                        false,
-                        "invariant",
-                        2110,
-                        2111,
-                    )
-                })
-                .or_else(|| {
-                    roles(
-                        machine,
-                        plan,
-                        &plan.implied_actions,
-                        true,
-                        "property",
-                        2112,
-                        2113,
-                    )
-                });
-                if failed.is_some() {
-                    match retain(machine) {
-                        Ok(row) => {
-                            rows.push(row);
-                            actions.push(index);
-                        }
-                        Err(error) => failed = Some(classify(&error, None)),
-                    }
-                    return Err(Error::stop());
-                }
-                if at_level(machine, target, |machine| {
-                    allowed(machine, plan, &plan.constraints, false)
-                })? && allowed(machine, plan, &plan.action_constraints, true)?
-                {
-                    admitted += 1;
-                    if options.generation {
-                        kept = Some(retain(machine)?);
-                        selected = true;
+        let step = run.rows.len() as u64;
+        let mut attempt = 0u64;
+        let mut drew;
+        loop {
+            index = start;
+            drew = 0;
+            for _ in 0..plan.next.len() {
+                let mark = machine.heap.mark();
+                let mut selected = false;
+                let before = restart_draws(machine, [id, step, index as u64, attempt]);
+                let generated = &mut run.generated;
+                let rows = &mut run.rows;
+                let actions = &mut run.actions;
+                let run_witnesses = &mut run.witnesses;
+                let mut emit = |machine: &mut Machine| {
+                    if poll() {
                         return Err(Error::stop());
                     }
-                    if kept.is_none() && exact.len() < EXACT_CANDIDATES {
-                        exact.push(retain(machine)?);
-                    } else {
-                        let mut rng = rng.borrow_mut();
-                        if kept.is_none() {
-                            let choice =
-                                usize::try_from(rng.next_index(exact.len() as u64)).unwrap_or(0);
-                            kept = Some(exact.swap_remove(choice));
-                            exact = Vec::new();
+                    if machine.assigned != machine.s1.len() {
+                        failed = Some(Outcome::Error {
+                            code: 2109,
+                            message: "incomplete successor state".into(),
+                        });
+                        return Err(Error::stop());
+                    }
+                    *generated += 1;
+                    failed = at_level(machine, target, |machine| {
+                        roles(
+                            machine,
+                            plan,
+                            &plan.invariants,
+                            false,
+                            "invariant",
+                            2110,
+                            2111,
+                        )
+                    })
+                    .or_else(|| {
+                        roles(
+                            machine,
+                            plan,
+                            &plan.implied_actions,
+                            true,
+                            "property",
+                            2112,
+                            2113,
+                        )
+                    });
+                    if failed.is_some() {
+                        match retain(machine).and_then(|row| Ok((row, witnesses(machine)?))) {
+                            Ok((row, drawn)) => {
+                                rows.push(row);
+                                actions.push(index);
+                                if !drawn.is_empty() {
+                                    run_witnesses.push((rows.len() - 1, drawn));
+                                }
+                            }
+                            Err(error) => failed = Some(classify(&error, None)),
                         }
-                        if rng.next_index(admitted) == 0 {
-                            kept = Some(retain(machine)?);
+                        return Err(Error::stop());
+                    }
+                    if at_level(machine, target, |machine| {
+                        allowed(machine, plan, &plan.constraints, false)
+                    })? && allowed(machine, plan, &plan.action_constraints, true)?
+                    {
+                        admitted += 1;
+                        if options.generation {
+                            kept = Some((retain(machine)?, witnesses(machine)?));
+                            selected = true;
+                            return Err(Error::stop());
+                        }
+                        if kept.is_none() && exact.len() < EXACT_CANDIDATES {
+                            exact.push((retain(machine)?, witnesses(machine)?));
+                        } else {
+                            let mut rng = rng.borrow_mut();
+                            if kept.is_none() {
+                                let choice = usize::try_from(rng.next_index(exact.len() as u64))
+                                    .unwrap_or(0);
+                                kept = Some(exact.swap_remove(choice));
+                                exact = Vec::new();
+                            }
+                            if rng.next_index(admitted) == 0 {
+                                kept = Some((retain(machine)?, witnesses(machine)?));
+                            }
                         }
                     }
+                    Ok(())
+                };
+                let mut choose = |bound| rng.borrow_mut().next_index(bound);
+                let choices = if options.generation {
+                    Some(&mut choose as &mut dyn FnMut(u64) -> u64)
+                } else {
+                    None
+                };
+                let result =
+                    generate_selected(machine, &plan.code, &plan.next[index], &mut emit, choices);
+                drew += draw_count(machine) - before;
+                note_sets(machine, &cx.next_labels[index], &mut run.sampled);
+                if let Err(error) = finish_batch(machine, mark) {
+                    failed = Some(classify(&error, None));
                 }
-                Ok(())
-            };
-            let mut choose = |bound| rng.borrow_mut().next_index(bound);
-            let choices = if options.generation {
-                Some(&mut choose as &mut dyn FnMut(u64) -> u64)
-            } else {
-                None
-            };
-            let result =
-                generate_selected(machine, &plan.code, &plan.next[index], &mut emit, choices);
-            if let Err(error) = finish_batch(machine, mark) {
-                failed = Some(classify(&error, None));
+                if let Err(error) = result
+                    && failed.is_none()
+                    && !(selected && error.kind() == ErrorKind::Stop)
+                {
+                    failed = Some(match error.kind() {
+                        ErrorKind::Stop if poll() => return End::Stopped,
+                        _ => classify_step(&error, None),
+                    });
+                }
+                if failed.is_some() || admitted > 0 {
+                    break;
+                }
+                index = (index + prime) % plan.next.len();
             }
-            if let Err(error) = result
-                && failed.is_none()
-                && !(selected && error.kind() == ErrorKind::Stop)
-            {
-                failed = Some(match error.kind() {
-                    ErrorKind::Stop if poll() => return End::Stopped,
-                    _ => classify_step(&error, None),
-                });
-            }
-            if failed.is_some() || admitted > 0 {
+            // Draws that led nowhere are drawn again; they never show that the
+            // state has no successor.
+            if failed.is_some() || admitted > 0 || drew == 0 || attempt + 1 >= SAMPLE_ATTEMPTS {
                 break;
             }
-            index = (index + prime) % plan.next.len();
+            attempt += 1;
         }
         if let Some(outcome) = failed {
             return End::Deciding(outcome);
         }
         if admitted == 0 {
+            if drew > 0 {
+                run.stalled = true;
+                return End::Completed;
+            }
             if plan.check_deadlock {
                 return End::Deciding(Outcome::Violation {
                     kind: "deadlock",
@@ -919,7 +1130,7 @@ fn sample_into(
             }
             return End::Completed;
         }
-        let chosen = if let Some(kept) = kept {
+        let (chosen, drawn) = if let Some(kept) = kept {
             kept
         } else {
             let choice =
@@ -928,6 +1139,9 @@ fn sample_into(
         };
         current = chosen;
         run.rows.push(current.clone());
+        if !drawn.is_empty() {
+            run.witnesses.push((run.rows.len() - 1, drawn));
+        }
         run.actions.push(index);
         let to = cx.next_ids[index];
         if cx.flows {
@@ -938,6 +1152,126 @@ fn sample_into(
     End::Completed
 }
 
+/// The checks of an initial candidate in `machine.s1`, as enumerated Init
+/// makes them: its deciding violation, else whether the constraints admit it.
+fn initial_checks(machine: &mut Machine, plan: &Plan) -> Option<Outcome> {
+    if machine.s1.iter().any(|value| value.is_empty()) {
+        return Some(Outcome::Error {
+            code: 2106,
+            message: "incomplete initial state".into(),
+        });
+    }
+    at_level(machine, 1, |machine| {
+        roles(
+            machine,
+            plan,
+            &plan.invariants,
+            false,
+            "invariant",
+            2107,
+            2102,
+        )
+        .or_else(|| implied_initial(machine, plan))
+    })
+}
+
+/// No initial state: 2118 when Init generated none, else 2256.
+fn no_initial_state(generated: bool) -> End {
+    End::Deciding(Outcome::Error {
+        code: if generated { 2256 } else { 2118 },
+        message: "no initial state satisfies the specification and constraints".into(),
+    })
+}
+
+/// An initial row, its action and its witnesses.
+type Chosen = (Vec<Handle>, usize, Vec<Handle>);
+
+/// Init draws from an unbounded set: trace `id` enumerates Init with its own
+/// draws, checks every candidate as enumerated Init does, and chooses one
+/// admitted candidate uniformly (reservoir). Only an attempt that drew
+/// nothing shows there is no initial state; otherwise Init is drawn again,
+/// and the trace stalls after [`SAMPLE_ATTEMPTS`].
+fn sampled_init(
+    machine: &mut Machine,
+    cx: &Context<'_>,
+    id: u64,
+    rng: &RefCell<Stream>,
+    run: &mut Run,
+) -> Result<Chosen, End> {
+    let plan = cx.plan;
+    let poll = cx.poll;
+    for attempt in 0..SAMPLE_ATTEMPTS {
+        machine.s0.fill(Handle::EMPTY);
+        machine.level = 0;
+        let mut kept: Option<Chosen> = None;
+        let mut admitted = 0u64;
+        let mut candidates = false;
+        let mut drew = 0;
+        for index in 0..plan.init.len() {
+            let before = restart_draws(machine, [id, 0, index as u64, attempt]);
+            let mark = machine.heap.mark();
+            let mut failed = None;
+            let initial = &mut run.initial;
+            let generated = &mut run.generated;
+            let rows = &mut run.rows;
+            let run_witnesses = &mut run.witnesses;
+            let mut emit = |machine: &mut Machine| {
+                if poll() {
+                    return Err(Error::stop());
+                }
+                *initial += 1;
+                *generated += 1;
+                candidates = true;
+                failed = initial_checks(machine, plan);
+                if failed.is_some() {
+                    match retain(machine).and_then(|row| Ok((row, witnesses(machine)?))) {
+                        Ok((row, drawn)) => {
+                            rows.push(row);
+                            if !drawn.is_empty() {
+                                run_witnesses.push((0, drawn));
+                            }
+                        }
+                        Err(error) => failed = Some(classify(&error, None)),
+                    }
+                    return Err(Error::stop());
+                }
+                if at_level(machine, 1, |machine| {
+                    allowed(machine, plan, &plan.constraints, false)
+                })? {
+                    admitted += 1;
+                    if rng.borrow_mut().next_index(admitted) == 0 {
+                        kept = Some((retain(machine)?, index, witnesses(machine)?));
+                    }
+                }
+                Ok(())
+            };
+            let result = generate(machine, &plan.code, &plan.init[index], &mut emit);
+            drew += draw_count(machine) - before;
+            note_sets(machine, &cx.init_labels[index], &mut run.sampled);
+            if let Err(error) = finish_batch(machine, mark) {
+                return Err(End::Deciding(classify(&error, None)));
+            }
+            if let Some(outcome) = failed {
+                return Err(End::Deciding(outcome));
+            }
+            if let Err(error) = result {
+                if poll() {
+                    return Err(End::Stopped);
+                }
+                return Err(End::Deciding(classify_init(&error)));
+            }
+        }
+        if let Some(chosen) = kept {
+            return Ok(chosen);
+        }
+        if drew == 0 {
+            return Err(no_initial_state(candidates));
+        }
+    }
+    run.stalled = true;
+    Err(End::Completed)
+}
+
 /// Under `--constructive-init`: constructs the trace's initial state with
 /// randomized Init choices, checking each candidate as enumerated Init does. The generator
 /// searches every remaining alternative before giving up, so finding no
@@ -945,50 +1279,43 @@ fn sample_into(
 fn construct_init(
     machine: &mut Machine,
     cx: &Context<'_>,
+    id: u64,
     rng: &RefCell<Stream>,
     run: &mut Run,
-) -> Result<(Vec<Handle>, usize), End> {
+) -> Result<Chosen, End> {
     let plan = cx.plan;
     let poll = cx.poll;
     machine.s0.fill(Handle::EMPTY);
     machine.level = 0;
     let count = plan.init.len();
     let mut index = usize::try_from(rng.borrow_mut().next_index(count as u64)).unwrap_or(0);
-    for _ in 0..count {
+    let start = index;
+    let mut drew = 0;
+    let mut attempt = 0;
+    for _ in 0..count.saturating_mul(usize::try_from(SAMPLE_ATTEMPTS).unwrap_or(1)) {
+        let before = restart_draws(machine, [id, 0, index as u64, attempt]);
         let mark = machine.heap.mark();
         let mut kept = None;
         let mut failed = None;
         let initial = &mut run.initial;
         let generated = &mut run.generated;
         let rows = &mut run.rows;
+        let run_witnesses = &mut run.witnesses;
         let mut emit = |machine: &mut Machine| {
             if poll() {
                 return Err(Error::stop());
             }
             *initial += 1;
             *generated += 1;
-            if machine.s1.iter().any(|value| value.is_empty()) {
-                failed = Some(Outcome::Error {
-                    code: 2106,
-                    message: "incomplete initial state".into(),
-                });
-                return Err(Error::stop());
-            }
-            failed = at_level(machine, 1, |machine| {
-                roles(
-                    machine,
-                    plan,
-                    &plan.invariants,
-                    false,
-                    "invariant",
-                    2107,
-                    2102,
-                )
-                .or_else(|| implied_initial(machine, plan))
-            });
+            failed = initial_checks(machine, plan);
             if failed.is_some() {
-                match retain(machine) {
-                    Ok(row) => rows.push(row),
+                match retain(machine).and_then(|row| Ok((row, witnesses(machine)?))) {
+                    Ok((row, drawn)) => {
+                        rows.push(row);
+                        if !drawn.is_empty() {
+                            run_witnesses.push((0, drawn));
+                        }
+                    }
                     Err(error) => failed = Some(classify(&error, None)),
                 }
                 return Err(Error::stop());
@@ -996,7 +1323,7 @@ fn construct_init(
             if at_level(machine, 1, |machine| {
                 allowed(machine, plan, &plan.constraints, false)
             })? {
-                kept = Some(retain(machine)?);
+                kept = Some((retain(machine)?, witnesses(machine)?));
                 return Err(Error::stop());
             }
             Ok(())
@@ -1009,14 +1336,16 @@ fn construct_init(
             &mut emit,
             Some(&mut choose),
         );
+        drew += draw_count(machine) - before;
+        note_sets(machine, &cx.init_labels[index], &mut run.sampled);
         if let Err(error) = finish_batch(machine, mark) {
             return Err(End::Deciding(classify(&error, None)));
         }
         if let Some(outcome) = failed {
             return Err(End::Deciding(outcome));
         }
-        if let Some(row) = kept {
-            return Ok((row, index));
+        if let Some((row, drawn)) = kept {
+            return Ok((row, index, drawn));
         }
         if let Err(error) = result {
             if poll() {
@@ -1025,9 +1354,16 @@ fn construct_init(
             return Err(End::Deciding(classify_init(&error)));
         }
         index = (index + 1) % count;
+        if index == start {
+            // Every Init alternative was searched: without draws, there is
+            // no initial state; with them, Init is drawn again.
+            if drew == 0 {
+                return Err(no_initial_state(run.initial > 0));
+            }
+            drew = 0;
+            attempt += 1;
+        }
     }
-    Err(End::Deciding(Outcome::Error {
-        code: if run.initial == 0 { 2118 } else { 2256 },
-        message: "no initial state satisfies the specification and constraints".into(),
-    }))
+    run.stalled = true;
+    Err(End::Completed)
 }

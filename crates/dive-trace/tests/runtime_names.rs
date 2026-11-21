@@ -948,6 +948,7 @@ fn foreign_typed_names_refuse_before_trace_lasso_or_enabledness_evaluation() {
                     length: None,
                     properties: Vec::new(),
                     concrete_closure: false,
+                    witnesses: Vec::new(),
                 };
                 assert!(!m.has_runtime_names());
                 let report = validate(&m, &trace);
@@ -1015,6 +1016,7 @@ fn opaque_typed_states_refuse_without_evaluation_or_callbacks() {
             length: None,
             properties: Vec::new(),
             concrete_closure: false,
+            witnesses: Vec::new(),
         };
         assert!(
             matches!(validate(&m, &trace).validation, Validation::Unsupported(reason) if reason.contains("DIVE-V0042"))

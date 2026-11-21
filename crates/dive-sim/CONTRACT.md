@@ -34,9 +34,18 @@ With `Options::constructive_init` (`--constructive-init`, D-041) each trace
 builds its own initial state with randomized Init choices, checked like an
 enumerated one; a search that
 finds no admitted state has searched every alternative, so 2118 and 2256 keep
-their meaning. A set the generator cannot enumerate (`Nat`, `Int`) is TLC's
-GENERAL 1000 error; the constructive generator refuses an existential domain
-it cannot index by name.
+their meaning. With `Options::sample_unbounded` set to
+`SampleUnbounded::Geometric { mean }` (the default for `RandomMode::Dive`,
+D-040), a generator position over an infinite set (`Nat`, `Int`, `Seq(S)`, and
+finite-domain tuples, records and functions over them) draws one member from
+the stream `Streams::simulation_draws(id, step, action, attempt)`; other
+infinite sets refuse by name. A step that drew and admitted nothing is drawn
+again up to `SAMPLE_ATTEMPTS` times and then ends the trace, counted in
+`Report::traces_stalled`, never as a deadlock. `Report::sampled_sets` names
+each set drawn from, and each `Trace::witnesses` entry holds the members a
+state's step drew for its existentials, which the validator checks for
+membership and uses only to prove an `\E` true. With `SampleUnbounded::Off`
+(the default for `RandomMode::Tlc`) such a set is TLC's GENERAL 1000 error.
 
 ## Workers and commit order
 

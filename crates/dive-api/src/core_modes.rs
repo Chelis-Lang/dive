@@ -364,6 +364,8 @@ pub(crate) fn preflight_report(outcome: Outcome) -> Report {
         traces: Vec::new(),
         action_flow: None,
         runtime_output: Vec::new(),
+        sampled_sets: Vec::new(),
+        traces_stalled: 0,
     }
 }
 

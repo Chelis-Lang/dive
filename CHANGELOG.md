@@ -22,6 +22,14 @@ are in git history.
 - The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Relation changes start a fresh search with the previous set coordinates. [Usage and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
 
 - Ordinary Core safety searches can put [independently compressed frontier chunks](docs/user/storage-recovery.md#independently-stored-frontier-values) on disk and reclaim compound values between worker batches.
+- `dive simulate` samples sets it cannot enumerate, such as `x \in Nat` or
+  `\E n \in Nat : x' = x + n`, instead of failing as TLC does. `Nat`, `Int`
+  and `Seq(S)` have stated, seeded distributions (`--sample-mean` sets the
+  geometric mean), the report names every set sampled, and each drawn member
+  is checked by trace validation. `--sample-unbounded off` and `--compat=tlc`
+  keep TLC's error. Trace documents gain per-state `witnesses`, and
+  `dive_trace::TraceDoc` and `Trace` gain a `witnesses` field. See
+  [simulation](docs/user/simulation.md#unbounded-sets).
 - `dive simulate --workers N` runs in parallel and reports exactly what one
   worker reports: the lowest-numbered failing trace decides, and `--traces`
   is the total. `--traces unlimited` (with `--time-limit`), `--keep-traces

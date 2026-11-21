@@ -226,7 +226,10 @@ fn constructive_init_never_enumerates_init() -> Result {
     Ok(())
 }
 
-/// G3 to G6: a set dive cannot enumerate is TLC's GENERAL 1000 error.
+/// G3 to G6: with sampling off (TLC's profile, or `--sample-unbounded off`),
+/// a set dive cannot enumerate is TLC's GENERAL 1000 error, also under the
+/// constructive generator. Sampling, on by default, is tested in
+/// `simulate_unbounded.rs`.
 #[test]
 fn unenumerable_sets_are_tlc_general_errors() -> Result {
     for module in ["InfInit", "InfNext"] {
@@ -241,23 +244,14 @@ fn unenumerable_sets_are_tlc_general_errors() -> Result {
                     depth: Some(20),
                     generation,
                     constructive_init: generation,
+                    sample_unbounded: (!compat_tlc).then_some(dive_api::SampleUnbounded::Off),
                     ..Default::default()
                 })?;
                 let json = report.to_json();
                 let case = format!("{module} generate={generation} tlc={compat_tlc}: {json}");
-                if module == "InfNext" && generation {
-                    // The constructive generator refuses a binder domain it
-                    // cannot index before it learns whether it is finite.
-                    assert_eq!(json["result"], "unsupported", "{case}");
-                    assert_eq!(
-                        json["message"],
-                        "constructive generation requires an interval or stored finite binder domain",
-                        "{case}"
-                    );
-                    continue;
-                }
                 assert_eq!(json["result"], "evaluation-error", "{case}");
                 assert_eq!(json["tlc_code"], 1000, "{case}");
+                assert_eq!(json["options"]["sample_unbounded"], "off", "{case}");
                 assert_eq!(report.exit_code_for(ExitConvention::Tlc), 255, "{case}");
             }
         }

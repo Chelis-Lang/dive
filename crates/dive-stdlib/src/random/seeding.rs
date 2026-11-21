@@ -116,6 +116,25 @@ impl Streams {
     pub const fn simulation_trace(&self, trace: u64) -> Stream {
         Stream::Dive(DiveStream::new(self.seed, Domain::Simulation, trace))
     }
+
+    /// dive simulation: the stream that draws members of unbounded sets (`Nat`,
+    /// `Int`, `Seq(S)`) at one position of trace `trace`, keyed by the trace,
+    /// the step, the action tried and the attempt (ADR 0162 §8, §9). It is
+    /// separate from [`Self::simulation_trace`], so a trace's choices of
+    /// initial state, action and successor do not depend on how many members
+    /// were drawn, and the draws at a step do not depend on what earlier
+    /// actions or attempts generated.
+    #[must_use]
+    pub const fn simulation_draws(
+        &self,
+        trace: u64,
+        step: u64,
+        action: u64,
+        attempt: u64,
+    ) -> Stream {
+        let key = mix64(mix64(mix64(trace) ^ step) ^ action) ^ attempt;
+        Stream::Dive(DiveStream::new(self.seed, Domain::SimulationDraw, key))
+    }
 }
 
 /// A random stream: TLC's generator or dive's.
@@ -143,14 +162,16 @@ enum Domain {
     Startup,
     State,
     Simulation,
+    SimulationDraw,
 }
 
 impl Domain {
     const fn tag(self) -> u64 {
         match self {
-            Self::Startup => 0x5354_4152_5455_5021,    // "STARTUP!"
-            Self::State => 0x5354_4154_4521_2121,      // "STATE!!!"
-            Self::Simulation => 0x5349_4d55_4c41_5445, // "SIMULATE"
+            Self::Startup => 0x5354_4152_5455_5021,        // "STARTUP!"
+            Self::State => 0x5354_4154_4521_2121,          // "STATE!!!"
+            Self::Simulation => 0x5349_4d55_4c41_5445,     // "SIMULATE"
+            Self::SimulationDraw => 0x5349_4d44_5241_5753, // "SIMDRAWS"
         }
     }
 }
@@ -238,6 +259,24 @@ pub fn fresh_seed() -> i64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn simulation_draw_streams_are_keyed_by_every_position_component() {
+        let streams = Streams::new(7, RandomMode::Dive);
+        let first = |mut stream: Stream| stream.next_long();
+        let base = first(streams.simulation_draws(3, 4, 5, 6));
+        assert_eq!(base, first(streams.simulation_draws(3, 4, 5, 6)));
+        for other in [
+            streams.simulation_draws(2, 4, 5, 6),
+            streams.simulation_draws(3, 3, 5, 6),
+            streams.simulation_draws(3, 4, 4, 6),
+            streams.simulation_draws(3, 4, 5, 5),
+            Streams::new(8, RandomMode::Dive).simulation_draws(3, 4, 5, 6),
+            streams.simulation_trace(3),
+        ] {
+            assert_ne!(base, first(other));
+        }
+    }
 
     #[test]
     fn seeds_parse_like_long_parse_long() {

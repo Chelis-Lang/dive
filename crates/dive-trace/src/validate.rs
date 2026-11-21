@@ -343,6 +343,7 @@ impl<'a> Run<'a> {
             choices: None,
             predicate_init: AtomicBool::new(false),
             predicate_next: AtomicBool::new(false),
+            witnesses: Mutex::new(None),
             inputs: None,
         });
         model.evaluator.set_host(host.clone());
@@ -575,6 +576,8 @@ impl<'a> Run<'a> {
             if let Some(choices) = &self.host.choices {
                 choices.prefer(&trace.states[k]);
             }
+            self.host
+                .set_witnesses(trace.witnesses.get(k).map(Vec::as_slice));
             let here = St::state(trace.states[k].clone());
             let step =
                 (k > 0).then(|| St::action(trace.states[k - 1].clone(), trace.states[k].clone()));
@@ -614,6 +617,15 @@ impl<'a> Run<'a> {
                             }
                             Err(error) => {
                                 if error.class() == ErrorClass::Eval {
+                                    // TLC's Init construction cannot enumerate
+                                    // an infinite set; membership in Init is
+                                    // then decided on the given state by the
+                                    // predicate path (D-040).
+                                    if not_enumerable(&error)
+                                        && !self.host.register_used.load(Ordering::Relaxed)
+                                    {
+                                        self.init_incomplete = true;
+                                    }
                                     return Err(Stop::Unsupported(format!(
                                         "independent Init source evaluation fails: {error}"
                                     )));
@@ -1552,6 +1564,14 @@ pub(crate) struct TraceHost {
     pub(crate) choices: Option<Arc<crate::choices::Search>>,
     predicate_init: AtomicBool,
     predicate_next: AtomicBool,
+    /// The recorded existential witnesses of the step being checked.
+    witnesses: Mutex<Option<Arc<[Value]>>>,
+}
+
+/// Whether `error` is TLC's failure to enumerate an infinite set.
+fn not_enumerable(error: &EvalError) -> bool {
+    let message = error.message();
+    message.contains("is not enumerable") || message.contains("non-enumerable quantifier bound")
 }
 
 /// A cache domain no other replay host has used (0 is ordinary evaluation's).
@@ -1592,6 +1612,7 @@ impl TraceHost {
             choices,
             predicate_init: AtomicBool::new(false),
             predicate_next: AtomicBool::new(false),
+            witnesses: Mutex::new(None),
         })
     }
 
@@ -1620,7 +1641,26 @@ impl TraceHost {
     }
 }
 
+impl TraceHost {
+    /// Offers `values` as the witnesses of the step being checked; `None`
+    /// or an empty list offers none.
+    pub(crate) fn set_witnesses(&self, values: Option<&[Value]>) {
+        *self
+            .witnesses
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) =
+            values.filter(|values| !values.is_empty()).map(Arc::from);
+    }
+}
+
 impl Host for TraceHost {
+    fn existential_witnesses(&self) -> Option<Arc<[Value]>> {
+        self.witnesses
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone()
+    }
+
     fn input(
         &self,
         request: &dive_eval::inputs::InputRequest,

@@ -842,6 +842,22 @@ violation, which constructing one state per trace would miss.
 - Tests: `InfInit`, `InfNext` (G3 to G6) in both profiles; the same seed
   reproduces the same draws at 1 and 4 workers; report notes list the sets.
 
+As built (S6): draws come from a separate stream,
+`Streams::simulation_draws(trace, step, action, attempt)`, so a spec that
+draws nothing samples exactly the traces it sampled before (measured overhead
+on a finite spec is within noise). The sampler lives on the Core `Machine`
+(`dive_core::unbounded`) and draws only at generator positions: `x' \in S`,
+`\E` contexts that assign, and constructive `\E` domains, which also closes
+S2's `--generate` refusal for `\E n \in Nat` (G6). Init with a draw is
+detected by a probe enumeration at startup and then enumerated per trace,
+with reservoir choice. A step that drew and admitted nothing is drawn again
+up to 8 times and then ends the trace (`traces_stalled`), never a deadlock.
+`\E` draws are recorded as per-state `witnesses` in the trace document; the
+validator tries the members among them to prove an `\E` over an infinite
+set true and never uses them to make one false. Known gap: an `\E` at the
+very top of `Next` over a record or product set with an infinite component
+is refused by the action splitter at load time, as in `dive check`.
+
 ## 14. Acceptance metrics
 
 1. **Refusal histogram** (driver above, all 235 configs). Before: 110

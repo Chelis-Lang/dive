@@ -71,6 +71,30 @@ fn admit_bulk_set(set: &Set, ctx: dive_value::Ctx) -> Result<()> {
     Ok(())
 }
 
+/// One column per bound variable, or one for a tuple pattern.
+fn push_binders(
+    b: &Bound,
+    column: ContextColumn,
+    binders: &mut Vec<Binder>,
+    columns: &mut Vec<ContextColumn>,
+) {
+    if b.tuple {
+        binders.push(Binder {
+            slots: b.vars.iter().map(|s| s.index()).collect(),
+            tuple: true,
+        });
+        columns.push(column);
+    } else {
+        for v in &b.vars {
+            binders.push(Binder {
+                slots: vec![v.index()],
+                tuple: false,
+            });
+            columns.push(column.clone());
+        }
+    }
+}
+
 impl ContextColumn {
     fn interval(set: &dive_value::Set, ctx: dive_value::Ctx) -> Result<Self> {
         admit_bulk_set(set, ctx)?;
@@ -1537,8 +1561,26 @@ impl Core {
         e: ExprId,
         body: &mut dyn FnMut(&Arc<Self>, &mut Env) -> Result<bool>,
     ) -> Result<()> {
+        self.for_each_hinted_context(env, st, bounds, e, None, body)
+            .map(|_| ())
+    }
+
+    /// [`Self::for_each_context`], where an infinite domain ranges over the
+    /// `hints` that are its members instead of failing. Returns the first
+    /// such domain's non-enumerable error, which the caller reports unless a
+    /// context decided the construct; without one, `None`.
+    fn for_each_hinted_context(
+        self: &Arc<Self>,
+        env: &mut Env,
+        st: &St,
+        bounds: &[Bound],
+        e: ExprId,
+        hints: Option<&[Value]>,
+        body: &mut dyn FnMut(&Arc<Self>, &mut Env) -> Result<bool>,
+    ) -> Result<Option<EvalError>> {
         let mut binders: Vec<Binder> = Vec::new();
         let mut columns: Vec<ContextColumn> = Vec::new();
+        let mut hinted = None;
         for b in bounds {
             let Some(dom) = b.domain else {
                 return Err(EvalError::bug("unbounded binder in a bounded construct"));
@@ -1547,6 +1589,24 @@ impl Core {
             let Value::Set(s) = &set else {
                 return Err(self.non_enumerable_bound(&set, dom));
             };
+            if let Some(hints) = hints
+                && (!is_enumerable(&set) || s.is_infinite())
+            {
+                // Only members of the domain are tried; a hint that cannot
+                // be compared with it is not one.
+                let members: Vec<Value> = hints
+                    .iter()
+                    .filter(|hint| self.member(hint, &set).unwrap_or(false))
+                    .cloned()
+                    .collect();
+                hinted.get_or_insert_with(|| self.non_enumerable_bound(&set, dom));
+                let column = ContextColumn::Stored {
+                    values: members.into(),
+                    index: 0,
+                };
+                push_binders(b, column, &mut binders, &mut columns);
+                continue;
+            }
             if !is_enumerable(&set) {
                 return Err(self.non_enumerable_bound(&set, dom));
             }
@@ -1561,24 +1621,10 @@ impl Core {
                     index: 0,
                 }
             };
-            if b.tuple {
-                binders.push(Binder {
-                    slots: b.vars.iter().map(|s| s.index()).collect(),
-                    tuple: true,
-                });
-                columns.push(column);
-            } else {
-                for v in &b.vars {
-                    binders.push(Binder {
-                        slots: vec![v.index()],
-                        tuple: false,
-                    });
-                    columns.push(column.clone());
-                }
-            }
+            push_binders(b, column, &mut binders, &mut columns);
         }
         if columns.iter().any(ContextColumn::is_empty) {
-            return Ok(());
+            return Ok(hinted);
         }
         loop {
             self.loop_work()?;
@@ -1601,13 +1647,13 @@ impl Core {
                 }
             }
             if !body(self, env)? {
-                return Ok(());
+                return Ok(hinted);
             }
             // Advance the odometer, first position fastest.
             let mut k = 0;
             loop {
                 if k == columns.len() {
-                    return Ok(());
+                    return Ok(hinted);
                 }
                 if columns[k].advance()? {
                     break;
@@ -1664,22 +1710,41 @@ impl Core {
         }
         // OPCODE_be / OPCODE_bf
         let mut result = !exists;
-        self.for_each_context(env, st, bounds, e, &mut |core, env| {
-            let b = core.eval_bool(env, st, body, |c, _| {
-                EvalError::coded(
-                    Ec::ExpectedValue,
-                    format!(
-                        "TLC expected a boolean value, but did not find one. {}",
-                        c.loc(e)
-                    ),
-                )
-            })?;
-            if b == exists {
-                result = exists;
-                return Ok(false);
-            }
-            Ok(true)
-        })?;
+        // A sampled trace's witnesses can prove a `\E` over an infinite
+        // domain true (D-040); they never make it false.
+        let witnesses = if exists {
+            self.existential_witnesses()
+        } else {
+            None
+        };
+        let unproved = self.for_each_hinted_context(
+            env,
+            st,
+            bounds,
+            e,
+            witnesses.as_deref(),
+            &mut |core, env| {
+                let b = core.eval_bool(env, st, body, |c, _| {
+                    EvalError::coded(
+                        Ec::ExpectedValue,
+                        format!(
+                            "TLC expected a boolean value, but did not find one. {}",
+                            c.loc(e)
+                        ),
+                    )
+                })?;
+                if b == exists {
+                    result = exists;
+                    return Ok(false);
+                }
+                Ok(true)
+            },
+        )?;
+        if let Some(error) = unproved
+            && result != exists
+        {
+            return Err(error);
+        }
         Ok(Ev::V(Value::Bool(result)))
     }
 
