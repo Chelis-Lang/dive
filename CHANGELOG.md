@@ -21,6 +21,8 @@ are in git history.
 
 - Finite symbolic checking counts duplicate witnesses from inline state disjunctions in partially assigned actions. Initial membership over a lazy set with unproved enumeration multiplicity gives a named refusal. [Symbolic checking](docs/user/symbolic.md#admission-and-reports).
 
+- [Independent trace validation](docs/user/traces.md#large-unused-symmetry-declarations) can replay labeled protocols that contain a large unused permutation declaration. The original 102-transaction KVS counterexample validates in 0.01 s.
+
 - Native fairness checks can rule out destinations that retain a [state variable required to change](docs/user/temporal.md#fairness).
 
 - Symbolic source-edit sessions reuse earlier breadth-first layers when an added action reaches new states or shortens an existing path. [Edit checking](docs/user/symbolic.md).
