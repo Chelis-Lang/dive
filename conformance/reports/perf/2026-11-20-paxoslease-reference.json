@@ -2272,6 +2272,96 @@
             }
           ]
         }
+      },
+      "QuarantineEqualsProposer": {
+        "product": {
+          "wall_seconds": 1225.33,
+          "peak_rss_kib": 923392,
+          "revisions": [
+            {
+              "verdict": "success",
+              "distinct": 76749192,
+              "generated": 391849185,
+              "depth": 43,
+              "reused": false,
+              "reachable_bdd_nodes": 630485,
+              "seconds": 396.428993,
+              "refinement_rounds": 11,
+              "learned_members": 80,
+              "initial_hint_members": 0
+            },
+            {
+              "verdict": "success",
+              "distinct": 77384096,
+              "generated": 401456611,
+              "depth": 43,
+              "reused": false,
+              "reused_layer_images": 5,
+              "reachable_bdd_nodes": 664321,
+              "seconds": 433.476924,
+              "refinement_rounds": 1,
+              "learned_members": 80,
+              "initial_hint_members": 80
+            },
+            {
+              "verdict": "success",
+              "distinct": 76749192,
+              "generated": 391849185,
+              "depth": 43,
+              "reused": false,
+              "reused_layer_images": 4,
+              "reachable_bdd_nodes": 630485,
+              "seconds": 395.226469,
+              "refinement_rounds": 1,
+              "learned_members": 80,
+              "initial_hint_members": 80
+            }
+          ]
+        },
+        "changed": {
+          "wall_seconds": 901.83,
+          "peak_rss_kib": 1233936,
+          "revisions": [
+            {
+              "verdict": "success",
+              "distinct": 76749192,
+              "generated": 391849185,
+              "depth": 43,
+              "reused": false,
+              "reachable_bdd_nodes": 630485,
+              "seconds": 391.876142,
+              "refinement_rounds": 11,
+              "learned_members": 80,
+              "initial_hint_members": 0
+            },
+            {
+              "verdict": "success",
+              "distinct": 77384096,
+              "generated": 401456611,
+              "depth": 43,
+              "reused": false,
+              "reused_layer_images": 43,
+              "reachable_bdd_nodes": 664321,
+              "seconds": 97.487891,
+              "refinement_rounds": 1,
+              "learned_members": 80,
+              "initial_hint_members": 80
+            },
+            {
+              "verdict": "success",
+              "distinct": 76749192,
+              "generated": 391849185,
+              "depth": 43,
+              "reused": false,
+              "reused_layer_images": 4,
+              "reachable_bdd_nodes": 630485,
+              "seconds": 412.276662,
+              "refinement_rounds": 1,
+              "learned_members": 80,
+              "initial_hint_members": 80
+            }
+          ]
+        }
       }
     },
     "correctness": "Independent review checked 34 edits and 34 fresh controls per mode, ordinary and refined. Explicit breadth-first search checked shortest depth for every vertex of the additive graph. The independent validator accepted all 124 reported witnesses replayed in the review. The committed excluded-source regression requires the real six-state path in both modes.",
@@ -2316,6 +2406,25 @@
           "memory_limit_gib": 22,
           "stop_resource": null,
           "binary_sha256": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1"
+        },
+        "compact_exact_22g": {
+          "verdict": "success",
+          "exit_code": 0,
+          "statistics": {
+            "depth": 43,
+            "distinct": 77384096,
+            "generated": 401456611,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "peak_rss_kib": 5195040,
+          "seconds": 515.3,
+          "exact_states": 77384096,
+          "store": "exact",
+          "memory_limit_gib": 22,
+          "stop_resource": null,
+          "binary_sha256": "433e2d6d7b60fe329eb2548242fcb0c66d1b7e38cdb897deeda290d180267614"
         }
       }
     }
