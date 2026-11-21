@@ -30,6 +30,21 @@ of `IOEnv` still requires host input support. Plain boolean, string and
 small integer assignments can flow through module instances this way.
 [Six configurations and oracle results](../../conformance/reports/perf/2026-11-20-closed-graph-inputs.json)
 
+For graph `"7"`, bind `GraphName` to `"7"` and keep the original
+`Termination` and `Live` properties. With the CommunityModules directory on
+the library path, this seed finds a fair 88-state stuttering counterexample
+to `Live`:
+
+```sh
+dive simulate TestMCReachability.tla --config graph7.cfg --library-path modules \
+  --traces 2048 --depth 120 --keep-traces 0 --seed 0 --workers 1 --output json > run.json
+jq '.traces[0].document' run.json > witness.json
+dive validate-trace TestMCReachability.tla --config graph7.cfg --library-path modules --trace witness.json
+```
+
+A successful witness replay establishes the violation. A sampling run that finds
+no witness leaves the exhaustive question open. [Source hashes, commands and the separate TLC witness](../../conformance/reports/perf/2026-11-20-closed-graph-inputs.json).
+
 ## Four outcomes
 
 The included counter shows the four results a check can give:

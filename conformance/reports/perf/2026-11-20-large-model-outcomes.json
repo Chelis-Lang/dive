@@ -137,24 +137,7 @@
       "path": "ordinary Core with explicit graph selector",
       "outcome": "ambient input requires a grant with the released CFG. Closed scalar configurations 1, 1a, 2, 3, 4 and 8 match TLC.",
       "reference": "2026-11-20-closed-graph-inputs.json",
-      "larger_selector": {
-        "graph": "7",
-        "outcome": "stopped",
-        "phase": "temporal-analysis",
-        "statistics": {
-          "depth": 36,
-          "distinct": 577978,
-          "exhaustive": false,
-          "generated": 863898,
-          "initial_generated": 1,
-          "left_on_queue": 211556,
-          "reported_by_tlc": false
-        },
-        "limit_ms": 10000,
-        "workers": 1,
-        "profile": "dive",
-        "host": "workstation"
-      },
+      "larger_selector": "50-vertex graph 7: pinned TLC with GRAPH=7 and Core simulation with GraphName fixed to \"7\" independently found a fair stuttering violation of Live. Both original property names and their order are retained. See 2026-11-20-closed-graph-inputs.json.",
       "merged_main_harness": {
         "dive": {
           "outcome": "unsupported",
@@ -356,6 +339,43 @@
           "elapsed_ms": 30205,
           "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30040 ms: the time limit is 30000 ms"
         }
+      },
+      "isolated_capacity": {
+        "24": {
+          "machine": "r7i.8xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 16,
+          "workers_used": 16,
+          "profile": "tlc",
+          "time_limit_s": 7200,
+          "memory_limit_gib": 24,
+          "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+          "input_sha256": {
+            "TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+            "TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f"
+          },
+          "wall_s": 1427.51,
+          "peak_rss_kib": 25167860,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 15,
+            "distinct": 43224883,
+            "exhaustive": false,
+            "generated": 89157072,
+            "initial_generated": 1,
+            "left_on_queue": 35714020,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 1422863,
+            "limit": 25769803776,
+            "observed": 25773637632,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        }
       }
     },
     {
@@ -415,6 +435,43 @@
           "depth": 25,
           "elapsed_ms": 30094,
           "detail": "dive check stopped at its --time-limit: DIVE-L0038: stopped during graph-capture after 30004 ms: the time limit is 30000 ms"
+        }
+      },
+      "isolated_capacity": {
+        "18": {
+          "machine": "r7i.16xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 8,
+          "workers_used": 8,
+          "profile": "dive",
+          "time_limit_s": 900,
+          "memory_limit_gib": 18,
+          "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+          "input_sha256": {
+            "EnvironmentController.cfg": "1cb9f21665fbe58dcc90cf0d05d99f69e8c87a01258d58c5cb952168ff2a3388",
+            "EnvironmentController.tla": "27d4468fd8dae883b066b2e9aba0b3bae1402260e373362ed7b79935c0480372"
+          },
+          "wall_s": 900.04,
+          "peak_rss_kib": 1623564,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 38,
+            "distinct": 2173413,
+            "exhaustive": false,
+            "generated": 15203680,
+            "initial_generated": 1,
+            "left_on_queue": 314999,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 900017,
+            "limit": 900000,
+            "observed": 900016,
+            "phase": "graph-capture",
+            "resource": "time",
+            "unit": "ms"
+          }
         }
       }
     },
@@ -590,6 +647,43 @@
           "depth": 8,
           "elapsed_ms": 30106,
           "detail": "dive check stopped at its --time-limit: DIVE-L0038: stopped during graph-capture after 30047 ms: the time limit is 30000 ms"
+        }
+      },
+      "isolated_capacity": {
+        "18": {
+          "machine": "r7i.16xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 8,
+          "workers_used": 8,
+          "profile": "dive",
+          "time_limit_s": 900,
+          "memory_limit_gib": 18,
+          "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+          "input_sha256": {
+            "EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+            "EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8"
+          },
+          "wall_s": 900.07,
+          "peak_rss_kib": 5390092,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 11,
+            "distinct": 19779576,
+            "exhaustive": false,
+            "generated": 175295651,
+            "initial_generated": 1024,
+            "left_on_queue": 5601754,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 900047,
+            "limit": 900000,
+            "observed": 900047,
+            "phase": "graph-capture",
+            "resource": "time",
+            "unit": "ms"
+          }
         }
       }
     },
