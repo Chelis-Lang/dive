@@ -990,6 +990,204 @@
       }
     },
     {
+      "tag": "Grid104N6V3",
+      "host": "r8g.16xlarge",
+      "cell": 3,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 1001016800,
+        "generated": 6664442848,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1001016800,
+      "wall_seconds": 3775.2,
+      "peak_rss_kib": 62998464
+    },
+    {
+      "tag": "Grid104N6V4",
+      "host": "r8g.16xlarge",
+      "cell": 4,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 44,
+        "distinct": 876197064,
+        "generated": 5735865246,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 876197064,
+      "wall_seconds": 3235.9,
+      "peak_rss_kib": 41765504
+    },
+    {
+      "tag": "Grid104N6V5",
+      "host": "r8g.16xlarge",
+      "cell": 5,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 686970448,
+        "generated": 4482515772,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 686970448,
+      "wall_seconds": 2552.66,
+      "peak_rss_kib": 37428416
+    },
+    {
+      "tag": "Grid104N6V6",
+      "host": "r8g.16xlarge",
+      "cell": 6,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 40,
+        "distinct": 1029239808,
+        "generated": 6826734112,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1029239808,
+      "wall_seconds": 3851.04,
+      "peak_rss_kib": 63625984
+    },
+    {
+      "tag": "Grid104N6V7",
+      "host": "r8g.16xlarge",
+      "cell": 7,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 711637376,
+        "generated": 4705148384,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 711637376,
+      "wall_seconds": 2678.83,
+      "peak_rss_kib": 37722856
+    },
+    {
+      "tag": "Grid104N6V8",
+      "host": "r8g.16xlarge",
+      "cell": 8,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 41,
+        "distinct": 778229632,
+        "generated": 5055774608,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 778229632,
+      "wall_seconds": 2851.12,
+      "peak_rss_kib": 39121428
+    },
+    {
+      "tag": "Grid104N6V9",
+      "host": "r8g.16xlarge",
+      "cell": 9,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 1154285720,
+        "generated": 7640565214,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1154285720,
+      "wall_seconds": 4250.88,
+      "peak_rss_kib": 67247512
+    },
+    {
+      "tag": "Grid104N6V10",
+      "host": "r8g.16xlarge",
+      "cell": 10,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 440797568,
+        "generated": 2858224064,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 440797568,
+      "wall_seconds": 1651.41,
+      "peak_rss_kib": 21225112
+    },
+    {
+      "tag": "Grid104N6V11",
+      "host": "r8g.16xlarge",
+      "cell": 11,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 592799296,
+        "generated": 3917161728,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 592799296,
+      "wall_seconds": 2244.55,
+      "peak_rss_kib": 34352244
+    },
+    {
+      "tag": "Grid104N6V13",
+      "host": "r8g.16xlarge",
+      "cell": 13,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 864828728,
+        "generated": 5681597902,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 864828728,
+      "wall_seconds": 3189.23,
+      "peak_rss_kib": 42197900
+    },
+    {
+      "tag": "Grid104N6V14",
+      "host": "r8g.16xlarge",
+      "cell": 14,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 619769888,
+        "generated": 4073096480,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 619769888,
+      "wall_seconds": 2326.78,
+      "peak_rss_kib": 34992252
+    },
+    {
       "tag": "Grid104N6V16",
       "host": "r8g.16xlarge",
       "cell": 16,
@@ -1062,6 +1260,204 @@
       "peak_rss_kib": 62991740
     },
     {
+      "tag": "Grid104N6V20",
+      "host": "r8g.16xlarge",
+      "cell": 20,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 44,
+        "distinct": 876184248,
+        "generated": 5735809710,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 876184248,
+      "wall_seconds": 3317.21,
+      "peak_rss_kib": 41815764
+    },
+    {
+      "tag": "Grid104N6V21",
+      "host": "r8g.16xlarge",
+      "cell": 21,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 686955952,
+        "generated": 4482452956,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 686955952,
+      "wall_seconds": 2564.5,
+      "peak_rss_kib": 37374132
+    },
+    {
+      "tag": "Grid104N6V22",
+      "host": "r8g.16xlarge",
+      "cell": 22,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 40,
+        "distinct": 1029232896,
+        "generated": 6826704160,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1029232896,
+      "wall_seconds": 3891.03,
+      "peak_rss_kib": 63630224
+    },
+    {
+      "tag": "Grid104N6V23",
+      "host": "r8g.16xlarge",
+      "cell": 23,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 711630464,
+        "generated": 4705118432,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 711630464,
+      "wall_seconds": 2724.9,
+      "peak_rss_kib": 37677004
+    },
+    {
+      "tag": "Grid104N6V24",
+      "host": "r8g.16xlarge",
+      "cell": 24,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 41,
+        "distinct": 778218304,
+        "generated": 5055725520,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 778218304,
+      "wall_seconds": 2890.01,
+      "peak_rss_kib": 39180912
+    },
+    {
+      "tag": "Grid104N6V25",
+      "host": "r8g.16xlarge",
+      "cell": 25,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 1154270984,
+        "generated": 7640501358,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1154270984,
+      "wall_seconds": 4317.62,
+      "peak_rss_kib": 67267196
+    },
+    {
+      "tag": "Grid104N6V26",
+      "host": "r8g.16xlarge",
+      "cell": 26,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 440790656,
+        "generated": 2858194112,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 440790656,
+      "wall_seconds": 1665.56,
+      "peak_rss_kib": 21202720
+    },
+    {
+      "tag": "Grid104N6V27",
+      "host": "r8g.16xlarge",
+      "cell": 27,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 592792384,
+        "generated": 3917131776,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 592792384,
+      "wall_seconds": 2271.62,
+      "peak_rss_kib": 34364092
+    },
+    {
+      "tag": "Grid104N6V29",
+      "host": "r8g.16xlarge",
+      "cell": 29,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 864813992,
+        "generated": 5681534046,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 864813992,
+      "wall_seconds": 3224.93,
+      "peak_rss_kib": 42062836
+    },
+    {
+      "tag": "Grid104N6V30",
+      "host": "r8g.16xlarge",
+      "cell": 30,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 619762976,
+        "generated": 4073066528,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 619762976,
+      "wall_seconds": 2345.08,
+      "peak_rss_kib": 34956836
+    },
+    {
+      "tag": "Grid104N6V31",
+      "host": "r8g.16xlarge",
+      "cell": 31,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 33,
+        "distinct": 397986752,
+        "generated": 2604983744,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 397986752,
+      "wall_seconds": 1530.5,
+      "peak_rss_kib": 20251380
+    },
+    {
       "tag": "Grid104N6V40",
       "host": "r8g.16xlarge",
       "cell": 40,
@@ -1078,6 +1474,24 @@
       "mathematical_identities": 778201184,
       "wall_seconds": 2863.97,
       "peak_rss_kib": 39146276
+    },
+    {
+      "tag": "Grid104N6V41",
+      "host": "r8g.16xlarge",
+      "cell": 41,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 1154251896,
+        "generated": 7640374350,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1154251896,
+      "wall_seconds": 4224.36,
+      "peak_rss_kib": 67376372
     },
     {
       "tag": "Grid104N6V42",
@@ -1114,6 +1528,204 @@
       "mathematical_identities": 592799296,
       "wall_seconds": 2222.97,
       "peak_rss_kib": 34371508
+    },
+    {
+      "tag": "Grid104N6V44",
+      "host": "r8g.16xlarge",
+      "cell": 44,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 41,
+        "distinct": 1118342784,
+        "generated": 7375079936,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1118342784,
+      "wall_seconds": 4142.21,
+      "peak_rss_kib": 66380760
+    },
+    {
+      "tag": "Grid104N6V45",
+      "host": "r8g.16xlarge",
+      "cell": 45,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 864794904,
+        "generated": 5681407038,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 864794904,
+      "wall_seconds": 3174.04,
+      "peak_rss_kib": 42049436
+    },
+    {
+      "tag": "Grid104N6V46",
+      "host": "r8g.16xlarge",
+      "cell": 46,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 619769888,
+        "generated": 4073096480,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 619769888,
+      "wall_seconds": 2302.08,
+      "peak_rss_kib": 34951836
+    },
+    {
+      "tag": "Grid104N6V47",
+      "host": "r8g.16xlarge",
+      "cell": 47,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 33,
+        "distinct": 397993664,
+        "generated": 2605013696,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 397993664,
+      "wall_seconds": 1506.38,
+      "peak_rss_kib": 20192328
+    },
+    {
+      "tag": "Grid104N6V48",
+      "host": "r8g.16xlarge",
+      "cell": 48,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 600390272,
+        "generated": 3862044000,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 600390272,
+      "wall_seconds": 2215.16,
+      "peak_rss_kib": 34351628
+    },
+    {
+      "tag": "Grid104N6V49",
+      "host": "r8g.16xlarge",
+      "cell": 49,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 912878464,
+        "generated": 6005795820,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 912878464,
+      "wall_seconds": 3365.31,
+      "peak_rss_kib": 43108184
+    },
+    {
+      "tag": "Grid104N6V50",
+      "host": "r8g.16xlarge",
+      "cell": 50,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 692623008,
+        "generated": 4527234784,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 692623008,
+      "wall_seconds": 2565.57,
+      "peak_rss_kib": 36908168
+    },
+    {
+      "tag": "Grid104N6V51",
+      "host": "r8g.16xlarge",
+      "cell": 51,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 1001009888,
+        "generated": 6664412896,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1001009888,
+      "wall_seconds": 3744.07,
+      "peak_rss_kib": 63037108
+    },
+    {
+      "tag": "Grid104N6V52",
+      "host": "r8g.16xlarge",
+      "cell": 52,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 44,
+        "distinct": 876153336,
+        "generated": 5735635278,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 876153336,
+      "wall_seconds": 3241.13,
+      "peak_rss_kib": 41799652
+    },
+    {
+      "tag": "Grid104N6V53",
+      "host": "r8g.16xlarge",
+      "cell": 53,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 686922352,
+        "generated": 4482263356,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 686922352,
+      "wall_seconds": 2535.77,
+      "peak_rss_kib": 37390160
+    },
+    {
+      "tag": "Grid104N6V55",
+      "host": "r8g.16xlarge",
+      "cell": 55,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 711630464,
+        "generated": 4705118432,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 711630464,
+      "wall_seconds": 2670.79,
+      "peak_rss_kib": 37743968
     }
   ],
   "ordinary_store_commands": "Grid runs pin 16 workers within one of four disjoint CPU sets, --store exact --compat=tlc --workers 16 --fp 0 --seed 0 --max-memory 104g --time-limit 14400s, two-worker-group and single-group retries at 208g and 390g. Capacity rows use two groups of 48 cores and an 84g cap. All use the published partition wrapper over Init and unchanged Next; one extra partition invariant checks each emitted state.",
@@ -1132,5 +1744,62 @@
       "A repeated Init1 in the one-step stuttering control yields 65,536 initial witnesses for 32,768 unique states in pinned TLC. Allowing ue_dial_emergency=2 violates the initial value obligation. Edited source fails the benchmark digest check.",
       "Deadlocked Next, out-of-alphabet successor and false Init invariant were rejected by exploratory obligation checks. The pinned helper refuses temporal properties and action constraints in the exporter."
     ]
+  },
+  "ordinary_summary": {
+    "successful_unique_cells": 44,
+    "cell_numbers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      13,
+      14,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      29,
+      30,
+      31,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      55
+    ],
+    "total_cells": 64,
+    "disjoint_counts": {
+      "initial": 38928384,
+      "distinct": 33769920472,
+      "generated": 221866225494
+    },
+    "grid_binary_sha256": "aa441e38fb26a96b135da52243f53c8ce3c6b63ae60505457ab67c784c7b3376",
+    "scope": "Each counted native cell exhausted its exact store under unrestricted Next, with the partition predicate checked as an invariant. The sum includes one success per cell; incomplete attempts remain in the table. Per-cell peak RSS and process times are not campaign totals."
   }
 }
