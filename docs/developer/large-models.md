@@ -295,6 +295,8 @@ Two trials per binary on the same eight physical cores produced identical
 counts, queue sizes and depths at each prefix. The dense control already used
 byte action IDs and compact ordinals. [Inputs, individual timings and collector capacities](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+At the same 20 GiB sampled cap, deriving ordinary edge originals raised c1cs capacity another 12.8%, from 38,066,281 to 42,930,269 distinct states. The latter run generated 989,943,733 states and stopped at depth 18, with 25,181,577 still queued. Wall time was 1,556.23 s for that larger prefix. [Matched control, binary hashes and admission counters](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json).
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same
