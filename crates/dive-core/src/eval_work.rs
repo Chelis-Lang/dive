@@ -215,11 +215,19 @@ impl Machine {
                 }
                 _ => false,
             };
-            if eligible && self.heap.cardinality(base)? > 24 {
-                return Ok(ChoiceCursor::EmptyAndSingletons {
-                    base: self.work_cursor(base)?,
-                    empty_pending: true,
-                });
+            if eligible {
+                let size = self.heap.cardinality(base)?;
+                if self.heap.int_mode() == crate::int::IntMode::Tlc && size > i32::MAX as u64 {
+                    return Err(Error::unsupported(
+                        "CHOOSE over a powerset whose base exceeds TLC's signed 32-bit size",
+                    ));
+                }
+                if size > 24 {
+                    return Ok(ChoiceCursor::EmptyAndSingletons {
+                        base: self.work_cursor(base)?,
+                        empty_pending: true,
+                    });
+                }
             }
         }
         self.work_cursor(domain).map(ChoiceCursor::Complete)
@@ -330,7 +338,7 @@ impl Machine {
 mod tests {
     use super::*;
     use crate::plan::Node;
-    use crate::{Opts, Store};
+    use crate::{Opts, Semantics, Store, int::IntMode, memo::Memo};
     use std::sync::Arc;
 
     #[test]
@@ -588,5 +596,26 @@ mod tests {
             machine.fuel > 0,
             "no fabricated known-cost exhaustion for an unknown shape"
         );
+    }
+
+    #[test]
+    fn powerset_choice_uses_integer_mode_independently_of_comparison_order() {
+        for int_mode in [IntMode::Big, IntMode::Tlc] {
+            for tlc_comparisons in [false, true] {
+                let semantics = Semantics {
+                    int_mode,
+                    tlc_comparisons,
+                    ..Semantics::default()
+                };
+                let store = Arc::new(Store::with_semantics(true, semantics));
+                let mut machine = Machine::new(store, 0, Opts::default(), Memo::new(&[]));
+                let base = machine.heap.interval(0, i64::from(i32::MAX));
+                let domain = machine.heap.symbolic(Kind::Subset, 0, &[base]);
+                assert_eq!(
+                    machine.choice_cursor(domain).is_ok(),
+                    int_mode == IntMode::Big
+                );
+            }
+        }
     }
 }

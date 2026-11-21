@@ -17,6 +17,12 @@ record or a powerset, such as `MessagePool \in SUBSET Message`. Asking for the
 elements of the type still requires actual enumeration. The [LuPastry+ example](../developer/large-models.md#lupastry-message-and-leaf-domains)
 shows how to distinguish a large type from a large set of reachable states.
 
+For `CHOOSE s \in SUBSET A : P(s)` with more than 24 distinct integers in
+`A`, Core can return the first qualifying empty set or singleton. It visits
+singletons in base-element order. If none qualifies, the checker reports that
+the search needs larger subsets. TLC integer mode requires the base size to
+fit a signed 32-bit integer. [LuPastry+ neighbour choices](../developer/large-models.md#lupastry-neighbour-choice-at-32-and-64-addresses).
+
 ## Select a closed model input in the CFG
 
 When a zero-argument TLA+ definition selects a host input, you can give that

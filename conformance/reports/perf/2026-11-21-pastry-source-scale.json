@@ -1082,6 +1082,181 @@
     "depth": 49,
     "reported_wall_seconds": 8100
   },
+  "wide_powerset_choice": {
+    "inputs": "Same authors’ pinned archive and libraries as above. Use lupastry.py --bits M --ready 0 ... (2^M-2) --definition counted --singleton-leaves. No test disables TypeInvariant or CorrectDelivery. For Core on this base we change just NEXT to SharedNext in a wrapper extending Pastry: SharedNext == TRUE /\\ NextMC. The pinned TLC rows use the original NextMC directly. The real PoolEmpty negative adds an invariant to both. The 16-address three-join controls use ready IDs 0..12.",
+    "cause": "The original ClosestNodesFromTheLeft/Right choose a subset of candidate neighbours of exactly L elements. Init alone reproduces the native 24-element powerset ceiling with no properties and stuttering; L=1 puts a witness among the singleton candidates.",
+    "measurements": "c7i.4xlarge, us-east-2, identical node to the record_union matrix. GNU time inside the cgroup includes process startup. TLC used CPUs 0-3 and 4 workers. Native CHOOSE trials used CPUs 4-6 and 3 workers. Independent controls could overlap on other cores. Engine-rings used MemoryMax=9G and a 420 s checker limit; early baseline growth used four workers. RSS is KiB, wall_s is seconds. The two- and three-join rows are separate workloads.",
+    "implementation": "choice is the native-only prototype. Its successful exhaustive rows matched TLC but independent validation and diagnostic replay exhausted 1 GiB; this prototype was rejected. choice2 added independent streaming and still incorrectly admitted a TLC-profile interval of size 2^31. choice3 fixed standard profiles. choice4 ties the guard to integer arithmetic mode, including independent selections of integer mode and comparison order in the Rust API. Unproved searches beyond the prefix return unsupported.",
+    "controls": "Independent review compared ambiguous choices at 25/32 elements against pinned TLC, negative later or absent witnesses, five derived integer domains, genuine and mutated traces and a diagnostic trace for division by zero at the empty candidate. Checked the exact signed 32-bit size boundary, both CLI profiles, output effects and a deadline. The committed native test exercises all four combinations of integer and comparison modes.",
+    "growth": {
+      "16-3-tlc": {
+        "exit": 124,
+        "wall_s": 290.1,
+        "rss_kib": 2967460,
+        "verdict": "no final report",
+        "last_reported": {
+          "depth": 16,
+          "generated": 4296560,
+          "distinct": 132494,
+          "left_on_queue": 24922
+        }
+      },
+      "16-3-wrapped": {
+        "exit": 5,
+        "wall_s": 280.03,
+        "rss_kib": 132148,
+        "verdict": "stopped",
+        "distinct": 146483,
+        "generated": 4876335,
+        "depth": 16,
+        "left_on_queue": 27888,
+        "message": "stopped during safety-search after 280000 ms: the time limit is 280000 ms"
+      },
+      "32-1-tlc": {
+        "exit": 0,
+        "wall_s": 4.09,
+        "rss_kib": 1100116,
+        "generated": 15249,
+        "distinct": 256,
+        "left_on_queue": 0,
+        "depth": 19,
+        "verdict": "success"
+      },
+      "32-1-wrapped": {
+        "exit": 3,
+        "wall_s": 0.25,
+        "rss_kib": 119216,
+        "verdict": "unsupported",
+        "message": "enumerating SUBSET of a set of more than 24 elements"
+      },
+      "64-1-tlc": {
+        "exit": 0,
+        "wall_s": 10.9,
+        "rss_kib": 1682920,
+        "generated": 30493,
+        "distinct": 316,
+        "left_on_queue": 0,
+        "depth": 19,
+        "verdict": "success"
+      },
+      "64-1-wrapped": {
+        "exit": 3,
+        "wall_s": 1.8,
+        "rss_kib": 540052,
+        "verdict": "unsupported",
+        "message": "enumerating SUBSET of a set of more than 24 elements"
+      }
+    },
+    "run-choice": {
+      "growth-32-1": {
+        "exit": 0,
+        "wall_s": 1.96,
+        "rss_kib": 131196,
+        "verdict": "success",
+        "distinct": 256,
+        "generated": 15249,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "growth-64-1": {
+        "exit": 0,
+        "wall_s": 16.67,
+        "rss_kib": 539920,
+        "verdict": "success",
+        "distinct": 316,
+        "generated": 30493,
+        "depth": 19,
+        "left_on_queue": 0
+      }
+    },
+    "run-choice3": {
+      "growth-32-1": {
+        "exit": 0,
+        "wall_s": 1.88,
+        "rss_kib": 135428,
+        "verdict": "success",
+        "distinct": 256,
+        "generated": 15249,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "growth-64-1": {
+        "exit": 0,
+        "wall_s": 16.8,
+        "rss_kib": 539776,
+        "verdict": "success",
+        "distinct": 316,
+        "generated": 30493,
+        "depth": 19,
+        "left_on_queue": 0
+      }
+    },
+    "run-choice4": {
+      "growth-32-1": {
+        "exit": 0,
+        "wall_s": 3.37,
+        "rss_kib": 131276,
+        "verdict": "success",
+        "distinct": 256,
+        "generated": 15249,
+        "depth": 19,
+        "left_on_queue": 0
+      }
+    },
+    "eightfold": {
+      "128-1-wrapped": {
+        "exit": 0,
+        "wall_s": 179.61,
+        "rss_kib": 3244752,
+        "verdict": "success",
+        "distinct": 474,
+        "generated": 61019,
+        "depth": 19,
+        "left_on_queue": 0
+      }
+    },
+    "negative32-final": {
+      "dive": {
+        "exit": 12,
+        "wall_s": 0.3,
+        "rss_kib": 128092,
+        "verdict": "invariant-violation",
+        "distinct": 2,
+        "generated": 2,
+        "depth": 2,
+        "left_on_queue": 0,
+        "property": "PoolEmpty"
+      },
+      "tlc": {
+        "exit": 12,
+        "wall_s": 2.01,
+        "rss_kib": 127536,
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2,
+        "verdict": "violation"
+      }
+    },
+    "validation": {
+      "trace": "valid",
+      "mutant": "invalid"
+    },
+    "sha256": {
+      "base": "c688a4f93f417a0810b57c4503142ff1d753ba9e1bc00df00e640e7c3c69a1dd",
+      "final": "7b29adf0b44949c627926d36c6add92910fdb0b5d744c46542ad4cda58b9a0c7",
+      "choice": "e68b84c4bcf15427d5d01c54c11b31324dbc53d3b29b4f8df5cdb0c3dd890b11",
+      "choice2": "76d53b337547701a2ca671aaf584aeda7b2ead8bc4bd51ef5fdf38d3f2f0062f",
+      "choice3": "3b517ba087498b93e97caf795a36cecbf791f16b92bc05add10740e5c85dd5ea",
+      "choice4": "9af43de8e78cd44a9d18035c4f2f98f1d6022fd4559d4fb190cb472b1792abd9",
+      "growth-32-1/Model.cfg": "9920bc0367b0544b951595012ea92ee6734fa7983c78a37ad9fad995497593af",
+      "growth-64-1/Model.cfg": "5c554f5a35146b249a6640a1e80fcbc0b5e3dea8f4b333422f7a00dcec16e75e",
+      "growth-32-1/TestWrapper.tla": "dc73610b45ebdf8f279539b354b4838ee9702849bc922e0c7e01e3d52eea2ce3",
+      "growth-32-1/Shared.cfg": "561b9d63ea803b5a10d32f8bf2279735970f8753523c8d8eccd4d5d2495198dd",
+      "growth-64-1/Shared.cfg": "eada6d8bded243231140441455c351122511d05e8e32170327d46dc079ceebd9",
+      "growth-32-1/Ring.tla": "7e64b452ea10e6aa83229e05c19a82bc72a483c4125adeac4bf399c3ef30cf96"
+    }
+  },
   "record_union": {
     "model": "Released LuPastry+, counted routing function, NextMC, TypeInvariant and CorrectDelivery, B=L=1. Shape IDs give ring size and number of IDs initially eligible to join. Other IDs start ready (0 through ring_size - joining - 1).",
     "cause": "Closed Message is a record whose content is a binary union of eight tagged record types; members include routing functions and filtered leaf records. Startup tried to materialize whole products even when checking an empty MessagePool. A one-state stutter with just pool membership reproduced the failure. Routing, LeafSets, CorrectDelivery and a no-invariant control passed separately.",
