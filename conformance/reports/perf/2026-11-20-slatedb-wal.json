@@ -2622,5 +2622,6 @@
       },
       "agreement": "All six invariants hold. Direct exact admission without symmetry matches both the weighted generated count and labeled union from the native census, and the depth. TLC independently matches the orbit histogram. The original timings used different worker counts and host sizes."
     }
-  }
+  },
+  "released_comparison_and_matched_orbits": "2026-11-21-slatedb-full-comparison.json"
 }

@@ -1,0 +1,288 @@
+{
+  "model": "Original released SlateDB WAL, all six invariants. Distinct fingerprints, distinct exact representatives, and labeled states are separate quantities.",
+  "pinned_record": "2026-11-20-slatedb-wal.json",
+  "native_exact_source": "Same exact census build, inputs, and machine as labeled_orbit_census.native_host in the pinned record. CPUs 0-39, --max-memory 1250g --time-limit 59000s.",
+  "pinned_tlc_on_original_host": {
+    "exit": 0,
+    "wall_s": 49123.76,
+    "rss_kib": 146901852,
+    "command": "Pinned Temurin with -Xmx256g -XX:+UseParallelGC -XX:ActiveProcessorCount=40, Community Modules on classpath, tlc2.TLC -workers 40 -seed 0 -fp 0 -config spec/SlateDBWAL.cfg spec/SlateDBWAL.tla. Fresh metadata directory.",
+    "statistics": {
+      "distinct": 4910385790,
+      "generated": 23680348760,
+      "depth": 139,
+      "left_on_queue": 0
+    },
+    "difference_from_exact": {
+      "distinct": 0,
+      "generated": 0,
+      "depth": 0,
+      "left_on_queue": 0
+    }
+  },
+  "matched_controls": {
+    "host": "Dedicated r7i.8xlarge, us-east-2b; 16 physical cores, 233 GiB cgroup, no swap. Rust 1.99.0, LTO off, 16 codegen units. Two repetitions in reverse order. The raw arm removes SYMMETRY; only the census arm sets DIVE_CORE_OPT=+orbit-census.",
+    "source": "Merge of #1237 on main, 137729ecd96284e994d4e16da22802a0cef423c7",
+    "hashes": {
+      "dive-src/target/release/dive": "234487f6d95524196692ad07cd77f2934f9fed03d4ea6d43456000ee91bf37b1",
+      "spec/Medium.cfg": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10",
+      "spec/SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+      "spec/Small.cfg": "1f0910bf0f81932e8b58810e34e016ca904142add818162d95baa43f3a29236e",
+      "spec/ThreeNoRetry-raw.cfg": "19f78bb77a5162ba3a00f8c6887a64ad13620bd96871f6e646bf48142afef5e6",
+      "spec/ThreeNoRetry.cfg": "e7b9e91a44499b87e7b83fa2df735059dbcff02a59439143bc072d42811d61b9",
+      "spec/TwoRetry-raw.cfg": "3a22e255d5be6567f48e5f061bc5d480b8f41ed72a5887b0a403d8c75384545f",
+      "spec/TwoRetry.cfg": "91f6681396fc569e13cf614c2cfca4007761b69911a8e0782502cfaad856986f"
+    },
+    "args": "taskset -c 0-15 dive check spec/SlateDBWAL.tla --config CFG --library-path modules --store exact --workers 16 --compat=tlc --fp 0 --seed 0 --time-limit 4500s --max-memory 219g --output json",
+    "runs": {
+      "TwoRetry-raw-1": {
+        "exit": 0,
+        "wall_s": 33.63,
+        "rss_kib": 1524284,
+        "verdict": "success",
+        "statistics": {
+          "depth": 93,
+          "distinct": 14906269,
+          "generated": 49615289,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "TwoRetry-reduced-1": {
+        "exit": 0,
+        "wall_s": 9.19,
+        "rss_kib": 716704,
+        "verdict": "success",
+        "statistics": {
+          "depth": 93,
+          "distinct": 3761377,
+          "generated": 12508420,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "TwoRetry-census-1": {
+        "exit": 0,
+        "wall_s": 9.38,
+        "rss_kib": 716860,
+        "verdict": "success",
+        "statistics": {
+          "depth": 93,
+          "distinct": 3761377,
+          "generated": 12508420,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "census": {
+          "orbit_sizes": {
+            "1": 35,
+            "2": 69567,
+            "4": 3691775
+          },
+          "labeled_orbit_union": "14906269",
+          "weighted_generated": "49615289",
+          "representatives": 3761377
+        }
+      },
+      "TwoRetry-raw-2": {
+        "exit": 0,
+        "wall_s": 33.57,
+        "rss_kib": 1510428,
+        "verdict": "success",
+        "statistics": {
+          "depth": 93,
+          "distinct": 14906269,
+          "generated": 49615289,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "TwoRetry-reduced-2": {
+        "exit": 0,
+        "wall_s": 9.19,
+        "rss_kib": 690244,
+        "verdict": "success",
+        "statistics": {
+          "depth": 93,
+          "distinct": 3761377,
+          "generated": 12508420,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "TwoRetry-census-2": {
+        "exit": 0,
+        "wall_s": 9.33,
+        "rss_kib": 713760,
+        "verdict": "success",
+        "statistics": {
+          "depth": 93,
+          "distinct": 3761377,
+          "generated": 12508420,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "census": {
+          "orbit_sizes": {
+            "1": 35,
+            "2": 69567,
+            "4": 3691775
+          },
+          "labeled_orbit_union": "14906269",
+          "weighted_generated": "49615289",
+          "representatives": 3761377
+        }
+      },
+      "ThreeNoRetry-raw-1": {
+        "exit": 0,
+        "wall_s": 956.48,
+        "rss_kib": 26299496,
+        "verdict": "success",
+        "statistics": {
+          "depth": 114,
+          "distinct": 350341877,
+          "generated": 1360205173,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "ThreeNoRetry-reduced-1": {
+        "exit": 0,
+        "wall_s": 100.28,
+        "rss_kib": 3429940,
+        "verdict": "success",
+        "statistics": {
+          "depth": 114,
+          "distinct": 30114878,
+          "generated": 117007147,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "ThreeNoRetry-census-1": {
+        "exit": 0,
+        "wall_s": 102.16,
+        "rss_kib": 3431660,
+        "verdict": "success",
+        "statistics": {
+          "depth": 114,
+          "distinct": 30114878,
+          "generated": 117007147,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "census": {
+          "orbit_sizes": {
+            "1": 35,
+            "12": 28277275,
+            "3": 3622,
+            "6": 1833946
+          },
+          "labeled_orbit_union": "350341877",
+          "weighted_generated": "1360205173",
+          "representatives": 30114878
+        }
+      },
+      "ThreeNoRetry-raw-2": {
+        "exit": 0,
+        "wall_s": 947.06,
+        "rss_kib": 26314224,
+        "verdict": "success",
+        "statistics": {
+          "depth": 114,
+          "distinct": 350341877,
+          "generated": 1360205173,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "ThreeNoRetry-reduced-2": {
+        "exit": 0,
+        "wall_s": 100.2,
+        "rss_kib": 3433520,
+        "verdict": "success",
+        "statistics": {
+          "depth": 114,
+          "distinct": 30114878,
+          "generated": 117007147,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "ThreeNoRetry-census-2": {
+        "exit": 0,
+        "wall_s": 101.75,
+        "rss_kib": 3396324,
+        "verdict": "success",
+        "statistics": {
+          "depth": 114,
+          "distinct": 30114878,
+          "generated": 117007147,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "census": {
+          "orbit_sizes": {
+            "1": 35,
+            "12": 28277275,
+            "3": 3622,
+            "6": 1833946
+          },
+          "labeled_orbit_union": "350341877",
+          "weighted_generated": "1360205173",
+          "representatives": 30114878
+        }
+      }
+    }
+  },
+  "ordinary_core_on_original_host": {
+    "workers": {
+      "chaos": null,
+      "reason": null,
+      "requested": 40,
+      "sequential": false,
+      "used": 40
+    },
+    "store": "fingerprint",
+    "statistics": {
+      "depth": 139,
+      "distinct": 4910385789,
+      "generated": 23680348756,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "verdict": "success",
+    "wall_seconds": 14122.37,
+    "peak_rss_kib": 135246796
+  },
+  "exact_core_on_matching_hardware": {
+    "command": "dive check spec/SlateDBWAL.tla --config spec/SlateDBWAL.cfg --library-path modules --workers 40 --compat=tlc --seed 0 --store exact --fp 0 --max-memory 1380g --time-limit 78000s --output json",
+    "statistics": {
+      "depth": 139,
+      "distinct": 4910385790,
+      "generated": 23680348760,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "verdict": "success",
+    "wall_s": 22664.55,
+    "peak_rss_kib": 598625572,
+    "platform": "Dedicated EC2 r7i.48xlarge, 40 physical Xeon Platinum 8488C cores, Linux 7.0.0-1018-aws"
+  },
+  "scope": "The original fingerprint Core and TLC ran sequentially on the same host, W40 and the released symmetry declaration. The exact Core control used a second host of the same instance type with matching core count. The 16-core matched runs use smaller configurations."
+}
