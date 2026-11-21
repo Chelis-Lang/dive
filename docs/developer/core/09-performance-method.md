@@ -96,6 +96,7 @@ must leave all observables unchanged (`08-correctness.md` §6).
 | `-hashcons` | S4, S5: values are not deduplicated, and equality is structural |
 | `-symbolic-member` | S5: membership enumerates symbolic sets |
 | `-member-index` | S5: repeated normalized membership uses the original search; TLC comparisons always use that search |
+| `-framed-function-choices` | Default exhaustive Core enumerates the original function product even at a proved frame |
 | `-memo` | S6: no pure-result memoization |
 | `-step-memo` | S6: no step-predicate body memoization |
 | `-primed-memo` | S6: no memoization of definitions an action reads primed |

@@ -39,6 +39,8 @@ are in git history.
 
 - The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.
 
+- Default Core skips irrelevant [finite function choices](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) when an action fixes every coordinate except one.
+
 - [Symbolic safety checking](docs/user/symbolic.md#admission-and-reports) supports finite symmetry groups acting on record contents, nested indices and refined sets, including independent proposer and acceptor permutations.
 
 - Finite symbolic checking counts duplicate witnesses from inline state disjunctions in partially assigned actions. Initial membership over a lazy set with unproved enumeration multiplicity gives a named refusal. [Symbolic checking](docs/user/symbolic.md#admission-and-reports).

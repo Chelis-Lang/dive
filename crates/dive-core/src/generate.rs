@@ -15,6 +15,7 @@ use crate::plan::{Bind, Code, G, GNode, Node, P, Raw, Unch};
 
 mod composition;
 mod constructive;
+mod framed_choices;
 
 const NONE: u32 = u32::MAX;
 
@@ -52,6 +53,12 @@ pub trait Sink {
     /// Whether actual Next traversal uses constructive index ordering. This
     /// does not affect separately evaluated predicates or ENABLED queries.
     fn constructive(&self) -> bool {
+        false
+    }
+
+    /// Whether this sink owns an exhaustive Core search. Finite-generation
+    /// shortcuts that skip rejected assignments are local to that search.
+    fn exhaustive(&self) -> bool {
         false
     }
 
@@ -667,6 +674,18 @@ impl Machine {
             return self.assign_sampled(code, var, s, acts, sink);
         }
         let mut c = self.work_cursor(s)?;
+        if self.opts.framed_function_choices
+            && self.heap.kind(s) == Some(crate::node::Kind::FcnSet)
+            && !self.heap.store.semantics().tlc_comparisons
+            && !self.heap.store.semantics().tlc_exploration
+            && code.debugger.is_none()
+            && self.fuel == u64::MAX
+            && self.warn
+            && self.assigned + 1 == self.s1.len()
+            && sink.exhaustive()
+        {
+            self.restrict_function_choices(code, var, acts, &mut c)?;
+        }
         self.each_in(&mut c, code, var, acts, sink)
     }
 

@@ -20,6 +20,14 @@ and licenses are in [the bundled-library README](../../crates/dive-sema/bundled/
 
 ### Enumerating functions with fixed coordinates
 
+Default Core can narrow some ordinary function assignments of the form
+`f' \in [D -> R]` followed by `\A j \in D \ {i} : f'[j] = f[j]`.
+It checks that the fixed values occur in the original range and that any
+recognized sequence-prefix test can be evaluated for every choice at `i`.
+It enumerates the surviving rows in the original order. This applies to
+finite, materialized choices that complete a successor row during exhaustive
+checks, including the released abstract CCF model.
+
 Use `EXTENDS FramedFunctions` when an action chooses new values for some entries of a finite function and preserves the others. For example, the following conjunct chooses a new log only for server `i`.
 
 ```tla

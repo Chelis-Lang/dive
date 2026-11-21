@@ -27,6 +27,8 @@ pub struct Opts {
     /// Bounded hash indexes for repeated default normalized membership.
     /// Off (`-member-index`); TLC comparisons always use the original search.
     pub member_index: bool,
+    /// Restrict finite function assignments to their proved writable coordinates.
+    pub framed_function_choices: bool,
     /// Keyed result caches. Off (`-memo`).
     pub memo: bool,
     /// Keyed result caches for the cached bodies of step predicates
@@ -65,6 +67,7 @@ impl Default for Opts {
             hashcons: true,
             symbolic_member: true,
             member_index: true,
+            framed_function_choices: true,
             memo: true,
             step_memo: true,
             primed_memo: true,
@@ -85,6 +88,7 @@ pub const SWITCHES: &[&str] = &[
     "hashcons",
     "symbolic-member",
     "member-index",
+    "framed-function-choices",
     "memo",
     "step-memo",
     "primed-memo",
@@ -122,6 +126,7 @@ impl Opts {
                 "hashcons" => &mut o.hashcons,
                 "symbolic-member" => &mut o.symbolic_member,
                 "member-index" => &mut o.member_index,
+                "framed-function-choices" => &mut o.framed_function_choices,
                 "memo" => &mut o.memo,
                 "step-memo" => &mut o.step_memo,
                 "primed-memo" => &mut o.primed_memo,
@@ -157,6 +162,7 @@ impl Opts {
             ("hashcons", self.hashcons),
             ("symbolic-member", self.symbolic_member),
             ("member-index", self.member_index),
+            ("framed-function-choices", self.framed_function_choices),
             ("memo", self.memo),
             ("step-memo", self.step_memo),
             ("primed-memo", self.primed_memo),
