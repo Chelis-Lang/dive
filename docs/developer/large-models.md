@@ -1150,6 +1150,12 @@ On the larger SlateDB one-value control, the same 24 cores exhausted all 242,213
 
 ### Reproduce the released PaxosLease runs
 
+#### Removing a transition from a checked model
+
+Deleting an action can cut off earlier paths, making formerly reachable states disappear or arrive later. When every deleted destination lies in a region that the old actions cannot leave, states outside it keep their shortest distances. The symbolic checker retains those layers and explores the surviving paths into and through the region. It attempts the region proof only when the existing layer check encounters a potentially lost shortest path.
+
+Restoring the published QuarantineEqualsProposer relation after deleting a network-drain action took **316.05 s**, down from **477.95 s** in the parent. The checker reused parts of 41 layers and closed 76,749,192 states, 391,849,185 generated, depth 43, with both invariants passing. Peak RSS across the initial revision and the edit rose from 904,908 to 1,226,136 KiB in these runs. For Base, two interleaved same-CPU measurements went from 39.58 and 38.63 s to 31.45 and 31.35 s. A separate first Base run took 55.25 s. Recomputing lost support throughout the entire graph took 113.22 s in an earlier experiment. [Inputs, counters, timings, memory and controls](../../conformance/reports/perf/2026-11-21-deleted-transitions.json).
+
 #### Labeled crash configurations
 
 Refined symbolic search and exact Core both completed the two-acceptor

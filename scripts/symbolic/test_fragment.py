@@ -27,6 +27,7 @@ Outside == x \notin Colors
     check_refined_domains(folder, run, explicit, compare)
     check_refined_edits(folder, run, explicit, compare)
     check_layer_edits(folder, run, explicit, compare)
+    check_deleted_shortcut(folder, run, explicit, compare)
 
     model = template.replace("GUARD", "TRUE").replace("UPDATE", "x").replace("STORE", "got")
     module.write_text(model.replace("x = A", r"x \in Colors /\ x \in Colors"))
@@ -558,6 +559,34 @@ BeforeFive == x # 5
     _, bad = run(module, passed, *flags, "--recheck", module, failed, code=1)
     assert bad["ending"]["name"] == "Safe" and bad["depth"] == 5 and bad["trace_validated"]
     assert bad["reused_layer_images"] == 4
+
+
+def check_deleted_shortcut(folder, run, explicit, compare):
+    module = folder / "DeletedShortcut.tla"
+    module.write_text(r"""---- MODULE DeletedShortcut ----
+EXTENDS Naturals
+VARIABLES x, mode
+TypeInvariant == /\ x \in 0..6 /\ mode \in 0..1
+Init == /\ x = 0 /\ mode \in 0..1
+Walk == /\ x < 6 /\ x' = (IF x < 6 THEN x + 1 ELSE 6) /\ UNCHANGED mode
+After == Walk \/ UNCHANGED <<x, mode>>
+Before == After \/ (mode = 1 /\ x = 2 /\ x' = 6 /\ UNCHANGED mode)
+Safe == ~(mode = 1 /\ x = 6)
+====
+""")
+    old, new, bad = (folder / name for name in ("before.cfg", "after.cfg", "bad.cfg"))
+    config = "INIT Init\nNEXT After\nINVARIANT TypeInvariant\n"
+    old.write_text(config.replace("NEXT After", "NEXT Before"))
+    new.write_text(config)
+    bad.write_text(config + "INVARIANT Safe\n")
+    _, edited = run(module, old, "--recheck", module, new)
+    compare(edited, explicit(module, new))
+    assert edited["distinct"] == 14 and edited["depth"] == 7
+    # The old shortcut affected layer 3. The other mode can be reused beyond it.
+    assert edited["reused_layer_images"] > 3
+    _, failed = run(module, old, "--recheck", module, bad, code=1)
+    assert failed["ending"]["name"] == "Safe" and failed["depth"] == 7
+    assert failed["trace_validated"] and failed["reused_layer_images"] > 3
 
 
 def check_record_permutations(folder, run, explicit, compare):
