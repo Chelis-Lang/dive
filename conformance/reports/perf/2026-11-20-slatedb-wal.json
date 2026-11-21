@@ -2299,5 +2299,30 @@
       "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
     },
     "affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31"
+  },
+  "released_exact_completion": {
+    "input": "Released SlateDBWAL.tla and original symmetry-enabled CFG; six invariants, deadlock checking disabled. Exact membership compares full canonical state identities.",
+    "platform": "Dedicated EC2 r7i.48xlarge, 40 physical Xeon Platinum 8488C cores, Linux 7.0.0-1018-aws",
+    "affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39",
+    "sha256": {
+      "dive": "c86d1ac833fd934335eda7ee68e7d45e867c51c00d9bb9c29b6fa72ce55a1146",
+      "spec/SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c"
+    },
+    "command": "dive check spec/SlateDBWAL.tla --config spec/SlateDBWAL.cfg --library-path modules --workers 40 --compat=tlc --seed 0 --store exact --fp 0 --max-memory 1380g --time-limit 78000s --output json",
+    "verdict": "success",
+    "exit": 0,
+    "statistics": {
+      "depth": 139,
+      "distinct": 4910385790,
+      "generated": 23680348760,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "exact_states": 4910385790,
+    "wall_s": 22664.55,
+    "peak_rss_kib": 598625572,
+    "comparison": "The earlier fingerprint run found one fewer distinct state and four fewer generated occurrences. Exact comparison confirms the symmetry-reduced graph size for the released configuration. The author’s rounded 49 billion lacks a terminal log and identified reduction settings."
   }
 }
