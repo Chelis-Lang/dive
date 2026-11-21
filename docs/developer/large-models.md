@@ -389,6 +389,25 @@ peak RSS was 1.88 GiB. The second check was still labeling the graph, with all
 four properties awaiting a verdict. [Inputs, binary identities, per-arm counters
 and allocation probe](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
+### Fairness actions on unchanged destination variables
+
+At the first Kafka periodic check, three actions accounted for 64,248,424 of
+71,333,304 native action evaluations. For example,
+`VoterFetchTimeout` tests the voter's destination state. When that test
+requires the state to change, a destination retaining its original state
+cannot satisfy the action. Core evaluates the leading condition once for
+the source and its bound action. Other destinations still use the original
+edge predicate, including its error path.
+
+On the unchanged configuration with a 200,000-state limit, this answered
+39,843,715 action demands and left 31,489,589 direct
+evaluations. Time fell from 315.78 to 188.52 s
+on the same eight cores. Both runs evaluated 47,497,563 state
+predicates, used zero fallback and reached 38,232,770 generated with
+182,506 states still queued. All four configured properties await a final
+verdict. [Binary identities, controls and per-action
+counts](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same

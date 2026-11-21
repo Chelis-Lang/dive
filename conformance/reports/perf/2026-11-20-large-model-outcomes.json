@@ -1285,6 +1285,282 @@
         },
         "ratchet": "Three one-worker small-tier temporal models agreed with the pinned goldens; zero baseline regressions.",
         "integrated_binary_sha256": "f5619ba060a4dea6048bd19bd8d0f4bcc586d4729851e8c48ef572190188c28b"
+      },
+      "unchanged_target_action_prefixes": {
+        "host": "AWS r7i.8xlarge x86_64. Timed arms ran sequentially on the same eight physical cores (8–15); the separate 12-hour capacity run used physical cores 0–7.",
+        "command": "dive check kafka/kraft_kip_996.tla --config kafka/model_liveness.cfg --library-path modules --workers 8 --seed 0 --fp 0 --max-memory 8g --time-limit 1800s --max-states 200000 --output json",
+        "scope": "Unmodified Kafka inputs, one scheduled periodic check on the exact prefix. The two 200,000-state runs subsequently stop during capture without a final property verdict.",
+        "native_atom_profile": {
+          "source": "Separate source-instrumented native diagnostic at the same 200,000 state cutoff. Each action count is a distinct destination demand within its original source, before physical edge duplication.",
+          "label_loop_milliseconds": {
+            "State": 25685,
+            "Action": 234549
+          },
+          "families": {
+            "AcceptBeginQuorumRequest": {
+              "distinct_target_evaluations": 4595,
+              "true_distinct_target_results": 5,
+              "source_rows_with_targets": 5
+            },
+            "AcceptFetchRequest": {
+              "distinct_target_evaluations": 964530,
+              "true_distinct_target_results": 1056,
+              "source_rows_with_targets": 1056
+            },
+            "BecomeLeader": {
+              "distinct_target_evaluations": 0,
+              "true_distinct_target_results": 0,
+              "source_rows_with_targets": 0
+            },
+            "CheckQuorumResign": {
+              "distinct_target_evaluations": 12437682,
+              "true_distinct_target_results": 14569,
+              "source_rows_with_targets": 14569
+            },
+            "ConcludePreVote": {
+              "distinct_target_evaluations": 233728,
+              "true_distinct_target_results": 256,
+              "source_rows_with_targets": 256
+            },
+            "DivergingFetchRequest": {
+              "distinct_target_evaluations": 0,
+              "true_distinct_target_results": 0,
+              "source_rows_with_targets": 0
+            },
+            "HandleFetchResponse": {
+              "distinct_target_evaluations": 1832,
+              "true_distinct_target_results": 2,
+              "source_rows_with_targets": 2
+            },
+            "HandleVoteRequest": {
+              "distinct_target_evaluations": 1938934,
+              "true_distinct_target_results": 2124,
+              "source_rows_with_targets": 2124
+            },
+            "HandleVoteResponse": {
+              "distinct_target_evaluations": 3664,
+              "true_distinct_target_results": 4,
+              "source_rows_with_targets": 4
+            },
+            "RejectFetchRequest": {
+              "distinct_target_evaluations": 2169391,
+              "true_distinct_target_results": 2374,
+              "source_rows_with_targets": 2374
+            },
+            "ResendBeginQuorumEpochRequest": {
+              "distinct_target_evaluations": 0,
+              "true_distinct_target_results": 0,
+              "source_rows_with_targets": 0
+            },
+            "ResignedElectionTimeout": {
+              "distinct_target_evaluations": 1764557,
+              "true_distinct_target_results": 1953,
+              "source_rows_with_targets": 1953
+            },
+            "SendFetchRequest": {
+              "distinct_target_evaluations": 25076006,
+              "true_distinct_target_results": 29398,
+              "source_rows_with_targets": 29398
+            },
+            "VoterElectionTimeout": {
+              "distinct_target_evaluations": 3649,
+              "true_distinct_target_results": 4,
+              "source_rows_with_targets": 4
+            },
+            "VoterFetchTimeout": {
+              "distinct_target_evaluations": 26734736,
+              "true_distinct_target_results": 31216,
+              "source_rows_with_targets": 31216
+            }
+          },
+          "diagnostic_binary_sha256": "7eeaf16f6683d7263fde68003131440029c5334b1869e3ac1aed0713e01b2df6"
+        },
+        "unchanged_source_slot": {
+          "binary_sha256": "45144468f5b258c3c96b986148b5c9f2baca763ac31f76bdcde4062af39c281f",
+          "exit": 5,
+          "verdict": "stopped",
+          "stop": "states",
+          "stage": {
+            "capture_completed": false,
+            "stage": "capture"
+          },
+          "statistics": {
+            "depth": 5,
+            "distinct": 200000,
+            "exhaustive": false,
+            "generated": 38232770,
+            "initial_generated": 1,
+            "left_on_queue": 182506,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "prefix_checks": 1,
+            "last_level": 3,
+            "last_size": 181983,
+            "final_check": false,
+            "exhausted": false
+          },
+          "property": null,
+          "properties": null,
+          "trace_validation": null,
+          "wall_seconds": 188.52,
+          "gnu_time_peak_rss_kib": 657360,
+          "graph_buffer_bytes": 115376346,
+          "atoms": {
+            "state_evaluations": 47497563,
+            "action_evaluations": 31489589,
+            "action_source_guards": {
+              "false_rows": 4143409,
+              "plans": 1020,
+              "probes": 4226370
+            },
+            "unchanged_target_guards": {
+              "edges": 39843715,
+              "plans": 640,
+              "probes": 48303,
+              "rows": 48299
+            },
+            "fallback": 0
+          }
+        },
+        "base": {
+          "binary_sha256": "8bbc33e52f80d5c99859f9467cef162ee4291649603602be34959fe9f4de9cc7",
+          "exit": 5,
+          "verdict": "stopped",
+          "stop": "states",
+          "stage": {
+            "capture_completed": false,
+            "stage": "capture"
+          },
+          "statistics": {
+            "depth": 5,
+            "distinct": 200000,
+            "exhaustive": false,
+            "generated": 38232770,
+            "initial_generated": 1,
+            "left_on_queue": 182506,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "prefix_checks": 1,
+            "last_level": 3,
+            "last_size": 181983,
+            "final_check": false,
+            "exhausted": false
+          },
+          "property": null,
+          "properties": null,
+          "trace_validation": null,
+          "wall_seconds": 315.78,
+          "gnu_time_peak_rss_kib": 682472,
+          "graph_buffer_bytes": 115376346,
+          "atoms": {
+            "state_evaluations": 47497563,
+            "action_evaluations": 71333304,
+            "action_source_guards": {
+              "false_rows": 4143409,
+              "plans": 1020,
+              "probes": 4226370
+            },
+            "fallback": 0
+          }
+        },
+        "semantic_controls": {
+          "hold": {
+            "verdict": "success",
+            "exit": 0,
+            "properties": null,
+            "statistics": {
+              "depth": 3,
+              "distinct": 128,
+              "generated": 8321,
+              "initial_generated": 1,
+              "left_on_queue": 0,
+              "reported_by_tlc": false
+            },
+            "message": null,
+            "trace_validation": null,
+            "lasso_length": null,
+            "action_evaluations": [
+              8320,
+              128
+            ],
+            "guarded_edges": 8192,
+            "fallbacks": [
+              0,
+              0
+            ]
+          },
+          "violate": {
+            "verdict": "liveness-violation",
+            "exit": 13,
+            "properties": [
+              "Miss",
+              "Never"
+            ],
+            "statistics": {
+              "depth": 3,
+              "distinct": 128,
+              "generated": 8321,
+              "initial_generated": 1,
+              "left_on_queue": 0,
+              "reported_by_tlc": false
+            },
+            "message": null,
+            "trace_validation": "valid",
+            "lasso_length": 2,
+            "action_evaluations": [
+              8320,
+              128
+            ],
+            "guarded_edges": 8192,
+            "fallbacks": [
+              0,
+              0
+            ]
+          },
+          "error": {
+            "verdict": "unsupported",
+            "exit": 3,
+            "properties": null,
+            "statistics": null,
+            "message": "a temporal failure (core): its report is not implemented on Core",
+            "trace_validation": null,
+            "lasso_length": null,
+            "action_evaluations": [
+              65,
+              1
+            ],
+            "guarded_edges": 64,
+            "fallbacks": [
+              1,
+              1
+            ]
+          }
+        },
+        "ratchet": "Three W1 small-tier temporal clock/cache controls agree with the pinned goldens.",
+        "independent_review": {
+          "comparisons": 63,
+          "additional_scope_and_identity_controls": 11,
+          "audited_certified_edges": 110,
+          "trace_replays": 30,
+          "cases": "Finite graph predicate truth, ordered late errors, existential scope, singleton and tuple subscripts, swapped and identity INSTANCE substitutions, source and atom identity, highest supported variable bit, deliberately corrupted witnesses, held and violated pinned-TLC controls.",
+          "fuel_retirement_control": {
+            "case": "Twelve-state cyclic x with constant y. Expensive changed edges alternate with cheap stutters under weak fairness; the suffix performs a nested bounded universal quantification.",
+            "observed_both_audit_settings": {
+              "distinct": 12,
+              "generated": 13,
+              "violated_property": "P",
+              "trace_validation": "valid",
+              "native_fuel_exhaustions": 12,
+              "native_retirements": 0,
+              "demands_of_retired_actions": 0,
+              "reference_action_evaluations": 12,
+              "candidate_certified_edges": 12
+            }
+          },
+          "scope_limit": "Core rejects VIEW before native graph capture on this fixture; the first-original VIEW path was inspected in source."
+        }
       }
     },
     {
