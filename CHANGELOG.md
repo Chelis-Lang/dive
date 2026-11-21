@@ -196,6 +196,8 @@ are in git history.
 
 ### Fixed
 
+- Ordinary Core safety checks finish a frontier wave when the operating system refuses a worker thread, preserving the results already computed. [Workers and stores](docs/user/checking.md#workers-and-stores).
+
 - `dive check` applies the Examples Hanoi `Bits.class` override to calls of
   `Bits!And` whose arguments depend on the state. It used to evaluate the
   module's TLA+ body for them. `dive simulate` now runs models that use the

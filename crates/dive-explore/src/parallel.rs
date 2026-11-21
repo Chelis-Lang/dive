@@ -638,7 +638,7 @@ fn run_workers(
     machines: &mut [Machine],
     persistent: Option<&mut Option<rayon_core::ThreadPool>>,
     work: impl Fn(&mut Machine) -> WorkerResult + Sync,
-) -> Result<Vec<Option<WorkerResult>>, Error> {
+) -> Result<(Vec<Option<WorkerResult>>, usize), Error> {
     if let Some(persistent) = persistent {
         let team = match persistent {
             Some(existing) => existing,
@@ -660,15 +660,31 @@ fn run_workers(
                 });
             }
         });
-        Ok(results)
+        Ok((results, team.current_num_threads()))
     } else {
-        Ok(std::thread::scope(|scope| {
-            let handles: Vec<_> = machines
-                .iter_mut()
-                .map(|machine| scope.spawn(|| work(machine)))
-                .collect();
-            handles.into_iter().map(|h| h.join().ok()).collect()
-        }))
+        let mut results = std::thread::scope(|scope| {
+            let mut handles = Vec::with_capacity(machines.len());
+            for machine in &mut *machines {
+                let Ok(handle) = std::thread::Builder::new().spawn_scoped(scope, || work(machine))
+                else {
+                    break;
+                };
+                handles.push(handle);
+            }
+            handles
+                .into_iter()
+                .map(|h| h.join().ok())
+                .collect::<Vec<_>>()
+        });
+        // A wave can hit an OS thread limit after some workers have already
+        // claimed sources. Keep their results and run only the unstarted jobs.
+        let started_threads = results.len();
+        for machine in &mut machines[results.len()..] {
+            results.push(
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(machine))).ok(),
+            );
+        }
+        Ok((results, started_threads))
     }
 }
 
@@ -760,11 +776,13 @@ pub(crate) fn expand_level(
         }
         (done, local)
     };
-    let results = run_workers(
+    let (results, started_threads) = run_workers(
         machines,
         capture_limit.map(|_| &mut wave_workers.pool),
         work,
     )?;
+    metrics.max_wave_workers = started_threads.max(1);
+    metrics.wave_thread_shortage = started_threads < machines.len();
     let mut out: Vec<Option<Expanded>> = (0..n).map(|_| None).collect();
     for r in results {
         let Some((done, local)) = r else {
@@ -1098,13 +1116,14 @@ mod tests {
         let calls = Mutex::new(Vec::new());
         let mut original_threads = None;
         for _ in 0..3 {
-            let result = super::run_workers(&mut machines, Some(&mut pool), |_| {
+            let (result, width) = super::run_workers(&mut machines, Some(&mut pool), |_| {
                 calls
                     .lock()
                     .unwrap_or_else(std::sync::PoisonError::into_inner)
                     .push(std::thread::current().id());
                 (Vec::new(), crate::Metrics::default())
             })?;
+            assert_eq!(width, 3);
             assert_eq!(result.len(), 3);
             assert!(result.iter().all(Option::is_some));
             let team = pool
@@ -1125,7 +1144,7 @@ mod tests {
         }
         // A failed task is reported to the coordinator only after its peers join.
         let first = std::sync::atomic::AtomicBool::new(true);
-        let results = super::run_workers(&mut machines, Some(&mut pool), |_| {
+        let (results, _) = super::run_workers(&mut machines, Some(&mut pool), |_| {
             if first.swap(false, std::sync::atomic::Ordering::Relaxed) {
                 std::panic::resume_unwind(Box::new("worker fault control"));
             }
