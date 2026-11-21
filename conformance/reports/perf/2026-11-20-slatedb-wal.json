@@ -1798,6 +1798,44 @@
           "final_rss_kib": 1125048
         }
       ]
+    },
+    "complete_one_value": {
+      "host": "Same isolated r7i.8xlarge, 16 physical cores. Sequential fresh processes in quotient then full-word order.",
+      "binary_input_sha256": {
+        "seen-word": "aae408b5d3ad477b989ff70258456f6357f080198384f96b330c21b16f048c90",
+        "seen-quotient": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+        "spec/OneValue.cfg": "a38c2cd3b7711bfc8dfdec7c0d1900266a66e7ede85cff1ad4c34b5eeb9f6094",
+        "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c"
+      },
+      "command": "taskset -c 0-15 BINARY check spec/SlateDBWAL.tla --config spec/OneValue.cfg --library-path modules --workers 16 --compat=tlc --seed 0 --fp 0 --max-memory 40g --time-limit 5390s --output json",
+      "trials": {
+        "one-quotient": {
+          "wall_seconds": 727.46,
+          "peak_rss_kib": 4357316,
+          "statistics": {
+            "depth": 126,
+            "distinct": 242213642,
+            "generated": 1068416158,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "verdict": "success"
+        },
+        "one-word": {
+          "wall_seconds": 712.54,
+          "peak_rss_kib": 6005032,
+          "statistics": {
+            "depth": 126,
+            "distinct": 242213642,
+            "generated": 1068416158,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "verdict": "success"
+        }
+      }
     }
   },
   "complete_frontier_comparison": {
@@ -1863,6 +1901,29 @@
         },
         "wall_seconds": 2336.42,
         "peak_rss_kib": 31594216,
+        "reported_workers": 32,
+        "stop": {
+          "resource": "states",
+          "phase": "safety-search",
+          "observed": 1000000001,
+          "limit": 1000000000,
+          "unit": "states"
+        }
+      },
+      "original-baseline": {
+        "verdict": "stopped",
+        "exit_code": 5,
+        "statistics": {
+          "depth": 71,
+          "distinct": 1000000000,
+          "exhaustive": false,
+          "generated": 4114101313,
+          "initial_generated": 1,
+          "left_on_queue": 116153919,
+          "reported_by_tlc": false
+        },
+        "wall_seconds": 2264.9,
+        "peak_rss_kib": 54397472,
         "reported_workers": 32,
         "stop": {
           "resource": "states",

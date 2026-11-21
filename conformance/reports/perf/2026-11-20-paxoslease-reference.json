@@ -1393,5 +1393,110 @@
         "stop_reason": "time limit"
       }
     ]
+  },
+  "bounded_message_slot_trials": {
+    "design": "Prototype sorted, duplicate-free finite-set entries in fixed slots, coding a learned message by an integer and reserving the highest code for empty. Apply deletions before insertions. Detect overflow even for successors excluded by the state constraint.",
+    "method": "Same isolated r7i.4xlarge as the order trials, taskset to physical core 6 while independent ordering experiments used other cores. Process-tree RSS from GNU time can omit a worker terminated by the supervisor. Prefix node counts correspond to entry into a layer of the last refinement pass.",
+    "first_worker_sha256": "1faf5defe023921ed493773d030a908b266cc46090781af863c6133f5f1b85be",
+    "reduced_cfg_sha256": "e4e8729bc588855ba6dca379179c4edd124b45bab06a5077455f66fbaa8207fd",
+    "reduced_change": "PaxosLeaseRetry.cfg with only MaxNetwork = 4 replaced by MaxNetwork = 1.",
+    "trials": [
+      {
+        "configuration": "Base",
+        "slots": 6,
+        "procedure": "Base",
+        "verdict": "unsupported",
+        "exit_code": 2,
+        "wall_seconds": 370.88,
+        "gnu_time_peak_rss_kib": 2406240,
+        "reason": "reachable source emits an assignment outside finite layout",
+        "layout_bits": 145,
+        "last_logged_layer": 7,
+        "frontier_bdd_nodes": 6361,
+        "reached_bdd_nodes": 15409
+      },
+      {
+        "configuration": "Base",
+        "slots": 6,
+        "procedure": "recheck",
+        "verdict": "unsupported",
+        "exit_code": 2,
+        "wall_seconds": 371.17,
+        "gnu_time_peak_rss_kib": 2405792,
+        "reason": "bounded set layout exceeded; see diagnostic",
+        "layout_bits": 145,
+        "last_logged_layer": 7,
+        "frontier_bdd_nodes": 6361,
+        "reached_bdd_nodes": 15409
+      },
+      {
+        "configuration": "RetryNetworkOne",
+        "slots": null,
+        "procedure": "reference",
+        "verdict": "success",
+        "exit_code": 0,
+        "wall_seconds": 0.07,
+        "gnu_time_peak_rss_kib": 33068,
+        "distinct": 1856,
+        "generated": 13921,
+        "depth": 15
+      },
+      {
+        "configuration": "RetryNetworkOne",
+        "slots": 6,
+        "procedure": "six",
+        "verdict": "success",
+        "exit_code": 0,
+        "wall_seconds": 1.75,
+        "gnu_time_peak_rss_kib": 192944,
+        "distinct": 1856,
+        "generated": 13921,
+        "depth": 15,
+        "layout_bits": 111,
+        "last_logged_layer": 15,
+        "frontier_bdd_nodes": 115,
+        "reached_bdd_nodes": 310
+      },
+      {
+        "configuration": "Base",
+        "slots": 7,
+        "procedure": "seven",
+        "verdict": "stopped",
+        "exit_code": 4,
+        "wall_seconds": 2400.04,
+        "gnu_time_peak_rss_kib": 5334820,
+        "reason": "time limit",
+        "layout_bits": 151,
+        "last_logged_layer": 8,
+        "frontier_bdd_nodes": 11712,
+        "reached_bdd_nodes": 26223
+      },
+      {
+        "configuration": "Retry",
+        "slots": 6,
+        "procedure": "retry",
+        "verdict": "stopped",
+        "exit_code": 4,
+        "wall_seconds": 5400.04,
+        "gnu_time_peak_rss_kib": 5076408,
+        "reason": "time limit",
+        "layout_bits": 129,
+        "last_logged_layer": 11,
+        "frontier_bdd_nodes": 635471,
+        "reached_bdd_nodes": 652136
+      }
+    ],
+    "base_capacity_diagnostic": {
+      "source_network_cardinality": 4,
+      "source_slot_codes": [
+        24,
+        25,
+        26,
+        28,
+        63,
+        63
+      ],
+      "finding": "A reachable admitted source with four messages can produce an emission beyond the six-slot representation. The checker refused. The diagnostic replay distinguished overflow from an unrelated invalid encoding."
+    }
   }
 }
