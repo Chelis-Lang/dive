@@ -970,14 +970,14 @@ Use `"$MODEL/config/f3.cfg"` in place of `full.cfg` for the published f3 compari
 
 #### Enlarge the EmergencyCall number sets
 
-Adding members to either of two source sets increases the choices in messages, sets of numbers, and the number dialed by the user. The transition definitions and properties stay the same. These four modified modules use unrestricted `Init`, `Next`, `TypeInvariant`, `SetInvariant` and deadlock checking. Each row exhausted depth 44. The timings include binding the original-format TLA+ and CFG on one EC2 logical CPU. [Run data, source digests and independent checks](../../conformance/reports/perf/2026-11-21-emergencycall-growth.json).
+Adding members to either of two source sets increases the choices in messages, sets of numbers, and the number dialed by the user. The transition definitions and properties stay the same. These four modified modules use unrestricted `Init`, `Next`, `TypeInvariant`, `SetInvariant` and deadlock checking. Each row exhausted depth 44. Each process used one EC2 logical CPU. The four final runs ran concurrently with separate CPU affinities. Times include source binding and verification of all module digests. A second BFS implementation used simultaneous updates, reversed action order and 64 fixed-policy partitions. It matched the initial, distinct and generated counts and depth on every variant. Both searches use the same source expression semantics. [Run data, source digests and independent checks](../../conformance/reports/perf/2026-11-21-emergencycall-growth.json).
 
 | Source edit | Initial | Distinct | Generated | Wall (s) | Final BDD nodes |
 |---|---:|---:|---:|---:|---:|
-| One extra ordinary number | 147,849,216 | 169,479,392,600 | 1,273,101,338,520 | 275.93 | 244,067 |
-| Two extra ordinary numbers | 273,678,336 | 394,692,381,120 | 3,342,552,718,608 | 472.53 | 337,077 |
-| One extra local emergency number | 167,772,160 | 193,953,806,512 | 1,460,900,160,048 | 333.94 | 285,740 |
-| Two extra local emergency numbers | 393,216,000 | 570,694,082,176 | 4,847,988,282,736 | 630.92 | 407,330 |
+| One extra ordinary number | 147,849,216 | 169,479,392,600 | 1,273,101,338,520 | 254.63 | 244,067 |
+| Two extra ordinary numbers | 273,678,336 | 394,692,381,120 | 3,342,552,718,608 | 422.37 | 337,077 |
+| One extra local emergency number | 167,772,160 | 193,953,806,512 | 1,460,900,160,048 | 302.71 | 285,740 |
+| Two extra local emergency numbers | 393,216,000 | 570,694,082,176 | 4,847,988,282,736 | 559.44 | 407,330 |
 
 The local-number edits expose a trap when using a published configuration as a control. The type invariant makes each of the home-1 and roaming-1 AMF emergency-number sets a singleton. The system constraint equates each of them with the **entire** local emergency-number set. Growing the latter makes each of the five constrained initial predicates empty. The benchmark reports the empty initial set explicitly. Both ordinary checkers reported zero initial, distinct and generated states on F1. For the ordinary-number edits, F1 still starts with 32,768 states. Its two closures contain 4,841,472 and 5,750,784 states at depth 19. On the unmodified published s0 configuration the stronger F1 property fails. The benchmark produces a seven-state counterexample that Dive independently validates.
 
