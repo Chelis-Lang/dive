@@ -955,9 +955,10 @@
         "binary_sha256": "df35e7540b75fe704700e20329004db9085949fd25441ceda30f11b128307eed",
         "configuration": "Unmodified original source, model_liveness.cfg and pinned library modules. Eight workers, seed 0, fp 0, default profile and periodic schedule; no state or depth cutoff.",
         "budgets": {
-          "8g": "--max-memory 8g --time-limit 1800s"
+          "8g": "--max-memory 8g --time-limit 1800s",
+          "24g": "--max-memory 24g --time-limit 14400s"
         },
-        "scope": "The first periodic check returned and exploration resumed. The second call entered atom labeling and stopped on memory before any additional native atom evaluation was recorded. Four configured properties remain without a final verdict.",
+        "scope": "At 8 GiB the second periodic check stopped on memory before another atom evaluation. At 24 GiB it returned from the second check and resumed graph capture. A completed prefix check alone establishes no final property verdict.",
         "runs": {
           "8g": {
             "start_utc": "2026-11-21T01:31:00Z",
@@ -1010,6 +1011,61 @@
                 "false_rows": 4143409,
                 "plans": 1020,
                 "probes": 4226370
+              },
+              "fallback": 0
+            }
+          },
+          "24g": {
+            "start_utc": "2026-11-21T01:42:59Z",
+            "finish_utc": "2026-11-21T03:36:54Z",
+            "wall_seconds": 6835.26,
+            "gnu_time_peak_rss_kib": 25459724,
+            "sampled_process_peak_bytes": 25846771712,
+            "exit_code": 5,
+            "verdict": "stopped",
+            "message": "DIVE-L0038: stopped during temporal-analysis: resident memory 25846771712 bytes exceeds the ceiling of 25769803776 bytes",
+            "stop": {
+              "elapsed_ms": 6835019,
+              "limit": 25769803776,
+              "observed": 25846771712,
+              "phase": "temporal-analysis",
+              "resource": "memory"
+            },
+            "statistics": {
+              "depth": 6,
+              "distinct": 11313431,
+              "exhaustive": false,
+              "generated": 2809683123,
+              "initial_generated": 1,
+              "left_on_queue": 9745370,
+              "reported_by_tlc": false
+            },
+            "execution": {
+              "capture_completed": false,
+              "stage": "atoms"
+            },
+            "periodic": {
+              "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+              "exhausted": false,
+              "final_check": false,
+              "growth_factor": 2,
+              "last_level": 5,
+              "last_size": 11313431,
+              "min_states": 65536,
+              "prefix_checks": 3
+            },
+            "property": null,
+            "property_names_reported": null,
+            "trace": null,
+            "collector_capacity_bytes": 7382008026,
+            "retained_rows": 11313431,
+            "atom_evaluations": {
+              "state_evaluations": 456761484,
+              "action_evaluations": 817339894,
+              "action_source_guards": {
+                "false_rows": 49619976,
+                "plans": 1020,
+                "probes": 50632035
               },
               "fallback": 0
             }
@@ -1284,7 +1340,89 @@
           }
         },
         "ratchet": "Three one-worker small-tier temporal models agreed with the pinned goldens; zero baseline regressions.",
-        "integrated_binary_sha256": "f5619ba060a4dea6048bd19bd8d0f4bcc586d4729851e8c48ef572190188c28b"
+        "integrated_binary_sha256": "f5619ba060a4dea6048bd19bd8d0f4bcc586d4729851e8c48ef572190188c28b",
+        "long_without_state_cutoff": {
+          "command": "dive check kafka/kraft_kip_996.tla --config kafka/model_liveness.cfg --library-path modules --workers 8 --fp 0 --seed 0 --max-memory 8g --time-limit 43200s --output json",
+          "binary_sha256": "f009c2efb13271cedc60fb8bb879ceddbffd2c5927d87f54b94b7c3f44b64312",
+          "source_sha256": "87f9c5d5849195a7f4308f8181b2281a9e5d72dbe689d0a0a1b0b72838eb4a4d",
+          "config_sha256": "3de24e3b89db9468dc390f2ddd70bd6a7f47fedc0b7ba3680690b0ed4507030e",
+          "start_utc": "2026-11-21T02:36:12Z",
+          "finish_utc": "2026-11-21T04:15:52Z",
+          "exit": 5,
+          "verdict": "stopped",
+          "diagnostic": "DIVE-L0038: stopped during graph-capture: resident memory 8606912512 bytes exceeds the ceiling of 8589934592 bytes",
+          "stopped": {
+            "elapsed_ms": 5980158,
+            "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+            "limit": 8589934592,
+            "observed": 8606912512,
+            "phase": "graph-capture",
+            "resource": "memory",
+            "unit": "bytes"
+          },
+          "execution": {
+            "capture_completed": false,
+            "stage": "capture"
+          },
+          "statistics": {
+            "depth": 6,
+            "distinct": 8388609,
+            "exhaustive": false,
+            "generated": 1935626353,
+            "initial_generated": 1,
+            "left_on_queue": 7359346,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+            "exhausted": false,
+            "final_check": false,
+            "growth_factor": 2,
+            "last_level": 4,
+            "last_size": 1568061,
+            "min_states": 65536,
+            "prefix_checks": 2
+          },
+          "property": null,
+          "properties": null,
+          "trace_validation": null,
+          "wall_seconds": 5980.25,
+          "process_maxrss_kib": 9391504,
+          "collector_capacity_bytes": 6610256090,
+          "atom_evaluations": {
+            "state_evaluations": 456761484,
+            "action_evaluations": 817339894,
+            "action_source_guards": {
+              "false_rows": 49619976,
+              "plans": 1020,
+              "probes": 50632035
+            },
+            "fallback": 0
+          },
+          "instrumentation": "Four low-frequency external uprobes recorded level_done entries/returns and product-search calls in the unchanged release binary. A level_done return alone is a graph-prefix event.",
+          "level_boundaries": [
+            {
+              "utc": "2026-11-21 02:36:55",
+              "event": "level-enter",
+              "level": 3
+            },
+            {
+              "utc": "2026-11-21 02:41:25",
+              "event": "level-return",
+              "level": 3
+            },
+            {
+              "utc": "2026-11-21 02:48:34",
+              "event": "level-enter",
+              "level": 4
+            },
+            {
+              "utc": "2026-11-21 03:38:03",
+              "event": "level-return",
+              "level": 4
+            }
+          ]
+        }
       },
       "unchanged_target_action_prefixes": {
         "host": "AWS r7i.8xlarge x86_64. Timed arms ran sequentially on the same eight physical cores (8–15); the separate 12-hour capacity run used physical cores 0–7.",
@@ -1539,6 +1677,56 @@
           }
         },
         "ratchet": "Three W1 small-tier temporal clock/cache controls agree with the pinned goldens.",
+        "without_state_cutoff": {
+          "binary_sha256": "45144468f5b258c3c96b986148b5c9f2baca763ac31f76bdcde4062af39c281f",
+          "exit": 5,
+          "verdict": "stopped",
+          "stop": "time",
+          "stage": {
+            "capture_completed": false,
+            "stage": "atoms"
+          },
+          "statistics": {
+            "depth": 5,
+            "distinct": 1568061,
+            "exhaustive": false,
+            "generated": 364992824,
+            "initial_generated": 1,
+            "left_on_queue": 1386078,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "prefix_checks": 2,
+            "last_level": 4,
+            "last_size": 1568061,
+            "final_check": false,
+            "exhausted": false
+          },
+          "property": null,
+          "properties": null,
+          "trace_validation": null,
+          "wall_seconds": 1800.1,
+          "gnu_time_peak_rss_kib": 2089548,
+          "graph_buffer_bytes": 922779866,
+          "atoms": {
+            "state_evaluations": 210575907,
+            "action_evaluations": 305199122,
+            "action_source_guards": {
+              "false_rows": 22288601,
+              "plans": 1020,
+              "probes": 23053911
+            },
+            "unchanged_target_guards": {
+              "edges": 319126840,
+              "plans": 640,
+              "probes": 436714,
+              "rows": 435646
+            },
+            "fallback": 0
+          },
+          "command": "dive check kafka/kraft_kip_996.tla --config kafka/model_liveness.cfg --library-path modules --workers 8 --seed 0 --fp 0 --max-memory 8g --time-limit 1800s --output json",
+          "scope": "The second periodic level_done entered after 615 s. The CLI stopped on time in the atom stage, while evaluating the 1,568,061-state prefix. Four external low-frequency entry/return probes attached after the first call began; the two fixed-prefix timed arms used no such probes."
+        },
         "independent_review": {
           "comparisons": 63,
           "additional_scope_and_identity_controls": 11,
