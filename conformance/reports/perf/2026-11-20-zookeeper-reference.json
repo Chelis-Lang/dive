@@ -621,7 +621,8 @@
             "wall_seconds": 11049.08,
             "peak_rss_kib": 70324696,
             "workers": 32
-          }
+          },
+          "paper_endpoint": "24-hour cutoff at depth 57 and 1,599,588,210 generated. The paper supplies no exhausted counts for this row."
         }
       ]
     }
