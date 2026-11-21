@@ -872,6 +872,7 @@ impl Session {
             return self.read_finite_attempt(doc, control, scope, None);
         }
         let choices = Arc::new(crate::choices::Search::default());
+        choices.set_startup(&doc.header().startup_draws);
         for _ in 0..crate::choices::MAX_ATTEMPTS {
             if let Some(control) = control {
                 control

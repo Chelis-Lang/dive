@@ -63,6 +63,7 @@ fn constant_fallback_words_check_behavior_and_reject_false_property_claims() {
                 properties: vec!["P".into()],
                 concrete_closure: false,
                 witnesses: Vec::new(),
+                draws: Vec::new(),
             };
             let doc = trace.to_doc(&model).expect("document");
             let parsed = TraceDoc::parse(&doc.to_json().to_string()).expect("transport");

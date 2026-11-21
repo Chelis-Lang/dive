@@ -19,6 +19,12 @@ pub(crate) struct SimulationHost {
     random: RunHost,
     ownership: Mutex<Ownership>,
     binding: AtomicBool,
+    /// Values start-up evaluation (constant definitions, `ASSUME`s) drew, in
+    /// order, which every trace document records.
+    startup_draws: Mutex<Vec<Value>>,
+    /// Start-up is over: the reference evaluator no longer draws. Every
+    /// later draw is Core's, from the trace's own stream.
+    sampling: AtomicBool,
 }
 
 #[derive(Debug, Default)]
@@ -43,7 +49,23 @@ impl SimulationHost {
             random: RunHost::new(Streams::new(options.seed, options.mode), None),
             ownership: Mutex::new(Ownership::default()),
             binding: AtomicBool::new(false),
+            startup_draws: Mutex::new(Vec::new()),
+            sampling: AtomicBool::new(false),
         })
+    }
+
+    /// Ends start-up: from now on a draw by the reference evaluator, whose
+    /// stream every worker would share, is refused.
+    pub(crate) fn start_sampling(&self) {
+        self.sampling.store(true, Ordering::Relaxed);
+    }
+
+    /// The values start-up evaluation drew, in order.
+    pub(crate) fn startup_draws(&self) -> Vec<Value> {
+        self.startup_draws
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone()
     }
 
     pub(crate) fn binding(&self, active: bool) {
@@ -93,6 +115,12 @@ impl Host for SimulationHost {
     }
 
     fn check_native_access(&self, op: StdOp) -> Result<(), HostError> {
+        if op == StdOp::TlcRandomElement && self.sampling.load(Ordering::Relaxed) {
+            return Err(self.refuse(
+                "RandomElement evaluated outside Init and Next once simulation started (an ALIAS or a temporal property atom)"
+                    .to_owned(),
+            ));
+        }
         if op == StdOp::TlcRandomElement {
             let phase = self
                 .ownership
@@ -130,7 +158,14 @@ impl Host for SimulationHost {
             )));
         }
         drop(phase);
-        self.random.random(op, args, ctx)
+        let drawn = self.random.random(op, args, ctx);
+        if let Some(Ok(value)) = &drawn {
+            self.startup_draws
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .push(value.clone());
+        }
+        drawn
     }
 
     fn check_register_access(&self) -> Result<(), HostError> {

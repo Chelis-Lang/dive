@@ -78,7 +78,7 @@ fn error_limit_and_unsupported_cleanup_release_ownership_for_the_next_call() {
     on_stack(|| {
         for (next, expected) in [
             (r"x'=1 \div x", "error"),
-            (r"x'=RandomElement({1})", "unsupported"),
+            (r"x'=RandomElement({1})", "sampled"),
             (r"PrintT(x) /\ x'=x+1", "limit"),
         ] {
             let base = if expected == "error" {
@@ -94,9 +94,7 @@ fn error_limit_and_unsupported_cleanup_release_ownership_for_the_next_call() {
                 let report = simulate(&base, &options(RandomMode::Tlc, true, 0));
                 match expected {
                     "error" => assert!(matches!(report.outcome, Outcome::Error { .. })),
-                    "unsupported" => assert!(
-                        matches!(report.outcome, Outcome::Unsupported(ref s) if s.contains("RandomElement"))
-                    ),
+                    "sampled" => assert!(matches!(report.outcome, Outcome::Sampled)),
                     _ => assert!(matches!(report.outcome, Outcome::Limit(_))),
                 }
                 assert!(Arc::ptr_eq(

@@ -90,6 +90,8 @@ fn init_request(model: &dive_model::Model) -> Result<TraceDoc, Box<dyn std::erro
         properties: Vec::new(),
         concrete_closure: false,
         witnesses: Vec::new(),
+        draws: Vec::new(),
+        startup_draws: Vec::new(),
     })
 }
 
@@ -429,6 +431,8 @@ fn level_request(
         properties: Vec::new(),
         concrete_closure: false,
         witnesses: Vec::new(),
+        draws: Vec::new(),
+        startup_draws: Vec::new(),
     })
 }
 

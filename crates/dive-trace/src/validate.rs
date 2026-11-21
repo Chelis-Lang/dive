@@ -577,6 +577,7 @@ impl<'a> Run<'a> {
             }
             if let Some(choices) = &self.host.choices {
                 choices.prefer(&trace.states[k]);
+                choices.set_step(trace.draws.get(k).map(Vec::as_slice));
             }
             self.host
                 .set_witnesses(trace.witnesses.get(k).map(Vec::as_slice));

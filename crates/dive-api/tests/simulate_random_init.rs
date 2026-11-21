@@ -1,11 +1,7 @@
-//! Primary startup draws remain separate from selection and independent membership.
-//!
-//! Only the retired reference engine sampled `RandomElement` in simulation
-//! (#791). Core refuses each of these requests by name; the restoring
-//! coverage is tracked in #910, which points to this file's earlier form.
+//! `RandomElement` in Init samples per trace (ADR 0162 §8, D-044) and keeps
+//! TLC's verdicts, error classes and printed texts, with every sampled trace
+//! independently validated.
 #![allow(clippy::expect_used, reason = "bounded fixture setup and assertions")]
-#[path = "support/refused.rs"]
-mod refused;
 
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -28,12 +24,67 @@ fn request(row: &Value, compat_tlc: bool) -> SimulateRequest {
         ..Default::default()
     }
 }
-fn assert_refused(request: &SimulateRequest) {
+/// Runs `request` and checks that every trace it reports validates.
+fn sampled(request: &SimulateRequest) -> (Value, u8) {
     let report = dive_api::simulate_file(request).expect("report");
-    refused::assert_refused(
-        &report.to_json(),
-        report.exit_code(),
-        refused::FINITE_RANDOM,
+    let json = report.to_json();
+    for trace in json["traces"].as_array().into_iter().flatten() {
+        assert_eq!(trace["validation"]["result"], "valid", "{trace}");
+    }
+    (json, report.exit_code())
+}
+
+/// The texts `report` printed, in order; with `distinct`, each once.
+fn printed(report: &Value, distinct: bool) -> Vec<Value> {
+    let mut out = Vec::new();
+    for event in ["startup_output", "runtime_output"]
+        .iter()
+        .flat_map(|field| report[*field].as_array().into_iter().flatten())
+    {
+        if event["kind"] == "print" && !(distinct && out.contains(&event["text"])) {
+            out.push(event["text"].clone());
+        }
+    }
+    out
+}
+
+/// TLC's verdict, error class, violated property and printed texts for
+/// `row`. Values differ: Init draws per trace (D-044), so a print in Init
+/// is printed once per trace, and for that model only the distinct texts
+/// are compared.
+fn assert_agrees(row: &Value, request: &SimulateRequest) {
+    let (report, exit) = sampled(request);
+    let label = &row["label"];
+    let expected = match row["physical_exit"].as_u64() {
+        Some(0) => "sampled",
+        Some(12) => "violation",
+        _ => "evaluation-error",
+    };
+    assert_eq!(report["result"], expected, "{label}: {report}");
+    assert_eq!(
+        report["tlc_code"],
+        row["codes"].get(0).cloned().unwrap_or(Value::Null),
+        "{label}"
+    );
+    if request.compat_tlc {
+        assert_eq!(
+            Some(u64::from(exit)),
+            row["physical_exit"].as_u64(),
+            "{label}"
+        );
+    }
+    if expected == "violation" {
+        assert_eq!(
+            report["observed_violation"]["name"],
+            row["violated_property"]
+        );
+        assert_eq!(report["violation_validated"], true, "{label}");
+    }
+    let init_prints = row["model"] == "InitRandomStoredPrint";
+    assert_eq!(
+        json!(printed(&report, init_prints)),
+        row["printed"],
+        "{label}"
     );
 }
 
@@ -50,7 +101,7 @@ fn actual_primary_init_words_errors_and_output_keep_their_boundaries() {
             if !compat_tlc && row["aril"] != 0 {
                 continue;
             }
-            assert_refused(&request(row, compat_tlc));
+            assert_agrees(row, &request(row, compat_tlc));
             runs += 1;
         }
     }
@@ -61,14 +112,31 @@ fn actual_primary_init_words_errors_and_output_keep_their_boundaries() {
 fn seed_prefix_statistics_and_true_word_mutations_remain_independent() {
     let file = fixtures().join("InitRandomInterval.tla");
     for compat_tlc in [false, true] {
-        assert_refused(&SimulateRequest {
+        let request = SimulateRequest {
             file: file.clone(),
             seed: Some(0),
             depth: Some(3),
             traces: 2,
             compat_tlc,
             ..Default::default()
-        });
+        };
+        let (first, _) = sampled(&request);
+        let (again, _) = sampled(&request);
+        assert_eq!(first["result"], "sampled");
+        assert_eq!(
+            first["traces"], again["traces"],
+            "a seed reproduces its samples"
+        );
+        let starts: Vec<_> = first["traces"]
+            .as_array()
+            .expect("traces")
+            .iter()
+            .map(|trace| trace["document"]["states"][0]["values"]["x"].clone())
+            .collect();
+        assert_ne!(
+            starts[0], starts[1],
+            "each trace draws its own initial state"
+        );
         // The independent validator still admits any drawn initial value and
         // rejects forged Init, Next and ending claims.
         let model = SpecModel::load(
@@ -184,7 +252,18 @@ fn nested_correlated_and_captured_randomness_has_independent_sample_proof() {
             "",
         ),
     ] {
-        assert_refused(&Files::new(init, next, safe, extra, config).request());
+        let (report, _) = sampled(&Files::new(init, next, safe, extra, config).request());
+        assert_eq!(report["result"], "sampled", "{init}: {report}");
+        let document = &report["traces"][0]["document"];
+        assert_eq!(document["states"][0]["values"]["x"], 7);
+        // A constant-level invariant is evaluated once at start-up, as TLC
+        // does (its warning 2149), so its draw is a start-up draw.
+        let startup = if safe == "TRUE" {
+            Value::Null
+        } else {
+            json!([true])
+        };
+        assert_eq!(document["startup_draws"], startup, "{init}");
     }
 }
 
@@ -197,5 +276,11 @@ fn nested_domain_errors_precede_the_unreached_outer_native_invocation() {
         "",
         "",
     );
-    assert_refused(&files.request());
+    let (report, _) = sampled(&files.request());
+    assert_eq!(report["result"], "evaluation-error", "{report}");
+    assert_eq!(report["tlc_code"], 1000);
+    assert_eq!(
+        json!(printed(&report, false)),
+        json!(["\"before-inner-error\""])
+    );
 }

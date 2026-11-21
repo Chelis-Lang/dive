@@ -22,6 +22,8 @@ reproduce TLC:
   after canonical function construction, for example on an enumerated domain.
 - Random operators need a supported draw placement and a replayable stream;
   dive does not match TLC's draw order in general, including with VIEW.
+  Simulation draws `Init` per trace and never reports a deadlock on one draw
+  ([D-044](#d-044-randomelement-in-simulation)).
 - Seeded simulation does not reproduce TLC's choice stream: for a given seed
   and aril, dive samples different traces and reports a different generated
   count than TLC (31 against 29 for `SimChoice` at seed 0, aril 0). Every
@@ -35,8 +37,9 @@ reproduce TLC:
 - These refuse by name: bounded final temporal checking
   (`--lncheck final --lasso short`, and `dive tlc -lncheck final`);
   multi-worker liveness whose violated names are known only at run time;
-  finite simulation and DFID that reach random or register effects dive does
-  not replay; source and TLC logical coverage (`--source-coverage`,
+  finite simulation and DFID that reach register effects or a
+  `Randomization` operator, and draws in simulation that one draw cannot
+  decide ([D-044](#d-044-randomelement-in-simulation)); source and TLC logical coverage (`--source-coverage`,
   `--coverage 0`, `dive tlc -coverage 0`); external inputs (`--allow-io`); and
   recovery of a checkpoint archive in an older pre-release format.
 - Boolean recursive predicate guards keep their
@@ -217,7 +220,7 @@ match TLC's under `--compat=tlc`, for the per-state and start-up streams.
 | **Kind** | Different answer only when you fix a seed |
 | **Default** | Seed reported; `--seed S` replays a sample at any worker count; `--traces N` is the total |
 | **TLC behavior** | Under `--compat=tlc` |
-| **Status** | implemented for safety simulation without effects, at any worker count, with dive's per-trace streams in both profiles; `--compat=tlc` does not reproduce TLC's worker selection stream, and its `num` stays a total rather than per worker. Random operators and effects in the spec refuse by name. |
+| **Status** | implemented for safety simulation without effects, at any worker count, with dive's per-trace streams in both profiles; `--compat=tlc` does not reproduce TLC's worker selection stream, and its `num` stays a total rather than per worker. `RandomElement` in Init and Next samples per trace ([D-044](#d-044-randomelement-in-simulation)); the other random operators and register effects refuse by name. |
 
 **What TLC does.** Even with `-seed 0` and one worker, the number of states TLC generates in simulation varies between runs. On Examples `EWD840_anim` it ranged from about 267k to 271k.
 
@@ -1812,3 +1815,39 @@ violation in every seed, and model checking none. dive checks each property
 on the actual behavior and reports no violation, in both profiles. The
 receipts are `crates/dive-sim/tests/fixtures/temporal/oracle.json` E1 and T5
 and their model-checking controls B-E1 and B-T5.
+
+## D-044: RandomElement in simulation
+
+| | |
+|---|---|
+| **Kind** | Different answer (TLC reports a deadlock no behavior has) |
+| **Default** | Each trace draws from its own stream; draws are recorded and validated |
+| **TLC behavior** | Not reproduced; documented gap under `--compat=tlc` |
+| **Status** | implemented for `RandomElement` in `Init` and `Next` of `dive simulate`; `RandomSubset` and `RandomSetOfSubsets` refuse by name in simulation |
+
+**What TLC does.** TLC's `-simulate` evaluates `Init` once, so a
+`RandomElement` in `Init` is drawn once and every trace starts in the same
+state (fixture I1). A draw in `Next` comes from the worker's generator, so a
+trace depends on the worker count. When a step's draw disables `Next`, TLC
+reports a deadlock (2114, exit 11), although another value of the same draw
+continues the behavior (D1). The same happens for a draw inside `ENABLED`
+(B1). A draw in an invariant can report a violation that another draw
+would not (V1).
+
+**What dive does.** Every draw comes from a stream keyed by the seed, the
+trace, the step, the action and the attempt, so a trace is the same at any
+worker count and `--trace-ids` regenerates it. `Init` is drawn for each
+trace, so traces start in different states. A `Print` in `Init` then prints
+once per trace. The trace document records each state's draws and the values
+start-up evaluation drew. `dive validate-trace` evaluates each set itself and
+accepts a recorded value only if it is a member, so a forged or wrong draw
+fails validation. A recorded value is a hint, never a result the set does
+not admit. A step whose draws give no successor is drawn again with the next
+attempt's stream, and after eight attempts the trace stops and is counted in
+`traces_stalled`, never reported as a deadlock: one draw cannot show that no
+value works. For the same reason a draw in an invariant, a constraint, an
+implied property or inside `ENABLED` refuses by name. A constant-level
+definition still draws once at start-up, as in TLC (C1, C2). A configured
+`C <- Pick` names `Pick`'s body, which TLC evaluates at every use, and so
+does dive (C3). `dive check` is unchanged. The receipts are
+`crates/dive-sim/tests/fixtures/random-ops/oracle.json`.

@@ -70,6 +70,7 @@ fn replay_primary(case: &str) {
             properties: Vec::new(),
             concrete_closure: false,
             witnesses: Vec::new(),
+            draws: Vec::new(),
         };
         let mut forged = genuine.clone();
         let mut changed = state;

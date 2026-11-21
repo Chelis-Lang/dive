@@ -87,7 +87,7 @@ impl DrawStream for CoreStream {
 }
 
 /// TLC's error of a draw, as `dive-stdlib`'s random operators report it.
-fn draw_error(e: &RandomError) -> Error {
+pub(crate) fn draw_error(e: &RandomError) -> Error {
     match e {
         RandomError::Value(v) if v.kind() == dive_value::ErrorKind::DiveLimit => {
             Error::unsupported(v.message().to_owned())

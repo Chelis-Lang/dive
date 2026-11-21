@@ -131,7 +131,16 @@ fn random_element(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error
     } else {
         s
     };
-    if let Some(why) = draw_ambiguous(m, s) {
+    let simulation = m.draw.as_ref().is_some_and(|stream| stream.simulation());
+    if simulation && m.in_enabled > 0 {
+        return Err(refuse(
+            op,
+            "inside ENABLED in simulation, where one draw cannot show that an action is disabled",
+        ));
+    }
+    // A simulation draw is any member of its set, so it need not follow
+    // TLC's per-component order on a lazily held set.
+    if !simulation && let Some(why) = draw_ambiguous(m, s) {
         return Err(refuse(op, why));
     }
     let Some(p) = m.heap.store().printer().cloned() else {
@@ -153,7 +162,21 @@ fn random_element(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error
     };
     m.draws += 1;
     let out = stream.draw(op, &[v], p.ctx)?;
-    crate::convert::from_value(&mut m.heap, &out, p.ctx)
+    let out = crate::convert::from_value(&mut m.heap, &out, p.ctx)?;
+    record(m, out)
+}
+
+/// Keeps a drawn value in the machine's log, interned so that it outlives
+/// the generator's heap, when the engine records draws.
+pub(super) fn record(m: &mut Machine, out: Handle) -> Result<Handle, Error> {
+    if m.random_log.is_none() {
+        return Ok(out);
+    }
+    let kept = m.heap.intern_exact(out)?;
+    if let Some(log) = &mut m.random_log {
+        log.push(kept);
+    }
+    Ok(kept)
 }
 
 /// Why TLC might draw otherwise from `s`: one value per component from a

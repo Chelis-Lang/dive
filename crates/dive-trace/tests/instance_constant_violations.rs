@@ -58,6 +58,7 @@ fn absent_constants_validate_genuine_words_and_reject_forged_edges() {
                 properties: vec!["Bad".into()],
                 concrete_closure: false,
                 witnesses: Vec::new(),
+                draws: Vec::new(),
             };
             for _ in 0..2 {
                 assert_eq!(

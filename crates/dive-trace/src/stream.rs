@@ -3,8 +3,8 @@
 //! A [`TraceDoc`] holds every state as a JSON object, which for a trace of
 //! millions of states costs many times the states themselves. A producer that
 //! already holds its states (simulation keeps its own rows) can instead give
-//! a [`StateSource`] with a header document whose `states`, `labels` and
-//! `witnesses` are empty: [`write_document`] writes the same bytes as
+//! a [`StateSource`] with a header document whose `states`, `labels`,
+//! `witnesses` and `draws` are empty: [`write_document`] writes the same bytes as
 //! [`TraceDoc::to_json`] without building the document, and
 //! [`crate::Session::read_sampled_source`] validates it, decoding each state
 //! as it is produced. The validator still reads only the JSON form, so its
@@ -39,6 +39,8 @@ pub struct Streamed {
     /// The members drawn for the step's existentials
     /// ([`TraceDoc::witnesses`]).
     pub witnesses: Vec<J>,
+    /// The values random operators drew for the step ([`TraceDoc::draws`]).
+    pub draws: Vec<J>,
 }
 
 /// The states of a document, produced in order on demand. A source may be
@@ -71,6 +73,7 @@ impl StateSource for TraceDoc {
                 values: values.clone(),
                 label: self.labels.get(k).cloned().flatten(),
                 witnesses: self.witnesses.get(k).cloned().unwrap_or_default(),
+                draws: self.draws.get(k).cloned().unwrap_or_default(),
             })?;
         }
         Ok(())
@@ -78,14 +81,15 @@ impl StateSource for TraceDoc {
 }
 
 impl TraceDoc {
-    /// This document without its states, labels and witnesses: the header a
-    /// [`StateSource`] completes.
+    /// This document without its states, labels, witnesses and step draws:
+    /// the header a [`StateSource`] completes.
     #[must_use]
     pub fn header(&self) -> Self {
         Self {
             states: Vec::new(),
             labels: Vec::new(),
             witnesses: Vec::new(),
+            draws: Vec::new(),
             ..self.clone()
         }
     }
@@ -114,7 +118,13 @@ pub fn write_document(
     let mut first = true;
     let mut failure = None;
     let produced = source.states(&mut |state| {
-        let text = state_json(&state.values, state.label.as_ref(), &state.witnesses).to_string();
+        let text = state_json(
+            &state.values,
+            state.label.as_ref(),
+            &state.witnesses,
+            &state.draws,
+        )
+        .to_string();
         let written = if first {
             out.write_all(text.as_bytes())
         } else {

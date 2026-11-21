@@ -20,6 +20,15 @@ pub trait DrawStream: Send + std::fmt::Debug {
     /// # Errors
     /// TLC's evaluation error of the operator, or a refusal.
     fn draw(&mut self, op: StdOp, args: &[Value], ctx: Ctx) -> Result<Value, Error>;
+
+    /// Whether this is a simulation stream (ADR 0162 §8): a draw stands for
+    /// some member of its set, not for TLC's particular draw. Its draws need
+    /// not follow TLC's per-component order on lazily held sets, and a draw
+    /// inside `ENABLED` is refused, since one draw cannot show that an
+    /// action is disabled. Model checking's streams return `false`.
+    fn simulation(&self) -> bool {
+        false
+    }
 }
 
 /// The run's random streams.

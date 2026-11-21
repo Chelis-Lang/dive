@@ -5,6 +5,7 @@
 
 pub(crate) mod dfid;
 pub(crate) mod sample;
+mod sim_random;
 #[cfg(test)]
 mod sim_tests;
 
@@ -186,6 +187,17 @@ fn generate_selected(
 
 /// State roles read the candidate; step roles read the original source/target.
 fn predicate(machine: &mut Machine, code: &Code, check: &Check, step: bool) -> Result<bool, Error> {
+    sim_random::checking(machine, |machine| {
+        predicate_drawless(machine, code, check, step)
+    })
+}
+
+fn predicate_drawless(
+    machine: &mut Machine,
+    code: &Code,
+    check: &Check,
+    step: bool,
+) -> Result<bool, Error> {
     if !step {
         std::mem::swap(&mut machine.s0, &mut machine.s1);
     }

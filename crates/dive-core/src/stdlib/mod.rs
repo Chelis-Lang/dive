@@ -42,6 +42,19 @@ pub fn effectful(op: StdOp) -> bool {
     implements(op) && op.impure() && !deferred(op)
 }
 
+/// Whether `op` draws from the machine's random stream: `RandomElement` and
+/// the `Randomization` operators.
+#[must_use]
+pub fn random_op(op: StdOp) -> bool {
+    matches!(
+        op,
+        StdOp::TlcRandomElement
+            | StdOp::RandomizationRandomSubset
+            | StdOp::RandomizationRandomSetOfSubsets
+            | StdOp::RandomizationRandomSubsetSet
+    )
+}
+
 /// Whether `op` compiles to a call that refuses when it is evaluated, before
 /// its arguments are: TLC's trace introspection (`TLCExt!Trace`,
 /// `TLCExt!CounterExample`) and the `Json` and `IOUtils` operators, which

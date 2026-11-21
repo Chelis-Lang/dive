@@ -187,7 +187,9 @@ impl Machine {
         self.s1 = vec![Handle::EMPTY; saved.len()];
         let assigned = self.assigned;
         let mut first = First(false);
+        self.in_enabled += 1;
         let r = self.run_action(code, g, &mut first);
+        self.in_enabled -= 1;
         self.s1 = saved;
         self.assigned = assigned;
         match r {

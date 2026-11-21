@@ -280,7 +280,17 @@ The existing direct scalar Init membership fast path remains. Other finite
 choices use bounded search; native function/record/product selection keeps its
 component demand order. Deferred providers, random-register interactions,
 randomness inside ENABLED and unproved Init assignment forms remain explicit
-refusals. Core simulation refuses a reached `RandomElement`; see the
+refusals.
+
+Core simulation draws a reached `RandomElement` in Init or Next from the
+trace's own stream, `Streams::simulation_random(trace, step, action,
+attempt)`, and records the chosen step's draws in `Trace::draws`. Start-up
+draws are recorded by the host while binding and returned by
+`Runtime::startup_draws`; `Runtime::start_sampling` ends start-up, after which
+a draw by the reference evaluator refuses by name. Draws in invariants,
+constraints, implied properties and inside `ENABLED` refuse by name, and a
+step whose draws admit nothing is drawn again, then stalls; it is never a
+deadlock (D-044). The Randomization operators refuse by name. See the
 [user guide](../../docs/user/simulation.md#random-choices).
 
 The primary controls in `tests/fixtures/random-init/oracle.json` retain their

@@ -42,8 +42,9 @@ pub enum RandomMode {
 ///
 /// dive's simulation uses [`Streams::simulation_trace`] in both modes: it replaces
 /// both per-worker generators with one stream per trace number, so traces are
-/// reproducible whatever worker runs them. The TLC worker seeds are kept for
-/// reference and tests only.
+/// reproducible whatever worker runs them. The operators' draws come from
+/// [`Streams::simulation_random`], one stream per trace position. The TLC
+/// worker seeds are kept for reference and tests only.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Streams {
     seed: i64,
@@ -111,7 +112,8 @@ impl Streams {
 
     /// dive simulation: the single stream of trace number `trace` (0-based, in the
     /// order traces are numbered, not the order workers finish them). It drives the
-    /// choice of initial state, actions and successors, and the operators' draws.
+    /// choice of initial state, actions and successors; the operators draw from
+    /// [`Self::simulation_random`].
     #[must_use]
     pub const fn simulation_trace(&self, trace: u64) -> Stream {
         Stream::Dive(DiveStream::new(self.seed, Domain::Simulation, trace))
@@ -134,6 +136,33 @@ impl Streams {
     ) -> Stream {
         let key = mix64(mix64(mix64(trace) ^ step) ^ action) ^ attempt;
         Stream::Dive(DiveStream::new(self.seed, Domain::SimulationDraw, key))
+    }
+
+    /// dive simulation: the stream `RandomElement` and the `Randomization`
+    /// operators draw from at one position of trace `trace`, keyed like
+    /// [`Self::simulation_draws`] by the trace, the step (0 for `Init`), the
+    /// action tried and the attempt (ADR 0162 §8). It is separate from both
+    /// other simulation streams, so a specification that draws nothing
+    /// samples the same traces as before, and its draws never depend on what
+    /// an unbounded set drew or on how many candidates earlier actions made.
+    ///
+    /// ```
+    /// use dive_stdlib::random::{RandomMode, RandomSource, Streams};
+    /// let streams = Streams::new(0, RandomMode::Dive);
+    /// let (mut a, mut b) = (streams.simulation_random(3, 1, 0, 0), streams.simulation_random(3, 1, 0, 0));
+    /// assert_eq!(a.next_index(1000), b.next_index(1000));
+    /// assert_ne!(streams.simulation_random(3, 1, 0, 0), streams.simulation_draws(3, 1, 0, 0));
+    /// ```
+    #[must_use]
+    pub const fn simulation_random(
+        &self,
+        trace: u64,
+        step: u64,
+        action: u64,
+        attempt: u64,
+    ) -> Stream {
+        let key = mix64(mix64(mix64(trace) ^ step) ^ action) ^ attempt;
+        Stream::Dive(DiveStream::new(self.seed, Domain::SimulationRandom, key))
     }
 }
 
@@ -163,15 +192,17 @@ enum Domain {
     State,
     Simulation,
     SimulationDraw,
+    SimulationRandom,
 }
 
 impl Domain {
     const fn tag(self) -> u64 {
         match self {
-            Self::Startup => 0x5354_4152_5455_5021,        // "STARTUP!"
-            Self::State => 0x5354_4154_4521_2121,          // "STATE!!!"
-            Self::Simulation => 0x5349_4d55_4c41_5445,     // "SIMULATE"
-            Self::SimulationDraw => 0x5349_4d44_5241_5753, // "SIMDRAWS"
+            Self::Startup => 0x5354_4152_5455_5021,          // "STARTUP!"
+            Self::State => 0x5354_4154_4521_2121,            // "STATE!!!"
+            Self::Simulation => 0x5349_4d55_4c41_5445,       // "SIMULATE"
+            Self::SimulationDraw => 0x5349_4d44_5241_5753,   // "SIMDRAWS"
+            Self::SimulationRandom => 0x5349_4d52_414e_444d, // "SIMRANDM"
         }
     }
 }

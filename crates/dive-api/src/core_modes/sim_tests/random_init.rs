@@ -1,6 +1,6 @@
 //! Init effects close before properties and restore the caller on every return.
-//! Core refuses reached `RandomElement` by name; the retired reference
-//! simulator sampled it (#791, #910).
+//! Core samples a reached `RandomElement` from each trace's own stream
+//! (ADR 0162 §8) and never from the caller's host.
 #![allow(clippy::expect_used, reason = "bounded setup and assertions")]
 
 use super::simulate;
@@ -53,21 +53,21 @@ fn large_stack(run: impl FnOnce() + Send) {
 fn init_success_error_refusal_and_limit_restore_host_and_release_run() {
     large_stack(|| {
         for (init, next, kind, with_host) in [
-            ("x=RandomElement({7})", "UNCHANGED x", "random", false),
-            ("x=RandomElement(42)", "UNCHANGED x", "random", false),
+            ("x=RandomElement({7})", "UNCHANGED x", "sampled", false),
+            ("x=RandomElement(42)", "UNCHANGED x", "error", false),
             (
                 "x=RandomElement({7})",
                 "x'=RandomElement({8})",
-                "random",
+                "sampled",
                 false,
             ),
             (
                 "x=RandomElement(IF PrintT(\"init\") THEN {7} ELSE {})",
                 "UNCHANGED x",
-                "random",
+                "sampled",
                 false,
             ),
-            ("x=RandomElement({7})", "UNCHANGED x", "random", true),
+            ("x=RandomElement({7})", "UNCHANGED x", "sampled", true),
             (
                 "x=IF PrintT(\"init\") THEN 7 ELSE 8",
                 "UNCHANGED x",
@@ -95,10 +95,9 @@ fn init_success_error_refusal_and_limit_restore_host_and_release_run() {
                 assert!(
                     matches!(
                         (&result.outcome, kind),
-                        (Outcome::Sampled, "sampled") | (Outcome::Limit(_), "limit")
-                    ) || matches!(
-                        (&result.outcome, kind),
-                        (Outcome::Unsupported(reason), "random") if reason.contains("RandomElement")
+                        (Outcome::Sampled, "sampled")
+                            | (Outcome::Limit(_), "limit")
+                            | (Outcome::Error { .. }, "error")
                     ),
                     "{result:?}"
                 );
@@ -146,19 +145,23 @@ fn actual_binding_startup_draw_cannot_be_silently_restarted_for_init() {
             .expect("untouched caller");
         assert!(Arc::ptr_eq(&caller, &restored));
         model.evaluator.set_host(restored);
+        let mut first = None;
         for _ in 0..2 {
             let result = simulate(&model, &Options::new(0, RandomMode::Tlc, 1, 1));
-            assert!(
-                matches!(&result.outcome, Outcome::Unsupported(reason) if reason.contains("RandomElement")),
-                "{result:?}"
+            assert!(matches!(&result.outcome, Outcome::Sampled), "{result:?}");
+            assert_eq!(result.traces.len(), 1, "{result:?}");
+            let trace = &result.traces[0];
+            // Init drew from the trace's own stream, recorded at state 0.
+            assert_eq!(trace.draws.len(), 1);
+            assert_eq!(trace.draws[0].0, 0);
+            assert_eq!(
+                *first.get_or_insert_with(|| trace.states.clone()),
+                trace.states
             );
-            assert_eq!(result.stage, "initialization");
-            assert_eq!(result.generated, 0);
-            assert!(result.traces.is_empty());
             assert_eq!(
                 host.stream(),
                 consumed,
-                "refusal cannot consume the old host"
+                "sampling cannot consume the caller's stream"
             );
             let restored = model.evaluator.replace_host(None).expect("restored caller");
             assert!(Arc::ptr_eq(&caller, &restored));

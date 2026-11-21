@@ -684,6 +684,7 @@ impl Search<'_> {
             properties: self.properties.to_vec(),
             concrete_closure: false,
             witnesses: Vec::new(),
+            draws: Vec::new(),
         }
     }
 

@@ -77,19 +77,37 @@ fn sampler(options: &dive_sim::Options) -> Result<Option<dive_core::unbounded::U
     .map(Some)
 }
 
-/// Positions `machine`'s draw stream; returns its draw count so far.
-fn restart_draws(machine: &mut Machine, site: [u64; 4]) -> u64 {
-    machine.unbounded.as_mut().map_or(0, |unbounded| {
+/// Positions `machine`'s draw streams at `site`: the unbounded sampler's
+/// and the random operators' (`sim_random`). Returns the draw count so far.
+fn restart_draws(machine: &mut Machine, random: Option<Streams>, site: [u64; 4]) -> u64 {
+    if let Some(streams) = random {
+        super::sim_random::position(machine, streams, site);
+    }
+    if let Some(unbounded) = machine.unbounded.as_mut() {
         unbounded.restart(site);
-        unbounded.draws()
-    })
+    }
+    draw_count(machine)
 }
 
+/// Draws made so far: members of unbounded sets and random operators'.
 fn draw_count(machine: &Machine) -> u64 {
     machine
         .unbounded
         .as_ref()
         .map_or(0, dive_core::unbounded::Unbounded::draws)
+        + machine.draws
+}
+
+/// The values the random operators drew at the current position so far.
+fn random_drawn(machine: &Machine) -> Vec<Handle> {
+    super::sim_random::drawn(machine).to_vec()
+}
+
+/// Records `drawn` as the draws of the step into row `row`, if any.
+fn push_drawn(list: &mut Vec<(usize, Vec<Handle>)>, row: usize, drawn: Vec<Handle>) {
+    if !drawn.is_empty() {
+        list.push((row, drawn));
+    }
 }
 
 /// Records the sets the last action drew from, with the action's label.
@@ -155,6 +173,9 @@ struct Run {
     flow: Vec<(usize, usize)>,
     /// Existential witnesses drawn for the step into a row, by row index.
     witnesses: Vec<(usize, Vec<Handle>)>,
+    /// Values random operators drew for the step into a row (Init for row
+    /// 0), by row index.
+    draws: Vec<(usize, Vec<Handle>)>,
     /// Unbounded sets drawn from, with the drawing action.
     sampled: Vec<String>,
     /// Ended early: no drawn member led to an admitted state.
@@ -211,6 +232,8 @@ struct Context<'a> {
     init_ids: &'a [usize],
     next_ids: &'a [usize],
     streams: Streams,
+    /// The random operators' streams, when the plan draws (`sim_random`).
+    random: Option<Streams>,
     best: &'a AtomicU64,
     poll: &'a (dyn Fn() -> bool + Sync),
     flows: bool,
@@ -232,6 +255,7 @@ struct Kept {
     actions: Vec<usize>,
     generated: u64,
     witnesses: Vec<(usize, Vec<Handle>)>,
+    draws: Vec<(usize, Vec<Handle>)>,
     word: Option<Word>,
 }
 
@@ -279,7 +303,15 @@ impl Native {
             Err(outcome) => return preflight_report(outcome),
         };
         runtime.simulate_with_backend(model, |remaining| {
-            let mut report = self.sample(model, checker.as_ref(), options, poll, remaining, export);
+            let started = || runtime.start_sampling();
+            let mut report = self.sample(
+                model,
+                checker.as_ref(),
+                options,
+                poll,
+                (remaining, &started),
+                export,
+            );
             if self.machine.heap.poisoned() {
                 report.outcome = Outcome::Internal("native finite mode read a stale value".into());
             }
@@ -297,7 +329,7 @@ impl Native {
         checker: Option<&Checker>,
         options: &dive_sim::Options,
         poll: &(dyn Fn() -> bool + Sync),
-        remaining: &dyn Fn() -> (usize, usize),
+        (remaining, started): (&dyn Fn() -> (usize, usize), &dyn Fn()),
         export: Option<&dyn TraceExport>,
     ) -> Report {
         let mut report = preflight_report(Outcome::Sampled);
@@ -319,6 +351,8 @@ impl Native {
             report.outcome = outcome;
             return report;
         }
+        // Start-up drew what it draws; Core draws from each trace's streams.
+        started();
         let workers = options.workers.max(1);
         match Self::prepare_with_options(model, &self.budget.clone(), self.machine.opts, workers) {
             Ok(actual) => *self = actual,
@@ -339,6 +373,9 @@ impl Native {
         self.machine.unbounded = sampler(options).ok().flatten();
         if let Some(unbounded) = &mut self.machine.unbounded {
             unbounded.set_probe(true);
+        }
+        if self.plan.effects.draws {
+            super::sim_random::probe(&mut self.machine);
         }
         let (events, bytes) = remaining();
         self.machine.set_output_limits(events, bytes);
@@ -456,6 +493,11 @@ impl Native {
             init_ids: &init_ids,
             next_ids: &next_ids,
             streams: Streams::new(options.seed, options.mode),
+            random: self
+                .plan
+                .effects
+                .draws
+                .then(|| Streams::new(options.seed, options.mode)),
             best: &shared.best,
             poll,
             flows,
@@ -537,7 +579,7 @@ impl Native {
             &kept.rows,
             kept.actions,
             kept.generated,
-            &kept.witnesses,
+            (&kept.witnesses, &kept.draws),
         )
     }
 
@@ -563,7 +605,10 @@ impl Native {
     }
 }
 
-/// A trace's interned rows and witnesses as values.
+/// Values recorded at a state (its index), interned.
+type Recorded = (usize, Vec<Handle>);
+
+/// A trace's interned rows, witnesses and draws as values.
 fn trace_values(
     machine: &mut Machine,
     model: &Model,
@@ -571,23 +616,29 @@ fn trace_values(
     rows: &[Vec<Handle>],
     actions: Vec<usize>,
     generated: u64,
-    witnesses: &[(usize, Vec<Handle>)],
+    (witnesses, random): (&[Recorded], &[Recorded]),
 ) -> Result<Trace, String> {
     let mut states = Vec::with_capacity(rows.len());
     for row in rows {
         states.push(values(machine, model, row)?);
     }
-    let mut drawn = Vec::with_capacity(witnesses.len());
-    for (state, row) in witnesses {
-        let members = values(machine, model, row)?;
-        drawn.push((*state, members.iter().flatten().cloned().collect()));
-    }
+    let mut members = |list: &[(usize, Vec<Handle>)]| -> Result<_, String> {
+        let mut out = Vec::with_capacity(list.len());
+        for (state, row) in list {
+            let values = values(machine, model, row)?;
+            out.push((*state, values.iter().flatten().cloned().collect()));
+        }
+        Ok(out)
+    };
+    let witnesses = members(witnesses)?;
+    let draws = members(random)?;
     Ok(Trace {
         id,
         states,
         actions,
         generated,
-        witnesses: drawn,
+        witnesses,
+        draws,
         temporal: None,
     })
 }
@@ -600,6 +651,7 @@ fn word_trace(id: u64, generated: u64, word: Word) -> Trace {
         actions: word.actions,
         generated,
         witnesses: Vec::new(),
+        draws: Vec::new(),
         temporal: Some((word.ending, word.properties)),
     }
 }
@@ -627,7 +679,7 @@ fn export(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) {
             &run.rows,
             run.actions.clone(),
             run.generated,
-            &run.witnesses,
+            (&run.witnesses, &run.draws),
         )
     };
     let written = trace
@@ -753,6 +805,7 @@ fn enumerate_init(
                     actions: Vec::new(),
                     generated: 0,
                     witnesses: Vec::new(),
+                    draws: Vec::new(),
                     temporal: None,
                 }),
                 Err(message) => report.outcome = Outcome::Unsupported(message),
@@ -903,6 +956,7 @@ impl Commit {
             printed,
             flow,
             witnesses,
+            draws,
             sampled,
             stalled,
             exported,
@@ -988,6 +1042,7 @@ impl Commit {
             actions,
             generated,
             witnesses,
+            draws,
             word,
         };
         let fits = self
@@ -1077,6 +1132,7 @@ fn trace(
         printed: Vec::new(),
         flow: Vec::new(),
         witnesses: Vec::new(),
+        draws: Vec::new(),
         sampled: Vec::new(),
         stalled: false,
         exported: false,
@@ -1131,6 +1187,7 @@ fn trace(
         run.rows = Vec::new();
         run.actions = Vec::new();
         run.witnesses = Vec::new();
+        run.draws = Vec::new();
     }
     if run.word.is_some() {
         run.rows = Vec::new();
@@ -1306,6 +1363,10 @@ fn finish_temporal(
         Verdict::Violation(_) if !run.witnesses.is_empty() => Err(Outcome::Unsupported(
             "simulation temporal counterexample through members drawn from unbounded sets".into(),
         )),
+        Verdict::Violation(_) if !run.draws.is_empty() => Err(Outcome::Unsupported(
+            "simulation temporal counterexample through RandomElement or Randomization draws"
+                .into(),
+        )),
         Verdict::Violation(word) => {
             let name = match &word.ending {
                 TemporalEnding::BadPrefix(name) => name.clone(),
@@ -1360,10 +1421,11 @@ fn sample_into(
                 construct_init(machine, cx, id, rng, run)
             };
             match chosen {
-                Ok((row, action, drawn)) => {
+                Ok((row, action, drawn, random)) => {
                     if !drawn.is_empty() {
                         run.witnesses.push((0, drawn));
                     }
+                    push_drawn(&mut run.draws, 0, random);
                     (row, action)
                 }
                 Err(end) => return end,
@@ -1396,8 +1458,10 @@ fn sample_into(
         let source = level_of(run.rows.len());
         let target = level_of(run.rows.len() + 1);
         machine.level = source;
-        let mut exact: Vec<(Vec<Handle>, Vec<Handle>)> = Vec::new();
-        let mut kept: Option<(Vec<Handle>, Vec<Handle>)> = None;
+        // Each candidate: its row, its witnesses and how many of the
+        // position's draws were made when it was emitted.
+        let mut exact: Vec<(Vec<Handle>, Vec<Handle>, usize)> = Vec::new();
+        let mut kept: Option<(Vec<Handle>, Vec<Handle>, usize)> = None;
         let mut admitted = 0u64;
         let start =
             usize::try_from(rng.borrow_mut().next_index(plan.next.len() as u64)).unwrap_or(0);
@@ -1414,11 +1478,12 @@ fn sample_into(
             for _ in 0..plan.next.len() {
                 let mark = machine.heap.mark();
                 let mut selected = false;
-                let before = restart_draws(machine, [id, step, index as u64, attempt]);
+                let before = restart_draws(machine, cx.random, [id, step, index as u64, attempt]);
                 let generated = &mut run.generated;
                 let rows = &mut run.rows;
                 let actions = &mut run.actions;
                 let run_witnesses = &mut run.witnesses;
+                let run_draws = &mut run.draws;
                 let mut emit = |machine: &mut Machine| {
                     if poll() {
                         return Err(Error::stop());
@@ -1461,6 +1526,7 @@ fn sample_into(
                                 if !drawn.is_empty() {
                                     run_witnesses.push((rows.len() - 1, drawn));
                                 }
+                                push_drawn(run_draws, rows.len() - 1, random_drawn(machine));
                             }
                             Err(error) => failed = Some(classify(&error, None)),
                         }
@@ -1471,13 +1537,14 @@ fn sample_into(
                     })? && allowed(machine, plan, &plan.action_constraints, true)?
                     {
                         admitted += 1;
+                        let draws = super::sim_random::drawn(machine).len();
                         if options.generation {
-                            kept = Some((retain(machine)?, witnesses(machine)?));
+                            kept = Some((retain(machine)?, witnesses(machine)?, draws));
                             selected = true;
                             return Err(Error::stop());
                         }
                         if kept.is_none() && exact.len() < EXACT_CANDIDATES {
-                            exact.push((retain(machine)?, witnesses(machine)?));
+                            exact.push((retain(machine)?, witnesses(machine)?, draws));
                         } else {
                             let mut rng = rng.borrow_mut();
                             if kept.is_none() {
@@ -1487,7 +1554,7 @@ fn sample_into(
                                 exact = Vec::new();
                             }
                             if rng.next_index(admitted) == 0 {
-                                kept = Some((retain(machine)?, witnesses(machine)?));
+                                kept = Some((retain(machine)?, witnesses(machine)?, draws));
                             }
                         }
                     }
@@ -1546,7 +1613,7 @@ fn sample_into(
             run.terminal = true;
             return End::Completed;
         }
-        let (chosen, drawn) = if let Some(kept) = kept {
+        let (chosen, drawn, random) = if let Some(kept) = kept {
             kept
         } else {
             let choice =
@@ -1558,6 +1625,11 @@ fn sample_into(
         if !drawn.is_empty() {
             run.witnesses.push((run.rows.len() - 1, drawn));
         }
+        // Every candidate came from this position's one evaluation, so its
+        // draws are the log's first `random` values.
+        let log = super::sim_random::drawn(machine);
+        let prefix = log[..random.min(log.len())].to_vec();
+        push_drawn(&mut run.draws, run.rows.len() - 1, prefix);
         run.actions.push(index);
         let to = cx.next_ids[index];
         if cx.flows {
@@ -1606,8 +1678,8 @@ fn no_initial_state(generated: bool) -> End {
     })
 }
 
-/// An initial row, its action and its witnesses.
-type Chosen = (Vec<Handle>, usize, Vec<Handle>);
+/// An initial row, its action, its witnesses and its draws.
+type Chosen = (Vec<Handle>, usize, Vec<Handle>, Vec<Handle>);
 
 /// Init draws from an unbounded set: trace `id` enumerates Init with its own
 /// draws, checks every candidate as enumerated Init does, and chooses one
@@ -1631,13 +1703,14 @@ fn sampled_init(
         let mut candidates = false;
         let mut drew = 0;
         for index in 0..plan.init.len() {
-            let before = restart_draws(machine, [id, 0, index as u64, attempt]);
+            let before = restart_draws(machine, cx.random, [id, 0, index as u64, attempt]);
             let mark = machine.heap.mark();
             let mut failed = None;
             let initial = &mut run.initial;
             let generated = &mut run.generated;
             let rows = &mut run.rows;
             let run_witnesses = &mut run.witnesses;
+            let run_draws = &mut run.draws;
             let mut emit = |machine: &mut Machine| {
                 if poll() {
                     return Err(Error::stop());
@@ -1653,6 +1726,7 @@ fn sampled_init(
                             if !drawn.is_empty() {
                                 run_witnesses.push((0, drawn));
                             }
+                            push_drawn(run_draws, 0, random_drawn(machine));
                         }
                         Err(error) => failed = Some(classify(&error, None)),
                     }
@@ -1663,7 +1737,12 @@ fn sampled_init(
                 })? {
                     admitted += 1;
                     if rng.borrow_mut().next_index(admitted) == 0 {
-                        kept = Some((retain(machine)?, index, witnesses(machine)?));
+                        kept = Some((
+                            retain(machine)?,
+                            index,
+                            witnesses(machine)?,
+                            random_drawn(machine),
+                        ));
                     }
                 }
                 Ok(())
@@ -1716,7 +1795,7 @@ fn construct_init(
     let mut drew = 0;
     let mut attempt = 0;
     for _ in 0..count.saturating_mul(usize::try_from(SAMPLE_ATTEMPTS).unwrap_or(1)) {
-        let before = restart_draws(machine, [id, 0, index as u64, attempt]);
+        let before = restart_draws(machine, cx.random, [id, 0, index as u64, attempt]);
         let mark = machine.heap.mark();
         let mut kept = None;
         let mut failed = None;
@@ -1724,6 +1803,7 @@ fn construct_init(
         let generated = &mut run.generated;
         let rows = &mut run.rows;
         let run_witnesses = &mut run.witnesses;
+        let run_draws = &mut run.draws;
         let mut emit = |machine: &mut Machine| {
             if poll() {
                 return Err(Error::stop());
@@ -1738,6 +1818,7 @@ fn construct_init(
                         if !drawn.is_empty() {
                             run_witnesses.push((0, drawn));
                         }
+                        push_drawn(run_draws, 0, random_drawn(machine));
                     }
                     Err(error) => failed = Some(classify(&error, None)),
                 }
@@ -1746,7 +1827,7 @@ fn construct_init(
             if at_level(machine, 1, |machine| {
                 allowed(machine, plan, &plan.constraints, false)
             })? {
-                kept = Some((retain(machine)?, witnesses(machine)?));
+                kept = Some((retain(machine)?, witnesses(machine)?, random_drawn(machine)));
                 return Err(Error::stop());
             }
             Ok(())
@@ -1767,8 +1848,8 @@ fn construct_init(
         if let Some(outcome) = failed {
             return Err(End::Deciding(outcome));
         }
-        if let Some((row, drawn)) = kept {
-            return Ok((row, index, drawn));
+        if let Some((row, drawn, draws)) = kept {
+            return Ok((row, index, drawn, draws));
         }
         if let Err(error) = result {
             if poll() {

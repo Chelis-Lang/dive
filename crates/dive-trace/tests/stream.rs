@@ -64,6 +64,7 @@ impl StateSource for Counting {
                 } else {
                     Vec::new()
                 },
+                draws: Vec::new(),
             })?;
         }
         Ok(())

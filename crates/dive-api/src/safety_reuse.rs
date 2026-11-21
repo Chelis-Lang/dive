@@ -248,6 +248,8 @@ impl Program {
             properties: Vec::new(),
             concrete_closure: false,
             witnesses: Vec::new(),
+            draws: Vec::new(),
+            startup_draws: Vec::new(),
         };
 
         let model = dive_model::bind(
