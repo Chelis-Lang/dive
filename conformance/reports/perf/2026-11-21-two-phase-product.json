@@ -1,0 +1,651 @@
+{
+  "format": "dive-two-phase-product-v1",
+  "inputs": {
+    "origin": "https://github.com/tlaplus/Examples/tree/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/transaction_commit",
+    "sha256": {
+      "TwoPhase.tla": "e6e72ed0097cca55e80b97af33c3bc54792a504bcbdf639d6d9c666f49c17817",
+      "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "TwoPhase.cfg": "6f443b596657a26c817ee130a89c0ba84aa1cd06a60d07db449d06382de4fd87",
+      "grown.cfg": "dca831fe9084bc7f4e21cf559b30079295534be297670c8c73fc49b4ae69c2d5",
+      "phase_product.py": "1d42843c89a5331557e4798b8624ed2a893bf94edab61e92fac1c78ec197f846",
+      "two_phase_product.py": "353ea5aa86729fd8e77ff5aa74e4107be61d884457486125d703331cf8363069",
+      "test_phase_product.py": "c507b708e0653bcf17d5bfb0eba0dbd29aa7efbd2f5f72572d700148c5808f14"
+    },
+    "core_binary_sha256": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+    "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "host": "Isolated EC2 c7i.4xlarge us-east-2, Xeon Platinum 8488C. GNU time elapsed seconds and maximum process RSS in KiB. W8 original controls on CPUs 0-7. Short W1 mutation checks and the first product timings used different vCPUs on the same node. The final million-manager timing ran after the W8 jobs ended. Timings include startup.",
+  "config": "Original TPTypeOK, complete TPSpec with deadlock checking. Change only the set of r1..rN. Concrete observations use exact Core and pinned TLC with seed/fp zero. The separate safety diagnostic counts states violating TC!TCConsistent on the same projection. The temporal refinement theorem is outside this calculation.",
+  "commands": {
+    "core": "dive check TwoPhase.tla --config R<N>.cfg --compat=tlc --workers 8 --store exact --seed 0 --fp 0 --max-memory 23g --time-limit 1600s --output json",
+    "tlc": "java -Xmx15g -XX:+UseParallelGC -XX:ActiveProcessorCount=8 -cp tla2tools.jar tlc2.TLC -workers 8 -seed 0 -fp 0 -config R<N>.cfg TwoPhase.tla",
+    "product": "python3 scripts/perf/scale/two_phase_product.py <source>/TwoPhase.tla R<N>.cfg",
+    "algebra_unit": "python3 scripts/perf/scale/test_phase_product.py (160 deterministic labeled-BFS checks and three refusals for overlapping/cyclic phase histories)"
+  },
+  "original_w8": [
+    {
+      "n": 1,
+      "distinct": 12,
+      "generated": 20,
+      "depth": 5,
+      "core": {
+        "wall_s": 0.01,
+        "rss_kib": 24204
+      },
+      "tlc": {
+        "wall_s": 0.49,
+        "rss_kib": 232164
+      }
+    },
+    {
+      "n": 2,
+      "distinct": 56,
+      "generated": 154,
+      "depth": 8,
+      "core": {
+        "wall_s": 0.01,
+        "rss_kib": 26008
+      },
+      "tlc": {
+        "wall_s": 0.5,
+        "rss_kib": 232496
+      }
+    },
+    {
+      "n": 3,
+      "distinct": 288,
+      "generated": 1146,
+      "depth": 11,
+      "core": {
+        "wall_s": 0.01,
+        "rss_kib": 32316
+      },
+      "tlc": {
+        "wall_s": 0.52,
+        "rss_kib": 237304
+      }
+    },
+    {
+      "n": 4,
+      "distinct": 1568,
+      "generated": 8258,
+      "depth": 14,
+      "core": {
+        "wall_s": 0.01,
+        "rss_kib": 50648
+      },
+      "tlc": {
+        "wall_s": 0.58,
+        "rss_kib": 257544
+      }
+    },
+    {
+      "n": 5,
+      "distinct": 8832,
+      "generated": 58146,
+      "depth": 17,
+      "core": {
+        "wall_s": 0.04,
+        "rss_kib": 98020
+      },
+      "tlc": {
+        "wall_s": 0.68,
+        "rss_kib": 259712
+      }
+    },
+    {
+      "n": 6,
+      "distinct": 50816,
+      "generated": 402306,
+      "depth": 20,
+      "core": {
+        "wall_s": 0.17,
+        "rss_kib": 122576
+      },
+      "tlc": {
+        "wall_s": 0.94,
+        "rss_kib": 395144
+      }
+    },
+    {
+      "n": 7,
+      "distinct": 296448,
+      "generated": 2744706,
+      "depth": 23,
+      "core": {
+        "wall_s": 1.21,
+        "rss_kib": 228908
+      },
+      "tlc": {
+        "wall_s": 2.29,
+        "rss_kib": 1150536
+      }
+    },
+    {
+      "n": 8,
+      "distinct": 1745408,
+      "generated": 18507778,
+      "depth": 26,
+      "core": {
+        "wall_s": 7.88,
+        "rss_kib": 473860
+      },
+      "tlc": {
+        "wall_s": 8.45,
+        "rss_kib": 4905180
+      }
+    },
+    {
+      "n": 9,
+      "distinct": 10340352,
+      "generated": 123558402,
+      "depth": 29,
+      "core": {
+        "wall_s": 56.63,
+        "rss_kib": 2415692
+      },
+      "tlc": {
+        "wall_s": 47.62,
+        "rss_kib": 6424512
+      }
+    },
+    {
+      "n": 10,
+      "distinct": 61515776,
+      "generated": 817760258,
+      "depth": 32,
+      "core": {
+        "wall_s": 373.88,
+        "rss_kib": 16550276
+      },
+      "tlc": {
+        "wall_s": 317.41,
+        "rss_kib": 7984368
+      }
+    }
+  ],
+  "edits_w1": [
+    {
+      "n": 1,
+      "edit": "original",
+      "distinct": 12,
+      "generated": 20,
+      "depth": 5,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 22072
+      },
+      "tlc": {
+        "wall_s": 0.5,
+        "rss_kib": 87440
+      }
+    },
+    {
+      "n": 2,
+      "edit": "original",
+      "distinct": 56,
+      "generated": 154,
+      "depth": 8,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 22072
+      },
+      "tlc": {
+        "wall_s": 0.52,
+        "rss_kib": 90024
+      }
+    },
+    {
+      "n": 3,
+      "edit": "original",
+      "distinct": 288,
+      "generated": 1146,
+      "depth": 11,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.01,
+        "rss_kib": 22116
+      },
+      "tlc": {
+        "wall_s": 0.55,
+        "rss_kib": 92660
+      }
+    },
+    {
+      "n": 5,
+      "edit": "original",
+      "distinct": 8832,
+      "generated": 58146,
+      "depth": 17,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.07,
+        "rss_kib": 26140
+      },
+      "tlc": {
+        "wall_s": 0.85,
+        "rss_kib": 100016
+      }
+    },
+    {
+      "n": 1,
+      "edit": "early",
+      "distinct": 17,
+      "generated": 30,
+      "depth": 5,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 21840
+      },
+      "tlc": {
+        "wall_s": 0.5,
+        "rss_kib": 94184
+      }
+    },
+    {
+      "n": 2,
+      "edit": "early",
+      "distinct": 101,
+      "generated": 287,
+      "depth": 8,
+      "mixed_committed_aborted": 6,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 22052
+      },
+      "tlc": {
+        "wall_s": 0.51,
+        "rss_kib": 84884
+      }
+    },
+    {
+      "n": 3,
+      "edit": "early",
+      "distinct": 623,
+      "generated": 2508,
+      "depth": 11,
+      "mixed_committed_aborted": 90,
+      "core": {
+        "wall_s": 0.01,
+        "rss_kib": 21812
+      },
+      "tlc": {
+        "wall_s": 0.56,
+        "rss_kib": 87064
+      }
+    },
+    {
+      "n": 5,
+      "edit": "early",
+      "distinct": 25607,
+      "generated": 167054,
+      "depth": 17,
+      "mixed_committed_aborted": 8250,
+      "core": {
+        "wall_s": 0.21,
+        "rss_kib": 36116
+      },
+      "tlc": {
+        "wall_s": 1.15,
+        "rss_kib": 100860
+      }
+    },
+    {
+      "n": 1,
+      "edit": "no-receipt",
+      "distinct": 7,
+      "generated": 12,
+      "depth": 4,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 21924
+      },
+      "tlc": {
+        "wall_s": 0.5,
+        "rss_kib": 86524
+      }
+    },
+    {
+      "n": 2,
+      "edit": "no-receipt",
+      "distinct": 25,
+      "generated": 70,
+      "depth": 6,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 21948
+      },
+      "tlc": {
+        "wall_s": 0.51,
+        "rss_kib": 86844
+      }
+    },
+    {
+      "n": 3,
+      "edit": "no-receipt",
+      "distinct": 91,
+      "generated": 370,
+      "depth": 8,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 21772
+      },
+      "tlc": {
+        "wall_s": 0.53,
+        "rss_kib": 88072
+      }
+    },
+    {
+      "n": 5,
+      "edit": "no-receipt",
+      "distinct": 1267,
+      "generated": 8734,
+      "depth": 12,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.01,
+        "rss_kib": 21744
+      },
+      "tlc": {
+        "wall_s": 0.6,
+        "rss_kib": 91176
+      }
+    },
+    {
+      "n": 1,
+      "edit": "abort-broadcast-commit",
+      "distinct": 13,
+      "generated": 21,
+      "depth": 5,
+      "mixed_committed_aborted": 0,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 21928
+      },
+      "tlc": {
+        "wall_s": 0.5,
+        "rss_kib": 86776
+      }
+    },
+    {
+      "n": 2,
+      "edit": "abort-broadcast-commit",
+      "distinct": 69,
+      "generated": 184,
+      "depth": 8,
+      "mixed_committed_aborted": 6,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 22036
+      },
+      "tlc": {
+        "wall_s": 0.51,
+        "rss_kib": 89864
+      }
+    },
+    {
+      "n": 3,
+      "edit": "abort-broadcast-commit",
+      "distinct": 415,
+      "generated": 1605,
+      "depth": 11,
+      "mixed_committed_aborted": 90,
+      "core": {
+        "wall_s": 0.0,
+        "rss_kib": 22016
+      },
+      "tlc": {
+        "wall_s": 0.54,
+        "rss_kib": 91324
+      }
+    },
+    {
+      "n": 5,
+      "edit": "abort-broadcast-commit",
+      "distinct": 17863,
+      "generated": 114351,
+      "depth": 17,
+      "mixed_committed_aborted": 8250,
+      "core": {
+        "wall_s": 0.14,
+        "rss_kib": 32276
+      },
+      "tlc": {
+        "wall_s": 0.94,
+        "rss_kib": 103104
+      }
+    }
+  ],
+  "formula": {
+    "exact_distinct": "4^N + 2^N + 6^N",
+    "exact_generated_including_init": "2 + (N+1)*4^N + N*2^N + N*6^N + 2*N*6^(N-1)",
+    "depth": "3*N+2",
+    "deadlocked": 0,
+    "mixed_committed_aborted": 0
+  },
+  "edits": {
+    "original": "unchanged",
+    "early": "replace the TMCommit guard tmPrepared = RM with TRUE",
+    "no-receipt": "replace the prepared-message membership guard in TMRcvPrepared with FALSE",
+    "abort-broadcast-commit": "TMAbort sends the Commit broadcast in place of Abort"
+  },
+  "grown": [
+    {
+      "owners": 10,
+      "depth": 32,
+      "distinct": 61515776,
+      "generated": 817760258,
+      "deadlocked": 0,
+      "mixed_committed_aborted": 0,
+      "wall_s": 0.05,
+      "rss_kib": 18872
+    },
+    {
+      "owners": 64,
+      "depth": 194,
+      "distinct": 63340286663313560073083225410293707961401939591168,
+      "generated": 5405037795262504718109042819587580931814947087712258,
+      "deadlocked": 0,
+      "mixed_committed_aborted": 0,
+      "wall_s": 0.05,
+      "rss_kib": 18844
+    },
+    {
+      "owners": 8192,
+      "depth": 24578,
+      "distinct": {
+        "bits": 21177,
+        "sha256_unsigned_big_endian": "c678e8946737f2c58986e3ad7e69310587cdaf3f23d71183c8692ff611ce2bce"
+      },
+      "generated": {
+        "bits": 21190,
+        "sha256_unsigned_big_endian": "7a0ff3f96b58c7d5cdcc9e1ba23143043ca35336b6dec038ccf7a8fa0d317625"
+      },
+      "deadlocked": 0,
+      "mixed_committed_aborted": 0,
+      "wall_s": 0.05,
+      "rss_kib": 20008
+    },
+    {
+      "owners": 1000000,
+      "depth": 3000002,
+      "distinct": {
+        "bits": 2584963,
+        "sha256_unsigned_big_endian": "199d1472b84239c65602774f18798c44acfad7591cc22bf2d5a42d75a58ccfb8"
+      },
+      "generated": {
+        "bits": 2584983,
+        "sha256_unsigned_big_endian": "95153cd1ea4d817a6199d4733e555b8b7875adcb26bdbf29024d134d5ab56f40"
+      },
+      "deadlocked": 0,
+      "mixed_committed_aborted": 0,
+      "wall_s": 1.02,
+      "rss_kib": 170340
+    }
+  ],
+  "phase_certificate_n3": [
+    {
+      "phase": [
+        "init",
+        0
+      ],
+      "local_values": [
+        [
+          "aborted",
+          false,
+          false
+        ],
+        [
+          "prepared",
+          true,
+          false
+        ],
+        [
+          "prepared",
+          true,
+          true
+        ],
+        [
+          "working",
+          false,
+          false
+        ]
+      ],
+      "local_degree_sum": 4,
+      "global_guard_sizes": [
+        1,
+        4
+      ],
+      "phase_changes": 0,
+      "max_local_distance": 2,
+      "distinct": 64,
+      "generated_edges": 257,
+      "depth": 7,
+      "deadlocked": 0
+    },
+    {
+      "phase": [
+        "aborted",
+        2
+      ],
+      "local_values": [
+        [
+          "aborted",
+          false,
+          false
+        ],
+        [
+          "aborted",
+          true,
+          false
+        ],
+        [
+          "aborted",
+          true,
+          true
+        ],
+        [
+          "prepared",
+          true,
+          false
+        ],
+        [
+          "prepared",
+          true,
+          true
+        ],
+        [
+          "working",
+          false,
+          false
+        ]
+      ],
+      "local_degree_sum": 8,
+      "global_guard_sizes": [],
+      "phase_changes": 1,
+      "max_local_distance": 3,
+      "distinct": 216,
+      "generated_edges": 864,
+      "depth": 11,
+      "deadlocked": 0
+    },
+    {
+      "phase": [
+        "committed",
+        1
+      ],
+      "local_values": [
+        [
+          "committed",
+          true,
+          true
+        ],
+        [
+          "prepared",
+          true,
+          true
+        ]
+      ],
+      "local_degree_sum": 2,
+      "global_guard_sizes": [],
+      "phase_changes": 1,
+      "max_local_distance": 3,
+      "distinct": 8,
+      "generated_edges": 24,
+      "depth": 11,
+      "deadlocked": 0
+    }
+  ],
+  "early_commit_witness": {
+    "n": 3,
+    "observer": "DecisionAgreement == TC!TCConsistent, configured in addition to TPTypeOK",
+    "core": {
+      "depth": 4,
+      "distinct": 49,
+      "generated": 77,
+      "initial_generated": 1,
+      "left_on_queue": 37,
+      "reported_by_tlc": true,
+      "wall_s": 0.0,
+      "rss_kib": 22248
+    },
+    "tlc_states": 4,
+    "tlc": {
+      "wall_s": 0.51,
+      "rss_kib": 110224
+    },
+    "actions": [
+      "TMCommit",
+      "RMChooseToAbort",
+      "RMRcvCommitMsg"
+    ],
+    "independent_replay": {
+      "command": "validate-trace",
+      "length": 4,
+      "notes": [
+        "label `RMChooseToAbort` names an operator with parameters; not checked",
+        "label `RMRcvCommitMsg` names an operator with parameters; not checked"
+      ],
+      "result": "valid",
+      "schema_version": 4
+    },
+    "tampered_init": {
+      "command": "validate-trace",
+      "failure": {
+        "check": "init",
+        "detail": "the first state is outside the independent Init relation",
+        "state": 0
+      },
+      "length": 4,
+      "notes": [],
+      "result": "invalid",
+      "schema_version": 4
+    }
+  }
+}
