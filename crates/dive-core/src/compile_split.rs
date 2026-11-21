@@ -17,6 +17,8 @@ struct SplitBody {
     /// A fold normally gets `FOLD_FUEL`, capped by the remaining budget.
     fold_before: u64,
     fold_after: u64,
+    /// Every attempted fold finished with fuel left, including evaluation errors.
+    folds_with_spare_fuel: bool,
     root: G,
     frame: u32,
 }
@@ -27,7 +29,12 @@ impl SplitBody {
     }
 
     fn folds_fit(&self, remaining: u64) -> bool {
+        // Finite evaluation charges before work. If every fold finished
+        // with fuel left, more than their total charges leaves every fold
+        // on its original path, even below the usual per-fold allowance.
+        // At equality the final charge can exhaust its fold.
         remaining == self.fold_before
+            || (self.folds_with_spare_fuel && remaining > self.fold_cost())
             || (self.fold_after >= FOLD_FUEL && remaining >= self.fold_cost() + FOLD_FUEL)
     }
 }
@@ -72,6 +79,7 @@ impl Compiler<'_> {
                 }
                 _ => {}
             }
+            let bounded_folds = (self.stats.fold_abandoned, self.stats.fold_skipped);
             let values = self.info.len();
             let generators = self.code.gnodes.len();
             let sites = self.code.sites.len();
@@ -91,6 +99,8 @@ impl Compiler<'_> {
                     generators: generators..self.code.gnodes.len(),
                     fold_before,
                     fold_after: self.remaining_fold_fuel(),
+                    folds_with_spare_fuel: bounded_folds
+                        == (self.stats.fold_abandoned, self.stats.fold_skipped),
                     root: action.g,
                     frame: action.frame,
                 }),
@@ -179,5 +189,31 @@ fn shift_children(node: &mut GNode, offset: G) {
         | GNode::AssignIn { .. }
         | GNode::AssignInRaw { .. }
         | GNode::Unchanged(_) => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{FOLD_FUEL, SplitBody};
+
+    #[test]
+    fn split_folds_require_a_spare_unit_or_the_original_allowance() {
+        let mut body = SplitBody {
+            generators: 0..0,
+            fold_before: 99,
+            fold_after: 91,
+            folds_with_spare_fuel: true,
+            root: 0,
+            frame: 0,
+        };
+        assert!(body.folds_fit(9));
+        assert!(!body.folds_fit(8));
+        body.folds_with_spare_fuel = false;
+        assert!(!body.folds_fit(9));
+        assert!(body.folds_fit(99));
+        body.fold_before += FOLD_FUEL;
+        body.fold_after += FOLD_FUEL;
+        assert!(body.folds_fit(FOLD_FUEL + 8));
+        assert!(!body.folds_fit(FOLD_FUEL + 7));
     }
 }

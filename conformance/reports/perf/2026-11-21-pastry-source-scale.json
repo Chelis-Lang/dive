@@ -1874,6 +1874,118 @@
       "small_core_ratchet": "Eight one-worker small-tier models agreed with their pinned goldens with zero regressions against small-core-dive-w1.json: CigaretteSmokers, DieHard, AsynchronousInterface/Channel, TLC/MCAlternatingBit, TwoPhase/MCTwoPhase, chang_roberts, locks_auxiliary_vars/Peterson and transaction_commit/TwoPhase."
     }
   },
+  "split_fold_budget": {
+    "input": "L=1, B=1, M=7, addresses 0..126 initially ready. Released action NextMC and invariants TypeInvariant and CorrectDelivery, with the counted SharedDigitsAux and equivalent singleton LeafSet bound from the source preparer.",
+    "reproduce": [
+      "python3 scripts/perf/scale/lupastry.py lupastryplus.zip ring128 --definition counted --singleton-leaves --bits 7 --ready $(seq 0 126)",
+      "dive check Pastry.tla --config Model.cfg --library-path LIB --workers 4 --store exact --fp 0 --seed 0 --max-memory 7g --time-limit 420s --output json (also run with --compat=tlc)",
+      "java -Xmx6g -XX:ActiveProcessorCount=4 -DTLA-Library=LIB -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir META -config Model.cfg Pastry.tla"
+    ],
+    "input_sha256": {
+      "Model.cfg": "aabdda309c7efc35cb86ac1168e22a6b120ea3594c7da53dca77a326e4a8f189",
+      "Pastry.tla": "55792b81a18cb8163253a5f50abe684c3d44a03887e12ec84471f773cd5191d0",
+      "RoutingTable.tla": "c9f739fdf3c5e0aa065eadbb5b4629debe7c563dd163febf55398e9ad444db06",
+      "LeafSet.tla": "79b8526e0ec76f93a39b551ac4d619b06fca2e1ef1b632f85d85fdb17db37d99",
+      "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+    },
+    "compiler_trace": {
+      "roles": 147456,
+      "context_invalidations": 0,
+      "first_nine_fold_costs": [
+        0,
+        134,
+        20,
+        24,
+        19,
+        37,
+        6,
+        20,
+        42
+      ],
+      "full_fold_allowance": 65536,
+      "first_recompiled_role_index": 116092,
+      "fuel_before_first_recompile": 65643,
+      "value_nodes_per_135_roles_in_interval": 250065,
+      "refusal_role": "RouteJoinRequest(57,102)",
+      "refusal_role_index": 118018,
+      "refusal_value_nodes": 4000000,
+      "refusal_generator_nodes": 1403115,
+      "refusal_memo_sites": 419623,
+      "fuel_left_at_refusal": 963,
+      "instrumented_default_wall_s": 16.18,
+      "instrumented_default_rss_kib": 4187344,
+      "value_nodes_per_nine_roles_with_reuse": 32,
+      "value_nodes_per_nine_roles_with_recompile": 16671,
+      "complete_nine_role_cycles_before_failing_role": 214,
+      "extra_value_nodes_from_these_cycles": 3560746,
+      "derivation": "The compiler appended 250,065 value nodes across 135 consecutive normally compiled roles, equal to fifteen full nine-role cycles. Equivalent shared occurrences append 32 independent guard memo nodes per cycle. Between the first miss at index 116092 and the failing role at 118018 there are 214 full cycles."
+    },
+    "measurement": "Two EC2 c7i.4xlarge instances in us-east-2. Core used CPUs 12–15 (four physical cores), TLC used CPUs 0–3 on the second host. Elapsed wall seconds and peak RSS KiB are from GNU time and include startup. The hosts could run independent work; these are model measurements, not the one-worker R2 gate.",
+    "candidate_sha256": "506287fabd1efcfb668688d33c39a0ab4f9d9c954b49d7dacb511c261661808c",
+    "corrected": [
+      {
+        "profile": "default",
+        "verdict": "success",
+        "statistics": {
+          "depth": 19,
+          "distinct": 474,
+          "generated": 61019,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "plan": {
+          "nodes": 563462,
+          "generator_nodes": 1753098,
+          "memo_sites": 524299,
+          "folded": 342,
+          "fold_abandoned": 4,
+          "fold_skipped": 242,
+          "fold_fuel": 233574
+        },
+        "compile_ms": 15236.070711,
+        "explore_ms": 186388.416297,
+        "wall_s": 202.98,
+        "rss_kib": 3740460
+      },
+      {
+        "profile": "tlc",
+        "verdict": "success",
+        "statistics": {
+          "depth": 19,
+          "distinct": 474,
+          "generated": 61019,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "plan": {
+          "nodes": 559589,
+          "generator_nodes": 1753098,
+          "memo_sites": 524299,
+          "folded": 242,
+          "fold_abandoned": 3,
+          "fold_skipped": 232,
+          "fold_fuel": 152890
+        },
+        "compile_ms": 17206.58895,
+        "explore_ms": 169992.714134,
+        "wall_s": 188.45,
+        "rss_kib": 3744908
+      }
+    ],
+    "tlc": {
+      "verdict": "success",
+      "distinct": 474,
+      "generated": 61019,
+      "depth": 19,
+      "left_on_queue": 0,
+      "wall_s": 87.05,
+      "rss_kib": 832296
+    },
+    "negative": "After the two source invariants, add PoolEmpty == MessagePool = {}. Both one-worker Core profiles and pinned TLC reported PoolEmpty after Join(127,0) at 2 distinct, 2 generated, depth 2. Both Core traces independently replayed; replacing state 2 with state 1 failed the Next check.",
+    "lower_controls": "Five one-worker controls matched pre-change Core in both profiles on verdict, counts, full counterexample and output, invariant name, per-site label/lookups/hits and thunk counts. FoldBudget had 2 distinct / 483 generated / depth 2, 241 memo sites and 74 forced thunks; physical fold work fell from 96,504 to 35,037 units. Interleaved preserved its partial-function demand. SplitBodies kept parallel parameter order. A division-by-zero control after the 241st witness failed at 242 generated; an interleaved PrintT emitted <<240,0>> then <<240,1>> and completed at 485 generated."
+  },
   "split_action_compiler": {
     "model": "Same archive, counted routing, --singleton-leaves, B=L=1, M=4, intact NextMC, TypeInvariant and CorrectDelivery. Core splits nine disjuncts for each of 16 x 16 witness pairs.",
     "prepare": "python3 scripts/perf/scale/lupastry.py lupastryplus.zip DEST --bits 4 --definition counted --singleton-leaves --ready $(seq 0 14) (use seq 0 13 for two joiners)",

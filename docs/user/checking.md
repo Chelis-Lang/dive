@@ -26,7 +26,10 @@ fit a signed 32-bit integer. [LuPastry+ neighbour choices](../developer/large-mo
 Core can split a next-state action such as `\E i, j \in Nodes : Send(i, j)`
 into one action per pair. When the pairs bind the same slots in a pure
 expression, they share compiled instructions. Each pair still has its own
-parameter values, action label and guard memo statistics. [LuPastry+ measurements](../developer/large-models.md#lupastry-message-and-leaf-domains).
+parameter values, action label and guard memo statistics. Large sets of pairs
+can share the same instructions close to the compiler’s constant-folding limit
+when the remaining allowance covers the recorded work with fuel to spare.
+[LuPastry+ measurements](../developer/large-models.md#lupastry-parallel-invariant-checking).
 
 ## Select a closed model input in the CFG
 
