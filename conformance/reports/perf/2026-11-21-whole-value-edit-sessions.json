@@ -617,5 +617,66 @@
       "peak_rss_kib": 92260
     },
     "truncated_negative_replay": "invalid"
+  },
+  "session_c": {
+    "region": "us-east-1",
+    "method": "Final worker source, re-running the grown edit chain on the same host and CPU as session A. Includes a new cold first row; the three revisions run in one CLI process.",
+    "identities": {
+      "bin/dive": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+      "bin/libexec/dive-symbolic/engine.py": "2c17afcdd3b02ba8cd467af29ab7b45cdd4c56a60058fd57fd2af1820655d9e4",
+      "bin/libexec/dive-symbolic/finite_values.py": "be1dce471078f1a9ed8eb453d565c777b62f922b1a56f95676dcdd9f14d84743",
+      "bin/libexec/dive-symbolic/symbolic_input": "180847c7d8ad10ceedd8c2f065b4d986a497fdd224fa980fa5c8da95ebe161de",
+      "local-3/EmergencyCall_Model_auto.tla": "3bbf6587df410e5e66b35b0727b03281fff9fe6da4d1e13ad009d510a406f2c5",
+      "full.cfg": "b4f0307e37a400bac0ab0c289b9159ec5c8a4c5c01a59112c2fce1dd676bcc15",
+      "reduced.cfg": "dced17c681b4268dc3bc74c7e0a4779339f623c278d417a8622f13323fe9810d"
+    },
+    "wall_seconds": 1039.57,
+    "peak_rss_kib": 2541112,
+    "rows": [
+      {
+        "verdict": "success",
+        "distinct": 1400862255552,
+        "generated": 13256352435648,
+        "depth": 44,
+        "reused": false,
+        "initial": 792723456,
+        "reachable_bdd_nodes": 617893,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant"
+        ],
+        "encoding": "whole-values",
+        "seconds": 1038.55499
+      },
+      {
+        "verdict": "success",
+        "distinct": 1400862255552,
+        "generated": 13256352435648,
+        "depth": 44,
+        "reused": true,
+        "initial": 792723456,
+        "reachable_bdd_nodes": 617893,
+        "invariants": [
+          "TypeInvariant"
+        ],
+        "encoding": "whole-values",
+        "seconds": 0.117724
+      },
+      {
+        "verdict": "success",
+        "distinct": 1400862255552,
+        "generated": 13256352435648,
+        "depth": 44,
+        "reused": true,
+        "initial": 792723456,
+        "reachable_bdd_nodes": 617893,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant"
+        ],
+        "encoding": "whole-values",
+        "seconds": 0.043233
+      }
+    ]
   }
 }
