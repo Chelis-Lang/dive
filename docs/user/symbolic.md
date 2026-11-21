@@ -177,6 +177,8 @@ integers over the decision diagram. JSON counters are exact decimal integers. Th
 For source and host identities, same-host TLC comparisons, growth results and
 the costs of editing an invariant, see [large-model measurements](../developer/large-models.md).
 
+When the checker computes a fresh breadth-first image, it compares the decision diagrams for the admitted frontier and all admitted states reached so far. It can expand the smaller diagram because successors of earlier layers have already been visited. Subtracting the reached states yields the same next layer, preserving shortest witness depths. This choice runs automatically during ordinary symbolic exploration.
+
 ### Learning which members a wide set needs
 
 ```sh

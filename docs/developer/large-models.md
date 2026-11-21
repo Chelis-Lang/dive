@@ -29,6 +29,8 @@ Local timings include source binding, compilation and checking. Peak RSS was 613
 
 **Dependency structure controls the result.** A transaction couples its snapshot, write log, missed-write log and the shared store at each key. Placing fields for the same key together makes many subproblems identical. With Medium, grouping by the common inner index gave 328 final nodes, 0.58 s wall and 67 MiB peak RSS. In declaration order the same model gave 3,552 nodes, 9.99 s and 202 MiB. Switching to a single simultaneous image per action gave 0.62 s and 8.48 s respectively. Layout explains most of this difference. More transaction IDs also couple more fields through conflict checks and commit. Adding keys to the two-transaction model was much cheaper than adding a third transaction to Medium, even when the five-key model had many more states.
 
+The shape of the *search layer* also controls the cost. In a complete BFS on the original KVS Large, layer 21 had 138,561 decision nodes in its frontier and 121,723 in all admitted states reached so far. The latter set includes earlier layers whose successors are already known. Expanding it and removing reached states gives exactly the same next layer. Choosing the smaller diagram cut two uninstrumented runs from 134.64/134.88 s to **35.50/35.20 s**, with peak RSS rising from 606 to 619 MiB. Both runs returned 594,616,815 representatives, 13,385,471,536 generated and depth 30. TCommit with 64 managers took 6.76/6.81 s using the old/new policies. [Per-layer image costs and matched runs](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
 ### Seven keys with exact counts
 
 Extending Medium to seven keys reached **80,269,130,471,718,912 symmetry classes**

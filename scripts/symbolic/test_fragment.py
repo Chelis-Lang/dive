@@ -204,6 +204,12 @@ Mixed == x # "zero"
     _, changed = run(src, cfg, "--recheck", src, empty)
     compare(changed, explicit(src, empty))
     assert not changed["reused"] and (changed["generated"], changed["distinct"], changed["depth"]) == (2, 0, 1)
+    # The BDD for both initial states is smaller than the BDD for x=0.
+    # Expanding the excluded x=1 would incorrectly visit x=2 and falsify BelowTwo.
+    cfg.write_text(config(prop="BelowTwo"))
+    (bounded,) = run(src, cfg)
+    compare(bounded, explicit(src, cfg))
+    assert bounded["distinct"] == 1 and bounded["generated"] == 3
     for init, depth in [("Init", 1), ("Single", 2)]:
         cfg.write_text(config(init))
         edited = folder / "bad-limit.cfg"
