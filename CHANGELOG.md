@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- [Symbolic rechecks](docs/user/symbolic.md) can reuse shortest-path layers outside the region affected by a deleted action.
+
 - Core can check actions that choose a [subset of messages for one recipient](docs/user/checking.md), including queues that previously exceeded its powerset limit.
 
 - Core and trace validation can find [wide integer powerset witnesses](docs/user/checking.md) while checking the empty set and singleton candidates.
