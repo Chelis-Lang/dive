@@ -2,11 +2,12 @@
 //! when a column needs it, so all prior rows keep their code. Refuse overflow.
 use crate::value::{var_hash, Value};
 use std::cell::RefCell;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock};
 
-#[derive(Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Hash)]
 enum Mathematical {
     Bool(bool),
     Int(i64),
@@ -60,13 +61,20 @@ fn normalize(v: &Value) -> Result<Mathematical, String> {
     })
 }
 
+// First select a shard with the canonical hash, then compare the entire value.
+// Only allocating a previously unseen ordinal requires the layout lock.
+type Bucket = HashMap<u64, Vec<(Mathematical, u64)>>;
 #[derive(Default)]
-struct Column {
-    words: BTreeMap<Mathematical, u64>,
+struct Layout {
+    count: usize,
     positions: Vec<usize>,
 }
+struct Column {
+    layout: Mutex<Layout>,
+    shards: Vec<Mutex<Bucket>>,
+}
 struct Registry {
-    columns: Vec<Mutex<Column>>,
+    columns: Vec<Column>,
     next: [AtomicUsize; 2],
     factored: bool,
     halves: [Vec<Mutex<HashMap<u64, u32>>>; 2],
@@ -75,7 +83,12 @@ static REGISTRY: OnceLock<Registry> = OnceLock::new();
 const SHARDS: usize = 256;
 fn registry(width: usize) -> Result<&'static Registry, String> {
     let r = REGISTRY.get_or_init(|| Registry {
-        columns: (0..width).map(|_| Mutex::default()).collect(),
+        columns: (0..width)
+            .map(|_| Column {
+                layout: Mutex::default(),
+                shards: (0..SHARDS).map(|_| Mutex::default()).collect(),
+            })
+            .collect(),
         next: Default::default(),
         factored: std::env::var_os("FLINT_FACTORED_HALVES").is_some(),
         halves: std::array::from_fn(|_| (0..SHARDS).map(|_| Mutex::default()).collect()),
@@ -131,13 +144,20 @@ pub fn value(width: usize, i: usize, v: &Value) -> Result<u64, String> {
             return Ok(code.1);
         }
         let canonical = normalize(v)?;
-        let mut col = r.columns[i].lock().map_err(|_| "column lock")?;
-        let code = if let Some(&word) = col.words.get(&canonical) {
-            word
+        let mut hasher = DefaultHasher::new();
+        canonical.hash(&mut hasher);
+        let hash = hasher.finish();
+        let col = &r.columns[i];
+        let shard = (hash >> 56) as usize;
+        let mut table = col.shards[shard].lock().map_err(|_| "column shard lock")?;
+        let entries = table.entry(hash).or_default();
+        let code = if let Some((_, word)) = entries.iter().find(|(x, _)| x == &canonical) {
+            *word
         } else {
-            let id = col.words.len();
+            let mut layout = col.layout.lock().map_err(|_| "column layout lock")?;
+            let id = layout.count;
             let bits = (usize::BITS - id.leading_zeros()) as usize;
-            if bits > col.positions.len() {
+            if bits > layout.positions.len() {
                 let bank = if r.factored { i % 2 } else { 0 };
                 let limit = if r.factored { 64 } else { 63 };
                 let bit = r.next[bank]
@@ -147,16 +167,18 @@ pub fn value(width: usize, i: usize, v: &Value) -> Result<u64, String> {
                     .map_err(|_| {
                         format!("exact state code exceeded {limit} bits in bank {bank}, column {i}")
                     })?;
-                col.positions.push(bit);
+                layout.positions.push(bit);
             }
             let mut word = 0;
-            for (j, &bit) in col.positions.iter().enumerate() {
-                word |= (((id >> j) & 1) as u64) << bit
+            for (j, &bit) in layout.positions.iter().enumerate() {
+                word |= (((id >> j) & 1) as u64) << bit;
             }
-            col.words.insert(canonical, word);
+            layout.count = id.checked_add(1).ok_or("column ordinal overflow")?;
+            drop(layout);
+            entries.push((canonical, word));
             word
         };
-        drop(col);
+        drop(table);
         if local.len() >= 2048 {
             local.clear();
         }
@@ -221,7 +243,7 @@ pub fn describe() {
         let cols: Vec<_> = r
             .columns
             .iter()
-            .filter_map(|c| c.lock().ok().map(|x| (x.words.len(), x.positions.len())))
+            .filter_map(|c| c.layout.lock().ok().map(|x| (x.count, x.positions.len())))
             .collect();
         eprintln!("EXACT_COLUMNS {cols:?}");
         eprintln!(
