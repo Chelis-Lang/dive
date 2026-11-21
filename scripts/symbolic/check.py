@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Supervise a finite symbolic or occupancy safety check of the bound TLA+ source."""
+"""Supervise a finite safety check of the bound TLA+ source."""
 
 import argparse
+from contextlib import nullcontext
 import json
 import math
 import os
@@ -9,6 +10,7 @@ from pathlib import Path
 import signal
 import subprocess
 import sys
+from tempfile import TemporaryDirectory
 
 
 def positive_seconds(value):
@@ -56,7 +58,10 @@ def main():
     certificate.add_argument(
         "--verify-predicate", type=Path, help="prove safety by checking a supplied predicate for induction"
     )
-    parser.add_argument("--occupancy", action="store_true", help="exact labeled BFS on anonymous status tables")
+    strategy = parser.add_mutually_exclusive_group()
+    strategy.add_argument("--occupancy", action="store_true", help="exact labeled BFS on anonymous status tables")
+    strategy.add_argument("--compiled", action="store_true", help="compile a packed exact safety search")
+    parser.add_argument("--workers", type=int, choices=range(1, 9), help="maximum compiled search workers")
     parser.add_argument("--max-orbits", type=int, help="maximum reachable population vectors for the occupancy strategy")
     parser.add_argument("--trace", type=Path)
     parser.add_argument(
@@ -76,6 +81,11 @@ def main():
         parser.error("--max-orbits requires occupancy and a positive integer")
     if args.occupancy and any((args.recheck, args.refine_domains, args.order_by_path, args.single_partition)):
         parser.error("occupancy does not accept BDD layout or --recheck options")
+    if args.workers is not None and not args.compiled:
+        parser.error("--workers requires compiled checking")
+    if args.compiled and any((args.recheck, args.refine_domains, args.order_by_path, args.single_partition,
+                              args.prove_inductive, args.write_predicate, args.verify_predicate)):
+        parser.error("compiled checking accepts one fresh finite safety check")
     if sys.platform != "linux":
         parser.error("the symbolic checker currently supports Linux")
     if args.trace or args.write_predicate:
@@ -90,9 +100,18 @@ def main():
         if len(outputs) != len(set(outputs)) or any(path in sources for path in outputs):
             parser.error("trace, predicate output and checked inputs need separate paths")
 
-    # A supervisor can interrupt a long CUDD operation and stop its process group.
-    # The normal Dive binary and other sessions keep their own limits.
-    worker = Path(__file__).with_name("occupancy.py" if args.occupancy else "engine.py")
+    if args.compiled and sys.maxsize < 2**32:
+        parser.error("compiled checking requires 64-bit Linux")
+    directory = TemporaryDirectory(prefix="dive-compiled-") if args.compiled else nullcontext(None)
+    with directory as args.scratch:
+        return supervise(args)
+
+
+def supervise(args):
+    # Stop the whole process group including native CUDD, compiler or search children.
+    script = "compiled.py" if args.compiled else "occupancy.py" if args.occupancy else "engine.py"
+    worker = Path(__file__).with_name(script)
+    args.workers = args.workers or 1
     class Cancelled(Exception):
         """Cancel without the extra grace in Popen.wait for KeyboardInterrupt."""
 

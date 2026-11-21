@@ -296,6 +296,15 @@ the default profile and 1.51× in the TLC profile.
 
 ### Compiling the finite relation
 
+The optional compiled strategy exhausts the published KVS Medium model with 17,220,672 exact symmetry representatives, 365,609,473 generated occurrences and depth 22. The paired Core runs select exact state identity. The pinned tlx comparator uses fingerprints and reported the same counts. These whole-process samples ran serially on one dedicated host after the mimalloc 3.7.0 update. One-worker figures are single observations and eight-worker figures are medians of three.
+
+| Workers | Exact Core | Compiled including binding and rustc | Compiled worker only | tlx cold | Cold speedup over Core |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 835.14 s | 4.30 s | 3.32 s | 94.14 s | 194× |
+| 8 | 302.36 s | 1.25 s | 0.72 s | 14.78 s | 242× |
+
+KVS Small and 12-manager TCommit match the exact controls at both widths. SlateDB WAL Medium refuses by name during finite admission. Its TypeOK also lacks the fixed declarations needed to encode its nested manifest and WAL after recognizing its untyped model names. [Inputs, peaks, controls and per-run observations](../../../conformance/reports/perf/2026-11-21-compiled-finite-safety.json) · [Compiled strategy](../../user/symbolic.md#compile-a-finite-safety-check)
+
 The finite safety binder already checks whether a configuration can be
 expressed as Boolean guards and updates over a fixed layout. The new probe
 turns those decision diagrams into Rust. It groups adjacent bits that copy

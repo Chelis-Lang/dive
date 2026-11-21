@@ -1,0 +1,594 @@
+{
+  "schema": "dive-compiled-finite-safety-1",
+  "allocator_fixed_main_baseline": "b35b9e2b055d61b160e0dce49d9720e772e40f1f",
+  "native_allocator": "mimalloc 3.7.0 from mimalloc3=0.1.61 and libmimalloc-sys3=0.1.58",
+  "same_link_static_reservation_16_gib": "30700 16 0",
+  "comparison_host": {
+    "instance": "c7i.4xlarge",
+    "physical_cores": 8,
+    "smt": false,
+    "swap": false,
+    "kernel": "7.0.0-1018-aws",
+    "max_map_count": 1048576
+  },
+  "programs_sha256": {
+    "../installed/dive": "4eae9f5a2ba2b60004b10a76f801a8dc8295ec00501b4cc5b329430305324ab8",
+    "target/release/examples/symbolic_input": "ba100a784e0231fa236536b19f6d26dff571c47e4a2733ace413d3d9cacc22ac",
+    "target/release/build/libmimalloc-sys3-451cc16b18caa657/out/libmimalloc.a": "9f7632604dbc7ca1fa4f6b429d01949bf9b544ad255aee982562e1277da6f008",
+    "../payload/bin/tlx": "f51ff4056cc20adf377da45e30c6f75022765fc4ca23373db7a521181ba68bf4",
+    "../payload/tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "compiled_product_sources_sha256": {
+    "scripts/symbolic/compiled.py": "9db5dc7a6b46e89fb601ad7dfe4d206d2984d2c18957fbd8a5733ab281eb1bd1",
+    "scripts/symbolic/packed_codegen.py": "af119cbf2e0a7f053790d9259431b0c5f7d329d885b270c6ac9c3dd202ad0278",
+    "scripts/symbolic/packed_worker.rs.in": "1ece1c294f775a193e19c5536f7972c88cb936c4f72e4eef786db370717dc0be",
+    "crates/dive-cli/src/symbolic.rs": "701d85d353d82931cb9e2b0030583a9a5d2d2f25e4e9b6445c5730ca939890bc"
+  },
+  "input_sha256": {
+    "kvs/KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "kvs/MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "kvs/MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964",
+    "kvs/MCKVSSafetyMedium.cfg": "d3272277738dce3a0f0c16480e96870a1630c9ea1fb7e64fdca0f0763fc7a629",
+    "kvs/MCKVSSafetySmall.cfg": "2360ddff6cac82d84a7077e35cd5e77e7acf81a5d37fc37bc10f335082854103",
+    "kvs/Util.tla": "7ffa38a940992bec344fe7d033e9ac7acc85e0180aeacee59512a26807e14254",
+    "slatedb/Medium.cfg": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10",
+    "slatedb/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+    "transaction_commit/TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+    "transaction_commit/TCommit12.cfg": "883ed93237aec285e4f9db667ff34f2676d86a9e931a4fc47553c9e6b37ebfe8"
+  },
+  "model_sources": {
+    "examples": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "TCommit12": "Change only the RM set in the published CFG to rm1 through rm12.",
+    "SlateDB": "Published WAL reproduction and Medium CFG from the large-model guide."
+  },
+  "methods": {
+    "accounting": "Distinct counts exact configured symmetry representatives except compiled tlx, which uses fingerprints. Generated counts include Init and every enabled transition witness. Depth is BFS levels.",
+    "affinity": "CPU 0 at one worker, CPUs 0-7 at eight workers, one timed process group at a time.",
+    "cold": "Real public compiled invocation. Fresh scratch, no retained compiled program. Wall includes binding, emission, rustc and search. Final-cleanup cold samples were collected on the same host after the exact Core and peer series.",
+    "warm": "Generate the identical worker once from the bound source and run the resulting binary at the desired width. Binding and compilation are outside the timed process.",
+    "ordinary": "dive check MODULE --config CFG --compat=tlc --store exact --workers N --seed 0 --fp 0 --max-memory 24g --time-limit 1800s --output json",
+    "compiled": "dive check MODULE --config CFG --strategy compiled --workers N --time-limit 30s --max-memory 24g --output json",
+    "tlx": "Pin 77867a37d59525ce8866e8cce7f2dd32dc5d4d04 and the earlier packed comparison binary. tlx check MODULE -tlc -compile -config CFG -workers N; a unique cache per cold/warm pair.",
+    "memory": "GNU time peak child process RSS, not sum of process-group RSS. Mapping count is sampled max per process.",
+    "build": "Pinned Rust 1.99.0, shipped release profile. Generated worker uses Rust's system allocator; whole-process comparisons include that layout and implementation choice."
+  },
+  "kvs_medium_summary": {
+    "1": {
+      "core": {
+        "samples": 1,
+        "wall_s": 835.14,
+        "peak_rss_kib": 971756
+      },
+      "cold": {
+        "samples": 1,
+        "wall_s": 4.3,
+        "peak_rss_kib": 554760
+      },
+      "warm": {
+        "samples": 1,
+        "wall_s": 3.32,
+        "peak_rss_kib": 554816
+      },
+      "tlx-cold": {
+        "samples": 1,
+        "wall_s": 94.14,
+        "peak_rss_kib": 928248
+      },
+      "tlx-warm": {
+        "samples": 1,
+        "wall_s": 93.93,
+        "peak_rss_kib": 927412
+      },
+      "cold_speedup_over_exact_core": 194.22,
+      "cold_speedup_over_tlx": 21.89
+    },
+    "8": {
+      "core": {
+        "samples": 3,
+        "wall_s": 302.36,
+        "peak_rss_kib": 1057604
+      },
+      "cold": {
+        "samples": 3,
+        "wall_s": 1.25,
+        "peak_rss_kib": 571624
+      },
+      "warm": {
+        "samples": 3,
+        "wall_s": 0.72,
+        "peak_rss_kib": 571344
+      },
+      "tlx-cold": {
+        "samples": 3,
+        "wall_s": 14.78,
+        "peak_rss_kib": 1691308
+      },
+      "tlx-warm": {
+        "samples": 3,
+        "wall_s": 14.62,
+        "peak_rss_kib": 1739088
+      },
+      "cold_speedup_over_exact_core": 241.89,
+      "cold_speedup_over_tlx": 11.82
+    }
+  },
+  "cells": [
+    {
+      "name": "kvs-medium-8-0-core",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 302.36,
+      "cpu_s": 1774.75,
+      "peak_rss_kib": 1048232,
+      "sampled_maps": 90,
+      "sampled_rss_kib": 1037168,
+      "counts": {
+        "depth": 22,
+        "distinct": 17220672,
+        "generated": 365609473,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "property": null,
+      "workers_used": 8
+    },
+    {
+      "name": "kvs-medium-8-0-warm",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 0.73,
+      "cpu_s": 3.6799999999999997,
+      "peak_rss_kib": 574292,
+      "sampled_maps": 75,
+      "sampled_rss_kib": 568764,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "depth": 22,
+        "initial_generated": 1
+      },
+      "workers_used": 8
+    },
+    {
+      "name": "kvs-medium-8-0-tlx-cold",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 14.71,
+      "cpu_s": 115.76,
+      "peak_rss_kib": 1745716,
+      "sampled_maps": 164,
+      "sampled_rss_kib": 1745868,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "left_on_queue": 0,
+        "depth": 22
+      }
+    },
+    {
+      "name": "kvs-medium-8-0-tlx-warm",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 14.57,
+      "cpu_s": 114.55,
+      "peak_rss_kib": 1739088,
+      "sampled_maps": 145,
+      "sampled_rss_kib": 1739212,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "left_on_queue": 0,
+        "depth": 22
+      }
+    },
+    {
+      "name": "kvs-medium-8-1-core",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 304.96,
+      "cpu_s": 1794.0900000000001,
+      "peak_rss_kib": 1057604,
+      "sampled_maps": 90,
+      "sampled_rss_kib": 1058064,
+      "counts": {
+        "depth": 22,
+        "distinct": 17220672,
+        "generated": 365609473,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "property": null,
+      "workers_used": 8
+    },
+    {
+      "name": "kvs-medium-8-1-warm",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 0.72,
+      "cpu_s": 3.6799999999999997,
+      "peak_rss_kib": 571344,
+      "sampled_maps": 75,
+      "sampled_rss_kib": 568536,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "depth": 22,
+        "initial_generated": 1
+      },
+      "workers_used": 8
+    },
+    {
+      "name": "kvs-medium-8-1-tlx-cold",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 14.78,
+      "cpu_s": 116.01,
+      "peak_rss_kib": 1679084,
+      "sampled_maps": 163,
+      "sampled_rss_kib": 1679276,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "left_on_queue": 0,
+        "depth": 22
+      }
+    },
+    {
+      "name": "kvs-medium-8-1-tlx-warm",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 14.62,
+      "cpu_s": 114.55000000000001,
+      "peak_rss_kib": 1702344,
+      "sampled_maps": 145,
+      "sampled_rss_kib": 1702404,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "left_on_queue": 0,
+        "depth": 22
+      }
+    },
+    {
+      "name": "kvs-medium-8-2-core",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 302.26,
+      "cpu_s": 1776.62,
+      "peak_rss_kib": 1062360,
+      "sampled_maps": 89,
+      "sampled_rss_kib": 1046128,
+      "counts": {
+        "depth": 22,
+        "distinct": 17220672,
+        "generated": 365609473,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "property": null,
+      "workers_used": 8
+    },
+    {
+      "name": "kvs-medium-8-2-warm",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 0.72,
+      "cpu_s": 3.6500000000000004,
+      "peak_rss_kib": 569960,
+      "sampled_maps": 75,
+      "sampled_rss_kib": 567336,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "depth": 22,
+        "initial_generated": 1
+      },
+      "workers_used": 8
+    },
+    {
+      "name": "kvs-medium-8-2-tlx-cold",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 14.88,
+      "cpu_s": 116.7,
+      "peak_rss_kib": 1691308,
+      "sampled_maps": 163,
+      "sampled_rss_kib": 1691460,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "left_on_queue": 0,
+        "depth": 22
+      }
+    },
+    {
+      "name": "kvs-medium-8-2-tlx-warm",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 14.73,
+      "cpu_s": 115.02,
+      "peak_rss_kib": 1739164,
+      "sampled_maps": 145,
+      "sampled_rss_kib": 1739256,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "left_on_queue": 0,
+        "depth": 22
+      }
+    },
+    {
+      "name": "kvs-medium-1-0-core",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 835.14,
+      "cpu_s": 835.09,
+      "peak_rss_kib": 971756,
+      "sampled_maps": 43,
+      "sampled_rss_kib": 971860,
+      "counts": {
+        "depth": 22,
+        "distinct": 17220672,
+        "generated": 365609473,
+        "initial_generated": 1,
+        "left_on_queue": 0
+      },
+      "property": null,
+      "workers_used": 1
+    },
+    {
+      "name": "kvs-medium-1-0-warm",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 3.32,
+      "cpu_s": 3.31,
+      "peak_rss_kib": 554816,
+      "sampled_maps": 33,
+      "sampled_rss_kib": 554768,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "depth": 22,
+        "initial_generated": 1
+      },
+      "workers_used": 1
+    },
+    {
+      "name": "kvs-medium-1-0-tlx-cold",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 94.14,
+      "cpu_s": 94.13000000000001,
+      "peak_rss_kib": 928248,
+      "sampled_maps": 97,
+      "sampled_rss_kib": 928264,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "left_on_queue": 0,
+        "depth": 22
+      }
+    },
+    {
+      "name": "kvs-medium-1-0-tlx-warm",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 93.93,
+      "cpu_s": 93.91000000000001,
+      "peak_rss_kib": 927412,
+      "sampled_maps": 88,
+      "sampled_rss_kib": 927384,
+      "counts": {
+        "generated": 365609473,
+        "distinct": 17220672,
+        "left_on_queue": 0,
+        "depth": 22
+      }
+    },
+    {
+      "name": "kvs-small-1",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 1.3,
+      "cpu_s": 1.27,
+      "peak_rss_kib": 268668,
+      "sampled_maps": 104,
+      "sampled_rss_kib": 268860,
+      "counts": {
+        "left_on_queue": 0,
+        "generated": 56349379,
+        "distinct": 3409605,
+        "depth": 23,
+        "initial_generated": 1
+      },
+      "workers_used": 1,
+      "state_bits": 31,
+      "compile_seconds": 0.334989,
+      "search_seconds": 0.718934
+    },
+    {
+      "name": "tcommit12-1",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 0.65,
+      "cpu_s": 0.6000000000000001,
+      "peak_rss_kib": 249172,
+      "sampled_maps": 104,
+      "sampled_rss_kib": 231660,
+      "counts": {
+        "left_on_queue": 0,
+        "generated": 6401869,
+        "distinct": 535536,
+        "depth": 25,
+        "initial_generated": 1
+      },
+      "workers_used": 1,
+      "state_bits": 24,
+      "compile_seconds": 0.350748,
+      "search_seconds": 0.057118
+    },
+    {
+      "name": "kvs-small-8",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 0.79,
+      "cpu_s": 1.3599999999999999,
+      "peak_rss_kib": 271824,
+      "sampled_maps": 106,
+      "sampled_rss_kib": 225028,
+      "counts": {
+        "left_on_queue": 0,
+        "generated": 56349379,
+        "distinct": 3409605,
+        "depth": 23,
+        "initial_generated": 1
+      },
+      "workers_used": 8,
+      "state_bits": 31,
+      "compile_seconds": 0.329803,
+      "search_seconds": 0.219616
+    },
+    {
+      "name": "tcommit12-8",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 0.59,
+      "cpu_s": 0.64,
+      "peak_rss_kib": 234468,
+      "sampled_maps": 105,
+      "sampled_rss_kib": 232328,
+      "counts": {
+        "left_on_queue": 0,
+        "generated": 6401869,
+        "distinct": 535536,
+        "depth": 25,
+        "initial_generated": 1
+      },
+      "workers_used": 8,
+      "state_bits": 24,
+      "compile_seconds": 0.348162,
+      "search_seconds": 0.015196
+    },
+    {
+      "name": "slatedb-medium-admission",
+      "workers": 8,
+      "status": 2,
+      "verdict": "unsupported",
+      "wall_s": 0.24,
+      "cpu_s": 0.23,
+      "peak_rss_kib": 84540,
+      "sampled_maps": 13,
+      "sampled_rss_kib": 232,
+      "counts": {},
+      "reason": "typed model values"
+    },
+    {
+      "name": "kvs-medium-8-0-cold",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 1.24,
+      "cpu_s": 4.21,
+      "peak_rss_kib": 571900,
+      "sampled_maps": 113,
+      "sampled_rss_kib": 570956,
+      "counts": {
+        "left_on_queue": 0,
+        "generated": 365609473,
+        "distinct": 17220672,
+        "depth": 22,
+        "initial_generated": 1
+      },
+      "workers_used": 8,
+      "state_bits": 32,
+      "compile_seconds": 0.29549,
+      "search_seconds": 0.724753
+    },
+    {
+      "name": "kvs-medium-8-1-cold",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 1.25,
+      "cpu_s": 4.2299999999999995,
+      "peak_rss_kib": 571624,
+      "sampled_maps": 112,
+      "sampled_rss_kib": 570048,
+      "counts": {
+        "left_on_queue": 0,
+        "generated": 365609473,
+        "distinct": 17220672,
+        "depth": 22,
+        "initial_generated": 1
+      },
+      "workers_used": 8,
+      "state_bits": 32,
+      "compile_seconds": 0.297361,
+      "search_seconds": 0.741218
+    },
+    {
+      "name": "kvs-medium-8-2-cold",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 1.25,
+      "cpu_s": 4.26,
+      "peak_rss_kib": 570280,
+      "sampled_maps": 113,
+      "sampled_rss_kib": 570072,
+      "counts": {
+        "left_on_queue": 0,
+        "generated": 365609473,
+        "distinct": 17220672,
+        "depth": 22,
+        "initial_generated": 1
+      },
+      "workers_used": 8,
+      "state_bits": 32,
+      "compile_seconds": 0.295337,
+      "search_seconds": 0.722242
+    },
+    {
+      "name": "kvs-medium-1-0-cold",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 4.3,
+      "cpu_s": 4.27,
+      "peak_rss_kib": 554760,
+      "sampled_maps": 107,
+      "sampled_rss_kib": 554832,
+      "counts": {
+        "left_on_queue": 0,
+        "generated": 365609473,
+        "distinct": 17220672,
+        "depth": 22,
+        "initial_generated": 1
+      },
+      "workers_used": 1,
+      "state_bits": 32,
+      "compile_seconds": 0.305013,
+      "search_seconds": 3.762942
+    }
+  ]
+}

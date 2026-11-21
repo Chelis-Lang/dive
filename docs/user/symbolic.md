@@ -68,6 +68,36 @@ The completed search reports eight distinct states, 21 generated states
 including the initial state, and depth four. For comparison, run
 `target/release/dive check Receipts.tla --config Receipts.cfg --workers 1 --store exact --compat=tlc --output json`.
 
+## Compile a finite safety check
+
+Use `dive check --strategy compiled` in the Linux release bundle to compile a
+small finite state layout into native guards and updates. Install `rustc`
+1.99.0 and the host linker before running this strategy. Dive resolves an
+installed compiler through `PATH` or rustup and compiles offline.
+
+```sh
+dive check MCKVS.tla --config MCKVSSafetyMedium.cfg --strategy compiled \
+  --workers 8 --max-memory 4g --time-limit 30s --output json
+```
+
+Compiled checking uses the same finite source admission as the symbolic
+strategy, with a layout of at most 32 bits and checked index symmetry. The
+layout comes from `TypeInvariant`, or the configured invariant selected with
+`--type-invariant NAME`. The checker requires a complete `Init` and `Next`,
+supports configured safety invariants and deadlock checking, and refuses
+state constraints, liveness and expressions outside the supported fragment.
+Every invocation binds and compiles the current source and configuration.
+
+The worker searches breadth-first using exact keys. It counts each enabled
+successor occurrence before deduplication and reports states modulo configured
+symmetry. `--workers` accepts 1 through 8 and defaults to 1. The JSON report
+gives the largest width used, compilation and search times, and complete
+counts on success. On a possible violation, exact Core searches for a shortest
+trace in the same breadth-first layer and independently validates it.
+`--trace FILE` saves the validated trace. The time limit covers binding,
+compilation, search, and replay. The memory limit applies to each process's
+address space. This strategy uses the finite checker exit codes above.
+
 ## Checking interchangeable status tables
 
 Use `dive check --strategy occupancy` when a finite population shares one table of local string statuses. This optional Linux strategy reads the bound TLA+ and configuration and performs exact, labeled breadth-first search. Run the three-manager control from the published Examples `specifications/transaction_commit` directory.
