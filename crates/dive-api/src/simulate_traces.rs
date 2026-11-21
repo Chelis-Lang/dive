@@ -68,6 +68,18 @@ impl<'a> SimStates<'a> {
             .with_ending(ending)
             .with_startup_draws(startup);
         header.variables = self.names.iter().map(|(name, _)| name.clone()).collect();
+        // The record `TLCGet("config")` read, for the validator's `ASSUME`s.
+        // Recorded only when read: a trace independent of it stays the same
+        // whatever the run's trace count or worker count.
+        if self.model.evaluator.config_read()
+            && let Some(config) = self.model.evaluator.host().and_then(|host| host.config())
+            && let dive_eval::RunMode::Simulate(simulation) = config.mode
+        {
+            header = header.with_run(dive_trace::SimulationRun {
+                simulation,
+                workers: config.workers,
+            });
+        }
         // A lasso's loop closes on equal states, which the validator then
         // checks whatever VIEW or SYMMETRY is declared (D-037).
         if let Some((ending, properties)) = &self.trace.temporal

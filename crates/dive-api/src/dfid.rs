@@ -163,6 +163,7 @@ pub fn dfid_file(req: &DfidRequest) -> Result<DfidReport, crate::ApiError> {
             run: Some((seed, req.fp)),
             library_paths: req.library_paths.clone(),
             module_paths: req.module_paths.clone(),
+            ..TraceOptions::default()
         },
     ) {
         Ok(model) => model,

@@ -1,6 +1,8 @@
 //! Finite simulation admission. A complete sample is never an exhaustive proof.
 
-use dive_api::trace::{Ending, SpecModel, TraceDoc, TraceOptions, Validation};
+use dive_api::trace::{
+    Ending, RunMode, SimulationConfig, SimulationRun, SpecModel, TraceDoc, TraceOptions, Validation,
+};
 
 use super::{
     CheckMapping, Counts, DiveImplementation, ImplResult, ModelRequest, OracleResult,
@@ -364,12 +366,26 @@ fn simulation_result(
         .iter()
         .map(|path| path.path.clone())
         .collect();
+    // The record `TLCGet("config")` reads, from the request alone: the
+    // logical worker count by default, the physical one under TLC's profile.
+    let run = expected_run(
+        constructive,
+        traces,
+        if implementation.profile == Profile::Dive {
+            1
+        } else {
+            usize::try_from(req.workers).unwrap_or(usize::MAX)
+        },
+        implementation.profile != Profile::Dive,
+    );
     let source = match SpecModel::load(
         &req.corpus_root.join(&req.model.module),
         &req.corpus_root.join(&req.model.id),
         &TraceOptions {
             compat_tlc: implementation.profile != Profile::Dive,
             run: Some((0, 0)),
+            run_mode: RunMode::Simulate(run.simulation.clone()),
+            run_workers: Some(run.workers),
             module_paths: paths,
             ..Default::default()
         },
@@ -388,6 +404,13 @@ fn simulation_result(
             Ok(document) => document,
             Err(error) => return malformed(&format!("unreadable state word: {error}")),
         };
+        if document
+            .run
+            .as_ref()
+            .is_some_and(|recorded| *recorded != run)
+        {
+            return malformed("word's run settings disagree with the request");
+        }
         let expected = if Some(index) == selected {
             match verdict {
                 Verdict::SafetyViolation => {
@@ -610,7 +633,13 @@ impl DiveImplementation {
                 .map(|l| l.chars().take(200).collect());
             return Ok(run);
         };
-        self.read_study_report(corpus_root, model, params.seed, &value, &mut run);
+        let generate = model
+            .features
+            .iter()
+            .any(|f| f == "constructive generation");
+        let mut expected = expected_run(generate, params.traces, 1, self.profile != Profile::Dive);
+        expected.simulation.depth = i64::try_from(params.depth).unwrap_or(i64::MAX);
+        self.read_study_report(corpus_root, model, params.seed, &expected, &value, &mut run);
         Ok(run)
     }
 
@@ -621,6 +650,7 @@ impl DiveImplementation {
         corpus_root: &std::path::Path,
         model: &crate::corpus::ModelEntry,
         seed: i64,
+        expected: &SimulationRun,
         value: &Value,
         run: &mut StudyRun,
     ) {
@@ -672,7 +702,7 @@ impl DiveImplementation {
             .and_then(|i| value["traces"].as_array()?.get(i));
         run.validation = Some(match deciding.map(|t| &t["document"]) {
             Some(document) if !document.is_null() => {
-                self.validate_study_word(corpus_root, model, seed, document)
+                self.validate_study_word(corpus_root, model, seed, expected, document)
             }
             _ => {
                 crate::trace_check::TraceCheck::no("the report carries no deciding trace document")
@@ -685,6 +715,7 @@ impl DiveImplementation {
         corpus_root: &std::path::Path,
         model: &crate::corpus::ModelEntry,
         seed: i64,
+        expected: &SimulationRun,
         document: &Value,
     ) -> crate::trace_check::TraceCheck {
         use crate::trace_check::TraceCheck;
@@ -692,12 +723,21 @@ impl DiveImplementation {
             Ok(doc) => doc,
             Err(e) => return TraceCheck::refuted(format!("unreadable trace document: {e}")),
         };
+        if doc
+            .run
+            .as_ref()
+            .is_some_and(|recorded| recorded != expected)
+        {
+            return TraceCheck::refuted("the trace's run settings disagree with the request");
+        }
         let spec = match SpecModel::load(
             &corpus_root.join(&model.module),
             &corpus_root.join(&model.id),
             &TraceOptions {
                 compat_tlc: self.profile != Profile::Dive,
                 run: Some((seed, 0)),
+                run_mode: RunMode::Simulate(expected.simulation.clone()),
+                run_workers: Some(expected.workers),
                 module_paths: self.module_path.iter().map(|p| p.path.clone()).collect(),
                 ..TraceOptions::default()
             },
@@ -727,6 +767,27 @@ impl DiveImplementation {
             }
             other => TraceCheck::no(format!("independent validation returned {}", other.kind())),
         }
+    }
+}
+
+/// The `TLCGet("config")` simulation record of a harness `dive simulate`
+/// run at depth 100 (`--depth 100`, TLC's default), derived from the request
+/// and not from dive's report. Under TLC's profile the total is narrowed to
+/// TLC's 32-bit `IntValue`, as dive's driver narrows it.
+fn expected_run(generate: bool, traces: u64, workers: usize, tlc: bool) -> SimulationRun {
+    let total = i64::try_from(traces).unwrap_or(i64::MAX);
+    SimulationRun {
+        simulation: SimulationConfig {
+            generate,
+            #[allow(
+                clippy::cast_possible_truncation,
+                reason = "TLC's `(int)` cast of the total"
+            )]
+            traces: Some(if tlc { i64::from(total as i32) } else { total }),
+            depth: 100,
+            aril: 0,
+        },
+        workers: i64::try_from(workers).unwrap_or(i64::MAX),
     }
 }
 

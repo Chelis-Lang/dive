@@ -1,0 +1,755 @@
+{
+  "experiment": "General symbolic safety checking of the released EmergencyCall module",
+  "source": {
+    "repository": "https://github.com/FormalCellular/EmergencyCall",
+    "revision": "093684f1bb02d733cae95d50f1690f1cb792296a",
+    "module": "model/EmergencyCall_Model_auto.tla",
+    "f3": "model/config/f3.cfg",
+    "full_cfg": "INIT Init\nNEXT Next\nINVARIANT TypeInvariant SetInvariant\n",
+    "negative_cfg": "INIT Init\nNEXT Next\nINVARIANT TypeInvariant F1\n"
+  },
+  "sha256": {
+    "EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+    "phone-f3.cfg": "90e80cd05411cd0108ec9f7314345df31b9c72213ce1314f37d3e054c8f2b160",
+    "full.cfg": "b4f0307e37a400bac0ab0c289b9159ec5c8a4c5c01a59112c2fce1dd676bcc15",
+    "bin/dive": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+    "bin/libexec/dive-symbolic/symbolic_input": "180847c7d8ad10ceedd8c2f065b4d986a497fdd224fa980fa5c8da95ebe161de",
+    "bin/libexec/dive-symbolic/check.py": "be7a35cc3ebdd3bfb89501313314e9a5639d7dcd4754f8a04ca9adeca320adeb",
+    "bin/libexec/dive-symbolic/compiled.py": "9db5dc7a6b46e89fb601ad7dfe4d206d2984d2c18957fbd8a5733ab281eb1bd1",
+    "bin/libexec/dive-symbolic/engine.py": "9dd548c8aee2a37a1199cba27b12f2b4722877f5a039f9465222a702d84d4802",
+    "bin/libexec/dive-symbolic/finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+    "bin/libexec/dive-symbolic/finite_values.py": "7198e5adcbbb32131deb4268578b314931c406728da2e4b25569e8496c2ffe4c",
+    "bin/libexec/dive-symbolic/induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8",
+    "bin/libexec/dive-symbolic/occupancy.py": "e599ede4068c42eea84571ff9f31cbde33ef155d5551140e69e46030c2559a9d",
+    "bin/libexec/dive-symbolic/occupancy_predicate.py": "aafac700d924994a056e9c73ff937474e8d142efbec2e8c553a07b23ed263d68",
+    "bin/libexec/dive-symbolic/occupancy_source.py": "8c7ed9fd6c21acb1f5f36f70c90efa876681552afaa89e5f32d709376b54fce1",
+    "bin/libexec/dive-symbolic/packed_codegen.py": "af119cbf2e0a7f053790d9259431b0c5f7d329d885b270c6ac9c3dd202ad0278",
+    "bin/libexec/dive-symbolic/worker_process.py": "310294e83ac7f4155e1e077dd2841a0a0f0dab35b77cdcd80eb8aeca3baaf32a"
+  },
+  "host": {
+    "instance": "c7i.4xlarge",
+    "region": "us-east-2",
+    "os": "Ubuntu 24.04",
+    "kernel": "7.0.0-1018-aws",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "vcpus": 16,
+    "physical_cores": 8,
+    "cgroup_memory_bytes": 25769803776,
+    "swap_bytes": 0,
+    "python": "bundled CPython 3.11.14",
+    "decision_diagrams": "dd 0.6.0 with CUDD 3.0.0"
+  },
+  "command": "taskset -c 0 bin/dive check EmergencyCall_Model_auto.tla --config full.cfg --strategy symbolic --max-memory 6g --time-limit 600s --output json",
+  "method": "One process on CPU 0 for each monolithic row. GNU time wall and maximum RSS cover the installed CLI and its subprocesses. Six independent cell processes share CPUs 0\u201311. Cell times describe concurrent checks. Source and all worker hashes identify the timed build. The narrower configuration preflight was tested separately.",
+  "f3": {
+    "initial": 49152,
+    "distinct": 21255936,
+    "generated": 135871232,
+    "depth": 27,
+    "reachable_bdd_nodes": 5035,
+    "wall_seconds": 0.8,
+    "peak_rss_kib": 83920
+  },
+  "full": {
+    "initial": 56623104,
+    "distinct": 49911672768,
+    "generated": 328063574184,
+    "depth": 44,
+    "reachable_bdd_nodes": 159191,
+    "wall_seconds": 108.18,
+    "peak_rss_kib": 898972
+  },
+  "negative": {
+    "verdict": "invariant-violation",
+    "depth": 7,
+    "ending": {
+      "kind": "invariant",
+      "name": "F1"
+    },
+    "trace_validated": true,
+    "wall_seconds": 39.74,
+    "peak_rss_kib": 92384,
+    "trace_sha256": "1599c37cd09f0979dc441cde5e3140a4b5aeb7c17093d0fd47f730cb58d5a18b",
+    "initial_state_only_sha256": "d4b430e91acefc0debe8d95b94bc6dd33c13a82ddc27ed51a101a8cd25135558",
+    "corrupt_result": "invalid",
+    "corrupt_failure": {
+      "check": "ending",
+      "detail": "invariant F1 holds at the end of the trace, so the trace does not violate it",
+      "state": 0
+    }
+  },
+  "cell_comparison": {
+    "reference": "2026-11-21-emergencycall-finite-values.json",
+    "reference_field": "ordinary_exact_trials",
+    "variables_low_bit_first": [
+      "amf_0_normal_attach_accept_include_enl",
+      "amf_1_normal_attach_accept_include_enl",
+      "amf_0_emergency_attach_accept_include_enl",
+      "amf_1_emergency_attach_accept_include_enl",
+      "amf_home_reject_or_allow_unmarked_emergency_request",
+      "amf_roam_reject_or_allow_unmarked_emergency_request"
+    ],
+    "wrapper": "EXTENDS EmergencyCall_Model_auto; FixedPolicy is the conjunction of the six bit equalities; Start == Init /\\ FixedPolicy",
+    "cfg": "INIT Start\nNEXT Next\nINVARIANT TypeInvariant SetInvariant FixedPolicy\n",
+    "columns": [
+      "cell",
+      "initial",
+      "distinct",
+      "generated",
+      "depth",
+      "reachable_bdd_nodes",
+      "wall_seconds",
+      "peak_rss_kib"
+    ],
+    "rows": [
+      [
+        0,
+        884736,
+        600429632,
+        3862251520,
+        39,
+        17789,
+        6.66,
+        224044
+      ],
+      [
+        1,
+        884736,
+        912926560,
+        6006048236,
+        43,
+        56060,
+        33.43,
+        424032
+      ],
+      [
+        2,
+        884736,
+        692629920,
+        4527264736,
+        38,
+        33409,
+        13.67,
+        221840
+      ],
+      [
+        3,
+        884736,
+        1001016800,
+        6664442848,
+        39,
+        74260,
+        50.6,
+        1312128
+      ],
+      [
+        4,
+        884736,
+        876197064,
+        5735865246,
+        44,
+        48121,
+        27.68,
+        535220
+      ],
+      [
+        5,
+        884736,
+        686970448,
+        4482515772,
+        43,
+        46364,
+        24.42,
+        360468
+      ],
+      [
+        6,
+        884736,
+        1029239808,
+        6826734112,
+        40,
+        58568,
+        46.69,
+        807576
+      ],
+      [
+        7,
+        884736,
+        711637376,
+        4705148384,
+        39,
+        79272,
+        37.49,
+        452336
+      ],
+      [
+        8,
+        884736,
+        778229632,
+        5055774608,
+        41,
+        33167,
+        12.57,
+        216056
+      ],
+      [
+        9,
+        884736,
+        1154285720,
+        7640565214,
+        43,
+        77923,
+        54.32,
+        776812
+      ],
+      [
+        10,
+        884736,
+        440797568,
+        2858224064,
+        38,
+        17359,
+        5.05,
+        140560
+      ],
+      [
+        11,
+        884736,
+        592799296,
+        3917161728,
+        39,
+        46950,
+        18.04,
+        409092
+      ],
+      [
+        12,
+        884736,
+        1118373920,
+        7375255632,
+        41,
+        56242,
+        43.3,
+        672956
+      ],
+      [
+        13,
+        884736,
+        864828728,
+        5681597902,
+        43,
+        79952,
+        39.32,
+        461480
+      ],
+      [
+        14,
+        884736,
+        619769888,
+        4073096480,
+        38,
+        39469,
+        16.05,
+        390524
+      ],
+      [
+        15,
+        884736,
+        397993664,
+        2605013696,
+        33,
+        33356,
+        11.32,
+        255084
+      ],
+      [
+        16,
+        884736,
+        600418496,
+        3862203264,
+        39,
+        17796,
+        6.35,
+        223744
+      ],
+      [
+        17,
+        884736,
+        912912064,
+        6005985420,
+        43,
+        56077,
+        31.87,
+        424268
+      ],
+      [
+        18,
+        884736,
+        692623008,
+        4527234784,
+        38,
+        33421,
+        12.77,
+        222420
+      ],
+      [
+        19,
+        884736,
+        1001009888,
+        6664412896,
+        39,
+        74272,
+        50.81,
+        1312224
+      ],
+      [
+        20,
+        884736,
+        876184248,
+        5735809710,
+        44,
+        48138,
+        27.08,
+        534784
+      ],
+      [
+        21,
+        884736,
+        686955952,
+        4482452956,
+        43,
+        46381,
+        23.64,
+        360536
+      ],
+      [
+        22,
+        884736,
+        1029232896,
+        6826704160,
+        40,
+        58580,
+        46.85,
+        807712
+      ],
+      [
+        23,
+        884736,
+        711630464,
+        4705118432,
+        39,
+        79284,
+        36.76,
+        452156
+      ],
+      [
+        24,
+        884736,
+        778218304,
+        5055725520,
+        41,
+        33174,
+        12.52,
+        216036
+      ],
+      [
+        25,
+        884736,
+        1154270984,
+        7640501358,
+        43,
+        77940,
+        54.61,
+        645936
+      ],
+      [
+        26,
+        884736,
+        440790656,
+        2858194112,
+        38,
+        17371,
+        5.1,
+        140268
+      ],
+      [
+        27,
+        884736,
+        592792384,
+        3917131776,
+        39,
+        46962,
+        18.85,
+        409004
+      ],
+      [
+        28,
+        884736,
+        1118360864,
+        7375199056,
+        41,
+        56264,
+        43.77,
+        672952
+      ],
+      [
+        29,
+        884736,
+        864813992,
+        5681534046,
+        43,
+        79969,
+        40.13,
+        461284
+      ],
+      [
+        30,
+        884736,
+        619762976,
+        4073066528,
+        38,
+        39481,
+        15.83,
+        390568
+      ],
+      [
+        31,
+        884736,
+        397986752,
+        2604983744,
+        33,
+        33371,
+        11.17,
+        255056
+      ],
+      [
+        32,
+        884736,
+        600401408,
+        3862092256,
+        39,
+        17791,
+        6.16,
+        224012
+      ],
+      [
+        33,
+        884736,
+        912892960,
+        6005858636,
+        43,
+        56090,
+        32.04,
+        402336
+      ],
+      [
+        34,
+        884736,
+        692629920,
+        4527264736,
+        38,
+        33409,
+        12.62,
+        222472
+      ],
+      [
+        35,
+        884736,
+        1001016800,
+        6664442848,
+        39,
+        74260,
+        51.06,
+        1312312
+      ],
+      [
+        36,
+        884736,
+        876166152,
+        5735690814,
+        44,
+        48135,
+        27.03,
+        535040
+      ],
+      [
+        37,
+        884736,
+        686936848,
+        4482326172,
+        43,
+        46390,
+        24.07,
+        360440
+      ],
+      [
+        38,
+        884736,
+        1029239808,
+        6826734112,
+        40,
+        58568,
+        48.6,
+        807612
+      ],
+      [
+        39,
+        884736,
+        711637376,
+        4705148384,
+        39,
+        79272,
+        37.83,
+        452228
+      ],
+      [
+        40,
+        884736,
+        778201184,
+        5055614080,
+        41,
+        33169,
+        12.63,
+        216316
+      ],
+      [
+        41,
+        884736,
+        1154251896,
+        7640374350,
+        43,
+        77953,
+        54.46,
+        645692
+      ],
+      [
+        42,
+        884736,
+        440797568,
+        2858224064,
+        38,
+        17359,
+        5.15,
+        140256
+      ],
+      [
+        43,
+        884736,
+        592799296,
+        3917161728,
+        39,
+        46950,
+        18.2,
+        408896
+      ],
+      [
+        44,
+        884736,
+        1118342784,
+        7375079936,
+        41,
+        56272,
+        44.32,
+        672812
+      ],
+      [
+        45,
+        884736,
+        864794904,
+        5681407038,
+        43,
+        79978,
+        40.77,
+        461140
+      ],
+      [
+        46,
+        884736,
+        619769888,
+        4073096480,
+        38,
+        39469,
+        16.23,
+        390456
+      ],
+      [
+        47,
+        884736,
+        397993664,
+        2605013696,
+        33,
+        33356,
+        11.12,
+        254756
+      ],
+      [
+        48,
+        884736,
+        600390272,
+        3862044000,
+        39,
+        17798,
+        6.46,
+        223868
+      ],
+      [
+        49,
+        884736,
+        912878464,
+        6005795820,
+        43,
+        56107,
+        33.76,
+        402628
+      ],
+      [
+        50,
+        884736,
+        692623008,
+        4527234784,
+        38,
+        33421,
+        13.53,
+        222320
+      ],
+      [
+        51,
+        884736,
+        1001009888,
+        6664412896,
+        39,
+        74272,
+        51.72,
+        1312260
+      ],
+      [
+        52,
+        884736,
+        876153336,
+        5735635278,
+        44,
+        48152,
+        27.95,
+        535016
+      ],
+      [
+        53,
+        884736,
+        686922352,
+        4482263356,
+        43,
+        46407,
+        24.22,
+        360464
+      ],
+      [
+        54,
+        884736,
+        1029232896,
+        6826704160,
+        40,
+        58580,
+        46.71,
+        807368
+      ],
+      [
+        55,
+        884736,
+        711630464,
+        4705118432,
+        39,
+        79284,
+        36.47,
+        452228
+      ],
+      [
+        56,
+        884736,
+        778189856,
+        5055564992,
+        41,
+        33176,
+        12.53,
+        216168
+      ],
+      [
+        57,
+        884736,
+        1154237160,
+        7640310494,
+        43,
+        77970,
+        53.41,
+        645628
+      ],
+      [
+        58,
+        884736,
+        440790656,
+        2858194112,
+        38,
+        17371,
+        4.75,
+        140280
+      ],
+      [
+        59,
+        884736,
+        592792384,
+        3917131776,
+        39,
+        46962,
+        17.9,
+        409292
+      ],
+      [
+        60,
+        884736,
+        1118329728,
+        7375023360,
+        41,
+        56294,
+        43.49,
+        672744
+      ],
+      [
+        61,
+        884736,
+        864780168,
+        5681343182,
+        43,
+        79995,
+        40.34,
+        461228
+      ],
+      [
+        62,
+        884736,
+        619762976,
+        4073066528,
+        38,
+        39481,
+        16.08,
+        390696
+      ],
+      [
+        63,
+        884736,
+        397986752,
+        2604983744,
+        33,
+        33371,
+        11.23,
+        254992
+      ]
+    ]
+  },
+  "source_controls": {
+    "differential_cases": 59,
+    "matched_results": 39,
+    "named_refusals": 20,
+    "next_arrangements": 90,
+    "init_arrangements": 16,
+    "criterion": "Every accepted case agreed with exact Core. Violations and deadlocks were independently replayed."
+  }
+}

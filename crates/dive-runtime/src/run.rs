@@ -28,6 +28,7 @@ pub fn run_config(opts: &CheckOptions, deadlock: bool) -> RunConfig {
         install: std::env::current_exe()
             .map(|p| p.display().to_string())
             .unwrap_or_default(),
+        mode: dive_eval::RunMode::Check,
     }
 }
 

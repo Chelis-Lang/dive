@@ -93,7 +93,7 @@ impl Session {
         if let Some(mut config) = self.config.clone() {
             config.deadlock = model.settings.check_deadlock;
             model.evaluator.intern_checker_names();
-            model.evaluator.intern_bfs_config(&config);
+            model.evaluator.intern_run_config(&config);
             *host
                 .run_config
                 .lock()
@@ -1292,7 +1292,7 @@ impl Session {
         if let Some(mut config) = self.config.clone() {
             config.deadlock = model.settings.check_deadlock;
             model.evaluator.intern_checker_names();
-            model.evaluator.intern_bfs_config(&config);
+            model.evaluator.intern_run_config(&config);
             *host
                 .run_config
                 .lock()
