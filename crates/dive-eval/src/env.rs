@@ -416,6 +416,7 @@ pub(crate) struct SubstLink {
 /// TLC's dynamically scoped bindings: instance substitutions and `@`.
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Dyn {
+    pub(crate) change_slot: Option<crate::concrete_update::ChangeSlot>,
     pub(crate) subst: Option<Arc<SubstLink>>,
     pub(crate) at: Option<Value>,
     /// `ENABLED` evaluates its body in `Context.branch(c)`: a lookup with

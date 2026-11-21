@@ -209,5 +209,153 @@
     "early_witness": "8,192 repetitions over a 1,000-entry domain: distinct status witness in the first quantifier column. The allocating full-scan version took 0.17 s, the revised first-column path 0.01 s and parent 0.02 s. Both polarities checked.",
     "validated": "Original and forged steps, false invariant claim, swapped and shared binders, INSTANCE substitutions, partial and heterogeneous ranges, differently typed model keys, cross-interner equal text at different tokens, deferred providers, and cancellation token 7001.",
     "goldens": "Six Examples configurations at one worker in default and TLC profiles: TCommit, TwoPhase, MCPaxos, MCVoting, SimplifiedFastPaxos/Paxos and FastPaxos. Zero small-tier ratchet regressions."
+  },
+  "concrete_action_validation": {
+    "binaries": {
+      "shipping": "a04f6c8543e8bb9b0841bfaf8c61f57a4f19c163513cea77179cbec9810e26cc",
+      "update_only": "5b0b85c79063151dc6a9b5b6cfbae296e9f7cd18155a784b6607099fa696d398",
+      "guardonly": "51f664d6b3d527c5cc840fc73900b3180f6d5b6dee49e0f3800b7ffb1efbfa17",
+      "finaldelta": "02f08046e9f95661351551107bd2b7363df54ae6cf6197c6613f0beec8407506"
+    },
+    "terminal": [
+      {
+        "owners": 8192,
+        "word": "genuine",
+        "word_sha256": "9d8a8303e969409aef1f133a88d106cf90eae095890bd913ef1cefe9033187c6",
+        "cfg_sha256": "deac088f13a68a5c268488bdf52080d2bab2167a66ffddc2521c6acaaa5f5116",
+        "seconds": 0.07,
+        "peak_rss_kib": 110996,
+        "exit": 0,
+        "outcome": "valid",
+        "failure": null
+      },
+      {
+        "owners": 8192,
+        "word": "late",
+        "word_sha256": "86a82f43277a40f3cd3a52dde159258fb39c0d8aec1e02d60c4845244d604283",
+        "cfg_sha256": "deac088f13a68a5c268488bdf52080d2bab2167a66ffddc2521c6acaaa5f5116",
+        "seconds": 0.1,
+        "peak_rss_kib": 106744,
+        "exit": 0,
+        "outcome": "valid",
+        "failure": null
+      },
+      {
+        "owners": 8192,
+        "word": "forged",
+        "word_sha256": "c5e4c1432f91b36e47426856cf1f41b20fca6c1103d6d62c9be269df142a8e03",
+        "cfg_sha256": "deac088f13a68a5c268488bdf52080d2bab2167a66ffddc2521c6acaaa5f5116",
+        "seconds": 0.1,
+        "peak_rss_kib": 108472,
+        "exit": 1,
+        "outcome": "invalid",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 46, col 24 to line 46, col 29 of module TCommit",
+          "state": 1
+        }
+      },
+      {
+        "owners": 16384,
+        "word": "genuine",
+        "word_sha256": "04edaa80012e3e1447f4e13ab5c7bdb581fc37515f6fa15d402b06b1b879a526",
+        "cfg_sha256": "a5be60aed906f78019c715e3ad1a0a8072429653e7024ab3b2216d6d71761607",
+        "seconds": 0.14,
+        "peak_rss_kib": 157716,
+        "exit": 0,
+        "outcome": "valid",
+        "failure": null
+      },
+      {
+        "owners": 16384,
+        "word": "late",
+        "word_sha256": "52ffc67affaad1904188ecfb5c9176c1d3fc231ce100fe699084292904ad69a1",
+        "cfg_sha256": "a5be60aed906f78019c715e3ad1a0a8072429653e7024ab3b2216d6d71761607",
+        "seconds": 0.17,
+        "peak_rss_kib": 158040,
+        "exit": 0,
+        "outcome": "valid",
+        "failure": null
+      },
+      {
+        "owners": 16384,
+        "word": "forged",
+        "word_sha256": "8abcdbc19aedbeab8e4c3183b3c59638a4b070d2e3d6474f78dca5b2ca3a41e0",
+        "cfg_sha256": "a5be60aed906f78019c715e3ad1a0a8072429653e7024ab3b2216d6d71761607",
+        "seconds": 0.18,
+        "peak_rss_kib": 157888,
+        "exit": 1,
+        "outcome": "invalid",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 46, col 24 to line 46, col 29 of module TCommit",
+          "state": 1
+        }
+      },
+      {
+        "owners": 65536,
+        "word": "genuine",
+        "word_sha256": "314aff5a230bc6cc1ba2e78e1810c70fc6b2032bc62ecec228c6433aeca69eaa",
+        "cfg_sha256": "59353493fc105a7e879b844bc88a3ff0e765e91760973369c4fe678346eb49c6",
+        "seconds": 0.63,
+        "peak_rss_kib": 526592,
+        "exit": 0,
+        "outcome": "valid",
+        "failure": null
+      },
+      {
+        "owners": 65536,
+        "word": "late",
+        "word_sha256": "21cb2823a372931e34b96612aee6961cea8cd24a44bbb823f8351a248cb75ec2",
+        "cfg_sha256": "59353493fc105a7e879b844bc88a3ff0e765e91760973369c4fe678346eb49c6",
+        "seconds": 0.85,
+        "peak_rss_kib": 526800,
+        "exit": 0,
+        "outcome": "valid",
+        "failure": null
+      },
+      {
+        "owners": 65536,
+        "word": "forged",
+        "word_sha256": "f6ce4d699584d69538d7df06145ad13b37ba9881c901d467ee2b8543a4afd530",
+        "cfg_sha256": "59353493fc105a7e879b844bc88a3ff0e765e91760973369c4fe678346eb49c6",
+        "seconds": 0.8,
+        "peak_rss_kib": 526696,
+        "exit": 1,
+        "outcome": "invalid",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 46, col 24 to line 46, col 29 of module TCommit",
+          "state": 1
+        }
+      }
+    ],
+    "ablation_8192": {
+      "update_only": {
+        "seconds": 29.79,
+        "peak_rss_kib": 101520,
+        "exit": 1,
+        "outcome": "invalid",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 46, col 24 to line 46, col 29 of module TCommit",
+          "state": 1
+        }
+      },
+      "guard_only": {
+        "seconds": 2.97,
+        "peak_rss_kib": 101456,
+        "exit": 1,
+        "outcome": "invalid",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 46, col 24 to line 46, col 29 of module TCommit",
+          "state": 1
+        }
+      }
+    },
+    "host": "Same us-west-2 c7i.4xlarge as the preceding series. Evidence includes process startup, JSON decoding, Init, Next, the configured invariants and independent ending validation. Final runs were serial on CPU 2. The update-only ablation ran on CPU 3.",
+    "recipe": "Use the same Prepared.tla, BadN.cfg and validate-trace command as the constructed_words series. For the late control move the only prepared value from r1 to rN in state 2. For the forged endpoint two owners prepare in one transition. All use ending invariant NonePrepared.",
+    "profile": "Parent 8,192-owner rejection: scalar comparison 15.67%, Value destruction 9.79%, function point update 4.67%, equality 4.21%, materialized identity 3.40%. Once per-owner rebuilding was removed, the same all-owner predicate was still evaluated for each candidate. Update-only and guard-only rows isolate both costs."
   }
 }

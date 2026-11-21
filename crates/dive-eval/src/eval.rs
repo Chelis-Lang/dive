@@ -1710,6 +1710,9 @@ impl Core {
                 self.loc(e)
             )));
         }
+        if let Some(result) = self.concrete_table_guard(env, st, exists, bounds, body, e)? {
+            return Ok(Ev::V(Value::Bool(result)));
+        }
         if let Some(result) = self.table_quantifier(env, st, exists, bounds, body)? {
             return Ok(Ev::V(Value::Bool(result)));
         }
@@ -2776,6 +2779,9 @@ impl Core {
         };
         Ok(Ev::V(match op {
             BuiltinOp::Eq | BuiltinOp::Neq => {
+                if let Some(equal) = self.concrete_update_equal(env, st, arg(0)?, arg(1)?)? {
+                    return Ok(Ev::V(Value::Bool(equal == (op == BuiltinOp::Eq))));
+                }
                 // OPCODE_eq / OPCODE_noteq
                 let a = self.eval_v(env, st, arg(0)?)?;
                 let b = self.eval_v(env, st, arg(1)?)?;

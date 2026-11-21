@@ -51,6 +51,7 @@ mod error;
 mod eval;
 mod finite;
 mod generation;
+mod concrete_update;
 mod guarded_subset;
 mod host;
 mod json;
