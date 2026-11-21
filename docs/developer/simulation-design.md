@@ -611,8 +611,10 @@ refuses these two operators before exploring (`Effects::sampled_draw`), so
 `RandomSubsetSet`; a negative `RandomSubset` count (TLC's 2154), refused like
 other evaluation errors in a sampled `Next`; start-up Randomization draws
 whose recorded values do not reproduce, which have no enumeration fallback;
-temporal counterexamples through draws, whose lasso documents do not record
-draws yet (S3).
+temporal counterexamples through draws (S3). Recording a lasso's draws is
+not enough to lift that refusal: the validator's periodic replay refuses any
+`Next` with effects and runs no draw search, and fairness would need
+`ENABLED` of a drawing action, which stays refused.
 
 ## 9. Large and unbounded domains
 
@@ -903,10 +905,13 @@ configurations now refuses 10, against 110 before
 (`conformance/reports/2026-11-21-simulate-refusals-after.json`, one
 assessment per refused or unsampled configuration). Eleven of the sixteen
 refused or unsampled configurations are correct refusals (spec I/O grants,
-`TLCSet`, `JavaTime`, Apalache-only configurations). Five are gaps: `\cdot`
-replay in the validator (`MCCRDT`, `MCReplicatedLog`), validation cost with a
-`RandomElement` constant (`SpanTreeRandom`), and the Core operators
-`RandomSubset` and `Bits!And`. `dive-conformance study simulate` runs both
+`TLCSet`, `JavaTime`, Apalache-only configurations). Five were gaps. The
+validator now replays `\cdot` (`MCCRDT`, `MCReplicatedLog`, each 10 of 10
+kept traces valid), `SpanTreeRandom` validates from its start-up draws, and
+Core runs `RandomSubset` and `Bits!And`; `SmokeEWD998` now stops at a
+named liveness refusal of its `TDSpec` property. In the default profile
+simulation binds as `dive check` does, so `EWD998ChanID_export` reaches its
+error in about 1.3 s instead of 28 s. `dive-conformance study simulate` runs both
 simulators over the corpus, ten seeds of ten traces at depth 100
 (`conformance/reports/2026-11-21-simulate-conformance.json`). It found no
 invalid trace, no dive class outside the golden's or TLC's, and no
