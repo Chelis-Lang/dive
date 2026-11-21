@@ -1,0 +1,296 @@
+{
+  "schema": "dive-allocator-fixed-large-baselines-1",
+  "baseline_on_main": "b35b9e2b055d61b160e0dce49d9720e772e40f1f",
+  "native_allocator": "mimalloc 3.7.0",
+  "host": {
+    "instance": "c7i.4xlarge",
+    "physical_cores": 8,
+    "smt": false,
+    "swap": false,
+    "kernel": "7.0.0-1018-aws",
+    "linux_max_map_count": 1048576
+  },
+  "programs_sha256": {
+    "installed/dive": "4eae9f5a2ba2b60004b10a76f801a8dc8295ec00501b4cc5b329430305324ab8",
+    "payload/tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "payload/jre/bin/java": "f5aed21d3a0b0f4b05d3a3f9fe71263916d5bc0d47b53aa52a3340b90f0b4805"
+  },
+  "input_sources": {
+    "EmergencyCall": "FormalCellular/EmergencyCall 093684f1bb02d733cae95d50f1690f1cb792296a, model/EmergencyCall_Model_auto.tla and config/f3.cfg",
+    "EWD998 and KVS": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/ewd998/EWD998.cfg and KeyValueStore/MCKVSSafetyLarge.cfg"
+  },
+  "input_sha256": {
+    "emergency/EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+    "emergency/config/f3.cfg": "90e80cd05411cd0108ec9f7314345df31b9c72213ce1314f37d3e054c8f2b160",
+    "ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+    "ewd998/EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+    "ewd998/Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+    "ewd998/AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+    "kvs/MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "kvs/MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964",
+    "kvs/KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "kvs/Util.tla": "7ffa38a940992bec344fe7d033e9ac7acc85e0180aeacee59512a26807e14254"
+  },
+  "method": {
+    "affinity": "One timed command tree at a time. CPU 0 at one worker, CPUs 0\u20137 at eight workers.",
+    "core": "dive check MODULE --config CFG --workers N --store fp --seed 0 --fp 0 --max-memory 24g --time-limit SECONDS --output json. Default profile. F3 uses 1800s; EWD998 uses 900s plus --max-states 2000000; KVS Large uses 7200s.",
+    "tlc": "Pinned JRE with -Xmx16g -XX:ActiveProcessorCount=N -cp PINNED_JAR tlc2.TLC -fp 0 -seed 0 -config CFG -workers N MODULE.",
+    "profile": "Linux perf record -F 197 -e cpu-clock:u -g. Self shares from perf report --no-children. EWD998 prefix stops during graph capture.",
+    "attribution": "Rebaseline on the fixed build. No allocator-only timing claim is made for these inputs.",
+    "memory": "GNU time peak child process RSS. Sampled /proc mapping and RSS results are reported for the unprivileged runs."
+  },
+  "ewd998_profile": {
+    "lost_samples": 0,
+    "top_self_symbols": [
+      {
+        "self_percent": 14.9,
+        "symbol": "<dive_core::eval::Machine>::eval_inner"
+      },
+      {
+        "self_percent": 14.36,
+        "symbol": "<dive_core::heap::Heap>::view.140"
+      },
+      {
+        "self_percent": 3.72,
+        "symbol": "<dive_core::eval::Machine>::eval"
+      },
+      {
+        "self_percent": 3.58,
+        "symbol": "crossbeam_epoch::default::with_handle::<crossbeam_epoch::default::pin::{closure#0}, crossbeam_epoch::guard::Guard>"
+      },
+      {
+        "self_percent": 2.72,
+        "symbol": "mi_theap_malloc_aligned"
+      },
+      {
+        "self_percent": 2.29,
+        "symbol": "<dive_core::memo::Memo>::get"
+      },
+      {
+        "self_percent": 2.05,
+        "symbol": "__sched_yield"
+      },
+      {
+        "self_percent": 1.83,
+        "symbol": "<dive_core::eval::Machine>::memo_eval"
+      },
+      {
+        "self_percent": 1.77,
+        "symbol": "<dive_core::eval::Machine>::work_norm"
+      },
+      {
+        "self_percent": 1.72,
+        "symbol": "<dive_core::eval::Machine>::each_unit_binding"
+      },
+      {
+        "self_percent": 1.72,
+        "symbol": "<std::sys::sync::mutex::futex::Mutex>::lock_contended"
+      },
+      {
+        "self_percent": 1.63,
+        "symbol": "<dive_core::eval::Machine>::gen_node_inner"
+      },
+      {
+        "self_percent": 1.41,
+        "symbol": "<dive_core::eval::Machine>::fcn_index"
+      },
+      {
+        "self_percent": 1.37,
+        "symbol": "<dive_core::heap::Heap>::fcn_with"
+      }
+    ]
+  },
+  "ewd998_action_witnesses": {
+    "method": "Use the existing source-pinned four-node BDD closure. Partition the generated witness total by the existing action.name and count reached AND action.witness. This is full-graph multiplicity, independent of the two-million-state Core capture profile.",
+    "counts": {
+      "nodes": 4,
+      "initial": 1024,
+      "distinct": 248006200,
+      "generated": 2696907118,
+      "depth": 104,
+      "left_on_queue": 0,
+      "constraint_excluded_witnesses": 530283897,
+      "final_bdd_nodes": 40900,
+      "generated_witnesses_by_action": {
+        "deactivate": 451548092,
+        "initiate": 182584678,
+        "pass": 78962180,
+        "receive": 629166868,
+        "send": 1354644276
+      }
+    },
+    "table_update_control": "The same two-million-state EWD998 prefix is used by the fixed-domain table work in https://github.com/Chelis-Lang/dive/pull/1262.",
+    "next_candidate": "Lower complete admitted counter and pending actions from the bound source. Preserve generated witness multiplicity, constraints, invariants and fairness labels."
+  },
+  "kvs_large_dense_rank_control": {
+    "method": "Existing dense orbit rank prototype, fed by the current main finite binder. Four requested workers on a shared host. This is a terminal count control.",
+    "state_bits": 45,
+    "rank_capacity": 23299718715,
+    "counts": {
+      "distinct": 594616815,
+      "generated": 13385471536,
+      "depth": 30
+    }
+  },
+  "cells": [
+    {
+      "name": "emergency-f3-core-8",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 89.48,
+      "cpu_s": 245.5,
+      "peak_rss_kib": 412516,
+      "sampled_maps": 88,
+      "sampled_rss_kib": 413200,
+      "counts": {
+        "depth": 27,
+        "distinct": 21255936,
+        "generated": 135871232,
+        "initial_generated": 49152,
+        "left_on_queue": 0
+      },
+      "property": null,
+      "workers_used": 8
+    },
+    {
+      "name": "emergency-f3-tlc-8",
+      "workers": 8,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 93.13,
+      "cpu_s": 516.16,
+      "peak_rss_kib": 5912308,
+      "sampled_maps": 336,
+      "sampled_rss_kib": 5912772,
+      "counts": {
+        "generated": 135871232,
+        "distinct": 21255936,
+        "left_on_queue": 0,
+        "depth": 27
+      }
+    },
+    {
+      "name": "emergency-f3-core-1",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 233.48,
+      "cpu_s": 233.47,
+      "peak_rss_kib": 374104,
+      "sampled_maps": 43,
+      "sampled_rss_kib": 374224,
+      "counts": {
+        "depth": 27,
+        "distinct": 21255936,
+        "generated": 135871232,
+        "initial_generated": 49152,
+        "left_on_queue": 0
+      },
+      "property": null,
+      "workers_used": 1
+    },
+    {
+      "name": "emergency-f3-tlc-1",
+      "workers": 1,
+      "status": 0,
+      "verdict": "success",
+      "wall_s": 485.14,
+      "cpu_s": 485.09,
+      "peak_rss_kib": 2821664,
+      "sampled_maps": 213,
+      "sampled_rss_kib": 2821588,
+      "counts": {
+        "generated": 135871232,
+        "distinct": 21255936,
+        "left_on_queue": 0,
+        "depth": 27
+      }
+    },
+    {
+      "name": "ewd998-core-8-prefix",
+      "workers": 8,
+      "status": 5,
+      "verdict": "stopped",
+      "wall_s": 28.68,
+      "cpu_s": 82.16,
+      "peak_rss_kib": 649272,
+      "sampled_maps": 96,
+      "sampled_rss_kib": 616544,
+      "counts": {
+        "depth": 7,
+        "distinct": 2000000,
+        "generated": 10444327,
+        "initial_generated": 1024,
+        "left_on_queue": 1150143
+      },
+      "property": null,
+      "stopped": {
+        "elapsed_ms": 28672,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 2000000,
+        "observed": 2000001,
+        "phase": "graph-capture",
+        "resource": "states",
+        "unit": "states"
+      },
+      "workers_used": 8
+    },
+    {
+      "name": "ewd998-core-8-profile",
+      "workers": 8,
+      "status": 5,
+      "verdict": "stopped",
+      "wall_s": 29.75,
+      "cpu_s": 83.21000000000001,
+      "peak_rss_kib": 654544,
+      "counts": {
+        "depth": 7,
+        "distinct": 2000000,
+        "generated": 10444327,
+        "initial_generated": 1024,
+        "left_on_queue": 1150143
+      },
+      "property": null,
+      "stopped": {
+        "elapsed_ms": 28877,
+        "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+        "limit": 2000000,
+        "observed": 2000001,
+        "phase": "graph-capture",
+        "resource": "states",
+        "unit": "states"
+      },
+      "workers_used": 8
+    },
+    {
+      "name": "kvs-large-core-8",
+      "workers": 8,
+      "status": 5,
+      "verdict": "stopped",
+      "wall_s": 7200.08,
+      "cpu_s": 52648.89,
+      "peak_rss_kib": 8999720,
+      "sampled_maps": 107,
+      "sampled_rss_kib": 8999704,
+      "counts": {
+        "depth": 28,
+        "distinct": 594135503,
+        "generated": 13320841101,
+        "initial_generated": 1,
+        "left_on_queue": 2397734
+      },
+      "property": null,
+      "stopped": {
+        "elapsed_ms": 7200048,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 7200000,
+        "observed": 7200009,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      },
+      "workers_used": 8
+    }
+  ]
+}
