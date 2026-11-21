@@ -249,7 +249,8 @@ impl Recipe {
     /// Reconstructs a fresh predicate-only model with fallible error transport.
     /// Intrinsic evaluator resource/internal errors retain their original type
     /// and startup output. No synthetic control or resource policy is installed
-    /// when `control` is absent; the plain binding methods remain unchanged.
+    /// when `control` is absent. Such a replay may omit a provably unused
+    /// permutation constructor as described in [`bind_for_trace`].
     ///
     /// # Errors
     /// Ordinary binding failures, original evaluator failures/interruption, or
@@ -360,6 +361,39 @@ pub fn bind_reachable(
     .map_err(ControlledBindError::into_uncontrolled)
 }
 
+/// Binds a model for independent trace replay. An unreachable native
+/// `Permutations` of a configured, explicit set of untyped model values
+/// needs no materialization. Selected roles and other startup operations
+/// retain their usual semantics.
+///
+/// ```
+/// # fn load(ir: std::sync::Arc<dive_ir::Ir>, cfg: &dive_config::ModelConfig)
+/// # -> Result<(), Box<dive_model::Failure>> {
+/// let model = dive_model::bind_for_trace(ir, cfg, &dive_model::BindOptions::tlc())?;
+/// assert!(model.deferred_constants.is_empty());
+/// # Ok(()) }
+/// ```
+///
+/// # Errors
+/// As [`bind`].
+pub fn bind_for_trace(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+) -> Result<Model, Box<Failure>> {
+    bind_in_deferring(
+        ir,
+        cfg,
+        opts,
+        false,
+        None,
+        false,
+        Some(defer::Mode::UnusedPermutations),
+        false,
+    )
+    .map_err(ControlledBindError::into_uncontrolled)
+}
+
 /// Binds `ir` to `cfg` for Core: as [`bind`], except that the pure
 /// constant-level definitions used only as values by the roles the core
 /// compiles are not evaluated at start-up. They are listed in
@@ -435,13 +469,14 @@ fn bind_in(
     control: Option<Arc<dyn dive_eval::HostControl>>,
     fallible_errors: bool,
 ) -> Result<Model, ControlledBindError> {
-    bind_replay_in(
+    bind_in_deferring(
         ir,
         cfg,
         opts,
         predicates_only,
         control,
         fallible_errors,
+        None,
         false,
     )
 }
@@ -457,6 +492,11 @@ fn bind_replay_in(
     fallible_errors: bool,
     concrete: bool,
 ) -> Result<Model, ControlledBindError> {
+    // A private replay still evaluates every configured role, assumption
+    // and observable startup operation. Controlled and concrete simulation
+    // replays retain their own startup/evaluator-control lifecycle.
+    let defer = (fallible_errors && !concrete && control.is_none())
+        .then_some(defer::Mode::UnusedPermutations);
     bind_in_deferring(
         ir,
         cfg,
@@ -464,7 +504,7 @@ fn bind_replay_in(
         predicates_only,
         control,
         fallible_errors,
-        None,
+        defer,
         concrete,
     )
 }
@@ -524,7 +564,11 @@ fn bind_in_deferring(
     let names = Arc::new(feed);
     let mut b = bind::Binder::new(ir, cfg, opts, names, control, fallible_errors)
         .map_err(|error| error.with_output(Vec::new()))?;
-    let result = run(&mut b, predicates_only, defer.filter(|_| !predicates_only));
+    let result = run(
+        &mut b,
+        predicates_only,
+        defer.filter(|mode| !predicates_only || *mode == defer::Mode::UnusedPermutations),
+    );
     b.drain_prints();
     match result {
         Ok(model) => Ok(model),
@@ -572,7 +616,7 @@ fn run(
             control::StepError::Interrupted(dive_eval::EvalError::interrupted(interruption))
         })?;
     }
-    b.defer = defer.map(|mode| defer::candidates(b, mode));
+    b.defer = defer.and_then(|mode| defer::candidates(b, mode));
     b.process_constant_defns()?;
     b.process_config()?;
     if let Some(name) = &b.cfg.periodic {

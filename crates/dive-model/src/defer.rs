@@ -47,16 +47,29 @@ pub(crate) enum Mode {
     Core,
     /// Keep all used values and assumptions on their ordinary startup path.
     UnusedOnly,
+    /// Omit only total direct permutation constructors in finite trace replay.
+    UnusedPermutations,
 }
 
-pub(crate) fn candidates(b: &Binder<'_>, mode: Mode) -> Deferral {
+pub(crate) fn candidates(b: &Binder<'_>, mode: Mode) -> Option<Deferral> {
+    let ir = &*b.t.ir;
+    if mode == Mode::UnusedPermutations
+        && !ir
+            .defs()
+            .iter()
+            .any(|def| def.params.is_empty() && direct_permutations(b, def.body))
+    {
+        return None;
+    }
+    Some(reachable_candidates(b, mode))
+}
+
+fn reachable_candidates(b: &Binder<'_>, mode: Mode) -> Deferral {
+    let ir = &*b.t.ir;
     let cfg = b.cfg;
     let mut named: HashSet<DefId> = HashSet::new();
     let mut roles = Vec::new();
     let mut evaluator_roots = Vec::new();
-    let look = |name: &str, out: &mut Vec<DefId>, named: &mut HashSet<DefId>| {
-        resolve(b, name, out, named);
-    };
     let role_names = cfg
         .init
         .iter()
@@ -67,7 +80,7 @@ pub(crate) fn candidates(b: &Binder<'_>, mode: Mode) -> Deferral {
         .chain(cfg.constraints.iter())
         .chain(cfg.action_constraints.iter());
     for n in role_names {
-        look(&n.text, &mut roles, &mut named);
+        resolve(b, &n.text, &mut roles, &mut named);
     }
     let evaluator_names = cfg
         .view
@@ -79,7 +92,7 @@ pub(crate) fn candidates(b: &Binder<'_>, mode: Mode) -> Deferral {
         .chain(cfg.postconditions.iter())
         .chain(cfg.possible.iter());
     for n in evaluator_names {
-        look(&n.text, &mut evaluator_roots, &mut named);
+        resolve(b, &n.text, &mut evaluator_roots, &mut named);
     }
     for e in &cfg.constants {
         match e {
@@ -88,15 +101,14 @@ pub(crate) fn candidates(b: &Binder<'_>, mode: Mode) -> Deferral {
             // replacement), and a constant's replacement is an
             // evaluator root below.
             dive_config::ConstantEntry::Substitution { name, target, .. } => {
-                look(&name.text, &mut Vec::new(), &mut named);
-                look(&target.text, &mut Vec::new(), &mut named);
+                resolve(b, &name.text, &mut Vec::new(), &mut named);
+                resolve(b, &target.text, &mut Vec::new(), &mut named);
             }
             dive_config::ConstantEntry::Assignment { name, .. } => {
-                look(&name.text, &mut Vec::new(), &mut named);
+                resolve(b, &name.text, &mut Vec::new(), &mut named);
             }
         }
     }
-    let ir = &*b.t.ir;
     let assumptions = deferred_assumptions(b, mode);
     for m in 0..ir.modules().len() {
         let module = ir.module(dive_ir::ModuleId(u32::try_from(m).unwrap_or(u32::MAX)));
@@ -135,6 +147,7 @@ pub(crate) fn candidates(b: &Binder<'_>, mode: Mode) -> Deferral {
                 && !by_evaluator.value.contains(d)
                 && !by_evaluator.position.contains(d)
                 && !named.contains(d)
+                && (mode != Mode::UnusedPermutations || direct_permutations(b, ir.def(*d).body))
                 && crate::reach::pure(b, *d)
         })
         .collect();
@@ -172,7 +185,7 @@ pub(crate) fn candidates(b: &Binder<'_>, mode: Mode) -> Deferral {
 /// so it takes only those no impure `ASSUME` precedes, and stops at the first
 /// that is not `TRUE` itself.
 fn deferred_assumptions(b: &Binder<'_>, mode: Mode) -> Vec<DefId> {
-    if mode == Mode::UnusedOnly {
+    if mode != Mode::Core {
         return Vec::new();
     }
     let ir = &*b.t.ir;
@@ -213,6 +226,52 @@ pub(crate) fn evaluator_temporal(b: &Binder<'_>, model: &crate::Model) -> HashSe
     let roots: Vec<DefId> = roots.into_iter().collect();
     let walk = Walk::run(b, &roots, false, false);
     walk.value.into_iter().chain(walk.position).collect()
+}
+
+/// Fallible replay transports the evaluator's typed startup failures, even
+/// from an unreferenced recursive definition. Only elide the directly bound
+/// finite permutation constructor there. Its argument is already a value.
+fn direct_permutations(b: &Binder<'_>, body: ExprId) -> bool {
+    use dive_ir::StdOp::TlcPermutations;
+    if b.opts.eval.max_depth < dive_eval::Options::tlc().max_depth {
+        return false;
+    }
+    let ir = &b.t.ir;
+    let Expr::Apply { callee, args } = ir.expr(body) else {
+        return false;
+    };
+    let native = match callee {
+        OpRef::Std(TlcPermutations) => true,
+        OpRef::Def(d) => matches!(b.t.lookup_def(*d), Look::Java(TlcPermutations, _)),
+        _ => false,
+    };
+    // A lowered standard-operator application may still be redirected by a
+    // root or module-scoped configuration replacement.
+    if !native
+        || b.t
+            .tool_obj
+            .keys()
+            .chain(b.t.body_obj.keys())
+            .any(|d| ir.def(*d).std == Some(TlcPermutations))
+    {
+        return false;
+    }
+    let [Arg::Expr { expr, .. }] = args.as_ref() else {
+        return false;
+    };
+    let Expr::Const(c) = ir.expr(*expr) else {
+        return false;
+    };
+    let Some(dive_eval::ConstBinding::Value(dive_value::Value::Set(set))) =
+        b.ev().constant_binding(*c)
+    else {
+        return false;
+    };
+    set.stored_elements().is_some_and(|items| {
+        items
+            .iter()
+            .all(|item| matches!(item, dive_value::Value::Model(atom) if atom.mv_type().is_none()))
+    })
 }
 
 /// The definitions the second phase of `processConstantDefns` evaluates:

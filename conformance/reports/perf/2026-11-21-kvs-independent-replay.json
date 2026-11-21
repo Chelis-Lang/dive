@@ -1,0 +1,306 @@
+{
+  "format": "dive-independent-kvs-replay-v1",
+  "issue": 1197,
+  "source": {
+    "pinned_examples": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/KeyValueStore. Reproduce the labeled Corrupt cases with scripts/perf/scale/sail_kvs_edits.py, --keys 1 --values 2 --transactions 16 or 102. Remove SYMMETRY and its TxIdSymmetric argument from the selected Model.cfg. Keep the original TxIdSymmetric definition in MCKVS.tla.",
+    "counterexample": "Init followed by an enabled Corrupt step. The successor opens every slot and sets both missed and written to all keys. This falsifies the configured SomeCommit. Captured the symbolic worker\u2019s exact two-state word before invoking the independent validator. The witness SHA binds each direct replay to identical bytes.",
+    "reproduction": [
+      "dive check OUT/Corrupt/MCKVS.tla --config OUT/Corrupt/Model.cfg --strategy symbolic --trace actual.json --output json --max-memory 2100m --time-limit 45s",
+      "dive validate-trace OUT/Corrupt/MCKVS.tla --config OUT/Corrupt/Model.cfg --trace actual.json --compat=tlc --seed 0 --fp 0 --output json",
+      "For the prior-relation control use OUT/SomeCommit and its own labeled CFG. For the modified trace replace the second state by the first."
+    ]
+  },
+  "method": "Two AWS c7i.4xlarge instances, Intel Xeon Platinum 8488C. CLI and exporter builds on one node; all reported timings on a second, Ubuntu 24.04.5. Fresh Linux processes pinned to physical CPU 5. GNU time wall seconds and peak child/process RSS KiB. Direct validation has a 2,306,867,200-byte virtual-address cap, 2,600MiB resident cgroup; installed check uses checker --max-memory 2100m with the same cgroup. No swap. Independent jobs used separate physical cores. Baseline main 901f533e, candidate built from the same main base with the scoped replay change, release profile with LTO disabled. Complete symbolic check pairs use the same Python layout worker from #1199 and same Rust exporter; only the validating CLI differs.",
+  "hashes": {
+    "main-bundle/dive": "a2797d1867ecece6e4e93ca1bb47d60a3660a26fa3816d1ee6c0643e510b07d5",
+    "shipping-replay-bundle/dive": "c167d34db277f01380b9c968614ef17f4c8b65928ed2e6413ad8c0c540e90f6c",
+    "shipping-replay-bundle/libexec/dive-symbolic/engine.py": "272b45ffd4114d6e86461c6f761bb62c52914d67c74f150236fa04ccdc21e9a6",
+    "shipping-replay-bundle/libexec/dive-symbolic/symbolic_input": "aec41fb7dfc99d0d27efeeab84f45b483724021504083dd9c81de870fd4982da",
+    "replay-boundary-results/T16.trace": "2670195b27c6a7251e63170503e1f8581712aa8d32f5f5592d30fa60277b0f8f",
+    "replay-boundary-results/T102.trace": "a50dec59d473c0c316981dd9a0bd781777da310e7188c04fd9057ad7faa80631",
+    "order-shipping-safety/K1T16/Corrupt/MCKVS.tla": "9dbe3809bf3d62ebd11b13e8ee52639395326ed83f9b6fbec9033be388a10572",
+    "order-shipping-safety/K1T16/Corrupt/Model.cfg": "1112ec1d545bc4da11ae71144c6d0dc770dc3969ea77c2bcbd5d9fcc5c42e6c1",
+    "order-shipping-safety/K1T16/SomeCommit/MCKVS.tla": "57f453a8ecc26e7c4f7e8982748a39452cae0acd37010ee9b0c60f0fac46908b",
+    "order-shipping-safety/K1T16/SomeCommit/Model.cfg": "72266ea5b9b17220edff7f917638e9f12a822a480d013bc7858501038f26bf66",
+    "order-shipping-safety/K1T102/Corrupt/MCKVS.tla": "9dbe3809bf3d62ebd11b13e8ee52639395326ed83f9b6fbec9033be388a10572",
+    "order-shipping-safety/K1T102/Corrupt/Model.cfg": "74471e972aa8ac2c8379b7c93a0e7278cb2db52e6ddb54a50f97a1f26f260c1f",
+    "order-shipping-safety/K1T102/SomeCommit/MCKVS.tla": "57f453a8ecc26e7c4f7e8982748a39452cae0acd37010ee9b0c60f0fac46908b",
+    "order-shipping-safety/K1T102/SomeCommit/Model.cfg": "5463e973513db213d5a37ca7cac39fcd41b89adc357f0e05cc162771c13d32c4"
+  },
+  "cases": {
+    "T16": {
+      "baseline_direct_original": {
+        "exit": 134,
+        "wall_s": 2.88,
+        "rss_kib": 1848388
+      },
+      "baseline_direct_deleted_unselected_definition": {
+        "exit": 0,
+        "wall_s": 0.01,
+        "rss_kib": 25456,
+        "result": "valid",
+        "length": 2
+      },
+      "direct": {
+        "exit": 0,
+        "wall_s": 0.01,
+        "rss_kib": 25856,
+        "result": "valid",
+        "length": 2
+      },
+      "prior": {
+        "exit": 1,
+        "wall_s": 0.01,
+        "rss_kib": 27724,
+        "result": "invalid",
+        "length": 2,
+        "failed_check": "next"
+      },
+      "tamper": {
+        "exit": 1,
+        "wall_s": 0.01,
+        "rss_kib": 27688,
+        "result": "invalid",
+        "length": 2,
+        "failed_check": "next"
+      },
+      "main-check": {
+        "exit": 4,
+        "wall_s": 3.05,
+        "rss_kib": 1743956,
+        "verdict": "stopped",
+        "reason": "Dive trace validator terminated by signal 6"
+      },
+      "final-check": {
+        "exit": 1,
+        "wall_s": 0.35,
+        "rss_kib": 57892,
+        "verdict": "invariant-violation",
+        "ending": {
+          "kind": "invariant",
+          "name": "SomeCommit"
+        },
+        "depth": 2,
+        "trace_validated": true
+      }
+    },
+    "T102": {
+      "baseline_direct_original": {
+        "exit": 134,
+        "wall_s": 3.34,
+        "rss_kib": 1883188
+      },
+      "baseline_direct_deleted_unselected_definition": {
+        "exit": 0,
+        "wall_s": 0.01,
+        "rss_kib": 29540,
+        "result": "valid",
+        "length": 2
+      },
+      "direct": {
+        "exit": 0,
+        "wall_s": 0.01,
+        "rss_kib": 29780,
+        "result": "valid",
+        "length": 2
+      },
+      "prior": {
+        "exit": 1,
+        "wall_s": 0.01,
+        "rss_kib": 30000,
+        "result": "invalid",
+        "length": 2,
+        "failed_check": "next"
+      },
+      "tamper": {
+        "exit": 1,
+        "wall_s": 0.01,
+        "rss_kib": 29924,
+        "result": "invalid",
+        "length": 2,
+        "failed_check": "next"
+      },
+      "main-check": {
+        "exit": 4,
+        "wall_s": 8.67,
+        "rss_kib": 1780888,
+        "verdict": "stopped",
+        "reason": "Dive trace validator terminated by signal 6"
+      },
+      "final-check": {
+        "exit": 1,
+        "wall_s": 4.81,
+        "rss_kib": 321416,
+        "verdict": "invariant-violation",
+        "ending": {
+          "kind": "invariant",
+          "name": "SomeCommit"
+        },
+        "depth": 2,
+        "trace_validated": true
+      }
+    }
+  },
+  "ordinary_controls": {
+    "method": "Seven pairs of independent fresh validate-trace commands pinned to CPU5; alternate process order, report perf_counter wall ms, including process startup. All report valid and the same trace length. scalar is a two-state invariant without permutations; selected is two-key/three-slot KVS with transaction symmetry; labeled is the same two-key/three-slot protocol with the CFG symmetry removed.",
+    "paired": {
+      "scalar": {
+        "module_sha256": "0c715230e0a194901c12229bc37c81ca49fa8352eb6a65111a81f8d229edaed5",
+        "cfg_sha256": "b75d93ec98a58c674257f67d36fd95ee06d86f34883f6e4c69005d252f96ae55",
+        "trace_sha256": "d16f9dbc43443d5abc46b6bc34592f5cac3ffd799fafbdf91feee54ec8086afa",
+        "timings_ms": [
+          {
+            "main": 10.224,
+            "shipping": 9.411
+          },
+          {
+            "shipping": 8.877,
+            "main": 9.314
+          },
+          {
+            "main": 8.924,
+            "shipping": 8.839
+          },
+          {
+            "shipping": 8.636,
+            "main": 9.149
+          },
+          {
+            "main": 8.866,
+            "shipping": 8.809
+          },
+          {
+            "shipping": 8.693,
+            "main": 9.185
+          },
+          {
+            "main": 8.959,
+            "shipping": 8.958
+          }
+        ],
+        "valid_trace_states": 2,
+        "median_ms": {
+          "main": 9.149,
+          "shipping": 8.839
+        }
+      },
+      "selected": {
+        "module_sha256": "e54c0afcbbf78cda6b5ca7d625a203db9a9e44691ab514924fb5502107963c7b",
+        "cfg_sha256": "310c6c3d0e326dfee9b8457129f20879fc76b165df734d124ca5c26f105928fe",
+        "trace_sha256": "407a35fc4408db1c558baee68ed76fca11293396e4eeb96213187d5c277d258f",
+        "timings_ms": [
+          {
+            "main": 12.707,
+            "shipping": 12.343
+          },
+          {
+            "shipping": 12.252,
+            "main": 12.635
+          },
+          {
+            "main": 12.391,
+            "shipping": 12.399
+          },
+          {
+            "shipping": 12.364,
+            "main": 12.714
+          },
+          {
+            "main": 12.223,
+            "shipping": 12.343
+          },
+          {
+            "shipping": 11.937,
+            "main": 12.405
+          },
+          {
+            "main": 12.316,
+            "shipping": 12.24
+          }
+        ],
+        "valid_trace_states": 8,
+        "median_ms": {
+          "main": 12.405,
+          "shipping": 12.343
+        }
+      },
+      "labeled": {
+        "module_sha256": "e54c0afcbbf78cda6b5ca7d625a203db9a9e44691ab514924fb5502107963c7b",
+        "cfg_sha256": "d7795629579e7c4ec4ac398647e5247353c070f10cc3ab4995a6c9f30476624d",
+        "trace_sha256": "407a35fc4408db1c558baee68ed76fca11293396e4eeb96213187d5c277d258f",
+        "timings_ms": [
+          {
+            "main": 12.022,
+            "shipping": 11.961
+          },
+          {
+            "shipping": 11.925,
+            "main": 12.305
+          },
+          {
+            "main": 12.0,
+            "shipping": 12.04
+          },
+          {
+            "shipping": 11.883,
+            "main": 12.109
+          },
+          {
+            "main": 11.873,
+            "shipping": 11.823
+          },
+          {
+            "shipping": 11.734,
+            "main": 12.145
+          },
+          {
+            "main": 12.058,
+            "shipping": 12.074
+          }
+        ],
+        "valid_trace_states": 8,
+        "median_ms": {
+          "main": 12.058,
+          "shipping": 11.925
+        }
+      }
+    }
+  },
+  "public_domain_controls": {
+    "untyped": {
+      "exit": 0,
+      "result": "valid",
+      "failed_check": null,
+      "length": 2
+    },
+    "typed": {
+      "exit": 0,
+      "result": "valid",
+      "failed_check": null,
+      "length": 2
+    },
+    "mixed-typed": {
+      "exit": 1,
+      "diagnostic": "error: evaluation error (1000): Attempted to compare the differently-typed model values q_b and p_a"
+    },
+    "mixed-scalar": {
+      "exit": 0,
+      "result": "valid",
+      "failed_check": null,
+      "length": 2
+    },
+    "nested": {
+      "exit": 0,
+      "result": "valid",
+      "failed_check": null,
+      "length": 2
+    },
+    "redirected": {
+      "exit": 0,
+      "result": "valid",
+      "failed_check": null,
+      "length": 2
+    }
+  },
+  "binding_controls": "Eager-vs-replay tests cover heterogeneous typed model atoms, typed homogeneous atoms, mixed scalar operands, nested configured values and a root replacement of the standard Permutations. Standard eager Recipe::bind, explicit control, simulation, unselected recursive depth exhaustion, configured uses, ASSUMEs, observable effects and obsolete/tampered traces remain checked."
+}

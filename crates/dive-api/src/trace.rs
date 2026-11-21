@@ -290,7 +290,13 @@ impl SpecModel {
         } else {
             recipe
         };
-        let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
+        let bound = on_big_stack(move || {
+            if concrete {
+                dive_model::bind(ir, &cfg, &bind_opts)
+            } else {
+                dive_model::bind_for_trace(ir, &cfg, &bind_opts)
+            }
+        })?;
         if let Some(replay) = &replay {
             replay
                 .finish_binding()
