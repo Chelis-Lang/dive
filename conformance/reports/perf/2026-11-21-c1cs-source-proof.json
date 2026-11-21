@@ -1,0 +1,221 @@
+{
+  "input_sha256": {
+    "c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0",
+    "c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233"
+  },
+  "obligations": [
+    {
+      "init": "Init",
+      "next": "Next",
+      "length": 0,
+      "invariants": "Inv",
+      "result": "NoError"
+    },
+    {
+      "init": "Inv",
+      "next": "Next",
+      "length": 1,
+      "invariants": "Inv,RankStep",
+      "result": "NoError"
+    },
+    {
+      "init": "Inv",
+      "next": "Next",
+      "length": 0,
+      "invariants": "Progress,ChoicesDefined",
+      "result": "NoError"
+    },
+    {
+      "init": "Inv",
+      "next": "Fair",
+      "length": 1,
+      "invariants": "FairNonstutter",
+      "result": "NoError"
+    },
+    {
+      "init": "Init",
+      "next": "Next",
+      "length": 0,
+      "invariants": "StrongSafety",
+      "result": "NoError"
+    },
+    {
+      "init": "StrongSafety",
+      "next": "Next",
+      "length": 1,
+      "invariants": "StrongSafety",
+      "result": "NoError"
+    }
+  ],
+  "all_satisfying_vote_choices": [
+    {
+      "init": "Inv",
+      "next": "Next",
+      "length": 1,
+      "invariants": "Inv,RankStep",
+      "result": "NoError"
+    },
+    {
+      "init": "StrongSafety",
+      "next": "Next",
+      "length": 1,
+      "invariants": "StrongSafety",
+      "result": "NoError"
+    }
+  ],
+  "without_quorum_support": {
+    "init": "SafetyAll",
+    "next": "Next",
+    "length": 1,
+    "invariants": "SafetyAll",
+    "result": "countermodel"
+  },
+  "damaged_source": {
+    "omit_propose_from_fairness": {
+      "init": "Init",
+      "next": "Next",
+      "length": 0,
+      "invariants": "Progress",
+      "result": "countermodel"
+    },
+    "count_crashed_for_crash_guard": {
+      "init": "Init",
+      "next": "Next",
+      "length": 1,
+      "invariants": "Inv",
+      "result": "countermodel"
+    },
+    "discard_previous_deliveries": {
+      "init": "Inv",
+      "next": "Next",
+      "length": 1,
+      "invariants": "RankStep",
+      "result": "countermodel"
+    },
+    "broadcast_bottom_on_T2": {
+      "init": "StrongSafety",
+      "next": "Next",
+      "length": 1,
+      "invariants": "StrongSafety",
+      "result": "countermodel"
+    }
+  },
+  "cyclic_update": "rejected",
+  "small_full_graphs": [
+    {
+      "N": 1,
+      "T": 0,
+      "F": 0,
+      "verdict": "success",
+      "tlc_enabled_agreement": true,
+      "generated": 14,
+      "distinct": 10,
+      "left_on_queue": 0,
+      "depth": 5
+    },
+    {
+      "N": 2,
+      "T": 0,
+      "F": 0,
+      "verdict": "success",
+      "tlc_enabled_agreement": true,
+      "generated": 1748,
+      "distinct": 310,
+      "left_on_queue": 0,
+      "depth": 13
+    }
+  ],
+  "schema": 1,
+  "model": "examples:specifications/c1cs/c1cs.cfg",
+  "instance": {
+    "N": 4,
+    "T": 1,
+    "F": 1,
+    "Values": [
+      "v1",
+      "v2"
+    ],
+    "Bottom": "separate model value"
+  },
+  "tools": {
+    "apalache": "0.62.3 (3eb15b2), bundled SMT solver, Temurin JRE 21.0.9+10",
+    "apalache_archive_sha256": "14482cc91a3184cf5612d304a245c25126c01cf7ef0a8fe9d56bcf174167850e",
+    "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "dive_sha256": "c688a4f93f417a0810b57c4503142ff1d753ba9e1bc00df00e640e7c3c69a1dd"
+  },
+  "coverage": {
+    "TypeOK": "inductive conjunction",
+    "Validity": "inductive conjunction",
+    "Agreement": "inductive conjunction",
+    "WeakAgreement": "inductive conjunction",
+    "IndStrengthens": "inductive conjunction",
+    "Termination": "bounded increasing rank, derived enabledness and the configured aggregate weak fairness"
+  },
+  "rank_bound": 80,
+  "scope": "Original finite configuration. The proof neither enumerates nor counts its complete state graph.",
+  "proof_command": "python3 scripts/perf/scale/c1cs-proof/check.py \"$EXAMPLES/specifications/c1cs\" --apalache \"$APALACHE\" --java \"$JAVA\" --tlc-jar \"$TLA2TOOLS\" --dive \"$DIVE\"",
+  "simulation": {
+    "scope": "Auxiliary finite samples from the same unmodified inputs; statistics do not enter the proof.",
+    "commands": [
+      "dive simulate specifications/c1cs/c1cs.tla --traces 8 --workers 1 --seed SEED --depth 64 --time-limit 90s --max-memory 1g --keep-traces 1 --trace-dir TRACES --output json",
+      "dive simulate specifications/c1cs/c1cs.tla --traces 4096 --workers 1 --seed SEED --depth 128 --keep-traces 2 --time-limit 180s --max-memory 1g --output json"
+    ],
+    "rows": [
+      {
+        "seed": 0,
+        "depth": 64,
+        "requested": 8,
+        "generated": 1552,
+        "closed": 8,
+        "fair_behaviors_checked": 6,
+        "no_fair_behavior": 2,
+        "independent_replays": 8,
+        "result": "sampled"
+      },
+      {
+        "seed": 1,
+        "depth": 64,
+        "requested": 8,
+        "generated": 1843,
+        "closed": 8,
+        "fair_behaviors_checked": 5,
+        "no_fair_behavior": 3,
+        "independent_replays": 8,
+        "result": "sampled"
+      },
+      {
+        "seed": 2,
+        "depth": 64,
+        "requested": 8,
+        "generated": 1358,
+        "closed": 8,
+        "fair_behaviors_checked": 8,
+        "no_fair_behavior": 0,
+        "independent_replays": 8,
+        "result": "sampled"
+      },
+      {
+        "seed": 0,
+        "depth": 128,
+        "requested": 4096,
+        "generated": 1101994,
+        "closed": 4096,
+        "fair_behaviors_checked": 4086,
+        "no_fair_behavior": 10,
+        "independent_replays": 2,
+        "result": "sampled"
+      },
+      {
+        "seed": 349,
+        "depth": 128,
+        "requested": 4096,
+        "generated": 1111762,
+        "closed": 4096,
+        "fair_behaviors_checked": 4080,
+        "no_fair_behavior": 16,
+        "independent_replays": 2,
+        "result": "sampled"
+      }
+    ]
+  }
+}
