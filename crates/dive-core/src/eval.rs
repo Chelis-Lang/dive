@@ -96,6 +96,9 @@ pub struct Machine {
     /// How many draws were made, which the engine reads to refuse a draw
     /// in a check.
     pub draws: u64,
+    /// Draws members of sets a generator cannot enumerate, in simulation
+    /// only (`crate::unbounded`); `None` keeps the "not enumerable" error.
+    pub unbounded: Option<crate::unbounded::Unbounded>,
     /// `TLCGet("level")`: 0 in `Init`, the expanded state's level in the
     /// next-state relation and action checks, the checked state's level in
     /// state checks (initial states are level 1). The engine sets it.
@@ -255,6 +258,7 @@ impl Machine {
             checker_access: CheckerAccess::Full,
             draw: None,
             draws: 0,
+            unbounded: None,
             level: 0,
             conts: Vec::new(),
             cvals: Vec::new(),
@@ -2166,6 +2170,17 @@ impl Machine {
             return self.binding_stream(code, binds, f);
         }
         let units = self.units(code, binds)?;
+        self.each_unit_binding(binds, &units, f)
+    }
+
+    /// Runs `f` under each combination of `units`' elements, the first unit
+    /// varying fastest; `f` returns `false` to stop.
+    pub(crate) fn each_unit_binding(
+        &mut self,
+        binds: &[Bind],
+        units: &[(Unit, Vec<Handle>)],
+        f: &mut dyn FnMut(&mut Self) -> Result<bool, Error>,
+    ) -> Result<bool, Error> {
         if units.iter().any(|(_, e)| e.is_empty()) {
             return Ok(true);
         }

@@ -282,6 +282,8 @@ enum Goal {
     Deadlock,
     Behavior,
     Liveness(&'static str),
+    /// The index of the configured property claim the prefix refutes.
+    BadPrefix(usize),
     ErrorEnd(&'static str),
     TemporalStateError,
     NextStateError,
@@ -343,6 +345,7 @@ impl<'a> Run<'a> {
             choices: None,
             predicate_init: AtomicBool::new(false),
             predicate_next: AtomicBool::new(false),
+            witnesses: Mutex::new(None),
             inputs: None,
         });
         model.evaluator.set_host(host.clone());
@@ -575,6 +578,8 @@ impl<'a> Run<'a> {
             if let Some(choices) = &self.host.choices {
                 choices.prefer(&trace.states[k]);
             }
+            self.host
+                .set_witnesses(trace.witnesses.get(k).map(Vec::as_slice));
             let here = St::state(trace.states[k].clone());
             let step =
                 (k > 0).then(|| St::action(trace.states[k - 1].clone(), trace.states[k].clone()));
@@ -614,6 +619,15 @@ impl<'a> Run<'a> {
                             }
                             Err(error) => {
                                 if error.class() == ErrorClass::Eval {
+                                    // TLC's Init construction cannot enumerate
+                                    // an infinite set; membership in Init is
+                                    // then decided on the given state by the
+                                    // predicate path (D-040).
+                                    if not_enumerable(&error)
+                                        && !self.host.register_used.load(Ordering::Relaxed)
+                                    {
+                                        self.init_incomplete = true;
+                                    }
                                     return Err(Stop::Unsupported(format!(
                                         "independent Init source evaluation fails: {error}"
                                     )));
@@ -742,6 +756,10 @@ impl<'a> Run<'a> {
                 self.next(&step, last, &what)?;
             }
         }
+        if let Goal::BadPrefix(index) = goal {
+            self.bad_prefix(index, trace, last)?;
+            return Ok(None);
+        }
         Ok(match goal {
             Goal::Deadlock
                 if self.finite_scope == FiniteScope::SampledDeadlock
@@ -780,6 +798,7 @@ impl<'a> Run<'a> {
             | Goal::ImpliedInit(_)
             | Goal::ImpliedAction(_)
             | Goal::Behavior
+            | Goal::BadPrefix(_)
             | Goal::NextStateError => None,
             Goal::Liveness(why) | Goal::ErrorEnd(why) => Some(why.to_owned()),
         })
@@ -949,6 +968,32 @@ impl<'a> Run<'a> {
         Ok(())
     }
 
+    /// A `bad-prefix` ending: every state and step passed the safety checks
+    /// above; the named claim must be false on every infinite extension.
+    fn bad_prefix(&mut self, index: usize, trace: &Trace, last: usize) -> Result<(), Stop> {
+        use crate::temporal::TemporalError;
+        let claim = &self.model.property_claims()[index];
+        match crate::temporal::refutes_prefix(self.model, &claim.pred, &trace.states) {
+            Ok(true) => {
+                self.passed += 1;
+                Ok(())
+            }
+            Ok(false) => Err(invalid(
+                last,
+                Check::Temporal,
+                format!(
+                    "some extension of the prefix may satisfy temporal property {}",
+                    claim.name
+                ),
+            )),
+            Err(TemporalError::Invalid(detail)) => Err(invalid(last, Check::Temporal, detail)),
+            Err(TemporalError::Unsupported(detail)) => Err(Stop::Unsupported(detail)),
+            Err(TemporalError::Interrupted(error)) => {
+                Err(refused(&error).at(None, Check::Temporal))
+            }
+        }
+    }
+
     fn temporal_truth(&self, pred: &Pred, trace: &Trace, back: usize) -> Result<bool, Stop> {
         use crate::temporal::TemporalError;
         match crate::temporal::evaluate_lasso(self.model, pred, &trace.states, back) {
@@ -1012,6 +1057,9 @@ impl<'a> Run<'a> {
                 Goal::Liveness("liveness: the steps and the loop back (unless noted) were checked, but named temporal-property claims are missing")
             }
             Ending::Stuttering => Goal::Liveness("liveness: the steps were checked, but named temporal-property claims are missing"),
+            Ending::BadPrefix(name) => Goal::BadPrefix(find(m.property_claims(), name).ok_or_else(|| {
+                invalid(last, Check::Ending, format!("the model has no temporal property named `{name}`"))
+            })?),
             Ending::Assertion | Ending::Error { .. } => Goal::ErrorEnd("an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"),
         })
     }
@@ -1552,6 +1600,14 @@ pub(crate) struct TraceHost {
     pub(crate) choices: Option<Arc<crate::choices::Search>>,
     predicate_init: AtomicBool,
     predicate_next: AtomicBool,
+    /// The recorded existential witnesses of the step being checked.
+    witnesses: Mutex<Option<Arc<[Value]>>>,
+}
+
+/// Whether `error` is TLC's failure to enumerate an infinite set.
+fn not_enumerable(error: &EvalError) -> bool {
+    let message = error.message();
+    message.contains("is not enumerable") || message.contains("non-enumerable quantifier bound")
 }
 
 /// A cache domain no other replay host has used (0 is ordinary evaluation's).
@@ -1592,6 +1648,7 @@ impl TraceHost {
             choices,
             predicate_init: AtomicBool::new(false),
             predicate_next: AtomicBool::new(false),
+            witnesses: Mutex::new(None),
         })
     }
 
@@ -1620,7 +1677,26 @@ impl TraceHost {
     }
 }
 
+impl TraceHost {
+    /// Offers `values` as the witnesses of the step being checked; `None`
+    /// or an empty list offers none.
+    pub(crate) fn set_witnesses(&self, values: Option<&[Value]>) {
+        *self
+            .witnesses
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) =
+            values.filter(|values| !values.is_empty()).map(Arc::from);
+    }
+}
+
 impl Host for TraceHost {
+    fn existential_witnesses(&self) -> Option<Arc<[Value]>> {
+        self.witnesses
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone()
+    }
+
     fn input(
         &self,
         request: &dive_eval::inputs::InputRequest,

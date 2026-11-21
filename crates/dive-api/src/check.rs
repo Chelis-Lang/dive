@@ -1936,6 +1936,7 @@ impl CheckReport {
                         source: dive_trace::Source::Dive,
                         properties: Vec::new(),
                         concrete_closure: false,
+                        witnesses: Vec::new(),
                     };
                     doc["error_witness"] = witness.to_json();
                 }
@@ -2133,6 +2134,10 @@ impl CheckReport {
 /// validate-trace` and the conformance harness take it from
 /// `counterexample.trace`. `null` when a value has no JSON form or the
 /// verdict has no ending the format names.
+#[allow(
+    clippy::too_many_lines,
+    reason = "one document literal for every checking ending"
+)]
 fn trace_doc(
     r: &dive_runtime::CheckResult,
     recorded: &[dive_runtime::TraceState],
@@ -2243,6 +2248,7 @@ fn trace_doc(
         source: dive_trace::Source::Dive,
         properties: Vec::new(),
         concrete_closure: false,
+        witnesses: Vec::new(),
     };
     Ok(doc.to_json())
 }

@@ -2039,6 +2039,228 @@
           }
         ]
       }
+    },
+    "pressure": {
+      "method": "Same exclusive r7i.8xlarge and binaries/inputs as resident_rows. 16 physical cores 0-15, 10 GiB cgroup with no swap. Each process had a 6 GiB sampled budget; observed peaks can exceed it before a safe boundary. Baseline then packed within each model, single run per arm.",
+      "command": "taskset -c 0-15 BINARY check MODULE --config CFG --library-path modules --workers 16 --compat=tlc --seed 0 --fp 0 --max-states N --max-memory 6g --time-limit 1500s --output json",
+      "state_limits": {
+        "slate": 100000000,
+        "synod": 300000000,
+        "bpcon": 60000000,
+        "sailfish": 20000000
+      },
+      "rows": [
+        {
+          "trial": "bpcon-base",
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 4,
+            "distinct": 25089035,
+            "exhaustive": false,
+            "generated": 49817272,
+            "initial_generated": 1,
+            "left_on_queue": 25067777,
+            "reported_by_tlc": false
+          },
+          "seconds": 59.0,
+          "peak_rss_kib": 6625072,
+          "stop": {
+            "limit": 6442450944,
+            "observed": 6697021440,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        },
+        {
+          "trial": "bpcon-packed",
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 4,
+            "distinct": 33560338,
+            "exhaustive": false,
+            "generated": 66612222,
+            "initial_generated": 1,
+            "left_on_queue": 33531915,
+            "reported_by_tlc": false
+          },
+          "seconds": 78.6,
+          "peak_rss_kib": 6299088,
+          "stop": {
+            "limit": 6442450944,
+            "observed": 6450761728,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        },
+        {
+          "trial": "sailfish-base",
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 15,
+            "distinct": 13991908,
+            "exhaustive": false,
+            "generated": 27260349,
+            "initial_generated": 1,
+            "left_on_queue": 11460515,
+            "reported_by_tlc": false
+          },
+          "seconds": 431.35,
+          "peak_rss_kib": 6293424,
+          "stop": {
+            "limit": 6442450944,
+            "observed": 6445568000,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        },
+        {
+          "trial": "sailfish-packed",
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 15,
+            "distinct": 14414379,
+            "exhaustive": false,
+            "generated": 28153011,
+            "initial_generated": 1,
+            "left_on_queue": 11811305,
+            "reported_by_tlc": false
+          },
+          "seconds": 444.44,
+          "peak_rss_kib": 6290144,
+          "stop": {
+            "limit": 6442450944,
+            "observed": 6443184128,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        },
+        {
+          "trial": "slate-base",
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 55,
+            "distinct": 94702286,
+            "exhaustive": false,
+            "generated": 342987922,
+            "initial_generated": 1,
+            "left_on_queue": 15196708,
+            "reported_by_tlc": false
+          },
+          "seconds": 292.46,
+          "peak_rss_kib": 7897300,
+          "stop": {
+            "limit": 6442450944,
+            "observed": 6500671488,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        },
+        {
+          "trial": "slate-packed",
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 56,
+            "distinct": 100000000,
+            "exhaustive": false,
+            "generated": 362779396,
+            "initial_generated": 1,
+            "left_on_queue": 15988974,
+            "reported_by_tlc": false
+          },
+          "seconds": 293.45,
+          "peak_rss_kib": 2942896,
+          "stop": {
+            "limit": 100000000,
+            "observed": 100000001,
+            "phase": "safety-search",
+            "resource": "states",
+            "unit": "states"
+          }
+        },
+        {
+          "trial": "synod-base",
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 26,
+            "distinct": 100884308,
+            "exhaustive": false,
+            "generated": 1338927178,
+            "initial_generated": 8,
+            "left_on_queue": 27104498,
+            "reported_by_tlc": false
+          },
+          "seconds": 1177.06,
+          "peak_rss_kib": 6297192,
+          "stop": {
+            "limit": 6442450944,
+            "observed": 6451286016,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        },
+        {
+          "trial": "synod-packed",
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 27,
+            "distinct": 124170333,
+            "exhaustive": false,
+            "generated": 1668716995,
+            "initial_generated": 8,
+            "left_on_queue": 32488796,
+            "reported_by_tlc": false
+          },
+          "seconds": 1500.14,
+          "peak_rss_kib": 4767748,
+          "stop": {
+            "limit": 1500000,
+            "observed": 1500031,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          }
+        }
+      ],
+      "extended_original": {
+        "model": "SlateDBWAL, original module and cfg, row-packed binary, same host and 16 physical cores as pressure runs",
+        "state_limit": 500000000,
+        "memory_limit_bytes": 6442450944,
+        "time_limit_seconds": 3000,
+        "verdict": "stopped",
+        "exit_code": 5,
+        "statistics": {
+          "depth": 60,
+          "distinct": 201344793,
+          "exhaustive": false,
+          "generated": 749768207,
+          "initial_generated": 1,
+          "left_on_queue": 30670132,
+          "reported_by_tlc": false
+        },
+        "seconds": 604.66,
+        "peak_rss_kib": 6311816,
+        "stop": {
+          "limit": 6442450944,
+          "observed": 6465093632,
+          "phase": "safety-search",
+          "resource": "memory",
+          "unit": "bytes"
+        }
+      }
     }
   },
   "resident_discovery_ids": {

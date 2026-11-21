@@ -26,6 +26,30 @@ pub const UNLIMITED_TRACES: u64 = u64::MAX;
 /// [`Options::keep_traces`] that keeps every trace.
 pub const KEEP_ALL_TRACES: u64 = u64::MAX;
 
+/// How simulation treats a set Init or Next would have to enumerate but
+/// cannot because it is infinite (`Nat`, `Int`, `Seq(S)`, D-040).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SampleUnbounded {
+    /// TLC's behavior: the run ends with GENERAL 1000, "not enumerable".
+    Off,
+    /// Draw one member per binding: `Nat` geometric with this mean, `Int` a
+    /// geometric magnitude with a uniform sign, `Seq(S)` a geometric length
+    /// with members drawn from `S`, tuples, records and functions over
+    /// finite domains component by component.
+    Geometric {
+        /// The mean of the geometric distribution, from 1 to 65,536.
+        mean: u64,
+    },
+}
+
+/// The default mean of [`SampleUnbounded::Geometric`].
+pub const DEFAULT_SAMPLE_MEAN: u64 = 8;
+
+/// Times a step (or Init) whose draws from unbounded sets led to no admitted
+/// state is drawn again before its trace ends, counted in
+/// [`Report::traces_stalled`]. A step that drew is never a deadlock.
+pub const SAMPLE_ATTEMPTS: u64 = 8;
+
 /// A simulation request.
 ///
 /// Trace `id` is sampled from its own stream, so its states, its generated
@@ -74,6 +98,13 @@ pub struct Options {
     /// is never enumerated, so an initial state that violates an invariant is
     /// found only if a trace constructs it.
     pub constructive_init: bool,
+    /// Sets Init or Next cannot enumerate because they are infinite: drawn
+    /// from a stated distribution, or TLC's GENERAL 1000 error. Draws come
+    /// from a stream keyed by the trace, step, action and attempt, so they
+    /// are reproducible at any worker count. A step whose draws lead to no
+    /// admitted state is drawn again a few times, then ends the trace
+    /// without a deadlock claim ([`Report::traces_stalled`]).
+    pub sample_unbounded: SampleUnbounded,
     /// Maximum retained runtime Print/PrintT events (startup output is separate).
     pub max_output_events: usize,
     /// Maximum UTF-8 bytes retained in runtime Print/PrintT text. This does not
@@ -100,6 +131,14 @@ impl Options {
             action_stats: false,
             generation: false,
             constructive_init: false,
+            // The default profile samples unbounded sets (owner ruling,
+            // 2026-11-20); TLC's seeding keeps TLC's error.
+            sample_unbounded: match mode {
+                RandomMode::Dive => SampleUnbounded::Geometric {
+                    mean: DEFAULT_SAMPLE_MEAN,
+                },
+                RandomMode::Tlc => SampleUnbounded::Off,
+            },
             max_output_events: 100_000,
             max_output_bytes: 16 * 1024 * 1024,
         }
@@ -121,6 +160,10 @@ pub struct Trace {
     /// States this trace generated: its successor candidates, and under
     /// constructive Init its initial candidates.
     pub generated: u64,
+    /// Members drawn from unbounded sets for the existentials of the step
+    /// into a state, as (state index, members), for the states that have
+    /// any. The validator uses them only to prove those existentials.
+    pub witnesses: Vec<(usize, Vec<dive_value::Value>)>,
 }
 
 /// The result of a simulation; a sample never proves absence of violations.
@@ -192,6 +235,12 @@ pub struct Report {
     /// Actual backend output, separate from binding and independent replay.
     /// Warning events preserve their existing distinction from Print events.
     pub runtime_output: Vec<dive_eval::capture::Captured>,
+    /// Every unbounded set the committed traces drew from, with the action
+    /// that drew (`Nat in Next (line 6, ...)`), sorted.
+    pub sampled_sets: Vec<String>,
+    /// Committed traces that ended early because no drawn member of an
+    /// unbounded set led to an admitted state; none is a deadlock claim.
+    pub traces_stalled: u64,
 }
 
 /// Owns one simulation's host from source binding through execution.
@@ -274,6 +323,8 @@ fn refused_runtime(reason: &str) -> Report {
         traces: Vec::new(),
         action_flow: None,
         runtime_output: Vec::new(),
+        sampled_sets: Vec::new(),
+        traces_stalled: 0,
     }
 }
 
@@ -294,6 +345,8 @@ fn with_host(
             traces: Vec::new(),
             action_flow: None,
             runtime_output: Vec::new(),
+            sampled_sets: Vec::new(),
+            traces_stalled: 0,
         };
     }
     // Declared before HostRestore so reverse drop order restores the original
@@ -311,6 +364,8 @@ fn with_host(
             traces: Vec::new(),
             action_flow: None,
             runtime_output: Vec::new(),
+            sampled_sets: Vec::new(),
+            traces_stalled: 0,
         };
     };
     let _restore = host::HostRestore::install(&model.evaluator, host);

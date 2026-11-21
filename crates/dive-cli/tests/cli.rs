@@ -41,6 +41,45 @@ fn check_and_tlc_expose_search_caps_as_stopped_not_success() {
     }
 }
 
+/// The guide's unbounded-sets example (D-040): sampled and validated by
+/// default, `--sample-mean` changes the stated mean, and `off` or
+/// `--compat=tlc` is TLC's GENERAL 1000 error.
+#[test]
+fn simulation_samples_unbounded_sets_unless_turned_off() {
+    let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../docs/user/examples/Unbounded.tla");
+    let file = file.to_string_lossy();
+    let run = |extra: &[&str]| {
+        let mut args = vec![
+            "simulate", &file, "--traces", "5", "--depth", "10", "--seed", "1",
+        ];
+        args.extend_from_slice(extra);
+        args.extend_from_slice(&["--output", "json"]);
+        let output = dive(&args);
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        (output.status.code(), report)
+    };
+    let (code, report) = run(&[]);
+    assert_eq!(code, Some(0), "{report}");
+    assert_eq!(report["result"], "sampled");
+    assert_eq!(report["options"]["sample_unbounded"], "geometric");
+    for trace in report["traces"].as_array().map_or(&[][..], Vec::as_slice) {
+        assert_eq!(trace["validation"]["result"], "valid", "{trace}");
+    }
+    let (code, report) = run(&["--sample-mean", "3"]);
+    assert_eq!(code, Some(0), "{report}");
+    assert_eq!(report["options"]["sample_mean"], 3);
+    for extra in [&["--sample-unbounded", "off"][..], &["--compat=tlc"][..]] {
+        let (_, report) = run(extra);
+        assert_eq!(report["result"], "evaluation-error", "{extra:?}: {report}");
+        assert_eq!(report["tlc_code"], 1000);
+    }
+    let (code, _) = run(&["--sample-unbounded", "off", "--sample-mean", "3"]);
+    assert_eq!(code, Some(2));
+    let (code, _) = run(&["--sample-mean", "0"]);
+    assert_eq!(code, Some(2));
+}
+
 #[test]
 fn diagnostic_explanations_are_informational_and_versioned() {
     for code in ["DIVE-L0020", "DIVE-S0011", "DIVE-S0033"] {

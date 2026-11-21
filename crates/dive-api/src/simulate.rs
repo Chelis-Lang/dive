@@ -58,6 +58,12 @@ pub struct SimulateRequest {
     /// starts at once, but an initial state that violates an invariant is
     /// found only if a trace constructs it.
     pub constructive_init: bool,
+    /// Sets Init or Next would enumerate but cannot because they are
+    /// infinite (`Nat`, `Int`, `Seq(S)`, D-040). `None` selects the profile's
+    /// default: geometric with mean [`crate::DEFAULT_SAMPLE_MEAN`] in dive's
+    /// profile, [`crate::SampleUnbounded::Off`] (TLC's GENERAL 1000 error)
+    /// under `compat_tlc`.
+    pub sample_unbounded: Option<crate::SampleUnbounded>,
     /// Stop after this many generated states, counted in trace order.
     /// `None` leaves the run to its time and memory budgets.
     pub max_generated: Option<u64>,
@@ -308,6 +314,13 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         constructive_init: req.constructive_init,
         workers,
         keep_traces: req.keep_traces.unwrap_or(10),
+        sample_unbounded: req.sample_unbounded.unwrap_or(if req.compat_tlc {
+            crate::SampleUnbounded::Off
+        } else {
+            crate::SampleUnbounded::Geometric {
+                mean: crate::DEFAULT_SAMPLE_MEAN,
+            }
+        }),
         max_generated: req.max_generated.unwrap_or(u64::MAX),
         aril: if req.compat_tlc && req.seed.is_none() {
             0
@@ -494,6 +507,23 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         let mut document = TraceDoc::behavior(states)
             .map_err(|message| crate::ApiError::Rejected { message })?
             .with_ending(ending);
+        // Members drawn for the existentials of a step, which the validator
+        // may use to prove them (D-040).
+        for (state, members) in &trace.witnesses {
+            let members: Result<Vec<_>, _> = members
+                .iter()
+                .map(|value| {
+                    dive_trace::value_json::to_json(value, model.model().evaluator.options().ctx)
+                })
+                .collect();
+            match members {
+                Ok(members) => document = document.with_witnesses(*state, members),
+                Err(feature) => {
+                    trace_refusal = Some(format!("simulation witness serialization: {feature}"));
+                    break 'documents;
+                }
+            }
+        }
         // The step into state `k + 1` is labelled with the action the sampler
         // chose; the validator checks each label's definition on its step.
         for (step, &action) in trace.actions.iter().enumerate() {
@@ -671,10 +701,19 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "mode": "finite-safety", "probabilistic": req.generation,
             "algorithm": if req.generation { "constructive" } else { "enumerating" },
             "initial_states": if req.constructive_init { "constructed" } else { "enumerated" },
+            "sample_unbounded": match options.sample_unbounded {
+                crate::SampleUnbounded::Off => json!("off"),
+                crate::SampleUnbounded::Geometric { .. } => json!("geometric"),
+            },
+            "sample_mean": match options.sample_unbounded {
+                crate::SampleUnbounded::Off => Value::Null,
+                crate::SampleUnbounded::Geometric { mean } => json!(mean),
+            },
             "action_stats": req.action_stats,
             "max_output_events": options.max_output_events, "max_output_bytes": options.max_output_bytes },
         "statistics": { "generated": result.generated, "initial_candidates": result.initial_candidates, "traces_started": result.traces_started,
             "traces_kept": traces.len(), "traces_dropped": 0,
+            "traces_stalled": result.traces_stalled, "sampled_sets": result.sampled_sets,
             "scope": if matches!(result.outcome, Outcome::Sampled) { "complete-request" } else { "completed-prefix" } },
         "traces": [], "action_flow": action_flow,
         "runtime_output": result.runtime_output.iter().map(|event| json!({
@@ -704,6 +743,21 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
     .into_iter()
     .flatten()
     .collect();
+    if let (crate::SampleUnbounded::Geometric { mean }, false) =
+        (options.sample_unbounded, result.sampled_sets.is_empty())
+    {
+        notes.push(format!(
+            "Unbounded sets were sampled (D-040), not enumerated: Nat geometric with mean {mean} (P(k) = p(1-p)^k, p = 1/{}), Int a geometric magnitude with a uniform sign, Seq(S) a geometric length with elements drawn from S, finite sets uniformly; seed {seed}. Sets sampled: {}. Values not drawn were not checked.",
+            mean + 1,
+            result.sampled_sets.join("; ")
+        ));
+    }
+    if result.traces_stalled > 0 {
+        notes.push(format!(
+            "{} trace(s) ended early: no member drawn from an unbounded set led to an admitted state after {} attempts. This is not a deadlock.",
+            result.traces_stalled, dive_sim::SAMPLE_ATTEMPTS
+        ));
+    }
     if !declared.is_empty() {
         notes.push(format!(
             "{} {} not affect simulation, which never deduplicates states.",

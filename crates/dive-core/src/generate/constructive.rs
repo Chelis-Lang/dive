@@ -179,10 +179,47 @@ impl Machine {
         acts: u32,
         sink: &mut dyn Sink,
     ) -> Result<(), Error> {
+        let path = self.path_mark();
+        let result = self.generation_exists_inner(code, binds, body, acts, sink);
+        self.path_reset(path);
+        result
+    }
+
+    fn generation_exists_inner(
+        &mut self,
+        code: &Code,
+        binds: &[Bind],
+        body: G,
+        acts: u32,
+        sink: &mut dyn Sink,
+    ) -> Result<(), Error> {
         let mut units = Vec::new();
         // All source domains are admitted before emptiness/choice traversal.
         for (index, bind) in binds.iter().enumerate() {
             let value = self.eval(code, bind.domain)?;
+            if value.is_compound()
+                && self.heap.view(value).kind.is_set()
+                && !self.heap.is_finite(value)
+            {
+                // Simulation draws one member per bound variable; without a
+                // sampler this is TLC's "not enumerable" error.
+                let vars = if bind.tuple { 1 } else { bind.slots.len() };
+                for var in 0..vars {
+                    let Some(member) = self.sampled_witness(value)? else {
+                        return Err(Error::eval("attempted to enumerate an infinite set"));
+                    };
+                    let mut one = vec![member];
+                    let set = self.heap.set_from(&mut one);
+                    units.push((
+                        Unit {
+                            bind: index,
+                            var: (!bind.tuple).then_some(var),
+                        },
+                        Domain::Stored { set, len: 1 },
+                    ));
+                }
+                continue;
+            }
             let domain = self.generation_domain(value)?;
             if bind.tuple {
                 units.push((

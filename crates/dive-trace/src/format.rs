@@ -33,6 +33,7 @@
 //!   | `stuttering` | | the behavior stutters forever after the last state |
 //!   | `assertion`, `error` | `ec` (`error`, optional) | expanding the last state fails |
 //!   | `invariant-error` | `name`, `ec` | evaluating the named invariant on the last state raises the given underlying error |
+//!   | `bad-prefix` | `name` | every infinite extension of the trace violates the named temporal property (a finite refutation) |
 //!
 //! The format version is the lowest one that can express the document:
 //!
@@ -44,8 +45,9 @@
 //! | 4 | ordered errors on the candidate side of a step |
 //! | 5 | errors in temporal-source rows after `Next` |
 //! | 6 | errors in a source-final `VIEW` evaluation |
+//! | 7 | the `bad-prefix` ending |
 //!
-//! Readers accept all six versions and reject a version-1 document that uses
+//! Readers accept all seven versions and reject a version-1 document that uses
 //! the `invariant-error` ending. Unknown versions and ending kinds are
 //! rejected, never guessed.
 //!
@@ -98,6 +100,9 @@ pub const TEMPORAL_SOURCE_ERROR_VERSION: u64 = 5;
 /// Version for a source-final VIEW demand with independently reconstructed keys.
 pub const VIEW_SOURCE_ERROR_VERSION: u64 = 6;
 
+/// Version for a finite refutation of a temporal property (`bad-prefix`).
+pub const BAD_PREFIX_VERSION: u64 = 7;
+
 /// What a trace claims about its end.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
@@ -119,6 +124,11 @@ pub enum Ending {
     },
     /// A liveness counterexample that stutters after the last state.
     Stuttering,
+    /// A finite refutation of the named configured temporal property: no
+    /// infinite extension of the trace satisfies it, so every behavior that
+    /// starts with these states violates it. Every state and step must also
+    /// pass the safety checks, as for an invariant ending.
+    BadPrefix(String),
     /// An assertion fails while the last state is expanded.
     Assertion,
     /// An evaluation error while the last state is expanded.
@@ -196,6 +206,7 @@ impl Ending {
             Self::Behavior => json!({"kind": "behavior"}),
             Self::Lasso { back_to } => json!({"kind": "lasso", "back_to": back_to}),
             Self::Stuttering => json!({"kind": "stuttering"}),
+            Self::BadPrefix(n) => json!({"kind": "bad-prefix", "name": n}),
             Self::Assertion => json!({"kind": "assertion"}),
             Self::Error { ec } => json!({"kind": "error", "ec": ec}),
             Self::InvariantError { name, ec } => {
@@ -328,6 +339,7 @@ impl Ending {
                     .ok_or("a `lasso` ending needs `back_to`")?,
             },
             "stuttering" => Self::Stuttering,
+            "bad-prefix" => Self::BadPrefix(name()?),
             "assertion" => Self::Assertion,
             "error" => Self::Error {
                 ec: j.get("ec").and_then(J::as_str).map(str::to_owned),
@@ -373,8 +385,8 @@ impl Ending {
     }
 
     /// Parses the command-line form: `invariant:NAME`, `property:NAME`,
-    /// `deadlock`, `behavior`, `lasso:K`, `stuttering`, `assertion`,
-    /// `error[:EC]`.
+    /// `deadlock`, `behavior`, `lasso:K`, `stuttering`, `bad-prefix:NAME`,
+    /// `assertion`, `error[:EC]`.
     ///
     /// # Errors
     /// For anything else.
@@ -443,6 +455,70 @@ pub struct TraceDoc {
     /// the concrete states, and only then admits a periodic word under `VIEW`
     /// or `SYMMETRY`. Readers that ignore it keep refusing such words.
     pub concrete_closure: bool,
+    /// Members simulation drew for the existentials of the step into each
+    /// state (`"witnesses"` on a state, D-040), in dive's JSON form: empty,
+    /// or one list per state. They carry no trust: the validator tries them
+    /// only to prove a `\E` over an infinite set true, after checking each is
+    /// a member of the set; with none that proves it, the `\E` stays
+    /// unsupported.
+    pub witnesses: Vec<Vec<J>>,
+}
+
+/// Each state's `"witnesses"`: empty when no state has any.
+fn state_witnesses(states: &[J]) -> Result<Vec<Vec<J>>, String> {
+    let mut witnesses = Vec::new();
+    for (k, s) in states.iter().enumerate() {
+        match s.get("witnesses") {
+            None | Some(J::Null) => {}
+            Some(J::Array(values)) => {
+                witnesses.resize(states.len(), Vec::new());
+                witnesses[k].clone_from(values);
+            }
+            Some(_) => return Err(format!("state {k}: `witnesses` must be a list")),
+        }
+    }
+    Ok(witnesses)
+}
+
+/// Checks that a document's ending is one its version permits.
+fn check_ending_version(version: Option<u64>, ending: Option<&Ending>) -> Result<(), String> {
+    if version == Some(VERSION) && matches!(ending, Some(Ending::InvariantError { .. })) {
+        return Err("`invariant-error` requires dive-trace version 2".to_owned());
+    }
+    if matches!(
+        ending,
+        Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
+    ) && version != Some(PARTIAL_STATE_VERSION)
+    {
+        return Err("a partial terminal candidate requires dive-trace version 3".into());
+    }
+    if version == Some(PARTIAL_STATE_VERSION)
+        && !matches!(
+            ending,
+            Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
+        )
+    {
+        return Err("dive-trace version 3 requires a partial terminal candidate".into());
+    }
+    if matches!(ending, Some(Ending::CandidateStateError { .. }))
+        != (version == Some(CANDIDATE_ERROR_VERSION))
+    {
+        return Err("an ordered candidate error requires exactly dive-trace version 4".into());
+    }
+    if matches!(ending, Some(Ending::ViewSourceError { .. }))
+        != (version == Some(VIEW_SOURCE_ERROR_VERSION))
+    {
+        return Err("a VIEW source error requires exactly dive-trace version 6".into());
+    }
+    if matches!(ending, Some(Ending::TemporalSourceError { .. }))
+        != (version == Some(TEMPORAL_SOURCE_ERROR_VERSION))
+    {
+        return Err("a temporal source-row error requires exactly dive-trace version 5".into());
+    }
+    if matches!(ending, Some(Ending::BadPrefix(_))) != (version == Some(BAD_PREFIX_VERSION)) {
+        return Err("a bad-prefix ending requires exactly dive-trace version 7".into());
+    }
+    Ok(())
 }
 
 impl TraceDoc {
@@ -483,6 +559,7 @@ impl TraceDoc {
             source: Source::Dive,
             properties: Vec::new(),
             concrete_closure: false,
+            witnesses: Vec::new(),
         })
     }
 
@@ -490,6 +567,17 @@ impl TraceDoc {
     #[must_use]
     pub fn with_ending(mut self, ending: Ending) -> Self {
         self.ending = Some(ending);
+        self
+    }
+
+    /// Records `values` as witnesses of the existentials of the step into
+    /// state `state` ([`Self::witnesses`]). Out of range does nothing.
+    #[must_use]
+    pub fn with_witnesses(mut self, state: usize, values: Vec<J>) -> Self {
+        if state < self.states.len() && !values.is_empty() {
+            self.witnesses.resize(self.states.len(), Vec::new());
+            self.witnesses[state] = values;
+        }
         self
     }
 
@@ -596,10 +684,11 @@ impl TraceDoc {
                     | CANDIDATE_ERROR_VERSION
                     | TEMPORAL_SOURCE_ERROR_VERSION
                     | VIEW_SOURCE_ERROR_VERSION
+                    | BAD_PREFIX_VERSION
             )
         ) {
             return Err(format!(
-                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION}, {INVARIANT_ERROR_VERSION}, {PARTIAL_STATE_VERSION}, {CANDIDATE_ERROR_VERSION}, {TEMPORAL_SOURCE_ERROR_VERSION} and {VIEW_SOURCE_ERROR_VERSION}"
+                "unsupported {FORMAT} version {version:?}; this build reads versions {VERSION}, {INVARIANT_ERROR_VERSION}, {PARTIAL_STATE_VERSION}, {CANDIDATE_ERROR_VERSION}, {TEMPORAL_SOURCE_ERROR_VERSION}, {VIEW_SOURCE_ERROR_VERSION} and {BAD_PREFIX_VERSION}"
             ));
         }
         let variables = strings(j.get("variables")).ok_or("`variables` must be a list of names")?;
@@ -609,6 +698,7 @@ impl TraceDoc {
             .ok_or("`states` must be a list")?;
         let mut states = Vec::with_capacity(states_j.len());
         let mut labels = Vec::with_capacity(states_j.len());
+        let witnesses = state_witnesses(states_j)?;
         for (k, s) in states_j.iter().enumerate() {
             let values = s
                 .get("values")
@@ -631,39 +721,7 @@ impl TraceDoc {
             None | Some(J::Null) => None,
             Some(e) => Some(Ending::from_json(e)?),
         };
-        if version == Some(VERSION) && matches!(ending, Some(Ending::InvariantError { .. })) {
-            return Err("`invariant-error` requires dive-trace version 2".to_owned());
-        }
-        if matches!(
-            ending,
-            Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
-        ) && version != Some(PARTIAL_STATE_VERSION)
-        {
-            return Err("a partial terminal candidate requires dive-trace version 3".into());
-        }
-        if version == Some(PARTIAL_STATE_VERSION)
-            && !matches!(
-                ending,
-                Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
-            )
-        {
-            return Err("dive-trace version 3 requires a partial terminal candidate".into());
-        }
-        if matches!(ending, Some(Ending::CandidateStateError { .. }))
-            != (version == Some(CANDIDATE_ERROR_VERSION))
-        {
-            return Err("an ordered candidate error requires exactly dive-trace version 4".into());
-        }
-        if matches!(ending, Some(Ending::ViewSourceError { .. }))
-            != (version == Some(VIEW_SOURCE_ERROR_VERSION))
-        {
-            return Err("a VIEW source error requires exactly dive-trace version 6".into());
-        }
-        if matches!(ending, Some(Ending::TemporalSourceError { .. }))
-            != (version == Some(TEMPORAL_SOURCE_ERROR_VERSION))
-        {
-            return Err("a temporal source-row error requires exactly dive-trace version 5".into());
-        }
+        check_ending_version(version, ending.as_ref())?;
         let length = match j.get("length") {
             None | Some(J::Null) => None,
             Some(l) => Some(
@@ -681,6 +739,7 @@ impl TraceDoc {
             source: Source::Dive,
             properties: property_names(j)?,
             concrete_closure: closure_claim(j)?,
+            witnesses,
         })
     }
 
@@ -785,6 +844,7 @@ impl TraceDoc {
             source: Source::Tlc,
             properties: Vec::new(),
             concrete_closure: false,
+            witnesses: Vec::new(),
         })
     }
 
@@ -796,11 +856,16 @@ impl TraceDoc {
             .states
             .iter()
             .zip(&self.labels)
-            .map(|(s, l)| {
-                json!({
+            .enumerate()
+            .map(|(k, (s, l))| {
+                let mut state = json!({
                     "action": l.as_ref().map(|l| json!({"name": l.name, "location": l.location})),
                     "values": s,
-                })
+                });
+                if let Some(values) = self.witnesses.get(k).filter(|values| !values.is_empty()) {
+                    state["witnesses"] = J::Array(values.clone());
+                }
+                state
             })
             .collect();
         let version = if matches!(
@@ -816,6 +881,8 @@ impl TraceDoc {
             TEMPORAL_SOURCE_ERROR_VERSION
         } else if matches!(self.ending, Some(Ending::InvariantError { .. })) {
             INVARIANT_ERROR_VERSION
+        } else if matches!(self.ending, Some(Ending::BadPrefix(_))) {
+            BAD_PREFIX_VERSION
         } else {
             VERSION
         };
@@ -906,6 +973,22 @@ mod tests {
     }
 
     #[test]
+    fn bad_prefix_round_trips_only_as_version_seven() -> Result<(), String> {
+        let d = TraceDoc::behavior(vec![json!({"x": 0})])?
+            .with_ending(Ending::BadPrefix("Safe".into()));
+        let j = d.to_json();
+        assert_eq!(j["version"], BAD_PREFIX_VERSION);
+        assert_eq!(TraceDoc::from_json(&j)?, d);
+        let mut old = j.clone();
+        old["version"] = J::from(VERSION);
+        assert!(TraceDoc::from_json(&old).is_err());
+        let mut other = TraceDoc::behavior(vec![json!({"x": 0})])?.to_json();
+        other["version"] = J::from(BAD_PREFIX_VERSION);
+        assert!(TraceDoc::from_json(&other).is_err());
+        Ok(())
+    }
+
+    #[test]
     fn parses_command_line_endings() -> Result<(), String> {
         assert_eq!(
             Ending::parse("invariant:Inv")?,
@@ -913,6 +996,10 @@ mod tests {
         );
         assert_eq!(Ending::parse("deadlock")?, Ending::Deadlock);
         assert_eq!(Ending::parse("lasso:2")?, Ending::Lasso { back_to: 2 });
+        assert_eq!(
+            Ending::parse("bad-prefix:Safe")?,
+            Ending::BadPrefix("Safe".into())
+        );
         assert!(Ending::parse("invariant").is_err());
         assert!(Ending::parse("nonsense").is_err());
         Ok(())

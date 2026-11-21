@@ -277,6 +277,8 @@ Core retains one action ID per edge so it can distinguish named transitions duri
 
 Both binaries already used narrow successor ordinals. The two rotations per binary agreed on every search counter within each model. Under the same 2 GiB sampled process limit, c1cs reached 2,644,879 distinct and 56,343,707 generated before, and 3,130,942 distinct and 65,470,460 generated after. Both stopped with a nonempty queue. The configuration with more transitions per state sees the bigger gain because each retained edge saves seven bytes. [Individual readings, terminal statistics, machine and hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+At the 20 GiB sampled limit, the final action-label binary reached **38,066,281 distinct states** on c1cs. It generated 863,440,173 states and stopped at depth 18 with 22,309,692 queued. The earlier narrow-ordinal binary reached 23,794,977 distinct on the same instance type and core count. This 60% capacity gain still leaves the published model open. [20 GiB commands, full stop details and memory accounting](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json).
+
 The native graph also stores original row IDs in blocks of 256 physical edges.
 A block initially uses the representative row of each destination. On the first
 edge whose persistent original differs, Core records explicit IDs for that
@@ -353,6 +355,8 @@ Each ordinary resident level also has consecutive predecessor IDs in admission o
 | MC_HDiskSynod, 3,000,000 distinct | 202 / 180 | 44.99 / 44.87 |
 
 Both builds used the same compressed frontier rows and reached identical search counters. The predecessor log still retains the parent and successor ordinal used to regenerate a concrete trace. Checkpoint recovery retains explicit IDs. [All 12 measurements](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
+
+At a **6 GiB sampled process budget**, the packed queue raised BPConProof's memory stop from 25,089,035 to 33,560,338 distinct states (34%) and TLCSailfish2's from 13,991,908 to 14,414,379 (3%). DiskSynod stopped on memory at 100,884,308 before packing. After packing it reached 124,170,333 when the 1,500 s budget expired, at 4.55 GiB peak RSS. SlateDBWAL stopped on memory at 94,702,286 before packing. Raising the experiment’s state cap from 100 million to 500 million let the packed run reach the same memory limit at 201,344,793 distinct states (2.13×), 749,768,207 generated and depth 60 in 604.66 s. Its queue still held 30,670,132 states. [All individual measurements and stop reasons](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
 ## High-fanout parallel safety
 
@@ -523,6 +527,14 @@ Both searches used fingerprints with seed and polynomial zero. TLC estimated
 collision probabilities of 0.011 (optimistic) and 0.026 (actual gap).
 The earlier 480-second Core run reached 208,042,815 distinct at depth 88.
 [Commands, pins and individual measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
+#### Resident fingerprint membership
+
+Core partitions the resident visited set into 256 shards. For a large shard, the shard number supplies the high eight bits of each fingerprint. Its home slot supplies low bits, recoverable from the physical slot and a four-bit displacement. Each primary entry stores only the remaining bits and the displacement. A cluster longer than fifteen slots retains additional full keys in an overflow table. The checker can reconstruct every existing fingerprint when a shard grows.
+
+At 402,653,185 distinct synthetic keys, the checker’s membership table took 3.78 GiB peak process RSS, down from 5.93 GiB. The same inserts, duplicates and misses took 93.25 s versus 79.13 s with full-word slots. On ordinary Core the two SlateDB trials at 20 million discoveries averaged 1,182 MiB versus 1,261 MiB and 55.74 versus 55.04 s. DiskSynod at 10 million averaged 419 MiB versus 497 MiB and 90.67 versus 89.46 s. Every paired search agreed on its generated and distinct counts, depth and pending queue. [All trials, stream recipe and input hashes](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
+At 49 billion uniformly distributed fingerprints, a shard would hold about 191.4 million keys. A separate run put exactly 191,406,250 distinct keys into one real shard and looked up every key after all resizes. With four-byte primary slots, final process RSS fell from 2,051 to 1,099 MiB and peak RSS from 3,075 to 1,703 MiB. Wall time was 45.78 and 45.18 s. This exercises the target shard size directly. Whole-model memory also includes the other shards, frontier and predecessor log. [Shard input and process measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
 #### External fingerprint membership
 
