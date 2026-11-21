@@ -529,7 +529,7 @@ fn evaluator_loops_stop_next_even_when_no_successor_is_emitted()
     let file = scratch.0.join("LoopNext.tla");
     std::fs::write(
         &file,
-        "---- MODULE LoopNext ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..31\nNext == /\\ x' = x\n        /\\ (\\A y \\in 1..1000 : \\A z \\in 1..1000 : x+y+z >= 0)\n        /\\ FALSE\n====\n",
+        "---- MODULE LoopNext ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..31\nNext == /\\ x' = x\n        /\\ (\\A y \\in 1..30000 : \\A z \\in 1..1000 : x+y+z >= 0)\n        /\\ FALSE\n====\n",
     )?;
     std::fs::write(scratch.0.join("LoopNext.cfg"), "INIT Init\nNEXT Next\n")?;
     for compat_tlc in [false, true] {
