@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- The [EmergencyCall benchmark](docs/developer/large-models.md#enlarge-the-emergencycall-number-sets) checks four larger source configurations and exports independently validated counterexamples.
+
 - The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.
 
 - [Symbolic safety checking](docs/user/symbolic.md#admission-and-reports) supports finite symmetry groups acting on record contents, nested indices and refined sets, including independent proposer and acceptor permutations.
