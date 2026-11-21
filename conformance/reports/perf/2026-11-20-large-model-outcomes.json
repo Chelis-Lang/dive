@@ -412,6 +412,19 @@
             "resource": "memory",
             "unit": "bytes"
           }
+        },
+        "224": {
+          "setup": "Same host, kernel, inputs, binary and profile as the 24 GiB row.",
+          "workers_used": 16,
+          "memory_limit_gib": 224,
+          "time_limit_s": 30000,
+          "wall_s": 18934.7,
+          "peak_rss_kib": 232868848,
+          "exit": 134,
+          "verdict": null,
+          "statistics": null,
+          "termination": "SIGABRT (6) following allocator failures on multiple threads. Empty stdout. The enclosing service cgroup recorded zero max, oom and oom_kill events after the process exited.",
+          "service_cgroup_limit_bytes": 255550554112
         }
       }
     },
@@ -607,6 +620,33 @@
             "phase": "safety-search",
             "resource": "memory",
             "unit": "bytes"
+          }
+        },
+        "448": {
+          "setup": "Same host, kernel, inputs, binary and profile as the 24 GiB row.",
+          "workers_used": 32,
+          "memory_limit_gib": 448,
+          "time_limit_s": 40000,
+          "wall_s": 40000.73,
+          "peak_rss_kib": 100361844,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 49,
+            "distinct": 4622182205,
+            "exhaustive": false,
+            "generated": 78177895886,
+            "initial_generated": 8,
+            "left_on_queue": 338915759,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 40000177,
+            "limit": 40000000,
+            "observed": 40000027,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
           }
         }
       }
