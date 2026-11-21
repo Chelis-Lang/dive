@@ -82,6 +82,116 @@
       "time": "03min 15s"
     }
   },
+  "resident_exact_hash_index": {
+    "baseline_commit": "55c94185176d7e415b389f13fcf3d6e2066223a1",
+    "sha256": {
+      "prior": "73244fb428c5040fee589b4825c8876a29f8d5006cb97e0a452d628b56d9ddab",
+      "compact": "aa441e38fb26a96b135da52243f53c8ce3c6b63ae60505457ab67c784c7b3376",
+      "phone/EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+      "phone/f3.cfg": "90e80cd05411cd0108ec9f7314345df31b9c72213ce1314f37d3e054c8f2b160",
+      "phone/SliceInitN6V1.tla": "c29ffff23c1dc48d76dfd6c764008c8b3e928b1cf4e10ee1acdfb8da8f5c386c",
+      "phone/SliceInitN6V1.cfg": "8dd34c1ace47c4ff9eb57b69b05ba6d46d4576d218adaaf74cbe0f7565c1f6c2",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+      "spec/OneValue.cfg": "a38c2cd3b7711bfc8dfdec7c0d1900266a66e7ede85cff1ad4c34b5eeb9f6094",
+      "indexmem.patch": "65b95c2ceb7fff8420f9c60b5a7946ccc4d06a29a4281fe4bafbc93e9f098f3b"
+    },
+    "host": {
+      "instance": "r8g.12xlarge",
+      "cpu": "Graviton4 Neoverse-V2",
+      "physical_cores": 48,
+      "process_affinity": "0-23",
+      "kernel": "7.0.0-1018-aws",
+      "region": "us-east-1"
+    },
+    "method": "Independent release executables, same source except the measured index change. Fresh sequential process per trial. GNU time wall seconds and peak RSS in KiB. CARGO_PROFILE_RELEASE_LTO=false; CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16.",
+    "command": "taskset -c 0-23 DIVE check MODULE --config CFG --store exact --compat=tlc --workers 24 --fp 0 --seed 0 --max-memory 300g --time-limit 4600s --output json",
+    "inputs": {
+      "f3": "Unchanged EmergencyCall_Model_auto.tla with released config/f3.cfg.",
+      "prefix": "Extend the original EmergencyCall module. Slice is the conjunction of equalities for the six variables listed below, with values 1,0,0,0,0,0. SliceInit == Init /\\ Slice; INIT SliceInit, NEXT Next, INVARIANTS TypeInvariant SetInvariant Slice. Add --max-states 100000000.",
+      "partition_variables": [
+        "amf_0_normal_attach_accept_include_enl",
+        "amf_1_normal_attach_accept_include_enl",
+        "amf_0_emergency_attach_accept_include_enl",
+        "amf_1_emergency_attach_accept_include_enl",
+        "amf_home_reject_or_allow_unmarked_emergency_request",
+        "amf_roam_reject_or_allow_unmarked_emergency_request"
+      ]
+    },
+    "f3": {
+      "packed_rows": {
+        "wall_seconds": 130.61,
+        "peak_rss_kib": 2252316,
+        "exit_code": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 27,
+          "distinct": 21255936,
+          "generated": 135871232,
+          "initial_generated": 49152,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 21255936,
+        "stop_resource": null
+      },
+      "packed_rows_and_compact_index": {
+        "wall_seconds": 131.97,
+        "peak_rss_kib": 1326924,
+        "exit_code": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 27,
+          "distinct": 21255936,
+          "generated": 135871232,
+          "initial_generated": 49152,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 21255936,
+        "stop_resource": null
+      }
+    },
+    "prefix": {
+      "packed_rows": {
+        "wall_seconds": 337.8,
+        "peak_rss_kib": 9121980,
+        "exit_code": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 9,
+          "distinct": 100000000,
+          "exhaustive": false,
+          "generated": 457202205,
+          "initial_generated": 884736,
+          "left_on_queue": 26800319,
+          "reported_by_tlc": false
+        },
+        "exact_states": 100000000,
+        "stop_resource": "states"
+      },
+      "packed_rows_and_compact_index": {
+        "wall_seconds": 343.22,
+        "peak_rss_kib": 6433440,
+        "exit_code": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 9,
+          "distinct": 100000000,
+          "exhaustive": false,
+          "generated": 457202205,
+          "initial_generated": 884736,
+          "left_on_queue": 26800319,
+          "reported_by_tlc": false
+        },
+        "exact_states": 100000000,
+        "stop_resource": "states"
+      }
+    },
+    "checks": {
+      "unit_and_storage_api": "47 explore tests and storage, frontier and checkpoint API tests passed. Forced full-hash collisions, nonconsecutive discovery IDs and equivalent values exercised both sides of packed-block boundaries.",
+      "small_core": "Paxos, LamportMutex and Bakery-Boulangerie matched pinned TLC at one and four workers. Zero regressions against small-core-dive-w1 on those three entries. Direct exact-store runs used the same candidate binary as the memory measurements."
+    }
+  },
   "cells": {
     "f3-core-8": {
       "generated": 135871232,
