@@ -1,5 +1,7 @@
 //! Opt-in native safety storage. Exact identities are separate from receiver history.
 
+mod identity_rows;
+
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -810,7 +812,8 @@ impl<T: Default> Bucket<T> {
 /// equal keys of distinct states still resolve to distinct discoveries.
 #[derive(Debug, Default)]
 pub(crate) struct Exact {
-    rows: HashMap<u64, Bucket<Vec<Handle>>>,
+    rows: HashMap<u64, Bucket<usize>>,
+    retained: identity_rows::IdentityRows,
     encoded: Option<HashMap<u64, Bucket<Vec<u8>>>>,
     len: usize,
 }
@@ -836,7 +839,7 @@ impl Exact {
         poll: &(dyn Fn() -> bool + Sync),
     ) -> Result<Option<u64>, Error> {
         let Some(encoded) = &self.encoded else {
-            return Ok(self.lookup(key, row, heap));
+            return self.lookup(key, row, heap);
         };
         let bytes = detached_key(heap, row, poll)?;
         Ok(encoded.get(&key).and_then(|bucket| {
@@ -898,7 +901,9 @@ impl Exact {
         let Some(rows) = self.rows.get(&key) else {
             return Ok(false);
         };
-        for (row, _) in rows.rows() {
+        let mut scratch = Vec::new();
+        for &(position, _) in rows.rows() {
+            let row = self.retained.read(position, &mut scratch)?;
             let encoded =
                 dive_core::key::canonical(heap, row, limit, &|| !poll()).map_err(|error| {
                     if error == dive_core::key::KeyError::Interrupted {
@@ -918,16 +923,20 @@ impl Exact {
     }
 
     /// The discovery id of `row`, when it is present.
-    pub(crate) fn lookup(&self, key: u64, row: &[Handle], heap: &Heap) -> Option<u64> {
-        self.rows.get(&key).and_then(|bucket| {
-            bucket
-                .rows()
-                .iter()
-                .find(|(kept, _)| {
-                    kept.len() == row.len() && kept.iter().zip(row).all(|(&a, &b)| heap.eq(a, b))
-                })
-                .map(|&(_, id)| id)
-        })
+    pub(crate) fn lookup(
+        &self,
+        key: u64,
+        row: &[Handle],
+        heap: &Heap,
+    ) -> Result<Option<u64>, Error> {
+        if let Some(bucket) = self.rows.get(&key) {
+            for &(position, id) in bucket.rows() {
+                if self.retained.matches(position, row, heap)? {
+                    return Ok(Some(id));
+                }
+            }
+        }
+        Ok(None)
     }
 
     /// Inserts `row` with discovery id `id` unless it is present.
@@ -938,18 +947,16 @@ impl Exact {
         heap: &Heap,
         id: u64,
     ) -> Result<Inserted, Error> {
-        if let Some(seen) = self.lookup(key, row, heap) {
+        if let Some(seen) = self.lookup(key, row, heap)? {
             return Ok(Inserted::Seen(Some(seen)));
         }
         self.rows
             .try_reserve(1)
             .map_err(|_| Error::unsupported("exact state index allocation"))?;
-        let mut kept = Vec::new();
-        kept.try_reserve_exact(row.len())
-            .map_err(|_| Error::unsupported("exact state row allocation"))?;
-        kept.extend_from_slice(row);
-        Bucket::add(self.rows.entry(key), (kept, id))
+        let position = self.retained.reserve(row.len())?;
+        Bucket::add(self.rows.entry(key), (position, id))
             .map_err(|_| Error::unsupported("exact state collision bucket allocation"))?;
+        self.retained.push_reserved(row);
         self.len += 1;
         Ok(Inserted::New)
     }
@@ -1293,10 +1300,67 @@ mod tests {
             seen.insert(0, &[b], &heap, 2).unwrap(),
             Inserted::Seen(Some(1))
         );
-        assert_eq!(seen.lookup(0, &[a], &heap), Some(0));
-        assert_eq!(seen.lookup(0, &[b], &heap), Some(1));
-        assert_eq!(seen.lookup(1, &[a], &heap), None);
+        assert_eq!(seen.lookup(0, &[a], &heap).unwrap(), Some(0));
+        assert_eq!(seen.lookup(0, &[b], &heap).unwrap(), Some(1));
+        assert_eq!(seen.lookup(1, &[a], &heap).unwrap(), None);
         assert_eq!(seen.len, 2);
+    }
+
+    #[test]
+    fn exact_collisions_resolve_packed_mixed_and_open_blocks_by_value() {
+        let mut heap = Heap::new(Arc::new(Store::new(false)), true, false);
+        let one = Handle::int(1).unwrap();
+        let tuple = heap.tuple_literal(&[one]);
+        let alias = heap.intern_exact(tuple).unwrap();
+        let function = heap.fcn_sorted(&[one], &[one]);
+        let stored = heap.intern(function).unwrap();
+        assert!(heap.eq(stored, alias));
+        assert_ne!(stored, alias);
+        let mut seen = Exact::default();
+        let mut inputs = Vec::new();
+        for number in 0..513_i64 {
+            let value = Handle::int(number).unwrap();
+            let row = match number {
+                0..=255 => vec![stored, value, one],
+                256 => Vec::new(),
+                257 => vec![one; 257],
+                _ => vec![value],
+            };
+            let id = u64::MAX - u64::try_from(number).unwrap();
+            assert_eq!(seen.insert(0, &row, &heap, id).unwrap(), Inserted::New);
+            inputs.push((row, id));
+        }
+        for (mut row, id) in inputs {
+            if row.len() == 3 {
+                row[0] = alias;
+            }
+            assert_eq!(seen.lookup(0, &row, &heap).unwrap(), Some(id));
+            assert_eq!(
+                seen.insert(0, &row, &heap, 0).unwrap(),
+                Inserted::Seen(Some(id))
+            );
+        }
+        assert_eq!(seen.len(), 513);
+        let bytes = detached_key(&heap, &[stored, one, one], &|| false).unwrap();
+        assert!(
+            seen.contains_encoded(0, &bytes, &heap, usize::MAX, &|| false)
+                .unwrap()
+        );
+        assert!(
+            !seen
+                .contains_encoded(0, &[], &heap, usize::MAX, &|| false)
+                .unwrap()
+        );
+        assert!(
+            seen.contains_encoded(0, &bytes, &heap, 0, &|| false)
+                .is_err()
+        );
+        assert_eq!(
+            seen.contains_encoded(0, &bytes, &heap, usize::MAX, &|| true)
+                .unwrap_err()
+                .kind(),
+            dive_core::ErrorKind::Stop
+        );
     }
 
     #[test]
