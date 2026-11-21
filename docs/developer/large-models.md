@@ -238,11 +238,11 @@ The installed `sail runtime symbolic-check` established six-key KVS reachability
 | Require that at most one active transaction can be conflicted | Fresh search found a depth-eight violation of `AtMostOneConflict`. Its trace passed independent validation. | 0.90 s |
 | Add an action that simultaneously puts every transaction into conflict | The saved predicate failed closure. Fresh search found a depth-two violation of `SomeCommit`. The trace validated on the edited action, failed on the earlier relation and failed after replacing its final state. | 0.75 s |
 
-The saved file retained the same SHA-256 through these calls. For `TxIsClean`, direct `dive check --strategy symbolic --prove-inductive` also succeeded from scratch in 0.30 s. For `SomeCommit`, the saved predicate supplies a stronger fact than the configured invariants. Each result above includes process startup. [All control and replay outcomes](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
+An empty Sail session on the identical six-key `TxIsClean` source and CFG took **4,724.88 s** and peaked at 1,148,804 KiB. It reproduced both counts, depth 51, all three configured invariants and the exact 76,579-byte predicate. The retained check took **0.40 s**, about 11,812× faster than that default empty-session search. For `TxIsClean`, direct `dive check --strategy symbolic --prove-inductive` also succeeded from scratch in 0.30 s. For `SomeCommit`, the saved predicate supplies a stronger fact than the configured invariants. Three paired runs on the identical two-key `SomeCommit` edit took 0.25 s each with a retained predicate and 1.60, 1.55 and 1.55 s with an empty Sail session. Each result above includes process startup. [All control and replay outcomes](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
 
 ### Grow the KVS domains with an inductive invariant
 
-Changing the number of keys, values or transactions prevented the six-key predicate from proving `SomeCommit` on each tested layout. The source explains how to recover. Whenever every slot is open, at least one transaction has missed no writes. The last transaction to open had a clean log. A commit closes its slot, a write leaves `missed` unchanged, and a new transaction again starts clean. Add this strengthening to the model and keep `TypeInvariant`, `TxLifecycle` and `SomeCommit` enabled.
+Changing the number of keys, values or transactions prevented the six-key predicate from proving `SomeCommit` on each tested layout. After shrinking to one key, Sail recovered by searching the new source and replaced the old file with the same predicate produced by an empty session. The source explains how to recover. Whenever every slot is open, at least one transaction has missed no writes. The last transaction to open had a clean log. A commit closes its slot, a write leaves `missed` unchanged, and a new transaction again starts clean. Add this strengthening to the model and keep `TypeInvariant`, `TxLifecycle` and `SomeCommit` enabled.
 
 ```tla
 FullHasFresh == tx = TxId => \E t \in tx : missed[t] = {}
@@ -262,11 +262,13 @@ To reproduce, point `KVS` at the pinned Examples checkout's `specifications/KeyV
 
 ```sh
 python3 scripts/perf/scale/sail_kvs_edits.py "$KVS" edits
-for model in base SomeCommit AbortAll
+for model in base TxIsClean TxIsClean SomeCommit AbortAll
 do
   sail runtime symbolic-check --dive "$DIVE" --session session \
     --module "edits/$model/MCKVS.tla" --config "edits/$model/Model.cfg" --time-limit 9200
 done
+sail runtime symbolic-check --dive "$DIVE" --session fresh-session \
+  --module edits/TxIsClean/MCKVS.tla --config edits/TxIsClean/Model.cfg --time-limit 9200
 python3 scripts/symbolic/kvs_history.py "$KVS" --keys 50 --values 2 --transactions 2
 python3 scripts/perf/scale/sail_kvs_edits.py "$KVS" wide --keys 50 --transactions 2
 "$DIVE" check wide/FullHasFresh/MCKVS.tla --config wide/FullHasFresh/Model.cfg \

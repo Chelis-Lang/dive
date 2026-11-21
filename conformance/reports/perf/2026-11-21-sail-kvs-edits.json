@@ -105,7 +105,31 @@
       "seconds": 0.346924,
       "trace_states": 8,
       "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "fresh_TxIsClean": {
+      "wall_s": 4724.88,
+      "peak_rss_kib": 1148804,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 51,
+      "reachable_bdd_nodes": 5756,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle",
+        "TxIsClean"
+      ],
+      "seconds": 4724.359712,
+      "distinct_decimal": "539910848473937721",
+      "generated_decimal": "21725268712106423230",
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
     }
+  },
+  "six_key_session_comparison": {
+    "same_edited_source": "Both verify and fresh use the exact same MCKVS.tla and TxIsClean.cfg. The latter starts with no saved file. TxIsClean repeats an existing cleanup conjunct.",
+    "retained_vs_empty_session_wall_ratio": 11812.2,
+    "identical_predicate_bytes": true,
+    "empty_session_predicate_bytes": 76579,
+    "count_scope": "Full graph counts, depth and final reachable BDD size come from the empty-session search. The retained call returns only an induction proof."
   },
   "standalone_TxIsClean": {
     "wall_s": 0.3,
@@ -811,6 +835,167 @@
       "seconds": 0.032834,
       "distinct_decimal": "8064",
       "generated_decimal": "88065"
+    }
+  },
+  "strong_source_module_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+  "two_key_same_SomeCommit_edit": {
+    "method": "Separate Sail processes, CPU 6. The shared candidate comes from a completed two-key base run. Fresh sessions start empty every time. Three pairs on exactly the same current input, retained/fresh order reversed in the second pair.",
+    "paired_rows": [
+      {
+        "retained": {
+          "wall_s": 0.25,
+          "peak_rss_kib": 56708,
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "seconds": 0.042939,
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        },
+        "fresh": {
+          "wall_s": 1.6,
+          "peak_rss_kib": 80616,
+          "exit": 0,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle",
+            "SomeCommit"
+          ],
+          "seconds": 1.342263,
+          "distinct_decimal": "582471",
+          "generated_decimal": "9628660",
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        }
+      },
+      {
+        "retained": {
+          "wall_s": 0.25,
+          "peak_rss_kib": 56772,
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "seconds": 0.042879,
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        },
+        "fresh": {
+          "wall_s": 1.55,
+          "peak_rss_kib": 80440,
+          "exit": 0,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle",
+            "SomeCommit"
+          ],
+          "seconds": 1.307834,
+          "distinct_decimal": "582471",
+          "generated_decimal": "9628660",
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        }
+      },
+      {
+        "retained": {
+          "wall_s": 0.25,
+          "peak_rss_kib": 56916,
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "seconds": 0.042638,
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        },
+        "fresh": {
+          "wall_s": 1.55,
+          "peak_rss_kib": 80528,
+          "exit": 0,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle",
+            "SomeCommit"
+          ],
+          "seconds": 1.320363,
+          "distinct_decimal": "582471",
+          "generated_decimal": "9628660",
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        }
+      }
+    ]
+  },
+  "shrink_six_keys_to_one": {
+    "method": "Two separate Sail directories on the one-key SomeCommit source. previous starts with a copy of the six-key predicate; direct verification refuses unknown predicate bit. fresh starts empty. Both completed searches publish the same one-key predicate.",
+    "previous": {
+      "wall_s": 0.55,
+      "peak_rss_kib": 56932,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 15,
+      "reachable_bdd_nodes": 199,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle",
+        "SomeCommit"
+      ],
+      "seconds": 0.054255,
+      "distinct_decimal": "690",
+      "generated_decimal": "7129",
+      "retained_sha256": "65685a85562bfb4ae9938c339da081445580e981abdf805c2354144dd6715b4d"
+    },
+    "fresh": {
+      "wall_s": 0.3,
+      "peak_rss_kib": 56772,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 15,
+      "reachable_bdd_nodes": 199,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle",
+        "SomeCommit"
+      ],
+      "seconds": 0.056041,
+      "distinct_decimal": "690",
+      "generated_decimal": "7129",
+      "retained_sha256": "65685a85562bfb4ae9938c339da081445580e981abdf805c2354144dd6715b4d"
+    }
+  },
+  "transaction_axis_before_startup_and_order_changes": {
+    "method": "Four keys and two values, configured FullHasFresh. Six- and seven-slot symmetric CFGs keep SYMMETRY TxIdSymmetric. Labeled CFGs remove those two lines and keep the original TLA+ definition. The no-unused control also removes the unselected definition. See the separate source-binding record for 12/16-ID baseline and revised exports.",
+    "rows": {
+      "K4V2T6-symmetric": {
+        "wall_s": 1.75,
+        "peak_rss_kib": 122764,
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "seconds": 1.49728
+      },
+      "K4V2T7-symmetric": {
+        "wall_s": 0.25,
+        "peak_rss_kib": 41800,
+        "exit": 2,
+        "verdict": "unsupported",
+        "reason": "Dive frontend: Error: \"BindError { kind: Unsupported { feature: \\\"SYMMETRY TxIdSymmetric: symmetry resource limit: maps\\\" }, message: \\\"unsupported: SYMMETRY TxIdSymmetric: symmetry resource limit: maps\\\" }\""
+      },
+      "K4V2T7-labeled": {
+        "wall_s": 35.04,
+        "peak_rss_kib": 189916,
+        "exit": 4,
+        "verdict": "stopped",
+        "reason": "time limit"
+      },
+      "K4V2T7-no-unused": {
+        "wall_s": 60.04,
+        "peak_rss_kib": 190120,
+        "exit": 4,
+        "verdict": "stopped",
+        "reason": "time limit"
+      }
     }
   }
 }
