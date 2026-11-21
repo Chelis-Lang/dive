@@ -713,5 +713,59 @@
       },
       "detail": "The independent base and candidate validators agreed on every trace, including all 16 named refusals. Width forcing, reached-output refusals, duplicate VIEW identities, Init warnings, disk/checkpoint and timed prefixes were exercised."
     }
+  },
+  "four_server_ordered_workers": {
+    "machine": "Dedicated r7i.16xlarge, us-east-1a, one logical CPU per physical core, swap off. The reference pairs ran on an earlier instance of the same type. Compares whole releases; intervening changes include worker scheduling and allocator updates.",
+    "kernel": "Linux 7.0.0-1018-aws",
+    "source": "fb4c388b9332c3e42c220dfb4cc2c433d2410618",
+    "sha256": {
+      "dive": "e5493e0f13e6dfbe41871f12a0094b6cacefcc064065f75fd9bfff6c91dbd66f",
+      "zab/MCZab.tla": "ec0b34455521a411d03f45b001b7c257bac9c728a003c68e764934d1a9291b49",
+      "zab/Zab.tla": "6ae874bb01eb043ee7581f718407d097e85ec256e281ffc5a9b2198236f602f7",
+      "zab/four-1.cfg": "ae6eaa5bba0c2d10bafb8e84825c2eb96a46baacbc3b6be37bdba4709656b127",
+      "zab/four-2.cfg": "f02370671a2c30fa80d679ea5931c7ebcc2f649fa4727468b87a6e174cd10786"
+    },
+    "command": "taskset -c AFFINITY dive check zab/MCZab.tla --config zab/four-N.cfg --workers 32 --compat=tlc --seed 0 --fp 0 --max-memory 424g --time-limit Ts --output json. Time budgets 900 s for one timeout, 21000 s for two.",
+    "affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31",
+    "runs": [
+      {
+        "input": [
+          4,
+          2,
+          1,
+          0
+        ],
+        "wall_s": 48.13,
+        "peak_rss_kib": 3304496,
+        "exit": 0,
+        "verdict": "success",
+        "requested": 32,
+        "used": 32,
+        "print_events": 0,
+        "distinct": 6634696,
+        "generated": 21393294,
+        "depth": 64,
+        "left_on_queue": 0
+      },
+      {
+        "input": [
+          4,
+          2,
+          2,
+          0
+        ],
+        "wall_s": 4172.42,
+        "peak_rss_kib": 13232940,
+        "exit": 0,
+        "verdict": "success",
+        "requested": 32,
+        "used": 32,
+        "print_events": 0,
+        "distinct": 583836034,
+        "generated": 1782477619,
+        "depth": 73,
+        "left_on_queue": 0
+      }
+    ]
   }
 }
