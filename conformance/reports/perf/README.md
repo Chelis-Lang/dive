@@ -27,6 +27,8 @@ The [Linux allocator comparison](2026-11-21-linux-allocator-arenas.json) records
 
 The [KRaft pre-vote measurements](2026-11-21-kafka-liveness.json) contain the replayable witness for infinitely many reachable states in the released liveness CFG and the smaller configurations that both engines exhausted.
 
+The [released SlateDB source-edit comparison](2026-11-21-slatedb-source-edits.json) pairs the three-writer stale-replay witness with exact two-writer controls, input hashes and the independent validation result.
+
 The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
 
 The [etcd election-term witnesses](2026-11-21-etcd-election-terms.json) reproduce the unbounded election counter in the released three-server configuration.
