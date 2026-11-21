@@ -29,7 +29,7 @@ fn scratch() -> Result<Scratch, Box<dyn std::error::Error>> {
 }
 
 /// A wide, deep state space no test finishes: `x` and `y` count to 10^9.
-const ENDLESS: &str = "---- MODULE Endless ----\nEXTENDS Naturals\nVARIABLES x, y\nInit == x = 0 /\\ y = 0\nNext == \\/ x < 1000000000 /\\ x' = x + 1 /\\ y' = y\n        \\/ y < 1000000000 /\\ y' = y + 1 /\\ x' = x\nLive == <>(x = 1000000000)\n====\n";
+const ENDLESS: &str = "---- MODULE Endless ----\nEXTENDS Naturals\nVARIABLES x, y\nInit == x = 0 /\\ y = 0\nNext == \\/ x < 1000000000 /\\ x' = x + 1 /\\ y' = y\n        \\/ y < 1000000000 /\\ y' = y + 1 /\\ x' = x\nLive == <>(x = 1000000000)\nBounded == []<>(x <= 1000000000)\n====\n";
 
 fn write(dir: &Path, cfg: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
     let file = dir.join("Endless.tla");
@@ -163,7 +163,8 @@ fn an_exhausted_time_limit_stops_safety_search_in_both_profiles_and_widths()
 fn an_exhausted_time_limit_stops_graph_capture_with_no_temporal_claim()
 -> Result<(), Box<dyn std::error::Error>> {
     let scratch = scratch()?;
-    let file = write(&scratch.0, "INIT Init\nNEXT Next\nPROPERTY Live\n")?;
+    // Every behavior satisfies Bounded, including stuttering at the initial state.
+    let file = write(&scratch.0, "INIT Init\nNEXT Next\nPROPERTY Bounded\n")?;
     for compat_tlc in [false, true] {
         let report = dive_api::check_file(&CheckRequest {
             time_limit: BudgetSetting::Explicit(Duration::from_millis(300)),
