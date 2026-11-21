@@ -21,6 +21,8 @@ extend this evidence to native checkers, implementation traces and proofs.
 
 The [KRaft pre-vote measurements](2026-11-21-kafka-liveness.json) contain the replayable witness for infinitely many reachable states in the released liveness CFG and the smaller configurations that both engines exhausted.
 
+The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
+
 The [native peer panel](2026-11-20-native-peer-panel.json) records process
 measurements against pinned Manyan, tlx and tla-mc, plus the same-binary
 guard experiment. [Results and interpretation](../../../docs/internal/survey/verification-workloads.md#native-peer-measurements)
