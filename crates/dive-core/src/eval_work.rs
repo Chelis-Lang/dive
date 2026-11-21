@@ -8,6 +8,12 @@ use crate::heap::Cursor;
 use crate::node::Kind;
 use crate::plan::{Bind, Code};
 
+/// The complete domain or an ordered prefix of a wide integer powerset.
+pub(crate) enum ChoiceCursor {
+    Complete(Cursor),
+    EmptyAndSingletons { base: Cursor, empty_pending: bool },
+}
+
 fn quota() -> Error {
     Error::unsupported("the optional domain materialization budget")
 }
@@ -192,6 +198,52 @@ impl Machine {
             self.domain_work(h, false, 0)?;
         }
         self.heap.cursor(h)
+    }
+
+    /// A bounded CHOOSE stops at its first witness. For a wide powerset we
+    /// can visit the empty set and the singleton layer in the existing cursor
+    /// order without materializing the powerset. Only an exhausted complete
+    /// cursor proves that no witness exists.
+    pub(crate) fn choice_cursor(&mut self, domain: Handle) -> Result<ChoiceCursor, Error> {
+        if self.fuel == u64::MAX && self.heap.kind(domain) == Some(Kind::Subset) {
+            let base = self.heap.view(domain).data[0];
+            let eligible = match self.heap.kind(base) {
+                Some(Kind::Interval) => true,
+                Some(Kind::Set) => {
+                    let values = self.heap.view(base).data;
+                    values.len() > 24 && values.iter().all(|v| v.as_int().is_some())
+                }
+                _ => false,
+            };
+            if eligible && self.heap.cardinality(base)? > 24 {
+                return Ok(ChoiceCursor::EmptyAndSingletons {
+                    base: self.work_cursor(base)?,
+                    empty_pending: true,
+                });
+            }
+        }
+        self.work_cursor(domain).map(ChoiceCursor::Complete)
+    }
+
+    pub(crate) fn next_choice(
+        &mut self,
+        cursor: &mut ChoiceCursor,
+    ) -> Result<Option<Handle>, Error> {
+        match cursor {
+            ChoiceCursor::Complete(domain) => self.work_next(domain),
+            ChoiceCursor::EmptyAndSingletons {
+                base,
+                empty_pending,
+            } => {
+                if std::mem::take(empty_pending) {
+                    return Ok(Some(self.heap.empty_set()));
+                }
+                let element = self.work_next(base)?.ok_or_else(|| Error::unsupported(
+                    "CHOOSE over a wide powerset needs candidates beyond the empty set and singletons",
+                ))?;
+                Ok(Some(self.heap.set_sorted(&[element])))
+            }
+        }
     }
 
     pub(crate) fn work_next(&mut self, cursor: &mut Cursor) -> Result<Option<Handle>, Error> {

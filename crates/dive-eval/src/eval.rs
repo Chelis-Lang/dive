@@ -1775,17 +1775,11 @@ impl Core {
             return Err(self.choose_not_enumerable(e));
         }
         self.enum_guard(s)?;
-        let cursor = self.choose_stream(s)?;
-        let elems = if cursor.is_some() {
-            Arc::from([])
-        } else {
-            s.elements(self.ctx)?
-        };
         let slots: Vec<usize> = b.vars.iter().map(|s| s.index()).collect();
-        for x in cursor.into_iter().flatten().chain(elems.iter().cloned()) {
+        let mut satisfies = |x: &Value| -> Result<bool> {
             self.loop_work()?;
             if b.tuple {
-                let ok = matches!(&x, Value::Fcn(f) if f.as_tuple().is_some_and(|t| t.len() == slots.len()));
+                let ok = matches!(x, Value::Fcn(f) if f.as_tuple().is_some_and(|t| t.len() == slots.len()));
                 if !ok {
                     return Err(EvalError::general(format!(
                         "Attempted to compute the value of an expression of form\nCHOOSE <<x1, ... , xN>> \\in S: P, but S was not a set\nof N-tuples.\n{}",
@@ -1793,8 +1787,8 @@ impl Core {
                     )));
                 }
             }
-            self.bind_one(env, &slots, b.tuple, &x, e)?;
-            let p = self.eval_bool(env, st, body, |c, _| {
+            self.bind_one(env, &slots, b.tuple, x, e)?;
+            self.eval_bool(env, st, body, |c, _| {
                 EvalError::coded(
                     Ec::ExpectedValue,
                     format!(
@@ -1802,8 +1796,31 @@ impl Core {
                         c.loc(e)
                     ),
                 )
-            })?;
-            if p {
+            })
+        };
+        if let Some(base) = self.wide_integer_subset_base(s)? {
+            let empty = Value::empty_set(self.ctx);
+            if satisfies(&empty)? {
+                return Ok(Ev::V(empty));
+            }
+            for element in base {
+                let singleton = Value::set(vec![element], self.ctx)?;
+                if satisfies(&singleton)? {
+                    return Ok(Ev::V(singleton));
+                }
+            }
+            return Err(EvalError::unsupported(
+                "CHOOSE over a wide powerset needs candidates beyond the empty set and singletons",
+            ));
+        }
+        let cursor = self.choose_stream(s)?;
+        let elems = if cursor.is_some() {
+            Arc::from([])
+        } else {
+            s.elements(self.ctx)?
+        };
+        for x in cursor.into_iter().flatten().chain(elems.iter().cloned()) {
+            if satisfies(&x)? {
                 return Ok(Ev::V(x));
             }
         }
@@ -1811,6 +1828,33 @@ impl Core {
             "Attempted to compute the value of an expression of form\nCHOOSE x \\in S: P, but no element of S satisfied P.\n{}",
             self.loc(e)
         )))
+    }
+
+    /// In normalized powerset order the elements after the empty set are
+    /// singletons in the base's order. Stream that base directly so an
+    /// independent replay can establish the same witness on a large interval.
+    fn wide_integer_subset_base(&self, set: &Set) -> Result<Option<dive_value::SetElementStream>> {
+        if set.kind() != dive_value::SetKind::Subset
+            || set.order() != self.ctx.order
+            || set.has_cached_elements()
+        {
+            return Ok(None);
+        }
+        let components = set.components();
+        let [(None, Value::Set(base))] = components.as_slice() else {
+            return Ok(None);
+        };
+        if base.order() != self.ctx.order {
+            return Ok(None);
+        }
+        let eligible = base.as_interval().is_some()
+            || base.stored_elements().is_some_and(|values| {
+                values.len() > 24 && values.iter().all(|item| matches!(item, Value::Int(_)))
+            });
+        if !eligible || base.size(self.ctx)? <= 24 {
+            return Ok(None);
+        }
+        base.concrete_element_stream(self.ctx).map_err(Into::into)
     }
 
     /// Avoid retaining the entire function space when its component order is proven.
