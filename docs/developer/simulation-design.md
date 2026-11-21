@@ -334,6 +334,17 @@ action atoms. Per trace:
    Fairness `ENABLED` atoms are evaluated lazily, only on nodes inside a
    non-trivial strongly connected component of `G` or on a node whose
    self-loop is a candidate (§11.4 lists the shortcuts).
+   Each worker evaluates atoms on its own Core machine over the trace's
+   interned rows, through the native atoms `dive check` uses
+   (`core_native_atoms.rs`, audited by `DIVE_NATIVE_ATOM_AUDIT=1`). An atom
+   Core does not compile, and every native fallback, goes to `dive-eval`
+   (for example `ENABLED` through an `INSTANCE` that substitutes an
+   expression for a variable, as `EWD840`'s `TDSpec`). A worker keeps each
+   truth by row ids across its traces, since equal interned rows are equal
+   values: native truths always, `dive-eval` truths only for atoms without
+   side effects, and none under the audit. It also converts each distinct
+   row to a value once. Truths and work charges are those of evaluating
+   every demand, so results do not depend on the cache or the worker count.
 3. Run the existing product search (`dive_liveness::product`,
    `dive_liveness::search`) over `G` x tableau. An accepting lasso is a
    counterexample. The search is the one `dive check` uses; it reports the
