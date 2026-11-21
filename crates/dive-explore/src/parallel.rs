@@ -132,6 +132,9 @@ pub(crate) enum Occ {
     Old {
         key: u64,
         inside: bool,
+        /// A local worker read this fingerprint from the immutable resident table.
+        /// Wave claims and decoded candidate records carry no such evidence.
+        resident_hit: bool,
         /// Original values only when graph capture needs this accepted target.
         at: Option<usize>,
     },
@@ -390,19 +393,18 @@ impl WorkerSink<'_, '_> {
             )?;
             return Ok(());
         }
-        let duplicate = if self.out.payloads.is_some() || self.seen.exact.is_some() {
+        let fingerprint_claims = self.out.payloads.is_none() && self.seen.exact.is_none();
+        let resident_hit =
+            fingerprint_claims && inside && !self.seen.speculative_disk && self.seen.contains(key);
+        let duplicate = if !fingerprint_claims {
             // A fingerprint claim supplies no equality evidence. Exact mode
             // retains all possibly distinct collisions for ordered commit.
             false
         } else if inside {
-            (!self.seen.speculative_disk && self.seen.contains(key))
-                || pos.is_some_and(|p| !self.claims.claim(key, p))
-        } else if unkeyed {
-            false
+            resident_hit || pos.is_some_and(|p| !self.claims.claim(key, p))
         } else {
-            // Not inserted; new unless an earlier position inside the model
-            // inserts it first.
-            pos.is_some_and(|p| self.claims.held_before(key, p))
+            // Only an earlier in-model occurrence can insert this outside target.
+            !unkeyed && pos.is_some_and(|p| self.claims.held_before(key, p))
         };
         if duplicate && matches!(imp, Inv::Holds) {
             let at = if inside && self.capture_limit.is_some() {
@@ -411,7 +413,15 @@ impl WorkerSink<'_, '_> {
                 self.metrics.discarded_before_intern += 1;
                 None
             };
-            self.out.push(self.action, Occ::Old { key, inside, at })?;
+            self.out.push(
+                self.action,
+                Occ::Old {
+                    key,
+                    inside,
+                    at,
+                    resident_hit,
+                },
+            )?;
             return Ok(());
         }
         if inside && plan.view.is_none() && !self.fingerprintable(m, &identity)? {
@@ -903,10 +913,19 @@ impl crate::Explorer<'_> {
             self.emitted += 1;
             self.report_emitted()?;
             match occ {
-                Occ::Old { key, inside, .. } => {
+                Occ::Old {
+                    key,
+                    inside,
+                    resident_hit,
+                    ..
+                } => {
                     self.metrics.probed += 1;
                     // Already inserted: never refused by a limit.
-                    if !self.seen_contains(*key, &[], &m.heap, ("AdmissionMembership", None))? {
+                    // Earlier committed fingerprints cannot disappear during a wave.
+                    // A wave claim still needs confirmation at its ordered position.
+                    if (!*resident_hit || self.disk.is_some())
+                        && !self.seen_contains(*key, &[], &m.heap, ("AdmissionMembership", None))?
+                    {
                         return Err(Error::internal(
                             "a duplicate successor whose first occurrence was not inserted",
                         ));

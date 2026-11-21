@@ -185,7 +185,9 @@ pub(super) fn encode(
         .map_err(|_| super::failure("remote event allocation"))?;
     for (action, occ) in &expanded.occs {
         let event = match occ {
-            Occ::Old { key, inside, at } => Event::Old {
+            Occ::Old {
+                key, inside, at, ..
+            } => Event::Old {
                 key: *key,
                 inside: *inside,
                 at: *at,

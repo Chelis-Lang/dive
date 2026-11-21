@@ -8,6 +8,8 @@ has the details.
 
 Ordinary in-memory safety search packs complete blocks of 256 frontier rows by variable. It restores the full handles when expanding a row and derives its predecessor-log ID from the checked range of discoveries in that level. Models with fewer than 256 rows in a level keep their original layout. Temporal capture, checkpoints, distributed workers and explicit frontier or candidate spill use their own formats. [Measurements on four original configurations](../developer/large-models.md#resident-frontier-rows).
 
+During resident fingerprint search a local worker can confirm that an identity already exists. Ordered commit reuses that observation. A competing same-wave discovery or a record read from a spill file still gets its ordered membership check. [Worker and commit measurements](../developer/large-models.md#resident-frontier-rows).
+
 dive's safety BFS supports `--store exact` and the frontier and predecessor
 budget and directory options. Exact membership resolves hash collisions by
 comparing the complete canonical state; the concrete states used for
