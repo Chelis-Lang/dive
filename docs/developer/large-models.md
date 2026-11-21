@@ -46,6 +46,8 @@ identifies the inputs and peak memory. Run the seven-key reduced check with
 
 Growing **the released Large configuration** from three to four keys retains all three transactions, two values, both safety invariants and transaction symmetry. The installed symbolic checker exhausted it in **1,997.42 s** at **1.06 GiB** peak RSS, depth 37: **592,287,802,857 symmetry representatives and 16,831,060,919,470 generated**. The independent transaction-history formula matches both counts. Its separate concrete-state prediction is 3,552,493,680,513. The smaller-source search completed this same four-key CFG in 303.49 s at 615 MiB on a separate c7i.4xlarge, with identical counts and depth. The earlier seven-key experiment uses two transactions. [Inputs and reproduction](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
 
+On a single isolated c7i.4xlarge, three instrumented runs of this four-key configuration used the same binary, core, inputs and resource limits. Expanding the current breadth-first layer took 1,691.38 s and 1.06 GiB peak RSS. Choosing the smaller source diagram took 195.37 s and 615 MiB, an **8.66× speedup**. Always expanding the accumulated reachable set took 195.42 s and 615 MiB on this input. All three reached depth 37 with the same counts and final 3,226-node diagram. The record gives the two source sizes, chosen operand and image time at every depth. [Matched four-key trials](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
 ## Transaction commit
 
 Lamport's published `transaction_commit/TCommit.tla` includes a global
