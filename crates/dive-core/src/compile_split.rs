@@ -19,7 +19,17 @@ impl Compiler<'_> {
     pub(super) fn next_actions(&mut self, roles: &[Role]) -> Result<Vec<Action>, Error> {
         let mut bodies: HashMap<(DefId, ExprId, Vec<Slot>), Option<SplitBody>> = HashMap::new();
         let mut actions = Vec::with_capacity(roles.len());
+        let mut compiler_context = (self.def_slots.len(), self.settled.len());
         for role in roles {
+            // These two compiler tables grow monotonically during role compilation.
+            // apply_value uses definition thunk offsets to select eager application
+            // or beta reduction. A settled constant can change the slot allocation
+            // of a later occurrence. Recompile when either table grows.
+            let current = (self.def_slots.len(), self.settled.len());
+            if current != compiler_context {
+                bodies.clear();
+                compiler_context = current;
+            }
             if role.slots.is_empty() || !role.substs.is_empty() || self.code.source_map.is_some() {
                 actions.push(self.action(role, false)?);
                 continue;

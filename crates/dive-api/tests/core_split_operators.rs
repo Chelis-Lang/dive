@@ -182,3 +182,29 @@ fn repeated_split_calls_keep_parameters_guard_sites_and_replay()
     }
     Ok(())
 }
+
+#[test]
+fn intervening_actions_can_change_function_application_compilation()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-split-bodies");
+    // The first Partial is disabled. Total registers a definition thunk at
+    // an offset also used by Partial's LET. Reusing the first Partial's
+    // eager function application for the second occurrence forces 1 / 0.
+    for compat_tlc in [false, true] {
+        let report = check_file(&CheckRequest {
+            file: root.join("Interleaved.tla"),
+            config: Some(root.join("Interleaved.cfg")),
+            workers: Some(1),
+            seed: Some(1),
+            fp: Some(0),
+            compat_tlc,
+            ..Default::default()
+        })?
+        .to_json();
+        assert_eq!(report["verdict"], "success", "{report}");
+        assert_eq!(report["statistics"]["distinct"], 2);
+        assert_eq!(report["statistics"]["generated"], 5);
+        assert_eq!(report["statistics"]["depth"], 2);
+    }
+    Ok(())
+}
