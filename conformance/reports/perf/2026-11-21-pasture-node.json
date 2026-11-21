@@ -328,6 +328,49 @@
         "actual_fingerprints": 1.0
       },
       "interpretation": "Identical input bytes and CPU set as Core exact, run serially. TLC used fingerprint identity. Both independently returned the same counts and depth. The Core exact store verified full mathematical identities."
-    }
+    },
+    "11111-fp": {
+      "host": "Separate matched r8g.24xlarge in us-east-1 with the same executable and inputs as the exact run. Fresh process, zero swap.",
+      "workers": 1,
+      "cpu_affinity": "0",
+      "store": "fingerprint",
+      "fp": 0,
+      "time_limit_s": 300,
+      "max_memory_bytes": 697932185600,
+      "wall_seconds": 0.92,
+      "peak_rss_kib": 28648,
+      "exit": 0,
+      "verdict": "success",
+      "statistics": {
+        "depth": 31,
+        "distinct": 47742,
+        "generated": 360066,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "21222-fp": {
+      "host": "Separate matched r8g.24xlarge in us-east-1 with the same executable and inputs as the exact run. Fresh process, zero swap.",
+      "workers": 48,
+      "cpu_affinity": "0-47",
+      "store": "fingerprint",
+      "fp": 0,
+      "time_limit_s": 19500,
+      "max_memory_bytes": 697932185600,
+      "wall_seconds": 9463.54,
+      "peak_rss_kib": 58852564,
+      "exit": 0,
+      "verdict": "success",
+      "statistics": {
+        "depth": 53,
+        "distinct": 4234887880,
+        "generated": 36395020965,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      }
+    },
+    "matched_fingerprint_comparison": "The Core fingerprint run was 6.80% shorter in elapsed time and used 3.10 times less peak RSS than pinned TLC. All three terminal counts, depth and queue agree with Core exact on this configured model."
   }
 }
