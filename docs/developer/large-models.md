@@ -748,6 +748,22 @@ On the larger SlateDB one-value control, the same 24 cores exhausted all 242,213
 
 ### Reproduce the released PaxosLease runs
 
+Two reduced crash configurations exercise witness counts in symbolic search.
+Start with the published `PaxosLeaseRenewCrash3.cfg` and
+`PaxosLeaseReleaseCrash.cfg`. Set `Acceptors = {a1, a2}` and `MaxNetwork = 1`,
+and remove `SYMMETRY Symm`. Keep the original modules, invariants and
+constraint. With `PaxosLeaseCheckedSym.tla`, pinned TLC and exact Core at one
+worker and refined symbolic search all report the following successful results.
+The original configurations with symmetry give the symbolic refusal
+`symmetry on record-valued finite domains`. [Published inputs](https://github.com/mtrencseni/paxoslease-revisited/tree/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/tla/spec).
+
+| Reduced configuration | Distinct | Generated | Depth |
+| --- | ---: | ---: | ---: |
+| RenewCrash3 | 1,856 | 19,489 | 15 |
+| ReleaseCrash | 832 | 6,241 | 14 |
+
+For each reduced config, run `dive check PaxosLeaseCheckedSym.tla --config CFG --strategy symbolic --type-invariant TypeOK --refine-domains`.
+
 Use the source pin and JVM settings in the [PaxosLease record](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 From the author's `tla/spec` directory run `dive check PaxosLeaseChecked.tla --config PaxosLeaseQuarantineEqualsProposer.cfg --compat=tlc --workers 8 --fp 0 --seed 0`.
 Use the same module and `-config` with pinned TLC. For Base and QuarantineEqualsProposer,

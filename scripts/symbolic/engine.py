@@ -5,6 +5,7 @@ import argparse
 from collections import Counter
 from contextlib import suppress
 from dataclasses import dataclass
+from enum import Enum, auto
 import errno
 import gc
 import itertools
@@ -78,8 +79,19 @@ class Atom(dict):
     pass
 
 
+class Enumeration(Enum):
+    # Certify the raw enumeration used by Init membership, independently of
+    # the characteristic function. Reducible sets (literals and intervals)
+    # also perform eager set operations with other reducible sets.
+    UNPROVED = auto()
+    UNIQUE = auto()
+    REDUCIBLE = auto()
+
+
 class Members(dict):
-    pass
+    def __init__(self, items=(), *, enumeration=Enumeration.UNPROVED):
+        super().__init__(items)
+        self.enumeration = enumeration
 
 
 class Function(dict):
@@ -434,7 +446,8 @@ class SourceModel(FiniteRelation):
             require("_" not in value["model"], "typed model values")
             return self.atom(value["model"])
         if set(value) == {"set"}:
-            return Members((self.key(self.literal(v)), self.b.true) for v in value["set"])
+            return Members(((self.key(self.literal(v)), self.b.true) for v in value["set"]),
+                           enumeration=Enumeration.REDUCIBLE)
         raise Unsupported("configured value outside model-value or finite set fragment")
 
     def key(self, atom):
@@ -533,12 +546,12 @@ class SourceModel(FiniteRelation):
         require(len(args) == len(d["params"]), "operator arity")
         return d["body"], {i: self.eval(a["Expr"]["expr"], env, assigned) for i, a in enumerate(args)}
 
-    def bindings(self, q, env, assigned, *, multiple=False):
+    def bindings(self, q, env, assigned, *, multiple=False, known_domains=None):
         slots = []
         domains = []
-        for bound in q["bounds"]:
+        for index, bound in enumerate(q["bounds"]):
             require(not bound["tuple"] and bound["domain"] is not None, "unbounded or tuple binder")
-            domain = self.eval(bound["domain"], env, assigned)
+            domain = self.eval(bound["domain"], env, assigned) if known_domains is None else known_domains[index]
             require(isinstance(domain, Members), "binder over a non-atomic set")
             for slot in bound["vars"]:
                 slots.append(slot)
@@ -624,7 +637,8 @@ class SourceModel(FiniteRelation):
                 x, y = left[1], right[1]
                 if op == "NaturalsDotDot":
                     require(guard == self.b.true and y - x < 16384, "nonconstant or oversized integer interval")
-                    return Members((self.integer(n), self.b.true) for n in range(x, y + 1))
+                    return Members(((self.integer(n), self.b.true) for n in range(x, y + 1)),
+                                   enumeration=Enumeration.REDUCIBLE)
                 if op in compares:
                     if compares[op](x, y):
                         truth |= guard
@@ -642,9 +656,17 @@ class SourceModel(FiniteRelation):
         if tag == "Let":
             return self.eval(x["body"], self.let_scope(x, env, assigned), assigned)
         if tag in ("SetFilter", "SetMap"):
-            result = Members()
             q = x if tag == "SetMap" else {"bounds": [x["bound"]]}
-            for key, active, scope in self.bindings(q, env, assigned):
+            domains = None
+            enumeration = Enumeration.REDUCIBLE  # A mapped set is an explicit enumeration.
+            if tag == "SetFilter":
+                require(x["bound"]["domain"] is not None, "unbounded set filter")
+                domain = sub(x["bound"]["domain"])
+                require(isinstance(domain, Members), "filter over a non-atomic set")
+                domains = [domain]
+                enumeration = domain.enumeration
+            result = Members(enumeration=enumeration)
+            for key, active, scope in self.bindings(q, env, assigned, known_domains=domains):
                 if active == self.b.false:
                     continue
                 if tag == "SetFilter":
@@ -699,6 +721,8 @@ class SourceModel(FiniteRelation):
             total = math.prod(len(v) for v in values)
             require(total <= 16384, "record domain exceeds 16384 alternatives")
             result = kind()
+            if tag == "RecordSet" and all(v.enumeration != Enumeration.UNPROVED for v in values):
+                result.enumeration = Enumeration.UNIQUE
             for choices in itertools.product(*(v.items() for v in values)):
                 guard = self.conjunction(bit for _, bit in choices)
                 if guard != self.b.false:
@@ -743,7 +767,7 @@ class SourceModel(FiniteRelation):
             require(key in f, "index outside finite function domain")
             return f[key]
         if tag == "SetEnum":
-            out = Members()
+            out = Members(enumeration=Enumeration.REDUCIBLE)
             for expr in x:
                 atom = sub(expr)
                 if isinstance(atom, cudd.Function):
@@ -808,11 +832,33 @@ class SourceModel(FiniteRelation):
                     u, v = a.get(k, self.b.false), b.get(k, self.b.false)
                     return u | v if op == "Cup" else (u & v if op == "Cap" else u & ~v)
 
-                return Members((k, merge(k)) for k in a.keys() | b.keys())
+                result = Members((k, merge(k)) for k in a.keys() | b.keys())
+                if self.reading_init:
+                    result.enumeration = self.set_enumeration(op, a, b)
+                return result
             raise Unsupported("IR builtin " + op)
         raise Unsupported("IR expression " + tag)
 
-    def branches(self, i, env, init, guard, assigned):
+    def set_enumeration(self, op, a, b):
+        # Tool.getInitStates uses elements(), which can retain duplicates.
+        # A lazy union concatenates its operands; a filter or difference
+        # walks its source. Prior normalization can remove any duplicates.
+        left, right = a.enumeration, b.enumeration
+        if op == "SetMinus":
+            return left
+        if op == "Cap":
+            if Enumeration.REDUCIBLE in (left, right):
+                return Enumeration.REDUCIBLE
+            return left
+        if left == right == Enumeration.REDUCIBLE:
+            return Enumeration.REDUCIBLE
+        if Enumeration.UNPROVED not in (left, right) and all(
+            (a[k] & b[k]) == self.b.false for k in a.keys() & b.keys()
+        ):
+            return Enumeration.UNIQUE
+        return Enumeration.UNPROVED
+
+    def branches(self, i, env, init, guard, assigned, *, action_conjunct=False):
         if guard == self.b.false:
             return
         tag, x = self.node(i)
@@ -827,15 +873,30 @@ class SourceModel(FiniteRelation):
         elif tag == "Junction":
             items = x["items"]
             if not init and x["kind"] == "Or" and self.ir["exprs"][i]["level"] in ("State", "Constant"):
+                # A literal disjunction inside an action conjunction enumerates
+                # its arms until all variables are bound. A completed assignment
+                # can instead evaluate a pending state predicate as one Boolean.
+                can_count_arms = (action_conjunct and len(assigned) < len(self.names)
+                                  and self.ir["exprs"][i]["level"] == "State")
+                alternatives = []
+                overlapping = False
                 combined = self.b.false
                 for item in items:
                     tag, v = self.node(item)
                     require(tag in ("Const", "Bool") or (tag == "Builtin" and v["op"] in ("Eq", "Neq", "In", "NotIn", "Subseteq")),
                             "unsupported action guard: " + tag)
                     alt = self.boolean(self.eval(item, env, assigned))
-                    require((alt & combined & guard) == self.b.false, "unsupported action guard: overlapping boolean alternatives")
+                    if alt & combined & guard != self.b.false:
+                        require(can_count_arms, "unsupported action guard: overlapping boolean alternatives")
+                        overlapping = True
+                    alternatives.append(alt)
                     combined |= alt
-                yield guard & combined, assigned
+                if overlapping:
+                    for alt in alternatives:
+                        if guard & alt != self.b.false:
+                            yield guard & alt, assigned
+                else:
+                    yield guard & combined, assigned
             elif x["kind"] == "Or":
                 for item in items:
                     yield from self.action_alternatives(item, env, init, guard, assigned)
@@ -846,7 +907,8 @@ class SourceModel(FiniteRelation):
                     if index == len(items):
                         yield active, values
                     else:
-                        for g, a in self.branches(items[index], env, init, active, values):
+                        for g, a in self.branches(items[index], env, init, active, values,
+                                                  action_conjunct=self.ir["exprs"][i]["level"] == "Action"):
                             yield from conjunction(index + 1, g, a)
 
                 yield from conjunction(0, guard, assigned)
@@ -875,6 +937,9 @@ class SourceModel(FiniteRelation):
         ):
             domain = self.eval(x["args"][1], env, assigned)
             require(isinstance(domain, Members), "Init choice over a non-atomic set")
+            require(domain.enumeration != Enumeration.UNPROVED,
+                    "Init membership may enumerate duplicate witnesses in a lazy set")
+            self.comparable(domain)
             for key, included in domain.items():
                 yield guard & included, {**assigned, name: self.atom(key)}
         elif (

@@ -126,13 +126,19 @@ Finite scalar fields can contain integers, strings, untyped model values and rec
 witness. A primed value must be assigned before it is read. The expression
 subset includes Boolean guards, equality, membership, set union,
 intersection, difference, bounded quantifiers, finite function constructors
-and single-clause `EXCEPT` through known indices. In action position each
-disjunction arm and bounded existential witness must assign at least one
-variable. Terminal action guards must be Boolean literals, negation,
-equality, inequality, membership, nonmembership or subset tests. These
-restrictions preserve TLC's generated count when assignment order or
-operator evaluation would change the multiplicity of a Boolean guard.
-Conditionals in assigned values and quantifiers in invariants are supported.
+and single-clause `EXCEPT` through known indices. Each bounded existential
+action witness and each action-level disjunction arm must assign a variable.
+An inline state-level disjunction directly inside an action conjunction can
+act as a guard. While successor variables remain unassigned, each true arm
+contributes a separate witness. For example, with `Init == x = 0`,
+`Next == (x = 0 \/ x = 0) /\ x' = x` generates three states including
+Init, all with the same value. The checker refuses overlapping guards in
+contexts where it cannot establish the count, including a disjunction reached
+through a lazy Boolean parameter or after the final assignment.
+
+Terminal guards support Boolean literals, negation, equality, inequality,
+membership, nonmembership and subset tests. Conditionals in assigned values
+and quantifiers in invariants are supported.
 The checker verifies that assignments fit the proposed layout. A bound never silently removes an
 initial state or successor.
 
@@ -214,5 +220,13 @@ existential choice, or have several finite assignment branches. Each enabled
 branch must assign the complete state to ground values. The checker collects
 all initial states before breadth-first search and checks every initial state
 when verifying an inductive predicate. Generated counts include duplicate
-initial witnesses before symmetry reduction. The compiler currently bounds
-explicit expansion at 100,000 initial witnesses. An empty initial set refuses.
+initial witnesses before symmetry reduction. For an initial assignment
+`x \in S`, the checker must establish that TLC enumerates each member of
+`S` exactly once. Explicit sets, integer intervals and record products with
+duplicate-free field enumerations meet that condition. For example, the set
+`{[a |-> 0], [a |-> 0]}` produces one initial witness. TLC can
+enumerate the same record twice from `[a : {0}] \cup [a : {0,1}]`. The
+symbolic checker refuses this initial membership choice even through an
+operator or `LET` binding. It accepts disjoint unions of proven duplicate-free
+domains. The compiler bounds explicit expansion at 100,000 initial witnesses.
+An empty initial set refuses.
