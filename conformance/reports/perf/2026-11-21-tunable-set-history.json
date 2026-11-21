@@ -20,7 +20,7 @@
     },
     "3,2,3": "Stopped after approximately nine billion generated states and about 750 GB disk. Distinct count, depth and complete count unavailable."
   },
-  "properties": "The reconstruction verifies FIFO history accounting and replica convergence of the underlying full operation sets. The counted graph covers the structural transition system. It does not evaluate the thesis’s complete history-replay predicate, policy conflict predicates or query definitions. No historical speedup claim.",
+  "properties": "The history controls check FIFO accounting and convergence of full operation sets. The bounded policy proof and independent explicit comparisons additionally cover the five reconstructed Toolbox invariants. The original executable and its policies have not been recovered.",
   "encoding": "State fields for own issued count, operation set, ordered receive/issue history, FIFO inbox, last received record, clock and control label. Done recovers finished. Kind and policy select the source policy pair; the fixed happens-before policy is implicit. Read-only queries do not constrain Next. Nonterminal empty receive and final PlusCal stutter are counted.",
   "platform": "Dedicated c7i.4xlarge in us-east-2, Xeon Platinum 8488C, Linux 7.0.0-1018-aws. Explicit Core and TLC each used one physical core on the control panel; the source counter ran in a fresh Python process pinned to CPU 1. Wall seconds and peak process RSS use GNU time. External setup excluded.",
   "commands": {
@@ -901,5 +901,406 @@
     "tunable_set_counts.py": "931494f382ccb729d3a5aa3004c10444aa12e1f985f1dd4809d4a0c1bd5c06bc",
     "dive": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
     "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "wide_explicit_runs": [
+    {
+      "config": "r2n2e2p3-sym",
+      "tool": "core",
+      "wall_s": 16.61,
+      "peak_rss_kib": 2361852,
+      "distinct": 4565173,
+      "generated": 7608075,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e2p3-sym",
+      "tool": "tlc",
+      "wall_s": 22.48,
+      "peak_rss_kib": 6542368,
+      "distinct": 4565173,
+      "generated": 7608075,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e3p3-sym",
+      "tool": "core",
+      "wall_s": 9.04,
+      "peak_rss_kib": 430504,
+      "distinct": 584515,
+      "generated": 1390486,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e3p3-sym",
+      "tool": "tlc",
+      "wall_s": 7.58,
+      "peak_rss_kib": 5876164,
+      "distinct": 584515,
+      "generated": 1390486,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n2e1p1-sym",
+      "tool": "core",
+      "wall_s": 245.74,
+      "peak_rss_kib": 15578064,
+      "distinct": 27123751,
+      "generated": 67521608,
+      "depth": 25,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n2e1p1-sym",
+      "tool": "tlc",
+      "wall_s": 387.02,
+      "peak_rss_kib": 8055992,
+      "distinct": 27123751,
+      "generated": 67521608,
+      "depth": 25,
+      "left_on_queue": 0
+    }
+  ],
+  "policy_explicit_runs": [
+    {
+      "config": "r2n1e2p3",
+      "tool": "core",
+      "wall_s": 0.17,
+      "peak_rss_kib": 47072,
+      "distinct": 8113,
+      "generated": 13035,
+      "depth": 9,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n1e2p3-sym",
+      "tool": "core",
+      "wall_s": 0.06,
+      "peak_rss_kib": 41004,
+      "distinct": 2029,
+      "generated": 3279,
+      "depth": 9,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n1e2p3-sym",
+      "tool": "tlc",
+      "wall_s": 1.68,
+      "peak_rss_kib": 154320,
+      "distinct": 2029,
+      "generated": 3279,
+      "depth": 9,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n1e2p3",
+      "tool": "tlc",
+      "wall_s": 2.72,
+      "peak_rss_kib": 160444,
+      "distinct": 8113,
+      "generated": 13035,
+      "depth": 9,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e1p1",
+      "tool": "core",
+      "wall_s": 1.09,
+      "peak_rss_kib": 46668,
+      "distinct": 14689,
+      "generated": 24559,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e1p1-sym",
+      "tool": "core",
+      "wall_s": 0.44,
+      "peak_rss_kib": 47136,
+      "distinct": 7345,
+      "generated": 12283,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e1p1-sym",
+      "tool": "tlc",
+      "wall_s": 3.12,
+      "peak_rss_kib": 156624,
+      "distinct": 7345,
+      "generated": 12283,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e1p1",
+      "tool": "tlc",
+      "wall_s": 4.06,
+      "peak_rss_kib": 171088,
+      "distinct": 14689,
+      "generated": 24559,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e1p1",
+      "tool": "core",
+      "wall_s": 1.12,
+      "peak_rss_kib": 54856,
+      "distinct": 26377,
+      "generated": 62434,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e1p1-sym",
+      "tool": "core",
+      "wall_s": 0.14,
+      "peak_rss_kib": 47228,
+      "distinct": 4399,
+      "generated": 10426,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e1p1-sym",
+      "tool": "tlc",
+      "wall_s": 2.5,
+      "peak_rss_kib": 159692,
+      "distinct": 4399,
+      "generated": 10426,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e1p1",
+      "tool": "tlc",
+      "wall_s": 5.27,
+      "peak_rss_kib": 170408,
+      "distinct": 26377,
+      "generated": 62434,
+      "depth": 16,
+      "left_on_queue": 0
+    }
+  ],
+  "bounded_policy_verification": {
+    "source": "Figures 5.2, 5.4–5.6, 5.9–5.16, E.1–E.4. Normalize NORMAL_REM to NORMAL_REMOVE and supply the missing op in the printed two-argument call to the three-argument noOtherElementsAffected (the appendix supplies all three). The executable reconstruction retains E.3’s disjunction of implications. The separately checked only_one_kind_in_history obligation states its operational one-kind consequence.",
+    "scope": "Unmodified stamped FIFO reconstruction with the three numbered policies per operation kind, no overrides. For any color and any replica, admit every time-oriented transitive causal relation on at most replicas × operations stamps, and any causally closed local history prefix and next operation. Prove pointwise properties independently of other colors. When all replicas finish, all know precisely the same operation records, establishing convergence and equal total queries. A sat query needs a concrete witness for the protocol: the disabled rule has one.",
+    "commands": {
+      "formula": "/usr/bin/python3 scripts/perf/scale/tunable_set_policies.py REPLICAS OPERATIONS [--policy-file EDITED_TLA] (Ubuntu python3-z3).",
+      "explicit": "Use --emit-config from the counter, then replace its INVARIANTS line with INVARIANTS Convergence ObservableConvergence NoSimultaneousAddRemove AtLeastOneOp CorrectnessPrinciples HistoryAgreement. Check TunableSetPolicies.tla under the same explicit commands.",
+      "edits": "Keep the parent and edited module beside each other. Earliest replaces a.stamp > b.stamp by a.stamp < b.stamp in ApplyPolicy. LostNormalAdd replaces the result of the normal-add branch with FALSE. ForeignPolicy tries a.author = b.author in place of the stamp comparison. Unchecked changes the outer correctness predicate.",
+      "wide_explicit": "Eight workers pinned to CPUs 0–7; 22 GiB Core, 16 GiB JVM, 1250s Core and external 1265s wall limit. One short isolated policy-solver diagnostic overlapped the third configuration on an SMT sibling. Time/RSS include process startup.",
+      "policy_explicit": "One worker and physical CPU 0, max 6 GiB Core, 4 GiB JVM; external 215s wall limit. Short solver checks used a separate logical CPU. Preceding wider runs finished first."
+    },
+    "sha256": {
+      "tunable_set_policies.py": "e5beac8aae4615cfcdecebbd43defb747a88799ee44a13f88f6586ab0a951232",
+      "TunableSetHistory.tla": "c59b7a02af26badd2a522c8384ba0f99abb7dca58c342a5f2c507e157c2ce88f",
+      "TunableSetPolicies.tla": "aa5d632daeeb98e498b3b3354f54dd8d5cbbf35324e53e89b13d86c78468eb7e",
+      "Earliest.tla": "233404a93b94a4347ff1fedc775f1a2d4c5bd6501708f16cd9fcfc23710c49a3",
+      "LostNormalAdd.tla": "4a4d96d040c952237670e9196d4974fd286044a38027b90dda42c6afc39ae4b3",
+      "ForeignPolicy.tla": "1492531484bdebe905dd3f2f39c3d01e7bba5f20e41cdd5cca33ebdd0a561b57",
+      "Unchecked.tla": "2145109b8393f023b2203ea770fac23b53eb2b275cf2c24a370d2bed9700834d"
+    },
+    "solver_runs": [
+      {
+        "input": "Earliest-3-2",
+        "exit": 0,
+        "wall_s": 0.33,
+        "peak_rss_kib": 60416,
+        "bound": 6,
+        "solver": "4.8.12",
+        "policy_sha256": "233404a93b94a4347ff1fedc775f1a2d4c5bd6501708f16cd9fcfc23710c49a3",
+        "branches": [
+          "earliest",
+          "source",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "unsat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "unsat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "unsat",
+          "only_one_kind_in_history": "unsat"
+        }
+      },
+      {
+        "input": "ForeignPolicy-1-2",
+        "exit": 2,
+        "wall_s": 0.09,
+        "peak_rss_kib": 31392,
+        "refusal": "tunable_set_policies.py: error: unsupported expression for owner.policy = 3"
+      },
+      {
+        "input": "LostNormalAdd-3-2",
+        "exit": 1,
+        "wall_s": 0.28,
+        "peak_rss_kib": 60008,
+        "bound": 6,
+        "solver": "4.8.12",
+        "policy_sha256": "4a4d96d040c952237670e9196d4974fd286044a38027b90dda42c6afc39ae4b3",
+        "branches": [
+          "source",
+          "FALSE",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "sat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "sat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "sat",
+          "only_one_kind_in_history": "unsat"
+        }
+      },
+      {
+        "input": "Unchecked-1-2",
+        "exit": 2,
+        "wall_s": 0.09,
+        "peak_rss_kib": 31396,
+        "refusal": "tunable_set_policies.py: error: change outside the five supported policy branches"
+      },
+      {
+        "input": "original-1-2",
+        "exit": 0,
+        "wall_s": 0.12,
+        "peak_rss_kib": 58916,
+        "bound": 2,
+        "solver": "4.8.12",
+        "policy_sha256": "aa5d632daeeb98e498b3b3354f54dd8d5cbbf35324e53e89b13d86c78468eb7e",
+        "branches": [
+          "source",
+          "source",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "unsat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "unsat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "unsat",
+          "only_one_kind_in_history": "unsat"
+        }
+      },
+      {
+        "input": "original-3-2",
+        "exit": 0,
+        "wall_s": 0.31,
+        "peak_rss_kib": 60356,
+        "bound": 6,
+        "solver": "4.8.12",
+        "policy_sha256": "aa5d632daeeb98e498b3b3354f54dd8d5cbbf35324e53e89b13d86c78468eb7e",
+        "branches": [
+          "source",
+          "source",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "unsat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "unsat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "unsat",
+          "only_one_kind_in_history": "unsat"
+        }
+      },
+      {
+        "input": "original-4-2",
+        "exit": 0,
+        "wall_s": 1.84,
+        "peak_rss_kib": 65092,
+        "bound": 8,
+        "solver": "4.8.12",
+        "policy_sha256": "aa5d632daeeb98e498b3b3354f54dd8d5cbbf35324e53e89b13d86c78468eb7e",
+        "branches": [
+          "source",
+          "source",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "unsat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "unsat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "unsat",
+          "only_one_kind_in_history": "unsat"
+        }
+      }
+    ],
+    "earliest_explicit": [
+      {
+        "tool": "core",
+        "wall_s": 0.16,
+        "peak_rss_kib": 45056,
+        "distinct": 8113,
+        "generated": 13035,
+        "depth": 9,
+        "left_on_queue": 0
+      },
+      {
+        "tool": "tlc",
+        "wall_s": 2.63,
+        "peak_rss_kib": 132888,
+        "distinct": 8113,
+        "generated": 13035,
+        "depth": 9,
+        "left_on_queue": 0
+      }
+    ],
+    "disabled_rule_violation": {
+      "core": {
+        "depth": 4,
+        "distinct": 342,
+        "generated": 344,
+        "initial_generated": 1,
+        "left_on_queue": 313,
+        "reported_by_tlc": true
+      },
+      "property": "NoSimultaneousAddRemove",
+      "exit": 12,
+      "tlc_exit": 12,
+      "tlc_terminal": "344 states generated, 342 distinct states found, 313 states left on queue",
+      "replay": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [
+          "label `Issue` names an operator with parameters; not checked",
+          "label `Receive` names an operator with parameters; not checked"
+        ],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_init": {
+        "command": "validate-trace",
+        "failure": {
+          "check": "init",
+          "detail": "the first state is outside the independent Init relation",
+          "state": 0
+        },
+        "length": 4,
+        "notes": [],
+        "result": "invalid",
+        "schema_version": 4
+      }
+    }
   }
 }
