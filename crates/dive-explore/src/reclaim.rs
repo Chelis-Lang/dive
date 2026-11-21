@@ -55,14 +55,40 @@ fn remap_blocks(
     result
         .try_reserve_exact(blocks.len())
         .map_err(|_| Error::internal("DIVE-S0203: resident frontier block index"))?;
+    if blocks.is_empty() {
+        return Ok(result);
+    }
+    if width == 0 {
+        return Err(Error::internal("resident frontier has no columns"));
+    }
+    // Repeated values in one column are already validated against this same
+    // immutable source Store. Retain only the last successful translation.
+    let mut previous = Vec::new();
+    previous
+        .try_reserve_exact(width)
+        .map_err(|_| Error::internal("DIVE-S0203: resident frontier remap row"))?;
+    previous.resize(width, None);
     let mut values = Vec::new();
     for block in blocks {
         values.clear();
         block
             .append(0, dive_core::packed_rows::ROWS, &mut values)
             .map_err(block_error)?;
-        for h in &mut values {
-            *h = remap.copy(*h, proceed)?;
+        for row in values.chunks_exact_mut(width) {
+            if !proceed() {
+                return Err(Error::stop());
+            }
+            for (handle, last) in row.iter_mut().zip(&mut previous) {
+                if let Some((source, target)) = *last
+                    && source == *handle
+                {
+                    *handle = target;
+                } else {
+                    let mapped = remap.copy(*handle, proceed)?;
+                    *last = Some((*handle, mapped));
+                    *handle = mapped;
+                }
+            }
         }
         result.push(dive_core::packed_rows::Block::encode(&values, width).map_err(block_error)?);
     }

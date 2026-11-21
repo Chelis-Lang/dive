@@ -88,6 +88,8 @@ cleared. A disk frontier gets new files for the run, streamed one row pair at a
 time. Counterexamples are rebuilt from predecessors and ordinals as before and
 are still validated independently.
 
+When copying a packed resident frontier into a new Store, Core remembers the last translated value in each variable column. Rows that share that value can reuse its new handle. The scratch space grows with the number of variables. On a 100-million-state prefix of Flint, three default collections took place and the end-to-end time fell from 575.12 to 512.60 seconds with the same pending queue. [Full and bounded comparisons](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
+
 Both profiles, fingerprint/exact membership, VIEW, safety symmetry, requested
 worker widths and existing candidate/frontier/predecessor/disk storage policies
 are supported. Exact membership on this route stores full closed mathematical
