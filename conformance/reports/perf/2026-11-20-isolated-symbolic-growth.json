@@ -1274,7 +1274,23 @@
           "depth": 129,
           "final_bdd_nodes": 503
         }
-      ]
+      ],
+      "four_key_three_transaction": {
+        "wall_seconds": 303.49,
+        "peak_rss_kib": 629892,
+        "result": {
+          "verdict": "success",
+          "distinct": 592287802857,
+          "generated": 16831060919470,
+          "depth": 37,
+          "reachable_bdd_nodes": 3226,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ]
+        },
+        "comparison": "The earlier frontier-only 1997.42 s observation under three_transaction_growth has the same counts and depth. Those two timings used separate c7i.4xlarge instances."
+      }
     },
     "correctness": "All small symbolic fragment differentials and pinned KVS goldens passed. Installed-layout controls passed. An independently generated 31-case comparison with explicit Core checked 11 complete results, 20 negative shortest depths and 40 standalone trace replays. Dropping admission from the larger operand failed the excluded-source control."
   },
