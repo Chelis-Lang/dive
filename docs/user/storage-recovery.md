@@ -51,7 +51,7 @@ diagnostics in the report.
 
 ## Large Linux heaps
 
-The Linux `dive` and `tlc` executables use mimalloc 2.3.2 from the locked Rust dependency. The bundled 3.3.2 allocator rejects 16 GiB arenas. On a growing heap it can fall back to many small mappings, which compete for the kernel's memory-map lock even while physical memory is available. The 16 GiB figure is the size of one allocator reservation. The search can hold many such arenas. Existing memory-limit and storage options still apply. [Allocator comparison, source pins and commands](../../conformance/reports/perf/2026-11-21-linux-allocator-arenas.json).
+The `dive` and `tlc` binaries use mimalloc 3.7.0. On Linux the previous allocator (3.3.2) could fail to reserve a 16 GiB arena and start requesting many small mappings from the kernel. Threads then spent time competing for the kernel’s memory-map lock while physical memory was still available. Version 3.7.0 includes the upstream fix for initializing a 16 GiB arena. An arena reserves virtual address space and takes up physical memory as the search touches it. You can use the default Linux mapping limit with this fix. Existing search memory budgets still apply. [Upstream fix](https://github.com/microsoft/mimalloc/commit/566fbc1f4d) · [Measurements and commands](../../conformance/reports/perf/2026-11-21-linux-allocator-arenas.json).
 
 ## Reclaiming expanded values
 

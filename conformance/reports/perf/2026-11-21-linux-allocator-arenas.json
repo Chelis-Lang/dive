@@ -4,7 +4,7 @@
   "upstream": {
     "defect": "https://github.com/microsoft/mimalloc/issues/1309",
     "upstream_fix": "https://github.com/microsoft/mimalloc/commit/566fbc1f4d",
-    "rust_crates": "mimalloc 0.1.52 and libmimalloc-sys 0.1.49, same locked packages across arms. Default 3.3.2 versus the v2 Cargo feature selecting bundled 2.3.2."
+    "rust_crates": "Historical diagnostic arms used published mimalloc 0.1.52 and libmimalloc-sys 0.1.49 (native 3.3.2 and 2.3.2)."
   },
   "reservation_control": {
     "method": "Link the public mi_reserve_os_memory(size,false,false) API against the exact static library from each release build, one uncommitted request per fresh process. Zero is success; Linux errno 12 is ENOMEM. No graph is allocated by this control.",
@@ -705,5 +705,12 @@
         }
       }
     }
+  },
+  "fixed_release": {
+    "mimalloc": "3.7.0",
+    "native_commit": "1ed67b5156a763441d2ec3c20221a7b3cd866129",
+    "rust_wrapper_commit": "d00f116cc4ab8bdd243b40669a4759918dbd5aa0",
+    "rust_wrapper": "https://github.com/Chelis-Lang/mimalloc_rust",
+    "change": "Only the v3 native submodule pin differs from upstream Rust wrapper v0.1.52."
   }
 }

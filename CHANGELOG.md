@@ -230,7 +230,7 @@ are in git history.
 
 ### Fixed
 
-- Large Linux CLI searches use the bundled allocator that can reserve 16 GiB arenas. This avoids a sharp increase in individual kernel mappings as live state grows. [Storage and measurements](docs/user/storage-recovery.md#large-linux-heaps).
+- Updated the CLI allocator to mimalloc 3.7.0. It fixes 16 GiB arena initialization, which could cause large Linux searches to spend most of their time creating small memory mappings. [Storage and measurements](docs/user/storage-recovery.md#large-linux-heaps).
 
 - Ordinary multi-worker Core safety checks reuse their expansion threads across frontier waves. If the operating system refuses the team at startup, the calling thread completes the search. [Workers and stores](docs/user/checking.md#workers-and-stores).
 
