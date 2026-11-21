@@ -2156,5 +2156,168 @@
         ]
       }
     }
+  },
+  "additive_layer_edits": {
+    "method": "The installed symbolic checkers differ only in engine.py. Run each three-revision batch in a fresh process, first the old then the new implementation, pinned to CPU 0 of an isolated c7i.4xlarge in us-east-2. Candidate first applies added actions to admitted frontier states, then the full edited relation to admitted states absent from the corresponding old layer. GNU time reports whole-process time and peak RSS. Each observations entry is one run.",
+    "revision_order": [
+      "released configuration",
+      "add Drain",
+      "restore original"
+    ],
+    "command": "taskset -c 0 DIVE check PaxosLeaseChecked.tla --config PaxosLeaseSIZE.cfg --strategy symbolic --type-invariant TypeOK --refine-domains --recheck Drain.tla SIZEChanged.cfg --recheck PaxosLeaseChecked.tla PaxosLeaseSIZE.cfg --time-limit 4800s --max-memory 12g --output json",
+    "sha256": {
+      "product/libexec/dive-symbolic/engine.py": "152b54ded45f78258894b21ff18f5d54639b8976c1da320440650f489d8dbea0",
+      "changed/libexec/dive-symbolic/engine.py": "d5f2c48f89fab395838484204a29d78cf3c57ed979bc6ba27e620fb5d80a2168",
+      "product/dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "product/libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "product/spec/BaseChanged.cfg": "3b4f9817c9ad09eefd6fba771bf8e9b5b4fa50a105716a63649d2669c4e8b5b0",
+      "product/spec/PaxosLeaseBase.cfg": "03f0be6f3ae3faa879415477994958e480fdb88d7186f4dd9fc4f0577235c711",
+      "product/spec/PaxosLeaseQuarantineEqualsProposer.cfg": "5f69288c3b80cbab777da4aa4f573fd9e8e42527ce77297e29adf192a2c804f2",
+      "product/spec/PaxosLeaseRetry.cfg": "3df08aeb5bd1771b0ed045e8436fad72dba04371c86240b265e1107841a351d7",
+      "product/spec/QuarantineEqualsProposerChanged.cfg": "19239e06b6702dd428503766cd7f68f2efc48aece05261e39c9a49d54be42892",
+      "product/spec/Drain.tla": "226d4d41a6326561a865222647970cc067c64202cca74333ac807eb44230c7bd",
+      "product/spec/PaxosLease.tla": "3ac9f462afc48698eac87519530abc227c9f47d44d305bed31104543e3c6ca1a",
+      "product/spec/PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+      "product/spec/Reset.tla": "5b98fc2652b88c36b27c9de9b02c831bcae5ea99e393adb9ed50b210829449ea",
+      "product/spec/WithIdle.tla": "14945c8517c6ac77399a9f18e980a9d6c1c4a63eaf199a0aae96d4ec6b20b1a3",
+      "product/spec/WithTick.tla": "f35b83acdfce19444b46e24b1a2a0c12b95858a6c0530fdeabd6e223d83c0409"
+    },
+    "observations": {
+      "Base": {
+        "product": {
+          "wall_seconds": 129.96,
+          "peak_rss_kib": 563912,
+          "revisions": [
+            {
+              "verdict": "success",
+              "distinct": 491037,
+              "generated": 1709874,
+              "depth": 29,
+              "reused": false,
+              "reachable_bdd_nodes": 390276,
+              "seconds": 49.912089,
+              "refinement_rounds": 11,
+              "learned_members": 138,
+              "initial_hint_members": 0
+            },
+            {
+              "verdict": "success",
+              "distinct": 598541,
+              "generated": 2016104,
+              "depth": 29,
+              "reused": false,
+              "reused_layer_images": 9,
+              "reachable_bdd_nodes": 478066,
+              "seconds": 43.699511,
+              "refinement_rounds": 1,
+              "learned_members": 138,
+              "initial_hint_members": 138
+            },
+            {
+              "verdict": "success",
+              "distinct": 491037,
+              "generated": 1709874,
+              "depth": 29,
+              "reused": false,
+              "reused_layer_images": 8,
+              "reachable_bdd_nodes": 390276,
+              "seconds": 36.144006,
+              "refinement_rounds": 1,
+              "learned_members": 138,
+              "initial_hint_members": 138
+            }
+          ]
+        },
+        "changed": {
+          "wall_seconds": 104.11,
+          "peak_rss_kib": 543432,
+          "revisions": [
+            {
+              "verdict": "success",
+              "distinct": 491037,
+              "generated": 1709874,
+              "depth": 29,
+              "reused": false,
+              "reachable_bdd_nodes": 390276,
+              "seconds": 44.573114,
+              "refinement_rounds": 11,
+              "learned_members": 138,
+              "initial_hint_members": 0
+            },
+            {
+              "verdict": "success",
+              "distinct": 598541,
+              "generated": 2016104,
+              "depth": 29,
+              "reused": false,
+              "reused_layer_images": 29,
+              "reachable_bdd_nodes": 478066,
+              "seconds": 23.946632,
+              "refinement_rounds": 1,
+              "learned_members": 138,
+              "initial_hint_members": 138
+            },
+            {
+              "verdict": "success",
+              "distinct": 491037,
+              "generated": 1709874,
+              "depth": 29,
+              "reused": false,
+              "reused_layer_images": 8,
+              "reachable_bdd_nodes": 390276,
+              "seconds": 35.387905,
+              "refinement_rounds": 1,
+              "learned_members": 138,
+              "initial_hint_members": 138
+            }
+          ]
+        }
+      }
+    },
+    "correctness": "Independent review checked 34 edits and 34 fresh controls per mode, ordinary and refined. Explicit breadth-first search checked shortest depth for every vertex of the additive graph. The independent validator accepted all 124 reported witnesses replayed in the review. The committed excluded-source regression requires the real six-state path in both modes.",
+    "independent_quarantine_drain": {
+      "method": "Unmodified Drain.tla and QuarantineEqualsProposerChanged.cfg, --compat=tlc --workers 8 --fp 0 --seed 0. Same inputs as symbolic run. Fingerprint and first exact run on one c7i.4xlarge; compact exact store on another x86 EC2 host. Each completed check exhausted the queue.",
+      "runs": {
+        "exact": {
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 26,
+            "distinct": 58720259,
+            "exhaustive": false,
+            "generated": 288514972,
+            "initial_generated": 1,
+            "left_on_queue": 5403211,
+            "reported_by_tlc": false
+          },
+          "peak_rss_kib": 23608940,
+          "seconds": 321.92,
+          "exact_states": 58720259,
+          "store": "exact",
+          "memory_limit_gib": 22,
+          "stop_resource": "memory",
+          "binary_sha256": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1"
+        },
+        "fingerprint": {
+          "verdict": "success",
+          "exit_code": 0,
+          "statistics": {
+            "depth": 43,
+            "distinct": 77384096,
+            "generated": 401456611,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "peak_rss_kib": 1864032,
+          "seconds": 274.18,
+          "exact_states": 0,
+          "store": "fingerprint",
+          "memory_limit_gib": 22,
+          "stop_resource": null,
+          "binary_sha256": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1"
+        }
+      }
+    }
   }
 }
