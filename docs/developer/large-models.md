@@ -768,6 +768,26 @@ The original three-good-acceptor configuration has a constructively reachable fa
 
 With one, two or three allowed 1b messages, Core exact and pinned TLC exhausted 9, 81 and 729 states. Constraining the knowledge sets to remain empty reduced those counts to 2, 4 and 8. Both checkers evaluated the three message-domain cardinalities on the original constants. A 43-state construction covering all five message types and multiple learning choices replayed under the unmodified source and CFG. Deleting a previously sent message failed the next step. These are lower-bound and subgraph results. A full safety verdict requires discharging the original `Spec => []Inv` proof obligations or another exhaustive argument. [Pinned source](https://github.com/tlaplus/Examples/blob/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/byzpaxos/BPConProof.tla#L494-L512) · [Configurations, commands and measurements](../../conformance/reports/perf/2026-11-21-bpcon-property.json).
 
+### Find the failed-recipient counterexample in EnvironmentController
+
+The released three-process failure detector violates its configured `TypeOK` invariant. A process sends a message to process 3 while it is healthy. Process 3 crashes before delivery. Each environmental tick increments the age of that message. The released `DELTAConstraint` checks a healthy recipient’s deliveries, while the conjunct that would cap the age for a crashed recipient is commented out. At age 43 the box exceeds the model’s `maxAge = 42`.
+
+A [restricted schedule](../../scripts/perf/scale/detector/Schedule.tla) conjoins the original `Next` with a choice of which process runs next and which boxes a healthy receiver takes. Core found the invariant violation in 0.05 s and pinned TLC in 1.73 s on one AWS CPU. All eleven variables matched across every one of their 140 states. Standalone replay checked the witness against the unchanged original specification and configuration in 0.04 s. Changing the final failure count or reactivating the source’s commented timing constraint invalidated the path. The 140-state witness establishes an upper bound on the shortest counterexample.
+
+After the crash, two reachable states 15 steps apart differ only in the undelivered box’s age, which rises by five. The healthy processes can repeat these steps indefinitely. Each period contains nonstuttering clock and process steps satisfying the original weak fairness condition. Because the recipient has already failed, no guard on these steps reads the orphan’s age. This establishes infinitely many concrete states in the released graph. A longer prefix to age 129 replayed in full. The two temporal properties remain open. Unrestricted simulation checked 96 behaviors across three seeds without exposing this safety failure. [Sources, timings, search counts, cycle and replay controls](../../conformance/reports/perf/2026-11-21-environment-detector.json).
+
+To reproduce, set `MODEL` to the pinned Examples `specifications/detector_chan96` directory and `DIVE` to the ordinary binary. Copy the schedule into a temporary directory, then run the following commands there. Removing the temporal properties in the restricted search avoids drawing conclusions about fairness from a smaller action relation. Replay uses the original CFG.
+
+```sh
+sed '/^PROPERTIES/d; s/^SPECIFICATION Spec/INIT Init\nNEXT Scheduled/' "$MODEL/EnvironmentController.cfg" > Schedule.cfg
+"$DIVE" check Schedule.tla --config Schedule.cfg --library-path "$MODEL" --workers 1 --seed 0 --fp 0 --store exact --output json > search.json
+# A found invariant violation returns exit 12.
+jq -e '.counterexample.trace' search.json > witness.json
+"$DIVE" validate-trace "$MODEL/EnvironmentController.tla" --config "$MODEL/EnvironmentController.cfg" --trace witness.json --seed 0 --fp 0 --output json
+```
+
+The same method applies to other models with a suspected bad schedule. An invariant failure becomes evidence about the original only after replay verifies its initialization, each step and the named invariant ending on the original inputs.
+
 ### Car Talk evaluates a constant expression
 
 Lamport’s five-piece `CarTalkPuzzle.toolbox/Model_3` asks TLC to print

@@ -1,0 +1,235 @@
+{
+  "model": "Examples/specifications/detector_chan96/EnvironmentController.cfg",
+  "examples_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "host": "EC2 c7i.4xlarge us-east-2, Xeon Platinum 8488C, Ubuntu, separate runs pinned to one CPU. Wall seconds and peak process RSS in KiB from GNU time.",
+  "sha256": {
+    "EnvironmentController.cfg": "1cb9f21665fbe58dcc90cf0d05d99f69e8c87a01258d58c5cb952168ff2a3388",
+    "EnvironmentController.tla": "27d4468fd8dae883b066b2e9aba0b3bae1402260e373362ed7b79935c0480372",
+    "Age_Channel.tla": "2235e13cbf2e930caeda1ae3a592c1f6e3c166a9903bddb8bef4e931cb413d47",
+    "EPFailureDetector.tla": "34407972eef86a8353374086558ede7a1ae611794ff399ca528112b431414b25",
+    "Schedule.tla": "1c4d12df503c119563f8edc3e3bf5b4b3fd45f690c2e3eb87f25ec7dfded2956",
+    "Schedule.cfg": "251342f50d50dda9b255fdb8f3d67b58b428506ba7c0150aab19825bf55c3250",
+    "Growth.tla": "fd29c2272f7147498ed709817a9b3d36ef42034da9356abb0e9fbc33475c9e43",
+    "Growth.cfg": "126caf438716bf296f46c39b2bc24980d68aa1de7f9eb0adcba6e28e41b86127",
+    "BoundedController.tla": "d95cbcb8a3c740df4279e069c425a213862a5fb19bb28a9ea33c1aa265c81a67"
+  },
+  "tools": {
+    "core_sha256": "d54a5576c1e25aacefb74db02c68dd04136620517d4dbe90eaac881115c8dbc0",
+    "pinned_tlc_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "original_config": "N=3, T=1, d0=2, SendPoint=2, PredictPoint=3, DELTA=1, PHI=1; Spec, TypeOK, StrongCompleteness, EventuallyStrongAccuracy",
+  "scheduled": {
+    "core": {
+      "wall_seconds": 0.05,
+      "peak_rss_kib": 33688
+    },
+    "tlc": {
+      "wall_seconds": 1.73,
+      "peak_rss_kib": 116944
+    },
+    "exit_code_each": 12,
+    "verdict": "invariant-violation",
+    "invariant": "TypeOK",
+    "statistics_each": {
+      "depth": 140,
+      "distinct": 140,
+      "generated": 188,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "encoding_comparison": "All 140 states matched variable by variable against pinned TLC -dumpTrace json after decoding sequences, records and sets."
+  },
+  "unrestricted_validation": {
+    "genuine": {
+      "command": "validate-trace",
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ],
+      "result": "valid",
+      "schema_version": 4,
+      "wall_seconds": 0.04,
+      "peak_rss_kib": 40176
+    },
+    "forgery": {
+      "command": "validate-trace",
+      "failure": {
+        "check": "next",
+        "detail": "the step into this state does not satisfy the next-state relation line 304, col 10 to line 304, col 13 of module EnvironmentController",
+        "state": 139
+      },
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ],
+      "result": "invalid",
+      "schema_version": 4,
+      "wall_seconds": 0.04,
+      "peak_rss_kib": 40132
+    },
+    "forgery_edit": "Set F=0 in the last state, leaving failed[3] true.",
+    "reactivate_commented_postcondition": {
+      "command": "validate-trace",
+      "failure": {
+        "check": "next",
+        "detail": "the step into this state does not satisfy the next-state relation line 304, col 10 to line 304, col 13 of module BoundedController",
+        "state": 16
+      },
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ],
+      "result": "invalid",
+      "schema_version": 4
+    },
+    "mutation": "Restore the source\u2019s commented DELTAConstraint conjunct that bounds in-transit message ages for failed recipients. Only the wrapper/module name also changes."
+  },
+  "growth": {
+    "schedule": "Raise the probe invariant from age <=42 to age <=128 and remove the original invariant from the probe CFG. The unrestricted raw Next is unchanged.",
+    "states": 398,
+    "last_orphan_age": 129,
+    "core": {
+      "wall_seconds": 0.14,
+      "peak_rss_kib": 72524
+    },
+    "original_behavior_replay": {
+      "command": "validate-trace",
+      "length": 398,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ],
+      "result": "valid",
+      "schema_version": 4,
+      "wall_seconds": 0.07,
+      "peak_rss_kib": 75052
+    },
+    "cycle": {
+      "start_zero_based": 21,
+      "end_zero_based": 36,
+      "orphan_age": [
+        3,
+        8
+      ],
+      "steps": 15,
+      "env_ticks": 5,
+      "validation": "The other ten variables match, and all inTransit boxes match after setting the unique failed-recipient box age to zero. No action delivers that box. Healthy-recipient constraints never read its age. Repeating the 15 steps increases it by five without changing any guard."
+    }
+  },
+  "simulation": [
+    {
+      "seed": 0,
+      "depth": 320,
+      "requested_traces": 32,
+      "result": "sampled",
+      "generated": 31185,
+      "traces": {
+        "cancelled": 0,
+        "closed": 32,
+        "extended_closed": 0,
+        "extended_terminal": 0,
+        "terminal": 0,
+        "truncated": 0,
+        "violated": 0
+      },
+      "properties": [
+        {
+          "behaviors_checked": 32,
+          "checked_traces": 32,
+          "name": "StrongCompleteness",
+          "part": "temporal",
+          "refuted_by_trace": null,
+          "unchecked_reasons": {},
+          "unchecked_traces": 0
+        },
+        {
+          "behaviors_checked": 32,
+          "checked_traces": 32,
+          "name": "EventuallyStrongAccuracy",
+          "part": "temporal",
+          "refuted_by_trace": null,
+          "unchecked_reasons": {},
+          "unchecked_traces": 0
+        }
+      ],
+      "wall_seconds": 1.0,
+      "peak_rss_kib": 61920
+    },
+    {
+      "seed": 1,
+      "depth": 320,
+      "requested_traces": 32,
+      "result": "sampled",
+      "generated": 31243,
+      "traces": {
+        "cancelled": 0,
+        "closed": 32,
+        "extended_closed": 0,
+        "extended_terminal": 0,
+        "terminal": 0,
+        "truncated": 0,
+        "violated": 0
+      },
+      "properties": [
+        {
+          "behaviors_checked": 32,
+          "checked_traces": 32,
+          "name": "StrongCompleteness",
+          "part": "temporal",
+          "refuted_by_trace": null,
+          "unchecked_reasons": {},
+          "unchecked_traces": 0
+        },
+        {
+          "behaviors_checked": 32,
+          "checked_traces": 32,
+          "name": "EventuallyStrongAccuracy",
+          "part": "temporal",
+          "refuted_by_trace": null,
+          "unchecked_reasons": {},
+          "unchecked_traces": 0
+        }
+      ],
+      "wall_seconds": 0.97,
+      "peak_rss_kib": 59840
+    },
+    {
+      "seed": 2,
+      "depth": 320,
+      "requested_traces": 32,
+      "result": "sampled",
+      "generated": 31312,
+      "traces": {
+        "cancelled": 0,
+        "closed": 32,
+        "extended_closed": 0,
+        "extended_terminal": 0,
+        "terminal": 0,
+        "truncated": 0,
+        "violated": 0
+      },
+      "properties": [
+        {
+          "behaviors_checked": 32,
+          "checked_traces": 32,
+          "name": "StrongCompleteness",
+          "part": "temporal",
+          "refuted_by_trace": null,
+          "unchecked_reasons": {},
+          "unchecked_traces": 0
+        },
+        {
+          "behaviors_checked": 32,
+          "checked_traces": 32,
+          "name": "EventuallyStrongAccuracy",
+          "part": "temporal",
+          "refuted_by_trace": null,
+          "unchecked_reasons": {},
+          "unchecked_traces": 0
+        }
+      ],
+      "wall_seconds": 0.99,
+      "peak_rss_kib": 61988
+    }
+  ]
+}
