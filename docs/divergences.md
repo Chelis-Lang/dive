@@ -82,6 +82,15 @@ in default Core, with 3 distinct states, depth 2 and no queued states in both:
 canonical enumeration removes the repeated `[a |-> 1]` from the lazy union.
 `core_rules` asserts that exact generated-count difference without an oracle edit.
 
+The same difference applies to initial membership. With
+`Init == x \in ([a : {0}] \cup [a : {0,1}])` and `Next == UNCHANGED x`,
+TLC emits three initial witnesses and five states overall. Default Core emits
+two initial witnesses and four states overall. Binding the union to `S` in
+`LET S == ... IN S` gives the same results. Nominal compat refuses the direct
+form and reports the canonical counts for the `LET` form. Every completed
+run succeeds with two distinct states, depth one, exit zero and an empty
+queue.
+
 Tests: `core_receiver_consumers` covers both MixedView literal orders,
 MappedMultipleSubsets, independent valid/invalid words and large symbolic domains.
 
