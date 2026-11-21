@@ -1,0 +1,130 @@
+{
+  "source": "Vanlightly/s3-wal-collection @ 35fdc537af4d226f43b4574cded1764375f264ac, released SlateDBWAL.tla with its six invariants and writer/value symmetry. Medium disables restarts; TwoRetry restores one. Fixed and switch differ only at EnableFix. The four-writer variant also extends Writers by w4.",
+  "machine": "Dedicated AWS r7i.8xlarge, us-east-2, 16 logical CPUs 0\u201315, single fresh process per run. GNU time wall seconds and maximum RSS in KiB. Each data point is one run.",
+  "identities": {
+    "dive": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+    "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+    "spec/Medium.cfg": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10",
+    "spec/TwoRetry.cfg": "91f6681396fc569e13cf614c2cfca4007761b69911a8e0782502cfaad856986f",
+    "spec/SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169"
+  },
+  "command": "taskset -c 0-15 dive check spec/SlateDBWAL.tla --config EDITED.cfg --library-path modules --workers 16 --store exact --time-limit SECONDS --max-memory 212g --seed 0 --fp 0 --output json",
+  "time_limits_s": {
+    "Medium and TwoRetry": 900,
+    "released-switch": 3300,
+    "four-writers-switch": 3300,
+    "four-writers-fixed": 4500
+  },
+  "validation": "dive validate-trace spec/SlateDBWAL.tla --config EDITED.cfg --library-path modules --trace saved.json --fp 0 --seed 0 --output json. The validator checks the concrete predicates and Next steps; its notes list parameterized display labels.",
+  "released_fixed": "2026-11-21-slatedb-full-comparison.json",
+  "rows": [
+    {
+      "config": "Medium-fixed",
+      "config_sha256": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10",
+      "verdict": "success",
+      "property": null,
+      "wall_s": 0.23,
+      "peak_rss_kib": 138244,
+      "statistics": {
+        "initial_generated": 1,
+        "distinct": 74637,
+        "generated": 198123,
+        "depth": 69,
+        "left_on_queue": 0
+      },
+      "exit": 0
+    },
+    {
+      "config": "Medium-switch",
+      "config_sha256": "383df324c1cc9b357d5fe60588b25a513f0e7982745f35f80ff333cff6959d7b",
+      "verdict": "success",
+      "property": null,
+      "wall_s": 0.18,
+      "peak_rss_kib": 129916,
+      "statistics": {
+        "initial_generated": 1,
+        "distinct": 52260,
+        "generated": 138979,
+        "depth": 63,
+        "left_on_queue": 0
+      },
+      "exit": 0
+    },
+    {
+      "config": "TwoRetry-fixed",
+      "config_sha256": "91f6681396fc569e13cf614c2cfca4007761b69911a8e0782502cfaad856986f",
+      "verdict": "success",
+      "property": null,
+      "wall_s": 9.92,
+      "peak_rss_kib": 540044,
+      "statistics": {
+        "initial_generated": 1,
+        "distinct": 3761377,
+        "generated": 12508420,
+        "depth": 93,
+        "left_on_queue": 0
+      },
+      "exit": 0
+    },
+    {
+      "config": "TwoRetry-switch",
+      "config_sha256": "7cb8c73eb6e62d88f3fceab41e972fea41806a13c79228d0839e2c8cbc9b4ea2",
+      "verdict": "success",
+      "property": null,
+      "wall_s": 4.33,
+      "peak_rss_kib": 290164,
+      "statistics": {
+        "initial_generated": 1,
+        "distinct": 1601824,
+        "generated": 5211591,
+        "depth": 84,
+        "left_on_queue": 0
+      },
+      "exit": 0
+    },
+    {
+      "config": "released-switch",
+      "config_sha256": "2c9711665a226af8aef9b03f63fc674e39dd14ca6a787cf68482dfd915e54f8e",
+      "verdict": "invariant-violation",
+      "property": "ConsistentMachineData",
+      "wall_s": 1810.72,
+      "peak_rss_kib": 35554000,
+      "statistics": {
+        "initial_generated": 1,
+        "distinct": 436254077,
+        "generated": 1787047699,
+        "depth": 65,
+        "left_on_queue": 45233104
+      },
+      "exit": 12,
+      "validated_trace": {
+        "states": 65,
+        "ending": {
+          "kind": "invariant",
+          "name": "ConsistentMachineData"
+        },
+        "sha256": "ea4967d6476428b88d4cfb6eaf2fcc140242b4211258a3a3de44f4f875efa2d9",
+        "encoding": "UTF-8 Python json.dumps of the standalone trace, default separators and original key order.",
+        "validator_notes": [
+          "label `AppendEntryToWAL` names an operator with parameters; not checked",
+          "label `CheckBoundary` names an operator with parameters; not checked",
+          "label `CheckWalId` names an operator with parameters; not checked",
+          "label `ClaimEpoch` names an operator with parameters; not checked",
+          "label `CommitSnapshot` names an operator with parameters; not checked",
+          "label `DeleteWalEntry` names an operator with parameters; not checked",
+          "label `FindNextWalId` names an operator with parameters; not checked",
+          "label `LoadGcBoundary` names an operator with parameters; not checked",
+          "label `LoadSnapshot` names an operator with parameters; not checked",
+          "label `ReplayWAL` names an operator with parameters; not checked",
+          "label `RestartFencedWriter` names an operator with parameters; not checked",
+          "label `StartGC` names an operator with parameters; not checked",
+          "label `ValidateEpochBeforeReplay` names an operator with parameters; not checked",
+          "label `WriteFenceWalEntry` names an operator with parameters; not checked",
+          "label `WriteSnapshot` names an operator with parameters; not checked",
+          "label `WriterInitialManifestLoad` names an operator with parameters; not checked"
+        ],
+        "result": "valid"
+      }
+    }
+  ]
+}
