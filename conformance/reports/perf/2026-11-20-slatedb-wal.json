@@ -1934,5 +1934,47 @@
         }
       }
     }
+  },
+  "one_value_exact_membership": {
+    "host": "Isolated r7i.16xlarge, 32 physical cores, sequential fresh processes. The table retains canonical state identities, compares equality after a hash match, and includes symmetry representatives.",
+    "command": "dive check SlateDBWAL.tla --config OneValue.cfg --library-path modules --store exact --compat=tlc --workers 32 --fp 0 --seed 0 --max-memory 350g --time-limit 10800s --output json; add --max-states 5000000 for the prefix.",
+    "hashes_sha256": {
+      "row-final": "30cd9224388dd8eae4090d6143c5bcae7f43a2e7836b2ffd1c57bc285a6bea7c",
+      "spec/OneValue.cfg": "a38c2cd3b7711bfc8dfdec7c0d1900266a66e7ede85cff1ad4c34b5eeb9f6094",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c"
+    },
+    "runs": {
+      "five-million": {
+        "exit_code": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 43,
+          "distinct": 5000000,
+          "exhaustive": false,
+          "generated": 17120939,
+          "initial_generated": 1,
+          "left_on_queue": 825125,
+          "reported_by_tlc": false
+        },
+        "wall_seconds": 13.2,
+        "peak_rss_kib": 2430000,
+        "retained_exact_states": 5000000
+      },
+      "complete": {
+        "exit_code": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 126,
+          "distinct": 242213642,
+          "generated": 1068416158,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "wall_seconds": 778.53,
+        "peak_rss_kib": 94780232,
+        "retained_exact_states": 242213642
+      }
+    }
   }
 }
