@@ -96,12 +96,22 @@ def main():
             assert (row["distinct"], row["generated"], row["depth"]) == counts
             assert row["occupancies"] == (n+2)*(n+1)//2+n
 
+        members = ", ".join(f"r{i}" for i in range(8193))
+        cfg.write_text(base.replace("{r1, r2, r3}", "{" + members + "}"))
+        oversized = run(tcommit, cfg, "--type-invariant", "TCTypeOK", code=2)
+        assert "owner count" in oversized["reason"]
+
         crew = folder / "Crew.tla"
         crew.write_text(CREW)
         cfgbody = ('CONSTANTS CrewIds={a,b,c} Chief=a\nINIT StartState\nNEXT Step\n'
                    'INVARIANTS Bounds Safe\nCHECK_DEADLOCK FALSE\n')
         cfg.write_text(cfgbody)
         original = compare(crew, cfg, "Bounds")
+        crew.write_text(CREW.replace("StartState == Empty \\/ Empty",
+                                     r'StartState == Empty \/ job = [w \in CrewIds |-> "busy"]'))
+        multiple = compare(crew, cfg, "Bounds")
+        assert multiple["distinct"] > original["distinct"]
+        crew.write_text(CREW)
         cfg.write_text(cfgbody.replace("INIT StartState", "INIT Empty"))
         single = compare(crew, cfg, "Bounds")
         assert original["generated"] == single["generated"] + 1

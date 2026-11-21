@@ -136,7 +136,7 @@ class PopulationSource:
         require(all(isinstance(x, dict) and set(x) == {"model"} and "_" not in x["model"] for x in members),
                 "expected untyped model-value owners")
         self.ids = [x["model"] for x in members]
-        require(len(self.ids) <= 4096 and len(self.ids) == len(set(self.ids)), "owner count or uniqueness")
+        require(len(self.ids) <= 8192 and len(self.ids) == len(set(self.ids)), "owner count or uniqueness")
         self.statuses = [self.expect(item, "Str") for item in self.expect(space["range"], "SetEnum")]
         require(1 <= len(self.statuses) <= 8 and len(self.statuses) == len(set(self.statuses)),
                 "expected one to eight distinct literal string statuses")

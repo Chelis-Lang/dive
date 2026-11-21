@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Source-checkout prototype for exact labeled BFS over anonymous finite populations."""
+"""Exact labeled BFS over reachable occupancies of an admitted TLA+ status table."""
 
 import argparse
 import json
@@ -24,16 +24,16 @@ def shift(population, source, target):
     return tuple(changed)
 
 
-def witness(model, parents, end, ending):
+def witness(model, parents, roots, strides, end, ending):
     moves = []
-    population = end
-    while parents[population] is not None:
-        source, target = parents[population]
+    key = end
+    while parents[key] is not None:
+        source, target = parents[key]
         moves.append((source, target))
-        population = shift(population, target, source)
+        key += strides[source] - strides[target]
     if (len(moves) + 1) * max(1, len(model.ids)) > 100_000:
         raise Budget("concrete witness exceeds 100000 status entries")
-    root = next((i for i, count in enumerate(population) if count), 0)
+    root = roots[key]
     concrete = [root] * len(model.ids)
 
     def state():
@@ -48,40 +48,47 @@ def witness(model, parents, end, ending):
 
 
 def search(model, limit):
-    parents = {}
+    # Each count fits in one digit. The last status follows from the fixed total.
+    width = max(1, len(model.ids).bit_length())
+    strides = [1 << (width * i) for i in range(len(model.statuses) - 1)] + [0]
+    moves = [[(source, target) for target in range(len(strides))] for source in range(len(strides))]
+    parents, roots = {}, {}
     frontier = []
     for status in model.initial:
         population = tuple(len(model.ids) if i == status else 0 for i in range(len(model.statuses)))
-        if population not in parents:
+        key = len(model.ids) * strides[status]
+        if key not in parents:
             if len(parents) == limit:
                 raise Budget("occupancy limit")
-            parents[population] = None
-            frontier.append((population, 1))
+            parents[key] = None
+            roots[key] = status
+            frontier.append((key, population, 1))
 
     distinct, generated, depth = 0, len(model.initial), 0
     while frontier:
         depth += 1
         following = []
-        for population, weight in frontier:
+        for key, population, weight in frontier:
             mask = sum(1 << i for i, count in enumerate(population) if count)
             if mask in model.violations:
                 ending = model.violations[mask]
                 verdict = "invariant-violation" if ending["kind"] == "invariant" else "deadlock"
-                return {"verdict": verdict, "depth": depth, "ending": ending}, witness(model, parents, population, ending)
+                return {"verdict": verdict, "depth": depth, "ending": ending}, witness(model, parents, roots, strides, key, ending)
             distinct += weight
             degree = 0
             for source, target, multiplicity in model.tables[mask]:
                 degree += multiplicity * (1 if source is None else population[source])
                 if source == target:
                     continue
-                successor = shift(population, source, target)
-                if successor not in parents:
+                next_key = key + strides[target] - strides[source]
+                if next_key not in parents:
                     if len(parents) == limit:
                         raise Budget("occupancy limit")
-                    parents[successor] = (source, target)
+                    parents[next_key] = moves[source][target]
+                    successor = shift(population, source, target)
                     # The multinomial orbit size changes by c_source / (c_target + 1).
                     next_weight = weight * population[source] // successor[target]
-                    following.append((successor, next_weight))
+                    following.append((next_key, successor, next_weight))
             generated += weight * degree
         frontier = following
 
@@ -123,6 +130,10 @@ def run(args):
 
 def main():
     args = argparse.Namespace(**json.loads(sys.argv[1]))
+    # The domain caps bound a complete generated count below 8,000 digits.
+    # This private worker also emits exact JSON integers for the public API.
+    if 0 < sys.get_int_max_str_digits() < 8_000:
+        sys.set_int_max_str_digits(8_000)
     started = time.monotonic()
     try:
         row = run(args)
@@ -133,7 +144,9 @@ def main():
         row, code = {"verdict": "stopped", "reason": str(error)}, 4
     except MemoryError:
         row, code = {"verdict": "stopped", "reason": "occupancy worker memory budget"}, 4
-    except (OSError, RecursionError, RuntimeError, json.JSONDecodeError) as error:
+    except RecursionError:
+        row, code = {"verdict": "stopped", "reason": "bound expression nesting limit"}, 4
+    except (OSError, RuntimeError, json.JSONDecodeError) as error:
         row, code = {"verdict": "error", "reason": str(error)}, 3
     row.update(format="dive-occupancy-report-v1", module=args.module, config=args.config, seconds=round(time.monotonic() - started, 6))
     print(json.dumps(row))

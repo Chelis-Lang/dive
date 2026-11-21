@@ -68,6 +68,23 @@ The completed search reports eight distinct states, 21 generated states
 including the initial state, and depth four. For comparison, run
 `target/release/dive check Receipts.tla --config Receipts.cfg --workers 1 --store exact --compat=tlc --output json`.
 
+## Checking interchangeable status tables
+
+Use `dive check --strategy occupancy` when a finite population shares one table of local string statuses. This optional Linux strategy reads the bound TLA+ and configuration and performs exact, labeled breadth-first search. Run the three-manager control from the published Examples `specifications/transaction_commit` directory.
+
+```sh
+dive check TCommit.tla --config TCommit.cfg --strategy occupancy \
+  --type-invariant TCTypeOK --time-limit 30s --max-memory 512m --output json
+```
+
+The released three-manager configuration returns 34 concrete distinct states, 94 generated occurrences, depth 7 and 13 reachable population vectors. A vector records the number of participants in each local status. The checker explores one vector per orbit, weights it by the number of labeled assignments, and counts every enabled original action witness, including duplicate and self-loop witnesses. It stores an exact integer key for each vector and the participant move that discovered it. On a violation it reconstructs a shortest path with concrete identifiers and runs `dive validate-trace` before returning exit code 1. Use `--trace FILE` to save that validated word.
+
+Admission currently requires one total table whose declared type is `[Ids -> {"s₁", …, "sₖ"}]`, a finite configured set of up to 8,192 distinct untyped model-value participants and at most eight string statuses. Each initial alternative assigns a uniform status to the whole table. Each action branch stutters or updates a single existentially bound participant to a literal status. Guards can read that participant's status and quantify over statuses present in the complete participant domain. Invariants can quantify over one or two participants, including coincident indices. Input that distinguishes a named participant, correlates a second table, constrains admitted states, selects CFG symmetry or uses another unsupported feature returns a named refusal. The ordinary Core and symbolic strategies remain available for richer sources.
+
+`--max-orbits N` bounds the number of reachable vectors retained, including initial vectors. The default is 1,000,000. Set a larger limit explicitly for larger exact searches. Time, memory and orbit-budget stops carry no completed counts. Success rows include integer `distinct` and `generated`, lossless decimal strings `distinct_decimal` and `generated_decimal`, `depth`, `occupancies` and the configured invariant names. A search with `--strategy occupancy` starts at Init. Existing Sail symbolic sessions use `--strategy symbolic` to emit and independently verify BDD predicates across edits.
+
+For a source checkout, use the same supervisor with `python3 scripts/symbolic/check.py MODEL.tla MODEL.cfg --occupancy`, supplying `--dive`, `--exporter` and `--type-invariant` as needed. [Source admission, measurement data and reproduction](../developer/large-models.md#checking-anonymous-processes-by-population).
+
 ## Symbolic layout for nested tables
 
 A table such as `snapshotStore[t][k]` can describe the same transaction and key as `written[t]` and `missed[t]`. When multiple labeled tables share both complete finite index domains, the worker puts related fields next to one another. Ordinary searches keep the common inner key first. With a singleton inner domain, the bits for one outer index can sit beside all its fields. During direct induction, a larger outer domain places each transaction's cross-key obligations together. Searches and saved-predicate verification choose the same encoding. The worker rechecks all proof obligations when reading an older predicate. Configured symmetry and refined set layouts keep their own allocation rules.

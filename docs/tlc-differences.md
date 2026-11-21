@@ -1647,6 +1647,8 @@ name.
 
 ## D-030: Finite symbolic safety evidence
 
+The opt-in Linux occupancy strategy uses the same complete-search and independently validated refutation evidence. On its admitted labeled source fragment, it also reports the number of reachable population vectors and decimal strings for exact counts. It supports fresh search. [Occupancy checking](user/symbolic.md#checking-interchangeable-status-tables).
+
 The [finite symbolic checker](user/symbolic.md) has its own opt-in proof
 and search entry point. For example, with `--prove-inductive` it can prove
 the receipt-set bound by checking Init and each action. Its report then

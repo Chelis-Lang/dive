@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check a finite TLA+ safety model using binary decision diagrams."""
+"""Supervise a finite symbolic or occupancy safety check of the bound TLA+ source."""
 
 import argparse
 import json
@@ -57,7 +57,7 @@ def main():
         "--verify-predicate", type=Path, help="prove safety by checking a supplied predicate for induction"
     )
     parser.add_argument("--occupancy", action="store_true", help="exact labeled BFS on anonymous status tables")
-    parser.add_argument("--max-orbits", type=int, help="occupied-vector budget for the occupancy strategy")
+    parser.add_argument("--max-orbits", type=int, help="maximum reachable population vectors for the occupancy strategy")
     parser.add_argument("--trace", type=Path)
     parser.add_argument(
         "--recheck",
