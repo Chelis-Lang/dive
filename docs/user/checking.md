@@ -23,6 +23,11 @@ singletons in base-element order. If none qualifies, the checker reports that
 the search needs larger subsets. TLC integer mode requires the base size to
 fit a signed 32-bit integer. [LuPastry+ neighbour choices](../developer/large-models.md#lupastry-neighbour-choice-at-32-and-64-addresses).
 
+Core can split a next-state action such as `\E i, j \in Nodes : Send(i, j)`
+into one action per pair. When the pairs bind the same slots in a pure
+expression, they share compiled instructions. Each pair still has its own
+parameter values, action label and guard memo statistics. [LuPastry+ measurements](../developer/large-models.md#lupastry-message-and-leaf-domains).
+
 ## Select a closed model input in the CFG
 
 When a zero-argument TLA+ definition selects a host input, you can give that

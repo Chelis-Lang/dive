@@ -11,6 +11,8 @@ are in git history.
 
 - Core checks membership in [finite record message types](docs/user/checking.md) without materializing eligible record unions, and independently replays canonical traces with scalar payloads of different types.
 
+- Core can check larger [bounded existential actions](docs/user/checking.md) by compiling their pure parameterized expressions once per slot layout.
+
 - The [EmergencyCall benchmark](docs/developer/large-models.md#enlarge-the-emergencycall-number-sets) checks four larger source configurations and exports independently validated counterexamples.
 
 - The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.
