@@ -11,6 +11,12 @@ dive check docs/user/examples/Counter.tla --compat=tlc --seed 7 --fp 0 --workers
 
 For finite function and set models, the optional [symbolic safety checker](symbolic.md) can reuse a complete reachable set or prove invariants by induction.
 
+For message types written as unions of finite record sets, Core can check
+membership directly against the fields. This also works inside a containing
+record or a powerset, such as `MessagePool \in SUBSET Message`. Asking for the
+elements of the type still requires actual enumeration. The [LuPastry+ example](../developer/large-models.md#lupastry-message-and-leaf-domains)
+shows how to distinguish a large type from a large set of reachable states.
+
 ## Select a closed model input in the CFG
 
 When a zero-argument TLA+ definition selects a host input, you can give that

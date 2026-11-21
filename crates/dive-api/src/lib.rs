@@ -89,6 +89,7 @@ mod core_native_atoms;
 mod core_native_graph;
 mod core_native_values;
 mod core_random;
+mod core_record_types;
 mod core_sample;
 mod core_temporal;
 mod mode_budget;

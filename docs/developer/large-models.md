@@ -664,6 +664,14 @@ The archive includes `Next` and a separate `NextMC` that omits lookup actions. I
 
 Keeping all four nodes and enabling lookup actions with `Next` changed the result again. Neither definition completed on either checker in the one-worker run. At its 420 s limit the counted Core run had reached depth 17 with 1,233,725 distinct states and 494,504 still queued. The bounded Core run reached the same depth with 1,138,948 distinct and 461,672 queued. The TLC record gives the last periodic sample before each external deadline.
 
+### LuPastry+ message and leaf domains
+
+A one-state experiment isolated an eight-address limit to checking whether the **empty** message pool belongs to `SUBSET Message`. The earlier Core build exhausted a 15 GiB cgroup. It imported eight record variants by enumerating their possible payloads, including routing functions. Core now keeps eligible closed record families as finite set descriptors and tests the fields of the message presented to it. The explicit states, invariants and transition relation stay the same.
+
+On a dedicated EC2 c7i.4xlarge, exact Core and pinned TLC exhausted 141 distinct states, 2,560 generated and depth 19 with seven of eight addresses initially ready. With six ready they agreed on 92,269 distinct, 3,798,734 generated and depth 38. In the four-worker comparison the default Core candidate took 0.76 s and 30.79 s. TLC took 1.64 s and 52.50 s. Making a nonempty message pool an invariant violation gave both engines the same depth-two failure. The independent validator accepted the Core witness and rejected a changed transition. [Machine, memory, commands and full measurements](../../conformance/reports/perf/2026-11-21-pastry-source-scale.json).
+
+A second problem appears when a model builds a large candidate domain and immediately removes nearly all of it. For `L=1`, every valid left or right leaf set is the empty set or a singleton. The preparer's `--singleton-leaves` expresses that bound before forming the record product. At 16 addresses this takes the candidate count from 68,719,476,736 to 4,624, of which 4,096 pass the original predicate. On the 15-ready model TLC exhausted 222 distinct states, 7,623 generated and depth 19 with both forms. With the narrower bound Core reached its four-million-node compiled plan limit. At 16 addresses with two eligible joiners, TLC exhausted 84,370 distinct states, 6,375,410 generated and depth 38 with the narrower leaf declaration. Core reached the same compilation limit. The number of parameterized actions at startup is a separate limit from the number of states reached.
+
 To rebuild a measured input, download `lupastryplus.zip` from the authors’ project page.
 The preparer verifies its digest and writes to a new directory. For the library
 path, combine the five theorem modules listed in the measurement record from

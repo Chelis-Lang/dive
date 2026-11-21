@@ -139,6 +139,22 @@ impl Machine {
         }
         if self.fuel != u64::MAX {
             self.domain_work(h, true, 0)?;
+        } else if self.transient_bound != usize::MAX
+            && matches!(
+                self.heap.kind(h),
+                Some(Kind::RecSet | Kind::FcnSet | Kind::Product | Kind::Subset | Kind::Union)
+            )
+            && self.heap.is_finite(h)
+        {
+            // Startup can otherwise materialize an entire record product inside
+            // a single Heap call before its next transient-memory check.
+            let remaining = self
+                .transient_bound
+                .saturating_sub(self.heap.arena.footprint());
+            self.fuel = (remaining / std::mem::size_of::<Handle>()) as u64;
+            let fits = self.domain_work(h, true, 0);
+            self.fuel = u64::MAX;
+            fits?;
         }
         self.heap.norm(h)
     }

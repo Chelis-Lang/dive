@@ -27,6 +27,14 @@ def routing_table(source, definition):
     return source[:start] + COUNTED + source[end:]
 
 
+def singleton_leaves(source):
+    original = b"[node: I, left: SUBSET I, right: SUBSET I]"
+    bound = b"(IF L = 1 THEN ({{}} \\cup {{n} : n \\in I}) ELSE SUBSET I)"
+    if source.count(original) != 1:
+        raise ValueError("expected the released LeafSet record bound exactly once")
+    return source.replace(original, b"[node: I, left: " + bound + b", right: " + bound + b"]")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path, help="lupastryplus.zip from the authors")
@@ -36,6 +44,8 @@ def main():
     parser.add_argument("--bits", type=int, default=2, help="M with B=1 (ring size 2^M)")
     parser.add_argument("--ready", type=int, nargs="+", default=[0], help="initial ready node IDs")
     parser.add_argument("--next", choices=("Next", "NextMC"), default="NextMC")
+    parser.add_argument("--singleton-leaves", action="store_true",
+                        help="enumerate at most one neighbor directly when L=1")
     args = parser.parse_args()
     if args.bits <= 0 or any(i < 0 or i.bit_length() > args.bits for i in args.ready):
         parser.error("M must be positive and every ready ID must fit in M bits")
@@ -50,6 +60,8 @@ def main():
                 source = archive.read(name)
                 if name == "RoutingTable.tla":
                     source = routing_table(source, args.definition)
+                if name == "LeafSet.tla" and args.singleton_leaves:
+                    source = singleton_leaves(source)
                 (args.destination / name).write_bytes(source)
     ready = ", ".join(map(str, sorted(set(args.ready))))
     (args.destination / "Model.cfg").write_text(
