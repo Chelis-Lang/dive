@@ -1,0 +1,2025 @@
+{
+  "method": "Ordinary Core. Three dedicated AWS c7i.12xlarge hosts in us-east-2b, eight logical CPUs 0\u20137. Each trial used one host; all three worker widths for a model ran on that same host, one process at a time. For each of three trials, each model ran at one, four and eight requested workers; width order rotated 1/4/8, 8/1/4, 4/8/1. Times are elapsed GNU time seconds, RSS in KiB. Compare within the host; the original #1028 release benchmark used a differently configured bare-metal host.",
+  "command": "taskset -c 0-7 dive check MODULE --config CFG --library-path modules --workers W --seed 0 --fp 0 --time-limit 3600s --max-memory 24g --output json",
+  "binary_sha256": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+  "corpus_revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "rows": [
+    {
+      "module": "specifications/CoffeeCan/CoffeeCan.tla",
+      "cfg": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "cfg_sha256": "a57c02854cd0a0f7622df98d45cb70ea607337c35fa3a2ae49424d675f46e00a",
+      "golden": {
+        "counts": {
+          "distinct_states": 501500,
+          "states_generated": 2000002,
+          "states_left_on_queue": 0,
+          "depth": 1
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 8.33,
+          "peak_kib": 227528,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1955.94
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 8.39,
+          "peak_kib": 227688,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1982.48
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 8.57,
+          "peak_kib": 227276,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1961.48
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 1,
+          "wall_s": 8.32,
+          "peak_kib": 225996,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1961.53
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 1,
+          "wall_s": 8.39,
+          "peak_kib": 225832,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1975.47
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 1,
+          "wall_s": 8.9,
+          "peak_kib": 226072,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 2209.64
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 1,
+          "wall_s": 8.32,
+          "peak_kib": 227348,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1934.45
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 1,
+          "wall_s": 8.45,
+          "peak_kib": 227680,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 2020.12
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 1,
+          "wall_s": 8.61,
+          "peak_kib": 228108,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 2128.27
+        }
+      ],
+      "median_wall_s": {
+        "1": 8.39,
+        "4": 8.39,
+        "8": 8.45
+      },
+      "sequential_reason_by_requested_width": {
+        "4": "temporal capture has 501500 initial states and short, non-enumerating actions. One worker expands and commits each source inline",
+        "8": "temporal capture has 501500 initial states and short, non-enumerating actions. One worker expands and commits each source inline"
+      },
+      "release_d4_speedup_w8": 0.5
+    },
+    {
+      "module": "specifications/CoffeeCan/CoffeeCan.tla",
+      "cfg": "specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+      "module_sha256": "32c5d9c900104c0d8be0d3730a6013d141dc90901e08ccaea403fb0be731cd90",
+      "cfg_sha256": "7904ab6bc7fa788828f04c5db64f85c96859bca2e7019341d6294ab1d032cf83",
+      "golden": {
+        "counts": {
+          "distinct_states": 4504500,
+          "states_generated": 18000002,
+          "states_left_on_queue": 0,
+          "depth": 1
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 81.32,
+          "peak_kib": 1947660,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 19288.85
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 82.02,
+          "peak_kib": 1947792,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 19679.2
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 85.5,
+          "peak_kib": 1948724,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 21722.57
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 1,
+          "wall_s": 81.33,
+          "peak_kib": 1949764,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 19261.35
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 1,
+          "wall_s": 81.77,
+          "peak_kib": 1949692,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 19479.91
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 1,
+          "wall_s": 85.74,
+          "peak_kib": 1953824,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 22442.28
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 1,
+          "wall_s": 81.44,
+          "peak_kib": 1947380,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 19326.9
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 1,
+          "wall_s": 81.9,
+          "peak_kib": 1948072,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 19574.14
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 1,
+          "wall_s": 86.54,
+          "peak_kib": 1946856,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 22804.84
+        }
+      ],
+      "median_wall_s": {
+        "1": 82.02,
+        "4": 81.77,
+        "8": 81.9
+      },
+      "sequential_reason_by_requested_width": {
+        "4": "temporal capture has 4504500 initial states and short, non-enumerating actions. One worker expands and commits each source inline",
+        "8": "temporal capture has 4504500 initial states and short, non-enumerating actions. One worker expands and commits each source inline"
+      },
+      "release_d4_speedup_w8": 0.52
+    },
+    {
+      "module": "specifications/FlashProtocol/MCFlashWithMutexLive.tla",
+      "cfg": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
+      "module_sha256": "aa36c091799c6f0a79f344f40f1adf6f6794cd4999b688eea50bdc7d4d2f05ef",
+      "cfg_sha256": "b8ec2b38b812b4be212eaa3861a17ba94a5d8bb96398e5dc35fc73d7817a2e02",
+      "golden": {
+        "counts": {
+          "distinct_states": 8096,
+          "states_generated": 30196,
+          "states_left_on_queue": 0,
+          "depth": 21
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 0.89,
+          "peak_kib": 48004,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 93.87
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 0.89,
+          "peak_kib": 47640,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 93.1
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 0.9,
+          "peak_kib": 48048,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 95.85
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 0.93,
+          "peak_kib": 53956,
+          "expand_ms": 108.92,
+          "commit_ms": 27.82,
+          "explore_ms": 136.89
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 1.08,
+          "peak_kib": 54300,
+          "expand_ms": 245.18,
+          "commit_ms": 35.58,
+          "explore_ms": 280.95
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 1.04,
+          "peak_kib": 54292,
+          "expand_ms": 207.88,
+          "commit_ms": 33.49,
+          "explore_ms": 241.57
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 0.96,
+          "peak_kib": 62240,
+          "expand_ms": 138.98,
+          "commit_ms": 31.34,
+          "explore_ms": 170.63
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 1.03,
+          "peak_kib": 62316,
+          "expand_ms": 197.89,
+          "commit_ms": 32.7,
+          "explore_ms": 231.04
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 1.01,
+          "peak_kib": 62184,
+          "expand_ms": 181.17,
+          "commit_ms": 31.6,
+          "explore_ms": 213.26
+        }
+      ],
+      "median_wall_s": {
+        "1": 0.89,
+        "4": 1.04,
+        "8": 1.01
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 0.9
+    },
+    {
+      "module": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.tla",
+      "cfg": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
+      "module_sha256": "592100b6baef4ec24cca79c97bdb5c7b83e7f7b7f2174b7a12a3591c69a6786c",
+      "cfg_sha256": "63ab878b931a5e20e455805d08ea5e0e8acf54429041a6b3667713fba71237c4",
+      "golden": {
+        "counts": {
+          "distinct_states": 90882,
+          "states_generated": 282810,
+          "states_left_on_queue": 0,
+          "depth": 54
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 4.9,
+          "peak_kib": 74336,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 2344.07
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 4.9,
+          "peak_kib": 74280,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 2349.95
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 5.07,
+          "peak_kib": 74012,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 2422.02
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 5.07,
+          "peak_kib": 107244,
+          "expand_ms": 558.13,
+          "commit_ms": 1959.36,
+          "explore_ms": 2517.73
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 5.06,
+          "peak_kib": 103112,
+          "expand_ms": 551.82,
+          "commit_ms": 1960.17,
+          "explore_ms": 2512.39
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 5.17,
+          "peak_kib": 105148,
+          "expand_ms": 581.71,
+          "commit_ms": 1987.19,
+          "explore_ms": 2569.34
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 5.09,
+          "peak_kib": 127976,
+          "expand_ms": 569.5,
+          "commit_ms": 1971.74,
+          "explore_ms": 2541.59
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 5.18,
+          "peak_kib": 129728,
+          "expand_ms": 556.2,
+          "commit_ms": 1973.85,
+          "explore_ms": 2530.43
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 5.27,
+          "peak_kib": 127764,
+          "expand_ms": 631.62,
+          "commit_ms": 2048.42,
+          "explore_ms": 2680.54
+        }
+      ],
+      "median_wall_s": {
+        "1": 4.9,
+        "4": 5.07,
+        "8": 5.18
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 0.8
+    },
+    {
+      "module": "specifications/FiniteMonotonic/MCCRDT.tla",
+      "cfg": "specifications/FiniteMonotonic/MCCRDT.cfg",
+      "module_sha256": "cf0d1971da841fb9de709f4ea0e21042d4b60a85268bdfc7f33707b71e4928ec",
+      "cfg_sha256": "6a205ab4f0c8f56e7affba69420863d7bda6ea384a89be9c9c27b00923c4fc08",
+      "golden": {
+        "counts": {
+          "distinct_states": 25000,
+          "states_generated": 1350001,
+          "states_left_on_queue": 0,
+          "depth": 16
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": "D-022: 900001",
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 7.22,
+          "peak_kib": 54496,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 2975.34
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 7.15,
+          "peak_kib": 55016,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 2969.58
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 7.51,
+          "peak_kib": 55108,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 3086.28
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 6.11,
+          "peak_kib": 64784,
+          "expand_ms": 1779.91,
+          "commit_ms": 134.17,
+          "explore_ms": 1914.23
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 6.19,
+          "peak_kib": 64232,
+          "expand_ms": 1837.14,
+          "commit_ms": 137.49,
+          "explore_ms": 1974.84
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 6.35,
+          "peak_kib": 65636,
+          "expand_ms": 1892.07,
+          "commit_ms": 155.3,
+          "explore_ms": 2047.62
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 5.86,
+          "peak_kib": 74516,
+          "expand_ms": 1548.46,
+          "commit_ms": 137.28,
+          "explore_ms": 1685.88
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 5.92,
+          "peak_kib": 74304,
+          "expand_ms": 1579.09,
+          "commit_ms": 135.71,
+          "explore_ms": 1714.97
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 6.22,
+          "peak_kib": 74408,
+          "expand_ms": 1676.08,
+          "commit_ms": 142.23,
+          "explore_ms": 1818.55
+        }
+      ],
+      "median_wall_s": {
+        "1": 7.22,
+        "4": 6.19,
+        "8": 5.92
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.4
+    },
+    {
+      "module": "specifications/Huang/Huang.tla",
+      "cfg": "specifications/Huang/Huang.cfg",
+      "module_sha256": "4d42886bd6e5b42346611c254d209fbfb9ea102b058f98d9857f3567c004950c",
+      "cfg_sha256": "6a92c263b04a68fd728b7e8efb8c6507173811ffd04b3bdb84ee0842a53e71dd",
+      "golden": {
+        "counts": {
+          "distinct_states": 81256,
+          "states_generated": 1165101,
+          "states_left_on_queue": 0,
+          "depth": 21
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 29.25,
+          "peak_kib": 72404,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 22290.01
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 28.8,
+          "peak_kib": 72024,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 21837.31
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 28.98,
+          "peak_kib": 72192,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 22022.3
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 20.88,
+          "peak_kib": 105084,
+          "expand_ms": 9351.2,
+          "commit_ms": 4737.32,
+          "explore_ms": 14088.79
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 21.46,
+          "peak_kib": 109096,
+          "expand_ms": 9715.1,
+          "commit_ms": 4768.59,
+          "explore_ms": 14483.98
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 22.19,
+          "peak_kib": 108960,
+          "expand_ms": 9965.7,
+          "commit_ms": 5024.84,
+          "explore_ms": 14990.88
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 19.24,
+          "peak_kib": 119444,
+          "expand_ms": 7718.99,
+          "commit_ms": 4725.78,
+          "explore_ms": 12445.01
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 19.27,
+          "peak_kib": 116056,
+          "expand_ms": 7728.25,
+          "commit_ms": 4740.29,
+          "explore_ms": 12468.82
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 19.9,
+          "peak_kib": 117244,
+          "expand_ms": 8009.48,
+          "commit_ms": 4966.77,
+          "explore_ms": 12976.55
+        }
+      ],
+      "median_wall_s": {
+        "1": 28.98,
+        "4": 21.46,
+        "8": 19.27
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.73
+    },
+    {
+      "module": "specifications/MisraReachability/MCParReach.tla",
+      "cfg": "specifications/MisraReachability/MCParReach.cfg",
+      "module_sha256": "8669e2c4bd80d5be177e8331a0c5415c605ef3bb5d7f7ec0651a7194b7f67f81",
+      "cfg_sha256": "31cff92508be2d2b8bb092759108e276cbc459a6d7e4a9a73a10dbc3d3b7767f",
+      "golden": {
+        "counts": {
+          "distinct_states": 393,
+          "states_generated": 747,
+          "states_left_on_queue": 0,
+          "depth": 18
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 2.44,
+          "peak_kib": 105040,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 386.43
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 2.45,
+          "peak_kib": 105132,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 385.93
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 2.5,
+          "peak_kib": 104908,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 390.11
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 2.32,
+          "peak_kib": 103008,
+          "expand_ms": 274.14,
+          "commit_ms": 0.94,
+          "explore_ms": 275.49
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 2.34,
+          "peak_kib": 103376,
+          "expand_ms": 277.96,
+          "commit_ms": 1.06,
+          "explore_ms": 279.45
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 2.45,
+          "peak_kib": 103348,
+          "expand_ms": 280.21,
+          "commit_ms": 1.07,
+          "explore_ms": 281.77
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 2.32,
+          "peak_kib": 103408,
+          "expand_ms": 271.68,
+          "commit_ms": 1.03,
+          "explore_ms": 273.18
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 2.33,
+          "peak_kib": 101032,
+          "expand_ms": 279.08,
+          "commit_ms": 1.07,
+          "explore_ms": 280.61
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 2.41,
+          "peak_kib": 102800,
+          "expand_ms": 276.12,
+          "commit_ms": 1.21,
+          "explore_ms": 278.09
+        }
+      ],
+      "median_wall_s": {
+        "1": 2.45,
+        "4": 2.34,
+        "8": 2.33
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.05
+    },
+    {
+      "module": "specifications/MisraReachability/MCReachable.tla",
+      "cfg": "specifications/MisraReachability/MCReachable.cfg",
+      "module_sha256": "51b25788a688f63bf28788530e0b7884d635ae1feb69b4def405b126af80a7b1",
+      "cfg_sha256": "0801b570810e2902b41e8ebcf564d713dc075d6d158805d2e8f09fef0d8fb9ae",
+      "golden": {
+        "counts": {
+          "distinct_states": 8,
+          "states_generated": 11,
+          "states_left_on_queue": 0,
+          "depth": 6
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 0.34,
+          "peak_kib": 39372,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 166.02
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 0.34,
+          "peak_kib": 39604,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 166.46
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 0.35,
+          "peak_kib": 39396,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 165.98
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 0.34,
+          "peak_kib": 39852,
+          "expand_ms": 146.68,
+          "commit_ms": 0.06,
+          "explore_ms": 161.99
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 0.34,
+          "peak_kib": 39812,
+          "expand_ms": 146.13,
+          "commit_ms": 0.06,
+          "explore_ms": 161.53
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 0.35,
+          "peak_kib": 39444,
+          "expand_ms": 147.2,
+          "commit_ms": 0.12,
+          "explore_ms": 162.71
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 0.34,
+          "peak_kib": 39376,
+          "expand_ms": 146.73,
+          "commit_ms": 0.06,
+          "explore_ms": 162.06
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 0.34,
+          "peak_kib": 39340,
+          "expand_ms": 147.04,
+          "commit_ms": 0.06,
+          "explore_ms": 162.4
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 0.34,
+          "peak_kib": 39800,
+          "expand_ms": 147.66,
+          "commit_ms": 0.12,
+          "explore_ms": 163.23
+        }
+      ],
+      "median_wall_s": {
+        "1": 0.34,
+        "4": 0.34,
+        "8": 0.34
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.0
+    },
+    {
+      "module": "specifications/MultiCarElevator/Elevator.tla",
+      "cfg": "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "f41449494507bb7def26453fd0bfc46a3928b6436de0da8d6aa888a13aed410c",
+      "golden": {
+        "counts": {
+          "distinct_states": 50653,
+          "states_generated": 230899,
+          "states_left_on_queue": 0,
+          "depth": 39
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 420.49,
+          "peak_kib": 86316,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 723.0
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 421.17,
+          "peak_kib": 86316,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 722.2
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 437.37,
+          "peak_kib": 84384,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 747.15
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 422.5,
+          "peak_kib": 104976,
+          "expand_ms": 1054.54,
+          "commit_ms": 105.45,
+          "explore_ms": 1162.12
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 422.28,
+          "peak_kib": 102940,
+          "expand_ms": 1154.3,
+          "commit_ms": 109.02,
+          "explore_ms": 1265.56
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 437.09,
+          "peak_kib": 105104,
+          "expand_ms": 1421.21,
+          "commit_ms": 118.79,
+          "explore_ms": 1542.36
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 425.65,
+          "peak_kib": 121780,
+          "expand_ms": 1377.09,
+          "commit_ms": 121.46,
+          "explore_ms": 1500.97
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 422.47,
+          "peak_kib": 121740,
+          "expand_ms": 1319.71,
+          "commit_ms": 116.11,
+          "explore_ms": 1438.4
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 438.71,
+          "peak_kib": 121620,
+          "expand_ms": 1674.29,
+          "commit_ms": 141.87,
+          "explore_ms": 1819.0
+        }
+      ],
+      "median_wall_s": {
+        "1": 421.17,
+        "4": 422.5,
+        "8": 425.65
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.0
+    },
+    {
+      "module": "specifications/MultiCarElevator/Elevator.tla",
+      "cfg": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+      "module_sha256": "c44366dbf4f4bdef30edade0c8a2faf75fd37b2b7aeb1c04b24e80eb40ed2203",
+      "cfg_sha256": "3e6d67656512a5d2e4795c7de9c13d510096608e506c56f31f0fa4eb618d9290",
+      "golden": {
+        "counts": {
+          "distinct_states": 4122,
+          "states_generated": 14296,
+          "states_left_on_queue": 0,
+          "depth": 36
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 6.07,
+          "peak_kib": 39484,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 57.74
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 6.08,
+          "peak_kib": 39748,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 57.83
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 6.11,
+          "peak_kib": 39900,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 59.26
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 6.14,
+          "peak_kib": 51812,
+          "expand_ms": 122.42,
+          "commit_ms": 8.67,
+          "explore_ms": 131.4
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 6.12,
+          "peak_kib": 53852,
+          "expand_ms": 69.18,
+          "commit_ms": 7.74,
+          "explore_ms": 77.27
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 6.29,
+          "peak_kib": 53956,
+          "expand_ms": 114.82,
+          "commit_ms": 8.77,
+          "explore_ms": 124.01
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 6.15,
+          "peak_kib": 59872,
+          "expand_ms": 113.65,
+          "commit_ms": 9.08,
+          "explore_ms": 123.05
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 6.16,
+          "peak_kib": 62304,
+          "expand_ms": 128.29,
+          "commit_ms": 9.08,
+          "explore_ms": 137.75
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 6.27,
+          "peak_kib": 60116,
+          "expand_ms": 137.41,
+          "commit_ms": 9.92,
+          "explore_ms": 147.81
+        }
+      ],
+      "median_wall_s": {
+        "1": 6.08,
+        "4": 6.14,
+        "8": 6.16
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 0.99
+    },
+    {
+      "module": "specifications/SpanningTree/SpanTreeTest.tla",
+      "cfg": "specifications/SpanningTree/SpanTreeTest5Nodes.cfg",
+      "module_sha256": "474ae020a81dc380a89b829366db79698eaaca6afb9cafb6579748d2838c6e5c",
+      "cfg_sha256": "32452f3bb5419e3259deab683ca0dfd3138445137f4fb9c04c3ca4ee2143c9a9",
+      "golden": {
+        "counts": {
+          "distinct_states": 410112,
+          "states_generated": 3150464,
+          "states_left_on_queue": 0,
+          "depth": 5
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 83.22,
+          "peak_kib": 149600,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 36140.98
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 83.1,
+          "peak_kib": 149752,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 35868.16
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 84.48,
+          "peak_kib": 149380,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 36829.0
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 84.02,
+          "peak_kib": 179640,
+          "expand_ms": 8275.11,
+          "commit_ms": 28691.99,
+          "explore_ms": 36975.29
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 84.79,
+          "peak_kib": 179180,
+          "expand_ms": 8693.25,
+          "commit_ms": 28887.48,
+          "explore_ms": 37589.25
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 86.01,
+          "peak_kib": 180036,
+          "expand_ms": 9360.62,
+          "commit_ms": 29419.98,
+          "explore_ms": 38789.54
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 84.07,
+          "peak_kib": 183504,
+          "expand_ms": 8108.54,
+          "commit_ms": 28986.36,
+          "explore_ms": 37103.37
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 84.27,
+          "peak_kib": 179444,
+          "expand_ms": 8624.56,
+          "commit_ms": 28850.33,
+          "explore_ms": 37483.55
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 85.9,
+          "peak_kib": 179908,
+          "expand_ms": 9626.26,
+          "commit_ms": 29035.04,
+          "explore_ms": 38669.99
+        }
+      ],
+      "median_wall_s": {
+        "1": 83.22,
+        "4": 84.79,
+        "8": 84.27
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.0
+    },
+    {
+      "module": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.tla",
+      "cfg": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg",
+      "module_sha256": "4b0322e0e3795bd1e63201b4876ac7b84e8acbe4fe56308ea7d57b64b084dc28",
+      "cfg_sha256": "ca70ba8f305c4759112511237a65dc42cd0da53d5bce1be69880c19e192ae630",
+      "golden": {
+        "counts": {
+          "distinct_states": 195,
+          "states_generated": 6181,
+          "states_left_on_queue": 0,
+          "depth": 5
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 2.22,
+          "peak_kib": 33264,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1365.6
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 2.22,
+          "peak_kib": 33312,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1364.9
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 2.26,
+          "peak_kib": 33504,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 1380.24
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 1.37,
+          "peak_kib": 55928,
+          "expand_ms": 515.77,
+          "commit_ms": 0.94,
+          "explore_ms": 517.13
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 1.37,
+          "peak_kib": 60252,
+          "expand_ms": 516.22,
+          "commit_ms": 0.95,
+          "explore_ms": 517.61
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 1.4,
+          "peak_kib": 56356,
+          "expand_ms": 526.48,
+          "commit_ms": 1.43,
+          "explore_ms": 528.42
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 1.27,
+          "peak_kib": 80700,
+          "expand_ms": 423.79,
+          "commit_ms": 0.89,
+          "explore_ms": 425.03
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 1.16,
+          "peak_kib": 81128,
+          "expand_ms": 303.4,
+          "commit_ms": 0.9,
+          "explore_ms": 304.77
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 1.23,
+          "peak_kib": 80688,
+          "expand_ms": 359.16,
+          "commit_ms": 1.65,
+          "explore_ms": 361.59
+        }
+      ],
+      "median_wall_s": {
+        "1": 2.22,
+        "4": 1.37,
+        "8": 1.23
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 2.08
+    },
+    {
+      "module": "specifications/aba-asyn-byz/aba_asyn_byz.tla",
+      "cfg": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+      "module_sha256": "8d58bba250c826ed5655364210152c873b52f9837c5592d1a688020abe4eab6c",
+      "cfg_sha256": "07d4cdd82bab8afc2055adcf3d7202ade9223e573b9fdc41e03e978601df97f2",
+      "golden": {
+        "counts": {
+          "distinct_states": 5843977,
+          "states_generated": 85612896,
+          "states_left_on_queue": 0,
+          "depth": 45
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 376.59,
+          "peak_kib": 1502048,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 170146.76
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 377.51,
+          "peak_kib": 1502336,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 171513.6
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 386.39,
+          "peak_kib": 1500312,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 177004.7
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 380.94,
+          "peak_kib": 1519952,
+          "expand_ms": 37797.53,
+          "commit_ms": 138438.95,
+          "explore_ms": 176236.96
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 385.17,
+          "peak_kib": 1515028,
+          "expand_ms": 40367.67,
+          "commit_ms": 138842.59,
+          "explore_ms": 179210.75
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 394.65,
+          "peak_kib": 1517612,
+          "expand_ms": 42401.99,
+          "commit_ms": 142685.44,
+          "explore_ms": 185088.06
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 389.66,
+          "peak_kib": 1516052,
+          "expand_ms": 45026.88,
+          "commit_ms": 139353.76,
+          "explore_ms": 184381.14
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 390.89,
+          "peak_kib": 1510968,
+          "expand_ms": 46082.9,
+          "commit_ms": 140360.85,
+          "explore_ms": 186444.21
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 413.34,
+          "peak_kib": 1520536,
+          "expand_ms": 61845.21,
+          "commit_ms": 143543.3,
+          "explore_ms": 205389.03
+        }
+      ],
+      "median_wall_s": {
+        "1": 377.51,
+        "4": 385.17,
+        "8": 390.89
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 0.84
+    },
+    {
+      "module": "specifications/bcastByz/bcastByz.tla",
+      "cfg": "specifications/bcastByz/bcastByz.cfg",
+      "module_sha256": "c0238947351cce5debb0543f11cde2b0ed7e84fb7b3339651cd0750e639e6a7d",
+      "cfg_sha256": "90ac6bd18e6915719b2cc425544ed3fb8a01ef91887f8901d2709eaaa75e0fea",
+      "golden": {
+        "counts": {
+          "distinct_states": 14424,
+          "states_generated": 227344,
+          "states_left_on_queue": 0,
+          "depth": 7
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 3.13,
+          "peak_kib": 44456,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 911.03
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 3.11,
+          "peak_kib": 43796,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 912.69
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 3.17,
+          "peak_kib": 44300,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 924.84
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 3.02,
+          "peak_kib": 62984,
+          "expand_ms": 750.47,
+          "commit_ms": 70.86,
+          "explore_ms": 821.71
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 3.05,
+          "peak_kib": 60888,
+          "expand_ms": 764.27,
+          "commit_ms": 72.55,
+          "explore_ms": 837.2
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 3.08,
+          "peak_kib": 60252,
+          "expand_ms": 788.66,
+          "commit_ms": 76.24,
+          "explore_ms": 865.37
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 2.97,
+          "peak_kib": 71208,
+          "expand_ms": 701.51,
+          "commit_ms": 72.55,
+          "explore_ms": 774.37
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 3.02,
+          "peak_kib": 70684,
+          "expand_ms": 728.8,
+          "commit_ms": 70.46,
+          "explore_ms": 799.65
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 3.06,
+          "peak_kib": 72604,
+          "expand_ms": 753.85,
+          "commit_ms": 75.12,
+          "explore_ms": 829.41
+        }
+      ],
+      "median_wall_s": {
+        "1": 3.13,
+        "4": 3.05,
+        "8": 3.02
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.17
+    },
+    {
+      "module": "specifications/bcastFolklore/bcastFolklore.tla",
+      "cfg": "specifications/bcastFolklore/bcastFolklore.cfg",
+      "module_sha256": "1a5daf85a82219184ce6531d1b7600bf5dfc15dd04d98a75d06cf8109496ddd3",
+      "cfg_sha256": "2c919ef223d3eb8a7e59a4a7f5f3ce89bf27f22e3656c9d25c27e979f31e8147",
+      "golden": {
+        "counts": {
+          "distinct_states": 501552,
+          "states_generated": 9718336,
+          "states_left_on_queue": 0,
+          "depth": 9
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 502.49,
+          "peak_kib": 740392,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 59273.07
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 503.71,
+          "peak_kib": 742828,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 59660.86
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 513.32,
+          "peak_kib": 744472,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 62371.01
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 512.8,
+          "peak_kib": 748492,
+          "expand_ms": 18235.61,
+          "commit_ms": 49193.06,
+          "explore_ms": 67428.89
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 516.31,
+          "peak_kib": 753040,
+          "expand_ms": 18514.35,
+          "commit_ms": 49171.68,
+          "explore_ms": 67686.26
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 519.31,
+          "peak_kib": 747856,
+          "expand_ms": 20260.61,
+          "commit_ms": 50380.13,
+          "explore_ms": 70641.0
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 511.12,
+          "peak_kib": 762140,
+          "expand_ms": 16041.65,
+          "commit_ms": 49289.59,
+          "explore_ms": 65331.5
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 512.9,
+          "peak_kib": 765008,
+          "expand_ms": 16850.81,
+          "commit_ms": 49536.68,
+          "explore_ms": 66387.77
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 522.98,
+          "peak_kib": 767600,
+          "expand_ms": 18939.51,
+          "commit_ms": 50951.37,
+          "explore_ms": 69891.24
+        }
+      ],
+      "median_wall_s": {
+        "1": 503.71,
+        "4": 516.31,
+        "8": 512.9
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.01
+    },
+    {
+      "module": "specifications/cf1s-folklore/cf1s_folklore.tla",
+      "cfg": "specifications/cf1s-folklore/cf1s_folklore.cfg",
+      "module_sha256": "50dec6842e4af32c020bf0d72dd2c7b11cc89b574218aa206c23c04ad3d1e7e2",
+      "cfg_sha256": "7d0a10cbdee6feff4759fdbfd28f08ff3aefae05d665a03177486d787bcf8af8",
+      "golden": {
+        "counts": {
+          "distinct_states": 2057174,
+          "states_generated": 22438432,
+          "states_left_on_queue": 0,
+          "depth": 25
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 122.07,
+          "peak_kib": 479268,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 68405.27
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 121.02,
+          "peak_kib": 486328,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 67852.1
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 123.37,
+          "peak_kib": 486340,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 69221.15
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 122.76,
+          "peak_kib": 507376,
+          "expand_ms": 13437.65,
+          "commit_ms": 55646.83,
+          "explore_ms": 69084.72
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 122.29,
+          "peak_kib": 504556,
+          "expand_ms": 13677.61,
+          "commit_ms": 55760.25,
+          "explore_ms": 69438.11
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 126.75,
+          "peak_kib": 514996,
+          "expand_ms": 15169.34,
+          "commit_ms": 57701.72,
+          "explore_ms": 72871.37
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 121.8,
+          "peak_kib": 530416,
+          "expand_ms": 12384.27,
+          "commit_ms": 56113.05,
+          "explore_ms": 68497.59
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 123.38,
+          "peak_kib": 528396,
+          "expand_ms": 13979.21,
+          "commit_ms": 56681.81,
+          "explore_ms": 70661.29
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 130.55,
+          "peak_kib": 535268,
+          "expand_ms": 19500.13,
+          "commit_ms": 57442.83,
+          "explore_ms": 76943.26
+        }
+      ],
+      "median_wall_s": {
+        "1": 122.07,
+        "4": 122.76,
+        "8": 123.38
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 0.82
+    },
+    {
+      "module": "specifications/ewd998/EWD998Chan.tla",
+      "cfg": "specifications/ewd998/EWD998Chan.cfg",
+      "module_sha256": "ebdb5e9c6469fb1afc3b12198e1e2159b3ff3fa76d7bd15e5e11dce92b72313c",
+      "cfg_sha256": "259100c5161cf1e04dce4c9898957c5ff7ba81f790c840396a2a7b5e618eb044",
+      "golden": {
+        "counts": {
+          "distinct_states": 1524022,
+          "states_generated": 12882257,
+          "states_left_on_queue": 0,
+          "depth": 58
+        },
+        "verdict": "success",
+        "violated_property": null,
+        "exit_code": 0
+      },
+      "generated_override": null,
+      "runs": [
+        {
+          "trial": 1,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 676.07,
+          "peak_kib": 536300,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 365185.22
+        },
+        {
+          "trial": 2,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 678.47,
+          "peak_kib": 538300,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 367286.27
+        },
+        {
+          "trial": 3,
+          "requested": 1,
+          "used": 1,
+          "wall_s": 688.86,
+          "peak_kib": 536672,
+          "expand_ms": 0.0,
+          "commit_ms": 0.0,
+          "explore_ms": 373951.87
+        },
+        {
+          "trial": 1,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 666.18,
+          "peak_kib": 536732,
+          "expand_ms": 83832.53,
+          "commit_ms": 272561.57,
+          "explore_ms": 356396.08
+        },
+        {
+          "trial": 2,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 669.25,
+          "peak_kib": 535412,
+          "expand_ms": 86259.41,
+          "commit_ms": 272684.64,
+          "explore_ms": 358945.97
+        },
+        {
+          "trial": 3,
+          "requested": 4,
+          "used": 4,
+          "wall_s": 685.14,
+          "peak_kib": 534444,
+          "expand_ms": 90007.95,
+          "commit_ms": 278517.86,
+          "explore_ms": 368527.95
+        },
+        {
+          "trial": 1,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 664.78,
+          "peak_kib": 540148,
+          "expand_ms": 80504.6,
+          "commit_ms": 273869.3,
+          "explore_ms": 354375.98
+        },
+        {
+          "trial": 2,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 663.53,
+          "peak_kib": 540276,
+          "expand_ms": 82245.9,
+          "commit_ms": 270990.77,
+          "explore_ms": 353238.68
+        },
+        {
+          "trial": 3,
+          "requested": 8,
+          "used": 8,
+          "wall_s": 678.09,
+          "peak_kib": 536256,
+          "expand_ms": 86396.9,
+          "commit_ms": 275559.61,
+          "explore_ms": 361958.69
+        }
+      ],
+      "median_wall_s": {
+        "1": 678.47,
+        "4": 669.25,
+        "8": 664.78
+      },
+      "sequential_reason_by_requested_width": {},
+      "release_d4_speedup_w8": 1.12
+    }
+  ],
+  "temporal_workers": {
+    "scope": "Every four- and eight-worker request reported these phases. The one-worker report omits this field. Expansion and commit timers are populated only for parallel waves.",
+    "width_applies_to": "source-expansion",
+    "serial_phases": [
+      "initial-states",
+      "ordered-commit",
+      "temporal-analysis",
+      "trace-validation"
+    ],
+    "commit_ms_definition": "Elapsed time on completed parallel levels less measured expansion time, through the checkpoint boundary. Includes ordered admission, graph recording and other coordination in that interval."
+  },
+  "linux": "Linux 7.0.0-1018-aws",
+  "binary_provenance": {
+    "record": "2026-11-21-linux-allocator-arenas.json",
+    "key": "fixed_release.sailfish.sha256.dive-370",
+    "build": "Rust 1.99.0, release, LTO off, 16 codegen units. The explorer source and locked manifests below were hashed on the build host.",
+    "inputs_sha256": {
+      "crates/dive-explore/src/lib.rs": "c44f45943e9ada1b7ff8d2a5e6a36887389b0e8cca4db674528ea4133df44969",
+      "Cargo.toml": "0be3a10b348357050878e53f85f4cc485a701f5d882fdcb86cda512ef6604533",
+      "Cargo.lock": "e74bb44abb59ce75b950108cd2e67da14f22ae76732e8e97cd739f3e4b1d0109"
+    }
+  }
+}
