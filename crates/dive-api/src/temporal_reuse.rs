@@ -16,7 +16,7 @@ use dive_liveness::analyze::periodic::external::GraphCheck;
 use dive_runtime::{
     CheckOptions, CheckResult, Verdict,
     budget::{EvaluationControl, Phase},
-    capture::{CsrCapture, CsrComplete, CsrStorage},
+    capture::{CsrCapture, CsrComplete, CsrStorage, CsrTargetStorage},
 };
 use std::{path::Path, sync::Arc, time::Instant};
 
@@ -267,9 +267,9 @@ impl Boundary {
 
     fn input<'a>(
         &self,
-        full: &CsrStorage<'a>,
+        full: &CsrTargetStorage<'a>,
         offsets: &'a mut Vec<usize>,
-    ) -> Result<CsrStorage<'a>, Miss> {
+    ) -> Result<CsrTargetStorage<'a>, Miss> {
         let bad = || miss("invalid captured level boundary");
         let closed = self.closed.checked_add(1).ok_or_else(bad)?;
         let len = self.vertices.checked_add(1).ok_or_else(bad)?;
@@ -285,7 +285,7 @@ impl Boundary {
         offsets.resize(len, self.edges);
         Ok(CsrStorage {
             offsets,
-            targets: full.targets.get(..self.edges).ok_or_else(bad)?,
+            targets: full.targets.prefix(self.edges).ok_or_else(bad)?,
             ordinals: full.ordinals.prefix(self.edges).ok_or_else(bad)?,
             actions: full.actions.prefix(self.edges).ok_or_else(bad)?,
             edge_rows: full.edge_rows.prefix(self.edges).ok_or_else(bad)?,

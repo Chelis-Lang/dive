@@ -132,7 +132,10 @@ impl<T: TruthAccess> Discovery<'_, T> {
         let node = &self.tableau.nodes[n];
         for e in 0..self.graph.row_len(v) {
             self.inspect()?;
-            let target = self.graph.target(v, e);
+            let target = self
+                .graph
+                .target(v, e)
+                .ok_or_else(|| ProductError::Shape("missing behavior target".into()))?;
             if !actions_hold(self.tableau, self.labels, n, v, e) {
                 continue;
             }
@@ -452,7 +455,10 @@ impl<T: TruthAccess> Adjacency for ImplicitProduct<'_, T> {
                 continue;
             }
             *cursor = (e, j + 1);
-            let target = self.graph.target(v, e);
+            let target = self
+                .graph
+                .target(v, e)
+                .ok_or(SearchError::Invariant("missing behavior target"))?;
             let next = successors[j];
             if !fits_state(self.tableau, self.labels, target, next) {
                 continue;

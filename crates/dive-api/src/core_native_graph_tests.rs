@@ -8,7 +8,9 @@
 use std::sync::Arc;
 
 use dive_core::node::flags;
-use dive_runtime::capture::{CsrCapture, CsrCaptureColumns, CsrCaptureInput, CsrComplete};
+use dive_runtime::capture::{
+    CsrCapture, CsrCaptureColumns, CsrCaptureInput, CsrComplete, CsrStorage,
+};
 
 use super::*;
 
@@ -224,11 +226,7 @@ fn native_rows_keep_seen_originals_gaps_duplicates_and_stutters() {
                         assert_eq!(csr.ordinal(last), Some(None));
                         assert_eq!(csr.label(last), Some(None));
                         assert_eq!(
-                            graph.input().edge_rows.row(
-                                last,
-                                &graph.targets,
-                                &graph.representatives
-                            ),
+                            graph.input().edge_row(last),
                             Some(graph.representatives[source])
                         );
                     }
@@ -285,11 +283,8 @@ fn native_new_targets_and_exact_seen_rows_reuse_first_discovery_rows() {
             assert_eq!(csr.targets(), &[1, 0, 2, 1, 0, 2]);
             for edge in 0..6 {
                 assert_eq!(
-                    graph
-                        .input()
-                        .edge_rows
-                        .row(edge, &graph.targets, &graph.representatives),
-                    Some(graph.representatives[graph.targets[edge] as usize])
+                    graph.input().edge_row(edge),
+                    Some(graph.representatives[csr.target(edge).expect("target")])
                 );
             }
         }
@@ -765,7 +760,9 @@ fn exact_identities_keep_equal_keys_as_distinct_vertices() {
     exact.use_exact_identities();
     equal_key_steps(&mut exact, &mut heap).expect("exact identities");
     assert_eq!(exact.graph.state_count(), 2);
-    assert_eq!(exact.graph.targets, [1, 0]);
+    assert_eq!(exact.graph.input().targets.get(0), Some(1));
+    assert_eq!(exact.graph.input().targets.get(1), Some(0));
+    assert_eq!(exact.graph.input().targets.get(2), None);
     assert_eq!(
         exact.graph.memory.key_entries, 0,
         "no key index in exact mode"
@@ -935,7 +932,14 @@ fn original_row_blocks_promote_late_and_decode_captured_prefixes() {
             3
         };
         originals
-            .append(&targets, &representatives, 0, row, &mut memory, &control)
+            .append(
+                (&targets).into(),
+                &representatives,
+                0,
+                row,
+                &mut memory,
+                &control,
+            )
             .expect("append");
         targets.push(0);
         expanded.push(row);
