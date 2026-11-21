@@ -68,13 +68,56 @@ impl Scope {
         };
         self.env.dynamic.at.is_none()
             && other.env.dynamic.at.is_none()
-            && self.context.ptr_eq(&other.context)
+            && same_substitution
+            && self.env.dynamic.cut == other.env.dynamic.cut
+            && self.same_lexical_owners(other)
+    }
+
+    fn same_lexical_owners(&self, other: &Self) -> bool {
+        self.context.ptr_eq(&other.context)
             && Arc::ptr_eq(&self.owner, &other.owner)
             && Arc::ptr_eq(&self.names, &other.names)
             && Arc::ptr_eq(&self.env.frame, &other.env.frame)
-            && same_substitution
-            && self.env.dynamic.cut == other.env.dynamic.cut
             && self.wrapper == other.wrapper
+    }
+
+    /// Whether two retained scopes can share a successful structural walk of a pure
+    /// expression within one read-only validation of one bound evaluator.
+    /// Both scopes must have the identical immutable frame, evaluator and name context.
+    /// Dynamic bindings, effectful captures and effectful source decline reuse.
+    /// The answer covers only source inspection and scoped level classification.
+    /// Truth, enabledness and values still require evaluation on the actual states.
+    ///
+    /// ```
+    /// # fn may_share(ev: &dive_eval::Evaluator, scope: &dive_eval::Scope, expr: dive_ir::ExprId) {
+    /// let eligible = scope.shares_pure_source_walk(&scope.clone(), ev, expr);
+    /// # let _ = eligible;
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn shares_pure_source_walk(
+        &self,
+        other: &Self,
+        evaluator: &crate::Evaluator,
+        expr: ExprId,
+    ) -> bool {
+        // Exhaustive on purpose: a new dynamic binding needs its own decision.
+        let plain = |sc: &Self| {
+            matches!(
+                &sc.env.dynamic,
+                crate::env::Dyn {
+                    change_slot: None,
+                    subst: None,
+                    at: None,
+                    cut: None
+                }
+            )
+        };
+        plain(self)
+            && plain(other)
+            && self.same_lexical_owners(other)
+            && !evaluator.source_may_have_effects(expr)
+            && !evaluator.scope_has_effects(self)
     }
 
     /// The definition whose frame the scope's expressions are evaluated in.
@@ -1484,6 +1527,35 @@ mod operator_capture_tests {
                     .is_none()
             );
         }
+    }
+
+    #[test]
+    fn pure_source_walk_requires_the_original_frozen_bindings() {
+        let analysis = dive_sema::analyze_source(
+            "PureWalk.tla",
+            "---- MODULE PureWalk ----\nEXTENDS TLC\nGood == TRUE\nBad == PrintT(TRUE)\n====\n",
+            &dive_sema::Options::default(),
+        );
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
+        let evaluator = || {
+            Evaluator::new(crate::Model::new(ir.clone()), crate::Options::default())
+                .expect("evaluator")
+        };
+        let ev = evaluator();
+        let good = ir.root_def("Good").expect("good");
+        let expr = ir.def(good).body;
+        let sc = ev.scope(good).expect("scope");
+        assert!(sc.shares_pure_source_walk(&sc.clone(), &ev, expr));
+        assert!(!sc.shares_pure_source_walk(&sc, &evaluator(), expr));
+        assert!(!sc.shares_pure_source_walk(
+            &sc,
+            &ev,
+            ir.def(ir.root_def("Bad").expect("bad")).body
+        ));
+        let mut changed = sc.clone();
+        changed.env.dynamic.change_slot = Some(Arc::default());
+        assert!(!sc.shares_pure_source_walk(&changed, &ev, expr));
+        assert!(!changed.shares_pure_source_walk(&changed, &ev, expr));
     }
 
     #[test]

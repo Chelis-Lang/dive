@@ -468,6 +468,28 @@
         "left_on_queue": 59078
       },
       "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0\u20133, external deadline 6360s"
+    },
+    "tlc_complete": {
+      "host": "separate matched EC2 c7i.4xlarge, us-west-2b, W4 pinned to CPUs 0\u20133",
+      "wall_s": 9093.59,
+      "peak_rss_kib": 8589852,
+      "exit": 0,
+      "verdict": "success",
+      "generated": 6641233,
+      "distinct": 1467920,
+      "depth": 49,
+      "left_on_queue": 0,
+      "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0\u20133, external deadline 16900s",
+      "input_sha256": {
+        "../../panel/tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+        "fixed5.cfg": "1875b686891580a70c44075852711429ea7e697122688e3254020d5733c26c72",
+        "kraft_kip_996.tla": "87f9c5d5849195a7f4308f8181b2281a9e5d72dbe689d0a0a1b0b72838eb4a4d",
+        "kraft_kip_996_functions.tla": "72b254e89eaa0227a134d71233563f6dd4f8f34bfcb4983ddb51a3a0b7214585",
+        "kraft_kip_996_liveness.tla": "76726901173d6acffa43be0b4006ff63775370cd028f392f5d71aff501c2c4ed",
+        "kraft_kip_996_properties.tla": "ed8000ef9dd1262655efda56449f609618703df31d00375bf7cb6c1f52f2ab9a",
+        "kraft_kip_996_types.tla": "fbb189bd4f06756c180a8fb743adcf6cd35585184cea70ed65b00e58551508d8",
+        "network.tla": "29e38f6c9cfb0a275581452c330e82f25a75f86fea1437eca52d4863c64a01d8"
+      }
     }
   },
   "original_fair_counterexample": {
@@ -776,6 +798,319 @@
         "wall_s": 0.42,
         "max_rss_kib": 105332
       }
+    },
+    "native_periodic_validation": {
+      "host": "c7i.4xlarge us-east-2. One pinned CPU, W1, original five-server-domain liveness CFG on the parity projection. Counter, property-name and schedule mutations use the same sources.",
+      "baseline_sha256": "5af9c61496b3369c4a7144af2b854000f24a587c87b8e2ce0294f9bcdf83873e",
+      "candidate_sha256": "ad841bdf7d4e4b7870732eeadf100a1736ee300785881ce7ef531188c4d01467",
+      "samples": {
+        "full": {
+          "base": {
+            "result": "unsupported",
+            "check": null,
+            "failure_state": null,
+            "reason": "unsupported temporal validation: scoped temporal level resource bound",
+            "wall_s": 0.13,
+            "max_rss_kib": 54108
+          },
+          "new": {
+            "result": "valid",
+            "check": null,
+            "failure_state": null,
+            "reason": null,
+            "wall_s": 0.67,
+            "max_rss_kib": 60564
+          }
+        },
+        "unfair": {
+          "base": {
+            "result": "unsupported",
+            "check": null,
+            "failure_state": null,
+            "reason": "unsupported temporal validation: scoped temporal level resource bound",
+            "wall_s": 0.13,
+            "max_rss_kib": 54400
+          },
+          "new": {
+            "result": "invalid",
+            "check": "fairness",
+            "failure_state": 0,
+            "reason": "behavior temporal conjunct line 1319, col 5 to line 1335, col 52 of module kraft_kip_996 is false on this word",
+            "wall_s": 0.71,
+            "max_rss_kib": 60692
+          }
+        },
+        "omitted": {
+          "base": {
+            "result": "unsupported",
+            "check": null,
+            "failure_state": null,
+            "reason": "unsupported temporal validation: scoped temporal level resource bound",
+            "wall_s": 0.13,
+            "max_rss_kib": 54436
+          },
+          "new": {
+            "result": "invalid",
+            "check": "temporal",
+            "failure_state": 0,
+            "reason": "violated temporal property ReconfigurationNotStuck was omitted",
+            "wall_s": 0.67,
+            "max_rss_kib": 60704
+          }
+        },
+        "extra": {
+          "base": {
+            "result": "unsupported",
+            "check": null,
+            "failure_state": null,
+            "reason": "unsupported temporal validation: scoped temporal level resource bound",
+            "wall_s": 0.13,
+            "max_rss_kib": 54320
+          },
+          "new": {
+            "result": "invalid",
+            "check": "temporal",
+            "failure_state": 0,
+            "reason": "temporal property ValuesEventuallyAcked holds on this word",
+            "wall_s": 0.67,
+            "max_rss_kib": 60616
+          }
+        },
+        "wrong-edge": {
+          "base": {
+            "result": "unsupported",
+            "check": null,
+            "failure_state": null,
+            "reason": "unsupported temporal validation: scoped temporal level resource bound",
+            "wall_s": 0.13,
+            "max_rss_kib": 54324
+          },
+          "new": {
+            "result": "invalid",
+            "check": "next",
+            "failure_state": 32,
+            "reason": "the step into this state does not satisfy the next-state relation line 1338, col 28 to line 1338, col 31 of module kraft_kip_996",
+            "wall_s": 0.38,
+            "max_rss_kib": 60700
+          }
+        }
+      },
+      "higher_budget_comparison": {
+        "accepted": true,
+        "wall_s": 33.27,
+        "peak_rss_kib": 54076,
+        "detail": "Unoptimized source changed scoped traversal budgets from 100,000 to 6,400,000. Same fair word. Default work budgets retained by the successful candidate."
+      },
+      "ablations": {
+        "completed_context_only": "refused: scoped temporal level resource bound",
+        "scoped_level_only": "refused: scoped temporal purity resource bound",
+        "completed_context_and_level": "valid at the existing work limit; no caching of calls or computed temporal truth"
+      },
+      "nested_filters": {
+        "5": {
+          "base": {
+            "result": "valid",
+            "check": null,
+            "failure_state": null,
+            "reason": null,
+            "wall_s": 0.0,
+            "max_rss_kib": 17460
+          },
+          "new": {
+            "result": "valid",
+            "check": null,
+            "failure_state": null,
+            "reason": null,
+            "wall_s": 0.0,
+            "max_rss_kib": 17472
+          }
+        },
+        "8": {
+          "base": {
+            "result": "valid",
+            "check": null,
+            "failure_state": null,
+            "reason": null,
+            "wall_s": 0.01,
+            "max_rss_kib": 19380
+          },
+          "new": {
+            "result": "valid",
+            "check": null,
+            "failure_state": null,
+            "reason": null,
+            "wall_s": 0.0,
+            "max_rss_kib": 19556
+          }
+        },
+        "10": {
+          "base": {
+            "result": "valid",
+            "check": null,
+            "failure_state": null,
+            "reason": null,
+            "wall_s": 0.05,
+            "max_rss_kib": 21636
+          },
+          "new": {
+            "result": "valid",
+            "check": null,
+            "failure_state": null,
+            "reason": null,
+            "wall_s": 0.02,
+            "max_rss_kib": 21592
+          }
+        },
+        "12": {
+          "base": {
+            "result": "unsupported",
+            "check": null,
+            "failure_state": null,
+            "reason": "scoped temporal purity resource bound",
+            "wall_s": 0.03,
+            "max_rss_kib": 19376
+          },
+          "new": {
+            "result": "valid",
+            "check": null,
+            "failure_state": null,
+            "reason": null,
+            "wall_s": 0.09,
+            "max_rss_kib": 19560
+          }
+        }
+      },
+      "focused_tests": 538,
+      "configured_cycle_control": {
+        "host": "Separate c7i.4xlarge us-east-2. Pinned CPU 0 for the fair replay; same build profile and compiler.",
+        "problem": "On the debug test stack, a cyclic CFG operator repeatedly entered the configured target/context inspection until the thread stack overflowed. Backtrace alternated configured_call and check_scoped_context_mode.",
+        "change": "Nested configured operator actuals and target bodies are scheduled on the existing strict-inspection work list. A cycle reaches the original depth bound.",
+        "checks": "7 configured temporal operator tests, 538 evaluator and independent-validator tests and doctests, clippy --all-targets on both crates. Regenerated the concrete trace and projected lasso from source.",
+        "binary_sha256": "593b618034c22b15e6b15e8560e53dc13631fbb7ceee9a118283b240483144b9",
+        "fair_verdict": "valid",
+        "fair_states": 38,
+        "fair_wall_seconds": 0.62,
+        "fair_peak_rss_kib": 60504,
+        "negative_checks": {
+          "unfair": "fairness",
+          "omitted": "temporal",
+          "extra": "temporal",
+          "damaged": "next"
+        }
+      }
+    },
+    "remaining_property_search": {
+      "sampling": "36 original-source simulations, seed 996, W1, requested depth 100. Select eight pending-value and eight prospective-state pivots, favoring spent crash and network-change budgets.",
+      "suffix": "Parity projection. Freeze membership, connectivity, its counter, configuration, and sent values. Cap epochs at one above the largest pivot epoch. Freeze both ack sets for the value search or keep one selected server prospective. Check original unrestricted weak fairness on each suffix. W2 pinned TLC, seed 0 and fp 0.",
+      "row_columns": [
+        "source_trace",
+        "zero_based_state_index",
+        "generated",
+        "distinct"
+      ],
+      "rows": {
+        "ValuesEventuallyAcked": [
+          [
+            "trace_18.json",
+            200,
+            644,
+            200
+          ],
+          [
+            "trace_14.json",
+            189,
+            5,
+            4
+          ],
+          [
+            "trace_20.json",
+            92,
+            6,
+            5
+          ],
+          [
+            "trace_22.json",
+            119,
+            40,
+            18
+          ],
+          [
+            "trace_33.json",
+            105,
+            4,
+            3
+          ],
+          [
+            "trace_30.json",
+            100,
+            88,
+            36
+          ],
+          [
+            "trace_4.json",
+            99,
+            4,
+            3
+          ],
+          [
+            "trace_1.json",
+            95,
+            4,
+            3
+          ]
+        ],
+        "NotStuckInProspective": [
+          [
+            "trace_18.json",
+            200,
+            23,
+            18
+          ],
+          [
+            "trace_24.json",
+            200,
+            65,
+            32
+          ],
+          [
+            "trace_14.json",
+            196,
+            4,
+            3
+          ],
+          [
+            "trace_20.json",
+            57,
+            10,
+            6
+          ],
+          [
+            "trace_22.json",
+            80,
+            2,
+            2
+          ],
+          [
+            "trace_33.json",
+            62,
+            1,
+            1
+          ],
+          [
+            "trace_30.json",
+            57,
+            2,
+            2
+          ],
+          [
+            "trace_4.json",
+            54,
+            1,
+            1
+          ]
+        ]
+      },
+      "result": "All sixteen restricted suffixes exhausted without a fair counterexample. Both properties remain open on unrestricted executions."
     }
   }
 }
