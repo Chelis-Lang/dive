@@ -2238,5 +2238,66 @@
         "peak_rss_kib": 374860
       }
     ]
+  },
+  "earlier_protocol_with_fix": {
+    "upstream": "https://github.com/Vanlightly/s3-wal-collection/tree/35fdc537af4d226f43b4574cded1764375f264ac/slatedb",
+    "author_note": "The author reports 49 billion unique states for the improved module and 12 billion for the simpler module at the same parameters. The archived SlateDBWAL_TLAPSBENCHBUG module and CFG actually specify four writers, one collector and two values; this protocol has no writer-restart parameter. The newer module and CFG use three writers and one restart. Both CFGs set EnableFix=TRUE. There is no final log or reported symmetry setting for the 12-billion figure.",
+    "publication": "https://arxiv.org/abs/2611.02849",
+    "source_history": "The 49B/12B comparison first occurs in the November 5 revision, which also published the separately named earlier protocol. The September and October examples predate that paragraph. The checked-in earlier protocol, rather than an inferred main-branch predecessor, supplies these experiments.",
+    "host": "EC2 r7i.16xlarge, Ohio, 32 physical cores; eight checker workers on the controls; process wall_s and peak_rss_kib from GNU time. Each checked all six supplied invariants using the supplied symmetry and deadlock setting.",
+    "prepare": "Copy the upstream .tla and .cfg for SlateDBWAL_TLAPSBENCHBUG unchanged. For W2 and W3, replace only {w1, w2, w3, w4} on the Writers line with {w1, w2} or {w1, w2, w3}. All measured configurations keep EnableFix=TRUE.",
+    "core": "dive check SlateDBWAL_TLAPSBENCHBUG.tla --config CFG --library-path MODULES --store exact --compat=tlc --workers 8 --seed 0 --fp 0 --time-limit 1200s --max-memory 420g --output json",
+    "tlc": "java -Xmx22g -XX:+UseParallelGC -XX:ActiveProcessorCount=8 -DTLA-Library=MODULES -cp ORACLE_AND_COMMUNITY_JARS tlc2.TLC -seed 0 -fp 0 -workers 8 -metadir SCRATCH -config CFG SlateDBWAL_TLAPSBENCHBUG.tla",
+    "rows": {
+      "2-core": {
+        "exit": 0,
+        "wall_s": 0.26,
+        "peak_rss_kib": 110688,
+        "verdict": "success",
+        "depth": 55,
+        "distinct": 58972,
+        "generated": 143482,
+        "left_on_queue": 0
+      },
+      "2-tlc": {
+        "exit": 0,
+        "wall_s": 1.43,
+        "peak_rss_kib": 955736,
+        "generated": 143482,
+        "distinct": 58972,
+        "left_on_queue": 0,
+        "depth": 55,
+        "verdict": "success"
+      },
+      "3-core": {
+        "exit": 0,
+        "wall_s": 54.94,
+        "peak_rss_kib": 993160,
+        "verdict": "success",
+        "depth": 84,
+        "distinct": 9850105,
+        "generated": 34653324,
+        "left_on_queue": 0
+      },
+      "3-tlc": {
+        "exit": 0,
+        "wall_s": 85.44,
+        "peak_rss_kib": 8987104,
+        "generated": 34653324,
+        "distinct": 9850105,
+        "left_on_queue": 0,
+        "depth": 84,
+        "verdict": "success"
+      }
+    },
+    "sha256": {
+      "dive": "4d75b140109db8604382e333ec01c758a458876fa49224fa9f54f704f7affb23",
+      "spec/SlateDBWAL_TLAPSBENCHBUG.tla": "23c2d9505b777a2d4fdae08c0565c4e6a9ff0955ebf81117eb44ce5babcf5364",
+      "spec/SlateDBWAL_TLAPSBENCHBUG.cfg": "042f97009e9f8aa28ca9a1ebbba4b365b28638a9424e956bfb26fc03ee7c87a5",
+      "spec/W2.cfg": "7893c6272a1d63f8c57f7d8966b751fa016c349ec4fe5d0a4737473078f4ca3b",
+      "spec/W3.cfg": "30a4b460d60dbf0b8738fa6f2fabbfe8f946aa3451e9ad79d9d7301de6410d3e",
+      "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+    },
+    "affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31"
   }
 }
