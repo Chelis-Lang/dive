@@ -27,8 +27,6 @@ The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) 
 
 The [allocator-fixed large-model baseline](2026-11-21-allocator-fixed-large-baselines.json) records EmergencyCall f3 against pinned TLC, an EWD998 capture profile and action-witness counts, and an original KVS Large resource-bounded run.
 
-The [allocator-fixed large-model baseline](2026-11-21-allocator-fixed-large-baselines.json) records EmergencyCall f3 against pinned TLC, an EWD998 capture profile and action-witness counts, and an original KVS Large resource-bounded run.
-
 The [Linux allocator comparison](2026-11-21-linux-allocator-arenas.json) records the mimalloc 3.3.2 and 3.7.0 arena probes on Intel and Graviton, original Flint time to 233 million exact states, ordinary Sailfish, and paired KVS, SlateDB and EWD998 runs. The `fixed_release` object contains the 3.7.0 results.
 
 The [frontier storage comparison](2026-11-21-frontier-scale-controls.json) records the same work on Byzantine Paxos and SlateDB in three storage modes and all three terminal BPConProof runs under a 6 GiB limit.
