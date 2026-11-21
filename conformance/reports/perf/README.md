@@ -19,6 +19,8 @@ The scripts that produced the records are in
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
 
+The [KRaft pre-vote measurements](2026-11-21-kafka-liveness.json) contain the replayable witness for infinitely many reachable states in the released liveness CFG and the smaller configurations that both engines exhausted.
+
 The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
 
 The [etcd election-term witnesses](2026-11-21-etcd-election-terms.json) reproduce the unbounded election counter in the released three-server configuration.
@@ -341,6 +343,7 @@ The November 19 engineering runs separate the cost of storing more states, the c
 | How much does a finite function frame save in CCF? | [Two upstream edits, original and enlarged models](2026-11-21-ccf-function-frames.json) | Terminal Core and TLC comparisons, source digests, named refusals and the equivalence controls. |
 | Does a large proof tree slow protocol iteration? | [LuPastry+ source size, analysis and executable controls](2026-11-21-pastry-source-scale.json) | 35,029 source lines, matched frontend acceptance and diagnostics, routing-digit definitions, eight-address message membership and split-action plans at 16 addresses, 32/64-address parallel invariant checks and the 128-address direct compiler limit. |
 | Can the printed Pasture model be reproduced? | [Five Pasture configurations](2026-11-21-pasture-node.json) and [reconstruction instructions](../../../docs/developer/large-models.md#reproduce-the-pasture-node-model) | Exact Core and pinned TLC reproduce the published counts and depths on one CPU. |
+| How does table layout change labeled reachability and induction? | [Shared transaction/key coordinates](2026-11-21-symbolic-table-orders.json) | Complete 3.55-trillion-state four-key search, 102-slot induction, identical-bit-order checks, failed orders, negative and stale predicate controls. |
 | Does the symbolic checker count beyond 64 bits on a coupled transaction protocol? | [Six-key KVS with three transactions](2026-11-20-isolated-symbolic-growth.json) | Complete fixed point, full integer counts, transaction-history cross-check and the stopped five-key frontier control. |
 | What happens when the EmergencyCall number sets grow? | [Four full safety checks and native controls](2026-11-21-emergencycall-growth.json) | Up to 570,694,082,176 distinct states, plus a validated seven-state F1 counterexample and a constrained configuration with an empty Init. |
 | How many states does the full EmergencyCall initial predicate reach? | [Exact finite-value counts, 64 cells and native controls](2026-11-21-emergencycall-finite-values.json) | 49,911,672,768 reachable states at depth 44, four published controls, independently computed cell counts and terminal ordinary-store measurements. |

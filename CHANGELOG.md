@@ -19,6 +19,8 @@ are in git history.
 
 - The [EmergencyCall benchmark](docs/developer/large-models.md#enlarge-the-emergencycall-number-sets) checks four larger source configurations and exports independently validated counterexamples.
 
+- [Finite symbolic checking](docs/user/symbolic.md#symbolic-layout-for-nested-tables) groups nested labeled tables by their shared coordinates. The KVS source now proves safety at 102 transaction slots within its existing 512-bit limit.
+
 - The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.
 
 - [Symbolic safety checking](docs/user/symbolic.md#admission-and-reports) supports finite symmetry groups acting on record contents, nested indices and refined sets, including independent proposer and acceptor permutations.
