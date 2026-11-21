@@ -1115,5 +1115,107 @@
         ]
       }
     }
+  },
+  "transition_witness_edits": {
+    "method": "Paired sessions on an isolated c7i.4xlarge, both pinned to physical core 0; small independently pinned functional checks shared the host during Base. Same native checker and exporter, compared retained closure from before this change against the candidate worker. Every arm begins cold and edits the original released module through a wrapper. Elapsed seconds per revision from the worker, whole-process time and RSS from GNU time.",
+    "source_hashes": {
+      "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "control/dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "libexec/dive-symbolic/engine.py": "91f15b8caa9d5c1f514d8b93822bdb089902015d0a68a68e4bb0e870ec04c7d3",
+      "libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "control/libexec/dive-symbolic/engine.py": "001520e7d36e296fb7b685ad844fe73bdbb1bde7934b50874237e5b25575207c",
+      "spec/PaxosLease.tla": "3ac9f462afc48698eac87519530abc227c9f47d44d305bed31104543e3c6ca1a",
+      "spec/PaxosLeaseBase.cfg": "03f0be6f3ae3faa879415477994958e480fdb88d7186f4dd9fc4f0577235c711",
+      "spec/PaxosLeaseChecked.tla": "52070f65a049c576a707dbb99c54078a2f45887f4c689b8b85fb3f4bc4e7b679",
+      "spec/PaxosLeaseQuarantineEqualsProposer.cfg": "5f69288c3b80cbab777da4aa4f573fd9e8e42527ce77297e29adf192a2c804f2",
+      "spec/PaxosLeaseRetry.cfg": "3df08aeb5bd1771b0ed045e8436fad72dba04371c86240b265e1107841a351d7",
+      "spec/WithIdle.tla": "14945c8517c6ac77399a9f18e980a9d6c1c4a63eaf199a0aae96d4ec6b20b1a3",
+      "spec/WithTick.tla": "f35b83acdfce19444b46e24b1a2a0c12b95858a6c0530fdeabd6e223d83c0409",
+      "spec/BaseChanged.cfg": "3b4f9817c9ad09eefd6fba771bf8e9b5b4fa50a105716a63649d2669c4e8b5b0",
+      "spec/QuarantineEqualsProposerChanged.cfg": "19239e06b6702dd428503766cd7f68f2efc48aece05261e39c9a49d54be42892"
+    },
+    "recipe": "In a copy of PaxosLeaseChecked.tla renamed WithIdle.tla or WithTick.tla, insert EditedNext == Next \\/ UNCHANGED vars or EditedNext == Next \\/ Tick before the module terminator, and define EditedSpec == Init /\\ [][EditedNext]_vars. In the edited CFG replace SPECIFICATION Spec by SPECIFICATION EditedSpec; keep every other setting. Run original, WithIdle, WithTick, original, in that order via --recheck.",
+    "command": "dive check PaxosLeaseChecked.tla --strategy symbolic --type-invariant TypeOK --refine-domains --config ORIGINAL --recheck WithIdle.tla EDITED --recheck WithTick.tla EDITED --recheck PaxosLeaseChecked.tla ORIGINAL --time-limit 3600s --max-memory 7g --output json",
+    "validation": "Independent cold and explicit comparisons on 27 scalar revisions, eight orbit-counting cases and a seeded 44-revision multigraph with a separate breadth-first enumerator. Covered excluded emissions, shortest validated counterexamples, deadlock, reachable shortcuts, domain growth, multiplicity and changed Init.",
+    "runs": {
+      "Base": {
+        "candidate": {
+          "wall_seconds": 66.57,
+          "peak_rss_kib": 338884,
+          "revisions": [
+            {
+              "distinct": 491037,
+              "generated": 1709874,
+              "depth": 29,
+              "reused": false,
+              "seconds": 62.296366,
+              "refinement_rounds": 11
+            },
+            {
+              "distinct": 491037,
+              "generated": 2200911,
+              "depth": 29,
+              "reused": true,
+              "seconds": 1.458155,
+              "refinement_rounds": 1
+            },
+            {
+              "distinct": 491037,
+              "generated": 1804652,
+              "depth": 29,
+              "reused": true,
+              "seconds": 1.674894,
+              "refinement_rounds": 1
+            },
+            {
+              "distinct": 491037,
+              "generated": 1709874,
+              "depth": 29,
+              "reused": true,
+              "seconds": 0.930438,
+              "refinement_rounds": 1
+            }
+          ]
+        },
+        "control": {
+          "wall_seconds": 190.64,
+          "peak_rss_kib": 332760,
+          "revisions": [
+            {
+              "distinct": 491037,
+              "generated": 1709874,
+              "depth": 29,
+              "reused": false,
+              "seconds": 62.744263,
+              "refinement_rounds": 11
+            },
+            {
+              "distinct": 491037,
+              "generated": 2200911,
+              "depth": 29,
+              "reused": false,
+              "seconds": 43.78816,
+              "refinement_rounds": 2
+            },
+            {
+              "distinct": 491037,
+              "generated": 1804652,
+              "depth": 29,
+              "reused": false,
+              "seconds": 41.863832,
+              "refinement_rounds": 2
+            },
+            {
+              "distinct": 491037,
+              "generated": 1709874,
+              "depth": 29,
+              "reused": false,
+              "seconds": 42.04854,
+              "refinement_rounds": 2
+            }
+          ]
+        }
+      }
+    }
   }
 }
