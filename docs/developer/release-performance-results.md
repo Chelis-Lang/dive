@@ -433,10 +433,10 @@ grows with the worker count.
    (`crates/dive-api/src/core_native_graph.rs`) requires sources in discovery
    order and runs on the committing thread: row retention, the fingerprint
    discovery index and edge buffers are single-threaded. This caps the
-   speed-up (Amdahl) but should not make more workers slower. Test: the share
-   of commit in a 1-worker profile. Note that `commit_ms` reads 0 in these
-   reports even at 1 worker, so check how the graph path fills it before
-   relying on it.
+   speed-up (Amdahl) but should not make more workers slower. The historical JSON subtracted expansion time twice when reporting
+   `commit_ms`, which could yield zero for a parallel search. Current
+   reports measure the time outside expansion in each completed parallel
+   level. Single-worker runs report zero for both parallel phases.
 3. *Sequential liveness analysis after a parallel search.* The final check
    (`GraphCheck::finish_native_with_reader`, called from
    `crates/dive-api/src/core_temporal.rs`) runs on the calling thread;

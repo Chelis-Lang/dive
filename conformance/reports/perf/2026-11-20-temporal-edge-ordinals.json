@@ -860,5 +860,350 @@
       }
     ],
     "capacity_note": "The final sampled memory stop can occur after explorer admission but before collector insertion. Distinct is the explorer counter. Each stop has a nonempty queue."
+  },
+  "adaptive_columns": {
+    "machine": "EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, 8 physical cores / 16 SMT threads, 30 GiB, Linux 7.0.0-1018-aws. One checker process at a time.",
+    "flags": "--workers 8 --fp 0 --seed 0 --max-memory 8g --time-limit 400s --output json; ordinary periodic schedule. Kafka and tree use the default profile. BlockingQueuePoisonApple and c1cs use --compat=tlc.",
+    "variants": {
+      "base": "Original-row blocks; byte or expanded action IDs; dense u16 ordinals with wide exceptions. All comparative binaries also include the same native fairness source guard.",
+      "words": "Adds dense two-byte IDs for 256 through 65535 configured actions.",
+      "runs": "Adds dense two-byte IDs and adaptive byte/word action blocks. Dense successor ordinals.",
+      "ord-final": "Adds implicit source-position ordinals, one source hint per block; baseline action IDs.",
+      "joint": "Both adaptive columns."
+    },
+    "method": "Every variant was required to agree on verdict, exit, generated/distinct counts, depth, final queue, property, actual periodic boundaries and ceiling. Collector capacity uses the structured per-run counter. Initial capacity runs sometimes overlapped development compilation, so only repeat process measurements are listed for the matched prefixes. Single wall and RSS observations per binary do not establish speedups.",
+    "models": {
+      "kafka": {
+        "invocation": "kraft_kip_996.tla, model_liveness.cfg; --library-path modules --max-states 181982",
+        "outcome": {
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 4,
+            "distinct": 181982,
+            "exhaustive": false,
+            "generated": 36103626,
+            "initial_generated": 1,
+            "left_on_queue": 165408,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "exhausted": false,
+            "final_check": false,
+            "last_level": null,
+            "last_size": 0,
+            "prefix_checks": 0
+          },
+          "stopped": {
+            "limit": 181982,
+            "observed": 181983,
+            "phase": "graph-capture",
+            "resource": "states",
+            "unit": "states"
+          },
+          "property": null,
+          "trace": null
+        },
+        "collector_capacity_bytes": {
+          "base": 988839386,
+          "words": 586186202,
+          "runs": 456163290,
+          "ord-final": 857767386,
+          "joint": 325091290
+        },
+        "repeat_measurements": {
+          "base": {
+            "collector_capacity_bytes": 988839386,
+            "sampled_process_peak_bytes": 1545162752,
+            "gnu_time_peak_rss_kib": 1507964,
+            "wall_seconds": 41.68
+          },
+          "joint": {
+            "collector_capacity_bytes": 325091290,
+            "sampled_process_peak_bytes": 890720256,
+            "gnu_time_peak_rss_kib": 868924,
+            "wall_seconds": 44.07
+          }
+        }
+      },
+      "c1cs": {
+        "invocation": "c1cs.tla, c1cs.cfg; --max-states 2000000",
+        "outcome": {
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 14,
+            "distinct": 2000000,
+            "exhaustive": false,
+            "generated": 41819682,
+            "initial_generated": 16,
+            "left_on_queue": 917126,
+            "reported_by_tlc": false
+          },
+          "periodic": {},
+          "stopped": {
+            "limit": 2000000,
+            "observed": 2000001,
+            "phase": "graph-capture",
+            "resource": "states",
+            "unit": "states"
+          },
+          "property": null,
+          "trace": null
+        },
+        "collector_capacity_bytes": {
+          "base": 580913260,
+          "words": 580913260,
+          "runs": 532679020,
+          "ord-final": 449841260,
+          "joint": 401607020
+        },
+        "repeat_measurements": {
+          "base": {
+            "collector_capacity_bytes": 580913260,
+            "sampled_process_peak_bytes": 1125564416,
+            "gnu_time_peak_rss_kib": 1098396,
+            "wall_seconds": 71.6
+          },
+          "joint": {
+            "collector_capacity_bytes": 401607020,
+            "sampled_process_peak_bytes": 934174720,
+            "gnu_time_peak_rss_kib": 911492,
+            "wall_seconds": 72.41
+          }
+        }
+      },
+      "blocking": {
+        "invocation": "BlockingQueuePoisonApple.tla, BlockingQueuePoisonApple.cfg; --max-states 2000000",
+        "outcome": {
+          "verdict": "stopped",
+          "exit_code": 5,
+          "statistics": {
+            "depth": 9,
+            "distinct": 2000000,
+            "exhaustive": false,
+            "generated": 6009057,
+            "initial_generated": 1,
+            "left_on_queue": 1468514,
+            "reported_by_tlc": false
+          },
+          "periodic": {},
+          "stopped": {
+            "limit": 2000000,
+            "observed": 2000001,
+            "phase": "graph-capture",
+            "resource": "states",
+            "unit": "states"
+          },
+          "property": null,
+          "trace": null
+        },
+        "collector_capacity_bytes": {
+          "base": 151323691,
+          "words": 151323691,
+          "runs": 151586091,
+          "ord-final": 134939691,
+          "joint": 135202091
+        },
+        "repeat_measurements": {
+          "base": {
+            "collector_capacity_bytes": 151323691,
+            "sampled_process_peak_bytes": 582115328,
+            "gnu_time_peak_rss_kib": 568124,
+            "wall_seconds": 7.7
+          },
+          "joint": {
+            "collector_capacity_bytes": 135202091,
+            "sampled_process_peak_bytes": 573743104,
+            "gnu_time_peak_rss_kib": 564060,
+            "wall_seconds": 7.52
+          }
+        }
+      },
+      "bfs": {
+        "invocation": "Graph.tla, Graph.cfg from scripts/bench-edited-temporal.py at tree size 131071; no state cutoff",
+        "outcome": {
+          "verdict": "success",
+          "exit_code": 0,
+          "statistics": {
+            "depth": 18,
+            "distinct": 262143,
+            "generated": 393215,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "exhausted": true,
+            "final_check": true,
+            "last_level": 17,
+            "last_size": 262143,
+            "prefix_checks": 2
+          },
+          "stopped": {},
+          "property": null,
+          "trace": null
+        },
+        "collector_capacity_bytes": {
+          "base": 12615862,
+          "words": 12615862,
+          "runs": 12648886,
+          "ord-final": 10567862,
+          "joint": 10600886
+        },
+        "repeat_measurements": {
+          "base": {
+            "collector_capacity_bytes": 12615862,
+            "sampled_process_peak_bytes": 80982016,
+            "gnu_time_peak_rss_kib": 78868,
+            "wall_seconds": 0.67
+          },
+          "joint": {
+            "collector_capacity_bytes": 10600886,
+            "sampled_process_peak_bytes": 83193856,
+            "gnu_time_peak_rss_kib": 80932,
+            "wall_seconds": 0.65
+          }
+        }
+      }
+    },
+    "kafka_first_periodic_profile": {
+      "action_label_count": 292,
+      "action_runs": 225593,
+      "buffer_capacity_bytes": {
+        "actions": 536870912,
+        "ordinals": 134217728,
+        "original_directory": 2097152,
+        "original_overrides": 0,
+        "retained_root_handles": 44040192,
+        "targets": 268435456
+      },
+      "closed_rows": 16574,
+      "contiguous_target_runs": 14190303,
+      "distinct_source_destination_pairs_among_generated": 14190303,
+      "implicit_stutters": 16574,
+      "ordinal_cells_different_from_source_position": 0,
+      "original_row_override_cells": 0,
+      "physical_edges": 36120199,
+      "rows_with_ordinal_equal_to_source_position": 16574,
+      "single_action_rows": 0,
+      "states": 181983,
+      "target_cells_by_64edge_block_delta_width": [
+        15579276,
+        19951842,
+        572507
+      ]
+    },
+    "inputs_sha256": {
+      "kafka/kraft_kip_996.tla": "87f9c5d5849195a7f4308f8181b2281a9e5d72dbe689d0a0a1b0b72838eb4a4d",
+      "kafka/kraft_kip_996_functions.tla": "72b254e89eaa0227a134d71233563f6dd4f8f34bfcb4983ddb51a3a0b7214585",
+      "kafka/kraft_kip_996_liveness.tla": "76726901173d6acffa43be0b4006ff63775370cd028f392f5d71aff501c2c4ed",
+      "kafka/kraft_kip_996_properties.tla": "ed8000ef9dd1262655efda56449f609618703df31d00375bf7cb6c1f52f2ab9a",
+      "kafka/kraft_kip_996_types.tla": "fbb189bd4f06756c180a8fb743adcf6cd35585184cea70ed65b00e58551508d8",
+      "kafka/network.tla": "29e38f6c9cfb0a275581452c330e82f25a75f86fea1437eca52d4863c64a01d8",
+      "kafka/model_liveness.cfg": "3de24e3b89db9468dc390f2ddd70bd6a7f47fedc0b7ba3680690b0ed4507030e",
+      "layout-input/c1cs/c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0",
+      "layout-input/c1cs/c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233",
+      "layout-input/blocking/BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+      "layout-input/blocking/BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f",
+      "layout-input/blocking/BlockingQueue.tla": "f69a5717596f1989cd5a5b933005f3ea6cccadada4e45438a8cf4500ee68935a",
+      "layout-input/blocking/BlockingQueue.cfg": "970d9c419d17c7752613c151556da4eb410d980af2446b9fda5f5437e7aefa04",
+      "layout-input/blocking/BlockingQueueFair.tla": "96ad89b710a0f38f4ccefa5ae91f9a073ebc043cc72e7b66fd8d5c721dd73a7c",
+      "layout-input/blocking/BlockingQueueFair.cfg": "f0cc3e18aa6c408ab79883fa0626bda721828310bc06e52ee8eb2b34b0269ddd",
+      "layout-input/bfs/Graph.tla": "cdb46a44247b282d9f9cfbd3d43db49bb084fe740a75ee215dc26eb034fd5577",
+      "layout-input/bfs/Graph.cfg": "f246834f131a03243bb442788f8381d74cf93d35d5359f828077a57b8c0a6435",
+      "layout-input/bfs/GraphBad.tla": "8fdbf66a48fe3da2ce1790450e8ca5b895847362f957074f19f10150305377dc",
+      "layout-input/bfs/GraphBad.cfg": "f246834f131a03243bb442788f8381d74cf93d35d5359f828077a57b8c0a6435"
+    },
+    "release_binary_sha256": {
+      "base": "a7ca89666a55f258c361bbfa3bf215e335e71984f55b3113e6ea0c54d1380642",
+      "words": "260cd7150243b950ea82f6195521d42a773a2cf0f42fc0a51ce9e06510ef93d7",
+      "runs": "2dbcc042cc91735d7173e4a9a4ef3ac94e7001a1c4926855ea904b6b82302d52",
+      "ord-final": "f7343cc42c39ba13e65deae6c609093a0f61d5b4aca89c7b8601798944810171",
+      "joint_before_source_row_repair": "fa5511a56ac1d9cb02de6b867772f2008fc8bf06ffc3359bdf399f593594af93",
+      "joint_after_source_row_repair": "ca9033087609bc6011b9744690b186f6462648b12b4e999b7b8979a0a19e17d4"
+    },
+    "qualification": "The 200k Kafka and first capacity runs used the integrated source-guard and layout binary before a source-row diagnostic path was updated to use the physical row boundary. No source-row error occurred on those inputs. All repeat prefix measurements and the full BFS lasso used the repaired binary; the collector format is identical.",
+    "kafka_after_first_periodic": {
+      "invocation": "Same unmodified input, --max-states 200000 --time-limit 600s.",
+      "outcome": {
+        "verdict": "stopped",
+        "exit_code": 5,
+        "statistics": {
+          "depth": 5,
+          "distinct": 200000,
+          "exhaustive": false,
+          "generated": 38232770,
+          "initial_generated": 1,
+          "left_on_queue": 182506,
+          "reported_by_tlc": false
+        },
+        "periodic": {
+          "exhausted": false,
+          "final_check": false,
+          "last_level": 3,
+          "last_size": 181983,
+          "prefix_checks": 1
+        },
+        "stopped": {
+          "limit": 200000,
+          "observed": 200001,
+          "phase": "graph-capture",
+          "resource": "states",
+          "unit": "states"
+        },
+        "property": null,
+        "trace": null
+      },
+      "label_actions": 71333304,
+      "label_states": 47497563,
+      "row_guards": {
+        "false_rows": 4143409,
+        "plans": 1020,
+        "probes": 4226370
+      },
+      "fallbacks": 0,
+      "measurements": {
+        "base": {
+          "collector_capacity_bytes": 988839386,
+          "sampled_process_peak_bytes": 2369155072,
+          "gnu_time_peak_rss_kib": 2312672,
+          "wall_seconds": 302.12
+        },
+        "joint": {
+          "collector_capacity_bytes": 325091290,
+          "sampled_process_peak_bytes": 1995964416,
+          "gnu_time_peak_rss_kib": 1948492,
+          "wall_seconds": 303.03
+        }
+      }
+    },
+    "bfs_lasso": {
+      "invocation": "GraphBad.tla with GraphBad.cfg; same tree, B == []<>(x = 0); --time-limit 120s.",
+      "outcome": {
+        "verdict": "liveness-violation",
+        "exit_code": 13,
+        "statistics": {
+          "depth": 18,
+          "distinct": 262143,
+          "generated": 393215,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "periodic": {
+          "exhausted": true,
+          "final_check": true,
+          "last_level": 17,
+          "last_size": 262143,
+          "prefix_checks": 2
+        },
+        "stopped": {},
+        "property": "B"
+      },
+      "ending": "lasso",
+      "states_in_trace": 2,
+      "validation": "valid with both binaries"
+    }
   }
 }

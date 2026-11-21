@@ -62,6 +62,14 @@ pub(super) trait StateSource {
         Ok(None)
     }
 
+    fn action_row_false(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _source: usize,
+    ) -> Result<bool, AnalysisError> {
+        Ok(false)
+    }
+
     fn validate_predicate_inputs(
         &mut self,
         _atom: &crate::plan::PredicateAtom,
@@ -202,6 +210,16 @@ impl StateSource for NativeStates<'_, '_> {
         self.read.predicate(atom, before, after, self.control)
     }
 
+    fn action_row_false(
+        &mut self,
+        atom: &crate::plan::PredicateAtom,
+        source: usize,
+    ) -> Result<bool, AnalysisError> {
+        let (before, _) = self.predicate_rows(source, None)?;
+        self.read
+            .action_row_false(atom, before, self.graph.retained_rows(), self.control)
+    }
+
     fn validate_predicate_inputs(
         &mut self,
         atom: &crate::plan::PredicateAtom,
@@ -230,14 +248,10 @@ impl StateSource for NativeStates<'_, '_> {
     }
 
     fn concrete_metadata(&self, source: usize, original: usize) -> Option<ConcreteMetadata<'_>> {
-        let range = self.graph.outgoing_range(source)?;
-        let edge = range.start.checked_add(original)?;
-        if edge >= range.end {
-            return None;
-        }
+        let (ordinal, label) = self.graph.metadata(source, original)?;
         Some(ConcreteMetadata {
-            ordinal: self.graph.ordinal(edge)??,
-            label: self.graph.label(edge)??,
+            ordinal: ordinal?,
+            label: label?,
         })
     }
 

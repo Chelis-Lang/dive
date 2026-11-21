@@ -9,7 +9,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 - **Reproduce the published originals.** For SlateDB, run the released two-value, three-writer, one-restart CFG and all six invariants to exhaustion on Core and pinned TLC. Record both terminal queues, distinct and generated counts, depth, elapsed time, memory, worker count and fingerprint limitations. The billion-state prefix gives a repeatable checkpoint for comparing builds. Compare the unedited three-barrier Flint model with its published 192-core completion. For ZooKeeper, compare the four-server, two-timeout configuration against the paper’s 24-hour cutoff after reproducing the one-timeout control. Keep the reconstructed restart rows separate. [SlateDB controls](#reproduce-the-released-slatedb-wal-model) · [ZooKeeper source recipe](#reproduce-the-zookeeper-protocol-specification).
 - **Close historical memory stops.** Use matched 24 GiB runs on DiskSynod, BPConProof, TLCSailfish2, BlockingQueuePoisonApple and c1cs, then raise the budget on the same inputs. Record the queue and stopping reason at each limit. Use the 242-million-state exact-store control to test reductions in collision-bucket and retained-row memory. The resident fingerprint table has also been tested at the shard occupancy implied by 49 billion states. [Historical outcomes](#where-the-thirteen-historical-non-finishes-stand) · [Frontier and value measurements](#resident-frontier-rows).
 - **Make maintenance cheaper.** Repeat the 76.7-million-state PaxosLease edit sequence for changes to the transition relation as well as added invariants. A changed relation requires a new proof that all reachable states and all emitted obligations are covered. Keep the false edit and independently validated trace as a control. Five BDD orderings on Retry exhausted their time budgets; use the completed explicit runs to judge any new relation representation. [PaxosLease runs and edits](#reproduce-the-released-paxoslease-runs) · [Installed Sail measurements](#what-an-installed-sail-worker-saves).
-- **Finish temporal checks.** Original Kafka now reaches the first periodic check. Measure whether the checker returns to graph capture, then establish the memory and time still needed for a full verdict. Qualify any reuse of fairness predicates on concrete edges, including actions that fail or depend on the destination. For the two memory-heavy temporal originals, compare capacity at the same budget after each graph layout change. Keep independent counterexample validation and defer the 17-model worker campaign to integrated qualification. [Historical inputs and limits](#where-the-thirteen-historical-non-finishes-stand).
+- **Finish temporal checks.** Original Kafka returned to graph capture after the first periodic check and reached the 8 GiB memory limit on the next frontier. Establish the memory and time still needed for a full verdict. Qualify any reuse of fairness predicates on concrete edges, including actions that fail or depend on the destination. For the two memory-heavy temporal originals, compare capacity at the same budget after each graph layout change. Keep independent counterexample validation and defer the 17-model worker campaign to integrated qualification. [Historical inputs and limits](#where-the-thirteen-historical-non-finishes-stand).
 - **Grow a checked program.** Increase one source parameter at a time, retain the original properties and cross-check the last tractable configuration with both explicit engines. Report generated edges, distinct concrete states, symmetry representatives and symbolic cardinalities using their own units. The published EmergencyCall case still needs the original unconstrained configuration. [Literature and reproducibility](#published-model-sizes-and-reproducible-comparisons).
 
 ## Results on KeyValueStore
@@ -247,11 +247,13 @@ targets the two CoffeeCan models. [Every sample, worker width and input digest](
 
 Replay needs the exact original successor ordinal on every generated edge,
 including duplicate destinations. The graph also holds a stutter entry per
-expanded state. Core stores ordinals below 65,534 in two bytes per entry.
-One reserved value marks stutters, the other points to a sparse table with
-the full ordinal indexed by physical edge. A source with many successors
-continues to support full-width ordinals. The checked graph verifies the
-table and source order before temporal analysis or reuse.
+expanded state. When a generated ordinal matches its position in the source row, Core
+derives it directly. The last physical edge of a closed source is its
+stutter. A block of 256 edges acquires a two-byte ordinal column only if
+it contains an exception. Full-width exceptions use a side table keyed
+by physical edge. A source hint per block bounds random ordinal lookup;
+consumers that already know the source read it directly. The checked
+graph verifies each block, extended ordinal and source range.
 
 | Two-million-state prefix | Generated | Collector buffers, before / after | Peak process RSS, before / after | Wall seconds, before / after |
 |---|---:|---:|---:|---:|
@@ -273,7 +275,7 @@ individual observations under `capacity`.
 
 ### Action labels in temporal graphs
 
-Core retains one action ID per edge so it can distinguish named transitions during replay. For up to 255 action names, it stores a byte per edge, with 255 reserved for an unnamed entry. Larger action tables retain full-width IDs. Duplicate destinations, successor ordinals and implicit stutter edges keep their identities.
+Core retains the action ID of every physical transition, including duplicate destinations. It uses byte IDs for up to 255 action names and two-byte IDs for up to 65,535. The maximum value at each width marks an unnamed occurrence. Each sealed block of 256 IDs uses either a dense array or sorted pairs of inclusive end position and action ID, whichever occupies fewer cells. One directory lookup and a search within the block recover a random ID. Action tables above 65,535 names retain full-width optional IDs.
 
 | Two-million-state prefix | Generated | Collector buffers, before / after | Mean peak RSS, before / after | Mean wall seconds, before / after |
 |---|---:|---:|---:|---:|
@@ -301,6 +303,30 @@ counts, queue sizes and depths at each prefix. The dense control already used
 byte action IDs and compact ordinals. [Inputs, individual timings and collector capacities](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
 At the same 20 GiB sampled cap, deriving ordinary edge originals raised c1cs capacity another 12.8%, from 38,066,281 to 42,930,269 distinct states. The latter run generated 989,943,733 states and stopped at depth 18, with 25,181,577 still queued. Wall time was 1,556.23 s for that larger prefix. [Matched control, binary hashes and admission counters](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json).
+
+At Kafka KIP-996’s first periodic check, 36,120,199 stored edges used 292
+action names. The original action column reserved 512 MiB, although only
+225,593 runs of equal IDs occurred. In all 16,574 completed rows, each
+generated ordinal equalled its source-local position. The table isolates each
+change at fixed work. Kafka stopped one state before the check, with the
+same 36,103,626 generated. The two other original configurations stopped
+at two million states. The binary tree exhausted its graph and passed.
+
+| Model | Original buffers | Two-byte IDs | Adaptive action blocks | Implicit ordinals alone | Combined |
+|---|---:|---:|---:|---:|---:|
+| Kafka KIP-996 | 943.0 MiB | 559.0 MiB | 435.0 MiB | 818.0 MiB | 310.0 MiB |
+| c1cs | 554.0 MiB | 554.0 MiB | 508.0 MiB | 429.0 MiB | 383.0 MiB |
+| BlockingQueuePoisonApple | 144.3 MiB | 144.3 MiB | 144.6 MiB | 128.7 MiB | 128.9 MiB |
+| Binary tree | 12.0 MiB | 12.0 MiB | 12.1 MiB | 10.1 MiB | 10.1 MiB |
+
+On inputs with interleaved action IDs, a dense block uses one directory
+entry beyond its 256 IDs. At a later Kafka stop of 200,000 distinct and
+38,232,770 generated, both binaries had completed the first periodic check
+and evaluated 71,333,304 actions and 47,497,563 state predicates. Peak process
+RSS was 2,258 MiB before and 1,903 MiB after; wall times were 302.12 s and
+303.03 s. The run stopped with 182,506 states queued. On the binary tree, both layouts also returned the same
+two-state, independently validated lasso for the false recurrence property. [All capacities,
+individual runs, outcomes and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
 ### What occupies memory at the same discovery prefix?
 
@@ -365,6 +391,21 @@ Both builds used the same compressed frontier rows and reached identical search 
 
 At a **6 GiB sampled process budget**, the packed queue raised BPConProof's memory stop from 25,089,035 to 33,560,338 distinct states (34%) and TLCSailfish2's from 13,991,908 to 14,414,379 (3%). DiskSynod stopped on memory at 100,884,308 before packing. After packing it reached 124,170,333 when the 1,500 s budget expired, at 4.55 GiB peak RSS. SlateDBWAL stopped on memory at 94,702,286 before packing. Raising the experiment’s state cap from 100 million to 500 million let the packed run reach the same memory limit at 201,344,793 distinct states (2.13×), 749,768,207 generated and depth 60 in 604.66 s. Its queue still held 30,670,132 states. [All individual measurements and stop reasons](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
+### Ordered commit on wide states
+
+Flint’s three-writer checker expands 31-variable successors across workers and commits them in discovery order. Each worker has already interned its complete candidate in the shared value store. With repeated interning on the coordinator, ordered commit took 9.37 s on the first ten million discoveries with 192 workers. Copying the retained canonical row directly into the resident frontier reduced commit time to 6.01 s. Both builds reached 37,302,268 generated, depth 17 and the same 4,675,720 pending states. Reported commit time covers completed parallel levels.
+
+| Model | Workers | Scope | Previous wall time, s | Retained row, s |
+|---|---:|---|---:|---:|
+| Flint original | 192 | 10M distinct | 21.68, 21.73 | 17.77, 18.01 |
+| Flint original | 32 | 10M distinct | 26.96, 26.96 | 23.19, 23.21 |
+| Flint two-barrier control | 192 | 7,924,117 distinct, complete | 21.03, 21.00 | 17.91, 18.41 |
+| SlateDB one value | 32 | 10M distinct | 15.79, 15.67 | 12.71, 12.78 |
+| KVS Medium | 8 | 2M distinct | 7.55, 7.56 | 7.31, 7.34 |
+
+
+A separate experiment kept a Rayon pool alive across ordinary safety batches. On Flint at 192 workers, host tasks created per run fell from about 124,000 to 314. Wall time fell from 21.97–22.24 s to 17.44–17.90 s, but peak RSS increased from 1.39 to 2.83 GiB. At 32 workers PConProof slowed from 34.55–34.89 s to 36.72–37.52 s. These tradeoffs kept ordinary worker scheduling out of the retained-row change. [All paired runs, inputs, binary identities, CPU time and memory](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
+
 ## High-fanout parallel safety
 
 A worker expands each source before the coordinator commits its successors in discovery order. The amount awaiting commit scales with **sources per batch × successors per source**. On BPConProof, 478 of the first million discovered states had left the queue, yet the checker had generated 1,119,749 states. Spilling frontier rows cannot release successor batches already under construction. Core now uses the previous completed level's mean fanout to target 65,536 successor occurrences per batch, with at least one source per requested worker. One source can still exceed that target.
@@ -404,7 +445,7 @@ provide comparisons at the same work or against an independent calculation.
 | DiskSynod | At 7,200 s, Core had reached 299,192,687 distinct, 4,260,111,630 generated and depth 30, with 65,518,609 queued. The cgroup peak was 18.31 GiB. | At 300,000 distinct states, disk-frontier placement cut peak process RSS from 230 MiB to 177 MiB. The larger run includes membership and predecessor growth as well. |
 | BlockingQueuePoisonApple, c1cs | Both ordinary 24 GiB runs ended in a kernel OOM. At equal work the compact ordinal column reduced RSS on both. | Edges per state and the width of each retained edge field dominate dense prefixes. c1cs still had 13.76 million states queued at the compact 20 GiB stop. |
 | EWD998, EnvironmentController | Default Core reached 19,573,292 and 1,332,012 distinct states respectively before the 900 s capture deadline. | The earlier startup refusals are gone. Success would require exhausting the graph and finishing fair temporal analysis, or an independently validated counterexample. |
-| Kafka KIP-996 liveness | Core lowered the original quantified fairness conditions with the default work budget. At the 180 s limit it was checking a periodic boundary at depth 4, with 181,983 distinct states, 36,103,626 generated and 165,409 queued. | Earlier runs exhausted predicate lowering before exploration. Reusing value-independent checks across equivalent lexical bindings cleared that limit. The graph remains incomplete. [Inputs, planner profile and bounded runs](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json). |
+| Kafka KIP-996 liveness | The original model returned from its first periodic check at 181,983 distinct states. The release candidate then reached its 200,000-state cap with 38,232,770 generated. A longer experiment on the preceding collector reached the 8 GiB limit at 1,378,619 distinct and 268,295,930 generated, depth 5. | Reusing first-order lexical checks cleared the original planning limit. At the first periodic boundary, a source guard proved 4,143,409 outgoing action rows false across the fairness atoms. The current collector uses 512 MiB of action-label capacity for 292 actions at that boundary. The full temporal verdict is still open. [Inputs, profiles and bounded runs](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json). |
 | etcdraft | Default Core reached 70,655,639 distinct and 266,068,245 generated, depth 13, at the 18 GiB sampled limit. | 55,290,518 states were queued. Queue width and retained aggregate values are practical targets. |
 | MCetcdraft | The original default run refused mixed record keys after 679 s. Canonical bag construction reached 47,609,227 distinct and 257,868,368 generated, depth 15, before the 18 GiB memory limit. | Message bags use structurally different records. Distinct keys and their multiplicities must survive construction and independent replay. |
 | TestMCReachability | The released CFG reads the host environment. Six ordinary closed CFGs on the unedited source match TLC in both profiles, including the graph 1a deadlock. Graph 7 exceeded a 10 s observation. | The graph selected as input and the reachable checker states of the graph algorithm are separate quantities. |
@@ -479,7 +520,11 @@ above demonstrate concrete reachable cardinalities on their own programs.
 
 Three completed no-restart configurations reproduce the state counts and diameters in Ouyang et al., Table 1. The paper’s count matches **generated** states in each. With four servers, two transactions and one timeout, Core and pinned TLC exhausted the queue at 6,634,696 distinct states, 21,393,294 generated and depth 64. Core took 623.70 s and 452 MiB peak RSS. TLC took 136.24 s and 46.3 GiB on the same host. Core used one of the 32 requested workers because the released specification contains twelve diagnostic `PrintT` calls. The completed Core run emitted no lines. With two timeouts the paper reports 1,599,588,210 states at its 24-hour cutoff. [Paper, Table 1](https://arxiv.org/pdf/2302.02703#page=7).
 
-The release supplies the module and a Toolbox guide. The reproduction record supplies the missing wrapper and configuration template, the ten invariants, hashes, individual measurements and unsuccessful reconstructions. Restart increments the source’s timeout counter as well as its restart counter. Treating the published timeout parameter as a joint or an independent allowance produced different state spaces. Neither interpretation reproduced the two-server restart rows. [Source and reconstruction data](../../conformance/reports/perf/2026-11-20-zookeeper-reference.json).
+With conditional diagnostics evaluated in commit order, the three-server, one-timeout control took 1.20 s with 32 workers versus 12.38 s on the prior single-worker path and 7.05 s on pinned 32-worker TLC. All three exhausted 251,332 distinct states, 610,035 generated, at depth 43, and Core emitted no output. Peak process RSS was 1.00 GiB for parallel Core, 155 MiB for serial Core and 27.4 GiB for TLC under its 128 GiB heap setting. [Paired measurements and independent diagnostic checks](../../conformance/reports/perf/2026-11-20-zookeeper-reference.json).
+
+On the four-server control, the same worker change took 51.74 s versus 612.76 s on the prior Core and 133.97 s on pinned TLC. All three exhausted the same graph at depth 64. Peak RSS rose from 449 MiB to 3.45 GiB on Core. TLC peaked at 46.3 GiB. [Inputs, counts, times and memory](../../conformance/reports/perf/2026-11-20-zookeeper-reference.json).
+
+The release supplies the module and a Toolbox guide. The reproduction record supplies the missing wrapper and configuration template, the ten invariants, hashes, individual measurements and unsuccessful reconstructions. Restart increments the source’s timeout counter as well as its restart counter. Treating the published timeout parameter as a joint or an independent allowance produced different state spaces. Neither interpretation reproduced the two-server restart rows. With three servers, two timeouts and no restarts, both checkers completed 17,345,585 generated at depth 52 versus 26,126,204 at depth 54 in the paper. With one restart and one timeout, pinned TLC completed 97,096,950 generated at depth 59. Core reached its 1,500 s limit, and the paper reports 84,543,312 at depth 61. [Source and reconstruction data](../../conformance/reports/perf/2026-11-20-zookeeper-reference.json).
 
 ### Reproduce the released SlateDB WAL model
 

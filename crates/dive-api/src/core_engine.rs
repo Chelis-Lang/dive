@@ -998,6 +998,47 @@ pub(crate) fn safety_result(
         workers,
         explore_started,
     } = *search;
+    let inline_roots = out.metrics.inline_graph_roots;
+    let ordered_width = out.metrics.ordered_print_workers;
+    let searched_result = |verdict| {
+        let mut report = result(verdict, options, ir);
+        if options.sequential && workers == 1 {
+            report.workers.used = 1;
+            report.workers.sequential = true;
+            report.workers.reason = Some("--sequential requested inline checking".into());
+        } else if workers > 1 && expanded && ordered_width == Some(1) {
+            report.workers.used = 1;
+            report.workers.reason = Some(
+                "each expanded level had only one source for ordered diagnostic output".into(),
+            );
+        } else if plan.effects.any && ordered_width.is_none() && workers > 1 {
+            report.workers.used = 1;
+            report.workers.reason = Some(if plan.effects.prints {
+                "the specification prints (Print or PrintT): the core keeps TLC's order of the output with one worker".into()
+            } else if plan.effects.draws {
+                "the specification draws (RandomElement): the core draws in TLC's order with one worker"
+                .into()
+            } else {
+                "the specification uses TLCSet or TLCGet: the core keeps TLC's order of their effects with one worker".into()
+            });
+        } else if let Some(roots) = inline_roots {
+            report.workers.sequential = true;
+            report.workers.used = 1;
+            report.workers.reason = Some(format!(
+                "temporal capture has {roots} initial states and short, non-enumerating actions. One worker expands and commits each source inline"
+            ));
+        } else if workers > 1 && !expanded {
+            report.workers.used = 1;
+            report.workers.reason = Some(
+                "the run ended in Init, which one worker evaluates, before any parallel level"
+                    .into(),
+            );
+        } else {
+            report.workers.used = workers;
+            report.workers.reason = None;
+        }
+        report
+    };
     let Startup { mut sym, startup } = start;
     let budget = &options.budget;
     let storage_failed = !out.metrics.storage.candidates.failures.is_empty()
@@ -1026,7 +1067,7 @@ pub(crate) fn safety_result(
             dive_explore::Verdict::Internal { message } => Verdict::InternalError { message },
             _ => unsupported("TLCSet or TLCGet in a run that does not end in success (M1 core)"),
         };
-        return result(v, options, ir);
+        return searched_result(v);
     }
     if plan.effects.prints
         && !owned_budget
@@ -1046,7 +1087,7 @@ pub(crate) fn safety_result(
                 "Print or PrintT in a run that does not end in success, or that warns (M1 core)",
             ),
         };
-        return result(v, options, ir);
+        return searched_result(v);
     }
     let failed = out.verdict == dive_explore::Verdict::Failed;
     let verdict = match out.verdict {
@@ -1182,7 +1223,7 @@ pub(crate) fn safety_result(
         trace = None;
     }
     let prints = !in_init || matches!(verdict, Verdict::EvaluationError { .. });
-    let mut r = result(verdict, options, ir);
+    let mut r = searched_result(verdict);
     r.predecessor = dive_runtime::PredecessorUsage {
         storage: out.metrics.storage.predecessor,
         failures: out.metrics.storage.predecessor_failures.clone(),
@@ -1218,31 +1259,6 @@ pub(crate) fn safety_result(
     r.notes.extend(sym.note.take());
     r.output = startup;
     r.output.extend(out.printed.iter().cloned());
-    if plan.effects.any && workers > 1 {
-        r.workers.used = 1;
-        r.workers.reason = Some(if plan.effects.prints {
-            "the specification prints (Print or PrintT): the core keeps TLC's order of the output with one worker".into()
-        } else if plan.effects.draws {
-            "the specification draws (RandomElement): the core draws in TLC's order with one worker"
-                .into()
-        } else {
-            "the specification uses TLCSet or TLCGet: the core keeps TLC's order of their effects with one worker".into()
-        });
-    } else if let Some(roots) = out.metrics.inline_graph_roots {
-        r.workers.sequential = true;
-        r.workers.used = 1;
-        r.workers.reason = Some(format!(
-            "temporal capture has {roots} initial states and short, non-enumerating actions. One worker expands and commits each source inline"
-        ));
-    } else if workers > 1 && !expanded {
-        r.workers.used = 1;
-        r.workers.reason = Some(
-            "the run ended in Init, which one worker evaluates, before any parallel level".into(),
-        );
-    } else {
-        r.workers.used = workers;
-        r.workers.reason = None;
-    }
     for (var, at) in &out.warnings {
         let name = plan.vars.get(usize::from(*var)).map_or("?", String::as_str);
         r.output.push(format!(
@@ -1510,10 +1526,8 @@ pub(crate) fn check(
     // TLC's string order the table is sealed, so no worker creates a token.
     let workers = if let Some((remote, _)) = &distributed {
         remote.workers.len()
-    } else if options
-        .seen_disk
-        .as_ref()
-        .is_some_and(|s| !s.partitioned || options.sequential)
+    } else if options.seen_disk.as_ref().is_some_and(|s| !s.partitioned)
+        || options.sequential
         || debugger.is_some()
     {
         1
@@ -1879,7 +1893,7 @@ pub(crate) fn metrics_json(
         "distributed":m.distributed,
         "explore_ms": m.explore_time.as_secs_f64() * 1e3,
         "expand_ms": m.expand_time.as_secs_f64() * 1e3,
-        "commit_ms": m.commit_time.saturating_sub(m.expand_time).as_secs_f64() * 1e3,
+        "commit_ms": m.commit_time.as_secs_f64() * 1e3,
         "plan": {
             "nodes": plan.stats.nodes, "generator_nodes": plan.stats.gnodes,
             "inlined": plan.stats.inlined, "aliased_args": plan.stats.aliased,

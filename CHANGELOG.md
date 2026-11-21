@@ -7,6 +7,10 @@ are in git history.
 
 ### Added
 
+- Temporal graph capture packs repeated action labels and stores exceptions to source-local successor numbering. [Storage measurements](docs/developer/large-models.md#action-labels-in-temporal-graphs).
+
+- Core checks a [fairness action’s leading state conditions](docs/user/temporal.md#fairness) once per source when they rule out every successor.
+
 - Core temporal checks share original row IDs across transitions whose targets match the first-discovery representation. [Temporal graph storage](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
 - `dive simulate` checks temporal `PROPERTY`s on each trace's own behaviors
@@ -37,9 +41,13 @@ are in git history.
 
 - Refined symbolic sessions can reuse a completed search across edits to transition guards, repeated actions and self-loops. They report the edited witness count and check for newly introduced deadlocks. [Symbolic checks](docs/user/symbolic.md#learning-which-members-a-wide-set-needs).
 
+- Core reports the measured ordered commit time in `core.metrics.commit_ms` on completed parallel levels. Earlier reports could show zero after subtracting expansion time twice.
+
 - Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
 
 - `dive check --partitioned-fingerprints` supports parallel safety search with disk membership beyond four billion entries. The [storage guide](docs/user/disk-seen-safety.md#multi-worker-fingerprint-membership) covers capacity, audit results and the measured throughput cost.
+
+- Core safety checks can use multiple workers on specifications with conditional diagnostics. The coordinator preserves the order and number of printed lines. [Checking guide](docs/user/checking.md#workers-and-stores).
 
 - The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Relation changes start a fresh search with the previous set coordinates. [Usage and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
 
@@ -59,6 +67,7 @@ are in git history.
   report, and `--constructive-init` builds each trace's initial state instead
   of enumerating Init. See [simulation](docs/user/simulation.md#workers-trace-counts-and-what-the-report-keeps).
 
+- Local parallel safety search reuses worker-interned state values at ordered commit. On the complete Flint two-barrier control this reduced wall time from 21.0 s to 17.9–18.4 s. [Comparisons](docs/developer/large-models.md#ordered-commit-on-wide-states).
 - Core reduces the number of sources expanded together in high-fanout parallel safety searches. On BPConProof this cut peak RSS by 59% at one million discoveries. [Measurements](docs/developer/large-models.md#high-fanout-parallel-safety).
 - `dive simulate` accepts `SYMMETRY` and `VIEW`, which do not change a
   simulation, checks state-level `PROPERTY` parts on initial states (2108),

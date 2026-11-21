@@ -267,7 +267,7 @@ impl Boundary {
 
     fn input<'a>(
         &self,
-        full: CsrStorage<'a>,
+        full: &CsrStorage<'a>,
         offsets: &'a mut Vec<usize>,
     ) -> Result<CsrStorage<'a>, Miss> {
         let bad = || miss("invalid captured level boundary");
@@ -374,7 +374,7 @@ impl Artifact {
         };
         let mut offsets = Vec::new();
         for b in &self.boundaries {
-            let prefix = b.input(input, &mut offsets)?;
+            let prefix = b.input(&input, &mut offsets)?;
             let csr = CsrCapture::checked(prefix, limits.graph, &control)
                 .map_err(|e| miss(format!("captured level: {e:?}")))?;
             if !driver.native_level_due(b.stats) {

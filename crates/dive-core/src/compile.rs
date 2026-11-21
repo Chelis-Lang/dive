@@ -587,6 +587,34 @@ pub fn compile_bound_test(
     opts: Opts,
     test: BoundTest,
 ) -> Result<Plan, Error> {
+    compile_bound_test_with_guard(h, store, opts, test).map(|(plan, _)| plan)
+}
+
+/// Compiles a bound test, optionally returning the entry point of a
+/// source-only necessary guard for a nonstuttering action. The entry point
+/// belongs to the returned plan. A caller may use a successful false result
+/// only with the ordinary native-plan admission, the check's own fresh frame
+/// and preset values, and materialized physical source and target rows.
+/// Use an unobserved machine in the same store, leave three node visits
+/// for the full test's subscript, and keep ordinary edge evaluation if
+/// the guard raises an error, records a warning or produces output.
+///
+/// ```no_run
+/// # fn example(h: &dive_core::Handoff<'_>, store: std::sync::Arc<dive_core::Store>, subscript: dive_ir::ExprId) -> Result<(), dive_core::Error> {
+/// let (plan, guard) = dive_core::compile::compile_bound_test_with_guard(
+///     h, store, dive_core::Opts::default(), dive_core::compile::BoundTest::Nonstuttering(subscript))?;
+/// # let _ = (plan, guard);
+/// # Ok(()) }
+/// ```
+///
+/// # Errors
+/// The same role, wrapper and expression refusals as [`compile_bound_test`].
+pub fn compile_bound_test_with_guard(
+    h: &Handoff<'_>,
+    store: Arc<Store>,
+    opts: Opts,
+    test: BoundTest,
+) -> Result<(Plan, Option<P>), Error> {
     if h.implied_actions.len() != 1
         || !h.init.is_empty()
         || !h.next.is_empty()
@@ -614,7 +642,7 @@ pub fn compile_bound_test(
 /// [`crate::ErrorKind::Unsupported`] naming the first construct Core does
 /// not implement.
 pub fn compile(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<Plan, Error> {
-    compile_inner(h, store, opts, None, false)
+    compile_inner(h, store, opts, None, false).map(|(plan, _)| plan)
 }
 
 /// Compiles actual value/generator instruction maps for an explicitly observed run.
@@ -632,7 +660,7 @@ pub fn compile_debug(h: &Handoff<'_>, store: Arc<Store>, opts: Opts) -> Result<P
     {
         return Err(Error::unsupported("compiled debugger source capacity"));
     }
-    compile_inner(h, store, opts, None, true)
+    compile_inner(h, store, opts, None, true).map(|(plan, _)| plan)
 }
 
 #[allow(
@@ -645,7 +673,7 @@ fn compile_inner(
     opts: Opts,
     test: Option<BoundTest>,
     mapped: bool,
-) -> Result<Plan, Error> {
+) -> Result<(Plan, Option<P>), Error> {
     let nvars = h.ir.vars().len();
     if nvars > 64 {
         return Err(Error::unsupported("more than 64 state variables (M0 core)"));
@@ -710,6 +738,7 @@ fn compile_inner(
         stats: CompileStats::default(),
         site_names: Vec::new(),
         role_name: String::new(),
+        bound_false_guard: None,
         bound_preset: test.map(|_| Vec::new()),
     };
     c.startup_values();
@@ -832,7 +861,7 @@ fn compile_inner(
             map.executable = executable;
         }
     }
-    Ok(plan)
+    Ok((plan, c.bound_false_guard))
 }
 
 #[allow(
@@ -941,6 +970,7 @@ struct Compiler<'a> {
     /// `Some` while compiling one bound optional atom: the frame slots its
     /// role binds, with their values, which the caller installs.
     bound_preset: Option<Vec<(u32, Handle)>>,
+    bound_false_guard: Option<P>,
 }
 
 impl Compiler<'_> {
@@ -2547,6 +2577,82 @@ impl Compiler<'_> {
         })
     }
 
+    /// Projects the prefix that can disprove an action before its first
+    /// successor-dependent operand. In a false existential every witness
+    /// failed this prefix. The ordinary body therefore demanded exactly the
+    /// same values, in the same order, for each witness. A true prefix or
+    /// any error provides no conclusion about the original.
+    fn state_guard(&mut self, p: P, depth: usize) -> Result<Option<P>, Error> {
+        const MAX_DEPTH: usize = 32;
+        // One extra node per level at most. Guard construction is optional
+        // and must leave the ordinary bound test within its inlining limit.
+        if depth > MAX_DEPTH || (depth == 0 && self.code.nodes.len() > MAX_NODES - MAX_DEPTH - 1) {
+            return Ok(None);
+        }
+        let state_only =
+            |info: &Info| info.primed == 0 && !info.effect && !info.calls && !info.nested_query;
+        if state_only(&self.info[p as usize]) {
+            return Ok(Some(p));
+        }
+        let projected = match self.code.nodes[p as usize].clone() {
+            Node::And(operands) => {
+                let mut prefix = Vec::new();
+                for &operand in &operands {
+                    if state_only(&self.info[operand as usize]) {
+                        prefix.push(operand);
+                    } else {
+                        prefix.extend(self.state_guard(operand, depth + 1)?);
+                        break;
+                    }
+                }
+                if prefix.is_empty() {
+                    return Ok(None);
+                }
+                Node::And(prefix.into())
+            }
+            // Only the action root may cache a weaker result. No other
+            // operand can subsequently read its slot, and this fresh frame
+            // has no preset value for it.
+            Node::Lazy { slot, body } if depth == 0 && !self.preset_slot(slot) => {
+                let Some(body) = self.state_guard(body, depth + 1)? else {
+                    return Ok(None);
+                };
+                Node::Lazy { slot, body }
+            }
+            Node::Scope { reset, body } => {
+                let Some(body) = self.state_guard(body, depth + 1)? else {
+                    return Ok(None);
+                };
+                Node::Scope { reset, body }
+            }
+            Node::Quant {
+                kind: Quant::Exists,
+                binds,
+                body,
+            } if binds
+                .iter()
+                .all(|bind| state_only(&self.info[bind.domain as usize])) =>
+            {
+                let Some(body) = self.state_guard(body, depth + 1)? else {
+                    return Ok(None);
+                };
+                Node::Quant {
+                    kind: Quant::Exists,
+                    binds,
+                    body,
+                }
+            }
+            _ => return Ok(None),
+        };
+        self.push(projected).map(Some)
+    }
+
+    fn preset_slot(&self, slot: u32) -> bool {
+        self.bound_preset
+            .as_ref()
+            .is_some_and(|preset| preset.iter().any(|&(s, _)| s == slot))
+    }
+
     fn bound_test(&mut self, r: &Role, test: BoundTest) -> Result<Check, Error> {
         if matches!(test, BoundTest::Predicate) {
             return self.step_check(r);
@@ -2572,7 +2678,21 @@ impl Compiler<'_> {
                 let changed = self.push(Node::Not(same))?;
                 let action = self.p(r.expr, env, Mode::Plain)?;
                 self.step = false;
-                self.push(Node::And([changed, action].into()))?
+                let complete = self.push(Node::And([changed, action].into()))?;
+                // SameVars is total on the materialized physical row pairs
+                // admitted by the native reader, absent a forced alias or
+                // TLC's shape-sensitive comparisons. On an unchanged pair
+                // the conjunction is false immediately; on a changed one the
+                // action follows these three machine nodes.
+                if !self.m.heap.store().semantics().tlc_comparisons
+                    && let Node::SameVars { thunks, .. } = &self.code.nodes[same as usize]
+                    && thunks.iter().all(|&slot| !self.preset_slot(slot))
+                {
+                    // Bound-test compilation disables folding, so the
+                    // projected wrappers retain their ordinary fuel charges.
+                    self.bound_false_guard = self.state_guard(action, 0)?;
+                }
+                complete
             }
             BoundTest::Predicate => return Err(Error::internal("ordinary bound test dispatch")),
         };

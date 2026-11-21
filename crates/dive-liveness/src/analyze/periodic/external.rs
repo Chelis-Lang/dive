@@ -80,6 +80,24 @@ pub trait NativeReader {
         false
     }
 
+    /// Whether this exact action is defined and false from `before` to
+    /// every physical target row in `0..rows`. A successful proof must
+    /// preserve the evaluation of the subscript and action, including
+    /// errors, output and row admission. The default keeps individual
+    /// edge demands.
+    ///
+    /// # Errors
+    /// An owned interruption or resource stop.
+    fn action_row_false(
+        &mut self,
+        _atom: &crate::plan::PredicateAtom,
+        _before: usize,
+        _rows: usize,
+        _control: &dive_runtime::budget::EvaluationControl,
+    ) -> Result<bool, AnalysisError> {
+        Ok(false)
+    }
+
     /// Optionally evaluates the exact retained atom on original row IDs.
     /// `None` preserves ordinary reference evaluation. Predicate wrappers,
     /// unknown scopes and unproved representations must use that fallback.

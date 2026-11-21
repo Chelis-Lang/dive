@@ -387,6 +387,7 @@ pub(super) fn decode(
             values,
             payloads: None,
             end,
+            deferred_print: false,
             warnings: metadata.warnings,
         },
         metadata.counts,

@@ -468,6 +468,15 @@ by several properties, in at most the smaller of 16 MiB and 1/256 of the
 memory limit. `fairness_reuse` metrics count reuse. There is no flag for this,
 and it changes no result.
 
+In the default profile, Core can label all outgoing edges of a state false
+for a fairness action whose leading state conditions already rule it out.
+For example, in `WF_vars(ready /\ Step)`, every nonstuttering occurrence of
+`ready /\ Step` requires a source with `ready = TRUE`. Core checks the guard
+once per source when the subscript is a tuple of state variables and every
+retained row is materialized. If a condition raises an error or needs the successor, ordinary edge evaluation
+handles the remaining work. The JSON report counts attempts and proven false
+rows under `core.metrics.liveness.atoms.action_source_guards`.
+
 From a source checkout, a strong-fairness model with three toggles
 (`crates/dive-liveness/tests/fixtures/solutions/Solutions.tla`, 8 states, 25
 generated) exercises holding and failing properties, including
@@ -565,7 +574,10 @@ accounting is incomplete, and sampled process memory is not a true peak.
 cache hits and misses, entries, requested bytes, replacements and bypasses.
 `retained_rows` is the stored row count, and `convert_ms_scope` says that
 conversion timing leaves out one-variable cache hits. `memory` fields cover the
-graph buffers and action labels; `accounting_complete` is false.
+graph buffers and action labels; `accounting_complete` is false. Core packs repeated
+action IDs and derives successor ordinals from their source positions when
+possible. Temporal analysis can recover the original ordinal and any named
+action for each generated graph edge.
 `core.metrics.liveness.atoms` counts eligible atoms, direct evaluations by kind
 and fallbacks, and `atoms.row_proofs` counts reused atom checks. These describe
 work; they say nothing about throughput or completion.
