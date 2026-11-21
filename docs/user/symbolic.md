@@ -81,9 +81,22 @@ The released three-manager configuration returns 34 concrete distinct states, 94
 
 Admission currently requires one total table whose declared type is `[Ids -> {"s₁", …, "sₖ"}]`, a finite configured set of up to 8,192 distinct untyped model-value participants and at most eight string statuses. Each initial alternative assigns a uniform status to the whole table. Each action branch stutters or updates a single existentially bound participant to a literal status. Guards can read that participant's status and quantify over statuses present in the complete participant domain. Invariants can quantify over one or two participants, including coincident indices. Input that distinguishes a named participant, correlates a second table, constrains admitted states, selects CFG symmetry or uses another unsupported feature returns a named refusal. The ordinary Core and symbolic strategies remain available for richer sources.
 
-`--max-orbits N` bounds the number of reachable vectors retained, including initial vectors. The default is 1,000,000. Set a larger limit explicitly for larger exact searches. Time, memory and orbit-budget stops carry no completed counts. Success rows include integer `distinct` and `generated`, lossless decimal strings `distinct_decimal` and `generated_decimal`, `depth`, `occupancies` and the configured invariant names. A search with `--strategy occupancy` starts at Init. Existing Sail symbolic sessions use `--strategy symbolic` to emit and independently verify BDD predicates across edits.
+`--max-orbits N` bounds the number of reachable vectors retained, including initial vectors. The default is 1,000,000. Set a larger limit explicitly for larger exact searches. Time, memory and orbit-budget stops carry no completed counts. Success rows include integer `distinct` and `generated`, lossless decimal strings `distinct_decimal` and `generated_decimal`, `depth`, `occupancies` and the configured invariant names. A counted search starts at Init.
 
 For a source checkout, use the same supervisor with `python3 scripts/symbolic/check.py MODEL.tla MODEL.cfg --occupancy`, supplying `--dive`, `--exporter` and `--type-invariant` as needed. [Source admission, measurement data and reproduction](../developer/large-models.md#checking-anonymous-processes-by-population).
+
+### Transfer a population safety predicate across edits
+
+A completed exact population search can write a separate candidate file. The receiving checker binds the entire current source and CFG, checks that they still admit the population reduction, and verifies initial inclusion, all current transitions and every configured invariant or deadlock check. The candidate describes which **sets of present statuses** are allowed. Its labels can be reordered in the receiving source, and the number and names of participants can change.
+
+```sh
+dive check TCommit.tla --config TCommit.cfg --strategy occupancy --type-invariant TCTypeOK \
+  --write-predicate support.json --output json
+dive check Edits.tla --config stronger.cfg --strategy occupancy --type-invariant TCTypeOK \
+  --verify-predicate support.json --output json
+```
+
+A successful receiver reports `proof="inductive-safety"` without counts or depth. A failed obligation gives `proof="inconclusive"` and names the obligation. An abstract bad state may be unreachable. Run a fresh exact search for labeled counts or a concrete, independently validated counterexample. Use `--prove-inductive` for a fresh support proof without a supplied file. This requires at most 256 sets of present statuses and can be as fast as verifying the stored predicate. The file is a portable candidate, and its contents confer no authority before verification. [Proof obligations, false controls and reproduction](../developer/large-models.md#recheck-population-predicates).
 
 ## Symbolic layout for nested tables
 

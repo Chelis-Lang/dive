@@ -13,6 +13,8 @@ are in git history.
 
 - Core can check actions that choose a [subset of messages for one recipient](docs/user/checking.md), including queues that previously exceeded its powerset limit.
 
+- An exact population search can save a [portable safety predicate](docs/user/symbolic.md#transfer-a-population-safety-predicate-across-edits). A receiver proves the current source and reports failed induction obligations explicitly.
+
 - Linux releases include [exact labeled occupancy checking](docs/user/symbolic.md#checking-interchangeable-status-tables). An opt-in source-derived BFS counts concrete states and action witnesses for anonymous finite status tables and independently replays shortest violations.
 
 - Core and trace validation can find [wide integer powerset witnesses](docs/user/checking.md) while checking the empty set and singleton candidates.

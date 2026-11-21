@@ -147,6 +147,14 @@ dive check "$model/TCommit.tla" --config R8192.cfg --strategy occupancy \
 
 [Installed command and admission limits](../user/symbolic.md#checking-interchangeable-status-tables). [Exact counts, negative controls, timings and pinned inputs](../../conformance/reports/perf/2026-11-21-source-occupancy.json).
 
+### Recheck population predicates
+
+Each admitted guard and safety predicate depends on the set of statuses present and, for a single-participant action, its current status. A predicate on that set fits in at most 256 masks for eight statuses. The checker builds a conservative closed set starting at every uniform Init alternative. A move from `a` to `b` adds `b`. It removes `a` if the moving participant can be its last holder. With two or more present statuses, all excess participants can be assigned to another status. A singleton status can disappear only at population size one. The source status can survive if the population exceeds the number of statuses present. Self-loops leave the mask fixed. Empty populations have only the empty mask.
+
+For reuse, Dive binds the recipient's module and CFG, remaps the file's literal status labels, and rechecks Init, enabled transitions from every feasible candidate mask, and the current invariants and deadlock setting. A proof covers every labeled assignment represented by a mask. It makes no claim to have enumerated the reachable graph. A safe exact search can yield an inconclusive support proof. A three-person control permits just one participant to enter status B and then replace that B with C. The abstraction allows B to survive this move. It cannot prove that B and C never coexist, although exact occupancy and labeled Core both exhaust seven states and seven generated occurrences through depth three.
+
+To reproduce the edits, generate a new directory from the pinned source with `python3 scripts/symbolic/check_occupancy_predicate.py "$model" ./edits8192 8192`. The generated wrapper retains both original invariants. Its stronger property forbids simultaneous working and committed participants. The deletion removes abort transitions, while the addition permits an unconditional commit. An independent differential covers all 26,312 concrete moves on 2,001 count vectors across 45 small domains. The implementation's support successors matched all 3,552 distinct projected queries. [Installed population proofs](../user/symbolic.md#transfer-a-population-safety-predicate-across-edits).
+
 ### Isolated symbolic measurements
 
 Three fresh processes per configuration ran sequentially on a fixed 2.4 GHz
