@@ -776,7 +776,7 @@
   "exact_column_admission": {
     "host": "Dedicated EC2 r8g.48xlarge, Graviton4, us-west-2a. 192 physical cores, 1400 GiB memory cgroup, swap disabled. Each run uses a fresh process and metadata directory.",
     "inputs": "Same author checkout, released levelwriter.patch, module, configurations and property scope as successful_guard_overlap. Small uses the author small-control CFG. Two uses the two-writer CFG. Fault extends the small control with invariant ZeroBarriers == barriers = 0.",
-    "identity": "A per-variable dictionary interns normalized finite mathematical values. A fresh bit position is allocated when its ordinal first needs it. Existing keys remain stable. Direct mode permits 63 bits; in split mode two 64-bit banks separately intern complete bank words with equality and two 32-bit IDs form the joint key. Invertible nonzero permutation preserves the seen set sentinel. Key assignments are process-local. VIEW, SYMMETRY, unevaluated values and exceeded capacities refuse. The distributed adapter disables checkpoint output by default and rejects explicit recovery or checkpoints before opening metadata. Its CLI preflight is outside the measured traversal.",
+    "identity": "A per-variable dictionary interns normalized finite mathematical values. A fresh bit position is allocated when its ordinal first needs it. Existing keys remain stable. Direct mode permits 63 bits; in split mode two 64-bit banks separately intern complete bank words with equality and two 32-bit IDs form the joint key. Invertible nonzero permutation preserves the seen set sentinel. Key assignments are process-local. VIEW, SYMMETRY, unevaluated values and exceeded capacities refuse. The source adapter disables checkpoint output by default and rejects explicit recovery or checkpoints before opening metadata. Its CLI preflight is outside the measured traversal.",
     "fingerprint_audit": "For every first exact admission retain the original compiler fingerprint (including its seen-set sentinel rule) and count repeated admissions. Masking to zero supplies a positive collision control. This measures shared keys; different traversals can also prune descendants.",
     "validation": "1,024 unique rows and all revisits after domain growth in both layouts, sequence/function equality, lazy-value refusal, and direct width overflow. Every gate ran in a separate process where required. Restaged compiler sources compared with the measured variant.",
     "reproduce": [
@@ -1122,6 +1122,12 @@
         "result": "invalid",
         "schema_version": 4
       }
+    },
+    "preflight_controls": {
+      "host": "Dedicated EC2 c8g.xlarge, Graviton4, 4 workers, Rust 1.99.0. Final adapter staged from pinned pristine source with the archive patch applied.",
+      "checker_sha256": "5ba08738d6c3d05980d3fbce6cb7066c11e7bb0f46703d02dd525c8a0605405f",
+      "model": "Mini: Init x=0; Next x′=1−x; invariant x=0 or x=1. Normal mode exhausted 2 distinct / 3 generated / depth 2. VIEW x and SYMMETRY Permutations({A,B}) each refused before Init, exit 12, zero discovered.",
+      "recovery": "Both -recover DIR and -checkpoint 1 -metadir DIR refused before the scratch metadata directory changed. A pre-existing marker was the only file before and after both invocations."
     }
   }
 }
