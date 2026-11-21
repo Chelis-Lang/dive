@@ -9,7 +9,7 @@ use crate::handle::Handle;
 use crate::heap::{Cursor, Heap};
 use crate::int::{IntMode, IntOp};
 use crate::memo::{MAX_KEY, Memo};
-use crate::node::Kind;
+use crate::node::{Kind, View};
 use crate::opts::Opts;
 use crate::plan::{Arith, Bind, Cmp, Code, LibArg, Node, P, Quant, SetOp, StdFn, Update};
 use crate::store::Store;
@@ -2416,12 +2416,8 @@ impl Machine {
     // Functions and records
     // ------------------------------------------------------------------
 
-    /// The index of `key` in function `f`, if present.
-    pub(crate) fn fcn_index(&self, f: Handle, key: Handle) -> Result<Option<usize>, Error> {
-        if !f.is_compound() {
-            return Err(eval_err("application of a value that is not a function"));
-        }
-        let v = self.heap.view(f);
+    /// Look up a key in an already borrowed compound.
+    fn fcn_index(&self, v: View<'_>, key: Handle) -> Result<Option<usize>, Error> {
         match v.kind {
             Kind::IntFcn => Ok(key.as_int().and_then(|k| {
                 let i = k.checked_sub(v.lo)?;
@@ -2480,11 +2476,14 @@ impl Machine {
     /// # Errors
     /// `a` is not in the domain of `f`.
     pub fn apply(&mut self, f: Handle, a: Handle) -> Result<Handle, Error> {
-        if let Some(i) = self.fcn_index(f, a)? {
-            return Ok(self.heap.view(f).values()[i]);
+        if !f.is_compound() {
+            return Err(eval_err("application of a value that is not a function"));
+        }
+        let v = self.heap.view(f);
+        if let Some(i) = self.fcn_index(v, a)? {
+            return Ok(v.values()[i]);
         }
         let msg = "Attempted to apply function to an argument not in its domain";
-        let v = self.heap.view(f);
         match v.kind {
             // TLC compares the argument with the domain on the way: a value
             // of another class fails that comparison first.
@@ -2551,11 +2550,30 @@ impl Machine {
             return Err(Error::internal("EXCEPT path out of range"));
         };
         let key = self.eval_norm(code, step)?;
-        if !f.is_compound() || !self.heap.view(f).kind.is_fcn() {
+        if !f.is_compound() {
             return Err(eval_err("EXCEPT on a value that is not a function"));
         }
-        self.charge(self.heap.view(f).len())?;
-        let Some(i) = self.fcn_index(f, key)? else {
+        let view = self.heap.view(f);
+        if !view.kind.is_fcn() {
+            return Err(eval_err("EXCEPT on a value that is not a function"));
+        }
+        let data_len = view.data.len();
+        let entries = view.len();
+        // Copy the selected handle before a work checkpoint or recursive
+        // evaluation can mutate the machine. A dense lookup has constant cost.
+        let dense = if view.kind == Kind::IntFcn {
+            Some(self.fcn_index(view, key)?.map(|i| (i, view.data[i])))
+        } else {
+            None
+        };
+        self.charge(entries)?;
+        let entry = if let Some(entry) = dense {
+            entry
+        } else {
+            let view = self.heap.view(f);
+            self.fcn_index(view, key)?.map(|i| (i, view.values()[i]))
+        };
+        let Some((i, old)) = entry else {
             // TLC leaves the function unchanged when the key is outside its
             // domain, but fails when it had to compare the key with a domain
             // value of another class on the way.
@@ -2576,7 +2594,6 @@ impl Machine {
             }
             return Ok(f);
         };
-        let old = self.heap.view(f).values()[i];
         let new = if depth + 1 == u.path.len() {
             self.set_slot(u.at, old);
             self.eval_component(code, u.value)?
@@ -2586,7 +2603,7 @@ impl Machine {
         if new == old {
             return Ok(f);
         }
-        self.charge(self.heap.view(f).data.len())?;
+        self.charge(data_len)?;
         Ok(self.heap.fcn_with(f, i, new))
     }
 
