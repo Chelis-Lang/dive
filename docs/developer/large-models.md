@@ -394,6 +394,13 @@ peak RSS was 1.88 GiB. The second check was still labeling the graph, with all
 four properties awaiting a verdict. [Inputs, binary identities, per-arm counters
 and allocation probe](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
+With dense action labels and a 24 GiB limit, the unchanged Kafka model
+returned from its second periodic check. The third check began with 11,313,431
+distinct states, 2,809,683,123 generated and 9,745,370 still queued at depth 6.
+Graph buffers occupied 6.88 GiB. The process hit its memory limit during atom
+labeling after 6,835.26 s, with all four properties awaiting a final verdict.
+[Matched 8 GiB and 24 GiB runs](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
+
 ### Fairness actions on unchanged destination variables
 
 At the first Kafka periodic check, three actions accounted for 64,248,424 of
