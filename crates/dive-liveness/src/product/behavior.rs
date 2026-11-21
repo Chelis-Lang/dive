@@ -72,10 +72,10 @@ impl<'a> BehaviorView<'a> {
         }
     }
 
-    pub(crate) fn target(self, source: usize, edge: usize) -> usize {
+    pub(crate) fn target(self, source: usize, edge: usize) -> Option<usize> {
         match self {
-            Self::Dense(graph) => graph.edges[source][edge],
-            Self::Captured(graph) => graph.edges[source][edge].to,
+            Self::Dense(graph) => graph.edges[source].get(edge).copied(),
+            Self::Captured(graph) => graph.edges[source].get(edge).map(|e| e.to),
             Self::Csr(graph) => graph.target(source, edge),
         }
     }

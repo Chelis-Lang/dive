@@ -80,6 +80,70 @@ fn simulation_samples_unbounded_sets_unless_turned_off() {
     assert_eq!(code, Some(2));
 }
 
+/// `--trace-dir` writes every trace's file, `--trace-format` picks TLC's
+/// layouts, and `--trace-ids` regenerates the same files.
+#[test]
+fn simulation_writes_trace_files() {
+    let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../docs/user/examples/Unbounded.tla");
+    let file = file.to_string_lossy();
+    let scratch = std::env::temp_dir().join(format!("dive-cli-trace-dir-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&scratch);
+    let dir = |name: &str| scratch.join(name).to_string_lossy().into_owned();
+    let run = |extra: &[&str]| {
+        let mut args = vec!["simulate", &file, "--depth", "10", "--seed", "1"];
+        args.extend_from_slice(extra);
+        args.extend_from_slice(&["--output", "json"]);
+        let output = dive(&args);
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        (output.status.code(), report)
+    };
+    let (code, report) = run(&["--traces", "12", "--trace-dir", &dir("all")]);
+    assert_eq!(code, Some(0), "{report}");
+    assert_eq!(report["statistics"]["traces_written"], 12);
+    assert_eq!(report["options"]["trace_format"], "dive");
+    let (code, report) = run(&["--trace-ids", "3..5", "--trace-dir", &dir("some")]);
+    assert_eq!(code, Some(0), "{report}");
+    assert_eq!(report["options"]["trace_ids"], serde_json::json!([3, 5]));
+    for id in 3..=5 {
+        let name = format!("trace_{id}.json");
+        assert_eq!(
+            std::fs::read(scratch.join("all").join(&name)).ok(),
+            std::fs::read(scratch.join("some").join(&name)).ok(),
+            "{name}"
+        );
+    }
+    let (code, _) = run(&[
+        "--traces",
+        "2",
+        "--trace-dir",
+        &dir("tla"),
+        "--trace-format",
+        "tla",
+    ]);
+    assert_eq!(code, Some(0));
+    assert!(scratch.join("tla/trace_1.tla").is_file());
+    // A directory that already holds files, and options that need another.
+    let (code, _) = run(&["--traces", "2", "--trace-dir", &dir("all")]);
+    assert_eq!(code, Some(1));
+    for extra in [
+        &["--traces", "2", "--trace-format", "json"][..],
+        &["--traces", "2", "--trace-ids", "0..1"][..],
+        &["--trace-ids", "5..1"][..],
+        &[
+            "--traces",
+            "2",
+            "--trace-dir",
+            &dir("x"),
+            "--trace-format",
+            "csv",
+        ][..],
+    ] {
+        assert_eq!(run(extra).0, Some(2), "{extra:?}");
+    }
+    let _ = std::fs::remove_dir_all(&scratch);
+}
+
 #[test]
 fn diagnostic_explanations_are_informational_and_versioned() {
     for code in ["DIVE-L0020", "DIVE-S0011", "DIVE-S0033"] {

@@ -8,6 +8,7 @@ use dive_value::Value;
 use serde_json::{Map, Value as J};
 
 use crate::format::{Ending, Label, Source, TraceDoc};
+use crate::stream::StateSource;
 use crate::value_json;
 
 /// A state: the value of each of the model's variables, by
@@ -122,6 +123,95 @@ impl Trace {
             length: doc.length,
             properties: doc.properties.clone(),
             concrete_closure: doc.concrete_closure,
+            witnesses,
+        })
+    }
+
+    /// Reads the document made of `header` (whose own states are ignored)
+    /// and the states of `source` against `model`, as [`Self::decode`] reads
+    /// the whole document, decoding each state as it is produced.
+    ///
+    /// # Errors
+    /// The first state that does not fit, or a missing ending.
+    pub fn decode_source(
+        model: &Model,
+        header: &TraceDoc,
+        source: &dyn StateSource,
+    ) -> Result<Self, ShapeError> {
+        if header.source == Source::Tlc {
+            return Err(ShapeError {
+                state: None,
+                detail: "TLC's lossy JSON values must be read with dive_trace::tlc".to_owned(),
+            });
+        }
+        let ending = header.ending.clone().ok_or_else(|| ShapeError {
+            state: None,
+            detail: "the trace does not say how it ends (no `ending`)".to_owned(),
+        })?;
+        let ctx = model.evaluator.options().ctx;
+        let vars = variables(model);
+        let n = source.len();
+        let mut states = Vec::with_capacity(n);
+        let mut labels = Vec::with_capacity(n);
+        let mut witnesses: Vec<Vec<Value>> = Vec::new();
+        let mut failure = None;
+        let produced = source.states(&mut |state| {
+            let k = states.len();
+            let read = |j: &J| value_json::from_json(j, &model.names, ctx);
+            match decode_state(&vars, &state.values, |_, j| read(j)) {
+                Ok(decoded) => states.push(decoded),
+                Err(detail) => {
+                    failure = Some(ShapeError {
+                        state: Some(k),
+                        detail: detail.clone(),
+                    });
+                    return Err(detail);
+                }
+            }
+            labels.push(state.label);
+            if !state.witnesses.is_empty() {
+                match state
+                    .witnesses
+                    .iter()
+                    .map(read)
+                    .collect::<Result<Vec<_>, _>>()
+                {
+                    Ok(values) => {
+                        witnesses.resize(n.max(k + 1), Vec::new());
+                        witnesses[k] = values;
+                    }
+                    Err(detail) => {
+                        let detail = format!("a witness: {detail}");
+                        failure = Some(ShapeError {
+                            state: Some(k),
+                            detail: detail.clone(),
+                        });
+                        return Err(detail);
+                    }
+                }
+            }
+            Ok(())
+        });
+        if let Some(failure) = failure {
+            return Err(failure);
+        }
+        produced.map_err(|detail| ShapeError {
+            state: Some(states.len()),
+            detail,
+        })?;
+        if states.len() != n {
+            return Err(ShapeError {
+                state: None,
+                detail: format!("the source claims {n} states but produced {}", states.len()),
+            });
+        }
+        Ok(Self {
+            states,
+            labels,
+            ending,
+            length: header.length,
+            properties: header.properties.clone(),
+            concrete_closure: header.concrete_closure,
             witnesses,
         })
     }

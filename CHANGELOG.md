@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Temporal graph capture compresses destination IDs in blocks and preserves each generated edge. [Storage measurements](docs/developer/large-models.md#destination-ids-in-temporal-graphs).
+
 - `dive check --lncheck periodic-all` can find a violation of any configured temporal property on a completed BFS level. [Temporal checking](docs/user/temporal.md#ordinary-checking-in-the-dive-profile).
 
 - Temporal graph capture packs repeated action labels and stores exceptions to source-local successor numbering. [Storage measurements](docs/developer/large-models.md#action-labels-in-temporal-graphs).
@@ -36,6 +38,7 @@ are in git history.
 
 - Core handles repeated first-order helper calls under quantified fairness within the existing temporal planning budget. The original Kafka KIP-996 liveness model now reaches graph capture. [Temporal checking](docs/user/temporal.md).
 
+- Ordinary symbolic edit sessions reuse proved breadth-first layers across action additions and removals, including transitions that shorten a path. [Eligibility and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
 - Core packs ordinary in-memory safety frontiers by variable and stores consecutive discovery IDs once per level. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
 - Core stores large resident fingerprint sets in fewer bytes per slot. [Memory and throughput at 402 million keys](docs/developer/large-models.md#resident-fingerprint-membership).
@@ -53,6 +56,13 @@ are in git history.
 - The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Relation changes start a fresh search with the previous set coordinates. [Usage and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
 
 - Ordinary Core safety searches can put [independently compressed frontier chunks](docs/user/storage-recovery.md#independently-stored-frontier-values) on disk and reclaim compound values between worker batches.
+- `dive simulate --trace-dir DIR` writes every trace to its own file as it
+  finishes, validated and in trace order, and the files are the same at any
+  worker count. `--trace-format json|tla` writes TLC's `-dumpTrace` layouts,
+  with `ALIAS` records, and `--trace-ids A..B` regenerates selected traces of
+  a run. Kept traces are now validated and written one state at a time: a
+  trace of two million states peaks at about 1 GB, where it took 8.5 GB. See
+  [simulation](docs/user/simulation.md#complete-output).
 - `dive simulate` samples sets it cannot enumerate, such as `x \in Nat` or
   `\E n \in Nat : x' = x + n`, instead of failing as TLC does. `Nat`, `Int`
   and `Seq(S)` have stated, seeded distributions (`--sample-mean` sets the

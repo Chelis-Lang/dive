@@ -37,18 +37,17 @@ which you must give with `--time-limit`. A run that reaches the limit ends
 
 By default the report keeps the trace that decided the result and the first
 10 other traces, each validated. `--keep-traces K` keeps the first K instead,
-and `--keep-traces 0` only the deciding trace, which is always validated. To
-keep every trace, pass `--keep-traces all`; the report then grows with the
-trace count. Use it to export traces, to animate them with the `alias`
-values, or to generate tests: a trace is fixed by the seed and its number, so
-`--traces N` with the same seed reproduces traces 0 to N-1. Only kept traces
-are validated, which is most of the cost of a large run.
+and `--keep-traces 0` only the deciding trace, which is always validated.
+Without `--trace-dir`, only kept traces are validated, which is most of the
+cost of a large run. To get every trace, for export, animation, test
+generation or your own validation, see [Complete output](#complete-output).
 
 `--max-report-bytes BYTES` bounds the JSON report: kept traces are admitted
 from the lowest number while the report fits, and `statistics.traces_dropped`
 counts the others. If the deciding trace alone does not fit, its entry holds
 a `summary` (its length, its ending and the SHA-256 of its document) and its
-validation instead of the document. Rust callers can size a report with
+validation instead of the document; with `--trace-dir`, its file holds the
+whole entry. Rust callers can size a report with
 `SimulateReport::json_len` before writing it.
 
 Simulation has no fixed state bounds: the time and memory budgets govern, as
@@ -228,6 +227,67 @@ out counts as unchecked with reason `budget`; it is never a verdict.
 A temporal counterexample whose trace drew members from an unbounded set
 (see [unbounded sets](#unbounded-sets)) refuses by name, because its loop does
 not yet carry the drawn members the validator needs.
+
+## Complete output
+
+```sh
+dive simulate Spec.tla --traces 100000 --depth 100 --seed 7 --workers 8 --trace-dir traces
+```
+
+By default the report keeps the trace that decided the result and the first
+10 other traces, each validated. There are two ways to keep every trace:
+
+- `--keep-traces all` keeps and validates every trace in the report. The
+  report grows with the trace count.
+- `--trace-dir DIR` writes every trace to its own file as it finishes, and
+  memory does not grow with the trace count. The report still keeps its
+  usual traces, and `statistics.traces_written` counts the files.
+  `options.trace_dir`, `options.trace_format` and `options.trace_ids`
+  record the request.
+
+Each trace is validated before it is written. If a trace does not validate,
+the run ends there and reports why. Files appear in trace order as traces
+commit, so the directory always holds the traces up to some number, and
+after the run it holds exactly the traces the report counts: those up to the
+deciding trace, when one decides. The files are the same at any `--workers`.
+`DIR` must be absent or empty.
+
+`--trace-format` chooses the layout of the files:
+
+| Format | File | Content |
+|---|---|---|
+| `dive` (default) | `trace_<id>.json` | the trace's report entry: its `document`, `validation`, `tlc_states`, and `alias` when there is an `ALIAS` |
+| `json` | `trace_<id>.json` | TLC's `-dumpTrace json` layout |
+| `tla` | `trace_<id>.tla` | TLC's `-dumpTrace tla` layout: module `trace_<id>` defining `CounterExample` |
+
+`dive validate-trace Spec.tla --trace traces/trace_7.json --sample` checks a
+`dive` file again. It also reads a trace entry copied from a report. The
+`json` and `tla` layouts are TLC's: with an `ALIAS` whose value is a record,
+each state is written as that record, as TLC writes its violating trace, and
+neither layout says how the trace ends. See
+[D-042](../tlc-differences.md#d-042-every-simulation-trace-as-a-file).
+
+For animation, use the `alias` array of a `dive` file, or the `ALIAS`
+records in a `json` or `tla` file.
+
+For test generation, note that a trace is fixed by the seed, the options and
+its number. `--trace-ids A..B` (instead of `--traces`) samples only traces `A`
+to `B` and gives exactly the traces, files and verdicts that a run of more
+traces gives for those numbers:
+
+```sh
+dive simulate Spec.tla --trace-ids 4100..4199 --depth 100 --seed 7 --trace-dir regression
+```
+
+Kept traces are written and validated one state at a time, without building
+a JSON document of the whole trace. A trace of two million states with two
+integer variables peaks at about 1 GB, most of it the trace itself and the
+validator's copy of it. A lasso or stuttering counterexample of a temporal
+property is the exception: it is validated as a whole document.
+
+TLC also writes a trace exploration module, `<Spec>_TTrace_<n>.tla`, on every
+violation. dive does not write one. Use the `tla` format's `CounterExample`
+or `dive validate-trace` instead.
 
 ## Action statistics
 

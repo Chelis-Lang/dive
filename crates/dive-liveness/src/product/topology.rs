@@ -19,7 +19,7 @@ use crate::GraphError;
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct CsrTopology<'a> {
     offsets: &'a [usize],
-    targets: &'a [u32],
+    targets: dive_runtime::capture::CsrTargets<'a>,
     roots: &'a [usize],
 }
 
@@ -73,7 +73,7 @@ impl<'a> CsrTopology<'a> {
         }
         Ok(Self {
             offsets,
-            targets,
+            targets: targets.into(),
             roots,
         })
     }
@@ -83,7 +83,7 @@ impl<'a> CsrTopology<'a> {
     pub(crate) fn from_capture(graph: &dive_runtime::capture::CsrCapture<'a>) -> Self {
         Self {
             offsets: graph.offsets(),
-            targets: graph.targets(),
+            targets: graph.target_column(),
             roots: graph.roots(),
         }
     }
@@ -111,12 +111,15 @@ impl<'a> CsrTopology<'a> {
         self.offsets[source + 1] - self.offsets[source]
     }
 
-    pub(super) fn target(&self, source: usize, edge: usize) -> usize {
+    pub(super) fn target(&self, source: usize, edge: usize) -> Option<usize> {
         #[allow(
             clippy::cast_possible_truncation,
             reason = "the constructor checked every target against the host vertex domain"
         )]
-        let target = self.targets[self.offsets[source] + edge] as usize;
+        let target = self
+            .targets
+            .get(self.offsets[source] + edge)
+            .map(|n| n as usize);
         target
     }
 }
@@ -177,14 +180,16 @@ mod tests {
         let roots = [2, 0, 2];
         let topology = CsrTopology::new(&offsets, &targets, &roots)?;
         assert_eq!(topology.offsets.as_ptr(), offsets.as_ptr());
-        assert_eq!(topology.targets.as_ptr(), targets.as_ptr());
+        assert!(
+            matches!(topology.targets, dive_runtime::capture::CsrTargets::Dense(slice) if std::ptr::eq(slice.as_ptr(), targets.as_ptr()))
+        );
         assert_eq!(topology.roots().as_ptr(), roots.as_ptr());
         assert_eq!(topology.vertex_count(), 3);
         assert_eq!(topology.edge_count(), 4);
         assert_eq!(topology.row_len(1), 0);
-        assert_eq!(topology.target(0, 0), 2);
-        assert_eq!(topology.target(0, 1), 1);
-        assert_eq!(topology.target(0, 2), 1);
+        assert_eq!(topology.target(0, 0), Some(2));
+        assert_eq!(topology.target(0, 1), Some(1));
+        assert_eq!(topology.target(0, 2), Some(1));
         Ok(())
     }
 }

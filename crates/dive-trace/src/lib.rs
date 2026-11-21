@@ -36,6 +36,8 @@
 //!   supports startup registers through a single-candidate Init operation;
 //!   every later register access retains that refusal.
 //! - [`tlc`]: reading TLC's lossy JSON by interpretation.
+//! - [`stream`]: documents whose states are produced one at a time, written
+//!   and validated without holding the whole document.
 //! - [`mutate`]: by-construction invalid mutants, the negative controls.
 //!
 //! Evaluation recurses on the caller's stack: run validation on a thread
@@ -90,6 +92,7 @@ mod partial;
 mod row_demand;
 mod session;
 mod source_row;
+pub mod stream;
 pub mod temporal;
 pub mod tlc;
 mod trace;

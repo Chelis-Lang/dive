@@ -166,17 +166,20 @@ USAGE: dive simulate FILE.tla --traces N|unlimited [--generate] [--depth N]
                           [--max-report-bytes BYTES] [--max-generated N]
                           [--sample-unbounded geometric|off] [--sample-mean N]
                           [--liveness-extend N|auto] [--liveness-budget N|auto]
-                          [--compat=tlc]
+                          [--trace-dir DIR] [--trace-format dive|json|tla]
+                          [--trace-ids A..B] [--compat=tlc]
                           [--exit-codes native|tlc] [--output human|json]
                           [--time-limit DURATION|none] [--max-memory BYTES|auto|none]
 
 Run sampled traces. The report is the same at any worker count; it keeps the
 deciding trace and the first K others (default 10). --traces unlimited needs
---time-limit. Members of Nat, Int and Seq(S) are drawn (geometric, mean 8)
-unless --sample-unbounded off or --compat=tlc. A temporal PROPERTY is checked
-on each trace's own behaviors; --liveness-extend continues a trace cut by the
-depth (default: the depth; 0 under --compat=tlc). Successful sampling does not
-prove exhaustive correctness.
+--time-limit. --trace-dir writes every validated trace to its own file;
+--trace-ids A..B (instead of --traces) regenerates those traces of the seed.
+Members of Nat, Int and Seq(S) are drawn (geometric, mean 8) unless
+--sample-unbounded off or --compat=tlc. A temporal PROPERTY is checked on each
+trace's own behaviors; --liveness-extend continues a trace cut by the depth
+(default: the depth; 0 under --compat=tlc). Successful sampling does not prove
+exhaustive correctness.
 
 === dive parse --help ===
 USAGE: dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]

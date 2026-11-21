@@ -1,5 +1,6 @@
 //! Checked borrowed adjacency for a producer retaining its own state rows.
 
+use super::CsrTargets;
 use std::ops::Range;
 
 use dive_eval::HostControl;
@@ -382,7 +383,11 @@ impl CsrEdgeRows<'_> {
     /// Also usable during capture, before the current source has a synthetic stutter.
     #[must_use]
     pub fn row(self, edge: usize, targets: &[u32], representatives: &[u32]) -> Option<u32> {
-        let target = *targets.get(edge)? as usize;
+        self.for_target(edge, *targets.get(edge)?, representatives)
+    }
+
+    fn for_target(self, edge: usize, target: u32, representatives: &[u32]) -> Option<u32> {
+        let target = target as usize;
         match self {
             Self::Expanded(rows) => rows.get(edge).copied(),
             Self::Blocks {
@@ -507,16 +512,18 @@ pub type CsrCaptureInput<'a, O = &'a [Option<u64>]> = CsrCaptureColumns<'a, O, &
 pub type CsrCaptureColumns<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>> =
     CsrStorage<'a, O, A, &'a [u32]>;
 
-/// Borrowed producer arrays with selectable ordinal, action and original row storage.
-///
-/// Row ids identify opaque retained state rows, not semantically equal values.
-/// This metadata neither evaluates states nor proves a temporal property.
+/// Borrowed producer columns with a dense target slice. The fixed target field
+/// accepts arrays and chained slice coercions, including a borrowed `Arc<Vec<u32>>`.
+pub type CsrStorage<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>, R = CsrEdgeRows<'a>> =
+    GraphColumns<'a, O, A, R, &'a [u32]>;
+
+/// Borrowed producer metadata. Row IDs identify opaque retained state rows.
 #[derive(Clone, Copy, Debug)]
-pub struct CsrStorage<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>, R = CsrEdgeRows<'a>> {
+pub struct GraphColumns<'a, O, A, R, T> {
     /// One start offset per representative, followed by the total edge count.
     pub offsets: &'a [usize],
-    /// Dense representative destination ids, including implicit stutters.
-    pub targets: &'a [u32],
+    /// Representative destination IDs, including implicit stutters.
+    pub targets: T,
     /// Original generation ordinals; only implicit stutters have no ordinal.
     pub ordinals: O,
     /// Index in `action_labels`, or no named action. Stutters have no action.
@@ -535,13 +542,22 @@ pub struct CsrStorage<'a, O = CsrOrdinals<'a>, A = CsrActions<'a>, R = CsrEdgeRo
     pub closed_rows: usize,
 }
 
-impl<'a, O: Into<CsrOrdinals<'a>>, A: Into<CsrActions<'a>>, R: Into<CsrEdgeRows<'a>>>
-    CsrStorage<'a, O, A, R>
+/// Borrowed graph with checked-column views including a packed or dense target prefix.
+pub type CsrTargetStorage<'a> =
+    GraphColumns<'a, CsrOrdinals<'a>, CsrActions<'a>, CsrEdgeRows<'a>, CsrTargets<'a>>;
+
+impl<
+    'a,
+    O: Into<CsrOrdinals<'a>>,
+    A: Into<CsrActions<'a>>,
+    R: Into<CsrEdgeRows<'a>>,
+    T: Into<CsrTargets<'a>>,
+> GraphColumns<'a, O, A, R, T>
 {
-    fn columns(self) -> CsrStorage<'a> {
-        CsrStorage {
+    fn columns(self) -> CsrTargetStorage<'a> {
+        CsrTargetStorage {
             offsets: self.offsets,
-            targets: self.targets,
+            targets: self.targets.into(),
             ordinals: self.ordinals.into(),
             actions: self.actions.into(),
             edge_rows: self.edge_rows.into(),
@@ -554,11 +570,14 @@ impl<'a, O: Into<CsrOrdinals<'a>>, A: Into<CsrActions<'a>>, R: Into<CsrEdgeRows<
     }
 }
 
-impl CsrStorage<'_> {
+impl<'a, T: Copy + Into<CsrTargets<'a>>>
+    GraphColumns<'a, CsrOrdinals<'a>, CsrActions<'a>, CsrEdgeRows<'a>, T>
+{
     /// Looks up the retained original row for a physical edge, including stutters.
     #[must_use]
     pub fn edge_row(&self, edge: usize) -> Option<u32> {
-        self.edge_rows.row(edge, self.targets, self.representatives)
+        self.edge_rows
+            .for_target(edge, self.targets.into().get(edge)?, self.representatives)
     }
 }
 
@@ -568,7 +587,7 @@ impl CsrStorage<'_> {
 /// remain intact. A successful shape check alone cannot establish exhaustion.
 #[derive(Clone, Copy, Debug)]
 pub struct CsrCapture<'a> {
-    input: CsrStorage<'a>,
+    input: CsrTargetStorage<'a>,
     limits: Limits,
     concrete: usize,
 }
@@ -589,7 +608,18 @@ impl<'a> CsrCapture<'a> {
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
-        let input = input.columns();
+        Self::checked_targets(input.columns(), limits, control)
+    }
+
+    /// Checks a graph with a bounded-read target column under the same limits as [`Self::checked`].
+    ///
+    /// # Errors
+    /// The same malformed input, limits and interruption as [`Self::checked`].
+    pub fn checked_targets(
+        input: CsrTargetStorage<'a>,
+        limits: Limits,
+        control: &EvaluationControl,
+    ) -> Result<Self, Verdict> {
         poll(control)?;
         let states = input.representatives.len();
         let edges = input.targets.len();
@@ -643,7 +673,7 @@ impl<'a> CsrCapture<'a> {
             let Some(last) = end.checked_sub(1).filter(|&last| last >= start) else {
                 return Err(bug("missing CSR source/stutter row"));
             };
-            if input.targets[last] as usize != source
+            if input.targets.get(last).map(|n| n as usize) != Some(source)
                 || input.ordinals.get(last, None) != Some(None)
                 || input.actions.at(last).is_some()
                 || input.edge_row(last) != Some(representative)
@@ -660,7 +690,7 @@ impl<'a> CsrCapture<'a> {
                 if ordinal >= limits.successors_per_unit {
                     return Err(limit("CSR source successors"));
                 }
-                if input.targets[edge] as usize >= states
+                if input.targets.get(edge).is_none_or(|n| n as usize >= states)
                     || input
                         .edge_row(edge)
                         .is_none_or(|row| row as usize >= input.retained_rows)
@@ -704,9 +734,17 @@ impl<'a> CsrCapture<'a> {
         self.input.offsets
     }
 
-    /// Checked dense edge destinations, including implicit stutters.
+    /// Checked dense edge destinations, including implicit stutters. For a packed
+    /// producer this explicit slice request materializes and caches the full
+    /// column. Use [`Self::target_column`] for bounded reads without a copy.
     #[must_use]
     pub fn targets(&self) -> &'a [u32] {
+        self.input.targets.as_slice()
+    }
+
+    /// Borrows physical target IDs without materializing a dense array.
+    #[must_use]
+    pub const fn target_column(&self) -> CsrTargets<'a> {
         self.input.targets
     }
 
@@ -737,7 +775,7 @@ impl<'a> CsrCapture<'a> {
     /// Destination of a physical adjacency entry.
     #[must_use]
     pub fn target(&self, edge: usize) -> Option<usize> {
-        self.input.targets.get(edge).map(|&target| target as usize)
+        self.input.targets.get(edge).map(|target| target as usize)
     }
 
     /// Generation ordinal of a physical entry; stutters have `Some(None)`.
@@ -867,7 +905,20 @@ impl<'a> CsrComplete<'a> {
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
-        let input = input.columns();
+        Self::from_target_producer(input.columns(), safety, options, limits, control)
+    }
+
+    /// Finalizes producer EOF with a bounded-read target column.
+    ///
+    /// # Errors
+    /// The same malformed input, limits and interruption as [`Self::from_producer`].
+    pub fn from_target_producer(
+        input: CsrTargetStorage<'a>,
+        safety: CheckResult,
+        options: CheckOptions,
+        limits: Limits,
+        control: &EvaluationControl,
+    ) -> Result<Self, Verdict> {
         if safety.verdict != Verdict::Success {
             return Err(safety.verdict);
         }
@@ -881,13 +932,13 @@ impl<'a> CsrComplete<'a> {
             limits,
             Some(control),
         )?;
-        let graph = CsrCapture::checked(input, limits, control)?;
+        let graph = CsrCapture::checked_targets(input, limits, control)?;
         if graph.closed_rows() != graph.state_count() {
             return Err(bug("CSR EOF has unexpanded sources"));
         }
         let completion = GraphCompletion {
             states: graph.state_count(),
-            edges: graph.targets().len(),
+            edges: graph.target_column().len(),
             concrete_successors: graph.concrete,
             roots: graph.roots().len(),
             limits,
@@ -943,7 +994,21 @@ impl<'a> CsrPrefix<'a> {
         limits: Limits,
         control: &EvaluationControl,
     ) -> Result<Self, Verdict> {
-        let input = input.columns();
+        Self::from_target_producer(input.columns(), level, safety, options, limits, control)
+    }
+
+    /// Finalizes a committed prefix with a bounded-read target column.
+    ///
+    /// # Errors
+    /// The same malformed input, limits and interruption as [`Self::from_producer`].
+    pub fn from_target_producer(
+        input: CsrTargetStorage<'a>,
+        level: u64,
+        safety: CheckResult,
+        options: CheckOptions,
+        limits: Limits,
+        control: &EvaluationControl,
+    ) -> Result<Self, Verdict> {
         if safety.verdict != Verdict::Success {
             return Err(safety.verdict);
         }
@@ -969,7 +1034,7 @@ impl<'a> CsrPrefix<'a> {
         {
             return Err(bug("inconsistent CSR prefix frontier/statistics"));
         }
-        let graph = CsrCapture::checked(input, limits, control)?;
+        let graph = CsrCapture::checked_targets(input, limits, control)?;
         Ok(Self {
             graph,
             evidence: PrefixEvidence::new(safety, options, stats, level),

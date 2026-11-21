@@ -263,7 +263,7 @@ fn native_final_and_due_prefix_stops_keep_actual_analysis_phase_and_counts() {
                     if !driver.native_level_due(stats) {
                         return Ok(false);
                     }
-                    let csr = CsrCapture::checked(graph.input(), graph.limits(), &control)?;
+                    let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), &control)?;
                     let mut read = |row, control: &EvaluationControl| {
                         wait_and_read(values, row, graph.row(row)?, control, &options.budget)
                     };
@@ -332,7 +332,7 @@ fn native_final_and_due_prefix_stops_keep_actual_analysis_phase_and_counts() {
                 )
                 .expect("retained level failure")
             } else {
-                let complete = CsrComplete::from_producer(
+                let complete = CsrComplete::from_target_producer(
                     graph.input(),
                     safety,
                     options.clone(),

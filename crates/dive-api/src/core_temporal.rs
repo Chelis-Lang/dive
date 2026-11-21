@@ -356,7 +356,7 @@ fn check_configured_inner(
         if !graph_check.native_level_due(stats) {
             return Ok(false);
         }
-        let csr = CsrCapture::checked(graph.input(), graph.limits(), &control)?;
+        let csr = CsrCapture::checked_targets(graph.input(), graph.limits(), &control)?;
         let mut read = crate::core_native_atoms::Reader::new(graph, values, &mut atoms);
         Ok(graph_check.level_native_with_reader(level, &csr, stats, &mut read))
     };
@@ -731,7 +731,7 @@ fn finish(
     if let Some(level) = prefix {
         let mut read =
             |row, control: &EvaluationControl| read.values.read_retained(graph, row, control);
-        let prefix = CsrPrefix::from_producer(
+        let prefix = CsrPrefix::from_target_producer(
             graph.input(),
             level,
             safety,
@@ -743,7 +743,7 @@ fn finish(
             .finish_native_prefix(prefix, &mut read)
             .map_err(|f| *f))
     } else {
-        let complete = CsrComplete::from_producer(
+        let complete = CsrComplete::from_target_producer(
             graph.input(),
             safety,
             options.clone(),
