@@ -433,7 +433,7 @@ impl Machine {
                     self.path_reset(path);
                     r.map(|_| ())
                 } else {
-                    self.for_each_binding(code, binds, &mut |machine| {
+                    self.existential_bindings(code, binds, &mut |machine| {
                         machine.gen_node(code, *body, acts, sink)?;
                         Ok(true)
                     })

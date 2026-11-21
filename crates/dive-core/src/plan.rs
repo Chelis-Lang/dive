@@ -110,6 +110,8 @@ pub struct Bind {
     pub tuple: bool,
     /// The domain.
     pub domain: P,
+    /// Eligible elements when a leading universal guard restricts this powerset.
+    pub eligible: Option<P>,
 }
 
 /// One `EXCEPT` clause.
