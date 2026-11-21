@@ -997,5 +997,36 @@
         "reason": "time limit"
       }
     }
+  },
+  "six_key_same_SomeCommit_edit": {
+    "method": "New Sail process with an empty session on exactly the same edited MCKVS.tla, imported KeyValueStore.tla, SomeCommit.cfg and installed runtime as the retained SomeCommit proof. CPU4, 6 GiB cgroup, 6,900 s internal budget. The retained predicate was established from the original two invariants in the six_key_session.establish run.",
+    "input_sha256": {
+      "MCKVS.tla": "57f453a8ecc26e7c4f7e8982748a39452cae0acd37010ee9b0c60f0fac46908b",
+      "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+      "SomeCommit.cfg": "f665a9337e6f1c2cc11949a85a30b0ebc351c83d4f1689998ad26dc4a11693d3"
+    },
+    "empty_session": {
+      "exit": 0,
+      "wall_s": 4705.53,
+      "peak_rss_kib": 1148912,
+      "verdict": "success",
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle",
+        "SomeCommit"
+      ],
+      "depth": 51,
+      "reachable_bdd_nodes": 5756,
+      "seconds": 4705.028765,
+      "reused": false,
+      "distinct_decimal": "539910848473937721",
+      "generated_decimal": "21725268712106423230"
+    },
+    "predicate_bytes": 76579,
+    "predicate_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3",
+    "retained_wall_s": 0.4,
+    "establish_wall_s": 4694.45,
+    "empty_over_retained_wall_ratio": 11763.8,
+    "scope": "Only the new empty-session search reports reachability counts and depth. The retained proof freshly checks Init inclusion, Next closure and the new stronger property. The weaker conjunction without the saved predicate fails Next closure."
   }
 }

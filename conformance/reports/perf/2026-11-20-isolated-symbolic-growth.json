@@ -2660,5 +2660,42 @@
     "scope": "Earlier frontier-only worker on the five-key, two-value, three-transaction source, same CFG bytes as the 1431.39 s completing smaller-source run. Distinct and generated counters are unavailable from the stopped worker.",
     "time_limit_seconds": 7200,
     "host": "Single logical CPU on EC2 c7i.4xlarge; runs used separate hosts."
+  },
+  "seven_key_three_transaction_growth": {
+    "method": "Original release Large transition, two values, exactly three transaction IDs, original two safety invariants and full configured transaction symmetry. Increase only the Key configuration to k1 through k7. Same EC2 c7i.4xlarge as the six-key labeled comparison, on separate physical core 0. 15,300 s internal deadline and 11 GiB per-worker address space. Single fresh search.",
+    "command": "dive check MCKVS.tla --config K7V2T3.cfg --strategy symbolic --time-limit 15300s --max-memory 11g --output json",
+    "sha256": {
+      "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+      "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+      "K7V2T3.cfg": "d79c6296214d5462a6650995e5e8436e02ff63e1c68e408cb93ec85254274281",
+      "engine.py": "fae0fefcad2f0d8279834322074cd3ebe66c506e05905beb20732e6f581156b6",
+      "symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1"
+    },
+    "observed": {
+      "exit": 0,
+      "wall_s": 11650.37,
+      "peak_rss_kib": 2320664,
+      "verdict": "success",
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "depth": 58,
+      "reachable_bdd_nodes": 7021,
+      "seconds": 11649.722559,
+      "reused": false,
+      "distinct_decimal": "503442490368989477835",
+      "generated_decimal": "23247573192708514979356"
+    },
+    "analytic_symmetry_counts": {
+      "distinct_decimal": "503442490368989477835",
+      "generated_decimal": "23247573192708514979356"
+    },
+    "analytic_labeled_counts": {
+      "distinct_decimal": "3020652793935370219275",
+      "generated_decimal": "139485339001294369578361"
+    },
+    "oracle_command": "python3 scripts/symbolic/kvs_history.py PATH/KeyValueStore --keys 7 --values 2 --transactions 3 (prints both labeled counts and transaction permutation orbits)"
   }
 }

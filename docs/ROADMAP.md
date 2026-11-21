@@ -86,6 +86,11 @@ compact edges and evidence reuse for eligible property edits.
    transition relation as well as property edits. Keep bounded search, exact
    finite closure and finite induction distinct in reports. Cross-check a
    constraint-heavy model with Apalache where the question and semantics match.
+   Test exact population counts on anonymous finite state tables. Require
+   source-derived permutation invariance, concrete labeled counts and witness
+   multiplicity, exact BFS depth, and independent replay of a concrete trace.
+   Reject an index-sensitive mutation before applying the reduction.
+   [Population-count acceptance criteria](developer/large-models.md#checking-anonymous-processes-by-population)
    Use production workloads to decide which symbolic refusals to address.
    [Current symbolic contract](user/symbolic.md)
 
