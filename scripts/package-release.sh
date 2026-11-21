@@ -33,6 +33,8 @@ trap 'rm -rf -- "$stage"' EXIT
 package="$stage/$name"
 mkdir -p "$package/licenses"/{stdlib,pluscal,community-modules,tlaps}
 
+install -D -m 644 "$repo_root/crates/dive-sema/bundled/dive/FramedFunctions.tla" \
+    "$package/share/dive/tla/FramedFunctions.tla"
 install -m 755 "$binary_dir/dive" "$binary_dir/tlc" "$package/"
 strip --strip-unneeded "$package/dive" "$package/tlc"
 "$repo_root/scripts/symbolic/package-worker.sh" "$binary_dir/examples/symbolic_input" \

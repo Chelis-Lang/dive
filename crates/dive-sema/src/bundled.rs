@@ -1,8 +1,13 @@
-//! Pinned CommunityModules and TLAPS sources, searched after user sources.
+//! Bundled TLA+ libraries, searched after user sources.
 //!
 //! Provenance and redistribution licenses are in `bundled/README.md`.
 
 const MODULES: &[(&str, &str, &str)] = &[
+    (
+        "FramedFunctions",
+        "dive",
+        include_str!("../bundled/dive/FramedFunctions.tla"),
+    ),
     (
         "BagsExt",
         "community-modules",
@@ -258,6 +263,6 @@ mod tests {
                 "{name}"
             );
         }
-        assert_eq!(MODULES.len(), 48);
+        assert_eq!(MODULES.len(), 49);
     }
 }

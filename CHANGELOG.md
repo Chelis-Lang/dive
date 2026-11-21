@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.
+
 - Native fairness checks can rule out destinations that retain a [state variable required to change](docs/user/temporal.md#fairness).
 
 - Large native temporal checks allocate [action predicate bits](docs/user/temporal.md#storage-and-limits) only for blocks containing true results.
