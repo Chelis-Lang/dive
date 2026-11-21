@@ -94,7 +94,7 @@ impl Evaluator {
     /// Whether some configured redirect evaluates a body whose IR effects
     /// are impure. The IR's flags propagate through syntactic references
     /// only, so a node that reaches such a redirect can look pure.
-    fn impure_redirect(&self) -> bool {
+    pub(crate) fn impure_redirect(&self) -> bool {
         let ir = self.ir();
         let core = &self.core;
         let impure = |t: DefId| {

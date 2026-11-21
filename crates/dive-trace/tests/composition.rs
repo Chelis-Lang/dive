@@ -398,3 +398,130 @@ fn existing_outer_host_composition_denials_are_preserved() {
         ))
     );
 }
+
+fn verdict(model: &dive_model::Model, states: Vec<serde_json::Value>) -> Validation {
+    let word = TraceDoc::behavior(states).expect("word");
+    dive_trace::validate_doc(model, &word, &[]).0.validation
+}
+
+/// The shape of `FiniteMonotonic/MCCRDT` (#1142): `EXCEPT` with `@`, a
+/// function constructor and a `LET` in the operands. Every two-state word
+/// over a small box is checked against the relation computed here.
+#[test]
+fn function_updates_and_constructors_check_the_actual_relation() {
+    let source = "---- MODULE Counters ----\nEXTENDS Naturals\nVARIABLE c\nInit == c \\in [{1,2} -> 0..2]\nInc(n) == c' = [c EXCEPT ![n] = @ + 1]\nRed == LET m == IF c[1] < c[2] THEN c[1] ELSE c[2] IN c' = [n \\in {1,2} |-> c[n] - m]\nNext == \\E n \\in {1,2} : Inc(n) \\cdot Red\n====\n";
+    let model = bound(source, "INIT Init\nNEXT Next\n", ActionComposition::Tla);
+    let (mut valid, mut invalid) = (0, 0);
+    for (a, b) in (0..=2).flat_map(|a| (0..=2).map(move |b| (a, b))) {
+        for (p, q) in (0..=3).flat_map(|p| (0..=3).map(move |q| (p, q))) {
+            let relation = [(a + 1, b), (a, b + 1)].into_iter().any(|(ta, tb)| {
+                let m = std::cmp::min(ta, tb);
+                (p, q) == (ta - m, tb - m)
+            });
+            let validation = verdict(
+                &model,
+                vec![json!({"c":{"seq":[a,b]}}), json!({"c":{"seq":[p,q]}})],
+            );
+            if relation {
+                valid += 1;
+                assert_eq!(validation, Validation::Valid, "{a},{b} -> {p},{q}");
+            } else {
+                invalid += 1;
+                assert!(
+                    matches!(validation, Validation::Invalid(ref f) if f.check == dive_trace::Check::Next),
+                    "{a},{b} -> {p},{q}: {validation:?}"
+                );
+            }
+        }
+    }
+    assert!(
+        valid > 0 && invalid > valid,
+        "{valid} valid, {invalid} invalid"
+    );
+}
+
+/// An operator argument or `LET` definition that reads a variable means, in
+/// the second operand, its value in the intermediate state (substitution).
+/// A value reused from the first state would accept `x * 10`, a forgery.
+#[test]
+fn arguments_and_definitions_are_read_in_the_intermediate_state() {
+    for (next, tuple) in [
+        (
+            "Op(v) == (x' = v + 1) \\cdot (x' = v * 10)\nNext == Op(x)",
+            false,
+        ),
+        (
+            "Next == LET w == x IN (x' = w + 1) \\cdot (x' = w * 10)",
+            false,
+        ),
+        (
+            "Op(v) == (x' = [v EXCEPT ![1] = @ + 1]) \\cdot (x' = [v EXCEPT ![1] = @ * 10])\nNext == Op(x)",
+            true,
+        ),
+    ] {
+        let init = if tuple {
+            "x \\in {<<0>>, <<1>>, <<2>>}"
+        } else {
+            "x \\in 0..2"
+        };
+        let source = format!(
+            "---- MODULE ByName ----\nEXTENDS Naturals\nVARIABLE x\nInit == {init}\n{next}\n====\n"
+        );
+        let model = bound(&source, "INIT Init\nNEXT Next\n", ActionComposition::Tla);
+        let state = |v: i64| {
+            if tuple {
+                json!({"x":{"seq":[v]}})
+            } else {
+                json!({"x":v})
+            }
+        };
+        for s in 0..=2_i64 {
+            assert_eq!(
+                verdict(&model, vec![state(s), state((s + 1) * 10)]),
+                Validation::Valid,
+                "{next}: {s}"
+            );
+            for forged in [s * 10, s + 1, (s + 2) * 10] {
+                assert!(
+                    matches!(verdict(&model, vec![state(s), state(forged)]), Validation::Invalid(ref f) if f.check == dive_trace::Check::Next),
+                    "{next}: {s} -> {forged}"
+                );
+            }
+        }
+    }
+}
+
+/// Effects and nested searches reached through a configured `<-`, an
+/// operator argument or `ENABLED` keep the named refusal and run nothing.
+#[test]
+fn effects_through_substitutions_arguments_and_enabled_keep_named_refusals() {
+    for (definitions, config) in [
+        (
+            "Flag == TRUE\nD == PrintT(x = 1)\nNext == (x'=1) \\cdot (x' = IF Flag THEN 2 ELSE 3)",
+            "INIT Init\nNEXT Next\nCONSTANT Flag <- D\n",
+        ),
+        (
+            "W(A) == (x'=1) \\cdot A\nNext == W(PrintT(TRUE) /\\ x'=2)",
+            "INIT Init\nNEXT Next\n",
+        ),
+        (
+            "Next == (x'=1) \\cdot (ENABLED (x'=5) /\\ x'=2)",
+            "INIT Init\nNEXT Next\n",
+        ),
+        (
+            "Next == LET r == RandomElement({2}) IN (x'=1) \\cdot (x'=r)",
+            "INIT Init\nNEXT Next\n",
+        ),
+    ] {
+        let source = format!(
+            "---- MODULE Effects ----\nEXTENDS TLC\nVARIABLE x\nInit == x=0\n{definitions}\n====\n"
+        );
+        let model = bound(&source, config, ActionComposition::Tla);
+        assert_eq!(
+            verdict(&model, vec![json!({"x":0}), json!({"x":2})]),
+            Validation::Unsupported(COMPOSITION_UNSUPPORTED.into()),
+            "{definitions}"
+        );
+        assert!(!model.evaluator.has_print_event(), "{definitions}");
+    }
+}

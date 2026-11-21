@@ -296,9 +296,14 @@ fingerprint, and is available after constant binding and before `ASSUME`s.
   inner and outer variables share a name. Effectful callbacks refuse.
 - Before entering an `INSTANCE ... WITH` substitution, the validator refuses a
   binding from another model or one not marked pure.
-- Action composition (`A \cdot B`) validates in `tla` mode when both operands
-  are pure and finite, every first-stage state is complete and each
-  intermediate has at most one complete tail successor. `(x'=1) \cdot (x'=2)`
+- Action composition (`A \cdot B`) validates in `tla` mode when neither
+  operand, nor any lazy value or operator they capture, has an effect, an
+  `ENABLED` or a temporal operator (a configured `<-` target with an effect
+  refuses too), every first-stage state is complete and each intermediate has
+  at most one complete tail successor. Operands may use `EXCEPT`, function
+  constructors, `CHOOSE` and `LET`; a definition or argument that reads a
+  variable is read in the intermediate state in the second operand, as
+  substitution requires. `(x'=1) \cdot (x'=2)`
   accepts the edge from `x=0` to `x=2` and rejects `x=9`. Fairness compares
   the original and final states, so `(x'=1) \cdot (x'=0)` from `x=0` has a
   successor but no nonstuttering one, and weak and strong fairness hold on the

@@ -231,6 +231,8 @@ are in git history.
 
 ### Fixed
 
+- Trace validation replays action composition (`A \cdot B`) whose operands update functions with `EXCEPT`, build functions or use `LET`, so `dive simulate` validates its kept traces of `FiniteMonotonic/MCCRDT` and `MCReplicatedLog` instead of refusing them.
+
 - Updated the CLI allocator to mimalloc 3.7.0. It fixes 16 GiB arena initialization, which could cause large Linux searches to spend most of their time creating small memory mappings. [Storage and measurements](docs/user/storage-recovery.md#large-linux-heaps).
 
 - Ordinary multi-worker Core safety checks reuse their expansion threads across frontier waves. If the operating system refuses the team at startup, the calling thread completes the search. [Workers and stores](docs/user/checking.md#workers-and-stores).

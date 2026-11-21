@@ -28,6 +28,7 @@
 //! ([`ActionComposition::Tla`]) refuses those uses by name and counts only the
 //! composed successors as generated.
 
+use std::cell::Cell;
 use std::sync::Arc;
 
 use dive_ir::ExprId;
@@ -39,6 +40,12 @@ use crate::core::Core;
 use crate::env::{Env, Ev, St, StateRef};
 use crate::error::{EvalError, Result};
 use crate::options::ActionComposition;
+
+thread_local! {
+    /// Whether this thread is running a stage of a bounded composition. A
+    /// composition nested in a stage keeps its named refusal.
+    static COMPOSING: Cell<bool> = const { Cell::new(false) };
+}
 
 /// TLC's message when the switch is off (`Tool.java:1528`).
 pub(crate) fn off_error(core: &Core, e: ExprId) -> EvalError {
@@ -87,9 +94,70 @@ impl Core {
         ))
     }
 
-    /// Reuse the existing callback-free closure inspection and generator,
-    /// never a checker callback or a separately implemented relation search.
-    /// All first-stage work finishes before any tail or outward observation.
+    /// Whether both operands of a bounded composition, and every lazy value
+    /// or operator their environment captures, are free of effects, nested
+    /// searches and temporal operators, without evaluating anything.
+    ///
+    /// That is all the bounded relation needs. Its intermediate and final
+    /// states come from the ordinary successor generator, and the operands
+    /// are evaluated call by name: a lazy value (`LazyValue`) is reused only
+    /// for the states it was computed in ([`crate::env::Thunk::cached`]), and
+    /// a lazy function keeps its creation state. So a `LET` definition or an
+    /// operator argument that reads a variable is recomputed in the
+    /// intermediate state, as substitution requires, and an `EXCEPT`, a
+    /// function constructor or a `CHOOSE` in either operand means what it
+    /// means anywhere else in replay. Effects are excluded because the
+    /// stages run them in an order and number of their own, and `ENABLED`
+    /// and temporal operators because they start nested searches.
+    fn composition_operands_pure(self: &Arc<Self>, env: &Env, a: ExprId, b: ExprId) -> bool {
+        use dive_ir::Effects;
+        let searches = Effects::LIVE_TLCGET
+            .union(Effects::USES_ENABLED)
+            .union(Effects::TEMPORAL);
+        let forbidden = searches.union(Effects::IMPURE);
+        let ir = &self.ir;
+        // IR flags follow syntactic references only, and a configured `<-`
+        // reaches another body: refuse when any target is impure, and check
+        // the search flags on every target.
+        let redirected = self
+            .redirects
+            .iter()
+            .filter(|(source, target)| source != target)
+            .map(|(_, target)| *target)
+            .chain(
+                self.consts
+                    .iter()
+                    .flatten()
+                    .filter_map(|binding| match binding {
+                        crate::ConstBinding::Def(target) => Some(*target),
+                        crate::ConstBinding::Value(_) => None,
+                    }),
+            );
+        for target in redirected {
+            let Some(def) = ir.defs().get(self.redirect(target).index()) else {
+                return false;
+            };
+            if def.effects.intersects(searches) {
+                return false;
+            }
+        }
+        let evaluator = crate::Evaluator {
+            core: self.clone(),
+            collected: None,
+        };
+        if evaluator.impure_redirect() {
+            return false;
+        }
+        [a, b].into_iter().all(|operand| {
+            ir.nodes()
+                .get(operand.index())
+                .is_some_and(|node| !node.effects.intersects(forbidden))
+        }) && !crate::env::filter_has_unproved_captures(ir, env, forbidden)
+    }
+
+    /// Reuse the ordinary generator, never a checker callback or a
+    /// separately implemented relation search. All first-stage work finishes
+    /// before any tail or outward observation.
     fn bounded_cdot_intermediates(
         self: &Arc<Self>,
         env: &Env,
@@ -100,27 +168,7 @@ impl Core {
         if self.opts.action_composition != ActionComposition::Tla {
             return self.unproved_composition();
         }
-        let evaluator = crate::Evaluator {
-            core: self.clone(),
-            collected: None,
-        };
-        let mut inspected = env.clone();
-        // ENABLED's empty substitution cutoff changes no lookup. Inspect
-        // that equivalent closure; retain every nonempty/unknown cutoff.
-        if inspected.dynamic.cut == Some(0) && inspected.dynamic.subst.is_none() {
-            inspected.dynamic.cut = None;
-        }
-        let scope = crate::Scope {
-            env: inspected,
-            owner: self.ir.clone(),
-            names: self.names.clone(),
-            context: Arc::downgrade(self),
-            wrapper: None,
-        };
-        if evaluator
-            .canonical_producer_stability_budgeted(&[(a, scope.clone()), (b, scope)], &[], None)?
-            .is_none()
-        {
+        if COMPOSING.with(Cell::get) || !self.composition_operands_pure(env, a, b) {
             return self.unproved_composition();
         }
         let current = self.composition_current(s0)?;
@@ -235,7 +283,14 @@ impl Core {
             sink: &mut collect,
             choices: None,
         };
-        let result = g.step(a, &None, env);
+        let result = if self.bounded_composition() {
+            let outer = COMPOSING.with(|composing| composing.replace(true));
+            let result = g.step(a, &None, env);
+            COMPOSING.with(|composing| composing.set(outer));
+            result
+        } else {
+            g.step(a, &None, env)
+        };
         if let Err(error) = result {
             // A tail that emitted before failing is not a proved deterministic
             // operation. In particular its late error cannot certify a
