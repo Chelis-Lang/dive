@@ -9,6 +9,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 | Model structure | What to measure and what helped |
 |---|---|
 | Wide frontiers and wide state rows | Keep distinct states, pending queue entries and generated occurrences separate. On the one-billion-state SlateDB prefix, packing the queue cut peak RSS from 51.88 to 30.13 GiB at identical work. On the complete 242-million-state control, packing full mathematical identities cut exact-store RSS from 89.4 to 35.2 GiB. [SlateDB data](../../conformance/reports/perf/2026-11-20-slatedb-wal.json). |
+| Function-valued actions that preserve most entries | An action in Microsoft CCF chooses three server logs, then requires two to stay fixed. Enumerating only the writable entry cut a complete run from 44.56 to 0.12 s. [Original and framed CCF runs](#function-valued-actions-in-ccf). |
 | Many small actions and fairness predicates | A state-count limit misses the cost of edges and of evaluating predicates on each edge. Kafka reached 1.57 million distinct states but had already generated 365 million occurrences when the second periodic check hit 8 GiB. Paged action truth reduced the second-check peak to 1.88 GiB within a 1,800 s run. The time to label the graph still matters for a temporal verdict. [Kafka boundaries](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json). |
 | Coupled fields in a symbolically checked state | The final diagram can be tiny even when computing an intermediate image dominates the run. The four-key, three-transaction KVS closure has 3,226 decision nodes and represents 592.3 billion symmetry classes. Field order and the choice of image source affect the cost of reaching that closure. [Symbolic growth](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json). |
 | Fixed choices across an execution | Complementary initial partitions can be checked independently if the unrestricted transition relation preserves each partition. On EmergencyCall f3, four exact cells reproduced the entire monolithic graph. With the reconstructed full Init, four larger cells stopped near the same exact-index resize threshold. [Counts, limits and mutable-choice control](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json). |
@@ -599,7 +600,7 @@ size of intermediate sets. Specification length measures a third quantity.
 | Pasture, node model | Invariants with parameters 2, 1, 2, 2, 2 | 4,234,887,880 distinct, depth 53 in 3,596 minutes on a 48-core Opteron with 128 GB. A repeat using another fingerprint polynomial found the same count. A third run found five fewer distinct states. | A transcription from the printed modules reproduced the first five published counts and depths with both checkers. [Inputs and measurements](#reproduce-the-pasture-node-model). [Rodeheffer and Kotla, Table 1 and appendices](https://conf.tlapl.us/2012/rodeheffer-kotla.pdf) |
 | Tunable replicated set, three replicas | Two operations per replica over three possible elements | About 9 billion generated states and 750 GB of storage when the host ran out of disk. The study reports completed times for eight smaller cases. | The thesis supplies a set specification and the author's public implementation. Identifying the exact generated module and Toolbox configuration would allow a matching replay. [Rijo, §5.5 and Table 5.1](https://run.unl.pt/server/api/core/bitstreams/d2570d62-6972-4877-a791-636d876d0096/content) · [Author’s implementation](https://github.com/AndreRijo/T-CRDTs) |
 | LuPastry, simplified five-node configuration | Distributed hash-table routing | 141,786,762 distinct, 7,070,872,610 generated, depth 54 in one week. The full four-node run stopped after over five weeks and 331,300,918,096 generated. | Original configuration unverified. Later LuPastry+ specifications contain changes. [Lu, Table 5.3](https://doi.org/10.22028/D291-26550) · [Subsequent model versions](https://homepages.loria.fr/SMerz/projects/pastry/index.html) |
-| Confidential Consortium Framework | Production consensus specification | 1,134 lines and 13 state variables. The paper describes model checking, trace validation and CI. | A maintenance benchmark requires pinning revisions, configuration and the exact edited property. [Howard et al., Table 1](https://www.microsoft.com/en-us/research/uploads/prod/2024/07/nsdi25spring-final392.pdf) |
+| Confidential Consortium Framework | Production consensus specification | 1,134 lines and 13 state variables. The paper describes model checking, trace validation and CI. | Two published abstract model revisions now have matched complete runs. The concrete pre-vote revision pair also has pinned TLC results and a named Core refusal. [Howard et al., Table 1](https://www.microsoft.com/en-us/research/uploads/prod/2024/07/nsdi25spring-final392.pdf) |
 
 These records establish a lower bound on published workloads. A global maximum
 would require knowing the counting convention and input of every contender,
@@ -879,6 +880,31 @@ All 16 checks agreed on the verdict and final queue, counts and depth with the c
 | f4 | 8,872,832 | 56,734,720 | 27 | 223.76 | 259.74 | 131.62 | 63.59 |
 
 On the historical CCF single-node commit control, ordinary Core found the original property violation after 17 distinct states, 20 generated and depth five. The three revisions with temporal obligations received a named refusal from symbolic safety checking. The [Sail evidence](https://github.com/Chelis-Lang/sail/blob/df6ffaca82b3aacdea301616411de1c0c726b12f/docs/validation/data/2026-11-20-symbolic-predicates.json) pins the production inputs and records the successful five-key KVS maintenance comparison separately.
+
+### Function-valued actions in CCF
+
+The Microsoft CCF authors released two consensus models. Their abstract model bounds three server logs to finite sequences of three possible terms. Two actions first choose an entire new log function, then require every entry except the selected server’s to equal its previous value. With the shipped `MaxExtend = 3`, a log can take 40 values. Each action can consider 40³ = 64,000 functions to find at most 40 eligible ones. A run that ends with 349 distinct states can spend most of its time rejecting candidate assignments. [Original abstract actions and smallest-term edit](https://github.com/microsoft/CCF/commit/6a2dc420f0166c93f92b773aa49c5203b0767750).
+
+To reproduce the source edit, put the bundled `FramedFunctions.tla` on the module path, add `FramedFunctions` to the `EXTENDS` line in `abs.tla`, and replace both occurrences of the following primed membership. Keep the remaining action conjuncts, the symmetry group, the log-length constraint, both invariants and `AppendOnlyProp`.
+
+```tla
+\* Released membership
+cLogs' \in [Servers -> Seq(Terms)]
+\* Membership with the same fixed coordinates
+cLogs' \in FramedFunctions(Servers, Seq(Terms), cLogs, {i})
+```
+
+Each timing is a complete process on one logical CPU of an isolated EC2 m7i.2xlarge. Core used its default profile and full state identity. The first two rows change only Microsoft’s smallest-term assumption. The third raises the single `MaxExtend` constant from three to four.
+
+| Revision and bound | Distinct / generated / depth | Core original | Core with module | TLC original | TLC with module |
+|---|---|---:|---:|---:|---:|
+| Before assumption edit, 3 | 349 / 5,819 / 4 | 44.93 s | 0.12 s | 18.82 s | 2.27 s |
+| After assumption edit, 3 | 349 / 5,819 / 4 | 44.56 s | 0.12 s | 19.22 s | 2.21 s |
+| After assumption edit, 4 | 1,549 / 30,039 / 4 | stopped, 180 s | 3.26 s | stopped, 180 s | 4.78 s |
+
+All four original-bound checks exhausted the same graph on each revision. At the larger bound, the two module runs exhausted the graph, while original Core stopped with 505 distinct and TLC last reported 601. A one-coordinate `EXCEPT` formulation with the fixed-value checks also completed in 0.08 s on Core at the original bound. The reusable module supports several writable coordinates and explicitly checks unchanged entries for membership in the new range. When a model puts an error-producing expression or output before its frame check, moving the frame can change which errors or output the checker observes. [Operator contract](../user/modules.md#enumerating-functions-with-fixed-coordinates) · [All runs, digests, commands and negative controls](../../conformance/reports/perf/2026-11-21-ccf-function-frames.json).
+
+The original abstract model in nominal TLC mode refused a history-sensitive startup enumeration. The concrete CCF consensus model uses `IOEnv`, which currently produces a named Core refusal. Pinned TLC checked the released concrete model before and after the pre-vote change under the upstream wrapper’s defaults. Both exhausted 4,266 distinct states, 9,073 generated, at depth 39. [Upstream pre-vote change](https://github.com/microsoft/CCF/commit/59d47cd21004e646981c67d7ec613316840c2f22).
 
 ### Check disjoint safety partitions
 
