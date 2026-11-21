@@ -1158,6 +1158,28 @@
           "queued": 0,
           "depth": 47
         },
+        "election": {
+          "exit": 124,
+          "wall_s": 900.04,
+          "rss_kib": 735288,
+          "last_progress_depth_generated_distinct_queued": [
+            17,
+            7130952,
+            2197977,
+            1039649
+          ]
+        },
+        "original": {
+          "exit": 124,
+          "wall_s": 1150.01,
+          "rss_kib": 316388,
+          "last_progress_depth_generated_distinct_queued": [
+            5,
+            51358847,
+            304327,
+            279778
+          ]
+        },
         "fixed": {
           "exit": 0,
           "wall_s": 2.09,
@@ -1230,7 +1252,8 @@
             "Progress: 34955 states checked, 32 traces generated (trace length: mean=96, var(x)=0, sd=0)"
           ]
         }
-      }
+      },
+      "bounds": "The three-server election control was interrupted after 900 s and the unconstrained original after 1150 s. Their last progress counters are partial samples. Each left the frontier open."
     }
   }
 }
