@@ -48,6 +48,10 @@ The lasso back edge in a trace document is zero-based; the checker summary's
 `back_to` is one-based. Validate the trace document rather than rebuilding a
 lasso from displayed states.
 
+### Deeply nested predicates on a periodic word
+
+During one validation, Dive reuses completed source inspections when the expression, analysis mode and retained pure bindings match. This helps heavily nested predicates and action families with many parameters. It still evaluates each actual transition, enabledness condition and temporal property on the supplied word. On the KIP-996 election witness this lets the native validator check all 255 fairness instances and the complete false-property set within the existing work limit. [Reproduction and controls](../developer/large-models.md#a-fair-counterexample-in-the-released-kafka-model)
+
 ### Large unused symmetry declarations
 
 A model may define `Sym == Permutations(Actors)` and leave it out of the active CFG. For finite witness validation, Dive can skip constructing that factorial-sized set when `Actors` is a directly configured, explicit set of untyped model values and nothing selected or observable can read the definition. It still evaluates a selected symmetry, assumptions and startup effects. Typed, mixed, nested and redirected operands keep their ordinary startup behavior.

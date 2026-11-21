@@ -163,6 +163,8 @@ pub fn refutes_prefix(
         states,
         back_to: states.len() - 1,
         cells: 0,
+        levels: super::WalkMemo::default(),
+        contexts: super::WalkMemo::default(),
     };
     let truth = cx.prefix(formula.expr, &formula.scope, 0);
     if matches!(truth, Err(TemporalError::Interrupted(_))) {

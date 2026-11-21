@@ -3,6 +3,9 @@
 //! This module has no tableau, graph search, or successor enumerator. Each
 //! subformula yields a truth value at every position of the given word.
 
+use std::cell::RefCell;
+use std::collections::HashMap;
+
 use dive_eval::{ConstBinding, Scope, SlotView, St};
 use dive_ir::{
     Arg, ConstId, DefId, DefScope, Effects, Expr, ExprId, JunctionKind, Level, OpRef, QuantKind,
@@ -126,6 +129,8 @@ pub fn evaluate_lasso(
         states,
         back_to,
         cells: 0,
+        levels: WalkMemo::default(),
+        contexts: WalkMemo::default(),
     };
     let truth = cx.eval(formula.expr, &formula.scope, 0);
     if matches!(truth, Err(TemporalError::Interrupted(_))) {
@@ -172,6 +177,8 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
         states: &[],
         back_to: 0,
         cells: 0,
+        levels: WalkMemo::default(),
+        contexts: WalkMemo::default(),
     }
     .check_atom_context(pred.expr, &pred.scope)
 }
@@ -223,11 +230,43 @@ fn substitution_is_pure(
     }
 }
 
+// One bounded table per kind of source walk, discarded with this word or preflight.
+// Slot collisions replace an entry. Every hit also checks the full expression,
+// analysis mode and the frozen evaluator's retained pure bindings.
+struct WalkMemo<T>(RefCell<HashMap<usize, (ExprId, bool, Scope, T)>>);
+
+impl<T> Default for WalkMemo<T> {
+    fn default() -> Self {
+        Self(RefCell::default())
+    }
+}
+
+impl<T: Copy> WalkMemo<T> {
+    const SLOTS: usize = 4096;
+
+    fn get(&self, model: &Model, expr: ExprId, mode: bool, scope: &Scope) -> Option<T> {
+        let entries = self.0.borrow();
+        let (stored, old_mode, old_scope, result) = entries.get(&(expr.index() % Self::SLOTS))?;
+        (*stored == expr
+            && *old_mode == mode
+            && scope.shares_pure_source_walk(old_scope, &model.evaluator, expr))
+        .then_some(*result)
+    }
+
+    fn remember(&self, expr: ExprId, mode: bool, scope: Scope, result: T) {
+        self.0
+            .borrow_mut()
+            .insert(expr.index() % Self::SLOTS, (expr, mode, scope, result));
+    }
+}
+
 struct Word<'a> {
     model: &'a Model,
     states: &'a [State],
     back_to: usize,
     cells: usize,
+    levels: WalkMemo<Level>,
+    contexts: WalkMemo<()>,
 }
 
 impl Word<'_> {
@@ -1119,10 +1158,6 @@ impl Word<'_> {
         self.scoped_level_mode(expr, scope, depth, steps, false)
     }
 
-    #[allow(
-        clippy::too_many_lines,
-        reason = "independent scoped level resolution and explicit refusal paths"
-    )]
     fn scoped_level_mode(
         &self,
         expr: ExprId,
@@ -1137,6 +1172,27 @@ impl Word<'_> {
                 "scoped temporal level resource bound".into(),
             ));
         }
+        if let Some(level) = self.levels.get(self.model, expr, query_state, scope) {
+            return Ok(level);
+        }
+        let level = self.compute_scoped_level(expr, scope, depth, steps, query_state)?;
+        self.levels
+            .remember(expr, query_state, scope.clone(), level);
+        Ok(level)
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "independent scoped level resolution and explicit refusal paths"
+    )]
+    fn compute_scoped_level(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+        query_state: bool,
+    ) -> Result<Level, TemporalError> {
         let ev = &self.model.evaluator;
         let ir = &self.model.ir;
         let node = ir.nodes().get(expr.index()).ok_or_else(|| {
@@ -1536,7 +1592,26 @@ impl Word<'_> {
     ) -> Result<(), TemporalError> {
         // ExprId alone is not a context: inspect each distinct application.
         let mut todo = vec![(expr, scope.clone(), depth)];
-        while let Some((e, scope, depth)) = todo.pop() {
+        let mut entered: Vec<(ExprId, Scope, usize)> = Vec::new();
+        loop {
+            // When the work stack returns to its previous size, all descendants
+            // succeeded. Refusals and in-progress ancestors never produce a hit.
+            while let Some((finished, sc, _)) =
+                entered.pop_if(|(_, _, pending)| *pending == todo.len())
+            {
+                self.contexts.remember(finished, inspect_only, sc, ());
+            }
+            let Some((e, scope, depth)) = todo.pop() else {
+                break;
+            };
+            if self
+                .contexts
+                .get(self.model, e, inspect_only, &scope)
+                .is_some()
+            {
+                continue;
+            }
+            entered.push((e, scope.clone(), todo.len()));
             *steps = steps.saturating_add(1);
             if depth > 256 || *steps > 100_000 {
                 return Err(TemporalError::Unsupported(

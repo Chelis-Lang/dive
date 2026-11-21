@@ -215,3 +215,23 @@ fn pinned_liveness_words_validate_including_recurring_fair_actions() {
         "controls must exercise actual certification, got {valid}"
     );
 }
+
+#[test]
+fn nested_filter_domains_share_completed_source_checks() {
+    use std::fmt::Write as _;
+
+    let mut source = String::from(
+        "---- MODULE Nested ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nD0(a) == a\n",
+    );
+    for level in 1..=12 {
+        writeln!(
+            source,
+            "D{level}(a) == {{z \\in D{}(a) : z \\in a}}",
+            level - 1
+        )
+        .expect("write to string");
+    }
+    source.push_str("P == <> (2 \\in D12(IF x THEN {0} ELSE {1}))\n====\n");
+    let model = bound(&source, "INIT Init\nNEXT Next\nPROPERTY P\n");
+    assert_eq!(result(&model, &word()), Validation::Valid);
+}
