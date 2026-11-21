@@ -1113,6 +1113,120 @@
             "initial_hint_members": 138
           }
         ]
+      },
+      "Quarantine-control": {
+        "wall_seconds": 1619.93,
+        "max_rss_kib": 1192520,
+        "validated_trace_states": 2,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 550.97429,
+            "refinement_rounds": 11,
+            "learned_members": 80,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 531.153043,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 536.996018,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          },
+          {
+            "verdict": "invariant-violation",
+            "depth": 2,
+            "ending": {
+              "kind": "invariant",
+              "name": "EmptyNetwork"
+            },
+            "reused": false,
+            "trace_validated": true,
+            "seconds": 0.58199,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          }
+        ]
+      },
+      "Quarantine-candidate": {
+        "wall_seconds": 570.66,
+        "max_rss_kib": 1192948,
+        "validated_trace_states": 2,
+        "revisions": [
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": false,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 562.045931,
+            "refinement_rounds": 11,
+            "learned_members": 80,
+            "initial_hint_members": 0
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": true,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 0.808912,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          },
+          {
+            "verdict": "success",
+            "distinct": 76749192,
+            "generated": 391849185,
+            "depth": 43,
+            "reused": true,
+            "reachable_bdd_nodes": 630485,
+            "seconds": 6.833871,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          },
+          {
+            "verdict": "invariant-violation",
+            "depth": 2,
+            "ending": {
+              "kind": "invariant",
+              "name": "EmptyNetwork"
+            },
+            "reused": false,
+            "trace_validated": true,
+            "seconds": 0.755679,
+            "refinement_rounds": 1,
+            "learned_members": 80,
+            "initial_hint_members": 80
+          }
+        ]
       }
     }
   },
@@ -1216,6 +1330,275 @@
           ]
         }
       }
+    }
+  },
+  "symbolic_variable_order_trials": {
+    "method": "Instrumented source-checkout experiments on one isolated r7i.4xlarge, one process pinned per physical core; concurrent runs share memory bandwidth, cache and package power. Trials use the original module and unchanged CFGs. Each logs decision-diagram sizes at layer entry before evaluating invariants or the image. The final logged layer is a progress observation. GNU time RSS in a timeout may omit a killed worker and is not a reliable peak for the entire process tree.",
+    "command": "dive check --strategy symbolic PaxosLeaseChecked.tla --config CFG --type-invariant TypeOK --refine-domains --time-limit {900s for Base, 7200s for Retry} --max-memory 18g --output json",
+    "software_sha256": {
+      "dive": "2a1e1e4ea1f12536945843d93335907f9df04d296a3f60c17599883288f9caa0",
+      "libexec/dive-symbolic/engine.py": "91bc791a0ade2cb59afe5ec4148f1da7c2dfabebe4148d49570cf36ec81d54e5",
+      "libexec/dive-symbolic/symbolic_input": "180847c7d8ad10ceedd8c2f065b4d986a497fdd224fa980fa5c8da95ebe161de",
+      "frozen/libexec/dive-symbolic/engine.py": "505478200a3b435d6a5fa86265520e35d59fba918103699b52e4371c1e0e2946"
+    },
+    "orders": {
+      "native": "Product field order, static",
+      "path": "Source path order, static",
+      "sift": "Automatic CUDD reordering throughout",
+      "early": "Automatic until layer 12, then freeze",
+      "once": "Start static and reorder once at layer 12 when frontier exceeds 2000 nodes"
+    },
+    "observations": [
+      {
+        "model": "Base",
+        "order": "native",
+        "exit_code": 0,
+        "wall_seconds": 53.09,
+        "gnu_time_peak_rss_kib": 332024,
+        "verdict": "success",
+        "last_logged_layout_bits": 247,
+        "last_logged_depth": 29,
+        "last_frontier_bdd_nodes": 18204,
+        "last_reached_bdd_nodes": 390276,
+        "distinct": 491037,
+        "generated": 1709874,
+        "completed_depth": 29,
+        "final_reachable_bdd_nodes": 390276
+      },
+      {
+        "model": "Base",
+        "order": "path",
+        "exit_code": 0,
+        "wall_seconds": 76.08,
+        "gnu_time_peak_rss_kib": 645752,
+        "verdict": "success",
+        "last_logged_layout_bits": 247,
+        "last_logged_depth": 29,
+        "last_frontier_bdd_nodes": 11789,
+        "last_reached_bdd_nodes": 1028397,
+        "distinct": 491037,
+        "generated": 1709874,
+        "completed_depth": 29,
+        "final_reachable_bdd_nodes": 1028397
+      },
+      {
+        "model": "Base",
+        "order": "sift",
+        "exit_code": 0,
+        "wall_seconds": 192.32,
+        "gnu_time_peak_rss_kib": 241412,
+        "verdict": "success",
+        "last_logged_layout_bits": 247,
+        "last_logged_depth": 29,
+        "last_frontier_bdd_nodes": 14409,
+        "last_reached_bdd_nodes": 245013,
+        "distinct": 491037,
+        "generated": 1709874,
+        "completed_depth": 29,
+        "final_reachable_bdd_nodes": 245013
+      },
+      {
+        "model": "Base",
+        "order": "early",
+        "exit_code": 0,
+        "wall_seconds": 142.25,
+        "gnu_time_peak_rss_kib": 470776,
+        "verdict": "success",
+        "last_logged_layout_bits": 247,
+        "last_logged_depth": 29,
+        "last_frontier_bdd_nodes": 16541,
+        "last_reached_bdd_nodes": 550103,
+        "distinct": 491037,
+        "generated": 1709874,
+        "completed_depth": 29,
+        "final_reachable_bdd_nodes": 550103
+      },
+      {
+        "model": "Base",
+        "order": "once",
+        "exit_code": 0,
+        "wall_seconds": 87.52,
+        "gnu_time_peak_rss_kib": 341036,
+        "verdict": "success",
+        "last_logged_layout_bits": 247,
+        "last_logged_depth": 29,
+        "last_frontier_bdd_nodes": 17563,
+        "last_reached_bdd_nodes": 401856,
+        "distinct": 491037,
+        "generated": 1709874,
+        "completed_depth": 29,
+        "final_reachable_bdd_nodes": 401856
+      },
+      {
+        "model": "Retry",
+        "order": "native",
+        "exit_code": 4,
+        "wall_seconds": 7200.03,
+        "gnu_time_peak_rss_kib": 653608,
+        "verdict": "stopped",
+        "last_logged_layout_bits": 243,
+        "last_logged_depth": 24,
+        "last_frontier_bdd_nodes": 29172336,
+        "last_reached_bdd_nodes": 34439130,
+        "stop_reason": "time limit"
+      },
+      {
+        "model": "Retry",
+        "order": "path",
+        "exit_code": 4,
+        "wall_seconds": 7200.04,
+        "gnu_time_peak_rss_kib": 517556,
+        "verdict": "stopped",
+        "last_logged_layout_bits": 243,
+        "last_logged_depth": 24,
+        "last_frontier_bdd_nodes": 61332653,
+        "last_reached_bdd_nodes": 68463447,
+        "stop_reason": "time limit"
+      },
+      {
+        "model": "Retry",
+        "order": "sift",
+        "exit_code": 4,
+        "wall_seconds": 7200.04,
+        "gnu_time_peak_rss_kib": 145848,
+        "verdict": "stopped",
+        "last_logged_layout_bits": 243,
+        "last_logged_depth": 17,
+        "last_frontier_bdd_nodes": 1237370,
+        "last_reached_bdd_nodes": 1436540,
+        "stop_reason": "time limit"
+      },
+      {
+        "model": "Retry",
+        "order": "early",
+        "exit_code": 4,
+        "wall_seconds": 7200.04,
+        "gnu_time_peak_rss_kib": 190816,
+        "verdict": "stopped",
+        "last_logged_layout_bits": 243,
+        "last_logged_depth": 27,
+        "last_frontier_bdd_nodes": 28739777,
+        "last_reached_bdd_nodes": 45151446,
+        "stop_reason": "time limit"
+      },
+      {
+        "model": "Retry",
+        "order": "once",
+        "exit_code": 4,
+        "wall_seconds": 7200.04,
+        "gnu_time_peak_rss_kib": 654252,
+        "verdict": "stopped",
+        "last_logged_layout_bits": 243,
+        "last_logged_depth": 27,
+        "last_frontier_bdd_nodes": 18804821,
+        "last_reached_bdd_nodes": 25853273,
+        "stop_reason": "time limit"
+      }
+    ]
+  },
+  "bounded_message_slot_trials": {
+    "design": "Prototype sorted, duplicate-free finite-set entries in fixed slots, coding a learned message by an integer and reserving the highest code for empty. Apply deletions before insertions. Detect overflow even for successors excluded by the state constraint.",
+    "method": "Same isolated r7i.4xlarge as the order trials, taskset to physical core 6 while independent ordering experiments used other cores. Process-tree RSS from GNU time can omit a worker terminated by the supervisor. Prefix node counts correspond to entry into a layer of the last refinement pass.",
+    "first_worker_sha256": "1faf5defe023921ed493773d030a908b266cc46090781af863c6133f5f1b85be",
+    "reduced_cfg_sha256": "e4e8729bc588855ba6dca379179c4edd124b45bab06a5077455f66fbaa8207fd",
+    "reduced_change": "PaxosLeaseRetry.cfg with only MaxNetwork = 4 replaced by MaxNetwork = 1.",
+    "trials": [
+      {
+        "configuration": "Base",
+        "slots": 6,
+        "procedure": "Base",
+        "verdict": "unsupported",
+        "exit_code": 2,
+        "wall_seconds": 370.88,
+        "gnu_time_peak_rss_kib": 2406240,
+        "reason": "reachable source emits an assignment outside finite layout",
+        "layout_bits": 145,
+        "last_logged_layer": 7,
+        "frontier_bdd_nodes": 6361,
+        "reached_bdd_nodes": 15409
+      },
+      {
+        "configuration": "Base",
+        "slots": 6,
+        "procedure": "recheck",
+        "verdict": "unsupported",
+        "exit_code": 2,
+        "wall_seconds": 371.17,
+        "gnu_time_peak_rss_kib": 2405792,
+        "reason": "bounded set layout exceeded; see diagnostic",
+        "layout_bits": 145,
+        "last_logged_layer": 7,
+        "frontier_bdd_nodes": 6361,
+        "reached_bdd_nodes": 15409
+      },
+      {
+        "configuration": "RetryNetworkOne",
+        "slots": null,
+        "procedure": "reference",
+        "verdict": "success",
+        "exit_code": 0,
+        "wall_seconds": 0.07,
+        "gnu_time_peak_rss_kib": 33068,
+        "distinct": 1856,
+        "generated": 13921,
+        "depth": 15
+      },
+      {
+        "configuration": "RetryNetworkOne",
+        "slots": 6,
+        "procedure": "six",
+        "verdict": "success",
+        "exit_code": 0,
+        "wall_seconds": 1.75,
+        "gnu_time_peak_rss_kib": 192944,
+        "distinct": 1856,
+        "generated": 13921,
+        "depth": 15,
+        "layout_bits": 111,
+        "last_logged_layer": 15,
+        "frontier_bdd_nodes": 115,
+        "reached_bdd_nodes": 310
+      },
+      {
+        "configuration": "Base",
+        "slots": 7,
+        "procedure": "seven",
+        "verdict": "stopped",
+        "exit_code": 4,
+        "wall_seconds": 2400.04,
+        "gnu_time_peak_rss_kib": 5334820,
+        "reason": "time limit",
+        "layout_bits": 151,
+        "last_logged_layer": 8,
+        "frontier_bdd_nodes": 11712,
+        "reached_bdd_nodes": 26223
+      },
+      {
+        "configuration": "Retry",
+        "slots": 6,
+        "procedure": "retry",
+        "verdict": "stopped",
+        "exit_code": 4,
+        "wall_seconds": 5400.04,
+        "gnu_time_peak_rss_kib": 5076408,
+        "reason": "time limit",
+        "layout_bits": 129,
+        "last_logged_layer": 11,
+        "frontier_bdd_nodes": 635471,
+        "reached_bdd_nodes": 652136
+      }
+    ],
+    "base_capacity_diagnostic": {
+      "source_network_cardinality": 4,
+      "source_slot_codes": [
+        24,
+        25,
+        26,
+        28,
+        63,
+        63
+      ],
+      "finding": "A reachable admitted source with four messages can produce an emission beyond the six-slot representation. The checker refused. The diagnostic replay distinguished overflow from an unrelated invalid encoding."
     }
   }
 }
