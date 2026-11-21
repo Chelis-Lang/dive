@@ -426,7 +426,7 @@
     "states": 1055
   },
   "fixed_five_extended": {
-    "host": "c7i.4xlarge us-west-2, 4 workers on CPUs 0–3, each engine separately",
+    "host": "c7i.4xlarge us-west-2, 4 workers on CPUs 0\u20133, each engine separately",
     "configuration": "fixed5.cfg under cfg_edits.fixed; same six invariants, four temporal properties and source fairness.",
     "core_command": "dive check kraft_kip_996.tla --config fixed5.cfg --library-path MODULES --workers 4 --store exact --fp 0 --seed 0 --max-memory 22g --time-limit 6300s --output json",
     "core": {
@@ -467,7 +467,315 @@
         "distinct": 1315959,
         "left_on_queue": 59078
       },
-      "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0–3, external deadline 6360s"
+      "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0\u20133, external deadline 6360s"
+    }
+  },
+  "original_fair_counterexample": {
+    "source": "Released model_liveness.cfg, unchanged limits, original Init, Next, six invariants, four properties and all 255 ground weak fairness conditions. Original pre-vote counter ranges over naturals. A checked parity word lifts to an infinite original execution.",
+    "host": "isolated EC2 c7i.4xlarge, us-east-2, Intel Xeon Platinum 8488C. TLC and native replays pinned to one CPU each.",
+    "inputs": {
+      "full_original_sources": "hashes in this record",
+      "dive_sha256": "5af9c61496b3369c4a7144af2b854000f24a587c87b8e2ce0294f9bcdf83873e",
+      "pinned_tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+    },
+    "construction": {
+      "sample": "seed 0, trace_2 of three W1 paths at depth 96, prefix of 30 transitions",
+      "quotient": "current counter modulo 2 distinguishes both possible transition deltas 0 and 1. The audit checks original Next on the fixed sampled prefix, original actions and six invariants on the suffix, plus positive and damaged original-counter replay. Epochs and every other state field retain their original values.",
+      "discovery": "On parity, cap epochs at the entry maximum plus one and freeze log, config, server_ids, all three client-history sets, net_connectivity, net_connectivity_ctr and aux_disk_id_gen after a reachable pivot. Pinned TLC found the second loop in a 32-state/65-generated/depth-11 suffix search. The final audit removes all these search restrictions and drives the eight original actions from the unmodified Init prefix.",
+      "action_family_order": [
+        "CheckQuorumResign",
+        "VoterFetchTimeout",
+        "VoterElectionTimeout",
+        "ResignedElectionTimeout",
+        "ConcludePreVote",
+        "BecomeLeader",
+        "HandleVoteRequest",
+        "HandleVoteResponse",
+        "RejectFetchRequest",
+        "DivergingFetchRequest",
+        "AcceptFetchRequest",
+        "ResendBeginQuorumEpochRequest",
+        "AcceptBeginQuorumRequest",
+        "SendFetchRequest",
+        "HandleFetchResponse"
+      ]
+    },
+    "words": {
+      "sampled": {
+        "states": 38,
+        "depth": 38,
+        "generated": 39,
+        "loop_start_zero_based": 30,
+        "loop_length": 8,
+        "by_step": [
+          {
+            "index_one_based": 31,
+            "enabled": [
+              "HandleVoteRequest(1, 3)",
+              "VoterElectionTimeout(1)"
+            ],
+            "taken": [
+              "VoterElectionTimeout(1)"
+            ]
+          },
+          {
+            "index_one_based": 32,
+            "enabled": [
+              "HandleVoteRequest(1, 3)",
+              "HandleVoteRequest(3, 1)"
+            ],
+            "taken": [
+              "HandleVoteRequest(3, 1)"
+            ]
+          },
+          {
+            "index_one_based": 33,
+            "enabled": [
+              "HandleVoteRequest(1, 3)",
+              "HandleVoteResponse(1, 3)"
+            ],
+            "taken": [
+              "HandleVoteResponse(1, 3)"
+            ]
+          },
+          {
+            "index_one_based": 34,
+            "enabled": [
+              "ConcludePreVote(1)",
+              "HandleVoteRequest(1, 3)"
+            ],
+            "taken": [
+              "ConcludePreVote(1)"
+            ]
+          },
+          {
+            "index_one_based": 35,
+            "enabled": [
+              "HandleVoteRequest(1, 3)",
+              "VoterElectionTimeout(1)"
+            ],
+            "taken": [
+              "VoterElectionTimeout(1)"
+            ]
+          },
+          {
+            "index_one_based": 36,
+            "enabled": [
+              "HandleVoteRequest(1, 3)",
+              "HandleVoteRequest(3, 1)"
+            ],
+            "taken": [
+              "HandleVoteRequest(3, 1)"
+            ]
+          },
+          {
+            "index_one_based": 37,
+            "enabled": [
+              "HandleVoteRequest(1, 3)",
+              "HandleVoteResponse(1, 3)"
+            ],
+            "taken": [
+              "HandleVoteResponse(1, 3)"
+            ]
+          },
+          {
+            "index_one_based": 38,
+            "enabled": [
+              "ConcludePreVote(1)",
+              "HandleVoteRequest(1, 3)"
+            ],
+            "taken": [
+              "ConcludePreVote(1)"
+            ]
+          }
+        ],
+        "continuously_enabled_but_never_taken": [
+          "HandleVoteRequest(1, 3)"
+        ],
+        "property_checks": {
+          "Fairness": {
+            "holds": false,
+            "wall_s": 3.78,
+            "max_rss_kib": 143592
+          },
+          "ValuesEventuallyAcked": {
+            "holds": true,
+            "wall_s": 2.92,
+            "max_rss_kib": 138016
+          },
+          "ReconfigurationNotStuck": {
+            "holds": false,
+            "wall_s": 3.65,
+            "max_rss_kib": 141920
+          },
+          "EventuallyLeaderElected": {
+            "holds": false,
+            "wall_s": 3.95,
+            "max_rss_kib": 143176
+          },
+          "NotStuckInProspective": {
+            "holds": true,
+            "wall_s": 3.03,
+            "max_rss_kib": 141016
+          }
+        },
+        "enabled_and_taken_timing": {
+          "wall_s": 2.97,
+          "max_rss_kib": 132116
+        }
+      },
+      "scheduled": {
+        "states": 38,
+        "depth": 38,
+        "generated": 39,
+        "loop_start_zero_based": 30,
+        "loop_length": 8,
+        "by_step": [
+          {
+            "index_one_based": 31,
+            "enabled": [
+              "HandleVoteRequest(1, 3)",
+              "VoterElectionTimeout(1)"
+            ],
+            "taken": [
+              "HandleVoteRequest(1, 3)"
+            ]
+          },
+          {
+            "index_one_based": 32,
+            "enabled": [
+              "HandleVoteResponse(3, 1)",
+              "VoterElectionTimeout(1)"
+            ],
+            "taken": [
+              "VoterElectionTimeout(1)"
+            ]
+          },
+          {
+            "index_one_based": 33,
+            "enabled": [
+              "HandleVoteRequest(3, 1)",
+              "HandleVoteResponse(3, 1)"
+            ],
+            "taken": [
+              "HandleVoteRequest(3, 1)"
+            ]
+          },
+          {
+            "index_one_based": 34,
+            "enabled": [
+              "HandleVoteResponse(1, 3)",
+              "HandleVoteResponse(3, 1)"
+            ],
+            "taken": [
+              "HandleVoteResponse(1, 3)"
+            ]
+          },
+          {
+            "index_one_based": 35,
+            "enabled": [
+              "ConcludePreVote(1)",
+              "HandleVoteResponse(3, 1)"
+            ],
+            "taken": [
+              "ConcludePreVote(1)"
+            ]
+          },
+          {
+            "index_one_based": 36,
+            "enabled": [
+              "HandleVoteResponse(3, 1)",
+              "VoterElectionTimeout(1)"
+            ],
+            "taken": [
+              "HandleVoteResponse(3, 1)"
+            ]
+          },
+          {
+            "index_one_based": 37,
+            "enabled": [
+              "ConcludePreVote(3)",
+              "VoterElectionTimeout(1)"
+            ],
+            "taken": [
+              "ConcludePreVote(3)"
+            ]
+          },
+          {
+            "index_one_based": 38,
+            "enabled": [
+              "VoterElectionTimeout(1)",
+              "VoterElectionTimeout(3)"
+            ],
+            "taken": [
+              "VoterElectionTimeout(3)"
+            ]
+          }
+        ],
+        "continuously_enabled_but_never_taken": [],
+        "property_checks": {
+          "Fairness": {
+            "holds": true,
+            "wall_s": 3.36,
+            "max_rss_kib": 141068
+          },
+          "ValuesEventuallyAcked": {
+            "holds": true,
+            "wall_s": 2.91,
+            "max_rss_kib": 137872
+          },
+          "ReconfigurationNotStuck": {
+            "holds": false,
+            "wall_s": 3.36,
+            "max_rss_kib": 131392
+          },
+          "EventuallyLeaderElected": {
+            "holds": false,
+            "wall_s": 3.61,
+            "max_rss_kib": 141144
+          },
+          "NotStuckInProspective": {
+            "holds": true,
+            "wall_s": 2.71,
+            "max_rss_kib": 137152
+          }
+        },
+        "enabled_and_taken_timing": {
+          "wall_s": 2.99,
+          "max_rss_kib": 140932
+        }
+      }
+    },
+    "remaining": "ValuesEventuallyAcked and NotStuckInProspective hold on these two words. Their truth over all fair behaviors is open. The concrete original execution of the discovered loop is infinite and nonperiodic in prevote_ctr. The directly replayed finite prefix and the parity/fairness argument are separate evidence.",
+    "original_concrete_replay": {
+      "laps": 16,
+      "entry_counter": 5,
+      "per_lap": 2,
+      "final_counter": 37,
+      "properties_erased_from_claim": true,
+      "accepted": {
+        "command": "validate-trace",
+        "length": 159,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4,
+        "wall_s": 0.42,
+        "max_rss_kib": 105520
+      },
+      "tampered": {
+        "command": "validate-trace",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 1338, col 28 to line 1338, col 31 of module kraft_kip_996",
+          "state": 158
+        },
+        "length": 159,
+        "notes": [],
+        "result": "invalid",
+        "schema_version": 4,
+        "wall_s": 0.42,
+        "max_rss_kib": 105332
+      }
     }
   }
 }
