@@ -1088,6 +1088,11 @@ impl Explorer<'_> {
                 self.next_originals.push(m.heap.intern_exact(h)?);
             }
         }
+        self.finish_resident_enqueue()
+    }
+
+    /// Log the newly queued row and seal a full resident block in discovery order.
+    fn finish_resident_enqueue(&mut self) -> Result<(), Error> {
         let ordinal = u32::try_from(self.emitted.saturating_sub(1))
             .map_err(|_| Error::unsupported("more than 2^32 successors of one state"))?;
         let id = match self.cur_id {

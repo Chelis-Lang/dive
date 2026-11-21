@@ -62,6 +62,7 @@ are in git history.
   report, and `--constructive-init` builds each trace's initial state instead
   of enumerating Init. See [simulation](docs/user/simulation.md#workers-trace-counts-and-what-the-report-keeps).
 
+- Local parallel safety search reuses worker-interned state values at ordered commit. On the complete Flint two-barrier control this reduced wall time from 21.0 s to 17.9–18.4 s. [Comparisons](docs/developer/large-models.md#ordered-commit-on-wide-states).
 - Core reduces the number of sources expanded together in high-fanout parallel safety searches. On BPConProof this cut peak RSS by 59% at one million discoveries. [Measurements](docs/developer/large-models.md#high-fanout-parallel-safety).
 - `dive simulate` accepts `SYMMETRY` and `VIEW`, which do not change a
   simulation, checks state-level `PROPERTY` parts on initial states (2108),
