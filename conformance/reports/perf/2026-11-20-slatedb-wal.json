@@ -1774,6 +1774,30 @@
           "reported_by_tlc": false
         }
       }
-    ]
+    ],
+    "one_shard_at_published_scale": {
+      "host": "Isolated r7i.8xlarge, us-east-1, Ubuntu 24.04; GNU time wall and maximum process RSS; trials sequential. Synthetic streams use one physical core, product checks use 16.",
+      "driver_sha256": "b29f110dbb05b1cc8394704c80d0def7f0497ebc8429853a92ee74f54ed28310",
+      "recipe": "N=191406250 equals 49 billion divided by 256. Fix high byte 0x53, use the SplitMix64 finalizer in stream_recipe restricted to 56 bits after each multiplication, including its final xor-shift. For i=1..N insert each key. Every fourth i check contains and repeat insert for i/2 and check absence of N+i; then look up every inserted key and verify length. Final RSS comes from /proc/self/status after all lookups.",
+      "interpretation": "One full-size shard at the mean occupancy of 256 uniformly populated shards at 49 billion fingerprints. This measures one shard in the actual resident implementation. A whole model has other shards, frontiers, values, predecessors and worker storage.",
+      "trials": [
+        {
+          "build": "word",
+          "executable_sha256": "55c8c32db6a0bf751a61d9195671e716fae6eb354a0c37f06d42cc750f47998b",
+          "verified_key_count": 191406250,
+          "wall_seconds": 45.78,
+          "peak_rss_kib": 3148440,
+          "final_rss_kib": 2099932
+        },
+        {
+          "build": "quotient",
+          "executable_sha256": "47944ae010fa51ec2157c8527ede492655cb0e463ea029d3e2facbfd52f73d97",
+          "verified_key_count": 191406250,
+          "wall_seconds": 45.18,
+          "peak_rss_kib": 1743472,
+          "final_rss_kib": 1125048
+        }
+      ]
+    }
   }
 }
