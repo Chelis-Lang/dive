@@ -591,7 +591,12 @@ original configuration at 500,000 distinct states, both schedulers generated
 1,645,930 states and left 395,693 queued at depth ten. At 32 workers, two runs
 with reused threads took 0.61 s each, compared with 0.65 s each with scoped
 threads. RSS sampled late in the runs was 463–475 MiB with reuse and 435–437 MiB
-with scoped threads. [Bounded prefix observations and executable digests](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
+with scoped threads. On the same dedicated 32-core host class that produced the
+two earlier aborts, the search-lifetime pool returned the original configuration's
+420 GiB memory stop in 4,269.80 s, with 442,465,912 KiB peak RSS. It counted
+2,551,373,041 distinct states and 10,263,224,441 generated, with 1,987,633,576
+queued at depth 15. The last three-minute process sample had 34 threads.
+[Full stop, bounded prefix observations and executable digests](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
 On a 32-physical-core host with a 24 GiB sampled RSS limit, DiskSynod reached 835,858,711 distinct states and 12,639,577,756 generated in 6,500.61 s. It had 144,840,332 states queued at depth 35. BPConProof hit the same budget in 181.95 s with 134,831,096 distinct states. Of those, 134,714,941 were still queued. At 16 workers, BlockingQueuePoisonApple hit 24 GiB during graph capture with 117,440,513 distinct and 569,933,982 generated. At eight workers and 18 GiB, etcdraft reached 94,073,470 distinct before memory stopped it. MCetcdraft instead hit the 900 s time limit at 39,256,817 distinct and 8.89 GiB peak RSS. These runs use different worker counts and budget enforcement from the original cgroup trials. [Per-input commands, limits, binary identities and terminal queues](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
