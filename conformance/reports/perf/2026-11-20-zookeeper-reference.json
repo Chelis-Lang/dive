@@ -485,6 +485,75 @@
             "peak_rss_kib": 2871232,
             "workers": 8
           }
+        },
+        {
+          "paper_parameters": [
+            3,
+            2,
+            1,
+            1
+          ],
+          "MaxTimeoutFailures": 2,
+          "cfg_sha256": "d03b0ac252b13c51323af3ebb1dc44bceda1e7b26cb97d30a322a9b8e6479127",
+          "same_as_paper_count_and_depth": false,
+          "core": {
+            "exit_code": 5,
+            "wall_seconds": 1500.07,
+            "peak_rss_kib": 1138852,
+            "workers_used": 1,
+            "print_events": 0,
+            "verdict": "stopped",
+            "depth": 42,
+            "generated": 66833056,
+            "distinct": 32107526,
+            "queued": 2804190,
+            "stop": "time"
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 1247.82,
+            "peak_rss_kib": 5683500,
+            "workers": 8,
+            "verdict": "success",
+            "depth": 59,
+            "generated": 97096950,
+            "distinct": 44272435,
+            "queued": 0
+          }
+        },
+        {
+          "paper_parameters": [
+            3,
+            2,
+            2,
+            0
+          ],
+          "MaxTimeoutFailures": 2,
+          "cfg_sha256": "ac765be7b45416bf9be880b16200dd745e5651a79d2da7572b4563e131ec73c9",
+          "same_as_paper_count_and_depth": false,
+          "core": {
+            "exit_code": 0,
+            "wall_seconds": 391.24,
+            "peak_rss_kib": 367816,
+            "workers_used": 1,
+            "print_events": 0,
+            "verdict": "success",
+            "depth": 52,
+            "generated": 17345585,
+            "distinct": 7363789,
+            "queued": 0
+          },
+          "tlc": {
+            "exit_code": 0,
+            "wall_seconds": 218.74,
+            "peak_rss_kib": 3761424,
+            "workers": 8,
+            "verdict": "success",
+            "depth": 52,
+            "generated": 17345585,
+            "distinct": 7363789,
+            "queued": 0
+          }
         }
       ]
     },
