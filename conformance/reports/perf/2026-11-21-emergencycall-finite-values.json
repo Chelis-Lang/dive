@@ -1,0 +1,1136 @@
+{
+  "schema": 1,
+  "scope": "Exhaustive finite-value reachability and witness counts for one pinned TLA+ module. The reconstructed full Init checks TypeInvariant, SetInvariant and deadlocks. Historical unconstrained CFG unidentified.",
+  "source": {
+    "repository": "https://github.com/FormalCellular/EmergencyCall",
+    "revision": "093684f1bb02d733cae95d50f1690f1cb792296a",
+    "module": "model/EmergencyCall_Model_auto.tla",
+    "sha256": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+    "full_cfg": "INIT Init\nNEXT Next\nINVARIANTS TypeInvariant SetInvariant\n",
+    "cfg_sha256": {
+      "full": "8307be05dfc7c0e824259bf1a9a315be2f836e889c34ae212b9a2ba24eda0d42",
+      "f1": "5297515fd200ca513f0553ca86157e369aa0a4f89095a04c13d6c7b2db213805",
+      "f2": "86cab1e704a9cd5ab15ba45a8fc1a4a814a714809830c7920f031785884c6bb4",
+      "f3": "90e80cd05411cd0108ec9f7314345df31b9c72213ce1314f37d3e054c8f2b160",
+      "f4": "083c49ef045959c19ddc7243949297be2805e564d0d91c255567148d236999ab"
+    }
+  },
+  "tools": {
+    "benchmark_sha256": "23c947d3ba63bd44cee1ba6f03a35e5ef4ed6f8e01b20282c25c1ef2abdf4496",
+    "worker_sha256": {
+      "engine.py": "152b54ded45f78258894b21ff18f5d54639b8976c1da320440650f489d8dbea0",
+      "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+      "symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12"
+    }
+  },
+  "host": {
+    "instance": "c7i.4xlarge",
+    "region": "us-east-2",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "kernel": "7.0.0-1018-aws",
+    "timing": "GNU time wall seconds and peak process RSS in KiB including the binding exporter. One logical CPU per Python process; original five runs sequential on CPU 0, independent reviewer on CPU 12. Per-cell runs in four disjoint CPU affinities share the instance."
+  },
+  "reproduce": "Set PYTHONHASHSEED=0 and PYTHONPATH to the packaged libexec/dive-symbolic directory. Run its python/bin/python3 scripts/perf/scale/emergencycall.py MODULE CFG --exporter WORKER/symbolic_input; append --cell N to restrict initial states and independently check that every successor remains in that cell.",
+  "runs": {
+    "full": {
+      "initial": 56623104,
+      "distinct": 49911672768,
+      "generated": 328063574184,
+      "depth": 44,
+      "bdd_nodes": 159191,
+      "encoding_bits": 66,
+      "action_witnesses": 62,
+      "cell": null,
+      "invariants": [
+        "TypeInvariant",
+        "SetInvariant"
+      ],
+      "checked_deadlock": true,
+      "closed": true,
+      "wall_seconds": 116.03,
+      "peak_rss_kib": 662764
+    },
+    "f1": {
+      "initial": 32768,
+      "distinct": 3932160,
+      "generated": 23650304,
+      "depth": 19,
+      "bdd_nodes": 573,
+      "encoding_bits": 66,
+      "action_witnesses": 62,
+      "cell": null,
+      "invariants": [
+        "TypeInvariant",
+        "SetInvariant",
+        "F1"
+      ],
+      "checked_deadlock": true,
+      "closed": true,
+      "wall_seconds": 0.32,
+      "peak_rss_kib": 61192
+    },
+    "f2": {
+      "initial": 24576,
+      "distinct": 6248960,
+      "generated": 39053696,
+      "depth": 25,
+      "bdd_nodes": 1417,
+      "encoding_bits": 66,
+      "action_witnesses": 62,
+      "cell": null,
+      "invariants": [
+        "TypeInvariant",
+        "SetInvariant",
+        "F2"
+      ],
+      "checked_deadlock": true,
+      "closed": true,
+      "wall_seconds": 0.41,
+      "peak_rss_kib": 61364
+    },
+    "f3": {
+      "initial": 49152,
+      "distinct": 21255936,
+      "generated": 135871232,
+      "depth": 27,
+      "bdd_nodes": 5035,
+      "encoding_bits": 66,
+      "action_witnesses": 62,
+      "cell": null,
+      "invariants": [
+        "TypeInvariant",
+        "SetInvariant",
+        "F3"
+      ],
+      "checked_deadlock": true,
+      "closed": true,
+      "wall_seconds": 0.77,
+      "peak_rss_kib": 67120
+    },
+    "f4": {
+      "initial": 24576,
+      "distinct": 8872832,
+      "generated": 56734720,
+      "depth": 27,
+      "bdd_nodes": 4310,
+      "encoding_bits": 66,
+      "action_witnesses": 62,
+      "cell": null,
+      "invariants": [
+        "TypeInvariant",
+        "SetInvariant",
+        "F4"
+      ],
+      "checked_deadlock": true,
+      "closed": true,
+      "wall_seconds": 0.7,
+      "peak_rss_kib": 67976
+    }
+  },
+  "partition_variables": [
+    "amf_0_normal_attach_accept_include_enl",
+    "amf_1_normal_attach_accept_include_enl",
+    "amf_0_emergency_attach_accept_include_enl",
+    "amf_1_emergency_attach_accept_include_enl",
+    "amf_home_reject_or_allow_unmarked_emergency_request",
+    "amf_roam_reject_or_allow_unmarked_emergency_request"
+  ],
+  "cells": [
+    {
+      "cell": 0,
+      "initial": 884736,
+      "distinct": 600429632,
+      "generated": 3862251520,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 6.79,
+        "peak_rss_kib": 125288,
+        "bdd_nodes": 17789
+      }
+    },
+    {
+      "cell": 1,
+      "initial": 884736,
+      "distinct": 912926560,
+      "generated": 6006048236,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 34.26,
+        "peak_rss_kib": 291632,
+        "bdd_nodes": 56060
+      }
+    },
+    {
+      "cell": 2,
+      "initial": 884736,
+      "distinct": 692629920,
+      "generated": 4527264736,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 19.2,
+        "peak_rss_kib": 156712,
+        "bdd_nodes": 33409
+      }
+    },
+    {
+      "cell": 3,
+      "initial": 884736,
+      "distinct": 1001016800,
+      "generated": 6664442848,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 52.49,
+        "peak_rss_kib": 624544,
+        "bdd_nodes": 74260
+      }
+    },
+    {
+      "cell": 4,
+      "initial": 884736,
+      "distinct": 876197064,
+      "generated": 5735865246,
+      "depth": 44,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 28.89,
+        "peak_rss_kib": 394300,
+        "bdd_nodes": 48121
+      }
+    },
+    {
+      "cell": 5,
+      "initial": 884736,
+      "distinct": 686970448,
+      "generated": 4482515772,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 24.55,
+        "peak_rss_kib": 215528,
+        "bdd_nodes": 46364
+      }
+    },
+    {
+      "cell": 6,
+      "initial": 884736,
+      "distinct": 1029239808,
+      "generated": 6826734112,
+      "depth": 40,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 65.93,
+        "peak_rss_kib": 675588,
+        "bdd_nodes": 58568
+      }
+    },
+    {
+      "cell": 7,
+      "initial": 884736,
+      "distinct": 711637376,
+      "generated": 4705148384,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 38.61,
+        "peak_rss_kib": 314868,
+        "bdd_nodes": 79272
+      }
+    },
+    {
+      "cell": 8,
+      "initial": 884736,
+      "distinct": 778229632,
+      "generated": 5055774608,
+      "depth": 41,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 13.4,
+        "peak_rss_kib": 155348,
+        "bdd_nodes": 33167
+      }
+    },
+    {
+      "cell": 9,
+      "initial": 884736,
+      "distinct": 1154285720,
+      "generated": 7640565214,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 54.63,
+        "peak_rss_kib": 438500,
+        "bdd_nodes": 77923
+      }
+    },
+    {
+      "cell": 10,
+      "initial": 884736,
+      "distinct": 440797568,
+      "generated": 2858224064,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 7.45,
+        "peak_rss_kib": 104012,
+        "bdd_nodes": 17359
+      }
+    },
+    {
+      "cell": 11,
+      "initial": 884736,
+      "distinct": 592799296,
+      "generated": 3917161728,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 18.88,
+        "peak_rss_kib": 241668,
+        "bdd_nodes": 46950
+      }
+    },
+    {
+      "cell": 12,
+      "initial": 884736,
+      "distinct": 1118373920,
+      "generated": 7375255632,
+      "depth": 41,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 44.94,
+        "peak_rss_kib": 633396,
+        "bdd_nodes": 56242
+      }
+    },
+    {
+      "cell": 13,
+      "initial": 884736,
+      "distinct": 864828728,
+      "generated": 5681597902,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 41.34,
+        "peak_rss_kib": 268624,
+        "bdd_nodes": 79952
+      }
+    },
+    {
+      "cell": 14,
+      "initial": 884736,
+      "distinct": 619769888,
+      "generated": 4073096480,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 22.66,
+        "peak_rss_kib": 214052,
+        "bdd_nodes": 39469
+      }
+    },
+    {
+      "cell": 15,
+      "initial": 884736,
+      "distinct": 397993664,
+      "generated": 2605013696,
+      "depth": 33,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 11.52,
+        "peak_rss_kib": 147744,
+        "bdd_nodes": 33356
+      }
+    },
+    {
+      "cell": 16,
+      "initial": 884736,
+      "distinct": 600418496,
+      "generated": 3862203264,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 6.51,
+        "peak_rss_kib": 125308,
+        "bdd_nodes": 17796
+      }
+    },
+    {
+      "cell": 17,
+      "initial": 884736,
+      "distinct": 912912064,
+      "generated": 6005985420,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 34.66,
+        "peak_rss_kib": 292052,
+        "bdd_nodes": 56077
+      }
+    },
+    {
+      "cell": 18,
+      "initial": 884736,
+      "distinct": 692623008,
+      "generated": 4527234784,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 19.09,
+        "peak_rss_kib": 156576,
+        "bdd_nodes": 33421
+      }
+    },
+    {
+      "cell": 19,
+      "initial": 884736,
+      "distinct": 1001009888,
+      "generated": 6664412896,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 52.98,
+        "peak_rss_kib": 624548,
+        "bdd_nodes": 74272
+      }
+    },
+    {
+      "cell": 20,
+      "initial": 884736,
+      "distinct": 876184248,
+      "generated": 5735809710,
+      "depth": 44,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 28.75,
+        "peak_rss_kib": 394336,
+        "bdd_nodes": 48138
+      }
+    },
+    {
+      "cell": 21,
+      "initial": 884736,
+      "distinct": 686955952,
+      "generated": 4482452956,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 24.82,
+        "peak_rss_kib": 215644,
+        "bdd_nodes": 46381
+      }
+    },
+    {
+      "cell": 22,
+      "initial": 884736,
+      "distinct": 1029232896,
+      "generated": 6826704160,
+      "depth": 40,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 67.03,
+        "peak_rss_kib": 675668,
+        "bdd_nodes": 58580
+      }
+    },
+    {
+      "cell": 23,
+      "initial": 884736,
+      "distinct": 711630464,
+      "generated": 4705118432,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 39.25,
+        "peak_rss_kib": 282192,
+        "bdd_nodes": 79284
+      }
+    },
+    {
+      "cell": 24,
+      "initial": 884736,
+      "distinct": 778218304,
+      "generated": 5055725520,
+      "depth": 41,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 13.26,
+        "peak_rss_kib": 148220,
+        "bdd_nodes": 33174
+      }
+    },
+    {
+      "cell": 25,
+      "initial": 884736,
+      "distinct": 1154270984,
+      "generated": 7640501358,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 54.78,
+        "peak_rss_kib": 438612,
+        "bdd_nodes": 77940
+      }
+    },
+    {
+      "cell": 26,
+      "initial": 884736,
+      "distinct": 440790656,
+      "generated": 2858194112,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 7.99,
+        "peak_rss_kib": 103892,
+        "bdd_nodes": 17371
+      }
+    },
+    {
+      "cell": 27,
+      "initial": 884736,
+      "distinct": 592792384,
+      "generated": 3917131776,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 19.24,
+        "peak_rss_kib": 340312,
+        "bdd_nodes": 46962
+      }
+    },
+    {
+      "cell": 28,
+      "initial": 884736,
+      "distinct": 1118360864,
+      "generated": 7375199056,
+      "depth": 41,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 45.87,
+        "peak_rss_kib": 633420,
+        "bdd_nodes": 56264
+      }
+    },
+    {
+      "cell": 29,
+      "initial": 884736,
+      "distinct": 864813992,
+      "generated": 5681534046,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 41.13,
+        "peak_rss_kib": 268724,
+        "bdd_nodes": 79969
+      }
+    },
+    {
+      "cell": 30,
+      "initial": 884736,
+      "distinct": 619762976,
+      "generated": 4073066528,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 19.29,
+        "peak_rss_kib": 214344,
+        "bdd_nodes": 39481
+      }
+    },
+    {
+      "cell": 31,
+      "initial": 884736,
+      "distinct": 397986752,
+      "generated": 2604983744,
+      "depth": 33,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 11.26,
+        "peak_rss_kib": 147612,
+        "bdd_nodes": 33371
+      }
+    },
+    {
+      "cell": 32,
+      "initial": 884736,
+      "distinct": 600401408,
+      "generated": 3862092256,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 6.88,
+        "peak_rss_kib": 128588,
+        "bdd_nodes": 17791
+      }
+    },
+    {
+      "cell": 33,
+      "initial": 884736,
+      "distinct": 912892960,
+      "generated": 6005858636,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 33.94,
+        "peak_rss_kib": 291928,
+        "bdd_nodes": 56090
+      }
+    },
+    {
+      "cell": 34,
+      "initial": 884736,
+      "distinct": 692629920,
+      "generated": 4527264736,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 13.51,
+        "peak_rss_kib": 156432,
+        "bdd_nodes": 33409
+      }
+    },
+    {
+      "cell": 35,
+      "initial": 884736,
+      "distinct": 1001016800,
+      "generated": 6664442848,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 52.35,
+        "peak_rss_kib": 624744,
+        "bdd_nodes": 74260
+      }
+    },
+    {
+      "cell": 36,
+      "initial": 884736,
+      "distinct": 876166152,
+      "generated": 5735690814,
+      "depth": 44,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 29.32,
+        "peak_rss_kib": 394228,
+        "bdd_nodes": 48135
+      }
+    },
+    {
+      "cell": 37,
+      "initial": 884736,
+      "distinct": 686936848,
+      "generated": 4482326172,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 24.25,
+        "peak_rss_kib": 246348,
+        "bdd_nodes": 46390
+      }
+    },
+    {
+      "cell": 38,
+      "initial": 884736,
+      "distinct": 1029239808,
+      "generated": 6826734112,
+      "depth": 40,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 48.95,
+        "peak_rss_kib": 675604,
+        "bdd_nodes": 58568
+      }
+    },
+    {
+      "cell": 39,
+      "initial": 884736,
+      "distinct": 711637376,
+      "generated": 4705148384,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 38.65,
+        "peak_rss_kib": 315072,
+        "bdd_nodes": 79272
+      }
+    },
+    {
+      "cell": 40,
+      "initial": 884736,
+      "distinct": 778201184,
+      "generated": 5055614080,
+      "depth": 41,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 13.09,
+        "peak_rss_kib": 147920,
+        "bdd_nodes": 33169
+      }
+    },
+    {
+      "cell": 41,
+      "initial": 884736,
+      "distinct": 1154251896,
+      "generated": 7640374350,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 54.54,
+        "peak_rss_kib": 438400,
+        "bdd_nodes": 77953
+      }
+    },
+    {
+      "cell": 42,
+      "initial": 884736,
+      "distinct": 440797568,
+      "generated": 2858224064,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 5.3,
+        "peak_rss_kib": 103776,
+        "bdd_nodes": 17359
+      }
+    },
+    {
+      "cell": 43,
+      "initial": 884736,
+      "distinct": 592799296,
+      "generated": 3917161728,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 18.67,
+        "peak_rss_kib": 340472,
+        "bdd_nodes": 46950
+      }
+    },
+    {
+      "cell": 44,
+      "initial": 884736,
+      "distinct": 1118342784,
+      "generated": 7375079936,
+      "depth": 41,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 45.1,
+        "peak_rss_kib": 633256,
+        "bdd_nodes": 56272
+      }
+    },
+    {
+      "cell": 45,
+      "initial": 884736,
+      "distinct": 864794904,
+      "generated": 5681407038,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 40.13,
+        "peak_rss_kib": 268528,
+        "bdd_nodes": 79978
+      }
+    },
+    {
+      "cell": 46,
+      "initial": 884736,
+      "distinct": 619769888,
+      "generated": 4073096480,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 16.64,
+        "peak_rss_kib": 213980,
+        "bdd_nodes": 39469
+      }
+    },
+    {
+      "cell": 47,
+      "initial": 884736,
+      "distinct": 397993664,
+      "generated": 2605013696,
+      "depth": 33,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 11.31,
+        "peak_rss_kib": 147608,
+        "bdd_nodes": 33356
+      }
+    },
+    {
+      "cell": 48,
+      "initial": 884736,
+      "distinct": 600390272,
+      "generated": 3862044000,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 6.38,
+        "peak_rss_kib": 128428,
+        "bdd_nodes": 17798
+      }
+    },
+    {
+      "cell": 49,
+      "initial": 884736,
+      "distinct": 912878464,
+      "generated": 6005795820,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 33.35,
+        "peak_rss_kib": 291888,
+        "bdd_nodes": 56107
+      }
+    },
+    {
+      "cell": 50,
+      "initial": 884736,
+      "distinct": 692623008,
+      "generated": 4527234784,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 13.49,
+        "peak_rss_kib": 156732,
+        "bdd_nodes": 33421
+      }
+    },
+    {
+      "cell": 51,
+      "initial": 884736,
+      "distinct": 1001009888,
+      "generated": 6664412896,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 51.78,
+        "peak_rss_kib": 624424,
+        "bdd_nodes": 74272
+      }
+    },
+    {
+      "cell": 52,
+      "initial": 884736,
+      "distinct": 876153336,
+      "generated": 5735635278,
+      "depth": 44,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 28.36,
+        "peak_rss_kib": 394320,
+        "bdd_nodes": 48152
+      }
+    },
+    {
+      "cell": 53,
+      "initial": 884736,
+      "distinct": 686922352,
+      "generated": 4482263356,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 23.18,
+        "peak_rss_kib": 246244,
+        "bdd_nodes": 46407
+      }
+    },
+    {
+      "cell": 54,
+      "initial": 884736,
+      "distinct": 1029232896,
+      "generated": 6826704160,
+      "depth": 40,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 49.55,
+        "peak_rss_kib": 675568,
+        "bdd_nodes": 58580
+      }
+    },
+    {
+      "cell": 55,
+      "initial": 884736,
+      "distinct": 711630464,
+      "generated": 4705118432,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 37.88,
+        "peak_rss_kib": 314988,
+        "bdd_nodes": 79284
+      }
+    },
+    {
+      "cell": 56,
+      "initial": 884736,
+      "distinct": 778189856,
+      "generated": 5055564992,
+      "depth": 41,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 12.97,
+        "peak_rss_kib": 148080,
+        "bdd_nodes": 33176
+      }
+    },
+    {
+      "cell": 57,
+      "initial": 884736,
+      "distinct": 1154237160,
+      "generated": 7640310494,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 53.06,
+        "peak_rss_kib": 438708,
+        "bdd_nodes": 77970
+      }
+    },
+    {
+      "cell": 58,
+      "initial": 884736,
+      "distinct": 440790656,
+      "generated": 2858194112,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 5.36,
+        "peak_rss_kib": 103896,
+        "bdd_nodes": 17371
+      }
+    },
+    {
+      "cell": 59,
+      "initial": 884736,
+      "distinct": 592792384,
+      "generated": 3917131776,
+      "depth": 39,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 18.37,
+        "peak_rss_kib": 340428,
+        "bdd_nodes": 46962
+      }
+    },
+    {
+      "cell": 60,
+      "initial": 884736,
+      "distinct": 1118329728,
+      "generated": 7375023360,
+      "depth": 41,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 45.1,
+        "peak_rss_kib": 633524,
+        "bdd_nodes": 56294
+      }
+    },
+    {
+      "cell": 61,
+      "initial": 884736,
+      "distinct": 864780168,
+      "generated": 5681343182,
+      "depth": 43,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 40.52,
+        "peak_rss_kib": 268672,
+        "bdd_nodes": 79995
+      }
+    },
+    {
+      "cell": 62,
+      "initial": 884736,
+      "distinct": 619762976,
+      "generated": 4073066528,
+      "depth": 38,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 18.78,
+        "peak_rss_kib": 214108,
+        "bdd_nodes": 39481
+      }
+    },
+    {
+      "cell": 63,
+      "initial": 884736,
+      "distinct": 397986752,
+      "generated": 2604983744,
+      "depth": 33,
+      "separate_symbolic_bfs": {
+        "wall_seconds": 10.62,
+        "peak_rss_kib": 147884,
+        "bdd_nodes": 33371
+      }
+    }
+  ],
+  "single_cell_symbolic_completions": 64,
+  "ordinary_exact_trials": [
+    {
+      "tag": "CapacityN6V0",
+      "host": "c8g.24xlarge",
+      "cell": 0,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 600429632,
+        "generated": 3862251520,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 600429632,
+      "wall_seconds": 1884.64,
+      "peak_rss_kib": 65645624
+    },
+    {
+      "tag": "CapacityN6V1",
+      "host": "c8g.24xlarge",
+      "cell": 1,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 912926560,
+        "generated": 6006048236,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 912926560,
+      "wall_seconds": 2913.01,
+      "peak_rss_kib": 66958940
+    },
+    {
+      "tag": "CapacityN6V2",
+      "host": "c8g.24xlarge",
+      "cell": 2,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 692629920,
+        "generated": 4527264736,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 692629920,
+      "wall_seconds": 2200.26,
+      "peak_rss_kib": 66267488
+    },
+    {
+      "tag": "CapacityN6V3",
+      "host": "c8g.24xlarge",
+      "cell": 3,
+      "verdict": "stopped",
+      "exit_code": 5,
+      "statistics": {
+        "depth": 27,
+        "distinct": 939528418,
+        "exhaustive": false,
+        "generated": 6109794403,
+        "initial_generated": 884736,
+        "left_on_queue": 20216206,
+        "reported_by_tlc": false
+      },
+      "mathematical_identities": 939528418,
+      "wall_seconds": 2992.57,
+      "peak_rss_kib": 129525764,
+      "stop": {
+        "elapsed_ms": 2990827,
+        "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+        "limit": 90194313216,
+        "observed": 90303172608,
+        "phase": "safety-search",
+        "resource": "memory",
+        "unit": "bytes"
+      }
+    },
+    {
+      "tag": "Grid104N6V16",
+      "host": "r8g.16xlarge",
+      "cell": 16,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 600418496,
+        "generated": 3862203264,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 600418496,
+      "wall_seconds": 2241.0,
+      "peak_rss_kib": 34430832
+    },
+    {
+      "tag": "Grid104N6V17",
+      "host": "r8g.16xlarge",
+      "cell": 17,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 912912064,
+        "generated": 6005985420,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 912912064,
+      "wall_seconds": 3414.46,
+      "peak_rss_kib": 43125156
+    },
+    {
+      "tag": "Grid104N6V18",
+      "host": "r8g.16xlarge",
+      "cell": 18,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 692623008,
+        "generated": 4527234784,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 692623008,
+      "wall_seconds": 2614.8,
+      "peak_rss_kib": 36929216
+    },
+    {
+      "tag": "Grid104N6V19",
+      "host": "r8g.16xlarge",
+      "cell": 19,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 1001009888,
+        "generated": 6664412896,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1001009888,
+      "wall_seconds": 3826.02,
+      "peak_rss_kib": 62991740
+    },
+    {
+      "tag": "Grid104N6V40",
+      "host": "r8g.16xlarge",
+      "cell": 40,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 41,
+        "distinct": 778201184,
+        "generated": 5055614080,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 778201184,
+      "wall_seconds": 2863.97,
+      "peak_rss_kib": 39146276
+    },
+    {
+      "tag": "Grid104N6V42",
+      "host": "r8g.16xlarge",
+      "cell": 42,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 440797568,
+        "generated": 2858224064,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 440797568,
+      "wall_seconds": 1641.96,
+      "peak_rss_kib": 21216856
+    },
+    {
+      "tag": "Grid104N6V43",
+      "host": "r8g.16xlarge",
+      "cell": 43,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 592799296,
+        "generated": 3917161728,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 592799296,
+      "wall_seconds": 2222.97,
+      "peak_rss_kib": 34371508
+    }
+  ],
+  "ordinary_store_commands": "Grid runs pin 16 workers within one of four disjoint CPU sets, --store exact --compat=tlc --workers 16 --fp 0 --seed 0 --max-memory 104g --time-limit 14400s, two-worker-group and single-group retries at 208g and 390g. Capacity rows use two groups of 48 cores and an 84g cap. All use the published partition wrapper over Init and unchanged Next; one extra partition invariant checks each emitted state.",
+  "independent_checks": {
+    "published": "All four author logs and the 16 pinned Core/TLC comparison runs in 2026-11-20-emergencycall-reference.json agree on all reported final observables.",
+    "initial": "Source factorization: disjoint choices for SIM and MNC flags; SIM-present emergent-number unions and singleton binder assignments are injective. Effective AMF number is one member of a mathematical set of up to four singleton values. Multiplication by free binary settings gives 56,623,104 distinct full initials and the same number of witnesses. Each partition has 884,736.",
+    "second_search": "Strict layer images, reversed witness order, one simultaneous relation per action and separate CUDD counting. Counts each of the 64 subsets at each layer. Shares the experimental expression compiler with the first implementation.",
+    "duplicate_successors_by_cfg": {
+      "f1": 770048,
+      "f2": 915328,
+      "f3": 3031040,
+      "f4": 1292992
+    },
+    "negative_controls": [
+      "Adding F1 to reconstructed Init fails at depth 7 in cell 0. The original released s0 configuration also fails F1 at depth 7.",
+      "A repeated Init1 in the one-step stuttering control yields 65,536 initial witnesses for 32,768 unique states in pinned TLC. Allowing ue_dial_emergency=2 violates the initial value obligation. Edited source fails the benchmark digest check.",
+      "Deadlocked Next, out-of-alphabet successor and false Init invariant were rejected by exploratory obligation checks. The pinned helper refuses temporal properties and action constraints in the exporter."
+    ]
+  }
+}

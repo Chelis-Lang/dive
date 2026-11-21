@@ -12,8 +12,8 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 | Function-valued actions that preserve most entries | An action in Microsoft CCF chooses three server logs, then requires two to stay fixed. Enumerating only the writable entry cut a complete run from 44.56 to 0.12 s. [Original and framed CCF runs](#function-valued-actions-in-ccf). |
 | Many small actions and fairness predicates | A state-count limit misses the cost of edges and of evaluating predicates on each edge. Kafka reached 1.57 million distinct states but had already generated 365 million occurrences when the second periodic check hit 8 GiB. Paged action truth reduced the second-check peak to 1.88 GiB within a 1,800 s run. The time to label the graph still matters for a temporal verdict. [Kafka boundaries](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json). |
 | Coupled fields in a symbolically checked state | The final diagram can be tiny even when computing an intermediate image dominates the run. The four-key, three-transaction KVS closure has 3,226 decision nodes and represents 592.3 billion symmetry classes. Field order and the choice of image source affect the cost of reaching that closure. [Symbolic growth](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json). |
-| Fixed choices across an execution | Complementary initial partitions can be checked independently if the unrestricted transition relation preserves each partition. On EmergencyCall f3, four exact cells reproduced the entire monolithic graph. With the reconstructed full Init, four larger cells stopped near the same exact-index resize threshold. [Counts, limits and mutable-choice control](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json). |
-| Changes to a maintained specification | A reset to an admitted initial state preserves shortest paths, so edited witness counts can be updated without exploring the graph again. Clearing a full network changed actual reachability on PaxosLease Base. Nine old images survived, and wall time still resembled a fresh search. [Edits and fresh Core comparisons](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json). |
+| Fixed choices across an execution | Complementary initial partitions can be checked independently if the unrestricted transition relation preserves each partition. On EmergencyCall, 23 of 38 variables stay fixed. A finite-value decision diagram checked 49.91 billion reachable states on the reconstructed full Init. Ordinary exact-store runs independently check disjoint cells. [Source, counts and limits](#check-the-full-emergencycall-initial-predicate). |
+| Changes to a maintained specification | A reset to an initial state preserves shortest paths. Adding a network drain to PaxosLease enlarged the reachable graph by 634,904 states. Reusing the unaffected breadth-first layers cut the edit from 433.48 to 97.49 s. [Edits and fresh Core comparisons](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json). |
 | Ordered parallel admission | Workers can finish evaluating wide successors before the coordinator has committed them. Retaining the evaluator's canonical rows and confirmed resident hits removes repeated work there. Keeping threads alive produced additional throughput at 96 workers while raising peak RSS. [Matched worker comparisons](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json). |
 
 ## Next experiments
@@ -22,7 +22,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 - **Close historical memory stops.** Use matched 24 GiB runs on DiskSynod, BPConProof, TLCSailfish2, BlockingQueuePoisonApple and c1cs, then raise the budget on the same inputs. Record the queue and stopping reason at each limit. Use the 242-million-state exact-store control to test reductions in collision-bucket and retained-row memory. The resident fingerprint table has also been tested at the shard occupancy implied by 49 billion states. [Historical outcomes](#where-the-thirteen-historical-non-finishes-stand) · [Frontier and value measurements](#resident-frontier-rows).
 - **Make maintenance cheaper.** Additions and shortcuts now reuse the old layers through the 77.4-million-state PaxosLease drain. The remaining cost is deletion of a reachable transition. Compare a deletion proof against the present 412.28 s restoration, including edits that really remove the last path to a state. Keep the false edit and independently validated trace as a control. Five BDD orderings on Retry exhausted their time budgets; use the completed explicit runs to judge any new relation representation. [PaxosLease runs and edits](#reproduce-the-released-paxoslease-runs) · [Installed Sail measurements](#what-an-installed-sail-worker-saves).
 - **Finish temporal checks.** Original Kafka reaches the second periodic check under 8 GiB with paged action truth. Establish how much work remains after the 1,800 s labeling cutoff. Qualify any reuse of fairness predicates on concrete edges, including actions that fail or depend on the destination. For the two memory-heavy temporal originals, compare capacity at the same budget after each graph layout change. Keep independent counterexample validation and defer the 17-model worker campaign to integrated qualification. [Historical inputs and limits](#where-the-thirteen-historical-non-finishes-stand).
-- **Grow a checked program.** Increase one source parameter at a time, retain the original properties and cross-check the last tractable configuration with both explicit engines. Report generated edges, distinct concrete states, symmetry representatives and symbolic cardinalities using their own units. For the published EmergencyCall scale, check all 64 closed cells of the full-Init reconstruction and retain a separate status for the unidentified historical configuration. [Literature and reproducibility](#published-model-sizes-and-reproducible-comparisons).
+- **Grow a checked program.** Increase one source parameter at a time, retain the original properties and cross-check the last tractable configuration with both explicit engines. Report generated edges, distinct concrete states, symmetry representatives and symbolic cardinalities using their own units. On EmergencyCall, compare all 64 symbolic cell closures with ordinary exact Core. Then increase a single finite input domain, checking that the constrained control still has initial states and that its invariants still hold. Transfer the finite-value representation to the general checker only with an admission proof for all initial values and generated witnesses. [Literature and reproducibility](#published-model-sizes-and-reproducible-comparisons).
 
 ## Results on KeyValueStore
 
@@ -744,6 +744,8 @@ On EmergencyCall the hash index itself set a second memory limit. A resize of a 
 
 F3 matched the released TLC result with 135,871,232 generated, depth 27 and an empty queue. Both full-Init runs stopped at the state cap with 457,202,205 generated, depth 9 and 26,800,319 queued. Each pair ran sequentially on the same isolated Graviton4. [Inputs, commands and measurements](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
 
+At a 40 GiB sampled limit on full-Init cell one, the previous table stopped at 469,762,653 exact states and the compact index at 816,808,860 (+74%). The latter still had 28,063,040 states queued at depth 24. A separately provisioned larger run closed the same cell at 912,926,560. Peak RSS in the budgeted pair was 63.7 and 40.0 GiB. Resize allocations between memory samples explain why the process high-water mark can exceed the configured limit. [Both memory stops](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json) · [Completed cell](../../conformance/reports/perf/2026-11-21-emergencycall-finite-values.json).
+
 On the larger SlateDB one-value control, the same 24 cores exhausted all 242,213,642 mathematical identities. The compact hash index reduced peak RSS from 35.57 to 20.28 GiB (43.0%). Wall time was 643.65 s with the old index and 654.76 s with the compact one. Generated count (1,068,416,158), depth (126) and the empty queue agreed. [Paired exact-store runs](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
 
 ### Reproduce the released PaxosLease runs
@@ -882,6 +884,38 @@ All 16 checks agreed on the verdict and final queue, counts and depth with the c
 | f2 | 6,248,960 | 39,053,696 | 25 | 183.39 | 185.94 | 123.11 | 53.77 |
 | f3 | 21,255,936 | 135,871,232 | 27 | 394.44 | 580.68 | 178.86 | 111.79 |
 | f4 | 8,872,832 | 56,734,720 | 27 | 223.76 | 259.74 | 131.62 | 63.59 |
+
+### Check the full EmergencyCall initial predicate
+
+The released module with `INIT Init`, `NEXT Next`, `TypeInvariant`, `SetInvariant` and deadlock checking reached **49,911,672,768 distinct states**. It started from 56,623,104 initial states, counted **328,063,574,184 generated occurrences** and exhausted breadth-first depth 44 (43 transitions). The finite-value benchmark took **116.03 s and 647.2 MiB peak RSS** on one EC2 logical CPU. The published diameter of 26 rules out equating this run with the paper's 10.59-billion-state report. The stronger `F1` fails at depth seven on full Init cell zero. [Configurations, counts and controls](../../conformance/reports/perf/2026-11-21-emergencycall-finite-values.json).
+
+The model has 38 variables, including small sets of numbers, records of message fields, program counters and policy flags. Representing each reachable state as a separate row repeats the same policy settings and message values many times. The benchmark assigns a finite alphabet to each variable and encodes the whole tuple in 66 bits. It compiles the real initial predicate and 62 action witnesses into Boolean relations. The final reachable set uses 159,191 decision nodes. Distinct destinations can share structure while each enabled source-action witness still contributes to the generated count. On f3 alone, 3,031,040 witnesses reach destinations already emitted by another action on the same source.
+
+The type predicate is a conjunct of Init. The one variable missing from that predicate is initially zero. Each expansion checks that all enabled assignments, including partial `CASE` expressions, have a value inside the inferred alphabets. Every layer checks the configured invariants and enabledness. The pinned initializer has one witness per initial state. Changing it to two identical alternatives would double the initial witnesses in TLC. The reproduction helper verifies the exact source digest and rejects edited modules. The ordinary checker and the general symbolic strategy have separate admission rules.
+
+| Released CFG | Initial | Distinct | Generated | TLC depth | Symbolic wall s |
+|---|---:|---:|---:|---:|---:|
+| f1 | 32,768 | 3,932,160 | 23,650,304 | 19 | 0.32 |
+| f2 | 24,576 | 6,248,960 | 39,053,696 | 25 | 0.41 |
+| f3 | 49,152 | 21,255,936 | 135,871,232 | 27 | 0.77 |
+| f4 | 24,576 | 8,872,832 | 56,734,720 | 27 | 0.70 |
+
+The authors' four logs and the earlier 16 ordinary Core and pinned TLC runs agree with these rows. An alternate symbolic search over the full initial predicate used strict BFS layers and simultaneous assignments in reversed action order. It shared the expression evaluator and independently reproduced both full counts, the depth and the count in each of 64 fixed-policy cells. Sixty-four separate symbolic BFS runs also agreed for every cell. Ordinary exact Core independently closed 10 of these cells, totaling 7,224,747,616 states. The JSON records each cell’s depth, counts and available native timings. Its ordinary records distinguish a memory stop with states still queued from a complete search. [Partition data and evidence scope](../../conformance/reports/perf/2026-11-21-emergencycall-finite-values.json).
+
+Use the published module from the checkout above and the `libexec/dive-symbolic` directory from a Linux binary archive with the symbolic worker. The helper is in the Dive source tree.
+
+```sh
+cat > full.cfg <<'CFG'
+INIT Init
+NEXT Next
+INVARIANTS TypeInvariant SetInvariant
+CFG
+export PYTHONHASHSEED=0 PYTHONPATH="$WORKER"
+"$WORKER/python/bin/python3" scripts/perf/scale/emergencycall.py \
+    "$MODEL/EmergencyCall_Model_auto.tla" full.cfg --exporter "$WORKER/symbolic_input"
+```
+
+Use `"$MODEL/config/f3.cfg"` in place of `full.cfg` for the published f3 comparison. Add `--cell 0` through `--cell 63` for the six-bit partition of the selected Init. Each partition search retains unrestricted Next and checks its defining predicate at every layer. A failed obligation exits with its name and depth. Use the ordinary checker to produce and validate a counterexample.
 
 On the historical CCF single-node commit control, ordinary Core found the original property violation after 17 distinct states, 20 generated and depth five. The three revisions with temporal obligations received a named refusal from symbolic safety checking. The [Sail evidence](https://github.com/Chelis-Lang/sail/blob/df6ffaca82b3aacdea301616411de1c0c726b12f/docs/validation/data/2026-11-20-symbolic-predicates.json) pins the production inputs and records the successful five-key KVS maintenance comparison separately.
 
