@@ -568,6 +568,11 @@ reported as a stop. These limits remain:
   MiB when unlimited), and 1 MiB for reused atom checks.
 - 32-bit row and vertex ids.
 
+On large native graphs, each action predicate allocates a 4,096-edge block
+on the first true result in that block. An entirely false column needs no
+block directory. Predicate columns share the capture's checked row offsets. The product and witness analysis read each result at its original
+source and edge position.
+
 The time limit is not a hard deadline. Polls happen between bounded units of
 work and inside quantifier, `CHOOSE` and filter loops; single value operations
 can finish first, and binding, `ASSUME`, symmetry preparation and rebuilding an

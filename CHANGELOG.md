@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Large native temporal checks allocate [action predicate bits](docs/user/temporal.md#storage-and-limits) only for blocks containing true results.
+
 - Multi-worker resident fingerprint search reuses confirmed duplicate lookups during ordered commit. [Measurements](conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
 - `dive-conformance study simulate` compares `dive simulate` with TLC's

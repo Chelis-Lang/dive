@@ -978,6 +978,276 @@
             }
           }
         }
+      },
+      "native_action_truth_capacity": {
+        "host": "Dedicated AWS r7i.8xlarge, eight physical cores 0–7 pinned, Linux x86_64. The full original comparison ran sequentially at eight workers with seed 0 and fingerprint polynomial 0.",
+        "command": "dive check kafka/kraft_kip_996.tla --config kafka/model_liveness.cfg --library-path modules --workers 8 --fp 0 --seed 0 --max-memory 8g --time-limit 1800s --output json",
+        "source": "Both arms use the same original model, compiler toolchain, native graph representation and ordinary Core evaluation/capture code. The dense binary predates unrelated simulation/export changes in the paged build. The integrated feature also ran the focused conformance and witness controls.",
+        "base_binary_sha256": "df35e7540b75fe704700e20329004db9085949fd25441ceda30f11b128307eed",
+        "paged_binary_sha256": "f009c2efb13271cedc60fb8bb879ceddbffd2c5927d87f54b94b7c3f44b64312",
+        "dense": {
+          "exit": 5,
+          "verdict": "stopped",
+          "diagnostic": "DIVE-L0038: stopped during temporal-analysis: resident memory 8714240000 bytes exceeds the ceiling of 8589934592 bytes",
+          "phase": "temporal-analysis",
+          "resource": "memory",
+          "limit": 8589934592,
+          "observed": 8714240000,
+          "execution": {
+            "capture_completed": false,
+            "stage": "atoms"
+          },
+          "wall_seconds": 760.39,
+          "process_maxrss_kib": 8538028,
+          "statistics": {
+            "depth": 5,
+            "distinct": 1568061,
+            "exhaustive": false,
+            "generated": 364992824,
+            "initial_generated": 1,
+            "left_on_queue": 1386078,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "prefix_checks": 2,
+            "last_level": 4,
+            "last_size": 1568061,
+            "final_check": false,
+            "exhausted": false
+          },
+          "collector_capacity_bytes": 922779866,
+          "evaluations": {
+            "state_evaluations": 47497563,
+            "action_evaluations": 71333304,
+            "action_source_guards": {
+              "false_rows": 4143409,
+              "plans": 1020,
+              "probes": 4226370
+            },
+            "fallback": 0
+          },
+          "property": null,
+          "properties": null,
+          "trace": null
+        },
+        "paged": {
+          "exit": 5,
+          "verdict": "stopped",
+          "diagnostic": "DIVE-L0038: stopped during temporal-analysis after 1800014 ms: the time limit is 1800000 ms",
+          "phase": "temporal-analysis",
+          "resource": "time",
+          "limit": 1800000,
+          "observed": 1800014,
+          "execution": {
+            "capture_completed": false,
+            "stage": "atoms"
+          },
+          "wall_seconds": 1800.08,
+          "process_maxrss_kib": 1972988,
+          "statistics": {
+            "depth": 5,
+            "distinct": 1568061,
+            "exhaustive": false,
+            "generated": 364992824,
+            "initial_generated": 1,
+            "left_on_queue": 1386078,
+            "reported_by_tlc": false
+          },
+          "periodic": {
+            "prefix_checks": 2,
+            "last_level": 4,
+            "last_size": 1568061,
+            "final_check": false,
+            "exhausted": false
+          },
+          "collector_capacity_bytes": 922779866,
+          "evaluations": {
+            "state_evaluations": 129929612,
+            "action_evaluations": 301131742,
+            "action_source_guards": {
+              "false_rows": 13326612,
+              "plans": 1020,
+              "probes": 13689486
+            },
+            "fallback": 0
+          },
+          "property": null,
+          "properties": null,
+          "trace": null
+        },
+        "occupancy_probe": {
+          "scope": "Diagnostic construction and completed first-property action-label tables. Word capacities count eight-byte u64 entries and directories count eight-byte usize entries. The occupancy binary is separate from the timed pair.",
+          "original_probe_max_states": 200000,
+          "tables": [
+            {
+              "event": "new",
+              "property": "WithinOften",
+              "state_count": 1024,
+              "edge_count": 1049600,
+              "state_atoms": 2,
+              "action_atoms": 1,
+              "logical_action_words": 16400,
+              "allocated_64_word_pages": 0,
+              "retained_action_word_capacity": 0,
+              "directory_usize_capacity": 0,
+              "true_action_bits": 0
+            },
+            {
+              "event": "complete",
+              "property": "WithinOften",
+              "state_count": 1024,
+              "edge_count": 1049600,
+              "state_atoms": 2,
+              "action_atoms": 1,
+              "logical_action_words": 16400,
+              "allocated_64_word_pages": 257,
+              "retained_action_word_capacity": 16448,
+              "directory_usize_capacity": 257,
+              "true_action_bits": 1047552
+            },
+            {
+              "event": "new",
+              "property": "ValuesEventuallyAcked",
+              "state_count": 181983,
+              "edge_count": 36120199,
+              "state_atoms": 261,
+              "action_atoms": 255,
+              "logical_action_words": 143916645,
+              "allocated_64_word_pages": 0,
+              "retained_action_word_capacity": 0,
+              "directory_usize_capacity": 0,
+              "true_action_bits": 0
+            },
+            {
+              "event": "complete",
+              "property": "ValuesEventuallyAcked",
+              "state_count": 181983,
+              "edge_count": 36120199,
+              "state_atoms": 261,
+              "action_atoms": 255,
+              "logical_action_words": 143916645,
+              "allocated_64_word_pages": 49764,
+              "retained_action_word_capacity": 3497664,
+              "directory_usize_capacity": 282208,
+              "true_action_bits": 95167
+            }
+          ],
+          "binary_sha256": "26bfc450dff5f112514b92d5bf6bafe9a1535438b19709fa6a25588a0937f05f",
+          "original_stop": {
+            "exit": 5,
+            "verdict": "stopped",
+            "diagnostic": "DIVE-L0038: stopped during graph-capture: the next states would be 200001, exceeding the limit of 200000",
+            "phase": "graph-capture",
+            "resource": "states",
+            "limit": 200000,
+            "observed": 200001,
+            "execution": {
+              "capture_completed": false,
+              "stage": "capture"
+            },
+            "wall_seconds": 320.36,
+            "process_maxrss_kib": 672652,
+            "statistics": {
+              "depth": 5,
+              "distinct": 200000,
+              "exhaustive": false,
+              "generated": 38232770,
+              "initial_generated": 1,
+              "left_on_queue": 182506,
+              "reported_by_tlc": false
+            },
+            "periodic": {
+              "prefix_checks": 1,
+              "last_level": 3,
+              "last_size": 181983,
+              "final_check": false,
+              "exhausted": false
+            },
+            "collector_capacity_bytes": 115376346,
+            "evaluations": {
+              "state_evaluations": 47497563,
+              "action_evaluations": 71333304,
+              "action_source_guards": {
+                "false_rows": 4143409,
+                "plans": 1020,
+                "probes": 4226370
+              },
+              "fallback": 0
+            },
+            "property": null,
+            "properties": null,
+            "trace": null
+          }
+        },
+        "controls": {
+          "finite_dense_actions": {
+            "verdict": "success",
+            "exit_code": 0,
+            "distinct": 1024,
+            "generated": 1048577,
+            "depth": 2,
+            "properties": null,
+            "state_evaluations": 2048,
+            "action_evaluations": 1048576,
+            "trace_validation": null,
+            "lasso_length": null
+          },
+          "multi_page_holds": {
+            "verdict": "success",
+            "exit_code": 0,
+            "distinct": 128,
+            "generated": 16385,
+            "depth": 2,
+            "properties": null,
+            "state_evaluations": 256,
+            "action_evaluations": 16384,
+            "trace_validation": null,
+            "lasso_length": null
+          },
+          "multi_page_violates": {
+            "verdict": "liveness-violation",
+            "exit_code": 13,
+            "distinct": 128,
+            "generated": 16385,
+            "depth": 2,
+            "properties": [
+              "Revisit",
+              "Outside"
+            ],
+            "state_evaluations": 384,
+            "action_evaluations": 16384,
+            "trace_validation": "valid",
+            "lasso_length": 3
+          },
+          "binary_tree_holds": {
+            "verdict": "success",
+            "exit_code": 0,
+            "distinct": 262143,
+            "generated": 393215,
+            "depth": 18,
+            "properties": null,
+            "state_evaluations": 917500,
+            "action_evaluations": 0,
+            "trace_validation": null,
+            "lasso_length": null
+          },
+          "binary_tree_violates": {
+            "verdict": "liveness-violation",
+            "exit_code": 13,
+            "distinct": 262143,
+            "generated": 393215,
+            "depth": 18,
+            "properties": [
+              "B"
+            ],
+            "state_evaluations": 917500,
+            "action_evaluations": 0,
+            "trace_validation": "valid",
+            "lasso_length": 2
+          }
+        },
+        "ratchet": "Three one-worker small-tier temporal models agreed with the pinned goldens; zero baseline regressions.",
+        "integrated_binary_sha256": "f5619ba060a4dea6048bd19bd8d0f4bcc586d4729851e8c48ef572190188c28b"
       }
     },
     {
