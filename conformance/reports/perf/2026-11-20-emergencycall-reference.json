@@ -115,7 +115,8 @@
         "amf_1_emergency_attach_accept_include_enl",
         "amf_home_reject_or_allow_unmarked_emergency_request",
         "amf_roam_reject_or_allow_unmarked_emergency_request"
-      ]
+      ],
+      "slate": "Released SlateDBWAL.tla plus OneValue.cfg as documented in 2026-11-20-slatedb-wal.json."
     },
     "f3": {
       "packed_rows": {
@@ -190,6 +191,40 @@
     "checks": {
       "unit_and_storage_api": "47 explore tests and storage, frontier and checkpoint API tests passed. Forced full-hash collisions, nonconsecutive discovery IDs and equivalent values exercised both sides of packed-block boundaries.",
       "small_core": "Paxos, LamportMutex and Bakery-Boulangerie matched pinned TLC at one and four workers. Zero regressions against small-core-dive-w1 on those three entries. Direct exact-store runs used the same candidate binary as the memory measurements."
+    },
+    "slate_one_value": {
+      "packed_rows": {
+        "wall_seconds": 643.65,
+        "peak_rss_kib": 37297048,
+        "exit_code": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 126,
+          "distinct": 242213642,
+          "generated": 1068416158,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 242213642,
+        "stop_resource": null
+      },
+      "packed_rows_and_compact_index": {
+        "wall_seconds": 654.76,
+        "peak_rss_kib": 21260328,
+        "exit_code": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 126,
+          "distinct": 242213642,
+          "generated": 1068416158,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 242213642,
+        "stop_resource": null
+      }
     }
   },
   "cells": {
@@ -706,6 +741,44 @@
       "learned_members": 0,
       "initial_hint_members": 0,
       "seconds": 0.198935
+    },
+    "completed_cells_84g": {
+      "method": "Same released module and six fixed predicates as the 40 GiB rows. Two fresh exact Core processes at a time on c8g.24xlarge, with disjoint 48-core affinities, 84 GiB per checker and a 10800 s time limit. Each cell retains both original invariants, unrestricted Next and its closure invariant.",
+      "cells": [
+        {
+          "cell": 0,
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "depth": 39,
+            "distinct": 600429632,
+            "generated": 3862251520,
+            "initial_generated": 884736,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "exact_states": 600429632,
+          "wall_seconds": 1884.64,
+          "peak_rss_kib": 65645624
+        },
+        {
+          "cell": 1,
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "depth": 43,
+            "distinct": 912926560,
+            "generated": 6006048236,
+            "initial_generated": 884736,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "exact_states": 912926560,
+          "wall_seconds": 2913.01,
+          "peak_rss_kib": 66958940
+        }
+      ],
+      "whole_expected_cells": 64
     }
   }
 }
