@@ -2008,7 +2008,18 @@
       "ordered-commit",
       "temporal-analysis",
       "trace-validation"
-    ]
+    ],
+    "commit_ms_definition": "Elapsed time on completed parallel levels less measured expansion time, through the checkpoint boundary. Includes ordered admission, graph recording and other coordination in that interval."
   },
-  "linux": "Linux 7.0.0-1018-aws"
+  "linux": "Linux 7.0.0-1018-aws",
+  "binary_provenance": {
+    "record": "2026-11-21-linux-allocator-arenas.json",
+    "key": "fixed_release.sailfish.sha256.dive-370",
+    "build": "Rust 1.99.0, release, LTO off, 16 codegen units. The explorer source and locked manifests below were hashed on the build host.",
+    "inputs_sha256": {
+      "crates/dive-explore/src/lib.rs": "c44f45943e9ada1b7ff8d2a5e6a36887389b0e8cca4db674528ea4133df44969",
+      "Cargo.toml": "0be3a10b348357050878e53f85f4cc485a701f5d882fdcb86cda512ef6604533",
+      "Cargo.lock": "e74bb44abb59ce75b950108cd2e67da14f22ae76732e8e97cd739f3e4b1d0109"
+    }
+  }
 }

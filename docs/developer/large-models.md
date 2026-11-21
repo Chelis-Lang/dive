@@ -436,13 +436,15 @@ targets the two CoffeeCan models. [Every sample, worker width and input digest](
 
 The 17-model worker-width repeat ran each configuration three times at one, four and eight requested workers. All 153 runs matched their golden or registered D-022 counts. Eight workers took longer on 9 of 17 models. The smallest one-to-eight speed-up was 0.88× on `specifications/FlashProtocol/MCFlashWithMutexLive.cfg`; the largest was 1.80× on `specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg`. The three trials used different identical-type hosts, with all widths for a model on the same host within a trial. These are results for the recorded binary before the subsequent fairness-search optimization. [All 153 observations](../../conformance/reports/perf/2026-11-21-temporal-d4-recheck.json).
 
-Eight workers can parallelize successor expansion. The report identifies initial states, ordered commit, temporal analysis and trace validation as serial. In the eight-worker medians below, committing the graph dominated expansion on cf1s and EWD998Chan. Elevator spent most of its time after exploration. The total check includes work outside the measured phases.
+Eight workers can parallelize successor expansion. The report identifies initial states, ordered commit, temporal analysis and trace validation as serial. The ordered-commit timer covers the rest of each completed parallel level after expansion, including state admission, graph recording and coordination. On cf1s and EWD998Chan this interval was several times longer than expansion. Elevator spent most of its time after exploration. The total check includes work outside the measured phases.
 
 | Configuration | Expansion, s | Ordered commit, s | Total exploration, s | Total check, s |
 |---|---:|---:|---:|---:|
 | `cf1s_folklore.cfg` | 13.98 | 56.68 | 70.66 | 123.38 |
 | `EWD998Chan.cfg` | 82.25 | 273.87 | 354.38 | 664.78 |
 | `ElevatorLivenessLarge.cfg` | 1.38 | 0.12 | 1.50 | 425.65 |
+
+For the next ordinary Core change, compare the cost of committing one level on cf1s and EWD998Chan at the same number of admitted states and recorded edges. Preserve the order of duplicate edges, the reported counts and independent trace replay. Elevator needs a separate fairness-search comparison because its expensive work occurs after exploration.
 
 ### Successor ordinals in temporal graphs
 
