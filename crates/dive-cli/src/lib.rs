@@ -553,10 +553,11 @@ fn check_command_mode(
             },
             "--lncheck" => match value().as_deref() {
                 Some("final") => final_check = true,
+                Some("periodic-all") => req.temporal = dive_api::TemporalMode::PeriodicAll,
                 _ => {
                     return usage_error(
                         err,
-                        "--lncheck currently supports explicit `final` with --lasso short",
+                        "--lncheck expects periodic-all or final with --lasso short",
                     );
                 }
             },
@@ -867,6 +868,9 @@ fn check_command_mode(
             );
         }
         req.seen_disk = Some(seen_policy);
+    }
+    if final_check && req.temporal == dive_api::TemporalMode::PeriodicAll {
+        return usage_error(err, "--lncheck final and periodic-all conflict");
     }
     if final_check != short_lasso {
         return usage_error(

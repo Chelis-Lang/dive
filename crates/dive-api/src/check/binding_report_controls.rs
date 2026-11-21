@@ -22,6 +22,7 @@ fn report(tlc: bool, capture: Option<bool>) -> CheckReport {
         budget_sources: ("explicit", "none"),
         memory_requested_source: "none",
         memory_samples: None,
+        temporal_mode: TemporalMode::Ordinary,
         temporal_configuration: crate::temporal::Configuration {
             limits: dive_liveness::analyze::Limits::default(),
             acceptance: dive_liveness::product::AcceptancePolicy::compact_default(),

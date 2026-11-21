@@ -200,6 +200,49 @@
         "schema_version": 4
       },
       "source_witness_sha256": "ae0394556f0010b9077263043686f06eabce9e99da5b6f827fb25b291aa4c43c"
+    },
+    "all_properties_bfs": {
+      "config": "Same closed selector 7 with Termination then Live, the released order.",
+      "command": "dive check TestMCReachability.tla --config closed7.cfg --library-path modules --workers 8 --lncheck periodic-all --seed 0 --fp 0 --time-limit 8200s --max-memory 212g --output json",
+      "platform": "Dedicated EC2 r7i.8xlarge, 16 physical cores available, requested 8 workers; capture used 1 for the model’s effects/names.",
+      "sha256": {
+        "periodic-dive": "b25cdbe4189e5d6c8b63678c2eba9bd1b5838756c967ad688fc24c7ff9e27f89",
+        "spec/TestMCReachability.tla": "cf5d2ec158de5f0c3253ff62f22b569ffa867612aa6c1d473d04bab4ca32b81e",
+        "spec/closed7.cfg": "b30800ff9df224b720d45ee4b69e5189e48db2d9f4dcd3cdc4daba2e4e401894"
+      },
+      "verdict": "liveness-violation",
+      "properties": [
+        "Live"
+      ],
+      "exit": 13,
+      "statistics": {
+        "depth": 44,
+        "distinct": 25376696,
+        "generated": 40890086,
+        "initial_generated": 1,
+        "left_on_queue": 9605666,
+        "reported_by_tlc": false
+      },
+      "periodic": {
+        "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+        "exhausted": false,
+        "final_check": false,
+        "growth_factor": 2,
+        "last_level": 43,
+        "last_size": 25376696,
+        "min_states": 65536,
+        "prefix_checks": 7
+      },
+      "wall_seconds": 833.18,
+      "peak_rss_kib": 8479896,
+      "standalone_replay": {
+        "command": "validate-trace",
+        "length": 42,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "trace_sha256": "ae0394556f0010b9077263043686f06eabce9e99da5b6f827fb25b291aa4c43c"
     }
   }
 }

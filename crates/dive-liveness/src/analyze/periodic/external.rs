@@ -274,6 +274,15 @@ impl<'m> GraphCheck<'m> {
         })
     }
 
+    /// Search all configured properties on each due prefix, in configuration
+    /// order. A candidate still requires attribution and independent replay.
+    /// This can find a later property's word before an earlier property fails.
+    #[must_use]
+    pub fn with_all_prefix_properties(mut self) -> Self {
+        self.d.prefix_properties = self.plans.len();
+        self
+    }
+
     /// The actual first original claim lowered for final product analysis,
     /// including its behavior fairness and every bound atom. Inspection of a
     /// plan establishes neither reachability nor a verdict.

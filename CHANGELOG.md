@@ -7,7 +7,11 @@ are in git history.
 
 ### Added
 
+- Multi-worker resident fingerprint search reuses confirmed duplicate lookups during ordered commit. [Measurements](conformance/reports/perf/2026-11-21-safety-worker-commit.json).
+
 - Temporal graph capture compresses destination IDs in blocks and preserves each generated edge. [Storage measurements](docs/developer/large-models.md#destination-ids-in-temporal-graphs).
+
+- `dive check --lncheck periodic-all` can find a violation of any configured temporal property on a completed BFS level. [Temporal checking](docs/user/temporal.md#ordinary-checking-in-the-dive-profile).
 
 - Temporal graph capture packs repeated action labels and stores exceptions to source-local successor numbering. [Storage measurements](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 

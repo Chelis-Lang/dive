@@ -912,6 +912,72 @@
           "elapsed_ms": 0,
           "detail": "unsupported: DIVE-L0021 at line 1319, col 5 to line 1335, col 52 of module kraft_kip_996: temporal formula resource limit: predicate lowering steps"
         }
+      },
+      "packed_graph_capacity": {
+        "host": "c7i.4xlarge, eight physical cores, 30 GiB, no swap",
+        "binary_sha256": "df35e7540b75fe704700e20329004db9085949fd25441ceda30f11b128307eed",
+        "configuration": "Unmodified original source, model_liveness.cfg and pinned library modules. Eight workers, seed 0, fp 0, default profile and periodic schedule; no state or depth cutoff.",
+        "budgets": {
+          "8g": "--max-memory 8g --time-limit 1800s"
+        },
+        "scope": "The first periodic check returned and exploration resumed. The second call entered atom labeling and stopped on memory before any additional native atom evaluation was recorded. Four configured properties remain without a final verdict.",
+        "runs": {
+          "8g": {
+            "start_utc": "2026-11-21T01:31:00Z",
+            "finish_utc": "2026-11-21T01:42:59Z",
+            "wall_seconds": 719.47,
+            "gnu_time_peak_rss_kib": 8933352,
+            "sampled_process_peak_bytes": 9147998208,
+            "exit_code": 5,
+            "verdict": "stopped",
+            "message": "DIVE-L0038: stopped during temporal-analysis: resident memory 9106370560 bytes exceeds the ceiling of 8589934592 bytes",
+            "stop": {
+              "elapsed_ms": 719388,
+              "limit": 8589934592,
+              "observed": 9106370560,
+              "phase": "temporal-analysis",
+              "resource": "memory"
+            },
+            "statistics": {
+              "depth": 5,
+              "distinct": 1568061,
+              "exhaustive": false,
+              "generated": 364992824,
+              "initial_generated": 1,
+              "left_on_queue": 1386078,
+              "reported_by_tlc": false
+            },
+            "execution": {
+              "capture_completed": false,
+              "stage": "atoms"
+            },
+            "periodic": {
+              "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+              "exhausted": false,
+              "final_check": false,
+              "growth_factor": 2,
+              "last_level": 4,
+              "last_size": 1568061,
+              "min_states": 65536,
+              "prefix_checks": 2
+            },
+            "property": null,
+            "property_names_reported": null,
+            "trace": null,
+            "collector_capacity_bytes": 922779866,
+            "retained_rows": 1568061,
+            "atom_evaluations": {
+              "state_evaluations": 47497563,
+              "action_evaluations": 71333304,
+              "action_source_guards": {
+                "false_rows": 4143409,
+                "plans": 1020,
+                "probes": 4226370
+              },
+              "fallback": 0
+            }
+          }
+        }
       }
     },
     {
