@@ -85,6 +85,9 @@ def check_certificates(folder, tcommit, cfg, original_cfg, run, compare):
         proof.write_text(json.dumps(adjusted))
         row = run(tcommit, cfg, *opts, "--verify-predicate", proof, code=2)
         assert row["proof"] == "inconclusive" and expected in row["failed_obligation"]
+    proof.write_text("[" * 1600 + "0" + "]" * 1600)
+    deep = run(tcommit, cfg, *opts, "--verify-predicate", proof, code=2)
+    assert deep["proof"] == "inconclusive" and "nesting limit" in deep["failed_obligation"]
     original = candidate["statuses"]
     candidate["statuses"] = original[::-1]
     candidate["masks"] = [int(f"{m:0{len(original)}b}"[::-1], 2) for m in candidate["masks"]]

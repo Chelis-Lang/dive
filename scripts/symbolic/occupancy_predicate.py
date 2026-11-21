@@ -83,7 +83,10 @@ def load(path, model):
         raw = stream.read(MAX_BYTES + 1)
     if len(raw) > MAX_BYTES:
         raise ValueError("support predicate exceeds the file limit")
-    doc = json.loads(raw, object_pairs_hook=object_fields)
+    try:
+        doc = json.loads(raw, object_pairs_hook=object_fields)
+    except RecursionError as error:
+        raise ValueError("support predicate nesting limit") from error
     if not isinstance(doc, dict) or set(doc) != {"format", "statuses", "masks"} or doc["format"] != FORMAT:
         raise ValueError("unsupported support predicate format")
     statuses, masks = doc["statuses"], doc["masks"]
