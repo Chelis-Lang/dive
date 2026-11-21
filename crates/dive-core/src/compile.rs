@@ -1534,11 +1534,52 @@ impl Compiler<'_> {
                 slots: inner.slots,
                 tuple: false,
                 domain: base,
+                eligible: None,
             },
             pred: body,
             subset: None,
         })?;
         Ok(Some(set))
+    }
+
+    /// Recognize the leading action guard in `\E S \in SUBSET T :
+    /// /\ \A e \in S : e.f = receiver /\ ...`. Keeping the original body
+    /// preserves its witness multiplicity. An earlier effect or assignment
+    /// must never be skipped by admitting fewer subsets.
+    fn eligible_subset(&mut self, binds: &mut [Bind], body: P) -> Result<(), Error> {
+        let [bind] = binds else { return Ok(()) };
+        let Some(Node::And(items)) = self.code.nodes.get(body as usize) else {
+            return Ok(());
+        };
+        let Some(&pred) = items.first() else {
+            return Ok(());
+        };
+        let Some(Node::Quant { body: equality, .. }) = self.code.nodes.get(pred as usize) else {
+            return Ok(());
+        };
+        let Some(Node::Eq(left, right)) = self.code.nodes.get(*equality as usize) else {
+            return Ok(());
+        };
+        let projection = |mut value: P| {
+            while let Some(Node::Select(base, _)) = self.code.nodes.get(value as usize) {
+                value = *base;
+            }
+            matches!(
+                self.code.nodes.get(value as usize),
+                Some(Node::Var(_) | Node::Slot(_) | Node::Const(_))
+            )
+        };
+        let info = &self.info[bind.domain as usize];
+        if info.effect
+            || info.calls
+            || info.primed != 0
+            || !projection(*left)
+            || !projection(*right)
+        {
+            return Ok(());
+        }
+        bind.eligible = self.subset_rewrite(bind, pred)?;
+        Ok(())
     }
 
     /// Pushes a filter, function constructor or set operation, wrapped in
@@ -3007,7 +3048,7 @@ impl Compiler<'_> {
                 self.push(Node::Case(out.into(), o))
             }
             Expr::Quant { kind, bounds, body } => {
-                let (binds, saved) = self.binds(bounds, env, mode)?;
+                let (mut binds, saved) = self.binds(bounds, env, mode)?;
                 let b = self.p(*body, env, mode);
                 self.unbind(saved);
                 let b = b?;
@@ -3016,6 +3057,9 @@ impl Compiler<'_> {
                     QuantKind::Forall => Quant::Forall,
                     QuantKind::Choose => Quant::Choose,
                 };
+                if matches!(kind, Quant::Exists) {
+                    self.eligible_subset(&mut binds, b)?;
+                }
                 self.push(Node::Quant {
                     kind,
                     binds: binds.into(),
@@ -3312,6 +3356,7 @@ impl Compiler<'_> {
                 slots: slots.into(),
                 tuple: b.tuple,
                 domain,
+                eligible: None,
             });
         }
         Ok((binds, saved))
@@ -5282,7 +5327,10 @@ impl Compiler<'_> {
                 })();
                 self.unbind(saved);
                 let (bg, bp) = r?;
-                let binds: Box<[Bind]> = binds.into();
+                let mut binds: Box<[Bind]> = binds.into();
+                if exists {
+                    self.eligible_subset(&mut binds, bp)?;
+                }
                 Ok(self.gpush(if exists {
                     GNode::Exists {
                         binds,

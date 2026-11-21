@@ -29,6 +29,8 @@ The [native peer panel](2026-11-20-native-peer-panel.json) records process
 measurements against pinned Manyan, tlx and tla-mc, plus the same-binary
 guard experiment. [Results and interpretation](../../../docs/internal/survey/verification-workloads.md#native-peer-measurements)
 
+The [guarded message subset measurements](2026-11-21-guarded-message-subsets.json) compare native Core and TLC on the published delivery action, the full three-process no-fault model, and independently replayed counterexamples.
+
 ## 0.1.0 release records
 
 | File | Family | Question | Source | Host |

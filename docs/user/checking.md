@@ -17,6 +17,22 @@ record or a powerset, such as `MessagePool \in SUBSET Message`. Asking for the
 elements of the type still requires actual enumeration. The [LuPastry+ example](../developer/large-models.md#lupastry-message-and-leaf-domains)
 shows how to distinguish a large type from a large set of reachable states.
 
+When an action chooses messages from a queue, Core can enumerate only those
+addressed to the receiver. For example, this guard permits two choices if a
+40-message queue contains one matching message.
+
+```tla
+\E selected \in SUBSET inbox :
+    /\ \A m \in selected : m.destination = receiver
+    /\ Deliver(selected)
+```
+
+The empty set is one choice. Every subset of matching messages is considered,
+and the checker evaluates the original action for each one. The guard must
+come first and compare pure values independently of the selected subset.
+The number of possible choices therefore grows with the matching messages.
+[Measurements and replay controls](../../conformance/reports/perf/2026-11-21-guarded-message-subsets.json).
+
 For `CHOOSE s \in SUBSET A : P(s)` where `A` is an integer interval or an
 explicit set of more than 24 distinct integers, Core can return the first qualifying empty set or singleton. It visits
 singletons in base-element order. If none qualifies, the checker reports that

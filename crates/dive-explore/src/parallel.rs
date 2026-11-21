@@ -1267,6 +1267,7 @@ mod tests {
                         slots: vec![0].into(),
                         tuple: false,
                         domain: 0,
+                        eligible: None,
                     }]
                     .into(),
                     body: 0,

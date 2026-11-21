@@ -881,6 +881,12 @@ tuple. During printing, tuple hashing forced the deferred filter through an
 infallible path that could outlast the budget. The normal checker retains
 its original refusal.
 
+## Select messages for one receiver
+
+The released failure detector’s delivery action chooses a subset of the entire in-flight queue, then requires every chosen message to have the requested receiver. Core can now determine which messages pass the leading guard and enumerate their subsets. With one eligible message in a queue of 40, there are two admissible choices including the empty set. The parent checker refused at width 25. At width 19 the median process time across five paired runs was 547.0 ms before and 8.3 ms after the change.
+
+On the unmodified three-process module with faults disabled, ordinary exact Core closed 26,003 distinct states, 104,842 generated and depth 44. The safety-only configuration went from 452.96 s and 208,184 KiB to **4.70 s and 36,364 KiB**, a 96.4× speedup. With both temporal properties enabled the candidate finished in **218.79 s**. The parent finished graph capture but was still in temporal analysis at its 640 s limit. The published configuration permits a fault and has its own independently validated 140-state counterexample. [Configurations, commands, all measurements and replay controls](../../conformance/reports/perf/2026-11-21-guarded-message-subsets.json).
+
 ## Published model sizes and reproducible comparisons
 
 A published state count is comparable across checkers when the specification,
