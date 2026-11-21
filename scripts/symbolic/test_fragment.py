@@ -24,6 +24,7 @@ Outside == x \notin Colors
     check_constraints(folder, run, explicit, compare)
     check_refined_domains(folder, run, explicit, compare)
     check_refined_edits(folder, run, explicit, compare)
+    check_layer_edits(folder, run, explicit, compare)
 
     model = template.replace("GUARD", "TRUE").replace("UPDATE", "x").replace("STORE", "got")
     module.write_text(model.replace("x = A", r"x \in Colors /\ x \in Colors"))
@@ -395,3 +396,44 @@ Escape == /\ mail' = mail \cup {399} /\ UNCHANGED x
     _, row = run(module, base, "--refine-domains", "--recheck", expanded, base)
     compare(row, explicit(expanded, base))
     assert not row["reused"] and row["initial_hint_members"] == 1
+
+
+def check_layer_edits(folder, run, explicit, compare):
+    module = folder / "LayerEdits.tla"
+    module.write_text(r"""---- MODULE LayerEdits ----
+EXTENDS Integers
+VARIABLE x
+TypeInvariant == x \in 0..6
+Init == x = 0
+Step == /\ x # 5 /\ x' = IF x=0 THEN 1 ELSE IF x=1 THEN 2 ELSE IF x=2 THEN 3 ELSE IF x=3 THEN 4 ELSE 5
+Reset == x' = 0
+Late == /\ x=3 /\ x'=6
+Shortcut == /\ x=1 /\ x'=4
+Walk == Step \/ UNCHANGED x
+Back == Walk \/ Reset
+Jump == Back \/ Shortcut
+Grow == Jump \/ Late
+Keep == x # 6
+Safe == x # 6
+====
+""")
+    configs = []
+    for name in ("Walk", "Back", "Jump", "Grow", "Back", "Walk"):
+        cfg = folder / (name + "-layers.cfg")
+        cfg.write_text(f"INIT Init\nNEXT {name}\nINVARIANT TypeInvariant\n")
+        configs.append(cfg)
+    rows = run(module, configs[0], *(arg for cfg in configs[1:] for arg in ("--recheck", module, cfg)))
+    for row, cfg in zip(rows, configs, strict=True):
+        compare(row, explicit(module, cfg))
+    assert [r["depth"] for r in rows] == [6, 6, 4, 5, 6, 6]
+    assert rows[1]["reused_layer_images"] == 6 and rows[2]["reused_layer_images"] == 2
+    assert rows[3]["distinct"] == 7 and rows[4]["distinct"] == 6
+    assert rows[4]["reused_layer_images"] == 1 and rows[5]["reused_layer_images"] == 6
+
+    passed = folder / "FilteredWalk.cfg"
+    failed = folder / "FilteredGrow.cfg"
+    for cfg, action in ((passed, "Walk"), (failed, "Grow")):
+        cfg.write_text(f"INIT Init\nNEXT {action}\nINVARIANT TypeInvariant Safe\nCONSTRAINT Keep\n")
+    _, row = run(module, passed, "--recheck", module, failed, code=1)
+    assert row["ending"]["name"] == "Safe" and row["depth"] == 5
+    assert row["trace_validated"] and row["reused_layer_images"] == 2

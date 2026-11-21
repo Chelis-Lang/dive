@@ -151,6 +151,10 @@ above used a different host and budget. [Merged Core source, binary, input hashe
 
 The explicit Core edit experiment also captured 3,599 exact integer rows and parents. Rebinding and scanning a second property reused the completed closure, and a rebuilt transition produced 3,658 rows. Scanning took about 0.9 ms versus 12 ms for a fresh search, excluding binding. This gives an explicit alternative when a model has poor BDD structure.
 
+For an edit that changes the transition relation, a completed ordinary symbolic search also supplies its breadth-first layers. A saved successor layer is sufficient when the enabled transitions removed from its source only reached already visited states. The checker unions the images of the added transitions, preserves new constrained-out emissions for property checking, and resumes a fresh breadth-first search at the first changed frontier. This maintains shortest-path depth even when an edit introduces a shortcut or removes the only predecessor of a state. [Edit reports and trace behavior](../user/symbolic.md#check-edits-and-prove-properties).
+
+On the 594,616,815-state KVS Large input, adding a transition that resets the store and every transaction to their initial values took 3.81 s versus 118.82 s for fresh search. Removing it took 3.68 s versus 111.98 s. Both edits reused all 30 layer images, and the added transition raised the generated count from 13,385,471,536 to 13,980,088,351. A second edit opened every transaction at once. It changed the first successor layer and took 144.03 s versus 144.19 s fresh. On Medium the same edit shortened depth from 22 to 21. [Paired results and edit definitions](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
 ### Which evidence can decide a source edit?
 
 | Evidence retained | Eligible change | Measured edited check and ordinary comparison |

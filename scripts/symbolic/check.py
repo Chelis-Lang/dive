@@ -63,7 +63,7 @@ def main():
         metavar=("MODULE", "CONFIG"),
         action="append",
         default=[],
-        help="check the edited input, reusing an identical closure or seeding refined set coordinates",
+        help="check the edited input using proved reachability layers or surviving refined set coordinates",
     )
     parser.add_argument("--time-limit", type=positive_seconds, metavar="SECONDS",
                         help="wall-time budget for the whole invocation, including binding and validation")
