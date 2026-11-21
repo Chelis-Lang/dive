@@ -502,14 +502,6 @@ impl Native {
     /// Converts a kept trace's interned rows and witnesses to values.
     fn kept_trace(&mut self, model: &Model, kept: Kept) -> Result<Trace, String> {
         if let Some(word) = kept.word {
-            // The word's steps are trace-graph edges, which do not carry
-            // the members a step drew from an unbounded set.
-            if !kept.witnesses.is_empty() {
-                return Err(
-                    "simulation temporal counterexample through members drawn from unbounded sets"
-                        .into(),
-                );
-            }
             return Ok(Trace {
                 id: kept.id,
                 states: word.states,
@@ -1161,6 +1153,12 @@ fn finish_temporal(
     };
     run.class = Some(class);
     match verdict {
+        // The word's steps are trace-graph edges, which do not carry the
+        // members a step drew from an unbounded set, so it could not be
+        // validated (D-040).
+        Verdict::Violation(_) if !run.witnesses.is_empty() => Err(Outcome::Unsupported(
+            "simulation temporal counterexample through members drawn from unbounded sets".into(),
+        )),
         Verdict::Violation(word) => {
             let name = match &word.ending {
                 TemporalEnding::BadPrefix(name) => name.clone(),

@@ -225,6 +225,10 @@ The check of one trace spends at most `--liveness-budget N` work units
 (default: a million, or 256 per state for longer traces). A trace that runs
 out counts as unchecked with reason `budget`; it is never a verdict.
 
+A temporal counterexample whose trace drew members from an unbounded set
+(see [unbounded sets](#unbounded-sets)) refuses by name, because its loop does
+not yet carry the drawn members the validator needs.
+
 ## Action statistics
 
 ```sh

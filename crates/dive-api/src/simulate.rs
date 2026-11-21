@@ -786,9 +786,6 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                 crate::SampleUnbounded::Geometric { mean } => json!(mean),
             },
             "action_stats": req.action_stats,
-            "liveness_extend": options.liveness_extend,
-            "liveness_budget": options.liveness_budget.map_or_else(|| json!("auto"), |budget| json!(budget)),
-            "bad_prefix": options.bad_prefix,
             "max_output_events": options.max_output_events, "max_output_bytes": options.max_output_bytes },
         "statistics": { "generated": result.generated, "initial_candidates": result.initial_candidates, "traces_started": result.traces_started,
             "traces_kept": traces.len(), "traces_dropped": 0,
@@ -799,6 +796,11 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
     });
+    document["options"]["liveness_extend"] = json!(options.liveness_extend);
+    document["options"]["liveness_budget"] = options
+        .liveness_budget
+        .map_or_else(|| json!("auto"), |budget| json!(budget));
+    document["options"]["bad_prefix"] = json!(options.bad_prefix);
     if let Some(temporal) = &result.temporal {
         let classes = &temporal.classes;
         document["statistics"]["trace_classes"] = json!({

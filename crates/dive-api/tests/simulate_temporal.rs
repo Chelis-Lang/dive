@@ -421,3 +421,44 @@ fn a_budget_stop_is_unchecked() -> Result {
     assert_eq!(property["checked_traces"], 0);
     Ok(())
 }
+
+/// A counterexample through a step that drew from an unbounded set refuses
+/// by name: its word does not carry the drawn members the validator needs.
+#[test]
+fn a_counterexample_through_drawn_members_refuses() -> Result {
+    let directory = std::env::temp_dir().join(format!("dive-sim-s3-drawn-{}", std::process::id()));
+    std::fs::create_dir_all(&directory)?;
+    let scratch = Scratch(directory.clone());
+    let file = directory.join("Drawn.tla");
+    std::fs::write(
+        &file,
+        "---- MODULE Drawn ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\n\
+         Next == \\E n \\in Nat : x' = n % 3\nSpec == Init /\\ [][Next]_x\n\
+         Live == <>(x = 7)\n====\n",
+    )?;
+    std::fs::write(
+        file.with_extension("cfg"),
+        "SPECIFICATION Spec\nPROPERTY Live\n",
+    )?;
+    let report = run(&SimulateRequest {
+        file,
+        seed: Some(1),
+        traces: 20,
+        depth: Some(10),
+        ..Default::default()
+    })?;
+    assert_eq!(report["result"], "unsupported", "{report}");
+    assert!(
+        report["message"]
+            .as_str()
+            .is_some_and(|message| message.contains("members drawn from unbounded sets")),
+        "{report}"
+    );
+    assert_eq!(report["violation_validated"], false);
+    assert_eq!(
+        report["statistics"]["properties"][0]["refuted_by_trace"],
+        Value::Null
+    );
+    drop(scratch);
+    Ok(())
+}
