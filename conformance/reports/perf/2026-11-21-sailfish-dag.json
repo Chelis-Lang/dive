@@ -1,0 +1,696 @@
+{
+  "source": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/dag-consensus",
+  "source_sha256": {
+    "TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f",
+    "TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+    "Utils.tla": "b38f43403c4d5cfd4b733613935e9ac92149c26d055d44b77f0b9c81c6644a1e",
+    "Digraph.tla": "d89e6b7ffb1f25e288bdfef9b80c2259493ae5381929a10b8bb4a949b0db6be5",
+    "BlockDag.tla": "f80956f2d02bd547ce310eaf693c434daf6785166e863859276cce0377051d62",
+    "Sailfish.tla": "74e165a98af083509b5dc6b86e526588721fadd572f7c6b47e5474ce509bc401"
+  },
+  "original_rounds": 5,
+  "host": "EC2 c7i.4xlarge, us-east-2, Xeon Platinum 8488C, Linux; each process pinned to a single CPU, other bounded controls on separate physical cores. Linux process wall seconds and maximum RSS in KiB.",
+  "versions": {
+    "z3": "4.8.12",
+    "cvc5": "1.1.2",
+    "core_sha256": "d54a5576c1e25aacefb74db02c68dd04136620517d4dbe90eaac881115c8dbc0",
+    "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "commands": {
+    "smt": "python3 scripts/perf/scale/sailfish_dag.py SRC --rounds R --out NEW_DIR. Repeat each emitted SMT-LIB query with cvc5 FILE. Refuses edits to the pinned sources. The listed larger checks change only the upper endpoint of R.",
+    "explicit": "Change only R == 1..5 to 1..R in a uniquely named copy of TLCSailfish2.tla. Retain the original CFG. dive check MODULE --config TLCSailfish2.cfg --workers 1 --seed 0 --fp 0 --store exact --max-memory 2g --time-limit LIMIT --output json. Pinned TLC: java -Xmx1800m -XX:ActiveProcessorCount=1 -jar tla2tools.jar -workers 1 -fp 0 -seed 0 -config TLCSailfish2.cfg MODULE. One-/two-round TLC includes -dump dot,actionlabels OUT.dot. Limits 110s through round two, 680s for round three.",
+    "graph_audit": "python3 scripts/perf/scale/sailfish_dag_graph.py OUT.dot --rounds R. Compare admissibility and all labeled insertion choices and terminal self-loops by individual TLC state.",
+    "witness": "Restrict original Next to add the next scheduled vertex (by round then n1 to n4), with either all prior vertices or the listed mixed parent choice. Check added BeforeDone == ~Done. Set the witness ending to behavior and clear diagnostic action labels, then run dive validate-trace MODULE --config TLCSailfish2.cfg --trace FILE --seed 0 --fp 0 --output json. Empty the final vertex set and repeat."
+  },
+  "smt": [
+    {
+      "rounds": 1,
+      "distinct_reachable_fully_populated_dags_at_least": "1",
+      "z3_process": {
+        "wall_seconds": 0.13,
+        "peak_rss_kib": 58604
+      },
+      "queries": [
+        {
+          "query": "incompatible",
+          "result": "unsat",
+          "smt2_sha256": "757d82ee581e46d7f5cd279b2aa1946781d51a45e03f2b41299b62ad76bdf63f",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 15264
+          }
+        },
+        {
+          "query": "deadlock",
+          "result": "unsat",
+          "smt2_sha256": "74dedbdbfaf17d846770d1c745933b96a012a180d68ac7fc4f4cc0751f079500",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 15564
+          }
+        },
+        {
+          "query": "all_commits",
+          "result": "sat",
+          "smt2_sha256": "0824f3a533c66f783b0b1acc9a7987fdfcb4a78f70a4c71544cd958355b149cb",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 15444
+          }
+        },
+        {
+          "query": "terminal_without_terminate",
+          "result": "sat",
+          "smt2_sha256": "08dd9da678750b754561de5d5f0c86581d3703f22701c3d663012d0b90aaa755",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 15636
+          }
+        }
+      ]
+    },
+    {
+      "rounds": 2,
+      "distinct_reachable_fully_populated_dags_at_least": "320",
+      "z3_process": {
+        "wall_seconds": 0.15,
+        "peak_rss_kib": 58816
+      },
+      "queries": [
+        {
+          "query": "incompatible",
+          "result": "unsat",
+          "smt2_sha256": "e9554e05d1e2a9d5473a77ade3fda8632ca55093ad01247b380beef9f500aaa4",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 15520
+          }
+        },
+        {
+          "query": "deadlock",
+          "result": "unsat",
+          "smt2_sha256": "9f5fa9e617c4fb14949ed801d7202633c7983222952fccc55523ad795015e4c5",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 15668
+          }
+        },
+        {
+          "query": "all_commits",
+          "result": "sat",
+          "smt2_sha256": "efe0a74a79afa5926786ac0d331fa78b61a15a8e763a236df2f6f87757fca81b",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 16024
+          }
+        },
+        {
+          "query": "terminal_without_terminate",
+          "result": "sat",
+          "smt2_sha256": "2222ffbfdc86f32bf8ff8d4b1b1e738cd5a02fd06296f1bf4064603fd6513fd9",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 16052
+          }
+        }
+      ]
+    },
+    {
+      "rounds": 3,
+      "distinct_reachable_fully_populated_dags_at_least": "102400",
+      "z3_process": {
+        "wall_seconds": 0.17,
+        "peak_rss_kib": 59092
+      },
+      "queries": [
+        {
+          "query": "incompatible",
+          "result": "unsat",
+          "smt2_sha256": "0c369305312321d86ee1e84972d6e22278ca928b6935fa4e280752361d28fcc1",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 15488
+          }
+        },
+        {
+          "query": "deadlock",
+          "result": "unsat",
+          "smt2_sha256": "f0af106733e937592f551c455f03a85f072d4a2ef41a8affe11f87fb93d2fd9a",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 16272
+          }
+        },
+        {
+          "query": "all_commits",
+          "result": "sat",
+          "smt2_sha256": "b0ee3d5a17eda84c43346f13e8d14f9edbe40f762410a7f82958df3b90e51bb8",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 16196
+          }
+        },
+        {
+          "query": "terminal_without_terminate",
+          "result": "sat",
+          "smt2_sha256": "184e89f1dd057d9fc4572a60379fef55c177214373ead6bec2ed73c18ecfff75",
+          "cvc5": {
+            "wall_seconds": 0.0,
+            "peak_rss_kib": 16144
+          }
+        }
+      ]
+    },
+    {
+      "rounds": 5,
+      "distinct_reachable_fully_populated_dags_at_least": "8388608000",
+      "z3_process": {
+        "wall_seconds": 0.21,
+        "peak_rss_kib": 59316
+      },
+      "queries": [
+        {
+          "query": "incompatible",
+          "result": "unsat",
+          "smt2_sha256": "0b1249c726709e41477e9b29f51b6881a124bd124ab3221fbdea1f45996af757",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 16784
+          }
+        },
+        {
+          "query": "deadlock",
+          "result": "unsat",
+          "smt2_sha256": "6f7f2721e6129337b98bd031f1ef6b759024ac4ae561c2d84d68f56e65e692b6",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 16964
+          }
+        },
+        {
+          "query": "all_commits",
+          "result": "sat",
+          "smt2_sha256": "efade474cd0961f4cb2f5cac3526ec4c131c38fb7f6f1f66d96de08deeb335a0",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 16680
+          }
+        },
+        {
+          "query": "terminal_without_terminate",
+          "result": "sat",
+          "smt2_sha256": "75d74b9b632e4fb517fc252d0e40c0fa02dc917a8e24e518dec1a1d7eadc240a",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 16692
+          }
+        }
+      ]
+    },
+    {
+      "rounds": 8,
+      "distinct_reachable_fully_populated_dags_at_least": "67108864000000",
+      "z3_process": {
+        "wall_seconds": 0.3,
+        "peak_rss_kib": 60192
+      },
+      "queries": [
+        {
+          "query": "incompatible",
+          "result": "unsat",
+          "smt2_sha256": "64ef2ac06b41c6b5a4017f4cfc56588dd639990d160fe3d08022808e15b4866a",
+          "cvc5": {
+            "wall_seconds": 0.02,
+            "peak_rss_kib": 18084
+          }
+        },
+        {
+          "query": "deadlock",
+          "result": "unsat",
+          "smt2_sha256": "e1b29926156958dc166492595de2d4ee2ca738efe8d5cd75e334762db05e56d2",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 17840
+          }
+        },
+        {
+          "query": "all_commits",
+          "result": "sat",
+          "smt2_sha256": "95e98d76d0940a97ce1b418e74d0212a88812749dffea43b11855523771385a0",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 17496
+          }
+        },
+        {
+          "query": "terminal_without_terminate",
+          "result": "sat",
+          "smt2_sha256": "2d848f688b0ef3592b259a2fccd60ad85ce14e1c479d73626c36f19f40d7e809",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 17492
+          }
+        },
+        {
+          "query": "missing_stable_leader",
+          "result": "unsat",
+          "smt2_sha256": "9ba207862907b6944727063b388cc40508b59b72e8c9a18bdfe1f77e8f19aa4f",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 17148
+          }
+        },
+        {
+          "query": "stable_leader_due",
+          "result": "sat",
+          "smt2_sha256": "acdfaad59998a091f05b9d468d0f77d77252affc374f11c6e211aa415b3d3812",
+          "cvc5": {
+            "wall_seconds": 0.01,
+            "peak_rss_kib": 16936
+          }
+        }
+      ]
+    },
+    {
+      "rounds": 12,
+      "distinct_reachable_fully_populated_dags_at_least": "17179869184000000000",
+      "z3_process": {
+        "wall_seconds": 0.44,
+        "peak_rss_kib": 61840
+      },
+      "queries": [
+        {
+          "query": "incompatible",
+          "result": "unsat",
+          "smt2_sha256": "b0a3a1f463a69d772ebeed4b6cab336fdcd30800452be7fdab352d579272afe2",
+          "cvc5": {
+            "wall_seconds": 0.03,
+            "peak_rss_kib": 20200
+          }
+        },
+        {
+          "query": "deadlock",
+          "result": "unsat",
+          "smt2_sha256": "c3b72ff3fdd7c1e8e633729647def736c2627aeaa7a69e3813a06a67ee2ecdf7",
+          "cvc5": {
+            "wall_seconds": 0.02,
+            "peak_rss_kib": 18644
+          }
+        },
+        {
+          "query": "all_commits",
+          "result": "sat",
+          "smt2_sha256": "414e21f515fba61aee37c9097a578c433841b67ed2b2adfd48a780efce230d12",
+          "cvc5": {
+            "wall_seconds": 0.02,
+            "peak_rss_kib": 18432
+          }
+        },
+        {
+          "query": "terminal_without_terminate",
+          "result": "sat",
+          "smt2_sha256": "989892c238365a905293fd9ef907b6bfab9b5252dfae153c3ef8097fec3215df",
+          "cvc5": {
+            "wall_seconds": 0.02,
+            "peak_rss_kib": 17932
+          }
+        },
+        {
+          "query": "missing_stable_leader",
+          "result": "unsat",
+          "smt2_sha256": "41cbd8acd6085ffe72fa1b5811b3a930e201b793d7cc8cc6a9ba17c3ff96c936",
+          "cvc5": {
+            "wall_seconds": 0.02,
+            "peak_rss_kib": 18544
+          }
+        },
+        {
+          "query": "stable_leader_due",
+          "result": "sat",
+          "smt2_sha256": "4a3140ed9bbae550bb5c156d0159c261c345f2800979448511dcb303cf19a61a",
+          "cvc5": {
+            "wall_seconds": 0.02,
+            "peak_rss_kib": 17732
+          }
+        }
+      ]
+    },
+    {
+      "rounds": 16,
+      "distinct_reachable_fully_populated_dags_at_least": "4398046511104000000000000",
+      "z3_process": {
+        "wall_seconds": 0.65,
+        "peak_rss_kib": 64064
+      },
+      "queries": [
+        {
+          "query": "incompatible",
+          "result": "unsat",
+          "smt2_sha256": "128731b6fd7b21e5f2cab1ccd80668a3a71ffcff1a57df0c35a5e7dcf011de6f",
+          "cvc5": {
+            "wall_seconds": 0.06,
+            "peak_rss_kib": 23548
+          }
+        },
+        {
+          "query": "deadlock",
+          "result": "unsat",
+          "smt2_sha256": "01483947aa56d10925b9591556de333996247807ea2c4f9ff4be296d62e4aed2",
+          "cvc5": {
+            "wall_seconds": 0.03,
+            "peak_rss_kib": 19688
+          }
+        },
+        {
+          "query": "all_commits",
+          "result": "sat",
+          "smt2_sha256": "e655330c401b01a2a68e05fcd5697d8962e3f350d21af7462ac29911931532c9",
+          "cvc5": {
+            "wall_seconds": 0.03,
+            "peak_rss_kib": 19232
+          }
+        },
+        {
+          "query": "terminal_without_terminate",
+          "result": "sat",
+          "smt2_sha256": "e9701faf69fcfa6c585f625d194b6cab9008f730054eb902e448ef9bd9352e8e",
+          "cvc5": {
+            "wall_seconds": 0.02,
+            "peak_rss_kib": 18692
+          }
+        },
+        {
+          "query": "missing_stable_leader",
+          "result": "unsat",
+          "smt2_sha256": "cd0b1712c78787cffca3ba261d1ce5c91b323f6351344126256b9a7039134b42",
+          "cvc5": {
+            "wall_seconds": 0.04,
+            "peak_rss_kib": 20264
+          }
+        },
+        {
+          "query": "stable_leader_due",
+          "result": "sat",
+          "smt2_sha256": "a9a864184018321b6de6f3308326b49bc674cb5692df4542be70d9a620cf2430",
+          "cvc5": {
+            "wall_seconds": 0.02,
+            "peak_rss_kib": 18552
+          }
+        }
+      ]
+    }
+  ],
+  "explicit_controls": [
+    {
+      "rounds": 1,
+      "module_sha256": "8aee587b789443f3e60ea8169f69929bd1d00831eafcec31453036adb58a0e7d",
+      "statistics": {
+        "depth": 5,
+        "distinct": 16,
+        "generated": 35,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "core": {
+        "wall_seconds": 0.01,
+        "peak_rss_kib": 33068
+      },
+      "tlc": {
+        "wall_seconds": 1.09,
+        "peak_rss_kib": 100720
+      },
+      "graph_audit": {
+        "states": 16,
+        "edges": 34,
+        "wall_seconds": 0.13,
+        "peak_rss_kib": 58612
+      }
+    },
+    {
+      "rounds": 2,
+      "module_sha256": "5922adf11a0cfaa271cb7347b6a365cc94a85a5641b763f8d6e19f818d2dd34f",
+      "statistics": {
+        "depth": 9,
+        "distinct": 1143,
+        "generated": 4395,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "core": {
+        "wall_seconds": 0.1,
+        "peak_rss_kib": 32932
+      },
+      "tlc": {
+        "wall_seconds": 2.45,
+        "peak_rss_kib": 117984
+      },
+      "graph_audit": {
+        "states": 1143,
+        "edges": 4330,
+        "wall_seconds": 1.03,
+        "peak_rss_kib": 63360
+      }
+    },
+    {
+      "rounds": 3,
+      "module_sha256": "8d66d729d1bd7c23c21c2f8b4f68deecf17fc11818be1a2b1972dbfee02e695a",
+      "statistics": {
+        "depth": 13,
+        "distinct": 560415,
+        "generated": 2194735,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "core": {
+        "wall_seconds": 98.19,
+        "peak_rss_kib": 289132
+      },
+      "tlc": {
+        "wall_seconds": 145.13,
+        "peak_rss_kib": 407992
+      }
+    }
+  ],
+  "traces": [
+    {
+      "module": "TLCSailfish2",
+      "rounds": 5,
+      "shape": "full",
+      "states": 21,
+      "log_lengths": [
+        9,
+        9,
+        9
+      ],
+      "leaders_in_every_final_log": [
+        1,
+        2,
+        3
+      ],
+      "guide_sha256": "bc3cce357d85951e7c5d6863e3de1912795e11da96b203675be3181f73126c8e",
+      "module_sha256": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+      "valid": {
+        "states": 21,
+        "result": "valid",
+        "wall_seconds": 0.03,
+        "peak_rss_kib": 36100
+      },
+      "forged": {
+        "states": 21,
+        "result": "invalid",
+        "wall_seconds": 0.03,
+        "peak_rss_kib": 36016,
+        "failure_step": 20
+      }
+    },
+    {
+      "module": "TLCSailfish2",
+      "rounds": 5,
+      "shape": "mixed",
+      "states": 21,
+      "log_lengths": [
+        7,
+        7,
+        7
+      ],
+      "leaders_in_every_final_log": [
+        1,
+        2,
+        3
+      ],
+      "guide_sha256": "4af8622325b2b193fbfa1e4b8a8f5cc2f14749e54f18f2fdf2d704578522a942",
+      "module_sha256": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+      "valid": {
+        "states": 21,
+        "result": "valid",
+        "wall_seconds": 0.03,
+        "peak_rss_kib": 33760
+      },
+      "forged": {
+        "states": 21,
+        "result": "invalid",
+        "wall_seconds": 0.03,
+        "peak_rss_kib": 33948,
+        "failure_step": 20
+      }
+    },
+    {
+      "module": "Growth8",
+      "rounds": 8,
+      "shape": "full",
+      "states": 33,
+      "log_lengths": [
+        21,
+        21,
+        21
+      ],
+      "leaders_in_every_final_log": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "guide_sha256": "b50f3c12d1573a08267518e1ccdd0e11e2fe37cf6bd4d740a9beb2b461232864",
+      "module_sha256": "a6e0c5304e41f94318202eb5aaea78106bece9bddba75fca2d5e9d6dbccf695b",
+      "valid": {
+        "states": 33,
+        "result": "valid",
+        "wall_seconds": 0.1,
+        "peak_rss_kib": 56260
+      },
+      "forged": {
+        "states": 33,
+        "result": "invalid",
+        "wall_seconds": 0.09,
+        "peak_rss_kib": 56476,
+        "failure_step": 32
+      }
+    },
+    {
+      "module": "Growth8",
+      "rounds": 8,
+      "shape": "mixed",
+      "states": 33,
+      "log_lengths": [
+        17,
+        17,
+        17
+      ],
+      "leaders_in_every_final_log": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "guide_sha256": "86304fc67cb751551e160ff6022b6f7b2994a6119abc628e638ae662a2de0d15",
+      "module_sha256": "a6e0c5304e41f94318202eb5aaea78106bece9bddba75fca2d5e9d6dbccf695b",
+      "valid": {
+        "states": 33,
+        "result": "valid",
+        "wall_seconds": 0.08,
+        "peak_rss_kib": 50308
+      },
+      "forged": {
+        "states": 33,
+        "result": "invalid",
+        "wall_seconds": 0.07,
+        "peak_rss_kib": 48200,
+        "failure_step": 32
+      }
+    },
+    {
+      "module": "Growth16",
+      "rounds": 16,
+      "shape": "full",
+      "states": 65,
+      "log_lengths": [
+        53,
+        53,
+        53
+      ],
+      "leaders_in_every_final_log": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "guide_sha256": "5272e78376bd23be2bd7bd6850c2310e615dc49caa439905f2872417a89fe939",
+      "module_sha256": "e099b996b729e7ddcdb4ed9738ebc216414f31cd75ec716ebb032ee8299cc62f",
+      "valid": {
+        "states": 65,
+        "result": "valid",
+        "wall_seconds": 1.82,
+        "peak_rss_kib": 140424
+      },
+      "forged": {
+        "states": 65,
+        "result": "invalid",
+        "wall_seconds": 1.7,
+        "peak_rss_kib": 140336,
+        "failure_step": 64
+      }
+    },
+    {
+      "module": "Growth16",
+      "rounds": 16,
+      "shape": "mixed",
+      "states": 65,
+      "log_lengths": [
+        43,
+        43,
+        43
+      ],
+      "leaders_in_every_final_log": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "guide_sha256": "6aae881f11734b485f3b54dd84a1fb0ff16de43688c32ba548e95494ca6f9780",
+      "module_sha256": "e099b996b729e7ddcdb4ed9738ebc216414f31cd75ec716ebb032ee8299cc62f",
+      "valid": {
+        "states": 65,
+        "result": "valid",
+        "wall_seconds": 1.1,
+        "peak_rss_kib": 116024
+      },
+      "forged": {
+        "states": 65,
+        "result": "invalid",
+        "wall_seconds": 1.01,
+        "peak_rss_kib": 121868,
+        "failure_step": 64
+      }
+    }
+  ],
+  "scope": "A source-specific overapproximation of immutable DAGs, with separate source arguments for state typing, the monotone graph, sequence linearization and enabled actions. Positive proof queries seek violations. Satisfiable non-vacuity controls are allowed abstract states. The explicit checks and replays are separate.",
+  "mixed_witness_parents": "At r=1 attach to genesis. At rounds before GST omit the node leading the current round. At/after GST omit n1 unless n1 led the previous round. Each selected parent set includes the previous leader.",
+  "sensitivity_control": "On the five-round DAG replace correct_parents with TRUE. The incompatible-commits query becomes SAT. On eight rounds the missing-stable-leader query becomes SAT too. These are solver sensitivity checks on altered formulas."
+}
