@@ -1589,6 +1589,217 @@
       }
     ]
   },
+  "resident_fingerprint_slots": {
+    "question": "Can ordinary resident membership save memory without truncating the engine's fingerprints?",
+    "host": "Isolated r7i.8xlarge, us-east-1, Ubuntu 24.04; GNU time wall and maximum process RSS; trials sequential. Synthetic streams use one physical core, product checks use 16.",
+    "binaries_inputs_sha256": {
+      "seen-word": "aae408b5d3ad477b989ff70258456f6357f080198384f96b330c21b16f048c90",
+      "seen-quotient": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "stream-word": "fbb48b080bcaf2e66d1b3f2c4f6e851eeb94049e12fb0d93106b14bcd8569fc6",
+      "stream-quotient": "2cd08175976863564a6497d8116e2e71a4d9612cb2be5b25ae2fb16133666c62",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+      "spec/SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+      "specifications/diskpaxos/MC_HDiskSynod.tla": "f70a04902aaa20b175daddeead891e2f687128b8fe43b30cee3049bbb46af041",
+      "specifications/diskpaxos/MC_HDiskSynod.cfg": "76994aae4c323b971b05cc6604f92213f7bf6f147cf40074c1b03fecf5d1005c"
+    },
+    "design": "Keep full keys in small shards. From 4096 slots reconstruct the high byte from the shard and the low home bits from slot and displacement. Primary slots take six bytes at capacity bits 12..19, five at 20..27 and four at 28 or more. Full-key overflow handles displacements beyond 14. Rebuild the full existing fingerprint when growing a shard.",
+    "stream_recipe": "mix(x) is the SplitMix64 finalizer: x=(x^(x>>30))*0xbf58476d1ce4e5b9; x=(x^(x>>27))*0x94d049bb133111eb; return x^(x>>31), all modulo 2^64. For i=1..N inclusive, insert mix(i) and verify contains(mix(i)); on every fourth i verify duplicate insert(mix(i/2)) and absent contains(mix(N+i)); check len=N, then contains(mix(i)) from 1 every 1031 keys through N. Both executables use dive_explore::Seen.",
+    "product_command": "taskset -c 0-15 BINARY check MODULE --config CFG --library-path modules --workers 16 --compat=tlc --fp 0 --seed 0 --max-states N --max-memory 32g --time-limit 1000s --output json",
+    "model_caps": {
+      "SlateDBWAL": 20000000,
+      "MC_HDiskSynod": 10000000
+    },
+    "trials": [
+      {
+        "trial": "slate-quotient1",
+        "wall_seconds": 55.61,
+        "peak_rss_kib": 1224104,
+        "verdict": "stopped",
+        "stop": "states",
+        "statistics": {
+          "depth": 47,
+          "distinct": 20000000,
+          "exhaustive": false,
+          "generated": 68037994,
+          "initial_generated": 1,
+          "left_on_queue": 3856840,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "trial": "slate-quotient2",
+        "wall_seconds": 55.86,
+        "peak_rss_kib": 1196772,
+        "verdict": "stopped",
+        "stop": "states",
+        "statistics": {
+          "depth": 47,
+          "distinct": 20000000,
+          "exhaustive": false,
+          "generated": 68037994,
+          "initial_generated": 1,
+          "left_on_queue": 3856840,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "trial": "slate-word1",
+        "wall_seconds": 55.14,
+        "peak_rss_kib": 1275752,
+        "verdict": "stopped",
+        "stop": "states",
+        "statistics": {
+          "depth": 47,
+          "distinct": 20000000,
+          "exhaustive": false,
+          "generated": 68037994,
+          "initial_generated": 1,
+          "left_on_queue": 3856840,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "trial": "slate-word2",
+        "wall_seconds": 54.93,
+        "peak_rss_kib": 1307276,
+        "verdict": "stopped",
+        "stop": "states",
+        "statistics": {
+          "depth": 47,
+          "distinct": 20000000,
+          "exhaustive": false,
+          "generated": 68037994,
+          "initial_generated": 1,
+          "left_on_queue": 3856840,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "trial": "stream-20000000-quotient1",
+        "wall_seconds": 3.24,
+        "peak_rss_kib": 211480,
+        "verified_insertions": 20000000
+      },
+      {
+        "trial": "stream-20000000-word1",
+        "wall_seconds": 2.4,
+        "peak_rss_kib": 267524,
+        "verified_insertions": 20000000
+      },
+      {
+        "trial": "stream-200000000-quotient1",
+        "wall_seconds": 41.23,
+        "peak_rss_kib": 1355012,
+        "verified_insertions": 200000000
+      },
+      {
+        "trial": "stream-200000000-word1",
+        "wall_seconds": 34.52,
+        "peak_rss_kib": 2105852,
+        "verified_insertions": 200000000
+      },
+      {
+        "trial": "stream-402653185-quotient1",
+        "wall_seconds": 93.25,
+        "peak_rss_kib": 3965488,
+        "verified_insertions": 402653185
+      },
+      {
+        "trial": "stream-402653185-word1",
+        "wall_seconds": 79.13,
+        "peak_rss_kib": 6214436,
+        "verified_insertions": 402653185
+      },
+      {
+        "trial": "synod-quotient1",
+        "wall_seconds": 90.88,
+        "peak_rss_kib": 428916,
+        "verdict": "stopped",
+        "stop": "states",
+        "statistics": {
+          "depth": 20,
+          "distinct": 10000000,
+          "exhaustive": false,
+          "generated": 103805254,
+          "initial_generated": 8,
+          "left_on_queue": 3964627,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "trial": "synod-quotient2",
+        "wall_seconds": 90.45,
+        "peak_rss_kib": 429576,
+        "verdict": "stopped",
+        "stop": "states",
+        "statistics": {
+          "depth": 20,
+          "distinct": 10000000,
+          "exhaustive": false,
+          "generated": 103805254,
+          "initial_generated": 8,
+          "left_on_queue": 3964627,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "trial": "synod-word1",
+        "wall_seconds": 89.17,
+        "peak_rss_kib": 516024,
+        "verdict": "stopped",
+        "stop": "states",
+        "statistics": {
+          "depth": 20,
+          "distinct": 10000000,
+          "exhaustive": false,
+          "generated": 103805254,
+          "initial_generated": 8,
+          "left_on_queue": 3964627,
+          "reported_by_tlc": false
+        }
+      },
+      {
+        "trial": "synod-word2",
+        "wall_seconds": 89.75,
+        "peak_rss_kib": 502164,
+        "verdict": "stopped",
+        "stop": "states",
+        "statistics": {
+          "depth": 20,
+          "distinct": 10000000,
+          "exhaustive": false,
+          "generated": 103805254,
+          "initial_generated": 8,
+          "left_on_queue": 3964627,
+          "reported_by_tlc": false
+        }
+      }
+    ],
+    "one_shard_at_published_scale": {
+      "host": "Isolated r7i.8xlarge, us-east-1, Ubuntu 24.04; GNU time wall and maximum process RSS; trials sequential. Synthetic streams use one physical core, product checks use 16.",
+      "driver_sha256": "b29f110dbb05b1cc8394704c80d0def7f0497ebc8429853a92ee74f54ed28310",
+      "recipe": "N=191406250 equals 49 billion divided by 256. Fix high byte 0x53, use the SplitMix64 finalizer in stream_recipe restricted to 56 bits after each multiplication, including its final xor-shift. For i=1..N insert each key. Every fourth i check contains and repeat insert for i/2 and check absence of N+i; then look up every inserted key and verify length. Final RSS comes from /proc/self/status after all lookups.",
+      "interpretation": "One full-size shard at the mean occupancy of 256 uniformly populated shards at 49 billion fingerprints. This measures one shard in the actual resident implementation. A whole model has other shards, frontiers, values, predecessors and worker storage.",
+      "trials": [
+        {
+          "build": "word",
+          "executable_sha256": "55c8c32db6a0bf751a61d9195671e716fae6eb354a0c37f06d42cc750f47998b",
+          "verified_key_count": 191406250,
+          "wall_seconds": 45.78,
+          "peak_rss_kib": 3148440,
+          "final_rss_kib": 2099932
+        },
+        {
+          "build": "quotient",
+          "executable_sha256": "47944ae010fa51ec2157c8527ede492655cb0e463ea029d3e2facbfd52f73d97",
+          "verified_key_count": 191406250,
+          "wall_seconds": 45.18,
+          "peak_rss_kib": 1743472,
+          "final_rss_kib": 1125048
+        }
+      ]
+    }
+  },
   "complete_frontier_comparison": {
     "sources_sha256": {
       "row-base": "58106d4f57356196e33dbc24f20a0396db18a0f470e5071949ac9b503f41f29e",

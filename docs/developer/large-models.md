@@ -531,6 +531,14 @@ collision probabilities of 0.011 (optimistic) and 0.026 (actual gap).
 The earlier 480-second Core run reached 208,042,815 distinct at depth 88.
 [Commands, pins and individual measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
+#### Resident fingerprint membership
+
+Core partitions the resident visited set into 256 shards. For a large shard, the shard number supplies the high eight bits of each fingerprint. Its home slot supplies low bits, recoverable from the physical slot and a four-bit displacement. Each primary entry stores only the remaining bits and the displacement. A cluster longer than fifteen slots retains additional full keys in an overflow table. The checker can reconstruct every existing fingerprint when a shard grows.
+
+At 402,653,185 distinct synthetic keys, the checker’s membership table took 3.78 GiB peak process RSS, down from 5.93 GiB. The same inserts, duplicates and misses took 93.25 s versus 79.13 s with full-word slots. On ordinary Core the two SlateDB trials at 20 million discoveries averaged 1,182 MiB versus 1,261 MiB and 55.74 versus 55.04 s. DiskSynod at 10 million averaged 419 MiB versus 497 MiB and 90.67 versus 89.46 s. Every paired search agreed on its generated and distinct counts, depth and pending queue. [All trials, stream recipe and input hashes](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
+At 49 billion uniformly distributed fingerprints, a shard would hold about 191.4 million keys. A separate run put exactly 191,406,250 distinct keys into one real shard and looked up every key after all resizes. With four-byte primary slots, final process RSS fell from 2,051 to 1,099 MiB and peak RSS from 3,075 to 1,703 MiB. Wall time was 45.78 and 45.18 s. This exercises the target shard size directly. Whole-model memory also includes the other shards, frontier and predecessor log. [Shard input and process measurements](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
 #### External fingerprint membership
 
 On the original SlateDB configuration, two paired trials per width reached

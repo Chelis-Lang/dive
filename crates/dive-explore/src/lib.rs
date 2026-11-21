@@ -32,6 +32,7 @@ pub mod distributed;
 pub mod ending;
 #[cfg(test)]
 mod exact_identity_tests;
+mod fingerprint_shard;
 pub mod graph;
 mod graph_schedule;
 mod parallel;
@@ -52,6 +53,8 @@ use dive_core::store::{StoreMemory, StoreStats};
 use dive_core::{Error, ErrorKind, Handle, Machine, Opts, Plan, Sink, Store};
 use dive_store::predecessor::PredecessorLog;
 use dive_store::trace::StateId;
+
+use fingerprint_shard::FingerprintShard;
 
 pub use ending::{Failure, Replayed, Site};
 pub use trace::TraceState;
@@ -243,48 +246,6 @@ pub struct Config {
     pub sample: Option<sample::Sample>,
 }
 
-/// A resize retains only one old shard while reinserting its keys. Fingerprint
-/// high bits select the shard and low bits select its first probe.
-#[derive(Debug)]
-struct FingerprintShard {
-    slots: Vec<u64>,
-    used: usize,
-}
-
-impl FingerprintShard {
-    #[allow(
-        clippy::cast_possible_truncation,
-        reason = "only low slot bits are used"
-    )]
-    fn probe(slots: &[u64], key: u64) -> usize {
-        let mask = slots.len() - 1;
-        let mut i = key as usize & mask;
-        while slots[i] != 0 && slots[i] != key {
-            i = (i + 1) & mask;
-        }
-        i
-    }
-
-    fn insert(&mut self, key: u64) -> bool {
-        let mut slot = Self::probe(&self.slots, key);
-        if self.slots[slot] == key {
-            return false;
-        }
-        if self.used + 1 > self.slots.len() - self.slots.len() / 4 {
-            let size = self.slots.len() * 2;
-            let old = std::mem::replace(&mut self.slots, vec![0; size]);
-            for k in old.into_iter().filter(|&k| k != 0) {
-                let i = Self::probe(&self.slots, k);
-                self.slots[i] = k;
-            }
-            slot = Self::probe(&self.slots, key);
-        }
-        self.slots[slot] = key;
-        self.used += 1;
-        true
-    }
-}
-
 /// A set of 64-bit state keys (open addressing, linear probing).
 #[derive(Debug)]
 pub struct Seen {
@@ -301,12 +262,7 @@ pub struct Seen {
 impl Default for Seen {
     fn default() -> Self {
         Self {
-            shards: (0..256)
-                .map(|_| FingerprintShard {
-                    slots: vec![0; 256],
-                    used: 0,
-                })
-                .collect(),
+            shards: (0..256).map(|_| FingerprintShard::new(256)).collect(),
             len: 0,
             speculative_disk: false,
             exact: None,
@@ -396,8 +352,7 @@ impl Seen {
     #[must_use]
     pub fn contains(&self, k: u64) -> bool {
         let k = Self::fix(k);
-        let slots = &self.shards[(k >> 56) as usize].slots;
-        slots[FingerprintShard::probe(slots, k)] == k
+        self.shards[(k >> 56) as usize].contains(k)
     }
 
     /// Inserts `k`; returns whether it was new.

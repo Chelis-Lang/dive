@@ -13,9 +13,9 @@ are in git history.
 
 - Core packs ordinary in-memory safety frontiers by variable and stores consecutive discovery IDs once per level. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
-- Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
+- Core stores large resident fingerprint sets in fewer bytes per slot. [Memory and throughput at 402 million keys](docs/developer/large-models.md#resident-fingerprint-membership).
 
-- Core packs ordinary in-memory safety frontiers by variable. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
+- Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
 
 - `dive check --partitioned-fingerprints` supports parallel safety search with disk membership beyond four billion entries. The [storage guide](docs/user/disk-seen-safety.md#multi-worker-fingerprint-membership) covers capacity, audit results and the measured throughput cost.
 
@@ -89,6 +89,13 @@ are in git history.
   scalar Core graph. The checker replays ordinary scheduled prefix analyses,
   evaluates fairness on the retained labelled transitions and independently
   validates liveness witnesses. See [temporal property reuse](docs/user/rust-api.md#recheck-temporal-properties).
+
+- Trace documents gain the version-7 `bad-prefix` ending: a finite word that
+  no infinite extension can make satisfy the named temporal property. The
+  validator checks it in three-valued logic after the usual safety checks.
+  Sample validation (`--sample`) no longer refuses configured temporal
+  properties; a valid sample claims only its finite obligations. See
+  [bad prefixes](docs/user/traces.md#bad-prefixes).
 
 ### Changed
 
