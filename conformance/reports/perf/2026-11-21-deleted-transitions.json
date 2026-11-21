@@ -12,7 +12,7 @@
   },
   "host": "EC2 c7i.4xlarge, us-west-2, Xeon Platinum 8488C, Linux 7.0.0-1018-aws. Each process pinned to one logical CPU.",
   "command": "python scripts/symbolic/check.py Drain.tla SIZEChanged.cfg --refine-domains --type-invariant TypeOK --recheck PaxosLeaseChecked.tla PaxosLeaseSIZE.cfg --time-limit 2900 --max-memory 8000 --exporter EXPORTER --dive DIVE",
-  "timing_scope": "Rows record the initial revision exploration and recheck separately. Peak RSS covers both revisions. Base paired-0..3 ran sequentially on CPU 3 in parent/shipping/shipping/parent order, PYTHONHASHSEED=0. Exploratory and larger trials used separate pinned CPUs on the same host. The first small shipping trial was slower than the parent and is retained.",
+  "timing_scope": "Rows record the initial revision exploration and recheck separately. Peak RSS covers both revisions. Base paired-0..3 ran sequentially on CPU 3 in parent/shipping/shipping/parent order, PYTHONHASHSEED=0. Exploratory and larger trials used separate pinned CPUs on the same host. The first small shipping trial was slower than the parent and is retained. The large-paired runs used the same CPU 3 and PYTHONHASHSEED=0, shipping first, parent second.",
   "validation": {
     "paired_random_models": 80,
     "independent_differential_cases": 63,
@@ -426,6 +426,74 @@
       },
       "process_wall_seconds": 97.04,
       "process_peak_rss_kib": 539184
+    },
+    {
+      "configuration": "QuarantineEqualsProposer",
+      "implementation": "parent",
+      "trial": "large-paired",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 77384096,
+        "generated": 401456611,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 430.412151,
+        "reachable_bdd_nodes": 664321,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 76749192,
+        "generated": 391849185,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 4,
+        "seconds": 435.917655,
+        "reachable_bdd_nodes": 630485,
+        "reused": false
+      },
+      "process_wall_seconds": 866.51,
+      "process_peak_rss_kib": 904836
+    },
+    {
+      "configuration": "QuarantineEqualsProposer",
+      "implementation": "shipping",
+      "trial": "large-paired",
+      "initial_revision": {
+        "verdict": "success",
+        "distinct": 77384096,
+        "generated": 401456611,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "seconds": 432.674392,
+        "reachable_bdd_nodes": 664321,
+        "reused": false
+      },
+      "deletion": {
+        "verdict": "success",
+        "distinct": 76749192,
+        "generated": 391849185,
+        "depth": 43,
+        "invariants": [
+          "TypeOK",
+          "Safety"
+        ],
+        "reused_layer_images": 41,
+        "seconds": 311.940988,
+        "reachable_bdd_nodes": 630485,
+        "reused": false
+      },
+      "process_wall_seconds": 744.8,
+      "process_peak_rss_kib": 1226224
     }
   ]
 }

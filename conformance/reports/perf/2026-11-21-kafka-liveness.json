@@ -424,5 +424,37 @@
     "copies": 256,
     "result": "valid",
     "states": 1055
+  },
+  "fixed_five_extended": {
+    "host": "c7i.4xlarge us-west-2, 4 workers on CPUs 0–3, each engine separately",
+    "configuration": "fixed5.cfg under cfg_edits.fixed; same six invariants, four temporal properties and source fairness.",
+    "core_command": "dive check kraft_kip_996.tla --config fixed5.cfg --library-path MODULES --workers 4 --store exact --fp 0 --seed 0 --max-memory 22g --time-limit 6300s --output json",
+    "core": {
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 49,
+        "distinct": 1467920,
+        "generated": 6641233,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "exact_states": 1467920,
+      "work": {
+        "serial_phases": [
+          "initial-states",
+          "ordered-commit",
+          "temporal-analysis",
+          "trace-validation"
+        ],
+        "width_applies_to": "source-expansion"
+      },
+      "wall_seconds": 4243.33,
+      "peak_rss_kib": 937416,
+      "binary_sha256": "d54a5576c1e25aacefb74db02c68dd04136620517d4dbe90eaac881115c8dbc0",
+      "config_sha256": "1875b686891580a70c44075852711429ea7e697122688e3254020d5733c26c72",
+      "source_revision": "d07f2a5cac165a9211cae580ad4d8c3029a315bc"
+    }
   }
 }
