@@ -1,0 +1,365 @@
+{
+  "host": "c7i.4xlarge, us-east-2, Xeon Platinum 8488C, Linux 7.0.0-1018-aws. One pinned physical CPU per process; other tests used distinct physical cores.",
+  "original_source": "https://github.com/Vanlightly/kafka-tlaplus/tree/823615e8a0962d0160c11d9affb2576c56b7c054/kraft/kip_996",
+  "hashes": {
+    "kraft_kip_996.tla": "87f9c5d5849195a7f4308f8181b2281a9e5d72dbe689d0a0a1b0b72838eb4a4d",
+    "kraft_kip_996_functions.tla": "72b254e89eaa0227a134d71233563f6dd4f8f34bfcb4983ddb51a3a0b7214585",
+    "kraft_kip_996_liveness.tla": "76726901173d6acffa43be0b4006ff63775370cd028f392f5d71aff501c2c4ed",
+    "kraft_kip_996_properties.tla": "ed8000ef9dd1262655efda56449f609618703df31d00375bf7cb6c1f52f2ab9a",
+    "kraft_kip_996_types.tla": "fbb189bd4f06756c180a8fb743adcf6cd35585184cea70ed65b00e58551508d8",
+    "model_liveness.cfg": "3de24e3b89db9468dc390f2ddd70bd6a7f47fedc0b7ba3680690b0ed4507030e",
+    "network.tla": "29e38f6c9cfb0a275581452c330e82f25a75f86fea1437eca52d4863c64a01d8"
+  },
+  "binary_sha256": "0d4fcf747862a5afcf15ed3db4eb88153ff745c94ede4da06706504beec91f16",
+  "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "commands": {
+    "simulation": "dive simulate kraft_kip_996.tla --config model_liveness.cfg --library-path LIB --traces 3 --workers 1 --depth 96 --seed 0 --time-limit 100s --max-memory 1500m --keep-traces 3 --trace-dir traces --output json",
+    "tlc_simulation": "java -XX:ActiveProcessorCount=1 -Xmx1500m -DTLA-Library=LIB -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -simulate num=3 -depth 96 -config model_liveness.cfg kraft_kip_996.tla",
+    "repetition": "python3 scripts/perf/scale/kraft_prevote.py traces/trace_2.json repeat.json --copies N; dive validate-trace kraft_kip_996.tla --config model_liveness.cfg --library-path LIB --trace repeat.json --output json; repeat the latter with --sample.",
+    "negative": "Add 1 to the final prevote_ctr of the 16-repeat trace, preserving all other fields.",
+    "exact": "dive check kraft_kip_996.tla --config CFG --library-path LIB --workers 1 --store exact --seed 0 --fp 0 --max-memory 2g --time-limit 100s --output json. Sizes four and five allow 240s.",
+    "tlc": "java -XX:ActiveProcessorCount=1 -Xmx1500m -DTLA-Library=LIB -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config CFG kraft_kip_996.tla. Wrapper limits 115s (255s for sizes four and five)."
+  },
+  "cfg_edits": {
+    "base": "model_liveness.cfg; same six safety invariants, four temporal properties, original modules, TestLiveness TRUE and deadlock checking on.",
+    "all_variants": "Set InitClusterSize, MinClusterSize, MaxClusterSize and MaxSpawnedServers to N. Set Hosts to {h1,...,hN}, Value to {v1} and MaxRestarts, MaxPermCrashes, MaxRemoveReconfigs, MaxConnectivityChanges, MaxDisruptiveElectionTriggers to zero.",
+    "healthy": "MaxAddReconfigs=0. ReconfigurationNotStuck quantifies over an empty range.",
+    "fixed": "MaxAddReconfigs=1. Membership cannot expand beyond the initial size; reconfiguration id 1 remains in the checked property."
+  },
+  "simulation": {
+    "dive": {
+      "wall_s": 2.69,
+      "rss_kib": 138092,
+      "exit": 0,
+      "result": "sampled",
+      "statistics": {
+        "generated": 7270,
+        "initial_candidates": 1,
+        "properties": [
+          {
+            "behaviors_checked": 2,
+            "checked_traces": 2,
+            "name": "ValuesEventuallyAcked",
+            "part": "temporal",
+            "refuted_by_trace": null,
+            "unchecked_reasons": {
+              "truncated": 1
+            },
+            "unchecked_traces": 1
+          },
+          {
+            "behaviors_checked": 2,
+            "checked_traces": 2,
+            "name": "ReconfigurationNotStuck",
+            "part": "temporal",
+            "refuted_by_trace": null,
+            "unchecked_reasons": {
+              "truncated": 1
+            },
+            "unchecked_traces": 1
+          },
+          {
+            "behaviors_checked": 2,
+            "checked_traces": 2,
+            "name": "EventuallyLeaderElected",
+            "part": "temporal",
+            "refuted_by_trace": null,
+            "unchecked_reasons": {
+              "truncated": 1
+            },
+            "unchecked_traces": 1
+          },
+          {
+            "behaviors_checked": 2,
+            "checked_traces": 2,
+            "name": "NotStuckInProspective",
+            "part": "temporal",
+            "refuted_by_trace": null,
+            "unchecked_reasons": {
+              "truncated": 1
+            },
+            "unchecked_traces": 1
+          }
+        ],
+        "sampled_sets": [],
+        "scope": "complete-request",
+        "trace_classes": {
+          "cancelled": 0,
+          "closed": 2,
+          "extended_closed": 0,
+          "extended_terminal": 0,
+          "terminal": 0,
+          "truncated": 1,
+          "violated": 0
+        },
+        "traces_dropped": 0,
+        "traces_kept": 3,
+        "traces_stalled": 0,
+        "traces_started": 3,
+        "traces_written": 3
+      },
+      "sample_replays": [
+        {
+          "id": 0,
+          "length": 97,
+          "ending": {
+            "kind": "behavior"
+          },
+          "max_prevote_ctr": 3
+        },
+        {
+          "id": 1,
+          "length": 97,
+          "ending": {
+            "kind": "behavior"
+          },
+          "max_prevote_ctr": 1
+        },
+        {
+          "id": 2,
+          "length": 193,
+          "ending": {
+            "kind": "behavior"
+          },
+          "max_prevote_ctr": 45
+        }
+      ]
+    },
+    "tlc": {
+      "wall_s": 8.31,
+      "rss_kib": 132324,
+      "exit": 0,
+      "generated": 5207,
+      "traces": 3,
+      "depth": 96
+    }
+  },
+  "repetitions": [
+    {
+      "start_index": 30,
+      "end_index": 34,
+      "entry_counter": 5,
+      "increment": 1,
+      "copies": 1,
+      "states": 35,
+      "ordinary": {
+        "wall_s": 0.37,
+        "rss_kib": 50208,
+        "exit": 0,
+        "result": "valid"
+      },
+      "sampled": {
+        "wall_s": 0.37,
+        "rss_kib": 50256,
+        "exit": 0,
+        "result": "valid"
+      }
+    },
+    {
+      "start_index": 30,
+      "end_index": 34,
+      "entry_counter": 5,
+      "increment": 1,
+      "copies": 16,
+      "states": 95,
+      "ordinary": {
+        "wall_s": 0.4,
+        "rss_kib": 72840,
+        "exit": 0,
+        "result": "valid"
+      },
+      "sampled": {
+        "wall_s": 0.4,
+        "rss_kib": 72712,
+        "exit": 0,
+        "result": "valid"
+      }
+    },
+    {
+      "start_index": 30,
+      "end_index": 34,
+      "entry_counter": 5,
+      "increment": 1,
+      "copies": 256,
+      "states": 1055,
+      "ordinary": {
+        "wall_s": 0.96,
+        "rss_kib": 478256,
+        "exit": 0,
+        "result": "valid"
+      },
+      "sampled": {
+        "wall_s": 0.95,
+        "rss_kib": 478456,
+        "exit": 0,
+        "result": "valid"
+      }
+    }
+  ],
+  "negative_control": {
+    "check": "next",
+    "detail": "the step into this state does not satisfy the next-state relation line 1338, col 28 to line 1338, col 31 of module kraft_kip_996",
+    "state": 94
+  },
+  "controls": {
+    "healthy1": {
+      "cfg_sha256": "4283686660e0ffa103db6fb274b61ada7100382ae98b0c3ae1e72563414fcb66",
+      "dive": {
+        "wall_s": 0.04,
+        "rss_kib": 33512,
+        "exit": 77,
+        "verdict": "model-error",
+        "message": "Temporal formula is a tautology (its negation is unsatisfiable).",
+        "statistics": null
+      },
+      "tlc": {
+        "wall_s": 1.25,
+        "rss_kib": 93104,
+        "exit": 77,
+        "verdict": "model-error: tautological temporal formula"
+      }
+    },
+    "healthy2": {
+      "cfg_sha256": "ab6c9bf5eae61130da725599f236d797a7d3849b7d9e3abf8fb4e3d8f2f8add1",
+      "dive": {
+        "wall_s": 0.04,
+        "rss_kib": 33672,
+        "exit": 77,
+        "verdict": "model-error",
+        "message": "Temporal formula is a tautology (its negation is unsatisfiable).",
+        "statistics": null
+      },
+      "tlc": {
+        "wall_s": 1.22,
+        "rss_kib": 88456,
+        "exit": 77,
+        "verdict": "model-error: tautological temporal formula"
+      }
+    },
+    "healthy3": {
+      "cfg_sha256": "40e4f4656991a117a76b4810565a3faeaaee390abe842ba79cd6fbb996374456",
+      "dive": {
+        "wall_s": 0.04,
+        "rss_kib": 33528,
+        "exit": 77,
+        "verdict": "model-error",
+        "message": "Temporal formula is a tautology (its negation is unsatisfiable).",
+        "statistics": null
+      },
+      "tlc": {
+        "wall_s": 1.21,
+        "rss_kib": 89188,
+        "exit": 77,
+        "verdict": "model-error: tautological temporal formula"
+      }
+    },
+    "fixed1": {
+      "cfg_sha256": "ab6e8a049af34ef0aabe7ac5fc5609dc67290a872c5069897fdbe8004977acc9",
+      "dive": {
+        "wall_s": 0.14,
+        "rss_kib": 64988,
+        "exit": 11,
+        "verdict": "deadlock",
+        "message": null,
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "tlc": {
+        "wall_s": 1.56,
+        "rss_kib": 105020,
+        "exit": 11,
+        "verdict": "deadlock",
+        "statistics": {
+          "generated": 2,
+          "distinct": 2,
+          "left_on_queue": 0,
+          "depth": 2
+        }
+      }
+    },
+    "fixed2": {
+      "cfg_sha256": "e9bb0589a05f6b8a65d805c1b1b149759c958a09d362fa63de2d3ad4f10d5b9f",
+      "dive": {
+        "wall_s": 0.22,
+        "rss_kib": 97508,
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "statistics": {
+          "depth": 13,
+          "distinct": 26,
+          "generated": 35,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      },
+      "tlc": {
+        "wall_s": 1.89,
+        "rss_kib": 112848,
+        "exit": 0,
+        "verdict": "success",
+        "statistics": {
+          "generated": 35,
+          "distinct": 26,
+          "left_on_queue": 0,
+          "depth": 13
+        }
+      }
+    },
+    "fixed3": {
+      "cfg_sha256": "6360205bd0fbb8bd772e67b8b316ac89161c1afa4558a3de98e13adbe78b35a8",
+      "dive": {
+        "wall_s": 0.64,
+        "rss_kib": 132380,
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "statistics": {
+          "depth": 24,
+          "distinct": 660,
+          "generated": 1501,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      },
+      "tlc": {
+        "wall_s": 9.03,
+        "rss_kib": 141224,
+        "exit": 0,
+        "verdict": "success",
+        "statistics": {
+          "generated": 1501,
+          "distinct": 660,
+          "left_on_queue": 0,
+          "depth": 24
+        }
+      }
+    },
+    "fixed4": {
+      "cfg_sha256": "bcc440239b186397f621273de5325df5832a15a853641cd1dd65bc466b847ce9",
+      "dive": {
+        "wall_s": 25.14,
+        "rss_kib": 197480,
+        "exit": 0,
+        "verdict": "success",
+        "message": null,
+        "statistics": {
+          "depth": 38,
+          "distinct": 28440,
+          "generated": 95041,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        }
+      }
+    }
+  }
+}
