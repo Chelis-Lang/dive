@@ -9,6 +9,8 @@ are in git history.
 
 - Native fairness checks can rule out destinations that retain a [state variable required to change](docs/user/temporal.md#fairness).
 
+- Symbolic source-edit sessions reuse earlier breadth-first layers when an added action reaches new states or shortens an existing path. [Edit checking](docs/user/symbolic.md).
+
 - Large native temporal checks allocate [action predicate bits](docs/user/temporal.md#storage-and-limits) only for blocks containing true results.
 
 - Multi-worker resident fingerprint search reuses confirmed duplicate lookups during ordered commit. [Measurements](conformance/reports/perf/2026-11-21-safety-worker-commit.json).

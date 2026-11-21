@@ -1200,16 +1200,22 @@ class SourceModel(FiniteRelation):
             # Include excluded emissions in the witness layers but never expand them.
             sources = frontier & self.constraint
             if old_layers:
-                # At this point both searches have identical layers through this source.
                 # A deleted edge into an earlier layer cannot remove a shortest path.
                 if all(self.image(sources, guard, parts) & ~reached == self.b.false
                        for guard, parts in removed):
                     next_old = old_layers[len(layers)] if len(layers) < len(old_layers) else self.b.false
                     extra = self.any(self.image(sources, guard, parts) for guard, parts in added)
-                    frontier = next_old | (extra & ~reached)
+                    if not removed:
+                        # Every old layer is reachable by its old depth. Earlier
+                        # arrivals and new states need their full outgoing image;
+                        # the other old edges already lead into reached or next_old.
+                        early = sources & ~old_layers[len(layers) - 1]
+                        if early != self.b.false:
+                            extra |= self.any(self.image(early, guard, parts) for guard, parts in self.actions)
+                    frontier = (next_old | extra) & ~reached
                     reached |= frontier
                     reused_images += 1
-                    if frontier != next_old:
+                    if len(layers) == len(old_layers) or (removed and frontier != next_old):
                         old_layers = ()
                     continue
                 old_layers = ()
