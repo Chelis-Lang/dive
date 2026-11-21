@@ -480,6 +480,47 @@ fn state_witnesses(states: &[J]) -> Result<Vec<Vec<J>>, String> {
     Ok(witnesses)
 }
 
+/// Checks that a document's ending is one its version permits.
+fn check_ending_version(version: Option<u64>, ending: Option<&Ending>) -> Result<(), String> {
+    if version == Some(VERSION) && matches!(ending, Some(Ending::InvariantError { .. })) {
+        return Err("`invariant-error` requires dive-trace version 2".to_owned());
+    }
+    if matches!(
+        ending,
+        Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
+    ) && version != Some(PARTIAL_STATE_VERSION)
+    {
+        return Err("a partial terminal candidate requires dive-trace version 3".into());
+    }
+    if version == Some(PARTIAL_STATE_VERSION)
+        && !matches!(
+            ending,
+            Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
+        )
+    {
+        return Err("dive-trace version 3 requires a partial terminal candidate".into());
+    }
+    if matches!(ending, Some(Ending::CandidateStateError { .. }))
+        != (version == Some(CANDIDATE_ERROR_VERSION))
+    {
+        return Err("an ordered candidate error requires exactly dive-trace version 4".into());
+    }
+    if matches!(ending, Some(Ending::ViewSourceError { .. }))
+        != (version == Some(VIEW_SOURCE_ERROR_VERSION))
+    {
+        return Err("a VIEW source error requires exactly dive-trace version 6".into());
+    }
+    if matches!(ending, Some(Ending::TemporalSourceError { .. }))
+        != (version == Some(TEMPORAL_SOURCE_ERROR_VERSION))
+    {
+        return Err("a temporal source-row error requires exactly dive-trace version 5".into());
+    }
+    if matches!(ending, Some(Ending::BadPrefix(_))) != (version == Some(BAD_PREFIX_VERSION)) {
+        return Err("a bad-prefix ending requires exactly dive-trace version 7".into());
+    }
+    Ok(())
+}
+
 impl TraceDoc {
     /// Logical word length, including a separate terminal partial candidate.
     #[must_use]
@@ -680,42 +721,7 @@ impl TraceDoc {
             None | Some(J::Null) => None,
             Some(e) => Some(Ending::from_json(e)?),
         };
-        if version == Some(VERSION) && matches!(ending, Some(Ending::InvariantError { .. })) {
-            return Err("`invariant-error` requires dive-trace version 2".to_owned());
-        }
-        if matches!(
-            ending,
-            Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
-        ) && version != Some(PARTIAL_STATE_VERSION)
-        {
-            return Err("a partial terminal candidate requires dive-trace version 3".into());
-        }
-        if version == Some(PARTIAL_STATE_VERSION)
-            && !matches!(
-                ending,
-                Some(Ending::PartialNext { .. } | Ending::PartialInit { .. })
-            )
-        {
-            return Err("dive-trace version 3 requires a partial terminal candidate".into());
-        }
-        if matches!(ending, Some(Ending::CandidateStateError { .. }))
-            != (version == Some(CANDIDATE_ERROR_VERSION))
-        {
-            return Err("an ordered candidate error requires exactly dive-trace version 4".into());
-        }
-        if matches!(ending, Some(Ending::ViewSourceError { .. }))
-            != (version == Some(VIEW_SOURCE_ERROR_VERSION))
-        {
-            return Err("a VIEW source error requires exactly dive-trace version 6".into());
-        }
-        if matches!(ending, Some(Ending::TemporalSourceError { .. }))
-            != (version == Some(TEMPORAL_SOURCE_ERROR_VERSION))
-        {
-            return Err("a temporal source-row error requires exactly dive-trace version 5".into());
-        }
-        if matches!(ending, Some(Ending::BadPrefix(_))) != (version == Some(BAD_PREFIX_VERSION)) {
-            return Err("a bad-prefix ending requires exactly dive-trace version 7".into());
-        }
+        check_ending_version(version, ending.as_ref())?;
         let length = match j.get("length") {
             None | Some(J::Null) => None,
             Some(l) => Some(
