@@ -465,6 +465,12 @@ impl<'a> CsrCapture<'a> {
         self.input.roots
     }
 
+    /// The checked upper bound on all representative and original input row IDs.
+    #[must_use]
+    pub const fn retained_rows(&self) -> usize {
+        self.input.retained_rows
+    }
+
     /// Fully expanded source count at this committed boundary.
     #[must_use]
     pub const fn closed_rows(&self) -> usize {

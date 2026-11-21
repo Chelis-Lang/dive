@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Core checks a [fairness action’s leading state conditions](docs/user/temporal.md#fairness) once per source when they rule out every successor.
+
 - Core temporal checks share original row IDs across transitions whose targets match the first-discovery representation. [Temporal graph storage](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
 - `dive simulate` checks temporal `PROPERTY`s on each trace's own behaviors
