@@ -82,7 +82,6 @@ pub use dive_explore::distributed::{
 };
 mod core_ending;
 mod core_engine;
-mod core_record_types;
 #[cfg(test)]
 mod core_graph;
 mod core_modes;
@@ -90,6 +89,7 @@ mod core_native_atoms;
 mod core_native_graph;
 mod core_native_values;
 mod core_random;
+mod core_record_types;
 mod core_sample;
 mod core_temporal;
 mod mode_budget;

@@ -1133,6 +1133,16 @@
         "verdict": "unsupported",
         "message": "a plan larger than the M0 core's inlining limit"
       },
+      "16-2-small-tlc": {
+        "exit": 0,
+        "wall_s": 169.76,
+        "rss_kib": 2905468,
+        "generated": 6375410,
+        "distinct": 84370,
+        "left_on_queue": 0,
+        "depth": 38,
+        "verdict": "success"
+      },
       "4-2-orig-dive": {
         "exit": 0,
         "wall_s": 3.03,
@@ -1269,6 +1279,16 @@
         "exit": 0,
         "wall_s": 74.46,
         "rss_kib": 376804,
+        "verdict": "success",
+        "distinct": 92269,
+        "generated": 3798734,
+        "depth": 38,
+        "left_on_queue": 0
+      },
+      "8-2-orig-tlc": {
+        "exit": 0,
+        "wall_s": 77.9,
+        "rss_kib": 370884,
         "verdict": "success",
         "distinct": 92269,
         "generated": 3798734,

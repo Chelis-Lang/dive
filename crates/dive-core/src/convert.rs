@@ -305,3 +305,36 @@ fn transient(heap: &mut Heap, v: &Value, ctx: Ctx, remaining: &mut usize) -> Res
         },
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use dive_value::Interner;
+
+    #[test]
+    fn record_union_enumerates_overlap_once_and_rejects_a_malformed_field()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let keys = Interner::new();
+        for ctx in [Ctx::dive(), Ctx::tlc()] {
+            let field = keys.intern("payload");
+            let values = Value::set(vec![Value::Int(0), Value::Int(1)], ctx)?;
+            let Value::Set(row) = Value::record_set(vec![(field.clone(), values.clone())], ctx)?
+            else {
+                return Err("expected a record set".into());
+            };
+            let union = record_union(row.clone(), row.clone(), ctx).ok_or("two record arms")?;
+            let mut heap = Heap::new(Arc::new(crate::Store::new(true)), true, false);
+            let h = from_value(&mut heap, &union, ctx)?;
+            assert_eq!(heap.kind(h), Some(Kind::Union));
+            assert_eq!(heap.cardinality(h)?, 2);
+            assert_eq!(heap.elements(h)?.len(), 2);
+            let bad = Value::fcn_set(Value::Int(7), values, ctx);
+            let Value::Set(bad_row) = Value::record_set(vec![(field, bad)], ctx)? else {
+                return Err("expected a record set".into());
+            };
+            let invalid = record_union(bad_row, row, ctx).ok_or("two record arms")?;
+            assert!(from_value(&mut heap, &invalid, ctx).is_err());
+        }
+        Ok(())
+    }
+}
