@@ -49,10 +49,11 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+pub use dive_eval::{RunMode, SimulationConfig};
 pub use dive_trace::mutate::{ControlMode, Mutant};
 pub use dive_trace::{
     Check, DEADLOCK_UNSUPPORTED, Ending, Failure, InitialErrorStage, InitialInvariantClass, Report,
-    State, Trace, TraceDoc, Validation, ValidationRunError,
+    SimulationRun, State, Trace, TraceDoc, Validation, ValidationRunError,
 };
 use serde_json::{Value, json};
 
@@ -88,6 +89,12 @@ pub struct TraceOptions {
     /// Deferred domains, register-dependent random prefixes, random ENABLED and
     /// temporal/error-endpoint interactions retain named refusal boundaries.
     pub run: Option<(i64, usize)>,
+    /// The kind of run `TLCGet("config")` describes with [`Self::run`]:
+    /// model checking by default, or the producing simulation's settings.
+    pub run_mode: dive_eval::RunMode,
+    /// The worker count `TLCGet("config").worker` reports with
+    /// [`Self::run`]; `None` reports the logical count, 1.
+    pub run_workers: Option<i64>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
     /// Modules searched after the standard modules (TLC's classpath).
@@ -108,10 +115,11 @@ pub(crate) fn make_run_config(
     model: &dive_model::Model,
     seed: i64,
     fp_index: usize,
+    opts: &TraceOptions,
 ) -> dive_eval::RunConfig {
     dive_eval::RunConfig {
         deadlock: model.settings.check_deadlock,
-        workers: 1,
+        workers: opts.run_workers.unwrap_or(1),
         seed,
         fingerprint: i64::from_ne_bytes(
             dive_value::fp64::POLYS
@@ -123,6 +131,7 @@ pub(crate) fn make_run_config(
         install: std::env::current_exe()
             .map(|path| path.display().to_string())
             .unwrap_or_default(),
+        mode: opts.run_mode.clone(),
     }
 }
 
@@ -315,8 +324,8 @@ impl SpecModel {
         let mut run_config = None;
         if let (Ok(model), Some((seed, fp_index))) = (&bound, opts.run) {
             model.evaluator.intern_checker_names();
-            let config = make_run_config(model, seed, fp_index);
-            model.evaluator.intern_bfs_config(&config);
+            let config = make_run_config(model, seed, fp_index, opts);
+            model.evaluator.intern_run_config(&config);
             if let Some(host) = &host {
                 host.set_config(Some(config.clone()));
             }
@@ -390,7 +399,7 @@ impl SpecModel {
         .map_err(|error| error.to_string())?;
         if let Some(config) = self.model.evaluator.host().and_then(|host| host.config()) {
             model.evaluator.intern_checker_names();
-            model.evaluator.intern_bfs_config(&config);
+            model.evaluator.intern_run_config(&config);
             host.set_config(Some(config));
         }
         Ok(model)

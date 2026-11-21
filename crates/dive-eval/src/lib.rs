@@ -92,7 +92,7 @@ pub use crate::error::{
 pub use crate::host::{
     Counter, Host, HostBinding, HostBindingScope, HostBindingStamp, HostControl,
     HostControlConflict, HostControlScope, HostError, Interrupted, NativeHooks,
-    PRIMED_LEVEL_UNSUPPORTED, RunConfig, TLCGET_NAMES,
+    PRIMED_LEVEL_UNSUPPORTED, RunConfig, RunMode, SimulationConfig, TLCGET_NAMES,
 };
 pub use crate::lazy::{LazyFcn, deferred_filter_normalization_operand};
 pub use crate::named_state::NamedState;
@@ -505,17 +505,17 @@ impl Evaluator {
     }
 
     /// Interns the actual configuration strings constructed eagerly by
-    /// TLC's `AbstractChecker.createConfig`, after [`Self::intern_checker_names`]
+    /// TLC's `AbstractChecker.createConfig` (`Simulator.createConfig` in
+    /// simulation), after [`Self::intern_checker_names`]
     /// and before assumptions. Even a spec that never reads the config can
     /// observe these tokens through runtime `CHOOSE` ordering.
     /// They are start-up names ([`Self::startup_names`]) if every name
     /// interned before them was.
-    pub fn intern_bfs_config(&self, config: &RunConfig) {
+    pub fn intern_run_config(&self, config: &RunConfig) {
         self.extend_startup_names(|| {
-            self.core.names.intern("bfs");
-            self.core.names.intern(&config.seed.to_string());
-            self.core.names.intern(&config.fingerprint.to_string());
-            self.core.names.intern(&config.install);
+            for name in config.interned_strings() {
+                self.core.names.intern(&name);
+            }
         });
     }
 
@@ -535,6 +535,16 @@ impl Evaluator {
     pub fn startup_names(&self) -> usize {
         self.core
             .startup_names
+            .load(::std::sync::atomic::Ordering::SeqCst)
+    }
+
+    /// Whether evaluation has read `TLCGet("config")`. A sampled trace
+    /// records the run's configuration only then, so a trace that does not
+    /// depend on it stays the same whatever the run's trace count.
+    #[must_use]
+    pub fn config_read(&self) -> bool {
+        self.core
+            .config_read
             .load(::std::sync::atomic::Ordering::SeqCst)
     }
 

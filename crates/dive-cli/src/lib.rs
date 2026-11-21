@@ -1244,6 +1244,11 @@ fn validate_trace_command(
         }
         doc = doc.with_ending(ending);
     }
+    // A sampled trace records the simulation's `TLCGet("config")` fields.
+    if let Some(run) = &doc.run {
+        opts.run_mode = dive_api::trace::RunMode::Simulate(run.simulation.clone());
+        opts.run_workers = Some(run.workers);
+    }
     let model = match dive_api::trace::SpecModel::load(spec, &cfg, &opts) {
         Ok(m) => m,
         Err(e @ dive_api::ApiError::Unsupported { .. }) => {

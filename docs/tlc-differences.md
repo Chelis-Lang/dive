@@ -24,6 +24,10 @@ reproduce TLC:
   dive does not match TLC's draw order in general, including with VIEW.
   Simulation draws `Init` per trace and never reports a deadlock on one draw
   ([D-044](#d-044-randomelement-in-simulation)).
+- Simulation's `num` (`--traces`) is a total, not a per-worker count, so
+  `TLCGet("config").traces` is that total, and -1 for an unbounded run, where
+  TLC at `-workers W` reports `W` times `num` and `-W`
+  ([D-045](#d-045-simulation-config-record)).
 - Seeded simulation does not reproduce TLC's choice stream: for a given seed
   and aril, dive samples different traces and reports a different generated
   count than TLC (31 against 29 for `SimChoice` at seed 0, aril 0). Every
@@ -675,7 +679,7 @@ ASSUME /\ TLCGet("config").mode = "bfs"
 
 so that TLC is guaranteed to find a shortest counterexample. Run with `-workers 4`, TLC fails that assumption, and the spec refuses to run.
 
-**What dive does.** dive's parallel search gives TLC's single-worker result ([D-001](#d-001-parallel-checking-gives-the-same-answer-at-any-worker-count)), so by default dive reports the logical worker count, 1, at any `--workers` setting. Specs like `MCDieHardest` run at full parallel speed and get the guarantee they ask for. dive's own output still reports the physical thread count.
+**What dive does.** dive's parallel search gives TLC's single-worker result ([D-001](#d-001-parallel-checking-gives-the-same-answer-at-any-worker-count)), so by default dive reports the logical worker count, 1, at any `--workers` setting. `dive simulate`, whose report is the same at any worker count, reports 1 too ([D-045](#d-045-simulation-config-record)). Specs like `MCDieHardest` run at full parallel speed and get the guarantee they ask for. dive's own output still reports the physical thread count.
 
 Under `--compat=tlc`, such a spec can behave differently at different worker
 counts, as it does in TLC. `MCDieHardest` agrees with TLC at 1, 3, 4 and 8
@@ -1860,3 +1864,47 @@ definition still draws once at start-up, as in TLC (C1, C2). A configured
 `C <- Pick` names `Pick`'s body, which TLC evaluates at every use, and so
 does dive (C3). `dive check` is unchanged. The receipts are
 `crates/dive-sim/tests/fixtures/random-ops/oracle.json`.
+
+## D-045: Simulation config record
+
+| | |
+|---|---|
+| **Kind** | Different answer (only for specs that read `TLCGet("config").traces` of a huge or unbounded run) |
+| **Default** | TLC's simulation record, with the exact total trace count |
+| **TLC behavior** | Under `--compat=tlc`, `traces` is narrowed to 32 bits, as TLC does |
+| **Status** | implemented |
+
+**What TLC does.** Under `-simulate` and `-generate`, `TLCGet("config")` is
+the record `Simulator.createConfig` builds. The pinned TLC prints, for
+`-simulate num=3 -depth 7 -seed 5`:
+
+```tla
+[ install |-> "...", mode |-> "simulate", deadlock |-> TRUE, seed |-> "5",
+  worker |-> 1, traces |-> 3, depth |-> 7, aril |-> "0", sched |-> "random" ]
+```
+
+`-generate` gives `mode |-> "generate"`. There is no `fingerprint` field.
+`traces` is `(int) (workers * num)`, so `-workers 4 num=3` reports 12, an
+unbounded run (`num` absent) reports -1 at one worker and -4 at four, and a
+total above 2^31 − 1 wraps. `aril` is always `"0"`: the record is built
+before `-aril` is applied. `-dfid` reports the model-checking record,
+`mode |-> "bfs"`.
+
+**What dive does.** `dive simulate` reports the same fields and values, so
+`ASSUME TLCGet("config").mode \in {"generate", "simulate"}` (Examples
+`SmokeEWD998`) holds. `traces` is the run's total, `--traces`, and -1 for
+`--traces unlimited` at any worker count; in the default profile it is never
+narrowed. `worker` is the logical count, 1, by default
+([D-011](#d-011-tlcgetconfigworker-reports-the-logical-worker-count)). When the
+spec reads the record, each trace document records the simulation fields
+under `run`, so `dive
+validate-trace` evaluates `ASSUME`s under the record the producer used. A
+`--trace-ids A..B` run does not know the total of the run it regenerates part
+of, so evaluating `TLCGet("config")` there refuses by name. The receipts are
+`conformance/corpus/tlcget-config`.
+
+**TLC's behavior.** `--compat=tlc` narrows `traces` to a 32-bit integer and
+reports the physical worker count. dive's `num` stays a total rather than a
+per-worker count, so `traces` is the total dive samples, not TLC's
+`workers * num` ([compat gaps](#compat-gaps)).
+
