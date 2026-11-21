@@ -142,6 +142,8 @@ are in git history.
 
 ### Fixed
 
+- Independent trace validation can certify Next errors, partial successors and deadlocks when replay of a direct diagnostic action reaches no output. [Independent trace validation](docs/user/traces.md#error-endpoints).
+
 - Core grows the in-memory fingerprint table one shard at a time, packs trace
   predecessors, and bounds parallel safety candidate batches. On KVS Large
   the eight-worker checker finished within its 24 GiB memory limit.

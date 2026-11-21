@@ -31,7 +31,7 @@ pub(crate) fn replay(
             control,
         );
     }
-    if let Some(refusal) = preflight(model, false, control)? {
+    if let Some(refusal) = actions_preflight(model, false, control, Some(host))? {
         return Ok(refusal);
     }
     // A diagnostic receiver catch requires its actual first-source history.
@@ -262,6 +262,15 @@ pub(crate) fn preflight(
     initial: bool,
     control: Option<&dyn dive_eval::HostControl>,
 ) -> Result<Option<Validation>, EvalError> {
+    actions_preflight(model, initial, control, None)
+}
+
+pub(crate) fn actions_preflight(
+    model: &Model,
+    initial: bool,
+    control: Option<&dyn dive_eval::HostControl>,
+    host: Option<&crate::validate::TraceHost>,
+) -> Result<Option<Validation>, EvalError> {
     if let Some(feature) = model.unsupported.first() {
         return Ok(Some(Validation::Unsupported(format!(
             "Next error replay with an unsupported model feature: {}",
@@ -277,20 +286,33 @@ pub(crate) fn preflight(
             "Next error replay with VIEW, symmetry or temporal obligations".into(),
         )));
     }
-    for action in if initial {
+    let actions = if initial {
         &model.init_actions
     } else {
         &model.actions
-    } {
-        if let Some(control) = control {
-            control.check().map_err(EvalError::interrupted)?;
-        }
-        if model
+    };
+    let impure = |action: &dive_eval::next::Action| {
+        model
             .ir
             .node(action.expr())
             .effects
             .intersects(dive_ir::Effects::IMPURE)
-            || model.evaluator.action_shares_side_effects(action)
+    };
+    // A guarded replay must establish the same closed syntax for every split
+    // action, including siblings whose callable targets are unknown before binding.
+    let guarded_prints = !initial
+        && host.is_some_and(|host| host.next_error.load(std::sync::atomic::Ordering::Relaxed))
+        && actions.iter().any(impure);
+    for action in actions {
+        if let Some(control) = control {
+            control.check().map_err(EvalError::interrupted)?;
+        }
+        if model.evaluator.action_shares_side_effects(action)
+            || if guarded_prints {
+                !crate::diagnostic::closed_action(model, action.expr(), &action.scope())
+            } else {
+                impure(action)
+            }
         {
             return Ok(Some(Validation::Unsupported(
                 "effects or dynamically shared scopes in Next error replay".into(),

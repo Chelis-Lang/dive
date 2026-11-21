@@ -31,8 +31,10 @@ registers and caches. It then checks:
 Every state must assign every variable; missing values are never guessed.
 Whether a state has a successor (inside a predicate, for a deadlock ending,
 and for `WF` and `SF` on a lasso) is decided by the same `ENABLED` search the
-checker and TLC use. An `ENABLED` with side effects, or one that cannot be
-decided, makes the result `unsupported`.
+checker and TLC use. For a deadlock ending, a direct `Print` or `PrintT` in
+a branch of Next can remain untaken. Replay checks the same successor search
+on the last state. If it reaches output or cannot decide the search, the
+deadlock claim is `unsupported`.
 
 `unsupported` names what could not be checked; it is never a decision. These
 always give it: executed random draws (`RandomElement`, `Randomization`),
@@ -165,6 +167,13 @@ safety checks. These refuse by name: unknown newness or alias history, raw or
 symbolic fingerprints, `VIEW`, symmetry, temporal obligations, executed effects,
 and nested, effectful or non-TLA composition. Pure bounded composition in
 `tla` mode can reconstruct the source error.
+
+Next-error and partial-Next replay also admit direct diagnostics in a closed
+first-order action. For example, `Print(1 \div 0, TRUE)` fails while evaluating
+its argument. The validator can confirm the division error and its source.
+An actual output event refuses by name. A call through a user definition,
+configured operator or instance in the diagnostic action keeps the existing
+preflight refusal.
 
 ### Partial candidates
 

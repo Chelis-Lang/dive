@@ -8,11 +8,13 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use dive_eval::{Counter, Host, HostError, RunConfig};
-use dive_ir::StdOp;
+use dive_ir::{ExprId, StdOp};
 use dive_model::{Model, Pred};
 use dive_value::{Ctx, Value};
 
 use crate::State;
+
+const DEADLOCK_PRINT: &str = "Print/PrintT executed during deadlock reconstruction";
 
 /// Why `ENABLED` could not be decided. A refusal is never a decision.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -83,6 +85,24 @@ pub fn enabled(
     nonstuttering: Option<dive_ir::ExprId>,
     state: &State,
 ) -> Result<bool, EnabledError> {
+    enabled_query(model, action, nonstuttering, state, false)
+}
+
+pub(crate) fn deadlock_successor(
+    model: &Model,
+    action: &Pred,
+    state: &State,
+) -> Result<bool, EnabledError> {
+    enabled_query(model, action, None, state, true)
+}
+
+fn enabled_query(
+    model: &Model,
+    action: &Pred,
+    nonstuttering: Option<ExprId>,
+    state: &State,
+    deadlock: bool,
+) -> Result<bool, EnabledError> {
     let unsupported = |e: dive_eval::EvalError| {
         if e.class() == dive_eval::ErrorClass::Interrupted {
             EnabledError::Interrupted(e)
@@ -116,7 +136,10 @@ pub fn enabled(
             .effects
             .intersects(dive_ir::Effects::IMPURE)
     };
-    if impure(action.expr)
+    let guarded_prints = deadlock
+        && impure(action.expr)
+        && crate::diagnostic::closed_action(model, action.expr, &action.scope);
+    if (impure(action.expr) && !guarded_prints)
         || nonstuttering.is_some_and(impure)
         || model.evaluator.scope_shares_side_effects(&action.scope)
     {
@@ -124,17 +147,25 @@ pub fn enabled(
             "side effects or dynamically bound constants in ENABLED".into(),
         ));
     }
-    let guard = ComposeGuard::install(model);
+    let guard = ComposeGuard::with_print_guard(model, guarded_prints);
     let result =
         model
             .evaluator
             .enabled_scoped(&action.scope, action.expr, nonstuttering, state.clone());
     let composed = guard.composed();
+    let printed = guard
+        .host
+        .print_attempt
+        .as_ref()
+        .is_some_and(|flag| flag.load(Ordering::Relaxed));
     drop(guard);
     if let Err(error) = &result
         && error.class() == dive_eval::ErrorClass::Interrupted
     {
         return Err(EnabledError::Interrupted(error.clone()));
+    }
+    if printed {
+        return Err(EnabledError::Unsupported(DEADLOCK_PRINT.into()));
     }
     // A declined composition remains refused even if an inner query or label
     // swallowed its error; accepted bounded composition never sets this flag.
@@ -206,6 +237,7 @@ pub(crate) fn source_enabled(
 /// A prior consumer's cached value never substitutes for this replay.
 #[derive(Debug)]
 struct ComposeGuardHost {
+    print_attempt: Option<AtomicBool>,
     inner: Option<Arc<dyn Host>>,
     composition: AtomicBool,
     cache_domain: u64,
@@ -219,6 +251,13 @@ impl Host for ComposeGuardHost {
     }
 
     fn print_output(&self, text: &str) -> Result<bool, HostError> {
+        if let Some(attempt) = &self.print_attempt {
+            attempt.store(true, Ordering::Relaxed);
+            return Err(HostError {
+                code: 0,
+                message: DEADLOCK_PRINT.into(),
+            });
+        }
         self.inner
             .as_ref()
             .map_or(Ok(true), |h| h.print_output(text))
@@ -307,6 +346,10 @@ pub(crate) struct ComposeGuard<'a> {
 
 impl<'a> ComposeGuard<'a> {
     pub(crate) fn install(model: &'a Model) -> Self {
+        Self::with_print_guard(model, false)
+    }
+
+    fn with_print_guard(model: &'a Model, refuse_prints: bool) -> Self {
         let inner = model.evaluator.host();
         let cache_domain = inner
             .as_ref()
@@ -314,6 +357,7 @@ impl<'a> ComposeGuard<'a> {
             .filter(|domain| *domain != 0)
             .unwrap_or_else(crate::validate::next_cache_domain);
         let host = Arc::new(ComposeGuardHost {
+            print_attempt: refuse_prints.then(|| AtomicBool::new(false)),
             inner: inner.clone(),
             composition: AtomicBool::new(false),
             cache_domain,
