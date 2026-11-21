@@ -1514,5 +1514,232 @@
     },
     "config_change": "Replace MaxBarriers = 3 with MaxBarriers = 4 in the released CFG. All original properties remain enabled.",
     "command": "c8g.48xlarge on 192 physical cores. Use the full_native_worker_pool command with FourBarriers.cfg and its 72000s / 310 GiB budgets."
+  },
+  "full_sharded_exact_audit": {
+    "host": "Dedicated EC2 r8g.48xlarge in us-east-1a; 192 physical Graviton4 cores, 1400 GiB cgroup, swap disabled. Rust 1.99.0.",
+    "command": "taskset -c 0-191 env FLINT_FACTORED_HALVES=1 FLINT_AUDIT_FP_BITS=64 GENERATED -workers 192 -checkpoint 0 -fpmem 200000 -queue-mem 150000 -metadir FRESH -config Full.cfg WeightedFlint.tla. Timeout 42000 s.",
+    "sha256": {
+      "generated-Small/target/release/tlcgen-weightedflint": "511fd645b344a6bdeed1e114c1033c677cfbdbddab42e137e2c2ff408f5b45a3",
+      "generated-Small/src/main.rs": "de767a670a19d1499b68cb5a3b346f618982079021318a0432b20eac101fe5ec",
+      "generated-Full/target/release/tlcgen-weightedflint": "c0e39bb5a74521bc3776698711977149d6b72cad7fa8f8e6c44a338b7712ecdb",
+      "generated-Full/src/main.rs": "d5bccd4a3b84b668d09aea35d86c84b58386a24e68e8c853f3427a18284d1007",
+      "Small.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "Full.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+      "WeightedFlint.tla": "94a54e6443dea6ac9993e6826556e35d5f3cf8bc042c9c8db2d3eab17154b63e",
+      "flint-exact/state_codes.rs": "27c2867436eaacb60c6e88a50fd30be4ebcad6faf5d19c5e2cc5e696ea56274d",
+      "verified/src/check.rs": "a941b611830171cca8ff62b4b91ab013d4e910b9341e099f6ee5c6784dc8c02c",
+      "verified/src/cli.rs": "769778839905ea6df9456cfc61b0b367023484028e09635aa152cec88793c14a"
+    },
+    "generated_lock_sha256": "c28dfee0e2d471222c3778710aeb7ebf40a15b250482db38045bc94ba4d9013d",
+    "memory_events": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0,
+      "sock_throttled": 0
+    },
+    "controls": {
+      "Small-audit0": {
+        "wall_s": 3.24,
+        "peak_rss_kib": 795196,
+        "exit": 0,
+        "sampled_original_fingerprint_repeats": [
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "c4e716f396ee5bc5"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "e6348d6f7e65e3e2"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "57a11bd6da272b8d"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "161c437b6d57a588"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "50e33def0d180232"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "4ed26da56c6d4335"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "3c643aa19843152f"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "0aa80893e9885c96"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "9affe0cc1d05221f"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "dba55d8ada8e41c3"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "6810560771a0053d"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "985623509f286358"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "3043970d8a3f5600"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "10ccb3fa3322f1bb"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "b438bdd741b2c888"
+          },
+          {
+            "original": "0000000000000000",
+            "process_local_exact_key": "83a107d9fd0833fb"
+          }
+        ],
+        "outcome": "complete",
+        "distinct": 449595,
+        "generated": 1954072,
+        "depth": 33,
+        "overlapping_guards": 0,
+        "generated_with_both_guards": 1954072,
+        "repeated_original_fingerprint_admissions": 449594,
+        "bank_bits": [
+          20,
+          27
+        ],
+        "distinct_values_by_column": [
+          4,
+          2,
+          3,
+          4,
+          3,
+          2,
+          1,
+          4,
+          4,
+          2,
+          1,
+          1,
+          4,
+          22932,
+          44,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          1,
+          1,
+          4,
+          4,
+          2,
+          3,
+          2
+        ]
+      },
+      "Small-audit64": {
+        "wall_s": 3.17,
+        "peak_rss_kib": 745392,
+        "exit": 0,
+        "sampled_original_fingerprint_repeats": [],
+        "outcome": "complete",
+        "distinct": 449595,
+        "generated": 1954072,
+        "depth": 33,
+        "overlapping_guards": 0,
+        "generated_with_both_guards": 1954072,
+        "repeated_original_fingerprint_admissions": 0,
+        "bank_bits": [
+          20,
+          27
+        ],
+        "distinct_values_by_column": [
+          4,
+          2,
+          3,
+          4,
+          3,
+          2,
+          1,
+          4,
+          4,
+          2,
+          1,
+          1,
+          4,
+          22932,
+          44,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          1,
+          1,
+          4,
+          4,
+          2,
+          3,
+          2
+        ]
+      }
+    },
+    "original": {
+      "wall_s": 26093.29,
+      "peak_rss_kib": 366568548,
+      "exit": 134,
+      "sampled_original_fingerprint_repeats": [],
+      "last_progress": {
+        "depth": 23,
+        "generated": 1405007876,
+        "distinct": 354509790,
+        "queue": 121071586,
+        "on_disk": 0,
+        "checker_s": 16190.2
+      },
+      "outcome": "allocation failure",
+      "failed_request_bytes": 136,
+      "matched_depths": [
+        {
+          "depth": 22,
+          "generated": 912959945,
+          "distinct": 233438204,
+          "queue": 86871560,
+          "mimalloc_3_3_2_elapsed_s": 6475.0,
+          "mimalloc_3_7_0_elapsed_s": 182.7
+        },
+        {
+          "depth": 23,
+          "generated": 1405007876,
+          "distinct": 354509790,
+          "queue": 121071586,
+          "mimalloc_3_3_2_elapsed_s": 16190.2,
+          "mimalloc_3_7_0_elapsed_s": 281.1
+        }
+      ]
+    }
   }
 }
