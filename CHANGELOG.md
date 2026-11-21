@@ -30,6 +30,7 @@ are in git history.
 
 - Core handles repeated first-order helper calls under quantified fairness within the existing temporal planning budget. The original Kafka KIP-996 liveness model now reaches graph capture. [Temporal checking](docs/user/temporal.md).
 
+- Ordinary symbolic edit sessions reuse proved breadth-first layers across action additions and removals, including transitions that shorten a path. [Eligibility and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
 - Core packs ordinary in-memory safety frontiers by variable and stores consecutive discovery IDs once per level. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
 - Core stores large resident fingerprint sets in fewer bytes per slot. [Memory and throughput at 402 million keys](docs/developer/large-models.md#resident-fingerprint-membership).
