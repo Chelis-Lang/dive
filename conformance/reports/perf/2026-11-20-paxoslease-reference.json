@@ -2428,5 +2428,88 @@
         }
       }
     }
+  },
+  "labeled_crash_grid": {
+    "date": "2026-11-21",
+    "module": "PaxosLeaseCheckedSym.tla from the publication revision above. Preserve Spec, TypeOK, Safety, StateConstraint and every toggle.",
+    "configs": "Start from PaxosLease<model>.cfg, remove SYMMETRY Symm for labeled runs, set Acceptors to the first A listed (a1,a2 or a1,a2,a3) and MaxNetwork to N. Released sizes use A=3, with N=4 for RenewCrash3 and N=7 for ReleaseCrash. The quotient controls retain SYMMETRY Symm.",
+    "host": "AWS c7i.4xlarge hosts, Ubuntu 24.04 x86_64, Intel Xeon Platinum 8488C, eight physical cores with SMT, 30.8 GiB RAM, no swap. Grid rows are single whole-process GNU time observations. Exact8 used physical cores 0–7. Each symbolic search used one logical CPU. A separate edit experiment used core 4 during some grid runs. The two full-size attempts that reached a resource limit ran on separate hosts. The merged-worker retry was pinned to core 6. An earlier run on core 3 was interrupted by instance retirement before its time budget and supplied no result. These are single observations with different worker allocations.",
+    "digests": {
+      "core": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "exporter": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "tlc": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "java17_launcher": "f5aed21d3a0b0f4b05d3a3f9fe71263916d5bc0d47b53aa52a3340b90f0b4805",
+      "guard_only": "096428349d467bb42b5275dd0b80f3e6bc77b56cbec6b79733fce8ba41d7fb1a",
+      "merged": "a214184f9c02dd2fbc9dc8475d520b3ed5e2c936cc68d3a43b0f9a4abd736204",
+      "prior": "152b54ded45f78258894b21ff18f5d54639b8976c1da320440650f489d8dbea0",
+      "sym_module": "ad351fb904414c0e93900f57ca23c3e52a0605ed6ebcea483a7dc7862f7343df"
+    },
+    "config_sha256": {
+      "PaxosLeaseReleaseCrash.cfg": "095c47fc0a1dc441aeb5adaccb857eaeae681a1bcc5b0ac356c53cf832a3f6e3",
+      "PaxosLeaseRenewCrash3.cfg": "43efe9c0c1c9c1080df34b34a7983a9e6dc87014150fb55b91c75a67abe5f879",
+      "ReleaseCrash-A2-N2-labeled.cfg": "2d4eca2f6698b87f19ae5d648010fa12ea10161d9a27564d468c8d7b7494cda4",
+      "ReleaseCrash-A2-N2-symmetric.cfg": "a11d6540c13785aca07d43bd7126587396d95fe1b2c70deb442c8ed2d6bb2b2c",
+      "ReleaseCrash-A3-N2-labeled.cfg": "b2bd74edd0b14ab957259a308cbad705a093a05a3f180c50373834e605b4ae14",
+      "ReleaseCrash-A3-N2-symmetric.cfg": "92dbdf44dfb6b3df9eb4e99302c5129e984c28d747d909733c277582a7591d07",
+      "ReleaseCrash-labeled.cfg": "0c110143ec157264184243496de89b8dbd4ee6c45eb861dfff943e45d929603a",
+      "ReleaseCrash-small.cfg": "3f081eebb9818c1ff03ccc578d1b3bcd857a452273ca2433b7e29a0608c875ce",
+      "RenewCrash3-A2-N2-labeled.cfg": "1ac628c200463fa245256c1750cd5027be0204ee51dea71f4af679cd01f05eb3",
+      "RenewCrash3-A2-N2-symmetric.cfg": "520bf6d03f086e6b110d202afcf6a96412305efc85eefadab2c3eb7c3441b94a",
+      "RenewCrash3-A3-N2-labeled.cfg": "f4b5c5224078e599b226f25489fc94945a971f704657fc1289a6b040f7de01c5",
+      "RenewCrash3-A3-N2-symmetric.cfg": "ca636b317f3202352e644bf26b0981b2fbd6b24d48a4e3dc6fe00368f4934bf9",
+      "RenewCrash3-labeled.cfg": "d8ed522f6c9cfc6eb49f4b1f3d033aa789023936fdef7dbf90e91cfd17c83b65",
+      "RenewCrash3-small.cfg": "93374c17f2918ad8b1ab18c6d634e1b24328423a600bff9677f017992e1520c7"
+    },
+    "source_scope": "The guard-only worker predates the merged initial-membership refusal. This model has one Init witness, from deterministic equalities. Historical worker times are reported with their own hashes. The merged worker ran the A2/N1 controls and the full labeled RenewCrash3 attempt.",
+    "reproduce_guard_only": "From scripts/symbolic/engine.py at main commit 0b1a4539a844e944b88addffd965eefcc3a9eaa8, replace the region from the def branches signature through the conjunction(0, guard, assigned) call, inclusive, with the same region from main commit f3661df99fa692fa4dde325d13e62085d336ab91. The original continuation and self.ir line of can_count_arms used 30 leading spaces. This reconstructs the exact guard_only SHA-256 above.",
+    "commands": {
+      "tlc1": "java -XX:+UseSerialGC -XX:ActiveProcessorCount=1 -Xmx256m -cp tla2tools.jar tlc2.TLC -workers 1 -seed 1 -fp 0 -config CFG PaxosLeaseCheckedSym.tla",
+      "exact1": "dive check PaxosLeaseCheckedSym.tla --config CFG --store exact --compat=tlc --workers 1 --seed 1 --fp 0 --output json",
+      "exact8": "dive check PaxosLeaseCheckedSym.tla --config CFG --store exact --compat=tlc --workers 8 --seed 0 --fp 0 --time-limit 900s --max-memory 20g --output json",
+      "symbolic": "dive check PaxosLeaseCheckedSym.tla --config CFG --strategy symbolic --type-invariant TypeOK --refine-domains --time-limit LIMIT --max-memory MEMORY --output json"
+    },
+    "symbolic_limits": "The merged A2/N1 worker used limits of 120 s and 2 GiB. The guard-only A2/N2 and A3/N2 workers used 1,800 s and 20 GiB. The merged full labeled RenewCrash3 worker used 3,600 s and 6 GiB with a 6 GiB cgroup ceiling. The prior full labeled ReleaseCrash worker used 3,600 s and 20 GiB.",
+    "row_fields": ["model", "acceptors", "max_network", "geometry", "engine", "verdict", "distinct", "generated", "depth", "wall_seconds", "completed_maxrss_kib", "exit_code"],
+    "rows": [
+      ["RenewCrash3", 2, 1, "labeled", "tlc1", "success", 1856, 19489, 15, 1.88, 169452, 0],
+      ["RenewCrash3", 2, 1, "labeled", "exact1", "success", 1856, 19489, 15, 0.1, 31640, 0],
+      ["RenewCrash3", 2, 1, "labeled", "merged", "success", 1856, 19489, 15, 2.32, 62628, 0],
+      ["RenewCrash3", 3, 2, "labeled", "tlc1", "success", 12672, 145729, 18, 3.96, 175364, 0],
+      ["RenewCrash3", 2, 2, "labeled", "exact8", "success", 34309860, 177479267, 49, 170.64, 12036584, 0],
+      ["RenewCrash3", 2, 2, "labeled", "guard_only", "success", 34309860, 177479267, 49, 1467.86, 1591988, 0],
+      ["RenewCrash3", 2, 2, "quotient", "exact8", "success", 8884706, 45983784, 49, 54.09, 3185644, 0],
+      ["RenewCrash3", 3, 2, "labeled", "exact8", "success", 12672, 145729, 18, 0.16, 85056, 0],
+      ["RenewCrash3", 3, 2, "labeled", "guard_only", "success", 12672, 145729, 18, 1.29, 67548, 0],
+      ["RenewCrash3", 3, 2, "quotient", "exact8", "success", 1960, 22541, 18, 0.05, 62548, 0],
+      ["RenewCrash3", 3, 4, "labeled", "prior", "unsupported", null, null, null, 0.6, null, 2],
+      ["ReleaseCrash", 2, 1, "labeled", "tlc1", "success", 832, 6241, 14, 1.38, 146812, 0],
+      ["ReleaseCrash", 2, 1, "labeled", "exact1", "success", 832, 6241, 14, 0.04, 29656, 0],
+      ["ReleaseCrash", 2, 1, "labeled", "merged", "success", 832, 6241, 14, 1.9, 60156, 0],
+      ["ReleaseCrash", 3, 2, "labeled", "tlc1", "success", 4480, 38081, 17, 2.24, 171904, 0],
+      ["ReleaseCrash", 2, 2, "labeled", "exact8", "success", 14700326, 73518377, 53, 73.79, 5898680, 0],
+      ["ReleaseCrash", 2, 2, "labeled", "guard_only", "success", 14700326, 73518377, 53, 748.95, 945864, 0],
+      ["ReleaseCrash", 2, 2, "quotient", "exact8", "success", 3844251, 19245699, 53, 22.87, 1541920, 0],
+      ["ReleaseCrash", 3, 2, "labeled", "exact8", "success", 4480, 38081, 17, 0.05, 68564, 0],
+      ["ReleaseCrash", 3, 2, "labeled", "guard_only", "success", 4480, 38081, 17, 0.94, 63372, 0],
+      ["ReleaseCrash", 3, 2, "quotient", "exact8", "success", 760, 6461, 17, 0.03, 43888, 0],
+      ["ReleaseCrash", 3, 7, "labeled", "prior", "stopped", null, null, null, 3600.04, null, 4],
+      ["RenewCrash3", 3, 4, "labeled", "merged", "stopped", null, null, null, 3600.04, null, 4]
+    ],
+    "incomplete_searches": {
+      "RenewCrash3-A3-N4-labeled-prior": {
+        "reason": "unsupported action guard: overlapping boolean alternatives"
+      },
+      "ReleaseCrash-A3-N7-labeled-prior": {
+        "reason": "time limit"
+      },
+      "RenewCrash3-A3-N4-labeled-merged": {
+        "reason": "time limit"
+      }
+    },
+    "originals_on_merged_guard_worker": "With the published symmetry directive retained, both original configs refused symmetry on record-valued finite domains (exit 2).",
+    "stopped_memory": "GNU time maximum RSS can omit an interrupted descendant. The memory cell is empty for stopped searches. The entire service that ran the prior ReleaseCrash attempt reached 4,848,353,280 bytes across all processes and sequential cases.",
+    "merged_full_renew_service_peak_bytes": 5419384832,
+    "admission": "StartAcquire emits one distinct Prepare for each acceptor, including the destination acceptor field. From an empty network at A3/N2, that state violates the network constraint. A2/N2 admits the two-message broadcast, so increasing A at fixed N can greatly reduce this reachable set.",
+    "guard_control": "A worker collapsing overlapping state disjunctions returned 13,921 generated for RenewCrash3 A2/N1. TLC, Core and the merged worker reported 19,489 generated, 1,856 distinct, depth 15. StartAcquire includes (p \\notin active \\/ AllowRenewal)."
   }
 }

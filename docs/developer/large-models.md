@@ -20,7 +20,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 
 - **Reproduce the published originals.** Core exhausted the released SlateDB CFG and all six invariants. Complete the identical pinned TLC run and compare the reduced and unreduced counts with the author’s report. Record both terminal queues, distinct and generated counts, depth, elapsed time, memory, worker count and fingerprint limitations. The billion-state prefix gives a repeatable checkpoint for comparing builds. Compare the unedited three-barrier Flint model with its published 192-core completion. For ZooKeeper, compare the four-server, two-timeout configuration against the paper’s 24-hour cutoff after reproducing the one-timeout control. Keep the reconstructed restart rows separate. [SlateDB controls](#reproduce-the-released-slatedb-wal-model) · [ZooKeeper source recipe](#reproduce-the-zookeeper-protocol-specification).
 - **Close historical memory stops.** Use matched 24 GiB runs on DiskSynod, BPConProof, TLCSailfish2, BlockingQueuePoisonApple and c1cs, then raise the budget on the same inputs. Record the queue and stopping reason at each limit. Use the 242-million-state exact-store control to test reductions in collision-bucket and retained-row memory. The resident fingerprint table has also been tested at the shard occupancy implied by 49 billion states. [Historical outcomes](#where-the-thirteen-historical-non-finishes-stand) · [Frontier and value measurements](#resident-frontier-rows).
-- **Make maintenance cheaper.** Additions and shortcuts now reuse the old layers through the 77.4-million-state PaxosLease drain. The remaining cost is deletion of a reachable transition. Compare a deletion proof against the present 412.28 s restoration, including edits that really remove the last path to a state. Keep the false edit and independently validated trace as a control. Five BDD orderings on Retry exhausted their time budgets; use the completed explicit runs to judge any new relation representation. [PaxosLease runs and edits](#reproduce-the-released-paxoslease-runs) · [Installed Sail measurements](#what-an-installed-sail-worker-saves).
+- **Make maintenance cheaper.** Additions and shortcuts now reuse the old layers through the 77.4-million-state PaxosLease drain. The remaining cost is deletion of a reachable transition. A selective deletion proof gave mixed timings. Test edits that remove the last path to a state. Keep the false edit and independently validated trace as a control. Five BDD orderings on Retry exhausted their time budgets; use the completed explicit runs to judge any new relation representation. [PaxosLease runs and edits](#reproduce-the-released-paxoslease-runs) · [Installed Sail measurements](#what-an-installed-sail-worker-saves).
 - **Finish temporal checks.** For original Kafka, reduce the retained graph at the 8 GiB capture stop and the action-label allocation at the 24 GiB dense third-check stop. Measure both at the same depth-six prefix. For the two memory-heavy temporal originals, compare capacity at the same budget after each graph layout change. Keep independent counterexample validation and defer the 17-model worker campaign to integrated qualification. [Historical inputs and limits](#where-the-thirteen-historical-non-finishes-stand).
 - **Grow a checked program.** Increase one source parameter at a time, retain the original properties and cross-check the last tractable configuration with both explicit engines. Report generated edges, distinct concrete states, symmetry representatives and symbolic cardinalities using their own units. On EmergencyCall, compare all 64 symbolic cell closures with ordinary exact Core. Four one-domain edits now have full fixed points. Check the remaining ordinary cells and use the ordinary-number F1 controls when comparing growth: the local-number edits make the published constrained initial predicates empty. Transfer the finite-value representation to the general checker only with an admission proof for all initial values and generated witnesses. [Literature and reproducibility](#published-model-sizes-and-reproducible-comparisons).
 
@@ -786,21 +786,51 @@ On the larger SlateDB one-value control, the same 24 cores exhausted all 242,213
 
 ### Reproduce the released PaxosLease runs
 
-Two reduced crash configurations exercise witness counts in symbolic search.
-Start with the published `PaxosLeaseRenewCrash3.cfg` and
-`PaxosLeaseReleaseCrash.cfg`. Set `Acceptors = {a1, a2}` and `MaxNetwork = 1`,
-and remove `SYMMETRY Symm`. Keep the original modules, invariants and
-constraint. With `PaxosLeaseCheckedSym.tla`, pinned TLC and exact Core at one
-worker and refined symbolic search all report the following successful results.
-The original configurations with symmetry give the symbolic refusal
-`symmetry on record-valued finite domains`. [Published inputs](https://github.com/mtrencseni/paxoslease-revisited/tree/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/tla/spec).
+#### Labeled crash configurations
 
-| Reduced configuration | Distinct | Generated | Depth |
-| --- | ---: | ---: | ---: |
-| RenewCrash3 | 1,856 | 19,489 | 15 |
-| ReleaseCrash | 832 | 6,241 | 14 |
+Refined symbolic search and exact Core both completed the two-acceptor
+RenewCrash3 model with room for two network messages. Both found **34,309,860
+distinct states**, generated 177,479,267 and reached depth 49. The symbolic
+worker used 1.52 GiB peak RSS in 1,467.86 s on one CPU. Exact Core used
+11.48 GiB in 170.64 s on eight physical cores. For ReleaseCrash at the same
+bounds, the corresponding measurements were 0.90 GiB in 748.95 s and
+5.63 GiB in 73.79 s. Each timing and peak comes from one run. The record
+identifies the executable and worker used for each measurement.
+[Measurements and commands](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
-For each reduced config, run `dive check PaxosLeaseCheckedSym.tla --config CFG --strategy symbolic --type-invariant TypeOK --refine-domains`.
+| Configuration | Acceptors | MaxNetwork | Distinct | Generated | Depth |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| RenewCrash3 | 2 | 1 | 1,856 | 19,489 | 15 |
+| RenewCrash3 | 2 | 2 | 34,309,860 | 177,479,267 | 49 |
+| RenewCrash3 | 3 | 2 | 12,672 | 145,729 | 18 |
+| ReleaseCrash | 2 | 1 | 832 | 6,241 | 14 |
+| ReleaseCrash | 2 | 2 | 14,700,326 | 73,518,377 | 53 |
+| ReleaseCrash | 3 | 2 | 4,480 | 38,081 | 17 |
+
+All six rows passed the original invariants in both engines. Pinned TLC also
+matched both two-acceptor, one-message rows and both three-acceptor,
+two-message rows. The smaller state counts at three acceptors follow from
+the network bound. From an empty network, `StartAcquire` broadcasts one
+Prepare to each acceptor. A bound of two admits the two-acceptor broadcast
+and excludes the three-acceptor broadcast from the queue. With the original
+symmetry directive retained, the same model counts equivalence classes.
+[Crash configurations with symmetry](#symmetry-in-records-and-message-sets).
+
+At three acceptors and the published network bounds, two labeled symbolic
+runs reached their one-hour time limit and returned no exploration counts.
+The earlier worker stopped on ReleaseCrash at `MaxNetwork = 7` and refused
+the overlapping action guard on RenewCrash3. The worker with guard witness
+counting admitted RenewCrash3 at `MaxNetwork = 4` and reached the time limit
+with a 5.05 GiB service peak on one CPU.
+
+To reproduce a labeled row, start with `PaxosLeaseRenewCrash3.cfg` or
+`PaxosLeaseReleaseCrash.cfg`. Remove `SYMMETRY Symm`, keep the indicated
+number of acceptors beginning with `a1`, and set `MaxNetwork` to the table
+value. Keep the other constants, `StateConstraint`, `TypeOK` and `Safety`.
+Run `dive check PaxosLeaseCheckedSym.tla --config CFG --strategy symbolic --type-invariant TypeOK --refine-domains`.
+[Published inputs](https://github.com/mtrencseni/paxoslease-revisited/tree/5ca959624c5a2560ab1ad86dc71e8b161621d9bc/tla/spec).
+
+#### Base, quarantine and retry configurations
 
 Use the source pin and JVM settings in the [PaxosLease record](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 From the author's `tla/spec` directory run `dive check PaxosLeaseChecked.tla --config PaxosLeaseQuarantineEqualsProposer.cfg --compat=tlc --workers 8 --fp 0 --seed 0`.
@@ -877,6 +907,13 @@ On the larger QuarantineEqualsProposer input, adding the reset took **1.74 s** a
 An added action can make old states reachable earlier and can introduce entirely new states. Every state in the original graph still arrives by its old depth. The symbolic checker uses that fact to retain the old image and expand the states that first arrive at a different depth. Adding the network drain to Base took **23.95 s**, down from 43.70 s. The checker used all 29 old layer images, up from nine. The edited graph had 598,541 distinct states, 2,016,104 generated and depth 29 in both runs. Reverting took 35.39 s versus 36.14 s. Across the three revisions the two processes took 104.11 s and 129.96 s. [Input digests, commands and complete observations](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
 On the larger QuarantineEqualsProposer model, the drain introduced 634,904 reachable states. Counting the same 77,384,096 states and 401,456,611 generated at depth 43 took **97.49 s** with all 43 images available, down from **433.48 s** with five. Restoring the original took 412.28 s versus 395.23 s. The complete three-revision session fell from 1,225.33 to 901.83 s while peak RSS rose from 0.88 to 1.18 GiB. A fresh eight-worker Core check with the current exact store independently exhausted all 77,384,096 identities at the 22 GiB budget, in 515.30 s with 4.95 GiB peak RSS. An earlier exact-store executable stopped after 58,720,259 states at the same budget. The fingerprint control also exhausted the graph. [Both executable digests, queue counts and memory](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
+
+A separate experiment removed the Drain action from an already explored
+graph. Rechecking only destinations that might have lost their shortest
+predecessor reduced the QuarantineEqualsProposer edit from 446.39 to 286.11 s
+and raised the Base edit from 36.38 to 112.74 s. Both variants agreed on
+the final counts and depth. The checker kept the existing deletion algorithm.
+[Deletion controls and timing scope](https://github.com/Chelis-Lang/dive/issues/799#issuecomment-7057522753).
 
 The same three transition edits on QuarantineEqualsProposer took 2.10, 2.13 and 0.86 s after a 471.49 s cold check. Fresh searches seeded with the same finite coordinates took 427.07, 417.56 and 415.67 s. All runs kept 76,749,192 distinct states at depth 43. The generated counts were 391,849,185 initially, 468,598,377 with the self-loop, 402,564,377 with the duplicate Tick, and 391,849,185 after reverting. [Paired revisions and peak memory](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
