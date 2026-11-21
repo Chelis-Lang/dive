@@ -483,9 +483,18 @@ for a fairness action whose leading state conditions already rule it out.
 For example, in `WF_vars(ready /\ Step)`, every nonstuttering occurrence of
 `ready /\ Step` requires a source with `ready = TRUE`. Core checks the guard
 once per source when the subscript is a tuple of state variables and every
-retained row is materialized. If a condition raises an error or needs the successor, ordinary edge evaluation
-handles the remaining work. The JSON report counts attempts and proven false
+retained row is materialized. A source probe that raises an error leaves the ordinary
+edge evaluation in place. The JSON report counts attempts and proven false
 rows under `core.metrics.liveness.atoms.action_source_guards`.
+
+A leading condition can also read one destination variable. For example,
+`x' = 1 - x` rules out a destination that keeps `x` when the source has
+`x = 0`. Core tests the prefix once for that source and bound fairness action.
+If it returns false without an error, warning or output, each admitted edge
+with the same stored `x` value inherits that result. Other destinations take
+the ordinary action check. The `unchanged_target_guards` counters report
+compiled plans, source probes, successful source proofs and individual action
+demands answered by those proofs.
 
 From a source checkout, a strong-fairness model with three toggles
 (`crates/dive-liveness/tests/fixtures/solutions/Solutions.tla`, 8 states, 25
