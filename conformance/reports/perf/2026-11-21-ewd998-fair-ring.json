@@ -1,0 +1,370 @@
+{
+  "model": "Examples/specifications/ewd998/EWD998.cfg, revision 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f; CommunityModules 78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3",
+  "source_sha256": {
+    "EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+    "EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+    "AsyncTerminationDetection.tla": "c1b15be68a73c6e5f69c5c09f2736870182a9b0765ad9860452240119911b030",
+    "Folds.tla": "2f8c0a7de9a64a5276a78cb7b048e18038d37787439bb9e60df126dc7608a35a",
+    "Functions.tla": "b54ff63b7c76c327525c17c188d5f9f5e53d92f3fd701f5e2ba54f0f54391063"
+  },
+  "host": "EC2 c7i.4xlarge us-east-2, Intel Xeon Platinum 8488C. Each run pinned to one CPU. Other bounded experiments used separate CPUs. GNU time wall and process peak RSS in KiB.",
+  "engines": {
+    "core_sha256": "d54a5576c1e25aacefb74db02c68dd04136620517d4dbe90eaac881115c8dbc0",
+    "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "bdd": "dd==0.6.0, CPython 3.12, CUDD"
+  },
+  "commands": {
+    "bdd": "python3 scripts/perf/scale/ewd998.py ORIGINAL_SOURCE_DIR --modules COMMUNITY_MODULES_DIR --nodes N. Five resolved source/CFG file digests are validated.",
+    "core": "dive check EWD998.tla --config N.cfg --library-path MODULES --workers 1 --seed 0 --fp 0 --store exact --time-limit 730s --max-memory 4g --output json The recorded Core controls used --lncheck final --lasso short.",
+    "tlc": "java -XX:ActiveProcessorCount=1 -Xmx2400m -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 1 -fp 0 -seed 0 -lncheck final -config N.cfg EWD998.tla. Both explicit configurations change only N in the original CFG.",
+    "tlc_graph": "At N=2 add -dump dot,actionlabels ewd2.dot; use the original sibling Folds.tla. Run python3 scripts/perf/scale/ewd998_graph.py ewd2.dot."
+  },
+  "explicit_library_scope": "The first two- and three-node explicit timings used the CommunityModules Folds.tla with the same executable definitions. The complete two-node graph audit used the original sibling Folds.tla. The sibling differs solely by a leading documentation comment. The source-specific script requires the original sibling.",
+  "explicit": [
+    {
+      "nodes": 2,
+      "cfg_sha256": "0314c574c006b18007def6e7d0bda898ad9e06a4051560ed3751639a7aba2731",
+      "statistics": {
+        "depth": 28,
+        "distinct": 6876,
+        "generated": 33664,
+        "initial_generated": 32,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "core": {
+        "wall_seconds": 0.35,
+        "peak_rss_kib": 78876
+      },
+      "tlc": {
+        "wall_seconds": 3.96,
+        "peak_rss_kib": 131160
+      },
+      "verdict": "success"
+    },
+    {
+      "nodes": 3,
+      "cfg_sha256": "f953a4bff655cdfa06e8d47fad2affd8c79659cc1f59ac2314113810e50ad702",
+      "statistics": {
+        "depth": 59,
+        "distinct": 1520618,
+        "generated": 11238019,
+        "initial_generated": 192,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "core": {
+        "wall_seconds": 140.62,
+        "peak_rss_kib": 508232
+      },
+      "tlc": {
+        "wall_seconds": 217.36,
+        "peak_rss_kib": 945512
+      },
+      "verdict": "success"
+    }
+  ],
+  "alternate_closure": {
+    "method": "Least fixed point under each individual action, repeated in source order. Numeric bits grouped across fields by significance, followed by flags. No breadth-first depth from this iteration. Shares the finite source translation.",
+    "result": {
+      "n": 4,
+      "initial": 1024,
+      "distinct": 248006200,
+      "generated": 2696907118,
+      "depth": null,
+      "queue": 0,
+      "dag_nodes": 490253,
+      "terminated": 315186,
+      "detected": 455,
+      "rank": 10,
+      "wall_s": 317.052
+    },
+    "process": {
+      "wall_seconds": 317.33,
+      "peak_rss_kib": 1232812
+    }
+  },
+  "original_distinct_witness_note": "Each satisfied InitiateProbe disjunct contributes one generated candidate. At two nodes combining the three into one Boolean guard gave 28,454 rather than the 33,664 witnesses counted by TLC; neither reachable states nor final depth changed.",
+  "tlc_graph": {
+    "states": 6876,
+    "initial": 32,
+    "distinct_edges": 26182,
+    "wall_seconds": 0.89,
+    "peak_rss_kib": 56316
+  },
+  "mutations": [
+    {
+      "edit": "Add i # 1 to PassToken.",
+      "actual_source_sha256": "1fe37a19ea6b4300ad75d5577874fb7c109a04fe6e94a20ab2bc1c136d4df085",
+      "helper": "rejected modified root",
+      "core_verdict": "liveness-violation",
+      "property": "Liveness and TDSpec",
+      "statistics": {
+        "depth": 17,
+        "distinct": 2048,
+        "generated": 8368,
+        "initial_generated": 32,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "ending": {
+        "back_to": 1,
+        "kind": "lasso"
+      },
+      "states": 2,
+      "validation": "valid",
+      "forgery": "setting the initial token.q to 999 failed Init",
+      "core_process": {
+        "wall_seconds": 0.06,
+        "peak_rss_kib": 42716
+      }
+    },
+    {
+      "edit": "Change the send counter increment to two while sending one message.",
+      "actual_source_sha256": "dad5f95a747c3f8ffc6c84d9f755705c4de7cf2ebbf7c376a6de468538a14347",
+      "helper": "rejected modified root",
+      "core_verdict": "invariant-violation",
+      "property": "Inv",
+      "statistics": {
+        "depth": 2,
+        "distinct": 36,
+        "generated": 45,
+        "initial_generated": 32,
+        "left_on_queue": 26,
+        "reported_by_tlc": true
+      },
+      "ending": {
+        "kind": "invariant",
+        "name": "Inv"
+      },
+      "states": 2,
+      "validation": "valid",
+      "forgery": "setting the initial token.q to 999 failed Init",
+      "core_process": {
+        "wall_seconds": 0.01,
+        "peak_rss_kib": 34252
+      }
+    }
+  ],
+  "sensitivity": [
+    {
+      "control": "progress",
+      "rejected": "unranked terminated state"
+    },
+    {
+      "control": "safety",
+      "rejected": "state invariant"
+    },
+    {
+      "control": "shadow",
+      "rejected": "shadowed standard module: Naturals"
+    },
+    {
+      "control": "shadowed_functions",
+      "rejected": "the bound Functions module differs"
+    },
+    {
+      "control": "omitted_tlc_edge",
+      "rejected": "successors differ at TLC state -17576367779470668"
+    }
+  ],
+  "tlaps_trial": {
+    "tool": "TLAPS 1.5.0 installer from release 202210041448, archive SHA-256 ebb7a3f271bdb564f74cb0a2767ef7b9ff7045621a9be7c50d363a03c2e6f08a",
+    "command": "tlapm --threads 1 --nofp -k -I modules EWD998_proof.tla",
+    "result": "844 of 850 obligations passed using the bundled standard library and pinned CommunityModules. Remaining proof lines were 131,152,424,439,492,673. This trial provides no complete TLAPS verdict.",
+    "process": {
+      "wall_seconds": 502.01,
+      "peak_rss_kib": 704980
+    }
+  },
+  "earlier_closure_runs": {
+    "scope": "Reachability, queued invariants, generated multiplicity and fair progress before explicit testing of the constraint boundary.",
+    "shared_cpu": [
+      {
+        "nodes": 2,
+        "initial": 32,
+        "distinct": 6876,
+        "generated": 33664,
+        "depth": 28,
+        "left_on_queue": 0,
+        "final_bdd_nodes": 487,
+        "terminated": 200,
+        "detected": 7,
+        "max_system_steps": 4,
+        "wall_seconds": 0.2,
+        "peak_rss_kib": 53240
+      },
+      {
+        "nodes": 3,
+        "initial": 192,
+        "distinct": 1520618,
+        "generated": 11238019,
+        "depth": 59,
+        "left_on_queue": 0,
+        "final_bdd_nodes": 5874,
+        "terminated": 8771,
+        "detected": 55,
+        "max_system_steps": 7,
+        "wall_seconds": 3.48,
+        "peak_rss_kib": 110724
+      },
+      {
+        "nodes": 4,
+        "initial": 1024,
+        "distinct": 248006200,
+        "generated": 2696907118,
+        "depth": 104,
+        "left_on_queue": 0,
+        "final_bdd_nodes": 40900,
+        "terminated": 315186,
+        "detected": 455,
+        "max_system_steps": 10,
+        "wall_seconds": 163.98,
+        "peak_rss_kib": 1204368
+      }
+    ],
+    "dedicated": {
+      "host": "EC2 r7i.4xlarge us-east-2, Intel Xeon Platinum 8488C, Ubuntu 24.04, CPU 0, consecutive isolated processes.",
+      "rows": [
+        {
+          "nodes": 3,
+          "initial": 192,
+          "distinct": 1520618,
+          "generated": 11238019,
+          "depth": 59,
+          "left_on_queue": 0,
+          "final_bdd_nodes": 5874,
+          "terminated": 8771,
+          "detected": 55,
+          "max_system_steps": 7,
+          "wall_seconds": 2.16,
+          "peak_rss_kib": 110832
+        },
+        {
+          "nodes": 4,
+          "initial": 1024,
+          "distinct": 248006200,
+          "generated": 2696907118,
+          "depth": 104,
+          "left_on_queue": 0,
+          "final_bdd_nodes": 40900,
+          "terminated": 315186,
+          "detected": 455,
+          "max_system_steps": 10,
+          "wall_seconds": 119.56,
+          "peak_rss_kib": 1204312
+        }
+      ]
+    }
+  },
+  "checker_sha256": "3f1ea3bc3e7e805075122353a4a4a87f06ba6fa3897e35f777d473d29525463d",
+  "complete": {
+    "ewdgrowth": {
+      "host": "Dedicated EC2 r7i.4xlarge, one CPU per process",
+      "rows": [
+        {
+          "nodes": 2,
+          "initial": 32,
+          "distinct": 6876,
+          "generated": 33664,
+          "depth": 28,
+          "left_on_queue": 0,
+          "constraint_excluded_witnesses": 2240,
+          "final_bdd_nodes": 487,
+          "terminated": 200,
+          "detected": 7,
+          "max_system_steps": 4,
+          "wall_seconds": 0.16,
+          "peak_rss_kib": 53000
+        },
+        {
+          "nodes": 3,
+          "initial": 192,
+          "distinct": 1520618,
+          "generated": 11238019,
+          "depth": 59,
+          "left_on_queue": 0,
+          "constraint_excluded_witnesses": 1607014,
+          "final_bdd_nodes": 5874,
+          "terminated": 8771,
+          "detected": 55,
+          "max_system_steps": 7,
+          "wall_seconds": 2.09,
+          "peak_rss_kib": 110912
+        },
+        {
+          "nodes": 4,
+          "initial": 1024,
+          "distinct": 248006200,
+          "generated": 2696907118,
+          "depth": 104,
+          "left_on_queue": 0,
+          "constraint_excluded_witnesses": 530283897,
+          "final_bdd_nodes": 40900,
+          "terminated": 315186,
+          "detected": 455,
+          "max_system_steps": 10,
+          "wall_seconds": 121.59,
+          "peak_rss_kib": 1204548
+        }
+      ]
+    },
+    "pastrybench": {
+      "host": "EC2 c7i.4xlarge us-east-2, Intel Xeon Platinum 8488C. Each run pinned to one CPU. Other bounded experiments used separate CPUs. GNU time wall and process peak RSS in KiB.",
+      "rows": [
+        {
+          "nodes": 2,
+          "initial": 32,
+          "distinct": 6876,
+          "generated": 33664,
+          "depth": 28,
+          "left_on_queue": 0,
+          "constraint_excluded_witnesses": 2240,
+          "final_bdd_nodes": 487,
+          "terminated": 200,
+          "detected": 7,
+          "max_system_steps": 4,
+          "wall_seconds": 0.19,
+          "peak_rss_kib": 53076
+        },
+        {
+          "nodes": 3,
+          "initial": 192,
+          "distinct": 1520618,
+          "generated": 11238019,
+          "depth": 59,
+          "left_on_queue": 0,
+          "constraint_excluded_witnesses": 1607014,
+          "final_bdd_nodes": 5874,
+          "terminated": 8771,
+          "detected": 55,
+          "max_system_steps": 7,
+          "wall_seconds": 2.86,
+          "peak_rss_kib": 110904
+        },
+        {
+          "nodes": 4,
+          "initial": 1024,
+          "distinct": 248006200,
+          "generated": 2696907118,
+          "depth": 104,
+          "left_on_queue": 0,
+          "constraint_excluded_witnesses": 530283897,
+          "final_bdd_nodes": 40900,
+          "terminated": 315186,
+          "detected": 455,
+          "max_system_steps": 10,
+          "wall_seconds": 154.57,
+          "peak_rss_kib": 1204640
+        }
+      ]
+    }
+  },
+  "boundary_control": {
+    "module": "BoundProbe EXTENDS EWD998; UnderBound == pending[0] <= 3",
+    "module_sha256": "cb992028c4fd940dd65a138c6151298fc3720e2eb348ca54b41bd451abf1089b",
+    "cfg": "Original two-node variant followed by INVARIANT UnderBound",
+    "cfg_sha256": "0508cd8dd05652963a0150fbd5dd2cf58f19fead0f412b4a67995ae1e5de7d20",
+    "result": "Core and TLC both exit 12, violating UnderBound at depth 5 with pending[0] = 4. Independent validation accepted the five-state trace and rejected changing initial token.q to 999. Conjoining the equivalent predicate with Ring.invariant raises state invariant outside the constraint: send."
+  }
+}
