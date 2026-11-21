@@ -1446,7 +1446,7 @@ pub(crate) fn check(
             return (finish(result(unsupported(feature), options, ir)), run);
         }
         if let Some(verdict) = startup_stop(options) {
-            let checks = route.map(|schedule| dive_liveness::analyze::periodic::Checks {
+            let checks = route.map(|(schedule, _)| dive_liveness::analyze::periodic::Checks {
                 schedule,
                 ..Default::default()
             });

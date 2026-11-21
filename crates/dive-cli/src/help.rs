@@ -46,6 +46,7 @@ const CHECK: &str = "USAGE: dive check FILE.tla [OPTIONS]\n\n\
     --time-limit DURATION|none --max-memory BYTES|auto|none\n\
     --max-states N|none --max-depth N|none\n\
     --action-composition off|tla --symmetry-liveness unreduced|refuse|tlc\n\
+    --lncheck periodic-all  search every temporal property at each scheduled level\n\
     --core-sample N         compare N sampled states' successors (diagnostic)\n\
     --library-path DIR --module-path DIR (repeatable)\n\n\
 Supported storage options:\n\

@@ -11,6 +11,8 @@ are in git history.
 
 - Temporal graph capture compresses destination IDs in blocks and preserves each generated edge. [Storage measurements](docs/developer/large-models.md#destination-ids-in-temporal-graphs).
 
+- `dive check --lncheck periodic-all` can find a violation of any configured temporal property on a completed BFS level. [Temporal checking](docs/user/temporal.md#ordinary-checking-in-the-dive-profile).
+
 - Temporal graph capture packs repeated action labels and stores exceptions to source-local successor numbering. [Storage measurements](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
 - Resident exact safety checking packs full state identities in blocks. The 242-million-state SlateDB control used 35.2 GiB at peak. [Exact-store comparison](docs/developer/large-models.md#resident-exact-state-identities).

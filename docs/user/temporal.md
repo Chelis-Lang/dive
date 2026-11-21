@@ -119,6 +119,16 @@ check would name it first. Later properties wait for the final check, so the
 reported property is the one a final-only check reports. A violation found on a
 prefix stops the run there, skips postconditions and reports the counts with `capture_completed: false` and `exhausted: false`.
 
+Use `--lncheck periodic-all` to search every configured property at each due
+level. For example, if `Termination` holds on the prefix and `Live` already
+has a fair counterexample, the run can report `Live` there. The checker
+searches in configuration order, evaluates every configured property on the
+selected word and independently replays it. A prefix without a witness
+continues exploring. This mode can spend more time at a level when several
+properties hold. It also selects the deterministic schedule under
+`--compat=tlc`. The report includes `options.periodic_properties: "all"`.
+Rust callers select `TemporalMode::PeriodicAll`.
+
 Like TLC's own periodic checking, a violation found on a prefix can preempt an
 invariant violation or evaluation error beyond that prefix, which a final-only
 run would report instead, and it stops with fewer states than a final-only

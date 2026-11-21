@@ -163,6 +163,7 @@ struct Inputs<'a> {
 
 /// What the checks of one run have done and decided so far.
 struct Decisions {
+    prefix_properties: usize,
     checks: Checks,
     stage: Stage,
     evaluations: EvaluationErrors,
@@ -172,6 +173,7 @@ struct Decisions {
 impl Decisions {
     fn new(checks: Checks) -> Self {
         Self {
+            prefix_properties: 1,
             checks,
             stage: Stage::Capture,
             evaluations: EvaluationErrors {
@@ -207,13 +209,13 @@ impl Decisions {
         let _scope = crate::budget::enter(inputs.budget);
         // Due prefixes retain the frontier labels and attribution. A row
         // cache covers expanded sources only and cannot replace that demand.
-        // Only the first property can decide a prefix: a word for it on a
-        // subgraph is a word on the complete graph, which the final search
-        // would also report first. Later properties wait for the final check.
+        // Ordinary checking preserves the final search's property priority.
+        // With all properties selected, any validated word on the prefix
+        // witnesses a violation on the complete graph.
         match analyze_captured(
             inputs.model,
             inputs.plans,
-            1,
+            self.prefix_properties,
             graph,
             inputs.limits,
             inputs.policy,
