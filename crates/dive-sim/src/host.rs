@@ -138,7 +138,9 @@ impl Host for SimulationHost {
     }
 
     fn check_tlc_access(&self, key: &str, write: bool) -> Result<(), HostError> {
-        if !write && key == "config" {
+        // `config` and the action composition switch are pure functions of
+        // the run's options, so they read the same on every trace.
+        if !write && matches!(key, "config" | "-Dtlc2.tool.impl.Tool.cdot") {
             return Ok(());
         }
         Err(self.refuse(format!(

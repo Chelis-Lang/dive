@@ -13,11 +13,12 @@ Every module is the smallest one that shows its behavior:
 | Module | Shows |
 |---|---|
 | `Cycle` | loops that close (C1 to C6, C10), a depth that never closes the loop (C7, C8), stuttering without fairness (C9), `num` counted per worker (C11) |
-| `Terminal` | a trace with no successor is infinite stuttering (T1 to T3); deadlock decides first (T4) |
+| `Terminal` | a trace with no successor is infinite stuttering (T1 to T3); deadlock decides first (T4); TLC reports `<>[](x = 2)` violated on the terminal behavior `0, 1, 2, 2, ...`, which satisfies it, while the BFS control B-T5 finds no violation (T5, D-043) |
 | `Unbounded` | truncated traces leave liveness silently unchecked (U1 to U3, U9); bad prefixes of `[]P` and `[][A]_v` (U4, U7); constraint cuts (U10, U13, U14); implied initial properties are never checked by `-simulate` (U12, with the BFS control B-U12); ALIAS rendering and `file=` output (A1 to A3) |
+| `Stem` | TLC reports `<>[](x > 0)` violated with a lasso on `0, 1, 2, 1, 2, ...`, which satisfies it; the BFS control B-E1 finds no violation (E1, D-043) |
 | `Fair`, `Strong` | WF and SF decide which lassos are behaviors (F1 to F3, S1, S2) |
 | `ViewLoop` | under `VIEW`, TLC closes the loop on the view and reports a counterexample that is not a behavior (V1, BFS control B-V1); VIEW leaves safety unchanged (V3, V4) |
-| `SymLoop` | under `SYMMETRY`, TLC misses a real violation (Y2) that it finds without it (Y3); the BFS control B-Y2 reports an unfair stuttering counterexample; SYMMETRY leaves safety unchanged (Y4) |
+| `SymLoop` | under `SYMMETRY`, TLC misses a real violation (Y2) that it finds without it (Y3); the BFS control B-Y2 reports an unfair stuttering counterexample, though not on every run: repeated single-worker runs of the same command differ (3 of 4 reported it on 2026-11-21); SYMMETRY leaves safety unchanged (Y4) |
 | `BigNext`, `InfInit`, `InfNext` | `-simulate` enumerates every initial state and every successor (G1); `-generate` builds one successor but still enumerates Init (G2); Init or successors over `Nat` end in GENERAL 1000, exit 255, in both modes (G3 to G6); dive samples them by default and reproduces the error with `--sample-unbounded off` or `--compat=tlc` (D-040) |
 | `Walk` | repeated runs with one and four workers and the same seed: the same counterexample each time, a different one at four workers, and generated counts that vary on every run (W1, W4) |
 

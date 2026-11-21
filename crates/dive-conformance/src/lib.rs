@@ -52,3 +52,6 @@ pub use error::{Error, Result};
 
 /// Non-gating observations of bounded final/short temporal checking.
 pub mod final_study;
+
+/// Non-gating comparison of sampled runs with TLC's simulator.
+pub mod simulation_study;

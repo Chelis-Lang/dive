@@ -45,6 +45,8 @@ CASES = [
     ("T1", "Terminal", "SPECIFICATION FairSpec\nPROPERTY EventuallyTwo", sim(10, 20, 1, 1, "-deadlock"), "holds", "sound"),
     ("T2", "Terminal", "SPECIFICATION FairSpec\nPROPERTY EventuallyFive", sim(10, 20, 1, 1, "-deadlock"), "violated", "sound: no successor is infinite stuttering"),
     ("T3", "Terminal", "SPECIFICATION FairSpec\nPROPERTY InfOftenZero", sim(10, 20, 1, 1, "-deadlock"), "violated", "sound"),
+    ("T5", "Terminal", "SPECIFICATION FairSpec\nPROPERTY EventuallyAlwaysTwo", sim(10, 20, 1, 1, "-deadlock"), "holds", "unsound: reports a stuttering counterexample on 0, 1, 2, 2, ..., which satisfies <>[](x = 2) (BFS control B-T5 finds none)"),
+    ("E1", "Stem", "SPECIFICATION FairSpec\nPROPERTY EventuallyAlwaysPositive", sim(10), "holds", "unsound: reports a lasso back to x = 1 on 0, 1, 2, 1, 2, ..., which satisfies <>[](x > 0) (BFS control B-E1 finds none)"),
     ("T4", "Terminal", "SPECIFICATION FairSpec\nPROPERTY EventuallyFive", sim(10), "violated", "deadlock (2114) decides before the temporal check"),
     ("U1", "Unbounded", "SPECIFICATION FairSpec\nPROPERTY EventuallyTen", sim(5), "holds", "silent: truncated, liveness unchecked"),
     ("U2", "Unbounded", "SPECIFICATION FairSpec\nPROPERTY InfOftenEven", sim(5), "holds", "silent: truncated, liveness unchecked"),
@@ -91,6 +93,8 @@ REPEATS = [
 ]
 # BFS controls for the simulate cases whose answer differs from model checking.
 BFS = [
+    ("B-E1", "Stem", "SPECIFICATION FairSpec\nPROPERTY EventuallyAlwaysPositive"),
+    ("B-T5", "Terminal", "SPECIFICATION FairSpec\nPROPERTY EventuallyAlwaysTwo\nCHECK_DEADLOCK FALSE"),
     ("B-U12", "Unbounded", "SPECIFICATION FairSpec\nPROPERTY InitOne"),
     ("B-U13", "Unbounded", "SPECIFICATION FairSpec\nCONSTRAINT BelowThree\nPROPERTY StepBelowThree"),
     ("B-V1", "ViewLoop", "SPECIFICATION FairSpec\nPROPERTY EventuallyThree\nVIEW View"),

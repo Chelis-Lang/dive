@@ -101,8 +101,10 @@ property, fairness included. Observed:
 | C7 | `<>(x=5)`, depth 2 (loop never closes) | no error, exit 0 | violated | **silent**: success with liveness unchecked |
 | C8 | `[]<>(x=0)`, depth 2 | no error | holds | the truncated end is not treated as stuttering |
 | C9 | no fairness, `[]<>(x=0)` | 2116, stuttering after 3 states | violated | sound |
+| E1 | `0` then the loop `1,2`, WF, `<>[](x>0)` | 2116, lasso back to state 2 | holds | **unsound**: BFS (B-E1) finds no violation (D-043) |
 | T2, T3 | counter to 2 then no successor, `-deadlock` | 2116, stuttering | violated | sound: no successor means stuttering |
 | T4 | same, deadlock checked | 2114 deadlock, exit 11 | | deadlock decides first |
+| T5 | same, `-deadlock`, `<>[](x=2)` | 2116, stuttering after `x = 2`, exit 13 | holds | **unsound**: the terminal behavior `0, 1, 2, 2, ...` satisfies the property, and BFS (B-T5) finds no violation (D-043) |
 | U1 to U3, U9 | `x' = x + 1`, WF, `<>`, `[]<>`, `~>`, depth 5 or 20 | no error | holds | **silent**: no trace can decide |
 | U4 | `[](x<4)`, depth 5 | 2110 at `x = 4` | violated | sound bad prefix |
 | U5 | `[](x<10)`, depth 5 | no error | violated | incomplete (beyond depth) |
@@ -117,7 +119,10 @@ Conclusions:
 
 - TLC's liveness on a sample is sound when fingerprints are concrete: every
   lasso it finds is a path in the trace graph, and a stutter self-loop is a
-  real TLA+ step.
+  real TLA+ step. The exception found in S4 is `<>[]P` when `P` is false
+  before the part of the trace that repeats, a loop (E1) or a final state
+  with no successor (T5): TLC reports a violation where `P` holds from some
+  state on.
 - TLC never says that a property went unchecked. A depth that never closes a
   loop (C7, U1) reports the same success as a run that checked thousands of
   lassos (C4). That is the main weakness to beat.
@@ -836,6 +841,32 @@ reason code. It runs in the default profile only.
   where TLC simulate finds a violation within the same traces and depth.
 - `dive-bench`: traces/s against TLC on a quiet AWS node at 1, 4 and 8
   workers, with and without temporal properties; startup for one trace.
+
+As built (S4): `scripts/simulate-refusal-histogram.py` over the 235
+configurations now refuses 10, against 110 before
+(`conformance/reports/2026-11-21-simulate-refusals-after.json`, one
+assessment per refused or unsampled configuration). Eleven of the sixteen
+refused or unsampled configurations are correct refusals (spec I/O grants,
+`TLCSet`, `JavaTime`, Apalache-only configurations). Five are gaps: `\cdot`
+replay in the validator (`MCCRDT`, `MCReplicatedLog`), validation cost with a
+`RandomElement` constant (`SpanTreeRandom`), and the Core operators
+`RandomSubset` and `Bits!And`. `dive-conformance study simulate` runs both
+simulators over the corpus, ten seeds of ten traces at depth 100
+(`conformance/reports/2026-11-21-simulate-conformance.json`). It found no
+invalid trace, no dive class outside the golden's or TLC's, and no
+configuration where TLC's simulator finds a violation in 9 of 10 seeds and
+dive does not, other than TLC's unsound reports. All 116 deciding traces
+validated. `MCtcp`, `MCInnerSequential` and `MCLamportMutex` stop on a
+deadlock in every seed in both simulators: a state with no successor inside
+the `CONSTRAINT`. TLC's simulator reported a `<>[]` violation on three
+models where model checking finds none; the smallest receipts are E1 and T5
+(D-043). Of 141 temporal properties on 72 models, 119 were checked on every
+trace; 89 % of trace-property pairs were checked with `--liveness-extend`,
+88 % without. Throughput is in
+`conformance/reports/perf/2026-11-21-simulation-throughput-d04a3a88.json`:
+without temporal properties dive is ahead of TLC at every worker count; with
+them, the atoms run on the slower `dive-eval` evaluator, and `EWD840` is at
+0.48x TLC.
 
 ### S5: trace output
 
