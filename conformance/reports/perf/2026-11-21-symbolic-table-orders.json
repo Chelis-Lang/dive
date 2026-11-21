@@ -1,0 +1,1113 @@
+{
+  "format": "dive-shared-table-layout-v1",
+  "source": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/KeyValueStore; original transitions except explicitly named Corrupt. Removed SYMMETRY TxIdSymmetric from the selected CFG in every labeled trial. Kept TxIdSymmetric == Permutations(TxId) in the TLA+ file. V=2 throughout.",
+  "method": "Isolated AWS EC2 c7i.4xlarge, Ubuntu 24.04.5, Intel Xeon Platinum 8488C, 8 physical cores and 16 vCPUs. Fresh processes pinned to separate physical cores; several jobs ran concurrently. Wall seconds and child/process peak RSS KiB from GNU time. Main CLI/exporter rebuilt from 901f533e, release with LTO disabled. Both arms of the paired shipping comparison use identical executables. The Python worker is the only arm difference.",
+  "commands": [
+    "python3 scripts/perf/scale/sail_kvs_edits.py KVS OUT --keys K --transactions T",
+    "sed '/^SYMMETRY$/{N;d;}' OUT/CASE/Model.cfg > labeled.cfg",
+    "dive check OUT/CASE/MCKVS.tla --config labeled.cfg --strategy symbolic --time-limit SECONDS --output json",
+    "For induction add --prove-inductive and use CASE=FullHasFresh; retain TypeInvariant, TxLifecycle, FullHasFresh and SomeCommit. The unchanged relation is always checked from source. Replaying a stored predicate uses the search encoding."
+  ],
+  "roles": {
+    "base": "Complete labeled BFS of the original TypeInvariant and TxLifecycle configuration.",
+    "scope": "FullHasFresh is an explicit model invariant: if every slot is open, some transaction has missed no writes. These direct finite proofs do not enumerate the graph or produce a depth/count.",
+    "all_open_lower_bound": "Every current store and every vector of independent final snapshots/written sets can be constructed with all transactions open and missed sets empty; labeled subfamily cardinality (V+1)^K * (V+2)^(K*T).",
+    "false": "AtMostOneConflict revises only the invariant and has a depth-eight independently validated counterexample."
+  },
+  "sha256": {
+    "main-bundle/libexec/dive-symbolic/engine.py": "ce4ef17fcab9e4a0edb85f387173a3a195f65ba2792a1546d8afac81b2f8bc36",
+    "final-bundle/libexec/dive-symbolic/engine.py": "ce4ef17fcab9e4a0edb85f387173a3a195f65ba2792a1546d8afac81b2f8bc36",
+    "order-bundle/libexec/dive-symbolic/engine.py": "6898bcb0642201e528736170c7b2c82a6333ff8d1898e50bf1ccf0a776af9427",
+    "ordered-bundle/libexec/dive-symbolic/engine.py": "2b0990cf80ebf42c6ebc8e0581e418f600a1ebebfa011d31a38a51c69df10163",
+    "slot-bundle/libexec/dive-symbolic/engine.py": "69e8d3c29d420b576e48a78374d7a45a27451dd024bc08ef5b01d81a421979e7",
+    "qualified-bundle/libexec/dive-symbolic/engine.py": "e8b91d83fe94adced78202f06bd730b4ea8cfa2243514efc4dcd1f1941e0c813",
+    "combined-bundle/libexec/dive-symbolic/engine.py": "4da9b5c3a8d2379568a2b40d30af00cd0416d1331e96915adfbfe72edb2c0239",
+    "current-bundle/libexec/dive-symbolic/engine.py": "272b45ffd4114d6e86461c6f761bb62c52914d67c74f150236fa04ccdc21e9a6",
+    "main-bundle/dive": "a2797d1867ecece6e4e93ca1bb47d60a3660a26fa3816d1ee6c0643e510b07d5",
+    "final-bundle/dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+    "main-bundle/libexec/dive-symbolic/symbolic_input": "aec41fb7dfc99d0d27efeeab84f45b483724021504083dd9c81de870fd4982da",
+    "final-bundle/libexec/dive-symbolic/symbolic_input": "aec41fb7dfc99d0d27efeeab84f45b483724021504083dd9c81de870fd4982da",
+    "current-bundle/libexec/dive-symbolic/check.py": "340c72a376b6276d63d956d59333add015f4da4511d0bc2a5ffb78a25ea8a38e",
+    "current-bundle/libexec/dive-symbolic/induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8",
+    "current-bundle/libexec/dive-symbolic/finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+    "K2/base/MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "K2/base/Model.cfg": "bf2a1006c4cfd80b216ff9c10c39c3473814f663d7cf7e925b7a5a9380ef1e6c",
+    "K2/AtMostOneConflict/MCKVS.tla": "e54c0afcbbf78cda6b5ca7d625a203db9a9e44691ab514924fb5502107963c7b",
+    "K2/AtMostOneConflict/Model.cfg": "d7795629579e7c4ec4ac398647e5247353c070f10cc3ab4995a6c9f30476624d",
+    "K3/base/MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+    "K3/base/Model.cfg": "5b56c1734e06dabc131939a92207023b577351eef9275fd6911701cd353ef1a6",
+    "K3/AtMostOneConflict/MCKVS.tla": "e54c0afcbbf78cda6b5ca7d625a203db9a9e44691ab514924fb5502107963c7b",
+    "K3/AtMostOneConflict/Model.cfg": "1d9ea28b4fe00644e14caa1d6b4000f0c0fa91967951dc7427ad865886d7108e"
+  },
+  "shipping_pairs": {
+    "method": "Two repetitions, reversing arm order in the second. CPU 7, 1,600 MiB cgroup, 1,300 MiB process address-space ceiling. Complete searches use 45s (K2) and 100s (K3), and the 7-transaction direct proof uses 50s. Smaller negative with this cap stopped in the validator on both arms; the separate no-address-limit comparison below completed independent validation. control=main-bundle, fixed=qualified-bundle.",
+    "rows": {
+      "K2-control-1": {
+        "exit": 0,
+        "wall_s": 2.65,
+        "rss_kib": 117344,
+        "verdict": "success",
+        "depth": 23,
+        "reachable_bdd_nodes": 1278,
+        "distinct_decimal": "3409605",
+        "generated_decimal": "56349379"
+      },
+      "K2-control-2": {
+        "exit": 0,
+        "wall_s": 2.65,
+        "rss_kib": 117208,
+        "verdict": "success",
+        "depth": 23,
+        "reachable_bdd_nodes": 1278,
+        "distinct_decimal": "3409605",
+        "generated_decimal": "56349379"
+      },
+      "K2-fixed-1": {
+        "exit": 0,
+        "wall_s": 1.6,
+        "rss_kib": 81452,
+        "verdict": "success",
+        "depth": 23,
+        "reachable_bdd_nodes": 867,
+        "distinct_decimal": "3409605",
+        "generated_decimal": "56349379"
+      },
+      "K2-fixed-2": {
+        "exit": 0,
+        "wall_s": 1.65,
+        "rss_kib": 81528,
+        "verdict": "success",
+        "depth": 23,
+        "reachable_bdd_nodes": 867,
+        "distinct_decimal": "3409605",
+        "generated_decimal": "56349379"
+      },
+      "complete3-control-1": {
+        "exit": 0,
+        "wall_s": 58.14,
+        "rss_kib": 642464,
+        "verdict": "success",
+        "depth": 30,
+        "reachable_bdd_nodes": 2707,
+        "distinct_decimal": "3557499075",
+        "generated_decimal": "80080066801"
+      },
+      "complete3-control-2": {
+        "exit": 0,
+        "wall_s": 57.5,
+        "rss_kib": 642408,
+        "verdict": "success",
+        "depth": 30,
+        "reachable_bdd_nodes": 2707,
+        "distinct_decimal": "3557499075",
+        "generated_decimal": "80080066801"
+      },
+      "complete3-fixed-1": {
+        "exit": 0,
+        "wall_s": 36.4,
+        "rss_kib": 635080,
+        "verdict": "success",
+        "depth": 30,
+        "reachable_bdd_nodes": 1961,
+        "distinct_decimal": "3557499075",
+        "generated_decimal": "80080066801"
+      },
+      "complete3-fixed-2": {
+        "exit": 0,
+        "wall_s": 36.18,
+        "rss_kib": 635092,
+        "verdict": "success",
+        "depth": 30,
+        "reachable_bdd_nodes": 1961,
+        "distinct_decimal": "3557499075",
+        "generated_decimal": "80080066801"
+      },
+      "false-control-1": {
+        "exit": 4,
+        "wall_s": 0.3,
+        "rss_kib": 57852,
+        "verdict": "stopped",
+        "reason": "Dive trace validator could not allocate a binder thread"
+      },
+      "false-fixed-1": {
+        "exit": 4,
+        "wall_s": 0.3,
+        "rss_kib": 57868,
+        "verdict": "stopped",
+        "reason": "Dive trace validator could not allocate a binder thread"
+      },
+      "proof7-control-1": {
+        "exit": 4,
+        "wall_s": 50.04,
+        "rss_kib": 190664,
+        "verdict": "stopped",
+        "reason": "time limit"
+      },
+      "proof7-control-2": {
+        "exit": 4,
+        "wall_s": 50.04,
+        "rss_kib": 190712,
+        "verdict": "stopped",
+        "reason": "time limit"
+      },
+      "proof7-fixed-1": {
+        "exit": 0,
+        "wall_s": 6.96,
+        "rss_kib": 197372,
+        "proof": "inductive-safety",
+        "failed_obligation": null
+      },
+      "proof7-fixed-2": {
+        "exit": 0,
+        "wall_s": 6.36,
+        "rss_kib": 197472,
+        "proof": "inductive-safety",
+        "failed_obligation": null
+      }
+    }
+  },
+  "four_key_complete": {
+    "method": "Same labeled four-key, two-value, three-transaction bytes, no symmetry. First two trials on CPU6 with 600s cap; second 4-key confirmation on CPU1, 4200s cap; main CLI plus qualified-bundle rerun on CPU6, 700s cap. CPU6 RSS cgroup 3.5 GiB; CPU1 4.5 GiB.",
+    "initial": {
+      "control": {
+        "exit": 0,
+        "wall_s": 536.59,
+        "rss_kib": 633988,
+        "verdict": "success",
+        "depth": 37,
+        "reachable_bdd_nodes": 4171,
+        "distinct_decimal": "3552493680513",
+        "generated_decimal": "100950860734327"
+      },
+      "outer": {
+        "exit": 0,
+        "wall_s": 308.88,
+        "rss_kib": 635224,
+        "verdict": "success",
+        "depth": 37,
+        "reachable_bdd_nodes": 3226,
+        "distinct_decimal": "3552493680513",
+        "generated_decimal": "100950860734327"
+      }
+    },
+    "second_key_first": {
+      "exit": 0,
+      "wall_s": 311.9,
+      "rss_kib": 635116,
+      "verdict": "success",
+      "depth": 37,
+      "reachable_bdd_nodes": 3226,
+      "distinct_decimal": "3552493680513",
+      "generated_decimal": "100950860734327"
+    },
+    "qualified_key_first": {
+      "exit": 0,
+      "wall_s": 307.51,
+      "rss_kib": 635184,
+      "verdict": "success",
+      "depth": 37,
+      "reachable_bdd_nodes": 3226,
+      "distinct_decimal": "3552493680513",
+      "generated_decimal": "100950860734327"
+    }
+  },
+  "false_control": {
+    "false-main": {
+      "exit": 1,
+      "wall_s": 0.3,
+      "rss_kib": 57828,
+      "verdict": "invariant-violation",
+      "depth": 8,
+      "ending": {
+        "kind": "invariant",
+        "name": "AtMostOneConflict"
+      },
+      "trace_validated": true
+    },
+    "false-improved": {
+      "exit": 1,
+      "wall_s": 0.3,
+      "rss_kib": 57768,
+      "verdict": "invariant-violation",
+      "depth": 8,
+      "ending": {
+        "kind": "invariant",
+        "name": "AtMostOneConflict"
+      },
+      "trace_validated": true
+    }
+  },
+  "shipping_width": {
+    "K1T102": {
+      "exit": 0,
+      "wall_s": 7.11,
+      "rss_kib": 569460,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "source_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+      "config_sha256": "5e1f43159059ff1f8b5472ec0461a8a51dffcfb969c5d42869bc5fd737c3c0da",
+      "constructible_labeled_states_lower_bound_decimal": "77133026124431533226014180432375804921065743701574056094466048"
+    },
+    "K1T103": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "rss_kib": 57636,
+      "verdict": "unsupported",
+      "reason": "finite layout exceeds 512 state bits at missed (513 bits so far)",
+      "source_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+      "config_sha256": "8c4dbe2b1a839559fe18d197049b7187b736716ded073b8eb72f8177d7aaf66f"
+    },
+    "K2T16": {
+      "exit": 0,
+      "wall_s": 0.8,
+      "rss_kib": 80956,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "source_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+      "config_sha256": "cac7c9eb1abf6b9e821d595c536591be3417635b0c59fdbda311d1b39988156d",
+      "constructible_labeled_states_lower_bound_decimal": "166020696663385964544"
+    },
+    "K2T56": {
+      "exit": 0,
+      "wall_s": 10.27,
+      "rss_kib": 583788,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "source_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+      "config_sha256": "d6f4a7e48fdd851681cc20a5ce05e8ba2c64f4fcf38a39624830a585a96e9346",
+      "constructible_labeled_states_lower_bound_decimal": "242639520004355758152003135783176676062734299802865152329932492242944"
+    },
+    "K2T57": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "rss_kib": 57852,
+      "verdict": "unsupported",
+      "reason": "finite layout exceeds 512 state bits at missed (513 bits so far)",
+      "source_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+      "config_sha256": "ad34da20af462ea8f330700e193434c18ea6f70b43054b69a32aa14f47b5db48"
+    },
+    "K3T24": {
+      "exit": 0,
+      "wall_s": 12.48,
+      "rss_kib": 323516,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "source_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+      "config_sha256": "a3aa12e44d5e9a09e4589156c82d73ccfab56d6e96f4467c74a7c9e71ac432dc",
+      "constructible_labeled_states_lower_bound_decimal": "602120120360326824821464393361505760661471232"
+    },
+    "K4T12": {
+      "exit": 0,
+      "wall_s": 22.25,
+      "rss_kib": 599780,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "source_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+      "config_sha256": "f9ca2758a4c53a2a048275f68c4c059186cd1202655692dfee243b8a1afb02a0",
+      "constructible_labeled_states_lower_bound_decimal": "6417481163655411345077059977216"
+    },
+    "K4T24": {
+      "exit": 0,
+      "wall_s": 109.69,
+      "rss_kib": 643872,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "source_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+      "config_sha256": "1796bffc39154916e3f6f1f9501f5095bbc7d7dbd954e0e40253b96e5b8872c6",
+      "constructible_labeled_states_lower_bound_decimal": "508445240566321141870698943279820979704290791001586795544576"
+    }
+  },
+  "width_method": "Qualified worker, CPU3, 3,000 MiB cgroup, 2,600 MiB max address space, 120s; no saved predicate. K1T103 and K2T57 are one slot beyond the tested successful maxima. The 512-state-bit admission limit is unchanged.",
+  "saved_predicates": {
+    "method": "Old search encoding wrote a labeled 2-key/3-transaction predicate; new search/verify checks its obligations again. Previous fails TypeInvariant. New predicate certifies SomeCommit but fails Next closure on Corrupt. CPU5, 2,050 MiB process limit, 60s.",
+    "rows": {
+      "old": {
+        "exit": 0,
+        "wall_s": 2.65,
+        "rss_kib": 117148,
+        "verdict": "success",
+        "depth": 23,
+        "reachable_bdd_nodes": 1278,
+        "distinct_decimal": "3409605",
+        "generated_decimal": "56349379"
+      },
+      "previous": {
+        "exit": 2,
+        "wall_s": 0.25,
+        "rss_kib": 57736,
+        "proof": "inconclusive",
+        "failed_obligation": "TypeInvariant"
+      },
+      "new": {
+        "exit": 0,
+        "wall_s": 1.6,
+        "rss_kib": 81396,
+        "verdict": "success",
+        "depth": 23,
+        "reachable_bdd_nodes": 867,
+        "distinct_decimal": "3409605",
+        "generated_decimal": "56349379"
+      },
+      "recheck": {
+        "exit": 0,
+        "wall_s": 0.25,
+        "rss_kib": 57668,
+        "proof": "inductive-safety",
+        "failed_obligation": null
+      },
+      "broken": {
+        "exit": 2,
+        "wall_s": 0.25,
+        "rss_kib": 57792,
+        "proof": "inconclusive",
+        "failed_obligation": "Next closure"
+      },
+      "unstengthened102": {
+        "exit": 2,
+        "wall_s": 5.11,
+        "rss_kib": 321708,
+        "proof": "inconclusive",
+        "failed_obligation": "Next closure"
+      }
+    }
+  },
+  "matrix_control": {
+    "source": "check_nested_tables in scripts/symbolic/test_fragment.py; two Owners and three Keys, with each action inserting the same key for the same owner into both tables. Matched exact Core, independent of the KVS source.",
+    "distinct": 64,
+    "generated": 385,
+    "depth": 7,
+    "shared_reachable_bdd_nodes": 18,
+    "path_order_reachable_bdd_nodes": 189
+  },
+  "scope_of_worker_revisions": "The final worker also groups the owner-membership bits on singleton inner axes during search. This changes the encoding only of the singleton-axis search controls. The layout captures below hash every leaf path, assigned bit, finite scalar alternatives, groups, roles and complete bit order from each real bound source. Fixed/current coordinates agree on all paired searches and width proofs; actual timings name the measured worker. The singleton-axis bug-finding run and independent validation are tracked by #1197.",
+  "layout_sha256": {
+    "K1T102-Corrupt": {
+      "current": "0e343107b96475a618546b6c4fe20de0609458845806ddff5034e9a82f68af06",
+      "ordered": "5141287e34bf5c5694e370ff04f21414f5a705a6bd455d735990f700245b18a7",
+      "qualified": "5141287e34bf5c5694e370ff04f21414f5a705a6bd455d735990f700245b18a7",
+      "slot": "0e343107b96475a618546b6c4fe20de0609458845806ddff5034e9a82f68af06"
+    },
+    "K1T102-FullHasFresh": {
+      "current": "0e343107b96475a618546b6c4fe20de0609458845806ddff5034e9a82f68af06",
+      "ordered": "5141287e34bf5c5694e370ff04f21414f5a705a6bd455d735990f700245b18a7",
+      "qualified": "0e343107b96475a618546b6c4fe20de0609458845806ddff5034e9a82f68af06",
+      "slot": "0e343107b96475a618546b6c4fe20de0609458845806ddff5034e9a82f68af06"
+    },
+    "K1T16-Corrupt": {
+      "current": "8670cb5c188279da58ae2523fbcff263ffe531d0072484e2e3db4916bb39af48",
+      "ordered": "b04a73d788b6457c3cf848babddf15a702c2261667f821fc3cb630fcd2bbba19",
+      "qualified": "b04a73d788b6457c3cf848babddf15a702c2261667f821fc3cb630fcd2bbba19",
+      "slot": "8670cb5c188279da58ae2523fbcff263ffe531d0072484e2e3db4916bb39af48"
+    },
+    "K2-base": {
+      "current": "36e6b763e94f258f92cf4a0ea566a5b626a8fbadb3d3b92c20fd05b7afbd879f",
+      "ordered": "36e6b763e94f258f92cf4a0ea566a5b626a8fbadb3d3b92c20fd05b7afbd879f",
+      "qualified": "36e6b763e94f258f92cf4a0ea566a5b626a8fbadb3d3b92c20fd05b7afbd879f",
+      "slot": "f9b5f4292bf1df466e535e2f1970da95340a31c7c5fe557c61736ff9527c7dbe"
+    },
+    "K2T16-FullHasFresh": {
+      "current": "a7230019cae23833480a6dc494c341b20243cc222aa9d0ea938b194c6a063c71",
+      "ordered": "bc5aa33d4a60e0dbd7b5ee949007e80c9c3e331bbc5a714a6e54890d4ba68b60",
+      "qualified": "a7230019cae23833480a6dc494c341b20243cc222aa9d0ea938b194c6a063c71",
+      "slot": "a7230019cae23833480a6dc494c341b20243cc222aa9d0ea938b194c6a063c71"
+    },
+    "K2T56-FullHasFresh": {
+      "current": "3c512b92ee13bc148297abe2d5bca8a5304b01345f1fced9d1e78614b0de5e5f",
+      "ordered": "172bd5962c0ea76aca747b03b6d4335644a22da91305d8b5bc219bfde9d59aac",
+      "qualified": "3c512b92ee13bc148297abe2d5bca8a5304b01345f1fced9d1e78614b0de5e5f",
+      "slot": "3c512b92ee13bc148297abe2d5bca8a5304b01345f1fced9d1e78614b0de5e5f"
+    },
+    "K3-base": {
+      "current": "08783ec6735c26687b784e25d7fab50c2a558a15a908a49a4420e1296e4ad02d",
+      "ordered": "08783ec6735c26687b784e25d7fab50c2a558a15a908a49a4420e1296e4ad02d",
+      "qualified": "08783ec6735c26687b784e25d7fab50c2a558a15a908a49a4420e1296e4ad02d",
+      "slot": "84774193c6d8836ad3062c9120366aa91efc4c5d176ae0082b0cac4bb97d93c4"
+    },
+    "K3T24-FullHasFresh": {
+      "current": "d6e9ad32e6d6d4481b03735756195a92a0605f0062d919d472c8b8b334317380",
+      "ordered": "40b1d286f3cf7b4ae0dc32583fe9d9c7cf947286d43c90c64c5213134fd0f66e",
+      "qualified": "d6e9ad32e6d6d4481b03735756195a92a0605f0062d919d472c8b8b334317380",
+      "slot": "d6e9ad32e6d6d4481b03735756195a92a0605f0062d919d472c8b8b334317380"
+    },
+    "K4-base": {
+      "current": "68268d3c64a6ac7a0a331d6d2289417d103dbf4535469b0b849b8ddbb91d4008",
+      "ordered": "68268d3c64a6ac7a0a331d6d2289417d103dbf4535469b0b849b8ddbb91d4008",
+      "qualified": "68268d3c64a6ac7a0a331d6d2289417d103dbf4535469b0b849b8ddbb91d4008",
+      "slot": "4c7b4b3da6e11c88e59079b88b638ede38c2860f5376b768d902669b48ee4036"
+    },
+    "K4T12-FullHasFresh": {
+      "current": "a1b7425595dd7c2a829625e3374bc4980073d19a2975cc3aeb31ca51b7113050",
+      "ordered": "d386af759d713d24a462011b723e3ce264d63f8377e39aedd3fbf07d78a8416e",
+      "qualified": "a1b7425595dd7c2a829625e3374bc4980073d19a2975cc3aeb31ca51b7113050",
+      "slot": "a1b7425595dd7c2a829625e3374bc4980073d19a2975cc3aeb31ca51b7113050"
+    },
+    "K4T24-FullHasFresh": {
+      "current": "7cfcfed8ccec45e83c644fa32125d32827c30182452e8323c2f88bf1b99589af",
+      "ordered": "13eeef884ffe45fc7e957269f4ff52e5c30867b672da9671f827201644f1ab6a",
+      "qualified": "7cfcfed8ccec45e83c644fa32125d32827c30182452e8323c2f88bf1b99589af",
+      "slot": "7cfcfed8ccec45e83c644fa32125d32827c30182452e8323c2f88bf1b99589af"
+    },
+    "K5-base": {
+      "current": "da9fb8602453e99e9c5e7b45bae6d708b1968c355b72ea8fd36f1a39cfa38b68",
+      "ordered": "da9fb8602453e99e9c5e7b45bae6d708b1968c355b72ea8fd36f1a39cfa38b68",
+      "qualified": "da9fb8602453e99e9c5e7b45bae6d708b1968c355b72ea8fd36f1a39cfa38b68",
+      "slot": "61f1d7b5c5db1409d9860b6c8b4f7d831f0b6ea20420b447af6c742929a4850c"
+    }
+  },
+  "exploratory_controls": {
+    "order-probe-results": {
+      "method": "First unconstrained KVS shared-outer prototype; CPU6, 40s proof or 110s search.",
+      "rows": {
+        "K2V2T16-outer": {
+          "exit": 4,
+          "wall_s": 11.23,
+          "rss_kib": 1317984,
+          "verdict": "stopped",
+          "reason": "native worker exited under its memory budget"
+        },
+        "K2V2T3-control": {
+          "exit": 0,
+          "wall_s": 2.5,
+          "rss_kib": 117064,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 1278
+        },
+        "K2V2T3-outer": {
+          "exit": 0,
+          "wall_s": 1.55,
+          "rss_kib": 81156,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867
+        },
+        "K3V2T3-control": {
+          "exit": 0,
+          "wall_s": 56.89,
+          "rss_kib": 642504,
+          "verdict": "success",
+          "depth": 30,
+          "reachable_bdd_nodes": 2707
+        },
+        "K3V2T3-outer": {
+          "exit": 0,
+          "wall_s": 35.64,
+          "rss_kib": 635208,
+          "verdict": "success",
+          "depth": 30,
+          "reachable_bdd_nodes": 1961
+        },
+        "K4V2T12-outer": {
+          "exit": 4,
+          "wall_s": 40.06,
+          "rss_kib": 698372,
+          "verdict": "stopped",
+          "reason": "time limit"
+        },
+        "K4V2T7-outer": {
+          "exit": 0,
+          "wall_s": 5.01,
+          "rss_kib": 197276,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        }
+      }
+    },
+    "order-qualification-results": {
+      "method": "First key-first prototype qualification and independent no-address-limit false control; CPU7, 50s.",
+      "rows": {
+        "false-edit-control": {
+          "exit": 1,
+          "wall_s": 0.29,
+          "rss_kib": 57588,
+          "verdict": "invariant-violation",
+          "depth": 8,
+          "trace_validated": true
+        },
+        "false-edit-outer": {
+          "exit": 1,
+          "wall_s": 0.29,
+          "rss_kib": 57732,
+          "verdict": "invariant-violation",
+          "depth": 8,
+          "trace_validated": true
+        },
+        "old-small-control": {
+          "exit": 0,
+          "wall_s": 2.5,
+          "rss_kib": 117072,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 1278
+        },
+        "old-small-outer": {
+          "exit": 0,
+          "wall_s": 1.55,
+          "rss_kib": 81084,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867
+        },
+        "proof-7-control": {
+          "exit": 4,
+          "wall_s": 50.04,
+          "rss_kib": 190904,
+          "verdict": "stopped",
+          "reason": "time limit"
+        },
+        "proof-7-outer": {
+          "exit": 0,
+          "wall_s": 4.96,
+          "rss_kib": 197264,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        }
+      }
+    },
+    "order-accepted-results": {
+      "method": "Three interleaved pairs of original versus key-first search and proof; CPU7, 1,300 MiB AS, budgets match shipping pairs.",
+      "rows": {
+        "K2-control-1": {
+          "exit": 0,
+          "wall_s": 2.6,
+          "rss_kib": 117368,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 1278
+        },
+        "K2-control-2": {
+          "exit": 0,
+          "wall_s": 2.65,
+          "rss_kib": 117024,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 1278
+        },
+        "K2-control-3": {
+          "exit": 0,
+          "wall_s": 2.65,
+          "rss_kib": 117224,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 1278
+        },
+        "K2-fixed-1": {
+          "exit": 0,
+          "wall_s": 1.55,
+          "rss_kib": 81188,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867
+        },
+        "K2-fixed-2": {
+          "exit": 0,
+          "wall_s": 1.6,
+          "rss_kib": 81116,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867
+        },
+        "K2-fixed-3": {
+          "exit": 0,
+          "wall_s": 1.6,
+          "rss_kib": 81200,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867
+        },
+        "complete3-control-1": {
+          "exit": 0,
+          "wall_s": 57.59,
+          "rss_kib": 642504,
+          "verdict": "success",
+          "depth": 30,
+          "reachable_bdd_nodes": 2707
+        },
+        "complete3-control-2": {
+          "exit": 0,
+          "wall_s": 58.15,
+          "rss_kib": 642276,
+          "verdict": "success",
+          "depth": 30,
+          "reachable_bdd_nodes": 2707
+        },
+        "complete3-control-3": {
+          "exit": 0,
+          "wall_s": 58.55,
+          "rss_kib": 642424,
+          "verdict": "success",
+          "depth": 30,
+          "reachable_bdd_nodes": 2707
+        },
+        "complete3-fixed-1": {
+          "exit": 0,
+          "wall_s": 36.59,
+          "rss_kib": 635156,
+          "verdict": "success",
+          "depth": 30,
+          "reachable_bdd_nodes": 1961
+        },
+        "complete3-fixed-2": {
+          "exit": 0,
+          "wall_s": 36.29,
+          "rss_kib": 635188,
+          "verdict": "success",
+          "depth": 30,
+          "reachable_bdd_nodes": 1961
+        },
+        "complete3-fixed-3": {
+          "exit": 0,
+          "wall_s": 36.59,
+          "rss_kib": 635092,
+          "verdict": "success",
+          "depth": 30,
+          "reachable_bdd_nodes": 1961
+        },
+        "false-control-1": {
+          "exit": 4,
+          "wall_s": 0.3,
+          "rss_kib": 57696,
+          "verdict": "stopped",
+          "reason": "Dive trace validator could not allocate a binder thread"
+        },
+        "false-fixed-1": {
+          "exit": 4,
+          "wall_s": 0.3,
+          "rss_kib": 58004,
+          "verdict": "stopped",
+          "reason": "Dive trace validator could not allocate a binder thread"
+        },
+        "proof7-control-1": {
+          "exit": 4,
+          "wall_s": 50.04,
+          "rss_kib": 190856,
+          "verdict": "stopped",
+          "reason": "time limit"
+        },
+        "proof7-control-2": {
+          "exit": 4,
+          "wall_s": 50.04,
+          "rss_kib": 190712,
+          "verdict": "stopped",
+          "reason": "time limit"
+        },
+        "proof7-control-3": {
+          "exit": 4,
+          "wall_s": 50.04,
+          "rss_kib": 190836,
+          "verdict": "stopped",
+          "reason": "time limit"
+        },
+        "proof7-fixed-1": {
+          "exit": 0,
+          "wall_s": 5.21,
+          "rss_kib": 197540,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "proof7-fixed-2": {
+          "exit": 0,
+          "wall_s": 5.06,
+          "rss_kib": 197388,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "proof7-fixed-3": {
+          "exit": 0,
+          "wall_s": 5.36,
+          "rss_kib": 197396,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        }
+      }
+    },
+    "order-width-results": {
+      "method": "Key-first width probe; CPU3, 2,600 MiB, 120s.",
+      "rows": {
+        "T10": {
+          "exit": 4,
+          "wall_s": 120.05,
+          "rss_kib": 370452,
+          "verdict": "stopped",
+          "reason": "time limit"
+        },
+        "T12": {
+          "exit": 4,
+          "wall_s": 120.06,
+          "rss_kib": 696900,
+          "verdict": "stopped",
+          "reason": "time limit"
+        },
+        "T8": {
+          "exit": 0,
+          "wall_s": 18.49,
+          "rss_kib": 615624,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "T9": {
+          "exit": 0,
+          "wall_s": 67.42,
+          "rss_kib": 699444,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        }
+      }
+    },
+    "order-slot-results": {
+      "method": "Experimental unconditional owner-first induction; CPU5, 2100MiB, 45s.",
+      "rows": {
+        "K2T16": {
+          "exit": 0,
+          "wall_s": 0.8,
+          "rss_kib": 80868,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K2T24": {
+          "exit": 0,
+          "wall_s": 1.55,
+          "rss_kib": 114468,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K4T12": {
+          "exit": 0,
+          "wall_s": 22.15,
+          "rss_kib": 599716,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K4T24": {
+          "exit": 4,
+          "wall_s": 45.05,
+          "rss_kib": 643752,
+          "verdict": "stopped",
+          "reason": "time limit"
+        },
+        "K4T7": {
+          "exit": 0,
+          "wall_s": 6.46,
+          "rss_kib": 197464,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K4T9": {
+          "exit": 0,
+          "wall_s": 11.98,
+          "rss_kib": 347080,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        }
+      }
+    },
+    "order-final-results": {
+      "method": "Direct-induction owner-first selection before exact whole-domain guard, CPU3, 2600MiB, 120s.",
+      "rows": {
+        "K1T102": {
+          "exit": 0,
+          "wall_s": 6.96,
+          "rss_kib": 569604,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K1T64": {
+          "exit": 0,
+          "wall_s": 2.3,
+          "rss_kib": 310204,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K1T96": {
+          "exit": 0,
+          "wall_s": 5.66,
+          "rss_kib": 325376,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K2T16": {
+          "exit": 0,
+          "wall_s": 0.8,
+          "rss_kib": 81020,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K2T24": {
+          "exit": 0,
+          "wall_s": 1.55,
+          "rss_kib": 114376,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K2T40": {
+          "exit": 0,
+          "wall_s": 4.66,
+          "rss_kib": 322392,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K2T55": {
+          "exit": 0,
+          "wall_s": 10.37,
+          "rss_kib": 584296,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K2T57": {
+          "exit": 2,
+          "wall_s": 0.25,
+          "rss_kib": 57784,
+          "verdict": "unsupported",
+          "reason": "finite layout exceeds 512 state bits at missed (513 bits so far)"
+        },
+        "K4T12": {
+          "exit": 0,
+          "wall_s": 22.41,
+          "rss_kib": 599672,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K4T7": {
+          "exit": 0,
+          "wall_s": 6.61,
+          "rss_kib": 197324,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "K4T9": {
+          "exit": 0,
+          "wall_s": 12.12,
+          "rss_kib": 347160,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        }
+      }
+    },
+    "outer-search-control": {
+      "method": "Unconditional owner-first search experiment, CPU5, 2100MiB and 40s. The two-key case slowed and retained 1142 nodes vs 867 key-first; this order is avoided there. At one key the large samples reached trace replay, which aborted on the old eager validator (#1197).",
+      "rows": {
+        "K1T102-Corrupt": {
+          "exit": 4,
+          "wall_s": 8.11,
+          "rss_kib": 1783728,
+          "verdict": "stopped",
+          "reason": "Dive trace validator terminated by signal 6"
+        },
+        "K1T16-Corrupt": {
+          "exit": 4,
+          "wall_s": 3.05,
+          "rss_kib": 1746760,
+          "verdict": "stopped",
+          "reason": "Dive trace validator terminated by signal 6"
+        },
+        "K2T3-base": {
+          "exit": 0,
+          "wall_s": 4.71,
+          "rss_kib": 192184,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 1142
+        }
+      }
+    },
+    "order-shipping-safety": {
+      "method": "SomeCommit without strengthening and failed search-only controls; one cgroup kill left no RSS/time for the 16-ID case. No violation is claimed for a budget stop.",
+      "rows": {
+        "broken": {
+          "exit": 2,
+          "wall_s": 0.25,
+          "rss_kib": 57792,
+          "proof": "inconclusive",
+          "failed_obligation": "Next closure"
+        },
+        "new": {
+          "exit": 0,
+          "wall_s": 1.6,
+          "rss_kib": 81396,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867
+        },
+        "old": {
+          "exit": 0,
+          "wall_s": 2.65,
+          "rss_kib": 117148,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 1278
+        },
+        "previous": {
+          "exit": 2,
+          "wall_s": 0.25,
+          "rss_kib": 57736,
+          "proof": "inconclusive",
+          "failed_obligation": "TypeInvariant"
+        },
+        "recheck": {
+          "exit": 0,
+          "wall_s": 0.25,
+          "rss_kib": 57668,
+          "proof": "inductive-safety",
+          "failed_obligation": null
+        },
+        "unstengthened102": {
+          "exit": 2,
+          "wall_s": 5.11,
+          "rss_kib": 321708,
+          "proof": "inconclusive",
+          "failed_obligation": "Next closure"
+        },
+        "violated102": {
+          "exit": 4,
+          "wall_s": 24.46,
+          "rss_kib": 2085584,
+          "verdict": "stopped",
+          "reason": "native worker exited under its memory budget"
+        },
+        "violated16": {
+          "exit": 1,
+          "verdict": "stopped",
+          "reason": "interrupted"
+        }
+      }
+    }
+  },
+  "analytic_history_oracle": {
+    "source": "scripts/symbolic/kvs_history.py, pinned MCKVS and KeyValueStore. Complete mathematical predictions are specific to the original KVS relation. The wide-domain symbolic proof itself returns no counts. Exact integer counts on the two/three/four key three-transaction complete search agreed.",
+    "command": "python3 scripts/symbolic/kvs_history.py KVS --keys K --values 2 --transactions T",
+    "rows": {
+      "K1T102": {
+        "transaction_orbits": {
+          "distinct_decimal": "169781689958790",
+          "generated_decimal": "59824892183187223"
+        },
+        "labeled": {
+          "distinct_decimal": "50023622793554840768349563864126970159831864397697084299251468896311075579595750740640848529671753820341755",
+          "generated_decimal": "17626505631619869347102082684887059760115446895881211704762919178780285580838917676205880773658593413853386853"
+        },
+        "wall_s": 0.11,
+        "rss_kib": 17556
+      },
+      "K2T3": {
+        "transaction_orbits": {
+          "distinct_decimal": "582471",
+          "generated_decimal": "9628660"
+        },
+        "labeled": {
+          "distinct_decimal": "3409605",
+          "generated_decimal": "56349379"
+        },
+        "wall_s": 0.03,
+        "rss_kib": 17568
+      },
+      "K2T56": {
+        "transaction_orbits": {
+          "distinct_decimal": "1501416997660301396975300523555600489414",
+          "generated_decimal": "456431002613749543857575362515011602260397"
+        },
+        "labeled": {
+          "distinct_decimal": "79205026276856536038944700624783518797678795604227596055474356568388223372442099775505058615875296773057833",
+          "generated_decimal": "24078328286895976990299924778048554585462846288365302660261577237187661216434980192069359123163539613978513041"
+        },
+        "wall_s": 0.55,
+        "rss_kib": 17600
+      },
+      "K3T24": {
+        "transaction_orbits": {
+          "distinct_decimal": "67001333486282542442689981825080539157934365",
+          "generated_decimal": "11784089960781319091018680358621714358219103510"
+        },
+        "labeled": {
+          "distinct_decimal": "24759366860062092145146297430937546900431307023394691992087220959835",
+          "generated_decimal": "4354465119238528999086237545778952158469283275919669940594503592757633"
+        },
+        "wall_s": 0.37,
+        "rss_kib": 17884
+      },
+      "K3T3": {
+        "transaction_orbits": {
+          "distinct_decimal": "594616815",
+          "generated_decimal": "13385471536"
+        },
+        "labeled": {
+          "distinct_decimal": "3557499075",
+          "generated_decimal": "80080066801"
+        },
+        "wall_s": 0.03,
+        "rss_kib": 17588
+      },
+      "K4T12": {
+        "transaction_orbits": {
+          "distinct_decimal": "4472289787495265000295722367610120407",
+          "generated_decimal": "497638253460744266795962380312862713922"
+        },
+        "labeled": {
+          "distinct_decimal": "2104549403770506838044203137043816279170159377",
+          "generated_decimal": "234173516973588896286166463690552546417506698073"
+        },
+        "wall_s": 0.13,
+        "rss_kib": 17580
+      },
+      "K4T24": {
+        "transaction_orbits": {
+          "distinct_decimal": "13476643390859712869814904181430313330581263945436043748116202478",
+          "generated_decimal": "2988825291743996956260974686521476530636458601695472137424784217667"
+        },
+        "labeled": {
+          "distinct_decimal": "7719249639544177155392885746550344591670327431685113004697413149049588107490045253891537",
+          "generated_decimal": "1711943257264679984190308270998443926740929840292263107227751502752368071914998342843591345"
+        },
+        "wall_s": 2.17,
+        "rss_kib": 17904
+      },
+      "K4T3": {
+        "transaction_orbits": {
+          "distinct_decimal": "592287802857",
+          "generated_decimal": "16831060919470"
+        },
+        "labeled": {
+          "distinct_decimal": "3552493680513",
+          "generated_decimal": "100950860734327"
+        },
+        "wall_s": 0.03,
+        "rss_kib": 17764
+      },
+      "K5T3": {
+        "transaction_orbits": {
+          "distinct_decimal": "571514403867075",
+          "generated_decimal": "19613909230737652"
+        },
+        "labeled": {
+          "distinct_decimal": "3428937742115475",
+          "generated_decimal": "117678291762703177"
+        },
+        "wall_s": 0.03,
+        "rss_kib": 17496
+      },
+      "K6T3": {
+        "transaction_orbits": {
+          "distinct_decimal": "539910848473937721",
+          "generated_decimal": "21725268712106423230"
+        },
+        "labeled": {
+          "distinct_decimal": "3239447207251422105",
+          "generated_decimal": "130350884965021924615"
+        },
+        "wall_s": 0.03,
+        "rss_kib": 17580
+      },
+      "K7T3": {
+        "transaction_orbits": {
+          "distinct_decimal": "503442490368989477835",
+          "generated_decimal": "23247573192708514979356"
+        },
+        "labeled": {
+          "distinct_decimal": "3020652793935370219275",
+          "generated_decimal": "139485339001294369578361"
+        },
+        "wall_s": 0.03,
+        "rss_kib": 17592
+      }
+    }
+  }
+}
