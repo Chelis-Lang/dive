@@ -2662,7 +2662,7 @@
     "host": "Single logical CPU on EC2 c7i.4xlarge; runs used separate hosts."
   },
   "seven_key_three_transaction_growth": {
-    "method": "Original release Large transition, two values, exactly three transaction IDs, original two safety invariants and full configured transaction symmetry. Increase only the Key configuration to k1 through k7. Same EC2 c7i.4xlarge as six-key labeled comparison; separate physical core 0. 15,300 s internal deadline and 11 GiB per-worker address space. Single fresh search.",
+    "method": "Original release Large transition, two values, exactly three transaction IDs, original two safety invariants and full configured transaction symmetry. Increase only the Key configuration to k1 through k7. Same EC2 c7i.4xlarge as the six-key labeled comparison, on separate physical core 0. 15,300 s internal deadline and 11 GiB per-worker address space. Single fresh search.",
     "command": "dive check MCKVS.tla --config K7V2T3.cfg --strategy symbolic --time-limit 15300s --max-memory 11g --output json",
     "sha256": {
       "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",

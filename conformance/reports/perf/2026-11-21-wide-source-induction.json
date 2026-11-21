@@ -340,7 +340,7 @@
     }
   },
   "kvs_graph_formula": {
-    "source": "scripts/symbolic/kvs_history.py PATH/KeyValueStore --keys K --values 2 --transactions T; separate combinatorial history calculation over the pinned original Init/Next, which these invariant-only edits preserve. Symmetry-orbit and labeled outputs are both mathematical counts. Direct safety proofs report neither.",
+    "source": "scripts/symbolic/kvs_history.py PATH/KeyValueStore --keys K --values 2 --transactions T. This combinatorial calculation uses the pinned original Init and Next, which these invariant-only edits preserve. Symmetry-orbit and labeled outputs are both mathematical counts. Direct safety proofs report neither.",
     "rows": {
       "200-2": {
         "selected_count_scope": "transaction_orbits",
@@ -375,7 +375,7 @@
     }
   },
   "merged_source_qualification": {
-    "source": "d5ff5253e; worker files from protected main. CLI built from 12d15c6c5: all Rust crate sources, Cargo manifests/lock and pinned toolchain match the merge. Export helper built at 3a373d3b; the only intervening native code change is in the multiworker search coordinator, which the bound exporter does not call.",
+    "source": "Worker files from protected main d5ff5253e. The CLI was built from 12d15c6c5 with all Rust crate sources, Cargo manifests and lockfile, and pinned toolchain matching the merge. The export helper was built at 3a373d3b. The only intervening native change affects the multiworker search coordinator, which the exporter does not call.",
     "binary_and_worker_sha256": {
       "dive": "d2fcf868347c89ea5c74349396d2365deddedd959a8190db987b35188ec144ca",
       "check.py": "340c72a376b6276d63d956d59333add015f4da4511d0bc2a5ffb78a25ea8a38e",
@@ -450,7 +450,7 @@
     "reproduce": "python scripts/symbolic/check_transaction_commit.py PATH/transaction_commit --managers 256 --dive DIVE --exporter SYMBOLIC_INPUT"
   },
   "full_original_192": {
-    "method": "Intermediate complete-search control in the same package as full_original_256, CPU0 and 1,280 s worker budget; no symmetry, reuse or induction.",
+    "method": "Intermediate complete-search control in the same package as full_original_256, CPU0 and 1,280 s worker budget, without symmetry, reuse or induction.",
     "inputs": {
       "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
       "R192.cfg": "a947ba284b038d111638efe9984e4a27b098f74df91e923642834d9bafe2e16d",
