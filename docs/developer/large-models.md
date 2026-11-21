@@ -768,6 +768,20 @@ On a second node, storing BPConProof rows as independently decodable 64-row chun
 
 At 100 million discoveries on BPConProof, independent chunks with LZ4 wrote **10.55 GB** versus **49.69 GB** with the same chunks uncompressed. That is 78.8% less disk traffic measured as bytes committed to the frontier. In one matched pair on an isolated c7i.4xlarge, process wall time was 534.03 s versus 553.51 s and peak RSS was 1.88 versus 1.89 GiB. Both produced 201,557,438 generated states, depth four and 99,914,031 queued, and both collected the value store 185 times. The state limit stopped each check. [Block samples, binary identities and paired measurements](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
+#### When independent frontier chunks pay for themselves
+
+On Byzantine Paxos, 2,997,546 of the first three million distinct states were still queued. Each resident row keeps its compound TLA+ values alive. Storing independent copies in compressed disk chunks let Core reclaim those values between waves. The persistent value store fell from 337.9 to 43.7 MB and peak process RSS from 1,156 to 373 MiB at identical counts and depth. Wall time rose from 6.25 to 11.87 s.
+
+| Byzantine Paxos, 6 GiB process limit | Distinct at stop | Still queued | Peak RSS, GiB | Wall, s | Stop reason |
+|---|---:|---:|---:|---:|---|
+| Resident, fingerprints | 33,664,522 | 33,636,039 | 6.20 | 62.11 | Memory |
+| Resident, exact identities | 33,589,307 | 33,560,869 | 6.26 | 100.24 | Memory |
+| Independent chunks, fingerprints | 331,605,996 | 331,314,846 | 5.10 | 1,502.41 | Time |
+
+Chunks reached 9.85 times as many states before the 1,500 s deadline and wrote 34.95 GB. All three runs stopped at depth four. Sampled process memory can exceed its configured limit between polls.
+
+SlateDB retained just 2.33 MB in the persistent value store at ten million distinct states. Chunks cut RSS from 720 to 638 MiB there and took 85.06 s against 24.11 s with packed resident rows. The two models point to a practical choice. Measure the queued fraction **and** the bytes of shared values its rows keep alive before paying for disk encoding. [All 15 runs, commands, identity modes, digests and process limits](../../conformance/reports/perf/2026-11-21-frontier-scale-controls.json).
+
 ### Where the thirteen historical non-finishes stand
 
 The original set contains six memory stops and seven feature refusals. The
