@@ -45,3 +45,24 @@ echo 'INVARIANT Empty' >> Receipts.cfg
 rc=0; run --max-memory 1g > false-row || rc=$?
 test "$rc" = 1
 jq -e '.trace_validated and .depth==2 and .ending.name=="Empty"' false-row >/dev/null
+cat > Machines.tla <<'TLA'
+---- MODULE Machines ----
+CONSTANT Ids
+VARIABLE mode
+TypeInvariant == mode \in [Ids -> {"off","on"}]
+Init == mode = [i \in Ids |-> "off"]
+Next == \E i \in Ids : mode' = [mode EXCEPT ![i] = "on"]
+AllOff == \A i \in Ids : mode[i] = "off"
+====
+TLA
+cat > Machines.cfg <<'CFG'
+CONSTANT Ids = {a,b}
+INIT Init NEXT Next INVARIANT TypeInvariant
+CFG
+occupancy() { env -i PATH=/nonexistent "$dive" check Machines.tla --strategy occupancy --output json "$@"; }
+occupancy --time-limit 10s > population
+jq -e '.verdict=="success" and .distinct==4 and .generated==9 and .depth==3 and .occupancies==3' population >/dev/null
+echo 'INVARIANT AllOff' >> Machines.cfg
+rc=0; occupancy --trace population-trace.json > population-bad || rc=$?
+test "$rc" = 1
+jq -e '.trace_validated and .depth==2 and .ending.name=="AllOff" and .trace_file=="population-trace.json"' population-bad >/dev/null

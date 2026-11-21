@@ -193,3 +193,4 @@ jobs:
           python -m venv "$RUNNER_TEMP/dive-symbolic"
           "$RUNNER_TEMP/dive-symbolic/bin/pip" install --only-binary=dd -r scripts/symbolic/requirements.txt
           "$RUNNER_TEMP/dive-symbolic/bin/python" scripts/symbolic/check_source.py
+          python scripts/symbolic/check_occupancy.py
