@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "date": "2026-11-21",
+  "model": "Flint LeanP1 three-writer S3 storage model",
+  "source": "https://github.com/ddalton/flint/tree/a466e4634a483fd8da57c97e41b8aa3d78bd5f45/lean/formal",
+  "source_revision": "a466e4634a483fd8da57c97e41b8aa3d78bd5f45",
+  "result_revision": "8feba0c78f22e3ecdee0648c6b2897eac95ab1b4",
+  "license": "MIT",
+  "module": "LeanP1.tla",
+  "large_cfg": "https://github.com/ddalton/flint/blob/8feba0c78f22e3ecdee0648c6b2897eac95ab1b4/lean/formal/results/2026-10-06-ec2/LeanP1Size3L4W3.cfg",
+  "control_recipe": "https://github.com/ddalton/flint/blob/8feba0c78f22e3ecdee0648c6b2897eac95ab1b4/lean/formal/results/2026-10-06-ec2/scripts/runner3.sh",
+  "published": {
+    "reference": "https://github.com/ddalton/flint/blob/8feba0c78f22e3ecdee0648c6b2897eac95ab1b4/lean/formal/results/2026-10-06-ec2/SUMMARY.txt",
+    "log": "https://github.com/ddalton/flint/blob/8feba0c78f22e3ecdee0648c6b2897eac95ab1b4/lean/formal/results/2026-10-06-ec2/RESULTS.txt",
+    "hardware": "r8g.48xlarge, 192 physical Graviton4 cores, 1.5 TiB RAM, volume enlarged from 1 to 2 TB",
+    "engine": "tlc-rs native compiled checker; the terminal log records this engine",
+    "distinct": 9821039047,
+    "generated": 44056598280,
+    "depth": 52,
+    "checker_seconds": 5925.415,
+    "process_seconds": 5927,
+    "verdict": "holds",
+    "small_control": {
+      "distinct": 449595,
+      "generated": 1954072,
+      "depth": 33
+    }
+  },
+  "properties": "Original Spec, eight invariants, Prop_NoSilentRevert and Prop_DeleteSettles, CHECK_DEADLOCK FALSE, unchanged for the large run and control.",
+  "comparison": {
+    "hardware": "Fresh r8g.48xlarge, Ubuntu 24.04, one thread per physical core, taskset 0-191, sequential fresh processes, 2 TiB gp3, 1450 GiB cgroup, swap disabled. Compilation and installation excluded, GNU time wall and peak process RSS.",
+    "dive_revision": "20f6cc698554ee41f8496cba2a5bcf52cf5c83d0",
+    "build": "Native rustc 1.99.0, cargo build --release --locked -p dive-cli with LTO=false and 16 codegen units",
+    "hashes_sha256": {
+      "./LeanP1Holds1p3b.cfg": "c6380737e222de6bd23c77c006c7ee2182fa308627f2d833e8cdaa8d22a9a369",
+      "./LeanP1Size3L1W3.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+      "./LeanP1Size3L4W3.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+      "LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "../dive-src/target/release/dive": "1828e853df4549eef0af3770eed85c8e53c4cdc85db64e8582f2ace2a1476dcf",
+      "../tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "../jre.tar.gz": "b8efcd5acc9109fe8d35bed132499643048a257b4f6042906ece37d03c839d77"
+    },
+    "control": "Use the authors’ runner3.sh substitutions on LeanP1Holds1p3b.cfg: Writers={A,B,C}, MaxMint=2, MaxUI=0, MaxBarriers=1, MaxRestarts=0, MaxSyncs=0, MaxCopies=1. Only those seven constants are rewritten.",
+    "core": "dive check LeanP1.tla --config CFG --workers 192 --compat=tlc --fp 0 --seed 0 --max-memory 1350g --time-limit 120000s --output json",
+    "tlc": "java -Xmx640g -XX:+UseParallelGC -XX:ActiveProcessorCount=192 -cp tla2tools.jar tlc2.TLC -workers 192 -fp 0 -seed 0 -metadir FRESH -config CFG LeanP1.tla",
+    "runs": [
+      {
+        "configuration": "LeanP1Size3L1W3.cfg",
+        "engine": "core",
+        "exit_code": 0,
+        "wall_seconds": 1.58,
+        "peak_rss_kib": 1370740,
+        "verdict": "success",
+        "statistics": {
+          "depth": 33,
+          "distinct": 449595,
+          "generated": 1954072,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "workers_used": 192
+      },
+      {
+        "configuration": "LeanP1Size3L1W3.cfg",
+        "engine": "tlc",
+        "exit_code": 0,
+        "wall_seconds": 15.62,
+        "peak_rss_kib": 26069856,
+        "verdict": "success",
+        "statistics": {
+          "depth": 33,
+          "generated": 1954072,
+          "distinct": 449595,
+          "left_on_queue": 0
+        },
+        "workers_used": 192
+      }
+    ]
+  }
+}
