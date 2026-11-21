@@ -18,6 +18,9 @@ use crate::node::Kind;
 /// The mathematical union of two already constructed record domains. The
 /// converter recognizes this concrete value without calling a provider or
 /// trusting a claimed kind. Ordinary value consumers can still enumerate it.
+/// Returns `None` unless each operand is a record set or a union built here
+/// and the expanded tree contains at most 128 record and union nodes.
+/// Import into a native heap checks the field domains for compatibility.
 #[must_use]
 pub fn record_union(left: Set, right: Set, ctx: Ctx) -> Option<Value> {
     fn nodes(set: &Set) -> Option<usize> {

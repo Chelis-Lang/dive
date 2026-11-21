@@ -22,7 +22,20 @@ fn valid_domain(set: &Set, left: &mut usize) -> Option<()> {
             let Value::Set(base) = v else { return None };
             valid_domain(base, left)
         }
-        SetKind::FcnSet | SetKind::Product | SetKind::RcdSet | SetKind::Subset => {
+        SetKind::FcnSet => {
+            let (domain, range) = set.as_fcn_set()?;
+            valid_field(domain, left)?;
+            valid_field(range, left)
+        }
+        SetKind::Product => set
+            .as_product()?
+            .iter()
+            .try_for_each(|v| valid_field(v, left)),
+        SetKind::RcdSet => set
+            .as_rcd_set()?
+            .iter()
+            .try_for_each(|(_, v)| valid_field(v, left)),
+        SetKind::Subset => {
             for (_, v) in set.components() {
                 let Value::Set(domain) = v else { return None };
                 valid_domain(&domain, left)?;
@@ -31,6 +44,13 @@ fn valid_domain(set: &Set, left: &mut usize) -> Option<()> {
         }
         _ => None,
     }
+}
+
+fn valid_field(value: &Value, left: &mut usize) -> Option<()> {
+    let Value::Set(domain) = value else {
+        return None;
+    };
+    valid_domain(domain, left)
 }
 
 fn singleton_string(domain: &Set) -> bool {

@@ -59,7 +59,7 @@ fn an_invalid_function_domain_cannot_prove_membership() {
     let source = SPEC
         .replace(
             r#"[tag: {"left"}, a: 1..2] \cup [tag: {"right"}, a: {"s"}]"#,
-            r#"[a: [7 -> {0}], b: {0}] \cup [a: {[k |-> 0]}, b: {0}]"#,
+            r"[a: [7 -> {0}], b: {0}] \cup [a: {[k |-> 0]}, b: {0}]",
         )
         .replace(
             r#"[tag |-> "right", a |-> "s"]"#,
@@ -78,4 +78,22 @@ fn an_invalid_function_domain_cannot_prove_membership() {
         .to_json();
         assert_eq!(verdict["verdict"], "unsupported", "{verdict}");
     }
+}
+
+#[test]
+fn compat_checks_an_earlier_field_before_a_later_key_mismatch() {
+    let spec = r#"---- MODULE Family ----
+EXTENDS Naturals
+VARIABLE x
+Msg == [a : 1..2, z : {0}] \cup [a : 1..2, b : {1}]
+Init == x = [a |-> "s", c |-> 0]
+Next == x' = x
+Inv == x \notin Msg
+V == IF TRUE THEN x ELSE Msg
+===="#;
+    let cfg = "INIT Init\nNEXT Next\nINVARIANT Inv\nVIEW V\n";
+    let row = core_final::run(spec, cfg, &CheckOptions::tlc(0, 0)).to_json();
+    assert_eq!(row["verdict"], "evaluation-error", "{row}");
+    let row = core_final::run(spec, cfg, &CheckOptions::dive(0)).to_json();
+    assert_eq!(row["verdict"], "success", "{row}");
 }
