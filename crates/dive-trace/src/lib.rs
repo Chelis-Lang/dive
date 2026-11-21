@@ -75,6 +75,7 @@
 
 mod candidate_error;
 mod choices;
+mod diagnostic;
 pub mod enabled;
 mod endpoint;
 pub mod format;

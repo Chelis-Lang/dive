@@ -15,7 +15,9 @@ pub(crate) fn replay(
 ) -> Result<Validation, EvalError> {
     let poll = || control.map_or(Ok(()), |c| c.check().map_err(EvalError::interrupted));
     poll()?;
-    if let Some(refusal) = crate::next_error::preflight(model, endpoint.initial(), control)? {
+    if let Some(refusal) =
+        crate::next_error::actions_preflight(model, endpoint.initial(), control, Some(host))?
+    {
         return Ok(refusal);
     }
     let variables = crate::variables(model);

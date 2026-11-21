@@ -9,7 +9,26 @@ are in git history.
 
 - Core temporal checks share original row IDs across transitions whose targets match the first-discovery representation. [Temporal graph storage](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
+- `dive simulate` checks temporal `PROPERTY`s on each trace's own behaviors
+  and reports a validated lasso, stuttering or bad-prefix counterexample. It
+  never reports that a property holds: the report counts, per property, the
+  traces that checked it and those that could not, and why. Loops close only
+  on equal states, so `VIEW` and `SYMMETRY` no longer hide or invent
+  violations. `--liveness-extend` (default: the depth; 0 under
+  `--compat=tlc`) continues traces cut by the depth, and `--liveness-budget`
+  bounds each trace's check. `dive_sim::Trace` and `Report` gain a
+  `temporal` field. See [temporal properties](docs/user/simulation.md#temporal-properties).
+
+- Trace documents gain the version-7 `bad-prefix` ending: a finite word that
+  no infinite extension can make satisfy the named temporal property. The
+  validator checks it in three-valued logic after the usual safety checks.
+  Sample validation (`--sample`) no longer refuses configured temporal
+  properties; a valid sample claims only its finite obligations. See
+  [bad prefixes](docs/user/traces.md#bad-prefixes).
+
 - Core reduces memory per transition for temporal checks with up to 255 action names. [Measurements and capacity limits](docs/developer/large-models.md#action-labels-in-temporal-graphs).
+
+- Core handles repeated first-order helper calls under quantified fairness within the existing temporal planning budget. The original Kafka KIP-996 liveness model now reaches graph capture. [Temporal checking](docs/user/temporal.md).
 
 - Core packs ordinary in-memory safety frontiers by variable and stores consecutive discovery IDs once per level. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
 
@@ -122,6 +141,8 @@ are in git history.
   Distributed workers must run the same dive build as the coordinator.
 
 ### Fixed
+
+- Independent trace validation can certify Next errors, partial successors and deadlocks when replay of a direct diagnostic action reaches no output. [Independent trace validation](docs/user/traces.md#error-endpoints).
 
 - Core grows the in-memory fingerprint table one shard at a time, packs trace
   predecessors, and bounds parallel safety candidate batches. On KVS Large

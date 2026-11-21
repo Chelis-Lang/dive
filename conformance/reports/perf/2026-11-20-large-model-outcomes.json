@@ -593,6 +593,41 @@
         "published_default_steps": 1000000,
         "host": "workstation"
       },
+      "first_order_lexical_validation": {
+        "host": "AWS c7i.4xlarge",
+        "profile": "dive",
+        "workers": 8,
+        "seed": 0,
+        "fp": 0,
+        "planner_expansion_steps_limit": 1000000,
+        "baseline": "DIVE-L0021 at Fairness before exploration",
+        "bounded_run": {
+          "profiles": ["dive", "tlc"],
+          "max_states": 5000,
+          "time_limit_s": 120,
+          "max_memory": "4g",
+          "verdict": "stopped",
+          "phase": "graph-capture",
+          "code": "DIVE-L0038",
+          "distinct": 5000,
+          "generated": 12648,
+          "depth": 3,
+          "queued": 4994
+        },
+        "larger_default_run": {
+          "time_limit_s": 180,
+          "max_memory": "8g",
+          "verdict": "stopped",
+          "phase": "temporal-analysis",
+          "code": "DIVE-L0038",
+          "distinct": 181983,
+          "generated": 36103626,
+          "depth": 4,
+          "queued": 165409,
+          "exhaustive": false,
+          "counterexample": null
+        }
+      },
       "merged_main_harness": {
         "dive": {
           "outcome": "unsupported",

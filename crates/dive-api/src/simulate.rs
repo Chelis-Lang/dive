@@ -83,6 +83,13 @@ pub struct SimulateRequest {
     pub library_paths: Vec<PathBuf>,
     /// Modules searched after standard modules.
     pub module_paths: Vec<PathBuf>,
+    /// Extra steps a trace cut by the depth may take while a temporal
+    /// property is unchecked on it (D-039). `None` is the profile default:
+    /// the depth in the default profile, zero under `--compat=tlc`.
+    pub liveness_extend: Option<usize>,
+    /// Per-trace temporal work budget; `None` scales with the trace
+    /// ([`dive_sim::liveness_budget`]). A budget stop is never a verdict.
+    pub liveness_budget: Option<u64>,
 }
 
 /// Concrete sampled traces and independently checked violation evidence.
@@ -257,6 +264,42 @@ impl SimulateReport {
         ) {
             let _ = writeln!(text, "{result}: {message}");
         }
+        for property in self.document["statistics"]["properties"]
+            .as_array()
+            .into_iter()
+            .flatten()
+        {
+            let name = property["name"].as_str().unwrap_or_default();
+            if let Some(trace) = property["refuted_by_trace"].as_u64() {
+                let _ = writeln!(text, "{name}: violated on trace {trace}");
+                continue;
+            }
+            let checked = property["checked_traces"].as_u64().unwrap_or(0);
+            let unchecked = property["unchecked_traces"].as_u64().unwrap_or(0);
+            if checked + unchecked == 0 {
+                let _ = writeln!(text, "{name}: not checked on any completed trace");
+                continue;
+            }
+            let _ = write!(
+                text,
+                "{name}: no counterexample on {checked} of {} traces",
+                checked + unchecked
+            );
+            if unchecked > 0 {
+                let reasons: Vec<String> = property["unchecked_reasons"]
+                    .as_object()
+                    .into_iter()
+                    .flatten()
+                    .map(|(reason, count)| format!("{count} {reason}"))
+                    .collect();
+                let _ = write!(
+                    text,
+                    "; {unchecked} traces could not decide it ({})",
+                    reasons.join(", ")
+                );
+            }
+            text.push_str(" (not a proof)\n");
+        }
         if let Some(transitions) = self.document["action_flow"]["transitions"].as_array() {
             text.push_str("action flow (chosen transitions):\n");
             for edge in transitions {
@@ -308,7 +351,13 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         });
     }
     let workers = req.workers.unwrap_or(1);
+    let depth = options.depth;
     let options = Options {
+        liveness_extend: req
+            .liveness_extend
+            .unwrap_or(if req.compat_tlc { 0 } else { depth }),
+        liveness_budget: req.liveness_budget,
+        bad_prefix: !req.compat_tlc,
         action_stats: req.action_stats,
         generation: req.generation,
         constructive_init: req.constructive_init,
@@ -494,10 +543,18 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                 break;
             }
         };
-        let ending = match &result.outcome {
-            Outcome::Violation {
-                kind, name, trace, ..
-            } if *trace == number => match *kind {
+        let ending = match (&result.outcome, &trace.temporal) {
+            (_, Some((ending, _))) => match ending {
+                dive_sim::TemporalEnding::Lasso { back_to } => Ending::Lasso { back_to: *back_to },
+                dive_sim::TemporalEnding::Stuttering => Ending::Stuttering,
+                dive_sim::TemporalEnding::BadPrefix(name) => Ending::BadPrefix(name.clone()),
+            },
+            (
+                Outcome::Violation {
+                    kind, name, trace, ..
+                },
+                None,
+            ) if *trace == number => match *kind {
                 "invariant" => Ending::Invariant(name.clone().unwrap_or_default()),
                 "property" => Ending::Property(name.clone().unwrap_or_default()),
                 _ => Ending::Deadlock,
@@ -524,6 +581,15 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                 }
             }
         }
+        // A lasso's loop closes on equal states, which the validator then
+        // checks whatever VIEW or SYMMETRY is declared (D-037).
+        if let Some((ending, properties)) = &trace.temporal
+            && !matches!(ending, dive_sim::TemporalEnding::BadPrefix(_))
+        {
+            document = document
+                .with_properties(properties.clone())
+                .with_concrete_closure();
+        }
         // The step into state `k + 1` is labelled with the action the sampler
         // chose; the validator checks each label's definition on its step.
         for (step, &action) in trace.actions.iter().enumerate() {
@@ -540,7 +606,17 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             }
         }
         // Validation replays the given states; it never reruns the simulation.
-        let validated = if matches!(result.outcome, Outcome::Sampled | Outcome::Violation { .. }) {
+        let validated = if matches!(
+            &trace.temporal,
+            Some((
+                dive_sim::TemporalEnding::Lasso { .. } | dive_sim::TemporalEnding::Stuttering,
+                _
+            ))
+        ) {
+            // A lasso is checked on a fresh session: every step including
+            // the closing one, fairness, and the complete false-property set.
+            Ok(model.validate(&document))
+        } else if matches!(result.outcome, Outcome::Sampled | Outcome::Violation { .. }) {
             model.validate_sample_mode(&document, control.clone())
         } else {
             // Diagnostic error prefixes can include the actual failing row.
@@ -720,6 +796,39 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             "kind": if event.warning { "warning" } else { "print" }, "text": event.text,
         })).collect::<Vec<_>>(),
     });
+    document["options"]["liveness_extend"] = json!(options.liveness_extend);
+    document["options"]["liveness_budget"] = options
+        .liveness_budget
+        .map_or_else(|| json!("auto"), |budget| json!(budget));
+    document["options"]["bad_prefix"] = json!(options.bad_prefix);
+    if let Some(temporal) = &result.temporal {
+        let classes = &temporal.classes;
+        document["statistics"]["trace_classes"] = json!({
+            "closed": classes.closed, "terminal": classes.terminal, "truncated": classes.truncated,
+            "extended_closed": classes.extended_closed, "extended_terminal": classes.extended_terminal,
+            "violated": classes.violated, "cancelled": classes.cancelled,
+        });
+        document["statistics"]["properties"] = Value::Array(
+            temporal
+                .properties
+                .iter()
+                .map(|property| {
+                    let unchecked: u64 = property.unchecked.values().sum();
+                    let reasons: serde_json::Map<String, Value> = property
+                        .unchecked
+                        .iter()
+                        .map(|(reason, count)| (reason.code().to_owned(), json!(count)))
+                        .collect();
+                    json!({
+                        "name": property.name, "part": "temporal",
+                        "refuted_by_trace": property.refuted_by_trace,
+                        "checked_traces": property.checked, "unchecked_traces": unchecked,
+                        "unchecked_reasons": reasons, "behaviors_checked": property.checked,
+                    })
+                })
+                .collect(),
+        );
+    }
     // Each trace entry's `alias` renders its validated states; a trace whose
     // ALIAS could not be rendered says why here.
     let mut notes = Vec::new();
@@ -923,7 +1032,7 @@ fn prepare_symmetry(spec: &SpecModel, warnings: &mut Vec<(u32, String)>) -> Resu
 fn tlc_exit(code: u32) -> u8 {
     match code {
         2107 | 2110 => 12,
-        2108 | 2112 | 2113 => 13,
+        2108 | 2112 | 2113 | 2116 => 13,
         2114 => 11,
         2104 | 2105 => 10,
         2109 => 75,

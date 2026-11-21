@@ -815,6 +815,19 @@ violation, which constructing one state per trace would miss.
 - Gate: Core small-tier ratchet; ewd687a `EWD687a_anim` and the temporal
   Examples configs that sample.
 
+Status: implemented in `crates/dive-api/src/simulate_temporal.rs`, with these
+differences from the plan above. `dive_liveness::product` and `search` are not
+public, so the module runs its own product search over the public kernel: the
+negation-normal form of `Fair /\ ~p` is split into acceptance clauses
+(`[]<>B` and `<>[]B` disjunctions, as `WF` and `SF` lower) and a residual
+compiled with `formula::compile`, and a strongly connected part accepts by an
+Emerson-Lei check. `Formula::evaluate_word` computes the complete
+false-property set of the found word rather than serving as a fast path.
+Finite refutation (§4.3 part 3) is a three-valued evaluation of each property
+on the trace when it ends, reporting the shortest refuting prefix, instead of
+per-step progression; it has no residual cap, so `residual-cap` is not a
+reason code. It runs in the default profile only.
+
 ### S4: corpus, histogram and performance
 
 - Rerun `scripts/simulate-refusal-histogram.py` and commit the after report.

@@ -39,6 +39,7 @@
 mod host_io;
 pub mod inputs;
 
+mod analysis_frames;
 mod bounded_domain;
 pub mod capture;
 mod community;
@@ -77,6 +78,7 @@ use ::std::sync::Arc;
 use dive_ir::{DefId, DefKind, ExprId, Ir};
 use dive_value::{Interner, Value};
 
+pub use crate::analysis_frames::AnalysisFrames;
 use crate::core::Core;
 pub use crate::core::{CollectSink, PrintSink};
 use crate::env::{Dyn, Env, Ev};
