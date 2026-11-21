@@ -774,6 +774,7 @@ fn record_metrics(
                 "converted_nodes": conversion["converted_values"],
                 "memo_entries": conversion["cache_entries"],
                 "values": conversion, "atoms": atoms.metrics(),
+                "analysis_ms": atoms.analysis_ms(),
                 "memory": {
                     "fixed_bytes": memory.fixed_bytes,
                     "buffer_bytes": memory.buffer_bytes,
