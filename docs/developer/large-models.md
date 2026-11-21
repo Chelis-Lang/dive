@@ -291,7 +291,7 @@ Six of the thirteen original non-finishes reached a memory ceiling and seven rep
 | Frontier and candidates awaiting commit | At the same 800,000-state KVS Large prefix, 5,703,129 generated and 511,907 queued, reducing the ordinary eight-worker batch from 4,096 to 128 sources per worker cut RSS from 343 to 174 MiB. Wall time went from 3.03 to 3.29 s. The original frontier-spill path used 154 MiB and 4.87 s. | Candidate buffering accounts for much of the apparent benefit of spilling this prefix. The flat frontier itself still grows with layer width. |
 | Parent and ordinal storage | Four million three-child BFS entries occupied 50,331,648 bytes of resident capacity before and 5,242,880 after delta coding with a 64-record block index. Wide ordinals and arbitrary parent order round-trip. | Regular discovery order compresses. The application can still seek to a predecessor for trace reconstruction. |
 | Temporal capture scheduling | CoffeeCan3000 at eight workers went from 107.3 to 49.4 s with worker and claim-table reuse. One worker took 50.2 and 48.8 s. CoffeeCan1000 isolated pool reuse at 5.65 s, claim reuse alone at 10.29 s, and the original at 10.75 s. | Thread creation at every bounded wave accounts for much of the regression. Ordered graph commits and temporal work still limit parallel speedup. |
-| Independent receipt delivery | Ten disjoint reachable regions of the pinned `c1cs` model contain 671,088,640 distinct postdecision states and 8,724,152,320 delivery edges. An unused four-way binder generates 34,896,609,280 witnesses for those edges. Twenty concrete paths validate, and a damaged path fails validation. | Materializing the full graph explicitly charges for every combination and duplicate witness. This construction covers those regions only. Termination and fairness obligations remain open. |
+| Independent receipt delivery | Ten disjoint reachable regions of the pinned `c1cs` model contain 671,088,640 distinct postdecision states and 8,724,152,320 delivery edges. An unused four-way binder generates 34,896,609,280 witnesses for those edges. Twenty concrete paths validate, and a damaged path fails validation. | Materializing the full graph explicitly charges for every combination and duplicate witness. A separate [proof of the published instance](#the-published-c1cs-properties) covers its five invariants and fair termination. |
 
 The ordinary eight-worker candidate reduced sampled peak memory on PConProof from 1,862 to 512 MB, with elapsed time increasing from 67.8 to 75.2 s. KVS Medium went from 1,335 to 812 MB and from 108 to 106 s. Each comparison used the same CPU affinity, input and golden, with other work on the host. At one worker the candidate took 574 s on PConProof and 585 s on Medium. Both benefit from parallel expansion. Extending the persistent pool to ordinary safety increased the two PConProof eight-worker measurements from 84–101 s to 99–109 s in a separate interleaved experiment. The measured candidate retains the pool for temporal capture.
 
@@ -664,6 +664,57 @@ queued at depth 15. The last three-minute process sample had 34 threads.
 [Full stop, bounded prefix observations and executable digests](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
 On a 32-physical-core host with a 24 GiB sampled RSS limit, DiskSynod reached 835,858,711 distinct states and 12,639,577,756 generated in 6,500.61 s. It had 144,840,332 states queued at depth 35. BPConProof hit the same budget in 181.95 s with 134,831,096 distinct states. Of those, 134,714,941 were still queued. At 16 workers, BlockingQueuePoisonApple hit 24 GiB during graph capture with 117,440,513 distinct and 569,933,982 generated. At eight workers and 18 GiB, etcdraft reached 94,073,470 distinct before memory stopped it. MCetcdraft instead hit the 900 s time limit at 39,256,817 distinct and 8.89 GiB peak RSS. These runs use different worker counts and budget enforcement from the original cgroup trials. [Per-input commands, limits, binary identities and terminal queues](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
+
+### The published c1cs properties
+
+All six properties in the pinned four-process `c1cs.cfg` hold. The instance has
+`N=4`, `T=F=1`, two distinct input values and a third value `Bottom`.
+Apalache checks induction over the original module using these three values as
+distinct uninterpreted constants. The induction step starts from every state
+satisfying the strengthened predicate. The proof establishes `TypeOK`, `Validity`,
+`Agreement`, `WeakAgreement` and `IndStrengthens` in every reachable state.
+A separate progress argument establishes `Termination` on every behavior of
+the configured `Spec`. The total graph size remains unknown.
+[Proof obligations, inputs and controls](../../conformance/reports/perf/2026-11-21-c1cs-source-proof.json).
+
+Two facts strengthen the safety induction. Every process in `CALL` has at least
+two broadcast proposals for its current value. If a sender's current value
+differs from its old proposal, its current value also has at least two such
+proposals. A decision has at least three proposals for its value. With four
+senders and at most one proposal per sender, quorums of two and three overlap.
+Removing the extra support facts admits an induction countermodel in which
+three senders proposed `v1` but all four current values are `v2`.
+[Inductive predicate](../../scripts/perf/scale/c1cs-proof/C1CSProgress.tla).
+
+For progress, order the locations as `PROPOSE < DECIDE < CALL < DONE < CRASH`.
+Add the four location ranks and the sizes of all four receipt sets. The sum is
+at most 80 because the message domain has sixteen records. Each original
+nonstuttering step strictly increases the sum, so every infinite behavior
+eventually stays in one state. The source's `Crash` guard counts *noncrashed*
+processes and requires fewer than one. Induction shows that no process crashes.
+
+At a stationary state outside the target, a process in `PROPOSE` can propose.
+Otherwise a process in `DECIDE` can receive a missing broadcast or act on a
+received decision. If it has all broadcasts and none is a decision, every
+process that left `PROPOSE` has broadcast its own proposal. Four proposals
+enable `Core_T1`. All these actions belong to the single weakly fair
+disjunction in `Spec`, and each changes the state. An infinite stationary
+suffix outside the target would violate this fairness condition.
+
+The driver derives the enabling guards from the parsed fair action. It checks
+that each action branch assigns every successor variable once and that the
+assignments have an acyclic dependency order. It also checks that both guarded
+vote choices have witnesses and repeats induction with every satisfying vote
+permitted. TLC independently checks the derived guard against its own
+`ENABLED` operator in all 10 and 310 states of two smaller original-source
+instances. Each model also passes its full configured properties in TLC and
+Core. Run the driver with the pinned Examples checkout, Apalache 0.62.3, a
+Java 21 runtime on `PATH`, the pinned TLC jar and the Core CLI.
+
+```sh
+python3 scripts/perf/scale/c1cs-proof/check.py "$EXAMPLES/specifications/c1cs" \
+  --apalache "$APALACHE" --java "$JAVA" --tlc-jar "$TLA2TOOLS" --dive "$DIVE"
+```
 
 ### Unbounded election terms in etcd
 
