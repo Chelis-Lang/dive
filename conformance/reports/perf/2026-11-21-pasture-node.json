@@ -10,7 +10,7 @@
     "report": "MSR-TR-2012-84, 2012-08-17, Table 1 and Appendices A and B",
     "url": "https://www.microsoft.com/en-us/research/wp-content/uploads/2012/08/paper.pdf",
     "pdf_sha256": "316e298ec24a63eedb8e5d5e3d25cfc4da514cc007d99be5c6a82701fbdb342c",
-    "kind": "Reconstruction from typeset pages 14\u201334. No original Toolbox directory or author CFG was available. All four printed invariants are enabled. Assign one model value to the unbounded NullTs CHOOSE using a module-qualified CONSTANT, and apply the five published numeric bounds in their printed order.",
+    "kind": "Reconstruction from typeset pages 14–34. No original Toolbox directory or author CFG was available. All four printed invariants are enabled. Assign one model value to the unbounded NullTs CHOOSE using a module-qualified CONSTANT, and apply the five published numeric bounds in their printed order.",
     "module_sha256": {
       "PastureNode.tla": "cd9a63087ae2786797a7a7857cbe1252879bfa139beb805195a01baf0df7c921",
       "PastureNodeModel.tla": "329a07d39097209def8a709ecb2cba76012998952fc6b341a3eb691246397467"
@@ -311,6 +311,23 @@
       "peak_rss_kib": 4340188,
       "exit": 0
     },
-    "21222_cfg_sha256": "1307545066a0a7fe88c38684cfc7b60889276dece99897064780ccfface1ed63"
+    "21222_cfg_sha256": "1307545066a0a7fe88c38684cfc7b60889276dece99897064780ccfface1ed63",
+    "21222-tlc": {
+      "command": "taskset -c 0-47 jre/bin/java -Xmx350g -XX:+UseParallelGC -XX:ActiveProcessorCount=48 -jar tla2tools.jar -fp 0 -seed 0 -workers 48 -metadir DIR -config 21222.cfg PastureNodeModel.tla",
+      "wall_seconds": 10153.63,
+      "peak_rss_kib": 182572048,
+      "workers": 48,
+      "verdict": "success",
+      "exit": 0,
+      "distinct": 4234887880,
+      "generated": 36395020965,
+      "depth": 53,
+      "left_on_queue": 0,
+      "fingerprint_collision_estimates_reported_by_tlc": {
+        "optimistic": 7.4,
+        "actual_fingerprints": 1.0
+      },
+      "interpretation": "Identical input bytes and CPU set as Core exact, run serially. TLC used fingerprint identity. Both independently returned the same counts and depth. The Core exact store verified full mathematical identities."
+    }
   }
 }

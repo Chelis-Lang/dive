@@ -164,5 +164,26 @@
     },
     "zero_bit_regression": "Function with domain {A} and only the empty set as an output, y in {A,B,C}, stuttering Next. The previous experimental prototype counted 1/4/1; pinned TLC counts 2/5/1. Current worker refuses the nonclosed domain. A closed zero-bit function and nested record keys agree with TLC. Asymmetric 260-member full domain refuses even with no learned coordinates.",
     "rechecks": "Changing the symmetry group forces a new count. Identical revisions retain the proof. A new false invariant produces an independently validated trace."
+  },
+  "published_symmetry_cfgs": {
+    "host": "c7i.4xlarge us-east-2, pinned logical CPU 0, cgroup 23 GiB",
+    "command": "dive check PaxosLeaseCheckedSym.tla --config CFG --strategy symbolic --refine-domains --type-invariant TypeOK --max-memory 19g --time-limit 9100s --output json",
+    "inputs": "Published CFG unchanged, including SYMMETRY Symm. Same source and configurations as the input hashes above; each run had its own process.",
+    "runs": {
+      "PaxosLeaseRenewCrash3": {
+        "verdict": "stopped",
+        "reason": "time limit",
+        "exit_code": 4,
+        "wall_seconds": 9100.04,
+        "peak_rss_kib": 887096
+      },
+      "PaxosLeaseReleaseCrash": {
+        "verdict": "stopped",
+        "reason": "time limit",
+        "exit_code": 4,
+        "wall_seconds": 9100.07,
+        "peak_rss_kib": 432324
+      }
+    }
   }
 }

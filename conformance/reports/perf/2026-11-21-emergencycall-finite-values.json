@@ -1152,6 +1152,24 @@
       "peak_rss_kib": 34352244
     },
     {
+      "tag": "Grid104N6V12",
+      "host": "r8g.16xlarge",
+      "cell": 12,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 41,
+        "distinct": 1118373920,
+        "generated": 7375255632,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1118373920,
+      "wall_seconds": 4123.17,
+      "peak_rss_kib": 66396384
+    },
+    {
       "tag": "Grid104N6V13",
       "host": "r8g.16xlarge",
       "cell": 13,
@@ -1186,6 +1204,24 @@
       "mathematical_identities": 619769888,
       "wall_seconds": 2326.78,
       "peak_rss_kib": 34992252
+    },
+    {
+      "tag": "Grid104N6V15",
+      "host": "r8g.16xlarge",
+      "cell": 15,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 33,
+        "distinct": 397993664,
+        "generated": 2605013696,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 397993664,
+      "wall_seconds": 1475.09,
+      "peak_rss_kib": 20354640
     },
     {
       "tag": "Grid104N6V16",
@@ -1404,6 +1440,24 @@
       "peak_rss_kib": 34364092
     },
     {
+      "tag": "Grid104N6V28",
+      "host": "r8g.16xlarge",
+      "cell": 28,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 41,
+        "distinct": 1118360864,
+        "generated": 7375199056,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1118360864,
+      "wall_seconds": 4207.5,
+      "peak_rss_kib": 66373820
+    },
+    {
       "tag": "Grid104N6V29",
       "host": "r8g.16xlarge",
       "cell": 29,
@@ -1456,6 +1510,150 @@
       "mathematical_identities": 397986752,
       "wall_seconds": 1530.5,
       "peak_rss_kib": 20251380
+    },
+    {
+      "tag": "Grid104N6V32",
+      "host": "r8g.16xlarge",
+      "cell": 32,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 600401408,
+        "generated": 3862092256,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 600401408,
+      "wall_seconds": 2240.98,
+      "peak_rss_kib": 34338120
+    },
+    {
+      "tag": "Grid104N6V33",
+      "host": "r8g.16xlarge",
+      "cell": 33,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 912892960,
+        "generated": 6005858636,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 912892960,
+      "wall_seconds": 3431.21,
+      "peak_rss_kib": 43088324
+    },
+    {
+      "tag": "Grid104N6V34",
+      "host": "r8g.16xlarge",
+      "cell": 34,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 692629920,
+        "generated": 4527264736,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 692629920,
+      "wall_seconds": 2611.59,
+      "peak_rss_kib": 36910792
+    },
+    {
+      "tag": "Grid104N6V35",
+      "host": "r8g.16xlarge",
+      "cell": 35,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 1001016800,
+        "generated": 6664442848,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1001016800,
+      "wall_seconds": 3830.73,
+      "peak_rss_kib": 62970024
+    },
+    {
+      "tag": "Grid104N6V36",
+      "host": "r8g.16xlarge",
+      "cell": 36,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 44,
+        "distinct": 876166152,
+        "generated": 5735690814,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 876166152,
+      "wall_seconds": 3285.98,
+      "peak_rss_kib": 41933452
+    },
+    {
+      "tag": "Grid104N6V37",
+      "host": "r8g.16xlarge",
+      "cell": 37,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 686936848,
+        "generated": 4482326172,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 686936848,
+      "wall_seconds": 2571.14,
+      "peak_rss_kib": 37359488
+    },
+    {
+      "tag": "Grid104N6V38",
+      "host": "r8g.16xlarge",
+      "cell": 38,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 40,
+        "distinct": 1029239808,
+        "generated": 6826734112,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1029239808,
+      "wall_seconds": 3887.91,
+      "peak_rss_kib": 63720292
+    },
+    {
+      "tag": "Grid104N6V39",
+      "host": "r8g.16xlarge",
+      "cell": 39,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 711637376,
+        "generated": 4705148384,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 711637376,
+      "wall_seconds": 2730.15,
+      "peak_rss_kib": 37805152
     },
     {
       "tag": "Grid104N6V40",
@@ -1710,6 +1908,24 @@
       "peak_rss_kib": 37390160
     },
     {
+      "tag": "Grid104N6V54",
+      "host": "r8g.16xlarge",
+      "cell": 54,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 40,
+        "distinct": 1029232896,
+        "generated": 6826704160,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1029232896,
+      "wall_seconds": 3818.06,
+      "peak_rss_kib": 63679988
+    },
+    {
       "tag": "Grid104N6V55",
       "host": "r8g.16xlarge",
       "cell": 55,
@@ -1726,6 +1942,150 @@
       "mathematical_identities": 711630464,
       "wall_seconds": 2670.79,
       "peak_rss_kib": 37743968
+    },
+    {
+      "tag": "Grid104N6V56",
+      "host": "r8g.16xlarge",
+      "cell": 56,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 41,
+        "distinct": 778189856,
+        "generated": 5055564992,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 778189856,
+      "wall_seconds": 2853.46,
+      "peak_rss_kib": 39123604
+    },
+    {
+      "tag": "Grid104N6V57",
+      "host": "r8g.16xlarge",
+      "cell": 57,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 1154237160,
+        "generated": 7640310494,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1154237160,
+      "wall_seconds": 4255.03,
+      "peak_rss_kib": 67240504
+    },
+    {
+      "tag": "Grid104N6V58",
+      "host": "r8g.16xlarge",
+      "cell": 58,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 440790656,
+        "generated": 2858194112,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 440790656,
+      "wall_seconds": 1640.57,
+      "peak_rss_kib": 21222672
+    },
+    {
+      "tag": "Grid104N6V59",
+      "host": "r8g.16xlarge",
+      "cell": 59,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 39,
+        "distinct": 592792384,
+        "generated": 3917131776,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 592792384,
+      "wall_seconds": 2229.84,
+      "peak_rss_kib": 34356844
+    },
+    {
+      "tag": "Grid104N6V60",
+      "host": "r8g.16xlarge",
+      "cell": 60,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 41,
+        "distinct": 1118329728,
+        "generated": 7375023360,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 1118329728,
+      "wall_seconds": 4138.74,
+      "peak_rss_kib": 66386704
+    },
+    {
+      "tag": "Grid104N6V61",
+      "host": "r8g.16xlarge",
+      "cell": 61,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 43,
+        "distinct": 864780168,
+        "generated": 5681343182,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 864780168,
+      "wall_seconds": 3187.18,
+      "peak_rss_kib": 42062236
+    },
+    {
+      "tag": "Grid104N6V62",
+      "host": "r8g.16xlarge",
+      "cell": 62,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 38,
+        "distinct": 619762976,
+        "generated": 4073066528,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 619762976,
+      "wall_seconds": 2306.69,
+      "peak_rss_kib": 35045404
+    },
+    {
+      "tag": "Grid104N6V63",
+      "host": "r8g.16xlarge",
+      "cell": 63,
+      "verdict": "success",
+      "exit_code": 0,
+      "statistics": {
+        "depth": 33,
+        "distinct": 397986752,
+        "generated": 2604983744,
+        "initial_generated": 884736,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 397986752,
+      "wall_seconds": 1504.75,
+      "peak_rss_kib": 20227772
     }
   ],
   "ordinary_store_commands": "Grid runs pin 16 workers within one of four disjoint CPU sets, --store exact --compat=tlc --workers 16 --fp 0 --seed 0 --max-memory 104g --time-limit 14400s, two-worker-group and single-group retries at 208g and 390g. Capacity rows use two groups of 48 cores and an 84g cap. All use the published partition wrapper over Init and unchanged Next; one extra partition invariant checks each emitted state.",
@@ -1746,7 +2106,7 @@
     ]
   },
   "ordinary_summary": {
-    "successful_unique_cells": 44,
+    "successful_unique_cells": 64,
     "cell_numbers": [
       0,
       1,
@@ -1760,8 +2120,10 @@
       9,
       10,
       11,
+      12,
       13,
       14,
+      15,
       16,
       17,
       18,
@@ -1774,9 +2136,18 @@
       25,
       26,
       27,
+      28,
       29,
       30,
       31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
       40,
       41,
       42,
@@ -1791,13 +2162,22 @@
       51,
       52,
       53,
-      55
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
     ],
     "total_cells": 64,
     "disjoint_counts": {
-      "initial": 38928384,
-      "distinct": 33769920472,
-      "generated": 221866225494
+      "initial": 56623104,
+      "distinct": 49911672768,
+      "generated": 328063574184
     },
     "grid_binary_sha256": "aa441e38fb26a96b135da52243f53c8ce3c6b63ae60505457ab67c784c7b3376",
     "scope": "Each counted native cell exhausted its exact store under unrestricted Next, with the partition predicate checked as an invariant. The sum includes one success per cell; incomplete attempts remain in the table. Per-cell peak RSS and process times are not campaign totals."
