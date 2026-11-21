@@ -1787,6 +1787,7 @@ def check_in_manager(args, revisions):
 
 def check_revisions(args, revisions, owner):
     previous = None
+    previous_whole = None
     violated = False
     for module, config, learned in revisions:
         start = time.monotonic()
@@ -1795,14 +1796,18 @@ def check_revisions(args, revisions, owner):
         doc = json.loads(exported.stdout)
         if not owner:
             owner.append(cudd.BDD(memory_estimate=512 << 20))
+        # The representation that did the previous successful check owns its BDD nodes.
+        model = None
+        whole = False
+        cached = None
         try:
             model = bind_source_model(
                 doc, args.type_invariant, owner[0], args.order_by_path, args.single_partition,
                 learned, direct_induction=args.prove_inductive and not args.verify_predicate,
             )
         except Unsupported:
-            # Whole-value search has no compatible cached layers or inductive representation.
-            eligible = not any((args.recheck, args.refine_domains, args.order_by_path,
+            # Whole-value search has a separate representation for an exhaustive closure.
+            eligible = not any((args.refine_domains, args.order_by_path,
                                 args.single_partition, args.prove_inductive,
                                 args.verify_predicate, args.write_predicate))
             layout = [expr for name, expr in doc["invariants"] if name == args.type_invariant]
@@ -1811,7 +1816,17 @@ def check_revisions(args, revisions, owner):
             from finite_values import FiniteValueModel, whole_record_layout
             if not whole_record_layout(doc, layout[0]):
                 raise
-            model = FiniteValueModel(doc, layout[0])
+            whole = True
+            if previous_whole is not None:
+                cached = previous_whole.recheck_invariants(doc, layout[0])
+            previous = None
+            if cached is not None:
+                model = previous_whole
+            else:
+                previous_whole = None
+                model = FiniteValueModel(doc, layout[0])
+        else:
+            previous_whole = None
         if args.verify_predicate or args.prove_inductive:
             states = (
                 induction.load(Path(args.verify_predicate), model)
@@ -1831,8 +1846,14 @@ def check_revisions(args, revisions, owner):
             if failed:
                 return 2
             continue
-        row, trace = (model.recheck_refined(previous, getattr(args, "keep_refined_layers", False))
-                      if args.refine_domains else model.check(previous))
+        if cached is not None:
+            row, trace = cached, None
+        elif whole:
+            row, trace = model.check(None, retain=bool(args.recheck))
+        elif args.refine_domains:
+            row, trace = model.recheck_refined(previous, getattr(args, "keep_refined_layers", False))
+        else:
+            row, trace = model.check(previous)
         if args.refine_domains:
             # Private child-to-parent payload. Retire stale coordinates on each edit.
             row["domain_members"] = sorted(
@@ -1880,7 +1901,8 @@ def check_revisions(args, revisions, owner):
         print(json.dumps(row), flush=True)
         if args.refine_domains and trace is not None:
             return 1
-        previous = model
+        previous = None if whole else model
+        previous_whole = model if whole and trace is None else None
         if args.refine_domains:
             gc.collect()
     return int(violated)

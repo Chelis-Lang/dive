@@ -819,12 +819,52 @@ def check_whole_values(folder, run, explicit, compare):
     frame = r'UNCHANGED <<r, x>>'
     def source(init="TypeInvariant", step=frame, safe="x = x", typ=layout):
         module.write_text(f"---- MODULE Whole ----\nVARIABLES r,x,flag\nTypeInvariant == {typ}\n"
-                          f"Init == /\\ flag = 0 /\\ ({init})\nNext == /\\ ({step}) /\\ UNCHANGED <<flag>>\nSafe == {safe}\n====\n")
+                          f"Init == /\\ flag = 0 /\\ ({init})\nNext == /\\ ({step}) /\\ UNCHANGED <<flag>>\nSafe == {safe}\nBad == x = 0\n====\n")
 
     source(step=r"\/ UNCHANGED <<r, x>> \/ /\ x' = 1 /\ UNCHANGED <<r>>")
     row, = run(module, cfg)
     compare(row, explicit(module, cfg))
     assert row["encoding"] == "whole-values" and row["initial"] == 4
+
+    reduced = folder / "WholeReduced.cfg"
+    reduced.write_text("INIT Init\nNEXT Next\nINVARIANT TypeInvariant\n")
+    no_deadlock = folder / "WholeNoDeadlock.cfg"
+    no_deadlock.write_text(reduced.read_text() + "CHECK_DEADLOCK FALSE\n")
+    failing = folder / "WholeFails.cfg"
+    failing.write_text(reduced.read_text() + "INVARIANT Bad\n")
+    rows = run(module, cfg, "--recheck", module, reduced, "--recheck", module, cfg,
+               "--recheck", module, no_deadlock, "--recheck", module, failing,
+               "--recheck", module, cfg, code=1)
+    assert [r["reused"] for r in rows] == [False, True, True, False, False, False]
+    for i in (0, 1, 2, 3, 5):
+        compare(rows[i], explicit(module, (cfg, reduced, cfg, no_deadlock, failing, cfg)[i]))
+    assert rows[1]["invariants"] == ["TypeInvariant"]
+    assert rows[2]["invariants"] == ["TypeInvariant", "Safe"]
+    assert rows[4]["ending"]["name"] == "Bad" and rows[4]["trace_validated"]
+
+    changed = folder / "changed" / module.name
+    changed.parent.mkdir(exist_ok=True)
+    changed.write_text(module.read_text().replace("Safe == x = x", "Safe == x = 0"))
+    _, bad = run(module, cfg, "--recheck", changed, cfg, code=1)
+    assert not bad["reused"] and bad["trace_validated"] and bad["ending"]["name"] == "Safe"
+
+    # Moving between the two symbolic encodings invalidates their distinct managers.
+    scalar = folder / "Scalar.tla"
+    scalar.write_text("---- MODULE Scalar ----\nVARIABLE x\nTypeInvariant == x \\in {0,1}\n"
+                      "Init == x = 0\nNext == UNCHANGED x\n====\n")
+    rows = run(module, reduced, "--recheck", scalar, reduced, "--recheck", module, reduced)
+    assert [r["reused"] for r in rows] == [False, False, False]
+    compare(rows[1], explicit(scalar, reduced))
+
+    # The admitted alphabet includes x=1, but this source only reaches x=0.
+    # The added property must hold on exactly the reached states.
+    source(init=r"x = 0 /\ TypeInvariant")
+    _, strengthened = run(module, reduced, "--recheck", module, failing)
+    assert strengthened["reused"] and "Bad" in strengthened["invariants"]
+    compare(strengthened, explicit(module, failing))
+    changed.write_text(module.read_text().replace("UNCHANGED <<r, x>>", r"x' = 1 /\ UNCHANGED <<r>>"))
+    _, bad = run(module, failing, "--recheck", changed, failing, code=1)
+    assert not bad["reused"] and bad["trace_validated"] and bad["depth"] == 2
 
     source(safe="x = 0")
     row, = run(module, cfg, code=1)
