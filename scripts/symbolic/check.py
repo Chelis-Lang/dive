@@ -59,6 +59,7 @@ def main():
         "--verify-predicate", type=Path, help="prove safety by checking a supplied predicate for induction"
     )
     strategy = parser.add_mutually_exclusive_group()
+    strategy.add_argument("--property-proof", metavar="NAME", help="prove a single configured state invariant")
     strategy.add_argument("--occupancy", action="store_true", help="exact labeled BFS on anonymous status tables")
     strategy.add_argument("--compiled", action="store_true", help="compile a packed exact safety search")
     parser.add_argument("--workers", type=int, choices=range(1, 9), help="maximum compiled search workers")
@@ -77,6 +78,13 @@ def main():
     parser.add_argument("--max-memory", type=positive_mib, metavar="MIB",
                         help="virtual address-space limit inherited by the worker and each child")
     args = parser.parse_args()
+    if args.property_proof == "":
+        parser.error("--property-proof requires a nonempty invariant name")
+    if args.property_proof and any((args.refine_domains, args.prove_inductive,
+                                    args.order_by_path, args.single_partition)):
+        parser.error("property proof chooses its own finite closure and induction checks")
+    if args.property_proof and args.recheck and (args.write_predicate or args.verify_predicate):
+        parser.error("a portable property predicate belongs to a single revision")
     if args.max_orbits is not None and (not args.occupancy or args.max_orbits < 1):
         parser.error("--max-orbits requires occupancy and a positive integer")
     if args.occupancy and any((args.recheck, args.refine_domains, args.order_by_path, args.single_partition)):

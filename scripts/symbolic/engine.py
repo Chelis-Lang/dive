@@ -96,6 +96,8 @@ def require_index_permutation(condition, reason):
 
 
 class SourceModel(FiniteRelation):
+    cluster_record_fields = False
+
     def __init__(self, doc, type_invariant, manager=None, order_by_path=False, single_partition=False,
                  learned=None, table_order="inner", state_bit_limit=512):
         require(doc["format"] == "dive-symbolic-input-v2", "incompatible bound IR exporter")
@@ -119,9 +121,7 @@ class SourceModel(FiniteRelation):
             require(holds, f"ASSUME {name or index} did not evaluate to TRUE")
         if doc["specification"] is not None:
             self.check_specification(doc["specification"])
-        decls = [expr for name, expr in doc["invariants"] if name == type_invariant]
-        require(len(decls) == 1, "expected a configured finite layout invariant named " + type_invariant)
-        types = self.infer_types(decls[0])
+        types = self.infer_types(self.layout_expression(type_invariant))
         atoms = ()
         self.symmetry = doc["symmetry"] is not None
         if self.symmetry:
@@ -228,6 +228,11 @@ class SourceModel(FiniteRelation):
 
         require(variables(box["sub"]) == set(range(len(self.names))), "stuttering subscript omits variables")
 
+    def layout_expression(self, name):
+        decls = [expr for prop, expr in self.doc["invariants"] if prop == name]
+        require(len(decls) == 1, "expected a configured finite layout invariant named " + name)
+        return decls[0]
+
     def infer_types(self, role):
         """Read finite bounds from a conjunction of state-variable type declarations."""
         found = {}
@@ -254,6 +259,9 @@ class SourceModel(FiniteRelation):
                 found[name] = PowerSet(bound) if x["op"] == "Subseteq" else bound
 
         visit(role)
+        return self.complete_layout(found)
+
+    def complete_layout(self, found):
         require(found.keys() == set(self.names), "need one finite bound for every state variable")
         return found
 
@@ -350,6 +358,12 @@ class SourceModel(FiniteRelation):
             if self.whole_domains:
                 group = next((clusters.index(atom) for key in reversed(path[1:])
                               for atom in model_values(key) if atom in clusters), -1)
+            if self.cluster_record_fields and group < 0:
+                for k in path[1:]:
+                    if isinstance(k, tuple) and k[0] == "record":
+                        group = next((clusters.index(v) for _, v in k[1] if v in clusters), -1)
+                        if group >= 0:
+                            break
             roles = [atoms.index(k) for k in path[1:] if k in atoms]
             require_index_permutation(len(roles) <= 1, "multiple permuted indices in one path")
             outer = repr(path[1]) if path[0] in shared_tables else ""
@@ -457,7 +471,8 @@ class SourceModel(FiniteRelation):
             return self.atom(("string", value))
         require(isinstance(value, dict), "unsupported configuration value")
         if set(value) == {"model"}:
-            require("_" not in value["model"], "typed model values")
+            units = value["model"].encode("utf-16-le")
+            require(len(units) <= 4 or units[2:4] != b"_\x00", "typed model values")
             return self.atom(value["model"])
         if set(value) == {"set"}:
             return Members(((self.key(self.literal(v)), self.b.true) for v in value["set"]),
@@ -1747,6 +1762,9 @@ def refined_search(args):
 
 def run(args):
     limit_memory(args.max_memory)
+    if getattr(args, "property_proof", None):
+        from property_proof import check_properties
+        return check_properties(args)
     if args.refine_domains and not getattr(args, "domain_pass", False):
         return refined_search(args)
     if args.refine_domains:

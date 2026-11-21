@@ -4,6 +4,9 @@ The [source-driven symbolic checker](../user/symbolic.md) checks finite safety s
 
 The [performance evidence index](../../conformance/reports/perf/README.md) collects compact records for reuse in other reports. The tables below identify which comparisons ran on the same host, which reached a complete fixed point and which stopped at a limit.
 
+For a comparison with a compositional verifier and a replayed four-writer
+SlateDB failure, see [named-property proof results](#prove-a-property-on-the-original-recomp-verify-models).
+
 ## What sets the limit
 
 | Model structure | What to measure and what helped |
@@ -1796,6 +1799,81 @@ done
 Combine results only after all cells exhaust their queues and pass the closure check. For exact full-state identity the distinct, generated and initial counts add, and the maximum cell depth is the whole-model depth. Every reachable state belongs to one cell and every successor of an admitted state stays in that cell. A stopped run or a cell reporting no initial states needs separate resolution before reporting any whole-model total. The script accepts simple INIT, NEXT, INVARIANT(S) and CHECK_DEADLOCK clauses. Use independent processes on a suitably sized host to run cells concurrently.
 
 With the released `Init` and just the type and set safety invariants, the first four cells of a six-variable reconstruction each admitted 884,736 initial states. They reached 469,762,578–469,764,632 distinct exact states before the 40 GiB sampled cap. The count clusters near the growth threshold of the resident exact hash table. Each terminal queue remained open. At 84 GiB, cell zero exhausted with 600,429,632 exact identities, 3,862,251,520 generated and depth 39, in 1,884.64 s at 62.60 GiB peak RSS. Cell one exhausted with 912,926,560 exact identities, 6,006,048,236 generated, depth 43 and an empty queue in 2,913.01 s at 63.86 GiB peak RSS. Those are two of 64 cells in the reconstructed configuration. [Source, predicates and per-process peaks](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
+
+## Prove a property on the original Recomp-Verify models
+
+The published four-process portfolio proved the 20-client lock server in 2 s
+and nine-manager TwoPhaseCounter in 31 s. We ran the pinned implementation on
+the authors' original modules and configurations. On one dedicated Linux
+c7i.4xlarge, its median end-to-end times were 3.04 s and 34.73 s. Dive's
+named-property checker took 0.352 s for `Mutex` and 0.251 s for `Consistent`.
+The competitor reported success on both inputs. These are property proofs.
+[Paper, Figure 5](https://arxiv.org/pdf/2408.03488) · [Authors' artifact](https://github.com/cmu-soda/recomp-verify/tree/0cbd95f0002af10f70f25c87638e8f2673229f2e) · [Inputs, commands, all individual runs and controls](../../conformance/reports/perf/2026-11-21-named-property-proofs.json).
+
+| Original or grown source | Guarded transitions checked | Closure sweeps | Dive end to end |
+| --- | ---: | ---: | ---: |
+| lockserv, 20 clients | 100 | 3 | 0.352 s |
+| lockserv, 100 clients | 500 | 3 | 2.457 s |
+| TwoPhaseCounter, 9 managers | 48 | 3 | 0.251 s |
+| TwoPhaseCounter, 32 managers | 163 | 3 | 0.502 s |
+| TwoPhaseCounter, 64 managers | 323 | 3 | 1.254 s |
+
+At 100 clients the saved lockserv predicate contains
+**381,562,830,668,697,049,850,507,664,818,176 labeled assignments**. An
+independent Boolean model counter read the serialized diagram. There is also
+a direct derivation. The token is at the server or at one of three stages for
+one of the clients, giving `1 + 3n` choices. Reach each token location with all
+request bits clear, then send requests for any subset of clients. This gives
+`(1 + 3n) × 2ⁿ`. At 20 clients both methods give 63,963,136. At 100 clients
+the portfolio also proved the property in 3.87 s, narrowing Dive's speedup to
+1.6×. At 64 managers the portfolio reached a 120 s cutoff while Dive finished
+in 1.254 s. The portfolio's component counts have a different meaning. [Predicate counter](../../scripts/perf/scale/lockserv_predicate.py).
+
+In lockserv, independent request flags multiply the number of concrete states.
+Exclusive ownership also depends on the server token, the grant messages and
+the unlock messages. Closing the property under guard and update dependencies
+retained all 81 bits at 20 clients. A decision diagram compactly represents
+their joint values. Allowing the server to retain the lock when granting it
+produced a seven-state `Mutex` violation that Dive independently replayed.
+
+TwoPhaseCounter has an unbounded concrete graph even at nine managers. The
+counter has no influence on the safety property or on the protocol transitions.
+Its private increment can be projected away. The 40 retained bits represent
+manager state, coordinator state, acknowledged preparations and messages. Bits
+for a manager's record-valued messages are adjacent to its local state. The
+checker derives the predicate by sweeping the relation, then checks induction
+against all actions. Adding a counter read to the property produces a named
+refusal. The source never supplies a cutoff for the counter.
+
+For an actual transition edit, adding a coordinator-state guard to
+`SndPrepare` on the 64-manager source preserved 259 of 323 obligations within
+a Dive session. A separate Sail process checked all 323 on the previous
+predicate, taking 1.005 s for the edit versus 1.157 s fresh. Both edit and undo
+avoided all three closure sweeps. On lockserv the warm and cold Sail checks both
+took 0.354 s at 20 clients. Binding the edited source and starting the worker
+still cost time. [Run a named-property check](../user/symbolic.md#prove-one-configured-state-invariant) · [Sail CLI](https://github.com/Chelis-Lang/sail/pull/792).
+
+### Transfer a SlateDB witness to a larger configuration
+
+The restart-capable **four-writer fix-off configuration violates
+`ConsistentMachineData`**. Extend the published three-writer run's 65-state
+witness with a fourth writer that stays in its initial state. Eight top-level
+writer tables grow by one entry. The independent validator checked Init, every
+step and the named violation on the original four-writer configuration. The
+same candidate failed the fixed configuration's Next check at state 14.
+With the saved witness, validating both source and target and constructing
+the extension took 0.12 s. The original witness discovery cost is separate.
+[Original discovery and exact-search cutoffs](../../conformance/reports/perf/2026-11-21-slatedb-source-edits.json) · [Four-writer validation, hashes and reproduction](../../conformance/reports/perf/2026-11-21-named-property-proofs.json).
+
+For fix-on, `TypeOK` describes changing manifest and WAL domains, unbounded
+natural numbers and sequences. It starts with a quantified assertion over
+`DOMAIN manifest`. The finite-layout compiler requires enumerable bounds for
+its retained coordinates. All six named proofs currently refuse at layout
+admission. The next proof target is the relation between replay position,
+manifest epoch and the prefix of committed writes. A candidate must establish
+that every writer entering READY has the matching prefix, including after a
+restart or a garbage-collection step. The fix-off witness is a regression
+control for that proof.
 
 ## Reproduce the comparisons
 
