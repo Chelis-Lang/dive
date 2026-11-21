@@ -123,6 +123,99 @@
         "binary_sha256": "1d1bea1475c56f17320d6e6a0563d874f66adc8c71bd196abde005d4e1b487a3",
         "exit": 0
       }
-    ]
+    ],
+    "exact_storage": {
+      "platform": "EC2 c7g.2xlarge, 8 physical Graviton3 cores, 11 GiB Core budget.",
+      "command": "dive check LeanP1.tla --config TwoBarriers.cfg --store exact --compat=tlc --seed 0 --fp 0 --workers 8 --max-memory 11g --time-limit 3200s --output json",
+      "exact_states": 7924117,
+      "verdict": "success",
+      "statistics": {
+        "depth": 40,
+        "distinct": 7924117,
+        "generated": 33356883,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "store": "exact",
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 8,
+        "sequential": false,
+        "used": 8
+      },
+      "exit_code": 0,
+      "wall_seconds": 130.65,
+      "peak_rss_kib": 3977216
+    },
+    "negative_control": {
+      "change": "Copy LeanP1 to BarrierFault, rename the module, add BarrierBound == barriers = 0, and append INVARIANT BarrierBound to TwoBarriers.cfg. Keep every original obligation.",
+      "property": "BarrierBound",
+      "word_length": 4,
+      "ending": "invariant",
+      "core": [
+        {
+          "verdict": "invariant-violation",
+          "statistics": {
+            "depth": 4,
+            "distinct": 27,
+            "generated": 37,
+            "initial_generated": 1,
+            "left_on_queue": 19,
+            "reported_by_tlc": true
+          },
+          "store": "exact",
+          "workers": {
+            "chaos": null,
+            "reason": null,
+            "requested": 1,
+            "sequential": false,
+            "used": 1
+          },
+          "exit_code": 12,
+          "wall_seconds": 0.03,
+          "peak_rss_kib": 39636,
+          "independent_replay": "valid",
+          "corrupted_replay": "next"
+        },
+        {
+          "verdict": "invariant-violation",
+          "statistics": {
+            "depth": 4,
+            "distinct": 27,
+            "generated": 37,
+            "initial_generated": 1,
+            "left_on_queue": 19,
+            "reported_by_tlc": true
+          },
+          "store": "exact",
+          "workers": {
+            "chaos": null,
+            "reason": null,
+            "requested": 8,
+            "sequential": false,
+            "used": 8
+          },
+          "exit_code": 12,
+          "wall_seconds": 0.03,
+          "peak_rss_kib": 60356,
+          "independent_replay": "valid",
+          "corrupted_replay": "next"
+        }
+      ],
+      "damaged_witness": "Set the final barriers value to 9. Independent replay rejects the final Next step at both worker counts.",
+      "tlc": {
+        "oracle": "tlc-2026.10.06.014338",
+        "workers": 1,
+        "exit_code": 12,
+        "generated": 37,
+        "distinct": 27,
+        "depth": 4,
+        "left_on_queue": 19,
+        "wall_seconds": 0.73,
+        "peak_rss_kib": 149404
+      }
+    }
   }
 }

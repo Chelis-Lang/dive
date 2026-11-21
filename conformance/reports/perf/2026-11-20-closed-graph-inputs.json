@@ -62,5 +62,107 @@
       "generated": 16,
       "distinct": 12
     }
-  ]
+  ],
+  "graph_seven": {
+    "input": "50-vertex graph. TLC uses the released CFG with GRAPH=7. Core appends CONSTANT GraphName = \"7\" to bind the same graph. Both retain Termination then Live in the released order.",
+    "core_final_only": {
+      "platform": "EC2 c7i.4xlarge, eight physical cores available, ordered capture used one worker.",
+      "command": "dive check TestMCReachability.tla --config ClosedSeven.cfg --library-path modules --workers 8 --compat=tlc --seed 0 --fp 0 --time-limit 3600s --max-memory 18g --output json",
+      "stop": "DIVE-L0038: stopped during graph-capture: resident memory 19619319808 bytes exceeds the ceiling of 19327352832 bytes",
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 47,
+        "distinct": 67108865,
+        "exhaustive": false,
+        "generated": 110792568,
+        "initial_generated": 1,
+        "left_on_queue": 24732934,
+        "reported_by_tlc": false
+      },
+      "store": "fingerprint",
+      "workers": {
+        "chaos": null,
+        "reason": "the temporal capture has effects or runtime names (start-up or configured effects): the core captures the behavior graph in order with one worker",
+        "requested": 8,
+        "sequential": false,
+        "used": 1
+      },
+      "exit_code": 5,
+      "wall_seconds": 781.65,
+      "peak_rss_kib": 21131440
+    },
+    "tlc": {
+      "platform": "Same EC2 c7i.4xlarge, 8 workers, 14 GiB Java heap, seed 0, fp 0.",
+      "oracle": "tlc-2026.10.06.014338",
+      "verdict": "liveness-violation",
+      "property": "Live",
+      "exit_code": 13,
+      "distinct": 40488309,
+      "generated": 65559420,
+      "left_on_queue": 15234429,
+      "depth": 46,
+      "states_in_word": 45,
+      "ending": "stuttering",
+      "wall_seconds": 1520.97,
+      "peak_rss_kib": 10991104,
+      "independent_replay": "valid",
+      "invalid_control": {
+        "edit": "Set done=TRUE in the initial state of the same word.",
+        "check": "init",
+        "detail": "the first state is outside the independent Init relation",
+        "state": 0
+      },
+      "trace_sha256": "071067f5f008029ebb7a2cfb2c829b64c7cdbf37bd238e038f5aaf10faa2f4e3"
+    },
+    "simulation": {
+      "command": "dive simulate TestMCReachability.tla --config closed7.cfg --library-path modules --traces 2048 --depth 120 --keep-traces 0 --time-limit 350s --max-memory 4g --workers N --seed 0 --output json",
+      "result": "violation",
+      "false_properties": [
+        "Live"
+      ],
+      "ending": "stuttering",
+      "states_in_word": 88,
+      "deciding_trace_id": 27,
+      "traces_started": 28,
+      "generated_candidates": 5178,
+      "exhaustive": false,
+      "validation_command": "Extract traces[0].document from the report and pass it to dive validate-trace with the same source, CFG and module path.",
+      "runs": [
+        {
+          "workers": 1,
+          "platform": "EC2 r7i.8xlarge",
+          "binary_sha256": "df35e7540b75fe704700e20329004db9085949fd25441ceda30f11b128307eed",
+          "standalone_replay": "valid",
+          "trace_sha256": "e1005a22d82cc2a5a518b8d9f50777777e9ee3d7a479b8dd9482146b532e0de0",
+          "wall_seconds": 0.1,
+          "peak_rss_kib": 48148
+        },
+        {
+          "workers": 4,
+          "platform": "EC2 r7i.8xlarge",
+          "binary_sha256": "df35e7540b75fe704700e20329004db9085949fd25441ceda30f11b128307eed",
+          "standalone_replay": "valid",
+          "trace_sha256": "e1005a22d82cc2a5a518b8d9f50777777e9ee3d7a479b8dd9482146b532e0de0",
+          "wall_seconds": 0.07,
+          "peak_rss_kib": 48324
+        },
+        {
+          "workers": 1,
+          "platform": "EC2 c7g.2xlarge",
+          "checker_validation": "valid",
+          "same_word_as_x86": true,
+          "wall_seconds": 0.16,
+          "peak_rss_kib": 46000
+        },
+        {
+          "workers": 4,
+          "platform": "EC2 c7g.2xlarge",
+          "checker_validation": "valid",
+          "same_word_as_x86": true,
+          "wall_seconds": 0.11,
+          "peak_rss_kib": 45976
+        }
+      ]
+    }
+  }
 }

@@ -1976,5 +1976,47 @@
         "retained_exact_states": 242213642
       }
     }
+  },
+  "released_configuration_completion": {
+    "input": "Unmodified released module and CFG, three writers, two values, one restart, fixed protocol, six invariants, configured symmetry, deadlocks disabled.",
+    "platform": "Dedicated EC2 r7i.48xlarge, 40 physical cores pinned, Xeon Platinum 8488C, 1536 GiB nominal. Core and pinned TLC run sequentially on this node.",
+    "cpu_affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39",
+    "linux": "7.0.0-1018-aws",
+    "digests": {
+      "CommunityModules-202610040242.jar": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+      "CommunityModules-deps-202610040242.jar": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+      "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "dive": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+      "spec/SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169"
+    },
+    "core": {
+      "verdict": "success",
+      "statistics": {
+        "depth": 139,
+        "distinct": 4910385789,
+        "generated": 23680348756,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "store": "fingerprint",
+      "workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 40,
+        "sequential": false,
+        "used": 40
+      },
+      "exit_code": 0,
+      "wall_seconds": 14122.37,
+      "peak_rss_kib": 135246796,
+      "command": "./dive check spec/SlateDBWAL.tla --config spec/SlateDBWAL.cfg --library-path modules --workers 40 --compat=tlc --seed 0 --fp 0 --time-limit 259200s --max-memory 1380g --output json",
+      "fingerprint_bits": 64,
+      "fp": 0,
+      "seed": 0
+    },
+    "historical_comparison": "The author reports roughly 49 billion unique states on the same constants. The released CFG enables symmetry. The reported run has no identified terminal log or checker version. Core exhausted this CFG at 4,910,385,789 fingerprints. Neither the tenfold difference nor a historical speedup is established. The notes, CFG and module were changed together at the pinned upstream revision.",
+    "upstream_notes": "https://github.com/Vanlightly/s3-wal-collection/blob/35fdc537af4d226f43b4574cded1764375f264ac/slatedb/SlateDBWAL_notes.md#model-checking"
   }
 }
