@@ -94,36 +94,66 @@ fn ordinary_native_postcapture_budget_is_a_structured_stop_without_fallback() {
     std::fs::remove_dir_all(directory).expect("cleanup");
 }
 
-#[test]
-fn repeated_fairness_operands_report_the_planning_limit_and_source() {
+fn fairness_fan(left: &str, right: &str) -> String {
     use std::fmt::Write as _;
-    let directory =
-        std::env::temp_dir().join(format!("dive-temporal-plan-limit-{}", std::process::id()));
-    std::fs::create_dir_all(&directory).expect("directory");
-    let file = directory.join("Fan.tla");
     let mut source = String::from(
         "---- MODULE Fan ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = 1-x\nA0(p) == x = p\n",
     );
     for i in 1..20 {
         let parent = i - 1;
-        writeln!(source, "A{i}(p) == A{parent}(p) /\\ A{parent}(p)").expect("write source");
+        writeln!(
+            source,
+            "A{i}(p) == A{parent}({left}) /\\ A{parent}({right})"
+        )
+        .expect("write source");
     }
     source.push_str("Act == Next /\\ A19(0)\nSpec == Init /\\ [][Next]_x /\\ WF_x(Act)\nP == []<>(x = 0)\n====\n");
-    std::fs::write(&file, source).expect("spec");
+    source
+}
+
+#[test]
+fn repeated_fairness_operands_report_the_planning_limit_and_source() {
+    let directory =
+        std::env::temp_dir().join(format!("dive-temporal-plan-limit-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).expect("directory");
+    let file = directory.join("Fan.tla");
     let config = file.with_extension("cfg");
     std::fs::write(&config, "SPECIFICATION Spec\nPROPERTY P\n").expect("config");
-    let report = check_file(&CheckRequest {
-        file,
+
+    // The original fan forwards the same bound scalar at every call. Its
+    // level and purity checks can now finish within the default plan budget.
+    std::fs::write(&file, fairness_fan("p", "p")).expect("repeated spec");
+    let request = CheckRequest {
+        file: file.clone(),
         config: Some(config),
         ..CheckRequest::default()
+    };
+    let admitted = check_file(&CheckRequest {
+        max_states: Some(1),
+        ..request.clone()
     })
-    .expect("check");
+    .expect("check repeated bindings")
+    .to_json();
+    assert_eq!(admitted["verdict"], "stopped", "{admitted}");
+    assert_eq!(admitted["stopped"]["phase"], "graph-capture");
+    assert_eq!(admitted["statistics"]["distinct"], 1);
+    assert_eq!(admitted["statistics"]["generated"], 2);
+    assert!(admitted["counterexample"].is_null());
+
+    // At depth k the distinct fan binds every integer in 0..2^k-1.
+    // Each arithmetic actual must be evaluated in its own concrete scope.
+    std::fs::write(&file, fairness_fan("2*p", "2*p+1")).expect("distinct spec");
+    let report = check_file(&request).expect("check distinct bindings");
     assert_eq!(report.exit_code(), 3);
     let report = report.to_json();
     assert_eq!(report["verdict"], "unsupported", "{report}");
     assert!(report["counterexample"].is_null());
     let reason = report["message"].as_str().expect("reason");
-    for fact in ["DIVE-L0021", "module Fan", "predicate lowering steps"] {
+    for fact in [
+        "DIVE-L0021",
+        "line 27, col 31 to line 27, col 39 of module Fan",
+        "predicate lowering steps",
+    ] {
         assert!(reason.contains(fact), "{reason}");
     }
     std::fs::remove_dir_all(directory).expect("cleanup");
