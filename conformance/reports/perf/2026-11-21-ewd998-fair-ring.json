@@ -166,6 +166,15 @@
     {
       "control": "omitted_tlc_edge",
       "rejected": "successors differ at TLC state -17576367779470668"
+    },
+    {
+      "control": "implicit TLC trace dependencies",
+      "modules": [
+        "_TLCTrace",
+        "TLC",
+        "TLCExt"
+      ],
+      "oracle_result": "A malformed source-directory shadow for each implicit standard module made TLC exit 150 with an unknown operator. Admission rejects shadowing from either source or library path."
     }
   ],
   "tlaps_trial": {
@@ -257,7 +266,6 @@
       ]
     }
   },
-  "checker_sha256": "3f1ea3bc3e7e805075122353a4a4a87f06ba6fa3897e35f777d473d29525463d",
   "complete": {
     "ewdgrowth": {
       "host": "Dedicated EC2 r7i.4xlarge, one CPU per process",
@@ -366,5 +374,7 @@
     "cfg": "Original two-node variant followed by INVARIANT UnderBound",
     "cfg_sha256": "0508cd8dd05652963a0150fbd5dd2cf58f19fead0f412b4a67995ae1e5de7d20",
     "result": "Core and TLC both exit 12, violating UnderBound at depth 5 with pending[0] = 4. Independent validation accepted the five-state trace and rejected changing initial token.q to 999. Conjoining the equivalent predicate with Ring.invariant raises state invariant outside the constraint: send."
-  }
+  },
+  "benchmark_sha256_before_shadow_check": "3f1ea3bc3e7e805075122353a4a4a87f06ba6fa3897e35f777d473d29525463d",
+  "checker_sha256": "d87889dbe6b53aa1519f87393ea2c1ca3b8f2f671135eef8f3a309768a2ead6c"
 }

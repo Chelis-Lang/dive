@@ -32,8 +32,9 @@ def admit(source, modules):
     resolved = local if local.exists() else modules / "Functions.tla"
     if hashlib.sha256(resolved.read_bytes()).hexdigest() != FUNCTIONS:
         raise ValueError("the bound Functions module differs")
+    # Pinned TLC also loads its trace module and its transitive dependencies.
     for directory in (source, modules):
-        for name in ("Naturals", "Integers", "FiniteSets", "Sequences"):
+        for name in ("Naturals", "Integers", "FiniteSets", "Sequences", "_TLCTrace", "TLC", "TLCExt"):
             if (directory / f"{name}.tla").exists():
                 raise ValueError(f"shadowed standard module: {name}")
 
