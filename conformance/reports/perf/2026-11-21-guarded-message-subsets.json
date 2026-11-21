@@ -248,6 +248,16 @@
       "generated": 3,
       "depth": 2,
       "left_on_queue": 0
+    },
+    "N3-longbaseline": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 839.64,
+      "peak_rss_kib": 245252,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
     }
   },
   "replay": "dive validate-trace <module> --config <cfg> --trace <witness> --output json. The 40-message forged trace changes the delivered recipient to 2 on step two. The 140-state failure detector witness and its orphan-age forgery are from 2026-11-21-environment-detector.json.",
