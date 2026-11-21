@@ -1,0 +1,468 @@
+{
+  "schema": "dive-installed-kvs-edit-study-v1",
+  "source": {
+    "repository": "https://github.com/tlaplus/Examples",
+    "revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "directory": "specifications/KeyValueStore",
+    "original_cfg": "MCKVSSafetyLarge.cfg",
+    "shared_module_sha256": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "prepared_six_key_sha256": {
+      "AbortAll/MCKVS.tla": "95185b19e764f83e90ea2332b5d0b597e392fee971cfad1de17032462e4c5a74",
+      "AtMostOneConflict/MCKVS.tla": "e54c0afcbbf78cda6b5ca7d625a203db9a9e44691ab514924fb5502107963c7b",
+      "Corrupt/MCKVS.tla": "9dbe3809bf3d62ebd11b13e8ee52639395326ed83f9b6fbec9033be388a10572",
+      "SomeCommit/MCKVS.tla": "57f453a8ecc26e7c4f7e8982748a39452cae0acd37010ee9b0c60f0fac46908b",
+      "TxIsClean/MCKVS.tla": "e54c0afcbbf78cda6b5ca7d625a203db9a9e44691ab514924fb5502107963c7b",
+      "base/MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+      "AbortAll/Model.cfg": "7d8c2fb76ff2e01fe7d18f4be495d9ac4ed2c914d57031ac80740c755e0c7f58",
+      "AtMostOneConflict/Model.cfg": "51ef65d4eaec7a6e14c83af661662efd7dde93b8c14d78bba80f0246bec37bcc",
+      "Corrupt/Model.cfg": "7d8c2fb76ff2e01fe7d18f4be495d9ac4ed2c914d57031ac80740c755e0c7f58",
+      "SomeCommit/Model.cfg": "f665a9337e6f1c2cc11949a85a30b0ebc351c83d4f1689998ad26dc4a11693d3",
+      "TxIsClean/Model.cfg": "817ebe0af38c3e35724197bcd1ba2fefaf0cc416d8f81a8548a89e6d9bbc117a",
+      "base/Model.cfg": "f945c442e5c704980d710763f796601307aab1d7d486070f98390411c54b29fc"
+    },
+    "executables_and_installed_runtime_sha256": {
+      "sail-symbolic": "aaa1947ddf1d5cff8056d7aaba613a4cd63d39c6ec22e7eaec35b89b0d6441b2",
+      "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "engine.py": "fae0fefcad2f0d8279834322074cd3ebe66c506e05905beb20732e6f581156b6",
+      "symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "check.py": "9cd1f611eacdb62f1d1a14401e443fc76cf66642408ccbc6ed43f70a047d76d5",
+      "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+      "induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8"
+    },
+    "version_strings": {
+      "sail": "sail 0.3.0",
+      "dive": "dive 0.1.0 (v0.1.0-65-g3803e268)"
+    },
+    "sail_path": "runtime symbolic-check, Sail PR 784; separate from the native temporal receipt protocol."
+  },
+  "method": {
+    "hardware": "AWS EC2 c7i.4xlarge, us-east-1a, Intel Xeon Platinum 8488C, 8 physical cores, 16 logical CPUs, Ubuntu 24.04.5, Linux 7.0.0-1018-aws",
+    "measurement": "Fresh processes, one logical CPU per invocation. GNU time wall seconds and peak process/child RSS in KiB. Inner report seconds measure the checker operation. Single observations. Other scheduled jobs used separate affinities on the same EC2 instance. Source pages could be warm.",
+    "six_key_primary": "Pin to CPU 4, memory.max 6 GiB with no swap. Original, add TxIsClean, repeat, add AtMostOneConflict and identical TxIsClean empty-session control run sequentially. Time budget 9200 seconds except AtMostOneConflict (1500).",
+    "additional_controls": "CPU 6. True and broken action controls, one-key Core, plain induction, layout and growth probes ran in separate cgroups with 2 GiB memory and no swap. Two-key Sail control budget 300 seconds. FullHasFresh 35 s nominal deadline for first eight settings, 80 s for 24/28/36/50-key boundary checks."
+  },
+  "commands": {
+    "prepare": "python3 scripts/perf/scale/sail_kvs_edits.py KVS OUT [--keys K --values V --transactions T]",
+    "sail_session": "sail runtime symbolic-check --dive DIVE --session SESSION --module OUT/CASE/MCKVS.tla --config OUT/CASE/Model.cfg --time-limit SECONDS",
+    "main_order": "base, TxIsClean, TxIsClean, AtMostOneConflict in the same session; TxIsClean in a separate empty session. Each is a new OS process. SomeCommit, AbortAll, Corrupt share the original retained directory.",
+    "direct_induction": "DIVE check OUT/CASE/MCKVS.tla --config OUT/CASE/Model.cfg --strategy symbolic --prove-inductive --output json",
+    "verify_candidate": "DIVE check OUT/CASE/MCKVS.tla --config OUT/CASE/Model.cfg --strategy symbolic --verify-predicate SESSION/sail-symbolic-predicate-v1.json --output json",
+    "one_key": "With --keys 1, run DIVE check OUT/CASE/MCKVS.tla --config OUT/CASE/Model.cfg --store exact --workers 1 --seed 0 --fp 0 --max-memory 1g --time-limit 75s --output json."
+  },
+  "predicate": {
+    "format": "finite-state-predicate-v1",
+    "nonterminal_records": 5755,
+    "bytes": 76579,
+    "sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3",
+    "meaning": "Portable Boolean state predicate. A holding edit rechecks initial inclusion, current safety obligations and closure. An inconclusive attempt leads Sail to search the current program under the remaining deadline."
+  },
+  "six_key_session": {
+    "establish": {
+      "wall_s": 4694.45,
+      "peak_rss_kib": 1148724,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 51,
+      "reachable_bdd_nodes": 5756,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "seconds": 4693.977881,
+      "distinct_decimal": "539910848473937721",
+      "generated_decimal": "21725268712106423230",
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "verify": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 62776,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.179088,
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "repeat": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 62896,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.185225,
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "conflict": {
+      "wall_s": 0.9,
+      "peak_rss_kib": 80532,
+      "exit": 1,
+      "verdict": "invariant-violation",
+      "depth": 8,
+      "ending": {
+        "kind": "invariant",
+        "name": "AtMostOneConflict"
+      },
+      "trace_validated": true,
+      "seconds": 0.346924,
+      "trace_states": 8,
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    }
+  },
+  "standalone_TxIsClean": {
+    "wall_s": 0.3,
+    "peak_rss_kib": 58048,
+    "exit": 0,
+    "proof": "inductive-safety",
+    "failed_obligation": null,
+    "seconds": 0.09043
+  },
+  "stronger_property": {
+    "plain_SomeCommit": {
+      "wall_s": 0.3,
+      "peak_rss_kib": 56684,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "Next closure",
+      "seconds": 0.074616
+    },
+    "direct_retained_SomeCommit": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 62832,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.186989
+    },
+    "sail_SomeCommit": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 62740,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.192554
+    },
+    "scope": "TxIsClean repeats a conjunct of TxLifecycle. SomeCommit is a new safety property: if every slot is open, some transaction passes its conflict guard. TypeInvariant and TxLifecycle admit all-open states with every missed and written mask equal to Key. Transitions constrain which such states are reachable."
+  },
+  "transition_edits": {
+    "AbortAll": {
+      "direct_verify": {
+        "wall_s": 0.39,
+        "peak_rss_kib": 62996,
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "seconds": 0.194465
+      },
+      "sail": {
+        "wall_s": 0.4,
+        "peak_rss_kib": 62848,
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "seconds": 0.196304
+      },
+      "after_sail_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "Corrupt": {
+      "direct_verify": {
+        "wall_s": 0.39,
+        "peak_rss_kib": 62916,
+        "exit": 2,
+        "proof": "inconclusive",
+        "failed_obligation": "Next closure",
+        "seconds": 0.196803
+      },
+      "sail": {
+        "wall_s": 0.75,
+        "peak_rss_kib": 62684,
+        "exit": 1,
+        "verdict": "invariant-violation",
+        "depth": 2,
+        "ending": {
+          "kind": "invariant",
+          "name": "SomeCommit"
+        },
+        "trace_validated": true,
+        "seconds": 0.091119,
+        "trace_states": 2
+      },
+      "after_sail_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    }
+  },
+  "independent_replay": {
+    "Corrupt_current": {
+      "wall_s": 0.01,
+      "peak_rss_kib": 24680,
+      "exit": 0,
+      "trace_validation": "valid",
+      "trace_states": 2
+    },
+    "Corrupt_changed_final_state_to_initial": {
+      "wall_s": 0.01,
+      "peak_rss_kib": 24588,
+      "exit": 1,
+      "trace_validation": "invalid",
+      "trace_states": 2,
+      "failed_check": "next"
+    },
+    "Corrupt_trace_before_edit": {
+      "wall_s": 0.01,
+      "peak_rss_kib": 26704,
+      "exit": 1,
+      "trace_validation": "invalid",
+      "trace_states": 2,
+      "failed_check": "next"
+    }
+  },
+  "two_key_session_control": {
+    "establish": {
+      "wall_s": 1.6,
+      "peak_rss_kib": 80432,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 23,
+      "reachable_bdd_nodes": 867,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "seconds": 1.35986,
+      "distinct_decimal": "582471",
+      "generated_decimal": "9628660",
+      "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+    },
+    "verify": {
+      "wall_s": 0.25,
+      "peak_rss_kib": 56868,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.041629,
+      "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+    },
+    "conflict": {
+      "wall_s": 0.55,
+      "peak_rss_kib": 56808,
+      "exit": 1,
+      "verdict": "invariant-violation",
+      "depth": 8,
+      "ending": {
+        "kind": "invariant",
+        "name": "AtMostOneConflict"
+      },
+      "trace_validated": true,
+      "seconds": 0.065452,
+      "trace_states": 8,
+      "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+    }
+  },
+  "one_key_exact_core": {
+    "SomeCommit": {
+      "wall_s": 0.03,
+      "peak_rss_kib": 23520,
+      "exit": 0,
+      "verdict": "success",
+      "distinct": 690,
+      "generated": 7129,
+      "depth": 15,
+      "left_on_queue": 0
+    },
+    "AbortAll": {
+      "wall_s": 0.03,
+      "peak_rss_kib": 25600,
+      "exit": 0,
+      "verdict": "success",
+      "distinct": 690,
+      "generated": 7816,
+      "depth": 15,
+      "left_on_queue": 0
+    },
+    "Corrupt": {
+      "wall_s": 0.01,
+      "peak_rss_kib": 25768,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "distinct": 3,
+      "generated": 5,
+      "depth": 2,
+      "left_on_queue": 1
+    }
+  },
+  "six_key_candidate_applied_to_other_domains": {
+    "K5V2T3": {
+      "wall_s": 0.3,
+      "peak_rss_kib": 56876,
+      "exit": 2,
+      "verdict": "unsupported",
+      "reason": "unknown predicate bit"
+    },
+    "K6V2T4": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 56740,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "TypeInvariant",
+      "seconds": 0.127998
+    },
+    "K6V3T3": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 56800,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "Next closure",
+      "seconds": 0.105066
+    },
+    "K7V2T3": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 56784,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "TypeInvariant",
+      "seconds": 0.103247
+    },
+    "K8V2T3": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 56904,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "TypeInvariant",
+      "seconds": 0.116865
+    }
+  },
+  "fresh_source_induction_with_FullHasFresh": {
+    "K12V2T4": {
+      "wall_s": 1.75,
+      "peak_rss_kib": 115496,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 1.508763,
+      "cfg_sha256": "7f33c74417117480e4c5a59bc8bf10ae3acb3ca0ab7b44626683df771f33b2fa",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "1754379540529158143010037422882816"
+    },
+    "K16V2T4": {
+      "wall_s": 3.1,
+      "peak_rss_kib": 118196,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 2.891104,
+      "cfg_sha256": "087d6740221d49ef194ad761b0d49bddc943db837407efbebb232301e298f67d",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "610335005438680947757355979584871200609796096"
+    },
+    "K24V2T4": {
+      "wall_s": 7.06,
+      "peak_rss_kib": 184020,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 6.817133,
+      "cfg_sha256": "6cb38c27d62af1a6780864b4b9ad22182c5f84d5425bf93906f901c8d936e461",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "73868288898724114740251610249279190150911494886478090996497940217856"
+    },
+    "K28V2T4": {
+      "wall_s": 10.17,
+      "peak_rss_kib": 328260,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 9.897765,
+      "cfg_sha256": "c8456f3a85f839ee6aba5640739580a519ccbd330e4a06c4132a678d2bae87f7",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "25698212687550948593266149850341814352243775254231408374567149218456161889550336"
+    },
+    "K32V2T4": {
+      "wall_s": 0.25,
+      "peak_rss_kib": 56912,
+      "exit": 2,
+      "verdict": "unsupported",
+      "reason": "finite layout exceeds 512 state bits at missed (516 bits so far)",
+      "cfg_sha256": "9e669238ec6960df0eca018a5e443c2c5aa138b87293cb0b7de23c4ef3e3207d"
+    },
+    "K36V2T3": {
+      "wall_s": 4.61,
+      "peak_rss_kib": 184836,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 4.36159,
+      "cfg_sha256": "43756039fd23c388458fc605ae8074cb09e0ad5c13737970f6daff0b1be6ff8f",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "2634468335047214995019668513211205004285938097509304284718353870001234151227785216"
+    },
+    "K50V2T2": {
+      "wall_s": 2.35,
+      "peak_rss_kib": 183836,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 2.122322,
+      "cfg_sha256": "7441a61e2e8b015024199d9bfdba30db6429f0af1a06657eb7a2ea23e38efbab",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "576808794159505135689066653087960685167709976083431436184256046045960929709731610624"
+    },
+    "K6V2T3": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 59712,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.115976,
+      "cfg_sha256": "d80d107b0f32f01607992dfe8c9c17806a2c376e7733bb55b47ce2668e219955",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "8355532713984"
+    },
+    "K6V2T4": {
+      "wall_s": 0.55,
+      "peak_rss_kib": 79872,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.335999,
+      "cfg_sha256": "142e18cca34e9bea1f657d9a06e0d59feb193692478d5ae9f3f451964898f36b",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "8562332148655104"
+    },
+    "K6V3T3": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 59764,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.154769,
+      "cfg_sha256": "e0a91b32ad8c5cab5769583c7bea6774535934db2f2f22a770f4d8b50245f338",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "2604666688000000"
+    },
+    "K7V2T3": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 60928,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.15991,
+      "cfg_sha256": "8f743a65ebc5d9b9dc11548555a8c3dabed6334d955085a9fff43699452b9f3e",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "1603381499412480"
+    },
+    "K8V2T3": {
+      "wall_s": 0.45,
+      "peak_rss_kib": 62928,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.200804,
+      "cfg_sha256": "f45e0dfd47f00469fb25f0c23e40225f663993dc27762741207eeef611682b4a",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "307806976816644096"
+    }
+  },
+  "slice_check": {
+    "meaning": "All transactions open and all missed sets empty, within the actual held reachable predicates. The exact orbit count of this subfamily gives a constructive lower bound on the whole graph. No depth or full-state count follows from induction.",
+    "formula": "(|Val|+1)^K * binomial((|Val|+2)^K + T - 1,T). The per-transaction descriptor specifies for each key either unwritten, or written and its final snapshot from Val union {NoVal}. Transaction permutations turn these descriptors into a multiset.",
+    "measurements": [
+      {
+        "keys": 2,
+        "orbits": 7344,
+        "labeled": 36864
+      },
+      {
+        "keys": 6,
+        "orbits": 8355532713984,
+        "labeled": 50096498540544
+      }
+    ],
+    "method": "Append NoMissedOpen == tx = TxId /\\ \\A t \\in tx : missed[t] = {} to the wrapper and configure it as an additional invariant solely to compile its Boolean predicate. With the installed SourceModel, intersect dict(model.properties)[\"NoMissedOpen\"] with induction.load(saved_predicate, model). Use model.state_count(intersection) for labeled states and model.counts(intersection,True)[0] for representatives. Both sizes match the formula."
+  }
+}
