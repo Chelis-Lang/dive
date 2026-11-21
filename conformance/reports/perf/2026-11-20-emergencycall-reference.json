@@ -289,5 +289,177 @@
       "wall_seconds": 203
     },
     "conclusion": "The paper reports the larger graph separately from its six timed constrained cases. The released s0 initial predicate includes System_Constraint and its run ended at a violation. The four released f1–f4 reproductions remain the direct controls."
+  },
+  "exact_partitions": {
+    "platform": "Isolated EC2 c8g.24xlarge, 96 physical Graviton4 cores, Linux 7.0.0-1018-aws. Monolithic check bound to cores 0–31, then four concurrent cells on disjoint groups of 24 cores. Process peak RSS is per cell. Wall of the group includes all four workers and orchestration.",
+    "inputs_sha256": {
+      "phone/SliceInit3N2V0.cfg": "ef7e7f434b84b0a36af463c8c95794ab86d31572816c70c50c80ae4b7d21be59",
+      "phone/SliceInit3N2V1.cfg": "ef7e7f434b84b0a36af463c8c95794ab86d31572816c70c50c80ae4b7d21be59",
+      "phone/SliceInit3N2V2.cfg": "ef7e7f434b84b0a36af463c8c95794ab86d31572816c70c50c80ae4b7d21be59",
+      "phone/SliceInit3N2V3.cfg": "ef7e7f434b84b0a36af463c8c95794ab86d31572816c70c50c80ae4b7d21be59",
+      "phone/SliceInit3N2V0.tla": "17317b4fc9c97f05a7bb1a689649f6532d68e94d57bf8ca9aa0181f4a1ff915d",
+      "phone/SliceInit3N2V1.tla": "1a0f9d5035fd63be84d9544588b0f971480816f7b24947e94f1ab273d4c37853",
+      "phone/SliceInit3N2V2.tla": "dbc7c5be1948c2ac307e040aa96b25a1df95def8ce22d4ee5e674276ee8642fc",
+      "phone/SliceInit3N2V3.tla": "4a05193cd044067502268697e1132db27761a7d420069168d13323be0e5fd06d",
+      "phone/EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+      "phone/f3.cfg": "90e80cd05411cd0108ec9f7314345df31b9c72213ce1314f37d3e054c8f2b160",
+      "phone-dive": "88e6068639f07da69f725cd01ea0538c83d63849a66453f3926418815152ac32"
+    },
+    "common": "--store exact --compat=tlc --workers W --fp 0 --seed 0 --time-limit 1800s --max-memory CAPg --output json. CAP=100 for the monolithic check and 40 for each process in the four-cell check.",
+    "cells_method": "Extend the original module. Init3 AND Slice chooses initial states. Retain unrestricted Next, TypeInvariant, SetInvariant, F3 and default deadlock checks; add INVARIANT Slice. For valuation v, variable i equals bit i of v (low bit first). Original TypeInvariant and Init3 place both variables in {0,1}.",
+    "variables": [
+      "amf_0_normal_attach_accept_include_enl",
+      "amf_1_normal_attach_accept_include_enl"
+    ],
+    "monolithic": {
+      "tag": "F3monolithic",
+      "statistics": {
+        "depth": 27,
+        "distinct": 21255936,
+        "generated": 135871232,
+        "initial_generated": 49152,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "exact_states": 21255936,
+      "wall_seconds": 127.71,
+      "peak_rss_kib": 2427056
+    },
+    "cells": [
+      {
+        "tag": "Init3N2V0",
+        "statistics": {
+          "depth": 27,
+          "distinct": 6095616,
+          "generated": 38897152,
+          "initial_generated": 12288,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 6095616,
+        "wall_seconds": 83.85,
+        "peak_rss_kib": 758396
+      },
+      {
+        "tag": "Init3N2V1",
+        "statistics": {
+          "depth": 27,
+          "distinct": 6095616,
+          "generated": 38897152,
+          "initial_generated": 12288,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 6095616,
+        "wall_seconds": 83.51,
+        "peak_rss_kib": 775100
+      },
+      {
+        "tag": "Init3N2V2",
+        "statistics": {
+          "depth": 25,
+          "distinct": 4532352,
+          "generated": 29038464,
+          "initial_generated": 12288,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 4532352,
+        "wall_seconds": 78.72,
+        "peak_rss_kib": 751192
+      },
+      {
+        "tag": "Init3N2V3",
+        "statistics": {
+          "depth": 25,
+          "distinct": 4532352,
+          "generated": 29038464,
+          "initial_generated": 12288,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 4532352,
+        "wall_seconds": 79.05,
+        "peak_rss_kib": 752156
+      }
+    ],
+    "group_wall_seconds": 83.86,
+    "mutable_control": {
+      "platform": "EC2 c7i.4xlarge, one worker.",
+      "input_sha256": {
+        "phone/ChangingSlice.cfg": "ef7e7f434b84b0a36af463c8c95794ab86d31572816c70c50c80ae4b7d21be59",
+        "phone/ChangingSlice.tla": "d789012fdb7828dc914552c834decdc1652baeb9931350352e7f5c888faefd34",
+        "verified/dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1"
+      },
+      "predicate": "user_make_call = 0",
+      "config": "Init3 AND Slice, original Next and three invariants, plus INVARIANT Slice.",
+      "result": "invariant-violation",
+      "property": "Slice",
+      "statistics": {
+        "depth": 2,
+        "distinct": 49154,
+        "generated": 49154,
+        "initial_generated": 49152,
+        "left_on_queue": 49152,
+        "reported_by_tlc": true
+      },
+      "exit_code": 12,
+      "wall_seconds": 109.96,
+      "peak_rss_kib": 56916,
+      "standalone_replay": {
+        "command": "validate-trace",
+        "length": 2,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      }
+    },
+    "generator_controls": {
+      "whole": {
+        "depth": 3,
+        "distinct": 12,
+        "generated": 18,
+        "initial_generated": 6,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "parts": [
+        {
+          "depth": 3,
+          "distinct": 4,
+          "generated": 6,
+          "initial_generated": 2,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        {
+          "depth": 3,
+          "distinct": 4,
+          "generated": 6,
+          "initial_generated": 2,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 3,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      ],
+      "mutated": "DiveCellPredicate",
+      "validated": true,
+      "refusals": 8
+    }
   }
 }

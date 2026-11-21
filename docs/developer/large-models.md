@@ -783,6 +783,27 @@ All 16 checks agreed on the verdict and final queue, counts and depth with the c
 
 On the historical CCF single-node commit control, ordinary Core found the original property violation after 17 distinct states, 20 generated and depth five. The three revisions with temporal obligations received a named refusal from symbolic safety checking. The [Sail evidence](https://github.com/Chelis-Lang/sail/blob/df6ffaca82b3aacdea301616411de1c0c726b12f/docs/validation/data/2026-11-20-symbolic-predicates.json) pins the production inputs and records the successful five-key KVS maintenance comparison separately.
 
+### Check disjoint safety partitions
+
+A model with fixed per-instance choices can often be checked as several independent state graphs. Pick a total, deterministic state predicate for each choice. Each truth assignment defines one cell. Restrict **Init** to the cell, keep **Next** unrestricted, and add the cell predicate as an invariant. If a reachable transition crosses the boundary, that cell must fail. Restricting Next or adding a state constraint to enforce the boundary would hide the transition.
+
+On the released EmergencyCall f3 model, the two binary attach-accept choices split 49,152 initial states into four groups of 12,288. Each group passed the original three safety properties, deadlock checking and its closure invariant. Full exact identity gave 21,255,936 distinct states and 135,871,232 generated in total, with maximum depth 27. All four queues emptied. The result matches both the monolithic exact run and the authors’ TLC output. On one 96-core Graviton4 node, the four concurrent 24-worker checks finished in 83.86 s; the monolithic 32-worker run took 127.71 s. Those timings use different total worker counts. Choosing the mutable `user_make_call = 0` instead failed the closure invariant at depth two, and independent replay accepted the counterexample. [Per-cell counts, wall time, memory and negative control](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
+
+For a simple safety CFG with explicit INIT/NEXT, generate each cell with the [partition script](../../scripts/perf/scale/safety_partition.py). The first predicate is the low bit of the cell number. The generator uses the complement for a zero bit, so values outside a proposed two-value domain also belong to a cell. It preserves the original invariants and deadlock setting. The generated module imports the original from its module search path.
+
+```sh
+for i in 0 1 2 3; do
+  python3 scripts/perf/scale/safety_partition.py "$MODEL/EmergencyCall_Model_auto.tla" \
+    "$MODEL/config/f3.cfg" "cell-$i" --cell "$i" \
+    --when 'amf_0_normal_attach_accept_include_enl = 1' \
+    --when 'amf_1_normal_attach_accept_include_enl = 1'
+  dive check "cell-$i/DiveSafetyCell$i.tla" --config "cell-$i/DiveSafetyCell$i.cfg" \
+    --module-path "$MODEL" --store exact --workers 24 --seed 0 --fp 0 --compat=tlc --output json
+done
+```
+
+Combine results only after all cells exhaust their queues and pass the closure check. For exact full-state identity the distinct, generated and initial counts add, and the maximum cell depth is the whole-model depth. Every reachable state belongs to one cell and every successor of an admitted state stays in that cell. A stopped run or a cell reporting no initial states needs separate resolution before reporting any whole-model total. The script accepts simple INIT, NEXT, INVARIANT(S) and CHECK_DEADLOCK clauses. Use independent processes on a suitably sized host to run cells concurrently.
+
 ## Reproduce the comparisons
 
 Build the checker's exporter and validator and install the Python dependencies
