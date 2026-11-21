@@ -700,6 +700,34 @@
           "exhaustive": false,
           "counterexample": null
         },
+        "first_prefix_collector_profile": {
+          "action_label_count": 292,
+          "action_runs": 225593,
+          "buffer_capacity_bytes": {
+            "actions": 536870912,
+            "ordinals": 134217728,
+            "original_directory": 2097152,
+            "original_overrides": 0,
+            "retained_root_handles": 44040192,
+            "targets": 268435456
+          },
+          "closed_rows": 16574,
+          "contiguous_target_runs": 14190303,
+          "distinct_source_destination_pairs_among_generated": 14190303,
+          "implicit_stutters": 16574,
+          "ordinal_cells_different_from_source_position": 0,
+          "original_row_override_cells": 0,
+          "physical_edges": 36120199,
+          "rows_with_ordinal_equal_to_source_position": 16574,
+          "single_action_rows": 0,
+          "states": 181983,
+          "target_cells_by_64edge_block_delta_width": [
+            15579276,
+            19951842,
+            572507
+          ],
+          "scope": "Temporary read-only instrumentation at the first original periodic boundary on the implicit-original-rows collector. Runs and source/destination pairs exclude the implicit stutters. Capacities are allocated vector space, not process RSS."
+        },
         "scope": "The paired experiments use the same collector. The longer experiment used the same whole-source prototype. The shipped implementation omits the per-edge lookup, which supplied no additional truth after whole-row proofs."
       },
       "merged_main_harness": {
