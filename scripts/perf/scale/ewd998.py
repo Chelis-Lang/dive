@@ -50,12 +50,13 @@ class Action:
 
 
 class Ring(FiniteRelation):
-    def __init__(self, n):
+    def __init__(self, n, *, probe_ceiling=None):
         self.b = cudd.BDD(memory_estimate=2**30)
         self.b.configure(reordering=False)
         self.n = n
         self.nodes = range(n)
-        self.bounds = {"pos": (0, n - 1), "black": (0, 1), "q": (-3 * (n - 1)**2, min(9, 3 * (n - 1)))}
+        q_max = min(9, 3 * (n - 1)) if probe_ceiling is None else probe_ceiling
+        self.bounds = {"pos": (0, n - 1), "black": (0, 1), "q": (-3 * (n - 1)**2, q_max)}
         self.active = self.vector("active", 0, 1)
         self.color = self.vector("color", 0, 1)
         self.counter = self.vector("counter", -3 * (n - 1), 3)
@@ -242,9 +243,47 @@ class Ring(FiniteRelation):
                 break
             wins |= previous
             rank += 1
-        if universe != wins:
-            raise ValueError("unranked terminated state")
-        return {"terminated": self.state_count(universe), "detected": self.state_count(detected), "max_system_steps": rank}
+        unranked = universe & ~wins
+        if unranked != self.b.false:
+            rank = max(rank, self.finish_probe_outside_constraint(unranked))
+        return {"terminated": self.state_count(universe), "detected": self.state_count(detected),
+                "max_system_steps": rank, "progress_paths_leaving_constraint": self.state_count(unranked)}
+
+    def finish_probe_outside_constraint(self, states):
+        # The state constraint bounds the graph. The enabledness in WF(System)
+        # uses the source action, which can pass the token to q > 9. Follow the
+        # actual steps there, stopping each path when detection becomes true.
+        wide = Ring(self.n, probe_ceiling=9 + 3 * (self.n - 1))
+        frontier = self.b.copy(states, wide.b)
+        # The low endpoint and lower bits coincide in the two encodings.
+        for bit in wide.bits["q"][len(self.bits["q"]):]:
+            frontier &= ~wide.b.var(bit)
+        system = [a for a in wide.actions if a.name in ("initiate", "pass")]
+        rank = 0
+        while frontier != wide.b.false:
+            if frontier & ~wide.terminated != wide.b.false:
+                raise ValueError("probe continuation reactivated a terminated node")
+            if rank >= 3 * self.n:
+                raise ValueError("terminated probe did not reach detection")
+            destinations = wide.b.false
+            enabled = wide.b.false
+            for action in system:
+                active = frontier & action.witness
+                if active == wide.b.false:
+                    continue
+                # Each enabled action changes position. Check every update is
+                # representable before an image can drop an out-of-range result.
+                escaped = wide.either(c for k, terms in action.updates.items()
+                                      for v, c in terms.items() if v not in wide.values[k])
+                if active & escaped != wide.b.false:
+                    raise ValueError("probe continuation outside the proof encoding")
+                enabled |= active
+                destinations |= wide.image(active, action)
+            if enabled != frontier:
+                raise ValueError("terminated probe has no enabled system successor")
+            frontier = destinations & ~wide.detected
+            rank += 1
+        return rank
 
     def check(self):
         frontier = reached = self.initial

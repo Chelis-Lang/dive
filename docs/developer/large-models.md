@@ -767,10 +767,13 @@ The original four-node ring runs Safra’s termination detector, published by Di
 | 2 | 6,876 | 33,664 | 28 | 2,240 | 0.16 s |
 | 3 | 1,520,618 | 11,238,019 | 59 | 1,607,014 | 2.09 s |
 | 4 | 248,006,200 | 2,696,907,118 | 104 | 530,283,897 | 121.59 s |
+| 5 | 34,276,406,948 | 524,532,023,972 | 161 | 123,474,422,902 | 4,611.06 s |
 
 At four nodes the queue emptied with 40,900 decision nodes in the final reachable set and 1.15 GiB peak process RSS. Generated counts include each successful disjunct of the initial probe. The three configured invariants also hold on generated states that the constraint excludes. A deliberate invariant requiring the first node’s pending count to stay at most three passes everywhere inside the constraint. Core, TLC and the symbolic translation all catch its failure on a send outside the constraint.
 
 The model checks both eventual termination detection and refinement of the abstract detector. Once all nodes terminate, application actions are disabled. Until detection, the token position determines the one nonstuttering system destination, and weak fairness forces a system step. Backward reachability from detection covers all 315,186 terminated four-node states within ten such steps. The checker also tests the projected initialization and transition conditions. Ordinary Core and pinned TLC matched both smaller rings on counts, depth and all five properties. Every successor set in the complete two-node TLC graph matched. Disabling token passing or changing the send counter produced independently replayed violations.
+
+Increasing only the ring size to five grew the graph from 248 million to **34.28 billion states**. The same three invariants and two temporal properties held. The final diagram had 180,146 decision nodes and the process peaked at **2.19 GiB**. Of 9,809,531 terminated states, **129,196** require a fair continuation outside the graph constraint before detection. All terminated states reach detection within 13 nonstuttering system steps. For example, a reachable token facing counters (−12, 3, 3, 3, 3) can accumulate 12, beyond the graph ceiling of nine. Following the source actions detects termination in nine steps. The reported graph counts exclude the extra states inspected solely for this progress proof. [Directed control](../../scripts/perf/scale/test_ewd998_probe.py).
 
 With Python 3.12 and `dd==0.6.0`, run `python3 scripts/perf/scale/ewd998.py EWD998_DIRECTORY --modules COMMUNITY_MODULES_DIRECTORY --nodes 4`. This is a source-specific benchmark. Extending it to different actions requires a new translation or general source lowering. [Pins, commands, controls, and all measurements](../../conformance/reports/perf/2026-11-21-ewd998-fair-ring.json).
 

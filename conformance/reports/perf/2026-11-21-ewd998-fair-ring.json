@@ -453,5 +453,153 @@
       "rss_kib": 1232812
     }
   },
-  "layout_scope": "Shared pinned CPUs, experimental reachability and fair-rank timings before raw boundary validation. The per-node variant counts the three overlapping initial-probe branches only once, so its generated value undercounts. All four agree on distinct states and terminated/detected populations."
+  "layout_scope": "Shared pinned CPUs, experimental reachability and fair-rank timings before raw boundary validation. The per-node variant counts the three overlapping initial-probe branches only once, so its generated value undercounts. All four agree on distinct states and terminated/detected populations.",
+  "five_node_extension": {
+    "host": "Dedicated EC2 r7i.4xlarge in us-east-2, one physical CPU per process. Shipping script on CPU 2, independent fixed-point capture on CPU 0. Python 3.12, dd==0.6.0, CUDD, reordering off.",
+    "script_sha256": "e9b9b167f223b76e490f59ed6915be4fbfba76a3c78058a57717ab1c8c5bdfc2",
+    "finite_relation_sha256": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+    "command": "taskset -c 2 python3 scripts/perf/scale/ewd998.py EWD998_DIRECTORY --modules COMMUNITY_MODULES_DIRECTORY --nodes N",
+    "runs": [
+      {
+        "nodes": 2,
+        "initial": 32,
+        "distinct": 6876,
+        "generated": 33664,
+        "depth": 28,
+        "left_on_queue": 0,
+        "constraint_excluded_witnesses": 2240,
+        "final_bdd_nodes": 487,
+        "terminated": 200,
+        "detected": 7,
+        "max_system_steps": 4,
+        "progress_paths_leaving_constraint": 0,
+        "wall_seconds": 0.18,
+        "peak_rss_kib": 53084,
+        "exit": 0
+      },
+      {
+        "nodes": 3,
+        "initial": 192,
+        "distinct": 1520618,
+        "generated": 11238019,
+        "depth": 59,
+        "left_on_queue": 0,
+        "constraint_excluded_witnesses": 1607014,
+        "final_bdd_nodes": 5874,
+        "terminated": 8771,
+        "detected": 55,
+        "max_system_steps": 7,
+        "progress_paths_leaving_constraint": 0,
+        "wall_seconds": 2.74,
+        "peak_rss_kib": 110936,
+        "exit": 0
+      },
+      {
+        "nodes": 4,
+        "initial": 1024,
+        "distinct": 248006200,
+        "generated": 2696907118,
+        "depth": 104,
+        "left_on_queue": 0,
+        "constraint_excluded_witnesses": 530283897,
+        "final_bdd_nodes": 40900,
+        "terminated": 315186,
+        "detected": 455,
+        "max_system_steps": 10,
+        "progress_paths_leaving_constraint": 0,
+        "wall_seconds": 143.5,
+        "peak_rss_kib": 1204632,
+        "exit": 0
+      },
+      {
+        "nodes": 5,
+        "initial": 5120,
+        "distinct": 34276406948,
+        "generated": 524532023972,
+        "depth": 161,
+        "left_on_queue": 0,
+        "constraint_excluded_witnesses": 123474422902,
+        "final_bdd_nodes": 180146,
+        "terminated": 9809531,
+        "detected": 3861,
+        "max_system_steps": 13,
+        "progress_paths_leaving_constraint": 129196,
+        "wall_seconds": 4611.06,
+        "peak_rss_kib": 2294720,
+        "exit": 0
+      }
+    ],
+    "admission": "Same original pinned modules and three invariants/two temporal properties. Only N changes from the published four-node case. Every enabled update is checked for representability before taking the extended progress image. Graph identities and counts remain confined to the original state constraint.",
+    "checkpoint": {
+      "statistics": {
+        "nodes": 5,
+        "initial": 5120,
+        "distinct": 34276406948,
+        "generated": 524532023972,
+        "depth": 161,
+        "left_on_queue": 0,
+        "constraint_excluded_witnesses": 123474422902,
+        "final_bdd_nodes": 180146
+      },
+      "wall_seconds": 4535.26,
+      "peak_rss_kib": 2293812,
+      "reach_root_sha256": "9d201e36abc74c32cbbcda8fc9403a3e98ec69f6f42e3408baac1c7e4250e005",
+      "fresh_temporal_result": {
+        "terminated": 9809531,
+        "detected": 3861,
+        "max_system_steps": 13,
+        "progress_paths_leaving_constraint": 129196
+      },
+      "temporal_process": {
+        "wall_seconds": 1.18,
+        "peak_rss_kib": 124908
+      }
+    },
+    "earlier_decline": {
+      "outcome": "unranked terminated state",
+      "wall_seconds": 4119.62,
+      "peak_rss_kib": 2294592,
+      "scope": "Same N=5. Retaining the constraint q<=9 while following a fair successor was insufficient. The earlier proof also declined when pointed directly at the independently captured reachable set."
+    },
+    "directed_control": {
+      "source": {
+        "pos": 4,
+        "q": 0,
+        "black": 0,
+        "active": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "pending": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "color": [
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "counter": [
+          -12,
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "in_independent_reachable_set": true,
+      "steps_to_detection": 9,
+      "token_bound_crossing": "The token reaches 12 before its next reset and again at detection. Every edge follows the original pass/initiate actions.",
+      "reproduce": "python3 scripts/perf/scale/test_ewd998_probe.py"
+    },
+    "negative_controls": "Independent directed test of 360 terminated configurations: 333 ranked, 138 paths left the graph constraint. Mutated/missing system actions, a clipped counter, reactivation and defective continuations were rejected. The full five-node result comes from the unmodified system actions."
+  }
 }
