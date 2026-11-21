@@ -932,7 +932,7 @@ impl Fcn {
         }
     }
 
-    /// An exact index or miss for eager integer/Cartesian domains. `Unknown` means
+    /// An exact index or miss for certified integer, Cartesian, or model-value domains. `Unknown` means
     /// the argument requires the caller's original checked comparison path.
     ///
     /// ```

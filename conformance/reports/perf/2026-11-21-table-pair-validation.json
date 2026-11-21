@@ -1,0 +1,184 @@
+{
+  "binaries": {
+    "parent": "24d9406673ab63a18adde0161d5d71a6a6938ebf9ff5ad2fa3920d3c2ddc2ea3",
+    "index": "71e1206a17e3d9eed54b052bbd8a38d51d4ef84c22711ce493cb1ba93045d207",
+    "factor": "d7b6a555fa5e66de5cb27d9ffcd43d2bee2657007f42a1d8968aaad8782ec8fc",
+    "certified": "984b0164f4a91d5de70024385cddc2726c32a355d63709031b41370d527986f8",
+    "shipping": "a04f6c8543e8bb9b0841bfaf8c61f57a4f19c163513cea77179cbec9810e26cc"
+  },
+  "inputs": {
+    "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+    "Prepared.tla": "4689584fd7546e5c92bbe5fdf9d141c5ade9ab285b39c9d7a95a6222df2c77c7",
+    "F1000.trace": "a38975deeddddcef9851b44684a8edc179fabd43d0ac6088d1e6807c36162c90",
+    "F2048.trace": "936c003dfaab8bf6e85b29d17c7c891e8771a24298efd1f1c5aeb5a00a4571af",
+    "F4096.trace": "0438016ffb3b9753973fcb977306f159d178723a6eb4387ce3e4f480af4c6720",
+    "Bad1000.cfg": "e5b5f872abc128601361af2518efc4693b875532285cf114b47d8c6bae8c08c9",
+    "Bad2048.cfg": "a3623c2898200d33257317e1e0fee69dbf9cfdd3af149657d74fd9365ec06045",
+    "Bad4096.cfg": "793bd4792a3618977e5b50820cbf1fdaf35b52b0aa0511a75b5082830e0888fd"
+  },
+  "trials": [
+    {
+      "binary": "parent",
+      "owners": 1000,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 6.26,
+      "peak_rss_kib": 28760
+    },
+    {
+      "binary": "parent",
+      "owners": 2048,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 51.82,
+      "peak_rss_kib": 42696
+    },
+    {
+      "binary": "parent",
+      "owners": 4096,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 403.35,
+      "peak_rss_kib": 65432
+    },
+    {
+      "binary": "index",
+      "owners": 1000,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 0.66,
+      "peak_rss_kib": 31044
+    },
+    {
+      "binary": "index",
+      "owners": 2048,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 2.75,
+      "peak_rss_kib": 43244
+    },
+    {
+      "binary": "index",
+      "owners": 4096,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 10.95,
+      "peak_rss_kib": 65156
+    },
+    {
+      "binary": "factor",
+      "owners": 1000,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 31016
+    },
+    {
+      "binary": "factor",
+      "owners": 2048,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 45280
+    },
+    {
+      "binary": "factor",
+      "owners": 4096,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 0.04,
+      "peak_rss_kib": 69856
+    },
+    {
+      "binary": "shipping",
+      "owners": 1000,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 31120
+    },
+    {
+      "binary": "shipping",
+      "owners": 2048,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 45268
+    },
+    {
+      "binary": "shipping",
+      "owners": 4096,
+      "verdict": "valid",
+      "trace_states": 2,
+      "exit_code": 0,
+      "wall_seconds": 0.04,
+      "peak_rss_kib": 69796
+    }
+  ],
+  "constructed_words": [
+    {
+      "variant": "forged",
+      "owners": 8192,
+      "result": "invalid",
+      "states": 2,
+      "failure_state": 1,
+      "wall_seconds": 32.44,
+      "peak_rss_kib": 104172,
+      "trace_sha256": "c5e4c1432f91b36e47426856cf1f41b20fca6c1103d6d62c9be269df142a8e03"
+    },
+    {
+      "variant": "genuine",
+      "owners": 16384,
+      "result": "valid",
+      "states": 2,
+      "failure_state": null,
+      "wall_seconds": 0.14,
+      "peak_rss_kib": 158004,
+      "trace_sha256": "04edaa80012e3e1447f4e13ab5c7bdb581fc37515f6fa15d402b06b1b879a526"
+    },
+    {
+      "variant": "genuine",
+      "owners": 8192,
+      "result": "valid",
+      "states": 2,
+      "failure_state": null,
+      "wall_seconds": 0.07,
+      "peak_rss_kib": 108460,
+      "trace_sha256": "9d8a8303e969409aef1f133a88d106cf90eae095890bd913ef1cefe9033187c6"
+    }
+  ],
+  "model": "https://github.com/tlaplus/Examples/tree/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/transaction_commit",
+  "host": "One EC2 c7i.4xlarge in us-west-2, Intel Xeon Platinum 8488C, Linux 7.0.0-1018-aws. Single CPU per process; trials on different physical cores could overlap. The parent and shipping series both used CPU 0. Full process wall and maximum RSS from GNU time.",
+  "command": "dive validate-trace Prepared.tla --config BadN.cfg --trace FN.trace --output json",
+  "source_recipe": "Extend TCommit with NonePrepared == \\A participant \\in RM : rmState[participant] # \"prepared\". Keep TCTypeOK, TCConsistent and NonePrepared. Set RM={r1,...,rN}. First concrete state has all working, second has r1 prepared, with ending invariant NonePrepared. In the forged second state both r1 and r2 prepare in a single step. The original action updates one owner.",
+  "variants": {
+    "parent": "Unchanged main baseline.",
+    "index": "Experiment: hash position per model-value key, original pair quantifier.",
+    "factor": "Experiment: same allocated index and factored pair tests.",
+    "certified": "Sorted/dense model key lookup with constant-size retained descriptor and conservative cross-interner handling, plus first-column short circuit.",
+    "shipping": "Same certification and quantifier, with fallible reservation for temporary duplicate-text detection."
+  },
+  "controls": {
+    "semantic_profiles": [
+      "dive",
+      "tlc"
+    ],
+    "differential_cases": 78,
+    "direct_intern_comparisons": 260,
+    "memory": "128 separately constructed 1,024-entry maps. On the hash-map experiment, RSS went from 7,160 to 11,512 KiB after accessing one key of each table. The final retained index has no per-key array. Canonical certificate trial: 7,140 to 7,140 KiB. Token-ordered trial: 7,116 to 7,148 KiB, including temporary allocation and allocator retention.",
+    "early_witness": "8,192 repetitions over a 1,000-entry domain: distinct status witness in the first quantifier column. The allocating full-scan version took 0.17 s, the revised first-column path 0.01 s and parent 0.02 s. Both polarities checked.",
+    "validated": "Original and forged steps, false invariant claim, swapped and shared binders, INSTANCE substitutions, partial and heterogeneous ranges, differently typed model keys, cross-interner equal text at different tokens, deferred providers, and cancellation token 7001.",
+    "goldens": "Six Examples configurations at one worker in default and TLC profiles: TCommit, TwoPhase, MCPaxos, MCVoting, SimplifiedFastPaxos/Paxos and FastPaxos. Zero small-tier ratchet regressions."
+  }
+}

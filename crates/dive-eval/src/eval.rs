@@ -1710,6 +1710,9 @@ impl Core {
                 self.loc(e)
             )));
         }
+        if let Some(result) = self.table_quantifier(env, st, exists, bounds, body)? {
+            return Ok(Ev::V(Value::Bool(result)));
+        }
         // OPCODE_be / OPCODE_bf
         let mut result = !exists;
         // A sampled trace's witnesses can prove a `\E` over an infinite

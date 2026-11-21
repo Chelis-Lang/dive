@@ -66,6 +66,7 @@ mod startup_calls;
 mod startup_fixed;
 mod std;
 mod svg;
+mod table_quantifier;
 mod tla_cmp;
 mod tlc_enum;
 mod tuple_names;

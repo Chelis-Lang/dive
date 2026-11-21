@@ -765,3 +765,15 @@ For temporal-specific errors, row errors and limits, see
 [debugging](debugging.md). See also [compatibility](compatibility.md),
 [storage](storage-recovery.md), [reports](reports-and-errors.md) and the
 [coverage scoreboard](../scoreboard.md).
+
+
+### Consistency predicates over named processes
+
+Independent trace validation can check a common consistency invariant in one scan of the concrete table. This invariant excludes a committed manager whenever any manager has aborted.
+
+```tla
+Consistent == \A a,b \in Owners :
+    ~ /\ status[a] = "aborted"
+      /\ status[b] = "committed"
+```
+The evaluator checks that the bound names are independent, both lookups read the same table, and the values used for the reduction have the expected primitive type. Partial tables and unsupported comparisons follow the usual evaluation rules. Counterexamples still undergo full initialization, transition and property validation. [Measured replay costs](../developer/large-models.md#independent-replay-on-large-owner-tables).
