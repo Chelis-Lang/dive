@@ -285,6 +285,16 @@ above used a different host and budget. [Merged Core source, binary, input hashe
 
 On the mimalloc 3.7.0 build, the original CFG at eight workers reached its time limit in 7,200.08 s on an isolated c7i.4xlarge. At depth 28, Core had counted 594,135,503 distinct fingerprints and 13,320,841,101 generated, with 2,397,734 queued. Peak RSS was 8.58 GiB. The 45-bit dense orbit prototype also exhausted the original CFG through the current finite binder. It matched 594,616,815 distinct states, 13,385,471,536 generated occurrences and depth 30 on a separate shared-host count control. [Allocator-fixed runs and profile](../../conformance/reports/perf/2026-11-21-allocator-fixed-large-baselines.json).
 
+The installed Linux compiled strategy now exhausts the original 45-bit Large
+configuration using a 23,299,718,715-bit exact orbit bitmap. On a dedicated
+c7i.4xlarge, cold runs took 268.65 s at one worker and 41.35 s at eight, with
+4.15 and 4.82 GiB peak RSS. Running the generated worker alone took 252.19
+and 39.99 s. The installed symbolic strategy exhausted the same graph on the
+same host in 29.93 s with 621 MiB peak RSS. Both strategies agreed on all
+594,616,815 symmetry classes, 13,385,471,536 generated occurrences and
+depth 30. The [wide compiled measurements](../../conformance/reports/perf/2026-11-21-compiled-wide-safety.json)
+include the CFG digests, commands, time budgets and the 32-bit Medium control.
+
 ## Three ways to check an edit
 
 - **Reachability.** Enumerate bounded action witnesses, compile guards and deterministic updates into Boolean functions, and compute exact images to a fixed point. Group writes by index and consume readers before overwriting their inputs. Cyclic dependencies use a simultaneous image. Symmetry counting requires a configured full group and checks that its generators preserve Init, every property and the multiset of guarded updates. Burnside counting preserves duplicate successor witnesses. Reverse images through BFS layers recover a shortest concrete counterexample. The CLI runs `dive validate-trace` on each reported violation.
