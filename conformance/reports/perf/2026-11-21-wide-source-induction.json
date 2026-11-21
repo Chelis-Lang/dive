@@ -558,5 +558,37 @@
         }
       }
     }
+  },
+  "full_original_256_extended": {
+    "method": "Fresh full symbolic BFS from the original unmodified Init at 256 labeled managers. Same source, CFG, worker and 2,700 MiB virtual/3,000 MiB cgroup limits as the first 2,370 s trial, now with the protected-main native CLI/exporter artifacts used in merged_source_qualification. Pinned to CPU 7 on the growth host. Time budget 6,690 s and external timeout 6,720 s.",
+    "inputs": {
+      "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "R256.cfg": "573c8f5a8bae6765b0dd4d594db1418bf491e21b21fe7afb6674a9dcff92bdb7",
+      "dive": "d2fcf868347c89ea5c74349396d2365deddedd959a8190db987b35188ec144ca",
+      "engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+      "symbolic_input": "98f9be5b7fed5d9b6a3f217cf9bd3d3edc02d91ebf3e140af79a39e0301ef898"
+    },
+    "observed": {
+      "exit": 0,
+      "wall_s": 4543.95,
+      "peak_rss_kib": 596104,
+      "verdict": "success",
+      "depth": 513,
+      "reachable_bdd_nodes": 2039,
+      "seconds": 4543.634813,
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "reused": false,
+      "distinct_decimal": "139008452377144732764939786789661303114218850924321227228921019853607057638454343794271753819750173561269249548462029075456",
+      "generated_decimal": "35586163808549051587824585418153293597240025821804846748227308068306320674332259806115010940654052234634357131393398849405185"
+    },
+    "analytic_expected": {
+      "distinct_decimal": "139008452377144732764939786789661303114218850924321227228921019853607057638454343794271753819750173561269249548462029075456",
+      "generated_decimal": "35586163808549051587824585418153293597240025821804846748227308068306320674332259806115010940654052234634357131393398849405185",
+      "depth": 513
+    },
+    "command": "dive check TCommit.tla --config R256.cfg --strategy symbolic --type-invariant TCTypeOK --time-limit 6690s --max-memory 2700m --output json"
   }
 }
