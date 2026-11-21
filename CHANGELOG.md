@@ -217,6 +217,8 @@ are in git history.
 
 ### Changed
 
+- Core reuses unrestricted prefix paths and small product rows when checking alternative fairness conditions. Elevator Large completed in 113.90 s versus 403.59 s with the same counts. [Temporal checking](docs/user/temporal.md).
+
 - `dive simulate` keeps and validates the deciding trace and the first 10
   other traces by default, instead of every trace; `--keep-traces all` keeps
   them all. It no longer stops at 1,000,000 initial or retained states or

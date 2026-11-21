@@ -720,14 +720,7 @@ Unit tests compare it with dense graphs through the owned and compact reference
 products, which exist only under `cfg(test)`. There is no public
 materialized-product API.
 
-The analysis product is not stored (ADR 0018 §3, issue #909). The private
-`product::ImplicitProduct` discovers the reachable `(behavior vertex, tableau
-node)` pairs once, applying the vertex, edge, inspection and acceptance guards
-of the materialized builder, then keeps only each vertex's behavior state and
-tableau node in Cartesian order, plus one offset per behavior vertex. Every
-search walk recomputes a vertex's row from the behavior graph, the tableau and
-the labels: behavior edges in row order, then tableau successors in
-construction order, which is the order the materialized builder stored. Edge
+The private `product::ImplicitProduct` discovers reachable `(behavior vertex, tableau node)` pairs once, applying the vertex, edge, inspection and acceptance guards of the materialized builder. It keeps each vertex's behavior state and tableau node in Cartesian order, plus one offset per behavior vertex. For one fairness alternative, each walk derives its rows from the original behavior graph. For multiple alternatives, the search can keep the ordered product rows if their byte capacity fits the smaller of 16 MiB and 1/256 of the requested process memory. Otherwise it derives them on demand. Each stored edge has a 32-bit target and its original 32-bit behavior-edge position. Parallel edges with different labels remain distinguishable. The unrestricted shortest-path tree is shared across alternatives of the same immutable product. Each alternative applies its own recurrence restrictions and acceptance obligations. Edge
 labels passed to acceptance are original behavior edges. The lasso search
 filters EA-failing edges while walking instead of copying a restricted graph,
 streams Tarjan components instead of collecting them, and keeps

@@ -1,12 +1,10 @@
 //! The coordinator's reachable product, explored on the fly.
 //!
-//! Only product vertices are retained, in `(behavior vertex, tableau node)`
-//! order. Product edges are recomputed from the behavior graph, the tableau
-//! and the supplied labels whenever a search walks a row, in exactly the
-//! order the materialized builder stores them: behavior edges in row order,
-//! then tableau successors in construction order. Construction applies the
-//! same vertex, edge, inspection and acceptance guards as that builder, so a
-//! named resource result is unchanged; it only stops storing the edges.
+//! Discovery retains product vertices in `(behavior vertex, tableau node)`
+//! order. Rows come from the behavior graph, tableau and supplied labels.
+//! Behavior edges keep their row order and tableau successors keep construction
+//! order. Multiple fairness alternatives may retain a bounded copy of these
+//! ordered rows. Discovery and acceptance use the same limits in both cases.
 
 use super::{
     AcceptancePolicy, BehaviorView, CompactAcceptance, Limits, Ordered, ProductError, TruthAccess,
@@ -14,9 +12,12 @@ use super::{
 };
 use crate::formula::{AtomKind, CycleConditions, Tableau};
 use crate::search::{
-    AcceptanceAccess, Adjacency, Lasso, Poll, SearchError, Step, edge_at, find_lasso_view,
+    AcceptanceAccess, Adjacency, Lasso, LassoSearch, Poll, SearchError, Step, edge_at,
 };
 use std::collections::{BTreeSet, HashSet};
+
+mod repeated_rows;
+use repeated_rows::RepeatedRows;
 
 /// Discovery uses a dense bitset while it costs at most this many tableau
 /// nodes per behavior vertex (64 bytes), and an exact hash set beyond that.
@@ -343,6 +344,36 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
         (self.states.len(), self.edge_count)
     }
 
+    /// Search all alternatives of this tableau with the same unrestricted prefix paths.
+    pub(crate) fn find_lasso_in_alternatives(
+        &self,
+        labels: &impl TruthAccess,
+        alternatives: &[CycleConditions],
+    ) -> Result<Option<Lasso>, ProductError> {
+        if alternatives.len() > 1
+            && let Some(rows) = RepeatedRows::build(self, crate::budget::optional_buffer_limit())?
+        {
+            return self.search_rows(&rows, labels, alternatives);
+        }
+        self.search_rows(self, labels, alternatives)
+    }
+
+    fn search_rows(
+        &self,
+        graph: &impl Adjacency,
+        labels: &impl TruthAccess,
+        alternatives: &[CycleConditions],
+    ) -> Result<Option<Lasso>, ProductError> {
+        let mut search = LassoSearch::new(graph);
+        for conditions in alternatives {
+            if let Some(lasso) = self.search_alternative(labels, conditions, &mut search)? {
+                return Ok(Some(lasso));
+            }
+        }
+        Ok(None)
+    }
+
+    #[cfg(test)]
     /// Finds an accepting lasso under one alternative's cycle conditions, as
     /// the materialized `CompactProduct::find_lasso_with_conditions` does, and projects
     /// it onto behavior states and original edge positions.
@@ -351,8 +382,17 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
         labels: &impl TruthAccess,
         conditions: &CycleConditions,
     ) -> Result<Option<Lasso>, ProductError> {
+        self.find_lasso_in_alternatives(labels, std::slice::from_ref(conditions))
+    }
+
+    fn search_alternative(
+        &self,
+        labels: &impl TruthAccess,
+        conditions: &CycleConditions,
+        search: &mut LassoSearch<'_, impl Adjacency>,
+    ) -> Result<Option<Lasso>, ProductError> {
         let lasso = if conditions.always.is_empty() && conditions.recurring.is_empty() {
-            find_lasso_view(self, self).map_err(ProductError::search)?
+            search.find(self).map_err(ProductError::search)?
         } else {
             let scratch = super::solution_scratch(
                 &self.acceptance,
@@ -368,7 +408,7 @@ impl<'a, T: TruthAccess> ImplicitProduct<'a, T> {
                 conditions,
                 scratch: std::cell::RefCell::new(scratch),
             };
-            find_lasso_view(self, &conditioned).map_err(ProductError::search)?
+            search.find(&conditioned).map_err(ProductError::search)?
         };
         lasso.map(|lasso| self.project(&lasso)).transpose()
     }

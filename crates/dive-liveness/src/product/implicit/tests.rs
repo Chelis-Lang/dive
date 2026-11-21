@@ -182,8 +182,12 @@ fn on_the_fly_products_match_materialized_products_and_witnesses() {
                     assert_eq!(implicit.dimensions(), (rows.vertex_count(), edges));
                     assert_eq!(implicit.roots, rows.roots());
                     assert_eq!(implicit.states, compact.parts.behavior_states);
+                    let mut first = Ok(None);
                     for alternative in &group.alternatives {
                         let expected = compact.find_lasso_with_conditions(&labels, alternative);
+                        if matches!(first, Ok(None)) {
+                            first = expected.clone();
+                        }
                         assert_eq!(
                             implicit.find_lasso_with_conditions(&labels, alternative),
                             expected
@@ -194,6 +198,10 @@ fn on_the_fly_products_match_materialized_products_and_witnesses() {
                             Err(_) => {}
                         }
                     }
+                    assert_eq!(
+                        implicit.find_lasso_in_alternatives(&labels, &group.alternatives),
+                        first
+                    );
                 }
             }
         }
@@ -306,5 +314,71 @@ fn an_expired_run_budget_stops_discovery_and_search() {
         Some(crate::product::ProductError::Limit(
             crate::budget::EXHAUSTED
         ))
+    );
+}
+
+#[test]
+fn repeated_product_rows_keep_parallel_edges_and_honor_the_byte_cap() {
+    use crate::search::Adjacency;
+    let graph = Graph::new(vec![vec![1], vec![2, 2], vec![1]], vec![0]).expect("graph");
+    let labels = Labels {
+        states: vec![vec![false; 3]],
+        actions: vec![vec![vec![false], vec![false, true], vec![false]]],
+    };
+    let formula = Formula::new(
+        vec![
+            atom(AtomKind::State, 0),
+            Node::Always(0),
+            Node::Eventually(1),
+            atom(AtomKind::Action, 0),
+            Node::Eventually(3),
+            Node::Always(4),
+            Node::Or(vec![2, 5]),
+        ],
+        6,
+    )
+    .expect("FG state or GF action");
+    let groups = formula::decompose(&formula, formula::Limits::default()).expect("groups");
+    assert_eq!(groups.len(), 1);
+    let group = &groups[0];
+    assert_eq!(group.alternatives.len(), 2);
+    let tableau =
+        formula::compile_residual(&group.core, formula::Limits::default()).expect("tableau");
+    let product = ImplicitProduct::new(
+        &graph,
+        &tableau,
+        &labels,
+        Limits::default(),
+        AcceptancePolicy::Cells,
+    )
+    .expect("product");
+    let bytes = (product.vertex_count() + 1) * size_of::<u32>()
+        + product.edge_count * size_of::<(u32, u32)>();
+    assert!(
+        super::RepeatedRows::build(&product, bytes - 1)
+            .expect("fall back")
+            .is_none()
+    );
+    let rows = super::RepeatedRows::build(&product, bytes)
+        .expect("build")
+        .expect("fits");
+    let compare = |path: &crate::search::Lasso| {
+        assert!(
+            path.cycle
+                .iter()
+                .any(|step| step.from == 1 && step.edge == 1 && step.to == 2)
+        );
+    };
+    let original = product
+        .search_rows(&product, &labels, &group.alternatives)
+        .expect("implicit")
+        .expect("lasso");
+    compare(&original);
+    assert_eq!(
+        product
+            .search_rows(&rows, &labels, &group.alternatives)
+            .expect("stored")
+            .as_ref(),
+        Some(&original)
     );
 }

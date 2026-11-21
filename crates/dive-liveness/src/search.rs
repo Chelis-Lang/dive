@@ -341,102 +341,131 @@ pub(crate) fn find_lasso(graph: &Graph, labels: &Acceptance) -> Result<Option<La
     find_lasso_view(graph, labels)
 }
 
-/// Finds a deterministic accepting lasso for the supplied labels, or `None`
-/// when no reachable cycle satisfies them. Prefixes are searched without EA
-/// pruning; cycles are searched with it. The entry minimizes unrestricted
-/// distance from a root, then vertex id. BFS parents use sorted frontiers and
-/// original edge positions. SCC traversal order does not determine the answer.
-/// Product vertex ids must be ordered by `(state id, tableau node id)` for
-/// that tie-break to implement the product-order rule.
-///
-/// # Errors
-/// An internal witness-construction bug or an exhausted installed run budget.
-/// A budget error makes no claim about acceptance.
+/// Shortest unrestricted prefix paths for one immutable product and root set.
+/// Alternative fairness conditions only change the recurrent walk.
+pub(crate) struct LassoSearch<'a, G: Adjacency + ?Sized> {
+    graph: &'a G,
+    prefix: Option<Paths>,
+}
+
+impl<'a, G: Adjacency + ?Sized> LassoSearch<'a, G> {
+    pub(crate) fn new(graph: &'a G) -> Self {
+        Self {
+            graph,
+            prefix: None,
+        }
+    }
+    /// Finds a deterministic accepting lasso for the supplied labels, or `None`
+    /// when no reachable cycle satisfies them. Prefixes are searched without EA
+    /// pruning; cycles are searched with it. The entry minimizes unrestricted
+    /// distance from a root, then vertex id. BFS parents use sorted frontiers and
+    /// original edge positions. SCC traversal order does not determine the answer.
+    /// Product vertex ids must be ordered by `(state id, tableau node id)` for
+    /// that tie-break to implement the product-order rule.
+    ///
+    /// # Errors
+    /// An internal witness-construction bug or an exhausted installed run budget.
+    /// A budget error makes no claim about acceptance.
+    pub(crate) fn find(
+        &mut self,
+        labels: &impl AcceptanceAccess,
+    ) -> Result<Option<Lasso>, SearchError> {
+        let mut poll = Poll::default();
+        poll.step()?;
+        let graph = self.graph;
+        let prefix = match &mut self.prefix {
+            Some(paths) => paths,
+            slot @ None => {
+                slot.insert(Paths::new(graph, graph.roots(), |_, _, _| true, &mut poll)?)
+            }
+        };
+        // A finite prefix may cross edges that fail EA. Such destinations must
+        // remain candidates for a recurrent component, so every reachable vertex
+        // is a root of the EA-restricted decomposition, in vertex order.
+        let mut selected: Option<(usize, usize, Vec<usize>)> = None;
+        let mut membership = initialized(graph.vertex_count(), 0, &mut poll)?;
+        let mut stamp = 0_usize;
+        restricted_components(graph, labels, prefix, &mut poll, |component, poll| {
+            if component.len() == 1 {
+                let v = component[0];
+                let mut edges = Edges::new(graph, v);
+                let mut cyclic = false;
+                while let Some((_, to, label)) = edges.next()? {
+                    poll.step()?;
+                    if to == v && labels.recurrent(v, label) {
+                        cyclic = true;
+                        break;
+                    }
+                }
+                if !cyclic {
+                    return Ok(());
+                }
+            }
+            // Components are disjoint, so a fresh stamp never matches a stale one.
+            stamp += 1;
+            for &v in &component {
+                poll.step()?;
+                membership[v] = stamp;
+            }
+            if !labels.accepts(graph, &component, &membership, stamp, poll)? {
+                return Ok(());
+            }
+            let mut best = None;
+            for &v in &component {
+                poll.step()?;
+                let Some(d) = prefix.distance(v) else {
+                    return Err(SearchError::Invariant("component is not reachable"));
+                };
+                if best.is_none_or(|b| (d, v) < b) {
+                    best = Some((d, v));
+                }
+            }
+            // `(distance, vertex)` is a strict total order over disjoint
+            // components, so the selection is independent of emission order.
+            if let Some((d, v)) = best
+                && selected
+                    .as_ref()
+                    .is_none_or(|(best, entry, _)| (d, v) < (*best, *entry))
+            {
+                selected = Some((d, v, component));
+            }
+            Ok(())
+        })?;
+        drop(membership);
+        let Some((_, entry, component)) = selected else {
+            if crate::budget::exhausted() {
+                return Err(SearchError::Budget);
+            }
+            return Ok(None);
+        };
+        let mut inside = initialized(graph.vertex_count(), false, &mut poll)?;
+        for v in component {
+            poll.step()?;
+            inside[v] = true;
+        }
+        let steps = prefix.path(entry, &mut poll)?;
+        self.prefix = None;
+        let root = steps.first().map_or(entry, |s| s.from);
+        let cycle = covering_cycle(graph, labels, &inside, entry, &mut poll)?;
+        // Catch a trip during the final bounded unit before returning a witness.
+        if crate::budget::exhausted() {
+            return Err(SearchError::Budget);
+        }
+        Ok(Some(Lasso {
+            root,
+            entry,
+            prefix: steps,
+            cycle,
+        }))
+    }
+}
+
+#[cfg(test)]
 pub(crate) fn find_lasso_view(
     graph: &(impl Adjacency + ?Sized),
     labels: &impl AcceptanceAccess,
 ) -> Result<Option<Lasso>, SearchError> {
-    let mut poll = Poll::default();
-    poll.step()?;
-    let prefix = Paths::new(graph, graph.roots(), |_, _, _| true, &mut poll)?;
-    // A finite prefix may cross edges that fail EA. Such destinations must
-    // remain candidates for a recurrent component, so every reachable vertex
-    // is a root of the EA-restricted decomposition, in vertex order.
-    let mut selected: Option<(usize, usize, Vec<usize>)> = None;
-    let mut membership = initialized(graph.vertex_count(), 0, &mut poll)?;
-    let mut stamp = 0_usize;
-    restricted_components(graph, labels, &prefix, &mut poll, |component, poll| {
-        if component.len() == 1 {
-            let v = component[0];
-            let mut edges = Edges::new(graph, v);
-            let mut cyclic = false;
-            while let Some((_, to, label)) = edges.next()? {
-                poll.step()?;
-                if to == v && labels.recurrent(v, label) {
-                    cyclic = true;
-                    break;
-                }
-            }
-            if !cyclic {
-                return Ok(());
-            }
-        }
-        // Components are disjoint, so a fresh stamp never matches a stale one.
-        stamp += 1;
-        for &v in &component {
-            poll.step()?;
-            membership[v] = stamp;
-        }
-        if !labels.accepts(graph, &component, &membership, stamp, poll)? {
-            return Ok(());
-        }
-        let mut best = None;
-        for &v in &component {
-            poll.step()?;
-            let Some(d) = prefix.distance(v) else {
-                return Err(SearchError::Invariant("component is not reachable"));
-            };
-            if best.is_none_or(|b| (d, v) < b) {
-                best = Some((d, v));
-            }
-        }
-        // `(distance, vertex)` is a strict total order over disjoint
-        // components, so the selection is independent of emission order.
-        if let Some((d, v)) = best
-            && selected
-                .as_ref()
-                .is_none_or(|(best, entry, _)| (d, v) < (*best, *entry))
-        {
-            selected = Some((d, v, component));
-        }
-        Ok(())
-    })?;
-    drop(membership);
-    let Some((_, entry, component)) = selected else {
-        if crate::budget::exhausted() {
-            return Err(SearchError::Budget);
-        }
-        return Ok(None);
-    };
-    let mut inside = initialized(graph.vertex_count(), false, &mut poll)?;
-    for v in component {
-        poll.step()?;
-        inside[v] = true;
-    }
-    let steps = prefix.path(entry, &mut poll)?;
-    drop(prefix);
-    let root = steps.first().map_or(entry, |s| s.from);
-    let cycle = covering_cycle(graph, labels, &inside, entry, &mut poll)?;
-    // Catch a trip during the final bounded unit before returning a witness.
-    if crate::budget::exhausted() {
-        return Err(SearchError::Budget);
-    }
-    Ok(Some(Lasso {
-        root,
-        entry,
-        prefix: steps,
-        cycle,
-    }))
+    LassoSearch::new(graph).find(labels)
 }
 
 const NONE: usize = usize::MAX;
