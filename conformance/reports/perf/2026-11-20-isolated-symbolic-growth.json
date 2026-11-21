@@ -2100,6 +2100,34 @@
           ]
         },
         "comparison": "The earlier frontier-only 1997.42 s observation under three_transaction_growth has the same counts and depth. Those two timings used separate c7i.4xlarge instances."
+      },
+      "five_keys_three_transactions": {
+        "configuration": "From released KVS Large, extend Key to {k1,k2,k3,k4,k5}, preserving three transaction identities, two values, TypeInvariant, TxLifecycle and the original transaction symmetry. Same product host, CPU affinity and command as its four-key trial, substituting K5V2T3.cfg.",
+        "wall_seconds": 1431.39,
+        "peak_rss_kib": 644548,
+        "exit": 0,
+        "report": {
+          "verdict": "success",
+          "distinct": 571514403867075,
+          "generated": 19613909230737652,
+          "depth": 44,
+          "reachable_bdd_nodes": 4491,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle"
+          ]
+        },
+        "history_formula": {
+          "orbit": [
+            571514403867075,
+            19613909230737652
+          ],
+          "concrete": [
+            3428937742115475,
+            117678291762703177
+          ]
+        },
+        "meaning": "The orbit pair is independently computed and agrees with both observed counters. The concrete pair is a formula prediction for a symmetry-disabled configuration."
       }
     },
     "correctness": "All small symbolic fragment differentials and pinned KVS goldens passed. Installed-layout controls passed. An independently generated 31-case comparison with explicit Core checked 11 complete results, 20 negative shortest depths and 40 standalone trace replays. Dropping admission from the larger operand failed the excluded-source control."
