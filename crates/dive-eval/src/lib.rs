@@ -51,6 +51,7 @@ mod error;
 mod eval;
 mod finite;
 mod generation;
+mod guarded_subset;
 mod host;
 mod json;
 mod lazy;

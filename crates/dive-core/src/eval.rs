@@ -2254,6 +2254,44 @@ impl Machine {
         }
     }
 
+    pub(crate) fn existential_bindings(
+        &mut self,
+        code: &Code,
+        binds: &[Bind],
+        visit: &mut dyn FnMut(&mut Self) -> Result<bool, Error>,
+    ) -> Result<bool, Error> {
+        if self.fuel == u64::MAX
+            && let [bind] = binds
+            && let Some(set) = bind.eligible
+        {
+            // The first guard is pure. If preparing its restricted domain
+            // cannot be evaluated, let ordinary enumeration determine whether
+            // and when the original action actually observes that failure.
+            let cursor = match self.subset_cursor(code, Some(set)) {
+                Err(e) if e.kind() == crate::ErrorKind::Unsupported => None,
+                result => result?,
+            };
+            if let Some(mut cursor) = cursor {
+                loop {
+                    let before = self.heap.mark();
+                    let Some(element) = self.work_next(&mut cursor)? else {
+                        break;
+                    };
+                    let forced = self.thunk_mark();
+                    self.bind_one(bind, element)?;
+                    if !visit(self)? {
+                        return Ok(false);
+                    }
+                    if self.thunks_released(forced) {
+                        self.heap.rollback(before);
+                    }
+                }
+                return Ok(true);
+            }
+        }
+        self.for_each_binding(code, binds, visit)
+    }
+
     fn quant(
         &mut self,
         code: &Code,
@@ -2264,7 +2302,7 @@ impl Machine {
         match kind {
             Quant::Exists => {
                 let mut found = false;
-                self.for_each_binding(code, binds, &mut |m: &mut Self| {
+                self.existential_bindings(code, binds, &mut |m: &mut Self| {
                     if m.eval_bool(code, body)? {
                         found = true;
                         return Ok(false);

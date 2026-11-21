@@ -361,6 +361,7 @@ mod tests {
             slots: vec![0].into(),
             tuple: false,
             domain: 0,
+            eligible: None,
         }];
         machine.set_fuel(4096);
         assert!(
@@ -431,11 +432,13 @@ mod tests {
                 slots: vec![0].into(),
                 tuple: false,
                 domain: 0,
+                eligible: None,
             },
             Bind {
                 slots: vec![1].into(),
                 tuple: false,
                 domain: 1,
+                eligible: None,
             },
         ];
         let frame = machine.enter(2);

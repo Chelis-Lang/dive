@@ -1,0 +1,721 @@
+{
+  "model": "Ordinary exact Core and independent action evaluation of guarded message subsets",
+  "example_pin": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/detector_chan96 (EnvironmentController, Age_Channel, EPFailureDetector)",
+  "host": "EC2 c7i.4xlarge, us-west-2, Intel Xeon Platinum 8488C, Ubuntu 24.04, 16 vCPU; W1 trials pinned to a logical CPU. Multiple independent single-thread jobs ran on the instance. W4 performed a correctness check, with one CPU affinity for the four threads. GNU time wall seconds and process high-water RSS in KiB. Sub-centisecond times rounded to zero.",
+  "native_binary_sha256": {
+    "baseline": "c05bcf02bd5864ecf47c7e4b8d28b21e32f72cb336adcb705f5194d9495998d5",
+    "guard": "4c11eb3f217014a71692be8f7ed2ae72c6073578fd586f04b79f584facc11b1a",
+    "guard-bool": "0fa684ca5ac4388c329da3e35320d3f81ecd6171305a514cf07784db632a6d3d",
+    "guard-final": "65077266cfb2fad4a78447fba682426704e66767a51670067cc21f5baff5ab44",
+    "guard-temporal": "9d5972a8f9fc6f4882d9bfe22dd577ca890ae9efbc8f977736c31a376796c3fc",
+    "guard-mixed": "fc65ed1cf3a6b792c617435a3da5d7213871fa1f7770daa96cd3a4eb16a5261b",
+    "power-final": "eafcc5755dd2baad1a26646f52027644d3790e76862207ef10dae7494a551960"
+  },
+  "variant_scope": {
+    "baseline": "Parent main before guarded action-domain reduction",
+    "guard": "Core successor generation only",
+    "guard-bool": "Also Core boolean existential",
+    "guard-final": "Also independent IR on concrete step for trace validation",
+    "guard-temporal": "Independent evaluation on concrete steps and enabledness before correcting mixed canonical values and deferred operands.",
+    "guard-mixed": "Profile-aware eligible-set construction; deferred provider regression found by independent replay.",
+    "power-final": "Profile-aware, requires materialized roots and base before speculative evaluation. Independent review approved this binary."
+  },
+  "compiled_with": "cargo build --release --locked -p dive-cli --bin dive (CARGO_PROFILE_RELEASE_DEBUG=0), Rust 1.99.0",
+  "kernel_source": {
+    "Receiver.tla": "---- MODULE Receiver ----\nEXTENDS Age_Channel, Integers, FiniteSets\nCONSTANT Width\nVARIABLE done\nStart == /\\ inTransit = {[age |-> 2, content |-> [from |-> 1, to |-> j, type |-> \"alive\"]] : j \\in 1..Width}\n         /\\ inDelivery = {}\n         /\\ done = FALSE\nStep == /\\ ~done /\\ Deliver(1) /\\ done' = TRUE\nSafe == Cardinality(inTransit) \\in (Width-1)..Width\n====\n",
+    "N40.cfg": "CONSTANTS Messages = {} Boxes = {} Width = 40\nINIT Start\nNEXT Step\nINVARIANT Safe\nCHECK_DEADLOCK FALSE\n",
+    "Lose.tla": "---- MODULE Lose ----\nEXTENDS Receiver\nNotDelivered == inDelivery = {}\n====\n",
+    "Lose.cfg": "CONSTANTS Messages = {} Boxes = {} Width = 40\nINIT Start\nNEXT Step\nINVARIANT Safe\nCHECK_DEADLOCK FALSE\nINVARIANT NotDelivered\n"
+  },
+  "kernel_config": "For the width series replace Width = 40 with the stated width. Receiver extends the unmodified Age_Channel and uses its original Deliver(1) action. The TLC-40 control rewrites only its binder to SUBSET {b \\in inTransit : b.content.to = rcver} and retains the original guard.",
+  "source_sha256": {
+    "Age_Channel.tla": "2235e13cbf2e930caeda1ae3a592c1f6e3c166a9903bddb8bef4e931cb413d47",
+    "EPFailureDetector.tla": "34407972eef86a8353374086558ede7a1ae611794ff399ca528112b431414b25",
+    "EnvironmentController.tla": "27d4468fd8dae883b066b2e9aba0b3bae1402260e373362ed7b79935c0480372",
+    "Schedule.tla": "1c4d12df503c119563f8edc3e3bf5b4b3fd45f690c2e3eb87f25ec7dfded2956"
+  },
+  "no_fault_safety_cfg": "CONSTANTS\n  N = 3\n  T = 0\n  d0 = 2\n  SendPoint = 2\n  PredictPoint = 3\n  DELTA = 1\n  PHI = 1\nINVARIANT TypeOK\nSPECIFICATION Spec\n\n",
+  "no_fault_temporal_cfg": "CONSTANTS\n  N = 3\n  T = 0\n  d0 = 2\n  SendPoint = 2\n  PredictPoint = 3\n  DELTA = 1\n  PHI = 1\nINVARIANT TypeOK\nPROPERTIES StrongCompleteness EventuallyStrongAccuracy\nSPECIFICATION Spec\n\n",
+  "checker_command": "dive check EnvironmentController.tla --config <cfg> --workers 1 --seed 0 --fp 0 --store exact --time-limit <limit>s --max-memory <budget> --output json. The kernel uses Receiver.tla with N<width>.cfg. Compare completed verdicts/counts or prefixes at their stated budget.",
+  "tlc": "Pinned tla2tools.jar SHA-256 7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d; pinned JRE SHA-256 0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62; java -XX:ActiveProcessorCount=1 -Xmx3g -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config N<W>.cfg Receiver",
+  "native_comparisons": {
+    "N2-baseline": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.06,
+      "peak_rss_kib": 45268,
+      "distinct": 381,
+      "generated": 807,
+      "depth": 33,
+      "left_on_queue": 0
+    },
+    "N2-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.05,
+      "peak_rss_kib": 45296,
+      "distinct": 381,
+      "generated": 807,
+      "depth": 33,
+      "left_on_queue": 0
+    },
+    "N3-baseline": {
+      "verdict": "stopped",
+      "message": "DIVE-L0038: stopped during temporal-analysis after 640040 ms: the time limit is 640000 ms",
+      "wall_seconds": 640.05,
+      "peak_rss_kib": 245396,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "N3-bool": {
+      "verdict": "stopped",
+      "message": "DIVE-L0038: stopped during temporal-analysis after 170030 ms: the time limit is 170000 ms",
+      "wall_seconds": 170.05,
+      "peak_rss_kib": 218464,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "N3-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 375.06,
+      "peak_rss_kib": 188372,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "N3-temporal": {
+      "verdict": "stopped",
+      "message": "DIVE-L0038: stopped during temporal-analysis after 170009 ms: the time limit is 170000 ms",
+      "wall_seconds": 170.02,
+      "peak_rss_kib": 108464,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "Safety3-baseline": {
+      "verdict": "stopped",
+      "message": "stopped during safety-search after 88038 ms: the time limit is 88000 ms",
+      "wall_seconds": 88.11,
+      "peak_rss_kib": 208560,
+      "distinct": 21939,
+      "generated": 44658,
+      "depth": 43,
+      "left_on_queue": 1003
+    },
+    "Safety3-fullbaseline": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 452.96,
+      "peak_rss_kib": 208184,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "Safety3-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 4.32,
+      "peak_rss_kib": 36388,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "kernel-12-baseline": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 32528,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-12-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24136,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-16-baseline": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.07,
+      "peak_rss_kib": 57084,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-16-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24200,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-19-baseline": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.54,
+      "peak_rss_kib": 175588,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-19-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24304,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-25-baseline": {
+      "verdict": "unsupported",
+      "message": "enumerating SUBSET of a set of more than 24 elements",
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24220,
+      "distinct": null,
+      "generated": null,
+      "depth": null,
+      "left_on_queue": null
+    },
+    "kernel-25-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24000,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-40-baseline": {
+      "verdict": "unsupported",
+      "message": "enumerating SUBSET of a set of more than 24 elements",
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24008,
+      "distinct": null,
+      "generated": null,
+      "depth": null,
+      "left_on_queue": null
+    },
+    "kernel-40-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24096,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-8-baseline": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 24008,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "kernel-8-guard": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24200,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 0
+    }
+  },
+  "replay": "dive validate-trace <module> --config <cfg> --trace <witness> --output json. The 40-message forged trace changes the delivered recipient to 2 on step two. The 140-state failure detector witness and its orphan-age forgery are from 2026-11-21-environment-detector.json.",
+  "notes": "The no-fault comparison uses the original TLA+ with N=3,T=0. The published configuration permits a fault and has a separately validated TypeOK counterexample. These searches address different properties.",
+  "controls_before_independent_review": {
+    "W1-dive": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 21612,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W1-tlc": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 21848,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W4-dive": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 21720,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W4-tlc": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 21724,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "replay-wide": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 25360,
+      "result": "valid",
+      "length": 2,
+      "notes": []
+    },
+    "replay-wide-forged": {
+      "exit": 1,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 25420,
+      "result": "invalid",
+      "length": 2,
+      "notes": []
+    },
+    "replay-published": {
+      "exit": 0,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 39584,
+      "result": "valid",
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ]
+    },
+    "replay-published-forged": {
+      "exit": 1,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 39636,
+      "result": "invalid",
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ]
+    },
+    "counterexample": {
+      "exit": 12,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24316,
+      "verdict": "invariant-violation",
+      "message": null,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 1
+    },
+    "tlc-8": {
+      "exit": 0,
+      "wall_seconds": 0.83,
+      "peak_rss_kib": 95300,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "tlc-19": {
+      "exit": 0,
+      "wall_seconds": 1.23,
+      "peak_rss_kib": 228808,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "tlc-40": {
+      "exit": 0,
+      "wall_seconds": 0.81,
+      "peak_rss_kib": 96388,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "full-safety": {
+      "exit": 0,
+      "wall_seconds": 4.4,
+      "peak_rss_kib": 36308,
+      "verdict": "success",
+      "message": null,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "full-temporal": {
+      "exit": 0,
+      "wall_seconds": 221.01,
+      "peak_rss_kib": 98572,
+      "verdict": "success",
+      "message": null,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    }
+  },
+  "controls": {
+    "W1-dive": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 23964,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W1-tlc": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 23652,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W4-dive": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 23588,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W4-tlc": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24124,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "replay-wide": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24732,
+      "result": "valid",
+      "length": 2,
+      "notes": []
+    },
+    "replay-wide-forged": {
+      "exit": 1,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 25096,
+      "result": "invalid",
+      "length": 2,
+      "notes": []
+    },
+    "replay-published": {
+      "exit": 0,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 38980,
+      "result": "valid",
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ]
+    },
+    "replay-published-forged": {
+      "exit": 1,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 39552,
+      "result": "invalid",
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ]
+    },
+    "counterexample": {
+      "exit": 12,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 23828,
+      "verdict": "invariant-violation",
+      "message": null,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 1
+    },
+    "tlc-8": {
+      "exit": 0,
+      "wall_seconds": 0.92,
+      "peak_rss_kib": 97160,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "tlc-19": {
+      "exit": 0,
+      "wall_seconds": 1.23,
+      "peak_rss_kib": 226752,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "tlc-40": {
+      "exit": 0,
+      "wall_seconds": 0.84,
+      "peak_rss_kib": 89836,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "full-safety": {
+      "exit": 0,
+      "wall_seconds": 4.7,
+      "peak_rss_kib": 36364,
+      "verdict": "success",
+      "message": null,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "full-temporal": {
+      "exit": 0,
+      "wall_seconds": 218.79,
+      "peak_rss_kib": 106164,
+      "verdict": "success",
+      "message": null,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    }
+  },
+  "small_tier_ratchet": {
+    "dive": {
+      "agree": 6,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    },
+    "tlc": {
+      "agree": 6,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    }
+  },
+  "same_cpu_process_repetitions": {
+    "method": "time.perf_counter_ns around a new process including taskset, alternating order in five pairs on logical CPU 2, W1, exact store. Every row checked the verdict and each completed row checked both counts, queue and depth.",
+    "widths": {
+      "8": {
+        "samples_ms": {
+          "baseline": [
+            9.281,
+            8.61,
+            7.967,
+            7.939,
+            7.671
+          ],
+          "power-final": [
+            8.448,
+            7.958,
+            7.989,
+            7.863,
+            7.441
+          ]
+        },
+        "medians_ms": {
+          "baseline": 7.967,
+          "power-final": 7.958
+        },
+        "baseline_verdict": "success",
+        "candidate_verdict": "success"
+      },
+      "12": {
+        "samples_ms": {
+          "baseline": [
+            11.287,
+            12.716,
+            12.5,
+            12.37,
+            11.869
+          ],
+          "power-final": [
+            8.053,
+            7.918,
+            8.515,
+            8.123,
+            8.025
+          ]
+        },
+        "medians_ms": {
+          "baseline": 12.37,
+          "power-final": 8.053
+        },
+        "baseline_verdict": "success",
+        "candidate_verdict": "success"
+      },
+      "16": {
+        "samples_ms": {
+          "baseline": [
+            69.115,
+            68.605,
+            69.476,
+            68.476,
+            68.441
+          ],
+          "power-final": [
+            8.677,
+            7.847,
+            8.63,
+            8.06,
+            8.768
+          ]
+        },
+        "medians_ms": {
+          "baseline": 68.605,
+          "power-final": 8.63
+        },
+        "baseline_verdict": "success",
+        "candidate_verdict": "success"
+      },
+      "19": {
+        "samples_ms": {
+          "baseline": [
+            544.837,
+            546.519,
+            551.044,
+            547.026,
+            548.822
+          ],
+          "power-final": [
+            8.798,
+            8.202,
+            8.723,
+            7.634,
+            8.289
+          ]
+        },
+        "medians_ms": {
+          "baseline": 547.026,
+          "power-final": 8.289
+        },
+        "baseline_verdict": "success",
+        "candidate_verdict": "success"
+      },
+      "25": {
+        "samples_ms": {
+          "baseline": [
+            7.804,
+            7.592,
+            7.209,
+            7.887,
+            7.797
+          ],
+          "power-final": [
+            7.736,
+            7.317,
+            7.519,
+            7.61,
+            7.966
+          ]
+        },
+        "medians_ms": {
+          "baseline": 7.797,
+          "power-final": 7.61
+        },
+        "baseline_verdict": "unsupported",
+        "candidate_verdict": "success"
+      },
+      "40": {
+        "samples_ms": {
+          "baseline": [
+            7.851,
+            7.871,
+            7.563,
+            7.84,
+            7.647
+          ],
+          "power-final": [
+            7.832,
+            7.784,
+            7.854,
+            7.55,
+            7.968
+          ]
+        },
+        "medians_ms": {
+          "baseline": 7.84,
+          "power-final": 7.832
+        },
+        "baseline_verdict": "unsupported",
+        "candidate_verdict": "success"
+      }
+    }
+  },
+  "independent_review": {
+    "checks_unchanged": 98,
+    "intended_wide_improvements": 2,
+    "genuine_trace_probes": 34,
+    "forged_trace_probes": 34,
+    "regressions_fixed": "Canonical records mixing integer and string payloads must validate. A deferred set can hide register reads, writes or randomness in a settled operand; accepting an empty subset must not invoke it. Pinned TLC emitted the x=0 -> x=1 write-provider trace (2 distinct/2 generated). Regression tests exercise both profiles."
+  }
+}

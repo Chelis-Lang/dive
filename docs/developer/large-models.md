@@ -62,7 +62,9 @@ On a single isolated c7i.4xlarge, three instrumented runs of this four-key confi
 
 At **five keys and three transactions**, the installed checker exhausted **571,514,403,867,075 symmetry representatives**, generated **19,613,909,230,737,652**, and checked both original invariants through depth 44. One isolated core took 1,431.39 s and 629 MiB peak RSS. The final diagram used 4,491 nodes. The independent history calculation agrees on both counters and predicts 3,428,937,742,115,475 distinct concrete states with symmetry disabled. [Configuration hash, command and result](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
 
-At **six keys and three transactions** the checker exhausted **539,910,848,473,937,721 symmetry classes**, generated **21,725,268,712,106,423,230** occurrences and reached depth 51. Both original invariants held. The process took **4,578.19 s** and peaked at **1.10 GiB** on a single EC2 logical CPU. The reachable-set diagram had 5,756 nodes. An independent calculation over transaction histories agrees on both integers. The generated count exceeds the range of a 64-bit unsigned integer. The record includes decimal strings for tools that parse JSON numbers as floating point. The same calculation predicts 3,239,447,207,251,422,105 distinct labeled states for the six-key configuration. [Process measurement, independent formula and input hashes](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+At **six keys and three transactions** the checker exhausted **539,910,848,473,937,721 symmetry classes**, generated **21,725,268,712,106,423,230** occurrences and reached depth 51. Both original invariants held. The process took **4,578.19 s** and peaked at **1.10 GiB** on a single EC2 logical CPU. The reachable-set diagram had 5,756 nodes. An independent calculation over transaction histories agrees on both integers. The generated count exceeds the range of a 64-bit unsigned integer. The record includes decimal strings for tools that parse JSON numbers as floating point. Matching complete labeled searches confirmed the predicted **3,239,447,207,251,422,105 distinct states** and **130,350,884,965,021,924,615 generated** at depth 51. Changing only the physical table order on the same source and core cut wall time from **10,696.03 to 4,712.57 s** (2.27×), peak RSS from 1,294,016 to 1,148,068 KiB, and the final reachable diagram from 7,099 to 5,756 nodes. [Paired ordered-layout data](../../conformance/reports/perf/2026-11-21-symbolic-table-orders.json). [Process measurement, independent formula and input hashes](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
+With **seven keys and the same three transactions**, a complete symbolic BFS checked both original invariants through depth 58. It exhausted **503,442,490,368,989,477,835 symmetry classes** and generated **23,247,573,192,708,514,979,356** occurrences in **11,650.37 s** on one EC2 core. Peak RSS was 2,320,664 KiB and the final diagram had 7,021 nodes. Both measured integers match the history calculation. Its separate labeled-state prediction is 3,020,652,793,935,370,219,275. The earlier seven-key run with two transaction slots checks a smaller relation. [Inputs, cap and complete seven-key result](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
 
 For the five-key comparison above, the earlier frontier-only worker exhausted a 7,200 s deadline at 2.13 GiB peak RSS. The smaller-source worker completed in 1,431.39 s. These single-core runs used separate hosts of the same instance type. The stopped worker did not emit counts. [Five-key control](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
 
@@ -82,7 +84,36 @@ and `scripts/symbolic/check_transaction_commit.py` include generated counts,
 depth and a validated negative control. The three-manager property forbidding
 commit fails at depth five, after all three managers prepare.
 
+At **160 managers**, complete ordinary symbolic BFS exhausted roughly **2.185 × 10⁷⁶ concrete labeled states** and **3.496 × 10⁷⁸ generated occurrences**, depth **321**, with **1,271 nodes** in the final diagram. Both exact integers and depth matched the independent formulas. Wall time was **591.76 s**, peak RSS **645,888 KiB**. At 128 managers on the same growth host, the previous and current workers took 181.62 s and 175.85 s on the same core and returned identical counts. Growing from 128 to 160 increased the final diagram from 1,015 to 1,271 nodes, while elapsed time rose by 3.37× across the two current-worker runs. A 192-manager trial stopped at 1,280.05 s and the first 256-manager trial stopped at 2,370.06 s. Neither stop yielded a count or depth. [Exact decimal counts, limits and package identities](../../conformance/reports/perf/2026-11-21-wide-source-induction.json).
+
 A direct source induction check of the original invariants reached **1,000 managers** in **99.01 s**, using **598,416 KiB** peak RSS. This is a proof over a finite domain. The formula above gives roughly **1.322 × 10⁴⁷⁷** reachable states for that domain. The proof returns no search counts or depth. Two independent limits mattered: the previous bit budget rejected 257 managers and Cartesian expansion of the safety property rejected 384 even after widening the layout. At 257 managers the wider Cartesian proof took 15.28 s; compiling the original property into two finite scans took 4.56 s. At 512 managers an action that creates one aborted and other committed managers failed the next-step obligation. At three managers the same edit yielded an independently replayed depth-two counterexample. [Proof measurements, guard controls and source identities](../../conformance/reports/perf/2026-11-21-wide-source-induction.json).
+
+To reproduce the proof, point `model` at `specifications/transaction_commit` in the pinned Examples checkout. The command copies the published configuration and changes only the finite `RM` set.
+
+```sh
+python3 - "$model/TCommit.cfg" 1000 > TCommit1000.cfg <<'PYTHON'
+from pathlib import Path
+import sys
+cfg = Path(sys.argv[1]).read_text()
+old = "RM = {r1, r2, r3}"
+assert cfg.count(old) == 1
+names = ", ".join(f"r{i}" for i in range(1, int(sys.argv[2]) + 1))
+print(cfg.replace(old, "RM = {" + names + "}"), end="")
+PYTHON
+dive check "$model/TCommit.tla" --config TCommit1000.cfg --strategy symbolic \
+  --type-invariant TCTypeOK --prove-inductive --time-limit 150s --max-memory 2700m --output json
+```
+
+### Checking anonymous processes by population
+
+The next reachability experiment targets finite specifications like transaction commit. Each manager has one local status. Exchanging any two names preserves the configured initial states, transition relation and properties. An occupancy vector records how many managers occupy each status. Moving one named manager between statuses gives one step between these vectors. This representation would remove the need to compute a separate image for every manager on every BFS layer. For the original relation, populations without a commit distribute managers among three statuses. Once a manager commits, only prepared and committed managers remain. This gives `binomial(n + 2, 2) + n` reachable occupancy vectors: 33,409 at 256 managers and 502,501 at 1,000. These formula values set targets for the proposed implementation.
+
+Acceptance requires all of the following.
+
+- Derive the finite local states, initial assignments, action guards and updates, and checked properties from the bound source and configuration. Prove invariance under all index permutations being removed and that the initial set contains each complete orbit represented. A distinguished manager, a non-invariant property, an unrepresented correlation with a second table, or an unsupported constraint must select the existing sound path. Explicitly handle configurations requesting symmetry separately from labeled output.
+- For an occupancy vector with counts `c₁,…,cₘ`, its concrete size is `n! / (c₁! ⋯ cₘ!)`. Sum this weight once per reached vector for labeled distinct states. For generated counts, multiply the weight by the number of enabled original action witnesses per concrete state. Preserve multiple choices of owner, duplicate actions, self-loops and initial witnesses even when their destinations coincide. A quotient edge count alone misses these occurrences.
+- Run BFS over the one-step orbit relation. Prove every abstract edge lifts from each represented source to a concrete successor and every original edge projects to an abstract edge. Reconstruct named participants along a shortest violating path and pass the resulting concrete trace to the independent validator.
+- Match the pinned three-manager TLC result and ordinary exact Core on small labeled positive and negative cases, including duplicate witnesses. On larger unmodified TCommit compare **measured** BFS distinct, generated and depth against `3^n + 2^n − 1`, `1 + n(3^n + 2^(n−1))` and `2n + 1`. Demonstrate admission on a second source with different names and transitions, and rejection or safe fallback for the identity-sensitive mutation.
 
 ### Isolated symbolic measurements
 
@@ -239,7 +270,7 @@ The installed `sail runtime symbolic-check` established six-key KVS reachability
 | Require that at most one active transaction can be conflicted | Fresh search found a depth-eight violation of `AtMostOneConflict`. Its trace passed independent validation. | 0.90 s |
 | Add an action that simultaneously puts every transaction into conflict | The saved predicate failed closure. Fresh search found a depth-two violation of `SomeCommit`. The trace validated on the edited action, failed on the earlier relation and failed after replacing its final state. | 0.75 s |
 
-An empty Sail session on the identical six-key `TxIsClean` source and CFG took **4,724.88 s** and peaked at 1,148,804 KiB. It reproduced both counts, depth 51, all three configured invariants and the exact 76,579-byte predicate. The retained check took **0.40 s**, about 11,812× faster than that default empty-session search. For `TxIsClean`, direct `dive check --strategy symbolic --prove-inductive` also succeeded from scratch in 0.30 s. For `SomeCommit`, the saved predicate supplies a stronger fact than the configured invariants. Three paired runs on the identical two-key `SomeCommit` edit took 0.25 s each with a retained predicate and 1.60, 1.55 and 1.55 s with an empty Sail session. Each result above includes process startup. [All control and replay outcomes](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
+An empty Sail session on the identical six-key `TxIsClean` source and CFG took **4,724.88 s** and peaked at 1,148,804 KiB. It reproduced both counts, depth 51, all three configured invariants and the exact 76,579-byte predicate. The retained check took **0.40 s**, about 11,812× faster than that default empty-session search. For `TxIsClean`, direct `dive check --strategy symbolic --prove-inductive` also succeeded from scratch in 0.30 s. The **nonredundant** six-key `SomeCommit` edit took **4,705.53 s** with an empty Sail session and **0.40 s** with the retained predicate, about **11,764×** for the same changed program. Direct induction from its configured invariants alone failed next-step closure. The fresh run checked all three invariants to depth 51, reproduced the counts and generated the byte-identical predicate while peaking at 1,148,912 KiB. Establishing the original candidate cost 4,694.45 s once. Three paired runs on the identical two-key `SomeCommit` edit took 0.25 s each with a retained predicate and 1.60, 1.55 and 1.55 s with an empty Sail session. Each result above includes process startup. [All control and replay outcomes](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
 
 ### Grow the KVS domains with an inductive invariant
 
@@ -666,6 +697,8 @@ two earlier aborts, the search-lifetime pool returned the original configuration
 queued at depth 15. The last three-minute process sample had 34 threads.
 [Full stop, bounded prefix observations and executable digests](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
+The protected main build returned the original three-server model's memory stop in 4,233.80 s at 441,631,904 KiB peak RSS. At depth 15, it counted 2,551,366,745 distinct states and 10,263,198,945 generated, with 1,987,628,575 still queued. The separate four-server `MCetcdraft.cfg` reached its four-hour time limit with 1,554,090,623 distinct states, 8,814,815,144 generated and 1,129,962,521 queued. It took 14,419.85 s including finalization, with 314,817,496 KiB peak RSS. [Original configurations, commands and terminal counters](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
+
 On a 32-physical-core host with a 24 GiB sampled RSS limit, DiskSynod reached 835,858,711 distinct states and 12,639,577,756 generated in 6,500.61 s. It had 144,840,332 states queued at depth 35. BPConProof hit the same budget in 181.95 s with 134,831,096 distinct states. Of those, 134,714,941 were still queued. At 16 workers, BlockingQueuePoisonApple hit 24 GiB during graph capture with 117,440,513 distinct and 569,933,982 generated. At eight workers and 18 GiB, etcdraft reached 94,073,470 distinct before memory stopped it. MCetcdraft instead hit the 900 s time limit at 39,256,817 distinct and 8.89 GiB peak RSS. These runs use different worker counts and budget enforcement from the original cgroup trials. [Per-input commands, limits, binary identities and terminal queues](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
 ### Check the EWD998 ring
@@ -849,6 +882,12 @@ streaming evaluator eliminated the bulk allocation but still tried every
 tuple. During printing, tuple hashing forced the deferred filter through an
 infallible path that could outlast the budget. The normal checker retains
 its original refusal.
+
+## Select messages for one receiver
+
+The released failure detector’s delivery action chooses a subset of the entire in-flight queue, then requires every chosen message to have the requested receiver. Core can now determine which messages pass the leading guard and enumerate their subsets. With one eligible message in a queue of 40, there are two admissible choices including the empty set. The parent checker refused at width 25. At width 19 the median process time across five paired runs was 547.0 ms before and 8.3 ms after the change.
+
+On the unmodified three-process module with faults disabled, ordinary exact Core closed 26,003 distinct states, 104,842 generated and depth 44. The safety-only configuration went from 452.96 s and 208,184 KiB to **4.70 s and 36,364 KiB**, a 96.4× speedup. With both temporal properties enabled the candidate finished in **218.79 s**. The parent finished graph capture but was still in temporal analysis at its 640 s limit. The published configuration permits a fault and has its own independently validated 140-state counterexample. [Configurations, commands, all measurements and replay controls](../../conformance/reports/perf/2026-11-21-guarded-message-subsets.json).
 
 ## Published model sizes and reproducible comparisons
 
