@@ -1,0 +1,279 @@
+{
+  "method": "Each row is one fresh ordinary Core process on a dedicated AWS c7i.4xlarge Intel Xeon Platinum 8488C in us-east-1, CPUs 0\u20137, seed and fingerprint seed 0. Entries are diagnostic timings, not medians. An 18-second cpu-clock sampling window was taken during Elevator Large. Timings are summed across analysis calls, including periodic checks during exploration. MCCRDT generated counts follow registered D-022.",
+  "binary_sha256": "0baf1ffbc8e32d3e9c27b156dfc9f87a328f20f346c072a5eaf1fd143ed21d28",
+  "command": "taskset -c 0-7 dive check MODULE --config CFG --library-path modules --workers W --fp 0 --seed 0 --output json",
+  "rows": [
+    {
+      "config": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+      "module": "specifications/CoffeeCan/CoffeeCan.tla",
+      "requested_workers": 1,
+      "worker_report": null,
+      "wall_s": 8.26,
+      "peak_rss_kib": 228320,
+      "phase_ms": {
+        "atoms": 3770.954,
+        "product": 2485.192
+      },
+      "distinct": 501500,
+      "generated": 2000002,
+      "depth": 1,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+      "module": "specifications/CoffeeCan/CoffeeCan.tla",
+      "requested_workers": 8,
+      "worker_report": {
+        "serial_phases": [
+          "initial-states",
+          "ordered-commit",
+          "temporal-analysis",
+          "trace-validation"
+        ],
+        "width_applies_to": "source-expansion"
+      },
+      "wall_s": 8.28,
+      "peak_rss_kib": 228556,
+      "phase_ms": {
+        "atoms": 3783.927,
+        "product": 2487.064
+      },
+      "distinct": 501500,
+      "generated": 2000002,
+      "depth": 1,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
+      "module": "specifications/FlashProtocol/MCFlashWithMutexLive.tla",
+      "requested_workers": 1,
+      "worker_report": null,
+      "wall_s": 0.88,
+      "peak_rss_kib": 48460,
+      "phase_ms": {
+        "atoms": 651.078,
+        "product": 100.061
+      },
+      "distinct": 8096,
+      "generated": 30196,
+      "depth": 21,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
+      "module": "specifications/FlashProtocol/MCFlashWithMutexLive.tla",
+      "requested_workers": 8,
+      "worker_report": {
+        "serial_phases": [
+          "initial-states",
+          "ordered-commit",
+          "temporal-analysis",
+          "trace-validation"
+        ],
+        "width_applies_to": "source-expansion"
+      },
+      "wall_s": 0.99,
+      "peak_rss_kib": 63000,
+      "phase_ms": {
+        "atoms": 650.098,
+        "product": 100.122
+      },
+      "distinct": 8096,
+      "generated": 30196,
+      "depth": 21,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
+      "module": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.tla",
+      "requested_workers": 1,
+      "worker_report": null,
+      "wall_s": 4.88,
+      "peak_rss_kib": 75000,
+      "phase_ms": {
+        "atoms": 3593.27,
+        "product": 762.314
+      },
+      "distinct": 90882,
+      "generated": 282810,
+      "depth": 54,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
+      "module": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.tla",
+      "requested_workers": 8,
+      "worker_report": {
+        "serial_phases": [
+          "initial-states",
+          "ordered-commit",
+          "temporal-analysis",
+          "trace-validation"
+        ],
+        "width_applies_to": "source-expansion"
+      },
+      "wall_s": 5.02,
+      "peak_rss_kib": 124236,
+      "phase_ms": {
+        "atoms": 3579.727,
+        "product": 768.05
+      },
+      "distinct": 90882,
+      "generated": 282810,
+      "depth": 54,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/FiniteMonotonic/MCCRDT.cfg",
+      "module": "specifications/FiniteMonotonic/MCCRDT.tla",
+      "requested_workers": 1,
+      "worker_report": null,
+      "wall_s": 7.28,
+      "peak_rss_kib": 55360,
+      "phase_ms": {
+        "atoms": 4052.487,
+        "product": 83.411
+      },
+      "distinct": 25000,
+      "generated": 900001,
+      "depth": 16,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/FiniteMonotonic/MCCRDT.cfg",
+      "module": "specifications/FiniteMonotonic/MCCRDT.tla",
+      "requested_workers": 8,
+      "worker_report": {
+        "serial_phases": [
+          "initial-states",
+          "ordered-commit",
+          "temporal-analysis",
+          "trace-validation"
+        ],
+        "width_applies_to": "source-expansion"
+      },
+      "wall_s": 5.96,
+      "peak_rss_kib": 79476,
+      "phase_ms": {
+        "atoms": 4198.33,
+        "product": 83.166
+      },
+      "distinct": 25000,
+      "generated": 900001,
+      "depth": 16,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/Huang/Huang.cfg",
+      "module": "specifications/Huang/Huang.tla",
+      "requested_workers": 1,
+      "worker_report": null,
+      "wall_s": 28.59,
+      "peak_rss_kib": 73168,
+      "phase_ms": {
+        "atoms": 10881.782,
+        "product": 252.564
+      },
+      "distinct": 81256,
+      "generated": 1165101,
+      "depth": 21,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/Huang/Huang.cfg",
+      "module": "specifications/Huang/Huang.tla",
+      "requested_workers": 8,
+      "worker_report": {
+        "serial_phases": [
+          "initial-states",
+          "ordered-commit",
+          "temporal-analysis",
+          "trace-validation"
+        ],
+        "width_applies_to": "source-expansion"
+      },
+      "wall_s": 19.37,
+      "peak_rss_kib": 127512,
+      "phase_ms": {
+        "atoms": 10935.247,
+        "product": 252.395
+      },
+      "distinct": 81256,
+      "generated": 1165101,
+      "depth": 21,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    },
+    {
+      "config": "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg",
+      "module": "specifications/MultiCarElevator/Elevator.tla",
+      "requested_workers": 8,
+      "worker_report": {
+        "serial_phases": [
+          "initial-states",
+          "ordered-commit",
+          "temporal-analysis",
+          "trace-validation"
+        ],
+        "width_applies_to": "source-expansion"
+      },
+      "wall_s": 404.35,
+      "peak_rss_kib": 126696,
+      "phase_ms": {
+        "atoms": 2964.831,
+        "product": 399922.908
+      },
+      "distinct": 50653,
+      "generated": 230899,
+      "depth": 39,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": true
+    },
+    {
+      "config": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+      "module": "specifications/MultiCarElevator/Elevator.tla",
+      "requested_workers": 8,
+      "worker_report": {
+        "serial_phases": [
+          "initial-states",
+          "ordered-commit",
+          "temporal-analysis",
+          "trace-validation"
+        ],
+        "width_applies_to": "source-expansion"
+      },
+      "wall_s": 5.83,
+      "peak_rss_kib": 61028,
+      "phase_ms": {
+        "atoms": 195.86,
+        "product": 5520.205
+      },
+      "distinct": 4122,
+      "generated": 14296,
+      "depth": 36,
+      "pending": 0,
+      "verdict": "success",
+      "perf_sample": false
+    }
+  ]
+}

@@ -58,6 +58,20 @@ in `options.workers`. The `core.temporal_workers` section of multiworker reports
 identifies source expansion. `serial_phases` lists the phases that use one
 thread when reached, including ordered commit and temporal analysis. See [workers and stores](checking.md#workers-and-stores).
 
+In an ordinary Core JSON report, `core.metrics.liveness.analysis_ms` measures
+elapsed milliseconds per serial analysis phase. `atoms` covers labeling states
+and edges, including fairness predicates. `product` covers product-graph
+construction, accepting-cycle search and reconstruction of a candidate word.
+`attribution` measures which properties fail on that word. The report includes
+only phases entered and sums repeated calls across properties and periodic
+checks. A periodic check runs during capture, so its time is already included
+in `core.metrics.explore_ms`. Independent trace replay happens after analysis.
+
+On Elevator Large the product phase took 399.92 of 404.35 seconds. On Huang,
+labeling took 10.94 of 19.37 seconds at eight workers. The
+[phase measurements](../../conformance/reports/perf/2026-11-21-temporal-analysis-phases.json)
+include the matching counts, host, and commands.
+
 Under `--compat=tlc`, temporal capture can use every requested worker when the
 model creates no names beyond its start-up name table. From a source checkout:
 
