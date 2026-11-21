@@ -996,7 +996,7 @@ class SourceModel(FiniteRelation):
                 require(target != self.b.false, "missing predecessor")
         return dict(format="dive-trace", version=1, variables=self.names, states=path[::-1], ending=ending)
 
-    def same_relation(self, other):
+    def same_encoding_and_admission(self, other):
         # The same manager makes equality of Boolean functions exact. Layout
         # includes concrete paths and enum encodings, even on unused fields.
         return (
@@ -1007,11 +1007,50 @@ class SourceModel(FiniteRelation):
             and self.invalid_sources == other.invalid_sources
             and self.constraint == other.constraint
             and self.initial == other.initial
-            and self.initial_generated == other.initial_generated
-            and self.effects == other.effects
             and self.roles == other.roles
             and self.symmetry == other.symmetry
         )
+
+    def same_relation(self, other):
+        return (self.same_encoding_and_admission(other)
+                and self.initial_generated == other.initial_generated
+                and self.effects == other.effects)
+
+    def recheck_effects(self, previous, reached, generated):
+        """Prove equality of all non-stuttering edges and count the new witnesses."""
+        generated += self.initial_generated - previous.initial_generated
+        if self.effects == previous.effects:
+            return generated
+
+        # An effect is a deterministic simultaneous assignment. For each edited
+        # assignment, compare the union of enabling guards on reachable sources.
+        # Adding/removing a self-loop cannot change any shortest-path distance.
+        removed = previous.effects - self.effects
+        added = self.effects - previous.effects
+        affected = {update for _, update in itertools.chain(removed, added)}
+        def enabled(effects):
+            guards = dict.fromkeys(affected, self.b.false)
+            for guard, update in effects:
+                if update in guards:
+                    guards[update] |= guard
+            return guards
+
+        before, after = enabled(previous.effects), enabled(self.effects)
+        for update in affected:
+            changed = reached & ~before[update].equiv(after[update])
+            if changed != self.b.false and any(
+                changed & ~self.b.var(bit).equiv(value) != self.b.false for bit, value in update
+            ):
+                raise ChangedRelation
+
+        # Duplicate witnesses can change the generated count even when every
+        # destination is identical. Symmetry counts representative outdegrees.
+        if self.symmetry:
+            return self.counts(reached, True, self.initial_generated)[1]
+        for sign, effects in ((-1, removed), (1, added)):
+            for (guard, _), multiplicity in effects.items():
+                generated += sign * multiplicity * self.state_count(reached & guard)
+        return generated
 
     def violations(self, states):
         admitted = states & self.constraint
@@ -1037,13 +1076,14 @@ class SourceModel(FiniteRelation):
     def recheck_refined(self, previous):
         if previous is None:
             return self.refined_reachability()
-        if (not hasattr(previous, "refined_result") or not self.same_relation(previous)
+        if (not hasattr(previous, "refined_result") or not self.same_encoding_and_admission(previous)
                 or self.whole_domains != previous.whole_domains
                 or self.missing != previous.missing):
             # Release the old closure before exploring a different relation.
             raise ChangedRelation
 
         reached, depth, distinct, generated = previous.refined_result
+        generated = self.recheck_effects(previous, reached, generated)
         proved = {prop for _, prop in previous.properties}
         added = [prop for _, prop in self.properties if prop not in proved]
         if added:
@@ -1054,11 +1094,11 @@ class SourceModel(FiniteRelation):
                     or any(self.image(reached, guard, parts) & bad != self.b.false
                            for guard, parts in self.actions)):
                 return self.check()
-        if self.doc["check_deadlock"] and not previous.doc["check_deadlock"]:
+        if self.doc["check_deadlock"] and (not previous.doc["check_deadlock"] or self.effects != previous.effects):
             enabled = self.any(guard for guard, _ in self.actions)
             if reached & ~enabled != self.b.false:
                 return self.check()
-        self.refined_result = previous.refined_result
+        self.refined_result = reached, depth, distinct, generated
         return self.success(depth, reached, distinct, generated, True), None
 
     def refined_reachability(self):
