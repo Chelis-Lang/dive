@@ -40,10 +40,13 @@ def compiler(max_memory):
     return rustc
 
 
-def replay(args, candidate_depths):
-    options = [args.module, "--config", args.config, "--compat=tlc", "--seed", "0", "--fp", "0",
-               "--output", "json"]
-    checked = run_helper([args.dive, "check", *options, "--workers", "1", "--store", "exact",
+def options(args):
+    return [args.module, "--config", args.config, "--compat=tlc", "--seed", "0", "--fp", "0",
+            "--output", "json"]
+
+
+def core_witness(args, candidate_depths):
+    checked = run_helper([args.dive, "check", *options(args), "--workers", "1", "--store", "exact",
                           "--exit-codes", "native", "--time-limit", "none", "--max-memory", "none"],
                          "Core witness search", args.max_memory)
     row = json.loads(checked.stdout)
@@ -54,12 +57,16 @@ def replay(args, candidate_depths):
     trace = (row.get("counterexample") or {}).get("trace")
     if not checked.returncode or not depth or not trace or len(trace["states"]) != depth:
         raise RuntimeError(f"Core did not reproduce the compiled finding at its layer ({verdict})")
+    return verdict, trace
+
+
+def validate(args, verdict, trace):
     raw = json.dumps(trace) + "\n"
-    validated = run_helper([args.dive, "validate-trace", *options, "--trace", "/dev/stdin"],
+    validated = run_helper([args.dive, "validate-trace", *options(args), "--trace", "/dev/stdin"],
                            "independent trace replay", args.max_memory, input=raw)
     if validated.returncode or json.loads(validated.stdout).get("result") != "valid":
         raise RuntimeError("independent trace replay did not validate the compiled finding")
-    report = dict(verdict=verdict, depth=depth, ending=trace["ending"], trace_validated=True)
+    report = dict(verdict=verdict, depth=len(trace["states"]), ending=trace["ending"], trace_validated=True)
     if args.trace:
         write_atomic(Path(args.trace), raw.encode("utf-8"))
         report["trace_file"] = args.trace
@@ -68,10 +75,36 @@ def replay(args, candidate_depths):
     return report
 
 
+def decode_rows(document, type_invariant, rows, property_index, manager):
+    model = SourceModel(document, type_invariant, manager, state_bit_limit=63)
+    emitter = Rust(model)
+    states = [
+        {"values": model.decode({name: bool(row & (1 << bit)) for name, bit in emitter.bits.items()})}
+        for row in rows
+    ]
+    return dict(format="dive-trace", version=1, variables=model.names, states=states,
+                ending=dict(kind="invariant", name=model.properties[property_index][0]))
+
+
+def compiled_witness(args, binary, document, depth, property_index):
+    result = run_helper([binary, "witness", str(depth), str(property_index)],
+                        "compiled witness search", args.max_memory)
+    if result.returncode:
+        raise RuntimeError(result.stderr.strip().removeprefix("Error: "))
+    rows = json.loads(result.stdout)["rows"]
+    if len(rows) != depth:
+        raise RuntimeError("compiled witness search returned a path at a different layer")
+    manager = cudd.BDD(memory_estimate=512 << 20)
+    try:
+        return decode_rows(document, args.type_invariant, rows, property_index, manager)
+    finally:
+        gc.collect()
+
+
 def emit_worker(document, type_invariant, template, manager):
     model = SourceModel(document, type_invariant, manager, state_bit_limit=63)
     emitter = Rust(model)
-    text = emitter.emit(template)
+    text = emitter.emit(template, witness=True)
     return text, emitter.metadata
 
 
@@ -90,7 +123,8 @@ def run(args):
     exported = run_helper([args.exporter, args.module, args.config], "Dive frontend", args.max_memory)
     require(exported.returncode == 0, "Dive frontend: " + exported.stderr.strip())
     template = Path(__file__).with_name("packed_worker.rs.in").read_text()
-    text, layout = lower(json.loads(exported.stdout), args.type_invariant, template)
+    document = json.loads(exported.stdout)
+    text, layout = lower(document, args.type_invariant, template)
     folder = Path(args.scratch)
     source = folder / "worker.rs"
     binary = folder / "worker"
@@ -115,8 +149,17 @@ def run(args):
         raise RuntimeError(f"unexpected compiled checker status {searched.returncode}")
     result = json.loads(searched.stdout)
     if searched.returncode == 5:
-        row = replay(args, {"invariant-violation": result["invariant_depth"],
-                            "deadlock": result["deadlock_depth"]})
+        started = time.monotonic()
+        property_index = result["property_index"]
+        if property_index is not None and not result["deadlock_depth"]:
+            trace = compiled_witness(args, binary, document, result["invariant_depth"], property_index)
+            verdict, method = "invariant-violation", "compiled"
+        else:
+            verdict, trace = core_witness(args, {"invariant-violation": result["invariant_depth"],
+                                                 "deadlock": result["deadlock_depth"]})
+            method = "core"
+        row = validate(args, verdict, trace)
+        row.update(witness_strategy=method, witness_seconds=round(time.monotonic() - started, 6))
     else:
         row = dict(verdict="success", left_on_queue=0, **result)
     row.update(workers_requested=args.workers, state_bits=layout["width"],

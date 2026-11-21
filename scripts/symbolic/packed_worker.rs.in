@@ -12,6 +12,7 @@ const ROLES: usize = @ROLES@;
 const LANE: u32 = @LANE@;
 const CHECK_DEADLOCK: bool = @CHECK_DEADLOCK@;
 const INITIAL_GENERATED: u64 = @INITIAL_GENERATED@;
+const INITIALS: &[Row] = &[@INITIALS@];
 const MEMBERSHIP_BITS: usize = @MEMBERSHIP_BITS@;
 const INVALID: u16 = u16::MAX;
 const FIXED_SPACE: usize = @FIXED_SPACE@;
@@ -77,15 +78,35 @@ fn identity(row: Row) -> Option<(Row, usize)> {
 }
 
 #[inline]
-fn holds(row: Row) -> bool {
+fn failed_property(row: Row) -> Option<usize> {
     @PROPERTIES@
+    None
+}
+
+#[inline]
+fn successors(row: Row, mut emit: impl FnMut(Row)) {
+    @EXPAND@
+}
+
+#[inline]
+fn mark(seen: &[AtomicU64], rank: usize) -> bool {
+    let word = &seen[rank / 64];
+    let mask = 1_u64 << (rank % 64);
+    word.load(Relaxed) & mask == 0 && word.fetch_or(mask, Relaxed) & mask == 0
+}
+
+fn found(left: Option<usize>, right: Option<usize>) -> Option<usize> {
+    match (left, right) {
+        (Some(a), Some(b)) if a != b => Some(usize::MAX),
+        _ => left.or(right),
+    }
 }
 
 struct Search<'a> {
     seen: &'a [AtomicU64],
     next: Vec<Row>,
     generated: u64,
-    invariant: bool,
+    invariant: Option<usize>,
     deadlock: bool,
     rank_error: bool,
 }
@@ -97,29 +118,29 @@ impl Search<'_> {
         let Some((key, rank)) = identity(row) else {
             // Projections cover every state satisfying all configured
             // invariants. A missing rank can still be a real finding.
-            let valid = holds(row);
-            self.invariant |= !valid;
-            self.rank_error |= valid;
+            let failure = failed_property(row);
+            self.invariant = found(self.invariant, failure);
+            self.rank_error |= failure.is_none();
             return;
         };
-        let word = &self.seen[rank / 64];
-        let mask = 1_u64 << (rank % 64);
-        if word.load(Relaxed) & mask != 0 || word.fetch_or(mask, Relaxed) & mask != 0 {
+        if !mark(self.seen, rank) {
             return;
         }
-        self.invariant |= !holds(row);
+        if let Some(property) = failed_property(row) {
+            self.invariant = found(self.invariant, Some(property));
+        }
         self.next.push(key);
     }
 
     fn expand(&mut self, row: Row) {
         let before = self.generated;
-        @EXPAND@
+        successors(row, |row| self.emit(row));
         self.deadlock |= CHECK_DEADLOCK && self.generated == before;
     }
 
     fn absorb(&mut self, mut other: Self) {
         self.generated += other.generated;
-        self.invariant |= other.invariant;
+        self.invariant = found(self.invariant, other.invariant);
         self.deadlock |= other.deadlock;
         self.rank_error |= other.rank_error;
         if self.next.is_empty() {
@@ -131,17 +152,18 @@ impl Search<'_> {
 }
 
 fn expand<'a>(seen: &'a [AtomicU64], rows: &[Row], next: Vec<Row>) -> Search<'a> {
-    let mut search = Search { seen, next, generated: 0, invariant: false, deadlock: false, rank_error: false };
+    let mut search = Search { seen, next, generated: 0, invariant: None, deadlock: false, rank_error: false };
     for &row in rows {
         search.expand(row);
     }
     search
 }
 
-fn finding(invariant: bool, invariant_depth: u32, deadlock: bool, deadlock_depth: u32) {
-    let invariant = if invariant { invariant_depth } else { 0 };
+fn finding(property: Option<usize>, invariant_depth: u32, deadlock: bool, deadlock_depth: u32) {
+    let invariant = if property.is_some() { invariant_depth } else { 0 };
     let deadlock = if deadlock { deadlock_depth } else { 0 };
-    println!("{{\"invariant_depth\":{invariant},\"deadlock_depth\":{deadlock}}}");
+    let property = property.filter(|p| *p != usize::MAX).map_or("null".to_owned(), |p| p.to_string());
+    println!("{{\"invariant_depth\":{invariant},\"deadlock_depth\":{deadlock},\"property_index\":{property}}}");
 }
 
 fn rank_error() -> ExitCode {
@@ -149,25 +171,27 @@ fn rank_error() -> ExitCode {
     ExitCode::from(6)
 }
 
-fn main() -> ExitCode {
-    let Some(workers @ 1..=8) = std::env::args().nth(1).and_then(|s| s.parse::<usize>().ok()) else {
-        return ExitCode::from(3);
-    };
+fn new_seen() -> Option<Vec<AtomicU64>> {
     let bitset_words = MEMBERSHIP_BITS.div_ceil(64);
     let mut seen = Vec::new();
-    if seen.try_reserve_exact(bitset_words).is_err() {
-        return ExitCode::from(4);
-    }
+    seen.try_reserve_exact(bitset_words).ok()?;
     seen.resize_with(bitset_words, || AtomicU64::new(0));
+    Some(seen)
+}
+
+fn search(workers: usize) -> ExitCode {
+    let Some(seen) = new_seen() else {
+        return ExitCode::from(4);
+    };
     let mut wave = expand(&seen, &[], Vec::new());
-    for row in [@INITIALS@] {
+    for &row in INITIALS {
         wave.emit(row);
     }
     if wave.rank_error {
         return rank_error();
     }
-    if wave.invariant {
-        finding(true, 1, false, 0);
+    if wave.invariant.is_some() {
+        finding(wave.invariant, 1, false, 0);
         return ExitCode::from(5);
     }
     let mut current = wave.next;
@@ -202,7 +226,7 @@ fn main() -> ExitCode {
         if wave.rank_error {
             return rank_error();
         }
-        if wave.invariant || wave.deadlock {
+        if wave.invariant.is_some() || wave.deadlock {
             finding(wave.invariant, depth + 1, wave.deadlock, depth);
             return ExitCode::from(5);
         }
@@ -214,4 +238,86 @@ fn main() -> ExitCode {
     }
     println!("{{\"generated\":{generated},\"distinct\":{distinct},\"depth\":{depth},\"initial_generated\":{INITIAL_GENERATED},\"workers_used\":{used}}}");
     ExitCode::SUCCESS
+}
+
+// The first pass proves the finding layer without storing predecessors. On
+// demand, visit each orbit again but expand the concrete row that discovered
+// it. The rank is used only for membership. Each predecessor edge is then an
+// actual transition of the encoded model, even under symmetry.
+fn witness(depth: usize, property: usize) -> ExitCode {
+    // Replay is serial. A zeroed integer bitmap can use demand-zero pages
+    // and needs no atomic admissions while retaining the same exact ranks.
+    let mut seen = vec![0_u64; MEMBERSHIP_BITS.div_ceil(64)];
+    let mut nodes: Vec<(Row, usize)> = Vec::new();
+    let root = usize::MAX;
+    let mut start = 0;
+    let mut end = 0;
+    for layer in 1..=depth {
+        let mut terminal = None;
+        let mut bad_rank = false;
+        let mut visit = |nodes: &mut Vec<_>, row, parent| {
+            if layer == depth {
+                if terminal.is_none() && failed_property(row) == Some(property) {
+                    terminal = Some((row, parent));
+                }
+            } else if let Some((_, rank)) = identity(row) {
+                let word = &mut seen[rank / 64];
+                let mask = 1_u64 << (rank % 64);
+                if *word & mask == 0 {
+                    *word |= mask;
+                    nodes.push((row, parent));
+                }
+            } else {
+                bad_rank = true;
+            }
+            terminal.is_some()
+        };
+        if layer == 1 {
+            for &row in INITIALS {
+                visit(&mut nodes, row, root);
+            }
+        } else {
+            for parent in start..end {
+                let row = nodes[parent].0;
+                let mut finished = false;
+                successors(row, |row| finished |= visit(&mut nodes, row, parent));
+                if finished {
+                    break;
+                }
+            }
+        }
+        if bad_rank {
+            return rank_error();
+        }
+        if let Some((row, mut parent)) = terminal {
+            let mut rows = vec![row];
+            while parent != root {
+                let (row, predecessor) = nodes[parent];
+                rows.push(row);
+                parent = predecessor;
+            }
+            rows.reverse();
+            println!("{{\"rows\":{rows:?}}}");
+            return ExitCode::SUCCESS;
+        }
+        start = end;
+        end = nodes.len();
+    }
+    eprintln!("Error: compiled witness search did not reproduce its finding layer");
+    ExitCode::from(7)
+}
+
+fn main() -> ExitCode {
+    let args: Vec<_> = std::env::args().skip(1).collect();
+    match args.as_slice() {
+        [workers] => match workers.parse() {
+            Ok(workers @ 1..=8) => search(workers),
+            _ => ExitCode::from(3),
+        },
+        [mode, depth, property] if mode == "witness" => match (depth.parse(), property.parse()) {
+            (Ok(depth @ 1..), Ok(property)) => witness(depth, property),
+            _ => ExitCode::from(3),
+        },
+        _ => ExitCode::from(3),
+    }
 }
