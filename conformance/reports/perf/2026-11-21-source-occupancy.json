@@ -724,6 +724,27 @@
           "result": "invalid",
           "length": 2,
           "failed_check": "init"
+        },
+        "F4096-valid": {
+          "exit": 0,
+          "wall_s": 931.86,
+          "peak_rss_kib": 64836,
+          "result": "valid",
+          "length": 2
+        },
+        "F4096": {
+          "exit": 1,
+          "wall_s": 917.75,
+          "peak_rss_kib": 64952,
+          "verdict": "invariant-violation",
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "depth": 2,
+          "trace_validated": true,
+          "trace_sha256": "0438016ffb3b9753973fcb977306f159d178723a6eb4387ce3e4f480af4c6720",
+          "trace_bytes": 268329
         }
       },
       "independently_constructed_word_sha256": "0438016ffb3b9753973fcb977306f159d178723a6eb4387ce3e4f480af4c6720"

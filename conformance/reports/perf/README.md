@@ -31,6 +31,8 @@ guard experiment. [Results and interpretation](../../../docs/internal/survey/ver
 
 The [guarded message subset measurements](2026-11-21-guarded-message-subsets.json) compare native Core and TLC on the published delivery action, the full three-process no-fault model, and independently replayed counterexamples.
 
+The [exact population searches](2026-11-21-source-occupancy.json) cover both labeled counts and BFS depth for the original TCommit at 3 through 8,192 managers, a separate cyclic source, and replayed/tampered counterexamples. The [ordinary BDD and induction record](2026-11-21-wide-source-induction.json) includes the matched 256-manager closed graph.
+
 ## 0.1.0 release records
 
 | File | Family | Question | Source | Host |
