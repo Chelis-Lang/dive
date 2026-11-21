@@ -560,6 +560,25 @@ Time and memory budget stops are recorded as `timeout` findings, with the
 resource retained in the document; neither is an unsupported feature or a
 successful observation.
 
+## Simulation study
+
+`study simulate [--tier all] [--filter GLOB]... [--seeds 10] [--traces 10]
+[--timeout S] [--dive-bin PATH] [--out FILE]` runs `dive simulate` and the
+pinned TLC `-simulate` on each selected configuration, at depth 100, with the
+same trace count and seeds `0..seeds`. Per configuration it records the
+verdict class counts of both tools, the independent validation of every
+deciding dive trace, and, for each temporal property, how many traces
+checked it with and without `--liveness-extend` (seed 0). The outcome is one
+of `agree`, `agree-with-simulator` (dive and TLC's simulator agree on a class
+other than the golden's, such as a deadlock cut by a `CONSTRAINT`),
+`tlc-contradicts-golden`, `registered-divergence`, `unsupported`,
+`oracle-error`, `budget`, `out-of-scope`, or a finding: `invalid` (a trace
+that did not validate), `class-mismatch` (a dive class that neither the
+golden nor TLC's simulator reports) and `coverage-gap` (TLC's simulator
+reports a class in at least 9 of 10 seeds that dive's does not). The command
+exits 1 on a finding. It is not a gate: samples differ between the tools, so
+counts are not compared.
+
 ## Deep frontend campaigns
 
 The deep workflow has a separate deterministic mutation/SANY-case job. Its

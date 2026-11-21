@@ -567,7 +567,11 @@ impl DiveImplementation {
             "--engine".as_ref(),
             self.engine.name().as_ref(),
         ];
-        if model.features.iter().any(|f| f == "constructive generation") {
+        if model
+            .features
+            .iter()
+            .any(|f| f == "constructive generation")
+        {
             extra.push("--generate".as_ref());
         }
         if let Some(extend) = params.extend {
@@ -606,8 +610,28 @@ impl DiveImplementation {
                 .map(|l| l.chars().take(200).collect());
             return Ok(run);
         };
-        run.message = value["message"].as_str().map(|m| m.chars().take(200).collect());
-        for p in value["statistics"]["properties"].as_array().into_iter().flatten() {
+        self.read_study_report(corpus_root, model, params.seed, &value, &mut run);
+        Ok(run)
+    }
+
+    /// Fills `run` from a parsed `dive simulate` report, validating the
+    /// deciding trace of a violation.
+    fn read_study_report(
+        &self,
+        corpus_root: &std::path::Path,
+        model: &crate::corpus::ModelEntry,
+        seed: i64,
+        value: &Value,
+        run: &mut StudyRun,
+    ) {
+        run.message = value["message"]
+            .as_str()
+            .map(|m| m.chars().take(200).collect());
+        for p in value["statistics"]["properties"]
+            .as_array()
+            .into_iter()
+            .flatten()
+        {
             if p["part"] == "temporal" {
                 run.temporal.push((
                     p["name"].as_str().unwrap_or_default().to_owned(),
@@ -616,7 +640,9 @@ impl DiveImplementation {
                 ));
             }
         }
-        let code = value["tlc_code"].as_i64().and_then(|c| i32::try_from(c).ok());
+        let code = value["tlc_code"]
+            .as_i64()
+            .and_then(|c| i32::try_from(c).ok());
         let verdict = match value["result"].as_str().unwrap_or_default() {
             "sampled" => Some(Verdict::Success),
             "violation" | "evaluation-error" => Some(
@@ -627,12 +653,15 @@ impl DiveImplementation {
             _ => None,
         };
         let Some(verdict) = verdict else {
-            run.class = value["result"].as_str().unwrap_or("unclassified").to_owned();
-            return Ok(run);
+            value["result"]
+                .as_str()
+                .unwrap_or("unclassified")
+                .clone_into(&mut run.class);
+            return;
         };
         verdict.as_str().clone_into(&mut run.class);
         if value["result"] != "violation" {
-            return Ok(run);
+            return;
         }
         let claim = &value["observed_violation"];
         run.property = claim["name"].as_str().map(str::to_owned);
@@ -643,13 +672,12 @@ impl DiveImplementation {
             .and_then(|i| value["traces"].as_array()?.get(i));
         run.validation = Some(match deciding.map(|t| &t["document"]) {
             Some(document) if !document.is_null() => {
-                self.validate_study_word(corpus_root, model, params.seed, document)
+                self.validate_study_word(corpus_root, model, seed, document)
             }
-            _ => crate::trace_check::TraceCheck::no(
-                "the report carries no deciding trace document",
-            ),
+            _ => {
+                crate::trace_check::TraceCheck::no("the report carries no deciding trace document")
+            }
         });
-        Ok(run)
     }
 
     fn validate_study_word(
@@ -682,7 +710,9 @@ impl DiveImplementation {
         let report = if doc.ending == Some(Ending::Deadlock) {
             match spec.try_validate_sample(&doc) {
                 Ok(report) => report,
-                Err(e) => return TraceCheck::no(format!("independent validation interrupted: {e}")),
+                Err(e) => {
+                    return TraceCheck::no(format!("independent validation interrupted: {e}"));
+                }
             }
         } else {
             spec.validate(&doc)

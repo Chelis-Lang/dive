@@ -71,7 +71,10 @@ impl Outcome {
     /// Whether this outcome is a finding.
     #[must_use]
     pub fn finding(self) -> bool {
-        matches!(self, Self::Invalid | Self::ClassMismatch | Self::CoverageGap)
+        matches!(
+            self,
+            Self::Invalid | Self::ClassMismatch | Self::CoverageGap
+        )
     }
 }
 
@@ -168,17 +171,26 @@ impl Report {
     /// # Errors
     /// Serialization or filesystem failure.
     pub fn write(&self, path: &Path) -> Result<()> {
-        let fail = |e: serde_json::Error| Error::Config(format!("cannot serialize simulation study: {e}"));
+        let fail =
+            |e: serde_json::Error| Error::Config(format!("cannot serialize simulation study: {e}"));
         let mut header = serde_json::to_value(self).map_err(fail)?;
         if let Some(map) = header.as_object_mut() {
             map.remove("rows");
         }
         let header = serde_json::to_string_pretty(&header).map_err(fail)?;
-        let mut text = header.trim_end().trim_end_matches('}').trim_end().to_owned();
+        let mut text = header
+            .trim_end()
+            .trim_end_matches('}')
+            .trim_end()
+            .to_owned();
         text.push_str(",\n  \"rows\": [\n");
         for (i, row) in self.rows.iter().enumerate() {
             let sep = if i + 1 == self.rows.len() { "" } else { "," };
-            let _ = writeln!(text, "    {}{sep}", serde_json::to_string(row).map_err(fail)?);
+            let _ = writeln!(
+                text,
+                "    {}{sep}",
+                serde_json::to_string(row).map_err(fail)?
+            );
         }
         text.push_str("  ]\n}\n");
         if let Some(parent) = path.parent() {
@@ -225,7 +237,9 @@ struct TlcRun {
 /// Fails on harness errors (pins, cache, processes); model outcomes are rows.
 pub fn run(config: &Config, cache: &Cache, opts: &Options) -> Result<Report> {
     if opts.seeds == 0 || opts.traces == 0 {
-        return Err(Error::Usage("study simulate needs positive --seeds and --traces".into()));
+        return Err(Error::Usage(
+            "study simulate needs positive --seeds and --traces".into(),
+        ));
     }
     let oracle = config.oracles.oracle(&opts.oracle)?;
     let java = Java::resolve(config, cache, opts.java.as_deref())?;
@@ -322,7 +336,9 @@ fn study_model(
         return Ok(row);
     }
     let path = crate::golden::model_golden_path(golden_root, &opts.oracle, &opts.corpus, &m.id);
-    let golden = crate::golden::read_model_golden(&path).ok().map(|g| g.result);
+    let golden = crate::golden::read_model_golden(&path)
+        .ok()
+        .map(|g| g.result);
     row.golden = golden.as_ref().map(|g| {
         (
             g.verdict.as_str().to_owned(),
@@ -335,7 +351,15 @@ fn study_model(
     // A refusal, CLI error or budget stop decides the row at its first
     // seed, so later seeds of that tool are not run.
     let stops = |class: &str| {
-        matches!(class, "unsupported" | "cli-error" | "timeout" | "resource-limit" | "oracle-error" | "unclassified")
+        matches!(
+            class,
+            "unsupported"
+                | "cli-error"
+                | "timeout"
+                | "resource-limit"
+                | "oracle-error"
+                | "unclassified"
+        )
     };
     for seed in 0..opts.seeds {
         let params = StudyParams {
@@ -384,7 +408,13 @@ fn study_model(
         cfg.lines()
             .any(|l| matches!(l.split_whitespace().next(), Some("VIEW" | "SYMMETRY")))
     });
-    summarize(&mut row, &dive_runs, &tlc_runs, golden.map(|g| g.verdict), quotient);
+    summarize(
+        &mut row,
+        &dive_runs,
+        &tlc_runs,
+        golden.map(|g| g.verdict),
+        quotient,
+    );
     Ok(row)
 }
 
@@ -438,14 +468,43 @@ fn median(mut v: Vec<u64>) -> u64 {
 const BUDGET: [&str; 2] = ["timeout", "resource-limit"];
 const ORACLE_FAILURE: [&str; 3] = ["oracle-error", "unclassified", "resource-limit"];
 
-fn summarize(
-    row: &mut Row,
-    dive: &[StudyRun],
-    tlc: &[TlcRun],
-    golden: Option<Verdict>,
+/// The outcome when TLC's simulator reports `class` in nearly every seed
+/// and dive's seed 0 does not.
+fn simulator_class(
+    row: &Row,
+    class: &str,
+    golden: Option<&str>,
+    dive_class: &str,
     quotient: bool,
-) {
-    let success = Verdict::Success.as_str();
+) -> (Outcome, String) {
+    if golden.is_some() && golden != Some(class) {
+        (
+            Outcome::TlcContradictsGolden,
+            format!(
+                "TLC simulate reports {class}, which the exhaustive golden ({}) does not; dive seed 0 reports {dive_class}",
+                golden.unwrap_or_default(),
+            ),
+        )
+    } else if class == Verdict::LivenessViolation.as_str() && quotient {
+        (
+            Outcome::RegisteredDivergence,
+            format!(
+                "D-037: TLC closes loops on VIEW or symmetric fingerprints; dive closes them only on equal states and reports {dive_class}"
+            ),
+        )
+    } else {
+        (
+            Outcome::CoverageGap,
+            format!(
+                "TLC simulate reports {class} in {:?}; dive seed 0 reports {dive_class}",
+                row.tlc
+            ),
+        )
+    }
+}
+
+/// Counts each tool's classes, properties and validations into `row`.
+fn tally(row: &mut Row, dive: &[StudyRun], tlc: &[TlcRun]) {
     for r in dive {
         *row.dive.entry(r.class.clone()).or_default() += 1;
         if let Some(p) = &r.property
@@ -470,14 +529,31 @@ fn summarize(
         median(dive.iter().map(|r| r.elapsed_ms).collect()),
         median(tlc.iter().map(|r| r.elapsed_ms).collect()),
     );
+}
+
+fn summarize(
+    row: &mut Row,
+    dive: &[StudyRun],
+    tlc: &[TlcRun],
+    golden: Option<Verdict>,
+    quotient: bool,
+) {
+    tally(row, dive, tlc);
+    let success = Verdict::Success.as_str();
     let golden = golden.map(Verdict::as_str);
     let first = &dive[0];
     let (outcome, detail) = if let Some(r) = dive.iter().find(|r| r.class == "unsupported") {
         (Outcome::Unsupported, r.message.clone().unwrap_or_default())
-    } else if let Some(r) = dive.iter().find(|r| r.validation.as_ref().is_some_and(|v| v.refuted)) {
+    } else if let Some(r) = dive
+        .iter()
+        .find(|r| r.validation.as_ref().is_some_and(|v| v.refuted))
+    {
         (
             Outcome::Invalid,
-            r.validation.as_ref().map(|v| v.detail.clone()).unwrap_or_default(),
+            r.validation
+                .as_ref()
+                .map(|v| v.detail.clone())
+                .unwrap_or_default(),
         )
     } else if let Some(r) = dive
         .iter()
@@ -485,12 +561,19 @@ fn summarize(
     {
         (
             Outcome::ValidationPending,
-            r.validation.as_ref().map(|v| v.detail.clone()).unwrap_or_default(),
+            r.validation
+                .as_ref()
+                .map(|v| v.detail.clone())
+                .unwrap_or_default(),
         )
     } else if let Some(r) = dive.iter().find(|r| BUDGET.contains(&r.class.as_str())) {
         (
             Outcome::Budget,
-            format!("dive {}: {}", r.class, r.message.clone().unwrap_or_default()),
+            format!(
+                "dive {}: {}",
+                r.class,
+                r.message.clone().unwrap_or_default()
+            ),
         )
     } else if dive.iter().any(|r| r.class == "cli-error") {
         (
@@ -502,18 +585,23 @@ fn summarize(
                     .unwrap_or_default()
             ),
         )
-    } else if let Some(r) = tlc.iter().find(|r| ORACLE_FAILURE.contains(&r.class.as_str()) || r.class == "timeout") {
-        (Outcome::OracleError, format!("TLC {}", r.class))
-    } else if let Some(r) = dive
+    } else if let Some(r) = tlc
         .iter()
-        .find(|r| r.class != success && Some(r.class.as_str()) != golden && !row.tlc.contains_key(&r.class))
+        .find(|r| ORACLE_FAILURE.contains(&r.class.as_str()) || r.class == "timeout")
     {
+        (Outcome::OracleError, format!("TLC {}", r.class))
+    } else if let Some(r) = dive.iter().find(|r| {
+        r.class != success && Some(r.class.as_str()) != golden && !row.tlc.contains_key(&r.class)
+    }) {
         (
             Outcome::ClassMismatch,
             format!(
                 "dive reports {} {}; golden {golden:?}; TLC simulate {:?}",
                 r.class,
-                r.message.clone().or_else(|| r.property.clone()).unwrap_or_default(),
+                r.message
+                    .clone()
+                    .or_else(|| r.property.clone())
+                    .unwrap_or_default(),
                 row.tlc
             ),
         )
@@ -522,36 +610,17 @@ fn summarize(
             && f64::from(**n) >= COVERAGE_SEEDS * f64::from(u32::try_from(tlc.len()).unwrap_or(1))
             && first.class != **c
     }) {
-        if golden.is_some() && golden != Some(class.as_str()) {
-            (
-                Outcome::TlcContradictsGolden,
-                format!(
-                    "TLC simulate reports {class}, which the exhaustive golden ({}) does not; dive seed 0 reports {}",
-                    golden.unwrap_or_default(),
-                    first.class
-                ),
-            )
-        } else if class == Verdict::LivenessViolation.as_str() && quotient {
-            (
-                Outcome::RegisteredDivergence,
-                format!(
-                    "D-037: TLC closes loops on VIEW or symmetric fingerprints; dive closes them only on equal states and reports {}",
-                    first.class
-                ),
-            )
-        } else {
-            (
-                Outcome::CoverageGap,
-                format!("TLC simulate reports {class} in {:?}; dive seed 0 reports {}", row.tlc, first.class),
-            )
-        }
+        simulator_class(row, class, golden, &first.class, quotient)
     } else if dive
         .iter()
         .any(|r| r.class != success && Some(r.class.as_str()) != golden)
     {
         (
             Outcome::AgreeWithSimulator,
-            format!("golden {golden:?}; both simulators report {:?}", row.dive.keys().collect::<Vec<_>>()),
+            format!(
+                "golden {golden:?}; both simulators report {:?}",
+                row.dive.keys().collect::<Vec<_>>()
+            ),
         )
     } else {
         (Outcome::Agree, String::new())

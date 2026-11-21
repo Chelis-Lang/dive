@@ -1,0 +1,2281 @@
+{
+ "schema": 1,
+ "purpose": "dive simulate result and refusal histogram over every pinned Examples configuration; after S1 to S6 (ADR 0162)",
+ "source": "702124a7 with the S4 changes (TLCGet of -Dtlc2.tool.impl.Tool.cdot in simulation)",
+ "examples_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+ "command": "dive simulate FILE --config CFG --traces 10 --depth 100 --seed 0 --time-limit 30s --max-memory 4g --output json",
+ "configs": 235,
+ "histogram": {
+  "sampled": 191,
+  "evaluation-error": 14,
+  "violation": 14,
+  "cli-error": 3,
+  "stopped": 2,
+  "unsupported: validation: action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail succe": 2,
+  "unsupported: CSV!CSVRecords": 2,
+  "unsupported: the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env": 2,
+  "unsupported: TLC!TLCSet: simulation runtime effect is unsupported": 1,
+  "unsupported: the standard operator Randomization!RandomSubset": 1,
+  "unsupported: the start-up evaluation of CSVFile: TLC!JavaTime: simulation runtime effect is unsupported": 1,
+  "no-module": 1,
+  "unsupported: the standard operator Bits!And": 1
+ },
+ "config_keys": {
+  "any of PROPERTY, SYMMETRY, VIEW, ALIAS": 113,
+  "PROPERTY": 97,
+  "CONSTRAINT": 28,
+  "SYMMETRY": 16,
+  "ALIAS": 10,
+  "VIEW": 6,
+  "POSTCONDITION": 2,
+  "ACTION_CONSTRAINT": 2
+ },
+ "rows": [
+  {
+   "config": "specifications/Bakery-Boulangerie/MCBakery.cfg",
+   "module": "specifications/Bakery-Boulangerie/MCBakery.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/Bakery-Boulangerie/MCBoulanger.cfg",
+   "module": "specifications/Bakery-Boulangerie/MCBoulanger.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT"
+   ]
+  },
+  {
+   "config": "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg",
+   "module": "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg",
+   "module": "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_3/MC.cfg",
+   "module": "specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_3/MC.tla",
+   "result": "evaluation-error",
+   "message": "Evaluating assumption line 20, col 8 to line 20, col 65 of module MC failed.\n@!@!@STARTMSG 2154:0 @!@!@\nAttempted to apply the operator overridden by the Java method\npublic static tlc2.value.impl.Value tlc2.module.TLC.PrintT(tlc2.value.impl.Value),\nbut it produced the following error:\nThe set\n[1..5 -> 1..121]\nhas 25937424601 elements, more than dive enumerates (2147483647).\n@!@!@ENDMSG 2154 @!@!@",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/Chameneos/Chameneos.cfg",
+   "module": "specifications/Chameneos/Chameneos.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/CheckpointCoordination/MCCheckpointCoordination.cfg",
+   "module": "specifications/CheckpointCoordination/MCCheckpointCoordination.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg",
+   "module": "specifications/CheckpointCoordination/MCCheckpointCoordination.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/CigaretteSmokers/APCigaretteSmokers.cfg",
+   "module": "specifications/CigaretteSmokers/APCigaretteSmokers.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/CigaretteSmokers/CigaretteSmokers.cfg",
+   "module": "specifications/CigaretteSmokers/CigaretteSmokers.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/CoffeeCan/APCoffeeCan.cfg",
+   "module": "specifications/CoffeeCan/APCoffeeCan.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+   "module": "specifications/CoffeeCan/CoffeeCan.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/CoffeeCan/CoffeeCan100Beans.cfg",
+   "module": "specifications/CoffeeCan/CoffeeCan.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/CoffeeCan/CoffeeCan3000Beans.cfg",
+   "module": "specifications/CoffeeCan/CoffeeCan.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/DieHard/APDieHarder.cfg",
+   "module": "specifications/DieHard/APDieHarder.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/DieHard/DieHard.cfg",
+   "module": "specifications/DieHard/DieHard.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": []
+  },
+  {
+   "config": "specifications/DieHard/MCDieHarder.cfg",
+   "module": "specifications/DieHard/MCDieHarder.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/DieHard/MCDieHardest.cfg",
+   "module": "specifications/DieHard/MCDieHardest.tla",
+   "result": "unsupported",
+   "message": "TLC!TLCSet: simulation runtime effect is unsupported",
+   "exit": 3,
+   "keys": [],
+   "assessment": {
+    "kind": "correct",
+    "reason": "TLCSet registers are run state shared across traces; simulation refuses them by design (ADR 0162) rather than give results that depend on trace order"
+   }
+  },
+  {
+   "config": "specifications/DiningPhilosophers/APDiningPhilosophers.cfg",
+   "module": "specifications/DiningPhilosophers/APDiningPhilosophers.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+   "module": "specifications/DiningPhilosophers/DiningPhilosophers.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Disruptor/APDisruptor_MPMC.cfg",
+   "module": "specifications/Disruptor/APDisruptor_MPMC.tla",
+   "result": "cli-error",
+   "message": "error: the configuration has errors; `dive parse --config` lists them",
+   "exit": 1,
+   "keys": [],
+   "assessment": {
+    "kind": "correct",
+    "reason": "Apalache configuration (no TLC golden); symbolic checking is out of scope"
+   }
+  },
+  {
+   "config": "specifications/Disruptor/APDisruptor_SPMC.cfg",
+   "module": "specifications/Disruptor/APDisruptor_SPMC.tla",
+   "result": "cli-error",
+   "message": "error: the configuration has errors; `dive parse --config` lists them",
+   "exit": 1,
+   "keys": [],
+   "assessment": {
+    "kind": "correct",
+    "reason": "Apalache configuration (no TLC golden); symbolic checking is out of scope"
+   }
+  },
+  {
+   "config": "specifications/Disruptor/MCDisruptor_MPMC.cfg",
+   "module": "specifications/Disruptor/MCDisruptor_MPMC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT"
+   ]
+  },
+  {
+   "config": "specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg",
+   "module": "specifications/Disruptor/MCDisruptor_MPMC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Disruptor/MCDisruptor_SPMC.cfg",
+   "module": "specifications/Disruptor/MCDisruptor_SPMC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/EinsteinRiddle/Einstein.cfg",
+   "module": "specifications/EinsteinRiddle/Einstein.tla",
+   "result": "stopped",
+   "message": "memory",
+   "exit": 5,
+   "keys": [],
+   "assessment": {
+    "kind": "correct",
+    "reason": "Apalache model (no TLC golden); Init has too many states for the 4g budget, stopped by name"
+   }
+  },
+  {
+   "config": "specifications/FiniteMonotonic/APCRDT.cfg",
+   "module": "specifications/FiniteMonotonic/APCRDT.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/FiniteMonotonic/APReplicatedLog.cfg",
+   "module": "specifications/FiniteMonotonic/APReplicatedLog.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/FiniteMonotonic/MCCRDT.cfg",
+   "module": "specifications/FiniteMonotonic/MCCRDT.tla",
+   "result": "unsupported",
+   "message": "independent simulation trace validation: action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor",
+   "exit": 3,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ],
+   "assessment": {
+    "kind": "gap",
+    "reason": "the independent validator cannot replay \\cdot steps of this shape; sampling itself succeeds (--keep-traces 0)"
+   }
+  },
+  {
+   "config": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+   "module": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY",
+    "VIEW"
+   ]
+  },
+  {
+   "config": "specifications/FiniteMonotonic/MCReplicatedLog.cfg",
+   "module": "specifications/FiniteMonotonic/MCReplicatedLog.tla",
+   "result": "unsupported",
+   "message": "independent simulation trace validation: action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor; action composition: independent replay requires TLA mode, pure finite complete intermediates and at most one complete tail successor",
+   "exit": 3,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ],
+   "assessment": {
+    "kind": "gap",
+    "reason": "the independent validator cannot replay \\cdot steps of this shape; sampling itself succeeds (--keep-traces 0)"
+   }
+  },
+  {
+   "config": "specifications/FlashProtocol/APFlashWithMutex.cfg",
+   "module": "specifications/FlashProtocol/APFlashWithMutex.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/FlashProtocol/MCFlashWithMutex.cfg",
+   "module": "specifications/FlashProtocol/MCFlashWithMutex.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
+   "module": "specifications/FlashProtocol/MCFlashWithMutexLive.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/GameOfLife/GameOfLife.cfg",
+   "module": "specifications/GameOfLife/GameOfLife.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/GermanProtocol/APGermanCMPWithMutex.cfg",
+   "module": "specifications/GermanProtocol/APGermanCMPWithMutex.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/GermanProtocol/APGermanControl.cfg",
+   "module": "specifications/GermanProtocol/APGermanControl.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/GermanProtocol/APGermanData.cfg",
+   "module": "specifications/GermanProtocol/APGermanData.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/GermanProtocol/MCGermanCMPWithMutex.cfg",
+   "module": "specifications/GermanProtocol/MCGermanCMPWithMutex.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/GermanProtocol/MCGermanControl.cfg",
+   "module": "specifications/GermanProtocol/MCGermanControl.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/GermanProtocol/MCGermanData.cfg",
+   "module": "specifications/GermanProtocol/MCGermanData.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/Huang/Huang.cfg",
+   "module": "specifications/Huang/Huang.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "ALIAS",
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/KeyValueStore/MCKVSSafetyLarge.cfg",
+   "module": "specifications/KeyValueStore/MCKVS.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/KeyValueStore/MCKVSSafetyMedium.cfg",
+   "module": "specifications/KeyValueStore/MCKVS.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/KeyValueStore/MCKVSSafetySmall.cfg",
+   "module": "specifications/KeyValueStore/MCKVS.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/KeyValueStore/MCKVsnap.cfg",
+   "module": "specifications/KeyValueStore/MCKVsnap.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/KnuthYao/SimKnuthYao.cfg",
+   "module": "specifications/KnuthYao/SimKnuthYao.tla",
+   "result": "unsupported",
+   "message": "CSV!CSVRecords (an operator that performs file, process or environment I/O)",
+   "exit": 3,
+   "keys": [
+    "CONSTRAINT",
+    "POSTCONDITION"
+   ],
+   "assessment": {
+    "kind": "correct",
+    "reason": "correct refusal: spec I/O needs an explicit grant (D-017); dive simulate has no --allow-io, and IOUtils/IOEnv work is frozen until v0.1; also a TLC -generate model using TLCSet"
+   }
+  },
+  {
+   "config": "specifications/LearnProofs/MCFindHighest.cfg",
+   "module": "specifications/LearnProofs/MCFindHighest.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT"
+   ]
+  },
+  {
+   "config": "specifications/LeastCircularSubstring/MCLeastCircularSubstringMedium.cfg",
+   "module": "specifications/LeastCircularSubstring/MCLeastCircularSubstring.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg",
+   "module": "specifications/LeastCircularSubstring/MCLeastCircularSubstring.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/LoopInvariance/MCBinarySearch.cfg",
+   "module": "specifications/LoopInvariance/MCBinarySearch.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/LoopInvariance/MCQuicksort.cfg",
+   "module": "specifications/LoopInvariance/MCQuicksort.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Majority/MCMajority.cfg",
+   "module": "specifications/Majority/MCMajority.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/MisraReachability/APParReach.cfg",
+   "module": "specifications/MisraReachability/APParReach.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/MisraReachability/MCParReach.cfg",
+   "module": "specifications/MisraReachability/MCParReach.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/MisraReachability/MCReachabilityTestAllGraphs.cfg",
+   "module": "specifications/MisraReachability/MCReachabilityTest.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/MisraReachability/MCReachabilityTestRandomGraphs.cfg",
+   "module": "specifications/MisraReachability/MCReachabilityTest.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/MisraReachability/MCReachable.cfg",
+   "module": "specifications/MisraReachability/MCReachable.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/MissionariesAndCannibals/APMissionariesAndCannibals.cfg",
+   "module": "specifications/MissionariesAndCannibals/APMissionariesAndCannibals.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": []
+  },
+  {
+   "config": "specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+   "module": "specifications/MissionariesAndCannibals/MissionariesAndCannibals.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": []
+  },
+  {
+   "config": "specifications/Moving_Cat_Puzzle/APCat.cfg",
+   "module": "specifications/Moving_Cat_Puzzle/APCat.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg",
+   "module": "specifications/Moving_Cat_Puzzle/Cat.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg",
+   "module": "specifications/Moving_Cat_Puzzle/Cat.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg",
+   "module": "specifications/MultiCarElevator/Elevator.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+   "module": "specifications/MultiCarElevator/Elevator.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/MultiCarElevator/ElevatorSafetyLarge.cfg",
+   "module": "specifications/MultiCarElevator/Elevator.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/MultiCarElevator/ElevatorSafetyMedium.cfg",
+   "module": "specifications/MultiCarElevator/Elevator.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/MultiCarElevator/ElevatorSafetySmall.cfg",
+   "module": "specifications/MultiCarElevator/Elevator.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/MultiPaxos-SMR/MultiPaxos_MC.cfg",
+   "module": "specifications/MultiPaxos-SMR/MultiPaxos_MC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/MultiPaxos-SMR/MultiPaxos_MC_small.cfg",
+   "module": "specifications/MultiPaxos-SMR/MultiPaxos_MC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg",
+   "module": "specifications/N-Queens/Queens.toolbox/FourQueens/MC.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": []
+  },
+  {
+   "config": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+   "module": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/NanoBlockchain/MCNanoLarge.cfg",
+   "module": "specifications/NanoBlockchain/MCNano.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "VIEW"
+   ]
+  },
+  {
+   "config": "specifications/NanoBlockchain/MCNanoMedium.cfg",
+   "module": "specifications/NanoBlockchain/MCNano.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "VIEW"
+   ]
+  },
+  {
+   "config": "specifications/NanoBlockchain/MCNanoSmall.cfg",
+   "module": "specifications/NanoBlockchain/MCNano.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "VIEW"
+   ]
+  },
+  {
+   "config": "specifications/Paxos/MCConsensus.cfg",
+   "module": "specifications/Paxos/MCConsensus.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/Paxos/MCPaxos.cfg",
+   "module": "specifications/Paxos/MCPaxos.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/Paxos/MCVoting.cfg",
+   "module": "specifications/Paxos/MCVoting.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/PaxosHowToWinATuringAward/MCConsensus.cfg",
+   "module": "specifications/PaxosHowToWinATuringAward/MCConsensus.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/PaxosHowToWinATuringAward/MCPaxosSmall.cfg",
+   "module": "specifications/PaxosHowToWinATuringAward/MCPaxos.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/PaxosHowToWinATuringAward/MCPaxosTiny.cfg",
+   "module": "specifications/PaxosHowToWinATuringAward/MCPaxos.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/PaxosHowToWinATuringAward/MCVoting.cfg",
+   "module": "specifications/PaxosHowToWinATuringAward/MCVoting.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Prisoners/Prisoners.cfg",
+   "module": "specifications/Prisoners/Prisoners.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Prisoners_Single_Switch/Prisoner.cfg",
+   "module": "specifications/Prisoners_Single_Switch/Prisoner.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
+   "module": "specifications/Prisoners_Single_Switch/Prisoner.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg",
+   "module": "specifications/Prisoners_Single_Switch/Prisoner.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg",
+   "module": "specifications/Prisoners_Single_Switch/Prisoner.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ReadersWriters/APReadersWriters.cfg",
+   "module": "specifications/ReadersWriters/APReadersWriters.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/ReadersWriters/MC.cfg",
+   "module": "specifications/ReadersWriters/MC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg",
+   "module": "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg",
+   "module": "specifications/SDP_Verification/SDP_Attack_Spec/MC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SimplifiedFastPaxos/FastPaxos.cfg",
+   "module": "specifications/SimplifiedFastPaxos/FastPaxos.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/SimplifiedFastPaxos/Paxos.cfg",
+   "module": "specifications/SimplifiedFastPaxos/Paxos.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/SingleLaneBridge/MC.cfg",
+   "module": "specifications/SingleLaneBridge/MC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SlidingPuzzles/SlidingPuzzles.cfg",
+   "module": "specifications/SlidingPuzzles/SlidingPuzzles.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SlidingPuzzles/SlidingPuzzles_anim.cfg",
+   "module": "specifications/SlidingPuzzles/SlidingPuzzles_anim.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "ALIAS"
+   ]
+  },
+  {
+   "config": "specifications/SlushProtocol/SlushLarge.cfg",
+   "module": "specifications/SlushProtocol/Slush.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SlushProtocol/SlushMedium.cfg",
+   "module": "specifications/SlushProtocol/Slush.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SlushProtocol/SlushSmall.cfg",
+   "module": "specifications/SlushProtocol/Slush.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpanningTree/APSpanTree.cfg",
+   "module": "specifications/SpanningTree/APSpanTree.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpanningTree/SpanTree.cfg",
+   "module": "specifications/SpanningTree/SpanTree.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpanningTree/SpanTreeRandom.cfg",
+   "module": "specifications/SpanningTree/SpanTreeRandom.tla",
+   "result": "stopped",
+   "message": "time",
+   "exit": 5,
+   "keys": [
+    "PROPERTY"
+   ],
+   "assessment": {
+    "kind": "gap",
+    "reason": "stopped by the 30 s limit: validating the kept traces rebinds the model per step because the constant Edges uses RandomElement (75 s for 10 traces; 0.04 s with --keep-traces 0)"
+   }
+  },
+  {
+   "config": "specifications/SpanningTree/SpanTreeTest4Nodes.cfg",
+   "module": "specifications/SpanningTree/SpanTreeTest.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpanningTree/SpanTreeTest5Nodes.cfg",
+   "module": "specifications/SpanningTree/SpanTreeTest.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg",
+   "module": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 11,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.cfg",
+   "module": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSerial.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/AsynchronousInterface/APAsynchInterface.cfg",
+   "module": "specifications/SpecifyingSystems/AsynchronousInterface/APAsynchInterface.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/AsynchronousInterface/APChannel.cfg",
+   "module": "specifications/SpecifyingSystems/AsynchronousInterface/APChannel.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg",
+   "module": "specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg",
+   "module": "specifications/SpecifyingSystems/AsynchronousInterface/Channel.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/AsynchronousInterface/PrintValues.cfg",
+   "module": "specifications/SpecifyingSystems/AsynchronousInterface/PrintValues.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg",
+   "module": "specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg",
+   "module": "specifications/SpecifyingSystems/CachingMemory/MCWriteThroughCache.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/Composing/APChannel.cfg",
+   "module": "specifications/SpecifyingSystems/Composing/APChannel.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/Composing/APHourClock.cfg",
+   "module": "specifications/SpecifyingSystems/Composing/APHourClock.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/FIFO/APChannel.cfg",
+   "module": "specifications/SpecifyingSystems/FIFO/APChannel.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/FIFO/APInnerFIFO.cfg",
+   "module": "specifications/SpecifyingSystems/FIFO/APInnerFIFO.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/FIFO/APInnerFIFOInstanced.cfg",
+   "module": "specifications/SpecifyingSystems/FIFO/APInnerFIFOInstanced.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/FIFO/APMCInnerFIFO.cfg",
+   "module": "specifications/SpecifyingSystems/FIFO/APMCInnerFIFO.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/FIFO/MCInnerFIFO.cfg",
+   "module": "specifications/SpecifyingSystems/FIFO/MCInnerFIFO.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/HourClock/APHourClock.cfg",
+   "module": "specifications/SpecifyingSystems/HourClock/APHourClock.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/HourClock/APHourClock2.cfg",
+   "module": "specifications/SpecifyingSystems/HourClock/APHourClock2.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/HourClock/HourClock.cfg",
+   "module": "specifications/SpecifyingSystems/HourClock/HourClock.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/HourClock/HourClock2.cfg",
+   "module": "specifications/SpecifyingSystems/HourClock/HourClock2.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/Liveness/APHourClock.cfg",
+   "module": "specifications/SpecifyingSystems/Liveness/APHourClock.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/Liveness/APLiveHourClock.cfg",
+   "module": "specifications/SpecifyingSystems/Liveness/APLiveHourClock.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
+   "module": "specifications/SpecifyingSystems/Liveness/LiveHourClock.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg",
+   "module": "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg",
+   "module": "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+   "module": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/SpecifyingSystems/SimpleMath/SimpleMath.cfg",
+   "module": "specifications/SpecifyingSystems/SimpleMath/SimpleMath.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/TLC/ABCorrectness.cfg",
+   "module": "specifications/SpecifyingSystems/TLC/ABCorrectness.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg",
+   "module": "specifications/SpecifyingSystems/TLC/MCAlternatingBit.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/Stones/Stones.cfg",
+   "module": "specifications/Stones/Stones.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/TLC/TestGraphs.cfg",
+   "module": "specifications/TLC/TestGraphs.tla",
+   "result": "unsupported",
+   "message": "the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env",
+   "exit": 3,
+   "keys": [
+    "PROPERTY"
+   ],
+   "assessment": {
+    "kind": "correct",
+    "reason": "correct refusal: spec I/O needs an explicit grant (D-017); dive simulate has no --allow-io, and IOUtils/IOEnv work is frozen until v0.1"
+   }
+  },
+  {
+   "config": "specifications/TLC/TestMCReachability.cfg",
+   "module": "specifications/TLC/TestMCReachability.tla",
+   "result": "unsupported",
+   "message": "the start-up evaluation of GraphName: IOUtils!IOEnv requires explicit --allow-io=env",
+   "exit": 3,
+   "keys": [
+    "PROPERTY"
+   ],
+   "assessment": {
+    "kind": "correct",
+    "reason": "correct refusal: spec I/O needs an explicit grant (D-017); dive simulate has no --allow-io, and IOUtils/IOEnv work is frozen until v0.1"
+   }
+  },
+  {
+   "config": "specifications/TeachingConcurrency/Simple.cfg",
+   "module": "specifications/TeachingConcurrency/Simple.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/TeachingConcurrency/SimpleRegular.cfg",
+   "module": "specifications/TeachingConcurrency/SimpleRegular.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/TransitiveClosure/TransitiveClosure.cfg",
+   "module": "specifications/TransitiveClosure/TransitiveClosure.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/TwoPhase/MCTwoPhase.cfg",
+   "module": "specifications/TwoPhase/MCTwoPhase.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/YoYo/MCYoYoNoPruning.cfg",
+   "module": "specifications/YoYo/MCYoYoNoPruning.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/YoYo/MCYoYoPruning.cfg",
+   "module": "specifications/YoYo/MCYoYoPruning.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/YoYo/YoYoAllGraphs.cfg",
+   "module": "specifications/YoYo/YoYoAllGraphs.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/aba-asyn-byz/aba_asyn_byz.cfg",
+   "module": "specifications/aba-asyn-byz/aba_asyn_byz.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/acp/ACP_NB_TLC.cfg",
+   "module": "specifications/acp/ACP_NB_TLC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/acp/ACP_NB_WRONG_TLC.cfg",
+   "module": "specifications/acp/ACP_NB_WRONG_TLC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/acp/ACP_SB_TLC.cfg",
+   "module": "specifications/acp/ACP_SB_TLC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/acp/APACP_SB.cfg",
+   "module": "specifications/acp/APACP_SB.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/allocator/AllocatorImplementation.cfg",
+   "module": "specifications/allocator/AllocatorImplementation.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/allocator/AllocatorRefinement.cfg",
+   "module": "specifications/allocator/AllocatorRefinement.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/allocator/SchedulingAllocator.cfg",
+   "module": "specifications/allocator/SchedulingAllocator.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/allocator/SimpleAllocator.cfg",
+   "module": "specifications/allocator/SimpleAllocator.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/barriers/APBarrier.cfg",
+   "module": "specifications/barriers/APBarrier.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/barriers/Barrier.cfg",
+   "module": "specifications/barriers/Barrier.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/barriers/Barriers.cfg",
+   "module": "specifications/barriers/Barriers.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/bcastByz/bcastByz.cfg",
+   "module": "specifications/bcastByz/bcastByz.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/bcastByz/bcastByzNoBcast.cfg",
+   "module": "specifications/bcastByz/bcastByz.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/bcastFolklore/APbcastFolklore.cfg",
+   "module": "specifications/bcastFolklore/APbcastFolklore.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/bcastFolklore/bcastFolklore.cfg",
+   "module": "specifications/bcastFolklore/bcastFolklore.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/bosco/APbosco.cfg",
+   "module": "specifications/bosco/APbosco.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/bosco/bosco.cfg",
+   "module": "specifications/bosco/bosco.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/braf/BufferedRandomAccessFile.cfg",
+   "module": "specifications/braf/BufferedRandomAccessFile.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "ALIAS",
+    "PROPERTY",
+    "SYMMETRY"
+   ]
+  },
+  {
+   "config": "specifications/btree/MCbtree.cfg",
+   "module": "specifications/btree/MCbtree.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/btree/kvstore.cfg",
+   "module": "specifications/btree/kvstore.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/byihive/VoucherCancel.cfg",
+   "module": "specifications/byihive/VoucherCancel.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/byihive/VoucherIssue.cfg",
+   "module": "specifications/byihive/VoucherIssue.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/byihive/VoucherLifeCycle.cfg",
+   "module": "specifications/byihive/VoucherLifeCycle.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/byihive/VoucherRedeem.cfg",
+   "module": "specifications/byihive/VoucherRedeem.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/byihive/VoucherTransfer.cfg",
+   "module": "specifications/byihive/VoucherTransfer.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/byzpaxos/BPConProof.cfg",
+   "module": "specifications/byzpaxos/BPConProof.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/byzpaxos/Consensus.cfg",
+   "module": "specifications/byzpaxos/Consensus.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/byzpaxos/PConProof.cfg",
+   "module": "specifications/byzpaxos/PConProof.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/byzpaxos/VoteProof.cfg",
+   "module": "specifications/byzpaxos/VoteProof.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/c1cs/APc1cs.cfg",
+   "module": "specifications/c1cs/APc1cs.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/c1cs/c1cs.cfg",
+   "module": "specifications/c1cs/c1cs.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/cf1s-folklore/cf1s_folklore.cfg",
+   "module": "specifications/cf1s-folklore/cf1s_folklore.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/chang_roberts/APChangRoberts.cfg",
+   "module": "specifications/chang_roberts/APChangRoberts.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/chang_roberts/MCChangRoberts.cfg",
+   "module": "specifications/chang_roberts/MCChangRoberts.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/dag-consensus/BlockDagTest.cfg",
+   "module": "specifications/dag-consensus/BlockDagTest.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/dag-consensus/TLCSailfish1.cfg",
+   "module": "specifications/dag-consensus/TLCSailfish1.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT"
+   ]
+  },
+  {
+   "config": "specifications/dag-consensus/TLCSailfish2.cfg",
+   "module": "specifications/dag-consensus/TLCSailfish2.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT"
+   ]
+  },
+  {
+   "config": "specifications/detector_chan96/EnvironmentController.cfg",
+   "module": "specifications/detector_chan96/EnvironmentController.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
+   "module": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.cfg",
+   "module": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/Safety-4-processors/MC.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/diskpaxos/MC_HDiskSynod.cfg",
+   "module": "specifications/diskpaxos/MC_HDiskSynod.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/echo/MCEcho.cfg",
+   "module": "specifications/echo/MCEcho.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/ewd426/APTokenRing.cfg",
+   "module": "specifications/ewd426/APTokenRing.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/ewd426/SimTokenRing.cfg",
+   "module": "specifications/ewd426/SimTokenRing.tla",
+   "result": "unsupported",
+   "message": "CSV!CSVRecords (an operator that performs file, process or environment I/O)",
+   "exit": 3,
+   "keys": [
+    "CONSTRAINT"
+   ],
+   "assessment": {
+    "kind": "correct",
+    "reason": "correct refusal: spec I/O needs an explicit grant (D-017); dive simulate has no --allow-io, and IOUtils/IOEnv work is frozen until v0.1; also a TLC -generate model using TLCSet"
+   }
+  },
+  {
+   "config": "specifications/ewd426/TokenRing.cfg",
+   "module": "specifications/ewd426/TokenRing.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "ALIAS",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd687a/EWD687a_anim.cfg",
+   "module": "specifications/ewd687a/EWD687a_anim.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": [
+    "ALIAS",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd687a/MCEWD687a.cfg",
+   "module": "specifications/ewd687a/MCEWD687a.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd840/APEWD840.cfg",
+   "module": "specifications/ewd840/APEWD840.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/ewd840/APSyncTerminationDetection.cfg",
+   "module": "specifications/ewd840/APSyncTerminationDetection.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/ewd840/EWD840.cfg",
+   "module": "specifications/ewd840/EWD840.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd840/EWD840_anim.cfg",
+   "module": "specifications/ewd840/EWD840_anim.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": [
+    "ALIAS"
+   ]
+  },
+  {
+   "config": "specifications/ewd840/EWD840_json.cfg",
+   "module": "specifications/ewd840/EWD840_json.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/ewd840/SyncTerminationDetection.cfg",
+   "module": "specifications/ewd840/SyncTerminationDetection.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd998/AsyncTerminationDetection.cfg",
+   "module": "specifications/ewd998/AsyncTerminationDetection.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd998/EWD998.cfg",
+   "module": "specifications/ewd998/EWD998.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd998/EWD998Chan.cfg",
+   "module": "specifications/ewd998/EWD998Chan.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd998/EWD998ChanID.cfg",
+   "module": "specifications/ewd998/EWD998ChanID.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY",
+    "VIEW"
+   ]
+  },
+  {
+   "config": "specifications/ewd998/EWD998ChanID_export.cfg",
+   "module": "specifications/ewd998/EWD998ChanID_export.tla",
+   "result": "evaluation-error",
+   "message": "incomplete initial state",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/ewd998/EWD998ChanID_shiviz.cfg",
+   "module": "specifications/ewd998/EWD998ChanID_shiviz.tla",
+   "result": "evaluation-error",
+   "message": "incomplete initial state",
+   "exit": 13,
+   "keys": [
+    "ALIAS"
+   ]
+  },
+  {
+   "config": "specifications/ewd998/EWD998ChanTrace.cfg",
+   "module": "specifications/ewd998/EWD998ChanTrace.tla",
+   "result": "cli-error",
+   "message": "unsupported: splitting the next-state relation: Json!ndJsonDeserialize requires explicit --allow-io=files; no result produced",
+   "exit": 3,
+   "keys": [
+    "ACTION_CONSTRAINT",
+    "ALIAS",
+    "POSTCONDITION",
+    "VIEW"
+   ],
+   "assessment": {
+    "kind": "correct",
+    "reason": "correct refusal: spec I/O needs an explicit grant (D-017); dive simulate has no --allow-io, and IOUtils/IOEnv work is frozen until v0.1"
+   }
+  },
+  {
+   "config": "specifications/ewd998/EWD998PCal.cfg",
+   "module": "specifications/ewd998/EWD998PCal.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "ALIAS",
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/ewd998/EWD998Small.cfg",
+   "module": "specifications/ewd998/EWD998.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "CONSTRAINT"
+   ]
+  },
+  {
+   "config": "specifications/ewd998/SmokeEWD998.cfg",
+   "module": "specifications/ewd998/SmokeEWD998.tla",
+   "result": "unsupported",
+   "message": "the standard operator Randomization!RandomSubset (M0 core)",
+   "exit": 3,
+   "keys": [
+    "CONSTRAINT",
+    "PROPERTY"
+   ],
+   "assessment": {
+    "kind": "gap",
+    "reason": "Core does not implement Randomization!RandomSubset"
+   }
+  },
+  {
+   "config": "specifications/ewd998/SmokeEWD998_SC.cfg",
+   "module": "specifications/ewd998/SmokeEWD998_SC.tla",
+   "result": "unsupported",
+   "message": "the start-up evaluation of CSVFile: TLC!JavaTime: simulation runtime effect is unsupported",
+   "exit": 3,
+   "keys": [],
+   "assessment": {
+    "kind": "correct",
+    "reason": "TLC!JavaTime reads the wall clock, which a replayable simulation refuses"
+   }
+  },
+  {
+   "config": "specifications/glowingRaccoon/APclean.cfg",
+   "module": "specifications/glowingRaccoon/APclean.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/glowingRaccoon/APstages.cfg",
+   "module": "specifications/glowingRaccoon/APstages.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/glowingRaccoon/clean.cfg",
+   "module": "specifications/glowingRaccoon/clean.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/glowingRaccoon/product.cfg",
+   "module": "specifications/glowingRaccoon/product.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/glowingRaccoon/stages.cfg",
+   "module": "specifications/glowingRaccoon/stages.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/lamport_mutex/APLamportMutex.cfg",
+   "module": "specifications/lamport_mutex/APLamportMutex.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/lamport_mutex/MCLamportMutex.cfg",
+   "module": "specifications/lamport_mutex/MCLamportMutex.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 11,
+   "keys": [
+    "CONSTRAINT"
+   ]
+  },
+  {
+   "config": "specifications/locks_auxiliary_vars/Lock.cfg",
+   "module": "specifications/locks_auxiliary_vars/Lock.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/locks_auxiliary_vars/LockHS.cfg",
+   "module": "specifications/locks_auxiliary_vars/LockHS.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/locks_auxiliary_vars/Peterson.cfg",
+   "module": "specifications/locks_auxiliary_vars/Peterson.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/nbacc_ray97/nbacc_ray97.cfg",
+   "module": "specifications/nbacc_ray97/nbacc_ray97.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/nbacg_guer01/APnbacg_guer01.cfg",
+   "module": "specifications/nbacg_guer01/APnbacg_guer01.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/nbacg_guer01/nbacg_guer01.cfg",
+   "module": "specifications/nbacg_guer01/nbacg_guer01.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": [
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/spanning/APspanning.cfg",
+   "module": "specifications/spanning/APspanning.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/spanning/MC_spanning.cfg",
+   "module": "specifications/spanning/MC_spanning.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": []
+  },
+  {
+   "config": "specifications/sums_even/MC_sums_even.cfg",
+   "module": "specifications/sums_even/MC_sums_even.tla",
+   "result": "evaluation-error",
+   "message": "no initial state satisfies the specification and constraints",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/tcp/APtcp.cfg",
+   "module": "specifications/tcp/APtcp.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/tcp/IndInv_apa.cfg",
+   "module": "specifications/tcp/IndInv_apa.tla",
+   "result": "evaluation-error",
+   "message": "Attempted to check equality of a set with a non-set value: a boolean",
+   "exit": 13,
+   "keys": []
+  },
+  {
+   "config": "specifications/tcp/IndInv_apa_init.cfg",
+   "result": "no-module",
+   "message": null,
+   "exit": null,
+   "keys": [],
+   "assessment": {
+    "kind": "correct",
+    "reason": "Apalache inductive-invariant configuration with no module of its name"
+   }
+  },
+  {
+   "config": "specifications/tcp/MCtcp.cfg",
+   "module": "specifications/tcp/MCtcp.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 11,
+   "keys": [
+    "ACTION_CONSTRAINT",
+    "CONSTRAINT",
+    "PROPERTY"
+   ]
+  },
+  {
+   "config": "specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg",
+   "module": "specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.tla",
+   "result": "unsupported",
+   "message": "the standard operator Bits!And (M0 core)",
+   "exit": 3,
+   "keys": [],
+   "assessment": {
+    "kind": "gap",
+    "reason": "Core does not implement Bits!And"
+   }
+  },
+  {
+   "config": "specifications/tower_of_hanoi/Hanoi_anim.cfg",
+   "module": "specifications/tower_of_hanoi/Hanoi_anim.tla",
+   "result": "violation",
+   "message": null,
+   "exit": 10,
+   "keys": [
+    "ALIAS"
+   ]
+  },
+  {
+   "config": "specifications/transaction_commit/2PCwithBTM.cfg",
+   "module": "specifications/transaction_commit/2PCwithBTM.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/transaction_commit/APTCommit.cfg",
+   "module": "specifications/transaction_commit/APTCommit.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/transaction_commit/PaxosCommit.cfg",
+   "module": "specifications/transaction_commit/PaxosCommit.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/transaction_commit/TCommit.cfg",
+   "module": "specifications/transaction_commit/TCommit.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  },
+  {
+   "config": "specifications/transaction_commit/TwoPhase.cfg",
+   "module": "specifications/transaction_commit/TwoPhase.tla",
+   "result": "sampled",
+   "message": null,
+   "exit": 0,
+   "keys": []
+  }
+ ],
+ "module_paths": [
+  "CommunityModules 202610040242 (jar-modules b7fcd727)",
+  "apalache-modules v0.62.3 src/tla",
+  "tlapm library d8b9747"
+ ],
+ "summary": {
+  "before_refused": 110,
+  "after_refused": 10,
+  "after_not_sampled": [
+   "specifications/Disruptor/APDisruptor_MPMC.cfg",
+   "specifications/Disruptor/APDisruptor_SPMC.cfg",
+   "specifications/EinsteinRiddle/Einstein.cfg",
+   "specifications/SpanningTree/SpanTreeRandom.cfg",
+   "specifications/ewd998/EWD998ChanTrace.cfg",
+   "specifications/tcp/IndInv_apa_init.cfg"
+  ],
+  "correct_refusals": 11,
+  "real_gaps": 5
+ }
+}

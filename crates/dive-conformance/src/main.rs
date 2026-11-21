@@ -278,6 +278,7 @@ fn parse_shard(v: &str) -> Result<(usize, usize)> {
         .ok_or_else(|| Error::Usage(format!("--shard: `{v}` is not K/N with 1 <= K <= N")))
 }
 
+#[allow(clippy::too_many_lines, reason = "a flat match with one arm per option")]
 fn parse_opts(args: &mut Args) -> Result<Opts> {
     let mut o = Opts::default();
     while let Some(a) = args.next() {

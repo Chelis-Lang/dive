@@ -382,6 +382,28 @@ jq '.runs["source-edits"].steps[] | {verdict, reused, seconds}' \
   conformance/reports/perf/2026-11-19-large-model-symbolic.json
 ```
 
+## Simulation records
+
+| File | Question | Source | Host |
+|---|---|---|---|
+| `2026-11-21-simulation-throughput-d04a3a88.json` | S4 (ADR 0162 section 14): `dive simulate` traces per second and startup against TLC `-simulate`, at 1, 4 and 8 workers, with and without temporal properties | `d04a3a88` | c7i.metal-24xl, fresh node, method as D1 to D6 |
+
+Each bench samples the same number of traces of depth 100 at seed 0 in both
+tools; TLC gets `num=N/W` because its count is per worker. Every run sampled
+all its traces with exit 0. Without temporal properties, dive is 1.1x to 4.5x
+faster than TLC at one worker and 1.4x to 3.8x faster at eight. dive scales
+to 4.7x to 6.3x at eight workers, where TLC reaches 2.2x to 2.9x except on
+`bosco` (6.3x). `MCBakery` does not scale in either tool: its 655,200
+initial states take 4.5 s in dive and 6.0 s in TLC before the first trace.
+Other startups for one trace are 9 to 100 ms against 370 to 610 ms. With
+temporal properties, dive is 3.0x faster on `SimpleAllocator` and 1.8x on
+`DijkstraMutex` at one worker, but 0.48x on `EWD840` (`TDSpec`), and the
+`DijkstraMutex` and `EWD840` temporal runs scale only to 3.4x and 3.5x at
+eight workers (TLC 5.9x and 4.2x). The record's `profile` names the cost:
+temporal atoms are evaluated by the tree-walking `dive-eval` evaluator
+rather than Core, and at eight workers clone and drop of shared evaluator
+environments take 37 % of samples.
+
 ## Earlier records
 
 Development-period measurements, kept as historical evidence. Their schemas
