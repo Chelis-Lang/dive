@@ -808,6 +808,57 @@
           "unit": "states"
         }
       }
-    ]
+    ],
+    "capacity": [
+      {
+        "case": "c1cs-control-20g",
+        "wall_s": 1378.11,
+        "peak_rss_kib": 20994412,
+        "statistics": {
+          "depth": 18,
+          "distinct": 38066281,
+          "exhaustive": false,
+          "generated": 863440173,
+          "initial_generated": 16,
+          "left_on_queue": 22309692,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 15300823148,
+        "retained_rows": 38066281,
+        "exit_code": 5,
+        "stop": {
+          "resource": "memory",
+          "phase": "graph-capture",
+          "limit": 21474836480,
+          "observed": 21498486784,
+          "unit": "bytes"
+        }
+      },
+      {
+        "case": "c1cs-candidate-20g",
+        "wall_s": 1556.23,
+        "peak_rss_kib": 21091496,
+        "statistics": {
+          "depth": 18,
+          "distinct": 42930269,
+          "exhaustive": false,
+          "generated": 989943733,
+          "initial_generated": 16,
+          "left_on_queue": 25181577,
+          "reported_by_tlc": false
+        },
+        "collector_buffer_bytes": 11039410284,
+        "retained_rows": 42930268,
+        "exit_code": 5,
+        "stop": {
+          "resource": "memory",
+          "phase": "graph-capture",
+          "limit": 21474836480,
+          "observed": 21486682112,
+          "unit": "bytes"
+        }
+      }
+    ],
+    "capacity_note": "The final sampled memory stop can occur after explorer admission but before collector insertion. Distinct is the explorer counter. Each stop has a nonempty queue."
   }
 }
