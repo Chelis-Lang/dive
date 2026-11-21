@@ -77,5 +77,52 @@
         "workers_used": 192
       }
     ]
+  },
+  "two_barrier_control": {
+    "hardware": "Dedicated c8g.48xlarge, 192 physical Graviton4 cores, Ubuntu 24.04, 192 workers, taskset 0-191. Sequential fresh processes. Heap for pinned TLC 96 GiB.",
+    "change": "Increase only MaxBarriers=1 to MaxBarriers=2 in the authors’ small three-writer control. Keep all ten properties.",
+    "config_sha256": "57e6078dd07297b19887f87d5b08bddebd455a249d1b725eb7b5a5bf59746775",
+    "module_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "distinct": 7924117,
+    "generated": 33356883,
+    "left_on_queue": 0,
+    "depth": 40,
+    "verdict": "success",
+    "tlc": {
+      "wall_s": 155.15,
+      "peak_rss_kib": 36083400,
+      "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "exit": 0
+    },
+    "dive": [
+      {
+        "variant": "prior",
+        "wall_s": 21.03,
+        "peak_rss_kib": 1365812,
+        "binary_sha256": "1d1bea1475c56f17320d6e6a0563d874f66adc8c71bd196abde005d4e1b487a3",
+        "exit": 0
+      },
+      {
+        "variant": "reuse worker-interned rows",
+        "wall_s": 17.91,
+        "peak_rss_kib": 1422816,
+        "binary_sha256": "5646660c317b6b51a995807b9c09a4180ed9488bd5fc60bcda64adfac53a8a45",
+        "exit": 0
+      },
+      {
+        "variant": "reuse worker-interned rows",
+        "wall_s": 18.41,
+        "peak_rss_kib": 1432412,
+        "binary_sha256": "5646660c317b6b51a995807b9c09a4180ed9488bd5fc60bcda64adfac53a8a45",
+        "exit": 0
+      },
+      {
+        "variant": "prior",
+        "wall_s": 21.0,
+        "peak_rss_kib": 1428956,
+        "binary_sha256": "1d1bea1475c56f17320d6e6a0563d874f66adc8c71bd196abde005d4e1b487a3",
+        "exit": 0
+      }
+    ]
   }
 }

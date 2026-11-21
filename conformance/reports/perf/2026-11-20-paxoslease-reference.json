@@ -1329,6 +1329,84 @@
             }
           ]
         }
+      },
+      "QuarantineEqualsProposer": {
+        "candidate": {
+          "wall_seconds": 476.77,
+          "peak_rss_kib": 1193008,
+          "revisions": [
+            {
+              "distinct": 76749192,
+              "generated": 391849185,
+              "depth": 43,
+              "reused": false,
+              "seconds": 471.490554,
+              "refinement_rounds": 11
+            },
+            {
+              "distinct": 76749192,
+              "generated": 468598377,
+              "depth": 43,
+              "reused": true,
+              "seconds": 2.09982,
+              "refinement_rounds": 1
+            },
+            {
+              "distinct": 76749192,
+              "generated": 402564377,
+              "depth": 43,
+              "reused": true,
+              "seconds": 2.130169,
+              "refinement_rounds": 1
+            },
+            {
+              "distinct": 76749192,
+              "generated": 391849185,
+              "depth": 43,
+              "reused": true,
+              "seconds": 0.860886,
+              "refinement_rounds": 1
+            }
+          ]
+        },
+        "control": {
+          "wall_seconds": 1706.81,
+          "peak_rss_kib": 1201976,
+          "revisions": [
+            {
+              "distinct": 76749192,
+              "generated": 391849185,
+              "depth": 43,
+              "reused": false,
+              "seconds": 446.31531,
+              "refinement_rounds": 11
+            },
+            {
+              "distinct": 76749192,
+              "generated": 468598377,
+              "depth": 43,
+              "reused": false,
+              "seconds": 427.074899,
+              "refinement_rounds": 2
+            },
+            {
+              "distinct": 76749192,
+              "generated": 402564377,
+              "depth": 43,
+              "reused": false,
+              "seconds": 417.555887,
+              "refinement_rounds": 2
+            },
+            {
+              "distinct": 76749192,
+              "generated": 391849185,
+              "depth": 43,
+              "reused": false,
+              "seconds": 415.66611,
+              "refinement_rounds": 2
+            }
+          ]
+        }
       }
     }
   },
