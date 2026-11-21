@@ -1,0 +1,442 @@
+{
+  "scope": "Two isolated campaigns on the unmodified original inputs using earlier native builds. A resource stop records its actual prefix. Two processes terminated without JSON and have no reported model verdict or count.",
+  "command": "dive check MODULE --config CFG --library-path modules --workers W --fp 0 --seed 0 --time-limit Ts --max-memory CAPg --output json. The three memory-stop models used --compat=tlc. Processes pinned to dedicated EC2 physical cores, swap off. Peak RSS from GNU time.",
+  "rows": [
+    {
+      "model": "EWD998",
+      "host": "r7i.16xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "dive",
+      "input_sha256": {
+        "specifications/ewd998/EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+        "specifications/ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 8,
+      "time_limit_s": 900,
+      "memory_limit_gib": 18,
+      "wall_s": 900.07,
+      "peak_rss_kib": 5390092,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 8,
+      "counts": {
+        "distinct": 19779576,
+        "generated": 175295651,
+        "depth": 11,
+        "left_on_queue": 5601754
+      },
+      "stop": {
+        "elapsed_ms": 900047,
+        "limit": 900000,
+        "observed": 900047,
+        "phase": "graph-capture",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    {
+      "model": "EWD998",
+      "host": "r7i.16xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "dive",
+      "input_sha256": {
+        "specifications/ewd998/EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+        "specifications/ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 32,
+      "time_limit_s": 14400,
+      "memory_limit_gib": 420,
+      "wall_s": 14400.16,
+      "peak_rss_kib": 39139076,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 32,
+      "counts": {
+        "distinct": 185267152,
+        "generated": 1974269083,
+        "depth": 29,
+        "left_on_queue": 4709363
+      },
+      "stop": {
+        "elapsed_ms": 14400030,
+        "limit": 14400000,
+        "observed": 14400012,
+        "phase": "temporal-analysis",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    {
+      "model": "EnvironmentController",
+      "host": "r7i.16xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "dive",
+      "input_sha256": {
+        "specifications/detector_chan96/EnvironmentController.cfg": "1cb9f21665fbe58dcc90cf0d05d99f69e8c87a01258d58c5cb952168ff2a3388",
+        "specifications/detector_chan96/EnvironmentController.tla": "27d4468fd8dae883b066b2e9aba0b3bae1402260e373362ed7b79935c0480372"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 8,
+      "time_limit_s": 900,
+      "memory_limit_gib": 18,
+      "wall_s": 900.04,
+      "peak_rss_kib": 1623564,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 8,
+      "counts": {
+        "distinct": 2173413,
+        "generated": 15203680,
+        "depth": 38,
+        "left_on_queue": 314999
+      },
+      "stop": {
+        "elapsed_ms": 900017,
+        "limit": 900000,
+        "observed": 900016,
+        "phase": "graph-capture",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    {
+      "model": "EnvironmentController",
+      "host": "r7i.16xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "dive",
+      "input_sha256": {
+        "specifications/detector_chan96/EnvironmentController.cfg": "1cb9f21665fbe58dcc90cf0d05d99f69e8c87a01258d58c5cb952168ff2a3388",
+        "specifications/detector_chan96/EnvironmentController.tla": "27d4468fd8dae883b066b2e9aba0b3bae1402260e373362ed7b79935c0480372"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 32,
+      "time_limit_s": 14400,
+      "memory_limit_gib": 420,
+      "wall_s": 14400.08,
+      "peak_rss_kib": 4709772,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 32,
+      "counts": {
+        "distinct": 6529709,
+        "generated": 41843668,
+        "depth": 45,
+        "left_on_queue": 1559503
+      },
+      "stop": {
+        "elapsed_ms": 14400046,
+        "limit": 14400000,
+        "observed": 14400030,
+        "phase": "graph-capture",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    {
+      "model": "MCetcdraft",
+      "host": "r7i.16xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "dive",
+      "input_sha256": {
+        "tla/MCetcdraft.cfg": "5cc769549deb7acdf280a8b2600d87c88810c299f5102b15f5176f64a9ae04a9",
+        "tla/MCetcdraft.tla": "3b206581c4d1e8795b543f6bec1c293ea69241183acbdec6537c0265234a72b6"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 8,
+      "time_limit_s": 900,
+      "memory_limit_gib": 18,
+      "wall_s": 900.62,
+      "peak_rss_kib": 9324072,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 8,
+      "counts": {
+        "distinct": 39256817,
+        "generated": 213355759,
+        "depth": 15,
+        "left_on_queue": 27873416
+      },
+      "stop": {
+        "elapsed_ms": 900036,
+        "limit": 900000,
+        "observed": 900020,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    {
+      "model": "MCetcdraft",
+      "host": "r7i.16xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "dive",
+      "input_sha256": {
+        "tla/MCetcdraft.cfg": "5cc769549deb7acdf280a8b2600d87c88810c299f5102b15f5176f64a9ae04a9",
+        "tla/MCetcdraft.tla": "3b206581c4d1e8795b543f6bec1c293ea69241183acbdec6537c0265234a72b6"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 32,
+      "time_limit_s": 14400,
+      "memory_limit_gib": 420,
+      "wall_s": 14419.85,
+      "peak_rss_kib": 314817496,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 32,
+      "counts": {
+        "distinct": 1554090623,
+        "generated": 8814815144,
+        "depth": 18,
+        "left_on_queue": 1129962521
+      },
+      "stop": {
+        "elapsed_ms": 14402904,
+        "limit": 14400000,
+        "observed": 14400029,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    {
+      "model": "etcdraft",
+      "host": "r7i.16xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "dive",
+      "input_sha256": {
+        "tla/etcdraft.cfg": "0279cc6c7c100f622e30230ad56d383eb9d9bd8ac99c996fe707710106a9960e",
+        "tla/etcdraft.tla": "15c445684529c59a59877951c7fb7df9a40da250aaa445f056ef48f56bb27044"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 8,
+      "time_limit_s": 900,
+      "memory_limit_gib": 18,
+      "wall_s": 370.52,
+      "peak_rss_kib": 19313460,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 8,
+      "counts": {
+        "distinct": 94073470,
+        "generated": 354619195,
+        "depth": 13,
+        "left_on_queue": 73757153
+      },
+      "stop": {
+        "elapsed_ms": 369293,
+        "limit": 19327352832,
+        "observed": 19746934784,
+        "phase": "safety-search",
+        "resource": "memory",
+        "unit": "bytes"
+      }
+    },
+    {
+      "model": "etcdraft",
+      "host": "r7i.16xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "dive",
+      "input_sha256": {
+        "tla/etcdraft.cfg": "0279cc6c7c100f622e30230ad56d383eb9d9bd8ac99c996fe707710106a9960e",
+        "tla/etcdraft.tla": "15c445684529c59a59877951c7fb7df9a40da250aaa445f056ef48f56bb27044"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 32,
+      "time_limit_s": 14400,
+      "memory_limit_gib": 420,
+      "wall_s": 4461.21,
+      "peak_rss_kib": 354476364,
+      "exit": 101,
+      "verdict": null,
+      "counts": null,
+      "process_failure": "thread creation failed (EAGAIN)"
+    },
+    {
+      "model": "BlockingQueuePoisonApple",
+      "host": "r7i.8xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "tlc",
+      "input_sha256": {
+        "input/blocking/BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+        "input/blocking/BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f"
+      },
+      "binary_sha256": "a47cedfc7bf5ec6603930e5885b4c62840c11c327af1a3c1686cb77b2de8653d",
+      "requested_workers": 16,
+      "time_limit_s": 30000,
+      "memory_limit_gib": 224,
+      "wall_s": 18792.68,
+      "peak_rss_kib": 237262212,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 16,
+      "counts": {
+        "distinct": 1073741425,
+        "generated": 6531433021,
+        "depth": 15,
+        "left_on_queue": 561037884
+      },
+      "stop": {
+        "elapsed_ms": 18792130,
+        "limit": 240518168576,
+        "observed": 240844296192,
+        "phase": "graph-capture",
+        "resource": "memory",
+        "unit": "bytes"
+      }
+    },
+    {
+      "model": "BlockingQueuePoisonApple",
+      "host": "r7i.8xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "tlc",
+      "input_sha256": {
+        "input/blocking/BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+        "input/blocking/BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f"
+      },
+      "binary_sha256": "a47cedfc7bf5ec6603930e5885b4c62840c11c327af1a3c1686cb77b2de8653d",
+      "requested_workers": 16,
+      "time_limit_s": 7200,
+      "memory_limit_gib": 24,
+      "wall_s": 1698.62,
+      "peak_rss_kib": 26616828,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 16,
+      "counts": {
+        "distinct": 117440513,
+        "generated": 569933982,
+        "depth": 12,
+        "left_on_queue": 69359281
+      },
+      "stop": {
+        "elapsed_ms": 1698531,
+        "limit": 25769803776,
+        "observed": 25783988224,
+        "phase": "graph-capture",
+        "resource": "memory",
+        "unit": "bytes"
+      }
+    },
+    {
+      "model": "c1cs",
+      "host": "r7i.8xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "tlc",
+      "input_sha256": {
+        "input/c1cs/c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0",
+        "input/c1cs/c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233"
+      },
+      "binary_sha256": "a47cedfc7bf5ec6603930e5885b4c62840c11c327af1a3c1686cb77b2de8653d",
+      "requested_workers": 16,
+      "time_limit_s": 30000,
+      "memory_limit_gib": 224,
+      "wall_s": 19819.65,
+      "peak_rss_kib": 247704340,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 16,
+      "counts": {
+        "distinct": 469762049,
+        "generated": 13815620592,
+        "depth": 21,
+        "left_on_queue": 254368979
+      },
+      "stop": {
+        "elapsed_ms": 19805822,
+        "limit": 240518168576,
+        "observed": 240678113280,
+        "phase": "graph-capture",
+        "resource": "memory",
+        "unit": "bytes"
+      }
+    },
+    {
+      "model": "c1cs",
+      "host": "r7i.8xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "tlc",
+      "input_sha256": {
+        "input/c1cs/c1cs.tla": "ee222e8a5a7defc2d449ec30ee24053036560b6b7f1107ab2ab115427fb53af0",
+        "input/c1cs/c1cs.cfg": "0ef50a8cc706e60f6285efe627f2b34ff9a52d8dfdf9287bed2b358157c4d233"
+      },
+      "binary_sha256": "a47cedfc7bf5ec6603930e5885b4c62840c11c327af1a3c1686cb77b2de8653d",
+      "requested_workers": 16,
+      "time_limit_s": 7200,
+      "memory_limit_gib": 24,
+      "wall_s": 1993.17,
+      "peak_rss_kib": 25380400,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 16,
+      "counts": {
+        "distinct": 55639572,
+        "generated": 1320105329,
+        "depth": 18,
+        "left_on_queue": 32515471
+      },
+      "stop": {
+        "elapsed_ms": 1991971,
+        "limit": 25769803776,
+        "observed": 25771409408,
+        "phase": "graph-capture",
+        "resource": "memory",
+        "unit": "bytes"
+      }
+    },
+    {
+      "model": "TLCSailfish2",
+      "host": "r7i.8xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "tlc",
+      "input_sha256": {
+        "specifications/dag-consensus/TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+        "specifications/dag-consensus/TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 16,
+      "time_limit_s": 30000,
+      "memory_limit_gib": 224,
+      "wall_s": 18934.7,
+      "peak_rss_kib": 232868848,
+      "exit": 134,
+      "verdict": null,
+      "counts": null,
+      "process_failure": "allocation failure"
+    },
+    {
+      "model": "TLCSailfish2",
+      "host": "r7i.8xlarge",
+      "kernel": "7.0.0-1018-aws",
+      "profile": "tlc",
+      "input_sha256": {
+        "specifications/dag-consensus/TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+        "specifications/dag-consensus/TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f"
+      },
+      "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "requested_workers": 16,
+      "time_limit_s": 7200,
+      "memory_limit_gib": 24,
+      "wall_s": 1427.51,
+      "peak_rss_kib": 25167860,
+      "exit": 5,
+      "verdict": "stopped",
+      "workers_used": 16,
+      "counts": {
+        "distinct": 43224883,
+        "generated": 89157072,
+        "depth": 15,
+        "left_on_queue": 35714020
+      },
+      "stop": {
+        "elapsed_ms": 1422863,
+        "limit": 25769803776,
+        "observed": 25773637632,
+        "phase": "safety-search",
+        "resource": "memory",
+        "unit": "bytes"
+      }
+    }
+  ]
+}
