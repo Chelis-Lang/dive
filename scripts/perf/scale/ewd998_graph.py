@@ -50,6 +50,14 @@ def compare(path):
                     initial.add(key)
     if any(src not in states or not targets <= states.keys() for src, targets in edges.items()):
         raise ValueError("undeclared TLC edge endpoint")
+    reachable = set(initial)
+    pending = list(initial)
+    while pending:
+        new = edges[pending.pop()] - reachable
+        reachable.update(new)
+        pending.extend(new)
+    if reachable != states.keys():
+        raise ValueError("unreachable TLC state declaration")
     actual_initial = ring.either(states[key] for key in initial)
     if ring.initial != actual_initial or len(set(states.values())) != len(states) or ring.b.false in states.values():
         raise ValueError("state decoding or initial-state mismatch")
