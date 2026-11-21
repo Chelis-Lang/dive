@@ -1129,7 +1129,188 @@
       "model": "Mini: Init x=0; Next x′=1−x; invariant x=0 or x=1. Normal mode exhausted 2 distinct / 3 generated / depth 2. VIEW x and SYMMETRY Permutations({A,B}) each refused before Init, exit 12, zero discovered.",
       "recovery": "Both -recover DIR and -checkpoint 1 -metadir DIR refused before the scratch metadata directory changed. A pre-existing marker was the only file before and after both invocations."
     },
-    "source_version": "The original exact-column admission controls used the ordered dictionary at baseline_revision in exact_column_dictionary_comparison."
+    "source_version": "The original exact-column admission controls used the ordered dictionary at baseline_revision in exact_column_dictionary_comparison.",
+    "full_audit": {
+      "exit": 143,
+      "wall_s": 14911.85,
+      "peak_rss_kib": 224115568,
+      "workers": 192,
+      "wall_limit_s": 32500,
+      "memory_cgroup_gib": 1400,
+      "layout": "split",
+      "original_fingerprint_bits": 64,
+      "binary_sha256": "b76660b4edd639b08772cd59078158531b1b10cf58738d488cfcab11e7938122",
+      "cfg_sha256": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+      "last_progress_sample": {
+        "depth": 22,
+        "generated": 912959945,
+        "distinct": 233438204,
+        "on_queue": 86871560,
+        "on_disk": 0,
+        "checker_s": 14399.2
+      },
+      "first_reported_repeats": [],
+      "superseding_full_audit": "flintarena",
+      "outcome": "stopped after the sharded implementation finished the same full audit",
+      "reason": "same original completed the full exact audit with sharded dictionaries; retain baseline prefix"
+    },
+    "fixed_allocator_complete": {
+      "method": "The source-bound compiled Flint audit uses injective column dictionaries for visited identity. At each first exact admission it separately checks whether the original compiler fingerprint was already seen. It also counts the additional enabled source guard witness where the compiled branch emitted one successor for two guards. The narrow controls retain all exact states even if the observed original fingerprint is forced to zero bits.",
+      "host": "Dedicated EC2 r8g.48xlarge, 192 Graviton4 cores, one process at a time, mimalloc 3.7.0, swap off.",
+      "kernel": "7.0.0-1018-aws",
+      "binary_and_source_sha256": {
+        "generated-Small/target/release/tlcgen-weightedflint": "f923b0a73e13ca5d0a9fdad8d6f1c6d667fb1b107afec3f9ed3c86d4df156541",
+        "generated-Small/src/main.rs": "de767a670a19d1499b68cb5a3b346f618982079021318a0432b20eac101fe5ec",
+        "generated-Full/target/release/tlcgen-weightedflint": "e2a7046ad87796a073ef36cee9f6ffbf2461b72b18a552f6e03f0f979923f2bd",
+        "generated-Full/src/main.rs": "d5bccd4a3b84b668d09aea35d86c84b58386a24e68e8c853f3427a18284d1007",
+        "Small.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+        "Full.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+        "WeightedFlint.tla": "94a54e6443dea6ac9993e6826556e35d5f3cf8bc042c9c8db2d3eab17154b63e",
+        "verified/src/state_codes.rs": "27c2867436eaacb60c6e88a50fd30be4ebcad6faf5d19c5e2cc5e696ea56274d",
+        "verified/src/check.rs": "a941b611830171cca8ff62b4b91ab013d4e910b9341e099f6ee5c6784dc8c02c",
+        "verified/src/cli.rs": "769778839905ea6df9456cfc61b0b367023484028e09635aa152cec88793c14a"
+      },
+      "original_map_limit": 1048576,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 65979,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "runs": {
+        "Small-audit0": {
+          "generated": 1954072,
+          "distinct": 449595,
+          "depth": 33,
+          "overlapping_guard_witnesses": 0,
+          "generated_with_both_guard_witnesses": 1954072,
+          "repeated_original_fingerprint_admissions": 449594,
+          "reported_examples": [
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "c4e716f396ee5bc5"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "e6348d6f7e65e3e2"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "57a11bd6da272b8d"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "161c437b6d57a588"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "50e33def0d180232"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "9aa36e54a2462b39"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "dba55d8ada8e41c3"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "3b08d4e461e55c5c"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "43be23a0aa06e67b"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "7de48d7994b004dc"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "01c6c467568f1d3e"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "cef109bf1f1f2dfa"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "3551aa1191e2c529"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "140373688ba40f36"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "479dfce066133516"
+            },
+            {
+              "original_fingerprint": "0000000000000000",
+              "process_local_exact_key": "0aa80893e9885c96"
+            }
+          ],
+          "wall_s": 3.19,
+          "peak_rss_kib": 620916
+        },
+        "Small-audit64": {
+          "generated": 1954072,
+          "distinct": 449595,
+          "depth": 33,
+          "overlapping_guard_witnesses": 0,
+          "generated_with_both_guard_witnesses": 1954072,
+          "repeated_original_fingerprint_admissions": 0,
+          "reported_examples": [],
+          "wall_s": 3.11,
+          "peak_rss_kib": 633212
+        },
+        "Full-halves": {
+          "generated": 44056598336,
+          "distinct": 9821039057,
+          "depth": 52,
+          "overlapping_guard_witnesses": 83107713,
+          "generated_with_both_guard_witnesses": 44139706049,
+          "repeated_original_fingerprint_admissions": 7,
+          "reported_examples": [
+            {
+              "original_fingerprint": "8ae1fbe897ea2ee8",
+              "process_local_exact_key": "38cfeeec07ef3efc"
+            },
+            {
+              "original_fingerprint": "df96890c8832d0ba",
+              "process_local_exact_key": "a5412a604c642552"
+            },
+            {
+              "original_fingerprint": "9783239fe4455458",
+              "process_local_exact_key": "1acbbd5b106c5617"
+            },
+            {
+              "original_fingerprint": "79a3dece5732a5ae",
+              "process_local_exact_key": "0aae841346423b7f"
+            },
+            {
+              "original_fingerprint": "6351d3fae1c5d515",
+              "process_local_exact_key": "a0d855b41f18bdf3"
+            },
+            {
+              "original_fingerprint": "f0680cd54ce3159a",
+              "process_local_exact_key": "8c94b422fd09b257"
+            },
+            {
+              "original_fingerprint": "7f78bd424c20e283",
+              "process_local_exact_key": "ca9c74b83edf889d"
+            }
+          ],
+          "wall_s": 10139.7,
+          "peak_rss_kib": 1364391304
+        }
+      },
+      "recipe": "Use the exact column admission and generated-build recipes in this record, the recorded 3.7.0 allocator source and the emitted binary hashes. Full uses 192 workers, 64 observed original fingerprint bits and a 42,000 s process deadline."
+    }
   },
   "exact_column_dictionary_comparison": {
     "host": "Dedicated c8g.16xlarge, 64 physical Graviton4 cores, us-west-2a. 115 GiB cgroup, no swap, pinned CPU affinity. Rust 1.99.0. Identical generated checkers and source inputs across arms.",
