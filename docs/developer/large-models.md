@@ -256,6 +256,8 @@ FullHasFresh == tx = TxId => \E t \in tx : missed[t] = {}
 
 These are finite-domain safety proofs. The lower bounds count one constructible subset of the state graph. First commit any desired store, then open every transaction. Before the next commit, a transaction can leave each key unwritten or write any value including `NoVal`. To mark an unchanged value as written, change it and restore it. With `K` keys, `V` values and `T` transactions, there are `(V+1)^K` stores and `(V+2)^K` independent descriptors per transaction. Permuting transactions gives multisets of size `T` from these descriptors. The product is `(V+1)^K × binomial((V+2)^K + T - 1, T)`. Intersecting the actual two- and six-key fixed points with this subset gave exactly 7,344 and 8,355,532,713,984 representatives, respectively. At 32 keys and four transactions the installed checker refused the finite layout at its 512-bit limit. [Domain changes, proof obligations and exact lower bounds](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
 
+The [transaction-history oracle](../../scripts/symbolic/kvs_history.py) calculates the full model-specific cardinality separately. An older transaction has missed a superset of the writes missed by a younger one. When a nested mask grows from `i` to `j` keys, there are exactly `binomial(K-i, j-i)` choices. Grouping mask chains by cardinality preserves these multiplicities and avoids enumerating all subsets of the keys. The formula gives 1.8383 × 10¹⁰⁶ representatives at 28 keys and four transactions, 3.6292 × 10¹⁰⁶ at 36 and three, and 9.1004 × 10¹⁰³ at 50 and two. At eight keys and three transactions the same calculation fell from 223.1 ms to 0.724 ms (medians of three calls). The source-driven two-key, four-transaction search independently matched 15,181,119 representatives and 332,915,842 generated occurrences at depth 28. Pinned TLC also matched the one-key transition edits and the four-transaction control. These analytic totals depend on the pinned KVS transitions. The finite-domain safety proofs above use the TLA+ source and produce no graph counts. [Exact decimal totals and checks](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
+
 To reproduce, point `KVS` at the pinned Examples checkout's `specifications/KeyValueStore` and `DIVE` at the symbolic-enabled executable in its installed Linux bundle. The preparer verifies all three input files. Run the first command sequence with one session directory to check successive processes against the same stored predicate.
 
 ```sh
@@ -265,6 +267,7 @@ do
   sail runtime symbolic-check --dive "$DIVE" --session session \
     --module "edits/$model/MCKVS.tla" --config "edits/$model/Model.cfg" --time-limit 9200
 done
+python3 scripts/symbolic/kvs_history.py "$KVS" --keys 50 --values 2 --transactions 2
 python3 scripts/perf/scale/sail_kvs_edits.py "$KVS" wide --keys 50 --transactions 2
 "$DIVE" check wide/FullHasFresh/MCKVS.tla --config wide/FullHasFresh/Model.cfg \
   --strategy symbolic --prove-inductive --output json

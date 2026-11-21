@@ -464,5 +464,353 @@
       }
     ],
     "method": "Append NoMissedOpen == tx = TxId /\\ \\A t \\in tx : missed[t] = {} to the wrapper and configure it as an additional invariant solely to compile its Boolean predicate. With the installed SourceModel, intersect dict(model.properties)[\"NoMissedOpen\"] with induction.load(saved_predicate, model). Use model.state_count(intersection) for labeled states and model.counts(intersection,True)[0] for representatives. Both sizes match the formula."
+  },
+  "analytic_history_oracle": {
+    "scope": "The model-specific analytic cardinalities use the pinned original Init and Next, both with transaction symmetry and with labels. Source-driven wider-domain runs above are safety proofs. Their results contain no full-graph counts or depths. The separate constructive lower bounds require only a reachable subfamily.",
+    "command": "python3 scripts/symbolic/kvs_history.py KVS --keys K --values V --transactions T",
+    "method": "Enumerate nondecreasing missed-mask sizes 0..K for opened transactions. Each increase i to j contributes binomial(K-i,j-i) key assignments. Equal sizes imply identical nested masks. All remaining factors are precisely those of the previous explicit-mask chain sum. Times in the analytic rows measure the Python calculation on CPU 6 exclusive of startup and imports; each row includes both orbit and labeled calculations.",
+    "prior_oracle_control": {
+      "dims": "1..4 keys, 1..3 values, 1..4 transactions, both symmetry modes; additionally (6,2,3,true), (7,2,3,false), (7,3,2,true)",
+      "agree_with_original": 99,
+      "seconds": 0.15818559000035748
+    },
+    "results": [
+      {
+        "keys": 6,
+        "values": 2,
+        "transactions": 3,
+        "seconds": 0.0009248379992641276,
+        "orbits": {
+          "distinct": "539910848473937721",
+          "generated": "21725268712106423230"
+        },
+        "labeled": {
+          "distinct": "3239447207251422105",
+          "generated": "130350884965021924615"
+        }
+      },
+      {
+        "keys": 7,
+        "values": 2,
+        "transactions": 3,
+        "seconds": 0.0011337550004100194,
+        "orbits": {
+          "distinct": "503442490368989477835",
+          "generated": "23247573192708514979356"
+        },
+        "labeled": {
+          "distinct": "3020652793935370219275",
+          "generated": "139485339001294369578361"
+        }
+      },
+      {
+        "keys": 8,
+        "values": 2,
+        "transactions": 3,
+        "seconds": 0.0014977200007706415,
+        "orbits": {
+          "distinct": "465689747249162114882337",
+          "generated": "24277174135244499648856870"
+        },
+        "labeled": {
+          "distinct": "2794138225586555470584993",
+          "generated": "145663031249193112079049991"
+        }
+      },
+      {
+        "keys": 6,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.0033463750005466864,
+        "orbits": {
+          "distinct": "45283631953962519287289",
+          "generated": "2416222515102249855119680"
+        },
+        "labeled": {
+          "distinct": "1086787730146283786929113",
+          "generated": "57988297551818550444760585"
+        }
+      },
+      {
+        "keys": 12,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.018474190999768325,
+        "orbits": {
+          "distinct": "3296586243209660886405070884528317292419539953",
+          "generated": "333184212987817055750000744268545269473553767928"
+        },
+        "labeled": {
+          "distinct": "79118069825178264565134121589024488922082204657",
+          "generated": "7996421110505790911229205788437435477201586337801"
+        }
+      },
+      {
+        "keys": 16,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.04051531599907321,
+        "orbits": {
+          "distinct": "5167824717059632181347159655223562455094705355197302968244033",
+          "generated": "687452950434768491844379869223453678526183624170996989675993928"
+        },
+        "labeled": {
+          "distinct": "124027793209422936450856290393541120364999640834757683360094017",
+          "generated": "16498870810433345535179029354304246024850160719250310838570987529"
+        }
+      },
+      {
+        "keys": 24,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.125571378001041,
+        "orbits": {
+          "distinct": "12098063545316475868626614220118087568620095638305427820673288883988105655464273262367520993",
+          "generated": "2383364413278938753366943352038449611934701240576295847728440295107874890794877435056015930088"
+        },
+        "labeled": {
+          "distinct": "290353525087595420843092764597150840867565834665780554032709895740386292237627335725444544737",
+          "generated": "57200745918694530080027959671842950857664726387254196247378113171481635502565881257888188921865"
+        }
+      },
+      {
+        "keys": 28,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.19688250000035623,
+        "orbits": {
+          "distinct": "18383451782688859583534214866303258002892308653334148980738876267704087621682638879615630306436076558253873",
+          "generated": "4209837751189350983987588185673711346558161657782400007265449247400905993656648395706015117793424068710901048"
+        },
+        "labeled": {
+          "distinct": "441202842784532630004818426853821404764176671882114703237558435197609721738305276733831249830409768214626097",
+          "generated": "101036106028544423615701490388628875118669239076551884687626465486760906832765373197743312823950746893401688073"
+        }
+      },
+      {
+        "keys": 32,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.2933043789998919,
+        "orbits": {
+          "distinct": "27898669037487903581139005213615990525136082213928609431221559408470045995382070220050714808258657944545555034870250356353",
+          "generated": "7281568888829367203761507881118723870352263131176568372415004126530053313825957443458110722841044174410580516074954130581128"
+        },
+        "labeled": {
+          "distinct": "669568056899709685947336123238200358267946439164850575132820081756365279907768103970448636286907612446133694840606742691457",
+          "generated": "174757653331904812890276188653299132375634015830229244621160176022215550108500689348531791131725571832389983888435379562668041"
+        }
+      },
+      {
+        "keys": 36,
+        "values": 2,
+        "transactions": 3,
+        "seconds": 0.02636095400157501,
+        "orbits": {
+          "distinct": "36292252730005282599179250102251594141512676348786951953675622944785424255409799025446213846423461522687697",
+          "generated": "7984297758521806907283983305512459496165059334462872744250743513933178156050701537185171328840802272302941910"
+        },
+        "labeled": {
+          "distinct": "217753516380031695595075500613505312037826147551691089407918142886828873543351883630991667337557312898451153",
+          "generated": "47905786551130841443703899833073819232092834766335536710240434780866382579381588394283273038086407957651996679"
+        }
+      },
+      {
+        "keys": 50,
+        "values": 2,
+        "transactions": 2,
+        "seconds": 0.0015685859998484375,
+        "orbits": {
+          "distinct": "91004381500021497732699043959337947912351644638355836658647290238893901322343278928484519477403182818249",
+          "generated": "18473889446141046028292704393949780221033032076845214133272395082228010597432679931581050986559917380244876"
+        },
+        "labeled": {
+          "distinct": "182008763000042995465398087918675895824703289276710763273479580262810469886159022882438558547693451207625",
+          "generated": "36947778892282092056585408787899560442066064153690242617606530120600645312125742873373277483823023148589957"
+        }
+      }
+    ],
+    "source_driven_controls": {
+      "K1V1T4": {
+        "wall_s": 0.3,
+        "peak_rss_kib": 56848,
+        "exit": 0,
+        "verdict": "success",
+        "depth": 18,
+        "reachable_bdd_nodes": 209,
+        "invariants": [
+          "TypeInvariant",
+          "TxLifecycle"
+        ],
+        "seconds": 0.060092,
+        "distinct_decimal": "590",
+        "generated_decimal": "5901"
+      },
+      "K2V2T4": {
+        "wall_s": 103.3,
+        "peak_rss_kib": 633688,
+        "exit": 0,
+        "verdict": "success",
+        "depth": 28,
+        "reachable_bdd_nodes": 3315,
+        "invariants": [
+          "TypeInvariant",
+          "TxLifecycle"
+        ],
+        "seconds": 103.015031,
+        "distinct_decimal": "15181119",
+        "generated_decimal": "332915842"
+      },
+      "K3V3T1": {
+        "wall_s": 0.25,
+        "peak_rss_kib": 42020,
+        "exit": 2,
+        "verdict": "unsupported",
+        "reason": "Dive frontend: Error: \"symmetry startup warning\""
+      },
+      "K4V2T2": {
+        "wall_s": 1.05,
+        "peak_rss_kib": 81224,
+        "exit": 0,
+        "verdict": "success",
+        "depth": 27,
+        "reachable_bdd_nodes": 448,
+        "invariants": [
+          "TypeInvariant",
+          "TxLifecycle"
+        ],
+        "seconds": 0.824748,
+        "distinct_decimal": "205526241",
+        "generated_decimal": "3945044980"
+      }
+    },
+    "same_result_eight_key_three_transaction_pairs": [
+      {
+        "pair": 1,
+        "method": "old",
+        "seconds": 0.2229510470006062,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 1,
+        "method": "grouped",
+        "seconds": 0.0007143370003177552,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 2,
+        "method": "grouped",
+        "seconds": 0.000723721999747795,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 2,
+        "method": "old",
+        "seconds": 0.22311143000115408,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 3,
+        "method": "old",
+        "seconds": 0.22397142199952214,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 3,
+        "method": "grouped",
+        "seconds": 0.0007438480006385362,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      }
+    ],
+    "pair_method": "One process, alternating explicit-mask and grouped runs, three pairs. Each timed call computes orbit-mode distinct and generated values. No import or process startup in either scope."
+  },
+  "pinned_tlc_controls": {
+    "pins": {
+      "jre": {
+        "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jre_x64_linux_hotspot_17.0.20.1_1.tar.gz",
+        "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62"
+      },
+      "tlc": {
+        "url": "https://github.com/Chelis-Lang/dive/releases/download/oracle-tlc-2026.10.06.014338/tla2tools.jar",
+        "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+      }
+    },
+    "command": "java -Xmx1g -XX:ActiveProcessorCount=1 -XX:+UseParallelGC -cp JAR tlc2.TLC -workers 1 -fp 0 -seed 0 -metadir SCRATCH -config CFG MCKVS.tla",
+    "inputs": "original1, abort1, corrupt1 use one key, two values, three transactions. four-tx uses one key, one value and four transactions. singleton uses three keys, three values and one transaction, removing SYMMETRY TxIdSymmetric (the only transaction permutation is the identity).",
+    "tlc": {
+      "original1": {
+        "wall_s": 1.29,
+        "peak_rss_kib": 99040,
+        "exit": 0,
+        "generated": 7129,
+        "distinct": 690,
+        "left_on_queue": 0,
+        "depth": 15,
+        "violated": []
+      },
+      "abort1": {
+        "wall_s": 1.27,
+        "peak_rss_kib": 99112,
+        "exit": 0,
+        "generated": 7816,
+        "distinct": 690,
+        "left_on_queue": 0,
+        "depth": 15,
+        "violated": []
+      },
+      "corrupt1": {
+        "wall_s": 0.99,
+        "peak_rss_kib": 83604,
+        "exit": 12,
+        "generated": 5,
+        "distinct": 3,
+        "left_on_queue": 1,
+        "depth": 2,
+        "violated": [
+          "SomeCommit"
+        ]
+      },
+      "four-tx": {
+        "wall_s": 1.36,
+        "peak_rss_kib": 114448,
+        "exit": 0,
+        "generated": 5901,
+        "distinct": 590,
+        "left_on_queue": 0,
+        "depth": 18,
+        "violated": []
+      },
+      "singleton": {
+        "wall_s": 2.0,
+        "peak_rss_kib": 163232,
+        "exit": 0,
+        "generated": 88065,
+        "distinct": 8064,
+        "left_on_queue": 0,
+        "depth": 13,
+        "violated": []
+      }
+    },
+    "singleton_dive_symbolic_without_symmetry": {
+      "wall_s": 0.24,
+      "peak_rss_kib": 56824,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 13,
+      "reachable_bdd_nodes": 46,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "seconds": 0.032834,
+      "distinct_decimal": "8064",
+      "generated_decimal": "88065"
+    }
   }
 }
