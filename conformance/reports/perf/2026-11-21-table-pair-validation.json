@@ -129,6 +129,16 @@
   "constructed_words": [
     {
       "variant": "forged",
+      "owners": 16384,
+      "result": "invalid",
+      "states": 2,
+      "failure_state": 1,
+      "wall_seconds": 134.24,
+      "peak_rss_kib": 155576,
+      "trace_sha256": "8abcdbc19aedbeab8e4c3183b3c59638a4b070d2e3d6474f78dca5b2ca3a41e0"
+    },
+    {
+      "variant": "forged",
       "owners": 8192,
       "result": "invalid",
       "states": 2,
@@ -149,6 +159,16 @@
     },
     {
       "variant": "genuine",
+      "owners": 65536,
+      "result": "valid",
+      "states": 2,
+      "failure_state": null,
+      "wall_seconds": 0.56,
+      "peak_rss_kib": 522652,
+      "trace_sha256": "314aff5a230bc6cc1ba2e78e1810c70fc6b2032bc62ecec228c6433aeca69eaa"
+    },
+    {
+      "variant": "genuine",
       "owners": 8192,
       "result": "valid",
       "states": 2,
@@ -156,6 +176,15 @@
       "wall_seconds": 0.07,
       "peak_rss_kib": 108460,
       "trace_sha256": "9d8a8303e969409aef1f133a88d106cf90eae095890bd913ef1cefe9033187c6"
+    },
+    {
+      "owners": 65536,
+      "variant": "forged",
+      "outcome": "external time limit",
+      "exit_code": 124,
+      "wall_seconds": 180.0,
+      "peak_rss_kib": 376920,
+      "trace_sha256": "f6ce4d699584d69538d7df06145ad13b37ba9881c901d467ee2b8543a4afd530"
     }
   ],
   "model": "https://github.com/tlaplus/Examples/tree/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/transaction_commit",
