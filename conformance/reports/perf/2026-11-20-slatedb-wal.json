@@ -2179,5 +2179,64 @@
     },
     "historical_comparison": "The author reports roughly 49 billion unique states on the same constants. The released CFG enables symmetry. The reported run has no identified terminal log or checker version. Core exhausted this CFG at 4,910,385,789 fingerprints. Neither the tenfold difference nor a historical speedup is established. The notes, CFG and module were changed together at the pinned upstream revision.",
     "upstream_notes": "https://github.com/Vanlightly/s3-wal-collection/blob/35fdc537af4d226f43b4574cded1764375f264ac/slatedb/SlateDBWAL_notes.md#model-checking"
+  },
+  "labeled_and_reduced_control": {
+    "change": "Medium: two writers, two values, zero restarts, one garbage collector. Remove only the SYMMETRY line for the unreduced check. All six original safety invariants and original transitions remain.",
+    "platform": "Dedicated EC2 r7i.48xlarge, 40 physical cores, Linux 7.0.0-1018-aws",
+    "affinity": "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39",
+    "sha256": {
+      "dive": "c86d1ac833fd934335eda7ee68e7d45e867c51c00d9bb9c29b6fa72ce55a1146",
+      "spec/Medium.cfg": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10",
+      "spec/MediumUnreduced.cfg": "e7fc491e61f97ac43935b0efac511c689bf4b8be1b0df9cab5df6e839acaf90b",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c"
+    },
+    "runs": [
+      {
+        "name": "medium-sym",
+        "statistics": {
+          "depth": 69,
+          "distinct": 74637,
+          "generated": 198123,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 74637,
+        "verdict": "success",
+        "workers": {
+          "chaos": null,
+          "reason": null,
+          "requested": 40,
+          "sequential": false,
+          "used": 40
+        },
+        "store": "exact",
+        "wall_seconds": 0.31,
+        "peak_rss_kib": 247980
+      },
+      {
+        "name": "medium-raw",
+        "statistics": {
+          "depth": 69,
+          "distinct": 270183,
+          "generated": 711801,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "exact_states": 270183,
+        "verdict": "success",
+        "workers": {
+          "chaos": null,
+          "reason": null,
+          "requested": 40,
+          "sequential": false,
+          "used": 40
+        },
+        "store": "exact",
+        "wall_seconds": 0.76,
+        "peak_rss_kib": 374860
+      }
+    ]
   }
 }
