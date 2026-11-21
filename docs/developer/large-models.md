@@ -8,6 +8,7 @@ The [performance evidence index](../../conformance/reports/perf/README.md) colle
 
 | Model structure | What to measure and what helped |
 |---|---|
+| Large source trees versus many concurrent protocol operations | Dive analyzed the 34,596 project lines in the LuPastry+ proof module and its imports in 0.40 s. On its four-node join model, changing the initial membership from three ready nodes to one grew the exact graph from 71 to 555,691 states with the same code, constants for the ring size, and properties. [Source and graph comparisons](#check-a-35029-line-pastry-source-tree). |
 | Wide frontiers and wide state rows | Keep distinct states, pending queue entries and generated occurrences separate. On the one-billion-state SlateDB prefix, packing the queue cut peak RSS from 51.88 to 30.13 GiB at identical work. On the complete 242-million-state control, packing full mathematical identities cut exact-store RSS from 89.4 to 35.2 GiB. [SlateDB data](../../conformance/reports/perf/2026-11-20-slatedb-wal.json). |
 | Function-valued actions that preserve most entries | An action in Microsoft CCF chooses three server logs, then requires two to stay fixed. Enumerating only the writable entry cut a complete run from 44.56 to 0.12 s. [Original and framed CCF runs](#function-valued-actions-in-ccf). |
 | Many small actions and fairness predicates | A state-count limit misses the cost of edges and of evaluating predicates on each edge. Kafka completed its second periodic check at 1.57 million distinct states with paged action truth under 8 GiB. The next layer exhausted the memory budget during graph capture after 1.94 billion generated occurrences. [Kafka boundaries](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json). |
@@ -635,13 +636,52 @@ size of intermediate sets. Specification length measures a third quantity.
 | AWS industrial example | Historical industrial TLC check | Kukovec attributes roughly 31 billion explored states over five weeks on one 16-vCPU EC2 instance to Newcombe. | The available account does not identify the generated/distinct convention or a released matching configuration. It sets a historical scale target only. [Kukovec, p. 25](https://repositum.tuwien.at/bitstream/20.500.12708/209338/1/Kukovec%20Jure%20-%202024%20-%20SMT-driven%20techniques%20for%20verifying%20distributed%20systems.pdf) · [Newcombe, ABZ 2014](https://abz-conf.org/publication/newcombe14/) |
 | Pasture, node model | Invariants with parameters 2, 1, 2, 2, 2 | 4,234,887,880 distinct, depth 53 in 3,596 minutes on a 48-core Opteron with 128 GB. A repeat using another fingerprint polynomial found the same count. A third run found five fewer distinct states. | A transcription from the printed modules reproduced the first five published counts and depths with both checkers. [Inputs and measurements](#reproduce-the-pasture-node-model). [Rodeheffer and Kotla, Table 1 and appendices](https://conf.tlapl.us/2012/rodeheffer-kotla.pdf) |
 | Tunable replicated set, three replicas | Two operations per replica over three possible elements | About 9 billion generated states and 750 GB of storage when the host ran out of disk. The study reports completed times for eight smaller cases. | The thesis supplies a set specification and the author's public implementation. Identifying the exact generated module and Toolbox configuration would allow a matching replay. [Rijo, §5.5 and Table 5.1](https://run.unl.pt/server/api/core/bitstreams/d2570d62-6972-4877-a791-636d876d0096/content) · [Author’s implementation](https://github.com/AndreRijo/T-CRDTs) |
-| LuPastry, simplified five-node configuration | Distributed hash-table routing | 141,786,762 distinct, 7,070,872,610 generated, depth 54 in one week. The full four-node run stopped after over five weeks and 331,300,918,096 generated. | Original configuration unverified. Later LuPastry+ specifications contain changes. [Lu, Table 5.3](https://doi.org/10.22028/D291-26550) · [Subsequent model versions](https://homepages.loria.fr/SMerz/projects/pastry/index.html) |
+| Tunable set CRDT, three replicas with two operations each and three elements | Safety invariants replay each replica’s operation history. | About 9 billion generated states before TLC exhausted about 750 GB of disk. The same hardware completed the two-element case in 2 d 10 h. | The author provides TLA+ definitions in the thesis. The public implementation tree contains Java sources. The three-element run stopped with work remaining. [Rijo, Table 5.1 and Appendix E](https://run.unl.pt/server/api/core/bitstreams/d2570d62-6972-4877-a791-636d876d0096/content) · [Author’s repository](https://github.com/AndreRijo/T-CRDTs/tree/1792fbaa22c8f89cff4db5f886866b9795b9a7df) |
+| llingr worker coordination and offset committer | Separate safety and fairness/liveness configurations for Kafka consumer coordination. | Worker coordination reports 626 million distinct states for safety and 170 million for liveness. The offset committer reports 67 million and 253 million respectively. | The reported billion-state total sums four runs. The report omits individual elapsed times and CFGs. The inspected public engine tree contains no TLA+ modules. [Authors’ correctness report](https://llingr.io/correctness) · [Implementation tree](https://github.com/llingr/llingr-demux/tree/f0eaa0857c86650150e6f0cb937d87d75d1748e5) |
+| LuPastry, simplified five-node configuration | Distributed hash-table routing | 141,786,762 distinct, 7,070,872,610 generated, depth 54 in one week. The full four-node run stopped after over five weeks and 331,300,918,096 generated. | The thesis identifies the original VeriDis release. The archived project index links a formal-models page that was absent from the available capture. The later public LuPastry+ archive has different source and no CFG. [Archived author index](https://web.archive.org/web/20130725090936/http://www.mpi-inf.mpg.de:80/~tianlu/fmPastry/). [Lu, Table 5.3](https://doi.org/10.22028/D291-26550) · [Subsequent model versions](https://homepages.loria.fr/SMerz/projects/pastry/index.html) |
 | Confidential Consortium Framework | Production consensus specification | 1,134 lines and 13 state variables. The paper describes model checking, trace validation and CI. | Two published abstract model revisions now have matched complete runs. The concrete pre-vote revision pair also has pinned TLC results and a named Core refusal. [Howard et al., Table 1](https://www.microsoft.com/en-us/research/uploads/prod/2024/07/nsdi25spring-final392.pdf) |
 
 These records establish a lower bound on published workloads. A global maximum
 would require knowing the counting convention and input of every contender,
 including proprietary models. The enlarged KVS and transaction-commit runs
 above demonstrate concrete reachable cardinalities on their own programs.
+
+### Check a 35,029-line Pastry source tree
+
+The LuPastry+ authors distribute 16 TLA+ modules, including a 21,764-line invariant proof. The top-level `ProofCorrectness.tla` resolves 15 of those modules (34,596 source lines) and 13 library modules. On one EC2 logical CPU, three separate `dive analyze` processes each took 0.40 s. The corresponding pinned SANY processes took 5.13, 5.18 and 5.15 s. Replacing one operator in the routing table gave medians of 0.40 and 5.16 s. Both front ends diagnosed an intentional undefined operator in that dependency when invoked on the top-level file. SANY wrote the semantic error to its output and exited zero. These times cover semantic analysis including process startup. Executing a TLAPS proof has a different completion condition. [Author’s archive and proof history](https://homepages.loria.fr/SMerz/projects/pastry/index.html) · [Inputs and raw measurement fields](../../conformance/reports/perf/2026-11-21-pastry-source-scale.json).
+
+Running the protocol uncovered a separate limit. `SharedDigitsAux` chooses an entire function whose definition refers to earlier entries of that same function. Both TLC and Core stop at this unbounded choice. The comment in the released operator supplies a finite bound, `[RTRows -> 0..RTRowCount]`. A second equivalent definition constructs the function directly:
+
+```tla
+SharedDigitsAux(i, j) ==
+  [n \in RTRows |-> Cardinality({k \in 1..n :
+    IthDigit(i, RTRowCount-k+1) = IthDigit(j, RTRowCount-k+1)})]
+```
+
+For row one this counts exactly the last digit comparison. Each successive row adds the next comparison to the preceding count, so induction gives the unique solution of the published function equation. This preserves the actual definition, including its behavior when nonconsecutive digit positions agree. Both engines checked equality of the entire functions for every ordered ID pair at ring sizes 2, 4, 8 and 16, totaling 340 pairs per checker. At 32 IDs, a separate check of every row of each resulting function took 19.07 s on Core with bounded choice and 0.08 s with direct counting. TLC took 6.98 and 1.28 s. At 64 IDs the counted check finished in 0.36 s on Core and 1.39 s on TLC. Both bounded implementations exceeded their 155 s process deadlines. These tests verify routing arithmetic for all ID pairs before exploring the protocol.
+
+The archive includes `Next` and a separate `NextMC` that omits lookup actions. It supplies no CFG. With `A={0}, B=1, M=1, L=1` and `NullNode=NullNode`, both implementations of the function and both engines exhausted 190 distinct states, 1,268 generated and depth 17 using `Next`. With `NextMC` they exhausted 14 distinct states, 40 generated and depth 11. The reconstructed CFGs check `TypeInvariant` and `CorrectDelivery` with deadlock checking disabled. Increasing the ID domain to four nodes while starting three as ready gave 71 distinct, 654 generated and depth 18 on `NextMC` in both checkers with both definitions. Starting only one node as ready in the same four-node domain gave 555,691 distinct, 13,271,201 generated and depth 49. With the counted definition on four workers, exact Core finished in 91.23 s and pinned TLC in 125.71 s. The number of concurrent joins changes reachability by several orders of magnitude at the same ring size. These results belong to the later LuPastry+ specification. Lu’s historical four- and five-node results remain separate. [Configuration text, source changes and controls](../../conformance/reports/perf/2026-11-21-pastry-source-scale.json).
+
+Keeping all four nodes and enabling lookup actions with `Next` changed the result again. Neither definition completed on either checker in the one-worker run. At its 420 s limit the counted Core run had reached depth 17 with 1,233,725 distinct states and 494,504 still queued. The bounded Core run reached the same depth with 1,138,948 distinct and 461,672 queued. The TLC record gives the last periodic sample before each external deadline.
+
+To rebuild a measured input, download `lupastryplus.zip` from the authors’ project page.
+The preparer verifies its digest and writes to a new directory. For the library
+path, combine the five theorem modules listed in the measurement record from
+`tlapm/library` with `Folds.tla` and `Functions.tla` from CommunityModules.
+[TLAPS library](https://github.com/tlaplus/tlapm/tree/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library) · [Community modules](https://github.com/tlaplus/CommunityModules/tree/78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3/modules).
+
+```sh
+python3 scripts/perf/scale/lupastry.py lupastryplus.zip pastry-four --definition counted --bits 2 --ready 0
+dive check pastry-four/Pastry.tla --config pastry-four/Model.cfg --library-path lib --store exact --workers 4 --compat=tlc --fp 0 --seed 0
+```
+
+Lu's original simplified four-node experiment removed the routing table and
+completed 504,624 distinct states, 16,064,479 generated and depth 49 in
+2 h 15 min. The LuPastry+ four-node join experiment retains the routing table.
+The two graphs have the same depth and different counts. Lu's later paper
+gives a second location for the earlier code, `tiit.lu/fmPastry/`. Its live page
+returned 404, and the Wayback URL-prefix query returned no successful capture.
+[Lu, Tables 5.2–5.3](https://doi.org/10.22028/D291-26550) · [Lu, 2015, reference 10](https://doi.org/10.1007/978-3-319-25942-0_19).
 
 ### Reproduce the ZooKeeper protocol specification
 
