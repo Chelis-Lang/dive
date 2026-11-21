@@ -728,6 +728,25 @@ seed, with an independent evaluator's, and writes `core.sample` in the JSON
 report. It keeps each sampled state's level for `TLCGet("level")`. It changes
 no result and has no TLC equivalent.
 
+#### Count labeled states under symmetry
+
+For a finite safety model with `SYMMETRY`, run
+`DIVE_CORE_OPT=+orbit-census dive check M.tla --config M.cfg --store exact --output json`.
+An exhausted search reports `core.metrics.orbit_census`. The `orbit_sizes` histogram
+maps each orbit size to the number of retained representatives of that size.
+Multiplying each size by its frequency and summing gives `labeled_orbit_union`.
+For a model whose initial states, transition relation and constraints are preserved by
+the declared permutations, this is the exact number of reachable labeled states.
+The checker counts the orbits. The model author establishes the symmetry assumption.
+
+`weighted_generated` adds the actual initial occurrences to the successor occurrences
+of each expanded representative multiplied by its orbit size. It recovers ordinary
+unreduced generated counts when relabeling also preserves each successor's multiplicity.
+Both totals are decimal strings. Ordinary `statistics` still describes the reduced search.
+The census supports groups of order up to 64 in local exact safety search without
+`VIEW` or checkpoint recovery. Partial searches publish no completed census.
+[SlateDB controls and commands](../developer/large-models.md#reproduce-the-released-slatedb-wal-model).
+
 `DIVE_CORE_OPT` (for example `-fold,-delta-hash`) turns individual strategies
 off (`-name`) or on (`+name`) for measurement; results must not change.
 `DIVE_CORE_OPT=-member-index` turns off the hash index that the default

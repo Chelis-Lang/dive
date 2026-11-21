@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Exact safety searches can report [orbit sizes and labeled-state counts](docs/user/checking.md#count-labeled-states-under-symmetry) when the specification declares symmetry.
+
 - Core [reclaims wide resident frontiers](docs/user/storage-recovery.md) faster when adjacent states share variable values.
 
 - [Independent trace validation](docs/user/checking.md#consistency-predicates-over-named-processes) can check pairwise consistency over large concrete status tables in one scan and validate or reject single-entry updates without rebuilding the table for every possible process.

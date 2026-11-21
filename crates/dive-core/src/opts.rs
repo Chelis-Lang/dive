@@ -4,7 +4,7 @@
 //! leave every observable result unchanged. They are parsed from a list
 //! such as `-fold,-delta-hash` (`DIVE_CORE_OPT`).
 
-/// Which strategies are on. The default has all of them on.
+/// Core strategies and optional diagnostic measurements.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[allow(
     clippy::struct_excessive_bools,
@@ -50,6 +50,8 @@ pub struct Opts {
     /// Constant folding of closed constant-level subexpressions. Off
     /// (`-fold`).
     pub fold: bool,
+    /// Collect an orbit-size histogram on complete exact safety searches (opt-in).
+    pub orbit_census: bool,
     /// The byte cap of each worker's memo tables (not a switch; the engine
     /// derives it from the run's memory budget).
     pub memo_cap: usize,
@@ -70,6 +72,7 @@ impl Default for Opts {
             arena: true,
             eager: true,
             fold: true,
+            orbit_census: false,
             memo_cap: crate::memo::DEFAULT_CAP,
         }
     }
@@ -89,6 +92,7 @@ pub const SWITCHES: &[&str] = &[
     "arena",
     "eager",
     "fold",
+    "orbit-census",
 ];
 
 impl Opts {
@@ -125,6 +129,7 @@ impl Opts {
                 "arena" => &mut o.arena,
                 "eager" => &mut o.eager,
                 "fold" => &mut o.fold,
+                "orbit-census" => &mut o.orbit_census,
                 "inline-subst" => {
                     return Err(
                         "`inline-subst` does not apply: the core binds INSTANCE substitutions dynamically (`04-plan-compiler.md` §3)".into(),
@@ -159,6 +164,7 @@ impl Opts {
             ("arena", self.arena),
             ("eager", self.eager),
             ("fold", self.fold),
+            ("orbit-census", self.orbit_census),
         ];
         let d = Self::default();
         let defaults = [
@@ -174,6 +180,7 @@ impl Opts {
             d.arena,
             d.eager,
             d.fold,
+            d.orbit_census,
         ];
         let changed: Vec<String> = flags
             .iter()

@@ -1662,6 +1662,26 @@ pub(crate) fn check(
         );
     }
     run.metrics = metrics_json(&plan, &out.metrics, compile_time);
+    if let Some(Err(reason)) = &out.metrics.orbit_census {
+        run.metrics["orbit_census"] = json!({"status": "unavailable", "reason": reason});
+    } else if out.verdict == dive_explore::Verdict::Success
+        && out.stats.left_on_queue == 0
+        && let Some(Ok(census)) = &out.metrics.orbit_census
+        && census.sizes.values().sum::<u64>() == out.stats.distinct
+    {
+        let labeled: u128 = census
+            .sizes
+            .iter()
+            .map(|(&size, &n)| u128::from(size) * u128::from(n))
+            .sum();
+        run.metrics["orbit_census"] = json!({
+            "representatives": out.stats.distinct,
+            "orbit_sizes": census.sizes,
+            "labeled_orbit_union": labeled.to_string(),
+            "weighted_generated": (census.successors + u128::from(out.stats.initial_generated)).to_string(),
+            "scope": "full orbits of retained mathematical states; reachable labeled count requires equivariance of Init, Next and constraints; generated count also requires equivariant successor multiplicities"
+        });
+    }
     let search = Search {
         ir,
         config,

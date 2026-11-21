@@ -157,9 +157,20 @@ pub struct Stats {
     pub initial_generated: u64,
 }
 
+/// Counts collected while expanding the representatives of one exact safety search.
+#[derive(Clone, Debug, Default)]
+pub struct OrbitCensus {
+    /// Number of expanded representatives by orbit size.
+    pub sizes: std::collections::BTreeMap<u64, u64>,
+    /// Orbit-weighted successor occurrences, excluding the initial generator.
+    pub successors: u128,
+}
+
 /// Strategy metrics.
 #[derive(Clone, Debug, Default)]
 pub struct Metrics {
+    /// Optional symmetry measurement, or why this search could not compute it.
+    pub orbit_census: Option<Result<OrbitCensus, String>>,
     /// Worker width used for ordinary safety with ordered diagnostic replay.
     pub ordered_print_workers: Option<usize>,
     /// Highest local expansion width available to a parallel wave.
@@ -1693,7 +1704,19 @@ fn explore_inner<'p>(
         Ok(frontier) => (frontier, None),
         Err(error) => (None, Some(error)),
     };
-    let mut initial_metrics = Metrics::default();
+    let orbit_census = config.opts.orbit_census.then(|| {
+        if storage.exact && plan.view.is_none() && graph.is_none() && checkpoint.is_none()
+            && distributed.is_none() && plan.symmetry.as_ref().is_some_and(|sym| sym.len() < 64)
+        {
+            Ok(OrbitCensus::default())
+        } else {
+            Err("requires local exact safety with SYMMETRY of order at most 64 and no VIEW or checkpoint".into())
+        }
+    });
+    let mut initial_metrics = Metrics {
+        orbit_census,
+        ..Metrics::default()
+    };
     initial_metrics.storage.reclamation.between_waves = storage.independent_frontier;
     initial_metrics.storage.reclamation.trigger_bytes = trigger_bytes;
     initial_metrics.storage.reclamation.default_trigger = storage.store_compact_default;
@@ -2555,6 +2578,22 @@ fn run(
             } else {
                 state
             };
+            let orbit_size = if let (Some(Ok(census)), Some(symmetry)) =
+                (&mut ex.metrics.orbit_census, &plan.symmetry)
+            {
+                match symmetry.orbit_size(&mut m.heap, source) {
+                    Ok(size) => {
+                        *census.sizes.entry(size).or_default() += 1;
+                        Some(size)
+                    }
+                    Err(error) => {
+                        ex.metrics.orbit_census = Some(Err(error.message().to_owned()));
+                        None
+                    }
+                }
+            } else {
+                None
+            };
             m.s0.copy_from_slice(source);
             let level = i64::try_from(ex.level - 1).unwrap_or(i64::MAX);
             if res.is_none() {
@@ -2619,6 +2658,9 @@ fn run(
                 *replayed = Some(replay.inspect_err(|_| {
                     ex.stats.left_on_queue = (states - k - 1 + ex.queued_states()) as u64;
                 })?);
+            }
+            if let (Some(size), Some(Ok(census))) = (orbit_size, &mut ex.metrics.orbit_census) {
+                census.successors += u128::from(size) * u128::from(ex.emitted);
             }
             if let Some(all) = &mut expanded {
                 all[k - base] = None;
