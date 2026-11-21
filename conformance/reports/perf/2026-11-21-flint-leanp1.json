@@ -217,5 +217,462 @@
         "peak_rss_kib": 149404
       }
     }
+  },
+  "full_native_worker_pool": {
+    "host": "EC2 c8g.48xlarge, 192 physical Graviton4 cores, Linux 7.0.0-1018-aws. Author used memory-optimized r8g.48xlarge. Both have 192 physical Graviton4 cores.",
+    "runtime": "Experiment with retained pool and compact canonical rows; terminal from same binary as wide worker comparison. Production scheduling is qualified separately.",
+    "binary_sha256": "8ea2c2fa0a91db133bbfca5ca396fcfa2afa165d4344cce712d2300cb849a705",
+    "base": "08bc40726cb6e23093b2f32d5718762004107b28",
+    "module_md5": "94da754147dd4a821bc32d81d5f923b9",
+    "module_sha256": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+    "cfg_sha256": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+    "command": "taskset -c 0-191 wave-retained check LeanP1.tla --config LeanP1Size3L4W3.cfg --workers 192 --compat=tlc --fp 0 --seed 0 --max-memory 310g --time-limit 72000s --output json",
+    "exit": 0,
+    "verdict": "success",
+    "statistics": {
+      "depth": 52,
+      "distinct": 9821039057,
+      "generated": 44139706049,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "store": "fingerprint",
+    "wall_seconds": 29620.08,
+    "peak_rss_kib": 140180712,
+    "difference_from_authors": {
+      "distinct": 10,
+      "generated": 83107769,
+      "depth": 0
+    },
+    "timings_ms": {
+      "commit_ms": 11793615.381461998,
+      "expand_ms": 6909389.525339999,
+      "explore_ms": 29619663.460311
+    },
+    "store_reclamation": {
+      "collections": 26,
+      "failures": [],
+      "peak_after_bytes_lower_bound": 4007823427,
+      "peak_after_nodes": 25277546,
+      "peak_before_bytes_lower_bound": 4028840515,
+      "reclaimed_nodes": 50094121,
+      "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+      "skipped": null,
+      "trigger_bytes": 268435456,
+      "trigger_source": "default"
+    },
+    "interpretation": "Same completed verdict and depth. The 10 distinct and 83,107,769 generated-count differences are unresolved. Phase counters cover completed parallel levels, leaving 10,916.66 seconds outside measured expansion and admission. The run made 26 completed-level Store collections. No attribution of the unaccounted interval to collection until independently timed."
+  },
+  "compiled_witness_controls": {
+    "runs": {
+      "a1": {
+        "authored": {
+          "exit": 0,
+          "seconds": 0.02,
+          "peak_rss_kib": 25764,
+          "generated": 1330,
+          "distinct": 475,
+          "depth": 15
+        },
+        "core": {
+          "exit": 0,
+          "seconds": 0.03,
+          "peak_rss_kib": 39080,
+          "generated": 1330,
+          "distinct": 475,
+          "depth": 15,
+          "left_on_queue": 0
+        },
+        "tlc": {
+          "exit": 0,
+          "seconds": 1.51,
+          "peak_rss_kib": 214192,
+          "generated": 1330,
+          "distinct": 475,
+          "depth": 15,
+          "left_on_queue": 0
+        }
+      },
+      "a2": {
+        "authored": {
+          "exit": 0,
+          "seconds": 0.08,
+          "peak_rss_kib": 25732,
+          "generated": 5311,
+          "distinct": 2033,
+          "depth": 16
+        },
+        "core": {
+          "exit": 0,
+          "seconds": 0.06,
+          "peak_rss_kib": 39088,
+          "generated": 5398,
+          "distinct": 2033,
+          "depth": 16,
+          "left_on_queue": 0
+        },
+        "tlc": {
+          "exit": 0,
+          "seconds": 2.27,
+          "peak_rss_kib": 303088,
+          "generated": 5398,
+          "distinct": 2033,
+          "depth": 16,
+          "left_on_queue": 0
+        }
+      },
+      "a3": {
+        "authored": {
+          "exit": 0,
+          "seconds": 6.63,
+          "peak_rss_kib": 58316,
+          "generated": 383565,
+          "distinct": 115297,
+          "depth": 25
+        },
+        "core": {
+          "exit": 0,
+          "seconds": 3.95,
+          "peak_rss_kib": 70536,
+          "generated": 385110,
+          "distinct": 115297,
+          "depth": 25,
+          "left_on_queue": 0
+        },
+        "tlc": {
+          "exit": 0,
+          "seconds": 17.68,
+          "peak_rss_kib": 3334324,
+          "generated": 385110,
+          "distinct": 115297,
+          "depth": 25,
+          "left_on_queue": 0
+        }
+      },
+      "a4": {
+        "authored": {
+          "exit": 0,
+          "seconds": 29.08,
+          "peak_rss_kib": 98380,
+          "generated": 1736885,
+          "distinct": 510613,
+          "depth": 32
+        },
+        "core": {
+          "exit": 0,
+          "seconds": 16.95,
+          "peak_rss_kib": 87720,
+          "generated": 1742990,
+          "distinct": 510613,
+          "depth": 32,
+          "left_on_queue": 0
+        },
+        "tlc": {
+          "exit": 0,
+          "seconds": 62.86,
+          "peak_rss_kib": 5143968,
+          "generated": 1742990,
+          "distinct": 510613,
+          "depth": 32,
+          "left_on_queue": 0
+        }
+      },
+      "a5": {
+        "authored": {
+          "exit": 0,
+          "seconds": 6.74,
+          "peak_rss_kib": 52184,
+          "generated": 478319,
+          "distinct": 161088,
+          "depth": 34
+        },
+        "core": {
+          "exit": 0,
+          "seconds": 3.52,
+          "peak_rss_kib": 43964,
+          "generated": 486140,
+          "distinct": 161088,
+          "depth": 34,
+          "left_on_queue": 0
+        },
+        "tlc": {
+          "exit": 0,
+          "seconds": 15.92,
+          "peak_rss_kib": 3345452,
+          "generated": 486140,
+          "distinct": 161088,
+          "depth": 34,
+          "left_on_queue": 0
+        }
+      },
+      "two": {
+        "authored": {
+          "exit": 0,
+          "seconds": 197.94,
+          "peak_rss_kib": 6145036,
+          "generated": 180146151,
+          "distinct": 48353470,
+          "depth": 44
+        },
+        "core": {
+          "exit": 0,
+          "seconds": 192.3,
+          "peak_rss_kib": 1374228,
+          "generated": 181045196,
+          "distinct": 48353470,
+          "depth": 44,
+          "left_on_queue": 0
+        }
+      },
+      "DuplicateGuard": {
+        "authored": {
+          "exit": 0,
+          "seconds": 0.0,
+          "peak_rss_kib": 19044,
+          "generated": 2,
+          "distinct": 2,
+          "depth": 2
+        },
+        "core": {
+          "exit": 0,
+          "seconds": 0.0,
+          "peak_rss_kib": 18208,
+          "generated": 3,
+          "distinct": 2,
+          "depth": 2,
+          "left_on_queue": 0
+        },
+        "tlc": {
+          "exit": 0,
+          "seconds": 0.73,
+          "peak_rss_kib": 94552,
+          "generated": 3,
+          "distinct": 2,
+          "depth": 2,
+          "left_on_queue": 0
+        }
+      },
+      "DisjointFlint": {
+        "authored": {
+          "exit": 0,
+          "seconds": 0.09,
+          "peak_rss_kib": 25756,
+          "generated": 5311,
+          "distinct": 2033,
+          "depth": 16
+        },
+        "core": {
+          "exit": 0,
+          "seconds": 0.07,
+          "peak_rss_kib": 41136,
+          "generated": 5311,
+          "distinct": 2033,
+          "depth": 16,
+          "left_on_queue": 0
+        },
+        "tlc": {
+          "exit": 0,
+          "seconds": 2.04,
+          "peak_rss_kib": 130716,
+          "generated": 5311,
+          "distinct": 2033,
+          "depth": 16,
+          "left_on_queue": 0
+        }
+      }
+    },
+    "a2_successful_action_occurrences": {
+      "auth": {
+        "Age": 386,
+        "Checkout": 21,
+        "Claim": 74,
+        "Collect": 390,
+        "Consume": 74,
+        "Delete": 364,
+        "Edit": 108,
+        "Finish": 390,
+        "GCas": 161,
+        "GPut": 113,
+        "Install": 106,
+        "PullOnly": 160,
+        "RLoad": 2033,
+        "Reap": 316,
+        "Scan": 166,
+        "Skip": 32,
+        "Sweep": 300,
+        "Upload": 10,
+        "Verify": 106
+      },
+      "tlc": {
+        "Age": 386,
+        "Checkout": 21,
+        "Claim": 74,
+        "Collect": 390,
+        "Consume": 74,
+        "Delete": 364,
+        "Edit": 108,
+        "Finish": 390,
+        "GCas": 248,
+        "GPut": 113,
+        "Install": 106,
+        "PullOnly": 160,
+        "RLoad": 2033,
+        "Reap": 316,
+        "Scan": 166,
+        "Skip": 32,
+        "Sweep": 300,
+        "Upload": 10,
+        "Verify": 106
+      }
+    },
+    "sha256": {
+      "DisjointFlint.tla": "1e71819c1ae72d96605a01f689025ac4e18e48f5822b0065bc7b98bfa3c659b4",
+      "DuplicateGuard.tla": "c33da06b1b022bc2954b6ff98b83866a0f4f23f8d32e2c84e794a11aa446d03e",
+      "MarkedFlint.tla": "1dc6d755560e866f7a6099315913f0b763c337b194b2293592a5126b7ceb73b8",
+      "a1.cfg": "1733d858c7a579f5e63bc23b50a6e2bc6a9f1ed5d751211992cbf73c83309c47",
+      "a2.cfg": "e533cc5896ec6247250bb8aaa0697307ac63356c2819d95ecd94c7f1845f05d1",
+      "a3.cfg": "46d01f9641210002a4862fa25c5d7c8b7cd49ac787b43356ee59b2badbdace60",
+      "a4.cfg": "16ded2bffeb5ba8cafadb99ae113cba9393180e91ac8de7f09bb49c7d115e796",
+      "a5.cfg": "24bca210a34a5b1f862b973d67715fe5882ff5fcb137950acd64a10819bf28cf",
+      "tiny.cfg": "41e024f05d292e731308f3402f8cc8fa3edad5237ca90fc52d2c9ce8da9fb991",
+      "two.cfg": "33b7ebb804dd65013cbe63cc6c26c2287335ba56389b8a4a5ce1872834f7a420"
+    },
+    "host": "Dedicated c8g.4xlarge (16 Graviton4 cores). a1 through a5 run at one worker; two at 16. Short diagnostic processes used separate cores during compiler setup. Timings include process startup.",
+    "config_parameters": [
+      "Writers count (prefix of A,B,C)",
+      "MaxMint",
+      "MaxUI",
+      "MaxBarriers"
+    ],
+    "configs": {
+      "a1": [
+        1,
+        2,
+        0,
+        1
+      ],
+      "a2": [
+        1,
+        2,
+        1,
+        1
+      ],
+      "a3": [
+        2,
+        2,
+        1,
+        1
+      ],
+      "a4": [
+        2,
+        2,
+        1,
+        2
+      ],
+      "a5": [
+        1,
+        3,
+        1,
+        3
+      ],
+      "two": [
+        2,
+        3,
+        1,
+        3
+      ]
+    },
+    "config_recipe": "Start with the large CFG, replace the four constants above only. All properties and all other constants stay as released. The disjoint guard tests use a2 and two. DuplicateGuard uses tiny.cfg.",
+    "build": "Build formal/tlc-rs from the source revision above with the archived lean/formal/results/2026-10-06-ec2/scripts/levelwriter.patch (SHA256 a8919c78ed34ad433be2a1312ada2d13ab61a84f16e1343cf71b77fe0ca4dfc4). For each module/config compile using tlc-rs -codegen NEW -config CFG MODULE, then cargo build --release in NEW.",
+    "commands": {
+      "authored": "tlcgen-* -workers W -checkpoint 0 -metadir FRESH -fpmem 1024 -queue-mem 2048 -config CFG MODULE",
+      "core": "dive check MODULE --config CFG --workers W --store fp --compat=tlc --fp 0 --seed 0 --max-memory 24g --time-limit 1300s --output json",
+      "tlc": "java -Xmx14g -XX:+UseParallelGC -XX:ActiveProcessorCount=W -cp tla2tools.jar tlc2.TLC -workers W -fp 0 -seed 0 -metadir FRESH -config CFG MODULE",
+      "diagnostics": "python3 scripts/perf/scale/flint_counts.py LeanP1.tla NEW; compare MarkedFlint.tla across the compiled author and pinned TLC on a2; compare DisjointFlint.tla across all three; compare DuplicateGuard.tla on tiny.cfg. For these short diagnostics use one worker and 1 GiB JVM heap; the Core diagnostics use exact state storage."
+    },
+    "finding": "With all eight invariants and both step properties, the GCas guard has two enabled disjunct occurrences when GatewayIgnoresLease and holder = \"none\". The published compiler generates one successor for the boolean guard; Core and pinned TLC generate both occurrences. Every other reported action agrees on a2. Replacing the guard with a logically equivalent IF makes all three match. This changes witness multiplicity, not the successor state. The large three-writer differences remain separate observations."
+  },
+  "exact_fingerprint_and_tlc": {
+    "hardware": "Dedicated r8g.8xlarge, 32 Graviton4 cores pinned 0–31. All six processes run serially. Limits 190 GiB Core and 96 GiB JVM heap.",
+    "config_changes": {
+      "L4W2": "Replace Writers={A,B,C} with {A,B} in the archived full configuration.",
+      "L2W3": "Change MaxMint and MaxBarriers from 3 to 2 in the archived full configuration."
+    },
+    "cfg_sha256": {
+      "L2W3.cfg": "909478cc6e87d6551db64e1ae403f69ef5408fa73f8de7c29c784e2bf5d03c2f",
+      "L4W2.cfg": "33b7ebb804dd65013cbe63cc6c26c2287335ba56389b8a4a5ce1872834f7a420"
+    },
+    "core_binary_sha256": "8ea2c2fa0a91db133bbfca5ca396fcfa2afa165d4344cce712d2300cb849a705",
+    "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "arguments": "Same Core and TLC profiles, fp 0, seed 0, unchanged source and ten obligations. Core --store fp|exact --time-limit 3200s. TLC -XX:+UseParallelGC -XX:ActiveProcessorCount=32 -workers 32 with fresh metadir.",
+    "runs": [
+      {
+        "config": "L4W2",
+        "engine": "fp",
+        "wall_s": 119.8,
+        "peak_rss_kib": 2106720,
+        "generated": 181045196,
+        "distinct": 48353470,
+        "depth": 44,
+        "queue": 0,
+        "exit": 0
+      },
+      {
+        "config": "L4W2",
+        "engine": "exact",
+        "wall_s": 174.74,
+        "peak_rss_kib": 21875856,
+        "generated": 181045196,
+        "distinct": 48353470,
+        "depth": 44,
+        "queue": 0,
+        "exit": 0
+      },
+      {
+        "config": "L4W2",
+        "engine": "tlc",
+        "wall_s": 482.39,
+        "peak_rss_kib": 40458236,
+        "generated": 181045196,
+        "distinct": 48353470,
+        "depth": 44,
+        "queue": 0,
+        "exit": 0
+      },
+      {
+        "config": "L2W3",
+        "engine": "fp",
+        "wall_s": 121.51,
+        "peak_rss_kib": 1448452,
+        "generated": 162974949,
+        "distinct": 39330288,
+        "depth": 40,
+        "queue": 0,
+        "exit": 0
+      },
+      {
+        "config": "L2W3",
+        "engine": "exact",
+        "wall_s": 174.77,
+        "peak_rss_kib": 17954700,
+        "generated": 162974949,
+        "distinct": 39330288,
+        "depth": 40,
+        "queue": 0,
+        "exit": 0
+      },
+      {
+        "config": "L2W3",
+        "engine": "tlc",
+        "wall_s": 496.65,
+        "peak_rss_kib": 39841896,
+        "generated": 162974949,
+        "distinct": 39330288,
+        "depth": 40,
+        "queue": 0,
+        "exit": 0
+      }
+    ]
   }
 }

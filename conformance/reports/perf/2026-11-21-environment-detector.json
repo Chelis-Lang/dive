@@ -663,5 +663,28 @@
     }
   ],
   "no_fault_recipe": "Set T=0 and only N=1..5 in the pinned CFG. Also test replacing the Deliver bound SUBSET inTransit in Age_Channel.tla with SUBSET {b \\in inTransit : b.content.to = rcver}, leaving the universal guard in place. Both explicit engines use W1, fp 0, seed 0. The three largest cells have 150 s Core / 160 s external TLC limits; early memory or enumeration stops are recorded separately.",
-  "mutant_recipe": "For both: start from Schedule.tla and append FairSchedule == Init /\\ [][Scheduled]_vars /\\ WF_vars(Scheduled) before the terminator; change only SPECIFICATION Spec to SPECIFICATION FairSchedule in the original CFG. Accuracy replaces the value of OnlyMessagesForCorrectProcesses(msgs) with {}. Completeness replaces the union in the Predict assignment by suspected[i], and uses IF ~failed[Victim] in Scheduled for a crash before the first send. For replay use the corresponding unmodified-schedule root EnvironmentController.tla with the original configuration."
+  "mutant_recipe": "For both: start from Schedule.tla and append FairSchedule == Init /\\ [][Scheduled]_vars /\\ WF_vars(Scheduled) before the terminator; change only SPECIFICATION Spec to SPECIFICATION FairSchedule in the original CFG. Accuracy replaces the value of OnlyMessagesForCorrectProcesses(msgs) with {}. Completeness replaces the union in the Predict assignment by suspected[i], and uses IF ~failed[Victim] in Scheduled for a crash before the first send. For replay use the corresponding unmodified-schedule root EnvironmentController.tla with the original configuration.",
+  "ordinary_original_four_hour": {
+    "host": "EC2 r7i.16xlarge, 32 physical cores, pinned CPUs 0-31, 420 GiB selected memory budget, Linux 7.0.0-1018-aws",
+    "command": "dive check specifications/detector_chan96/EnvironmentController.tla --config specifications/detector_chan96/EnvironmentController.cfg --library-path modules --workers 32 --fp 0 --seed 0 --time-limit 14400s --max-memory 420g --output json",
+    "sha256": {
+      "seen-quotient": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "specifications/detector_chan96/EnvironmentController.cfg": "1cb9f21665fbe58dcc90cf0d05d99f69e8c87a01258d58c5cb952168ff2a3388",
+      "specifications/detector_chan96/EnvironmentController.tla": "27d4468fd8dae883b066b2e9aba0b3bae1402260e373362ed7b79935c0480372"
+    },
+    "wall_s": 14400.08,
+    "peak_rss_kib": 4709772,
+    "verdict": "stopped",
+    "statistics": {
+      "depth": 45,
+      "distinct": 6529709,
+      "exhaustive": false,
+      "generated": 41843668,
+      "initial_generated": 1,
+      "left_on_queue": 1559503,
+      "reported_by_tlc": false
+    },
+    "message": "DIVE-L0038: stopped during graph-capture after 14400030 ms: the time limit is 14400000 ms",
+    "exit_code": 5
+  }
 }
