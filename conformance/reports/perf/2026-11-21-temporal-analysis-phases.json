@@ -19,7 +19,14 @@
       "depth": 1,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      }
     },
     {
       "config": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
@@ -45,7 +52,14 @@
       "depth": 1,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": "temporal capture has 501500 initial states and short, non-enumerating actions. One worker expands and commits each source inline",
+        "requested": 8,
+        "sequential": true,
+        "used": 1
+      }
     },
     {
       "config": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
@@ -63,7 +77,14 @@
       "depth": 21,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      }
     },
     {
       "config": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
@@ -89,7 +110,14 @@
       "depth": 21,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 8,
+        "sequential": false,
+        "used": 8
+      }
     },
     {
       "config": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
@@ -107,7 +135,14 @@
       "depth": 54,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      }
     },
     {
       "config": "specifications/dijkstra-mutex/DijkstraMutex.toolbox/LSpec-model/MC.cfg",
@@ -133,7 +168,14 @@
       "depth": 54,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 8,
+        "sequential": false,
+        "used": 8
+      }
     },
     {
       "config": "specifications/FiniteMonotonic/MCCRDT.cfg",
@@ -151,7 +193,14 @@
       "depth": 16,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      }
     },
     {
       "config": "specifications/FiniteMonotonic/MCCRDT.cfg",
@@ -177,7 +226,14 @@
       "depth": 16,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 8,
+        "sequential": false,
+        "used": 8
+      }
     },
     {
       "config": "specifications/Huang/Huang.cfg",
@@ -195,7 +251,14 @@
       "depth": 21,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 1,
+        "sequential": false,
+        "used": 1
+      }
     },
     {
       "config": "specifications/Huang/Huang.cfg",
@@ -221,7 +284,14 @@
       "depth": 21,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 8,
+        "sequential": false,
+        "used": 8
+      }
     },
     {
       "config": "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg",
@@ -247,7 +317,14 @@
       "depth": 39,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": true
+      "perf_sample": true,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 8,
+        "sequential": false,
+        "used": 8
+      }
     },
     {
       "config": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
@@ -273,7 +350,14 @@
       "depth": 36,
       "pending": 0,
       "verdict": "success",
-      "perf_sample": false
+      "perf_sample": false,
+      "reported_workers": {
+        "chaos": null,
+        "reason": null,
+        "requested": 8,
+        "sequential": false,
+        "used": 8
+      }
     }
   ]
 }
