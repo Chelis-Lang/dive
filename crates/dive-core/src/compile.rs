@@ -760,6 +760,7 @@ fn compile_inner(
         pre: HashMap::new(),
         settled: HashMap::new(),
         settle_fuel: 0,
+        shared_fold_fuel: 0,
         fallback: HashMap::new(),
         startup_assumptions: Vec::new(),
         startup_assumption_false: None,
@@ -941,6 +942,8 @@ struct Compiler<'a> {
     settled: HashMap<DefId, Option<Handle>>,
     /// Loop iterations spent by [`Self::settle`], against [`SETTLE_BUDGET`].
     settle_fuel: u64,
+    /// Fold budget already accounted for by reusing split action bodies.
+    shared_fold_fuel: u64,
     /// Start-up values of deferred definitions the binder's evaluation
     /// supplied ([`Handoff::startup_evaluator`]), used as `h.precomputed`.
     fallback: HashMap<DefId, Value>,
@@ -1974,7 +1977,7 @@ impl Compiler<'_> {
     /// left of [`FOLD_BUDGET`]. A fold that fails or runs out of fuel leaves
     /// the node alone: its error, if any, surfaces where TLC raises it.
     fn fold(&mut self, id: P) {
-        let left = FOLD_BUDGET.saturating_sub(self.stats.fold_fuel);
+        let left = self.remaining_fold_fuel();
         if left == 0 {
             self.stats.fold_skipped += 1;
             return;

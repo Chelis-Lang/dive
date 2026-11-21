@@ -7,15 +7,36 @@
 use std::collections::HashMap;
 use std::ops::Range;
 
-use super::{Action, Compiler, DefId, Error, ExprId, G, GNode, Node, Role, Slot};
+use super::{
+    Action, Compiler, DefId, Error, ExprId, FOLD_BUDGET, FOLD_FUEL, G, GNode, Node, Role, Slot,
+};
 
 struct SplitBody {
     generators: Range<usize>,
+    /// Logical fold budget on entry and exit of the original compilation.
+    /// A fold normally gets `FOLD_FUEL`, capped by the remaining budget.
+    fold_before: u64,
+    fold_after: u64,
     root: G,
     frame: u32,
 }
 
+impl SplitBody {
+    fn fold_cost(&self) -> u64 {
+        self.fold_before - self.fold_after
+    }
+
+    fn folds_fit(&self, remaining: u64) -> bool {
+        remaining == self.fold_before
+            || (self.fold_after >= FOLD_FUEL && remaining >= self.fold_cost() + FOLD_FUEL)
+    }
+}
+
 impl Compiler<'_> {
+    pub(super) fn remaining_fold_fuel(&self) -> u64 {
+        FOLD_BUDGET.saturating_sub(self.stats.fold_fuel + self.shared_fold_fuel)
+    }
+
     pub(super) fn next_actions(&mut self, roles: &[Role]) -> Result<Vec<Action>, Error> {
         let mut bodies: HashMap<(DefId, ExprId, Vec<Slot>), Option<SplitBody>> = HashMap::new();
         let mut actions = Vec::with_capacity(roles.len());
@@ -39,12 +60,17 @@ impl Compiler<'_> {
                 role.expr,
                 role.slots.iter().map(|(s, _)| *s).collect(),
             );
-            if let Some(body) = bodies.get(&key) {
-                actions.push(match body {
-                    Some(body) => self.instantiate_split(role, body)?,
-                    None => self.action(role, false)?,
-                });
-                continue;
+            let fold_before = self.remaining_fold_fuel();
+            match bodies.get(&key) {
+                Some(Some(body)) if body.folds_fit(fold_before) => {
+                    actions.push(self.instantiate_split(role, body)?);
+                    continue;
+                }
+                Some(None) => {
+                    actions.push(self.action(role, false)?);
+                    continue;
+                }
+                _ => {}
             }
             let values = self.info.len();
             let generators = self.code.gnodes.len();
@@ -63,6 +89,8 @@ impl Compiler<'_> {
                 key,
                 share.then_some(SplitBody {
                     generators: generators..self.code.gnodes.len(),
+                    fold_before,
+                    fold_after: self.remaining_fold_fuel(),
                     root: action.g,
                     frame: action.frame,
                 }),
@@ -76,6 +104,9 @@ impl Compiler<'_> {
         // Convert this occurrence's actual values in their original order,
         // including any conversion error, before executing the shared code.
         let (_, preset) = self.role_env(role)?;
+        // Preserve the point at which later occurrences cease folding. Only
+        // real work goes into the published compilation statistics.
+        self.shared_fold_fuel += body.fold_cost();
         let next = self.code.gnodes.len();
         G::try_from(next.saturating_add(body.generators.len()))
             .map_err(|_| Error::unsupported("a plan larger than the generator index limit"))?;

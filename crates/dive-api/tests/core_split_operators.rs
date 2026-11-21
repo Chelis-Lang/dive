@@ -193,7 +193,7 @@ fn intervening_actions_can_change_function_application_compilation()
     for compat_tlc in [false, true] {
         let report = check_file(&CheckRequest {
             file: root.join("Interleaved.tla"),
-            config: Some(root.join("Interleaved.cfg")),
+            config: Some(root.join("Next.cfg")),
             workers: Some(1),
             seed: Some(1),
             fp: Some(0),
@@ -206,5 +206,25 @@ fn intervening_actions_can_change_function_application_compilation()
         assert_eq!(report["statistics"]["generated"], 5);
         assert_eq!(report["statistics"]["depth"], 2);
     }
+    Ok(())
+}
+
+#[test]
+fn split_occurrences_still_cross_the_plan_fold_budget() -> Result<(), Box<dyn std::error::Error>> {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-split-bodies");
+    let report = check_file(&CheckRequest {
+        file: root.join("FoldBudget.tla"),
+        config: Some(root.join("Next.cfg")),
+        workers: Some(1),
+        seed: Some(1),
+        fp: Some(0),
+        ..Default::default()
+    })?
+    .to_json();
+    assert_eq!(report["verdict"], "success");
+    assert_eq!(report["statistics"]["distinct"], 2);
+    assert_eq!(report["statistics"]["generated"], 483);
+    // The last 37 occurrences force the unfolded LET once in each state.
+    assert_eq!(report["core"]["metrics"]["thunks"]["forced"], 74);
     Ok(())
 }
