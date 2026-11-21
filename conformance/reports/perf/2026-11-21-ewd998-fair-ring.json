@@ -378,5 +378,80 @@
   "benchmark_sha256_before_shadow_check": "3f1ea3bc3e7e805075122353a4a4a87f06ba6fa3897e35f777d473d29525463d",
   "checker_sha256": "d87889dbe6b53aa1519f87393ea2c1ca3b8f2f671135eef8f3a309768a2ead6c",
   "core_temporal_settings": "The two recorded Core controls used default deterministic liveness checks and short lassos. At three nodes four periodic prefix checks ran.",
-  "independent_tuple_bfs": "Two-node tuple search checked each raw successor, all 26,182 distinct edges, projected safety, unique fair system step and maximum rank four. Counts agree on all fields."
+  "independent_tuple_bfs": "Two-node tuple search checked each raw successor, all 26,182 distinct edges, projected safety, unique fair system step and maximum rank four. Counts agree on all fields.",
+  "layout_experiments": {
+    "n4": {
+      "layout": "Per-node fields, BFS, collapsed InitProbe witnesses",
+      "metrics": {
+        "n": 4,
+        "initial": 1024,
+        "distinct": 248006200,
+        "generated": 2613583722,
+        "depth": 104,
+        "queue": 0,
+        "dag_nodes": 171544,
+        "terminated": 315186,
+        "detected": 455,
+        "rank": 10,
+        "wall_s": 1067.721
+      },
+      "wall_seconds": 1067.99,
+      "rss_kib": 1244896
+    },
+    "token": {
+      "layout": "Token fields first, BFS",
+      "metrics": {
+        "n": 4,
+        "initial": 1024,
+        "distinct": 248006200,
+        "generated": 2696907118,
+        "depth": 104,
+        "queue": 0,
+        "dag_nodes": 40900,
+        "terminated": 315186,
+        "detected": 455,
+        "rank": 10,
+        "wall_s": 171.249
+      },
+      "wall_seconds": 171.62,
+      "rss_kib": 1203848
+    },
+    "sliced": {
+      "layout": "Flags then bit-sliced arithmetic, BFS",
+      "metrics": {
+        "n": 4,
+        "initial": 1024,
+        "distinct": 248006200,
+        "generated": 2696907118,
+        "depth": 104,
+        "queue": 0,
+        "dag_nodes": 226623,
+        "terminated": 315186,
+        "detected": 455,
+        "rank": 10,
+        "wall_s": 795.878
+      },
+      "wall_seconds": 796.15,
+      "rss_kib": 1180200
+    },
+    "numeric": {
+      "layout": "Bit-sliced arithmetic then flags, action saturation",
+      "metrics": {
+        "n": 4,
+        "initial": 1024,
+        "distinct": 248006200,
+        "generated": 2696907118,
+        "depth": null,
+        "queue": 0,
+        "dag_nodes": 490253,
+        "terminated": 315186,
+        "detected": 455,
+        "rank": 10,
+        "wall_s": 317.052
+      },
+      "wall_seconds": 317.33,
+      "rss_kib": 1232812
+    }
+  },
+  "layout_scope": "Shared pinned CPUs, experimental reachability and fair-rank timings before raw boundary validation. The per-node variant counts the three overlapping initial-probe branches only once, so its generated value undercounts. All four agree on distinct states and terminated/detected populations."
 }

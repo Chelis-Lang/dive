@@ -83,7 +83,7 @@
       "result": "invalid",
       "schema_version": 4
     },
-    "mutation": "Restore the source\u2019s commented DELTAConstraint conjunct that bounds in-transit message ages for failed recipients. Only the wrapper/module name also changes."
+    "mutation": "Restore the source’s commented DELTAConstraint conjunct that bounds in-transit message ages for failed recipients. Only the wrapper/module name also changes."
   },
   "growth": {
     "schedule": "Raise the probe invariant from age <=42 to age <=128 and remove the original invariant from the probe CFG. The unrestricted raw Next is unchanged.",
@@ -362,5 +362,306 @@
         }
       }
     }
-  }
+  },
+  "no_fault_ladder": [
+    {
+      "arm": "original",
+      "n": 1,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 0,
+      "wall_s": 0.02,
+      "rss_kib": 43992,
+      "cfg_sha256": "bfb5128885c7bffe65a056b954e96552fdd12af662f2b6fd08bca4be7bccb339",
+      "verdict": "success",
+      "counts": {
+        "depth": 22,
+        "distinct": 32,
+        "generated": 36,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "message": null
+    },
+    {
+      "arm": "original",
+      "n": 1,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 0,
+      "wall_s": 1.14,
+      "rss_kib": 97488,
+      "cfg_sha256": "bfb5128885c7bffe65a056b954e96552fdd12af662f2b6fd08bca4be7bccb339",
+      "terminal_counts": [
+        36,
+        32,
+        0
+      ],
+      "depth": 22
+    },
+    {
+      "arm": "original",
+      "n": 2,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 0,
+      "wall_s": 0.06,
+      "rss_kib": 46028,
+      "cfg_sha256": "ae12ab48da22330a5e663e80c030c23c82326290d7dd3ab02a13372b849847b8",
+      "verdict": "success",
+      "counts": {
+        "depth": 33,
+        "distinct": 381,
+        "generated": 807,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "message": null
+    },
+    {
+      "arm": "original",
+      "n": 2,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 0,
+      "wall_s": 1.74,
+      "rss_kib": 112192,
+      "cfg_sha256": "ae12ab48da22330a5e663e80c030c23c82326290d7dd3ab02a13372b849847b8",
+      "terminal_counts": [
+        807,
+        381,
+        0
+      ],
+      "depth": 33
+    },
+    {
+      "arm": "original",
+      "n": 3,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 5,
+      "wall_s": 150.12,
+      "rss_kib": 199268,
+      "cfg_sha256": "823677484db8f871d1765210a50dec4a333ced33247866e9144405e48320abbc",
+      "verdict": "stopped",
+      "counts": {
+        "depth": 43,
+        "distinct": 21723,
+        "exhaustive": false,
+        "generated": 44098,
+        "initial_generated": 1,
+        "left_on_queue": 810,
+        "reported_by_tlc": false
+      },
+      "message": "DIVE-L0038: stopped during graph-capture after 150027 ms: the time limit is 150000 ms"
+    },
+    {
+      "arm": "original",
+      "n": 3,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 124,
+      "wall_s": 160.01,
+      "rss_kib": 146972,
+      "cfg_sha256": "823677484db8f871d1765210a50dec4a333ced33247866e9144405e48320abbc",
+      "terminal_counts": null,
+      "depth": null
+    },
+    {
+      "arm": "original",
+      "n": 4,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 5,
+      "wall_s": 33.58,
+      "rss_kib": 3592008,
+      "cfg_sha256": "07fdf9707fa3cedc4e7cc5ebfd2cc902b54c3a0c7b084e1cf2961e89b9466599",
+      "verdict": "stopped",
+      "counts": {
+        "depth": 25,
+        "distinct": 77,
+        "exhaustive": false,
+        "generated": 166,
+        "initial_generated": 1,
+        "left_on_queue": 6,
+        "reported_by_tlc": false
+      },
+      "message": "DIVE-L0038: stopped during graph-capture: resident memory 2930081792 bytes exceeds the ceiling of 2516582400 bytes"
+    },
+    {
+      "arm": "original",
+      "n": 4,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 124,
+      "wall_s": 160.01,
+      "rss_kib": 126168,
+      "cfg_sha256": "07fdf9707fa3cedc4e7cc5ebfd2cc902b54c3a0c7b084e1cf2961e89b9466599",
+      "terminal_counts": null,
+      "depth": null
+    },
+    {
+      "arm": "original",
+      "n": 5,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 3,
+      "wall_s": 7.01,
+      "rss_kib": 361756,
+      "cfg_sha256": "6d91b94da08299a0a1137c2cbaa552d6e2ef40427c13bf2075afe9e18fa408eb",
+      "verdict": "unsupported",
+      "counts": null,
+      "message": "enumerating SUBSET of a set of more than 24 elements"
+    },
+    {
+      "arm": "original",
+      "n": 5,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 124,
+      "wall_s": 160.03,
+      "rss_kib": 124788,
+      "cfg_sha256": "6d91b94da08299a0a1137c2cbaa552d6e2ef40427c13bf2075afe9e18fa408eb",
+      "terminal_counts": null,
+      "depth": null
+    },
+    {
+      "arm": "guard_on_receiver",
+      "n": 2,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 0,
+      "wall_s": 0.08,
+      "rss_kib": 46052,
+      "cfg_sha256": "ae12ab48da22330a5e663e80c030c23c82326290d7dd3ab02a13372b849847b8",
+      "verdict": "success",
+      "counts": {
+        "depth": 33,
+        "distinct": 381,
+        "generated": 807,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "message": null
+    },
+    {
+      "arm": "guard_on_receiver",
+      "n": 2,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 0,
+      "wall_s": 2.47,
+      "rss_kib": 113256,
+      "cfg_sha256": "ae12ab48da22330a5e663e80c030c23c82326290d7dd3ab02a13372b849847b8",
+      "terminal_counts": [
+        807,
+        381,
+        0
+      ],
+      "depth": 33
+    },
+    {
+      "arm": "guard_on_receiver",
+      "n": 3,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 0,
+      "wall_s": 25.07,
+      "rss_kib": 64592,
+      "cfg_sha256": "823677484db8f871d1765210a50dec4a333ced33247866e9144405e48320abbc",
+      "verdict": "success",
+      "counts": {
+        "depth": 44,
+        "distinct": 26003,
+        "generated": 104842,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": false
+      },
+      "message": null
+    },
+    {
+      "arm": "guard_on_receiver",
+      "n": 3,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 124,
+      "wall_s": 160.01,
+      "rss_kib": 143084,
+      "cfg_sha256": "823677484db8f871d1765210a50dec4a333ced33247866e9144405e48320abbc",
+      "terminal_counts": null,
+      "depth": null
+    },
+    {
+      "arm": "guard_on_receiver",
+      "n": 4,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 5,
+      "wall_s": 150.02,
+      "rss_kib": 218592,
+      "cfg_sha256": "07fdf9707fa3cedc4e7cc5ebfd2cc902b54c3a0c7b084e1cf2961e89b9466599",
+      "verdict": "stopped",
+      "counts": {
+        "depth": 31,
+        "distinct": 314514,
+        "exhaustive": false,
+        "generated": 788769,
+        "initial_generated": 1,
+        "left_on_queue": 268349,
+        "reported_by_tlc": false
+      },
+      "message": "DIVE-L0038: stopped during graph-capture after 150001 ms: the time limit is 150000 ms"
+    },
+    {
+      "arm": "guard_on_receiver",
+      "n": 4,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 124,
+      "wall_s": 160.01,
+      "rss_kib": 118984,
+      "cfg_sha256": "07fdf9707fa3cedc4e7cc5ebfd2cc902b54c3a0c7b084e1cf2961e89b9466599",
+      "terminal_counts": null,
+      "depth": null
+    },
+    {
+      "arm": "guard_on_receiver",
+      "n": 5,
+      "t": 0,
+      "engine": "core",
+      "exit_code": 5,
+      "wall_s": 150.03,
+      "rss_kib": 299060,
+      "cfg_sha256": "6d91b94da08299a0a1137c2cbaa552d6e2ef40427c13bf2075afe9e18fa408eb",
+      "verdict": "stopped",
+      "counts": {
+        "depth": 35,
+        "distinct": 265090,
+        "exhaustive": false,
+        "generated": 265359,
+        "initial_generated": 1,
+        "left_on_queue": 262223,
+        "reported_by_tlc": false
+      },
+      "message": "DIVE-L0038: stopped during graph-capture after 150013 ms: the time limit is 150000 ms"
+    },
+    {
+      "arm": "guard_on_receiver",
+      "n": 5,
+      "t": 0,
+      "engine": "tlc",
+      "exit_code": 124,
+      "wall_s": 160.01,
+      "rss_kib": 118104,
+      "cfg_sha256": "6d91b94da08299a0a1137c2cbaa552d6e2ef40427c13bf2075afe9e18fa408eb",
+      "terminal_counts": null,
+      "depth": null
+    }
+  ],
+  "no_fault_recipe": "Set T=0 and only N=1..5 in the pinned CFG. Also test replacing the Deliver bound SUBSET inTransit in Age_Channel.tla with SUBSET {b \\in inTransit : b.content.to = rcver}, leaving the universal guard in place. Both explicit engines use W1, fp 0, seed 0. The three largest cells have 150 s Core / 160 s external TLC limits; early memory or enumeration stops are recorded separately.",
+  "mutant_recipe": "For both: start from Schedule.tla and append FairSchedule == Init /\\ [][Scheduled]_vars /\\ WF_vars(Scheduled) before the terminator; change only SPECIFICATION Spec to SPECIFICATION FairSchedule in the original CFG. Accuracy replaces the value of OnlyMessagesForCorrectProcesses(msgs) with {}. Completeness replaces the union in the Predict assignment by suspected[i], and uses IF ~failed[Victim] in Scheduled for a crash before the first send. For replay use the corresponding unmodified-schedule root EnvironmentController.tla with the original configuration."
 }

@@ -2076,5 +2076,63 @@
     "lower_controls": "Default four-address, three-ready case fell from 268816 to 19231 value nodes, with 1722 generator nodes and identical statistics for all 446 active memo sites. Eight addresses with seven ready fell from 1069024 to 20767 value nodes with 6858 generator nodes and identical statistics for all 1714 active sites. Verdicts, counts, thunk statistics, conjuncts and memo tables match the baseline in both profiles.",
     "negative_control": "On the 15-ready ring the added invariant PoolEmpty == MessagePool = {} fails in both Core profiles and pinned TLC at 2 distinct, 2 generated, depth 2. Independent validation accepted both traces and rejected copying state 1 into state 2 at the next-state relation.",
     "compiler_controls": "Regression fixtures in core-split-bodies exercise swapped arguments, duplicate witnesses, LET capture, interleaved function applications and fold-budget exhaustion. At the 241-occurrence fold boundary, both the baseline and the fixed compiler force 74 run-time thunks. The compiler spends 96504 physical fold iterations on the candidate and 4194304 on the baseline. A separate split disjunction mixing pure guards with two RandomElement draws and Print per enabled occurrence preserved both profiles’ output and counters at seeds 1, 7 and 102. Compatibility output and counts also matched pinned TLC at all three seeds."
+  },
+  "original_128_ordinary_main": {
+    "main": "3a373d3b4824042c771b116656cc9030612ee726",
+    "exe_sha256": "c5abd20bf11b2699ddb22874bece3afafc8284cfdd8be6546f43791127d78ca9",
+    "direct": [
+      {
+        "workers": 1,
+        "profile": "default",
+        "statistics": {
+          "depth": 19,
+          "distinct": 474,
+          "generated": 61019,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "wall_s": 247.12,
+        "rss_kib": 3634588,
+        "value_nodes": 563462
+      },
+      {
+        "workers": 1,
+        "profile": "tlc",
+        "statistics": {
+          "depth": 19,
+          "distinct": 474,
+          "generated": 61019,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "wall_s": 250.59,
+        "rss_kib": 3728372,
+        "value_nodes": 559589
+      },
+      {
+        "workers": 4,
+        "profile": "default",
+        "statistics": {
+          "depth": 19,
+          "distinct": 474,
+          "generated": 61019,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "wall_s": 165.78,
+        "rss_kib": 3745356,
+        "value_nodes": 563462
+      }
+    ],
+    "pinned_tlc_w1": "272.09 311316",
+    "pinned_tlc_w4": {
+      "wall_s": 87.05,
+      "rss_kib": 832296
+    },
+    "negative": "Both profiles and TLC: PoolEmpty at Join(127,0), 2/2/d2; both Core traces valid and forged successors invalid at next.",
+    "main_controls": "cutoff unit, split actions, budget, RNG, debugger, clippy, eight selected Core W1 goldens/zero regressions"
   }
 }

@@ -183,5 +183,97 @@
         "peak_rss_kib": 88992
       }
     ]
+  },
+  "invariance": {
+    "tlaps": "TLAPS 1.5.0 release 202210041448, installer SHA-256 ebb7a3f271bdb564f74cb0a2767ef7b9ff7045621a9be7c50d363a03c2e6f08a",
+    "run": "tlapm --threads 1 --nofp -k BPConProof.tla, single pinned logical CPU on c7i.4xlarge. Each source set has its own cache. No previous obligation fingerprints used.",
+    "sources": "Copy BPConProof, PConProof, VoteProof and Consensus from the pinned Examples source. Cut the root immediately after the closing BY <1>1, <1>2, PTL DEF Spec of THEOREM Invariance, and finish the module with ==== . Keep the original proof text. Copy crates/dive-sema/bundled/tlaps/FiniteSetTheorems.tla beside the sources. The finite arm replaces Ballot == Nat in BPConProof, PConProof and VoteProof with Ballot == {b \\in Nat : b <= 2}. The supplementary imported PConProof NextDef prefix ends after BY <1>2, <1>3 DEF Next, TLANext; run tlapm on that prefix separately.",
+    "trust": "The pinned finite set induction theorem and other standard mathematical library lemmas are premises supplied by the indicated libraries. The measured property is Spec => []Inv. Refinement theorems after Invariance are outside this experiment.",
+    "results": {
+      "authored": {
+        "passed": 743,
+        "exit": 3,
+        "wall_seconds": 1713.21,
+        "peak_rss_kib": 1225588,
+        "sha256": {
+          "PConProof.tla": "c78bd085b8e5ec696034d8a259d6d00df1576cf6c553c2c0d89a78d3198fe659",
+          "VoteProof.tla": "89f9ca0345801ed0834542c1332bc2b6bb3feb9a95da40d750793e8948d696da",
+          "Consensus.tla": "5b877e93b31c982e80b1443127bc2c50c090d7f8d729d468f3b42849315205bf",
+          "BPConProof.tla": "48e7b567f64befb13827f44f725176cdeae3115d84da093a8edd89431dab0736"
+        },
+        "summary": "[ERROR]: 1/744 obligations failed."
+      },
+      "finite": {
+        "passed": 740,
+        "exit": 3,
+        "wall_seconds": 1793.29,
+        "peak_rss_kib": 1225508,
+        "sha256": {
+          "PConProof.tla": "c78bd085b8e5ec696034d8a259d6d00df1576cf6c553c2c0d89a78d3198fe659",
+          "VoteProof.tla": "89f9ca0345801ed0834542c1332bc2b6bb3feb9a95da40d750793e8948d696da",
+          "Consensus.tla": "5b877e93b31c982e80b1443127bc2c50c090d7f8d729d468f3b42849315205bf",
+          "BPConProof.tla": "6840f694a1958e2093892c8833db4fe801a4689c5ba12a37b46b265957993959"
+        },
+        "summary": "[ERROR]: 4/744 obligations failed."
+      },
+      "proto-authored": {
+        "passed": 744,
+        "exit": 0,
+        "wall_seconds": 1694.22,
+        "peak_rss_kib": 1225608,
+        "sha256": {
+          "PConProof.tla": "c78bd085b8e5ec696034d8a259d6d00df1576cf6c553c2c0d89a78d3198fe659",
+          "VoteProof.tla": "89f9ca0345801ed0834542c1332bc2b6bb3feb9a95da40d750793e8948d696da",
+          "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+          "Consensus.tla": "5b877e93b31c982e80b1443127bc2c50c090d7f8d729d468f3b42849315205bf",
+          "BPConProof.tla": "48e7b567f64befb13827f44f725176cdeae3115d84da093a8edd89431dab0736"
+        },
+        "summary": "[INFO]: All 744 obligations proved."
+      },
+      "proto-finite": {
+        "passed": 744,
+        "exit": 0,
+        "wall_seconds": 1692.02,
+        "peak_rss_kib": 1225516,
+        "sha256": {
+          "PConProof.tla": "5528bb21f015f3a94251f11b73df16280d833b9365ba6cbe8e70c3b5a8b634f1",
+          "VoteProof.tla": "4eff6a1629ba36c062d18d4a96eca6bfd3061eeeccec05500d436d731b21399f",
+          "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+          "Consensus.tla": "5b877e93b31c982e80b1443127bc2c50c090d7f8d729d468f3b42849315205bf",
+          "BPConProof.tla": "42807adfa3ab2656919b32d6f2a6e77af275f79dd355a964c095d88cc7860e2c"
+        },
+        "summary": "[INFO]: All 744 obligations proved."
+      },
+      "proto-authored-nextdef": {
+        "passed": 10,
+        "exit": 0,
+        "wall_seconds": 0.33,
+        "peak_rss_kib": 31408,
+        "sha256": {
+          "PConProof.tla": "1a8b61a4cf6dd64201697be06b553fa60a9cbc5bc2129a77417abe9a751bbd4a",
+          "VoteProof.tla": "89f9ca0345801ed0834542c1332bc2b6bb3feb9a95da40d750793e8948d696da",
+          "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+          "Consensus.tla": "5b877e93b31c982e80b1443127bc2c50c090d7f8d729d468f3b42849315205bf",
+          "BPConProof.tla": "48e7b567f64befb13827f44f725176cdeae3115d84da093a8edd89431dab0736"
+        },
+        "summary": "[INFO]: All 10 obligations proved."
+      },
+      "proto-finite-nextdef": {
+        "passed": 10,
+        "exit": 0,
+        "wall_seconds": 0.33,
+        "peak_rss_kib": 31316,
+        "sha256": {
+          "PConProof.tla": "4e656e373b91c1d5ff3c45d2dfa3b87ea9cbf03663ddee08f94fafcd9c862071",
+          "VoteProof.tla": "4eff6a1629ba36c062d18d4a96eca6bfd3061eeeccec05500d436d731b21399f",
+          "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+          "Consensus.tla": "5b877e93b31c982e80b1443127bc2c50c090d7f8d729d468f3b42849315205bf",
+          "BPConProof.tla": "42807adfa3ab2656919b32d6f2a6e77af275f79dd355a964c095d88cc7860e2c"
+        },
+        "summary": "[INFO]: All 10 obligations proved."
+      }
+    },
+    "earlier_trials": "With the installer library and literal 0..2 only in the root, the finite trial missed 4/744. The original Nat trial missed 1/744. The published library corrects the finite-set-induction statement used in this source and the finite proof specializes imported definitions consistently.",
+    "cfg_controls": "Core and TLC with the released constants passed the original startup assumptions and the explicit assumptions None \\notin Value and Ballot = {0,1,2}. Changing the invariant to Inv /\\ bmsgs={} fails at depth two with a replayable violation (Core 0.12 s / 72,648 KiB; TLC 2.06 s / 252,656 KiB). No complete graph counts follow from these proofs."
   }
 }
