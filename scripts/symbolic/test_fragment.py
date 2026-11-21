@@ -333,6 +333,8 @@ OnlyZero == x = 0
 Stay == UNCHANGED <<x, mail>>
 Duplicate == Stay \/ Stay
 Sink == /\ x = 0 /\ x' = 1 /\ UNCHANGED mail
+SinkTwice == Sink \/ Sink
+StutterOnZero == /\ x' = 0 /\ UNCHANGED mail
 Blocked == /\ x = 1 /\ UNCHANGED <<x, mail>>
 Add == /\ mail' = mail \cup {1} /\ UNCHANGED x
 Escape == /\ mail' = mail \cup {399} /\ UNCHANGED x
@@ -357,8 +359,22 @@ Escape == /\ mail' = mail \cup {399} /\ UNCHANGED x
     rows = run(module, base, "--refine-domains", *(arg for path in edits[1:] for arg in ("--recheck", module, path)))
     for row, config in zip(rows, edits, strict=True):
         compare(row, explicit(module, config))
-    assert [r["reused"] for r in rows] == [False, True, False, False, False, False]
+    assert [r["reused"] for r in rows] == [False, True, True, True, False, False]
     assert rows[-1]["learned_members"] == 2
+
+    # The admitted x=0 makes the assignment x'=0 a self-loop. Sink emits the
+    # excluded x=1; its second witness changes only the generated count.
+    sequence = [base, cfg("guarded-loop", step="StutterOnZero"),
+                cfg("outgoing", step="Sink"), cfg("twice-outgoing", step="SinkTwice")]
+    rows = run(module, sequence[0], "--refine-domains",
+               *(arg for path in sequence[1:] for arg in ("--recheck", module, path)))
+    for row, config in zip(rows, sequence, strict=True):
+        compare(row, explicit(module, config))
+    assert [row["reused"] for row in rows] == [False, True, False, True]
+    _, removed_last = run(module, base, "--refine-domains", "--recheck", module,
+                          cfg("lose-last-loop", step="Blocked"), code=1)
+    assert removed_last["verdict"] == "deadlock" and removed_last["trace_validated"]
+    assert not removed_last["reused"]
 
     # No admitted predecessor reaches the excluded initial x=1.
     _, excluded = run(module, base, "--refine-domains", "--recheck", module, cfg("initial-bad", prop="OnlyZero"), code=1)

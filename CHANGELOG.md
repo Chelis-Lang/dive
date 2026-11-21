@@ -15,11 +15,13 @@ are in git history.
 
 - Core stores large resident fingerprint sets in fewer bytes per slot. [Memory and throughput at 402 million keys](docs/developer/large-models.md#resident-fingerprint-membership).
 
-- Core safety checks can use multiple workers on specifications with conditional diagnostics. The coordinator preserves the order and number of printed lines. [Checking guide](docs/user/checking.md#workers-and-stores).
+- Refined symbolic sessions can reuse a completed search across edits to transition guards, repeated actions and self-loops. They report the edited witness count and check for newly introduced deadlocks. [Symbolic checks](docs/user/symbolic.md#learning-which-members-a-wide-set-needs).
 
 - Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
 
 - `dive check --partitioned-fingerprints` supports parallel safety search with disk membership beyond four billion entries. The [storage guide](docs/user/disk-seen-safety.md#multi-worker-fingerprint-membership) covers capacity, audit results and the measured throughput cost.
+
+- Core safety checks can use multiple workers on specifications with conditional diagnostics. The coordinator preserves the order and number of printed lines. [Checking guide](docs/user/checking.md#workers-and-stores).
 
 - The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Relation changes start a fresh search with the previous set coordinates. [Usage and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
 
