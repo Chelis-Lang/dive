@@ -910,13 +910,13 @@ fn labels<'a>(
     plan: &Plan,
     graph: impl Into<OriginalEdges<'a>>,
     states: &mut (impl StateSource + ?Sized),
-    shape: product::BehaviorView<'_>,
+    shape: product::BehaviorView<'a>,
     property: &str,
     policy: GraphLabelPolicy,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
     evaluations: &mut EvaluationErrors,
     control: &dive_runtime::budget::EvaluationControl,
-) -> Result<PackedTruth, AnalysisError> {
+) -> Result<PackedTruth<'a>, AnalysisError> {
     let mut reuse = fairness::Cache::new(false, 0);
     labels_with_reuse(
         model,
@@ -944,7 +944,7 @@ fn labels_with_reuse<'a>(
     plan: &Plan,
     graph: impl Into<OriginalEdges<'a>>,
     states: &mut (impl StateSource + ?Sized),
-    shape: product::BehaviorView<'_>,
+    shape: product::BehaviorView<'a>,
     property: &str,
     policy: GraphLabelPolicy,
     active: &(std::collections::BTreeSet<usize>, Option<usize>),
@@ -952,7 +952,7 @@ fn labels_with_reuse<'a>(
     control: &dive_runtime::budget::EvaluationControl,
     frozen_prefix: Option<plan::FrozenPrefix>,
     reuse: &mut fairness::Cache,
-) -> Result<PackedTruth, AnalysisError> {
+) -> Result<PackedTruth<'a>, AnalysisError> {
     let graph = graph.into();
     let edges = (0..graph.states())
         .try_fold(0_usize, |total, source| {
@@ -1025,7 +1025,7 @@ fn labels_with_reuse<'a>(
             }
             // The checked CSR already validates every original ordinal,
             // destination and stutter. A proved false row leaves its
-            // pre-zeroed bits intact, including duplicate destinations.
+            // original edge bits FALSE, including duplicate destinations.
             if !eager
                 && matches!(graph, OriginalEdges::Native(_))
                 && graph.len(v).is_some_and(|n| n > 1)

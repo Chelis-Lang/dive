@@ -69,7 +69,7 @@ impl Cache {
         &mut self,
         recipe: Option<FrozenAtom>,
         atom: usize,
-        labels: &PackedTruth,
+        labels: &PackedTruth<'_>,
         fully_native: bool,
     ) -> Result<(), AnalysisError> {
         self.complete_with(recipe, atom, labels, fully_native, |copy, len| {
@@ -81,7 +81,7 @@ impl Cache {
         &mut self,
         recipe: Option<FrozenAtom>,
         atom: usize,
-        labels: &PackedTruth,
+        labels: &PackedTruth<'_>,
         fully_native: bool,
         reserve: impl FnOnce(&mut Vec<u64>, usize) -> bool,
     ) -> Result<(), AnalysisError> {
@@ -136,11 +136,11 @@ impl Cache {
         // Count accepted construction storage too, even if a later poll stops
         // the copy before any truth becomes visible.
         self.peak_bytes = self.peak_bytes.max(bytes);
-        for chunk in words.chunks(1024) {
-            if crate::budget::exhausted() {
+        for (index, word) in words.enumerate() {
+            if index.is_multiple_of(1024) && crate::budget::exhausted() {
                 return Err(AnalysisError::Limit(crate::budget::EXHAUSTED));
             }
-            copy.extend_from_slice(chunk);
+            copy.push(word);
         }
         if self.columns.len() < slots {
             if self

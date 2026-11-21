@@ -24,6 +24,14 @@ impl<'a> From<&'a Graph> for BehaviorView<'a> {
 }
 
 impl<'a> BehaviorView<'a> {
+    pub(super) fn csr_offsets(self) -> Option<&'a [usize]> {
+        if let Self::Csr(g) = self {
+            Some(g.offsets())
+        } else {
+            None
+        }
+    }
+
     // Match Graph::new exactly: all roots first, then destinations in row order.
     // Captured states/concrete rows are validated later, at their original phase.
     pub(crate) fn checked_captured(graph: &'a BehaviorGraph) -> Result<Self, GraphError> {
