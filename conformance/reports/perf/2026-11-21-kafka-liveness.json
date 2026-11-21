@@ -426,7 +426,7 @@
     "states": 1055
   },
   "fixed_five_extended": {
-    "host": "c7i.4xlarge us-west-2, 4 workers on CPUs 0\u20133, each engine separately",
+    "host": "c7i.4xlarge us-west-2, 4 workers on CPUs 0–3, each engine separately",
     "configuration": "fixed5.cfg under cfg_edits.fixed; same six invariants, four temporal properties and source fairness.",
     "core_command": "dive check kraft_kip_996.tla --config fixed5.cfg --library-path MODULES --workers 4 --store exact --fp 0 --seed 0 --max-memory 22g --time-limit 6300s --output json",
     "core": {
@@ -467,10 +467,10 @@
         "distinct": 1315959,
         "left_on_queue": 59078
       },
-      "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0\u20133, external deadline 6360s"
+      "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0–3, external deadline 6360s"
     },
     "tlc_complete": {
-      "host": "separate matched EC2 c7i.4xlarge, us-west-2b, W4 pinned to CPUs 0\u20133",
+      "host": "separate matched EC2 c7i.4xlarge, us-west-2b, W4 pinned to CPUs 0–3",
       "wall_s": 9093.59,
       "peak_rss_kib": 8589852,
       "exit": 0,
@@ -479,7 +479,7 @@
       "distinct": 1467920,
       "depth": 49,
       "left_on_queue": 0,
-      "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0\u20133, external deadline 16900s",
+      "command": "java -XX:ActiveProcessorCount=4 -Xmx14g -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir NEW -config fixed5.cfg kraft_kip_996.tla, CPUs 0–3, external deadline 16900s",
       "input_sha256": {
         "../../panel/tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
         "fixed5.cfg": "1875b686891580a70c44075852711429ea7e697122688e3254020d5733c26c72",
@@ -1111,6 +1111,126 @@
         ]
       },
       "result": "All sixteen restricted suffixes exhausted without a fair counterexample. Both properties remain open on unrestricted executions."
+    }
+  },
+  "prospective_progress": {
+    "property": "NotStuckInProspective. The stronger conclusion is that every prospective episode ends, including one with no connected non-prospective peer.",
+    "scope": "Conditional on local enabledness and step obligations on every reachable state and edge. Those obligations have been checked exhaustively for the listed finite controls. Coverage of the complete released configuration and ValuesEventuallyAcked remain open.",
+    "rank": "Twice the number of outstanding vote requests sent by this server plus the number of unconsumed vote responses addressed to it. Includes pre-votes and ordinary votes since each pair shares one weakly fair handler.",
+    "obligations": "During an uninterrupted prospective episode the natural rank cannot increase. Equal rank preserves both message sets. Any matching per-peer handler must strictly decrease rank or exit the episode. Each outstanding message enables the handler, and an empty rank enables ConcludePreVote, which exits. These are predicates over the original actions, including both guards and assignments.",
+    "argument": "If an episode lasts forever, the nonincreasing natural rank eventually stays constant. A message on that suffix selects a fixed enabled fair action. At rank zero, ConcludePreVote is that action. Weak fairness forces a step that decreases the rank or ends the episode, contradicting the constant suffix.",
+    "proof": {
+      "file": "scripts/perf/scale/kraft-drain/FairDrain.v",
+      "sha256": "8ad8d6f1fa839eed4c5b0220f5abec67dd4dbee76a21a970517c2970448aa6a1",
+      "version": "Coq 8.18.0 / OCaml 4.14.1",
+      "standard_library_axioms": [
+        "Classical_Prop.classic"
+      ],
+      "command": "In a temporary directory, coqc FairDrain.v && coqchk -silent FairDrain. Inspect Print Assumptions eventually_exits. The hypotheses are universally quantified arguments to the theorem.",
+      "coqc_s": 0.28,
+      "coqc_rss_kib": 333332,
+      "coqchk_s": 24.95,
+      "coqchk_rss_kib": 203132
+    },
+    "source_checks": {
+      "wrapper": "scripts/perf/scale/kraft-drain/KRaftVoteDrain.tla",
+      "wrapper_sha256": "b53abddecef5fb5c53dbf8ac7441599cd81abca78f776524fc1fc1136ad18dd0",
+      "host": "Isolated c7i.2xlarge, us-east-2b, Linux 7.0.0-1018-aws. Each process pinned to one physical core. Other independent trials on separate cores. Pinned TLC and Temurin 17.0.20.1. RSS in KiB, wall in seconds.",
+      "prepare": "python3 scripts/perf/scale/kraft-drain/prepare.py UPSTREAM/kraft/kip_996 CASE NEW_DIR. All original input files must match hashes in this record.",
+      "tlc": "In NEW_DIR, java -XX:ActiveProcessorCount=1 -Xmx2800m -DTLA-Library=MODULES -cp JAR tlc2.TLC -workers 1 -seed 0 -fp 0 -config CASE.cfg KRaftVoteDrain.tla. State and action obligations are safety checks over Init and Next. The ordinary liveness checks are recorded separately. The two-server controls and simulated paths used -Xmx1800m.",
+      "simulation": "Use original.cfg with -simulate num=32 -depth 96 -seed 996 in place of -seed 0.",
+      "cases": {
+        "fixed": "Original three-server fixed membership control, no disruption, no state constraint.",
+        "two": "Two servers, one discretionary timeout, one value. Bound prevote_ctr and each started server epoch to at most two.",
+        "election": "As two, with three servers.",
+        "original": "All original constants and transitions, no state constraint.",
+        "NoOutgoing/NoIncoming/NoEmpty": "Each original-constants invariant deliberately fails at the first prospective state with the named condition. Demonstrates nonvacuity.",
+        "negative": "Prepare unhandled. Disable the vote response action on the original input; DrainEnabled must fail.",
+        "reinsert": "Two-server control retaining the triggering request on reply; DrainSteps must fail."
+      },
+      "results": {
+        "two": {
+          "exit": 0,
+          "wall_s": 31.38,
+          "rss_kib": 346336,
+          "generated": 368483,
+          "distinct": 162374,
+          "queued": 0,
+          "depth": 47
+        },
+        "fixed": {
+          "exit": 0,
+          "wall_s": 2.09,
+          "rss_kib": 192016,
+          "generated": 1501,
+          "distinct": 660,
+          "queued": 0,
+          "depth": 24
+        },
+        "negative": {
+          "exit": 12,
+          "wall_s": 30.75,
+          "rss_kib": 156820,
+          "generated": 2112304,
+          "distinct": 16556,
+          "queued": 15644,
+          "depth": 3,
+          "finding": "Invariant DrainEnabled is violated",
+          "concrete_trace_states": 3
+        },
+        "reinsert": {
+          "exit": 13,
+          "wall_s": 1.31,
+          "rss_kib": 115884,
+          "generated": 13,
+          "distinct": 11,
+          "queued": 6,
+          "depth": 3,
+          "finding": "Action property DrainSteps is violated",
+          "concrete_trace_states": 3
+        },
+        "NoIncoming": {
+          "exit": 12,
+          "wall_s": 29.01,
+          "rss_kib": 207776,
+          "generated": 2112304,
+          "distinct": 16556,
+          "queued": 15644,
+          "depth": 3,
+          "finding": "Invariant NoIncoming is violated",
+          "concrete_trace_states": 3
+        },
+        "NoOutgoing": {
+          "exit": 12,
+          "wall_s": 1.95,
+          "rss_kib": 179360,
+          "generated": 2321,
+          "distinct": 911,
+          "queued": 909,
+          "depth": 2,
+          "finding": "Invariant NoOutgoing is violated",
+          "concrete_trace_states": 2
+        },
+        "NoEmpty": {
+          "exit": 12,
+          "wall_s": 3.41,
+          "rss_kib": 200776,
+          "generated": 16292,
+          "distinct": 6412,
+          "queued": 6404,
+          "depth": 3,
+          "finding": "Invariant NoEmpty is violated",
+          "concrete_trace_states": 3
+        },
+        "sim": {
+          "exit": 0,
+          "wall_s": 5.22,
+          "rss_kib": 136032,
+          "summary": [
+            "Progress: 34955 states checked, 32 traces generated (trace length: mean=96, var(x)=0, sd=0)"
+          ]
+        }
+      }
     }
   }
 }
