@@ -698,6 +698,15 @@ A hash bucket and a separately allocated row per discovery made exact equality e
 
 All three runs exhausted the one-value SlateDB control on the same dedicated 16-core host, storing all 242,213,642 identities, generating 1,068,416,158 states and reaching depth 126. Packing reduced complete-run peak RSS by 60.7% against the previous layout and added 3.7% wall time. A separate 10-million-state comparison of inline and packed rows used 2.84 and 1.65 GiB. On the unmodified two-value input at 100 million exact identities, inline and packed rows used 21.84 and 10.18 GiB in 368.73 and 380.86 s. Both reached 362,779,396 generated, depth 56 and 15,988,974 queued. [Inputs, binary identities, individual trials and commands](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
+On EmergencyCall the hash index itself set a second memory limit. A resize of a single table could temporarily keep both generations resident. Core now splits that table into 256 shards. Each primary slot holds one hash and one packed-row position. Separate tables hold actual hash collisions and discovery IDs that differ from the row position. Looking up an existing state still compares the full mathematical row.
+
+| EmergencyCall, 24 cores | Packed rows | Packed rows and compact index | Peak RSS reduction |
+|---|---:|---:|---:|
+| F3, complete (21,255,936 states) | 130.61 s / 2.15 GiB | 131.97 s / 1.27 GiB | 41.1% |
+| Full Init, one cell at 100,000,000 states | 337.80 s / 8.70 GiB | 343.22 s / 6.14 GiB | 29.5% |
+
+F3 matched the released TLC result with 135,871,232 generated, depth 27 and an empty queue. Both full-Init runs stopped at the state cap with 457,202,205 generated, depth 9 and 26,800,319 queued. Each pair ran sequentially on the same isolated Graviton4. [Inputs, commands and measurements](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
+
 ### Reproduce the released PaxosLease runs
 
 Use the source pin and JVM settings in the [PaxosLease record](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).

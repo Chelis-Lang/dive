@@ -1,6 +1,7 @@
 //! Opt-in native safety storage. Exact identities are separate from receiver history.
 
 mod identity_rows;
+mod resident_index;
 
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -812,7 +813,7 @@ impl<T: Default> Bucket<T> {
 /// equal keys of distinct states still resolve to distinct discoveries.
 #[derive(Debug, Default)]
 pub(crate) struct Exact {
-    rows: HashMap<u64, Bucket<usize>>,
+    rows: resident_index::ResidentIndex,
     retained: identity_rows::IdentityRows,
     encoded: Option<HashMap<u64, Bucket<Vec<u8>>>>,
     len: usize,
@@ -898,11 +899,8 @@ impl Exact {
         limit: usize,
         poll: &(dyn Fn() -> bool + Sync),
     ) -> Result<bool, Error> {
-        let Some(rows) = self.rows.get(&key) else {
-            return Ok(false);
-        };
         let mut scratch = Vec::new();
-        for &(position, _) in rows.rows() {
+        for position in self.rows.positions(key) {
             let row = self.retained.read(position, &mut scratch)?;
             let encoded =
                 dive_core::key::canonical(heap, row, limit, &|| !poll()).map_err(|error| {
@@ -929,11 +927,9 @@ impl Exact {
         row: &[Handle],
         heap: &Heap,
     ) -> Result<Option<u64>, Error> {
-        if let Some(bucket) = self.rows.get(&key) {
-            for &(position, id) in bucket.rows() {
-                if self.retained.matches(position, row, heap)? {
-                    return Ok(Some(id));
-                }
+        for position in self.rows.positions(key) {
+            if self.retained.matches(position, row, heap)? {
+                return Ok(Some(self.rows.id(position)));
             }
         }
         Ok(None)
@@ -950,12 +946,8 @@ impl Exact {
         if let Some(seen) = self.lookup(key, row, heap)? {
             return Ok(Inserted::Seen(Some(seen)));
         }
-        self.rows
-            .try_reserve(1)
-            .map_err(|_| Error::unsupported("exact state index allocation"))?;
         let position = self.retained.reserve(row.len())?;
-        Bucket::add(self.rows.entry(key), (position, id))
-            .map_err(|_| Error::unsupported("exact state collision bucket allocation"))?;
+        self.rows.insert(key, position, id)?;
         self.retained.push_reserved(row);
         self.len += 1;
         Ok(Inserted::New)

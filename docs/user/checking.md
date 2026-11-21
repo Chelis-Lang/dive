@@ -493,6 +493,11 @@ See the [matched high-fanout measurements](../developer/large-models.md#high-fan
 A wide frontier or a single state with many successors can still require
 substantial memory. [Core storage measurements](../developer/core/07-engine.md#resident-storage-measurements).
 
+With `--store exact`, Core grows the resident hash index one shard at a time.
+Each matching hash still requires equality of the full state. Peak memory also
+depends on the queued states and the values shared between them.
+[Exact-store measurements](../developer/large-models.md#resident-exact-state-identities).
+
 Every `dive check` runs under two budgets:
 
 - `--time-limit DURATION|none` bounds wall-clock time for the whole check.
