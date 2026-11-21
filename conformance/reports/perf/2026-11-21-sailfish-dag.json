@@ -692,5 +692,75 @@
   ],
   "scope": "A source-specific overapproximation of immutable DAGs, with separate source arguments for state typing, the monotone graph, sequence linearization and enabled actions. Positive proof queries seek violations. Satisfiable non-vacuity controls are allowed abstract states. The explicit checks and replays are separate.",
   "mixed_witness_parents": "At r=1 attach to genesis. At rounds before GST omit the node leading the current round. At/after GST omit n1 unless n1 led the previous round. Each selected parent set includes the previous leader.",
-  "sensitivity_control": "On the five-round DAG replace correct_parents with TRUE. The incompatible-commits query becomes SAT. On eight rounds the missing-stable-leader query becomes SAT too. These are solver sensitivity checks on altered formulas."
+  "sensitivity_control": "On the five-round DAG replace correct_parents with TRUE. The incompatible-commits query becomes SAT. On eight rounds the missing-stable-leader query becomes SAT too. These are solver sensitivity checks on altered formulas.",
+  "ordinary_core_memory_mappings": {
+    "source_and_config": "Original five rounds. The binary and arguments match the 224 GiB capacity experiment in 2026-11-20-large-model-outcomes.json except for the declared limits on the short controls.",
+    "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+    "historical_abort": {
+      "host": "EC2 r7i.8xlarge, Linux 7.0.0-1018-aws, 16 workers",
+      "sampled_rss_limit_gib": 224,
+      "peak_rss_kib": 232868848,
+      "elapsed_s": 18934.7,
+      "signal": "SIGABRT",
+      "cgroup_oom_kill": 0,
+      "vm_max_map_count": 1048576,
+      "core_file_note_size_limit_bytes": 4194304,
+      "elf_note_size_estimate_bytes": 67108992,
+      "inferred_vma_count": 1048578,
+      "interpretation": "The ELF core dump warning and the crash handler report for the checker occurred in the same second. Upstream Linux 7.0 sizes the first NT_FILE buffer at 64 bytes per virtual memory area. The warning size implies a snapshot two areas above the host map limit. This is evidence of mapping pressure at abort. The failing allocation syscall was not captured.",
+      "kernel_reference": "https://github.com/torvalds/linux/blob/v7.0/fs/binfmt_elf.c#L1594-L1615",
+      "sysctl_reference": "https://www.kernel.org/doc/html/latest/admin-guide/sysctl/vm.html#max-map-count"
+    },
+    "prefix_controls": {
+      "host": "Independent EC2 r7i.8xlarge, 16 workers on CPUs 0-15. Four sequential processes. Guest map limit restored after measurements.",
+      "command": "env [trial environment] taskset -c 0-15 ./seen-quotient check specifications/dag-consensus/TLCSailfish2.tla --config specifications/dag-consensus/TLCSailfish2.cfg --library-path modules --workers 16 --compat=tlc --fp 0 --seed 0 --time-limit 480s --max-memory 36g --max-states 4000000 --output json",
+      "method": "Set vm.max_map_count for each trial on the isolated guest. Count /proc/PID/maps lines every 350 ms. Elapsed time includes the sampling wait. RSS is wait4 ru_maxrss in KiB.",
+      "common_statistics": {
+        "depth": 14,
+        "distinct": 4000000,
+        "exhaustive": false,
+        "generated": 7261317,
+        "initial_generated": 1,
+        "left_on_queue": 3226964,
+        "reported_by_tlc": false
+      },
+      "common_verdict": "stopped at state limit",
+      "exit": 5,
+      "trials": [
+        {
+          "map_limit": 4096,
+          "environment": {},
+          "wall_s": 93.98,
+          "peak_rss_kib": 1775180,
+          "max_sample_maps": 140
+        },
+        {
+          "map_limit": 4096,
+          "environment": {
+            "MIMALLOC_PURGE_DECOMMITS": "0"
+          },
+          "wall_s": 93.98,
+          "peak_rss_kib": 1804256,
+          "max_sample_maps": 140
+        },
+        {
+          "map_limit": 1048576,
+          "environment": {},
+          "wall_s": 93.62,
+          "peak_rss_kib": 1800308,
+          "max_sample_maps": 140
+        },
+        {
+          "map_limit": 4096,
+          "environment": {
+            "MIMALLOC_PURGE_DELAY": "-1"
+          },
+          "wall_s": 93.62,
+          "peak_rss_kib": 1851132,
+          "max_sample_maps": 140
+        }
+      ],
+      "interpretation": "All four prefixes reached 140 sampled areas and the same search boundary. Neither purge setting established an improvement. To test whether raising the mapping ceiling moves the original failure, repeat the full 224 GiB run with vm.max_map_count=4194304 and record live area counts, RSS, cgroup events and terminal results."
+    }
+  }
 }
