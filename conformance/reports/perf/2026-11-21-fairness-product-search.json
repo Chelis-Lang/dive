@@ -480,5 +480,37 @@
       "wall_s": 1.85,
       "peak_rss_kib": 61040
     }
-  ]
+  ],
+  "integrated_check": {
+    "binary_sha256": "93fcb7026233f534a35411f06df7a6c6ae0554ad2106e7102a193abb6bfa442b",
+    "rows": [
+      {
+        "configuration": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+        "wall_s": 1.89,
+        "peak_rss_kib": 61064,
+        "analysis_ms": {
+          "atoms": 196.493599,
+          "product": 1579.477976
+        },
+        "distinct": 4122,
+        "generated": 14296,
+        "depth": 36,
+        "pending": 0
+      },
+      {
+        "configuration": "specifications/MultiCarElevator/ElevatorLivenessLarge.cfg",
+        "wall_s": 116.28,
+        "peak_rss_kib": 130540,
+        "analysis_ms": {
+          "atoms": 2981.55022,
+          "product": 112034.211988
+        },
+        "distinct": 50653,
+        "generated": 230899,
+        "depth": 39,
+        "pending": 0
+      }
+    ],
+    "focused_checks": "147 liveness unit tests, 21 Core liveness API tests, eight CLI schema fixtures. Five small-tier corpus configurations at one worker in each profile had zero baseline regressions, including ConfiguredReplyFails and ConfiguredReplyHolds."
+  }
 }
