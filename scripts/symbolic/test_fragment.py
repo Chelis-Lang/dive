@@ -21,6 +21,7 @@ Outside == x \notin Colors
 ====
 """
     check_initial_choices(folder, run, explicit, compare)
+    check_initial_enumeration(folder, run)
     check_constraints(folder, run, explicit, compare)
     check_refined_domains(folder, run, explicit, compare)
     check_refined_edits(folder, run, explicit, compare)
@@ -89,25 +90,35 @@ Outside == x \notin Colors
 
 
 def check_action_guards(module, config, run, explicit, compare):
-    # The pinned TLC and single-worker Core counts differ for a Boolean
-    # choice before/after the last assignment or behind a defined operator.
-    # Keep ordinary action alternatives, refuse pure choices in action guards.
+    # The pinned TLC counts depend on assignment progress and on whether
+    # a disjunction is evaluated as a predicate or expanded as an action.
     source = r"""---- MODULE Paint ----
 CONSTANTS Colors, A, B
 VARIABLES x, got
 TypeInvariant == x \in Colors /\ got \subseteq Colors
 Init == x = A /\ got = {}
 G == TRUE \/ TRUE
+StateGuard == x = x \/ x = x
 Identity(p) == p
+Forced(p) == /\ p = TRUE
+             /\ p
+             /\ UNCHANGED <<x, got>>
 Twice(p) == p /\ p
 Next == ACTION
 ====
 """
     keep = "UNCHANGED <<x, got>>"
     guard = r"(TRUE \/ TRUE)"
+    state_guard = r"(x = A \/ x \in Colors)"
     some = r"(\E i \in Colors : i \in Colors)"
     for action, count, supported in [
         (rf"{keep} \/ {keep}", 3, True),
+        (rf"{state_guard} /\ {keep}", 3, True),
+        (rf"UNCHANGED x /\ ({state_guard} /\ UNCHANGED got)", 3, True),
+        (rf"({state_guard} /\ {keep}) \/ {keep}", 4, True),
+        (rf"{keep} /\ {state_guard}", 2, False),
+        (rf"StateGuard /\ {keep}", 3, False),
+        (rf"({state_guard} = TRUE) /\ {keep}", 2, True),
         (rf"\E i \in Colors : {keep}", 3, True),
         (rf"{keep} /\ ((TRUE \/ TRUE) = TRUE)", 2, True),
         (rf"{guard} /\ {keep}", 3, False),
@@ -132,6 +143,24 @@ Next == ACTION
             compare(symbolic, ordinary)
         else:
             assert symbolic["verdict"] == "unsupported" and "action guard" in symbolic["reason"]
+
+
+    # TLC counts one successor after forcing p, even though both actual arms
+    # hold. Core's count for this lazy formal is tracked separately (#1166).
+    module.write_text(source.replace("ACTION", rf"Forced({state_guard})"))
+    for flags in ([], ["--refine-domains"]):
+        (refusal,) = run(module, config, *flags, code=2)
+        assert "unsupported action guard: Local" in refusal["reason"]
+
+    double = module.with_name("Repeated.tla")
+    double.write_text(source.replace("MODULE Paint", "MODULE Repeated")
+                      .replace("ACTION", rf"{state_guard} /\ {keep}"))
+    module.write_text(source.replace("ACTION", keep))
+    for flags in ([], ["--refine-domains"]):
+        session = run(module, config, *flags, "--recheck", double, config, "--recheck", module, config)
+        assert [(row["distinct"], row["generated"], row["depth"]) for row in session] == [
+            (1, 2, 1), (1, 3, 1), (1, 2, 1)
+        ]
 
 
 def check_initial_choices(folder, run, explicit, compare):
@@ -167,6 +196,60 @@ NoA == \A u \in Roleset: chosen[u] = B
     cfg.write_text(base + "INIT Init\nINVARIANT NoA\n")
     (bad,) = run(module, cfg, code=1)
     assert bad["depth"] == 1 and bad["trace_validated"] and bad["ending"]["name"] == "NoA"
+
+
+def check_initial_enumeration(folder, run):
+    module = folder / "Choice.tla"
+    cfg = folder / "Choice.cfg"
+    cfg.write_text("CONSTANTS C = {1,0,1} Replacement = {0,1,0}\n"
+                   "INIT Init\nNEXT Next\nINVARIANT TypeInvariant\n")
+    source = r"""---- MODULE Choice ----
+CONSTANT C
+VARIABLE x
+Replacement == {99}
+Product == [a : {0,1}]
+Lazy == [a : {0}] \cup Product
+Identity(p) == p
+TypeInvariant == x \in TYPE
+Init == x \in (DOMAIN)
+Next == ACTION
+====
+"""
+    double = r"(x = x \/ x = x) /\ x' = x"
+    # With the overlapping action, pinned TLC reports 7/2/1 for Lazy and
+    # 6/2/1 for the explicit two-record set (generated/distinct/depth).
+    # Each safe domain below enumerates two distinct elements exactly once.
+    for typ, domain in [
+        ("Product", "{[a |-> 0], [a |-> 1]}"),
+        ("Product", "{[a |-> 0], [a |-> 1], [a |-> 0]}"),
+        ("Product", r"[a : {1,0,1}]"),
+        ("Product", r"[a : {0}] \cup [a : {1}]"),
+        ("Product", r"{v : v \in Lazy}"),
+        ("Product", r"Product \cap Lazy"),
+        ("{0,1}", r"Identity(LET S == {1,1,0} IN S)"),
+        ("{0,1}", r"C \cup Replacement"),
+        ("{0,1}", r"{v \in {1,0,1} : TRUE}"),
+    ]:
+        module.write_text(source.replace("TYPE", typ).replace("DOMAIN", domain).replace("ACTION", double))
+        for flags in ([], ["--refine-domains"]):
+            (row,) = run(module, cfg, *flags)
+            assert (row["generated"], row["distinct"], row["depth"]) == (6, 2, 1), (domain, row)
+
+    for typ, domain, action in [
+        ("Product", r"[a : {0}] \cup Product", "UNCHANGED x"),  # pinned TLC 5/2/1
+        ("Product", "Lazy", double),
+        ("Product", "Identity(LET S == Lazy IN S)", double),
+        ("Product", "IF TRUE THEN Lazy ELSE Product", double),
+        ("Product", r"[i \in {0} |-> Lazy][0]", double),
+        ("Product", r"{v \in Lazy : TRUE}", double),
+        ("Product", r"Lazy \cap Product", double),
+        ("Product", r"Lazy \ {}", double),
+        ("[z : Product]", "[z : Lazy]", double),
+    ]:
+        module.write_text(source.replace("TYPE", typ).replace("DOMAIN", domain).replace("ACTION", action))
+        for flags in ([], ["--refine-domains"]):
+            (row,) = run(module, cfg, *flags, code=2)
+            assert "Init membership may enumerate duplicate witnesses" in row["reason"], (domain, row)
 
 
 def check_constraints(folder, run, explicit, compare):

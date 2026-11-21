@@ -1081,6 +1081,19 @@ was removed on 2026-10-12 (ADR 0016, amendment 3). `dive-trace` now checks
 only the bindings' effects annotations and contexts before entry.
 
 
+### Finite symbolic witness counts
+
+The finite compiler in `scripts/symbolic/engine.py` derives its guard counts
+from pinned TLC `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT).
+`Tool.getNextStatesApplSwitch` visits each disjunct during successor generation,
+and `getNextStatesAllAssigned` can evaluate pending predicates as Booleans.
+`Tool.getInitStates` enumerates an unassigned membership variable using
+`elements()`. `SetEnumValue.Enumerator` normalizes its elements.
+`SetCupValue.Enumerator` concatenates its operands, and record products,
+filters, intersections and differences can carry repeated elements from their
+iteration domain. The symbolic compiler tracks when that enumeration is
+provably duplicate-free and refuses unproved initial membership counts.
+
 ### Independent initial-predicate context
 
 
