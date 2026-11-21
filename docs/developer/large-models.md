@@ -519,7 +519,7 @@ Flint’s three-writer checker expands 31-variable successors across workers and
 
 An in-process worker that finds a fingerprint in the resident table can carry that observation to ordered commit. The table only grows during the wave. This avoids a second coordinator lookup for that occurrence. A candidate observed only by another worker still needs its ordinary ordered check. On a dedicated 96-core Graviton4 node the 50-million-state SlateDB prefix took 64.42–64.59 s versus 66.39–66.45 s at 32 workers. The two-million-state KVS prefix fell from 2.92–2.94 s to 2.69–2.70 s at 32 workers. The full two-barrier Flint run at 96 workers fell from 13.97–13.98 s to 13.57–13.60 s. All paired counters and queues matched. [All runs, including pooled workers and allocator settings](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
-Keeping 96 worker threads alive saved wall time on four Graviton4 workloads, but also retained more process memory. The complete two-barrier Flint run fell from 13.57–13.61 s at 1.16–1.17 GiB to 11.94–12.03 s at 1.96 GiB. Giving each exploration machine a fixed pool worker took 11.84 s at 1.99–2.10 GiB. Replacing the pool at each BFS level brought peak RSS down to 1.83–1.85 GiB and took 12.02–12.03 s. All 32 trials matched their control on verdict, distinct and generated counts, depth and queue. The fixed-worker experiment leaves OS thread placement to the scheduler. The shipping policy still creates scoped workers. These measurements support testing pool lifetime on a complete high-worker original where visited-state storage dominates RSS. [Rows, inputs and binary digests](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
+Keeping 96 worker threads alive saved wall time on four Graviton4 workloads, but also retained more process memory. The complete two-barrier Flint run fell from 13.57–13.61 s at 1.16–1.17 GiB to 11.94–12.03 s at 1.96 GiB. Giving each exploration machine a fixed pool worker took 11.84 s at 1.99–2.10 GiB. Replacing the pool at each BFS level brought peak RSS down to 1.83–1.85 GiB and took 12.02–12.03 s. All 32 trials matched their control on verdict, distinct and generated counts, depth and queue. The fixed-worker experiment leaves OS thread placement to the scheduler. These measurements support testing pool lifetime on a complete high-worker original where visited-state storage dominates RSS. [Rows, inputs and binary digests](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
 A separate experiment kept a Rayon pool alive across ordinary safety batches. On Flint at 192 workers, host tasks created per run fell from about 124,000 to 314. Wall time fell from 21.97–22.24 s to 17.44–17.90 s, but peak RSS increased from 1.39 to 2.83 GiB. At 32 workers PConProof slowed from 34.55–34.89 s to 36.72–37.52 s. These tradeoffs kept ordinary worker scheduling out of the retained-row change. [All paired runs, inputs, binary identities, CPU time and memory](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
@@ -577,11 +577,21 @@ questions.
 The original etcdraft configuration exposed a worker-creation failure at 32 workers
 and a 420 GiB budget. The process exited after 4,461.21 s at 338.05 GiB RSS
 without a verdict. A 129-state model reproduced the panic under a Linux task
-quota. Core now completes an interrupted worker launch on the calling thread,
-preserving already claimed work. Five different quotas gave the same counts,
+quota. The scoped-worker build completed an interrupted worker launch on the calling
+thread, preserving already claimed work. Five different quotas gave the same counts,
 including when successor candidates spilled to disk. All ten failing-property
 traces replayed independently. The [measurements](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json)
 include the worker counts and the original model and configuration digests.
+
+A second 32-worker run aborted after 3,426.76 s at 354,365,256 KiB RSS. The OS
+created a thread, then Rust failed to allocate its stack guard in the child.
+Ordinary multi-worker safety now starts its expansion threads once and waits for
+each worker to enter the pool before expanding the first parallel wave. On the
+original configuration at 500,000 distinct states, both schedulers generated
+1,645,930 states and left 395,693 queued at depth ten. At 32 workers, two runs
+with reused threads took 0.61 s each, compared with 0.65 s each with scoped
+threads. RSS sampled late in the runs was 463–475 MiB with reuse and 435–437 MiB
+with scoped threads. [Bounded prefix observations and executable digests](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
 On a 32-physical-core host with a 24 GiB sampled RSS limit, DiskSynod reached 835,858,711 distinct states and 12,639,577,756 generated in 6,500.61 s. It had 144,840,332 states queued at depth 35. BPConProof hit the same budget in 181.95 s with 134,831,096 distinct states. Of those, 134,714,941 were still queued. At 16 workers, BlockingQueuePoisonApple hit 24 GiB during graph capture with 117,440,513 distinct and 569,933,982 generated. At eight workers and 18 GiB, etcdraft reached 94,073,470 distinct before memory stopped it. MCetcdraft instead hit the 900 s time limit at 39,256,817 distinct and 8.89 GiB peak RSS. These runs use different worker counts and budget enforcement from the original cgroup trials. [Per-input commands, limits, binary identities and terminal queues](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Exercise ordinary safety checking in a Linux user cgroup with three task slots."""
+"""Exercise ordinary safety worker admission and reuse under Linux task quotas."""
 
 import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
+import uuid
 
 
 def check(binary, root, relation, safe, disk):
@@ -32,7 +34,7 @@ def check(binary, root, relation, safe, disk):
     for field in ("verdict", "statistics", "property", "output"):
         assert actual[field] == expected[field], (field, actual[field], expected[field])
     workers = actual["options"]["workers"]
-    assert workers["requested"] == 16 and 1 <= workers["used"] < 16
+    assert workers["requested"] == 16 and workers["used"] == 1
     assert "operating system" in (workers["reason"] or ""), workers
     if actual["counterexample"]:
         trace = root / "trace.json"
@@ -44,6 +46,44 @@ def check(binary, root, relation, safe, disk):
         assert json.loads(replay)["result"] == "valid"
 
 
+def check_late_quota(binary, root):
+    module = root / "ThreadLimit.tla"
+    module.write_text(
+        "---- MODULE ThreadLimit ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\n"
+        "Next == x' \\in 1..512\n====\n"
+    )
+    cfg = root / "model.cfg"
+    cfg.write_text("INIT Init\nNEXT Next\n")
+    scratch = root / "candidates"
+    scratch.mkdir()
+    unit = f"dive-worker-limit-{uuid.uuid4().hex}.service"
+    cmd = [
+        "systemd-run", "--user", "--quiet", "--wait", "--pipe", "--collect",
+        f"--unit={unit}", "--property=TasksMax=64", binary, "check", module,
+        "--config", cfg, "--store", "exact", "--seed", "0", "--fp", "0",
+        "--output", "json", "--workers", "4", "--candidate-memory-bytes", "128",
+        "--candidate-directory", scratch,
+    ]
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
+        # One root occupies one spool. Two coexisting spools mean the first
+        # wave has committed and workers are expanding the next frontier.
+        while proc.poll() is None and len(list(scratch.iterdir())) < 2:
+            time.sleep(0.001)
+        assert proc.poll() is None, "missed the active second frontier"
+        subprocess.run(
+            ["systemctl", "--user", "set-property", "--runtime", unit, "TasksMax=1"],
+            check=True,
+        )
+        output, errors = proc.communicate(timeout=45)
+    assert proc.returncode == 0, errors
+    report = json.loads(output)
+    assert report["verdict"] == "success"
+    assert report["statistics"]["distinct"] == 513
+    assert report["statistics"]["generated"] == 1 + 513 * 512
+    workers = report["options"]["workers"]
+    assert workers["used"] == workers["requested"] == 4 and workers["reason"] is None, workers
+
+
 if __name__ == "__main__":
     dive = Path(sys.argv[1]).resolve()
     for candidate_spill in (False, True):
@@ -53,3 +93,5 @@ if __name__ == "__main__":
         ):
             with tempfile.TemporaryDirectory() as directory:
                 check(dive, Path(directory), action, invariant, candidate_spill)
+    with tempfile.TemporaryDirectory() as directory:
+        check_late_quota(dive, Path(directory))

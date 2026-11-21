@@ -131,13 +131,13 @@ loads.
 
 ## Workers and stores
 
-If the operating system refuses a thread during ordinary safety expansion, Core
-keeps the work already claimed and runs the remaining worker jobs on the calling
-thread. The report records the highest worker width started for a wave and names
-the OS limit when a wave needed this fallback. An explicit `--sequential`
-request retains its own reason in the report. A width of one can therefore
-occur under a multi-worker request. The search retains its parallel commit order.
-
+Ordinary multi-worker safety checking starts a worker team at its first parallel
+expansion and keeps the same threads through later levels. If the operating
+system refuses the team at startup, the caller runs the worker jobs for the rest
+of the search. The report records one worker used and gives the OS limit as the
+reason. A single-worker run with candidate spilling can also finish a refused
+worker job on the caller. An explicit `--sequential` request retains its own
+reason. Each wave commits its results in the same order.
 
 Any number of workers gives the one-worker result: the same counts, verdict,
 trace and output. Parallel searches commit results in a fixed order. Read

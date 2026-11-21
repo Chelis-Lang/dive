@@ -2235,6 +2235,124 @@
       "trace_replays_valid": 10,
       "tlc_w1": "Wave and Ordered 16513 generated, 129 distinct, depth 2, empty queue. Delayed 130 generated, 130 distinct, depth 3, 127 queued.",
       "one_worker_spill": "After the first spill file, lower TasksMax from 64 to 1. Requested and used both equal 1 with a reported OS limit; same graph and counts as the unrestricted control."
+    },
+    "after_scoped_fallback": {
+      "inputs": "Same original model and configuration digests and 32-worker envelope as original.",
+      "executable_sha256": "c688a4f93f417a0810b57c4503142ff1d753ba9e1bc00df00e640e7c3c69a1dd",
+      "wall_s": 3426.76,
+      "peak_rss_kib": 354365256,
+      "exit": 134,
+      "signal": 6,
+      "diagnostic": "OS error 12 in Rust child initialization while setting up the alternate stack guard page",
+      "final_checker_report": false
+    },
+    "search_lifetime_pool": {
+      "scope": "Fixed-prefix scheduler comparison on the original input. Full 32-worker acceptance is tracked by issue 1189.",
+      "host": "Dedicated EC2 r7i.16xlarge, Intel Xeon Platinum 8488C, Linux 7.0.0-1018-aws, one logical CPU per physical core.",
+      "build": "cargo build --release -p dive-cli --locked with Rust 1.99.0",
+      "base_commit": "e0a065a61d6598613cf4de431eff9f77c440d9b4",
+      "sha256": {
+        "control": "6405031a9d861a321128dc184a3ea07ea25beca14f6e89a8394ca95ca5ad2f7c",
+        "candidate": "9addab557d0c62c1d79d91862dea6db91425d3813ad3b5db52966535f0e84cdd"
+      },
+      "command": "taskset -c 0-(W-1) dive check tla/etcdraft.tla --config tla/etcdraft.cfg --library-path modules --workers W --seed 0 --fp 0 --max-states 500000 --time-limit 75s --max-memory 4g --output json",
+      "common_result": {
+        "exit": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 10,
+          "distinct": 500000,
+          "exhaustive": false,
+          "generated": 1645930,
+          "initial_generated": 1,
+          "left_on_queue": 395693,
+          "reported_by_tlc": false
+        }
+      },
+      "sampling": "Parent sampled /proc/PID/status and /proc/PID/task every 20 ms. Late RSS uses the sample at index floor(0.9 * count). Wall time includes the final polling interval. The sampled task count is a lower bound on distinct Linux thread IDs.",
+      "columns": [
+        "run in execution order (workers, repetition, binary)",
+        "wall_s",
+        "sampled_peak_rss_kib",
+        "late_rss_kib",
+        "unique_sampled_task_ids"
+      ],
+      "rows": [
+        [
+          "1-0-control",
+          8.375,
+          184800,
+          134112,
+          2
+        ],
+        [
+          "1-0-candidate",
+          8.664,
+          182528,
+          134036,
+          2
+        ],
+        [
+          "8-0-control",
+          1.571,
+          247924,
+          198568,
+          497
+        ],
+        [
+          "8-0-candidate",
+          1.567,
+          271472,
+          222248,
+          10
+        ],
+        [
+          "8-1-candidate",
+          1.52,
+          278884,
+          217436,
+          10
+        ],
+        [
+          "8-1-control",
+          1.46,
+          255772,
+          212756,
+          517
+        ],
+        [
+          "32-0-control",
+          0.651,
+          545192,
+          447412,
+          554
+        ],
+        [
+          "32-0-candidate",
+          0.61,
+          531308,
+          473956,
+          34
+        ],
+        [
+          "32-1-candidate",
+          0.61,
+          525124,
+          486248,
+          34
+        ],
+        [
+          "32-1-control",
+          0.65,
+          503972,
+          444968,
+          571
+        ]
+      ],
+      "quota_checks": {
+        "startup": "TasksMax=3, sixteen workers requested. Caller ran every logical job, reported one used and the OS limit. RAM and 128-byte candidate-spill runs matched one-worker success and violation controls, including both validated traces.",
+        "after_first_wave": "Four workers, exact store and 128-byte candidate spill. Lowering TasksMax from 64 to 1 during the second frontier preserved four used workers. Result: success, 513 distinct and 262657 generated."
+      }
     }
   }
 }
