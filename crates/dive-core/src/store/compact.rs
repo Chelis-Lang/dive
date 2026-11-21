@@ -124,6 +124,22 @@ impl Remap {
         &self.target
     }
 
+    fn validate_scalar(&self, h: Handle) -> Result<(), Error> {
+        let valid = match h.tag() {
+            Tag::Int => true,
+            Tag::Bool => h.as_bool().is_some(),
+            Tag::Str | Tag::Model => h
+                .as_str_id()
+                .or_else(|| h.as_model_id())
+                .is_some_and(|id| self.target.strings.text(id).is_some()),
+            _ => false,
+        };
+        if !valid {
+            return Err(invalid("invalid scalar or transient live root"));
+        }
+        Ok(())
+    }
+
     /// Copies a closed persistent root.
     ///
     /// Shared nodes remain shared and no normalization/evaluation demand is
@@ -141,6 +157,21 @@ impl Remap {
         root: Handle,
         proceed: &(dyn Fn() -> bool + Sync),
     ) -> Result<Handle, Error> {
+        // The frontier repeatedly refers to values already admitted to the
+        // replacement Store. Do not allocate a traversal stack for those roots.
+        if root.tag() != Tag::Persistent {
+            if !proceed() {
+                return Err(Error::stop());
+            }
+            self.validate_scalar(root)?;
+            return Ok(root);
+        }
+        if let Some(mapped) = self.mapped.get(&root) {
+            if !proceed() {
+                return Err(Error::stop());
+            }
+            return Ok(*mapped);
+        }
         let mut stack = vec![(root, false)];
         let mut active = HashSet::new();
         let mut steps = 0usize;
@@ -150,18 +181,7 @@ impl Remap {
             }
             steps = steps.saturating_add(1);
             if h.tag() != Tag::Persistent {
-                let valid = match h.tag() {
-                    Tag::Int => true,
-                    Tag::Bool => h.as_bool().is_some(),
-                    Tag::Str | Tag::Model => h
-                        .as_str_id()
-                        .or_else(|| h.as_model_id())
-                        .is_some_and(|id| self.target.strings.text(id).is_some()),
-                    _ => false,
-                };
-                if !valid {
-                    return Err(invalid("invalid scalar or transient live root"));
-                }
+                self.validate_scalar(h)?;
                 continue;
             }
             if self.mapped.contains_key(&h) {

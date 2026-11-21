@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Core [reclaims wide resident frontiers](docs/user/storage-recovery.md) faster when adjacent states share variable values.
+
 - [Independent trace validation](docs/user/checking.md#consistency-predicates-over-named-processes) can check pairwise consistency over large concrete status tables in one scan and validate or reject single-entry updates without rebuilding the table for every possible process.
 
 - [Symbolic rechecks](docs/user/symbolic.md) can reuse shortest-path layers outside the region affected by a deleted action.
