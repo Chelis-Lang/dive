@@ -423,6 +423,15 @@
           "distinct": 48353470,
           "depth": 44,
           "left_on_queue": 0
+        },
+        "tlc": {
+          "exit": 0,
+          "seconds": 543.31,
+          "peak_rss_kib": 7748676,
+          "generated": 181045196,
+          "distinct": 48353470,
+          "depth": 44,
+          "left_on_queue": 0
         }
       },
       "DuplicateGuard": {
@@ -478,6 +487,17 @@
           "generated": 5311,
           "distinct": 2033,
           "depth": 16,
+          "left_on_queue": 0
+        }
+      },
+      "disjoint_two": {
+        "core": {
+          "exit": 0,
+          "seconds": 198.05,
+          "peak_rss_kib": 1383848,
+          "generated": 180146151,
+          "distinct": 48353470,
+          "depth": 44,
           "left_on_queue": 0
         }
       }
@@ -591,7 +611,7 @@
       "tlc": "java -Xmx14g -XX:+UseParallelGC -XX:ActiveProcessorCount=W -cp tla2tools.jar tlc2.TLC -workers W -fp 0 -seed 0 -metadir FRESH -config CFG MODULE",
       "diagnostics": "python3 scripts/perf/scale/flint_counts.py LeanP1.tla NEW; compare MarkedFlint.tla across the compiled author and pinned TLC on a2; compare DisjointFlint.tla across all three; compare DuplicateGuard.tla on tiny.cfg. For these short diagnostics use one worker and 1 GiB JVM heap; the Core diagnostics use exact state storage."
     },
-    "finding": "With all eight invariants and both step properties, the GCas guard has two enabled disjunct occurrences when GatewayIgnoresLease and holder = \"none\". The published compiler generates one successor for the boolean guard; Core and pinned TLC generate both occurrences. Every other reported action agrees on a2. Replacing the guard with a logically equivalent IF makes all three match. This changes witness multiplicity, not the successor state. The large three-writer differences remain separate observations."
+    "finding": "With all eight invariants and both step properties, the GCas guard has two enabled disjunct occurrences when GatewayIgnoresLease and holder = \"none\". The published compiler generates one successor for the boolean guard; Core and pinned TLC generate both occurrences. Every other reported action agrees on a2. Replacing the guard with a logically equivalent IF makes all three match. This changes witness multiplicity, not the successor state. The large three-writer differences remain separate observations. The disjoint guard also accounts for exactly 899,045 excess occurrences on the complete 48,353,470-state two-writer configuration."
   },
   "exact_fingerprint_and_tlc": {
     "hardware": "Dedicated r8g.8xlarge, 32 Graviton4 cores pinned 0–31. All six processes run serially. Limits 190 GiB Core and 96 GiB JVM heap.",
