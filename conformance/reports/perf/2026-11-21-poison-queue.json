@@ -6,7 +6,7 @@
     "BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f"
   },
   "capacity_record": "2026-11-20-large-model-outcomes.json",
-  "host": "EC2 Xeon Platinum 8488C, Linux 7.0.0-1018-aws; single pinned physical core per process; other bounded controls occupied separate cores. TLC complete controls included DOT output.",
+  "host": "EC2 c7i.4xlarge in us-east-2, Xeon Platinum 8488C, Linux 7.0.0-1018-aws; single pinned physical core per process; other bounded controls occupied separate cores. TLC complete controls included DOT output.",
   "checker_sha256": "0d4fcf747862a5afcf15ed3db4eb88153ff745c94ede4da06706504beec91f16",
   "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
   "command_templates": {
@@ -476,5 +476,177 @@
       "wall_s": 0.29,
       "peak_rss_kib": 52212
     }
-  ]
+  ],
+  "comparison_on_three_other_unchanged_models": {
+    "host": "EC2 c7i.4xlarge, Linux, physical CPU 7",
+    "command": "dive simulate FILE --traces 4 --seed SEED --workers 1 --depth DEPTH --max-memory 1g --time-limit 45s --keep-traces 1 --trace-dir OUT --output json",
+    "validation": "dive validate-trace FILE --trace TRACE --sample --output json on every emitted word. Seed-zero negative controls replace one state field with the set {12345} in the second state.",
+    "hashes": {
+      "specifications/diskpaxos/MC_HDiskSynod.tla": "f70a04902aaa20b175daddeead891e2f687128b8fe43b30cee3049bbb46af041",
+      "specifications/diskpaxos/MC_HDiskSynod.cfg": "76994aae4c323b971b05cc6604f92213f7bf6f147cf40074c1b03fecf5d1005c",
+      "specifications/byzpaxos/BPConProof.tla": "daa731dcadf12a892415131881d82d5b23e56c53097e90b986a24b1408a2e3c6",
+      "specifications/byzpaxos/BPConProof.cfg": "8a3af0fba0f0ed0d96827717e0edacf7ad9bedc23b9f7aebf82f3c2bb5434e9a",
+      "specifications/dag-consensus/TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+      "specifications/dag-consensus/TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f",
+      "binary": "c688a4f93f417a0810b57c4503142ff1d753ba9e1bc00df00e640e7c3c69a1dd"
+    },
+    "rows": [
+      {
+        "model": "specifications/byzpaxos/BPConProof.tla",
+        "seed": 0,
+        "max_depth": 32,
+        "result": "sampled",
+        "generated": 18735,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          33,
+          33,
+          33,
+          33
+        ],
+        "invalid_control_failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 510, col 20 to line 510, col 23 of module BPConProof",
+          "state": 1
+        }
+      },
+      {
+        "model": "specifications/byzpaxos/BPConProof.tla",
+        "seed": 1,
+        "max_depth": 32,
+        "result": "sampled",
+        "generated": 18782,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          33,
+          33,
+          33,
+          33
+        ],
+        "invalid_control_failure": null
+      },
+      {
+        "model": "specifications/byzpaxos/BPConProof.tla",
+        "seed": 2,
+        "max_depth": 96,
+        "result": "sampled",
+        "generated": 93857,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          97,
+          97,
+          97,
+          97
+        ],
+        "invalid_control_failure": null
+      },
+      {
+        "model": "specifications/diskpaxos/MC_HDiskSynod.tla",
+        "seed": 0,
+        "max_depth": 32,
+        "result": "sampled",
+        "generated": 1665,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          33,
+          33,
+          33,
+          33
+        ],
+        "invalid_control_failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 10, col 10 to line 16, col 62 of module HDiskSynod",
+          "state": 1
+        }
+      },
+      {
+        "model": "specifications/diskpaxos/MC_HDiskSynod.tla",
+        "seed": 1,
+        "max_depth": 32,
+        "result": "sampled",
+        "generated": 1612,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          33,
+          33,
+          33,
+          33
+        ],
+        "invalid_control_failure": null
+      },
+      {
+        "model": "specifications/diskpaxos/MC_HDiskSynod.tla",
+        "seed": 2,
+        "max_depth": 96,
+        "result": "sampled",
+        "generated": 4810,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          97,
+          97,
+          97,
+          97
+        ],
+        "invalid_control_failure": null
+      },
+      {
+        "model": "specifications/dag-consensus/TLCSailfish2.tla",
+        "seed": 0,
+        "max_depth": 32,
+        "result": "sampled",
+        "generated": 805,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          33,
+          33,
+          33,
+          33
+        ],
+        "invalid_control_failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 44, col 31 to line 44, col 47 of module TLCSailfish2",
+          "state": 1
+        }
+      },
+      {
+        "model": "specifications/dag-consensus/TLCSailfish2.tla",
+        "seed": 1,
+        "max_depth": 32,
+        "result": "sampled",
+        "generated": 716,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          33,
+          33,
+          33,
+          33
+        ],
+        "invalid_control_failure": null
+      },
+      {
+        "model": "specifications/dag-consensus/TLCSailfish2.tla",
+        "seed": 2,
+        "max_depth": 96,
+        "result": "sampled",
+        "generated": 930,
+        "scope": "complete-request",
+        "stalled": 0,
+        "lengths": [
+          97,
+          97,
+          97,
+          97
+        ],
+        "invalid_control_failure": null
+      }
+    ]
+  }
 }
