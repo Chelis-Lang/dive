@@ -297,6 +297,30 @@ Two trials per binary on the same eight physical cores produced identical
 counts, queue sizes and depths at each prefix. The dense control already used
 byte action IDs and compact ordinals. [Inputs, individual timings and collector capacities](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+At Kafka KIP-996’s first periodic check, 36,120,199 stored edges used 292
+action names. The original action column reserved 512 MiB, although only
+225,593 runs of equal IDs occurred. In all 16,574 completed rows, each
+generated ordinal equalled its source-local position. The table isolates each
+change at fixed work. Kafka stopped one state before the check, with the
+same 36,103,626 generated. The two other original configurations stopped
+at two million states. The binary tree exhausted its graph and passed.
+
+| Model | Original buffers | Two-byte IDs | Adaptive action blocks | Implicit ordinals alone | Combined |
+|---|---:|---:|---:|---:|---:|
+| Kafka KIP-996 | 943.0 MiB | 559.0 MiB | 435.0 MiB | 818.0 MiB | 310.0 MiB |
+| c1cs | 554.0 MiB | 554.0 MiB | 508.0 MiB | 429.0 MiB | 383.0 MiB |
+| BlockingQueuePoisonApple | 144.3 MiB | 144.3 MiB | 144.6 MiB | 128.7 MiB | 128.9 MiB |
+| Binary tree | 12.0 MiB | 12.0 MiB | 12.1 MiB | 10.1 MiB | 10.1 MiB |
+
+On inputs with interleaved action IDs, a dense block uses one directory
+entry beyond its 256 IDs. At a later Kafka stop of 200,000 distinct and
+38,232,770 generated, both binaries had completed the first periodic check
+and evaluated 71,333,304 actions and 47,497,563 state predicates. Peak process
+RSS was 2,258 MiB before and 1,903 MiB after; wall times were 302.12 s and
+303.03 s. The run stopped with 182,506 states queued. On the binary tree, both layouts also returned the same
+two-state, independently validated lasso for the false recurrence property. [All capacities,
+individual runs, outcomes and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same
