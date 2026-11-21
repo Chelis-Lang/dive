@@ -9,6 +9,7 @@ import tempfile
 import time
 
 from induction import write_atomic
+import occupancy_predicate
 from occupancy_source import PopulationSource, Unsupported
 from worker_process import Stopped, limit_memory, run_helper
 
@@ -103,10 +104,27 @@ def run(args):
     if process.returncode:
         raise Unsupported("bound exporter: " + process.stderr.strip())
     doc = json.loads(process.stdout)
-    if args.trace and Path(args.trace).resolve() in {Path(f["display"]).resolve() for f in doc["ir"]["files"]}:
-        raise Unsupported("concrete trace path aliases a source module")
+    sources = {Path(f["display"]).resolve() for f in doc["ir"]["files"]}
+    for output in (args.trace, args.write_predicate):
+        if output and Path(output).resolve() in sources:
+            raise Unsupported("output path aliases a source module")
     model = PopulationSource(doc, args.type_invariant)
+    if args.prove_inductive or args.verify_predicate:
+        try:
+            masks = (occupancy_predicate.load(args.verify_predicate, model) if args.verify_predicate
+                     else occupancy_predicate.closure(model))
+            failed = occupancy_predicate.verify(model, masks)
+        except (ValueError, UnicodeError) as error:
+            failed = "invalid support predicate: " + str(error)
+        return {"proof": "inconclusive" if failed else "inductive-safety", "failed_obligation": failed,
+                "predicate_format": occupancy_predicate.FORMAT, "invariants": model.invariants}
     row, trace = search(model, args.max_orbits or 1_000_000)
+    if row["verdict"] == "success" and args.write_predicate:
+        try:
+            occupancy_predicate.store(args.write_predicate, model, occupancy_predicate.closure(model))
+        except ValueError as error:
+            raise Budget(str(error)) from error
+        row["predicate_format"] = occupancy_predicate.FORMAT
     if trace is not None:
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "word.json"
@@ -137,7 +155,10 @@ def main():
     started = time.monotonic()
     try:
         row = run(args)
-        code = 0 if row["verdict"] == "success" else 1
+        if "proof" in row:
+            code = 0 if row["proof"] == "inductive-safety" else 2
+        else:
+            code = 0 if row["verdict"] == "success" else 1
     except Unsupported as error:
         row, code = {"verdict": "unsupported", "reason": str(error)}, 2
     except (Budget, Stopped) as error:

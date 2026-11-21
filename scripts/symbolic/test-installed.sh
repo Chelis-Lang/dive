@@ -60,9 +60,14 @@ CONSTANT Ids = {a,b}
 INIT Init NEXT Next INVARIANT TypeInvariant
 CFG
 occupancy() { env -i PATH=/nonexistent "$dive" check Machines.tla --strategy occupancy --output json "$@"; }
-occupancy --time-limit 10s > population
+occupancy --time-limit 10s --write-predicate support.json > population
 jq -e '.verdict=="success" and .distinct==4 and .generated==9 and .depth==3 and .occupancies==3' population >/dev/null
+occupancy --verify-predicate support.json > verified-support
+jq -e '.proof=="inductive-safety" and .failed_obligation==null and (has("distinct")|not)' verified-support >/dev/null
 echo 'INVARIANT AllOff' >> Machines.cfg
+rc=0; occupancy --verify-predicate support.json > unproved-support || rc=$?
+test "$rc" = 2
+jq -e '.proof=="inconclusive" and .failed_obligation=="AllOff" and (has("trace")|not)' unproved-support >/dev/null
 rc=0; occupancy --trace population-trace.json > population-bad || rc=$?
 test "$rc" = 1
 jq -e '.trace_validated and .depth==2 and .ending.name=="AllOff" and .trace_file=="population-trace.json"' population-bad >/dev/null

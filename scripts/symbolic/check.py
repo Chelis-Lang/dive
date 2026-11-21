@@ -74,9 +74,8 @@ def main():
     args = parser.parse_args()
     if args.max_orbits is not None and (not args.occupancy or args.max_orbits < 1):
         parser.error("--max-orbits requires occupancy and a positive integer")
-    if args.occupancy and any((args.recheck, args.refine_domains, args.prove_inductive, args.order_by_path,
-                               args.single_partition, args.write_predicate, args.verify_predicate)):
-        parser.error("occupancy admits a fresh labeled search without BDD proof or session options")
+    if args.occupancy and any((args.recheck, args.refine_domains, args.order_by_path, args.single_partition)):
+        parser.error("occupancy does not accept BDD layout or --recheck options")
     if sys.platform != "linux":
         parser.error("the symbolic checker currently supports Linux")
     if args.trace or args.write_predicate:

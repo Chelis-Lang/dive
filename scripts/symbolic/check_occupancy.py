@@ -11,6 +11,7 @@ import tempfile
 import tomllib
 
 from check_transaction_commit import expected
+from check_occupancy_predicate import check_certificates
 
 
 CREW = r"""---- MODULE Crew ----
@@ -95,6 +96,8 @@ def main():
             counts = expected(n) if n else (1, 1, 1)
             assert (row["distinct"], row["generated"], row["depth"]) == counts
             assert row["occupancies"] == (n+2)*(n+1)//2+n
+
+        check_certificates(folder, tcommit, cfg, base, run, compare)
 
         members = ", ".join(f"r{i}" for i in range(8193))
         cfg.write_text(base.replace("{r1, r2, r3}", "{" + members + "}"))
