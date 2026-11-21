@@ -1075,11 +1075,260 @@
     }
   },
   "historical_simple_four_nodes": {
-    "source": "Lu thesis pp. 127\u2013128",
+    "source": "Lu thesis pp. 127–128",
     "configuration": "simplified LuPastry with routing tables removed",
     "distinct": 504624,
     "generated": 16064479,
     "depth": 49,
     "reported_wall_seconds": 8100
+  },
+  "record_union": {
+    "model": "Released LuPastry+, counted routing function, NextMC, TypeInvariant and CorrectDelivery, B=L=1. Shape IDs give ring size and number of IDs initially eligible to join. Other IDs start ready (0 through ring_size - joining - 1).",
+    "cause": "Closed Message is a record whose content is a binary union of eight tagged record types; members include routing functions and filtered leaf records. Startup tried to materialize whole products even when checking an empty MessagePool. A one-state stutter with just pool membership reproduced the failure. Routing, LeafSets, CorrectDelivery and a no-invariant control passed separately.",
+    "baseline": "On the earlier ordinary Core eight IDs with one or two joiners exhausted a 15 GiB cgroup. OOM affected the checker before a successful result. The outer systemd-client RSS for those runs is excluded.",
+    "comparison": "EC2 c7i.4xlarge in us-east-2, Linux x86_64. Matrix used four separate physical cores (IDs 0-3), sequential engines, MemoryMax=12G. The unchanged 16-ID leaf declaration was bounded to 3 GiB/77 s for Core and TLC. Qualified candidate used CPU 4-7, checker --max-memory 700m, cgroup 800M. Parts of the panels overlapped on these separate cores. GNU time inside the cgroup measures process wall seconds and peak RSS KiB including process startup; distinct CPU placement and binary hashes identify each series.",
+    "command_core": "dive check Pastry.tla --config Model.cfg --library-path LIB --workers 4 --store exact --fp 0 --seed 0 --output json (compat also passes --compat=tlc).",
+    "command_tlc": "java -Xmx8g -XX:ActiveProcessorCount=4 -XX:+UseParallelGC -DTLA-Library=LIB -cp tla2tools.jar tlc2.TLC -workers 4 -fp 0 -seed 0 -metadir SCRATCH -config Model.cfg Pastry.tla",
+    "leaf_bound": "--singleton-leaves changes just the candidate domain of LeafSet. With L=1, each side must be empty or a singleton. The original self-exclusion and cardinality tests remain. Other L use the original SUBSET bound. Eight IDs reduce the candidate count from 524288 to 648; sixteen from 68719476736 to 4624 (4096 pass the filter).",
+    "negative_control": "Same eight IDs, seven ready. EXTENDS Pastry; PoolEmpty == MessagePool = {}. Append PoolEmpty after the two original invariants. Use one worker, seed/FP 0. The invalid document replaces the second state with a duplicate of the first, so NextMC fails.",
+    "review": "29 prior fixtures in both profiles; 9 held-out configurations on pinned TLC, baseline Core and candidate in both profiles; two public Rust boundary controls for malformed nested domains and incompatible fields. A shared binary tree stops at depth 7. The earlier strict false success on crossed key and value mismatches is a permanent regression test.",
+    "matrix": {
+      "16-1-orig-dive": {
+        "exit": 124,
+        "wall_s": 77.0,
+        "rss_kib": 85188,
+        "verdict": "no final report"
+      },
+      "16-1-orig-tlc": {
+        "exit": 0,
+        "wall_s": 2.54,
+        "rss_kib": 273336,
+        "generated": 7623,
+        "distinct": 222,
+        "left_on_queue": 0,
+        "depth": 19,
+        "verdict": "success"
+      },
+      "16-1-small-dive": {
+        "exit": 3,
+        "wall_s": 0.56,
+        "rss_kib": 646832,
+        "verdict": "unsupported",
+        "message": "a plan larger than the M0 core's inlining limit"
+      },
+      "16-1-small-tlc": {
+        "exit": 0,
+        "wall_s": 1.68,
+        "rss_kib": 363644,
+        "generated": 7623,
+        "distinct": 222,
+        "left_on_queue": 0,
+        "depth": 19,
+        "verdict": "success"
+      },
+      "16-2-small-dive": {
+        "exit": 3,
+        "wall_s": 0.57,
+        "rss_kib": 647044,
+        "verdict": "unsupported",
+        "message": "a plan larger than the M0 core's inlining limit"
+      },
+      "4-2-orig-dive": {
+        "exit": 0,
+        "wall_s": 3.03,
+        "rss_kib": 125004,
+        "verdict": "success",
+        "distinct": 33644,
+        "generated": 682657,
+        "depth": 37,
+        "left_on_queue": 0
+      },
+      "4-2-orig-tlc": {
+        "exit": 0,
+        "wall_s": 7.56,
+        "rss_kib": 2924608,
+        "generated": 682657,
+        "distinct": 33644,
+        "left_on_queue": 0,
+        "depth": 37,
+        "verdict": "success"
+      },
+      "8-1-orig-compat": {
+        "exit": 0,
+        "wall_s": 0.54,
+        "rss_kib": 375008,
+        "verdict": "success",
+        "distinct": 141,
+        "generated": 2560,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "8-1-orig-dive": {
+        "exit": 0,
+        "wall_s": 0.76,
+        "rss_kib": 377024,
+        "verdict": "success",
+        "distinct": 141,
+        "generated": 2560,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "8-1-orig-tlc": {
+        "exit": 0,
+        "wall_s": 1.64,
+        "rss_kib": 276688,
+        "generated": 2560,
+        "distinct": 141,
+        "left_on_queue": 0,
+        "depth": 19,
+        "verdict": "success"
+      },
+      "8-1-small-dive": {
+        "exit": 0,
+        "wall_s": 0.27,
+        "rss_kib": 362776,
+        "verdict": "success",
+        "distinct": 141,
+        "generated": 2560,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "8-1-small-tlc": {
+        "exit": 0,
+        "wall_s": 1.63,
+        "rss_kib": 256392,
+        "generated": 2560,
+        "distinct": 141,
+        "left_on_queue": 0,
+        "depth": 19,
+        "verdict": "success"
+      },
+      "8-2-orig-dive": {
+        "exit": 0,
+        "wall_s": 30.79,
+        "rss_kib": 383080,
+        "verdict": "success",
+        "distinct": 92269,
+        "generated": 3798734,
+        "depth": 38,
+        "left_on_queue": 0
+      },
+      "8-2-orig-tlc": {
+        "exit": 0,
+        "wall_s": 52.5,
+        "rss_kib": 3146388,
+        "generated": 3798734,
+        "distinct": 92269,
+        "left_on_queue": 0,
+        "depth": 38,
+        "verdict": "success"
+      },
+      "8-2-small-dive": {
+        "exit": 0,
+        "wall_s": 30.51,
+        "rss_kib": 364612,
+        "verdict": "success",
+        "distinct": 92269,
+        "generated": 3798734,
+        "depth": 38,
+        "left_on_queue": 0
+      },
+      "8-2-small-tlc": {
+        "exit": 0,
+        "wall_s": 47.71,
+        "rss_kib": 3128952,
+        "generated": 3798734,
+        "distinct": 92269,
+        "left_on_queue": 0,
+        "depth": 38,
+        "verdict": "success"
+      }
+    },
+    "qualified": {
+      "8-1-orig-default": {
+        "exit": 0,
+        "wall_s": 0.85,
+        "rss_kib": 376860,
+        "verdict": "success",
+        "distinct": 141,
+        "generated": 2560,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "8-1-orig-tlc": {
+        "exit": 0,
+        "wall_s": 0.65,
+        "rss_kib": 375264,
+        "verdict": "success",
+        "distinct": 141,
+        "generated": 2560,
+        "depth": 19,
+        "left_on_queue": 0
+      },
+      "8-2-orig-default": {
+        "exit": 0,
+        "wall_s": 74.46,
+        "rss_kib": 376804,
+        "verdict": "success",
+        "distinct": 92269,
+        "generated": 3798734,
+        "depth": 38,
+        "left_on_queue": 0
+      }
+    },
+    "negative": {
+      "dive": {
+        "exit": 12,
+        "wall_s": 0.71,
+        "rss_kib": 377480,
+        "verdict": "invariant-violation",
+        "property": "PoolEmpty",
+        "distinct": 2,
+        "generated": 2,
+        "depth": 2,
+        "left_on_queue": 0
+      },
+      "tlc": {
+        "exit": 12,
+        "wall_s": 1.55,
+        "rss_kib": 106740,
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2,
+        "verdict": "violation"
+      }
+    },
+    "validation": {
+      "trace": {
+        "command": "validate-trace",
+        "length": 2,
+        "notes": [
+          "label `Join` names an operator with parameters; not checked"
+        ],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "mutant": {
+        "command": "validate-trace",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 32, col 3 to line 41, col 29 of module Pastry",
+          "state": 1
+        },
+        "length": 2,
+        "notes": [],
+        "result": "invalid",
+        "schema_version": 4
+      }
+    },
+    "hashes": {
+      "dive": "3e87e4c0e7e5a55963c693fcdcf93f18130366435e235d93d3f86b80e240160e",
+      "base": "c688a4f93f417a0810b57c4503142ff1d753ba9e1bc00df00e640e7c3c69a1dd",
+      "final": "7b29adf0b44949c627926d36c6add92910fdb0b5d744c46542ad4cda58b9a0c7",
+      "8-1-orig/LeafSet.tla": "2b11e50f02dee34bbe41b88d110f084d571fc8602ec6a3d609b1ad1c6f46d5cf",
+      "8-1-small/LeafSet.tla": "79b8526e0ec76f93a39b551ac4d619b06fca2e1ef1b632f85d85fdb17db37d99",
+      "16-1-small/Model.cfg": "5de65ca94c38cc4fb3352f6fd7e26da8f668086c7d343498f06a6ce36222e3a9"
+    }
   }
 }
