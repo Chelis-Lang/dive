@@ -429,11 +429,12 @@ fn partitioned_expansion_reaches_the_parallel_level_loop() {
         };
         let actual = dive_api::check_file(&request).expect("sorted").to_json();
         assert_eq!(actual["verdict"], "success");
-        let used_parallel = actual["core"]["metrics"]["expand_ms"]
-            .as_f64()
-            .expect("worker phase wall")
-            > 0.0;
-        assert_eq!(used_parallel, width > 1 && !sequential, "{actual}");
+        for phase in ["expand_ms", "commit_ms"] {
+            let elapsed = actual["core"]["metrics"][phase]
+                .as_f64()
+                .expect("worker phase wall");
+            assert_eq!(elapsed > 0.0, width > 1 && !sequential, "{phase}: {actual}");
+        }
         assert_eq!(
             actual["options"]["workers"]["used"],
             if sequential { 1 } else { width }

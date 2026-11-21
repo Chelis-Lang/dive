@@ -15,6 +15,8 @@ are in git history.
 
 - Core stores large resident fingerprint sets in fewer bytes per slot. [Memory and throughput at 402 million keys](docs/developer/large-models.md#resident-fingerprint-membership).
 
+- Core reports the measured ordered commit time in `core.metrics.commit_ms` on completed parallel levels. Earlier reports could show zero after subtracting expansion time twice.
+
 - Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
 
 - `dive check --partitioned-fingerprints` supports parallel safety search with disk membership beyond four billion entries. The [storage guide](docs/user/disk-seen-safety.md#multi-worker-fingerprint-membership) covers capacity, audit results and the measured throughput cost.

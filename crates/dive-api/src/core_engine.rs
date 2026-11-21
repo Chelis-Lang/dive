@@ -1879,7 +1879,7 @@ pub(crate) fn metrics_json(
         "distributed":m.distributed,
         "explore_ms": m.explore_time.as_secs_f64() * 1e3,
         "expand_ms": m.expand_time.as_secs_f64() * 1e3,
-        "commit_ms": m.commit_time.saturating_sub(m.expand_time).as_secs_f64() * 1e3,
+        "commit_ms": m.commit_time.as_secs_f64() * 1e3,
         "plan": {
             "nodes": plan.stats.nodes, "generator_nodes": plan.stats.gnodes,
             "inlined": plan.stats.inlined, "aliased_args": plan.stats.aliased,
