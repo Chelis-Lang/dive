@@ -2047,5 +2047,194 @@
     "command": "dive-conformance run --impl dive:core --impl-profile PROFILE --corpus examples --corpus holdout-etcd-raft --corpus holdout-kafka --corpus holdout-blocking-queue --workers 8 --jobs 1 --tier all --no-sany --observe-missing-goldens --tlc-budgets --budget-cap 5 --xmx 2g --timeout 30 --no-summary --dive-bin DIVE plus one --filter for each model path in rows",
     "observations": "Raw harness verdicts may be null for named refusals; detail names the reason. A stop can map to harness timeout even when the resource is memory. Each row preserves its original grade. The larger isolated runs use the other profiles described above."
   },
-  "isolated_capacity_protocol": "Fresh processes, no swap, --workers W --seed 0 --fp 0 --max-memory CAPg --time-limit Ts --output json, taskset on W physical cores. Memory stops use sampled process RSS, while GNU time records peak process RSS. Each row binds a release source and config by digest. Truncated searches have no exhaustive verdict."
+  "isolated_capacity_protocol": "Fresh processes, no swap, --workers W --seed 0 --fp 0 --max-memory CAPg --time-limit Ts --output json, taskset on W physical cores. Memory stops use sampled process RSS, while GNU time records peak process RSS. Each row binds a release source and config by digest. Truncated searches have no exhaustive verdict.",
+  "etcd_worker_start_pressure": {
+    "original": {
+      "model": "holdout-etcd-raft:etcdraft",
+      "instance": "r7i.16xlarge",
+      "configured_workers": 32,
+      "max_memory_gib": 420,
+      "time_limit_s": 14400,
+      "wall_s": 4461.21,
+      "peak_rss_kib": 354476364,
+      "exit": 101,
+      "diagnostic": "scoped thread spawn: OS error 11, Resource temporarily unavailable",
+      "final_checker_report": false,
+      "executable_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "tla_sha256": "15c445684529c59a59877951c7fb7df9a40da250aaa445f056ef48f56bb27044",
+      "cfg_sha256": "0279cc6c7c100f622e30230ad56d383eb9d9bd8ac99c996fe707710106a9960e"
+    },
+    "reproducer": "scripts/test-scoped-worker-limit.py DIVE",
+    "baseline": "Linux cgroup TasksMax 3, 4, 6 and 12 each panicked at scoped worker spawn with 16 requested. Unrestricted Wave finished.",
+    "verified": {
+      "instance": "c7i.4xlarge",
+      "binary_sha256": "0e1118249e3ac433b0bc00e0ba618b64c670b82738e3a1fcc92ea255dbe90674",
+      "task_caps_in_array_order": [
+        64,
+        3,
+        4,
+        6,
+        12
+      ],
+      "requested_workers": 16,
+      "store": "exact",
+      "candidate_spill_per_worker_bytes": 128,
+      "groups": {
+        "Wave-ram": {
+          "verdict": "success",
+          "statistics": {
+            "depth": 2,
+            "distinct": 129,
+            "generated": 16513,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "output": [],
+          "peak_workers": [
+            16,
+            1,
+            2,
+            4,
+            16
+          ],
+          "reported_os_limit": [
+            false,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "Wave-disk": {
+          "verdict": "success",
+          "statistics": {
+            "depth": 2,
+            "distinct": 129,
+            "generated": 16513,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "output": [],
+          "peak_workers": [
+            16,
+            1,
+            2,
+            11,
+            16
+          ],
+          "reported_os_limit": [
+            false,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "Delayed-ram": {
+          "verdict": "invariant-violation",
+          "statistics": {
+            "depth": 3,
+            "distinct": 130,
+            "generated": 130,
+            "initial_generated": 1,
+            "left_on_queue": 127,
+            "reported_by_tlc": true
+          },
+          "output": [],
+          "peak_workers": [
+            16,
+            1,
+            2,
+            4,
+            16
+          ],
+          "reported_os_limit": [
+            false,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "Delayed-disk": {
+          "verdict": "invariant-violation",
+          "statistics": {
+            "depth": 3,
+            "distinct": 130,
+            "generated": 130,
+            "initial_generated": 1,
+            "left_on_queue": 127,
+            "reported_by_tlc": true
+          },
+          "output": [],
+          "peak_workers": [
+            16,
+            1,
+            2,
+            4,
+            16
+          ],
+          "reported_os_limit": [
+            false,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "Ordered-ram": {
+          "verdict": "success",
+          "statistics": {
+            "depth": 2,
+            "distinct": 129,
+            "generated": 16513,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "output": [
+            "\"marker\""
+          ],
+          "peak_workers": [
+            16,
+            1,
+            2,
+            4,
+            10
+          ],
+          "reported_os_limit": [
+            false,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "Ordered-disk": {
+          "verdict": "unsupported",
+          "statistics": null,
+          "output": [],
+          "peak_workers": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "reported_os_limit": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        }
+      },
+      "trace_replays_valid": 10,
+      "tlc_w1": "Wave and Ordered 16513 generated, 129 distinct, depth 2, empty queue. Delayed 130 generated, 130 distinct, depth 3, 127 queued.",
+      "one_worker_spill": "After the first spill file, lower TasksMax from 64 to 1. Requested and used both equal 1 with a reported OS limit; same graph and counts as the unrestricted control."
+    }
+  }
 }

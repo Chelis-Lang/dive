@@ -162,6 +162,10 @@ pub struct Stats {
 pub struct Metrics {
     /// Worker width used for ordinary safety with ordered diagnostic replay.
     pub ordered_print_workers: Option<usize>,
+    /// Highest local expansion width available to a parallel wave.
+    pub max_wave_workers: usize,
+    /// Whether a local expansion wave had to run unstarted worker jobs inline.
+    pub wave_thread_shortage: bool,
     /// Number of retained initial roots when a cheap temporal capture stayed inline.
     pub inline_graph_roots: Option<u64>,
     /// Authenticated remote work facts when distributed safety was requested.
@@ -2384,9 +2388,6 @@ fn run(
             let inline_print =
                 parallel && ex.metrics.ordered_print_workers.is_some() && states == 1;
             if parallel && !inline_print && k % chunk == 0 {
-                if let Some(width) = &mut ex.metrics.ordered_print_workers {
-                    *width = machines.len();
-                }
                 let started = Instant::now();
                 let end = (k + chunk).min(states);
                 let mut metrics = Metrics::default();
@@ -2437,6 +2438,12 @@ fn run(
                         &mut metrics,
                     )
                 };
+                ex.metrics.wave_thread_shortage |= metrics.wave_thread_shortage;
+                ex.metrics.max_wave_workers =
+                    ex.metrics.max_wave_workers.max(metrics.max_wave_workers);
+                if let Some(width) = &mut ex.metrics.ordered_print_workers {
+                    *width = (*width).max(metrics.max_wave_workers);
+                }
                 let r = match r {
                     Ok(r) => r,
                     Err(error) => {

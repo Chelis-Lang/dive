@@ -1011,12 +1011,19 @@ pub(crate) fn safety_result(
     } = *search;
     let inline_roots = out.metrics.inline_graph_roots;
     let ordered_width = out.metrics.ordered_print_workers;
+    let wave_width = out.metrics.max_wave_workers;
+    let thread_shortage = out.metrics.wave_thread_shortage;
     let searched_result = |verdict| {
         let mut report = result(verdict, options, ir);
         if options.sequential && workers == 1 {
             report.workers.used = 1;
             report.workers.sequential = true;
             report.workers.reason = Some("--sequential requested inline checking".into());
+        } else if thread_shortage {
+            report.workers.used = wave_width;
+            report.workers.reason = Some(
+                "the operating system limited expansion worker threads in at least one wave".into(),
+            );
         } else if workers > 1 && expanded && ordered_width == Some(1) {
             report.workers.used = 1;
             report.workers.reason = Some(

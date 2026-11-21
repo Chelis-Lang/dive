@@ -573,6 +573,15 @@ For a kernel OOM there is no final checker report. The 900 s runs used an
 report a stop. The two envelopes and the fixed-prefix study answer different
 questions.
 
+The original etcdraft configuration exposed a worker-creation failure at 32 workers
+and a 420 GiB budget. The process exited after 4,461.21 s at 338.05 GiB RSS
+without a verdict. A 129-state model reproduced the panic under a Linux task
+quota. Core now completes an interrupted worker launch on the calling thread,
+preserving already claimed work. Five different quotas gave the same counts,
+including when successor candidates spilled to disk. All ten failing-property
+traces replayed independently. The [measurements](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json)
+include the worker counts and the original model and configuration digests.
+
 On a 32-physical-core host with a 24 GiB sampled RSS limit, DiskSynod reached 835,858,711 distinct states and 12,639,577,756 generated in 6,500.61 s. It had 144,840,332 states queued at depth 35. BPConProof hit the same budget in 181.95 s with 134,831,096 distinct states. Of those, 134,714,941 were still queued. At 16 workers, BlockingQueuePoisonApple hit 24 GiB during graph capture with 117,440,513 distinct and 569,933,982 generated. At eight workers and 18 GiB, etcdraft reached 94,073,470 distinct before memory stopped it. MCetcdraft instead hit the 900 s time limit at 39,256,817 distinct and 8.89 GiB peak RSS. These runs use different worker counts and budget enforcement from the original cgroup trials. [Per-input commands, limits, binary identities and terminal queues](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json).
 
 ### Car Talk evaluates a constant expression
