@@ -570,6 +570,44 @@
       "mutated": "DiveCellPredicate",
       "validated": true,
       "refusals": 8
+    },
+    "bound_next_analysis": {
+      "module": "EmergencyCall_Model_auto.tla",
+      "variables": 38,
+      "proven_fixed_variables": [
+        "amf_home0_emergency_number_set",
+        "amf_home1_emergency_number_set",
+        "amf_roam0_emergency_number_set",
+        "amf_roam1_emergency_number_set",
+        "ecc_localization_enabled_mnc_set",
+        "enable_adversary",
+        "ecc_localization_enabled",
+        "ue_valid_subscription",
+        "screen_locked",
+        "ue_sim_card_present",
+        "mnc_home_only",
+        "mnc_set",
+        "amf_allow_emergency_attach",
+        "amf_allow_emergency_setup",
+        "amf_0_normal_attach_accept_include_enl",
+        "amf_1_normal_attach_accept_include_enl",
+        "amf_0_emergency_attach_accept_include_enl",
+        "amf_1_emergency_attach_accept_include_enl",
+        "amf_home_reject_or_allow_unmarked_emergency_request",
+        "amf_roam_reject_or_allow_unmarked_emergency_request",
+        "amf_home_route_with_type_or_number",
+        "amf_roam_route_with_type_or_number",
+        "amf_home_require_emergency_registration_for_emergency_session"
+      ],
+      "configs": [
+        "released f3.cfg",
+        "INIT Init; NEXT Next; INVARIANTS TypeInvariant SetInvariant"
+      ],
+      "full_init_cfg_sha256": "8307be05dfc7c0e824259bf1a9a315be2f836e889c34ae212b9a2ba24eda0d42",
+      "binder_sha256": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "command": "python3 scripts/perf/scale/fixed_variables.py PATH_TO_symbolic_input EmergencyCall_Model_auto.tla CFG",
+      "consequence": "Each of the six split coordinates stays equal across every satisfying original Next transition. Any path to a state in either completed cell must start in that same cell. Cell one exhausts at 43 BFS levels counting Init as level 1, giving a lower bound of 42 transitions on the maximum shortest initial distance of the reconstructed unrestricted model. The paper reports 26 transitions. Exact identity and the empty queue are recorded under reconstructed_full_init.",
+      "validation": "Fresh bound source mutations made each of the six split fields mutable in turn and removed exactly that field from the result. Independent exact Core and TLC controls exercised value overrides, disjunction, frame aliases, equality and existential selection. Both explicit engines reproduced the incoming-shortcut example (closed cell depth 5, full depth 2); with the bit fixed, both depths were 5. Run scripts/perf/scale/test_fixed_variables.py with the binder for the focused regression."
     }
   },
   "reconstructed_full_init": {
