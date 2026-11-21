@@ -430,6 +430,8 @@ Flint’s three-writer checker expands 31-variable successors across workers and
 | KVS Medium | 8 | 2M distinct | 7.55, 7.56 | 7.31, 7.34 |
 
 
+An in-process worker that finds a fingerprint in the resident table can carry that observation to ordered commit. The table only grows during the wave. This avoids a second coordinator lookup for that occurrence. A candidate observed only by another worker still needs its ordinary ordered check. On a dedicated 96-core Graviton4 node the 50-million-state SlateDB prefix took 64.42–64.59 s versus 66.39–66.45 s at 32 workers. The two-million-state KVS prefix fell from 2.92–2.94 s to 2.69–2.70 s at 32 workers. The full two-barrier Flint run at 96 workers fell from 13.97–13.98 s to 13.57–13.60 s. All paired counters and queues matched. [All runs, including pooled workers and allocator settings](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
+
 A separate experiment kept a Rayon pool alive across ordinary safety batches. On Flint at 192 workers, host tasks created per run fell from about 124,000 to 314. Wall time fell from 21.97–22.24 s to 17.44–17.90 s, but peak RSS increased from 1.39 to 2.83 GiB. At 32 workers PConProof slowed from 34.55–34.89 s to 36.72–37.52 s. These tradeoffs kept ordinary worker scheduling out of the retained-row change. [All paired runs, inputs, binary identities, CPU time and memory](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
 ## High-fanout parallel safety
