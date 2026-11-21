@@ -388,6 +388,7 @@ jq '.runs["source-edits"].steps[] | {verdict, reused, seconds}' \
 | File | Question | Source | Host |
 |---|---|---|---|
 | `2026-11-21-simulation-throughput-d04a3a88.json` | S4 (ADR 0162 section 14): `dive simulate` traces per second and startup against TLC `-simulate`, at 1, 4 and 8 workers, with and without temporal properties | `d04a3a88` | c7i.metal-24xl, fresh node, method as D1 to D6 |
+| `2026-11-21-simulation-throughput-f685076b.json` | The S4 benches again after #1162 (temporal atoms on per-worker Core machines) | `f685076b` | c7i.metal-24xl, fresh node, same method |
 
 Each bench samples the same number of traces of depth 100 at seed 0 in both
 tools; TLC gets `num=N/W` because its count is per worker. Every run sampled
@@ -404,6 +405,15 @@ eight workers (TLC 5.9x and 4.2x). The record's `profile` names the cost:
 temporal atoms are evaluated by the tree-walking `dive-eval` evaluator
 rather than Core, and at eight workers clone and drop of shared evaluator
 environments take 37 % of samples.
+
+After #1162 (`f685076b`), every bench is ahead of TLC at 1, 4 and 8
+workers. With temporal properties, `EWD840` is 3.6x, 4.6x and 5.4x faster
+than TLC (21.4 s to 2.9 s at one worker), `DijkstraMutex` 8.0x, 7.4x and
+5.7x, and `SimpleAllocator` 6.0x, 6.0x and 6.2x. Benches without temporal
+properties are unchanged. dive's generated counts and per-property coverage
+are those of the `d04a3a88` record and identical across worker counts. The
+per-worker atom caches raise `DijkstraMutex`'s peak RSS at eight workers
+from 173 to 350 MiB.
 
 ## Earlier records
 

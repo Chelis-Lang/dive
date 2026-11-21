@@ -874,10 +874,10 @@ models where model checking finds none; the smallest receipts are E1 and T5
 (D-043). Of 141 temporal properties on 72 models, 119 were checked on every
 trace; 89 % of trace-property pairs were checked with `--liveness-extend`,
 88 % without. Throughput is in
-`conformance/reports/perf/2026-11-21-simulation-throughput-d04a3a88.json`:
-without temporal properties dive is ahead of TLC at every worker count; with
-them, the atoms run on the slower `dive-eval` evaluator, and `EWD840` is at
-0.48x TLC.
+`conformance/reports/perf/2026-11-21-simulation-throughput-f685076b.json`:
+dive is ahead of TLC on every bench at 1, 4 and 8 workers, with and without
+temporal properties; with them, `EWD840` is 3.6x to 5.4x faster than TLC,
+since temporal atoms run on each worker's Core machine (§4.4).
 
 ### S5: trace output
 

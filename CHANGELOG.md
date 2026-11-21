@@ -212,6 +212,8 @@ are in git history.
 
 ### Performance
 
+- `dive simulate` evaluates temporal properties on each worker's compiled Core machine and reuses atom truths across traces. On `EWD840` with its `PROPERTIES`, one-worker time fell from 21.4 s to 2.9 s (3.6x faster than TLC; 5.4x at eight workers). [Measurements](conformance/reports/perf/2026-11-21-simulation-throughput-f685076b.json).
+
 - Symmetry reduction compares nested function and set values without copying their contents. On the [SlateDB WAL comparison](docs/developer/large-models.md#symmetry-comparison-costs) this reduced eight-worker elapsed time by 10%.
 
 - The finite symbolic checker supports string-valued fields and grouped bounded
