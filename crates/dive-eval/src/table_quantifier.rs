@@ -46,9 +46,10 @@ impl Core {
         let [left, right] = items.as_ref() else {
             return Ok(None);
         };
-        let (Some((left_table, left_slot, first)), Some((right_table, right_slot, second))) =
-            (self.table_equality(*left), self.table_equality(*right))
-        else {
+        let (Some((left_table, left_slot, first)), Some((right_table, right_slot, second))) = (
+            self.table_comparison(*left, BuiltinOp::Eq),
+            self.table_comparison(*right, BuiltinOp::Eq),
+        ) else {
             return Ok(None);
         };
         if self.ir.node(left_table).expr != self.ir.node(right_table).expr
@@ -120,14 +121,104 @@ impl Core {
         Ok(Some((found_first && found_second) == exists))
     }
 
-    fn table_equality(&self, predicate: ExprId) -> Option<(ExprId, Slot, &Value)> {
+    /// Repeated candidate actions can test the same unary predicate of the
+    /// given source table. Save a result only for an explicit constant domain
+    /// and literal comparison whose inspected primitive entries are defined.
+    pub(crate) fn concrete_table_guard(
+        self: &Arc<Self>,
+        env: &mut Env,
+        st: &St,
+        exists: bool,
+        bounds: &[Bound],
+        body: ExprId,
+        expr: ExprId,
+    ) -> Result<Option<bool>> {
+        let Some(slot) = env.dynamic.change_slot.clone() else {
+            return Ok(None);
+        };
+        let [bound] = bounds else { return Ok(None) };
+        let [variable] = *bound.vars else {
+            return Ok(None);
+        };
+        if bound.tuple {
+            return Ok(None);
+        }
         let Expr::Builtin {
-            op: BuiltinOp::Eq,
-            args,
-        } = &self.ir.node(predicate).expr
+            op: op @ (BuiltinOp::Eq | BuiltinOp::Neq),
+            ..
+        } = self.ir.node(body).expr
         else {
+            return Ok(None);
+        };
+        let Some((read, variable_read, literal)) = self.table_comparison(body, op) else {
+            return Ok(None);
+        };
+        if variable_read != variable {
+            return Ok(None);
+        }
+        let Some(domain) = bound.domain else {
+            return Ok(None);
+        };
+        let Expr::Const(id) = self.ir.node(domain).expr else {
+            return Ok(None);
+        };
+        let Some(Some(crate::ConstBinding::Value(Value::Set(set)))) = self.consts.get(id.index())
+        else {
+            return Ok(None);
+        };
+        // Preserve enumeration and its errors in the ordinary evaluator for
+        // lazy, unordered, and non-enumerated domains.
+        if set.kind() != SetKind::Enum || set.order() != self.opts.explore_order() {
+            return Ok(None);
+        }
+        let Some(keys) = set.stored_elements() else {
+            return Ok(None);
+        };
+        if keys.len() < 32 {
+            return Ok(None);
+        }
+        let keys = self.explore(set)?;
+        let Value::Fcn(table) = self.eval_v(env, st, read)? else {
+            return Ok(None);
+        };
+        if let Some(saved) = slot.guard.get() {
+            self.loop_work()?;
+            return Ok((saved.0 == expr && saved.1.ptr_eq(&table)).then_some(saved.2));
+        }
+        let mut result = !exists;
+        for key in keys.iter() {
+            self.loop_work()?;
+            let DomainLookup::Found(index) = table.checked_domain_index(key) else {
+                return Ok(None);
+            };
+            let Some((_, value)) = table.entry_cow(index) else {
+                return Ok(None);
+            };
+            if std::mem::discriminant(value) != std::mem::discriminant(literal) {
+                return Ok(None);
+            }
+            if ((value == literal) == (op == BuiltinOp::Eq)) == exists {
+                result = exists;
+                break;
+            }
+        }
+        let _ = slot
+            .guard
+            .set(crate::concrete_update::Guard(expr, table, result));
+        Ok(Some(result))
+    }
+
+    fn table_comparison(
+        &self,
+        predicate: ExprId,
+        expected: BuiltinOp,
+    ) -> Option<(ExprId, Slot, &Value)> {
+        let Expr::Builtin { op, args } = &self.ir.node(predicate).expr else {
             return None;
         };
+        if *op != expected {
+            return None;
+        }
         let [left, right] = args.as_ref() else {
             return None;
         };

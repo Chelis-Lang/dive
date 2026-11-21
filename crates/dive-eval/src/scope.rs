@@ -1319,6 +1319,7 @@ impl Evaluator {
         self.validate_scope(scope)?;
         self.validate_state_context(st)?;
         let mut env = scope.env.clone();
+        env.dynamic.change_slot = crate::concrete_update::concrete_slot(st);
         let ev = self.core.eval(&mut env, st, expr)?;
         self.core.force_fcn(ev)
     }

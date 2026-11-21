@@ -46,6 +46,7 @@ mod community;
 mod context;
 mod core;
 pub use context::{ContextError, ContextErrorKind, validate_ir};
+mod concrete_update;
 mod env;
 mod error;
 mod eval;

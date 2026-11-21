@@ -777,3 +777,5 @@ Consistent == \A a,b \in Owners :
       /\ status[b] = "committed"
 ```
 The evaluator checks that the bound names are independent, both lookups read the same table, and the values used for the reduction have the expected primitive type. Partial tables and unsupported comparisons follow the usual evaluation rules. Counterexamples still undergo full initialization, transition and property validation. [Measured replay costs](../developer/large-models.md#independent-replay-on-large-owner-tables).
+
+When replay checks a step such as `status' = [status EXCEPT ![i] = "prepared"]`, many candidate processes share the same source and target. For concrete tables with comparable keys and primitive entries, Dive compares the two tables once. A repeated guard such as `\A i \in Owners : status[i] # "committed"` can also share its result during that check. Other guards, updates and ending properties still run in source order. On Transaction Commit the validator rejected two simultaneous prepares among 65,536 managers in 0.80 s. [Trace construction and measurements](../developer/large-models.md#independent-replay-on-large-owner-tables).
