@@ -275,5 +275,128 @@
     },
     "earlier_trials": "With the installer library and literal 0..2 only in the root, the finite trial missed 4/744. The original Nat trial missed 1/744. The published library corrects the finite-set-induction statement used in this source and the finite proof specializes imported definitions consistently.",
     "cfg_controls": "Core and TLC with the released constants passed the original startup assumptions and the explicit assumptions None \\notin Value and Ballot = {0,1,2}. Changing the invariant to Inv /\\ bmsgs={} fails at depth two with a replayable violation (Core 0.12 s / 72,648 KiB; TLC 2.06 s / 252,656 KiB). No complete graph counts follow from these proofs."
+  },
+  "configured_invariance": {
+    "scope": "BPConProof.cfg selects SPECIFICATION Spec and INVARIANT Inv. The specialized theorem proves Spec => []Inv for each fresh value outside Value and for the root assumptions. TLC checks the released root assignments and assumptions. The released CFG overrides root operators only. Spec and Inv use neither imported P!Ballot nor P!None, so specializing these imported definitions in the proof preserves the configured root property. Later refinement, agreement and liveness claims are outside the theorem, as is total graph cardinality.",
+    "preparation": "scripts/perf/scale/bpcon_proof.py reads the pinned CFG, four Examples modules and the bundled finite-set library. It truncates the root after Invariance, specializes the three Ballot definitions and replaces the two mathematical-choice sentinels with one shared FreshNone parameter. Two changes to proofs establish the imported freshness premise and split the Phase2b acceptor ballot-bound step. Init, Next, Spec and Inv retain their source definitions.",
+    "assumptions": "None is distinct from the two proposals. Ballot and -1 are disjoint from the four model-value acceptors. The three good acceptors are disjoint from the fake one. All Byzantine quorums are subsets of their union and every ordered pair of Byzantine quorums shares a good acceptor. Each weak quorum is a subset containing a good acceptor. Each family has an all-good member. Projecting each Byzantine quorum onto the good set gives the four intersecting quorums of P!QA.",
+    "dependencies": "PNextDef cites P!NextDef, explicitly discharging P!QA, P!BallotAssump and P!NoneOutside. PNextDef is first used after Invariance, in the later refinement proof. The isolated PConProof prefix ends at NextDef before the VoteProof instance. The proof imports mathematical library statements, including FS_Induction. TLAPS loading VoteProof and Consensus did not certify those modules' theorems.",
+    "host": "EC2 c7i.4xlarge, Xeon Platinum 8488C, Ubuntu 24.04 x86-64. Other jobs could run on the host. Times and peak RSS come from GNU time. Fingerprint reuse and worker counts differ between the two root runs.",
+    "tlaps_installer": "https://github.com/tlaplus/tlapm/releases/download/202210041448/tlaps-1.5.0-x86_64-linux-gnu-inst.bin",
+    "installer_sha256": "ebb7a3f271bdb564f74cb0a2767ef7b9ff7045621a9be7c50d363a03c2e6f08a",
+    "tlapm_sha256": "537f46dd857d5a3861705b388798a13cb62bc65115e6c1c5edba1568b5980a08",
+    "commands": {
+      "root_cached": "timeout -k 10 3200 taskset -c 6 tlapm --threads 1 -k BPConProof.tla (7 GiB cgroup, previously populated fingerprints loaded)",
+      "root_cold": "timeout -k 10 3200 taskset -c 5,6 tlapm --threads 2 --nofp -k BPConProof.tla (8 GiB cgroup, fresh work directory)",
+      "nextdef_cold": "timeout 300 taskset -c 4 tlapm --threads 1 --nofp -k PConProof.tla (4 GiB cgroup, independent prefix)"
+    },
+    "intermediate_trials": "The initial named-sentinel run retained the two original proof steps. The next trial introduced the imported freshness premise and tried SMT on the unsplit Phase2b goal. The final source splits that goal into the message membership and ballot bound, with the latter proved from the function update.",
+    "checks": {
+      "initial_fresh_sentinel": {
+        "proved": 743,
+        "total": 745,
+        "exit": 3,
+        "wall_seconds": 1750.76,
+        "peak_rss_kib": 1225652,
+        "root_sha256": "b863a5ad2a257f3347dc632d33905a5fe8cae7fce60441cb951e504b57934b25"
+      },
+      "added_import_premise": {
+        "proved": 748,
+        "total": 749,
+        "exit": 3,
+        "wall_seconds": 1737.62,
+        "peak_rss_kib": 1225652,
+        "root_sha256": "bfc65b95c3a1b530fc22933e3ff51aa61c8bd5987a82cb0236b1a5cf74b150ef"
+      },
+      "root_cached": {
+        "proved": 761,
+        "total": 761,
+        "exit": 0,
+        "wall_seconds": 1098.77,
+        "peak_rss_kib": 208100
+      },
+      "proof_sha256": {
+        "BPConProof.tla": "98155be3c86b8eba515f4374dc99fce443163549bfefaa0d4e4edbb85c9bad52",
+        "Consensus.tla": "5b877e93b31c982e80b1443127bc2c50c090d7f8d729d468f3b42849315205bf",
+        "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+        "PConProof.tla": "57be311e2462ebafd88c8a8d3b2ae72dd56fb78c09fcb5d6ca3efb3aaf12bcff",
+        "VoteProof.tla": "4eff6a1629ba36c062d18d4a96eca6bfd3061eeeccec05500d436d731b21399f"
+      },
+      "root_cold": {
+        "proved": 761,
+        "total": 761,
+        "exit": 0,
+        "wall_seconds": 1615.99,
+        "peak_rss_kib": 1225368
+      },
+      "nextdef_cold": {
+        "proved": 11,
+        "total": 11,
+        "exit": 0,
+        "wall_seconds": 0.21,
+        "peak_rss_kib": 30224
+      },
+      "nextdef_sha256": "21e6f172e462f900b26a9f0916a57a57617999040f3e901d4701def417fca536"
+    },
+    "proof_mapping": {
+      "module_sha256": "cbdfac907b25b5bb36011400ee845a52250abc6761ba2c99b81360648b551756",
+      "claims": "For the transformed proof modules, Ballot equals 0..2 and P!Ballot. P!None, None and FreshNone are equal, and None is outside Value. These equalities describe the specialized proof instance.",
+      "command": "tlapm --threads 1 --nofp -k ConfigMapping.tla",
+      "proved": 3,
+      "total": 3,
+      "exit": 0
+    },
+    "config_control": {
+      "source": "Original Examples modules. The helper retains all constant assignments and Inv, adds a second binding for the named None atom, and selects Init with a single stuttering step. ConfigCheck uses the original BQA, BQLA, BallotAssump, and projected P!QA. It checks the ballot domain, projected ballot disjointness, and named None outside Value.",
+      "cfg_sha256": "c47b024e2db60e506cc2024816a65b6d03170710d58901cb5f7b63971eff43ab",
+      "module_sha256": "c0d711e71ca9c0a27a74692d2257abde5e586d0c063c967cac1ef83aa7f18a9a",
+      "command": "java -XX:ActiveProcessorCount=1 -Xmx700m -DTLA-Library=TLAPS_LIB -cp PINNED_JAR tlc2.TLC -workers 1 -seed 0 -fp 0 -config CFG ConfigCheck.tla",
+      "success": {
+        "exit": 0,
+        "generated": 2,
+        "distinct": 1,
+        "depth": 1,
+        "left_on_queue": 0
+      },
+      "bad_quorum": {
+        "change": "ByzQuorum = {{a1, fa1}, {a2, fa1}, {a1, a2, a3}}",
+        "cfg_sha256": "753ec5aea0b61612fe8ff99d434736ece238feef7f2a274d02a7308e6aea325b",
+        "exit": 10,
+        "failed": "BQA"
+      },
+      "bad_ballots": {
+        "change": "Ballot = {0, 1, 3}",
+        "cfg_sha256": "187617e7c7c136719d3b3ef59b5af754b68003b7601110b95d5b91338e909c71",
+        "exit": 10,
+        "failed": "FiniteBallots"
+      },
+      "bad_sentinel": {
+        "change": "None = v1 and ConfiguredNone = v1",
+        "cfg_sha256": "8ee60dfb700a66fb17395737d6c17384c3060b6902c5782e1d2c6939e320846a",
+        "exit": 10,
+        "failed": "Sentinel"
+      }
+    },
+    "original_instance_controls": {
+      "recipe": "In a copy of config/ConfigCheck.tla rename the module to OriginalInstance and insert one ASSUME Extra before Stay. Run pinned TLC with ConfigCheck.cfg. Each probe changes only the indicated assumption.",
+      "third_ballot_excluded": {
+        "assume": "3 \\notin P!Ballot",
+        "exit": 10,
+        "result": "assumption false"
+      },
+      "imported_sentinel_equal": {
+        "assume": "P!None = None",
+        "exit": 10,
+        "result": "TLC cannot evaluate the unbounded CHOOSE at PConProof.tla:111"
+      },
+      "imported_ballot_premise": {
+        "assume": "P!BallotAssump",
+        "exit": 0,
+        "generated": 2,
+        "distinct": 1
+      },
+      "unused_instance": "In the specialized root prefix remove the P == INSTANCE PConProof declaration and only the PNextDef lemma and its proof. Pinned tla2sany.SANY resolves BPConProof with FiniteSetTheorems and the TLAPS library, with PConProof, VoteProof and Consensus absent. This checks that the remaining root definitions and Invariance proof have no references to the instance."
+    },
+    "input_integrity_control": "Appended a comment to each of the six pinned inputs separately. Each preparation exited 1, named the altered file and created no output directory. The generated proof modules and the isolated NextDef prefix reproduced the measured byte hashes."
   }
 }
