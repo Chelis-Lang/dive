@@ -404,6 +404,80 @@
       "result_set_sha256": "32f21048e7a35d762d9c05579d190f99e177f5e2d5b22dc0d07ed90db0d8f657",
       "ordinary_vs_scoped": 80,
       "cancellation": "Both profiles propagated interruption token 419 and succeeded on retry, separately for update, guard and repeated guard. Matching ResourceLimit at recursion depth 16."
-    }
+    },
+    "paired_forged_cpu_2": [
+      {
+        "binary": "finaldelta",
+        "owners": 16384,
+        "repetition": 1,
+        "wall_seconds": 0.18,
+        "peak_rss_kib": 158036,
+        "exit": 1,
+        "report_sha256": "fd78184595cbbbd6afab1af4b77b0eaa5c1f9c1c389aaa6ae920774697a2032d"
+      },
+      {
+        "binary": "finaldelta",
+        "owners": 16384,
+        "repetition": 2,
+        "wall_seconds": 0.18,
+        "peak_rss_kib": 158112,
+        "exit": 1,
+        "report_sha256": "fd78184595cbbbd6afab1af4b77b0eaa5c1f9c1c389aaa6ae920774697a2032d"
+      },
+      {
+        "binary": "finaldelta",
+        "owners": 8192,
+        "repetition": 1,
+        "wall_seconds": 0.09,
+        "peak_rss_kib": 108864,
+        "exit": 1,
+        "report_sha256": "fd78184595cbbbd6afab1af4b77b0eaa5c1f9c1c389aaa6ae920774697a2032d"
+      },
+      {
+        "binary": "finaldelta",
+        "owners": 8192,
+        "repetition": 2,
+        "wall_seconds": 0.09,
+        "peak_rss_kib": 109040,
+        "exit": 1,
+        "report_sha256": "fd78184595cbbbd6afab1af4b77b0eaa5c1f9c1c389aaa6ae920774697a2032d"
+      },
+      {
+        "binary": "shipping",
+        "owners": 16384,
+        "repetition": 1,
+        "wall_seconds": 135.69,
+        "peak_rss_kib": 155352,
+        "exit": 1,
+        "report_sha256": "fd78184595cbbbd6afab1af4b77b0eaa5c1f9c1c389aaa6ae920774697a2032d"
+      },
+      {
+        "binary": "shipping",
+        "owners": 16384,
+        "repetition": 2,
+        "wall_seconds": 135.15,
+        "peak_rss_kib": 155972,
+        "exit": 1,
+        "report_sha256": "fd78184595cbbbd6afab1af4b77b0eaa5c1f9c1c389aaa6ae920774697a2032d"
+      },
+      {
+        "binary": "shipping",
+        "owners": 8192,
+        "repetition": 1,
+        "wall_seconds": 32.85,
+        "peak_rss_kib": 102032,
+        "exit": 1,
+        "report_sha256": "fd78184595cbbbd6afab1af4b77b0eaa5c1f9c1c389aaa6ae920774697a2032d"
+      },
+      {
+        "binary": "shipping",
+        "owners": 8192,
+        "repetition": 2,
+        "wall_seconds": 32.84,
+        "peak_rss_kib": 102180,
+        "exit": 1,
+        "report_sha256": "fd78184595cbbbd6afab1af4b77b0eaa5c1f9c1c389aaa6ae920774697a2032d"
+      }
+    ]
   }
 }
