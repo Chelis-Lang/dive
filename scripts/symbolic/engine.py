@@ -1213,6 +1213,12 @@ class SourceModel(FiniteRelation):
                         old_layers = ()
                     continue
                 old_layers = ()
+            # All earlier admitted layers have been expanded under this relation.
+            # Their successors are already in reached. Either BDD therefore
+            # yields exactly the same next frontier after subtracting reached.
+            admitted = reached & self.constraint
+            if admitted.dag_size < sources.dag_size:
+                sources = admitted
             successors = self.b.false
             for guard, updates in self.actions:
                 successors |= self.image(sources, guard, updates)

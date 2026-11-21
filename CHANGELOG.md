@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Large native temporal checks allocate [action predicate bits](docs/user/temporal.md#storage-and-limits) only for blocks containing true results.
+
 - Multi-worker resident fingerprint search reuses confirmed duplicate lookups during ordered commit. [Measurements](conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
 - `dive-conformance study simulate` compares `dive simulate` with TLC's
@@ -137,6 +139,7 @@ are in git history.
   invariant inventory, including constrained models with aggregate state.
   See [the Rust API guide](docs/user/rust-api.md#drop-an-invariant-from-a-completed-safety-check).
 
+- Symbolic BFS can expand a smaller decision diagram for the same next layer. This cut the original KVS Large check from 135 to 35 seconds on one EC2 core. [Matched runs](docs/developer/large-models.md#results-on-keyvaluestore).
 - The optional [finite symbolic checker](docs/user/symbolic.md) searches finite safety models using decision diagrams, rechecks invariant edits and verifies inductive predicates against the current source.
 - Rust embedders can capture a finite single-worker Core safety check and
   recheck edited invariants on the original state rows. A qualified

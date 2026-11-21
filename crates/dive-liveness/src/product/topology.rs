@@ -88,6 +88,10 @@ impl<'a> CsrTopology<'a> {
         }
     }
 
+    pub(super) const fn offsets(&self) -> &'a [usize] {
+        self.offsets
+    }
+
     /// Number of behavior vertices, including unreachable vertices.
     #[must_use]
     pub(crate) const fn vertex_count(&self) -> usize {

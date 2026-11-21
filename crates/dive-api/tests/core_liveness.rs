@@ -1078,3 +1078,14 @@ fn a_violation_proven_before_the_ceiling_is_still_reported() {
         }
     }
 }
+
+#[test]
+fn sparse_action_pages_preserve_witness_attribution_across_empty_blocks() {
+    let report = run("SparseActionPages", 1, false, false);
+    assert_eq!(report["statistics"]["distinct"], 128);
+    assert_eq!(report["statistics"]["generated"], 16_385);
+    assert_eq!(report["verdict"], "liveness-violation");
+    assert_eq!(report["property"], "Outside and Missing");
+    assert_eq!(report["counterexample"]["validation"], "valid");
+    assert_eq!(report["execution"]["capture_completed"], true);
+}
