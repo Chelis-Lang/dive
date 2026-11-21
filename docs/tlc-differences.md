@@ -1739,3 +1739,42 @@ constructs it, where enumeration finds it on the first run. When no
 alternative of Init gives an admitted state, the result is the same 2118 or
 2256 error as with enumeration, because the construction searches every
 alternative before giving up.
+
+## D-042: Every simulation trace as a file
+
+| | |
+|---|---|
+| **Kind** | Opt-in option |
+| **Default** | The report keeps the deciding trace and 10 others |
+| **TLC behavior** | `-simulate file=PREFIX` and `-dumpTrace json\|tla`, described below |
+| **Status** | implemented for `dive simulate --trace-dir` |
+
+TLC's `-simulate file=PREFIX` writes each trace that violates nothing to its
+own module, named by worker and trace number. It does not apply `ALIAS`, and
+the module header holds the whole path, so the file does not parse. Only
+`-dumpTrace json FILE` or `-dumpTrace tla FILE` writes the violating trace,
+with `ALIAS` applied. Nothing checks the traces, and which traces a worker
+writes depends on the worker count.
+
+`dive simulate --trace-dir DIR` writes every trace, including the deciding
+one, to `DIR/trace_<id>.json` (or `.tla`). Each trace is validated
+independently and written as it commits, in trace order. The files are the
+same at any `--workers`. `--trace-format json` and `--trace-format tla` write
+TLC's `-dumpTrace` layouts. When the `ALIAS` is a record, it replaces each
+state, as in TLC. Under `--compat=tlc` the files match the pinned TLC's dumps
+byte for byte (`crates/dive-sim/tests/fixtures/trace-formats`), with two
+differences:
+
+- a state's fields are in declaration order, where TLC's follow its internal
+  name table;
+- the `tla` module is named `trace_<id>` after its file, so it parses.
+
+In dive's default profile, a record value also lists its fields in canonical
+order, where TLC keeps the order of the record expression.
+
+`--trace-ids A..B` samples only traces `A` to `B`. A trace depends only on
+the seed, the options and its number, so these are the traces, files and
+verdicts that a larger run gives for those numbers.
+
+On each violation, TLC also writes a trace exploration module,
+`<Spec>_TTrace_<n>.tla`. dive does not write one; this is a known gap.

@@ -81,6 +81,7 @@ pub(crate) enum Verdict {
 
 /// A counterexample: states in order, the action into each next state, how
 /// the word continues, and the configured properties false on it.
+#[derive(Clone)]
 pub(crate) struct Word {
     pub(crate) states: Vec<StateVals>,
     pub(crate) actions: Vec<usize>,

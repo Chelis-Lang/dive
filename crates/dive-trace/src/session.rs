@@ -128,7 +128,7 @@ impl Session {
         }
         if doc.source == Source::Dive && finite_word(doc) {
             return self
-                .read_finite_controlled(doc, None, FiniteScope::Behavior)
+                .read_finite_controlled(Words::Doc(doc), None, FiniteScope::Behavior)
                 .unwrap_or_else(|error| (refusal(error.to_string(), doc.logical_length()), None));
         }
         let (model, host) = match self.bind() {
@@ -221,32 +221,102 @@ impl Session {
         doc: &TraceDoc,
         control: Option<Arc<dyn dive_eval::HostControl>>,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
-        if let Some(control) = &control {
-            control
-                .check()
-                .map_err(|error| crate::ValidationRunError::Interrupted {
-                    error: dive_eval::EvalError::interrupted(error),
-                    progress: crate::ValidationProgress {
-                        checks_passed: 0,
-                        state: None,
-                        check: None,
-                    },
-                })?;
+        self.read_sample_words(Words::Doc(doc), control, FiniteScope::Sample)
+    }
+
+    /// Validates a simulation's word given as `header` (whose own states,
+    /// labels and witnesses are ignored) and the states of `states`, each
+    /// decoded as it is produced ([`crate::stream`]), so the word is never
+    /// held as JSON. The trusted caller's ending selects the operation, as
+    /// for a whole document: a behavior is checked by [`Self::read_sampled`],
+    /// a deadlock by [`Self::read_sampled_deadlock`], and an invariant or
+    /// property violation or a bad prefix by [`Self::read_controlled`]'s
+    /// finite check. Any other ending, a lasso or stuttering word included,
+    /// is refused by name: those are validated as whole documents. The word is not returned: its
+    /// producer holds it.
+    ///
+    /// # Errors
+    /// The same as [`Self::read_controlled`].
+    pub fn read_sampled_source(
+        &self,
+        header: &TraceDoc,
+        states: &dyn crate::stream::StateSource,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+    ) -> Result<Report, crate::ValidationRunError> {
+        let words = Words::Source { header, states };
+        let read = match &header.ending {
+            Some(crate::Ending::Behavior) => {
+                self.read_sample_words(words, control, FiniteScope::Sample)
+            }
+            Some(crate::Ending::Deadlock) => {
+                self.read_sample_words(words, control, FiniteScope::SampledDeadlock)
+            }
+            Some(
+                crate::Ending::Invariant(_)
+                | crate::Ending::Property(_)
+                | crate::Ending::BadPrefix(_),
+            ) if header.source == Source::Dive && header.properties.is_empty() => {
+                if let Some(control) = &control {
+                    control
+                        .check()
+                        .map_err(|error| crate::ValidationRunError::Interrupted {
+                            error: dive_eval::EvalError::interrupted(error),
+                            progress: crate::ValidationProgress {
+                                checks_passed: 0,
+                                state: None,
+                                check: None,
+                            },
+                        })?;
+                }
+                let read =
+                    self.read_finite_controlled(words, control.as_ref(), FiniteScope::Behavior);
+                drop(control);
+                read
+            }
+            _ => Ok((
+                refusal(
+                    "streamed validation of a word without a finite simulation ending".into(),
+                    words.logical_length(),
+                ),
+                None,
+            )),
+        };
+        read.map(|(report, _)| report)
+    }
+
+    /// [`Self::read_controlled`] of a finite word given as `header` and the
+    /// states of `states` ([`Self::read_sampled_source`]): a behavior,
+    /// invariant, property or deadlock ending with no temporal claim, checked
+    /// as a plain behavior. Other endings are refused by name.
+    ///
+    /// # Errors
+    /// The same as [`Self::read_controlled`].
+    pub fn read_controlled_source(
+        &self,
+        header: &TraceDoc,
+        states: &dyn crate::stream::StateSource,
+        control: Arc<dyn dive_eval::HostControl>,
+    ) -> Result<Report, crate::ValidationRunError> {
+        let words = Words::Source { header, states };
+        control
+            .check()
+            .map_err(|error| crate::ValidationRunError::Interrupted {
+                error: dive_eval::EvalError::interrupted(error),
+                progress: crate::ValidationProgress {
+                    checks_passed: 0,
+                    state: None,
+                    check: None,
+                },
+            })?;
+        if header.source != Source::Dive || !finite_word(header) {
+            return Ok(refusal(
+                "streamed validation of a word without a finite ending".into(),
+                words.logical_length(),
+            ));
         }
-        if doc.source != Source::Dive
-            || doc.ending != Some(crate::Ending::Behavior)
-            || !doc.properties.is_empty()
-        {
-            return Ok((Report {
-                validation: Validation::Invalid(crate::Failure { state: 0,
-                    check: crate::Check::Shape,
-                    detail: "sample validation requires a native finite behavior with no property or error endpoint claim".into() }),
-                notes: Vec::new(), length: doc.logical_length(),
-            }, None));
-        }
-        let result = self.read_finite_controlled(doc, control.as_ref(), FiniteScope::Sample);
+        let read = self.read_finite_controlled(words, Some(&control), FiniteScope::Behavior);
         drop(control);
-        result
+        read.map(|(report, _)| report)
     }
 
     /// Independently checks a native finite deadlock found by simulation on a
@@ -274,6 +344,16 @@ impl Session {
         doc: &TraceDoc,
         control: Option<Arc<dyn dive_eval::HostControl>>,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
+        self.read_sample_words(Words::Doc(doc), control, FiniteScope::SampledDeadlock)
+    }
+
+    /// A sampled behavior (`FiniteScope::Sample`) or sampled deadlock.
+    fn read_sample_words(
+        &self,
+        doc: Words<'_>,
+        control: Option<Arc<dyn dive_eval::HostControl>>,
+        scope: FiniteScope,
+    ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
         if let Some(control) = &control {
             control
                 .check()
@@ -286,19 +366,36 @@ impl Session {
                     },
                 })?;
         }
-        if doc.source != Source::Dive
-            || doc.ending != Some(crate::Ending::Deadlock)
-            || !doc.properties.is_empty()
+        let header = doc.header();
+        let (ending, detail) = if scope == FiniteScope::SampledDeadlock {
+            (
+                crate::Ending::Deadlock,
+                "sampled deadlock validation requires a native finite deadlock with no property claim",
+            )
+        } else {
+            (
+                crate::Ending::Behavior,
+                "sample validation requires a native finite behavior with no property or error endpoint claim",
+            )
+        };
+        if header.source != Source::Dive
+            || header.ending.as_ref() != Some(&ending)
+            || !header.properties.is_empty()
         {
-            return Ok((Report {
-                validation: Validation::Invalid(crate::Failure { state: 0,
-                    check: crate::Check::Shape,
-                    detail: "sampled deadlock validation requires a native finite deadlock with no property claim".into() }),
-                notes: Vec::new(), length: doc.logical_length(),
-            }, None));
+            return Ok((
+                Report {
+                    validation: Validation::Invalid(crate::Failure {
+                        state: 0,
+                        check: crate::Check::Shape,
+                        detail: detail.into(),
+                    }),
+                    notes: Vec::new(),
+                    length: doc.logical_length(),
+                },
+                None,
+            ));
         }
-        let result =
-            self.read_finite_controlled(doc, control.as_ref(), FiniteScope::SampledDeadlock);
+        let result = self.read_finite_controlled(doc, control.as_ref(), scope);
         drop(control);
         result
     }
@@ -692,7 +789,7 @@ impl Session {
             );
         }
         if finite_word(doc) {
-            return self.read_finite_controlled(doc, control, FiniteScope::Behavior);
+            return self.read_finite_controlled(Words::Doc(doc), control, FiniteScope::Behavior);
         }
         if !matches!(
             doc.ending,
@@ -767,7 +864,7 @@ impl Session {
 
     fn read_finite_controlled(
         &self,
-        doc: &TraceDoc,
+        doc: Words<'_>,
         control: Option<&Arc<dyn dive_eval::HostControl>>,
         scope: FiniteScope,
     ) -> Result<(Report, Option<TraceDoc>), crate::ValidationRunError> {
@@ -813,7 +910,7 @@ impl Session {
 
     fn read_finite_attempt(
         &self,
-        doc: &TraceDoc,
+        doc: Words<'_>,
         control: Option<&Arc<dyn dive_eval::HostControl>>,
         scope: FiniteScope,
         choices: Option<&Arc<crate::choices::Search>>,
@@ -854,7 +951,7 @@ impl Session {
                     None,
                 ));
             }
-            let trace = match Trace::decode(&model, doc) {
+            let trace = match doc.decode(&model) {
                 Ok(trace) => trace,
                 Err(error) => {
                     return Ok((
@@ -880,7 +977,12 @@ impl Session {
                 scope,
             )?;
             if !retry {
-                return Ok((report, trace.to_doc(&model).ok()));
+                // A streamed word is never re-encoded: its producer has it.
+                let read = match doc {
+                    Words::Doc(_) => trace.to_doc(&model).ok(),
+                    Words::Source { .. } => None,
+                };
+                return Ok((report, read));
             }
         }
         Ok((
@@ -1235,5 +1337,42 @@ fn shape_refusal(error: crate::ShapeError, length: usize) -> Report {
         }),
         notes: Vec::new(),
         length,
+    }
+}
+
+/// A word to validate: a whole document, or a header whose states a source
+/// produces ([`crate::stream`]).
+#[derive(Clone, Copy)]
+enum Words<'a> {
+    Doc(&'a TraceDoc),
+    Source {
+        header: &'a TraceDoc,
+        states: &'a dyn crate::stream::StateSource,
+    },
+}
+
+impl Words<'_> {
+    const fn header(&self) -> &TraceDoc {
+        match self {
+            Words::Doc(doc) => doc,
+            Words::Source { header, .. } => header,
+        }
+    }
+
+    fn logical_length(&self) -> usize {
+        match self {
+            Words::Doc(doc) => doc.logical_length(),
+            Words::Source { header, states } => states.len().saturating_add(usize::from(matches!(
+                header.ending,
+                Some(crate::Ending::PartialNext { .. } | crate::Ending::PartialInit { .. })
+            ))),
+        }
+    }
+
+    fn decode(&self, model: &dive_model::Model) -> Result<Trace, crate::ShapeError> {
+        match self {
+            Words::Doc(doc) => Trace::decode(model, doc),
+            Words::Source { header, states } => Trace::decode_source(model, header, *states),
+        }
     }
 }
