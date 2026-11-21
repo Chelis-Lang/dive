@@ -75,8 +75,38 @@
           "left_on_queue": 0
         },
         "workers_used": 192
+      },
+      {
+        "configuration": "LeanP1Size3L4W3.cfg",
+        "engine": "core",
+        "exit_code": 0,
+        "wall_seconds": 38681.64,
+        "peak_rss_kib": 139400748,
+        "verdict": "success",
+        "statistics": {
+          "depth": 52,
+          "distinct": 9821039057,
+          "generated": 44139706049,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "workers_used": 192,
+        "reclamation": {
+          "collections": 26,
+          "failures": [],
+          "peak_after_bytes_lower_bound": 4007823442,
+          "peak_after_nodes": 25277546,
+          "peak_before_bytes_lower_bound": 4028840530,
+          "reclaimed_nodes": 50094121,
+          "scope": "completed-level measured Store trigger; live frontier, permanent startup and names are retained; not a hard cap or total RSS bound",
+          "skipped": null,
+          "trigger_bytes": 268435456,
+          "trigger_source": "default"
+        }
       }
-    ]
+    ],
+    "full_control_interpretation": "The ordinary protected-main revision and the separate experimental retained-pool run agree on verdict, depth, both counts and the empty queue. The ordinary run used the author’s EC2 instance type and worker count and took 6.53 times the author’s compiled-checker wall time. The original TLC comparison on this same node is separate."
   },
   "two_barrier_control": {
     "hardware": "Dedicated c8g.48xlarge, 192 physical Graviton4 cores, Ubuntu 24.04, 192 workers, taskset 0-191. Sequential fresh processes. Heap for pinned TLC 96 GiB.",
