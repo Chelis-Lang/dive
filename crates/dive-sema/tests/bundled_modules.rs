@@ -39,7 +39,12 @@ fn bundled_modules_resolve_without_search_paths() {
         &Options::default(),
     );
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
-    for name in ["TLAPS", "SequencesExt", "FiniteSetTheorems", "FramedFunctions"] {
+    for name in [
+        "TLAPS",
+        "SequencesExt",
+        "FiniteSetTheorems",
+        "FramedFunctions",
+    ] {
         let file = analysis
             .files()
             .iter()
