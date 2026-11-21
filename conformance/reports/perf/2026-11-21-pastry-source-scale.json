@@ -1351,6 +1351,245 @@
       "16-1-small/Model.cfg": "5de65ca94c38cc4fb3352f6fd7e26da8f668086c7d343498f06a6ce36222e3a9"
     }
   },
+  "parallel_invariant_memo": {
+    "model": "Authors’ released LuPastry+ with counted routing, --singleton-leaves, B=L=1, one joining address, intact NextMC, TypeInvariant and CorrectDelivery. Prepare with scripts/perf/scale/lupastry.py, --bits 5/6/7, and --ready 0 through 30/62/126. The grouping control is SharedNext == TRUE /\\ NextMC.",
+    "original_comparison": {
+      "host": "EC2 c7i.4xlarge, us-east-2, Intel Xeon Platinum 8488C. Direct and grouped runs used the same combined executable concurrently on separate physical cores 0–3 and 4–7. GNU time inside a 9 GiB cgroup with swap disabled measured wall seconds and peak RSS KiB, including startup.",
+      "core_sha256": "0d4fcf747862a5afcf15ed3db4eb88153ff745c94ede4da06706504beec91f16",
+      "command": "dive check Pastry.tla --config Model.cfg --library-path LIB --workers 4 --store exact --fp 0 --seed 0 --max-memory 7g --time-limit 420s --output json. Grouped uses TestWrapper.tla and Shared.cfg.",
+      "rows": [
+        {
+          "addresses": 32,
+          "action": "NextMC",
+          "wall_s": 27.35,
+          "peak_rss_kib": 280672,
+          "exit": 0,
+          "verdict": "success",
+          "message": null,
+          "statistics": {
+            "depth": 19,
+            "distinct": 256,
+            "generated": 15249,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "compile_ms": 218.61,
+          "explore_ms": 27030.81,
+          "conjuncts": {
+            "parent_skipped": 113105,
+            "total": 167739
+          },
+          "plan": {
+            "nodes": 51487,
+            "memo_sites": 32779,
+            "generator_nodes": 109578
+          },
+          "reported_memo_rows": 25430,
+          "lookups": 2883096,
+          "hits": 1192504
+        },
+        {
+          "addresses": 32,
+          "action": "TRUE /\\ NextMC",
+          "wall_s": 1.86,
+          "peak_rss_kib": 135552,
+          "exit": 0,
+          "verdict": "success",
+          "message": null,
+          "statistics": {
+            "depth": 19,
+            "distinct": 256,
+            "generated": 15249,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "compile_ms": 210.45,
+          "explore_ms": 1606.25,
+          "conjuncts": {
+            "parent_skipped": 113105,
+            "total": 167739
+          },
+          "plan": {
+            "nodes": 27243,
+            "memo_sites": 43,
+            "generator_nodes": 123
+          },
+          "reported_memo_rows": 42,
+          "lookups": 1989871,
+          "hits": 1983538
+        },
+        {
+          "addresses": 64,
+          "action": "NextMC",
+          "wall_s": 420.28,
+          "peak_rss_kib": 629340,
+          "exit": 5,
+          "verdict": "stopped",
+          "message": "stopped during safety-search after 420000 ms: the time limit is 420000 ms",
+          "statistics": {
+            "depth": 19,
+            "distinct": 315,
+            "exhaustive": false,
+            "generated": 28842,
+            "initial_generated": 1,
+            "left_on_queue": 9,
+            "reported_by_tlc": false
+          },
+          "compile_ms": 1820.55,
+          "explore_ms": 418132.6,
+          "conjuncts": {
+            "parent_skipped": 221864,
+            "total": 329417
+          },
+          "plan": {
+            "nodes": 149791,
+            "memo_sites": 131083,
+            "generator_nodes": 438282
+          },
+          "reported_memo_rows": 101344,
+          "lookups": 15163159,
+          "hits": 1568328
+        },
+        {
+          "addresses": 64,
+          "action": "TRUE /\\ NextMC",
+          "wall_s": 15.92,
+          "peak_rss_kib": 539960,
+          "exit": 0,
+          "verdict": "success",
+          "message": null,
+          "statistics": {
+            "depth": 19,
+            "distinct": 316,
+            "generated": 30493,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "compile_ms": 1732.15,
+          "explore_ms": 14138.96,
+          "conjuncts": {
+            "parent_skipped": 226173,
+            "total": 335423
+          },
+          "plan": {
+            "nodes": 27243,
+            "memo_sites": 43,
+            "generator_nodes": 123
+          },
+          "reported_memo_rows": 42,
+          "lookups": 7970511,
+          "hits": 7957070
+        },
+        {
+          "addresses": 128,
+          "action": "NextMC",
+          "wall_s": 15.78,
+          "peak_rss_kib": 4187240,
+          "exit": 3,
+          "verdict": "unsupported",
+          "message": "a plan larger than the M0 core's inlining limit",
+          "statistics": null
+        },
+        {
+          "addresses": 128,
+          "action": "TRUE /\\ NextMC",
+          "wall_s": 167.74,
+          "peak_rss_kib": 3255292,
+          "exit": 0,
+          "verdict": "success",
+          "message": null,
+          "statistics": {
+            "depth": 19,
+            "distinct": 474,
+            "generated": 61019,
+            "initial_generated": 1,
+            "left_on_queue": 0,
+            "reported_by_tlc": true
+          },
+          "compile_ms": 14813.53,
+          "explore_ms": 152806.14,
+          "conjuncts": {
+            "parent_skipped": 452651,
+            "total": 671209
+          },
+          "plan": {
+            "nodes": 27243,
+            "memo_sites": 43,
+            "generator_nodes": 123
+          },
+          "reported_memo_rows": 41,
+          "lookups": 44777898,
+          "hits": 44734926
+        }
+      ]
+    },
+    "diagnosis": {
+      "host": "Second c7i.4xlarge, same ELF, four workers on CPUs 12–15. Invariant and cap controls change only the indicated setting. These times come from core.metrics.explore_ms, excluding compilation.",
+      "32_direct_default_explore_ms": {
+        "no_invariants": 655.8,
+        "TypeInvariant_only": 1389.29,
+        "CorrectDelivery_only": 23660.18,
+        "both_at_16_gib_process_limit": 2208.76
+      },
+      "32_all_invariants_w1": "With the default process budget and one worker, both forms made 6,987,091 reported memo lookups. Direct had 5,866,259 hits, grouped had 6,975,574. With -memo, exploration took 4.59 s direct and 4.13 s grouped.",
+      "parallel_checks": "W1 checked 2,816 invariant conjuncts including parent skips. W4 exact examined 167,739 on speculative candidates. Some workers reach many guards before the first invariant evaluation. Each guard site can allocate a 64-set two-way table before the expensive invariant can obtain one. At 7 GiB the per-worker allowance is 28 MiB; at 16 GiB it is 64 MiB.",
+      "profile": "Four workers pinned to one logical CPU, perf record -e cpu-clock:u -F 97. Top self samples were Machine::eval_inner 30.42%, Heap::view 16.51%, Machine::eval 11.52%, compare::materialized 8.46% and compare::equals 8.37%. W4 took 54.45 s to explore on that single CPU. These are diagnostic measurements, not timings for the four-core benchmark."
+    },
+    "corrected": {
+      "host": "Second EC2 c7i.4xlarge in us-east-2, CPUs 12–15 (four different physical cores). GNU time measures elapsed seconds and peak RSS KiB including JSON output. Four-worker exact storage, memory ceiling 7 GiB, seed and FP 0. The final rerun used a 300 s checker deadline. Compilation used release profile, LTO disabled, 16 codegen units. Independent qualification could overlap on this host.",
+      "before_sha256": "53c0a7245bab8b5c2e9a71580ef0b7bc99cc8d922e88117d9fa23d0e7439c80b",
+      "after_sha256": "3ec25f77777d36e2921fdd5b0079f7be5546c4a144c1027b7e6b90900c7bdd62",
+      "rows": [
+        {
+          "addresses": 32,
+          "profile": "default",
+          "distinct": 256,
+          "generated": 15249,
+          "depth": 19,
+          "baseline_wall_s": 25.89,
+          "baseline_rss_kib": 280604,
+          "wall_s": 1.96,
+          "rss_kib": 281340
+        },
+        {
+          "addresses": 32,
+          "profile": "tlc",
+          "distinct": 256,
+          "generated": 15249,
+          "depth": 19,
+          "baseline_wall_s": 21.4,
+          "baseline_rss_kib": 259304,
+          "wall_s": 1.99,
+          "rss_kib": 272876
+        },
+        {
+          "addresses": 64,
+          "profile": "default",
+          "distinct": 316,
+          "generated": 30493,
+          "depth": 19,
+          "wall_s": 16.28,
+          "rss_kib": 622528
+        },
+        {
+          "addresses": 64,
+          "profile": "tlc",
+          "distinct": 316,
+          "generated": 30493,
+          "depth": 19,
+          "wall_s": 16.33,
+          "rss_kib": 691036
+        }
+      ],
+      "oracle": "Pinned TLC 2026.10.06.014338 on original NextMC, 4 workers, seed/FP 0, Xmx3g, ParallelGC. TLC exhausted 256/15,249/depth 19 and 316/30,493/depth 19. The corrected Core rows also emptied the queue.",
+      "boundary": "At 128 addresses direct compilation refused before exploration and the grouped diagnostic completed. Reserving invariant tables changes worker startup after compilation. The 128-address direct refusal stays separate from the 64-address runtime result.",
+      "negative_control": "At 64 addresses, add PoolEmpty == MessagePool = {} after TypeInvariant and CorrectDelivery. Pinned TLC and both Core profiles fail that invariant at 2 distinct, 2 generated, depth 2. Both independent Core replays accept the emitted trace and reject replacing its second state with the initial state at the Next check.",
+      "small_core_ratchet": "Eight one-worker small-tier models agreed with their pinned goldens with zero regressions against small-core-dive-w1.json: CigaretteSmokers, DieHard, AsynchronousInterface/Channel, TLC/MCAlternatingBit, TwoPhase/MCTwoPhase, chang_roberts, locks_auxiliary_vars/Peterson and transaction_commit/TwoPhase."
+    }
+  },
   "split_action_compiler": {
     "model": "Same archive, counted routing, --singleton-leaves, B=L=1, M=4, intact NextMC, TypeInvariant and CorrectDelivery. Core splits nine disjuncts for each of 16 x 16 witness pairs.",
     "prepare": "python3 scripts/perf/scale/lupastry.py lupastryplus.zip DEST --bits 4 --definition counted --singleton-leaves --ready $(seq 0 14) (use seq 0 13 for two joiners)",

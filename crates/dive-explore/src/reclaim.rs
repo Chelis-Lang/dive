@@ -123,6 +123,7 @@ fn collect(
         .known_retained_bytes()
         .ok_or_else(|| Error::internal("DIVE-S0203: replacement byte accounting overflow"))?;
     let after_nodes = replacement.stats().nodes;
+    let workers = machines.len();
     for machine in machines {
         let (nodes, handles) = machine.heap.arena().peak();
         ex.metrics.arena_peak.0 = ex.metrics.arena_peak.0.max(nodes);
@@ -138,6 +139,7 @@ fn collect(
             machine.opts,
             memo,
         );
+        super::prepare_invariant_tables(&mut fresh, ex.plan, workers);
         fresh.stats = machine.stats;
         fresh.warn = machine.warn;
         fresh.warnings = std::mem::take(&mut machine.warnings);
