@@ -185,6 +185,14 @@ fn collect(
     }
     *store = replacement;
     let usage = &mut ex.metrics.storage.reclamation;
+    // Live roots survived this collection. Charge only subsequent growth against
+    // the default budget. Explicit absolute thresholds retain their existing meaning.
+    if ex.candidate_storage.store_compact_default
+        && let Some(budget) = usage.trigger_bytes
+        && budget > 0
+    {
+        ex.candidate_storage.store_compact_bytes = Some(after.saturating_add(budget));
+    }
     usage.collections += 1;
     usage.reclaimed_nodes += before_nodes.saturating_sub(after_nodes);
     usage.peak_before_bytes = usage.peak_before_bytes.max(before as u64);
@@ -291,7 +299,12 @@ mod tests {
     fn sealed_resident_rows_and_tail_survive_reclamation_and_parallel_expansion()
     -> Result<(), Error> {
         for workers in [1, 3, 8] {
-            for trigger in [None, Some(0)] {
+            for (trigger, default, collections) in [
+                (None, false, 0),
+                (Some(0), false, 2),
+                (Some(1), false, 2),
+                (Some(1), true, 1),
+            ] {
                 let mut store = Arc::new(Store::new(true));
                 let mut plan = crate::tests::frontier_plan(&store, false)?;
                 let mut heap = dive_core::Heap::new(Arc::clone(&store), true, false);
@@ -313,6 +326,7 @@ mod tests {
                     None,
                     &storage::Storage {
                         store_compact_bytes: trigger,
+                        store_compact_default: default,
                         ..storage::Storage::default()
                     },
                     None,
@@ -323,10 +337,7 @@ mod tests {
                 assert_eq!(out.stats.distinct, 770);
                 assert_eq!(out.stats.generated, 1540);
                 assert_eq!(out.stats.left_on_queue, 0);
-                assert_eq!(
-                    out.metrics.storage.reclamation.collections,
-                    if trigger.is_some() { 2 } else { 0 }
-                );
+                assert_eq!(out.metrics.storage.reclamation.collections, collections);
             }
         }
         Ok(())

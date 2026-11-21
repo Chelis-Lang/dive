@@ -2309,7 +2309,7 @@
   },
   "packed_frontier_reclamation": {
     "source": "cf95a854e4b29177196e66f0a64783a9bd71f36b",
-    "hardware": "Dedicated c7i.8xlarge, Xeon Platinum 8488C, 16 physical cores pinned 0–15. Each timed process ran alone. Linux AWS, release build with debuginfo=1, LTO disabled, 16 codegen units. GNU time wall and peak RSS.",
+    "hardware": "Dedicated c7i.8xlarge, Xeon Platinum 8488C, 16 physical cores pinned 0\u201315. Each timed process ran alone. Linux AWS, release build with debuginfo=1, LTO disabled, 16 codegen units. GNU time wall and peak RSS.",
     "sha256": {
       "baseline": "82f9beca2e47e7f382752d919896743c50d55a316032c6fc8993bdd30eaf5711",
       "candidate": "5af9c61496b3369c4a7144af2b854000f24a587c87b8e2ce0294f9bcdf83873e",
@@ -2582,5 +2582,146 @@
         }
       }
     }
+  },
+  "default_store_growth": {
+    "scope": "1 run per arm, measured state-limited prefixes on dedicated c7i.8xlarge nodes (us-east-2). Sixteen workers pinned to CPUs 0-15, release binary with debug info, seed/fp 0, TLC profile, 45 GiB checker budget; default fingerprint membership. Separate nodes for the Flint and three-model panels. No decision on full-model speed from these prefixes.",
+    "change": "The 256 MiB automatic Store threshold is initially absolute. After a successful collection, charge 256 MiB of new measured retained bytes above the actual post-copy live size. Explicit byte thresholds and zero retain their previous behavior.",
+    "commands": "dive check MODULE --config CFG --library-path MODULES --workers 16 --compat=tlc --seed 0 --fp 0 --max-memory 45g --max-states LIMIT --time-limit 1600s --output json. Flint used 2650s. GNU time elapsed seconds and max RSS in KiB.",
+    "flint_inputs": {
+      "candidate": "5af9c61496b3369c4a7144af2b854000f24a587c87b8e2ce0294f9bcdf83873e",
+      "growth-trigger": "94b0852165ac089fd480a6491144443e34f11e5248026a7a44be083241571ed4",
+      "LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "LeanP1Size3L4W3.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1"
+    },
+    "cross_model_inputs": {
+      "base": "44912a2f16537d483faa09a318e494c06d6710f9f85fe95ac3242c0eb172e39e",
+      "growth": "f9be2cb37067fb8e945df37b1b3a80f26cb5f0d7254eb4680f4688d5244a196a",
+      "SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+      "SlateDBWAL.cfg": "03d666d0af4def6b6e9b7ded231f7dc8d5f114ddb03ec46f45254dce70233169",
+      "PastureNodeModel.tla": "329a07d39097209def8a709ecb2cba76012998952fc6b341a3eb691246397467",
+      "PastureNode.tla": "cd9a63087ae2786797a7a7857cbe1252879bfa139beb805195a01baf0df7c921",
+      "21222.cfg": "1307545066a0a7fe88c38684cfc7b60889276dece99897064780ccfface1ed63",
+      "TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+      "TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f"
+    },
+    "prefixes": {
+      "flint_250m": {
+        "absolute": {
+          "wall_s": 1373.15,
+          "peak_rss_kib": 11574356,
+          "generated": 984968974,
+          "distinct": 250000000,
+          "depth": 23,
+          "queued": 91390554,
+          "collections": 5,
+          "peak_before_bytes_lower_bound": 1008404767,
+          "peak_after_bytes_lower_bound": 1008403615,
+          "reclaimed_nodes": 471161
+        },
+        "growth": {
+          "wall_s": 1323.18,
+          "peak_rss_kib": 9403520,
+          "generated": 984968974,
+          "distinct": 250000000,
+          "depth": 23,
+          "queued": 91390554,
+          "collections": 2,
+          "peak_before_bytes_lower_bound": 941064356,
+          "peak_after_bytes_lower_bound": 937688100,
+          "reclaimed_nodes": 138987
+        }
+      },
+      "sailfish": {
+        "absolute": {
+          "wall_s": 94.38,
+          "peak_rss_kib": 1783700,
+          "generated": 7261317,
+          "distinct": 4000000,
+          "depth": 14,
+          "queued": 3226964,
+          "collections": 1,
+          "peak_before_bytes_lower_bound": 455537941,
+          "peak_after_bytes_lower_bound": 392106493,
+          "reclaimed_nodes": 310975
+        },
+        "growth": {
+          "wall_s": 94.35,
+          "peak_rss_kib": 1770248,
+          "generated": 7261317,
+          "distinct": 4000000,
+          "depth": 14,
+          "queued": 3226964,
+          "collections": 1,
+          "peak_before_bytes_lower_bound": 455537943,
+          "peak_after_bytes_lower_bound": 392106495,
+          "reclaimed_nodes": 310975
+        }
+      },
+      "slate": {
+        "absolute": {
+          "wall_s": 242.95,
+          "peak_rss_kib": 3130012,
+          "generated": 362779396,
+          "distinct": 100000000,
+          "depth": 56,
+          "queued": 15988974,
+          "collections": 0,
+          "peak_before_bytes_lower_bound": 0,
+          "peak_after_bytes_lower_bound": 0,
+          "reclaimed_nodes": 0
+        },
+        "growth": {
+          "wall_s": 241.79,
+          "peak_rss_kib": 3138048,
+          "generated": 362779396,
+          "distinct": 100000000,
+          "depth": 56,
+          "queued": 15988974,
+          "collections": 0,
+          "peak_before_bytes_lower_bound": 0,
+          "peak_after_bytes_lower_bound": 0,
+          "reclaimed_nodes": 0
+        }
+      },
+      "pasture": {
+        "absolute": {
+          "wall_s": 160.34,
+          "peak_rss_kib": 2460792,
+          "generated": 405535935,
+          "distinct": 70000000,
+          "depth": 20,
+          "queued": 24742027,
+          "collections": 3,
+          "peak_before_bytes_lower_bound": 370144730,
+          "peak_after_bytes_lower_bound": 6378970,
+          "reclaimed_nodes": 8725853
+        },
+        "growth": {
+          "wall_s": 160.59,
+          "peak_rss_kib": 2450792,
+          "generated": 405535935,
+          "distinct": 70000000,
+          "depth": 20,
+          "queued": 24742027,
+          "collections": 3,
+          "peak_before_bytes_lower_bound": 370144732,
+          "peak_after_bytes_lower_bound": 6378972,
+          "reclaimed_nodes": 8725853
+        }
+      }
+    },
+    "flint_100m_growth": {
+      "wall_s": 505.86,
+      "peak_rss_kib": 6115320,
+      "generated": 380963072,
+      "distinct": 100000000,
+      "depth": 21,
+      "queued": 41685968,
+      "collections": 2,
+      "peak_before_bytes_lower_bound": 941064356,
+      "peak_after_bytes_lower_bound": 937688100,
+      "reclaimed_nodes": 138987
+    },
+    "flint_100m_control": "See packed_frontier_reclamation for the shipped 512.60-second, 6,136,408 KiB 100M default control on the same host."
   }
 }
