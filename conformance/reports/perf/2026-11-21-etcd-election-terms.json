@@ -1,0 +1,70 @@
+{
+  "model": "etcd-io/raft, tla/etcdraft.tla and etcdraft.cfg",
+  "source": "c51f010c851edd0dada5af41bafbf68e54617767",
+  "host": "EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, Linux, one pinned CPU in us-east-2; separate controls on other cores.",
+  "checker_commit": "d07f2a5cac165a9211cae580ad4d8c3029a315bc",
+  "checker_sha256": "d54a5576c1e25aacefb74db02c68dd04136620517d4dbe90eaac881115c8dbc0",
+  "sha256": {
+    "etcdraft.tla": "15c445684529c59a59877951c7fb7df9a40da250aaa445f056ef48f56bb27044",
+    "etcdraft.cfg": "0279cc6c7c100f622e30230ad56d383eb9d9bd8ac99c996fe707710106a9960e",
+    "TwoTerms.tla": "1b02ad80b32fe2a9c1bfd3f153093600ee4c9ffdb2c6732702cd6760b62f3031",
+    "TwoTerms.cfg": "4383062159ca80a03de4bdf6db304dac5fddfa0631c71c3dcb6dc46bbd19c34a"
+  },
+  "probe_module": [
+    "---- MODULE TwoTerms ----",
+    "EXTENDS etcdraft",
+    "FirstTerm == \\A i \\in Server : currentTerm[i] <= 1",
+    "===="
+  ],
+  "probe_config": "Append a blank line and INVARIANT FirstTerm to original etcdraft.cfg, retaining all seven original invariants.",
+  "probe": "dive check TwoTerms.tla --config TwoTerms.cfg --workers 1 --seed 0 --fp 0 --store exact --max-memory 300m --time-limit 30s --output json",
+  "probe_result": {
+    "verdict": "invariant-violation",
+    "property": "FirstTerm",
+    "exit": 12,
+    "distinct": 8,
+    "generated": 14,
+    "initial_generated": 1,
+    "left_on_queue": 5,
+    "depth": 3
+  },
+  "prefix_recipe": "Extract .counterexample.trace from the probe. The three states have currentTerm[s1] = 0, 1, 2. Verify that all other values agree between the final two. Set ending to {kind: behavior}. Copy the final state repeatedly, advancing only the currentTerm function entry keyed by model value s1 by one. Set length to the number of states. For the invalid control add one more to the final term.",
+  "validation": "dive validate-trace etcdraft.tla --config etcdraft.cfg --trace TRACE.json --seed 0 --fp 0 --output json",
+  "validations": [
+    {
+      "states": 3,
+      "term": 2,
+      "result": "valid",
+      "exit": 0,
+      "wall_s": 0.03,
+      "peak_rss_kib": 34276
+    },
+    {
+      "states": 65,
+      "term": 64,
+      "result": "valid",
+      "exit": 0,
+      "wall_s": 0.05,
+      "peak_rss_kib": 46536
+    },
+    {
+      "states": 513,
+      "term": 512,
+      "result": "valid",
+      "exit": 0,
+      "wall_s": 0.19,
+      "peak_rss_kib": 177660
+    },
+    {
+      "states": 65,
+      "term": 65,
+      "result": "invalid",
+      "exit": 1,
+      "wall_s": 0.05,
+      "peak_rss_kib": 46452,
+      "failure": "next",
+      "state": 64
+    }
+  ],
+  "validation_scope": "Original Init and Next checked. Standalone validator reports a parameterized Timeout label and checks the actual state changes via Next. The reachable injection of natural numbers follows from the original guard and update. Universal safety has not been established."
+}

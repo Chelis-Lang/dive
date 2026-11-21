@@ -4,12 +4,10 @@
 import argparse
 import hashlib
 import json
-from fractions import Fraction
-from itertools import combinations_with_replacement, groupby
-from math import comb, factorial, prod
 from pathlib import Path
 from dd import cudd
 from finite_relation import FiniteRelation, equal
+from kvs_history import transaction_history_counts
 
 CONFIGS = {
     "Small": (2, 2, 3, False, "2360ddff6cac82d84a7077e35cd5e77e7acf81a5d37fc37bc10f335082854103"),
@@ -103,45 +101,6 @@ class Model(FiniteRelation):
                 return reached, depth
             depth += 1
             reached |= frontier
-
-
-def transaction_history_counts(keys, values, tx, symmetry):
-    """Independent count using nested missed-key sets ordered by time of opening.
-
-    For one key, an unwritten, unmissed snapshot equals the current store.
-    A written snapshot can be any value including NoVal. A missed key can
-    also have any unwritten snapshot. When all transactions are open the
-    youngest cannot have missed a commit: a committer would have closed.
-    """
-    distinct = 0
-    generated = Fraction(1)  # Init
-    alphabet = values + 1
-    for opened in range(tx + 1):
-        for chain in combinations_with_replacement(range(1 << keys), opened):
-            if opened == tx and chain[0] != 0:
-                continue
-            if any(a & b != a for a, b in zip(chain, chain[1:])):
-                continue
-            groups = [(mask.bit_count(), len(list(group))) for mask, group in groupby(chain)]
-            configurations = alphabet**keys  # contents of the global store
-            if not symmetry:
-                configurations *= (
-                    comb(tx, opened) * factorial(opened) // prod(factorial(n) for _, n in groups)
-                )
-            closable = Fraction()
-            for missed, n in groups:
-                kinds = (2 * alphabet) ** missed * (alphabet + 1) ** (keys - missed)
-                configurations *= comb(kinds + n - 1, n) if symmetry else kinds**n
-                # Among local states with the same mask, each missed key is
-                # written half the time. Equal-mask multisets treat all local
-                # states symmetrically, so this also gives their mean count.
-                closable += Fraction(n, 1 << missed)
-            distinct += configurations
-            # Open or Rollback once per id, plus writes and conflict-free Close.
-            generated += configurations * (tx + opened * keys * values + closable)
-    if generated.denominator != 1:
-        raise ArithmeticError("nonintegral transition count")
-    return distinct, int(generated)
 
 
 def main():

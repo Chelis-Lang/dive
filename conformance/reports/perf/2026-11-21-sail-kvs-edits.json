@@ -1,0 +1,1001 @@
+{
+  "schema": "dive-installed-kvs-edit-study-v1",
+  "source": {
+    "repository": "https://github.com/tlaplus/Examples",
+    "revision": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "directory": "specifications/KeyValueStore",
+    "original_cfg": "MCKVSSafetyLarge.cfg",
+    "shared_module_sha256": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "prepared_six_key_sha256": {
+      "AbortAll/MCKVS.tla": "95185b19e764f83e90ea2332b5d0b597e392fee971cfad1de17032462e4c5a74",
+      "AtMostOneConflict/MCKVS.tla": "e54c0afcbbf78cda6b5ca7d625a203db9a9e44691ab514924fb5502107963c7b",
+      "Corrupt/MCKVS.tla": "9dbe3809bf3d62ebd11b13e8ee52639395326ed83f9b6fbec9033be388a10572",
+      "SomeCommit/MCKVS.tla": "57f453a8ecc26e7c4f7e8982748a39452cae0acd37010ee9b0c60f0fac46908b",
+      "TxIsClean/MCKVS.tla": "e54c0afcbbf78cda6b5ca7d625a203db9a9e44691ab514924fb5502107963c7b",
+      "base/MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+      "AbortAll/Model.cfg": "7d8c2fb76ff2e01fe7d18f4be495d9ac4ed2c914d57031ac80740c755e0c7f58",
+      "AtMostOneConflict/Model.cfg": "51ef65d4eaec7a6e14c83af661662efd7dde93b8c14d78bba80f0246bec37bcc",
+      "Corrupt/Model.cfg": "7d8c2fb76ff2e01fe7d18f4be495d9ac4ed2c914d57031ac80740c755e0c7f58",
+      "SomeCommit/Model.cfg": "f665a9337e6f1c2cc11949a85a30b0ebc351c83d4f1689998ad26dc4a11693d3",
+      "TxIsClean/Model.cfg": "817ebe0af38c3e35724197bcd1ba2fefaf0cc416d8f81a8548a89e6d9bbc117a",
+      "base/Model.cfg": "f945c442e5c704980d710763f796601307aab1d7d486070f98390411c54b29fc"
+    },
+    "executables_and_installed_runtime_sha256": {
+      "sail-symbolic": "aaa1947ddf1d5cff8056d7aaba613a4cd63d39c6ec22e7eaec35b89b0d6441b2",
+      "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "engine.py": "fae0fefcad2f0d8279834322074cd3ebe66c506e05905beb20732e6f581156b6",
+      "symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "check.py": "9cd1f611eacdb62f1d1a14401e443fc76cf66642408ccbc6ed43f70a047d76d5",
+      "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+      "induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8"
+    },
+    "version_strings": {
+      "sail": "sail 0.3.0",
+      "dive": "dive 0.1.0 (v0.1.0-65-g3803e268)"
+    },
+    "sail_path": "runtime symbolic-check, Sail PR 784; separate from the native temporal receipt protocol."
+  },
+  "method": {
+    "hardware": "AWS EC2 c7i.4xlarge, us-east-1a, Intel Xeon Platinum 8488C, 8 physical cores, 16 logical CPUs, Ubuntu 24.04.5, Linux 7.0.0-1018-aws",
+    "measurement": "Fresh processes, one logical CPU per invocation. GNU time wall seconds and peak process/child RSS in KiB. Inner report seconds measure the checker operation. Single observations. Other scheduled jobs used separate affinities on the same EC2 instance. Source pages could be warm.",
+    "six_key_primary": "Pin to CPU 4, memory.max 6 GiB with no swap. Original, add TxIsClean, repeat, add AtMostOneConflict and identical TxIsClean empty-session control run sequentially. Time budget 9200 seconds except AtMostOneConflict (1500).",
+    "additional_controls": "CPU 6. True and broken action controls, one-key Core, plain induction, layout and growth probes ran in separate cgroups with 2 GiB memory and no swap. Two-key Sail control budget 300 seconds. FullHasFresh 35 s nominal deadline for first eight settings, 80 s for 24/28/36/50-key boundary checks."
+  },
+  "commands": {
+    "prepare": "python3 scripts/perf/scale/sail_kvs_edits.py KVS OUT [--keys K --values V --transactions T]",
+    "sail_session": "sail runtime symbolic-check --dive DIVE --session SESSION --module OUT/CASE/MCKVS.tla --config OUT/CASE/Model.cfg --time-limit SECONDS",
+    "main_order": "base, TxIsClean, TxIsClean, AtMostOneConflict in the same session; TxIsClean in a separate empty session. Each is a new OS process. SomeCommit, AbortAll, Corrupt share the original retained directory.",
+    "direct_induction": "DIVE check OUT/CASE/MCKVS.tla --config OUT/CASE/Model.cfg --strategy symbolic --prove-inductive --output json",
+    "verify_candidate": "DIVE check OUT/CASE/MCKVS.tla --config OUT/CASE/Model.cfg --strategy symbolic --verify-predicate SESSION/sail-symbolic-predicate-v1.json --output json",
+    "one_key": "With --keys 1, run DIVE check OUT/CASE/MCKVS.tla --config OUT/CASE/Model.cfg --store exact --workers 1 --seed 0 --fp 0 --max-memory 1g --time-limit 75s --output json."
+  },
+  "predicate": {
+    "format": "finite-state-predicate-v1",
+    "nonterminal_records": 5755,
+    "bytes": 76579,
+    "sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3",
+    "meaning": "Portable Boolean state predicate. A holding edit rechecks initial inclusion, current safety obligations and closure. An inconclusive attempt leads Sail to search the current program under the remaining deadline."
+  },
+  "six_key_session": {
+    "establish": {
+      "wall_s": 4694.45,
+      "peak_rss_kib": 1148724,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 51,
+      "reachable_bdd_nodes": 5756,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "seconds": 4693.977881,
+      "distinct_decimal": "539910848473937721",
+      "generated_decimal": "21725268712106423230",
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "verify": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 62776,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.179088,
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "repeat": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 62896,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.185225,
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "conflict": {
+      "wall_s": 0.9,
+      "peak_rss_kib": 80532,
+      "exit": 1,
+      "verdict": "invariant-violation",
+      "depth": 8,
+      "ending": {
+        "kind": "invariant",
+        "name": "AtMostOneConflict"
+      },
+      "trace_validated": true,
+      "seconds": 0.346924,
+      "trace_states": 8,
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "fresh_TxIsClean": {
+      "wall_s": 4724.88,
+      "peak_rss_kib": 1148804,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 51,
+      "reachable_bdd_nodes": 5756,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle",
+        "TxIsClean"
+      ],
+      "seconds": 4724.359712,
+      "distinct_decimal": "539910848473937721",
+      "generated_decimal": "21725268712106423230",
+      "retained_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    }
+  },
+  "six_key_session_comparison": {
+    "same_edited_source": "Both verify and fresh use the exact same MCKVS.tla and TxIsClean.cfg. The latter starts with no saved file. TxIsClean repeats an existing cleanup conjunct.",
+    "retained_vs_empty_session_wall_ratio": 11812.2,
+    "identical_predicate_bytes": true,
+    "empty_session_predicate_bytes": 76579,
+    "count_scope": "Full graph counts, depth and final reachable BDD size come from the empty-session search. The retained call returns only an induction proof."
+  },
+  "standalone_TxIsClean": {
+    "wall_s": 0.3,
+    "peak_rss_kib": 58048,
+    "exit": 0,
+    "proof": "inductive-safety",
+    "failed_obligation": null,
+    "seconds": 0.09043
+  },
+  "stronger_property": {
+    "plain_SomeCommit": {
+      "wall_s": 0.3,
+      "peak_rss_kib": 56684,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "Next closure",
+      "seconds": 0.074616
+    },
+    "direct_retained_SomeCommit": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 62832,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.186989
+    },
+    "sail_SomeCommit": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 62740,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.192554
+    },
+    "scope": "TxIsClean repeats a conjunct of TxLifecycle. SomeCommit is a new safety property: if every slot is open, some transaction passes its conflict guard. TypeInvariant and TxLifecycle admit all-open states with every missed and written mask equal to Key. Transitions constrain which such states are reachable."
+  },
+  "transition_edits": {
+    "AbortAll": {
+      "direct_verify": {
+        "wall_s": 0.39,
+        "peak_rss_kib": 62996,
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "seconds": 0.194465
+      },
+      "sail": {
+        "wall_s": 0.4,
+        "peak_rss_kib": 62848,
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "seconds": 0.196304
+      },
+      "after_sail_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    },
+    "Corrupt": {
+      "direct_verify": {
+        "wall_s": 0.39,
+        "peak_rss_kib": 62916,
+        "exit": 2,
+        "proof": "inconclusive",
+        "failed_obligation": "Next closure",
+        "seconds": 0.196803
+      },
+      "sail": {
+        "wall_s": 0.75,
+        "peak_rss_kib": 62684,
+        "exit": 1,
+        "verdict": "invariant-violation",
+        "depth": 2,
+        "ending": {
+          "kind": "invariant",
+          "name": "SomeCommit"
+        },
+        "trace_validated": true,
+        "seconds": 0.091119,
+        "trace_states": 2
+      },
+      "after_sail_sha256": "9d849571475296f4d8a38156758c1f2eb7448cbd4dc57f2423238b48dfee59f3"
+    }
+  },
+  "independent_replay": {
+    "Corrupt_current": {
+      "wall_s": 0.01,
+      "peak_rss_kib": 24680,
+      "exit": 0,
+      "trace_validation": "valid",
+      "trace_states": 2
+    },
+    "Corrupt_changed_final_state_to_initial": {
+      "wall_s": 0.01,
+      "peak_rss_kib": 24588,
+      "exit": 1,
+      "trace_validation": "invalid",
+      "trace_states": 2,
+      "failed_check": "next"
+    },
+    "Corrupt_trace_before_edit": {
+      "wall_s": 0.01,
+      "peak_rss_kib": 26704,
+      "exit": 1,
+      "trace_validation": "invalid",
+      "trace_states": 2,
+      "failed_check": "next"
+    }
+  },
+  "two_key_session_control": {
+    "establish": {
+      "wall_s": 1.6,
+      "peak_rss_kib": 80432,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 23,
+      "reachable_bdd_nodes": 867,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "seconds": 1.35986,
+      "distinct_decimal": "582471",
+      "generated_decimal": "9628660",
+      "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+    },
+    "verify": {
+      "wall_s": 0.25,
+      "peak_rss_kib": 56868,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.041629,
+      "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+    },
+    "conflict": {
+      "wall_s": 0.55,
+      "peak_rss_kib": 56808,
+      "exit": 1,
+      "verdict": "invariant-violation",
+      "depth": 8,
+      "ending": {
+        "kind": "invariant",
+        "name": "AtMostOneConflict"
+      },
+      "trace_validated": true,
+      "seconds": 0.065452,
+      "trace_states": 8,
+      "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+    }
+  },
+  "one_key_exact_core": {
+    "SomeCommit": {
+      "wall_s": 0.03,
+      "peak_rss_kib": 23520,
+      "exit": 0,
+      "verdict": "success",
+      "distinct": 690,
+      "generated": 7129,
+      "depth": 15,
+      "left_on_queue": 0
+    },
+    "AbortAll": {
+      "wall_s": 0.03,
+      "peak_rss_kib": 25600,
+      "exit": 0,
+      "verdict": "success",
+      "distinct": 690,
+      "generated": 7816,
+      "depth": 15,
+      "left_on_queue": 0
+    },
+    "Corrupt": {
+      "wall_s": 0.01,
+      "peak_rss_kib": 25768,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "distinct": 3,
+      "generated": 5,
+      "depth": 2,
+      "left_on_queue": 1
+    }
+  },
+  "six_key_candidate_applied_to_other_domains": {
+    "K5V2T3": {
+      "wall_s": 0.3,
+      "peak_rss_kib": 56876,
+      "exit": 2,
+      "verdict": "unsupported",
+      "reason": "unknown predicate bit"
+    },
+    "K6V2T4": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 56740,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "TypeInvariant",
+      "seconds": 0.127998
+    },
+    "K6V3T3": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 56800,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "Next closure",
+      "seconds": 0.105066
+    },
+    "K7V2T3": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 56784,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "TypeInvariant",
+      "seconds": 0.103247
+    },
+    "K8V2T3": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 56904,
+      "exit": 2,
+      "proof": "inconclusive",
+      "failed_obligation": "TypeInvariant",
+      "seconds": 0.116865
+    }
+  },
+  "fresh_source_induction_with_FullHasFresh": {
+    "K12V2T4": {
+      "wall_s": 1.75,
+      "peak_rss_kib": 115496,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 1.508763,
+      "cfg_sha256": "7f33c74417117480e4c5a59bc8bf10ae3acb3ca0ab7b44626683df771f33b2fa",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "1754379540529158143010037422882816"
+    },
+    "K16V2T4": {
+      "wall_s": 3.1,
+      "peak_rss_kib": 118196,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 2.891104,
+      "cfg_sha256": "087d6740221d49ef194ad761b0d49bddc943db837407efbebb232301e298f67d",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "610335005438680947757355979584871200609796096"
+    },
+    "K24V2T4": {
+      "wall_s": 7.06,
+      "peak_rss_kib": 184020,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 6.817133,
+      "cfg_sha256": "6cb38c27d62af1a6780864b4b9ad22182c5f84d5425bf93906f901c8d936e461",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "73868288898724114740251610249279190150911494886478090996497940217856"
+    },
+    "K28V2T4": {
+      "wall_s": 10.17,
+      "peak_rss_kib": 328260,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 9.897765,
+      "cfg_sha256": "c8456f3a85f839ee6aba5640739580a519ccbd330e4a06c4132a678d2bae87f7",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "25698212687550948593266149850341814352243775254231408374567149218456161889550336"
+    },
+    "K32V2T4": {
+      "wall_s": 0.25,
+      "peak_rss_kib": 56912,
+      "exit": 2,
+      "verdict": "unsupported",
+      "reason": "finite layout exceeds 512 state bits at missed (516 bits so far)",
+      "cfg_sha256": "9e669238ec6960df0eca018a5e443c2c5aa138b87293cb0b7de23c4ef3e3207d"
+    },
+    "K36V2T3": {
+      "wall_s": 4.61,
+      "peak_rss_kib": 184836,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 4.36159,
+      "cfg_sha256": "43756039fd23c388458fc605ae8074cb09e0ad5c13737970f6daff0b1be6ff8f",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "2634468335047214995019668513211205004285938097509304284718353870001234151227785216"
+    },
+    "K50V2T2": {
+      "wall_s": 2.35,
+      "peak_rss_kib": 183836,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 2.122322,
+      "cfg_sha256": "7441a61e2e8b015024199d9bfdba30db6429f0af1a06657eb7a2ea23e38efbab",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "576808794159505135689066653087960685167709976083431436184256046045960929709731610624"
+    },
+    "K6V2T3": {
+      "wall_s": 0.35,
+      "peak_rss_kib": 59712,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.115976,
+      "cfg_sha256": "d80d107b0f32f01607992dfe8c9c17806a2c376e7733bb55b47ce2668e219955",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "8355532713984"
+    },
+    "K6V2T4": {
+      "wall_s": 0.55,
+      "peak_rss_kib": 79872,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.335999,
+      "cfg_sha256": "142e18cca34e9bea1f657d9a06e0d59feb193692478d5ae9f3f451964898f36b",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "8562332148655104"
+    },
+    "K6V3T3": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 59764,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.154769,
+      "cfg_sha256": "e0a91b32ad8c5cab5769583c7bea6774535934db2f2f22a770f4d8b50245f338",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "2604666688000000"
+    },
+    "K7V2T3": {
+      "wall_s": 0.4,
+      "peak_rss_kib": 60928,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.15991,
+      "cfg_sha256": "8f743a65ebc5d9b9dc11548555a8c3dabed6334d955085a9fff43699452b9f3e",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "1603381499412480"
+    },
+    "K8V2T3": {
+      "wall_s": 0.45,
+      "peak_rss_kib": 62928,
+      "exit": 0,
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "seconds": 0.200804,
+      "cfg_sha256": "f45e0dfd47f00469fb25f0c23e40225f663993dc27762741207eeef611682b4a",
+      "reachable_all_open_no_missed_orbits_lower_bound_decimal": "307806976816644096"
+    }
+  },
+  "slice_check": {
+    "meaning": "All transactions open and all missed sets empty, within the actual held reachable predicates. The exact orbit count of this subfamily gives a constructive lower bound on the whole graph. No depth or full-state count follows from induction.",
+    "formula": "(|Val|+1)^K * binomial((|Val|+2)^K + T - 1,T). The per-transaction descriptor specifies for each key either unwritten, or written and its final snapshot from Val union {NoVal}. Transaction permutations turn these descriptors into a multiset.",
+    "measurements": [
+      {
+        "keys": 2,
+        "orbits": 7344,
+        "labeled": 36864
+      },
+      {
+        "keys": 6,
+        "orbits": 8355532713984,
+        "labeled": 50096498540544
+      }
+    ],
+    "method": "Append NoMissedOpen == tx = TxId /\\ \\A t \\in tx : missed[t] = {} to the wrapper and configure it as an additional invariant solely to compile its Boolean predicate. With the installed SourceModel, intersect dict(model.properties)[\"NoMissedOpen\"] with induction.load(saved_predicate, model). Use model.state_count(intersection) for labeled states and model.counts(intersection,True)[0] for representatives. Both sizes match the formula."
+  },
+  "analytic_history_oracle": {
+    "scope": "The model-specific analytic cardinalities use the pinned original Init and Next, both with transaction symmetry and with labels. Source-driven wider-domain runs above are safety proofs. Their results contain no full-graph counts or depths. The separate constructive lower bounds require only a reachable subfamily.",
+    "command": "python3 scripts/symbolic/kvs_history.py KVS --keys K --values V --transactions T",
+    "method": "Enumerate nondecreasing missed-mask sizes 0..K for opened transactions. Each increase i to j contributes binomial(K-i,j-i) key assignments. Equal sizes imply identical nested masks. All remaining factors are precisely those of the previous explicit-mask chain sum. Times in the analytic rows measure the Python calculation on CPU 6 exclusive of startup and imports; each row includes both orbit and labeled calculations.",
+    "prior_oracle_control": {
+      "dims": "1..4 keys, 1..3 values, 1..4 transactions, both symmetry modes; additionally (6,2,3,true), (7,2,3,false), (7,3,2,true)",
+      "agree_with_original": 99,
+      "seconds": 0.15818559000035748
+    },
+    "results": [
+      {
+        "keys": 6,
+        "values": 2,
+        "transactions": 3,
+        "seconds": 0.0009248379992641276,
+        "orbits": {
+          "distinct": "539910848473937721",
+          "generated": "21725268712106423230"
+        },
+        "labeled": {
+          "distinct": "3239447207251422105",
+          "generated": "130350884965021924615"
+        }
+      },
+      {
+        "keys": 7,
+        "values": 2,
+        "transactions": 3,
+        "seconds": 0.0011337550004100194,
+        "orbits": {
+          "distinct": "503442490368989477835",
+          "generated": "23247573192708514979356"
+        },
+        "labeled": {
+          "distinct": "3020652793935370219275",
+          "generated": "139485339001294369578361"
+        }
+      },
+      {
+        "keys": 8,
+        "values": 2,
+        "transactions": 3,
+        "seconds": 0.0014977200007706415,
+        "orbits": {
+          "distinct": "465689747249162114882337",
+          "generated": "24277174135244499648856870"
+        },
+        "labeled": {
+          "distinct": "2794138225586555470584993",
+          "generated": "145663031249193112079049991"
+        }
+      },
+      {
+        "keys": 6,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.0033463750005466864,
+        "orbits": {
+          "distinct": "45283631953962519287289",
+          "generated": "2416222515102249855119680"
+        },
+        "labeled": {
+          "distinct": "1086787730146283786929113",
+          "generated": "57988297551818550444760585"
+        }
+      },
+      {
+        "keys": 12,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.018474190999768325,
+        "orbits": {
+          "distinct": "3296586243209660886405070884528317292419539953",
+          "generated": "333184212987817055750000744268545269473553767928"
+        },
+        "labeled": {
+          "distinct": "79118069825178264565134121589024488922082204657",
+          "generated": "7996421110505790911229205788437435477201586337801"
+        }
+      },
+      {
+        "keys": 16,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.04051531599907321,
+        "orbits": {
+          "distinct": "5167824717059632181347159655223562455094705355197302968244033",
+          "generated": "687452950434768491844379869223453678526183624170996989675993928"
+        },
+        "labeled": {
+          "distinct": "124027793209422936450856290393541120364999640834757683360094017",
+          "generated": "16498870810433345535179029354304246024850160719250310838570987529"
+        }
+      },
+      {
+        "keys": 24,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.125571378001041,
+        "orbits": {
+          "distinct": "12098063545316475868626614220118087568620095638305427820673288883988105655464273262367520993",
+          "generated": "2383364413278938753366943352038449611934701240576295847728440295107874890794877435056015930088"
+        },
+        "labeled": {
+          "distinct": "290353525087595420843092764597150840867565834665780554032709895740386292237627335725444544737",
+          "generated": "57200745918694530080027959671842950857664726387254196247378113171481635502565881257888188921865"
+        }
+      },
+      {
+        "keys": 28,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.19688250000035623,
+        "orbits": {
+          "distinct": "18383451782688859583534214866303258002892308653334148980738876267704087621682638879615630306436076558253873",
+          "generated": "4209837751189350983987588185673711346558161657782400007265449247400905993656648395706015117793424068710901048"
+        },
+        "labeled": {
+          "distinct": "441202842784532630004818426853821404764176671882114703237558435197609721738305276733831249830409768214626097",
+          "generated": "101036106028544423615701490388628875118669239076551884687626465486760906832765373197743312823950746893401688073"
+        }
+      },
+      {
+        "keys": 32,
+        "values": 2,
+        "transactions": 4,
+        "seconds": 0.2933043789998919,
+        "orbits": {
+          "distinct": "27898669037487903581139005213615990525136082213928609431221559408470045995382070220050714808258657944545555034870250356353",
+          "generated": "7281568888829367203761507881118723870352263131176568372415004126530053313825957443458110722841044174410580516074954130581128"
+        },
+        "labeled": {
+          "distinct": "669568056899709685947336123238200358267946439164850575132820081756365279907768103970448636286907612446133694840606742691457",
+          "generated": "174757653331904812890276188653299132375634015830229244621160176022215550108500689348531791131725571832389983888435379562668041"
+        }
+      },
+      {
+        "keys": 36,
+        "values": 2,
+        "transactions": 3,
+        "seconds": 0.02636095400157501,
+        "orbits": {
+          "distinct": "36292252730005282599179250102251594141512676348786951953675622944785424255409799025446213846423461522687697",
+          "generated": "7984297758521806907283983305512459496165059334462872744250743513933178156050701537185171328840802272302941910"
+        },
+        "labeled": {
+          "distinct": "217753516380031695595075500613505312037826147551691089407918142886828873543351883630991667337557312898451153",
+          "generated": "47905786551130841443703899833073819232092834766335536710240434780866382579381588394283273038086407957651996679"
+        }
+      },
+      {
+        "keys": 50,
+        "values": 2,
+        "transactions": 2,
+        "seconds": 0.0015685859998484375,
+        "orbits": {
+          "distinct": "91004381500021497732699043959337947912351644638355836658647290238893901322343278928484519477403182818249",
+          "generated": "18473889446141046028292704393949780221033032076845214133272395082228010597432679931581050986559917380244876"
+        },
+        "labeled": {
+          "distinct": "182008763000042995465398087918675895824703289276710763273479580262810469886159022882438558547693451207625",
+          "generated": "36947778892282092056585408787899560442066064153690242617606530120600645312125742873373277483823023148589957"
+        }
+      }
+    ],
+    "source_driven_controls": {
+      "K1V1T4": {
+        "wall_s": 0.3,
+        "peak_rss_kib": 56848,
+        "exit": 0,
+        "verdict": "success",
+        "depth": 18,
+        "reachable_bdd_nodes": 209,
+        "invariants": [
+          "TypeInvariant",
+          "TxLifecycle"
+        ],
+        "seconds": 0.060092,
+        "distinct_decimal": "590",
+        "generated_decimal": "5901"
+      },
+      "K2V2T4": {
+        "wall_s": 103.3,
+        "peak_rss_kib": 633688,
+        "exit": 0,
+        "verdict": "success",
+        "depth": 28,
+        "reachable_bdd_nodes": 3315,
+        "invariants": [
+          "TypeInvariant",
+          "TxLifecycle"
+        ],
+        "seconds": 103.015031,
+        "distinct_decimal": "15181119",
+        "generated_decimal": "332915842"
+      },
+      "K3V3T1": {
+        "wall_s": 0.25,
+        "peak_rss_kib": 42020,
+        "exit": 2,
+        "verdict": "unsupported",
+        "reason": "Dive frontend: Error: \"symmetry startup warning\""
+      },
+      "K4V2T2": {
+        "wall_s": 1.05,
+        "peak_rss_kib": 81224,
+        "exit": 0,
+        "verdict": "success",
+        "depth": 27,
+        "reachable_bdd_nodes": 448,
+        "invariants": [
+          "TypeInvariant",
+          "TxLifecycle"
+        ],
+        "seconds": 0.824748,
+        "distinct_decimal": "205526241",
+        "generated_decimal": "3945044980"
+      }
+    },
+    "same_result_eight_key_three_transaction_pairs": [
+      {
+        "pair": 1,
+        "method": "old",
+        "seconds": 0.2229510470006062,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 1,
+        "method": "grouped",
+        "seconds": 0.0007143370003177552,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 2,
+        "method": "grouped",
+        "seconds": 0.000723721999747795,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 2,
+        "method": "old",
+        "seconds": 0.22311143000115408,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 3,
+        "method": "old",
+        "seconds": 0.22397142199952214,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      },
+      {
+        "pair": 3,
+        "method": "grouped",
+        "seconds": 0.0007438480006385362,
+        "distinct": "465689747249162114882337",
+        "generated": "24277174135244499648856870"
+      }
+    ],
+    "pair_method": "One process, alternating explicit-mask and grouped runs, three pairs. Each timed call computes orbit-mode distinct and generated values. No import or process startup in either scope."
+  },
+  "pinned_tlc_controls": {
+    "pins": {
+      "jre": {
+        "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jre_x64_linux_hotspot_17.0.20.1_1.tar.gz",
+        "sha256": "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62"
+      },
+      "tlc": {
+        "url": "https://github.com/Chelis-Lang/dive/releases/download/oracle-tlc-2026.10.06.014338/tla2tools.jar",
+        "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+      }
+    },
+    "command": "java -Xmx1g -XX:ActiveProcessorCount=1 -XX:+UseParallelGC -cp JAR tlc2.TLC -workers 1 -fp 0 -seed 0 -metadir SCRATCH -config CFG MCKVS.tla",
+    "inputs": "original1, abort1, corrupt1 use one key, two values, three transactions. four-tx uses one key, one value and four transactions. singleton uses three keys, three values and one transaction, removing SYMMETRY TxIdSymmetric (the only transaction permutation is the identity).",
+    "tlc": {
+      "original1": {
+        "wall_s": 1.29,
+        "peak_rss_kib": 99040,
+        "exit": 0,
+        "generated": 7129,
+        "distinct": 690,
+        "left_on_queue": 0,
+        "depth": 15,
+        "violated": []
+      },
+      "abort1": {
+        "wall_s": 1.27,
+        "peak_rss_kib": 99112,
+        "exit": 0,
+        "generated": 7816,
+        "distinct": 690,
+        "left_on_queue": 0,
+        "depth": 15,
+        "violated": []
+      },
+      "corrupt1": {
+        "wall_s": 0.99,
+        "peak_rss_kib": 83604,
+        "exit": 12,
+        "generated": 5,
+        "distinct": 3,
+        "left_on_queue": 1,
+        "depth": 2,
+        "violated": [
+          "SomeCommit"
+        ]
+      },
+      "four-tx": {
+        "wall_s": 1.36,
+        "peak_rss_kib": 114448,
+        "exit": 0,
+        "generated": 5901,
+        "distinct": 590,
+        "left_on_queue": 0,
+        "depth": 18,
+        "violated": []
+      },
+      "singleton": {
+        "wall_s": 2.0,
+        "peak_rss_kib": 163232,
+        "exit": 0,
+        "generated": 88065,
+        "distinct": 8064,
+        "left_on_queue": 0,
+        "depth": 13,
+        "violated": []
+      }
+    },
+    "singleton_dive_symbolic_without_symmetry": {
+      "wall_s": 0.24,
+      "peak_rss_kib": 56824,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 13,
+      "reachable_bdd_nodes": 46,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "seconds": 0.032834,
+      "distinct_decimal": "8064",
+      "generated_decimal": "88065"
+    }
+  },
+  "strong_source_module_sha256": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+  "two_key_same_SomeCommit_edit": {
+    "method": "Separate Sail processes, CPU 6. The shared candidate comes from a completed two-key base run. Fresh sessions start empty every time. Three pairs on exactly the same current input, retained/fresh order reversed in the second pair.",
+    "paired_rows": [
+      {
+        "retained": {
+          "wall_s": 0.25,
+          "peak_rss_kib": 56708,
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "seconds": 0.042939,
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        },
+        "fresh": {
+          "wall_s": 1.6,
+          "peak_rss_kib": 80616,
+          "exit": 0,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle",
+            "SomeCommit"
+          ],
+          "seconds": 1.342263,
+          "distinct_decimal": "582471",
+          "generated_decimal": "9628660",
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        }
+      },
+      {
+        "retained": {
+          "wall_s": 0.25,
+          "peak_rss_kib": 56772,
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "seconds": 0.042879,
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        },
+        "fresh": {
+          "wall_s": 1.55,
+          "peak_rss_kib": 80440,
+          "exit": 0,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle",
+            "SomeCommit"
+          ],
+          "seconds": 1.307834,
+          "distinct_decimal": "582471",
+          "generated_decimal": "9628660",
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        }
+      },
+      {
+        "retained": {
+          "wall_s": 0.25,
+          "peak_rss_kib": 56916,
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "seconds": 0.042638,
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        },
+        "fresh": {
+          "wall_s": 1.55,
+          "peak_rss_kib": 80528,
+          "exit": 0,
+          "verdict": "success",
+          "depth": 23,
+          "reachable_bdd_nodes": 867,
+          "invariants": [
+            "TypeInvariant",
+            "TxLifecycle",
+            "SomeCommit"
+          ],
+          "seconds": 1.320363,
+          "distinct_decimal": "582471",
+          "generated_decimal": "9628660",
+          "retained_sha256": "94f626f744f297e1b12731f4bc1b328f128874b7db689a50119d41740ca38921"
+        }
+      }
+    ]
+  },
+  "shrink_six_keys_to_one": {
+    "method": "Two separate Sail directories on the one-key SomeCommit source. previous starts with a copy of the six-key predicate; direct verification refuses unknown predicate bit. fresh starts empty. Both completed searches publish the same one-key predicate.",
+    "previous": {
+      "wall_s": 0.55,
+      "peak_rss_kib": 56932,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 15,
+      "reachable_bdd_nodes": 199,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle",
+        "SomeCommit"
+      ],
+      "seconds": 0.054255,
+      "distinct_decimal": "690",
+      "generated_decimal": "7129",
+      "retained_sha256": "65685a85562bfb4ae9938c339da081445580e981abdf805c2354144dd6715b4d"
+    },
+    "fresh": {
+      "wall_s": 0.3,
+      "peak_rss_kib": 56772,
+      "exit": 0,
+      "verdict": "success",
+      "depth": 15,
+      "reachable_bdd_nodes": 199,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle",
+        "SomeCommit"
+      ],
+      "seconds": 0.056041,
+      "distinct_decimal": "690",
+      "generated_decimal": "7129",
+      "retained_sha256": "65685a85562bfb4ae9938c339da081445580e981abdf805c2354144dd6715b4d"
+    }
+  },
+  "transaction_axis_before_startup_and_order_changes": {
+    "method": "Four keys and two values, configured FullHasFresh. Six- and seven-slot symmetric CFGs keep SYMMETRY TxIdSymmetric. Labeled CFGs remove those two lines and keep the original TLA+ definition. The no-unused control also removes the unselected definition. See the separate source-binding record for 12/16-ID baseline and revised exports.",
+    "rows": {
+      "K4V2T6-symmetric": {
+        "wall_s": 1.75,
+        "peak_rss_kib": 122764,
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "seconds": 1.49728
+      },
+      "K4V2T7-symmetric": {
+        "wall_s": 0.25,
+        "peak_rss_kib": 41800,
+        "exit": 2,
+        "verdict": "unsupported",
+        "reason": "Dive frontend: Error: \"BindError { kind: Unsupported { feature: \\\"SYMMETRY TxIdSymmetric: symmetry resource limit: maps\\\" }, message: \\\"unsupported: SYMMETRY TxIdSymmetric: symmetry resource limit: maps\\\" }\""
+      },
+      "K4V2T7-labeled": {
+        "wall_s": 35.04,
+        "peak_rss_kib": 189916,
+        "exit": 4,
+        "verdict": "stopped",
+        "reason": "time limit"
+      },
+      "K4V2T7-no-unused": {
+        "wall_s": 60.04,
+        "peak_rss_kib": 190120,
+        "exit": 4,
+        "verdict": "stopped",
+        "reason": "time limit"
+      }
+    }
+  }
+}

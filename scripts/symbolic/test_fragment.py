@@ -88,6 +88,7 @@ Outside == x \notin Colors
 
 
     check_action_guards(module, config, run, explicit, compare)
+    check_nested_tables(folder, run, explicit, compare)
 
 
 def check_action_guards(module, config, run, explicit, compare):
@@ -593,3 +594,26 @@ OnlyPreferred == last.sender = Preferred
         assert bad["trace_validated"] and bad["depth"] == 2 and bad["ending"]["name"] == "Empty"
         (refused,) = run(module, unsafe, *flags, code=2)
         assert refused["verdict"] == "unsupported" and "asymmetric" in refused["reason"]
+
+def check_nested_tables(folder, run, explicit, compare):
+    # Each reachable pair of table entries has equal bits. Equalities between
+    # neighboring bits have a smaller decision diagram than separated tables.
+    module = folder / "Tables.tla"
+    config = folder / "Tables.cfg"
+    module.write_text(r"""---- MODULE Tables ----
+CONSTANTS Owners, Keys
+VARIABLES a, b
+TypeInvariant == a \in [Owners -> SUBSET Keys] /\ b \in [Owners -> SUBSET Keys]
+Init == a = [o \in Owners |-> {}] /\ b = [o \in Owners |-> {}]
+Next == \E o \in Owners, k \in Keys :
+    /\ a' = [a EXCEPT ![o] = @ \cup {k}]
+    /\ b' = [b EXCEPT ![o] = @ \cup {k}]
+====
+""")
+    config.write_text("CONSTANTS Owners = {u, v} Keys = {x, y, z}\nINIT Init\nNEXT Next\nINVARIANT TypeInvariant\n")
+    normal, = run(module, config)
+    separated, = run(module, config, "--order-by-path")
+    expected = explicit(module, config)
+    compare(normal, expected)
+    compare(separated, expected)
+    assert normal["reachable_bdd_nodes"] < separated["reachable_bdd_nodes"]

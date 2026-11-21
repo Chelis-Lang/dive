@@ -258,5 +258,59 @@
         "peak_rss_kib": 2289768
       }
     }
-  ]
+  ],
+  "largest_published_case": {
+    "host": "EC2 r8g.24xlarge, us-east-1, 96 physical Neoverse-V2 cores, one hardware thread each, Linux 7.0.0-1018-aws",
+    "dive_sha256": "aa441e38fb26a96b135da52243f53c8ce3c6b63ae60505457ab67c784c7b3376",
+    "dive_source": "55c94185176d7e415b389f13fcf3d6e2066223a1",
+    "oracle_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "oracle_jre_archive_sha256": "b8efcd5acc9109fe8d35bed132499643048a257b4f6042906ece37d03c839d77",
+    "command": "taskset -c 0-47 dive check PastureNodeModel.tla --config 21222.cfg --store exact --workers 48 --seed 0 --fp 0 --compat=tlc --time-limit 100800s --max-memory 650g --output json",
+    "control": "Smallest published case, same inputs and machine, CPU 0 and one worker on each engine. Core budget 300s. TLC -Xmx350g -XX:+UseParallelGC -XX:ActiveProcessorCount=1 -workers 1 -seed 0 -fp 0.",
+    "article_comparison": "The paper reports 3596 minutes on 48 Opteron cores with 128 GB and the same depth and distinct count. Its third fingerprint run lost five distinct states. Modern hardware and exact equality differ from the paper.",
+    "11111-exact": {
+      "statistics": {
+        "depth": 31,
+        "distinct": 47742,
+        "generated": 360066,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 47742,
+      "store": "exact",
+      "workers": 1,
+      "wall_seconds": 1.04,
+      "peak_rss_kib": 30696,
+      "verdict": "success",
+      "exit": 0
+    },
+    "21222-exact": {
+      "statistics": {
+        "depth": 53,
+        "distinct": 4234887880,
+        "generated": 36395020965,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "mathematical_identities": 4234887880,
+      "store": "exact",
+      "workers": 48,
+      "wall_seconds": 17024.83,
+      "peak_rss_kib": 236324624,
+      "verdict": "success",
+      "exit": 0
+    },
+    "11111-tlc": {
+      "generated": 360066,
+      "distinct": 47742,
+      "left_on_queue": 0,
+      "depth": 31,
+      "wall_seconds": 8.45,
+      "peak_rss_kib": 4340188,
+      "exit": 0
+    },
+    "21222_cfg_sha256": "1307545066a0a7fe88c38684cfc7b60889276dece99897064780ccfface1ed63"
+  }
 }

@@ -13,17 +13,21 @@ are in git history.
 
 - Core checks membership in [finite record message types](docs/user/checking.md) without materializing eligible record unions, and independently replays canonical traces with scalar payloads of different types.
 
-- Core can check larger [bounded existential actions](docs/user/checking.md) by compiling their pure parameterized expressions once per slot layout.
+- Core can check larger [bounded existential actions](docs/user/checking.md) by sharing pure instructions across bindings, including near the compiler’s constant-folding limit.
 
 - Parallel Core can [keep large split-action plans from exhausting invariant memo storage](docs/user/checking.md#time-and-memory-budgets) within the existing worker memory cap.
 
 - The [EmergencyCall benchmark](docs/developer/large-models.md#enlarge-the-emergencycall-number-sets) checks four larger source configurations and exports independently validated counterexamples.
+
+- [Finite symbolic checking](docs/user/symbolic.md#symbolic-layout-for-nested-tables) groups nested labeled tables by their shared coordinates. The KVS source now proves safety at 102 transaction slots within its existing 512-bit limit.
 
 - The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.
 
 - [Symbolic safety checking](docs/user/symbolic.md#admission-and-reports) supports finite symmetry groups acting on record contents, nested indices and refined sets, including independent proposer and acceptor permutations.
 
 - Finite symbolic checking counts duplicate witnesses from inline state disjunctions in partially assigned actions. Initial membership over a lazy set with unproved enumeration multiplicity gives a named refusal. [Symbolic checking](docs/user/symbolic.md#admission-and-reports).
+
+- [Independent trace validation](docs/user/traces.md#large-unused-symmetry-declarations) can replay labeled protocols that contain a large unused permutation declaration. The original 102-transaction KVS counterexample validates in 0.01 s.
 
 - Native fairness checks can rule out destinations that retain a [state variable required to change](docs/user/temporal.md#fairness).
 

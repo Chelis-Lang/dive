@@ -125,7 +125,8 @@ def require_index_permutation(condition, reason):
 
 
 class SourceModel(FiniteRelation):
-    def __init__(self, doc, type_invariant, manager=None, order_by_path=False, single_partition=False, learned=None):
+    def __init__(self, doc, type_invariant, manager=None, order_by_path=False, single_partition=False,
+                 learned=None, table_order="inner"):
         require(doc["format"] == "dive-symbolic-input-v2", "incompatible bound IR exporter")
         self.doc = doc
         self.ir = doc["ir"]
@@ -175,7 +176,7 @@ class SourceModel(FiniteRelation):
                         (k, bit) for k, bit in typ.domain.items() if (path, k) in learned
                     ))
         self.types = types
-        self.allocate(types, atoms, order_by_path)
+        self.allocate(types, atoms, order_by_path, table_order)
 
         # TLC counts every enabled Init witness before symmetry or duplicate
         # elimination. BFS retains their union; induction checks the same union.
@@ -285,7 +286,7 @@ class SourceModel(FiniteRelation):
         require(found.keys() == set(self.names), "need one finite bound for every state variable")
         return found
 
-    def allocate(self, types, group_atoms, order_by_path):
+    def allocate(self, types, group_atoms, order_by_path, table_order):
         """Place bits of paths sharing the most common inner index near one another."""
         leaves = []
         domains = Counter()
@@ -338,6 +339,33 @@ class SourceModel(FiniteRelation):
             axes = [domain for domain in domains if domain and all(isinstance(k, str) for k in domain)]
             clusters = max(axes, key=domains.get, default=())
 
+        # Several labeled tables can describe one object at the same pair of
+        # indices, e.g. snapshots[t][k] and written[t][k]. Keep those fields
+        # together inside the existing primary group. Require the same entire
+        # outer domain across tables so coincidentally shared keys cannot
+        # associate unrelated layouts. Refined domains have their own order.
+        outer_domains = {}
+        if table_order and clusters and not atoms and not self.refining and not order_by_path:
+            for name, bound in types.items():
+                if isinstance(bound, FunctionSpace) and isinstance(bound.codomain, (FunctionSpace, PowerSet)):
+                    inner = tuple(indices(bound.codomain.domain))
+                    outer = tuple(indices(bound.domain))
+                    if inner == clusters and set(outer).isdisjoint(inner):
+                        outer_domains[name] = outer
+        uses = Counter(outer_domains.values())
+        shared_tables = {name for name, domain in outer_domains.items() if uses[domain] > 1}
+
+        # Direct induction checks obligations over all encoded states. With
+        # many owners, keep one owner's cross-key conditions adjacent. If the
+        # inner axis is a singleton, search also benefits from placing each
+        # owner's membership bit beside its fields. Saved predicates always
+        # use the same order for search and verification.
+        wide_axes = {domain for name, domain in outer_domains.items() if name in shared_tables
+                     and (table_order == "outer" or len(clusters) == 1) and len(domain) > len(clusters)}
+        owner_indexed = {name for name, bound in types.items() if wide_axes
+                         and isinstance(bound, (FunctionSpace, PowerSet))
+                         and tuple(indices(bound.domain)) in wide_axes}
+
         def model_values(key):
             if isinstance(key, str):
                 yield key
@@ -353,14 +381,20 @@ class SourceModel(FiniteRelation):
                               for atom in model_values(key) if atom in clusters), -1)
             roles = [atoms.index(k) for k in path[1:] if k in atoms]
             require_index_permutation(len(roles) <= 1, "multiple permuted indices in one path")
-            return group, (roles[0] if roles else -1), self.names.index(path[0]), tuple(map(repr, path))
+            outer = repr(path[1]) if path[0] in shared_tables else ""
+            return group, (roles[0] if roles else -1), (outer, self.names.index(path[0])), tuple(map(repr, path))
 
         # Record relative path identities as well as bit positions. This lets a
         # permutation of outer OR inner function indices move the right fields.
+        def sort_key(leaf):
+            path, _ = leaf
+            if order_by_path:
+                return self.names.index(path[0]), tuple(map(repr, path))
+            owner = repr(path[1]) if path[0] in owner_indexed else ""
+            return owner, order(leaf)
+
         role_fields = {a: {} for a in atoms}
-        for path, choices in sorted(
-            leaves, key=(lambda leaf: (self.names.index(leaf[0][0]), tuple(map(repr, leaf[0])))) if order_by_path else order
-        ):
+        for path, choices in sorted(leaves, key=sort_key):
             width = max(1, (len(choices) - 1).bit_length()) if choices else 1
             group, role, _, _ = order((path, choices))
             fields = []
@@ -1380,7 +1414,8 @@ class PermutedModel(SourceModel):
                        for path, key in learned for mapping in mappings.values()}
         # Bind the labeled program. Expose quotient counts only after proving
         # that each generator preserves initial states, obligations and edges.
-        super().__init__({**doc, "symmetry": None}, type_invariant, manager, order_by_path, single_partition, learned)
+        super().__init__({**doc, "symmetry": None}, type_invariant, manager, order_by_path,
+                         single_partition, learned, table_order=None)
         self.symmetry = True
         self.doc = doc
         for perm in generators:
@@ -1477,10 +1512,10 @@ class PermutedModel(SourceModel):
                 and super().same_encoding_and_admission(other))
 
 
-def bind_source_model(doc, type_invariant, manager, order_by_path, single_partition, learned):
+def bind_source_model(doc, type_invariant, manager, order_by_path, single_partition, learned, direct_induction=False):
     args = (doc, type_invariant, manager, order_by_path, single_partition, learned)
     try:
-        return SourceModel(*args)
+        return SourceModel(*args, table_order="outer" if direct_induction else "inner")
     except NeedsValuePermutation:
         return PermutedModel(*args)
 
@@ -1680,6 +1715,7 @@ def check_revisions(args, revisions, owner):
             args.order_by_path,
             args.single_partition,
             learned,
+            direct_induction=args.prove_inductive and not args.verify_predicate,
         )
         if args.verify_predicate or args.prove_inductive:
             states = (

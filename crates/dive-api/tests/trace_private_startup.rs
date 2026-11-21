@@ -43,6 +43,31 @@ fn eval(model: &SpecModel, name: &str) -> Result<Value, dive_eval::EvalError> {
 }
 
 #[test]
+fn private_replay_skips_only_unreachable_pure_startup_values() {
+    let m = SpecModel::from_source(
+        "Audit.tla",
+        "---- MODULE Audit ----\nEXTENDS TLC, Naturals\nCONSTANT Peers\nVARIABLE x\nUnused == Permutations(Peers)\nSelected == Permutations(Peers)\nASSUME Selected /= {}\nInit == x=0\nNext == x'=x+1\nInv == x<1\n====",
+        "CONSTANT Peers={a,b,c}\nINIT Init\nNEXT Next\nINVARIANT Inv",
+        &TraceOptions::default(),
+    ).expect("model");
+    let bound = m.model();
+    let present = |name| {
+        let id = bound.ir.root_def(name).expect("definition");
+        bound.evaluator.precomputed(id).is_some()
+    };
+    assert!(!present("Unused"));
+    assert!(present("Selected"));
+    assert_eq!(
+        m.validate(&doc(&[0, 1], false)).validation,
+        Validation::Valid
+    );
+    assert!(matches!(
+        m.validate(&doc(&[0, 2], false)).validation,
+        Validation::Invalid(_)
+    ));
+}
+
+#[test]
 fn startup_registers_validate_both_formats_and_keep_caller_isolated() {
     let m = model(
         "ASSUME TLCSet(1,42)",

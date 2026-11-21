@@ -257,3 +257,58 @@ fn fallible_recipe_retains_real_startup_depth_exhaustion_and_legacy_stays_unchan
         matches!(failure,ControlledBindError::EvaluationFailure{error:actual,..} if actual.class()==error.class()&&actual.origin()==error.origin())
     );
 }
+
+#[test]
+fn finite_replay_elides_only_unused_permutations_of_a_configured_set() {
+    let (ir, cfg) = inputs(
+        "CONSTANT Peers\nUnused == Permutations(Peers)\nKept == Permutations({1,2})\nInit == x=0\nNext == x'=x",
+        "CONSTANT Peers={a,b,c}\nINIT Init\nNEXT Next\n",
+    );
+    let unused = ir.root_def("Unused").expect("unused");
+    let kept = ir.root_def("Kept").expect("ordinary eager startup");
+    let recipe = dive_model::Recipe::new(ir, cfg, dive_eval::Options::tlc(), false);
+    let host = Arc::new(Control::default());
+    let ordinary = recipe.bind(host.clone()).expect("ordinary eager recipe");
+    assert!(ordinary.evaluator.precomputed(unused).is_some());
+    let m = recipe
+        .bind_fallible(host.clone(), None)
+        .expect("finite private replay");
+    assert!(m.evaluator.precomputed(unused).is_none());
+    assert!(m.evaluator.precomputed(kept).is_some());
+    let controlled = recipe
+        .bind_fallible(host.clone(), Some(host))
+        .expect("controlled private replay");
+    assert!(controlled.evaluator.precomputed(unused).is_some());
+}
+
+#[test]
+fn replay_retains_other_permutation_domains_and_operator_replacements() {
+    for (assignment, replacement) in [
+        ("{p_a,p_b}", ""),
+        ("{p_a,q_b}", ""),
+        ("{a,1}", ""),
+        ("{{a},{b}}", ""),
+        ("{a,b}", "CONSTANT Permutations <- Other"),
+    ] {
+        let (ir, cfg) = inputs(
+            "CONSTANT Peers\nOther(p) == {}\nUnused == Permutations(Peers)\nInit == x=0\nNext == x'=x",
+            &format!("CONSTANT Peers = {assignment}\n{replacement}\nINIT Init\nNEXT Next"),
+        );
+        let id = ir.root_def("Unused").expect("definition");
+        let opts = BindOptions::tlc();
+        let ordinary = dive_model::bind(ir.clone(), &cfg, &opts);
+        let replay = dive_model::bind_for_trace(ir, &cfg, &opts);
+        match (ordinary, replay) {
+            (Ok(eager), Ok(current)) => {
+                assert_eq!(
+                    eager.evaluator.precomputed(id),
+                    current.evaluator.precomputed(id),
+                    "{assignment} {replacement}"
+                );
+                assert_eq!(eager.output, current.output);
+            }
+            (Err(eager), Err(current)) => assert_eq!(eager.error, current.error),
+            _ => unreachable_failure(),
+        }
+    }
+}

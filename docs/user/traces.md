@@ -48,6 +48,12 @@ The lasso back edge in a trace document is zero-based; the checker summary's
 `back_to` is one-based. Validate the trace document rather than rebuilding a
 lasso from displayed states.
 
+### Large unused symmetry declarations
+
+A model may define `Sym == Permutations(Actors)` and leave it out of the active CFG. For finite witness validation, Dive can skip constructing that factorial-sized set when `Actors` is a directly configured, explicit set of untyped model values and nothing selected or observable can read the definition. It still evaluates a selected symmetry, assumptions and startup effects. Typed, mixed, nested and redirected operands keep their ordinary startup behavior.
+
+On the labeled KVS protocol with 102 transactions, the previous validator aborted at 1,883,188 KiB under the test's address-space ceiling. The same two-state `SomeCommit` counterexample now validates on the original source in 0.01 s at 29,780 KiB. Replacing the final state or replaying the word against the unmodified transition relation fails the next-step check. The analogous 16-transaction word also validates in 0.01 s. [Exact sources, commands, address-space limit, timings and negative controls](../../conformance/reports/perf/2026-11-21-kvs-independent-replay.json).
+
 ## Simulation samples
 
 For a finite simulation word, add `--sample`. This checks Init, Next and all
