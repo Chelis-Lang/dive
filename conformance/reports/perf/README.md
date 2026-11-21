@@ -16,6 +16,8 @@ and the R2 procedure is in
 The scripts that produced the records are in
 [`scripts/perf/release/`](../../../scripts/perf/release/README.md).
 
+[Temporal worker-width repeat](2026-11-21-temporal-d4-recheck.json) records 153 checks, requested and used workers, the reason for each fallback, golden counts, elapsed time, peak RSS and within-host timings.
+
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
 
