@@ -361,6 +361,21 @@ Both builds used the same compressed frontier rows and reached identical search 
 
 At a **6 GiB sampled process budget**, the packed queue raised BPConProof's memory stop from 25,089,035 to 33,560,338 distinct states (34%) and TLCSailfish2's from 13,991,908 to 14,414,379 (3%). DiskSynod stopped on memory at 100,884,308 before packing. After packing it reached 124,170,333 when the 1,500 s budget expired, at 4.55 GiB peak RSS. SlateDBWAL stopped on memory at 94,702,286 before packing. Raising the experiment’s state cap from 100 million to 500 million let the packed run reach the same memory limit at 201,344,793 distinct states (2.13×), 749,768,207 generated and depth 60 in 604.66 s. Its queue still held 30,670,132 states. [All individual measurements and stop reasons](../../conformance/reports/perf/2026-11-20-high-fanout-waves.json).
 
+### Ordered commit on wide states
+
+Flint’s three-writer checker expands 31-variable successors across workers and commits them in discovery order. Each worker has already interned its complete candidate in the shared value store. With repeated interning on the coordinator, ordered commit took 9.37 s on the first ten million discoveries with 192 workers. Copying the retained canonical row directly into the resident frontier reduced commit time to 6.01 s. Both builds reached 37,302,268 generated, depth 17 and the same 4,675,720 pending states. Reported commit time covers completed parallel levels.
+
+| Model | Workers | Scope | Previous wall time, s | Retained row, s |
+|---|---:|---|---:|---:|
+| Flint original | 192 | 10M distinct | 21.68, 21.73 | 17.77, 18.01 |
+| Flint original | 32 | 10M distinct | 26.96, 26.96 | 23.19, 23.21 |
+| Flint two-barrier control | 192 | 7,924,117 distinct, complete | 21.03, 21.00 | 17.91, 18.41 |
+| SlateDB one value | 32 | 10M distinct | 15.79, 15.67 | 12.71, 12.78 |
+| KVS Medium | 8 | 2M distinct | 7.55, 7.56 | 7.31, 7.34 |
+
+
+A separate experiment kept a Rayon pool alive across ordinary safety batches. On Flint at 192 workers, host tasks created per run fell from about 124,000 to 314. Wall time fell from 21.97–22.24 s to 17.44–17.90 s, but peak RSS increased from 1.39 to 2.83 GiB. At 32 workers PConProof slowed from 34.55–34.89 s to 36.72–37.52 s. These tradeoffs kept ordinary worker scheduling out of the retained-row change. [All paired runs, inputs, binary identities, CPU time and memory](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
+
 ## High-fanout parallel safety
 
 A worker expands each source before the coordinator commits its successors in discovery order. The amount awaiting commit scales with **sources per batch × successors per source**. On BPConProof, 478 of the first million discovered states had left the queue, yet the checker had generated 1,119,749 states. Spilling frontier rows cannot release successor batches already under construction. Core now uses the previous completed level's mean fanout to target 65,536 successor occurrences per batch, with at least one source per requested worker. One source can still exceed that target.

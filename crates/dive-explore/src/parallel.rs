@@ -850,6 +850,13 @@ impl crate::Explorer<'_> {
     )]
     pub(crate) fn commit(&mut self, m: &mut Machine, res: &mut Expanded) -> Result<(), Error> {
         let plan = self.plan;
+        // Local resident workers intern every value in keep_values. Capture
+        // retains original representations and transported rows need decoding.
+        let canonical_resident = self.graph.is_none()
+            && self.checkpoint.is_none()
+            && self.distributed.is_none()
+            && self.frontier.is_none()
+            && res.payloads.is_none();
         let mut w = 0;
         let mut action_start = 0;
         let mut last_action = None;
@@ -1006,7 +1013,12 @@ impl crate::Explorer<'_> {
                     }
                     self.apply_implied(m, imp)?;
                     if *in_model {
-                        self.enqueue(m, None)?;
+                        if canonical_resident {
+                            self.next.extend_from_slice(&m.s1);
+                            self.finish_resident_enqueue()?;
+                        } else {
+                            self.enqueue(m, None)?;
+                        }
                         self.record(m, *key, crate::Recorded::New, None)?;
                     }
                 }
