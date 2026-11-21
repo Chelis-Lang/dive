@@ -916,9 +916,11 @@ fingerprint. Under `VIEW` that is the view's fingerprint, and under
   simulation reports none, because the cycle `a, b, a` looks like stuttering
   at `a`, which weak fairness rules out.
 
-dive's simulation will treat `VIEW` and `SYMMETRY` as having no effect on
-simulation and close a loop only when a state equals an earlier one. Every
-reported loop is then a real behavior that the trace validator checks.
+dive's simulation treats `VIEW` and `SYMMETRY` as having no effect on
+simulation and closes a loop only when a state equals an earlier one, in both
+profiles. Every reported loop is then a real behavior that the trace
+validator checks: dive reports no violation in the first example and reports
+the `a, b` lasso in the second.
 
 ### D-038: Simulation reports how much of a property it checked
 
@@ -926,19 +928,25 @@ TLC's simulation checks a liveness property only on traces that return to an
 earlier state or stop. When every trace is cut by `-depth` first, for example
 `<>(x = 10)` on `x' = x + 1` at depth 5 or a three-state cycle at depth 2,
 TLC reports success exactly as when it checked every trace. dive's simulation
-will report, for each property, how many traces gave a complete behavior on
-which it was checked and how many could not decide it. It never reports that
-a property holds.
+reports, for each property, how many traces gave a fair behavior on which it
+was checked and how many could not decide it, and why
+(`statistics.properties`). It never reports that a property holds.
 
 ### D-039: Extending traces cut by the depth
 
 A trace that reaches `--depth` while a temporal property is still undecided on
-it will continue, by up to `--depth` more steps, until it returns to an
-earlier state or stops. TLC always ends the trace at `-depth`. Every violation
+it continues, by up to `--depth` more steps, until it returns to an earlier
+state or stops. TLC always ends the trace at `-depth`. Every violation
 found this way is a real behavior and is validated, and every extra step is
 checked like any other. `--liveness-extend N` sets the number of extra steps;
 `--liveness-extend 0`, or `--compat=tlc`, ends every trace at the depth as TLC
 does.
+
+The default profile also refutes a temporal property on a finite prefix that
+no extension can satisfy, such as `x = 0 .. 4` for `(x = 0) => [](x < 4)`,
+and reports it as a `bad-prefix` word. TLC's simulation refutes only `[]P` and
+`[][A]_v` parts on a prefix. As for those, the prefix is not required to
+extend to a fair behavior. `--compat=tlc` does not look for bad prefixes.
 
 ### Other candidates
 
@@ -1050,7 +1058,6 @@ dive refuses by name where it cannot match TLC. These are the refusals.
   - every random draw made while checking the trace, even with the run's `-seed` and `-fp`: only the successor generator determines its stream position.
 
   A step label that names an operator with parameters is noted and not checked.
-- **Simulation with a liveness `PROPERTY`.** `dive simulate` refuses a configuration that names a temporal `PROPERTY` (`simulation temporal properties: <names>`), including the fairness conjunct of a specification named as a `PROPERTY`, where TLC checks it on the simulated traces. Use `dive check` for the property, or remove it from the simulation configuration. Examples: `ewd687a/EWD687a_anim` (property `DT2`) and `ewd998/SmokeEWD998` (the `WF_vars(DetectTermination)` conjunct of `PROPERTY TDSpec`).
 - **`VIEW` combined with liveness.** A model that declares a `VIEW` and checks a temporal property is refused by name (`graph capture with VIEW requires quotient edge and closing-state evidence`). In these models the `VIEW` is what makes the state space finite, so the search runs on the reduced graph. A liveness verdict there is sound only with an argument that the `VIEW` preserves the property, plus a way to rebuild a concrete counterexample; dive has neither. Safety checking with a `VIEW` is unaffected. Examples: `FiniteMonotonic/MCDistributedReplicatedLog`, `ewd998/EWD998ChanID`.
 - **TLC's exact liveness counterexample.** TLC picks its lasso through hash-table and SCC visiting order, which depends on the fingerprint polynomial. dive reports a deterministic short lasso that the validator accepts, with the same verdict and state-space facts. Each report names every property proved false on its own counterexample, so different valid lassos can name different sets. `--lasso tlc` is a usage error ([D-013](#d-013-a-deterministic-short-liveness-counterexample)).
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.

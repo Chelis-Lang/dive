@@ -44,6 +44,7 @@ fn backend_report() -> Report {
         runtime_output: Vec::new(),
         sampled_sets: Vec::new(),
         traces_stalled: 0,
+        temporal: None,
     }
 }
 

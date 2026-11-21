@@ -3,8 +3,9 @@
 //!
 //! Core's finite simulation is the backend (`dive-api`), run through
 //! [`Runtime::simulate_with_backend`]. A finished sample is explicitly not a
-//! model-checking proof. Temporal checking, unsupported runtime effects, and
-//! unsupported options refuse by name. The independent trace validator remains
+//! model-checking proof. Temporal properties are checked on each trace's own
+//! behaviors (ADR 0162 §4) and never reported as holding. Unsupported runtime
+//! effects and unsupported options refuse by name. The independent trace validator remains
 //! outside this crate.
 #![forbid(unsafe_code)]
 
@@ -58,6 +59,10 @@ pub const SAMPLE_ATTEMPTS: u64 = 8;
 /// violation, an error or a refusal), with the statistics of the traces
 /// before it, so the report is the same at any worker count.
 #[derive(Clone, Debug)]
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent simulation switches, each a separate documented option"
+)]
 pub struct Options {
     /// Run seed, always recorded by callers.
     pub seed: i64,
@@ -110,6 +115,37 @@ pub struct Options {
     /// Maximum UTF-8 bytes retained in runtime Print/PrintT text. This does not
     /// bound temporary rendering allocations or total process memory.
     pub max_output_bytes: usize,
+    /// Extra steps a trace that reached the depth may take while a temporal
+    /// property is still unchecked on it, stopping when it closes a loop or
+    /// has no successor (`--liveness-extend`, D-039). Zero, the default here
+    /// and under `--compat=tlc`, ends every trace at the depth.
+    pub liveness_extend: usize,
+    /// Work units one trace's temporal check may spend before the trace's
+    /// undecided properties count as unchecked (`budget`); `None` is
+    /// [`liveness_budget`]'s default for the trace's length. A budget stop is
+    /// never a verdict.
+    pub liveness_budget: Option<u64>,
+    /// Refute a temporal property on a finite prefix that no extension can
+    /// satisfy (`bad-prefix`), as TLC does only for `[]P` and `[][A]_v`
+    /// parts. Off under `--compat=tlc`.
+    pub bad_prefix: bool,
+}
+
+/// The default per-trace temporal work budget for a trace of `states`
+/// states: at least a million units, and 256 per state.
+///
+/// ```
+/// assert_eq!(dive_sim::liveness_budget(10), 1_000_000);
+/// assert_eq!(dive_sim::liveness_budget(10_000), 2_560_000);
+/// ```
+#[must_use]
+pub const fn liveness_budget(states: usize) -> u64 {
+    let scaled = (states as u64).saturating_mul(256);
+    if scaled > 1_000_000 {
+        scaled
+    } else {
+        1_000_000
+    }
 }
 
 impl Options {
@@ -141,6 +177,9 @@ impl Options {
             },
             max_output_events: 100_000,
             max_output_bytes: 16 * 1024 * 1024,
+            liveness_extend: 0,
+            liveness_budget: None,
+            bad_prefix: false,
         }
     }
 }
@@ -164,6 +203,90 @@ pub struct Trace {
     /// into a state, as (state index, members), for the states that have
     /// any. The validator uses them only to prove those existentials.
     pub witnesses: Vec<(usize, Vec<dive_value::Value>)>,
+    /// For a temporal violation, how the word in `states` continues forever
+    /// and the configured properties false on it, in configuration order.
+    /// `None` for a finite sampled trace.
+    pub temporal: Option<(TemporalEnding, Vec<String>)>,
+}
+
+/// How a temporal counterexample word continues after its last state.
+/// Every loop closes on exactly equal states.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum TemporalEnding {
+    /// The last state's successor is `states[back_to]`.
+    Lasso {
+        /// Zero-based index of the state the loop returns to.
+        back_to: usize,
+    },
+    /// The behavior stutters forever at the last state.
+    Stuttering,
+    /// No infinite extension of the states satisfies the named property.
+    BadPrefix(String),
+}
+
+/// How one committed trace ended (ADR 0162 §4.2).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct TraceClasses {
+    /// A sampled step reached a state already in the trace.
+    pub closed: u64,
+    /// The last state has no admitted successor.
+    pub terminal: u64,
+    /// The depth was reached without closing or terminating.
+    pub truncated: u64,
+    /// Closed only during `--liveness-extend` steps.
+    pub extended_closed: u64,
+    /// Terminated only during `--liveness-extend` steps.
+    pub extended_terminal: u64,
+    /// A violation, deadlock or error ended the trace.
+    pub violated: u64,
+    /// The run's budget or the caller stopped the trace.
+    pub cancelled: u64,
+}
+
+/// Why a temporal property was not checked on a trace.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Unchecked {
+    /// A trace cut by the depth whose behaviors are all unfair.
+    Truncated,
+    /// A closed or terminal trace none of whose behaviors is fair.
+    NoFairBehavior,
+    /// The per-trace temporal budget ran out.
+    Budget,
+}
+
+impl Unchecked {
+    /// The report's reason code.
+    #[must_use]
+    pub const fn code(self) -> &'static str {
+        match self {
+            Self::Truncated => "truncated",
+            Self::NoFairBehavior => "no-fair-behavior",
+            Self::Budget => "budget",
+        }
+    }
+}
+
+/// How many committed traces checked one configured temporal property.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct PropertyCoverage {
+    /// Configured `PROPERTY` name.
+    pub name: String,
+    /// Traces whose behaviors include a fair one, none violating the property.
+    pub checked: u64,
+    /// Traces that could not decide the property, by reason.
+    pub unchecked: std::collections::BTreeMap<Unchecked, u64>,
+    /// Id of the trace that refuted the property, if one did.
+    pub refuted_by_trace: Option<u64>,
+}
+
+/// Temporal-property coverage of the committed traces, present when the
+/// model has temporal properties.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct TemporalCoverage {
+    /// Trace classes, counted for every committed trace.
+    pub classes: TraceClasses,
+    /// One entry per configured property, in configuration order.
+    pub properties: Vec<PropertyCoverage>,
 }
 
 /// The result of a simulation; a sample never proves absence of violations.
@@ -173,7 +296,7 @@ pub enum Outcome {
     Sampled,
     /// An invariant, action property or deadlock was found.
     Violation {
-        /// `invariant`, `property`, or `deadlock`.
+        /// `invariant`, `property`, `deadlock` or `temporal`.
         kind: &'static str,
         /// Configured property name, if any.
         name: Option<String>,
@@ -241,6 +364,8 @@ pub struct Report {
     /// Committed traces that ended early because no drawn member of an
     /// unbounded set led to an admitted state; none is a deadlock claim.
     pub traces_stalled: u64,
+    /// Temporal-property coverage; `None` without temporal properties.
+    pub temporal: Option<TemporalCoverage>,
 }
 
 /// Owns one simulation's host from source binding through execution.
@@ -325,6 +450,7 @@ fn refused_runtime(reason: &str) -> Report {
         runtime_output: Vec::new(),
         sampled_sets: Vec::new(),
         traces_stalled: 0,
+        temporal: None,
     }
 }
 
@@ -347,6 +473,7 @@ fn with_host(
             runtime_output: Vec::new(),
             sampled_sets: Vec::new(),
             traces_stalled: 0,
+            temporal: None,
         };
     }
     // Declared before HostRestore so reverse drop order restores the original
@@ -366,6 +493,7 @@ fn with_host(
             runtime_output: Vec::new(),
             sampled_sets: Vec::new(),
             traces_stalled: 0,
+            temporal: None,
         };
     };
     let _restore = host::HostRestore::install(&model.evaluator, host);
@@ -416,20 +544,9 @@ pub fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
     }) {
         return refusal(&u.feature);
     }
-    // Fairness (`model.temporals`) constrains only infinite behaviors and is
-    // inert for the finite safety prefixes simulation checks.
-    // Simulation does not check temporal properties on its traces yet.
-    if !model.implied_temporals.is_empty() {
-        let names: Vec<&str> = model
-            .implied_temporals
-            .iter()
-            .map(|n| n.name.as_str())
-            .collect();
-        return refusal(&format!(
-            "simulation temporal properties: {}",
-            names.join(", ")
-        ));
-    }
+    // Temporal properties (`model.implied_temporals`) are checked by the
+    // backend on each trace's own behaviors; what their planning refuses is
+    // refused there, by name, before any state is generated.
     // Implied initial predicates are checked on every initial state (2108),
     // and implied action properties on every candidate before the
     // constraints, as in `dive check`; the validator accepts a last state

@@ -106,8 +106,11 @@ fn exhausted_budgets_keep_partial_statistics_and_refuse() {
     assert!(matches!(report.outcome, Outcome::Limit(_)));
 }
 
+// A temporal property is checked on each trace's own behaviors. `x` grows
+// without bound, so no trace closes a loop: without fairness every state may
+// stutter forever, which violates `[]<>(x = 0)` once `x` has left 0.
 #[test]
-fn temporal_properties_are_named_refusals() {
+fn temporal_properties_are_checked_on_traces() {
     let source = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\nLive == []<>(x = 0)\n====\n";
     for mode in [RandomMode::Tlc, RandomMode::Dive] {
         let report = run(
@@ -116,19 +119,36 @@ fn temporal_properties_are_named_refusals() {
             &Options::new(0, mode, 3, 1),
         );
         assert!(
-            matches!(&report.outcome, Outcome::Unsupported(f) if f == "simulation temporal properties: Live"),
+            matches!(
+                &report.outcome,
+                Outcome::Violation {
+                    kind: "temporal",
+                    code: 2116,
+                    ..
+                }
+            ),
             "{:?}",
             report.outcome
         );
-        assert_eq!(report.traces_started, 0);
+        let trace = &report.traces[0];
+        assert_eq!(
+            trace.temporal,
+            Some((
+                dive_sim::TemporalEnding::Stuttering,
+                vec!["Live".to_owned()]
+            ))
+        );
+        assert_eq!(trace.states.len(), 2);
     }
 }
 
 // A fairness conjunct of a specification named as a PROPERTY (the shape of
 // Examples `ewd998/SmokeEWD998`, with a state constraint) is a temporal
-// property: simulation refuses it by its own name, not the liveness backend's.
+// property, checked on the traces.
 #[test]
-fn property_fairness_conjunct_is_a_simulation_refusal() {
+fn property_fairness_conjunct_is_checked_on_traces() {
+    // `WF_x(Next)` as a property, without fairness in the specification:
+    // stuttering at the initial state is a behavior that violates it.
     let source = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = (x + 1) % 4\nPSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nStop == x < 10\n====\n";
     for mode in [RandomMode::Tlc, RandomMode::Dive] {
         let report = run(
@@ -137,14 +157,20 @@ fn property_fairness_conjunct_is_a_simulation_refusal() {
             &Options::new(0, mode, 3, 1),
         );
         assert!(
-            matches!(&report.outcome, Outcome::Unsupported(f)
-                if f.starts_with("simulation temporal properties: ")
-                    && !f.contains("liveness checking")),
+            matches!(&report.outcome, Outcome::Violation { kind: "temporal", name: Some(name), code: 2116, .. }
+                if name == "PSpec"),
             "{:?}",
             report.outcome
         );
-        assert_eq!(report.stage, "preflight");
-        assert_eq!(report.traces_started, 0);
+        let trace = &report.traces[0];
+        assert_eq!(
+            trace.temporal,
+            Some((
+                dive_sim::TemporalEnding::Stuttering,
+                vec!["PSpec".to_owned()]
+            ))
+        );
+        assert_eq!(trace.states.len(), 1);
     }
 }
 

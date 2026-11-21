@@ -20,8 +20,10 @@ use dive_core::memo::Memo;
 use dive_core::plan::Plan;
 use dive_core::{Error, ErrorKind, Handle, Machine};
 use dive_model::Model;
-use dive_sim::{Outcome, Report, Trace};
+use dive_sim::{Outcome, Report, TemporalEnding, Trace, Unchecked};
 use dive_stdlib::random::{RandomSource, Stream, Streams};
+
+use crate::simulate_temporal::{Checker, TraceGraph, Verdict, Word};
 
 use super::{
     Native, allowed, assumptions, at_level, classify, finish_batch, generate, generate_selected,
@@ -142,6 +144,29 @@ struct Run {
     /// Ended early: no drawn member led to an admitted state.
     stalled: bool,
     end: End,
+    /// The last state had no admitted successor.
+    terminal: bool,
+    /// The trace continued past the depth (`--liveness-extend`).
+    extended: bool,
+    /// The trace graph, once built for the temporal check.
+    graph: Option<TraceGraph>,
+    /// A temporal verdict reached at the depth, when extension was not needed.
+    verdict: Option<Verdict>,
+    /// The trace's class and per-property coverage, with temporal properties.
+    class: Option<Class>,
+    coverage: Vec<Option<Unchecked>>,
+    /// A temporal counterexample word.
+    word: Option<Word>,
+}
+
+/// How a completed trace ended, with temporal properties (ADR 0162 §4.2).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Class {
+    Closed,
+    Terminal,
+    Truncated,
+    ExtendedClosed,
+    ExtendedTerminal,
 }
 
 /// The initial states traces start from.
@@ -158,6 +183,9 @@ enum Init {
 /// What every trace reads.
 struct Context<'a> {
     plan: &'a Plan,
+    model: &'a Model,
+    /// The run's temporal checker, when the model has temporal properties.
+    temporal: Option<&'a Checker>,
     options: &'a dive_sim::Options,
     init: &'a Init,
     init_ids: &'a [usize],
@@ -174,13 +202,15 @@ struct Context<'a> {
     next_labels: &'a [String],
 }
 
-/// A kept trace: interned rows, actions, generated count and witnesses.
+/// A kept trace: interned rows, actions, generated count and witnesses, or
+/// for a temporal violation its counterexample word.
 struct Kept {
     id: u64,
     rows: Vec<Vec<Handle>>,
     actions: Vec<usize>,
     generated: u64,
     witnesses: Vec<(usize, Vec<Handle>)>,
+    word: Option<Word>,
 }
 
 /// The committed prefix of the run.
@@ -221,8 +251,12 @@ impl Native {
         if let Some(outcome) = dive_sim::preflight(model, options) {
             return preflight_report(outcome);
         }
+        let checker = match Checker::new(model, options.bad_prefix, options.liveness_budget) {
+            Ok(checker) => checker,
+            Err(outcome) => return preflight_report(outcome),
+        };
         runtime.simulate_with_backend(model, |remaining| {
-            let mut report = self.sample(model, options, poll, remaining);
+            let mut report = self.sample(model, checker.as_ref(), options, poll, remaining);
             if self.machine.heap.poisoned() {
                 report.outcome = Outcome::Internal("native finite mode read a stale value".into());
             }
@@ -237,6 +271,7 @@ impl Native {
     fn sample(
         &mut self,
         model: &Model,
+        checker: Option<&Checker>,
         options: &dive_sim::Options,
         poll: &(dyn Fn() -> bool + Sync),
         remaining: &dyn Fn() -> (usize, usize),
@@ -356,6 +391,16 @@ impl Native {
             .iter()
             .map(|action| action.label().to_owned())
             .collect();
+        report.temporal = checker.map(|checker| dive_sim::TemporalCoverage {
+            classes: dive_sim::TraceClasses::default(),
+            properties: checker
+                .names()
+                .map(|name| dive_sim::PropertyCoverage {
+                    name: name.to_owned(),
+                    ..Default::default()
+                })
+                .collect(),
+        });
         let shared = Shared {
             next: AtomicU64::new(0),
             best: AtomicU64::new(u64::MAX),
@@ -379,6 +424,8 @@ impl Native {
         };
         let cx = Context {
             plan: &self.plan,
+            model,
+            temporal: checker,
             options,
             init: &init,
             init_ids: &init_ids,
@@ -454,6 +501,16 @@ impl Native {
 
     /// Converts a kept trace's interned rows and witnesses to values.
     fn kept_trace(&mut self, model: &Model, kept: Kept) -> Result<Trace, String> {
+        if let Some(word) = kept.word {
+            return Ok(Trace {
+                id: kept.id,
+                states: word.states,
+                actions: word.actions,
+                generated: kept.generated,
+                witnesses: Vec::new(),
+                temporal: Some((word.ending, word.properties)),
+            });
+        }
         let mut states = Vec::with_capacity(kept.rows.len());
         for row in &kept.rows {
             states.push(values(&mut self.machine, model, row)?);
@@ -469,6 +526,7 @@ impl Native {
             actions: kept.actions,
             generated: kept.generated,
             witnesses: drawn,
+            temporal: None,
         })
     }
 
@@ -606,6 +664,7 @@ fn enumerate_init(
                     actions: Vec::new(),
                     generated: 0,
                     witnesses: Vec::new(),
+                    temporal: None,
                 }),
                 Err(message) => report.outcome = Outcome::Unsupported(message),
             }
@@ -736,6 +795,10 @@ impl Commit {
         self.finished = true;
     }
 
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one trace's commit: bounds, output, statistics and retention in order"
+    )]
     fn apply(&mut self, run: Run, cx: &Context<'_>) {
         let Run {
             id,
@@ -749,9 +812,18 @@ impl Commit {
             sampled,
             stalled,
             end,
+            class,
+            coverage,
+            word,
+            ..
         } = run;
         let outcome = match end {
-            End::Stopped => return self.end(Outcome::Cancelled),
+            End::Stopped => {
+                if let Some(temporal) = &mut self.report.temporal {
+                    temporal.classes.cancelled += 1;
+                }
+                return self.end(Outcome::Cancelled);
+            }
             End::Superseded => {
                 return self.end(Outcome::Internal(
                     "a superseded simulation trace reached commit".into(),
@@ -791,6 +863,16 @@ impl Commit {
         self.report.traces_started += 1;
         self.stalled += u64::from(stalled);
         self.sampled.extend(sampled);
+        if let Some(temporal) = &mut self.report.temporal {
+            record(
+                temporal,
+                id,
+                outcome.is_some(),
+                class,
+                &coverage,
+                word.as_ref(),
+            );
+        }
         if let Some(action_flow) = &mut self.report.action_flow {
             for (from, to) in flow {
                 if let Err(error) = action_flow.record(from, to) {
@@ -798,16 +880,18 @@ impl Commit {
                 }
             }
         }
+        let length = word.as_ref().map_or(rows.len(), |word| word.states.len());
         let kept = Kept {
             id,
             rows,
             actions,
             generated,
             witnesses,
+            word,
         };
         let fits = self
             .retained
-            .checked_add(kept.rows.len())
+            .checked_add(length)
             .is_some_and(|total| total <= cx.options.max_retained);
         match outcome {
             None => {
@@ -818,7 +902,7 @@ impl Commit {
                         return self.end(Outcome::Limit("simulation retained-state bound".into()));
                     }
                     self.kept += 1;
-                    self.retained += kept.rows.len();
+                    self.retained += length;
                     self.rows.push(kept);
                 }
             }
@@ -834,8 +918,8 @@ impl Commit {
                 }
                 // An error before the trace had a state (constructive Init)
                 // leaves nothing to keep.
-                if !kept.rows.is_empty() {
-                    self.retained += kept.rows.len();
+                if length > 0 {
+                    self.retained += length;
                     self.rows.push(kept);
                 }
                 self.end(outcome);
@@ -890,10 +974,25 @@ fn trace(machine: &mut Machine, cx: &Context<'_>, id: u64) -> Run {
         sampled: Vec::new(),
         stalled: false,
         end: End::Completed,
+        terminal: false,
+        extended: false,
+        graph: None,
+        verdict: None,
+        class: None,
+        coverage: Vec::new(),
+        word: None,
     };
     machine.set_output_limits(cx.output.0, cx.output.1);
     let rng = RefCell::new(cx.streams.simulation_trace(id));
-    let end = sample_into(machine, cx, id, &rng, &mut run);
+    let mut end = sample_into(machine, cx, id, &rng, &mut run);
+    if matches!(end, End::Completed)
+        && let Some(checker) = cx.temporal
+    {
+        match finish_temporal(machine, cx, checker, &mut run) {
+            Ok(None) => {}
+            Ok(Some(outcome)) | Err(outcome) => end = End::Deciding(outcome),
+        }
+    }
     let (printed, failure) = machine.take_output();
     run.printed = printed;
     run.end = match (end, failure) {
@@ -922,7 +1021,162 @@ fn trace(machine: &mut Machine, cx: &Context<'_>, id: u64) -> Run {
         run.actions = Vec::new();
         run.witnesses = Vec::new();
     }
+    if run.word.is_some() {
+        run.rows = Vec::new();
+    }
+    run.graph = None;
     run
+}
+
+/// Adds a committed trace to the temporal coverage, in id order.
+fn record(
+    temporal: &mut dive_sim::TemporalCoverage,
+    id: u64,
+    deciding: bool,
+    class: Option<Class>,
+    coverage: &[Option<Unchecked>],
+    word: Option<&Word>,
+) {
+    let classes = &mut temporal.classes;
+    if deciding {
+        classes.violated += 1;
+        let refuted: Vec<&str> = match word {
+            Some(Word {
+                ending: TemporalEnding::BadPrefix(name),
+                ..
+            }) => vec![name.as_str()],
+            Some(word) => word.properties.iter().map(String::as_str).collect(),
+            None => Vec::new(),
+        };
+        for property in &mut temporal.properties {
+            if refuted.contains(&property.name.as_str()) {
+                property.refuted_by_trace.get_or_insert(id);
+            }
+        }
+        return;
+    }
+    match class {
+        Some(Class::Closed) => classes.closed += 1,
+        Some(Class::Terminal) => classes.terminal += 1,
+        Some(Class::Truncated) => classes.truncated += 1,
+        Some(Class::ExtendedClosed) => classes.extended_closed += 1,
+        Some(Class::ExtendedTerminal) => classes.extended_terminal += 1,
+        None => {}
+    }
+    for (property, reason) in temporal.properties.iter_mut().zip(coverage) {
+        match reason {
+            None => property.checked += 1,
+            Some(reason) => *property.unchecked.entry(*reason).or_default() += 1,
+        }
+    }
+}
+
+/// The trace graph of the rows sampled so far.
+fn graph_of(machine: &mut Machine, model: &Model, run: &Run) -> Result<TraceGraph, Outcome> {
+    let mut graph = TraceGraph::default();
+    for (position, row) in run.rows.iter().enumerate() {
+        let state = values(machine, model, row).map_err(Outcome::Unsupported)?;
+        let action = position
+            .checked_sub(1)
+            .and_then(|step| run.actions.get(step).copied());
+        graph
+            .push(model, state, action)
+            .map_err(Outcome::Unsupported)?;
+    }
+    Ok(graph)
+}
+
+/// At the depth: whether to extend the trace, and by how many steps. A
+/// trace extends only when it neither closed nor terminated and some
+/// temporal property is unchecked on it because it was cut (D-039).
+fn extension(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) -> Result<usize, Outcome> {
+    let Some(checker) = cx.temporal else {
+        return Ok(0);
+    };
+    if cx.options.liveness_extend == 0 {
+        return Ok(0);
+    }
+    let graph = graph_of(machine, cx.model, run)?;
+    if graph.closed_at().is_some() {
+        run.graph = Some(graph);
+        return Ok(0);
+    }
+    let verdict = checker.check(cx.model, &graph, &run.actions, true)?;
+    run.graph = Some(graph);
+    if matches!(&verdict, Verdict::Coverage(reasons) if reasons.contains(&Some(Unchecked::Truncated)))
+    {
+        run.extended = true;
+        Ok(cx.options.liveness_extend)
+    } else {
+        run.verdict = Some(verdict);
+        Ok(0)
+    }
+}
+
+/// After an extension step: adds the new state to the trace graph; true
+/// when the step closed a loop, which ends the extension.
+fn extended_step(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) -> Result<bool, Outcome> {
+    let (Some(row), Some(&action)) = (run.rows.last(), run.actions.last()) else {
+        return Ok(false);
+    };
+    let state = values(machine, cx.model, row).map_err(Outcome::Unsupported)?;
+    match &mut run.graph {
+        Some(graph) => graph
+            .push(cx.model, state, Some(action))
+            .map_err(Outcome::Unsupported),
+        None => Ok(false),
+    }
+}
+
+/// Checks a completed trace's temporal properties: its class, and either a
+/// counterexample word (which decides the run once validated) or coverage.
+fn finish_temporal(
+    machine: &mut Machine,
+    cx: &Context<'_>,
+    checker: &Checker,
+    run: &mut Run,
+) -> Result<Option<Outcome>, Outcome> {
+    let graph = match run.graph.take() {
+        Some(graph) => graph,
+        None => graph_of(machine, cx.model, run)?,
+    };
+    let class = match graph.closed_at() {
+        Some(at) if run.extended && at > cx.options.depth => Class::ExtendedClosed,
+        Some(_) => Class::Closed,
+        None if run.terminal && run.extended => Class::ExtendedTerminal,
+        None if run.terminal => Class::Terminal,
+        None => Class::Truncated,
+    };
+    let verdict = match run.verdict.take() {
+        Some(verdict) => verdict,
+        None => checker.check(cx.model, &graph, &run.actions, class == Class::Truncated)?,
+    };
+    run.class = Some(class);
+    match verdict {
+        // The word's steps are trace-graph edges, which do not carry the
+        // members a step drew from an unbounded set, so it could not be
+        // validated (D-040).
+        Verdict::Violation(_) if !run.witnesses.is_empty() => Err(Outcome::Unsupported(
+            "simulation temporal counterexample through members drawn from unbounded sets".into(),
+        )),
+        Verdict::Violation(word) => {
+            let name = match &word.ending {
+                TemporalEnding::BadPrefix(name) => name.clone(),
+                _ => word.properties.first().cloned().unwrap_or_default(),
+            };
+            run.word = Some(word);
+            Ok(Some(Outcome::Violation {
+                kind: "temporal",
+                name: Some(name),
+                code: 2116,
+                trace: 0,
+            }))
+        }
+        Verdict::Coverage(reasons) => {
+            run.coverage = reasons;
+            Ok(None)
+        }
+    }
 }
 
 #[allow(
@@ -970,7 +1224,20 @@ fn sample_into(
     };
     let mut previous = cx.init_ids[action];
     run.rows.push(current.clone());
-    for _ in 0..options.depth {
+    let mut limit = options.depth;
+    let mut steps = 0;
+    loop {
+        if steps == limit {
+            if run.extended {
+                break;
+            }
+            match extension(machine, cx, run) {
+                Ok(0) => break,
+                Ok(extra) => limit = limit.saturating_add(extra),
+                Err(outcome) => return End::Deciding(outcome),
+            }
+        }
+        steps += 1;
         if poll() {
             return End::Stopped;
         }
@@ -1128,6 +1395,7 @@ fn sample_into(
                     trace: 0,
                 });
             }
+            run.terminal = true;
             return End::Completed;
         }
         let (chosen, drawn) = if let Some(kept) = kept {
@@ -1148,6 +1416,13 @@ fn sample_into(
             run.flow.push((previous, to));
         }
         previous = to;
+        if run.extended {
+            match extended_step(machine, cx, run) {
+                Ok(true) => break,
+                Ok(false) => {}
+                Err(outcome) => return End::Deciding(outcome),
+            }
+        }
     }
     End::Completed
 }

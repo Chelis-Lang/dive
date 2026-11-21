@@ -9,6 +9,23 @@ are in git history.
 
 - Core temporal checks share original row IDs across transitions whose targets match the first-discovery representation. [Temporal graph storage](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
+- `dive simulate` checks temporal `PROPERTY`s on each trace's own behaviors
+  and reports a validated lasso, stuttering or bad-prefix counterexample. It
+  never reports that a property holds: the report counts, per property, the
+  traces that checked it and those that could not, and why. Loops close only
+  on equal states, so `VIEW` and `SYMMETRY` no longer hide or invent
+  violations. `--liveness-extend` (default: the depth; 0 under
+  `--compat=tlc`) continues traces cut by the depth, and `--liveness-budget`
+  bounds each trace's check. `dive_sim::Trace` and `Report` gain a
+  `temporal` field. See [temporal properties](docs/user/simulation.md#temporal-properties).
+
+- Trace documents gain the version-7 `bad-prefix` ending: a finite word that
+  no infinite extension can make satisfy the named temporal property. The
+  validator checks it in three-valued logic after the usual safety checks.
+  Sample validation (`--sample`) no longer refuses configured temporal
+  properties; a valid sample claims only its finite obligations. See
+  [bad prefixes](docs/user/traces.md#bad-prefixes).
+
 - Core reduces memory per transition for temporal checks with up to 255 action names. [Measurements and capacity limits](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
 - Core packs ordinary in-memory safety frontiers by variable and stores consecutive discovery IDs once per level. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).

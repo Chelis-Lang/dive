@@ -105,6 +105,7 @@ mod dfid_admission;
 pub use dfid::{DFID_SCHEMA_VERSION, DfidReport, DfidRequest, dfid_file};
 mod simulate;
 mod simulate_alias;
+mod simulate_temporal;
 pub use dive_core::unbounded::MAX_MEAN as MAX_SAMPLE_MEAN;
 pub use dive_sim::{DEFAULT_SAMPLE_MEAN, KEEP_ALL_TRACES, SampleUnbounded, UNLIMITED_TRACES};
 pub use simulate::{SIMULATE_SCHEMA_VERSION, SimulateReport, SimulateRequest, simulate_file};

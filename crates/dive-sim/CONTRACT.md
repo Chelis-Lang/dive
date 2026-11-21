@@ -141,7 +141,14 @@ simulation never deduplicates states (ADR 0162); `SYMMETRY` is still prepared
 at startup as `dive check` prepares it, for its warnings and errors. `ALIAS`
 is rendered per trace in a separate `alias` array evaluated on the validated
 states. Each step's document label names the chosen action and its location,
-and validation checks it. Temporal property checking, unsupported runtime
+and validation checks it. Temporal properties are checked on each trace's
+graph of exactly equal states, sampled steps and stuttering steps (ADR 0162
+§4, `crates/dive-api/src/simulate_temporal.rs`); a counterexample is a lasso,
+stuttering or `bad-prefix` word with the complete false-property set, validated
+independently, and a sample never claims a property holds. `Report::temporal`
+counts trace classes and per-property checked and unchecked traces;
+`Options::liveness_extend`, `liveness_budget` and `bad_prefix` control the
+check. What liveness planning refuses, unsupported runtime
 effects and random operators outside the direct scalar Init subset, unresolved
 constant-operator effects, an ALIAS whose lookup fails, POSTCONDITION,
 probabilistic/RL simulation, generation, distributed execution, continuation
