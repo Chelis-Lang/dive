@@ -29,7 +29,11 @@ The [Linux allocator comparison](2026-11-21-linux-allocator-arenas.json) records
 
 The [fairness search comparison](2026-11-21-fairness-product-search.json) records the baseline and all three cumulative changes on both Elevator sizes plus Flash and Huang controls.
 
+The [frontier storage comparison](2026-11-21-frontier-scale-controls.json) records the same work on Byzantine Paxos and SlateDB in three storage modes and all three terminal BPConProof runs under a 6 GiB limit.
+
 The [KRaft pre-vote measurements](2026-11-21-kafka-liveness.json) contain the replayable witness for infinitely many reachable states in the released liveness CFG and the smaller configurations that both engines exhausted.
+
+The [released SlateDB source-edit comparison](2026-11-21-slatedb-source-edits.json) pairs the three-writer stale-replay witness with exact two-writer controls, input hashes and the independent validation result.
 
 The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
 
