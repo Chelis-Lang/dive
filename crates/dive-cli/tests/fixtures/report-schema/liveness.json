@@ -94,7 +94,13 @@
             "scans": 3
           },
           "state_evaluations": 3,
-          "total_atoms": 1
+          "total_atoms": 1,
+          "unchanged_target_guards": {
+            "edges": 0,
+            "plans": 0,
+            "probes": 0,
+            "rows": 0
+          }
         },
         "convert_ms": 0.0,
         "converted_nodes": 1,

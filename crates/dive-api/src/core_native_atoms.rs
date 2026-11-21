@@ -25,6 +25,7 @@ struct Compiled {
     identity: *const PredicateAtom,
     plan: dive_core::plan::Plan,
     false_guard: Option<dive_core::plan::P>,
+    unchanged_guard: Option<(dive_core::plan::P, usize)>,
     /// A directly syntactic `~ENABLED A` atom: the plan searches `A` and the
     /// truth is its negation, as the dive-eval evaluator negates its search.
     negate: bool,
@@ -67,6 +68,9 @@ pub(crate) struct NativeAtoms {
     eligible_state: usize,
     eligible_action: usize,
     guard_probes: u64,
+    unchanged_probes: u64,
+    unchanged_rows: u64,
+    unchanged_edges: u64,
     guard_rows: u64,
     evaluated_state: u64,
     evaluated_action: u64,
@@ -210,6 +214,9 @@ impl NativeAtoms {
             eligible_state: 0,
             eligible_action: 0,
             guard_probes: 0,
+            unchanged_probes: 0,
+            unchanged_rows: 0,
+            unchanged_edges: 0,
             guard_rows: 0,
             evaluated_state: 0,
             evaluated_action: 0,
@@ -270,7 +277,8 @@ impl NativeAtoms {
             result.compiled.push(Compiled {
                 identity: std::ptr::from_ref(atom),
                 plan,
-                false_guard,
+                false_guard: false_guard.source,
+                unchanged_guard: false_guard.unchanged,
                 negate: matches!(atom.test, AtomTest::NegatedEnabled { .. }),
                 exhausted_in_a_row: 0,
             });
@@ -292,6 +300,7 @@ impl NativeAtoms {
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
         serde_json::json!({"total_atoms": self.total, "eligible_atoms": self.eligible,
+            "unchanged_target_guards":{"plans":self.compiled.iter().filter(|p|p.unchanged_guard.is_some()).count(),"probes":self.unchanged_probes,"rows":self.unchanged_rows,"edges":self.unchanged_edges},
             "action_source_guards": {"plans": self.compiled.iter().filter(|p| p.false_guard.is_some()).count(),
                 "probes": self.guard_probes, "false_rows": self.guard_rows},
             "evaluated": self.evaluated, "fallback": self.fallback,
@@ -492,6 +501,57 @@ impl NativeAtoms {
         Ok(proved)
     }
 
+    /// A quiet FALSE from this prefix depends on the source, the bound atom
+    /// and one destination variable. Probe its value from this source row.
+    /// Matching actual destinations can then inherit FALSE without evaluating
+    /// any later conjunct or assuming the entire action is deterministic.
+    fn unchanged_target_guard(
+        &mut self,
+        atom: &PredicateAtom,
+        source: usize,
+        before: &[Handle],
+        control: &EvaluationControl,
+    ) -> Result<Option<UnchangedTarget>, AnalysisError> {
+        let Some(index) = self.position(atom) else {
+            return Ok(None);
+        };
+        let compiled = &self.compiled[index];
+        let Some((guard, variable)) = compiled.unchanged_guard else {
+            return Ok(None);
+        };
+        let Some(fuel) = self.fuel.checked_sub(3) else {
+            return Ok(None);
+        };
+        if self.machine.heap.poisoned() || compiled.exhausted_in_a_row >= FUEL_STRIKES {
+            return Ok(None);
+        }
+        self.unchanged_probes += 1;
+        let result = run_bound(
+            &compiled.plan,
+            &mut self.machine,
+            before,
+            Some(before),
+            fuel,
+            Some(guard),
+        );
+        check(&self.control, control)?;
+        if matches!(result, Ok(false))
+            && !self.machine.heap.poisoned()
+            && self.machine.warnings.is_empty()
+            && self.machine.printed.is_empty()
+            && let Some(&value) = before.get(variable)
+        {
+            self.unchanged_rows += 1;
+            return Ok(Some(UnchangedTarget {
+                atom: index,
+                source,
+                variable,
+                value,
+            }));
+        }
+        Ok(None)
+    }
+
     fn validate_reuse(
         &mut self,
         atom: &PredicateAtom,
@@ -520,7 +580,7 @@ fn compile(
     atom: &PredicateAtom,
     opts: Opts,
     heap: &dive_core::Heap,
-) -> Result<(dive_core::plan::Plan, Option<dive_core::plan::P>), Rejection> {
+) -> Result<(dive_core::plan::Plan, dive_core::compile::BoundGuards), Rejection> {
     let Ok(mut handoff) = crate::core_engine::handoff(model, &model.ir, Vec::new()) else {
         return Err(Rejection::CompileError);
     };
@@ -561,7 +621,7 @@ fn compile(
         AtomTest::Nonstuttering { sub } => dive_core::compile::BoundTest::Nonstuttering(sub),
     };
     let (plan, false_guard) =
-        dive_core::compile::compile_bound_test_with_guard(&handoff, Arc::clone(store), opts, test)
+        dive_core::compile::compile_bound_test_with_guards(&handoff, Arc::clone(store), opts, test)
             .map_err(|_| Rejection::CompileError)?;
     admit_plan(&plan, heap)?;
     Ok((plan, false_guard))
@@ -804,10 +864,21 @@ impl<'a> RowProofs<'a> {
     }
 }
 
+/// The reader owns a fixed graph; its compiled atom identity and physical
+/// source row fix the entire unprimed input and lexical environment.
+#[derive(Clone, Copy)]
+struct UnchangedTarget {
+    atom: usize,
+    source: usize,
+    variable: usize,
+    value: Handle,
+}
+
 pub(crate) struct Reader<'a, 'model> {
     proofs: RowProofs<'a>,
     pub(crate) values: &'a mut NativeValues<'model>,
     atoms: &'a mut NativeAtoms,
+    unchanged: Option<UnchangedTarget>,
 }
 
 impl<'a, 'model> Reader<'a, 'model> {
@@ -818,6 +889,7 @@ impl<'a, 'model> Reader<'a, 'model> {
     ) -> Self {
         Self {
             proofs: RowProofs::new(graph),
+            unchanged: None,
             values,
             atoms,
         }
@@ -907,18 +979,35 @@ impl NativeReader for Reader<'_, '_> {
         control: &EvaluationControl,
     ) -> Result<Option<bool>, AnalysisError> {
         let graph = self.proofs.graph;
-        let native = self.atoms.evaluate_with(
-            atom,
-            graph.row(before)?,
-            after.map(|row| graph.row(row)).transpose()?,
-            control,
-            |heap| {
-                if !self.proofs.closed(heap, before)? {
-                    return Ok(false);
-                }
-                after.map_or(Ok(true), |row| self.proofs.closed(heap, row))
-            },
-        )?;
+        let native = if let Some(proof) = self.unchanged
+            && proof.source == before
+            && let Some(compiled) = self.atoms.compiled.get(proof.atom)
+            && std::ptr::eq(compiled.identity, std::ptr::from_ref(atom))
+            && compiled.exhausted_in_a_row < FUEL_STRIKES
+            && let Some(after) = after
+            && graph.row(after)?.get(proof.variable) == Some(&proof.value)
+            && self.proofs.closed(&self.atoms.machine.heap, before)?
+            && self.proofs.closed(&self.atoms.machine.heap, after)?
+        {
+            // Audit still independently evaluates each certified edge below.
+            check(&self.atoms.control, control)?;
+            self.atoms.compiled[proof.atom].exhausted_in_a_row = 0;
+            self.atoms.unchanged_edges += 1;
+            Some(false)
+        } else {
+            self.atoms.evaluate_with(
+                atom,
+                graph.row(before)?,
+                after.map(|row| graph.row(row)).transpose()?,
+                control,
+                |heap| {
+                    if !self.proofs.closed(heap, before)? {
+                        return Ok(false);
+                    }
+                    after.map_or(Ok(true), |row| self.proofs.closed(heap, row))
+                },
+            )?
+        };
         if self.atoms.audit
             && let Some(value) = native
         {
@@ -936,6 +1025,7 @@ impl NativeReader for Reader<'_, '_> {
     ) -> Result<bool, AnalysisError> {
         // Each certified bit refers to a physical row in this graph and
         // its owning Store. The checked graph may describe a prefix.
+        self.unchanged = None;
         let retained = self.proofs.graph.input().retained_rows;
         if self.proofs.metrics.certified != retained as u64
             || rows > retained
@@ -951,6 +1041,14 @@ impl NativeReader for Reader<'_, '_> {
             .atoms
             .false_guard(atom, self.proofs.graph.row(before)?, control)?;
         self.atoms.guard_rows += u64::from(answer);
+        if !answer {
+            self.unchanged = self.atoms.unchanged_target_guard(
+                atom,
+                before,
+                self.proofs.graph.row(before)?,
+                control,
+            )?;
+        }
         Ok(answer)
     }
 
@@ -2379,6 +2477,99 @@ mod tests {
                 assert_eq!(atoms.metrics()["audit"], true);
             });
         }
+    }
+
+    #[test]
+    fn unchanged_target_prefix_keeps_source_identity_and_late_evaluation_errors() {
+        let text = r"---- MODULE Atoms ----
+EXTENDS Naturals
+VARIABLES x,y
+vars == <<x,y>>
+Init == x=0 /\ y=0
+Next == x' \in 0..1 /\ y' \in 0..2
+Act(k) == \E i \in {k} : /\ x'=1-x
+                         /\ IF y'=2 THEN 1 \div 0=0 ELSE y'=i
+Spec == Init /\ [][Next]_vars /\ WF_vars(Act(0)) /\ WF_vars(Act(1))
+P == <>(x=2)
+====";
+        with_wrappers(text, false, |prepared, driver, atoms, control| {
+            let (graph, mut values) = capture(prepared, &dive_runtime::CheckOptions::dive(0));
+            let count = graph.input().retained_rows;
+            let mut reader = Reader::new(&graph, &mut values, atoms);
+            let actions: Vec<_> = driver
+                .native_predicates()
+                .filter(|a| matches!(a.test, AtomTest::Nonstuttering { .. }))
+                .collect();
+            assert_eq!(actions.len(), 2);
+            reader.atoms.audit = true;
+            assert!(
+                !reader
+                    .action_row_false(actions[0], 0, count, control)
+                    .expect("uncertified rows")
+            );
+            assert!(reader.unchanged.is_none());
+            for row in 0..count {
+                assert!(
+                    reader
+                        .proofs
+                        .closed(&reader.atoms.machine.heap, row)
+                        .expect("closed row")
+                );
+            }
+            let mut errors = 0;
+            for (index, &atom) in actions.iter().enumerate() {
+                for source in 0..count {
+                    assert!(
+                        !reader
+                            .action_row_false(atom, source, count, control)
+                            .expect("source proof")
+                    );
+                    let proof = reader.unchanged.expect("certified prefix");
+                    reader.atoms.compiled[proof.atom].exhausted_in_a_row = FUEL_STRIKES - 1;
+                    assert_eq!(
+                        reader
+                            .predicate(atom, source, Some(source), control)
+                            .expect("quiet prefix success"),
+                        Some(false)
+                    );
+                    assert_eq!(reader.atoms.compiled[proof.atom].exhausted_in_a_row, 0);
+                    // The captured rows are fixed, but the other closure and source have no certificate.
+                    let hits = reader.atoms.unchanged_edges;
+                    reader
+                        .predicate(actions[1 - index], source, Some(source), control)
+                        .expect("other closure");
+                    let other = (source + 1) % count;
+                    reader
+                        .predicate(atom, other, Some(other), control)
+                        .expect("other source");
+                    assert_eq!(reader.atoms.unchanged_edges, hits);
+                    for target in 0..count {
+                        let before = reader
+                            .values
+                            .read_retained(&graph, source, control)
+                            .expect("source");
+                        let after = reader
+                            .values
+                            .read_retained(&graph, target, control)
+                            .expect("target");
+                        let reference = atom
+                            .evaluate(reader.values.model(), &dive_eval::St::action(before, after));
+                        let native = reader
+                            .predicate(atom, source, Some(target), control)
+                            .expect("audited action");
+                        if let Ok(value) = reference {
+                            assert_eq!(native, Some(value));
+                        } else {
+                            assert!(native.is_none());
+                            errors += 1;
+                        }
+                    }
+                }
+            }
+            assert!(errors > 0);
+            assert!(reader.atoms.unchanged_edges > 0);
+            assert!(reader.atoms.audit_mismatch().is_none());
+        });
     }
 
     #[test]
