@@ -24,8 +24,8 @@
     "python3 scripts/symbolic/check_occupancy.py PATH/transaction_commit --dive DIVE --installed",
     "dive check TCommit.tla --config R8192.cfg --strategy occupancy --type-invariant TCTypeOK --max-orbits 34500000 --time-limit 380s --max-memory 3900m --output json",
     "dive check Prepared.tla --config Bad4096.cfg --strategy occupancy --type-invariant TCTypeOK --time-limit 620s --max-memory 1800m --trace word.json --output json",
-    "dive validate-trace Prepared.tla --config Bad4096.cfg --trace word.json --compat=tlc --output json",
-    "dive check Crew.tla --config Crew4096.cfg --strategy occupancy --type-invariant Bounds --max-orbits 1000000 --time-limit 375s --max-memory 3900m --output json"
+    "dive validate-trace Prepared.tla --config Bad4096.cfg --trace word.json --output json",
+    "dive check Crew.tla --config Crew4096.cfg --strategy occupancy --type-invariant Bounds --max-orbits 1000000 --time-limit 375s --max-memory 3500m --output json"
   ],
   "oracles": {
     "TCommit": "Weighted distinct=3^n+2^n\u22121; generated=1+n(3^n+2^(n\u22121)); depth=2n+1; occupancies=binomial(n+2,2)+n. Before any commit each manager may be working, prepared or aborted. After a commit each is prepared or committed. The all-prepared vector overlaps.",
@@ -206,6 +206,14 @@
       "occupancy_source.py": "bcabd96ebeca8ccfcbb2e062c8201cdc816fb7eff6486433c3ccc78587ddb23f",
       "worker_process.py": "310294e83ac7f4155e1e077dd2841a0a0f0dab35b77cdcd80eb8aeca3baaf32a",
       "symbolic_input": "cbd9ac29d316f637880873e12d61a9d60eaf1546ba93453f8dee1938b4d247e7"
+    },
+    "rebased_native_stage": {
+      "dive": "d740a8147ef27530ba8e4675285365f377e2861f8bd7762f66f3eb9887ac4b92",
+      "check.py": "ca5e5d3a9f6aaf609aed22a5815e9f56f149b4c31dfdd8240814c2679d8c84fd",
+      "occupancy.py": "ebec70fb8196d368536b48809b6a847bdcb846a3a421fca2f51b2c27fba25bd2",
+      "occupancy_source.py": "bcabd96ebeca8ccfcbb2e062c8201cdc816fb7eff6486433c3ccc78587ddb23f",
+      "worker_process.py": "310294e83ac7f4155e1e077dd2841a0a0f0dab35b77cdcd80eb8aeca3baaf32a",
+      "symbolic_input": "e3b4c8955de3630993a748dbf89b1bfe18fbc74fd31bf26fb7dda9d7115ecdee"
     }
   },
   "tables": {
@@ -378,7 +386,7 @@
       }
     },
     "packed_probe": {
-      "method": "Exact encoded keys, interned moves, CPU0. 34,500,000 orbits, 360 s, 3,800 MiB process/4,100 MiB cgroup. Includes one exploratory implementation differing from the final only in internal predecessor-move lookup.",
+      "method": "Exact encoded keys, interned moves, CPU0. 34,500,000 orbits, 360 s, 3,800 MiB process/4,100 MiB cgroup. Includes one exploratory implementation differing from the final only in internal predecessor-move lookup on these successful calls. In a recursion limit failure the probe reported error, while the final worker reports a resource stop.",
       "runs": {
         "T1000": {
           "exit": 0,
@@ -407,7 +415,7 @@
       }
     },
     "final": {
-      "method": "Packed shipping algorithm. Grid CPU4, 34,500,000 orbits, 375 s, 3,900 MiB process/4,250 MiB cgroup. Old/new matched pairs use a single CPU1 and 3,500 MiB process. Each domain uses old/new/new/old order. Same binding, executable, source bytes, VM and CUDD library. Only the occupancy implementation/declared maximum differs across the pair. Noninitial negatives CPU2 with 620 s and 1,800 MiB. 8,192-manager initial witness CPU5 with 610 s and 1,800 MiB. All final grid/paired source behavior matches the archive. Two module docstrings differ in bytes.",
+      "method": "Packed shipping algorithm. Grid CPU4, 34,500,000 orbits, 375 s, 3,900 MiB process for TCommit and 3,500 MiB for Crew, within a 4,250 MiB cgroup. Old/new matched pairs use a single CPU1 and 3,500 MiB process. Each domain uses old/new/new/old order. Same binding, executable, source bytes, VM and CUDD library. Only the occupancy implementation/declared maximum differs across the pair. Noninitial negatives CPU2 with 620 s and 1,800 MiB. 8,192-manager initial witness CPU5 with 610 s and 1,800 MiB. All final grid/paired source behavior matches the archive. Two module docstrings differ in bytes.",
       "runs": {
         "Crew1000": {
           "exit": 0,
@@ -455,6 +463,13 @@
           "trace_validated": true,
           "trace_sha256": "a38975deeddddcef9851b44684a8edc179fabd43d0ac6088d1e6807c36162c90",
           "trace_bytes": 63993
+        },
+        "F4096": {
+          "exit": 4,
+          "wall_s": 620.03,
+          "peak_rss_kib": 23548,
+          "verdict": "stopped",
+          "reason": "time limit"
         },
         "F8192-invalid": {
           "exit": 1,
@@ -596,7 +611,7 @@
       }
     },
     "archive": {
-      "method": "Full built Linux release archive. Native executables stripped by the release script. env -i PATH=/nonexistent, CPU0, 34,500,000 orbits, 380 s, 3,900 MiB process/4,250 MiB cgroup.",
+      "method": "Full built Linux release archive. Public dive and tlc executables stripped by the release script; the packaged exporter retains its build bytes. The recorded artifact uses the native baseline before the independent guarded-message integration; script and native identities are given individually. env -i PATH=/nonexistent, CPU0, 34,500,000 orbits, 380 s, 3,900 MiB process/4,250 MiB cgroup.",
       "runs": {
         "T1000": {
           "exit": 0,
@@ -632,7 +647,117 @@
     },
     "noninitial_2048": {
       "method": "Same final source/binary as final table. CPU3, 620 s/1,800 MiB process, 2,100 MiB cgroup. The negative is a real first transition followed by independent source replay.",
-      "runs": {}
+      "runs": {
+        "F2048-invalid": {
+          "exit": 1,
+          "wall_s": 0.02,
+          "peak_rss_kib": 45408,
+          "result": "invalid",
+          "length": 2,
+          "failed_check": "init"
+        },
+        "F2048-valid": {
+          "exit": 0,
+          "wall_s": 120.43,
+          "peak_rss_kib": 43468,
+          "result": "valid",
+          "length": 2
+        },
+        "F2048": {
+          "exit": 1,
+          "wall_s": 118.54,
+          "peak_rss_kib": 43240,
+          "verdict": "invariant-violation",
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "depth": 2,
+          "trace_validated": true,
+          "trace_sha256": "936c003dfaab8bf6e85b29d17c7c891e8771a24298efd1f1c5aeb5a00a4571af",
+          "trace_bytes": 133161
+        }
+      }
+    },
+    "rebased_native_stage": {
+      "method": "Source-identical population worker plus the integrated guarded-message native build. Installed stage with PATH empty, CPU4, same 380 s/3,900 MiB process limit as release-archive grid.",
+      "runs": {
+        "T1000": {
+          "exit": 0,
+          "wall_s": 1.0,
+          "peak_rss_kib": 60340,
+          "complete": "TCommit-1000"
+        },
+        "T256": {
+          "exit": 0,
+          "wall_s": 0.14,
+          "peak_rss_kib": 20568,
+          "complete": "TCommit-256"
+        },
+        "T3": {
+          "exit": 0,
+          "wall_s": 0.09,
+          "peak_rss_kib": 17808,
+          "complete": "TCommit-3"
+        },
+        "T4096": {
+          "exit": 0,
+          "wall_s": 33.53,
+          "peak_rss_kib": 692508,
+          "complete": "TCommit-4096"
+        },
+        "T8192": {
+          "exit": 0,
+          "wall_s": 227.57,
+          "peak_rss_kib": 2710172,
+          "complete": "TCommit-8192"
+        }
+      }
+    },
+    "extended_release_negative": {
+      "method": "Same release archive and negative configuration, retaining both original properties. CPU2 1,440 s / 1,800 MiB supervised process, 2,100 MiB cgroup. On CPU5 the native validator separately checks a manually constructed word and rejects its altered initial state. Exact word digest compared whenever a source witness completes. External replay uses its default profile; mandatory internal replay selects --compat=tlc.",
+      "runs": {
+        "F4096-invalid": {
+          "exit": 1,
+          "wall_s": 0.03,
+          "peak_rss_kib": 69424,
+          "result": "invalid",
+          "length": 2,
+          "failed_check": "init"
+        }
+      },
+      "independently_constructed_word_sha256": "0438016ffb3b9753973fcb977306f159d178723a6eb4387ce3e4f480af4c6720"
+    }
+  },
+  "validator_diagnostic": {
+    "method": "The separate --strategy occupancy results above retain every original property. This focused native-replay test uses exactly the same concrete noninitial word, source and failure. Drop only TCConsistent from each configuration to isolate its cost; retain TCTypeOK and NonePrepared. CPU6, same archive, 80 s limit, 1,200 MiB cgroup.",
+    "runs": {
+      "V1000": {
+        "exit": 0,
+        "wall_s": 0.02,
+        "peak_rss_kib": 30604,
+        "result": "valid",
+        "length": 2
+      },
+      "V2048": {
+        "exit": 0,
+        "wall_s": 0.05,
+        "peak_rss_kib": 44800,
+        "result": "valid",
+        "length": 2
+      },
+      "V4096": {
+        "exit": 0,
+        "wall_s": 0.15,
+        "peak_rss_kib": 69552,
+        "result": "valid",
+        "length": 2
+      }
+    },
+    "cfg_sha256": {
+      "NoPair1000.cfg": "27b038cd3f2a73cd1187ae3fe2e8f2d3bdf32cb999d206d8e8a2dd7344f1443f",
+      "NoPair4096.cfg": "84fa23a92358b30f9feba5c0ca3af7253b8ae5240332b4d31e2b728e6648528f",
+      "NoPair2048.cfg": "32f1e534a13f2a694b5dbd6daf59145a2c0dca90f656c75bdecec3f3569cb7f9"
     }
   },
   "pinned_tlc": {
@@ -754,5 +879,24 @@
   "separate_review": {
     "method": "Fresh Linux installation and independent blind-source tests against the native public CLI. The release CLI reproduced exactly by stripping the stage executable. The two-status 8,192-owner control completed, the first unsupported count 8,193 refused. Additional tests used one/four/eight status classes, radix-boundary n, multiple initial populations and full four-status reachability to n=33. Replayed both omitted-coordinate predecessor paths and rejected a missing step. Verified the maximum count length of 7,405 decimal digits separately using the packaged serializer.",
     "stripped_archive_cli_sha256": "62703dae0d96b404e0b336c0c9ab0ba7ba45aafbccf493d3ff20bc9985093ccc"
+  },
+  "ordinary_bdd_comparison": {
+    "case": "TCommit-256",
+    "method": "Separate fresh native BDD and occupancy runs on distinct physical cores on the same c7i.4xlarge and identical module/CFG bytes. BDD used the earlier protected-main package and 2,700 MiB process limit; archive used 3,900 MiB. Both returned exact labeled closure from Init. RSS is KiB, wall is rounded to nearest 0.01 s.",
+    "bdd": {
+      "verdict": "success",
+      "reachable_bdd_nodes": 2039,
+      "wall_s": 4543.95,
+      "peak_rss_kib": 596104,
+      "runtime_and_input_sha256": {
+        "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+        "R256.cfg": "573c8f5a8bae6765b0dd4d594db1418bf491e21b21fe7afb6674a9dcff92bdb7",
+        "dive": "d2fcf868347c89ea5c74349396d2365deddedd959a8190db987b35188ec144ca",
+        "engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+        "symbolic_input": "98f9be5b7fed5d9b6a3f217cf9bd3d3edc02d91ebf3e140af79a39e0301ef898"
+      }
+    },
+    "occupancy_run": "tables.archive.runs.T256",
+    "record": "2026-11-21-wide-source-induction.json"
   }
 }

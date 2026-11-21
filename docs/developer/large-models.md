@@ -124,11 +124,20 @@ The extracted Linux release archive completed the following full graphs on one E
 | 4,096 | 8,398,849 | 1.94383 × 10^1954 | 7.96195 × 10^1957 | 8,193 | 33.79 | 676.3 |
 | 8,192 | 33,574,913 | 3.77849 × 10^3908 | 3.09534 × 10^3912 | 16,385 | 230.55 | 2,646.5 |
 
-At 160 managers, the source-driven BDD completed in 591.76 s. The population search on that input completed in 0.10 s with both exact counts and depth 321. A matched single-core experiment isolated how the population checker stores visited states. At 4,096 managers, retaining full count tuples took 40.95–41.00 s and 1.91 GiB. Packed keys took 33.32–33.33 s and 676.1 MiB. Both representations retained sufficient information to construct labeled witnesses.
+At 160 managers, the source-driven BDD completed in 591.76 s. The population search on that input completed in 0.10 s with both exact counts and depth 321. At 256 managers the ordinary BDD completed in 4,543.95 s with 2,039 final diagram nodes. The installed population checker returned identical exact counts and depth in 0.14 s. The two runs used the same module and configuration bytes on different physical cores of the same EC2 instance. A matched single-core experiment isolated how the population checker stores visited states. At 4,096 managers, retaining full count tuples took 40.95–41.00 s and 1.91 GiB. Packed keys took 33.32–33.33 s and 676.1 MiB. Both representations retained sufficient information to construct labeled witnesses.
 
 A second source in `scripts/symbolic/check_occupancy.py` uses cyclic job transitions, a global availability guard, duplicate initial choices, duplicate action branches and two forms of stuttering. The three-owner run and pinned TLC agree on 20 labeled states, 154 generated occurrences and depth five. At 4,096 participants it counted approximately 2.13995 × 10^1236 labeled states in 0.14 s, visiting 8,193 populations at depth 4,098. Removing a duplicate action changes only generated occurrences. Altering the completion action to write a broken status produces a depth-four validated counterexample.
 
-Adding a false initial predicate to TCommit with 8,192 managers produced a validated, 269,398-byte word in 0.19 s. A separate native replay accepted it in 0.05 s and rejected a changed initial state in 0.05 s. At 1,000 managers a false predicate reached after one transition took 14.26 s, including required native replay. The original invariants remained enabled in these controls.
+Adding a false initial predicate to TCommit with 8,192 managers produced a validated, 269,398-byte word in 0.19 s. A separate native replay accepted it in 0.05 s and rejected a changed initial state in 0.05 s. A false predicate reached after one transition took 14.26 s at 1,000 managers and 118.54 s at 2,048 managers, including native replay. A separate native invocation accepted the 2,048-manager word in 120.43 s and rejected its corrupted initial state in 0.02 s. Both original invariants remained enabled. At 4,096 managers this noninitial case exhausted 235 s and 620 s limits during validation. A separate diagnostic removed only the two-manager invariant `TCConsistent` while keeping the same source, word, type and claimed failure. Native replay then took 0.02, 0.05 and 0.15 s respectively at 1,000, 2,048 and 4,096 managers.
+
+An invariant that compares two participant identifiers directly is outside this fragment. A rule such as `i # j` can depend on whether a status has one holder or several, even when the vector of present statuses is identical. Supporting it would require tracking equality of bound participants and checking the available multiplicities. A second table indexed by the same participants would require preserving their joint local statuses; separate marginal counts can lose correlations. Both changes need small labeled searches, duplicate-witness controls and independent replay before admitting new sources.
+
+To reproduce the largest run, use the TCommit configuration generator immediately above with `8192` and write its output to `R8192.cfg`. Use the pinned module directly.
+
+```sh
+dive check "$model/TCommit.tla" --config R8192.cfg --strategy occupancy \
+  --type-invariant TCTypeOK --max-orbits 34500000 --time-limit 380s --max-memory 3900m --output json
+```
 
 [Installed command and admission limits](../user/symbolic.md#checking-interchangeable-status-tables). [Exact counts, negative controls, timings and pinned inputs](../../conformance/reports/perf/2026-11-21-source-occupancy.json).
 
