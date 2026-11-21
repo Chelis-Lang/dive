@@ -80,9 +80,9 @@ regenerates every successor of the deadlocked state and accepts the deadlock
 only if each one falls outside the constraints.
 
 Initial states may hold compound values: sets, functions, records and
-sequences. A `SPECIFICATION` with fairness conjuncts is simulated, since
-fairness constrains only infinite behaviors and cannot change a finite safety
-result.
+sequences. A `SPECIFICATION` with fairness conjuncts is simulated; fairness
+decides which infinite behaviors of a trace count for temporal properties
+(below) and cannot change a finite safety result.
 
 Every configured safety property is checked as `dive check` checks it.
 Invariants and `[]P` parts of a `PROPERTY` are checked on every state, and
@@ -114,8 +114,8 @@ checks each label on its step.
 An Init or a step over a set dive cannot enumerate, such as `x \in Nat`, is
 sampled; see [Unbounded sets](#unbounded-sets).
 
-These refuse by name: temporal `PROPERTY` checking, `POSTCONDITION`, and
-sampling interactions dive has not proved sound. Every returned violation must
+These refuse by name: `POSTCONDITION`, a temporal `PROPERTY` that liveness
+planning refuses, and sampling interactions dive has not proved sound. Every returned violation must
 pass independent trace validation; if replay cannot align the trace, the
 result is `unsupported`.
 
@@ -174,6 +174,57 @@ split into actions, as in `dive check`; putting a conjunct before it, such as
 with code 1000 (exit 255 under TLC exit codes) instead. See
 [D-040](../tlc-differences.md#d-040-sampling-from-unbounded-sets).
 
+## Temporal properties
+
+A temporal `PROPERTY` (anything with `<>`, `~>`, `WF`, `SF` or `ENABLED`
+under a temporal operator) is checked on the behaviors each trace contains.
+A trace's states, compared by exact equality, its sampled steps and a
+stuttering step at every state form a small graph; every infinite path
+through it from the first state is a real behavior. A violation is such a
+path on which the specification's fairness holds and the property is false.
+The report gives it as a lasso (`ending.kind: "lasso"`, the loop's
+`back_to` state is zero-based) or as stuttering at the last state, with
+`"closure": "concrete"` and the complete list of configured properties false
+on it in `properties`. It is validated independently before it is reported,
+like every other counterexample, and decides the run as error 2116 (exit 13
+under TLC exit codes, 10 under native ones).
+
+`VIEW` and `SYMMETRY` do not change this: a loop closes only on equal states
+([D-037](../tlc-differences.md#d-037-simulation-closes-loops-only-on-equal-states)).
+
+Within a trace, invariants, action properties, deadlock and errors decide at
+the step where they occur; the temporal check runs when the trace ends. Each
+trace ends in one class, counted in `statistics.trace_classes`: `closed` (a
+sampled step returned to an earlier state), `terminal` (no admitted
+successor), `truncated` (cut by the depth), their `extended_*` forms (see
+below), `violated` or `cancelled`.
+
+Simulation never reports that a temporal property holds. For each property,
+`statistics.properties` counts the traces on which it was checked (the
+trace held a fair behavior and none violated it) and the traces that could
+not decide it, by reason: `truncated` (a trace cut by the depth whose only
+behaviors, stuttering at some state, are unfair), `no-fair-behavior` and
+`budget`. The human summary prints one line per property, for example
+`Live: no counterexample on 812 of 999 traces; 187 traces could not decide it (187 truncated) (not a proof)`
+([D-038](../tlc-differences.md#d-038-simulation-reports-how-much-of-a-property-it-checked)).
+
+A trace cut by the depth while a property is unchecked on it because of the
+cut continues, by up to `--liveness-extend N` more steps (default: the depth),
+until it returns to an earlier state or has no successor. Extension steps are
+checked like any other. `--liveness-extend 0`, the `--compat=tlc` default,
+ends every trace at the depth as TLC does
+([D-039](../tlc-differences.md#d-039-extending-traces-cut-by-the-depth)).
+
+In the default profile, a trace whose prefix already makes a property false on
+every extension reports that shortest prefix as a `bad-prefix` word, for
+example `x = 0 .. 4` for `(x = 0) => [](x < 4)`. Like an invariant violation,
+this does not ask whether the prefix extends to a fair behavior.
+`--compat=tlc` does not look for bad prefixes.
+
+The check of one trace spends at most `--liveness-budget N` work units
+(default: a million, or 256 per state for longer traces). A trace that runs
+out counts as unchecked with reason `budget`; it is never a verdict.
+
 ## Action statistics
 
 ```sh
@@ -210,7 +261,8 @@ more workers, DFID completion and general coverage are not supported.
 ## Rust API
 
 Rust callers use `SimulateRequest` and `simulate_file`; `traces` is required and
-`depth` is optional. `SimulateReport::to_json()` holds the traces, statistics,
+`depth` is optional. `liveness_extend` and `liveness_budget` are `None` for the
+profile defaults. `SimulateReport::to_json()` holds the traces, statistics,
 observed and pending outcomes and validation, and `exit_code()` the process
 status. The report keeps each trace as its serialized entry;
 `SimulateReport::write_json` writes the same text as `to_json()` without

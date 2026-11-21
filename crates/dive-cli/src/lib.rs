@@ -1488,6 +1488,31 @@ fn simulate_command(
                     );
                 }
             },
+            "--liveness-extend" | "--liveness-budget" => {
+                let value = it.next().map(String::as_str);
+                if value == Some("auto") {
+                    if arg == "--liveness-extend" {
+                        request.liveness_extend = None;
+                    } else {
+                        request.liveness_budget = None;
+                    }
+                    continue;
+                }
+                let Some(Ok(number)) = value.map(str::parse::<u64>) else {
+                    return simulation_usage_error(
+                        err,
+                        &format!("{arg} expects a nonnegative integer or auto"),
+                    );
+                };
+                if arg == "--liveness-budget" {
+                    request.liveness_budget = Some(number);
+                } else {
+                    let Ok(steps) = usize::try_from(number) else {
+                        return simulation_usage_error(err, "--liveness-extend is too large");
+                    };
+                    request.liveness_extend = Some(steps);
+                }
+            }
             "--max-report-bytes" | "--max-generated" => {
                 let Some(Ok(number)) = it.next().map(|value| value.parse::<u64>()) else {
                     return simulation_usage_error(

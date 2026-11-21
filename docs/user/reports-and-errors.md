@@ -461,6 +461,17 @@ its `document`; `options.traces` is null for `--traces unlimited`; and
 `options.workers_used` is the worker count. A reader that walked `traces` to
 count the run should read `statistics.traces_started` instead.
 
+With a temporal `PROPERTY`, schema-4 `simulate` reports add
+`statistics.trace_classes` (`closed`, `terminal`, `truncated`,
+`extended_closed`, `extended_terminal`, `violated`, `cancelled`) and
+`statistics.properties`, one entry per configured property with `name`,
+`part`, `refuted_by_trace`, `checked_traces`, `unchecked_traces`,
+`unchecked_reasons` and `behaviors_checked`; `options` adds
+`liveness_extend`, `liveness_budget` and `bad_prefix`. A temporal violation
+has `observed_violation.kind: "temporal"` and `tlc_code` 2116, and its trace
+document ends in `lasso`, `stuttering` or `bad-prefix`. A reader that ignores
+unknown fields needs no change.
+
 The JSON wire format is versioned this way; the Rust library API has no such
 stability promise.
 
