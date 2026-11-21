@@ -334,7 +334,7 @@ The November 19 engineering runs separate the cost of storing more states, the c
 |---|---|---|
 | Where did explicit Core run out of memory? | [Explicit storage and scheduling](2026-11-19-large-model-explicit.json) | `fingerprint_resize`, `predecessors` and `runs.local-original`. The resize probe inserted 402,653,185 keys. The original KVS Large run finished in 6,693.531 s with 594,616,815 distinct states and sampled 18.31 GiB RSS plus swap. |
 | What does the five-piece Car Talk holdout actually compute? | [Expression, closed-form bound and pinned reproducer](../../../docs/developer/large-models.md#car-talk-evaluates-a-constant-expression) | All 243 signed weights, the unique solution, smaller TLC controls and why this configuration has no reachable-state count. |
-| Which published workloads were reproduced on the same host? | [Sixteen EmergencyCall cells](2026-11-20-emergencycall-reference.json) and [primary literature](../../../docs/developer/large-models.md#published-model-sizes-and-reproducible-comparisons) | Four original configurations, one and eight workers on Core and TLC. Every final count, depth and verdict matches the authors’ released run. |
+| Which published workloads were reproduced on the same host? | [Sixteen EmergencyCall cells](2026-11-20-emergencycall-reference.json) and [primary literature](../../../docs/developer/large-models.md#published-model-sizes-and-reproducible-comparisons) | Four original configurations, one and eight workers on Core and TLC. Every final count, depth and verdict matches the authors’ released run. The same record contains exact results for four closure-checked f3 partitions and a mutable-partition counterexample. |
 | Can a new, noninductive invariant be checked across processes? | [Five-pair Sail measurements](https://github.com/Chelis-Lang/sail/blob/df6ffaca82b3aacdea301616411de1c0c726b12f/docs/validation/data/2026-11-20-symbolic-predicates.json) | Five-key KVS, 47.79× median paired speedup. Includes the false three-transaction control and real CCF revisions. |
 | What changed with more workers or less buffering? | [Worker observations, prefixes and tradeoffs](2026-11-19-large-model-explicit.json) | `runs` contains the CoffeeCan and Huang worker matrix, PConProof and KVS Medium and the fixed KVS prefixes. `safety_pool_trials` includes the interleaved trial in which pooling ordinary safety workers cost time. |
 | Which models compress under symbolic checking? | [Finite safety and edit samples](2026-11-19-large-model-symbolic.json) | Compare `runs.shape-grouped` and `runs.shape-path` for field order, `growth-5` and `growth-large3v` for coupling, `source-edits` for an invariant change, and `standalone-proof` for checking a candidate predicate independently. `c1cs_postdecision` covers only the specified reachable regions. |
@@ -381,6 +381,28 @@ jq '.runs["local-original"] | {elapsed_ms, sampled_rss_plus_swap_bytes, stats}' 
 jq '.runs["source-edits"].steps[] | {verdict, reused, seconds}' \
   conformance/reports/perf/2026-11-19-large-model-symbolic.json
 ```
+
+## Simulation records
+
+| File | Question | Source | Host |
+|---|---|---|---|
+| `2026-11-21-simulation-throughput-d04a3a88.json` | S4 (ADR 0162 section 14): `dive simulate` traces per second and startup against TLC `-simulate`, at 1, 4 and 8 workers, with and without temporal properties | `d04a3a88` | c7i.metal-24xl, fresh node, method as D1 to D6 |
+
+Each bench samples the same number of traces of depth 100 at seed 0 in both
+tools; TLC gets `num=N/W` because its count is per worker. Every run sampled
+all its traces with exit 0. Without temporal properties, dive is 1.1x to 4.5x
+faster than TLC at one worker and 1.4x to 3.8x faster at eight. dive scales
+to 4.7x to 6.3x at eight workers, where TLC reaches 2.2x to 2.9x except on
+`bosco` (6.3x). `MCBakery` does not scale in either tool: its 655,200
+initial states take 4.5 s in dive and 6.0 s in TLC before the first trace.
+Other startups for one trace are 9 to 100 ms against 370 to 610 ms. With
+temporal properties, dive is 3.0x faster on `SimpleAllocator` and 1.8x on
+`DijkstraMutex` at one worker, but 0.48x on `EWD840` (`TDSpec`), and the
+`DijkstraMutex` and `EWD840` temporal runs scale only to 3.4x and 3.5x at
+eight workers (TLC 5.9x and 4.2x). The record's `profile` names the cost:
+temporal atoms are evaluated by the tree-walking `dive-eval` evaluator
+rather than Core, and at eight workers clone and drop of shared evaluator
+environments take 37 % of samples.
 
 ## Earlier records
 

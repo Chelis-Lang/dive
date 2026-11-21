@@ -66,6 +66,7 @@ use std::time::Duration;
 
 mod ordinary_final;
 mod simulation;
+pub use simulation::{StudyParams, StudyRun};
 mod temporal_bounds;
 
 /// The `dive analyze` / `dive parse` JSON schema version the harness reads.

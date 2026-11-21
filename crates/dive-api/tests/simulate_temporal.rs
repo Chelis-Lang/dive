@@ -146,7 +146,8 @@ fn deciding(report: &Value) -> Expect {
 /// Under `--compat=tlc` dive answers each receipt's truth where TLC is
 /// sound, and matches its exit status, deciding code, ending kind and, for
 /// a deterministic specification, generated count. V1 and Y2 are D-037: dive answers the truth where
-/// TLC's view or symmetric loop closure does not.
+/// TLC's view or symmetric loop closure does not. E1 and T5 are D-043: TLC
+/// reports `<>[]P` violated on a lasso or a terminal behavior that satisfies it.
 #[test]
 fn receipts_match_tlc_where_tlc_is_sound() -> Result {
     use Expect::{Safety, Sampled, Temporal};
@@ -161,10 +162,12 @@ fn receipts_match_tlc_where_tlc_is_sound() -> Result {
         ("C7", Sampled),
         ("C8", Sampled),
         ("C9", Temporal("stuttering")),
+        ("E1", Sampled),
         ("T1", Sampled),
         ("T2", Temporal("stuttering")),
         ("T3", Temporal("stuttering")),
         ("T4", Safety(2114)),
+        ("T5", Sampled),
         ("U1", Sampled),
         ("U2", Sampled),
         ("U3", Sampled),
@@ -192,7 +195,7 @@ fn receipts_match_tlc_where_tlc_is_sound() -> Result {
         )?;
         let report = run(&request(&receipt, file, true)?)?;
         assert_eq!(deciding(&report), expected, "{id}: {report}");
-        if id == "V1" || id == "Y2" {
+        if ["V1", "Y2", "T5", "E1"].contains(&id) {
             continue;
         }
         assert_eq!(report["exit_code"], receipt["exit"], "{id}: {report}");

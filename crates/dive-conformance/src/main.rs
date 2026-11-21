@@ -48,6 +48,11 @@ COMMANDS:
     run                    run an implementation against the goldens and write a report
     study final            observe dive's schema-2/3 final/short mode against pinned goldens;
                            truth/count evidence only, never a strict conformance outcome
+    study simulate         run pinned TLC -simulate and dive simulate on the selected models
+                           with --traces N (default 10), depth 100 and seeds 0..--seeds
+                           (default 10); compare verdict classes with each other and with
+                           the exhaustive golden, validate every dive violation. Writes
+                           --out (one row per line); never a strict conformance outcome
     report summarise <report.json>...
                            re-render the summary sections of existing reports into
                            --summary (default docs/conformance.md), one per implementation
@@ -238,6 +243,8 @@ struct Opts {
     tlc_cache: Option<PathBuf>,
     budget_factor: Option<f64>,
     reps: Option<usize>,
+    seeds: Option<u32>,
+    traces: Option<u64>,
     no_bind: bool,
     r2_bound: bool,
     label: Option<String>,
@@ -271,6 +278,10 @@ fn parse_shard(v: &str) -> Result<(usize, usize)> {
         .ok_or_else(|| Error::Usage(format!("--shard: `{v}` is not K/N with 1 <= K <= N")))
 }
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "a flat match with one arm per option"
+)]
 fn parse_opts(args: &mut Args) -> Result<Opts> {
     let mut o = Opts::default();
     while let Some(a) = args.next() {
@@ -363,6 +374,8 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--tlc-cache" => o.tlc_cache = Some(args.value(&a)?.into()),
             "--budget-factor" => o.budget_factor = Some(parse_factor(&args.value(&a)?)?),
             "--reps" => o.reps = Some(parse_num(&a, &args.value(&a)?)?),
+            "--seeds" => o.seeds = Some(parse_num(&a, &args.value(&a)?)?),
+            "--traces" => o.traces = Some(parse_num(&a, &args.value(&a)?)?),
             "--no-bind" => o.no_bind = true,
             dive_conformance::r2::host::REEXEC_FLAG => o.r2_bound = true,
             "--label" => o.label = Some(args.value(&a)?),
@@ -457,6 +470,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             Ok(false)
         }
         ["study", "final"] => cmd_final_study(&config, &cache, &root, o),
+        ["study", "simulate"] => cmd_simulation_study(&config, &cache, &root, o),
         ["corpus", "list"] => {
             out(&pipeline::corpus_list(
                 &config,
@@ -719,6 +733,51 @@ fn cmd_final_study(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Res
     report.write(&path)?;
     out(&format!(
         "{}\n{} model/worker observations: {:?}; {} findings\nreport: {}\n",
+        report.claim,
+        report.rows.len(),
+        report.totals,
+        report.findings(),
+        path.display()
+    ));
+    Ok(report.findings() > 0)
+}
+
+/// Non-gating simulation study; does not write the conformance summary.
+fn cmd_simulation_study(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
+    let profile = match &o.impl_profile {
+        Some(p) => Profile::parse(p)?,
+        None => Profile::from_env()?.unwrap_or_default(),
+    };
+    let opts = dive_conformance::simulation_study::Options {
+        corpus: corpus_id(o)?,
+        selection: selection(o),
+        oracle: o
+            .golden_oracle
+            .clone()
+            .unwrap_or(config.oracles.default_oracle()?.id.clone()),
+        binary: o
+            .dive_bin
+            .clone()
+            .unwrap_or_else(|| root.join("target/release/dive")),
+        profile,
+        traces: o.traces.unwrap_or(10),
+        seeds: o.seeds.unwrap_or(10),
+        limits: limits(o),
+        java: o.java.clone(),
+    };
+    let report = dive_conformance::simulation_study::run(config, cache, &opts)?;
+    let path = o.out.clone().unwrap_or_else(|| {
+        o.report_dir
+            .clone()
+            .unwrap_or_else(|| root.join("conformance/reports/studies"))
+            .join(format!(
+                "{}-simulation.json",
+                dive_conformance::util::unix_now()
+            ))
+    });
+    report.write(&path)?;
+    out(&format!(
+        "{}\n{} models: {:?}; {} findings\nreport: {}\n",
         report.claim,
         report.rows.len(),
         report.totals,

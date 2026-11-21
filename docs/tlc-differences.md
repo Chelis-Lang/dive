@@ -1780,3 +1780,25 @@ verdicts that a larger run gives for those numbers.
 
 On each violation, TLC also writes a trace exploration module,
 `<Spec>_TTrace_<n>.tla`. dive does not write one; this is a known gap.
+
+## D-043: Eventually-always properties on sampled traces
+
+| | |
+|---|---|
+| **Kind** | Different answer (TLC is unsound) |
+| **Default** | Each property is evaluated on the trace's own behaviors |
+| **TLC behavior** | Not reproduced; documented gap under `--compat=tlc` |
+| **Status** | implemented for `dive simulate` |
+
+TLC's `-simulate` reports `<>[]P` violated on traces that satisfy it, when
+`P` is false before the part of the trace that repeats. On `0, 1, 2, 1, 2,
+...` with weak fairness, `<>[](x > 0)` holds, but TLC reports a lasso back to
+`x = 1`. On a counter that stops at `x = 2`, whose behavior repeats the last
+state forever, `<>[](x = 2)` holds, but TLC reports a stuttering
+counterexample. Model checking reports neither. The Examples models
+`SDP_Verification/SDP_Attack_Spec`, `SDP_Attack_New_Solution_Spec` and
+`YoYo/MCYoYoNoPruning` show the same: TLC's simulation reports a temporal
+violation in every seed, and model checking none. dive checks each property
+on the actual behavior and reports no violation, in both profiles. The
+receipts are `crates/dive-sim/tests/fixtures/temporal/oracle.json` E1 and T5
+and their model-checking controls B-E1 and B-T5.

@@ -212,6 +212,19 @@ file. Copy `sail/*` to `~/tools/` on the node.
 `s7.py`, `sail_temporal.py` and `temporal_bench.rs` are byte-identical to the
 files whose SHA-256 the S7 record lists under `harness_sha256`.
 
+## Simulation throughput (S4)
+
+`node/sim-chain.sh [--reps 3] [--workers 1,4,8] [--only BENCH]` runs
+`node/simbench.py` as user `bench` on one bootstrapped node: each bench samples
+the same number of traces of depth 100 at seed 0 in dive and TLC `-simulate`
+(TLC gets `num=N/W`), alternating the tools, plus ten one-trace startups per
+tool. It writes `~/sim/runs.jsonl` and `~/sim/hostinfo.txt`, then touches
+`~/sim/DONE`. Drop the `argv` and `error` fields of each run before pulling;
+they hold node paths. `records/simrecord.py --runs runs.jsonl --hostinfo
+host.txt --source SHA --date DATE [--profile profile.json] --out OUT.json`
+builds the record; the host lines and the profile summary are written by hand
+from `hostinfo.txt` and `perf report`, without names, addresses or paths.
+
 ## Not kept
 
 One-off probes and glue from the 0.1.0 campaign were left out: three scripts

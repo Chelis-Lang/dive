@@ -44,6 +44,8 @@ identifies the inputs and peak memory. Run the seven-key reduced check with
 `scripts/symbolic/check_source.py --growth`. For the concrete check, remove
 `SYMMETRY TxIdSymmetric` from the expanded configuration and use `check.py`.
 
+Growing **the released Large configuration** from three to four keys retains all three transactions, two values, both safety invariants and transaction symmetry. The installed symbolic checker exhausted it in **1,997.42 s** at **1.06 GiB** peak RSS, depth 37: **592,287,802,857 symmetry representatives and 16,831,060,919,470 generated**. The independent transaction-history formula matches both counts. Its separate concrete-state prediction is 3,552,493,680,513. The earlier seven-key experiment uses two transactions. [Inputs and reproduction](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
 ## Transaction commit
 
 Lamport's published `transaction_commit/TCommit.tla` includes a global
@@ -434,6 +436,8 @@ Flint’s three-writer checker expands 31-variable successors across workers and
 
 An in-process worker that finds a fingerprint in the resident table can carry that observation to ordered commit. The table only grows during the wave. This avoids a second coordinator lookup for that occurrence. A candidate observed only by another worker still needs its ordinary ordered check. On a dedicated 96-core Graviton4 node the 50-million-state SlateDB prefix took 64.42–64.59 s versus 66.39–66.45 s at 32 workers. The two-million-state KVS prefix fell from 2.92–2.94 s to 2.69–2.70 s at 32 workers. The full two-barrier Flint run at 96 workers fell from 13.97–13.98 s to 13.57–13.60 s. All paired counters and queues matched. [All runs, including pooled workers and allocator settings](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
+Keeping 96 worker threads alive saved wall time on four Graviton4 workloads, but also retained more process memory. The complete two-barrier Flint run fell from 13.57–13.61 s at 1.16–1.17 GiB to 11.94–12.03 s at 1.96 GiB. Giving each exploration machine a fixed pool worker took 11.84 s at 1.99–2.10 GiB. Replacing the pool at each BFS level brought peak RSS down to 1.83–1.85 GiB and took 12.02–12.03 s. All 32 trials matched their control on verdict, distinct and generated counts, depth and queue. The fixed-worker experiment leaves OS thread placement to the scheduler. The shipping policy still creates scoped workers. These measurements support testing pool lifetime on a complete high-worker original where visited-state storage dominates RSS. [Rows, inputs and binary digests](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
+
 A separate experiment kept a Rayon pool alive across ordinary safety batches. On Flint at 192 workers, host tasks created per run fell from about 124,000 to 314. Wall time fell from 21.97–22.24 s to 17.44–17.90 s, but peak RSS increased from 1.39 to 2.83 GiB. At 32 workers PConProof slowed from 34.55–34.89 s to 36.72–37.52 s. These tradeoffs kept ordinary worker scheduling out of the retained-row change. [All paired runs, inputs, binary identities, CPU time and memory](../../conformance/reports/perf/2026-11-21-safety-worker-commit.json).
 
 ## High-fanout parallel safety
@@ -744,6 +748,8 @@ On QuarantineEqualsProposer the same edit sequence retained **76,749,192 distinc
 
 Adding an unconditional self-loop to the released PaxosLease Base relation raised the generated count from 1,709,874 to 2,200,911. Replacing that loop with a second Tick action gave 1,804,652. Removing the duplicate restored the original count. All four revisions exhausted 491,037 distinct states at depth 29. Rechecking the three edits took 1.46, 1.67 and 0.93 s versus 43.79, 41.86 and 42.05 s with fresh searches that reused only the finite coordinates. [Model edits, exact counts, memory and per-revision times](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
+A reset that returns *all* variables to their admitted initial values is a genuine non-stuttering edit. On PaxosLease Base, adding it took 1.44 s instead of 35.50 s with the previous checker; removing it took 1.31 s instead of 34.08 s. A second edit cleared a full network at MaxTime, enlarging the graph from 491,037 to 598,541 states. Fresh exact Core independently confirmed the reset and drain counts and depths. The drain saved nine layer images on addition and eight on removal, yet took 42.37/35.76 s versus 40.12/34.12 s previously. Across the five-revision batch, wall time fell from 194.83 to 128.86 s and peak RSS rose from 420 to 541 MiB. Retaining the layers paid off for the reset; many changed destinations can still require most of a fresh search. [Per-revision times, counts and control](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
+
 The same three transition edits on QuarantineEqualsProposer took 2.10, 2.13 and 0.86 s after a 471.49 s cold check. Fresh searches seeded with the same finite coordinates took 427.07, 417.56 and 415.67 s. All runs kept 76,749,192 distinct states at depth 43. The generated counts were 391,849,185 initially, 468,598,377 with the self-loop, 402,564,377 with the duplicate Tick, and 391,849,185 after reverting. [Paired revisions and peak memory](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).
 
 ### Reproduce the Flint three-writer model
@@ -784,6 +790,27 @@ All 16 checks agreed on the verdict and final queue, counts and depth with the c
 | f4 | 8,872,832 | 56,734,720 | 27 | 223.76 | 259.74 | 131.62 | 63.59 |
 
 On the historical CCF single-node commit control, ordinary Core found the original property violation after 17 distinct states, 20 generated and depth five. The three revisions with temporal obligations received a named refusal from symbolic safety checking. The [Sail evidence](https://github.com/Chelis-Lang/sail/blob/df6ffaca82b3aacdea301616411de1c0c726b12f/docs/validation/data/2026-11-20-symbolic-predicates.json) pins the production inputs and records the successful five-key KVS maintenance comparison separately.
+
+### Check disjoint safety partitions
+
+A model with fixed per-instance choices can often be checked as several independent state graphs. Pick a total, deterministic state predicate for each choice. Each truth assignment defines one cell. Restrict **Init** to the cell, keep **Next** unrestricted, and add the cell predicate as an invariant. If a reachable transition crosses the boundary, that cell must fail. Restricting Next or adding a state constraint to enforce the boundary would hide the transition.
+
+On the released EmergencyCall f3 model, the two binary attach-accept choices split 49,152 initial states into four groups of 12,288. Each group passed the original three safety properties, deadlock checking and its closure invariant. Full exact identity gave 21,255,936 distinct states and 135,871,232 generated in total, with maximum depth 27. All four queues emptied. The result matches both the monolithic exact run and the authors’ TLC output. On one 96-core Graviton4 node, the four concurrent 24-worker checks finished in 83.86 s; the monolithic 32-worker run took 127.71 s. Those timings use different total worker counts. Choosing the mutable `user_make_call = 0` instead failed the closure invariant at depth two, and independent replay accepted the counterexample. [Per-cell counts, wall time, memory and negative control](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
+
+For a simple safety CFG with explicit INIT/NEXT, generate each cell with the [partition script](../../scripts/perf/scale/safety_partition.py). The first predicate is the low bit of the cell number. The generator uses the complement for a zero bit, so values outside a proposed two-value domain also belong to a cell. It preserves the original invariants and deadlock setting. The generated module imports the original from its module search path.
+
+```sh
+for i in 0 1 2 3; do
+  python3 scripts/perf/scale/safety_partition.py "$MODEL/EmergencyCall_Model_auto.tla" \
+    "$MODEL/config/f3.cfg" "cell-$i" --cell "$i" \
+    --when 'amf_0_normal_attach_accept_include_enl = 1' \
+    --when 'amf_1_normal_attach_accept_include_enl = 1'
+  dive check "cell-$i/DiveSafetyCell$i.tla" --config "cell-$i/DiveSafetyCell$i.cfg" \
+    --module-path "$MODEL" --store exact --workers 24 --seed 0 --fp 0 --compat=tlc --output json
+done
+```
+
+Combine results only after all cells exhaust their queues and pass the closure check. For exact full-state identity the distinct, generated and initial counts add, and the maximum cell depth is the whole-model depth. Every reachable state belongs to one cell and every successor of an admitted state stays in that cell. A stopped run or a cell reporting no initial states needs separate resolution before reporting any whole-model total. The script accepts simple INIT, NEXT, INVARIANT(S) and CHECK_DEADLOCK clauses. Use independent processes on a suitably sized host to run cells concurrently.
 
 ## Reproduce the comparisons
 

@@ -1700,5 +1700,45 @@
         }
       }
     }
+  },
+  "three_transaction_growth": {
+    "platform": "Isolated EC2 c7i.4xlarge, Linux 7.0.0-1018-aws, one physical core via taskset -c 0.",
+    "change": "Begin with the released KVS Large safety configuration. Change only Key from three to four keys; retain three transaction identities, two values, the original actions, TypeInvariant, TxLifecycle and transaction symmetry.",
+    "command": "dive check MCKVS.tla --config K4V2T3.cfg --strategy symbolic --time-limit 7200s --max-memory 22g --output json",
+    "input_sha256": {
+      "KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+      "MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+      "MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964",
+      "K4V2T3.cfg": "0f998c45c65cb704efa99c7571662c4a634ce9fd26707969ded2c8de4561a751",
+      "K5V2T3.cfg": "47b6561fb3018ffe94f1a0e36956879dcc8fdd8fb32a24d73471cf12330b81b5",
+      "../libexec/dive-symbolic/engine.py": "35b63528e8c35af1ed9b6b35c4dc9721afeccedb8155a78d1aa6f694cd647a84",
+      "../libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "kvs_symbolic.py": "b7c9b152745821630bf4cc6cb539c0bfa190ec2f6d9af59aa61131c631ed6614"
+    },
+    "row": {
+      "verdict": "success",
+      "distinct": 592287802857,
+      "generated": 16831060919470,
+      "depth": 37,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ],
+      "reachable_bdd_nodes": 3226,
+      "seconds": 1997.122342
+    },
+    "wall_seconds": 1997.42,
+    "peak_rss_kib": 1107792,
+    "cross_check": "transaction_history_counts(4, 2, 3, True) independently equals both counts in the exhausted symmetry-reduced report. The separate concrete count below is computed from the history formula.",
+    "history_formula": {
+      "orbit": [
+        592287802857,
+        16831060919470
+      ],
+      "concrete": [
+        3552493680513,
+        100950860734327
+      ]
+    }
   }
 }

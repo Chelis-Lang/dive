@@ -73,18 +73,30 @@ Run it with `--impl dive:core --impl-profile dive --tier all` and
 ## Core refusals (full Examples, default profile)
 
 Measured on main on the quiet node (#784). There are no stops. Every
-reason covers one or two models, and each is an owner ruling or policy.
+reason covers one or two models, and each is an owner ruling or policy,
+except `RandomSubset`, which Core does not implement yet.
 
 | Reason | Models |
 |---|---|
 | VIEW with liveness (deferred past v0.1 by owner ruling, 2026-11-06) | `ewd998/EWD998ChanID`, `FiniteMonotonic/MCDistributedReplicatedLog` |
-| simulation with a liveness `PROPERTY` (deferred by owner ruling, 2026-11-06) | `ewd998/SmokeEWD998`, `ewd687a/EWD687a_anim` |
+| `Randomization!RandomSubset` | `ewd998/SmokeEWD998` |
 | `IOUtils!IOEnv` / `Json` without `--allow-io` (D-017) | `TLC/TestGraphs`, `ewd998/EWD998ChanTrace` |
 | `TLC!JavaTime` | `ewd998/SmokeEWD998_SC` |
 
 `ewd998/SmokeEWD998_SC` is a host script rather than a model: it launches a
 nested TLC run through `IOUtils!IOEnvExec` and names its output file with
 `TLC!JavaTime`.
+
+## Simulation (Examples, default profile)
+
+`dive simulate` refuses 10 of the 235 configurations, against 110 before
+the simulation design. Eleven of those it refuses or does not sample are
+correct refusals; five are gaps
+([histogram](../conformance/reports/2026-11-21-simulate-refusals-after.json)).
+Against TLC's `-simulate` over ten seeds, 156 configurations agree and 13
+more agree with TLC's simulator but not with model checking; none show a
+finding ([study](../conformance/reports/2026-11-21-simulate-conformance.json)).
+TLC's simulator is wrong on five configurations, three of them D-043.
 
 ## Speed
 
@@ -118,6 +130,7 @@ methodology and tables are in [release performance results](developer/release-pe
 - D2, memory: benchmark set 37 to 286 MiB peak RSS against 795 to 1,449 MiB for TLC at `-Xmx3g`; 64 liveness models, largest 4,523 MiB ([record](../conformance/reports/perf/2026-11-18-release-d2-memory-08a14fba.json)).
 - D3, exact store: 1.00x to 1.30x the fingerprint store's time, 0.95x to 2.68x its peak RSS ([record](../conformance/reports/perf/2026-11-18-release-d3-store-08a14fba.json)).
 - D4, worker scaling: median 8-worker speed-up 4.04x over the 47 large models; 15 of 17 temporal models 0.50x to 1.40x (#1028) ([record](../conformance/reports/perf/2026-11-18-release-d4-scaling-08a14fba.json)).
+- Simulation (S4): without temporal properties 1.1x to 4.5x faster than TLC `-simulate` at 1 worker, 1.4x to 3.8x at 8; with them, `EWD840` 0.48x and `SimpleAllocator` 3.0x ([record](../conformance/reports/perf/2026-11-21-simulation-throughput-d04a3a88.json)).
 - D5, startup: `dive check` of a small model 4.9 ms; bosco simulation stops at its memory budget (#1024) ([record](../conformance/reports/perf/2026-11-18-release-d5-throughput-08a14fba.json)).
 - D6, stop latency: 4 to 40 ms after a time limit; ceilings with no overshoot ([record](../conformance/reports/perf/2026-11-18-release-d6-stop-latency-08a14fba.json)).
 - D7, macOS (informational, shared M3 laptop): geomean 0.354x TLC at 1 worker ([record](../conformance/reports/perf/2026-11-18-release-d7-macos-08a14fba.json)).

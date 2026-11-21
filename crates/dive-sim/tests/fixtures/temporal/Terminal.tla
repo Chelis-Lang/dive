@@ -9,4 +9,5 @@ FairSpec == Spec /\ WF_x(Next)
 EventuallyTwo == <>(x = 2)
 EventuallyFive == <>(x = 5)
 InfOftenZero == []<>(x = 0)
+EventuallyAlwaysTwo == <>[](x = 2)
 ====

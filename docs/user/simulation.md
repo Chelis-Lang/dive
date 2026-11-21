@@ -463,6 +463,19 @@ diagnostic only. Rust requests set `time_limit` and `max_memory` through
 `BudgetSetting`. One budget covers the whole run; the clock does not restart for
 each trace.
 
+## Performance
+
+On a quiet c7i.metal-24xl, sampling the same number of traces of depth 100,
+`dive simulate` without temporal properties was 1.1x to 4.5x faster than
+TLC's `-simulate` at one worker and 1.4x to 3.8x faster at eight. It scaled
+to 4.7x to 6.3x at eight workers. One trace starts in 9 to 100 ms, against
+370 to 610 ms for TLC, unless Init itself is large. Temporal properties cost
+more: their atoms are evaluated by a slower evaluator than the one that
+samples, so `EWD840` with `TDSpec` ran at half TLC's speed, while
+`SimpleAllocator` stayed 3x faster. The
+[record](../../conformance/reports/perf/2026-11-21-simulation-throughput-d04a3a88.json)
+has every bench.
+
 ## Engine
 
 dive runs simulation with compiled Init, Next and predicates for finite safety

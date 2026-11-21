@@ -1774,7 +1774,11 @@ impl Host for TraceHost {
     fn check_tlc_access(&self, key: &str, write: bool) -> Result<(), HostError> {
         if self.private_host()
             && !(key.starts_with("s:")
-                || !write && matches!(key, "config" | "level" | "all" | "all:named"))
+                || !write
+                    && matches!(
+                        key,
+                        "config" | "level" | "all" | "all:named" | "-Dtlc2.tool.impl.Tool.cdot"
+                    ))
         {
             return self.refuse_effect(format!(
                 "TLC{}({key:?}): private trace startup does not support this host effect",
