@@ -87,6 +87,17 @@ except `RandomSubset`, which Core does not implement yet.
 nested TLC run through `IOUtils!IOEnvExec` and names its output file with
 `TLC!JavaTime`.
 
+## Simulation (Examples, default profile)
+
+`dive simulate` refuses 10 of the 235 configurations, against 110 before
+the simulation design. Eleven of those it refuses or does not sample are
+correct refusals; five are gaps
+([histogram](../conformance/reports/2026-11-21-simulate-refusals-after.json)).
+Against TLC's `-simulate` over ten seeds, 156 configurations agree and 13
+more agree with TLC's simulator but not with model checking; none show a
+finding ([study](../conformance/reports/2026-11-21-simulate-conformance.json)).
+TLC's simulator is wrong on five configurations, three of them D-043.
+
 ## Speed
 
 Measured for the 0.1.0 release candidate (`08a14fba`) under the

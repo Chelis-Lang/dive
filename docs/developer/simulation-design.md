@@ -842,6 +842,32 @@ reason code. It runs in the default profile only.
 - `dive-bench`: traces/s against TLC on a quiet AWS node at 1, 4 and 8
   workers, with and without temporal properties; startup for one trace.
 
+As built (S4): `scripts/simulate-refusal-histogram.py` over the 235
+configurations now refuses 10, against 110 before
+(`conformance/reports/2026-11-21-simulate-refusals-after.json`, one
+assessment per refused or unsampled configuration). Eleven of the sixteen
+refused or unsampled configurations are correct refusals (spec I/O grants,
+`TLCSet`, `JavaTime`, Apalache-only configurations). Five are gaps: `\cdot`
+replay in the validator (`MCCRDT`, `MCReplicatedLog`), validation cost with a
+`RandomElement` constant (`SpanTreeRandom`), and the Core operators
+`RandomSubset` and `Bits!And`. `dive-conformance study simulate` runs both
+simulators over the corpus, ten seeds of ten traces at depth 100
+(`conformance/reports/2026-11-21-simulate-conformance.json`). It found no
+invalid trace, no dive class outside the golden's or TLC's, and no
+configuration where TLC's simulator finds a violation in 9 of 10 seeds and
+dive does not, other than TLC's unsound reports. All 116 deciding traces
+validated. `MCtcp`, `MCInnerSequential` and `MCLamportMutex` stop on a
+deadlock in every seed in both simulators: a state with no successor inside
+the `CONSTRAINT`. TLC's simulator reported a `<>[]` violation on three
+models where model checking finds none; the smallest receipts are E1 and T5
+(D-043). Of 141 temporal properties on 72 models, 119 were checked on every
+trace; 89 % of trace-property pairs were checked with `--liveness-extend`,
+88 % without. Throughput is in
+`conformance/reports/perf/2026-11-21-simulation-throughput-d04a3a88.json`:
+without temporal properties dive is ahead of TLC at every worker count; with
+them, the atoms run on the slower `dive-eval` evaluator, and `EWD840` is at
+0.48x TLC.
+
 ### S5: trace output
 
 - `--trace-dir DIR` streaming per-trace documents; TLC `json` and `tla`
