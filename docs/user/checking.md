@@ -20,7 +20,7 @@ shows how to distinguish a large type from a large set of reachable states.
 Core can split a next-state action such as `\E i, j \in Nodes : Send(i, j)`
 into one action per pair. When the pairs bind the same slots in a pure
 expression, they share compiled instructions. Each pair still has its own
-parameter values, action label and guard memo statistics.
+parameter values, action label and guard memo statistics. [LuPastry+ measurements](../developer/large-models.md#lupastry-message-and-leaf-domains).
 
 ## Select a closed model input in the CFG
 
