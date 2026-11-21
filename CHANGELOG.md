@@ -13,7 +13,7 @@ are in git history.
 
 - Core checks membership in [finite record message types](docs/user/checking.md) without materializing eligible record unions, and independently replays canonical traces with scalar payloads of different types.
 
-- Core can check larger [bounded existential actions](docs/user/checking.md) by compiling their pure parameterized expressions once per slot layout.
+- Core can check larger [bounded existential actions](docs/user/checking.md) by sharing pure instructions across bindings, including near the compiler’s constant-folding limit.
 
 - Parallel Core can [keep large split-action plans from exhausting invariant memo storage](docs/user/checking.md#time-and-memory-budgets) within the existing worker memory cap.
 

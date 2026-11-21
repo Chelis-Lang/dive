@@ -105,8 +105,12 @@ section 4 decide.
      was rebuilt in every state (72% of the run in `set_bin`). CoffeeCan's
      initial filter (10,201 records at 100 beans) still exceeds it and
      streams. Reusing a split action body charges its original fold cost to
-     the plan budget. When a later occurrence can draw less fuel, the compiler
-     recompiles its body. The reported `fold_fuel` counts work performed.
+     the plan budget. If every fold finished with fuel to spare, any later
+     occurrence with more fuel than their total charge follows the same
+     evaluation paths. At the exact cutoff the compiler recompiles the body.
+     If a fold exhausted its allowance or was skipped, reuse requires the
+     original allowance or room for every full per-fold budget.
+     The reported `fold_fuel` counts work performed.
    - **Closed definitions.** The body of a closed zero-arity top-level
      definition whose fold ran out of fuel is evaluated once, at its first
      use outside any `INSTANCE` substitution, within `SETTLE_FUEL` (2^22)

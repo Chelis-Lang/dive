@@ -224,6 +224,13 @@ fn split_occurrences_still_cross_the_plan_fold_budget() -> Result<(), Box<dyn st
     assert_eq!(report["verdict"], "success");
     assert_eq!(report["statistics"]["distinct"], 2);
     assert_eq!(report["statistics"]["generated"], 483);
+    // The near-boundary occurrences reuse completed folds. Recompiling
+    // whenever less than one full per-fold allowance remained spent 96,504.
+    assert!(
+        report["core"]["metrics"]["plan"]["fold_fuel"]
+            .as_u64()
+            .is_some_and(|fuel| fuel < dive_core::compile::FOLD_FUEL)
+    );
     // The last 37 occurrences force the unfolded LET once in each state.
     assert_eq!(report["core"]["metrics"]["thunks"]["forced"], 74);
     Ok(())
