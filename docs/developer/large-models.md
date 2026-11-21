@@ -324,6 +324,32 @@ RSS was 2,258 MiB before and 1,903 MiB after; wall times were 302.12 s and
 two-state, independently validated lasso for the false recurrence property. [All capacities,
 individual runs, outcomes and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+### Destination IDs in temporal graphs
+
+At the pre-periodic Kafka cutoff, the graph held 36,120,197 destination IDs.
+The dense target vector reserved 256 MiB. Core now packs 64 destinations at a
+time using the minimum ID and enough bits for the largest difference.
+When IDs repeat, a bitmap marks the starts of runs. Counting the set bits
+through a position selects the corresponding value. Blocks with a wider
+range can keep the original full-width IDs.
+
+| Graph at the same cutoff | Dense targets | Base-relative values alone | Run starts alone | Combined |
+|---|---:|---:|---:|---:|
+| Kafka KIP-996 | 310.0 MiB | 118.0 MiB | 142.0 MiB | 110.0 MiB |
+| c1cs | 383.0 MiB | 255.0 MiB | 219.0 MiB | 199.0 MiB |
+| BlockingQueuePoisonApple | 128.9 MiB | 124.9 MiB | 127.9 MiB | 124.9 MiB |
+| Binary tree | 10.1 MiB | 8.0 MiB | 8.7 MiB | 8.0 MiB |
+
+These are whole collector capacities. On 4,194,304 random full-width IDs, the
+encoder kept a dense prefix and a 256-byte tail. Reading the captured Kafka
+targets in 2.5 million pseudorandom positions took 0.033 s from the dense
+array and 0.112 s from the production encoding. The full 200,000-state Kafka
+check took 303.03 s with dense targets and 306.80 s with packed targets.
+Peak RSS fell from 1,903 to 1,793 MiB. Both completed one periodic check,
+made the same 118,830,867 native predicate evaluations, and resumed capture
+before reaching the state limit. [Individual timings, capacities, decoded
+checksums and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same

@@ -7,7 +7,7 @@ are in git history.
 
 ### Added
 
-- Temporal graph capture compresses destination IDs in blocks and preserves each generated edge. [Storage measurements](docs/developer/large-models.md#action-labels-in-temporal-graphs).
+- Temporal graph capture compresses destination IDs in blocks and preserves each generated edge. [Storage measurements](docs/developer/large-models.md#destination-ids-in-temporal-graphs).
 
 - Temporal graph capture packs repeated action labels and stores exceptions to source-local successor numbering. [Storage measurements](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
