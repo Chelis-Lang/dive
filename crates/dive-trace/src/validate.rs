@@ -769,7 +769,7 @@ impl<'a> Run<'a> {
             }
             Goal::Deadlock => {
                 if let Some(next) = &m.next {
-                    match crate::enabled::enabled(m, next, None, &trace.states[last]) {
+                    match crate::enabled::deadlock_successor(m, next, &trace.states[last]) {
                         Ok(false) => None,
                         Ok(true) => {
                             return Err(invalid(
