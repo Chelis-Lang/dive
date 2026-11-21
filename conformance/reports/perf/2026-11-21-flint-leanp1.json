@@ -1128,6 +1128,144 @@
       "checker_sha256": "5ba08738d6c3d05980d3fbce6cb7066c11e7bb0f46703d02dd525c8a0605405f",
       "model": "Mini: Init x=0; Next x′=1−x; invariant x=0 or x=1. Normal mode exhausted 2 distinct / 3 generated / depth 2. VIEW x and SYMMETRY Permutations({A,B}) each refused before Init, exit 12, zero discovered.",
       "recovery": "Both -recover DIR and -checkpoint 1 -metadir DIR refused before the scratch metadata directory changed. A pre-existing marker was the only file before and after both invocations."
-    }
+    },
+    "source_version": "The original exact-column admission controls used the ordered dictionary at baseline_revision in exact_column_dictionary_comparison."
+  },
+  "exact_column_dictionary_comparison": {
+    "host": "Dedicated c8g.16xlarge, 64 physical Graviton4 cores, us-west-2a. 115 GiB cgroup, no swap, pinned CPU affinity. Rust 1.99.0. Identical generated checkers and source inputs across arms.",
+    "profile": "Separate 17 s two-writer baseline CPU profile at 79 Hz, 5,507 samples. Mathematical::cmp 10.40% exclusive, raw Value::cmp 6.30%, cache_hash 5.08%. In eight snapshots 56–61 of 65 threads waited in futex_do_wait. Does not isolate time blocked on any individual lock.",
+    "change": "Select one of 256 per-column shards with a hash of the normalized mathematical value; compare complete values within the hash bucket. Hold the column-wide lock only for allocating a new ordinal and assigning its bits. Previously one lock protected a BTreeMap ordered by the whole mathematical value.",
+    "baseline_revision": "09cdfa6f1934a1ed558f00d5628c8baaf99798ee",
+    "ordered_source_sha256": "1392ca527ddea24a1cafe6489b8b8f6dfd58ed395df0f9a4187f0e2d2edef659",
+    "candidate_source_sha256": "27c2867436eaacb60c6e88a50fd30be4ebcad6faf5d19c5e2cc5e696ea56274d",
+    "binaries_sha256": {
+      "base/Small/target/release/tlcgen-weightedflint": "df8d094ab491d00b78b2b68f81dc570f6a464fecadb22036b071bd141e3f4697",
+      "base/Fault/target/release/tlcgen-fault": "e3c997cebcc168a87765fd48f7d31a733e314eb160cc7c15125b594bb8ff96a9",
+      "striped/Small/target/release/tlcgen-weightedflint": "d6cc4fea88918f2d37f1fc62a5948f193effc0f4e7d025d7ac83b96121d96d72",
+      "striped/Fault/target/release/tlcgen-fault": "6ea8b4b4eff9e0dfdcd9ce6bd9ddf4c3aedc8fc9d26971452b12d7c66c8290aa",
+      "base/Two/target/release/tlcgen-weightedflint": "c5a9de46bd1a71a3463955783cc65a9e59e54d7f617e08affa40ba744b52aea6",
+      "striped/Two/target/release/tlcgen-weightedflint": "bc4e49b8ffd73f2fd96d34bd9c79c7b800dcf8a7fef6816582eae44f5586e807"
+    },
+    "two_writer_speedup_by_pair": [
+      8.76475758019628,
+      8.591759205143191
+    ],
+    "two_writer_run_order": [
+      "base-1",
+      "striped-1",
+      "striped-2",
+      "base-2"
+    ],
+    "runs": {
+      "base-Small-forced": {
+        "exit": 0,
+        "wall_s": 6.44,
+        "peak_rss_kib": 729752,
+        "generated": 1954072,
+        "distinct": 449595,
+        "depth": 33,
+        "guard_overlaps": 0,
+        "bank_bits": [
+          20,
+          27
+        ],
+        "all_zero_repeats": 449594
+      },
+      "base-Fault-1": {
+        "exit": 12,
+        "wall_s": 0.0,
+        "peak_rss_kib": 33712,
+        "generated": 95,
+        "distinct": 65,
+        "depth": 3,
+        "guard_overlaps": 0,
+        "bank_bits": [
+          8,
+          10
+        ]
+      },
+      "base-Two-1": {
+        "exit": 0,
+        "wall_s": 598.37,
+        "peak_rss_kib": 9347296,
+        "generated": 180146151,
+        "distinct": 48353470,
+        "depth": 44,
+        "guard_overlaps": 899045,
+        "bank_bits": [
+          32,
+          49
+        ]
+      },
+      "base-Two-2": {
+        "exit": 0,
+        "wall_s": 588.02,
+        "peak_rss_kib": 9354632,
+        "generated": 180146151,
+        "distinct": 48353470,
+        "depth": 44,
+        "guard_overlaps": 899045,
+        "bank_bits": [
+          32,
+          49
+        ]
+      },
+      "striped-Small-forced": {
+        "exit": 0,
+        "wall_s": 3.32,
+        "peak_rss_kib": 752624,
+        "generated": 1954072,
+        "distinct": 449595,
+        "depth": 33,
+        "guard_overlaps": 0,
+        "bank_bits": [
+          20,
+          27
+        ],
+        "all_zero_repeats": 449594
+      },
+      "striped-Fault-1": {
+        "exit": 12,
+        "wall_s": 0.0,
+        "peak_rss_kib": 33776,
+        "generated": 97,
+        "distinct": 64,
+        "depth": 3,
+        "guard_overlaps": 0,
+        "bank_bits": [
+          8,
+          10
+        ]
+      },
+      "striped-Two-1": {
+        "exit": 0,
+        "wall_s": 68.27,
+        "peak_rss_kib": 9554636,
+        "generated": 180146151,
+        "distinct": 48353470,
+        "depth": 44,
+        "guard_overlaps": 899045,
+        "bank_bits": [
+          32,
+          49
+        ]
+      },
+      "striped-Two-2": {
+        "exit": 0,
+        "wall_s": 68.44,
+        "peak_rss_kib": 9568592,
+        "generated": 180146151,
+        "distinct": 48353470,
+        "depth": 44,
+        "guard_overlaps": 899045,
+        "bank_bits": [
+          32,
+          49
+        ]
+      }
+    },
+    "checks": "1,024 distinct rows with revisits, direct width overflow, lazy refusal, sequence/function equality; 16 concurrent threads supplied the same 4,096 rows in different orders and physical representations; all keys agreed. Each check ran in fresh direct and split processes as applicable. Both forced-zero audits counted 449,594 repeats. The independent validator accepted both four-state ZeroBarriers witnesses against the original relation and rejected the modified initial state and skipped step for each.",
+    "reproduce": "Use exact_column_admission.reproduce with the baseline source revision for the ordered dictionary. Use -fpmem 20000 -queue-mem 10000, fresh metadata, 64 workers on two writers. The small forced-zero control uses 16 workers and the injected fault uses eight. Run the two-writer graph in the indicated order. Build the concurrency probe as an additional checker example and run both direct and split layouts.",
+    "selected_for_adapter": true
   }
 }

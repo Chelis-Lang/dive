@@ -80,7 +80,8 @@ def checker(source, output):
         stream.write("\npub mod state_codes;\n")
     shutil.copyfile(FILES / "state_codes.rs", src / "state_codes.rs")
     (output / "examples").mkdir()
-    shutil.copyfile(FILES / "check_codes.rs", output / "examples/check_codes.rs")
+    for name in ("check_codes.rs", "check_races.rs"):
+        shutil.copyfile(FILES / name, output / "examples" / name)
 
 
 def main_file(source, output):
