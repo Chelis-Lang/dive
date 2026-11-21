@@ -2563,11 +2563,64 @@
           "6": 1833946,
           "12": 28277275
         }
+      },
+      "ThreeNoRetry-raw": {
+        "exit": 0,
+        "wall_s": 1210.33,
+        "rss_kib": 121812700,
+        "verdict": "success",
+        "statistics": {
+          "depth": 114,
+          "distinct": 350341877,
+          "generated": 1360205173,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
       }
     },
     "final_control": {
       "binary_sha256": "b8302638b57747c7c3f6cbee1d9fa6a4c721f76178b1d3d9be37be06c6a2c821",
       "host": "Separate c7i.4xlarge, W1, us-east-2. Final measurement code reproduced every medium-one count. Nine symmetry unit tests and the public API check passed. The API test covers duplicate initial and successor occurrences, W1/W4, partial search, VIEW and fingerprint storage."
+    },
+    "unreduced_three_writer_check": {
+      "raw_cfg_sha256": "19f78bb77a5162ba3a00f8c6887a64ad13620bd96871f6e646bf48142afef5e6",
+      "change": "Remove only the SYMMETRY line from ThreeNoRetry.cfg.",
+      "source_sha256": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+      "binary_sha256": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+      "command": "taskset -c CPUs dive check SlateDBWAL.tla --config ThreeNoRetry-raw.cfg --library-path modules --store exact --workers W --compat=tlc --fp 0 --seed 0 --max-memory LIMIT --time-limit DEADLINE --output json",
+      "limited": {
+        "host": "EC2 r7i.4xlarge, us-east-2b, CPUs 0-7, W8; 90g sampled limit",
+        "result": {
+          "exit": 5,
+          "wall_s": 1093.78,
+          "rss_kib": 97062552,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 64,
+            "distinct": 234881026,
+            "exhaustive": false,
+            "generated": 869823033,
+            "initial_generated": 1,
+            "left_on_queue": 11565457,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 1092856,
+            "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+            "limit": 96636764160,
+            "observed": 96664096768,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        }
+      },
+      "completed": {
+        "host": "EC2 r7i.8xlarge, us-east-2b, CPUs 0-15, W16; 219g sampled limit, 4700s deadline, 233 GiB cgroup without swap",
+        "result_key": "independent_controls.ThreeNoRetry-raw"
+      },
+      "agreement": "All six invariants hold. Direct exact admission without symmetry matches both the weighted generated count and labeled union from the native census, and the depth. TLC independently matches the orbit histogram. The original timings used different worker counts and host sizes."
     }
   }
 }
