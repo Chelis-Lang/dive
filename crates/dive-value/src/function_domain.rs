@@ -23,6 +23,11 @@ pub(crate) struct DomainInner {
 /// normalization. `Unknown` preserves the original comparison path.
 enum DomainIndex {
     Unknown,
+    Models {
+        kind: Option<u16>,
+        order: ValueOrder,
+        first_token: Option<u32>,
+    },
     Integers {
         lo: i64,
         len: usize,
@@ -84,11 +89,38 @@ impl DomainInner {
         })
     }
 
-    /// Returns a known index/miss only for an exactly certified eager integer
+    /// Returns a known index/miss only for an exactly certified eager
     /// domain and an error-free compatible argument. Other arguments fall back.
     pub(crate) fn checked_index(&self, argument: &Value) -> DomainLookup {
         match self.index.get_or_init(|| DomainIndex::of(&self.keys)) {
             DomainIndex::Unknown => DomainLookup::Unknown,
+            DomainIndex::Models {
+                kind,
+                order,
+                first_token,
+            } => {
+                let Value::Model(name) = argument else {
+                    return DomainLookup::Unknown;
+                };
+                if kind.is_some() && name.mv_type().is_some() && name.mv_type() != *kind {
+                    return DomainLookup::Unknown;
+                }
+                if let Some(index) = first_token.and_then(|first| name.tok().checked_sub(first))
+                    && let Ok(index) = usize::try_from(index)
+                    && self.keys.get(index) == Some(argument)
+                {
+                    return DomainLookup::Found(index);
+                }
+                match self
+                    .keys
+                    .binary_search_by(|key| key.cmp_with(argument, *order))
+                {
+                    Ok(index) => DomainLookup::Found(index),
+                    Err(_) if *order == ValueOrder::Canonical => DomainLookup::Missing,
+                    // Equal text can have different tokens in another interner.
+                    Err(_) => DomainLookup::Unknown,
+                }
+            }
             DomainIndex::Integers { lo, len } => {
                 let Value::Int(value) = argument else {
                     return DomainLookup::Unknown;
@@ -218,6 +250,46 @@ impl DomainIndex {
             return Self::Integers {
                 lo: *lo,
                 len: keys.len(),
+            };
+        }
+        if keys.len() >= 32
+            && let Some(Value::Model(first)) = keys.first()
+        {
+            let kind = first.mv_type();
+            if !keys
+                .iter()
+                .all(|key| matches!(key, Value::Model(name) if name.mv_type() == kind))
+            {
+                return Self::Unknown;
+            }
+            let sorted = |order| keys.windows(2).all(|w| w[0].cmp_with(&w[1], order).is_lt());
+            let order = if sorted(ValueOrder::Canonical) {
+                ValueOrder::Canonical
+            } else if sorted(ValueOrder::Tlc) {
+                // Sorting by intern token cannot establish uniqueness of text
+                // when keys come from different interners. A later duplicate
+                // would change the first matching row of a checked lookup.
+                let mut distinct = std::collections::HashSet::new();
+                if distinct.try_reserve(keys.len()).is_err() {
+                    return Self::Unknown;
+                }
+                if !keys
+                    .iter()
+                    .all(|key| matches!(key, Value::Model(name) if distinct.insert(name.as_str())))
+                {
+                    return Self::Unknown;
+                }
+                ValueOrder::Tlc
+            } else {
+                return Self::Unknown;
+            };
+            let dense = keys.iter().enumerate().all(|(i, key)| {
+                matches!(key, Value::Model(name) if name.tok().checked_sub(first.tok()).and_then(|n| usize::try_from(n).ok()) == Some(i))
+            });
+            return Self::Models {
+                kind,
+                order,
+                first_token: dense.then_some(first.tok()),
             };
         }
         Self::product(keys).unwrap_or(Self::Unknown)

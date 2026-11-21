@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- [Independent trace validation](docs/user/checking.md#consistency-predicates-over-named-processes) can check pairwise consistency over large concrete status tables in one scan.
+
 - [Symbolic rechecks](docs/user/symbolic.md) can reuse shortest-path layers outside the region affected by a deleted action.
 
 - Core can check actions that choose a [subset of messages for one recipient](docs/user/checking.md), including queues that previously exceeded its powerset limit.

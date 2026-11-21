@@ -359,3 +359,75 @@ fn same_order_borrowed_views_preserve_provider_error_and_range_forcing_order() {
         }
     }
 }
+
+#[test]
+fn model_domain_indices_match_checked_equality_across_interners_and_orders() {
+    for ctx in [Ctx::tlc(), Ctx::dive()] {
+        for prefix in ["r", "A_r"] {
+            let source = Interner::new();
+            let query = Interner::new();
+            let fnc = fcn(
+                (0..64)
+                    .rev()
+                    .map(|i| {
+                        (
+                            Value::Model(source.intern(&format!("{prefix}{i}"))),
+                            Value::Int(i),
+                        )
+                    })
+                    .collect(),
+                ctx,
+            );
+            for i in 0..65 {
+                let key = Value::Model(query.intern(&format!("{prefix}{i}")));
+                let actual = (0..fnc.len()).position(|j| {
+                    let (stored, _) = fnc.entry(j).expect("table row");
+                    tlc::equals(&stored, &key, ctx).expect("same model type")
+                });
+                let index = fnc.checked_domain_index(&key);
+                if index != DomainLookup::Unknown {
+                    assert_eq!(
+                        index,
+                        actual.map_or(DomainLookup::Missing, DomainLookup::Found)
+                    );
+                }
+                if i < 64 {
+                    assert_eq!(fnc.apply(&key), Some(&Value::Int(i)));
+                }
+            }
+            assert_eq!(
+                fnc.checked_domain_index(&Value::Int(0)),
+                DomainLookup::Unknown
+            );
+            let other = Value::Model(query.intern("B_miss"));
+            let index = fnc.checked_domain_index(&other);
+            assert!(
+                index == DomainLookup::Unknown || (prefix == "r" && index == DomainLookup::Missing)
+            );
+        }
+    }
+}
+
+#[test]
+fn a_token_sorted_domain_can_contain_duplicate_text_from_another_interner() {
+    let original = Interner::new();
+    let foreign = Interner::new();
+    let mut pairs: Vec<_> = (0..39)
+        .map(|i| {
+            let _ = foreign.intern(&format!("filler{i}"));
+            (
+                Value::Model(original.intern(&format!("r{i:02}"))),
+                Value::Int(i),
+            )
+        })
+        .collect();
+    let duplicate = Value::Model(foreign.intern("r00"));
+    pairs.push((duplicate.clone(), Value::Int(39)));
+    let table = fcn(pairs, Ctx::tlc());
+    assert_eq!(table.len(), 40);
+    assert_eq!(
+        table.checked_domain_index(&duplicate),
+        DomainLookup::Unknown
+    );
+    assert_eq!(table.apply(&duplicate), Some(&Value::Int(0)));
+}
