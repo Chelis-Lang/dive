@@ -761,6 +761,126 @@
         }
       ],
       "interpretation": "All four prefixes reached 140 sampled areas and the same search boundary. Neither purge setting established an improvement. To test whether raising the mapping ceiling moves the original failure, repeat the full 224 GiB run with vm.max_map_count=4194304 and record live area counts, RSS, cgroup events and terminal results."
+    },
+    "raised_limit_full_run": {
+      "host": "Dedicated r7i.8xlarge, us-east-1b, 16 physical cores, Linux 7.0.0-1018-aws, cgroup 238 GiB without swap.",
+      "command": "Run the historical guest command with --time-limit 30000s --max-memory 224g, 16 workers, original module and CFG, with vm.max_map_count raised to 4194304. Sample live /proc/PID/maps counts and resident memory every five minutes.",
+      "exit": 5,
+      "wall_s": 19147.98,
+      "peak_rss_kib": 234879660,
+      "verdict": "stopped",
+      "statistics": {
+        "depth": 17,
+        "distinct": 520611110,
+        "exhaustive": false,
+        "generated": 1053254397,
+        "initial_generated": 1,
+        "left_on_queue": 406572527,
+        "reported_by_tlc": false
+      },
+      "stop": {
+        "elapsed_ms": 19071327,
+        "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+        "limit": 240518168576,
+        "observed": 240520511488,
+        "phase": "safety-search",
+        "resource": "memory",
+        "unit": "bytes"
+      },
+      "cgroup": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "original_map_limit": 1048576,
+      "trial_map_limit": 4194304,
+      "sample_count": 64,
+      "sample_fields": [
+        "elapsed_s",
+        "rss_kib",
+        "maps",
+        "anonymous_maps",
+        "noaccess_private_maps",
+        "writable_private_maps"
+      ],
+      "first_sample": [
+        0,
+        25616,
+        41,
+        14,
+        5,
+        17
+      ],
+      "peak_sampled_maps": [
+        18912,
+        233043160,
+        1037604,
+        108,
+        52,
+        1037533
+      ],
+      "last_sample": [
+        18912,
+        233043160,
+        1037604,
+        108,
+        52,
+        1037533
+      ],
+      "samples_at_hours": [
+        [
+          0,
+          25616,
+          41,
+          14,
+          5,
+          17
+        ],
+        [
+          3601,
+          39889136,
+          161,
+          108,
+          52,
+          90
+        ],
+        [
+          7201,
+          59672564,
+          175,
+          108,
+          52,
+          104
+        ],
+        [
+          10802,
+          113699160,
+          175,
+          108,
+          52,
+          104
+        ],
+        [
+          14403,
+          169619936,
+          166372,
+          108,
+          52,
+          166301
+        ],
+        [
+          18010,
+          222587132,
+          860395,
+          108,
+          52,
+          860324
+        ]
+      ]
     }
   }
 }
