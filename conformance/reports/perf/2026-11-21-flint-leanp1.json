@@ -1448,5 +1448,71 @@
     "checks": "1,024 distinct rows with revisits, direct width overflow, lazy refusal, sequence/function equality; 16 concurrent threads supplied the same 4,096 rows in different orders and physical representations; all keys agreed. Each check ran in fresh direct and split processes as applicable. Both forced-zero audits counted 449,594 repeats. The independent validator accepted both four-state ZeroBarriers witnesses against the original relation and rejected the modified initial state and skipped step for each.",
     "reproduce": "Use exact_column_admission.reproduce with the baseline source revision for the ordered dictionary. Use -fpmem 20000 -queue-mem 10000, fresh metadata, 64 workers on two writers. The small forced-zero control uses 16 workers and the injected fault uses eight. Run the two-writer graph in the indicated order. Build the concurrency probe as an additional checker example and run both direct and split layouts.",
     "selected_for_adapter": true
+  },
+  "four_barrier_growth": {
+    "sha256": {
+      "LeanP1.tla": "edaa0c49822fa3272127ffee2e1358e42c7b5137a0f86e97a1a9b1fd424d6211",
+      "TwoBarriers.cfg": "57e6078dd07297b19887f87d5b08bddebd455a249d1b725eb7b5a5bf59746775",
+      "FourBarriers.cfg": "2ee4a04cf22459de584948c00f7f0dc945a3c65771849d3975b38a21209aaf59",
+      "LeanP1Size3L4W3.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+      "../wave-rows": "5646660c317b6b51a995807b9c09a4180ed9488bd5fc60bcda64adfac53a8a45",
+      "../wave-retained": "8ea2c2fa0a91db133bbfca5ca396fcfa2afa165d4344cce712d2300cb849a705",
+      "../tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+    },
+    "runs": {
+      "large-core": {
+        "exit": 0,
+        "wall_s": 29620.08,
+        "peak_rss_kib": 140180712,
+        "verdict": "success",
+        "statistics": {
+          "initial_generated": 1,
+          "distinct": 9821039057,
+          "generated": 44139706049,
+          "left_on_queue": 0,
+          "depth": 52
+        },
+        "store": "fingerprint",
+        "workers_used": 192
+      },
+      "grown-core": {
+        "exit": 5,
+        "wall_s": 39923.59,
+        "peak_rss_kib": 325015472,
+        "verdict": "stopped",
+        "statistics": {
+          "initial_generated": 1,
+          "distinct": 13844485771,
+          "generated": 58787556531,
+          "left_on_queue": 2383020731,
+          "depth": 35
+        },
+        "store": "fingerprint",
+        "workers_used": 192,
+        "stop": {
+          "elapsed_ms": 39923071,
+          "hint": "raise --max-memory, or pass --max-memory=none; the run made no claim about the model",
+          "limit": 332859965440,
+          "observed": 332860481536,
+          "phase": "safety-search",
+          "resource": "memory",
+          "unit": "bytes"
+        }
+      },
+      "mid-tlc": {
+        "exit": 0,
+        "wall_s": 155.15,
+        "peak_rss_kib": 36083400,
+        "verdict": "success",
+        "statistics": {
+          "generated": 33356883,
+          "distinct": 7924117,
+          "left_on_queue": 0,
+          "depth": 40
+        }
+      }
+    },
+    "config_change": "Replace MaxBarriers = 3 with MaxBarriers = 4 in the released CFG. All original properties remain enabled.",
+    "command": "c8g.48xlarge on 192 physical cores. Use the full_native_worker_pool command with FourBarriers.cfg and its 72000s / 310 GiB budgets."
   }
 }

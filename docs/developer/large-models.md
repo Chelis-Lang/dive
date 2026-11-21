@@ -1583,6 +1583,8 @@ With the sharded exact dictionaries and mimalloc 3.7.0 the source-bound Flint au
 
 On a dedicated 64-core Graviton4, the ordered per-variable dictionaries took 598.37 and 588.02 s for the two-writer graph. Sharding dictionary lookups and comparing complete values on hash matches took 68.27 and 68.44 s. The exact state and transition counts matched in all four trials. [Comparative runs and memory](../../conformance/reports/perf/2026-11-21-flint-leanp1.json).
 
+The four-barrier Flint growth run with ordinary Core and the retained worker pool returned stopped after 39,923.59 s at 309.96 GiB peak RSS. It reported 13,844,485,771 distinct states, 58,787,556,531 generated, depth 35 and 2,383,020,731 pending. [Inputs and per-process measurements](../../conformance/reports/perf/2026-11-21-flint-leanp1.json).
+
 ### Reproduce the Pasture node model
 
 The authors printed the node specification and its model-checking instance in Appendices A and B. The [reconstruction script](../../scripts/perf/scale/pasture.py) reads the PDF, restores the TLA+ notation and verifies a digest for each output module. Use PyMuPDF 1.23.7. The configuration enables all four printed invariants and uses a fresh model value for the unspecified value of `NullTs`. The original Toolbox configuration was unavailable. [Microsoft Research report, Table 1 and appendices](https://www.microsoft.com/en-us/research/wp-content/uploads/2012/08/paper.pdf).
