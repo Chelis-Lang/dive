@@ -658,6 +658,18 @@ both fingerprint checkers also agreed on 268 distinct and 460 generated at
 depth 27. These controls establish the counters on smaller complete graphs.
 [Commands, all trial measurements and binary identities](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
+#### Resident exact state identities
+
+A hash bucket and a separately allocated row per discovery made exact equality expensive even when nearly every hash had only one identity. The resident safety store now keeps that first entry in the hash slot and seals groups of 256 rows by variable. A matching hash still requires mathematical equality across all variables. Additional identities sharing a hash retain their own discovery IDs.
+
+| Resident exact layout | Peak process RSS | Wall seconds |
+|---|---:|---:|
+| Previous buckets and rows | 89.4 GiB | 938.27 |
+| Inline first identity | 67.3 GiB | 900.22 |
+| Inline first identity and packed rows | 35.2 GiB | 972.52 |
+
+All three runs exhausted the one-value SlateDB control on the same dedicated 16-core host, storing all 242,213,642 identities, generating 1,068,416,158 states and reaching depth 126. Packing reduced complete-run peak RSS by 60.7% against the previous layout and added 3.7% wall time. A separate 10-million-state comparison of inline and packed rows used 2.84 and 1.65 GiB. [Inputs, binary identities, individual trials and commands](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
 ### Reproduce the released PaxosLease runs
 
 Use the source pin and JVM settings in the [PaxosLease record](../../conformance/reports/perf/2026-11-20-paxoslease-reference.json).

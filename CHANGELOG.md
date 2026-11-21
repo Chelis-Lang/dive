@@ -11,6 +11,8 @@ are in git history.
 
 - Temporal graph capture packs repeated action labels and stores exceptions to source-local successor numbering. [Storage measurements](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
+- Resident exact safety checking packs full state identities in blocks. The 242-million-state SlateDB control used 35.2 GiB at peak. [Exact-store comparison](docs/developer/large-models.md#resident-exact-state-identities).
+
 - Core checks a [fairness action’s leading state conditions](docs/user/temporal.md#fairness) once per source when they rule out every successor.
 
 - Core temporal checks share original row IDs across transitions whose targets match the first-discovery representation. [Temporal graph storage](docs/developer/large-models.md#action-labels-in-temporal-graphs).
