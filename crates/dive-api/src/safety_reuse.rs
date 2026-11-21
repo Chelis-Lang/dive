@@ -250,6 +250,7 @@ impl Program {
             witnesses: Vec::new(),
             draws: Vec::new(),
             startup_draws: Vec::new(),
+            run: None,
         };
 
         let model = dive_model::bind(

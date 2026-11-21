@@ -7,6 +7,10 @@ are in git history.
 
 ### Added
 
+- Core reports [temporal analysis time](docs/user/temporal.md) spent labeling the graph, finding accepting cycles and attributing failed properties.
+
+- Symbolic checking can derive [finite records and sets as whole values](docs/user/symbolic.md#check-finite-records-and-sets-as-whole-values) directly from a safety model. It checks the original EmergencyCall module and independently validates reported violations.
+
 - Linux releases support [`dive check --strategy compiled`](docs/user/symbolic.md#compile-a-finite-safety-check) for eligible finite safety models. With an installed Rust compiler it searches packed exact states at up to eight workers and independently replays violations.
 
 - `dive simulate` samples specs that use [`RandomElement` in `Init` or `Next`](docs/user/simulation.md#random-choices). Each trace draws from its own seeded stream, the same at any worker count, and the trace records its draws, which validation checks against each set. A step whose draws give no successor is drawn again rather than reported as a deadlock. Draws in invariants or inside `ENABLED` refuse by name.
@@ -234,6 +238,8 @@ are in git history.
   Distributed workers must run the same dive build as the coordinator.
 
 ### Fixed
+
+- Under `dive simulate`, [`TLCGet("config")`](docs/user/simulation.md#the-runs-configuration-record) reports `mode |-> "simulate"` (`"generate"` with `--generate`) with TLC's `traces`, `depth`, `aril` and `sched` fields, where it reported `"bfs"`. When a spec reads the record, its trace documents carry these fields, so `dive validate-trace` checks `ASSUME`s under the same record.
 
 - `dive simulate` binds the model as `dive check` does in each profile: in the default profile Core evaluates the pure constant definitions its actions use only as values, so a large `CHOOSE` such as `EWD998ChanID`'s ring of seven nodes no longer costs seconds before sampling starts.
 

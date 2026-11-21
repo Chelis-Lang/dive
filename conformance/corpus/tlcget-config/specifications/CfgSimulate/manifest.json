@@ -1,0 +1,1 @@
+{"sources":["docs/user/simulation.md"],"authors":["dive"],"tags":["probe","tlcget"],"modules":[{"path":"specifications/CfgSimulate/CfgSimulate.tla","features":[],"models":[{"path":"specifications/CfgSimulate/CfgSimulate.cfg","runtime":"00:00:01","mode":{"simulate":{"traceCount":3}},"result":"success"}]}]}

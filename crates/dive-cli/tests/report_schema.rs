@@ -90,6 +90,16 @@ fn report(name: &str, config: &str, extra: &[&str], exit: i32, verdict: &str) ->
         Some("rss+swap" | "rss" | "unavailable")
     ));
     *metric = Value::String("<platform-memory-metric>".into());
+    if let Some(phases) = document
+        .pointer_mut("/core/metrics/liveness/analysis_ms")
+        .and_then(Value::as_object_mut)
+    {
+        for (stage, elapsed) in phases {
+            assert!(matches!(stage.as_str(), "atoms" | "product" | "attribution"));
+            assert!(elapsed.as_f64().is_some_and(|ms| ms >= 0.0));
+            *elapsed = serde_json::json!(0.0);
+        }
+    }
     normalize(&mut document, &fixtures.to_string_lossy());
     let golden = fixtures.join(format!("{name}.json"));
     if std::env::var("DIVE_UPDATE_REPORT_GOLDENS").as_deref() == Ok("1") {

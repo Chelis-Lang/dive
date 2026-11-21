@@ -35,6 +35,11 @@
       "expand_ms": 0.0,
       "explore_ms": 0.0,
       "liveness": {
+        "analysis_ms": {
+          "atoms": 0.0,
+          "attribution": 0.0,
+          "product": 0.0
+        },
         "atoms": {
           "action_evaluations": 0,
           "action_source_guards": {

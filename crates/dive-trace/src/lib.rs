@@ -106,7 +106,7 @@ pub use endpoint::{
     CandidateErrorSite, CandidateStateEndpoint, NextStateEndpoint, PartialNextEndpoint,
     PartialStateEndpoint, TemporalSourceEndpoint, TemporalStateEndpoint, ViewSourceEndpoint,
 };
-pub use format::{Ending, Label, Source, TraceDoc};
+pub use format::{Ending, Label, SimulationRun, Source, TraceDoc};
 pub use invariant_error::{InitialErrorStage, InitialInvariantClass};
 pub use ordered_prefix::InvariantErrorClass;
 pub use session::Session;

@@ -264,6 +264,7 @@ impl Trace {
             witnesses,
             draws,
             startup_draws: Vec::new(),
+            run: None,
         })
     }
 }

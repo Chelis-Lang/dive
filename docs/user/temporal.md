@@ -58,6 +58,20 @@ in `options.workers`. The `core.temporal_workers` section of multiworker reports
 identifies source expansion. `serial_phases` lists the phases that use one
 thread when reached, including ordered commit and temporal analysis. See [workers and stores](checking.md#workers-and-stores).
 
+In an ordinary Core JSON report, `core.metrics.liveness.analysis_ms` measures
+elapsed milliseconds per serial analysis phase. `atoms` covers labeling states
+and edges, including fairness predicates. `product` covers product-graph
+construction, accepting-cycle search and reconstruction of a candidate word.
+`attribution` measures which properties fail on that word. The report includes
+only phases entered and sums repeated calls across properties and periodic
+checks. A periodic check runs during capture, so its time is already included
+in `core.metrics.explore_ms`. Independent trace replay happens after analysis.
+
+On the baseline Elevator Large run the product phase took 399.92 of 404.35 seconds. On Huang,
+labeling took 10.94 of 19.37 seconds at eight workers. The
+[phase measurements](../../conformance/reports/perf/2026-11-21-temporal-analysis-phases.json)
+include the matching counts, host, and commands.
+
 Fairness can make accepting-cycle search dominate the runtime. On Elevator Large, reusing shortest prefixes, reading single fairness literals directly and retaining small product rows brought wall time from **403.59 to 113.90 seconds**. Both runs exhausted 50,653 states at depth 39 and agreed on all 230,899 generated occurrences. The peak RSS moved from 121 to 129 MiB. Elevator Medium fell from 5.86–5.87 to 1.84–1.85 seconds. Large products continue to compute edges on demand. [Matched comparison, intermediate versions and controls](../../conformance/reports/perf/2026-11-21-fairness-product-search.json).
 
 Under `--compat=tlc`, temporal capture can use every requested worker when the

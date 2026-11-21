@@ -1948,6 +1948,7 @@ impl CheckReport {
                         witnesses: Vec::new(),
                         draws: Vec::new(),
                         startup_draws: Vec::new(),
+                        run: None,
                     };
                     doc["error_witness"] = witness.to_json();
                 }
@@ -2262,6 +2263,7 @@ fn trace_doc(
         witnesses: Vec::new(),
         draws: Vec::new(),
         startup_draws: Vec::new(),
+        run: None,
     };
     Ok(doc.to_json())
 }

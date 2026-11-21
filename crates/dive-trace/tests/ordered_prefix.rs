@@ -44,6 +44,7 @@ fn run_config() -> dive_eval::RunConfig {
         seed: 0,
         fingerprint: i64::from_ne_bytes(dive_value::fp64::POLYS[0].to_ne_bytes()),
         install: String::new(),
+        mode: dive_eval::RunMode::Check,
     }
 }
 

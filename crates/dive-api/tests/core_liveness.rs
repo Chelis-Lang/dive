@@ -503,6 +503,12 @@ fn closed_function_reads_keep_nested_reports_and_do_not_reuse_admission() {
                 if verdict == "liveness-violation" {
                     assert_eq!(core["counterexample"]["validation"], "valid");
                 }
+                let phases = &core["core"]["metrics"]["liveness"]["analysis_ms"];
+                assert!(phases["atoms"].is_number() && phases["product"].is_number());
+                assert_eq!(
+                    phases["attribution"].is_number(),
+                    verdict == "liveness-violation"
+                );
                 let atoms = &core["core"]["metrics"]["liveness"]["atoms"];
                 assert!(atoms["eligible_atoms"].as_u64() > Some(0), "{atoms}");
                 assert!(atoms["evaluated"].as_u64() > Some(0), "{atoms}");

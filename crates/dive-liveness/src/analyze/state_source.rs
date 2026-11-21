@@ -82,6 +82,8 @@ pub(super) trait StateSource {
     /// Records one label demand answered by the dive-eval evaluator.
     fn reference_predicate(&mut self, _atom: &crate::plan::PredicateAtom) {}
 
+    fn analysis_time(&mut self, _stage: super::Stage, _elapsed: std::time::Duration) {}
+
     fn predicate_reuse_storage(
         &mut self,
         _bytes: usize,
@@ -236,6 +238,10 @@ impl StateSource for NativeStates<'_, '_> {
 
     fn reference_predicate(&mut self, atom: &crate::plan::PredicateAtom) {
         self.read.reference_predicate(atom);
+    }
+
+    fn analysis_time(&mut self, stage: super::Stage, elapsed: std::time::Duration) {
+        self.read.analysis_time(stage, elapsed);
     }
 
     fn predicate_reuse_storage(&mut self, bytes: usize, cap: u64, allocation: u64, columns: u64) {

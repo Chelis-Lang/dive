@@ -1504,12 +1504,12 @@ fn analyze_source(
     clippy::too_many_arguments,
     reason = "shared existing product loop over separate topology, metadata and state owners"
 )]
-fn analyze_graph(
+fn analyze_graph<S: StateSource + ?Sized>(
     model: &Model,
     plans: &[PreparedProperty],
     searched: usize,
     captured: OriginalEdges<'_>,
-    states: &mut (impl StateSource + ?Sized),
+    states: &mut S,
     graph: product::BehaviorView<'_>,
     limits: Limits,
     policy: AcceptancePolicy,
@@ -1525,10 +1525,18 @@ fn analyze_graph(
                 .is_some_and(|plan| plan.frozen_prefix.is_some()),
         crate::budget::optional_buffer_limit(),
     );
+    let mut segment = None;
+    let mut enter = |next: Stage, source: &mut S| {
+        let now = std::time::Instant::now();
+        if let Some((previous, start)) = segment.replace((next, now)) {
+            source.analysis_time(previous, now.duration_since(start));
+        }
+        *stage = next;
+    };
     let result = (|| {
         for (p, prepared) in model.property_claims().iter().zip(plans).take(searched) {
             let plan = &prepared.plan;
-            *stage = Stage::Atoms;
+            enter(Stage::Atoms, states);
             let active = if plan.atoms.iter().any(|atom| atom.kind == AtomKind::Action) {
                 crate::tlc_plan::active_actions(&plan.formula, limits.formula)
                     .map_err(AnalysisError::Tableau)?
@@ -1549,7 +1557,7 @@ fn analyze_graph(
                 prepared.frozen_prefix,
                 &mut reuse,
             )?;
-            *stage = Stage::Product;
+            enter(Stage::Product, states);
             for group in &prepared.groups {
                 let product =
                     ImplicitProduct::new(graph, &group.tableau, &labels, limits.product, policy)
@@ -1558,12 +1566,12 @@ fn analyze_graph(
                     .find_lasso_in_alternatives(&labels, &group.alternatives)
                     .map_err(AnalysisError::Product)?
                 {
-                    let (states, _, edges) = original_word(captured, states, &lasso)?;
-                    *stage = Stage::Attribution;
+                    let (word_states, _, edges) = original_word(captured, states, &lasso)?;
+                    enter(Stage::Attribution, states);
                     let properties = attribute(
                         model,
                         plans,
-                        &states,
+                        &word_states,
                         lasso.prefix.len(),
                         limits.atom_cells,
                         (control, evaluations),
@@ -1576,7 +1584,7 @@ fn analyze_graph(
                     return Ok(Some(CandidateWord {
                         target_property: p.name.clone(),
                         properties,
-                        states,
+                        states: word_states,
                         back_to: lasso.prefix.len(),
                         edges,
                     }));
@@ -1585,6 +1593,9 @@ fn analyze_graph(
         }
         Ok(None)
     })();
+    if let Some((last, start)) = segment {
+        states.analysis_time(last, start.elapsed());
+    }
     states.predicate_reuse_storage(
         reuse.peak_bytes,
         reuse.cap_bypasses,
