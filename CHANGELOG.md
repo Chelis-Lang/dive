@@ -254,6 +254,8 @@ are in git history.
 
 ### Performance
 
+- Automatic [Store reclamation](docs/user/storage-recovery.md) charges new allocations above the live Store left by its previous collection. At 250 million Flint states this reduced peak RSS from 11.04 to 8.97 GiB.
+
 - `dive simulate` evaluates temporal properties on each worker's compiled Core machine and reuses atom truths across traces. On `EWD840` with its `PROPERTIES`, one-worker time fell from 21.4 s to 2.9 s (3.6x faster than TLC; 5.4x at eight workers). [Measurements](conformance/reports/perf/2026-11-21-simulation-throughput-f685076b.json).
 
 - Symmetry reduction compares nested function and set values without copying their contents. On the [SlateDB WAL comparison](docs/developer/large-models.md#symmetry-comparison-costs) this reduced eight-worker elapsed time by 10%.

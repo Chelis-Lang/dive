@@ -63,7 +63,12 @@ completed source level. A positive number triggers it when the Store's measured
 retained-byte lower bound exceeds that number.
 
 When the option is omitted, dive uses a default trigger of 256 MiB (268435456
-bytes) in both profiles for pure fingerprint safety BFS. That excludes runs with
+bytes) in both profiles for pure fingerprint safety BFS. After each successful
+automatic collection, the next one becomes eligible when the measured Store
+grows another 256 MiB beyond the size of the live replacement. The JSON
+`trigger_bytes` field reports this configured growth budget. Explicit positive
+thresholds continue to compare against the total measured Store size.
+The default excludes runs with
 any of:
 
 - exact membership;
