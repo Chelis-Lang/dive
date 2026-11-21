@@ -125,6 +125,56 @@
         ],
         "result": "valid"
       }
+    },
+    {
+      "config": "four-writers-switch",
+      "config_sha256": "ebf76fba475a0e85b16f9a85bdd919b45455511992117f814f0bbe5e88cc9e4b",
+      "verdict": "stopped",
+      "property": null,
+      "wall_s": 3300.37,
+      "peak_rss_kib": 37383068,
+      "statistics": {
+        "initial_generated": 1,
+        "distinct": 439414951,
+        "generated": 1775147975,
+        "depth": 46,
+        "left_on_queue": 113110552
+      },
+      "exit": 5,
+      "stopped": {
+        "elapsed_ms": 3300259,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 3300000,
+        "observed": 3300004,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      }
+    },
+    {
+      "config": "four-writers-fixed",
+      "config_sha256": "78fe19cfa6484d2654fa3b469be27e86b59708c63cce7cb87edfc11e36d857b3",
+      "verdict": "stopped",
+      "property": null,
+      "wall_s": 4500.53,
+      "peak_rss_kib": 55178720,
+      "statistics": {
+        "initial_generated": 1,
+        "distinct": 580547531,
+        "generated": 2410061075,
+        "depth": 48,
+        "left_on_queue": 137369779
+      },
+      "exit": 5,
+      "stopped": {
+        "elapsed_ms": 4500390,
+        "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+        "limit": 4500000,
+        "observed": 4500005,
+        "phase": "safety-search",
+        "resource": "time",
+        "unit": "ms"
+      }
     }
   ]
 }
