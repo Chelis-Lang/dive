@@ -1565,6 +1565,14 @@ Canonical enumeration can also reduce generated counts. `NxInLazyCup`
 dive; both find the same 3 distinct states at depth 2. This is separate from
 exploration order ([D-010](#d-010-the-order-in-which-sets-are-explored)).
 
+This can also change the initial count. With
+`Init == x \in ([a : {0}] \cup [a : {0,1}])` and `Next == UNCHANGED x`,
+TLC emits `[a |-> 0]` twice and reports five generated states. Default Core
+emits each initial record once and reports four. Both complete at depth one
+with two distinct states. Nominal compat refuses this direct union. Writing
+`x \in (LET S == ([a : {0}] \cup [a : {0,1}]) IN S)` in Init gives four
+generated states in both Core profiles and five in TLC.
+
 Symbolic powersets, function sets and sequence sets keep lazy membership and
 streaming, so huge or infinite domains are not enumerated. Using a symbolic
 definition as an element, function key or stored state can need an identity
