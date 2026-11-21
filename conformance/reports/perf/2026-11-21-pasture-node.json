@@ -1,0 +1,262 @@
+{
+  "schema": "dive-pasture-controls-v1",
+  "date": "2026-11-21",
+  "source": {
+    "title": "Pasture Node State Specification",
+    "authors": [
+      "Thomas L. Rodeheffer",
+      "Ramakrishna Kotla"
+    ],
+    "report": "MSR-TR-2012-84, 2012-08-17, Table 1 and Appendices A and B",
+    "url": "https://www.microsoft.com/en-us/research/wp-content/uploads/2012/08/paper.pdf",
+    "pdf_sha256": "316e298ec24a63eedb8e5d5e3d25cfc4da514cc007d99be5c6a82701fbdb342c",
+    "kind": "Reconstruction from typeset pages 14\u201334. No original Toolbox directory or author CFG was available. All four printed invariants are enabled. Assign one model value to the unbounded NullTs CHOOSE using a module-qualified CONSTANT, and apply the five published numeric bounds in their printed order.",
+    "module_sha256": {
+      "PastureNode.tla": "cd9a63087ae2786797a7a7857cbe1252879bfa139beb805195a01baf0df7c921",
+      "PastureNodeModel.tla": "329a07d39097209def8a709ecb2cba76012998952fc6b341a3eb691246397467"
+    },
+    "generator": "scripts/perf/scale/pasture.py",
+    "extractor_runtime": "PyMuPDF 1.23.7 on Ubuntu 24.04, validated output digests"
+  },
+  "host": {
+    "instance": "m7i.2xlarge",
+    "region": "us-east-1",
+    "cpu": "Intel Xeon Platinum 8488C",
+    "physical_cores": 4,
+    "smt": true,
+    "affinity": "0",
+    "kernel": "7.0.0-1018-aws",
+    "process": "Sequential processes, one worker each on the same logical CPU; GNU time wall seconds and peak RSS in KiB, one observation per engine per configuration."
+  },
+  "engines": {
+    "dive": {
+      "version": "0.1.0 (v0.1.0-51-g951925584)",
+      "sha256": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+      "store": "exact"
+    },
+    "tlc": {
+      "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "jvm": "Eclipse Temurin 17.0.20.1+1",
+      "java_sha256": "f5aed21d3a0b0f4b05d3a3f9fe71263916d5bc0d47b53aa52a3340b90f0b4805"
+    }
+  },
+  "commands": {
+    "prepare": "python3 scripts/perf/scale/pasture.py paper.pdf DIR --bounds A B C D E",
+    "core": "taskset -c 0 dive check PastureNodeModel.tla --config Pasture.cfg --store exact --workers 1 --seed 0 --fp 0 --max-memory 12g --time-limit 900s --compat=tlc --output json",
+    "tlc": "taskset -c 0 java -Xmx6g -XX:+UseParallelGC -XX:ActiveProcessorCount=1 -jar tla2tools.jar -workers 1 -fp 0 -seed 0 -config Pasture.cfg PastureNodeModel.tla"
+  },
+  "parameters": [
+    "MaxAppPcrLen",
+    "MaxSemPcrLen",
+    "MaxSealPcrLen",
+    "MaxTsValues",
+    "MaxBootCtr"
+  ],
+  "checks": [
+    {
+      "bounds": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "cfg_sha256": "4131f13fd04873d6434e0fcacd699413b521a2b142b71cb9293ae7c27d2979a4",
+      "paper": {
+        "distinct": 47742,
+        "depth": 31,
+        "wall_seconds_four_core_laptop": 7
+      },
+      "core": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "distinct": 47742,
+          "generated": 360066,
+          "depth": 31,
+          "left_on_queue": 0,
+          "initial_generated": 1
+        },
+        "wall_seconds": 1.07,
+        "peak_rss_kib": 44720
+      },
+      "tlc": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "generated": 360066,
+          "distinct": 47742,
+          "left_on_queue": 0,
+          "depth": 31,
+          "initial_generated": 1
+        },
+        "wall_seconds": 7.24,
+        "peak_rss_kib": 1836964
+      }
+    },
+    {
+      "bounds": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "cfg_sha256": "739395a0bec59586772a18684ebd2c696d686bb0463d6a5bf3af7299ad176fe3",
+      "paper": {
+        "distinct": 106556,
+        "depth": 32,
+        "wall_seconds_four_core_laptop": 83
+      },
+      "core": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "distinct": 106556,
+          "generated": 801933,
+          "depth": 32,
+          "left_on_queue": 0,
+          "initial_generated": 1
+        },
+        "wall_seconds": 2.47,
+        "peak_rss_kib": 62980
+      },
+      "tlc": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "generated": 801933,
+          "distinct": 106556,
+          "left_on_queue": 0,
+          "depth": 32,
+          "initial_generated": 1
+        },
+        "wall_seconds": 13.39,
+        "peak_rss_kib": 2203856
+      }
+    },
+    {
+      "bounds": [
+        1,
+        1,
+        1,
+        2,
+        1
+      ],
+      "cfg_sha256": "fda3915156f711d6aa8adf28d7168bbb2a802fb4bec6c33230576d78ef7ebc65",
+      "paper": {
+        "distinct": 966697,
+        "depth": 36,
+        "wall_seconds_four_core_laptop": 110
+      },
+      "core": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "distinct": 966697,
+          "generated": 8031442,
+          "depth": 36,
+          "left_on_queue": 0,
+          "initial_generated": 1
+        },
+        "wall_seconds": 25.39,
+        "peak_rss_kib": 362204
+      },
+      "tlc": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "generated": 8031442,
+          "distinct": 966697,
+          "left_on_queue": 0,
+          "depth": 36,
+          "initial_generated": 1
+        },
+        "wall_seconds": 98.08,
+        "peak_rss_kib": 2460064
+      }
+    },
+    {
+      "bounds": [
+        1,
+        1,
+        2,
+        1,
+        1
+      ],
+      "cfg_sha256": "dc20c646c5fa38f76e3b85f5cb45b94620f6a8fd78382218abed359b00fe7671",
+      "paper": {
+        "distinct": 369750,
+        "depth": 33,
+        "wall_seconds_four_core_laptop": 41
+      },
+      "core": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "distinct": 369750,
+          "generated": 2805496,
+          "depth": 33,
+          "left_on_queue": 0,
+          "initial_generated": 1
+        },
+        "wall_seconds": 8.48,
+        "peak_rss_kib": 144176
+      },
+      "tlc": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "generated": 2805496,
+          "distinct": 369750,
+          "left_on_queue": 0,
+          "depth": 33,
+          "initial_generated": 1
+        },
+        "wall_seconds": 36.96,
+        "peak_rss_kib": 2288164
+      }
+    },
+    {
+      "bounds": [
+        1,
+        2,
+        1,
+        1,
+        1
+      ],
+      "cfg_sha256": "fd5bad817d25d60eca8e7ea848a0116ab5050721c626f3a73cce6e0ca86f4162",
+      "paper": {
+        "distinct": 283760,
+        "depth": 34,
+        "wall_seconds_four_core_laptop": 83
+      },
+      "core": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "distinct": 283760,
+          "generated": 2718246,
+          "depth": 34,
+          "left_on_queue": 0,
+          "initial_generated": 1
+        },
+        "wall_seconds": 8.2,
+        "peak_rss_kib": 119028
+      },
+      "tlc": {
+        "verdict": "success",
+        "exit": 0,
+        "statistics": {
+          "generated": 2718246,
+          "distinct": 283760,
+          "left_on_queue": 0,
+          "depth": 34,
+          "initial_generated": 1
+        },
+        "wall_seconds": 34.39,
+        "peak_rss_kib": 2289768
+      }
+    }
+  ]
+}
