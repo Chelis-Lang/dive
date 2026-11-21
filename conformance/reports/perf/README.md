@@ -328,6 +328,10 @@ model key; the keys are stable corpus config paths.
 
 ## Large-model structure and edit reuse
 
+The original CCF comparison records matched exact checks at one and eight
+workers, resource stops at the larger bound, and certified cursor lengths.
+[Core frame narrowing on original CCF](2026-11-21-ccf-core-frame-narrowing.json)
+
 The packed safety follow-up records cold and warm source-generated checks,
 native peers, exact orbit ranks, packed aggregate actions, temporal product
 rows and profile-guided compilation on two dedicated CPU hosts.

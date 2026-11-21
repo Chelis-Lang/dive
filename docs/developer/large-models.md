@@ -1632,6 +1632,41 @@ All four original-bound checks exhausted the same graph on each revision. At the
 
 The original abstract model in nominal TLC mode refused a history-sensitive startup enumeration. The concrete CCF consensus model uses `IOEnv`, which currently produces a named Core refusal. Pinned TLC checked the released concrete model before and after the pre-vote change under the upstream wrapper’s defaults. Both exhausted 4,266 distinct states, 9,073 generated, at depth 39. [Upstream pre-vote change](https://github.com/microsoft/CCF/commit/59d47cd21004e646981c67d7ec613316840c2f22).
 
+#### Check the original actions with frame narrowing
+
+Default Core can restrict a function-set cursor when the remaining action
+proves a frame with one writable coordinate. It checks the fixed coordinates
+against the original ordered range and checks any admitted sequence-prefix
+predicate for every writable value. It then evaluates the surviving function
+assignments in the original order through the rest of the action. If the
+preflight cannot establish defined, effect-free comparisons and predicates,
+Core uses the original cursor.
+
+These medians are from three alternating runs per arm on a dedicated
+eight-physical-core c7i.4xlarge, with swap disabled and an 8 GiB cgroup.
+Both arms use the same release binary and exact identity. The ablation sets
+`DIVE_CORE_OPT=-framed-function-choices`. The original revisions retain
+their CFGs, symmetry, constraint, invariants, and append-only property.
+
+| Revision and bound | Workers | Ordinary cursor | Narrowed cursor | Peak RSS MiB, ordinary/narrowed | Distinct / generated / depth |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Before assumption edit, 3 | 1 | 44.54 s | 110.2 ms | 35.0/35.0 | 349 / 5,819 / 4 |
+| Before assumption edit, 3 | 8 | 8.12 s | 45.2 ms | 46.9/52.8 | 349 / 5,819 / 4 |
+| After assumption edit, 3 | 1 | 44.58 s | 109.2 ms | 34.7/35.0 | 349 / 5,819 / 4 |
+| After assumption edit, 3 | 8 | 8.03 s | 44.8 ms | 47.4/55.1 | 349 / 5,819 / 4 |
+| After assumption edit, 4 | 1 | stopped at 180 s | 3.12 s | 53.0/52.8 | 1,549 / 30,039 / 4 |
+| After assumption edit, 4 | 8 | stopped at 180 s | 2.94 s | 186.6/257.3 | 1,549 / 30,039 / 4 |
+
+The baseline's Callgrind prefix attributed at least 22.2% of counted
+instructions to heap lookup self time.
+In a separate instrumented search of the newer original revision, the
+certified cursors contained 137,472,000 elements before narrowing and
+83,360 after it. For the larger control these totals were
+15,710,202,948 and 1,073,028. Both instrumented runs matched the completed
+search counts. Across eleven pairs, SimpleRegular took a median 3.04 s
+in each arm, including startup.
+[Paired timings, resource stops, and cursor counts](../../conformance/reports/perf/2026-11-21-ccf-core-frame-narrowing.json)
+
 ### Check disjoint safety partitions
 
 A model with fixed per-instance choices can often be checked as several independent state graphs. Pick a total, deterministic state predicate for each choice. Each truth assignment defines one cell. Restrict **Init** to the cell, keep **Next** unrestricted, and add the cell predicate as an invariant. If a reachable transition crosses the boundary, that cell must fail. Restricting Next or adding a state constraint to enforce the boundary would hide the transition.
