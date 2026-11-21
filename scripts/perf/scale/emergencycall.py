@@ -13,9 +13,25 @@ import subprocess
 import sys
 
 from dd import cudd
+from induction import write_atomic
 from engine import SourceModel, Unsupported, require
 
 SOURCE_SHA = "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e"
+STANDARD_SOURCES = {
+    "Naturals": "73f2a68412039aa86f37ad08f0d0fef50fa8327d0ad8806f515548c75e9d9d84",
+    "Sequences": "f613cffe14133769f0972b6f6e0139aaf0773004a51bac88ada382426e3eb7f4",
+    "FiniteSets": "d94cb545256539bf782fc1914842dfe8c19c1d3d4e48b8327dd0c47b74922e1e",
+    "TLC": "944ece590eec81ace059881c2a62064c06041efa81539a788cd40fa7d1da41ce",
+}
+# Extra cases change a single finite set literal. Identifying them by the
+# complete source digest keeps the initial-witness argument tied to those edits.
+VARIANTS = {
+    "published": SOURCE_SHA,
+    "ordinary-1": "4f9be5695f4c713ca445ff765fe341d559cd70f350374252cd3e9d0b521d180a",
+    "ordinary-2": "1c730ad1c2a34bc0de48767a482fdadf657a69a90a73f13fd068deb05ed47d36",
+    "local-1": "d6c2291f6747d4614e829b9282cdc18a406741399a4cf8fa420a9624647dba8e",
+    "local-2": "6a14b5eea015ac557b8267dab6eb02d10af410ce141aa64c3f9a85ae62232f77",
+}
 PARTITION = (
     "amf_0_normal_attach_accept_include_enl",
     "amf_1_normal_attach_accept_include_enl",
@@ -84,6 +100,8 @@ class PhoneModel(SourceModel):
         self.bits = {}
         self.groups = {}
         self.variables = []
+        # Layout inference evaluates ground domains before any variables exist.
+        self.valid = self.b.true
         self.domains = self.infer_alphabets()
         for index, domain in sorted(self.domains.items()):
             bits = []
@@ -203,7 +221,7 @@ class PhoneModel(SourceModel):
         (bound,) = term["bounds"]
         require(len(bound["vars"]) == 1, "expected a single local variable")
         allowed = {}
-        for domain, guard in self.value(bound["domain"], env).items():
+        for domain, guard in self.total_value(bound["domain"], env).items():
             for value in domain:
                 allowed[value] = allowed.get(value, self.b.false) | guard
         for value in sorted(allowed, key=order):
@@ -295,6 +313,15 @@ class PhoneModel(SourceModel):
             guard & right[value] for value, guard in left.items() if value in right
         )
 
+    def total_value(self, expr, env):
+        """Reject undefined predicate operands and quantifier domains."""
+        choices = self.value(expr, env)
+        require(
+            self.valid & ~self.any(choices.values()) == self.b.false,
+            "partial finite value in predicate or quantifier domain",
+        )
+        return choices
+
     def predicate(self, expr, env):
         tag, term = self.node(expr)
 
@@ -322,19 +349,19 @@ class PhoneModel(SourceModel):
         require(tag == "Builtin", "unsupported predicate " + tag)
         op = term["op"]
         lhs, rhs = term["args"]
-        left = self.value(lhs, env)
+        left = self.total_value(lhs, env)
         if op in ("Eq", "Neq"):
-            equal = self.equal_values(left, self.value(rhs, env))
+            equal = self.equal_values(left, self.total_value(rhs, env))
             return equal if op == "Eq" else ~equal
         if op in ("In", "NotIn") and self.node(rhs)[0] == "SetEnum":
             # Avoid enumerating the product of several variable-valued members.
             member = self.any(
-                self.equal_values(left, self.value(item, env))
+                self.equal_values(left, self.total_value(item, env))
                 for item in self.node(rhs)[1]
             )
             return member if op == "In" else ~member
         require(op in ("In", "NotIn", "Subseteq"), "unrecognized predicate " + op)
-        right = self.value(rhs, env)
+        right = self.total_value(rhs, env)
         result = self.any(
             a & b
             for x, a in left.items()
@@ -387,7 +414,23 @@ class PhoneModel(SourceModel):
         else:
             yield guard & self.predicate(expr, env), assigned
 
-    def check(self, cell):
+    def decode(self, point):
+        def concrete(value):
+            if isinstance(value, frozenset):
+                return {"set": [concrete(item) for item in sorted(value, key=order)]}
+            if isinstance(value, tuple):
+                return {"record": {field: concrete(item) for field, item in value}}
+            return value
+
+        result = {}
+        for index, name in enumerate(self.names):
+            code = sum(
+                1 << bit for bit, var in enumerate(self.bits[index]) if point[var.var]
+            )
+            result[name] = concrete(self.domains[index][code])
+        return result
+
+    def check(self, cell, keep_trace=False):
         initial = self.valid & self.predicate(self.doc["init"], {})
         fixed = self.b.true
         if cell is not None:
@@ -432,13 +475,38 @@ class PhoneModel(SourceModel):
             checks.append(("deadlock", self.any(guard for guard, _ in actions)))
         checks.append(("partition changed", fixed))
         admissible = self.conjunction(test for _, test in checks)
+        layers = []
         depth = 0
         while frontier != self.b.false:
             depth += 1
+            if keep_trace:
+                layers.append(frontier)
             if frontier & ~admissible != self.b.false:
                 failed = [
                     name for name, test in checks if frontier & ~test != self.b.false
                 ]
+                if keep_trace and not {
+                    "partition changed",
+                    "invalid or undefined successor value",
+                }.intersection(failed):
+                    self.actions = actions
+                    self.constraint = self.b.true
+                    name = failed[0]
+                    ending = (
+                        {"kind": "deadlock"}
+                        if name == "deadlock"
+                        else {"kind": "invariant", "name": name}
+                    )
+                    trace = self.witness(layers, frontier & ~dict(checks)[name], ending)
+                    return {
+                        "closed": False,
+                        "depth": depth,
+                        "cell": cell,
+                        "invariants": [name for name, _ in self.doc["invariants"]],
+                        "checked_deadlock": self.doc["check_deadlock"],
+                        "ending": ending,
+                        "trace": trace,
+                    }
                 raise Unsupported(
                     f"obligation failed at BFS depth {depth}: {', '.join(failed)}"
                 )
@@ -469,19 +537,80 @@ def main():
     parser.add_argument("module", type=Path)
     parser.add_argument("config", type=Path)
     parser.add_argument("--exporter", type=Path, required=True)
+    parser.add_argument("--variant", choices=VARIANTS, default="published")
     parser.add_argument("--cell", type=int, choices=range(64))
+    parser.add_argument(
+        "--trace",
+        type=Path,
+        help="save a validated shortest counterexample from the selected initial set",
+    )
+    parser.add_argument(
+        "--validator", type=Path, help="dive executable for validate-trace"
+    )
     args = parser.parse_args()
+    if bool(args.validator) != bool(args.trace):
+        parser.error("supply --trace and --validator together")
+    if args.trace and any(
+        args.trace.resolve() == source.resolve()
+        for source in (args.module, args.config, args.exporter, args.validator)
+    ):
+        parser.error("the trace destination must be separate from the inputs")
     require(
-        hashlib.sha256(args.module.read_bytes()).hexdigest() == SOURCE_SHA,
+        hashlib.sha256(args.module.read_bytes()).hexdigest() == VARIANTS[args.variant],
         "unrecognized EmergencyCall source",
     )
-    bound = subprocess.check_output([args.exporter.resolve(), args.module, args.config])
-    model = PhoneModel(json.loads(bound))
-    print(json.dumps(model.check(args.cell)))
+    bound = json.loads(
+        subprocess.check_output([args.exporter.resolve(), args.module, args.config])
+    )
+    expected = STANDARD_SOURCES | {"EmergencyCall_Model_auto": VARIANTS[args.variant]}
+    files = bound["ir"]["files"]
+    require(
+        len(files) == len(expected)
+        and all(item["standard"] == (item["module"] in STANDARD_SOURCES) for item in files)
+        and {
+            item["module"]: hashlib.sha256(item["source"].encode()).hexdigest()
+            for item in files
+        } == expected,
+        "unrecognized bound EmergencyCall module or import",
+    )
+    model = PhoneModel(bound)
+    row = model.check(args.cell, keep_trace=args.trace is not None)
+    trace = row.pop("trace", None)
+    if trace is not None:
+        data = json.dumps(trace)
+        checked = subprocess.run(
+            [
+                args.validator.resolve(),
+                "validate-trace",
+                args.module,
+                "--config",
+                args.config,
+                "--trace",
+                "/dev/stdin",
+                "--compat=tlc",
+                "--fp",
+                "0",
+                "--seed",
+                "0",
+                "--output",
+                "json",
+            ],
+            input=data,
+            text=True,
+            capture_output=True,
+        )
+        require(
+            checked.returncode == 0 and json.loads(checked.stdout)["result"] == "valid",
+            "independent source trace validation failed",
+        )
+        write_atomic(args.trace, (data + "\n").encode())
+        row.update(trace_validated=True, trace_file=str(args.trace))
+    print(json.dumps(dict(variant=args.variant, **row)))
+    return int(trace is not None)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        sys.exit(main())
     except (Unsupported, KeyError, ValueError, subprocess.CalledProcessError) as error:
         sys.exit(f"unsupported: {error}")

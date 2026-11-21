@@ -1,0 +1,2315 @@
+{
+  "schema": "dive-emergencycall-domain-growth-v1",
+  "scope": "Four deliberately edited sources, each with unrestricted Init/Next, TypeInvariant and SetInvariant, deadlock enabled; counts of actual labeled states and generated witnesses. Published F1 retains all three properties. Full runs do not establish F1.",
+  "source": {
+    "repository": "https://github.com/FormalCellular/EmergencyCall",
+    "revision": "093684f1bb02d733cae95d50f1690f1cb792296a",
+    "module": "model/EmergencyCall_Model_auto.tla",
+    "sha256": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+    "full_cfg": "INIT Init\nNEXT Next\nINVARIANTS TypeInvariant SetInvariant\n",
+    "cfg_sha256": {
+      "full": "8307be05dfc7c0e824259bf1a9a315be2f836e889c34ae212b9a2ba24eda0d42",
+      "f1": "5297515fd200ca513f0553ca86157e369aa0a4f89095a04c13d6c7b2db213805",
+      "f2": "86cab1e704a9cd5ab15ba45a8fc1a4a814a714809830c7920f031785884c6bb4",
+      "f3": "90e80cd05411cd0108ec9f7314345df31b9c72213ce1314f37d3e054c8f2b160",
+      "f4": "083c49ef045959c19ddc7243949297be2805e564d0d91c255567148d236999ab"
+    }
+  },
+  "control_tools": {
+    "engine.py": "152b54ded45f78258894b21ff18f5d54639b8976c1da320440650f489d8dbea0",
+    "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+    "symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+    "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+    "tlc_jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "measurement_baseline": "23c947d3ba63bd44cee1ba6f03a35e5ef4ed6f8e01b20282c25c1ef2abdf4496",
+    "benchmark": "b93404b6f7914ce585fb57ea3f271b5b627e442f58544589bf38de37966090e8"
+  },
+  "host": {
+    "full": "EC2 c7i.4xlarge, us-east-2b, Intel Xeon Platinum 8488C. Each variant ran pinned to logical CPU 0. Trials within each family were sequential. Use timings as single observations, without attributing differences solely to the number of states.",
+    "cross_controls": "Second c7i.4xlarge in us-east-2b. Native Core and pinned TLC sequential on logical CPUs 0-3. Alternate full search on CPU 5. Interface-only controls on CPUs 12 and 14. Final module-closure and operand-totality controls on CPUs 0, 2, 3, 4 concurrently. GNU time process wall and peak RSS in KiB."
+  },
+  "commands": {
+    "full": "PYTHONHASHSEED=0 PYTHONPATH=$WORKER $WORKER/python/bin/python3 scripts/perf/scale/emergencycall.py MODULE full.cfg --variant VARIANT --exporter $WORKER/symbolic_input",
+    "core": "dive check MODULE --config f1.cfg --store exact --workers 4 --compat=tlc --fp 0 --seed 0 --max-memory 10g --time-limit 1500s --output json",
+    "tlc": "java -Xmx6g -XX:+UseParallelGC -cp tla2tools.jar tlc2.TLC -workers 4 -seed 0 -fp 0 -metadir TMP -config f1.cfg MODULE",
+    "trace": "Append --trace PATH --validator DIVE to the benchmark command for the published s0 or full plus F1 configurations. Exit 1 is the validated counterexample."
+  },
+  "independent_initial_cardinality": "N is the set of non-emergency numbers and E the union of emergency candidates. Full Init count = 2^17 * (|E|+1) * sum |{a,b,c,d}| over (a,b,c,d) in N x E x (N union E) x E. The sum counts the choice from the four stored number fields, with duplicates removed. Fixed initial choices recover their witnesses for these pinned edits.",
+  "alternate_method": "Same bound TLA+ and earlier expression evaluation; independent strict BFS with reversed action order, simultaneous substitution and 64 fixed-policy cofactors. Counts and depth are compared exactly; this shares front-end semantics.",
+  "variants": {
+    "ordinary-1": {
+      "source_sha256": "4f9be5695f4c713ca445ff765fe341d559cd70f350374252cd3e9d0b521d180a",
+      "timed_helper_sha256": "659dd99a5d24be6bc0422acbbd6fc9fe986d8ff4c6670da022d9c93e3f5ea271",
+      "timed_helper_note": "Published benchmark with only the source digest changed.",
+      "full": {
+        "initial": 147849216,
+        "distinct": 169479392600,
+        "generated": 1273101338520,
+        "depth": 44,
+        "bdd_nodes": 244067,
+        "encoding_bits": 72,
+        "action_witnesses": 63,
+        "cell": null,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant"
+        ],
+        "checked_deadlock": true,
+        "closed": true,
+        "exit": 0,
+        "wall_seconds": 275.93,
+        "peak_rss_kib": 1217948
+      },
+      "initial_formula_result": 147849216,
+      "f1": {
+        "exit": 0,
+        "wall_seconds": 0.42,
+        "peak_rss_kib": 61528,
+        "initial": 32768,
+        "distinct": 4841472,
+        "generated": 33652736,
+        "depth": 19,
+        "bdd_nodes": 624,
+        "encoding_bits": 72,
+        "action_witnesses": 63,
+        "cell": null,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant",
+          "F1"
+        ],
+        "checked_deadlock": true,
+        "closed": true
+      },
+      "f1_controls": {
+        "core": {
+          "exit": 0,
+          "wall_seconds": 209.76,
+          "peak_rss_kib": 2481032,
+          "verdict": "success",
+          "depth": 19,
+          "distinct": 4841472,
+          "generated": 33652736,
+          "initial_generated": 32768,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tlc": {
+          "exit": 0,
+          "wall_seconds": 98.29,
+          "peak_rss_kib": 2727040,
+          "verdict": "success",
+          "generated": 33652736,
+          "distinct": 4841472,
+          "left_on_queue": 0,
+          "depth": 19
+        }
+      },
+      "alternate": {
+        "initial": 147849216,
+        "distinct": 169479392600,
+        "generated": 1273101338520,
+        "depth": 44,
+        "exit": 0,
+        "wall_seconds": 377.55,
+        "peak_rss_kib": 1467748,
+        "cofactors": [
+          {
+            "cell": 0,
+            "initial": 2310144,
+            "distinct": 2019687376,
+            "generated": 14882374720,
+            "depth": 39
+          },
+          {
+            "cell": 1,
+            "initial": 2310144,
+            "distinct": 3117914664,
+            "generated": 23432454280,
+            "depth": 43
+          },
+          {
+            "cell": 2,
+            "initial": 2310144,
+            "distinct": 2326122976,
+            "generated": 17387643920,
+            "depth": 38
+          },
+          {
+            "cell": 3,
+            "initial": 2310144,
+            "distinct": 3415546224,
+            "generated": 25950701888,
+            "depth": 40
+          },
+          {
+            "cell": 4,
+            "initial": 2310144,
+            "distinct": 2983449716,
+            "generated": 22327772588,
+            "depth": 44
+          },
+          {
+            "cell": 5,
+            "initial": 2310144,
+            "distinct": 2334670296,
+            "generated": 17418037288,
+            "depth": 43
+          },
+          {
+            "cell": 6,
+            "initial": 2310144,
+            "distinct": 3509401808,
+            "generated": 26577551344,
+            "depth": 40
+          },
+          {
+            "cell": 7,
+            "initial": 2310144,
+            "distinct": 2412626256,
+            "generated": 18218046720,
+            "depth": 39
+          },
+          {
+            "cell": 8,
+            "initial": 2310144,
+            "distinct": 2616565816,
+            "generated": 19449181440,
+            "depth": 41
+          },
+          {
+            "cell": 9,
+            "initial": 2310144,
+            "distinct": 3944171692,
+            "generated": 29808061180,
+            "depth": 43
+          },
+          {
+            "cell": 10,
+            "initial": 2310144,
+            "distinct": 1479026176,
+            "generated": 10981780400,
+            "depth": 38
+          },
+          {
+            "cell": 11,
+            "initial": 2310144,
+            "distinct": 2014214912,
+            "generated": 15208047696,
+            "depth": 39
+          },
+          {
+            "cell": 12,
+            "initial": 2310144,
+            "distinct": 3812555448,
+            "generated": 28723110624,
+            "depth": 41
+          },
+          {
+            "cell": 13,
+            "initial": 2310144,
+            "distinct": 2940997996,
+            "generated": 22076486588,
+            "depth": 43
+          },
+          {
+            "cell": 14,
+            "initial": 2310144,
+            "distinct": 2103862848,
+            "generated": 15809818736,
+            "depth": 38
+          },
+          {
+            "cell": 15,
+            "initial": 2310144,
+            "distinct": 1339668480,
+            "generated": 10028161328,
+            "depth": 33
+          },
+          {
+            "cell": 16,
+            "initial": 2310144,
+            "distinct": 2019654896,
+            "generated": 14882203040,
+            "depth": 39
+          },
+          {
+            "cell": 17,
+            "initial": 2310144,
+            "distinct": 3117872440,
+            "generated": 23432231096,
+            "depth": 43
+          },
+          {
+            "cell": 18,
+            "initial": 2310144,
+            "distinct": 2326102816,
+            "generated": 17387537360,
+            "depth": 38
+          },
+          {
+            "cell": 19,
+            "initial": 2310144,
+            "distinct": 3415526064,
+            "generated": 25950595328,
+            "depth": 40
+          },
+          {
+            "cell": 20,
+            "initial": 2310144,
+            "distinct": 2983412364,
+            "generated": 22327575156,
+            "depth": 44
+          },
+          {
+            "cell": 21,
+            "initial": 2310144,
+            "distinct": 2334628072,
+            "generated": 17417814104,
+            "depth": 43
+          },
+          {
+            "cell": 22,
+            "initial": 2310144,
+            "distinct": 3509381648,
+            "generated": 26577444784,
+            "depth": 40
+          },
+          {
+            "cell": 23,
+            "initial": 2310144,
+            "distinct": 2412606096,
+            "generated": 18217940160,
+            "depth": 39
+          },
+          {
+            "cell": 24,
+            "initial": 2310144,
+            "distinct": 2616532776,
+            "generated": 19449006800,
+            "depth": 41
+          },
+          {
+            "cell": 25,
+            "initial": 2310144,
+            "distinct": 3944128740,
+            "generated": 29807834148,
+            "depth": 43
+          },
+          {
+            "cell": 26,
+            "initial": 2310144,
+            "distinct": 1479006016,
+            "generated": 10981673840,
+            "depth": 38
+          },
+          {
+            "cell": 27,
+            "initial": 2310144,
+            "distinct": 2014194752,
+            "generated": 15207941136,
+            "depth": 39
+          },
+          {
+            "cell": 28,
+            "initial": 2310144,
+            "distinct": 3812517368,
+            "generated": 28722909344,
+            "depth": 41
+          },
+          {
+            "cell": 29,
+            "initial": 2310144,
+            "distinct": 2940955044,
+            "generated": 22076259556,
+            "depth": 43
+          },
+          {
+            "cell": 30,
+            "initial": 2310144,
+            "distinct": 2103842688,
+            "generated": 15809712176,
+            "depth": 38
+          },
+          {
+            "cell": 31,
+            "initial": 2310144,
+            "distinct": 1339648320,
+            "generated": 10028054768,
+            "depth": 33
+          },
+          {
+            "cell": 32,
+            "initial": 2310144,
+            "distinct": 2019601696,
+            "generated": 14881805200,
+            "depth": 39
+          },
+          {
+            "cell": 33,
+            "initial": 2310144,
+            "distinct": 3117807360,
+            "generated": 23431741024,
+            "depth": 43
+          },
+          {
+            "cell": 34,
+            "initial": 2310144,
+            "distinct": 2326122976,
+            "generated": 17387643920,
+            "depth": 38
+          },
+          {
+            "cell": 35,
+            "initial": 2310144,
+            "distinct": 3415546224,
+            "generated": 25950701888,
+            "depth": 40
+          },
+          {
+            "cell": 36,
+            "initial": 2310144,
+            "distinct": 2983353224,
+            "generated": 22327131200,
+            "depth": 44
+          },
+          {
+            "cell": 37,
+            "initial": 2310144,
+            "distinct": 2334562992,
+            "generated": 17417324032,
+            "depth": 43
+          },
+          {
+            "cell": 38,
+            "initial": 2310144,
+            "distinct": 3509401808,
+            "generated": 26577551344,
+            "depth": 40
+          },
+          {
+            "cell": 39,
+            "initial": 2310144,
+            "distinct": 2412626256,
+            "generated": 18218046720,
+            "depth": 39
+          },
+          {
+            "cell": 40,
+            "initial": 2310144,
+            "distinct": 2616479456,
+            "generated": 19448607400,
+            "depth": 41
+          },
+          {
+            "cell": 41,
+            "initial": 2310144,
+            "distinct": 3944063640,
+            "generated": 29807342952,
+            "depth": 43
+          },
+          {
+            "cell": 42,
+            "initial": 2310144,
+            "distinct": 1479026176,
+            "generated": 10981780400,
+            "depth": 38
+          },
+          {
+            "cell": 43,
+            "initial": 2310144,
+            "distinct": 2014214912,
+            "generated": 15208047696,
+            "depth": 39
+          },
+          {
+            "cell": 44,
+            "initial": 2310144,
+            "distinct": 3812458208,
+            "generated": 28722464264,
+            "depth": 41
+          },
+          {
+            "cell": 45,
+            "initial": 2310144,
+            "distinct": 2940889944,
+            "generated": 22075768360,
+            "depth": 43
+          },
+          {
+            "cell": 46,
+            "initial": 2310144,
+            "distinct": 2103862848,
+            "generated": 15809818736,
+            "depth": 38
+          },
+          {
+            "cell": 47,
+            "initial": 2310144,
+            "distinct": 1339668480,
+            "generated": 10028161328,
+            "depth": 33
+          },
+          {
+            "cell": 48,
+            "initial": 2310144,
+            "distinct": 2019569216,
+            "generated": 14881633520,
+            "depth": 39
+          },
+          {
+            "cell": 49,
+            "initial": 2310144,
+            "distinct": 3117765136,
+            "generated": 23431517840,
+            "depth": 43
+          },
+          {
+            "cell": 50,
+            "initial": 2310144,
+            "distinct": 2326102816,
+            "generated": 17387537360,
+            "depth": 38
+          },
+          {
+            "cell": 51,
+            "initial": 2310144,
+            "distinct": 3415526064,
+            "generated": 25950595328,
+            "depth": 40
+          },
+          {
+            "cell": 52,
+            "initial": 2310144,
+            "distinct": 2983315872,
+            "generated": 22326933768,
+            "depth": 44
+          },
+          {
+            "cell": 53,
+            "initial": 2310144,
+            "distinct": 2334520768,
+            "generated": 17417100848,
+            "depth": 43
+          },
+          {
+            "cell": 54,
+            "initial": 2310144,
+            "distinct": 3509381648,
+            "generated": 26577444784,
+            "depth": 40
+          },
+          {
+            "cell": 55,
+            "initial": 2310144,
+            "distinct": 2412606096,
+            "generated": 18217940160,
+            "depth": 39
+          },
+          {
+            "cell": 56,
+            "initial": 2310144,
+            "distinct": 2616446416,
+            "generated": 19448432760,
+            "depth": 41
+          },
+          {
+            "cell": 57,
+            "initial": 2310144,
+            "distinct": 3944020688,
+            "generated": 29807115920,
+            "depth": 43
+          },
+          {
+            "cell": 58,
+            "initial": 2310144,
+            "distinct": 1479006016,
+            "generated": 10981673840,
+            "depth": 38
+          },
+          {
+            "cell": 59,
+            "initial": 2310144,
+            "distinct": 2014194752,
+            "generated": 15207941136,
+            "depth": 39
+          },
+          {
+            "cell": 60,
+            "initial": 2310144,
+            "distinct": 3812420128,
+            "generated": 28722262984,
+            "depth": 41
+          },
+          {
+            "cell": 61,
+            "initial": 2310144,
+            "distinct": 2940846992,
+            "generated": 22075541328,
+            "depth": 43
+          },
+          {
+            "cell": 62,
+            "initial": 2310144,
+            "distinct": 2103842688,
+            "generated": 15809712176,
+            "depth": 38
+          },
+          {
+            "cell": 63,
+            "initial": 2310144,
+            "distinct": 1339648320,
+            "generated": 10028054768,
+            "depth": 33
+          }
+        ]
+      },
+      "final_helper_repeat": {
+        "exit": 0,
+        "wall_seconds": 254.63,
+        "peak_rss_kib": 1217404,
+        "all_output_fields_agree": true
+      }
+    },
+    "ordinary-2": {
+      "source_sha256": "1c730ad1c2a34bc0de48767a482fdadf657a69a90a73f13fd068deb05ed47d36",
+      "timed_helper_sha256": "08e3c395664c46b74c6ec398f04e3893420b22dbe2b4d2a6131d09a49bd048dc",
+      "timed_helper_note": "Published benchmark with only the source digest changed.",
+      "full": {
+        "initial": 273678336,
+        "distinct": 394692381120,
+        "generated": 3342552718608,
+        "depth": 44,
+        "bdd_nodes": 337077,
+        "encoding_bits": 74,
+        "action_witnesses": 64,
+        "cell": null,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant"
+        ],
+        "checked_deadlock": true,
+        "closed": true,
+        "exit": 0,
+        "wall_seconds": 472.53,
+        "peak_rss_kib": 1225884
+      },
+      "initial_formula_result": 273678336,
+      "f1": {
+        "exit": 0,
+        "wall_seconds": 0.48,
+        "peak_rss_kib": 62320,
+        "initial": 32768,
+        "distinct": 5750784,
+        "generated": 45473792,
+        "depth": 19,
+        "bdd_nodes": 635,
+        "encoding_bits": 74,
+        "action_witnesses": 64,
+        "cell": null,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant",
+          "F1"
+        ],
+        "checked_deadlock": true,
+        "closed": true
+      },
+      "f1_controls": {
+        "core": {
+          "exit": 0,
+          "wall_seconds": 381.41,
+          "peak_rss_kib": 2882752,
+          "verdict": "success",
+          "depth": 19,
+          "distinct": 5750784,
+          "generated": 45473792,
+          "initial_generated": 32768,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tlc": {
+          "exit": 0,
+          "wall_seconds": 164.79,
+          "peak_rss_kib": 2762376,
+          "verdict": "success",
+          "generated": 45473792,
+          "distinct": 5750784,
+          "left_on_queue": 0,
+          "depth": 19
+        }
+      },
+      "alternate": {
+        "initial": 273678336,
+        "distinct": 394692381120,
+        "generated": 3342552718608,
+        "depth": 44,
+        "exit": 0,
+        "wall_seconds": 582.79,
+        "peak_rss_kib": 1271456,
+        "cofactors": [
+          {
+            "cell": 0,
+            "initial": 4276224,
+            "distinct": 4687981632,
+            "generated": 39026344032,
+            "depth": 39
+          },
+          {
+            "cell": 1,
+            "initial": 4276224,
+            "distinct": 7282633776,
+            "generated": 61686786996,
+            "depth": 43
+          },
+          {
+            "cell": 2,
+            "initial": 4276224,
+            "distinct": 5392537776,
+            "generated": 45474528816,
+            "depth": 38
+          },
+          {
+            "cell": 3,
+            "initial": 4276224,
+            "distinct": 7970420688,
+            "generated": 68189235312,
+            "depth": 40
+          },
+          {
+            "cell": 4,
+            "initial": 4276224,
+            "distinct": 6964135464,
+            "generated": 58775168334,
+            "depth": 44
+          },
+          {
+            "cell": 5,
+            "initial": 4276224,
+            "distinct": 5434927008,
+            "generated": 45734361132,
+            "depth": 43
+          },
+          {
+            "cell": 6,
+            "initial": 4276224,
+            "distinct": 8192523936,
+            "generated": 69889944000,
+            "depth": 40
+          },
+          {
+            "cell": 7,
+            "initial": 4276224,
+            "distinct": 5606380224,
+            "generated": 47700167952,
+            "depth": 39
+          },
+          {
+            "cell": 8,
+            "initial": 4276224,
+            "distinct": 6071993424,
+            "generated": 50940421704,
+            "depth": 41
+          },
+          {
+            "cell": 9,
+            "initial": 4276224,
+            "distinct": 9214396776,
+            "generated": 78446433222,
+            "depth": 43
+          },
+          {
+            "cell": 10,
+            "initial": 4276224,
+            "distinct": 3424953024,
+            "generated": 28717469856,
+            "depth": 38
+          },
+          {
+            "cell": 11,
+            "initial": 4276224,
+            "distinct": 4684981056,
+            "generated": 39868365120,
+            "depth": 39
+          },
+          {
+            "cell": 12,
+            "initial": 4276224,
+            "distinct": 8902639632,
+            "generated": 75588084552,
+            "depth": 41
+          },
+          {
+            "cell": 13,
+            "initial": 4276224,
+            "distinct": 6849792408,
+            "generated": 57959788326,
+            "depth": 43
+          },
+          {
+            "cell": 14,
+            "initial": 4276224,
+            "distinct": 4897360080,
+            "generated": 41502225648,
+            "depth": 38
+          },
+          {
+            "cell": 15,
+            "initial": 4276224,
+            "distinct": 3096786528,
+            "generated": 26148487680,
+            "depth": 33
+          },
+          {
+            "cell": 16,
+            "initial": 4276224,
+            "distinct": 4687914816,
+            "generated": 39025926432,
+            "depth": 39
+          },
+          {
+            "cell": 17,
+            "initial": 4276224,
+            "distinct": 7282546992,
+            "generated": 61686244596,
+            "depth": 43
+          },
+          {
+            "cell": 18,
+            "initial": 4276224,
+            "distinct": 5392496304,
+            "generated": 45474269616,
+            "depth": 38
+          },
+          {
+            "cell": 19,
+            "initial": 4276224,
+            "distinct": 7970379216,
+            "generated": 68188976112,
+            "depth": 40
+          },
+          {
+            "cell": 20,
+            "initial": 4276224,
+            "distinct": 6964058664,
+            "generated": 58774688334,
+            "depth": 44
+          },
+          {
+            "cell": 21,
+            "initial": 4276224,
+            "distinct": 5434840224,
+            "generated": 45733818732,
+            "depth": 43
+          },
+          {
+            "cell": 22,
+            "initial": 4276224,
+            "distinct": 8192482464,
+            "generated": 69889684800,
+            "depth": 40
+          },
+          {
+            "cell": 23,
+            "initial": 4276224,
+            "distinct": 5606338752,
+            "generated": 47699908752,
+            "depth": 39
+          },
+          {
+            "cell": 24,
+            "initial": 4276224,
+            "distinct": 6071925456,
+            "generated": 50939996904,
+            "depth": 41
+          },
+          {
+            "cell": 25,
+            "initial": 4276224,
+            "distinct": 9214308456,
+            "generated": 78445881222,
+            "depth": 43
+          },
+          {
+            "cell": 26,
+            "initial": 4276224,
+            "distinct": 3424911552,
+            "generated": 28717210656,
+            "depth": 38
+          },
+          {
+            "cell": 27,
+            "initial": 4276224,
+            "distinct": 4684939584,
+            "generated": 39868105920,
+            "depth": 39
+          },
+          {
+            "cell": 28,
+            "initial": 4276224,
+            "distinct": 8902561296,
+            "generated": 75587594952,
+            "depth": 41
+          },
+          {
+            "cell": 29,
+            "initial": 4276224,
+            "distinct": 6849704088,
+            "generated": 57959236326,
+            "depth": 43
+          },
+          {
+            "cell": 30,
+            "initial": 4276224,
+            "distinct": 4897318608,
+            "generated": 41501966448,
+            "depth": 38
+          },
+          {
+            "cell": 31,
+            "initial": 4276224,
+            "distinct": 3096745056,
+            "generated": 26148228480,
+            "depth": 33
+          },
+          {
+            "cell": 32,
+            "initial": 4276224,
+            "distinct": 4687800192,
+            "generated": 39024956016,
+            "depth": 39
+          },
+          {
+            "cell": 33,
+            "initial": 4276224,
+            "distinct": 7282399056,
+            "generated": 61684991388,
+            "depth": 43
+          },
+          {
+            "cell": 34,
+            "initial": 4276224,
+            "distinct": 5392537776,
+            "generated": 45474528816,
+            "depth": 38
+          },
+          {
+            "cell": 35,
+            "initial": 4276224,
+            "distinct": 7970420688,
+            "generated": 68189235312,
+            "depth": 40
+          },
+          {
+            "cell": 36,
+            "initial": 4276224,
+            "distinct": 6963927384,
+            "generated": 58773576522,
+            "depth": 44
+          },
+          {
+            "cell": 37,
+            "initial": 4276224,
+            "distinct": 5434692288,
+            "generated": 45732565524,
+            "depth": 43
+          },
+          {
+            "cell": 38,
+            "initial": 4276224,
+            "distinct": 8192523936,
+            "generated": 69889944000,
+            "depth": 40
+          },
+          {
+            "cell": 39,
+            "initial": 4276224,
+            "distinct": 5606380224,
+            "generated": 47700167952,
+            "depth": 39
+          },
+          {
+            "cell": 40,
+            "initial": 4276224,
+            "distinct": 6071810544,
+            "generated": 50939022672,
+            "depth": 41
+          },
+          {
+            "cell": 41,
+            "initial": 4276224,
+            "distinct": 9214160376,
+            "generated": 78444624762,
+            "depth": 43
+          },
+          {
+            "cell": 42,
+            "initial": 4276224,
+            "distinct": 3424953024,
+            "generated": 28717469856,
+            "depth": 38
+          },
+          {
+            "cell": 43,
+            "initial": 4276224,
+            "distinct": 4684981056,
+            "generated": 39868365120,
+            "depth": 39
+          },
+          {
+            "cell": 44,
+            "initial": 4276224,
+            "distinct": 8902429872,
+            "generated": 75586479888,
+            "depth": 41
+          },
+          {
+            "cell": 45,
+            "initial": 4276224,
+            "distinct": 6849556008,
+            "generated": 57957979866,
+            "depth": 43
+          },
+          {
+            "cell": 46,
+            "initial": 4276224,
+            "distinct": 4897360080,
+            "generated": 41502225648,
+            "depth": 38
+          },
+          {
+            "cell": 47,
+            "initial": 4276224,
+            "distinct": 3096786528,
+            "generated": 26148487680,
+            "depth": 33
+          },
+          {
+            "cell": 48,
+            "initial": 4276224,
+            "distinct": 4687733376,
+            "generated": 39024538416,
+            "depth": 39
+          },
+          {
+            "cell": 49,
+            "initial": 4276224,
+            "distinct": 7282312272,
+            "generated": 61684448988,
+            "depth": 43
+          },
+          {
+            "cell": 50,
+            "initial": 4276224,
+            "distinct": 5392496304,
+            "generated": 45474269616,
+            "depth": 38
+          },
+          {
+            "cell": 51,
+            "initial": 4276224,
+            "distinct": 7970379216,
+            "generated": 68188976112,
+            "depth": 40
+          },
+          {
+            "cell": 52,
+            "initial": 4276224,
+            "distinct": 6963850584,
+            "generated": 58773096522,
+            "depth": 44
+          },
+          {
+            "cell": 53,
+            "initial": 4276224,
+            "distinct": 5434605504,
+            "generated": 45732023124,
+            "depth": 43
+          },
+          {
+            "cell": 54,
+            "initial": 4276224,
+            "distinct": 8192482464,
+            "generated": 69889684800,
+            "depth": 40
+          },
+          {
+            "cell": 55,
+            "initial": 4276224,
+            "distinct": 5606338752,
+            "generated": 47699908752,
+            "depth": 39
+          },
+          {
+            "cell": 56,
+            "initial": 4276224,
+            "distinct": 6071742576,
+            "generated": 50938597872,
+            "depth": 41
+          },
+          {
+            "cell": 57,
+            "initial": 4276224,
+            "distinct": 9214072056,
+            "generated": 78444072762,
+            "depth": 43
+          },
+          {
+            "cell": 58,
+            "initial": 4276224,
+            "distinct": 3424911552,
+            "generated": 28717210656,
+            "depth": 38
+          },
+          {
+            "cell": 59,
+            "initial": 4276224,
+            "distinct": 4684939584,
+            "generated": 39868105920,
+            "depth": 39
+          },
+          {
+            "cell": 60,
+            "initial": 4276224,
+            "distinct": 8902351536,
+            "generated": 75585990288,
+            "depth": 41
+          },
+          {
+            "cell": 61,
+            "initial": 4276224,
+            "distinct": 6849467688,
+            "generated": 57957427866,
+            "depth": 43
+          },
+          {
+            "cell": 62,
+            "initial": 4276224,
+            "distinct": 4897318608,
+            "generated": 41501966448,
+            "depth": 38
+          },
+          {
+            "cell": 63,
+            "initial": 4276224,
+            "distinct": 3096745056,
+            "generated": 26148228480,
+            "depth": 33
+          }
+        ]
+      },
+      "merged_interface_count_repeat": {
+        "exit": 0,
+        "wall_seconds": 418.77,
+        "peak_rss_kib": 1226144,
+        "all_output_fields_agree": true,
+        "benchmark_sha256": "6e3c6fda280eaace3fc00acbfb3524be8b977acb0e6d0f268eaa3bc4a88c3293",
+        "scope": "Same count path; before the trace reporting metadata change."
+      },
+      "final_helper_repeat": {
+        "exit": 0,
+        "wall_seconds": 422.37,
+        "peak_rss_kib": 1225360,
+        "all_output_fields_agree": true
+      }
+    },
+    "local-1": {
+      "source_sha256": "d6c2291f6747d4614e829b9282cdc18a406741399a4cf8fa420a9624647dba8e",
+      "timed_helper_sha256": "24dff51dffc500d4ba27992c15c6d7e45a56ace3c8787f9429bb267433df86e7",
+      "timed_helper_note": "Published benchmark with only the source digest changed.",
+      "full": {
+        "initial": 167772160,
+        "distinct": 193953806512,
+        "generated": 1460900160048,
+        "depth": 44,
+        "bdd_nodes": 285740,
+        "encoding_bits": 72,
+        "action_witnesses": 63,
+        "cell": null,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant"
+        ],
+        "checked_deadlock": true,
+        "closed": true,
+        "exit": 0,
+        "wall_seconds": 333.94,
+        "peak_rss_kib": 1252880
+      },
+      "initial_formula_result": 167772160,
+      "f1": {
+        "exit": 1,
+        "wall_seconds": 0.23,
+        "peak_rss_kib": 61188,
+        "result": "unsupported: empty initial set"
+      },
+      "f1_controls": {
+        "core": {
+          "exit": 0,
+          "wall_seconds": 196.6,
+          "peak_rss_kib": 31052,
+          "verdict": "success",
+          "depth": 0,
+          "distinct": 0,
+          "generated": 0,
+          "initial_generated": 0,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tlc": {
+          "exit": 0,
+          "wall_seconds": 62.61,
+          "peak_rss_kib": 1046020,
+          "verdict": "success",
+          "generated": 0,
+          "distinct": 0,
+          "left_on_queue": 0,
+          "depth": 0
+        }
+      },
+      "alternate": {
+        "initial": 167772160,
+        "distinct": 193953806512,
+        "generated": 1460900160048,
+        "depth": 44,
+        "exit": 0,
+        "wall_seconds": 451.98,
+        "peak_rss_kib": 1215792,
+        "cofactors": [
+          {
+            "cell": 0,
+            "initial": 2621440,
+            "distinct": 2520751136,
+            "generated": 18644820256,
+            "depth": 39
+          },
+          {
+            "cell": 1,
+            "initial": 2621440,
+            "distinct": 3560173968,
+            "generated": 26812016048,
+            "depth": 43
+          },
+          {
+            "cell": 2,
+            "initial": 2621440,
+            "distinct": 2816034976,
+            "generated": 21159570336,
+            "depth": 38
+          },
+          {
+            "cell": 3,
+            "initial": 2621440,
+            "distinct": 3846314016,
+            "generated": 29325940640,
+            "depth": 40
+          },
+          {
+            "cell": 4,
+            "initial": 2621440,
+            "distinct": 3537455304,
+            "generated": 26524740728,
+            "depth": 44
+          },
+          {
+            "cell": 5,
+            "initial": 2621440,
+            "distinct": 2620760560,
+            "generated": 19580890928,
+            "depth": 43
+          },
+          {
+            "cell": 6,
+            "initial": 2621440,
+            "distinct": 4049869344,
+            "generated": 30770414688,
+            "depth": 40
+          },
+          {
+            "cell": 7,
+            "initial": 2621440,
+            "distinct": 2621977792,
+            "generated": 19859259872,
+            "depth": 39
+          },
+          {
+            "cell": 8,
+            "initial": 2621440,
+            "distinct": 3293255376,
+            "generated": 24583328816,
+            "depth": 41
+          },
+          {
+            "cell": 9,
+            "initial": 2621440,
+            "distinct": 4558425112,
+            "generated": 34537293576,
+            "depth": 43
+          },
+          {
+            "cell": 10,
+            "initial": 2621440,
+            "distinct": 1627778816,
+            "generated": 12133439616,
+            "depth": 38
+          },
+          {
+            "cell": 11,
+            "initial": 2621440,
+            "distinct": 2044019456,
+            "generated": 15480415744,
+            "depth": 39
+          },
+          {
+            "cell": 12,
+            "initial": 2621440,
+            "distinct": 4539306960,
+            "generated": 34274947344,
+            "depth": 41
+          },
+          {
+            "cell": 13,
+            "initial": 2621440,
+            "distinct": 3333531192,
+            "generated": 25070372968,
+            "depth": 43
+          },
+          {
+            "cell": 14,
+            "initial": 2621440,
+            "distinct": 2240921728,
+            "generated": 16884448960,
+            "depth": 38
+          },
+          {
+            "cell": 15,
+            "initial": 2621440,
+            "distinct": 1278700160,
+            "generated": 9588095552,
+            "depth": 33
+          },
+          {
+            "cell": 16,
+            "initial": 2621440,
+            "distinct": 2520690656,
+            "generated": 18644500576,
+            "depth": 39
+          },
+          {
+            "cell": 17,
+            "initial": 2621440,
+            "distinct": 3560100720,
+            "generated": 26811628880,
+            "depth": 43
+          },
+          {
+            "cell": 18,
+            "initial": 2621440,
+            "distinct": 2816008096,
+            "generated": 21159428256,
+            "depth": 38
+          },
+          {
+            "cell": 19,
+            "initial": 2621440,
+            "distinct": 3846287136,
+            "generated": 29325798560,
+            "depth": 40
+          },
+          {
+            "cell": 20,
+            "initial": 2621440,
+            "distinct": 3537388440,
+            "generated": 26524387304,
+            "depth": 44
+          },
+          {
+            "cell": 21,
+            "initial": 2621440,
+            "distinct": 2620687312,
+            "generated": 19580503760,
+            "depth": 43
+          },
+          {
+            "cell": 22,
+            "initial": 2621440,
+            "distinct": 4049842464,
+            "generated": 30770272608,
+            "depth": 40
+          },
+          {
+            "cell": 23,
+            "initial": 2621440,
+            "distinct": 2621950912,
+            "generated": 19859117792,
+            "depth": 39
+          },
+          {
+            "cell": 24,
+            "initial": 2621440,
+            "distinct": 3293193776,
+            "generated": 24583003216,
+            "depth": 41
+          },
+          {
+            "cell": 25,
+            "initial": 2621440,
+            "distinct": 4558350408,
+            "generated": 34536898712,
+            "depth": 43
+          },
+          {
+            "cell": 26,
+            "initial": 2621440,
+            "distinct": 1627751936,
+            "generated": 12133297536,
+            "depth": 38
+          },
+          {
+            "cell": 27,
+            "initial": 2621440,
+            "distinct": 2043992576,
+            "generated": 15480273664,
+            "depth": 39
+          },
+          {
+            "cell": 28,
+            "initial": 2621440,
+            "distinct": 4539238640,
+            "generated": 34274586224,
+            "depth": 41
+          },
+          {
+            "cell": 29,
+            "initial": 2621440,
+            "distinct": 3333456488,
+            "generated": 25069978104,
+            "depth": 43
+          },
+          {
+            "cell": 30,
+            "initial": 2621440,
+            "distinct": 2240894848,
+            "generated": 16884306880,
+            "depth": 38
+          },
+          {
+            "cell": 31,
+            "initial": 2621440,
+            "distinct": 1278673280,
+            "generated": 9587953472,
+            "depth": 33
+          },
+          {
+            "cell": 32,
+            "initial": 2621440,
+            "distinct": 2520655936,
+            "generated": 18644187456,
+            "depth": 39
+          },
+          {
+            "cell": 33,
+            "initial": 2621440,
+            "distinct": 3560056192,
+            "generated": 26811233184,
+            "depth": 43
+          },
+          {
+            "cell": 34,
+            "initial": 2621440,
+            "distinct": 2816034976,
+            "generated": 21159570336,
+            "depth": 38
+          },
+          {
+            "cell": 35,
+            "initial": 2621440,
+            "distinct": 3846314016,
+            "generated": 29325940640,
+            "depth": 40
+          },
+          {
+            "cell": 36,
+            "initial": 2621440,
+            "distinct": 3537348816,
+            "generated": 26524032896,
+            "depth": 44
+          },
+          {
+            "cell": 37,
+            "initial": 2621440,
+            "distinct": 2620642784,
+            "generated": 19580108064,
+            "depth": 43
+          },
+          {
+            "cell": 38,
+            "initial": 2621440,
+            "distinct": 4049869344,
+            "generated": 30770414688,
+            "depth": 40
+          },
+          {
+            "cell": 39,
+            "initial": 2621440,
+            "distinct": 2621977792,
+            "generated": 19859259872,
+            "depth": 39
+          },
+          {
+            "cell": 40,
+            "initial": 2621440,
+            "distinct": 3293158816,
+            "generated": 24582686976,
+            "depth": 41
+          },
+          {
+            "cell": 41,
+            "initial": 2621440,
+            "distinct": 4558305840,
+            "generated": 34536500768,
+            "depth": 43
+          },
+          {
+            "cell": 42,
+            "initial": 2621440,
+            "distinct": 1627778816,
+            "generated": 12133439616,
+            "depth": 38
+          },
+          {
+            "cell": 43,
+            "initial": 2621440,
+            "distinct": 2044019456,
+            "generated": 15480415744,
+            "depth": 39
+          },
+          {
+            "cell": 44,
+            "initial": 2621440,
+            "distinct": 4539198976,
+            "generated": 34274229568,
+            "depth": 41
+          },
+          {
+            "cell": 45,
+            "initial": 2621440,
+            "distinct": 3333411920,
+            "generated": 25069580160,
+            "depth": 43
+          },
+          {
+            "cell": 46,
+            "initial": 2621440,
+            "distinct": 2240921728,
+            "generated": 16884448960,
+            "depth": 38
+          },
+          {
+            "cell": 47,
+            "initial": 2621440,
+            "distinct": 1278700160,
+            "generated": 9588095552,
+            "depth": 33
+          },
+          {
+            "cell": 48,
+            "initial": 2621440,
+            "distinct": 2520595456,
+            "generated": 18643867776,
+            "depth": 39
+          },
+          {
+            "cell": 49,
+            "initial": 2621440,
+            "distinct": 3559982944,
+            "generated": 26810846016,
+            "depth": 43
+          },
+          {
+            "cell": 50,
+            "initial": 2621440,
+            "distinct": 2816008096,
+            "generated": 21159428256,
+            "depth": 38
+          },
+          {
+            "cell": 51,
+            "initial": 2621440,
+            "distinct": 3846287136,
+            "generated": 29325798560,
+            "depth": 40
+          },
+          {
+            "cell": 52,
+            "initial": 2621440,
+            "distinct": 3537281952,
+            "generated": 26523679472,
+            "depth": 44
+          },
+          {
+            "cell": 53,
+            "initial": 2621440,
+            "distinct": 2620569536,
+            "generated": 19579720896,
+            "depth": 43
+          },
+          {
+            "cell": 54,
+            "initial": 2621440,
+            "distinct": 4049842464,
+            "generated": 30770272608,
+            "depth": 40
+          },
+          {
+            "cell": 55,
+            "initial": 2621440,
+            "distinct": 2621950912,
+            "generated": 19859117792,
+            "depth": 39
+          },
+          {
+            "cell": 56,
+            "initial": 2621440,
+            "distinct": 3293097216,
+            "generated": 24582361376,
+            "depth": 41
+          },
+          {
+            "cell": 57,
+            "initial": 2621440,
+            "distinct": 4558231136,
+            "generated": 34536105904,
+            "depth": 43
+          },
+          {
+            "cell": 58,
+            "initial": 2621440,
+            "distinct": 1627751936,
+            "generated": 12133297536,
+            "depth": 38
+          },
+          {
+            "cell": 59,
+            "initial": 2621440,
+            "distinct": 2043992576,
+            "generated": 15480273664,
+            "depth": 39
+          },
+          {
+            "cell": 60,
+            "initial": 2621440,
+            "distinct": 4539130656,
+            "generated": 34273868448,
+            "depth": 41
+          },
+          {
+            "cell": 61,
+            "initial": 2621440,
+            "distinct": 3333337216,
+            "generated": 25069185296,
+            "depth": 43
+          },
+          {
+            "cell": 62,
+            "initial": 2621440,
+            "distinct": 2240894848,
+            "generated": 16884306880,
+            "depth": 38
+          },
+          {
+            "cell": 63,
+            "initial": 2621440,
+            "distinct": 1278673280,
+            "generated": 9587953472,
+            "depth": 33
+          }
+        ]
+      },
+      "final_helper_repeat": {
+        "exit": 0,
+        "wall_seconds": 302.71,
+        "peak_rss_kib": 1252504,
+        "all_output_fields_agree": true
+      }
+    },
+    "local-2": {
+      "source_sha256": "6a14b5eea015ac557b8267dab6eb02d10af410ce141aa64c3f9a85ae62232f77",
+      "timed_helper_sha256": "ac2194f1408d4638b67915c91110421ebe27b2e076efa435b82e66ea4a7016c5",
+      "timed_helper_note": "Published benchmark with only the source digest changed.",
+      "full": {
+        "initial": 393216000,
+        "distinct": 570694082176,
+        "generated": 4847988282736,
+        "depth": 44,
+        "bdd_nodes": 407330,
+        "encoding_bits": 76,
+        "action_witnesses": 64,
+        "cell": null,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant"
+        ],
+        "checked_deadlock": true,
+        "closed": true,
+        "exit": 0,
+        "wall_seconds": 630.92,
+        "peak_rss_kib": 1220188
+      },
+      "initial_formula_result": 393216000,
+      "f1": {
+        "exit": 1,
+        "wall_seconds": 0.25,
+        "peak_rss_kib": 61240,
+        "result": "unsupported: empty initial set"
+      },
+      "f1_controls": {
+        "core": {
+          "exit": 0,
+          "wall_seconds": 469.06,
+          "peak_rss_kib": 31020,
+          "verdict": "success",
+          "depth": 0,
+          "distinct": 0,
+          "generated": 0,
+          "initial_generated": 0,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "tlc": {
+          "exit": 0,
+          "wall_seconds": 151.15,
+          "peak_rss_kib": 1049464,
+          "verdict": "success",
+          "generated": 0,
+          "distinct": 0,
+          "left_on_queue": 0,
+          "depth": 0
+        }
+      },
+      "alternate": {
+        "initial": 393216000,
+        "distinct": 570694082176,
+        "generated": 4847988282736,
+        "depth": 44,
+        "exit": 0,
+        "wall_seconds": 803.07,
+        "peak_rss_kib": 1300620,
+        "cofactors": [
+          {
+            "cell": 0,
+            "initial": 6144000,
+            "distinct": 7819088832,
+            "generated": 65373724256,
+            "depth": 39
+          },
+          {
+            "cell": 1,
+            "initial": 6144000,
+            "distinct": 10522185296,
+            "generated": 89329342204,
+            "depth": 43
+          },
+          {
+            "cell": 2,
+            "initial": 6144000,
+            "distinct": 8511994128,
+            "generated": 72240300848,
+            "depth": 38
+          },
+          {
+            "cell": 3,
+            "initial": 6144000,
+            "distinct": 11216200720,
+            "generated": 96376771056,
+            "depth": 40
+          },
+          {
+            "cell": 4,
+            "initial": 6144000,
+            "distinct": 10699576312,
+            "generated": 90473373738,
+            "depth": 44
+          },
+          {
+            "cell": 5,
+            "initial": 6144000,
+            "distinct": 7633686176,
+            "generated": 64324677700,
+            "depth": 43
+          },
+          {
+            "cell": 6,
+            "initial": 6144000,
+            "distinct": 11994461488,
+            "generated": 102722830224,
+            "depth": 40
+          },
+          {
+            "cell": 7,
+            "initial": 6144000,
+            "distinct": 7418293696,
+            "generated": 63356161632,
+            "depth": 39
+          },
+          {
+            "cell": 8,
+            "initial": 6144000,
+            "distinct": 10225253424,
+            "generated": 86205709400,
+            "depth": 41
+          },
+          {
+            "cell": 9,
+            "initial": 6144000,
+            "distinct": 13552073736,
+            "generated": 115705499506,
+            "depth": 43
+          },
+          {
+            "cell": 10,
+            "initial": 6144000,
+            "distinct": 4607511360,
+            "generated": 38816205152,
+            "depth": 38
+          },
+          {
+            "cell": 11,
+            "initial": 6144000,
+            "distinct": 5497389760,
+            "generated": 46969228480,
+            "depth": 39
+          },
+          {
+            "cell": 12,
+            "initial": 6144000,
+            "distinct": 13740737552,
+            "generated": 116938549224,
+            "depth": 41
+          },
+          {
+            "cell": 13,
+            "initial": 6144000,
+            "distinct": 9751981176,
+            "generated": 82679360626,
+            "depth": 43
+          },
+          {
+            "cell": 14,
+            "initial": 6144000,
+            "distinct": 6252422704,
+            "generated": 53151164944,
+            "depth": 38
+          },
+          {
+            "cell": 15,
+            "initial": 6144000,
+            "distinct": 3232952736,
+            "generated": 27350044544,
+            "depth": 33
+          },
+          {
+            "cell": 16,
+            "initial": 6144000,
+            "distinct": 7818888384,
+            "generated": 65372471456,
+            "depth": 39
+          },
+          {
+            "cell": 17,
+            "initial": 6144000,
+            "distinct": 10521952592,
+            "generated": 89327887804,
+            "depth": 43
+          },
+          {
+            "cell": 18,
+            "initial": 6144000,
+            "distinct": 8511925008,
+            "generated": 72239868848,
+            "depth": 38
+          },
+          {
+            "cell": 19,
+            "initial": 6144000,
+            "distinct": 11216131600,
+            "generated": 96376339056,
+            "depth": 40
+          },
+          {
+            "cell": 20,
+            "initial": 6144000,
+            "distinct": 10699359736,
+            "generated": 90472020138,
+            "depth": 44
+          },
+          {
+            "cell": 21,
+            "initial": 6144000,
+            "distinct": 7633453472,
+            "generated": 64323223300,
+            "depth": 43
+          },
+          {
+            "cell": 22,
+            "initial": 6144000,
+            "distinct": 11994392368,
+            "generated": 102722398224,
+            "depth": 40
+          },
+          {
+            "cell": 23,
+            "initial": 6144000,
+            "distinct": 7418224576,
+            "generated": 63355729632,
+            "depth": 39
+          },
+          {
+            "cell": 24,
+            "initial": 6144000,
+            "distinct": 10225049520,
+            "generated": 86204435000,
+            "depth": 41
+          },
+          {
+            "cell": 25,
+            "initial": 6144000,
+            "distinct": 13551836424,
+            "generated": 115704016306,
+            "depth": 43
+          },
+          {
+            "cell": 26,
+            "initial": 6144000,
+            "distinct": 4607442240,
+            "generated": 38815773152,
+            "depth": 38
+          },
+          {
+            "cell": 27,
+            "initial": 6144000,
+            "distinct": 5497320640,
+            "generated": 46968796480,
+            "depth": 39
+          },
+          {
+            "cell": 28,
+            "initial": 6144000,
+            "distinct": 13740516368,
+            "generated": 116937166824,
+            "depth": 41
+          },
+          {
+            "cell": 29,
+            "initial": 6144000,
+            "distinct": 9751743864,
+            "generated": 82677877426,
+            "depth": 43
+          },
+          {
+            "cell": 30,
+            "initial": 6144000,
+            "distinct": 6252353584,
+            "generated": 53150732944,
+            "depth": 38
+          },
+          {
+            "cell": 31,
+            "initial": 6144000,
+            "distinct": 3232883616,
+            "generated": 27349612544,
+            "depth": 33
+          },
+          {
+            "cell": 32,
+            "initial": 6144000,
+            "distinct": 7818851712,
+            "generated": 65371910288,
+            "depth": 39
+          },
+          {
+            "cell": 33,
+            "initial": 6144000,
+            "distinct": 10521883056,
+            "generated": 89327030068,
+            "depth": 43
+          },
+          {
+            "cell": 34,
+            "initial": 6144000,
+            "distinct": 8511994128,
+            "generated": 72240300848,
+            "depth": 38
+          },
+          {
+            "cell": 35,
+            "initial": 6144000,
+            "distinct": 11216200720,
+            "generated": 96376771056,
+            "depth": 40
+          },
+          {
+            "cell": 36,
+            "initial": 6144000,
+            "distinct": 10699306632,
+            "generated": 90471310686,
+            "depth": 44
+          },
+          {
+            "cell": 37,
+            "initial": 6144000,
+            "distinct": 7633383936,
+            "generated": 64322365564,
+            "depth": 43
+          },
+          {
+            "cell": 38,
+            "initial": 6144000,
+            "distinct": 11994461488,
+            "generated": 102722830224,
+            "depth": 40
+          },
+          {
+            "cell": 39,
+            "initial": 6144000,
+            "distinct": 7418293696,
+            "generated": 63356161632,
+            "depth": 39
+          },
+          {
+            "cell": 40,
+            "initial": 6144000,
+            "distinct": 10225011984,
+            "generated": 86203862384,
+            "depth": 41
+          },
+          {
+            "cell": 41,
+            "initial": 6144000,
+            "distinct": 13551766456,
+            "generated": 115703148814,
+            "depth": 43
+          },
+          {
+            "cell": 42,
+            "initial": 6144000,
+            "distinct": 4607511360,
+            "generated": 38816205152,
+            "depth": 38
+          },
+          {
+            "cell": 43,
+            "initial": 6144000,
+            "distinct": 5497389760,
+            "generated": 46969228480,
+            "depth": 39
+          },
+          {
+            "cell": 44,
+            "initial": 6144000,
+            "distinct": 13740462832,
+            "generated": 116936447616,
+            "depth": 41
+          },
+          {
+            "cell": 45,
+            "initial": 6144000,
+            "distinct": 9751673896,
+            "generated": 82677009934,
+            "depth": 43
+          },
+          {
+            "cell": 46,
+            "initial": 6144000,
+            "distinct": 6252422704,
+            "generated": 53151164944,
+            "depth": 38
+          },
+          {
+            "cell": 47,
+            "initial": 6144000,
+            "distinct": 3232952736,
+            "generated": 27350044544,
+            "depth": 33
+          },
+          {
+            "cell": 48,
+            "initial": 6144000,
+            "distinct": 7818651264,
+            "generated": 65370657488,
+            "depth": 39
+          },
+          {
+            "cell": 49,
+            "initial": 6144000,
+            "distinct": 10521650352,
+            "generated": 89325575668,
+            "depth": 43
+          },
+          {
+            "cell": 50,
+            "initial": 6144000,
+            "distinct": 8511925008,
+            "generated": 72239868848,
+            "depth": 38
+          },
+          {
+            "cell": 51,
+            "initial": 6144000,
+            "distinct": 11216131600,
+            "generated": 96376339056,
+            "depth": 40
+          },
+          {
+            "cell": 52,
+            "initial": 6144000,
+            "distinct": 10699090056,
+            "generated": 90469957086,
+            "depth": 44
+          },
+          {
+            "cell": 53,
+            "initial": 6144000,
+            "distinct": 7633151232,
+            "generated": 64320911164,
+            "depth": 43
+          },
+          {
+            "cell": 54,
+            "initial": 6144000,
+            "distinct": 11994392368,
+            "generated": 102722398224,
+            "depth": 40
+          },
+          {
+            "cell": 55,
+            "initial": 6144000,
+            "distinct": 7418224576,
+            "generated": 63355729632,
+            "depth": 39
+          },
+          {
+            "cell": 56,
+            "initial": 6144000,
+            "distinct": 10224808080,
+            "generated": 86202587984,
+            "depth": 41
+          },
+          {
+            "cell": 57,
+            "initial": 6144000,
+            "distinct": 13551529144,
+            "generated": 115701665614,
+            "depth": 43
+          },
+          {
+            "cell": 58,
+            "initial": 6144000,
+            "distinct": 4607442240,
+            "generated": 38815773152,
+            "depth": 38
+          },
+          {
+            "cell": 59,
+            "initial": 6144000,
+            "distinct": 5497320640,
+            "generated": 46968796480,
+            "depth": 39
+          },
+          {
+            "cell": 60,
+            "initial": 6144000,
+            "distinct": 13740241648,
+            "generated": 116935065216,
+            "depth": 41
+          },
+          {
+            "cell": 61,
+            "initial": 6144000,
+            "distinct": 9751436584,
+            "generated": 82675526734,
+            "depth": 43
+          },
+          {
+            "cell": 62,
+            "initial": 6144000,
+            "distinct": 6252353584,
+            "generated": 53150732944,
+            "depth": 38
+          },
+          {
+            "cell": 63,
+            "initial": 6144000,
+            "distinct": 3232883616,
+            "generated": 27349612544,
+            "depth": 33
+          }
+        ]
+      },
+      "merged_interface_count_repeat": {
+        "exit": 0,
+        "wall_seconds": 600.68,
+        "peak_rss_kib": 1220316,
+        "all_output_fields_agree": true,
+        "benchmark_sha256": "6e3c6fda280eaace3fc00acbfb3524be8b977acb0e6d0f268eaa3bc4a88c3293",
+        "scope": "Same count path; before the trace reporting metadata change."
+      },
+      "final_helper_repeat": {
+        "exit": 0,
+        "wall_seconds": 559.44,
+        "peak_rss_kib": 1219708,
+        "all_output_fields_agree": true
+      }
+    }
+  },
+  "independent_explicit_controls": {
+    "ordinary_1_f1_cell_0": {
+      "scope": "Pinned TLC at 1 worker with the six fixed policies conjoined with Init1. Original three invariants and default deadlock checking. The worker cell uses unrestricted Next.",
+      "initial": 512,
+      "distinct": 75648,
+      "generated": 525824,
+      "left_on_queue": 0,
+      "depth": 19,
+      "symbolic_all_counts_match": true
+    },
+    "small_slices": [
+      {
+        "module": "published",
+        "initial": 2,
+        "distinct": 258,
+        "generated": 1538,
+        "depth": 15
+      },
+      {
+        "module": "ordinary-1",
+        "initial": 2,
+        "distinct": 318,
+        "generated": 2196,
+        "depth": 15
+      },
+      {
+        "module": "local-1",
+        "initial": 3,
+        "distinct": 9038,
+        "generated": 66824,
+        "depth": 28
+      }
+    ],
+    "slice_note": "TLC controls on deliberately narrowed initial assignments with original unrestricted Next. Each generated count includes initial occurrences."
+  },
+  "traces": {
+    "published-s0": {
+      "exit": 1,
+      "wall_seconds": 96.2,
+      "peak_rss_kib": 61516,
+      "report": {
+        "variant": "published",
+        "closed": false,
+        "depth": 7,
+        "cell": null,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant",
+          "F1"
+        ],
+        "checked_deadlock": true,
+        "ending": {
+          "kind": "invariant",
+          "name": "F1"
+        },
+        "trace_validated": true,
+        "trace_file": "phone-trace-reviewed/published-s0.trace.json"
+      }
+    },
+    "full-f1": {
+      "exit": 1,
+      "wall_seconds": 44.07,
+      "peak_rss_kib": 80416,
+      "report": {
+        "variant": "published",
+        "closed": false,
+        "depth": 7,
+        "cell": null,
+        "invariants": [
+          "TypeInvariant",
+          "SetInvariant",
+          "F1"
+        ],
+        "checked_deadlock": true,
+        "ending": {
+          "kind": "invariant",
+          "name": "F1"
+        },
+        "trace_validated": true,
+        "trace_file": "phone-trace-reviewed/full-f1.trace.json"
+      }
+    },
+    "reject-validator": {
+      "exit": 1,
+      "wall_seconds": 0.31,
+      "peak_rss_kib": 61460,
+      "diagnostic": "unsupported: independent source trace validation failed"
+    },
+    "alias": {
+      "exit": 2,
+      "wall_seconds": 0.15,
+      "peak_rss_kib": 39388,
+      "diagnostic": "phone-reviewed.py: error: the trace destination must be separate from the inputs"
+    },
+    "known-damage": {
+      "exit": 1,
+      "report": {
+        "command": "validate-trace",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 614, col 9 to line 616, col 25 of module EmergencyCall_Model_auto",
+          "state": 1
+        },
+        "length": 7,
+        "notes": [],
+        "result": "invalid",
+        "schema_version": 4
+      }
+    }
+  },
+  "trace_sha256": {
+    "phone-reviewed.py": "6669a37533a5e9a62a8c1d4773bb1fbf9ece57d961956a22ecdb664502d2b9a0",
+    "EmergencyCall_Model_auto.tla": "76236976cf936bd81a8a30e57144ee9ed20b1a3498f9224a55e96147ab339a5e",
+    "published-s0.cfg": "2db57c19c3a49809a12b6bf3a261088000a00586c77f3dc0f344e38a753960e9",
+    "full-f1.cfg": "841457133e023210feccfee47b31e833920e413d544a65f69985b7c76aafc486",
+    "full-f1.trace.json": "1599c37cd09f0979dc441cde5e3140a4b5aeb7c17093d0fd47f730cb58d5a18b",
+    "known-damage.trace.json": "00e29403e1c1c71d99d24e3538052ede0b0ff5a02ec1506da9ba680d17ec5f7b",
+    "published-s0.trace.json": "13746204a3dfde723ac24952fde4ff9435c1559646290fe8527ac7492f732abf",
+    "reject-validator.trace.json": "b5f7e7d285029324d9b3acae19cc05099271454ac98bfc059a92b0581625cd51"
+  },
+  "negative_controls": [
+    "A configured validator that exits nonzero leaves a preexisting trace destination unchanged.",
+    "An output destination aliasing the source CFG is rejected before binding.",
+    "Replacing the second UE location by its later legitimate location changes a transition; the independent validator rejects the resulting trace."
+  ],
+  "import_regression": {
+    "module": "Published root file unchanged. Sibling TLC.tla adds AuditPartial == (CASE FALSE -> 0) /= 0. Run INIT Init1, NEXT Next, INVARIANT AuditPartial.",
+    "old_helper": "Reported closed and success.",
+    "tlc": {
+      "exit": 75,
+      "diagnostic": "Attempted to evaluate a CASE with no conditions true",
+      "initial_generated_at_error": 1,
+      "distinct_at_error": 1,
+      "queued_at_error": 1
+    },
+    "fixed_cli": "unsupported: unrecognized bound EmergencyCall module or import",
+    "direct_evaluator": "partial finite value in predicate or quantifier domain",
+    "reproduce": "Use worker Python and PYTHONPATH to run scripts/perf/scale/test_emergencycall.py MODULE --exporter WORKER/symbolic_input. Test builds the shadow from the source resolved by this exporter."
+  },
+  "reviewed_trace_controls": {
+    "hash_checked_before_import_gate": "6669a37533a5e9a62a8c1d4773bb1fbf9ece57d961956a22ecdb664502d2b9a0",
+    "with_import_and_totality_checks": "fc5715972782f91fba93c709bb964208b96b988e09266cedee40c90365fea521",
+    "full_plus_F1_cell0": {
+      "depth": 7,
+      "ending": "F1",
+      "trace_sha256": "3fd32195c072b03bee83c97fa0a6597efd1f5f477193eb90d683603c922b77d7",
+      "independently_replayed": true
+    },
+    "larger_false_control": "Ordinary-1 false trace validated. A time-bounded ordinary-2 validator attempt did not finish."
+  }
+}
