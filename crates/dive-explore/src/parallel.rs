@@ -603,10 +603,20 @@ fn expand_one(
     sink.out
 }
 
-/// Created on the first multi-worker graph wave and dropped at the end of search.
+/// One local worker team for the search. Each wave joins before ordered commit.
+#[derive(Default)]
+enum WorkerTeam {
+    #[default]
+    Unstarted,
+    Pool(rayon_core::ThreadPool),
+    /// An ordinary safety team could not start. Never try again as the heap grows.
+    Inline,
+}
+
+/// Created by the search and dropped after the last expansion wave.
 #[derive(Default)]
 pub(crate) struct WaveWorkers {
-    pool: Option<rayon_core::ThreadPool>,
+    team: WorkerTeam,
     claims: Option<Claims>,
 }
 
@@ -636,56 +646,53 @@ impl Claims {
 
 fn run_workers(
     machines: &mut [Machine],
-    persistent: Option<&mut Option<rayon_core::ThreadPool>>,
+    team: &mut WorkerTeam,
+    temporal: bool,
     work: impl Fn(&mut Machine) -> WorkerResult + Sync,
 ) -> Result<(Vec<Option<WorkerResult>>, usize), Error> {
-    if let Some(persistent) = persistent {
-        let team = match persistent {
-            Some(existing) => existing,
-            None => persistent.insert(
-                rayon_core::ThreadPoolBuilder::new()
-                    .num_threads(machines.len())
-                    .build()
-                    .map_err(|e| Error::internal(format!("temporal worker pool: {e}")))?,
-            ),
-        };
-        let mut results: Vec<_> = (0..machines.len()).map(|_| None).collect();
-        team.in_place_scope(|scope| {
-            for (machine, slot) in machines.iter_mut().zip(&mut results) {
-                let work = &work;
-                scope.spawn(move |_| {
-                    *slot =
-                        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(machine)))
-                            .ok();
-                });
-            }
+    let evaluate = |machine: &mut Machine| {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(machine))).ok()
+    };
+    // A single ordinary machine reaches this scheduler only for candidate storage.
+    if !temporal && let [machine] = machines {
+        let result = std::thread::scope(|scope| {
+            std::thread::Builder::new()
+                .spawn_scoped(scope, || work(machine))
+                .map(|handle| handle.join().ok())
         });
-        Ok((results, team.current_num_threads()))
-    } else {
-        let mut results = std::thread::scope(|scope| {
-            let mut handles = Vec::with_capacity(machines.len());
-            for machine in &mut *machines {
-                let Ok(handle) = std::thread::Builder::new().spawn_scoped(scope, || work(machine))
-                else {
-                    break;
-                };
-                handles.push(handle);
-            }
-            handles
-                .into_iter()
-                .map(|h| h.join().ok())
-                .collect::<Vec<_>>()
+        return Ok(match result {
+            Ok(slot) => (vec![slot], 1),
+            Err(_) => (vec![evaluate(machine)], 0),
         });
-        // A wave can hit an OS thread limit after some workers have already
-        // claimed sources. Keep their results and run only the unstarted jobs.
-        let started_threads = results.len();
-        for machine in &mut machines[results.len()..] {
-            results.push(
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| work(machine))).ok(),
-            );
-        }
-        Ok((results, started_threads))
     }
+    if matches!(team, WorkerTeam::Unstarted) {
+        *team = match rayon_core::ThreadPoolBuilder::new()
+            .num_threads(machines.len())
+            .build()
+        {
+            Ok(pool) => {
+                // OS thread creation returns before Rust finishes setting up the
+                // child stack. Join a startup job on every worker before expansion.
+                pool.broadcast(|_| ());
+                WorkerTeam::Pool(pool)
+            }
+            Err(error) if temporal => {
+                return Err(Error::internal(format!("temporal worker pool: {error}")));
+            }
+            Err(_) => WorkerTeam::Inline,
+        };
+    }
+    let WorkerTeam::Pool(pool) = team else {
+        return Ok((machines.iter_mut().map(evaluate).collect(), 0));
+    };
+    let mut results: Vec<_> = (0..machines.len()).map(|_| None).collect();
+    pool.in_place_scope(|scope| {
+        for (machine, slot) in machines.iter_mut().zip(&mut results) {
+            let evaluate = &evaluate;
+            scope.spawn(move |_| *slot = evaluate(machine));
+        }
+    });
+    Ok((results, pool.current_num_threads()))
 }
 
 /// Phase 1 over the frontier `cur` (`nvars` handles per state): the
@@ -778,7 +785,8 @@ pub(crate) fn expand_level(
     };
     let (results, started_threads) = run_workers(
         machines,
-        capture_limit.map(|_| &mut wave_workers.pool),
+        &mut wave_workers.team,
+        capture_limit.is_some(),
         work,
     )?;
     metrics.max_wave_workers = started_threads.max(1);
@@ -1103,6 +1111,11 @@ mod tests {
 
     #[test]
     fn scoped_tasks_reuse_search_threads_and_join_before_return() -> Result<(), dive_core::Error> {
+        verify_worker_team(false)?;
+        verify_worker_team(true)
+    }
+
+    fn verify_worker_team(temporal: bool) -> Result<(), dive_core::Error> {
         use dive_core::memo::Memo;
         use dive_core::{Machine, Opts, Store};
         use std::collections::HashSet;
@@ -1112,11 +1125,11 @@ mod tests {
         let mut machines: Vec<_> = (0..3)
             .map(|_| Machine::new(Arc::clone(&store), 1, Opts::default(), Memo::new(&[])))
             .collect();
-        let mut pool = None;
+        let mut pool = super::WorkerTeam::default();
         let calls = Mutex::new(Vec::new());
         let mut original_threads = None;
         for _ in 0..3 {
-            let (result, width) = super::run_workers(&mut machines, Some(&mut pool), |_| {
+            let (result, width) = super::run_workers(&mut machines, &mut pool, temporal, |_| {
                 calls
                     .lock()
                     .unwrap_or_else(std::sync::PoisonError::into_inner)
@@ -1126,9 +1139,9 @@ mod tests {
             assert_eq!(width, 3);
             assert_eq!(result.len(), 3);
             assert!(result.iter().all(Option::is_some));
-            let team = pool
-                .as_ref()
-                .ok_or_else(|| dive_core::Error::internal("missing worker pool"))?;
+            let super::WorkerTeam::Pool(team) = &pool else {
+                return Err(dive_core::Error::internal("missing worker pool"));
+            };
             let threads: HashSet<_> = team
                 .broadcast(|_| std::thread::current().id())
                 .into_iter()
@@ -1144,7 +1157,7 @@ mod tests {
         }
         // A failed task is reported to the coordinator only after its peers join.
         let first = std::sync::atomic::AtomicBool::new(true);
-        let (results, _) = super::run_workers(&mut machines, Some(&mut pool), |_| {
+        let (results, _) = super::run_workers(&mut machines, &mut pool, temporal, |_| {
             if first.swap(false, std::sync::atomic::Ordering::Relaxed) {
                 std::panic::resume_unwind(Box::new("worker fault control"));
             }

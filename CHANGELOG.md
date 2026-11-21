@@ -210,7 +210,7 @@ are in git history.
 
 ### Fixed
 
-- Ordinary Core safety checks finish a frontier wave when the operating system refuses a worker thread, preserving the results already computed. [Workers and stores](docs/user/checking.md#workers-and-stores).
+- Ordinary multi-worker Core safety checks reuse their expansion threads across frontier waves. If the operating system refuses the team at startup, the calling thread completes the search. [Workers and stores](docs/user/checking.md#workers-and-stores).
 
 - `dive check` applies the Examples Hanoi `Bits.class` override to calls of
   `Bits!And` whose arguments depend on the state. It used to evaluate the
