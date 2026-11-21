@@ -601,5 +601,50 @@
       "reproduce": "python3 scripts/perf/scale/test_ewd998_probe.py"
     },
     "negative_controls": "Independent directed test of 360 terminated configurations: 333 ranked, 138 paths left the graph constraint. Mutated/missing system actions, a clipped counter, reactivation and defective continuations were rejected. The full five-node result comes from the unmodified system actions."
+  },
+  "ordinary_core_four_hour_capture": {
+    "host": "Dedicated AWS EC2 r7i.16xlarge, 32 physical cores, cgroup 460 GiB, no swap. The GNU time measurement includes process teardown.",
+    "command": "taskset -c 0-31 ./seen-quotient check specifications/ewd998/EWD998.tla --config specifications/ewd998/EWD998.cfg --library-path modules --workers 32 --fp 0 --seed 0 --time-limit 14400s --max-memory 420g --output json",
+    "sha256": {
+      "seen-quotient": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+      "specifications/ewd998/EWD998.cfg": "4e47f078297118a6e31953eddf6a8a6d469d32464ec1d22b902c041c587e5d59",
+      "specifications/ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8"
+    },
+    "wall_s": 14400.16,
+    "peak_rss_kib": 39139076,
+    "verdict": "stopped",
+    "exit": 5,
+    "statistics": {
+      "depth": 29,
+      "distinct": 185267152,
+      "exhaustive": false,
+      "generated": 1974269083,
+      "initial_generated": 1024,
+      "left_on_queue": 4709363,
+      "reported_by_tlc": false
+    },
+    "resource": {
+      "elapsed_ms": 14400030,
+      "hint": "raise --time-limit, or pass --time-limit=none; the run made no claim about the model",
+      "limit": 14400000,
+      "observed": 14400012,
+      "phase": "temporal-analysis",
+      "resource": "time",
+      "unit": "ms"
+    },
+    "temporal_workers": {
+      "serial_phases": [
+        "initial-states",
+        "ordered-commit",
+        "temporal-analysis",
+        "trace-validation"
+      ],
+      "width_applies_to": "source-expansion"
+    },
+    "captured_graph_states": 185267152,
+    "retained_rows": 190372132,
+    "state_atom_evaluations": 930517635,
+    "action_atom_evaluations": 3135386172,
+    "interpretation": "The sampled memory ceiling was 420 GiB. The time limit interrupted capture before exhaustive temporal analysis. The independent source-pinned symbolic graph closes at 248006200 states and depth 104."
   }
 }
