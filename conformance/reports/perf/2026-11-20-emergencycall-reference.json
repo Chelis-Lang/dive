@@ -116,7 +116,8 @@
         "amf_home_reject_or_allow_unmarked_emergency_request",
         "amf_roam_reject_or_allow_unmarked_emergency_request"
       ],
-      "slate": "Released SlateDBWAL.tla plus OneValue.cfg as documented in 2026-11-20-slatedb-wal.json."
+      "slate": "Released SlateDBWAL.tla plus OneValue.cfg as documented in 2026-11-20-slatedb-wal.json.",
+      "ceiling": "Same six-variable cell as prefix, no state cap, --max-memory 40g --time-limit 7200s."
     },
     "f3": {
       "packed_rows": {
@@ -224,6 +225,42 @@
         },
         "exact_states": 242213642,
         "stop_resource": null
+      }
+    },
+    "ceiling": {
+      "packed_rows": {
+        "wall_seconds": 1410.84,
+        "peak_rss_kib": 66799172,
+        "exit_code": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 16,
+          "distinct": 469762653,
+          "exhaustive": false,
+          "generated": 2698437007,
+          "initial_generated": 884736,
+          "left_on_queue": 53610517,
+          "reported_by_tlc": false
+        },
+        "exact_states": 469762653,
+        "stop_resource": "memory"
+      },
+      "packed_rows_and_compact_index": {
+        "wall_seconds": 2659.41,
+        "peak_rss_kib": 41943688,
+        "exit_code": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 24,
+          "distinct": 816808860,
+          "exhaustive": false,
+          "generated": 5172903240,
+          "initial_generated": 884736,
+          "left_on_queue": 28063040,
+          "reported_by_tlc": false
+        },
+        "exact_states": 816808860,
+        "stop_resource": "memory"
       }
     }
   },
