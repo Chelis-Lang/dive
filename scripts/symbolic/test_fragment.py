@@ -419,8 +419,10 @@ Walk == (Step \/ UNCHANGED x) /\ UNCHANGED mail
 Back == Walk \/ (Reset /\ UNCHANGED mail)
 Jump == Back \/ (Shortcut /\ UNCHANGED mail)
 Grow == Jump \/ (Late /\ UNCHANGED mail)
+EmitSix == Walk \/ (x=0 /\ x'=6 /\ UNCHANGED mail)
 Keep == x # 6
 Safe == x # 6
+BeforeFive == x # 5
 ====
 """)
     configs = []
@@ -432,7 +434,7 @@ Safe == x # 6
     for row, cfg in zip(rows, configs, strict=True):
         compare(row, explicit(module, cfg))
     assert [r["depth"] for r in rows] == [6, 6, 4, 5, 6, 6]
-    assert rows[1]["reused_layer_images"] == 6 and rows[2]["reused_layer_images"] == 2
+    assert rows[1]["reused_layer_images"] == 6 and rows[2]["reused_layer_images"] == 4
     assert rows[3]["distinct"] == 7 and rows[4]["distinct"] == 6
     assert rows[4]["reused_layer_images"] == 1 and rows[5]["reused_layer_images"] == 6
 
@@ -442,17 +444,30 @@ Safe == x # 6
         cfg.write_text(f"INIT Init\nNEXT {action}\nINVARIANT TypeInvariant Safe\nCONSTRAINT Keep\n")
     _, row = run(module, passed, "--recheck", module, failed, code=1)
     assert row["ending"]["name"] == "Safe" and row["depth"] == 5
-    assert row["trace_validated"] and row["reused_layer_images"] == 2
+    assert row["trace_validated"] and row["reused_layer_images"] == 4
 
+    # State 6 is an excluded emission. Expanding its old Step edge would
+    # invent a three-state path to 5. The real shortest path has six states.
+    clean = folder / "CleanWalk.cfg"
+    clean.write_text("INIT Init\nNEXT Walk\nINVARIANT TypeInvariant\nCONSTRAINT Keep\n")
+    shortcut = folder / "ExcludedShortcut.cfg"
+    shortcut.write_text("INIT Init\nNEXT EmitSix\nINVARIANT TypeInvariant BeforeFive\nCONSTRAINT Keep\n")
+    def check_excluded_shortcut(*extra):
+        _, bad = run(module, clean, *extra, "--recheck", module, shortcut, code=1)
+        assert bad["ending"]["name"] == "BeforeFive" and bad["depth"] == 6
+        assert bad["trace_validated"] and bad["reused_layer_images"] == 5
+
+    check_excluded_shortcut()
     module.write_text(module.read_text().replace("0..1", "0..299"))
     flags = ("--refine-domains",)
+    check_excluded_shortcut(*flags)
     revisions = (arg for cfg in configs[1:] for arg in ("--recheck", module, cfg))
     rows = run(module, configs[0], *flags, *revisions)
     for row, cfg in zip(rows, configs, strict=True):
         compare(row, explicit(module, cfg))
     assert rows[1]["reused"] and rows[5]["reused"]  # Reset lands in Init.
-    assert rows[2]["reused_layer_images"] == 2 and rows[4]["reused_layer_images"] == 1
+    assert rows[2]["reused_layer_images"] == 4 and rows[4]["reused_layer_images"] == 1
     assert [row["distinct"] for row in rows] == [6, 6, 6, 7, 6, 6]
     _, bad = run(module, passed, *flags, "--recheck", module, failed, code=1)
     assert bad["ending"]["name"] == "Safe" and bad["depth"] == 5 and bad["trace_validated"]
-    assert bad["reused_layer_images"] == 2
+    assert bad["reused_layer_images"] == 4
