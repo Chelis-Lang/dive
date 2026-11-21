@@ -19,6 +19,8 @@ The scripts that produced the records are in
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
 
+The [temporal analysis phase measurements](2026-11-21-temporal-analysis-phases.json) separate predicate labeling from accepting-cycle search on seven corpus configurations. Elevator Large spent 399.92 of 404.35 seconds in the product phase at eight requested workers.
+
 The [source-driven EmergencyCall measurements](2026-11-21-source-whole-values.json) contain the installed Linux worker identities, monolithic and 64-cell counts, wall time, peak RSS, independent exact comparisons and trace controls.
 
 The [compiled finite safety comparison](2026-11-21-compiled-finite-safety.json) records the exact Core and compiled KVS Medium runs, binding and compilation cost, same-host tlx, TCommit, and the named SlateDB holdout refusal.
@@ -28,6 +30,8 @@ The [Linux allocator comparison](2026-11-21-linux-allocator-arenas.json) records
 The [frontier storage comparison](2026-11-21-frontier-scale-controls.json) records the same work on Byzantine Paxos and SlateDB in three storage modes and all three terminal BPConProof runs under a 6 GiB limit.
 
 The [KRaft pre-vote measurements](2026-11-21-kafka-liveness.json) contain the replayable witness for infinitely many reachable states in the released liveness CFG and the smaller configurations that both engines exhausted.
+
+The [released SlateDB source-edit comparison](2026-11-21-slatedb-source-edits.json) pairs the three-writer stale-replay witness with exact two-writer controls, input hashes and the independent validation result.
 
 The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
 

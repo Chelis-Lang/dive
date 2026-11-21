@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Core reports [temporal analysis time](docs/user/temporal.md) spent labeling the graph, finding accepting cycles and attributing failed properties.
+
 - Symbolic checking can derive [finite records and sets as whole values](docs/user/symbolic.md#check-finite-records-and-sets-as-whole-values) directly from a safety model. It checks the original EmergencyCall module and independently validates reported violations.
 
 - Linux releases support [`dive check --strategy compiled`](docs/user/symbolic.md#compile-a-finite-safety-check) for eligible finite safety models. With an installed Rust compiler it searches packed exact states at up to eight workers and independently replays violations.

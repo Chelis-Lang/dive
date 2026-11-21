@@ -136,6 +136,11 @@ pub trait NativeReader {
     /// available. A counter only; it supplies no truth. Ignored by default.
     fn reference_predicate(&mut self, _atom: &crate::plan::PredicateAtom) {}
 
+    /// Observes elapsed wall time in one contiguous atom-label, product-search
+    /// or attribution phase. Periodic and final analyses share this callback.
+    /// The observation has no effect on model checking.
+    fn analysis_time(&mut self, _stage: Stage, _elapsed: std::time::Duration) {}
+
     /// Records optional per-analysis reuse storage and bypass observations.
     /// Bytes are retained capacity, not a whole-process or allocation-time cap.
     fn predicate_reuse_storage(
