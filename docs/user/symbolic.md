@@ -117,6 +117,8 @@ requested deadlock freedom. An inductive proof can succeed even after a
 transition edit. A failed proof obligation is inconclusive. Run a search for
 an actual counterexample.
 
+The [KVS source-edit example](../developer/large-models.md#recheck-a-kvs-invariant-after-an-edit-to-the-protocol) shows an installed Sail session proving an invariant after a protocol change, finding a real violation after an unsafe edit, and using a strengthening to check larger domains.
+
 ## Admission and reports
 
 The configured layout invariant, named `TypeInvariant` by default, supplies

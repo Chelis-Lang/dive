@@ -226,6 +226,55 @@ Including establishment, the two-check session took 156.053 ms versus
 1.344 s and had 76 hits per trial. The separate-process figures use an
 already established ordinary proof. [All five paired trials and Mac control](https://github.com/Chelis-Lang/sail/blob/main/docs/validation/data/2026-11-20-first-temporal-claim-native.json) · [All 333 repeat-workload results](https://github.com/Chelis-Lang/sail/blob/main/docs/validation/data/2026-11-20-first-temporal-claim-s7.json) · [Admission rules and reproduction](https://github.com/Chelis-Lang/sail/blob/main/docs/validation/temporal-reuse-s7.md#retaining-the-first-temporal-property).
 
+### Recheck a KVS invariant after an edit to the protocol
+
+The installed `sail runtime symbolic-check` established six-key KVS reachability in 4,694.45 s on one EC2 CPU. It checked `TypeInvariant` and `TxLifecycle` over 539,910,848,473,937,721 transaction-symmetry classes, generated 21,725,268,712,106,423,230 occurrences and reached depth 51. Sail retained a 76,579-byte predicate. A new process can bind the edited TLA+, check initial inclusion, every current safety obligation and closure under the current actions, and return a proof without rebuilding the graph. The recorded executable includes Sail's point-release work on portable predicates. [Sail CLI contract](https://github.com/Chelis-Lang/sail/blob/main/docs/decisions/0177-portable-symbolic-predicates.md) · [Measurements and input hashes](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
+
+| Source or configuration edit | Result from installed Sail | Wall time |
+|---|---|---:|
+| Add `TxIsClean`, which repeats the inactive-transaction cleanup conjunct of `TxLifecycle` | Inductive proof, including an identical repeat in another process | 0.40 s each |
+| Add `SomeCommit` requiring that at least one transaction is free of write conflicts whenever all three slots are open | Inductive proof. Trying to prove the configured invariants directly from themselves failed the next-step obligation. | 0.40 s |
+| Add `AbortAll`, which can roll back every open transaction in a single step | The same predicate proves `SomeCommit` on the edited transition relation. A one-key exact Core control kept 690 distinct states and increased generated occurrences from 7,129 to 7,816. | 0.40 s |
+| Require that at most one active transaction can be conflicted | Fresh search found a depth-eight violation of `AtMostOneConflict`. Its trace passed independent validation. | 0.90 s |
+| Add an action that simultaneously puts every transaction into conflict | The saved predicate failed closure. Fresh search found a depth-two violation of `SomeCommit`. The trace validated on the edited action, failed on the earlier relation and failed after replacing its final state. | 0.75 s |
+
+An empty Sail session on the identical six-key `TxIsClean` source and CFG took **4,724.88 s** and peaked at 1,148,804 KiB. It reproduced both counts, depth 51, all three configured invariants and the exact 76,579-byte predicate. The retained check took **0.40 s**, about 11,812× faster than that default empty-session search. For `TxIsClean`, direct `dive check --strategy symbolic --prove-inductive` also succeeded from scratch in 0.30 s. For `SomeCommit`, the saved predicate supplies a stronger fact than the configured invariants. Three paired runs on the identical two-key `SomeCommit` edit took 0.25 s each with a retained predicate and 1.60, 1.55 and 1.55 s with an empty Sail session. Each result above includes process startup. [All control and replay outcomes](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
+
+### Grow the KVS domains with an inductive invariant
+
+Changing the number of keys, values or transactions prevented the six-key predicate from proving `SomeCommit` on each tested layout. After shrinking to one key, Sail recovered by searching the new source and replaced the old file with the same predicate produced by an empty session. The source explains how to recover. Whenever every slot is open, at least one transaction has missed no writes. The last transaction to open had a clean log. A commit closes its slot, a write leaves `missed` unchanged, and a new transaction again starts clean. Add this strengthening to the model and keep `TypeInvariant`, `TxLifecycle` and `SomeCommit` enabled.
+
+```tla
+FullHasFresh == tx = TxId => \E t \in tx : missed[t] = {}
+```
+
+| Keys | Transactions | Values | Proven lower bound on reachable symmetry classes | Direct induction wall | Peak RSS |
+|---:|---:|---:|---:|---:|---:|
+| 28 | 4 | 2 | 2.56 × 10⁷⁹ | 10.17 s | 321 MiB |
+| 36 | 3 | 2 | 2.63 × 10⁸¹ | 4.61 s | 181 MiB |
+| 50 | 2 | 2 | 5.76 × 10⁸³ | 2.35 s | 180 MiB |
+
+These are finite-domain safety proofs. The lower bounds count one constructible subset of the state graph. First commit any desired store, then open every transaction. Before the next commit, a transaction can leave each key unwritten or write any value including `NoVal`. To mark an unchanged value as written, change it and restore it. With `K` keys, `V` values and `T` transactions, there are `(V+1)^K` stores and `(V+2)^K` independent descriptors per transaction. Permuting transactions gives multisets of size `T` from these descriptors. The product is `(V+1)^K × binomial((V+2)^K + T - 1, T)`. Intersecting the actual two- and six-key fixed points with this subset gave exactly 7,344 and 8,355,532,713,984 representatives, respectively. At 32 keys and four transactions the installed checker refused the finite layout at its 512-bit limit. [Domain changes, proof obligations and exact lower bounds](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
+
+The [transaction-history oracle](../../scripts/symbolic/kvs_history.py) calculates the full model-specific cardinality separately. An older transaction has missed a superset of the writes missed by a younger one. When a nested mask grows from `i` to `j` keys, there are exactly `binomial(K-i, j-i)` choices. Grouping mask chains by cardinality preserves these multiplicities and avoids enumerating all subsets of the keys. The formula gives 1.8383 × 10¹⁰⁶ representatives at 28 keys and four transactions, 3.6292 × 10¹⁰⁶ at 36 and three, and 9.1004 × 10¹⁰³ at 50 and two. At eight keys and three transactions the same calculation fell from 223.1 ms to 0.724 ms (medians of three calls). The source-driven two-key, four-transaction search independently matched 15,181,119 representatives and 332,915,842 generated occurrences at depth 28. Pinned TLC also matched the one-key transition edits and the four-transaction control. These analytic totals depend on the pinned KVS transitions. The finite-domain safety proofs above use the TLA+ source and produce no graph counts. [Exact decimal totals and checks](../../conformance/reports/perf/2026-11-21-sail-kvs-edits.json).
+
+To reproduce, point `KVS` at the pinned Examples checkout's `specifications/KeyValueStore` and `DIVE` at the symbolic-enabled executable in its installed Linux bundle. The preparer verifies all three input files. Run the first command sequence with one session directory to check successive processes against the same stored predicate.
+
+```sh
+python3 scripts/perf/scale/sail_kvs_edits.py "$KVS" edits
+for model in base TxIsClean TxIsClean SomeCommit AbortAll
+do
+  sail runtime symbolic-check --dive "$DIVE" --session session \
+    --module "edits/$model/MCKVS.tla" --config "edits/$model/Model.cfg" --time-limit 9200
+done
+sail runtime symbolic-check --dive "$DIVE" --session fresh-session \
+  --module edits/TxIsClean/MCKVS.tla --config edits/TxIsClean/Model.cfg --time-limit 9200
+python3 scripts/symbolic/kvs_history.py "$KVS" --keys 50 --values 2 --transactions 2
+python3 scripts/perf/scale/sail_kvs_edits.py "$KVS" wide --keys 50 --transactions 2
+"$DIVE" check wide/FullHasFresh/MCKVS.tla --config wide/FullHasFresh/Model.cfg \
+  --strategy symbolic --prove-inductive --output json
+```
+
 ### Rechecking public edit histories with Sail
 
 Across nine chronological Disruptor project checks, separate installed Sail processes took 7.129 s when each check was fresh and 5.160 s when using authenticated edit reuse. The unchanged MPMC safety and liveness roots improved 59.76× and 66.85×. Sail resolves the loaded source and compares its exact bytes and origin before retaining a completed proof across a sibling edit. Changed selected code ran fresh. On the CCF history, all three unsupported requests still refused; removing repeated admission took the batch from 57.77 ms to 32.96 ms. [Input revisions, commands and five paired trials](https://github.com/Chelis-Lang/sail/blob/b8f084052d08928f234684f26cc9b1fea4ad950c/docs/validation/data/2026-11-20-installed-public-edit-histories.json).
