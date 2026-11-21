@@ -217,6 +217,43 @@
           "elapsed_ms": 17566,
           "detail": "dive check stopped at its --max-memory: stopped during safety-search: resident memory 2152591360 bytes exceeds the ceiling of 2147483648 bytes"
         }
+      },
+      "isolated_capacity": {
+        "24": {
+          "machine": "r7i.16xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 32,
+          "workers_used": 32,
+          "profile": "tlc",
+          "time_limit_s": 7200,
+          "memory_limit_gib": 24,
+          "binary_sha256": "a883483bd64f0ac4adbd18959b7813a108fb4ff593f95de41c361cf2ff4cae35",
+          "input_sha256": {
+            "BPConProof.tla": "daa731dcadf12a892415131881d82d5b23e56c53097e90b986a24b1408a2e3c6",
+            "BPConProof.cfg": "8a3af0fba0f0ed0d96827717e0edacf7ad9bedc23b9f7aebf82f3c2bb5434e9a"
+          },
+          "wall_s": 181.95,
+          "peak_rss_kib": 25840256,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 4,
+            "distinct": 134831096,
+            "exhaustive": false,
+            "generated": 272400921,
+            "initial_generated": 1,
+            "left_on_queue": 134714941,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 180448,
+            "limit": 25769803776,
+            "observed": 26390908928,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        }
       }
     },
     {
@@ -441,6 +478,43 @@
           "elapsed_ms": 30107,
           "detail": "dive check stopped at its --time-limit: stopped during safety-search after 30049 ms: the time limit is 30000 ms"
         }
+      },
+      "isolated_capacity": {
+        "24": {
+          "machine": "r7i.16xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 32,
+          "workers_used": 32,
+          "profile": "tlc",
+          "time_limit_s": 7200,
+          "memory_limit_gib": 24,
+          "binary_sha256": "a883483bd64f0ac4adbd18959b7813a108fb4ff593f95de41c361cf2ff4cae35",
+          "input_sha256": {
+            "MC_HDiskSynod.tla": "f70a04902aaa20b175daddeead891e2f687128b8fe43b30cee3049bbb46af041",
+            "MC_HDiskSynod.cfg": "76994aae4c323b971b05cc6604f92213f7bf6f147cf40074c1b03fecf5d1005c"
+          },
+          "wall_s": 6500.61,
+          "peak_rss_kib": 25159244,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 35,
+            "distinct": 835858711,
+            "exhaustive": false,
+            "generated": 12639577756,
+            "initial_generated": 8,
+            "left_on_queue": 144840332,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 6500385,
+            "limit": 25769803776,
+            "observed": 25770291200,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        }
       }
     },
     {
@@ -602,7 +676,10 @@
         "planner_expansion_steps_limit": 1000000,
         "baseline": "DIVE-L0021 at Fairness before exploration",
         "bounded_run": {
-          "profiles": ["dive", "tlc"],
+          "profiles": [
+            "dive",
+            "tlc"
+          ],
           "max_states": 5000,
           "time_limit_s": 120,
           "max_memory": "4g",
@@ -690,6 +767,43 @@
           "elapsed_ms": 15374,
           "detail": "dive check stopped at its --max-memory: DIVE-L0038: stopped during graph-capture: resident memory 2287980544 bytes exceeds the ceiling of 2147483648 bytes"
         }
+      },
+      "isolated_capacity": {
+        "24": {
+          "machine": "r7i.8xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 16,
+          "workers_used": 16,
+          "profile": "tlc",
+          "time_limit_s": 7200,
+          "memory_limit_gib": 24,
+          "binary_sha256": "a47cedfc7bf5ec6603930e5885b4c62840c11c327af1a3c1686cb77b2de8653d",
+          "input_sha256": {
+            "BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+            "BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f"
+          },
+          "wall_s": 1698.62,
+          "peak_rss_kib": 26616828,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 12,
+            "distinct": 117440513,
+            "exhaustive": false,
+            "generated": 569933982,
+            "initial_generated": 1,
+            "left_on_queue": 69359281,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 1698531,
+            "limit": 25769803776,
+            "observed": 25783988224,
+            "phase": "graph-capture",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        }
       }
     },
     {
@@ -756,6 +870,43 @@
           "elapsed_ms": 0,
           "detail": "unsupported: BagsExt!FoldBag (a bag of two or more elements: TLC folds in the order it holds the bag in, which may be unnormalized)"
         }
+      },
+      "isolated_capacity": {
+        "18": {
+          "machine": "r7i.16xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 8,
+          "workers_used": 8,
+          "profile": "dive",
+          "time_limit_s": 900,
+          "memory_limit_gib": 18,
+          "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+          "input_sha256": {
+            "MCetcdraft.cfg": "5cc769549deb7acdf280a8b2600d87c88810c299f5102b15f5176f64a9ae04a9",
+            "MCetcdraft.tla": "3b206581c4d1e8795b543f6bec1c293ea69241183acbdec6537c0265234a72b6"
+          },
+          "wall_s": 900.62,
+          "peak_rss_kib": 9324072,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 15,
+            "distinct": 39256817,
+            "exhaustive": false,
+            "generated": 213355759,
+            "initial_generated": 1,
+            "left_on_queue": 27873416,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 900036,
+            "limit": 900000,
+            "observed": 900020,
+            "phase": "safety-search",
+            "resource": "time",
+            "unit": "ms"
+          }
+        }
       }
     },
     {
@@ -810,6 +961,43 @@
           "elapsed_ms": 0,
           "detail": "unsupported: BagsExt!FoldBag (a bag of two or more elements: TLC folds in the order it holds the bag in, which may be unnormalized)"
         }
+      },
+      "isolated_capacity": {
+        "18": {
+          "machine": "r7i.16xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 8,
+          "workers_used": 8,
+          "profile": "dive",
+          "time_limit_s": 900,
+          "memory_limit_gib": 18,
+          "binary_sha256": "eb814faea5ff106324cd5682bca7d08345a96ee74eba6dba4c96789135064faf",
+          "input_sha256": {
+            "etcdraft.cfg": "0279cc6c7c100f622e30230ad56d383eb9d9bd8ac99c996fe707710106a9960e",
+            "etcdraft.tla": "15c445684529c59a59877951c7fb7df9a40da250aaa445f056ef48f56bb27044"
+          },
+          "wall_s": 370.52,
+          "peak_rss_kib": 19313460,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 13,
+            "distinct": 94073470,
+            "exhaustive": false,
+            "generated": 354619195,
+            "initial_generated": 1,
+            "left_on_queue": 73757153,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 369293,
+            "limit": 19327352832,
+            "observed": 19746934784,
+            "phase": "safety-search",
+            "resource": "memory",
+            "unit": "bytes"
+          }
+        }
       }
     }
   ],
@@ -825,5 +1013,6 @@
     "budget": "The missing-golden path passed --time-limit 30000ms and --max-memory 2g (the explicit --timeout 30 sets the deadline). Per-attempt elapsed times are informational.",
     "command": "dive-conformance run --impl dive:core --impl-profile PROFILE --corpus examples --corpus holdout-etcd-raft --corpus holdout-kafka --corpus holdout-blocking-queue --workers 8 --jobs 1 --tier all --no-sany --observe-missing-goldens --tlc-budgets --budget-cap 5 --xmx 2g --timeout 30 --no-summary --dive-bin DIVE plus one --filter for each model path in rows",
     "observations": "Raw harness verdicts may be null for named refusals; detail names the reason. A stop can map to harness timeout even when the resource is memory. Each row preserves its original grade. The larger isolated runs use the other profiles described above."
-  }
+  },
+  "isolated_capacity_protocol": "Fresh processes, no swap, --workers W --seed 0 --fp 0 --max-memory CAPg --time-limit Ts --output json, taskset on W physical cores. Memory stops use sampled process RSS, while GNU time records peak process RSS. Each row binds a release source and config by digest. Truncated searches have no exhaustive verdict."
 }
