@@ -863,6 +863,16 @@ A model with fixed per-instance choices can often be checked as several independ
 
 On the released EmergencyCall f3 model, the two binary attach-accept choices split 49,152 initial states into four groups of 12,288. Each group passed the original three safety properties, deadlock checking and its closure invariant. Full exact identity gave 21,255,936 distinct states and 135,871,232 generated in total, with maximum depth 27. All four queues emptied. The result matches both the monolithic exact run and the authors’ TLC output. On one 96-core Graviton4 node, the four concurrent 24-worker checks finished in 83.86 s; the monolithic 32-worker run took 127.71 s. Those timings use different total worker counts. Choosing the mutable `user_make_call = 0` instead failed the closure invariant at depth two, and independent replay accepted the counterexample. [Per-cell counts, wall time, memory and negative control](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
 
+To choose partition predicates, run the [fixed-variable analysis](../../scripts/perf/scale/fixed_variables.py) on the original module and CFG. It uses the same bound IR as the symbolic backend and can inspect `Next` even when the symbolic layout refuses the model. Use the matching `libexec/dive-symbolic/symbolic_input` in a Linux release bundle.
+
+```sh
+python3 scripts/perf/scale/fixed_variables.py "$BINDER" "$MODEL/EmergencyCall_Model_auto.tla" "$CFG"
+```
+
+The output names variables proved equal before and after every satisfying transition. A conjunction inherits the guarantees of each conjunct. An alternative must preserve the variable in every branch. Unknown expressions contribute no guarantee. Some fixed variables can have the same initial value everywhere, so use the original initial predicate to choose splits with work on both sides.
+
+For EmergencyCall the analysis identified **23 of 38 state variables**, including all six partition coordinates. No path can enter a cell from an initial state in another cell. Cell one reached level 43 (42 transitions from an initial state) with unrestricted `Next` and an empty queue. The authors reported a maximum initial distance of 26 transitions. These distances rule out treating the reconstructed full-Init experiment as a reproduction of the published unconstrained result. [Source identities, fixed variables and completed cells](../../conformance/reports/perf/2026-11-20-emergencycall-reference.json).
+
 For a simple safety CFG with explicit INIT/NEXT, generate each cell with the [partition script](../../scripts/perf/scale/safety_partition.py). The first predicate is the low bit of the cell number. The generator uses the complement for a zero bit, so values outside a proposed two-value domain also belong to a cell. It preserves the original invariants and deadlock setting. The generated module imports the original from its module search path.
 
 ```sh
