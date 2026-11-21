@@ -37,8 +37,8 @@ reproduce TLC:
 - These refuse by name: bounded final temporal checking
   (`--lncheck final --lasso short`, and `dive tlc -lncheck final`);
   multi-worker liveness whose violated names are known only at run time;
-  finite simulation and DFID that reach register effects or a
-  `Randomization` operator, and draws in simulation that one draw cannot
+  finite simulation and DFID that reach register effects, DFID that reaches a
+  `Randomization` operator, `RandomSubsetSet`, and draws in simulation that one draw cannot
   decide ([D-044](#d-044-randomelement-in-simulation)); source and TLC logical coverage (`--source-coverage`,
   `--coverage 0`, `dive tlc -coverage 0`); external inputs (`--allow-io`); and
   recovery of a checkpoint archive in an older pre-release format.
@@ -1823,7 +1823,7 @@ and their model-checking controls B-E1 and B-T5.
 | **Kind** | Different answer (TLC reports a deadlock no behavior has) |
 | **Default** | Each trace draws from its own stream; draws are recorded and validated |
 | **TLC behavior** | Not reproduced; documented gap under `--compat=tlc` |
-| **Status** | implemented for `RandomElement` in `Init` and `Next` of `dive simulate`; `RandomSubset` and `RandomSetOfSubsets` refuse by name in simulation |
+| **Status** | implemented for `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` in `Init` and `Next` of `dive simulate`; `RandomSubsetSet` refuses by name |
 
 **What TLC does.** TLC's `-simulate` evaluates `Init` once, so a
 `RandomElement` in `Init` is drawn once and every trace starts in the same
@@ -1839,10 +1839,19 @@ trace, the step, the action and the attempt, so a trace is the same at any
 worker count and `--trace-ids` regenerates it. `Init` is drawn for each
 trace, so traces start in different states. A `Print` in `Init` then prints
 once per trace. The trace document records each state's draws and the values
-start-up evaluation drew. `dive validate-trace` evaluates each set itself and
-accepts a recorded value only if it is a member, so a forged or wrong draw
-fails validation. A recorded value is a hint, never a result the set does
-not admit. A step whose draws give no successor is drawn again with the next
+start-up evaluation drew. `dive validate-trace` evaluates each argument
+itself and accepts a recorded value only if the operator can return it: a
+member of the set for `RandomElement`, a set of `min(k, Cardinality(S))`
+members for `RandomSubset(k, S)`, and between one and `k` subsets of `S`
+that `n` allows for `RandomSetOfSubsets(k, n, S)`. These checks never
+enumerate `S`, so `RandomSubset(10, [Node -> 0..2])` validates without
+listing its functions. A direct `v = RandomSubset(..)` or
+`v \in RandomSubset(..)` is decided from the arguments alone, so a forged
+state fails validation whatever draw it records. A recorded value is a hint,
+never a result the arguments do not admit. `RandomSubset` follows TLC: a
+count above the set's size gives the whole set (S2) and 0 gives `{}` (S3).
+A negative count, TLC's error 2154 (S4), stops the run with a named
+refusal in dive, as other evaluation errors in a sampled `Next` do. A step whose draws give no successor is drawn again with the next
 attempt's stream, and after eight attempts the trace stops and is counted in
 `traces_stalled`, never reported as a deadlock: one draw cannot show that no
 value works. For the same reason a draw in an invariant, a constraint, an

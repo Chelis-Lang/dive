@@ -8,6 +8,7 @@ are in git history.
 ### Added
 
 - `dive simulate` samples specs that use [`RandomElement` in `Init` or `Next`](docs/user/simulation.md#random-choices). Each trace draws from its own seeded stream, the same at any worker count, and the trace records its draws, which validation checks against each set. A step whose draws give no successor is drawn again rather than reported as a deadlock. Draws in invariants or inside `ENABLED` refuse by name.
+- `dive simulate` also draws `RandomSubset` and `RandomSetOfSubsets`. Validation checks each recorded draw from the set's size and membership, without enumerating it, so `RandomSubset(k, [D -> R])` over a large function set validates.
 
 - Exact safety searches can report [orbit sizes and labeled-state counts](docs/user/checking.md#count-labeled-states-under-symmetry) when the specification declares symmetry.
 

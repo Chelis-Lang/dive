@@ -282,7 +282,8 @@ component demand order. Deferred providers, random-register interactions,
 randomness inside ENABLED and unproved Init assignment forms remain explicit
 refusals.
 
-Core simulation draws a reached `RandomElement` in Init or Next from the
+Core simulation draws a reached `RandomElement`, `RandomSubset` or
+`RandomSetOfSubsets` in Init or Next from the
 trace's own stream, `Streams::simulation_random(trace, step, action,
 attempt)`, and records the chosen step's draws in `Trace::draws`. Start-up
 draws are recorded by the host while binding and returned by
@@ -290,7 +291,9 @@ draws are recorded by the host while binding and returned by
 a draw by the reference evaluator refuses by name. Draws in invariants,
 constraints, implied properties and inside `ENABLED` refuse by name, and a
 step whose draws admit nothing is drawn again, then stalls; it is never a
-deadlock (D-044). The Randomization operators refuse by name. See the
+deadlock (D-044). `RandomSubsetSet` refuses by name; every non-simulation
+Core engine refuses a plan that applies `RandomSubset` or
+`RandomSetOfSubsets` before exploring. See the
 [user guide](../../docs/user/simulation.md#random-choices).
 
 The primary controls in `tests/fixtures/random-init/oracle.json` retain their

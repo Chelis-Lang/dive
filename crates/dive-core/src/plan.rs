@@ -715,6 +715,9 @@ pub struct Effects {
     pub registers: bool,
     /// `TLCGet("level")`: the engine sets `Machine::level`.
     pub level: bool,
+    /// The first `RandomSubset` or `RandomSetOfSubsets` the plan applies.
+    /// Only simulation's streams draw these; other engines refuse the plan.
+    pub sampled_draw: Option<dive_ir::StdOp>,
 }
 
 /// What the compiler did.

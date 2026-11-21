@@ -11,6 +11,57 @@ use crate::{
 const STORED_ENTRY_LIMIT: usize = 65_536;
 
 impl Evaluator {
+    /// The operator and argument expressions of `expr` when it is itself a
+    /// direct application of `RandomElement`, `RandomSubset` or
+    /// `RandomSetOfSubsets`: not reached through a definition, a `LET` or an
+    /// operator parameter, and with no configuration redirect or value
+    /// override of the operator. `None` otherwise.
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use dive_eval::{Evaluator, Model, Options};
+    /// let source = "---- MODULE M ----\nEXTENDS Randomization\nD == RandomSubset(2, {1, 2, 3})\nE == D\n====\n";
+    /// let analysis = dive_sema::analyze_source("M.tla", source, &Default::default());
+    /// let ir = Arc::new(dive_ir::lower(&analysis).unwrap());
+    /// let ev = Evaluator::new(Model::new(ir.clone()), Options::tlc()).unwrap();
+    /// let body = |name| ir.def(ir.root_def(name).unwrap()).body;
+    /// let (op, args) = ev.direct_draw(body("D")).unwrap();
+    /// assert_eq!((op, args.len()), (dive_ir::StdOp::RandomizationRandomSubset, 2));
+    /// assert!(ev.direct_draw(body("E")).is_none());
+    /// ```
+    #[must_use]
+    pub fn direct_draw(&self, expr: dive_ir::ExprId) -> Option<(StdOp, Vec<dive_ir::ExprId>)> {
+        let Expr::Apply { callee, args } = self.core.ir.expr(expr) else {
+            return None;
+        };
+        let op = match callee {
+            OpRef::Std(op) => *op,
+            OpRef::Def(def) => {
+                if self.core.redirect(*def) != *def || self.is_value_override(*def) {
+                    return None;
+                }
+                self.core.ir.def(*def).std?
+            }
+            _ => return None,
+        };
+        if !matches!(
+            op,
+            StdOp::TlcRandomElement
+                | StdOp::RandomizationRandomSubset
+                | StdOp::RandomizationRandomSetOfSubsets
+        ) || self.core.std_redirects.contains_key(&op)
+        {
+            return None;
+        }
+        args.iter()
+            .map(|arg| match arg {
+                Arg::Expr { expr, .. } => Some(*expr),
+                Arg::Op { .. } => None,
+            })
+            .collect::<Option<Vec<_>>>()
+            .map(|args| (op, args))
+    }
+
     /// Tests the support of one direct native `RandomElement(S)` application.
     ///
     /// This evaluates the actual argument in `scope` and `st`, then checks

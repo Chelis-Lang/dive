@@ -832,6 +832,18 @@ fn prepare_observed(
         }
         plan.code.debugger = Some(observer);
     }
+    // Only simulation draws these (`core_modes::sim_random`); every search
+    // here keeps its refusal before exploring.
+    if let Some(op) = plan.effects.sampled_draw {
+        return Err(Box::new(result(
+            unsupported(format!(
+                "the standard operator {} (M0 core)",
+                op.qualified_name()
+            )),
+            options,
+            ir,
+        )));
+    }
     if plan.effects.draws
         && let Err(feature) = arm_draws(&store, &host, ir, options)
     {

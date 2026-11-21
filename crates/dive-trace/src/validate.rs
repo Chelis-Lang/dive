@@ -595,7 +595,12 @@ impl<'a> Run<'a> {
                         self.host.startup.store(false, Ordering::Relaxed);
                         let operation = if self.host.register_used.load(Ordering::Relaxed) {
                             self.host.startup.store(true, Ordering::Relaxed);
-                            crate::initial::check(m, &trace.states[0], self.control.as_deref())
+                            crate::initial::check(
+                                m,
+                                &trace.states[0],
+                                self.control.as_deref(),
+                                None,
+                            )
                         } else {
                             match crate::initial::random_check(m, &trace.states[0]) {
                                 Ok(Some(member)) => Ok(Some(member)),
@@ -603,6 +608,7 @@ impl<'a> Run<'a> {
                                     m,
                                     &trace.states[0],
                                     self.control.as_deref(),
+                                    self.host.choices.as_deref(),
                                 ),
                                 Err(error) => Err(error),
                             }
@@ -1167,6 +1173,19 @@ impl<'a> Run<'a> {
             ));
             return Ok(());
         }
+        // The step itself was checked against Next with its draws chosen by
+        // the search; evaluating the action again would draw anew.
+        if self.host.choices.is_some()
+            && m.ir
+                .node(m.ir.def(d).body)
+                .effects
+                .intersects(dive_ir::Effects::IMPURE)
+        {
+            self.notes.insert(format!(
+                "label `{name}` draws at random, so it is not evaluated again on its own; not checked"
+            ));
+            return Ok(());
+        }
         let r = ev.eval_def(d, step);
         match r {
             Ok(Value::Bool(true)) => {
@@ -1716,8 +1735,12 @@ impl Host for TraceHost {
         if self.inputs.is_some() && matches!(op, StdOp::IoUtilsIOEnv | StdOp::IoUtilsDeserialize) {
             return Ok(());
         }
-        if op == StdOp::TlcRandomElement
-            && let Some(choices) = &self.choices
+        if matches!(
+            op,
+            StdOp::TlcRandomElement
+                | StdOp::RandomizationRandomSubset
+                | StdOp::RandomizationRandomSetOfSubsets
+        ) && let Some(choices) = &self.choices
         {
             if self.register_used.load(Ordering::Relaxed)
                 || self.predicate_init.load(Ordering::Relaxed)
