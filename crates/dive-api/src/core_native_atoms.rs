@@ -82,6 +82,7 @@ pub(crate) struct NativeAtoms {
     reference: ReferenceMetrics,
     row_proofs: RowProofMetrics,
     reuse: ReuseMetrics,
+    analysis_ms: std::collections::BTreeMap<&'static str, f64>,
     rejections: Rejections,
     fallbacks: Fallbacks,
     /// Per-demand fuel ([`NATIVE_FUEL`]; tests lower it).
@@ -226,6 +227,7 @@ impl NativeAtoms {
             reference: ReferenceMetrics::default(),
             row_proofs: RowProofMetrics::default(),
             reuse: ReuseMetrics::default(),
+            analysis_ms: std::collections::BTreeMap::new(),
             rejections: Rejections::default(),
             fallbacks: Fallbacks::default(),
             fuel: NATIVE_FUEL,
@@ -296,6 +298,10 @@ impl NativeAtoms {
                 })
         })?;
         Ok(result)
+    }
+
+    pub(crate) fn analysis_ms(&self) -> &std::collections::BTreeMap<&'static str, f64> {
+        &self.analysis_ms
     }
 
     pub(crate) fn metrics(&self) -> serde_json::Value {
@@ -1076,6 +1082,14 @@ impl NativeReader for Reader<'_, '_> {
             dive_liveness::formula::AtomKind::State => self.atoms.reference.state += 1,
             dive_liveness::formula::AtomKind::Action => self.atoms.reference.action += 1,
         }
+    }
+
+    fn analysis_time(
+        &mut self,
+        stage: dive_liveness::analyze::Stage,
+        elapsed: std::time::Duration,
+    ) {
+        *self.atoms.analysis_ms.entry(stage.name()).or_default() += elapsed.as_secs_f64() * 1000.0;
     }
 
     fn predicate_reuse_storage(&mut self, bytes: usize, cap: u64, allocation: u64, columns: u64) {
