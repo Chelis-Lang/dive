@@ -1195,6 +1195,16 @@ Use the pinned `slatedb/SlateDBWAL.tla` and `SlateDBWAL.cfg`. All runs retain th
 
 The published CFG permits permutations of three writers and two values, with one garbage collector. Their disjoint relabelings generate a group of order 12. For an equivariant reachable set, a symmetry representative covers between one and twelve labeled states, depending on its stabilizer. On the two-writer, two-value control, the exact store measured 74,637 representatives and 270,183 labeled states with symmetry removed, both at depth 69. Multiplying every representative by the group order would overcount. The original 4.91-billion-fingerprint run alone cannot determine the labeled total or resolve the author’s approximate 49-billion report. [Source and controls](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
+Core can count each orbit once during exact safety search. For each expanded state it intersects the permutations fixing each variable value. The group order divided by the number fixing the whole state gives that state’s orbit size. A bounded table reuses results for immutable values within the current Store. The only `CHOOSE` in SlateDB selects a numeric manifest ID, the unique largest eligible ID. Writer and value names occur uniformly as quantified parameters, function keys or data. Renaming them preserves initialization and every branch of `Next`, including the number of generated successors.
+
+| Writers / restarts (two values) | Exact representatives | Labeled states from orbit sizes | Weighted generated |
+|---|---:|---:|---:|
+| 2 / 0 | 74,637 | 270,183 | 711,801 |
+| 2 / 1 | 3,761,377 | 14,906,269 | 49,615,289 |
+| 3 / 0 | 30,114,878 | 350,341,877 | 1,360,205,173 |
+
+Pinned TLC independently computed all three orbit histograms from newly admitted states. Removing symmetry and checking the two-writer models with exact Core gave both labeled totals and both generated counts directly. For two writers without restarts, one worker, eight workers and 70 forced Store collections all produced the same histogram. The state-limited run emitted no completed census. The three-writer, no-restart measurement took 70.27 s on 40 physical cores. [Core command and assumptions](../user/checking.md#count-labeled-states-under-symmetry) · [Independent TLC counter](../../scripts/perf/scale/OrbitCensus.java) · [Per-run records](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
 | Writers / values / restarts | Engine | Outcome | Distinct | Generated | Depth | Wall, s |
 |---|---|---|---:|---:|---:|---:|
 | 1 / 1 / 0 | Core | complete | 268 | 460 | 27 | 0.02 |

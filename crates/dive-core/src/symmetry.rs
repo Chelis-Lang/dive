@@ -78,6 +78,7 @@ static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 #[derive(Debug, Default)]
 pub struct ImageCache {
     owner: u64,
+    fixed_maps: HashMap<Handle, u64, BuildHasherDefault<KeyHasher>>,
     images: HashMap<(u32, Handle), Handle, BuildHasherDefault<KeyHasher>>,
     /// Persistent values whose images are not remembered, with the number
     /// of the canonicalization that first met them.
@@ -224,6 +225,76 @@ impl Symmetry {
         self.maps.is_empty()
     }
 
+    fn prepare(&self, heap: &mut Heap) {
+        if heap.sym_images.owner != self.id {
+            heap.sym_images.owner = self.id;
+            heap.sym_images.images.clear();
+            heap.sym_images.seen.clear();
+            heap.sym_images.fixed_maps.clear();
+            heap.sym_images.roots.clear();
+            heap.sym_images.domains.clear();
+            heap.sym_images.domain_keys = 0;
+        }
+    }
+
+    /// Number of distinct images of a state under this closed group.
+    /// The stabilizer of the state is the intersection of the stabilizers of
+    /// its variable values. A heap-local table remembers these small bit sets
+    /// for immutable values. New heaps after Store reclamation start empty.
+    ///
+    /// # Errors
+    /// The group has more than 64 elements or a value cannot be permuted.
+    pub fn orbit_size(&self, heap: &mut Heap, state: &[Handle]) -> Result<u64, Error> {
+        let size = self.maps.len();
+        if size >= 64 {
+            return Err(Error::unsupported(
+                "orbit census with more than 64 group elements",
+            ));
+        }
+        self.prepare(heap);
+        let mut fixed = (1u64 << size) - 1;
+        for &value in state {
+            if fixed == 0 {
+                break;
+            }
+            let stable = value.is_persistent() || !value.is_compound();
+            if stable && let Some(mask) = heap.sym_images.fixed_maps.get(&value) {
+                fixed &= mask;
+                continue;
+            }
+            let mut mask = 0;
+            let previous = heap.set_speculative(true);
+            let arena_start = heap.mark();
+            let result: Result<(), Error> =
+                self.maps.iter().enumerate().try_for_each(|(k, map)| {
+                    let index = u32::try_from(k).map_err(|_| Error::internal("orbit map index"))?;
+                    let image = permute(self, heap, map, index, value)?;
+                    if heap.cmp(image, value) == Ordering::Equal {
+                        mask |= 1u64 << k;
+                    }
+                    Ok(())
+                });
+            heap.rollback(arena_start);
+            heap.set_speculative(previous);
+            result?;
+            if stable {
+                if heap.sym_images.fixed_maps.len() >= 16_384 {
+                    heap.sym_images.fixed_maps.clear();
+                }
+                heap.sym_images.fixed_maps.insert(value, mask);
+            }
+            fixed &= mask;
+        }
+        let order = u64::try_from(size + 1).map_err(|_| Error::internal("orbit group size"))?;
+        let stabilizer = 1 + u64::from(fixed.count_ones());
+        if !order.is_multiple_of(stabilizer) {
+            return Err(Error::internal(
+                "orbit stabilizer does not divide group order",
+            ));
+        }
+        Ok(order / stabilizer)
+    }
+
     /// The canonical image of `state` into `out`: the least image under the
     /// maps, the state itself first, compared variable by variable with
     /// [`Heap::cmp`]. A later image replaces the best one only when it is
@@ -257,14 +328,7 @@ impl Symmetry {
         base: &[Handle],
         out: &mut Vec<Handle>,
     ) -> Result<(), Error> {
-        if heap.sym_images.owner != self.id {
-            heap.sym_images.owner = self.id;
-            heap.sym_images.images.clear();
-            heap.sym_images.seen.clear();
-            heap.sym_images.roots.clear();
-            heap.sym_images.domains.clear();
-            heap.sym_images.domain_keys = 0;
-        }
+        self.prepare(heap);
         heap.sym_images.epoch += 1;
         let mut deltas = std::mem::take(&mut heap.sym_images.deltas);
         if base.len() == state.len() && !self.maps.is_empty() && !heap.speculative {
@@ -1093,6 +1157,37 @@ mod tests {
         let s = h.set_from(&mut vec![one, two]);
         sym.canonical(&mut h, &[s], &mut x).unwrap();
         assert_eq!(x, vec![s]);
+    }
+
+    #[test]
+    fn orbit_size_intersects_fixed_maps_and_tracks_the_current_group() {
+        let (mut heap, group, nested) = nested_states(3);
+        let names: Vec<_> = ["a", "b", "c"]
+            .map(|name| Handle::model(heap.store().strings().intern(name).unwrap()))
+            .into();
+        let all = heap.set_from(&mut names.clone());
+        let stable = heap.intern(all).unwrap();
+        let state = [names[0], names[1]];
+        assert_eq!(group.orbit_size(&mut heap, &[stable]).unwrap(), 1);
+        assert_eq!(group.orbit_size(&mut heap, &state[..1]).unwrap(), 3);
+        assert_eq!(group.orbit_size(&mut heap, &state).unwrap(), 6);
+        for &value in &nested {
+            let mut images = vec![value];
+            for map in &group.maps {
+                let image = sorted_image(&mut heap, map, value);
+                if !images.iter().any(|&old| heap.eq(old, image)) {
+                    images.push(image);
+                }
+            }
+            assert_eq!(
+                group.orbit_size(&mut heap, &[value]).unwrap(),
+                images.len() as u64
+            );
+        }
+        let identity = Symmetry::new(Vec::new());
+        assert_eq!(identity.orbit_size(&mut heap, &state).unwrap(), 1);
+        assert_eq!(group.orbit_size(&mut heap, &state).unwrap(), 6);
+        assert!(!heap.is_speculative());
     }
 
     /// The reduction of every permutation of three model values, the

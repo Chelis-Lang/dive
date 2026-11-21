@@ -2324,5 +2324,250 @@
     "wall_s": 22664.55,
     "peak_rss_kib": 598625572,
     "comparison": "The earlier fingerprint run found one fewer distinct state and four fewer generated occurrences. Exact comparison confirms the symmetry-reduced graph size for the released configuration. The author’s rounded 49 billion lacks a terminal log and identified reduction settings."
+  },
+  "labeled_orbit_census": {
+    "native_host": "Isolated r7i.48xlarge, us-east-2a. CPUs 0 to W-1, one per physical core; 1390 GiB cgroup cap, no swap. Rust 1.99 release, LTO off, 16 codegen units.",
+    "native_binary_sha256": "44594efd0d5809469fa56024f3c2ca28d4a25593c2ef2392d37cd31ed74501c8",
+    "native_build_scope": "Experimental build before adding unavailable-reason reporting on ineligible searches; eligible histogram and weighting algorithm unchanged.",
+    "reference_host": "Separate r7i.4xlarge, us-east-2b. W8 on CPUs 0-7, one per physical core. 110 GiB cgroup cap, no swap. Fresh output directory per check.",
+    "raw_binary_sha256": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+    "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "oracle_source": "scripts/perf/scale/OrbitCensus.java",
+    "configs": "Medium: 2 writers, 2 values, no restart. TwoRetry: 2 writers, 2 values, one restart. ThreeNoRetry: 3 writers, 2 values, no restart. Unreduced controls remove only the SYMMETRY line. All use six original invariants.",
+    "native_command": "DIVE_CORE_OPT=+orbit-census dive check SlateDBWAL.tla --config CFG --library-path MODULES --store exact --workers W --compat=tlc --fp 0 --seed 0 --output json. medium-collect adds --store-compact-bytes 0; medium-prefix adds --max-states 1500.",
+    "reference_commands": "Compile OrbitCensus.java with javac --release 17 -cp tla2tools.jar. Run java -Xmx12g -XX:ActiveProcessorCount=8 -DTLA-Library=MODULES -cp CLASSES:tla2tools.jar OrbitCensus SlateDBWAL.tla CFG 8 NEW_METADIR. Unreduced controls run ordinary Core with exact store, 90 GiB sampled limit, 1800s time limit.",
+    "native_controls": {
+      "medium-one": {
+        "workers": 1,
+        "wall_s": 0.79,
+        "rss_kib": 48708,
+        "exit": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 69,
+          "distinct": 74637,
+          "generated": 198123,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "completed_collections": 0,
+        "census": {
+          "labeled_orbit_union": "270183",
+          "orbit_sizes": {
+            "1": 35,
+            "2": 14130,
+            "4": 60472
+          },
+          "representatives": 74637,
+          "weighted_generated": "711801"
+        }
+      },
+      "medium-wide": {
+        "workers": 8,
+        "wall_s": 0.29,
+        "rss_kib": 128892,
+        "exit": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 69,
+          "distinct": 74637,
+          "generated": 198123,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "completed_collections": 0,
+        "census": {
+          "labeled_orbit_union": "270183",
+          "orbit_sizes": {
+            "1": 35,
+            "2": 14130,
+            "4": 60472
+          },
+          "representatives": 74637,
+          "weighted_generated": "711801"
+        }
+      },
+      "medium-collect": {
+        "workers": 8,
+        "wall_s": 1.33,
+        "rss_kib": 285512,
+        "exit": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 69,
+          "distinct": 74637,
+          "generated": 198123,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "completed_collections": 70,
+        "census": {
+          "labeled_orbit_union": "270183",
+          "orbit_sizes": {
+            "1": 35,
+            "2": 14130,
+            "4": 60472
+          },
+          "representatives": 74637,
+          "weighted_generated": "711801"
+        }
+      },
+      "medium-prefix": {
+        "workers": 8,
+        "wall_s": 0.03,
+        "rss_kib": 59240,
+        "exit": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 17,
+          "distinct": 1500,
+          "exhaustive": false,
+          "generated": 3382,
+          "initial_generated": 1,
+          "left_on_queue": 359,
+          "reported_by_tlc": false
+        },
+        "completed_collections": 0
+      },
+      "retry": {
+        "workers": 16,
+        "wall_s": 9.26,
+        "rss_kib": 683680,
+        "exit": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 93,
+          "distinct": 3761377,
+          "generated": 12508420,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "completed_collections": 0,
+        "census": {
+          "labeled_orbit_union": "14906269",
+          "orbit_sizes": {
+            "1": 35,
+            "2": 69567,
+            "4": 3691775
+          },
+          "representatives": 3761377,
+          "weighted_generated": "49615289"
+        }
+      },
+      "three": {
+        "workers": 40,
+        "wall_s": 70.27,
+        "rss_kib": 4394300,
+        "exit": 0,
+        "verdict": "success",
+        "statistics": {
+          "depth": 114,
+          "distinct": 30114878,
+          "generated": 117007147,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "completed_collections": 0,
+        "census": {
+          "labeled_orbit_union": "350341877",
+          "orbit_sizes": {
+            "1": 35,
+            "12": 28277275,
+            "3": 3622,
+            "6": 1833946
+          },
+          "representatives": 30114878,
+          "weighted_generated": "1360205173"
+        }
+      }
+    },
+    "independent_controls": {
+      "Medium-census": {
+        "exit": 0,
+        "wall_s": 2.32,
+        "rss_kib": 1322104,
+        "verdict": "success",
+        "generated": 198123,
+        "distinct": 74637,
+        "queue": 0,
+        "depth": 69,
+        "labeled_orbit_union": 270183,
+        "orbit_sizes": {
+          "1": 35,
+          "2": 14130,
+          "4": 60472
+        }
+      },
+      "Medium-raw": {
+        "exit": 0,
+        "wall_s": 0.93,
+        "rss_kib": 233908,
+        "verdict": "success",
+        "statistics": {
+          "depth": 69,
+          "distinct": 270183,
+          "generated": 711801,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "TwoRetry-census": {
+        "exit": 0,
+        "wall_s": 32.57,
+        "rss_kib": 3610536,
+        "verdict": "success",
+        "generated": 12508420,
+        "distinct": 3761377,
+        "queue": 0,
+        "depth": 93,
+        "labeled_orbit_union": 14906269,
+        "orbit_sizes": {
+          "1": 35,
+          "2": 69567,
+          "4": 3691775
+        }
+      },
+      "TwoRetry-raw": {
+        "exit": 0,
+        "wall_s": 59.96,
+        "rss_kib": 6180120,
+        "verdict": "success",
+        "statistics": {
+          "depth": 93,
+          "distinct": 14906269,
+          "generated": 49615289,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        }
+      },
+      "ThreeNoRetry-census": {
+        "exit": 0,
+        "wall_s": 346.09,
+        "rss_kib": 6313388,
+        "verdict": "success",
+        "generated": 117007147,
+        "distinct": 30114878,
+        "queue": 0,
+        "depth": 114,
+        "labeled_orbit_union": 350341877,
+        "orbit_sizes": {
+          "1": 35,
+          "3": 3622,
+          "6": 1833946,
+          "12": 28277275
+        }
+      }
+    },
+    "final_control": {
+      "binary_sha256": "b8302638b57747c7c3f6cbee1d9fa6a4c721f76178b1d3d9be37be06c6a2c821",
+      "host": "Separate c7i.4xlarge, W1, us-east-2. Final measurement code reproduced every medium-one count. Nine symmetry unit tests and the public API check passed. The API test covers duplicate initial and successor occurrences, W1/W4, partial search, VIEW and fingerprint storage."
+    }
   }
 }
