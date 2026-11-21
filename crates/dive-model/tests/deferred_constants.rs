@@ -5,7 +5,7 @@
 use std::collections::BTreeSet;
 use std::sync::Arc;
 
-use dive_model::{BindOptions, bind, bind_deferring_constants};
+use dive_model::{BindOptions, bind, bind_deferring_constants, bind_reachable};
 
 const SOURCE: &str = r"---- MODULE Deferred ----
 EXTENDS Naturals, FiniteSets, TLC
@@ -201,4 +201,33 @@ fn what_temporal_properties_do_not_reach_stays_the_cores() {
         names(&deferred),
         BTreeSet::from(["Bound".to_owned(), "Ring".to_owned(), "Start".to_owned()])
     );
+}
+
+#[test]
+fn reachable_binding_skips_only_unused_pure_startup_values() {
+    let source = SOURCE.replace(
+        "Unused == {n \\in Node : n # Start}",
+        "Unused == Permutations(Node)\nObservable == PrintT(\"observed\")",
+    );
+    assert!(source.contains("Observable"));
+    let (ir, cfg) = inputs(&source);
+    let opts = BindOptions::tlc();
+    let plain = bind(ir.clone(), &cfg, &opts).expect("ordinary binding");
+    let reachable = bind_reachable(ir.clone(), &cfg, &opts).expect("reachable binding");
+    assert_eq!(reachable.deferred_assumptions, Vec::<dive_ir::DefId>::new());
+    assert!(reachable.deferred_constants.is_empty());
+    let unused = ir.root_def("Unused").expect("unused permutation");
+    assert!(plain.evaluator.precomputed(unused).is_some());
+    assert!(reachable.evaluator.precomputed(unused).is_none());
+    for name in ["Bound", "Start", "Ring", "Viewed"] {
+        let id = ir.root_def(name).expect("definition");
+        assert!(plain.evaluator.precomputed(id).is_some());
+        assert_eq!(
+            reachable.evaluator.precomputed(id),
+            plain.evaluator.precomputed(id),
+            "{name}"
+        );
+    }
+    assert_ne!(plain.output, Vec::<dive_model::Message>::new());
+    assert_eq!(plain.output, reachable.output);
 }

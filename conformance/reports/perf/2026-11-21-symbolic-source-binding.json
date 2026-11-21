@@ -1,0 +1,391 @@
+{
+  "schema": "dive-symbolic-startup-binding-v1",
+  "issue": 1188,
+  "method": {
+    "base": "e0a065a61",
+    "source": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/KeyValueStore. Both Rust exporters were built from the same main base, pinned Rust, --locked --release -p dive-api --example symbolic_input, with LTO disabled and 16 codegen units. The final differs only by the reachable-binding change.",
+    "host": "AWS EC2 c7i.4xlarge, Intel Xeon Platinum 8488C, Ubuntu 24.04, 16 online logical CPUs. Exporter-only samples pinned to CPU 4 in us-east-2; installed CLI controls on a second c7i.4xlarge, CPU 6 in us-east-1. Other tasks on each host used separate affinities. Times include fresh process startup.",
+    "limits": "Exporter controls: 1,153,433,600-byte address-space limit and 1,400 MiB cgroup, no swap. Full-check library cases: 1,100 MiB checker address-space budget, 1,400 MiB cgroup, 35 s deadline. Tiny trace and startup controls: cgroup without address-space limit. Rows use GNU time wall seconds and peak RSS KiB.",
+    "commands": [
+      "symbolic_input MCKVS.tla Model.cfg",
+      "dive check Library.tla --config Library.cfg --strategy symbolic --output json --time-limit 35s --max-memory 1100m",
+      "dive check MCKVS.tla --config Model.cfg --strategy symbolic --prove-inductive --time-limit 35s --max-memory 1100m --output json"
+    ]
+  },
+  "sha256": {
+    "K4V2T12-labeled/FullHasFresh/KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "K4V2T12-labeled/FullHasFresh/MCKVS.tla": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+    "K4V2T12-labeled/FullHasFresh/Model.cfg": "f9ca2758a4c53a2a048275f68c4c059186cd1202655692dfee243b8a1afb02a0",
+    "K2V2T16-labeled/FullHasFresh/KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "K2V2T16-labeled/FullHasFresh/MCKVS.tla": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+    "K2V2T16-labeled/FullHasFresh/Model.cfg": "cac7c9eb1abf6b9e821d595c536591be3417635b0c59fdbda311d1b39988156d",
+    "K4V2T6-symmetric/FullHasFresh/KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+    "K4V2T6-symmetric/FullHasFresh/MCKVS.tla": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+    "K4V2T6-symmetric/FullHasFresh/Model.cfg": "1246862b2cb0098d7a3fc66685527d35e3e67d457448d2af5c8dbfe1e8d79a37",
+    "base": "9846fbac428ddba76bb89fa01286470f6cd0e427ab8fe39ee177ed3d174db252",
+    "final": "aec41fb7dfc99d0d27efeeab84f45b483724021504083dd9c81de870fd4982da",
+    "large/Library.tla": "efb2f9c71e9475ac6c4c7f616fb2b9523f4a009b9b61b9d8003a33c68ff3ff47",
+    "large/Library.cfg": "fbe9e84d344e30ac82ac648afb89eff8a0a1f6824a59e7afb5ac90811756b36a",
+    "small/Library.tla": "efb2f9c71e9475ac6c4c7f616fb2b9523f4a009b9b61b9d8003a33c68ff3ff47",
+    "small/Library.cfg": "7474c0f83e7cc42412766375c1ca7351f1fd9ad420ce4ff972c4b517af10bee1",
+    "check.py": "340c72a376b6276d63d956d59333add015f4da4511d0bc2a5ffb78a25ea8a38e",
+    "engine.py": "ce4ef17fcab9e4a0edb85f387173a3a195f65ba2792a1546d8afac81b2f8bc36",
+    "induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8",
+    "finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+    "dive_cli": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1"
+  },
+  "input_edits": {
+    "exporter": "Use the original KeyValueStore.tla. To MCKVS append the two cleanup/conflict predicates, then SomeCommit and FullHasFresh as listed below. From MCKVSSafetyLarge.cfg, replace Key, Val and TxId with the requested k1..kK, v1..vV and t1..tT model values. Add INVARIANT SomeCommit and INVARIANT FullHasFresh after the original invariants. Remove only SYMMETRY TxIdSymmetric for labeled rows, keeping the TxIdSymmetric definition in the source. The no-unused controls also remove that single now-dead definition.",
+    "predicates": "TxIsClean == \\A t \\in TxId \\ tx : missed[t] = {}\nAtMostOneConflict == \\A a \\in tx : \\A b \\in tx :\n    a /= b => ((missed[a] \\cap written[a]) = {} \\/ (missed[b] \\cap written[b]) = {})\nSomeCommit == tx = TxId => \\E t \\in tx : (missed[t] \\cap written[t]) = {}\nFullHasFresh == tx = TxId => \\E t \\in tx : missed[t] = {}",
+    "complete_search": "Use original MCKVS.tla on 2 keys, 2 values and 3 transactions with the original transaction symmetry and both original invariants. Wrap with Library.tla below and add CONSTANT Peer = {p1, ..., p12} to its CFG. The small control uses only {p1,p2}. The twelve-peer group is never configured nor referenced.",
+    "Library.tla": "---- MODULE Library ----\nEXTENDS MCKVS\nCONSTANT Peer\nUnused == Permutations(Peer)\n====\n",
+    "startup_controls": "Probe uses x=0, a transition alternating 0 and 1, layout invariant x in {0,1}, an unused pure Permutations(Id), used Needed == Cardinality(Id), ASSUME Needed > 0 and two IDs. Good checks Needed=2 and x in {0,1}; Bad checks x=0. The assume control changes the assumption to Needed=0. The print control replaces the unused permutation with PrintT(\"notice\"). sym-limit selects the actual seven-ID permutation group."
+  },
+  "exporter_pairs": {
+    "K4V2T12-labeled": {
+      "base": {
+        "trials": [
+          {
+            "exit": 134,
+            "wall_s": 1.89,
+            "peak_rss_kib": 1117264
+          },
+          {
+            "exit": 134,
+            "wall_s": 1.85,
+            "peak_rss_kib": 1117364
+          },
+          {
+            "exit": 134,
+            "wall_s": 1.91,
+            "peak_rss_kib": 1117376
+          }
+        ],
+        "exported_bytes": 0,
+        "sha256": null
+      },
+      "final": {
+        "trials": [
+          {
+            "exit": 0,
+            "wall_s": 0.01,
+            "peak_rss_kib": 12188
+          },
+          {
+            "exit": 0,
+            "wall_s": 0.01,
+            "peak_rss_kib": 12376
+          },
+          {
+            "exit": 0,
+            "wall_s": 0.02,
+            "peak_rss_kib": 12280
+          }
+        ],
+        "exported_bytes": 270514,
+        "sha256": "6135d5369e46ddeccfd43cdccc030aa842424e98859a3b42a88f25a2dac524bf"
+      }
+    },
+    "K2V2T16-labeled": {
+      "base": {
+        "trials": [
+          {
+            "exit": 134,
+            "wall_s": 1.91,
+            "peak_rss_kib": 1113000
+          },
+          {
+            "exit": 134,
+            "wall_s": 2.0,
+            "peak_rss_kib": 1112984
+          },
+          {
+            "exit": 134,
+            "wall_s": 2.0,
+            "peak_rss_kib": 1112844
+          }
+        ],
+        "exported_bytes": 0,
+        "sha256": null
+      },
+      "final": {
+        "trials": [
+          {
+            "exit": 0,
+            "wall_s": 0.01,
+            "peak_rss_kib": 12392
+          },
+          {
+            "exit": 0,
+            "wall_s": 0.01,
+            "peak_rss_kib": 12268
+          },
+          {
+            "exit": 0,
+            "wall_s": 0.02,
+            "peak_rss_kib": 12320
+          }
+        ],
+        "exported_bytes": 270548,
+        "sha256": "65dfc858020832d8f71a386f40dcedccf91fd597d3d719b282b84c7e0d340d38"
+      }
+    },
+    "K4V2T6-symmetric": {
+      "base": {
+        "trials": [
+          {
+            "exit": 0,
+            "wall_s": 0.04,
+            "peak_rss_kib": 13020
+          },
+          {
+            "exit": 0,
+            "wall_s": 0.04,
+            "peak_rss_kib": 13124
+          },
+          {
+            "exit": 0,
+            "wall_s": 0.04,
+            "peak_rss_kib": 12932
+          }
+        ],
+        "exported_bytes": 280535,
+        "sha256": "3b2335cc2368b8a70c49fbec4ba0d760e9b4db83a71bd24e4d897c9e9b602fe4"
+      },
+      "final": {
+        "trials": [
+          {
+            "exit": 0,
+            "wall_s": 0.04,
+            "peak_rss_kib": 13096
+          },
+          {
+            "exit": 0,
+            "wall_s": 0.05,
+            "peak_rss_kib": 12964
+          },
+          {
+            "exit": 0,
+            "wall_s": 0.04,
+            "peak_rss_kib": 13028
+          }
+        ],
+        "exported_bytes": 280535,
+        "sha256": "3b2335cc2368b8a70c49fbec4ba0d760e9b4db83a71bd24e4d897c9e9b602fe4"
+      }
+    }
+  },
+  "source_without_unused_definition": {
+    "K2V2T16-no-unused": {
+      "base": {
+        "exit": 0,
+        "wall_s": 0.01,
+        "peak_rss_kib": 12296,
+        "sha256": "2eb9fd718e357393cb362cfdfe1d339eba5e26a58cdc9eb50c1adb7db3dba4ce"
+      },
+      "final": {
+        "exit": 0,
+        "wall_s": 0.02,
+        "peak_rss_kib": 12240,
+        "sha256": "2eb9fd718e357393cb362cfdfe1d339eba5e26a58cdc9eb50c1adb7db3dba4ce"
+      }
+    },
+    "K4V2T12-no-unused": {
+      "base": {
+        "exit": 0,
+        "wall_s": 0.01,
+        "peak_rss_kib": 12344,
+        "sha256": "df17c15b7063f9602f5441c37677dbde9bd6bd640258baff3d93e5272a70657b"
+      },
+      "final": {
+        "exit": 0,
+        "wall_s": 0.02,
+        "peak_rss_kib": 12376,
+        "sha256": "df17c15b7063f9602f5441c37677dbde9bd6bd640258baff3d93e5272a70657b"
+      }
+    }
+  },
+  "complete_symbolic_checks": {
+    "large-base": {
+      "exit": 4,
+      "wall_s": 2.1,
+      "peak_rss_kib": 1117368,
+      "verdict": "stopped",
+      "reason": "Dive frontend terminated by signal 6"
+    },
+    "large-final": {
+      "exit": 0,
+      "wall_s": 1.6,
+      "peak_rss_kib": 81336,
+      "verdict": "success",
+      "depth": 23,
+      "generated": 9628660,
+      "distinct": 582471,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ]
+    },
+    "small-base": {
+      "exit": 0,
+      "wall_s": 1.5,
+      "peak_rss_kib": 81468,
+      "verdict": "success",
+      "depth": 23,
+      "generated": 9628660,
+      "distinct": 582471,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ]
+    },
+    "small-final": {
+      "exit": 0,
+      "wall_s": 1.55,
+      "peak_rss_kib": 81500,
+      "verdict": "success",
+      "depth": 23,
+      "generated": 9628660,
+      "distinct": 582471,
+      "invariants": [
+        "TypeInvariant",
+        "TxLifecycle"
+      ]
+    },
+    "trace-base": {
+      "exit": 1,
+      "wall_s": 0.24,
+      "peak_rss_kib": 57000,
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "ending": {
+        "kind": "invariant",
+        "name": "Bad"
+      },
+      "trace_validated": true
+    },
+    "trace-final": {
+      "exit": 1,
+      "wall_s": 0.25,
+      "peak_rss_kib": 56868,
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "ending": {
+        "kind": "invariant",
+        "name": "Bad"
+      },
+      "trace_validated": true
+    }
+  },
+  "selected_behavior_controls": {
+    "assume-base": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 56948,
+      "verdict": "unsupported",
+      "reason": "ASSUME 1 did not evaluate to TRUE"
+    },
+    "assume-final": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 57092,
+      "verdict": "unsupported",
+      "reason": "ASSUME 1 did not evaluate to TRUE"
+    },
+    "false-base": {
+      "exit": 1,
+      "wall_s": 0.24,
+      "peak_rss_kib": 56912,
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "ending": {
+        "kind": "invariant",
+        "name": "Bad"
+      },
+      "trace_validated": true
+    },
+    "false-final": {
+      "exit": 1,
+      "wall_s": 0.25,
+      "peak_rss_kib": 56920,
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "ending": {
+        "kind": "invariant",
+        "name": "Bad"
+      },
+      "trace_validated": true
+    },
+    "print-base": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 42472,
+      "verdict": "unsupported",
+      "reason": "Dive frontend: Error: \"unsupported startup diagnostic [Print(\\\"\\\\\\\"notice\\\\\\\"\\\")]\""
+    },
+    "print-final": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 42628,
+      "verdict": "unsupported",
+      "reason": "Dive frontend: Error: \"unsupported startup diagnostic [Print(\\\"\\\\\\\"notice\\\\\\\"\\\")]\""
+    },
+    "sym-limit-base": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 42640,
+      "verdict": "unsupported",
+      "reason": "Dive frontend: Error: \"BindError { kind: Unsupported { feature: \\\"SYMMETRY TxIdSymmetric: symmetry resource limit: maps\\\" }, message: \\\"unsupported: SYMMETRY TxIdSymmetric: symmetry resource limit: maps\\\" }\""
+    },
+    "sym-limit-final": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 42584,
+      "verdict": "unsupported",
+      "reason": "Dive frontend: Error: \"BindError { kind: Unsupported { feature: \\\"SYMMETRY TxIdSymmetric: symmetry resource limit: maps\\\" }, message: \\\"unsupported: SYMMETRY TxIdSymmetric: symmetry resource limit: maps\\\" }\""
+    },
+    "used-base": {
+      "exit": 0,
+      "wall_s": 0.25,
+      "peak_rss_kib": 56996,
+      "verdict": "success",
+      "depth": 2,
+      "generated": 3,
+      "distinct": 2,
+      "invariants": [
+        "TypeInvariant",
+        "Good"
+      ]
+    },
+    "used-final": {
+      "exit": 0,
+      "wall_s": 0.25,
+      "peak_rss_kib": 57140,
+      "verdict": "success",
+      "depth": 2,
+      "generated": 3,
+      "distinct": 2,
+      "invariants": [
+        "TypeInvariant",
+        "Good"
+      ]
+    }
+  },
+  "original_large_labeled_protocol_after_export": {
+    "K2V2T16": {
+      "exit": 4,
+      "wall_s": 9.47,
+      "peak_rss_kib": 1113012,
+      "verdict": "stopped",
+      "reason": "native worker exited under its memory budget"
+    },
+    "K4V2T12": {
+      "exit": 4,
+      "wall_s": 10.27,
+      "peak_rss_kib": 1113548,
+      "verdict": "stopped",
+      "reason": "native worker exited under its memory budget"
+    }
+  },
+  "scope": "The export now completes on the unchanged 12- and 16-ID labeled sources. The entire many-transaction programs then reach a distinct memory stop in the symbolic worker at the tested budget. The full successful search refers specifically to the original two-key KVS protocol containing the unrelated twelve-peer definition."
+}

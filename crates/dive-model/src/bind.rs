@@ -109,8 +109,7 @@ pub(crate) struct Binder<'a> {
     /// refused only if the checking path reaches it or its evaluation may
     /// have had a lasting effect in TLC (`reach::unsupported`).
     pub(crate) startup_refusals: Vec<StartupRefusal>,
-    /// The constant definitions the start-up evaluation leaves to the core
-    /// engine (`crate::defer`); `None` unless the core route asked.
+    /// Pure definitions the selected startup policy can leave unevaluated.
     pub(crate) defer: Option<crate::defer::Deferral>,
     /// The left definitions a configured role uses, which the core
     /// evaluates.
@@ -639,9 +638,6 @@ impl<'a> Binder<'a> {
     /// to definitions, then every constant-level zero-arity definition, are
     /// evaluated, and the values kept. Failures are swallowed.
     pub(crate) fn process_constant_defns(&mut self) -> R<()> {
-        if self.defer.is_some() {
-            self.defer = Some(crate::defer::candidates(self));
-        }
         let ir = self.t.ir.clone();
         for m in file_modules(&ir) {
             if self.processes_constant_defns(m) {
