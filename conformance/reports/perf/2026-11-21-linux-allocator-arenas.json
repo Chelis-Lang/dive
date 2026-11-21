@@ -1,0 +1,519 @@
+{
+  "date": "2026-11-21",
+  "question": "Do the Linux command-line binaries keep using allocator arenas as the live heap grows?",
+  "upstream": {
+    "defect": "https://github.com/microsoft/mimalloc/issues/1309",
+    "upstream_fix": "https://github.com/microsoft/mimalloc/commit/566fbc1f4d",
+    "rust_crates": "mimalloc 0.1.52 and libmimalloc-sys 0.1.49, same locked packages across arms. Default 3.3.2 versus the v2 Cargo feature selecting bundled 2.3.2."
+  },
+  "reservation_control": {
+    "method": "Link the public mi_reserve_os_memory(size,false,false) API against the exact static library from each release build, one uncommitted request per fresh process. Zero is success; Linux errno 12 is ENOMEM. No graph is allocated by this control.",
+    "runs": {
+      "arm64": {
+        "reserve-v3-8": {
+          "mimalloc_version": 30302,
+          "reservation_gib": 8,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 1552
+        },
+        "reserve-v3-16": {
+          "mimalloc_version": 30302,
+          "reservation_gib": 16,
+          "errno": 12,
+          "wall_s": 0.0,
+          "rss_kib": 1552
+        },
+        "reserve-v2-8": {
+          "mimalloc_version": 20302,
+          "reservation_gib": 8,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 0
+        },
+        "reserve-v2-16": {
+          "mimalloc_version": 20302,
+          "reservation_gib": 16,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 0
+        }
+      },
+      "x86_64": {
+        "reserve-v3-8": {
+          "mimalloc_version": 30302,
+          "reservation_gib": 8,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 1928
+        },
+        "reserve-v3-16": {
+          "mimalloc_version": 30302,
+          "reservation_gib": 16,
+          "errno": 12,
+          "wall_s": 0.0,
+          "rss_kib": 1924
+        },
+        "reserve-v2-8": {
+          "mimalloc_version": 20302,
+          "reservation_gib": 8,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 1696
+        },
+        "reserve-v2-16": {
+          "mimalloc_version": 20302,
+          "reservation_gib": 16,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 1696
+        }
+      }
+    }
+  },
+  "flint": {
+    "host": "Two dedicated r8g.48xlarge in us-east-1a, W192. CPU 0–191, memory cgroup 1400 GiB, no swap. Same generated compiled checker, exact key implementation and original released three-writer CFG. The full command and model properties are in the Flint exact admission record. Only the mimalloc Cargo feature differs.",
+    "sample_method": "/proc per-thread wait channels, then a maps count. The stock sample began during the slowdown. The v2 sampler began at launch. Samples are observations during the run. Timings include sampling and the short public-API probe on the v2 host.",
+    "stock_observation": {
+      "wait_channels": {
+        "futex_do_wait": 1,
+        "vm_mmap_pgoff": 38,
+        "__vm_munmap": 71,
+        "madvise_lock": 41,
+        "0": 42
+      },
+      "map_count": 129062,
+      "largest_frequency": [
+        [
+          65536,
+          120798
+        ],
+        [
+          4194304,
+          5500
+        ],
+        [
+          4718592,
+          1489
+        ],
+        [
+          16384,
+          195
+        ],
+        [
+          4096,
+          195
+        ],
+        [
+          135168,
+          194
+        ]
+      ],
+      "permissions": {
+        "rw-p": 128473,
+        "r-xp": 5,
+        "r--p": 5,
+        "---p": 579
+      },
+      "observation_s": 0.24,
+      "epoch_s": 1795275472
+    },
+    "runs": {
+      "v3": {
+        "sha256": {
+          "generated-Small/target/release/tlcgen-weightedflint": "511fd645b344a6bdeed1e114c1033c677cfbdbddab42e137e2c2ff408f5b45a3",
+          "generated-Small/src/main.rs": "de767a670a19d1499b68cb5a3b346f618982079021318a0432b20eac101fe5ec",
+          "generated-Full/target/release/tlcgen-weightedflint": "c0e39bb5a74521bc3776698711977149d6b72cad7fa8f8e6c44a338b7712ecdb",
+          "generated-Full/src/main.rs": "d5bccd4a3b84b668d09aea35d86c84b58386a24e68e8c853f3427a18284d1007",
+          "Small.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+          "Full.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+          "WeightedFlint.tla": "94a54e6443dea6ac9993e6826556e35d5f3cf8bc042c9c8db2d3eab17154b63e",
+          "flint-exact/state_codes.rs": "27c2867436eaacb60c6e88a50fd30be4ebcad6faf5d19c5e2cc5e696ea56274d",
+          "verified/src/check.rs": "a941b611830171cca8ff62b4b91ab013d4e910b9341e099f6ee5c6784dc8c02c",
+          "verified/src/cli.rs": "769778839905ea6df9456cfc61b0b367023484028e09635aa152cec88793c14a"
+        },
+        "completed_levels_at_observation": {
+          "17": {
+            "generated": 57126847,
+            "distinct": 15425142,
+            "queue": 7137699,
+            "on_disk": 0,
+            "checker_s": 11.7
+          },
+          "18": {
+            "generated": 104511147,
+            "distinct": 28248305,
+            "queue": 12823163,
+            "on_disk": 0,
+            "checker_s": 21.8
+          },
+          "19": {
+            "generated": 188454830,
+            "distinct": 50604610,
+            "queue": 22356305,
+            "on_disk": 0,
+            "checker_s": 39.8
+          },
+          "20": {
+            "generated": 331909909,
+            "distinct": 87878516,
+            "queue": 37273906,
+            "on_disk": 0,
+            "checker_s": 73.7
+          },
+          "21": {
+            "generated": 563557768,
+            "distinct": 146566644,
+            "queue": 58688128,
+            "on_disk": 0,
+            "checker_s": 130.7
+          }
+        },
+        "mappings": {
+          "sample_count": 5,
+          "first": {
+            "epoch_s": 1795275860,
+            "rss_kib": 201821628,
+            "waits": {
+              "futex_do_wait": 1,
+              "0": 113,
+              "madvise_lock": 22,
+              "__vm_munmap": 36,
+              "vm_mmap_pgoff": 21
+            },
+            "maps": 140987,
+            "maps_64k": 132369,
+            "map_read_s": 0.256
+          },
+          "last": {
+            "epoch_s": 1795276101,
+            "rss_kib": 202911016,
+            "waits": {
+              "futex_do_wait": 3,
+              "madvise_lock": 25,
+              "__vm_munmap": 58,
+              "0": 85,
+              "vm_mmap_pgoff": 21,
+              "lock_mm_and_find_vma": 1
+            },
+            "maps": 147024,
+            "maps_64k": 138217,
+            "map_read_s": 0.273
+          },
+          "maximum_map_count_sample": {
+            "epoch_s": 1795276101,
+            "rss_kib": 202911016,
+            "waits": {
+              "futex_do_wait": 3,
+              "madvise_lock": 25,
+              "__vm_munmap": 58,
+              "0": 85,
+              "vm_mmap_pgoff": 21,
+              "lock_mm_and_find_vma": 1
+            },
+            "maps": 147024,
+            "maps_64k": 138217,
+            "map_read_s": 0.273
+          }
+        },
+        "status": "in progress",
+        "observation_epoch_s": 1795276132,
+        "process_elapsed_s_at_observation": 1411,
+        "small_audits": {
+          "Small-audit0": {
+            "excess": 449594,
+            "wall_s": 3.24,
+            "rss_kib": 795196
+          },
+          "Small-audit64": {
+            "excess": 0,
+            "wall_s": 3.17,
+            "rss_kib": 745392
+          }
+        }
+      },
+      "v2": {
+        "sha256": {
+          "generated-Small/target/release/tlcgen-weightedflint": "e96ffd35a458dc3159fc349dbefefd2816f950c1c5efb1e49b3fc011f2431cb7",
+          "generated-Small/src/main.rs": "de767a670a19d1499b68cb5a3b346f618982079021318a0432b20eac101fe5ec",
+          "generated-Full/target/release/tlcgen-weightedflint": "bc05df59ce4400b84b11de8fc9bf6661f061542ddaa2a4d72af0aecafce499f0",
+          "generated-Full/src/main.rs": "d5bccd4a3b84b668d09aea35d86c84b58386a24e68e8c853f3427a18284d1007",
+          "Small.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+          "Full.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+          "WeightedFlint.tla": "94a54e6443dea6ac9993e6826556e35d5f3cf8bc042c9c8db2d3eab17154b63e",
+          "verified/src/state_codes.rs": "27c2867436eaacb60c6e88a50fd30be4ebcad6faf5d19c5e2cc5e696ea56274d",
+          "verified/src/check.rs": "a941b611830171cca8ff62b4b91ab013d4e910b9341e099f6ee5c6784dc8c02c",
+          "verified/src/cli.rs": "769778839905ea6df9456cfc61b0b367023484028e09635aa152cec88793c14a"
+        },
+        "completed_levels_at_observation": {
+          "17": {
+            "generated": 57126847,
+            "distinct": 15425142,
+            "queue": 7137699,
+            "on_disk": 0,
+            "checker_s": 10.7
+          },
+          "19": {
+            "generated": 188454830,
+            "distinct": 50604610,
+            "queue": 22356305,
+            "on_disk": 0,
+            "checker_s": 34.7
+          },
+          "20": {
+            "generated": 331909909,
+            "distinct": 87878516,
+            "queue": 37273906,
+            "on_disk": 0,
+            "checker_s": 62.2
+          },
+          "21": {
+            "generated": 563557768,
+            "distinct": 146566644,
+            "queue": 58688128,
+            "on_disk": 0,
+            "checker_s": 106.0
+          },
+          "22": {
+            "generated": 912959945,
+            "distinct": 233438204,
+            "queue": 86871560,
+            "on_disk": 0,
+            "checker_s": 172.5
+          },
+          "23": {
+            "generated": 1405007876,
+            "distinct": 354509790,
+            "queue": 121071586,
+            "on_disk": 0,
+            "checker_s": 264.7
+          }
+        },
+        "mappings": {
+          "sample_count": 6,
+          "first": {
+            "epoch_s": 1795275803,
+            "rss_kib": 102722628,
+            "waits": {
+              "futex_do_wait": 1,
+              "0": 192
+            },
+            "maps": 1294,
+            "maps_64k": 193,
+            "map_read_s": 0.002
+          },
+          "last": {
+            "epoch_s": 1795276104,
+            "rss_kib": 342181084,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 191
+            },
+            "maps": 1316,
+            "maps_64k": 193,
+            "map_read_s": 0.002
+          },
+          "maximum_map_count_sample": {
+            "epoch_s": 1795275863,
+            "rss_kib": 143681384,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 191
+            },
+            "maps": 1316,
+            "maps_64k": 193,
+            "map_read_s": 0.003
+          }
+        },
+        "status": "in progress",
+        "observation_epoch_s": 1795276135,
+        "process_elapsed_s_at_observation": 391,
+        "small_audits": {
+          "Small-audit0": {
+            "excess": 449594,
+            "wall_s": 3.14,
+            "rss_kib": 586276
+          },
+          "Small-audit64": {
+            "excess": 0,
+            "wall_s": 3.19,
+            "rss_kib": 583840
+          }
+        }
+      }
+    }
+  },
+  "sailfish": {
+    "source": "Dive main at 09cdfa6f1934a1ed558f00d5628c8baaf99798ee. Same source tree and locked dependencies, v2 target-specific feature only. Rust 1.99.0, release, LTO off, 16 codegen units.",
+    "host": "Dedicated r7i.8xlarge us-east-1a; W16, 238 GiB cgroup, no swap, Linux stock mapping limit. Positive and negative CLI controls used one worker.",
+    "sha256": {
+      "../dive-v3": "e9f3b9971cafffda1b6b0f2ebe268824c6b98d40b3c90e53ecc2a5604ffc6606",
+      "../dive-v2": "b2f8a0e00dad5a84c874bb4c17ab5eacdd97f151cdb095914c77376431524b5b",
+      "specifications/dag-consensus/TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+      "specifications/dag-consensus/TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f"
+    },
+    "vm_max_map_count": 1048576,
+    "fixture_controls": {
+      "Success": {
+        "verdict": "success",
+        "exit": 0,
+        "property": null
+      },
+      "Deadlock": {
+        "verdict": "deadlock",
+        "exit": 11,
+        "property": null
+      },
+      "Invariant": {
+        "verdict": "invariant-violation",
+        "exit": 12,
+        "property": "Inv"
+      },
+      "Liveness": {
+        "verdict": "liveness-violation",
+        "exit": 13,
+        "property": "Live"
+      },
+      "EvaluationError": {
+        "verdict": "evaluation-error",
+        "exit": 76,
+        "property": null
+      }
+    },
+    "runs": {
+      "stock-prefix": {
+        "exit": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "distinct": 4000000,
+          "generated": 7261317,
+          "depth": 14,
+          "left_on_queue": 3226964
+        },
+        "stopped": {
+          "elapsed_ms": 101079,
+          "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+          "limit": 4000000,
+          "observed": 4000001,
+          "phase": "safety-search",
+          "resource": "states",
+          "unit": "states"
+        },
+        "wall_s": 101.29,
+        "rss_kib": 1787892,
+        "maps": {
+          "sample_count": 1,
+          "first": {
+            "epoch_s": 1795275946,
+            "rss_kib": 1194820,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 142,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          },
+          "last": {
+            "epoch_s": 1795275946,
+            "rss_kib": 1194820,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 142,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          },
+          "maximum_map_count_sample": {
+            "epoch_s": 1795275946,
+            "rss_kib": 1194820,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 142,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          }
+        },
+        "cumulative_cgroup_events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0,
+          "sock_throttled": 0
+        }
+      },
+      "other-prefix": {
+        "exit": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "distinct": 4000000,
+          "generated": 7261317,
+          "depth": 14,
+          "left_on_queue": 3226964
+        },
+        "stopped": {
+          "elapsed_ms": 101283,
+          "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+          "limit": 4000000,
+          "observed": 4000001,
+          "phase": "safety-search",
+          "resource": "states",
+          "unit": "states"
+        },
+        "wall_s": 101.62,
+        "rss_kib": 1610344,
+        "maps": {
+          "sample_count": 1,
+          "first": {
+            "epoch_s": 1795276048,
+            "rss_kib": 1036216,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 152,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          },
+          "last": {
+            "epoch_s": 1795276048,
+            "rss_kib": 1036216,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 152,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          },
+          "maximum_map_count_sample": {
+            "epoch_s": 1795276048,
+            "rss_kib": 1036216,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 152,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          }
+        },
+        "cumulative_cgroup_events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0,
+          "sock_throttled": 0
+        }
+      }
+    },
+    "command": "taskset -c 0-15 dive check specifications/dag-consensus/TLCSailfish2.tla --config specifications/dag-consensus/TLCSailfish2.cfg --library-path modules --workers 16 --compat=tlc --fp 0 --seed 0 --max-memory 224g --output json; both prefixes use --max-states 4000000 --time-limit 480s. Both original trials use --time-limit 19600s."
+  }
+}

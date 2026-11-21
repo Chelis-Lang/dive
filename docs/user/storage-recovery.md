@@ -49,6 +49,10 @@ completeness. Cancelling during decoding or validation is a budget stop; a read,
 write, corruption or cleanup failure means no certified result, with storage
 diagnostics in the report.
 
+## Large Linux heaps
+
+The Linux `dive` and `tlc` executables use mimalloc 2.3.2 from the locked Rust dependency. The bundled 3.3.2 allocator rejects 16 GiB arenas. On a growing heap it can fall back to many small mappings, which compete for the kernel's memory-map lock even while physical memory is available. The 16 GiB figure is the size of one allocator reservation. The search can hold many such arenas. Existing memory-limit and storage options still apply. [Allocator comparison, source pins and commands](../../conformance/reports/perf/2026-11-21-linux-allocator-arenas.json).
+
 ## Reclaiming expanded values
 
 Pure safety BFS accepts `--store-compact-bytes N`:
