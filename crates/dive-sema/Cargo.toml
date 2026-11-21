@@ -12,7 +12,7 @@ documentation = "https://docs.rs/dive-sema"
 readme = "README.md"
 keywords.workspace = true
 categories.workspace = true
-# Embedded sources: MIT standard/CommunityModules and BSD-2-Clause TLAPS.
+# Embedded sources: MIT Dive/standard/CommunityModules and BSD-2-Clause TLAPS.
 # Tests, examples and benchmarks read workspace fixtures; they are not shipped.
 include = ["/src/**", "/stdlib/**", "/bundled/**", "/Cargo.toml", "/README.md", "/LICENSE"]
 

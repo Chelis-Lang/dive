@@ -18,6 +18,18 @@ precedence. Bundled sources appear as `"origin": "bundled"` in analysis JSON;
 standard modules retain their existing origin and priority. The source pins
 and licenses are in [the bundled-library README](../../crates/dive-sema/bundled/README.md).
 
+### Enumerating functions with fixed coordinates
+
+Use `EXTENDS FramedFunctions` when an action chooses new values for some entries of a finite function and preserves the others. For example, the following conjunct chooses a new log only for server `i`.
+
+```tla
+cLogs' \in FramedFunctions(Servers, AllowedLogs, cLogs, {i})
+```
+
+The result contains the functions from `Servers` to `AllowedLogs` that agree with `cLogs` on every server outside `{i}`. Supply a finite key set, finite value set and an old function defined on those fixed keys. Extra writable keys outside the domain have no effect. If a fixed entry falls outside the value set, the result is empty. Two writable servers over 40 possible logs yield at most 1,600 candidates, independent of how many other servers stay fixed.
+
+Dive resolves the module from a normal installation. To use the same specification with TLC, put the release archive’s `share/dive/tla/FramedFunctions.tla` on TLC’s module path. When adapting a model, retain guards that determine which of the generated functions satisfy the action. Pruning a candidate before a partial expression or a `PrintT` call can change observable errors or output. [CCF model and checked examples](../developer/large-models.md#function-valued-actions-in-ccf).
+
 The bundled-library smoke checks ten original Examples without library flags.
 Nine must check successfully and every report must
 name `engine: core`. `EWD998ChanID` resolves its imports but may report an

@@ -32,14 +32,19 @@ impl Drop for Directory {
 }
 
 #[test]
-fn tlaps_and_community_modules_resolve_without_search_paths() {
+fn bundled_modules_resolve_without_search_paths() {
     let analysis = analyze_source(
         "Root.tla",
-        "---- MODULE Root ----\nEXTENDS TLAPS, SequencesExt, FiniteSetTheorems\n====\n",
+        "---- MODULE Root ----\nEXTENDS TLAPS, SequencesExt, FiniteSetTheorems, FramedFunctions\n====\n",
         &Options::default(),
     );
     assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
-    for name in ["TLAPS", "SequencesExt", "FiniteSetTheorems"] {
+    for name in [
+        "TLAPS",
+        "SequencesExt",
+        "FiniteSetTheorems",
+        "FramedFunctions",
+    ] {
         let file = analysis
             .files()
             .iter()
