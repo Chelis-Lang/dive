@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Linux releases support [`dive check --strategy compiled`](docs/user/symbolic.md#compile-a-finite-safety-check) for eligible finite safety models. With an installed Rust compiler it searches packed exact states at up to eight workers and independently replays violations.
+
 - `dive simulate` samples specs that use [`RandomElement` in `Init` or `Next`](docs/user/simulation.md#random-choices). Each trace draws from its own seeded stream, the same at any worker count, and the trace records its draws, which validation checks against each set. A step whose draws give no successor is drawn again rather than reported as a deadlock. Draws in invariants or inside `ENABLED` refuse by name.
 - `dive simulate` also draws `RandomSubset` and `RandomSetOfSubsets`. Validation checks each recorded draw from the set's size and membership, without enumerating it, so `RandomSubset(k, [D -> R])` over a large function set validates.
 

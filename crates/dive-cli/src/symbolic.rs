@@ -1,4 +1,4 @@
-//! Dispatch the explicitly requested symbolic strategy to its release companion.
+//! Dispatch the explicitly requested finite safety strategy to its release companion.
 
 use std::path::PathBuf;
 use std::process::{Command, ExitCode};
@@ -36,7 +36,7 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
                 }
             }
             "--type-invariant" | "--write-predicate" | "--verify-predicate" | "--trace"
-            | "--max-orbits" => {
+            | "--max-orbits" | "--workers" => {
                 command.arg(key).arg(value()?);
             }
             "--recheck" if inline.is_none() => {
@@ -75,7 +75,10 @@ fn options(args: &[String], command: &mut Command) -> Result<(), String> {
         Some("occupancy") => {
             command.arg("--occupancy");
         }
-        _ => return Err("--strategy expects symbolic or occupancy".to_owned()),
+        Some("compiled") => {
+            command.arg("--compiled");
+        }
+        _ => return Err("--strategy expects symbolic, occupancy or compiled".to_owned()),
     }
     let module = module.ok_or_else(|| "missing TLA+ module".to_owned())?;
     let config = config.unwrap_or_else(|| module.with_extension("cfg"));

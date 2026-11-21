@@ -1,0 +1,145 @@
+// The binder has established that each complete transition stays in this layout.
+#![forbid(unsafe_code)]
+
+use std::process::ExitCode;
+use std::sync::atomic::{AtomicU64, Ordering::Relaxed};
+use std::thread;
+
+const WIDTH: u32 = @WIDTH@;
+const FIXED: u32 = @FIXED@;
+const ROLES: usize = @ROLES@;
+const LANE: u32 = @LANE@;
+const CHECK_DEADLOCK: bool = @CHECK_DEADLOCK@;
+const INITIAL_GENERATED: u64 = @INITIAL_GENERATED@;
+
+fn identity(row: u32) -> u32 {
+    if ROLES < 2 {
+        return row;
+    }
+    let mask = (1 << LANE) - 1;
+    let mut lanes = [0; ROLES];
+    for (index, lane) in lanes.iter_mut().enumerate() {
+        *lane = row >> (FIXED + LANE * index as u32) & mask;
+    }
+    lanes.sort_unstable();
+    let mut key = row & u32::MAX.checked_shr(32 - FIXED).unwrap_or(0);
+    for (index, lane) in lanes.into_iter().enumerate() {
+        key |= lane << (FIXED + LANE * index as u32);
+    }
+    key
+}
+
+struct Search<'a> {
+    seen: &'a [AtomicU64],
+    next: Vec<u32>,
+    generated: u64,
+    invariant: bool,
+    deadlock: bool,
+}
+
+impl Search<'_> {
+    #[inline]
+    fn emit(&mut self, row: u32) {
+        self.generated += 1;
+        let key = identity(row);
+        let word = &self.seen[key as usize / 64];
+        let mask = 1_u64 << (key % 64);
+        if word.load(Relaxed) & mask != 0 || word.fetch_or(mask, Relaxed) & mask != 0 {
+            return;
+        }
+        self.invariant |= !(@PROPERTIES@);
+        self.next.push(key);
+    }
+
+    fn expand(&mut self, row: u32) {
+        let before = self.generated;
+        @EXPAND@
+        self.deadlock |= CHECK_DEADLOCK && self.generated == before;
+    }
+
+    fn absorb(&mut self, mut other: Self) {
+        self.generated += other.generated;
+        self.invariant |= other.invariant;
+        self.deadlock |= other.deadlock;
+        if self.next.is_empty() {
+            self.next = other.next;
+        } else {
+            self.next.append(&mut other.next);
+        }
+    }
+}
+
+fn expand<'a>(seen: &'a [AtomicU64], rows: &[u32], next: Vec<u32>) -> Search<'a> {
+    let mut search = Search { seen, next, generated: 0, invariant: false, deadlock: false };
+    for &row in rows {
+        search.expand(row);
+    }
+    search
+}
+
+fn finding(invariant: bool, invariant_depth: u32, deadlock: bool, deadlock_depth: u32) {
+    let invariant = if invariant { invariant_depth } else { 0 };
+    let deadlock = if deadlock { deadlock_depth } else { 0 };
+    println!("{{\"invariant_depth\":{invariant},\"deadlock_depth\":{deadlock}}}");
+}
+
+fn main() -> ExitCode {
+    let Some(workers @ 1..=8) = std::env::args().nth(1).and_then(|s| s.parse::<usize>().ok()) else {
+        return ExitCode::from(3);
+    };
+    let bitset_words = (1_usize << WIDTH).div_ceil(64);
+    let mut seen = Vec::new();
+    if seen.try_reserve_exact(bitset_words).is_err() {
+        return ExitCode::from(4);
+    }
+    seen.resize_with(bitset_words, || AtomicU64::new(0));
+    let mut wave = expand(&seen, &[], Vec::new());
+    for row in [@INITIALS@] {
+        wave.emit(row);
+    }
+    if wave.invariant {
+        finding(true, 1, false, 0);
+        return ExitCode::from(5);
+    }
+    let mut current = wave.next;
+    let mut generated = INITIAL_GENERATED;
+    let mut distinct = current.len();
+    let mut spare = Vec::new();
+    let mut depth = 0;
+    let mut used = 1;
+    while !current.is_empty() {
+        depth += 1;
+        let width = if current.len() > 4096 { workers } else { 1 };
+        if width == 1 {
+            wave = expand(&seen, &current, spare);
+        } else {
+            let rows = current.chunks(current.len().div_ceil(width));
+            used = used.max(rows.len());
+            let seen = &seen;
+            wave = thread::scope(|scope| {
+                let mut rows = rows;
+                let first = rows.next().unwrap_or(&[]);
+                let handles: Vec<_> = rows.map(|chunk| scope.spawn(move || expand(seen, chunk, Vec::new()))).collect();
+                let mut combined = expand(seen, first, spare);
+                for handle in handles {
+                    match handle.join() {
+                        Ok(worker) => combined.absorb(worker),
+                        Err(error) => std::panic::resume_unwind(error),
+                    }
+                }
+                combined
+            });
+        }
+        if wave.invariant || wave.deadlock {
+            finding(wave.invariant, depth + 1, wave.deadlock, depth);
+            return ExitCode::from(5);
+        }
+        generated += wave.generated;
+        distinct += wave.next.len();
+        current.clear();
+        spare = current;
+        current = wave.next;
+    }
+    println!("{{\"generated\":{generated},\"distinct\":{distinct},\"depth\":{depth},\"initial_generated\":{INITIAL_GENERATED},\"workers_used\":{used}}}");
+    ExitCode::SUCCESS
+}
