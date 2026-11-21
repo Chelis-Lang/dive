@@ -2,6 +2,31 @@
   "model": "Original released SlateDB WAL, all six invariants. Distinct fingerprints, distinct exact representatives, and labeled states are separate quantities.",
   "pinned_record": "2026-11-20-slatedb-wal.json",
   "native_exact_source": "Same exact census build, inputs, and machine as labeled_orbit_census.native_host in the pinned record. CPUs 0-39, --max-memory 1250g --time-limit 59000s.",
+  "native_full": {
+    "exit": 0,
+    "wall_s": 15647.77,
+    "rss_kib": 361660588,
+    "verdict": "success",
+    "statistics": {
+      "depth": 139,
+      "distinct": 4910385790,
+      "generated": 23680348760,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "census": {
+      "orbit_sizes": {
+        "1": 35,
+        "12": 4885795916,
+        "3": 13683,
+        "6": 24576156
+      },
+      "labeled_orbit_union": "58777049012",
+      "weighted_generated": "283525266202",
+      "representatives": 4910385790
+    }
+  },
   "pinned_tlc_on_original_host": {
     "exit": 0,
     "wall_s": 49123.76,
