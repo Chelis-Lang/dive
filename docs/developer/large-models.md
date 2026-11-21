@@ -670,7 +670,7 @@ On a 32-physical-core host with a 24 GiB sampled RSS limit, DiskSynod reached 83
 
 ### Check the EWD998 ring
 
-The original four-node ring runs Dijkstra’s termination detector over an asynchronous application. The number of reachable counter combinations defeats explicit search within the historical budget. With the original state constraint, each local counter is at most three. Their sum equals the total pending messages and is nonnegative, so each counter is at least −3(N−1). The token starts at zero and accumulates at most N−1 counters before reset, putting its lower bound at −3(N−1)². A binary decision diagram can thus represent every admitted state. The benchmark validates the pinned source, configuration and dependencies before using this representation.
+The original four-node ring runs Safra’s termination detector, published by Dijkstra as EWD998, over an asynchronous application. The number of reachable counter combinations defeats explicit search within the historical budget. With the original state constraint, each local counter is at most three. Their sum equals the total pending messages and is nonnegative, so each counter is at least −3(N−1). The token starts at zero and accumulates at most N−1 counters before reset, putting its lower bound at −3(N−1)². A binary decision diagram can thus represent every admitted state. The benchmark validates the pinned source, configuration and dependencies before using this representation.
 
 | Nodes | Distinct | Generated | Depth | Generated outside constraint | Wall time, one dedicated CPU |
 |---:|---:|---:|---:|---:|---:|

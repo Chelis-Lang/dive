@@ -15,7 +15,7 @@
   },
   "commands": {
     "bdd": "python3 scripts/perf/scale/ewd998.py ORIGINAL_SOURCE_DIR --modules COMMUNITY_MODULES_DIR --nodes N. Five resolved source/CFG file digests are validated.",
-    "core": "dive check EWD998.tla --config N.cfg --library-path MODULES --workers 1 --seed 0 --fp 0 --store exact --time-limit 730s --max-memory 4g --output json The recorded Core controls used --lncheck final --lasso short.",
+    "core": "dive check EWD998.tla --config N.cfg --library-path MODULES --workers 1 --seed 0 --fp 0 --store exact --time-limit 730s --max-memory 4g --output json",
     "tlc": "java -XX:ActiveProcessorCount=1 -Xmx2400m -DTLA-Library=MODULES -cp tla2tools.jar tlc2.TLC -workers 1 -fp 0 -seed 0 -lncheck final -config N.cfg EWD998.tla. Both explicit configurations change only N in the original CFG.",
     "tlc_graph": "At N=2 add -dump dot,actionlabels ewd2.dot; use the original sibling Folds.tla. Run python3 scripts/perf/scale/ewd998_graph.py ewd2.dot."
   },
@@ -376,5 +376,7 @@
     "result": "Core and TLC both exit 12, violating UnderBound at depth 5 with pending[0] = 4. Independent validation accepted the five-state trace and rejected changing initial token.q to 999. Conjoining the equivalent predicate with Ring.invariant raises state invariant outside the constraint: send."
   },
   "benchmark_sha256_before_shadow_check": "3f1ea3bc3e7e805075122353a4a4a87f06ba6fa3897e35f777d473d29525463d",
-  "checker_sha256": "d87889dbe6b53aa1519f87393ea2c1ca3b8f2f671135eef8f3a309768a2ead6c"
+  "checker_sha256": "d87889dbe6b53aa1519f87393ea2c1ca3b8f2f671135eef8f3a309768a2ead6c",
+  "core_temporal_settings": "The two recorded Core controls used default deterministic liveness checks and short lassos. At three nodes four periodic prefix checks ran.",
+  "independent_tuple_bfs": "Two-node tuple search checked each raw successor, all 26,182 distinct edges, projected safety, unique fair system step and maximum rank four. Counts agree on all fields."
 }

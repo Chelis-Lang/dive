@@ -43,9 +43,13 @@ def compare(path):
             match = re.match(r'(-?\d+) \[label=("(?:\\.|[^"\\])*")', line)
             if match:
                 key = match[1]
+                if key in states:
+                    raise ValueError(f"duplicate TLC state declaration: {key}")
                 states[key] = state(ring, match[2])
                 if "style = filled" in line:
                     initial.add(key)
+    if any(src not in states or not targets <= states.keys() for src, targets in edges.items()):
+        raise ValueError("undeclared TLC edge endpoint")
     actual_initial = ring.either(states[key] for key in initial)
     if ring.initial != actual_initial or len(set(states.values())) != len(states) or ring.b.false in states.values():
         raise ValueError("state decoding or initial-state mismatch")
