@@ -82,6 +82,7 @@ pub use dive_explore::distributed::{
 };
 mod core_ending;
 mod core_engine;
+mod core_record_types;
 #[cfg(test)]
 mod core_graph;
 mod core_modes;

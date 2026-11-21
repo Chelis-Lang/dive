@@ -1429,6 +1429,11 @@ impl Compiler<'_> {
                     return Red::Yes;
                 }
                 match self.m.heap.view(*h).kind {
+                    Kind::Union
+                        if self.m.heap.view(*h).lo == crate::convert::BOUND_RECORD_UNION =>
+                    {
+                        Red::No
+                    }
                     Kind::Product
                     | Kind::FcnSet
                     | Kind::RecSet

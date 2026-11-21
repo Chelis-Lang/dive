@@ -1818,12 +1818,17 @@ impl Machine {
                     )?;
                     return Ok(false);
                 }
-                if xv.keys() != names.as_slice() {
+                let keys = xv.keys().to_vec();
+                if keys.len() != names.len()
+                    || (!self.heap.store().semantics().tlc_comparisons && keys != names)
+                {
                     return Ok(false);
                 }
                 let vals = xv.values().to_vec();
-                for (e, s) in vals.into_iter().zip(sets) {
-                    if !self.member(e, s)? {
+                for ((k, name), (e, s)) in
+                    keys.into_iter().zip(names).zip(vals.into_iter().zip(sets))
+                {
+                    if k != name || !self.member(e, s)? {
                         return Ok(false);
                     }
                 }
@@ -1856,6 +1861,21 @@ impl Machine {
             Kind::IntFcn | Kind::Fcn | Kind::Lambda => Err(eval_err("membership in a function")),
             Kind::BigInt => Err(eval_err("membership in a value that is not a set")),
             // TLC's `SetCupValue.member`: either side, left first.
+            Kind::Union if v.lo == crate::convert::BOUND_RECORD_UNION => {
+                match self.record_union_member(x, set) {
+                    Err(e)
+                        if e.kind() == crate::ErrorKind::Eval
+                            && !self.heap.store().semantics().tlc_comparisons =>
+                    {
+                        // A field comparison may be undefined before another arm's
+                        // label distinguishes it. Use the original concrete-set
+                        // membership in that case, including its comparison policy.
+                        let concrete = self.work_materialize_cached(set)?;
+                        self.member(x, concrete)
+                    }
+                    result => result,
+                }
+            }
             Kind::Union => {
                 let (a, b) = (v.data[0], v.data[1]);
                 Ok(self.member(x, a)? || self.member(x, b)?)
@@ -1870,6 +1890,19 @@ impl Machine {
                 "membership in a set enumeration TLC has not normalized (--compat=tlc)",
             )),
         }
+    }
+
+    fn record_union_member(&mut self, x: Handle, domain: Handle) -> Result<bool, Error> {
+        if self.heap.kind(domain) == Some(Kind::Union) {
+            let v = self.heap.view(domain);
+            if v.lo == crate::convert::BOUND_RECORD_UNION {
+                let [a, b] = *v.data else {
+                    return Err(Error::internal("invalid closed record union"));
+                };
+                return Ok(self.record_union_member(x, a)? || self.record_union_member(x, b)?);
+            }
+        }
+        self.member(x, domain)
     }
 
     fn set_bin(&mut self, op: SetOp, x: Handle, y: Handle) -> Result<Handle, Error> {

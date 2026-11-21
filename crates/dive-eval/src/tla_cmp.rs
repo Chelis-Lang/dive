@@ -133,8 +133,63 @@ pub(crate) fn member(core: &Core, elem: &Value, set: &Value) -> Result<bool> {
             }
             Ok(false)
         }
+        SetKind::Deferred => {
+            if let Some(answer) = scalar_record_union(core, elem, s) {
+                return Ok(answer);
+            }
+            Ok(tlc::member(elem, set, core.ctx)?)
+        }
         _ => Ok(tlc::member(elem, set, core.ctx)?),
     }
+}
+
+/// Inside a concrete record, values of different scalar kinds are unequal.
+/// An owned union of two such record domains can be checked field by field
+/// without TLC's direct comparison of unrelated scalar payloads.
+fn scalar_record_union(core: &Core, elem: &Value, set: &dive_value::Set) -> Option<bool> {
+    let provider: &dyn std::any::Any = set.as_deferred()?.as_ref();
+    let op = provider.downcast_ref::<crate::lazy::SetOp>()?;
+    if op.kind != dive_value::DeferredKind::Cup || !std::ptr::eq(core, op.core.as_ref()) {
+        return None;
+    }
+    let Value::Fcn(record) = elem else {
+        return None;
+    };
+    let fields = record.as_record()?;
+    let scalar = |v: &Value| {
+        matches!(
+            v,
+            Value::Bool(_) | Value::Int(_) | Value::BigInt(_) | Value::Str(_)
+        )
+    };
+    if !fields.iter().all(|(_, v)| scalar(v)) {
+        return None;
+    }
+    let arm = |value: &Value| -> Option<bool> {
+        let Value::Set(domain) = value else {
+            return None;
+        };
+        let shape = domain.as_rcd_set()?;
+        let mut fits = shape.len() == fields.len();
+        for (name, ty) in shape {
+            let Value::Set(ty) = ty else { return None };
+            let field = fields.iter().find(|(n, _)| n == name).map(|(_, v)| v);
+            if let Some((lo, hi)) = ty.as_interval() {
+                fits &= field
+                    .and_then(Value::as_int)
+                    .is_some_and(|n| lo <= &n && &n <= hi);
+            } else {
+                let allowed = ty.stored_elements()?;
+                if !allowed.iter().all(scalar) {
+                    return None;
+                }
+                fits &= field.is_some_and(|v| allowed.contains(v));
+            }
+        }
+        Some(fits)
+    };
+    let (a, b) = (arm(&op.a)?, arm(&op.b)?);
+    Some(a || b)
 }
 
 /// Membership of a function in `[S -> T]`, `[a : S, ...]`, `S1 \X ... \X Sn`

@@ -323,7 +323,8 @@ struct BinderStartup(dive_eval::Evaluator);
 
 impl dive_core::compile::StartupEvaluator for BinderStartup {
     fn evaluate(&self, def: DefId) -> Option<dive_value::Value> {
-        self.0.precompute(def).ok().flatten()
+        let value = self.0.precompute(def).ok().flatten()?;
+        Some(crate::core_record_types::compact(&value, &self.0).unwrap_or(value))
     }
 }
 
@@ -875,10 +876,15 @@ fn compile_plan(
     sym: &mut Symmetry,
     debugger: Option<&Arc<dyn dive_core::debug::Observer>>,
 ) -> Result<(Arc<dive_core::Store>, dive_core::Plan, std::time::Duration), Box<CheckResult>> {
-    let h = match handoff(model, ir, std::mem::take(&mut sym.maps)) {
+    let mut h = match handoff(model, ir, std::mem::take(&mut sym.maps)) {
         Ok(h) => h,
         Err(e) => return Err(Box::new(result(unsupported(e), options, ir))),
     };
+    for value in h.precomputed.values_mut() {
+        if let Some(compact) = crate::core_record_types::compact(value, &model.evaluator) {
+            *value = compact;
+        }
+    }
     let store = match store_for(model, core_opts.hashcons, semantics(&options.eval)) {
         Ok(s) => Arc::new(s),
         Err(message) => {
