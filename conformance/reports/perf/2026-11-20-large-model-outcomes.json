@@ -1836,8 +1836,44 @@
             "resource": "memory",
             "unit": "bytes"
           }
+        },
+        "224": {
+          "machine": "r7i.8xlarge",
+          "kernel": "7.0.0-1018-aws",
+          "physical_cores": 16,
+          "workers_used": 16,
+          "profile": "tlc",
+          "time_limit_s": 30000,
+          "memory_limit_gib": 224,
+          "binary_sha256": "a47cedfc7bf5ec6603930e5885b4c62840c11c327af1a3c1686cb77b2de8653d",
+          "input_sha256": {
+            "BlockingQueuePoisonApple.tla": "1695bd49adcc3414ed7f1c5feb23eed29c36d8cca1ee106fb75d7d59c7ccea09",
+            "BlockingQueuePoisonApple.cfg": "af6cf7f7a62e43194fa83ec60056a72a44ee112d121abdbdeb34aa0e0450d22f"
+          },
+          "wall_s": 18792.68,
+          "peak_rss_kib": 237262212,
+          "exit": 5,
+          "verdict": "stopped",
+          "statistics": {
+            "depth": 15,
+            "distinct": 1073741425,
+            "exhaustive": false,
+            "generated": 6531433021,
+            "initial_generated": 1,
+            "left_on_queue": 561037884,
+            "reported_by_tlc": false
+          },
+          "stopped": {
+            "elapsed_ms": 18792130,
+            "limit": 240518168576,
+            "observed": 240844296192,
+            "phase": "graph-capture",
+            "resource": "memory",
+            "unit": "bytes"
+          }
         }
-      }
+      },
+      "witness_and_projection_record": "2026-11-21-poison-queue.json"
     },
     {
       "model": "tla/MCetcdraft.cfg",

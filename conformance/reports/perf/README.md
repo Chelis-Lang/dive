@@ -19,6 +19,8 @@ The scripts that produced the records are in
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
 
+The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
+
 The [native peer panel](2026-11-20-native-peer-panel.json) records process
 measurements against pinned Manyan, tlx and tla-mc, plus the same-binary
 guard experiment. [Results and interpretation](../../../docs/internal/survey/verification-workloads.md#native-peer-measurements)
