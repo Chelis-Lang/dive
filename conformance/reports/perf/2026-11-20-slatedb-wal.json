@@ -1588,5 +1588,79 @@
         }
       }
     ]
+  },
+  "complete_frontier_comparison": {
+    "sources_sha256": {
+      "row-base": "58106d4f57356196e33dbc24f20a0396db18a0f470e5071949ac9b503f41f29e",
+      "row-packed": "70181d89cc388a095dd8ad94396b1d39526d11c8ec90bd4554be8ff56e7d1bfb"
+    },
+    "host": "Isolated r7i.8xlarge, 16 physical cores (0-15), one fresh process per build, sequential in baseline/packed order. Peers under identical taskset, not the historical 32-worker Oracle run.",
+    "command": "BINARY check SlateDBWAL.tla --config OneValue.cfg --library-path modules --workers 16 --compat=tlc --fp 0 --seed 0 --time-limit 3000s --max-memory 18g --output json",
+    "one_value_cfg_sha256": "a38c2cd3b7711bfc8dfdec7c0d1900266a66e7ede85cff1ad4c34b5eeb9f6094",
+    "trials": {
+      "one-base": {
+        "verdict": "success",
+        "exit_code": 0,
+        "statistics": {
+          "depth": 126,
+          "distinct": 242213642,
+          "generated": 1068416158,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "wall_seconds": 713.18,
+        "peak_rss_kib": 7690704,
+        "reported_workers": 16
+      },
+      "one-packed": {
+        "verdict": "success",
+        "exit_code": 0,
+        "statistics": {
+          "depth": 126,
+          "distinct": 242213642,
+          "generated": 1068416158,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "wall_seconds": 721.24,
+        "peak_rss_kib": 5678156,
+        "reported_workers": 16
+      }
+    }
+  },
+  "original_billion_prefix": {
+    "host": "Isolated AWS r7i.16xlarge, 32 physical cores, 128 GiB sampled process ceiling and 8000 s limit, one process at a time. The unchanged three-writer, two-value, one-restart original retains six invariants and symmetry.",
+    "command": "BINARY check SlateDBWAL.tla --config SlateDBWAL.cfg --library-path modules --workers 32 --compat=tlc --fp 0 --seed 0 --max-states 1000000000 --max-memory 128g --time-limit 8000s --output json",
+    "binaries_sha256": {
+      "original-rows": "30cd9224388dd8eae4090d6143c5bcae7f43a2e7836b2ffd1c57bc285a6bea7c",
+      "original-baseline": "58106d4f57356196e33dbc24f20a0396db18a0f470e5071949ac9b503f41f29e"
+    },
+    "trials": {
+      "original-rows": {
+        "verdict": "stopped",
+        "exit_code": 5,
+        "statistics": {
+          "depth": 71,
+          "distinct": 1000000000,
+          "exhaustive": false,
+          "generated": 4114101313,
+          "initial_generated": 1,
+          "left_on_queue": 116153919,
+          "reported_by_tlc": false
+        },
+        "wall_seconds": 2336.42,
+        "peak_rss_kib": 31594216,
+        "reported_workers": 32,
+        "stop": {
+          "resource": "states",
+          "phase": "safety-search",
+          "observed": 1000000001,
+          "limit": 1000000000,
+          "unit": "states"
+        }
+      }
+    }
   }
 }
