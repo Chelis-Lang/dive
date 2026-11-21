@@ -18,7 +18,8 @@
     "repetition": "python3 scripts/perf/scale/kraft_prevote.py traces/trace_2.json repeat.json --copies N; dive validate-trace kraft_kip_996.tla --config model_liveness.cfg --library-path LIB --trace repeat.json --output json; repeat the latter with --sample.",
     "negative": "Add 1 to the final prevote_ctr of the 16-repeat trace, preserving all other fields.",
     "exact": "dive check kraft_kip_996.tla --config CFG --library-path LIB --workers 1 --store exact --seed 0 --fp 0 --max-memory 2g --time-limit 100s --output json. Sizes four and five allow 240s.",
-    "tlc": "java -XX:ActiveProcessorCount=1 -Xmx1500m -DTLA-Library=LIB -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config CFG kraft_kip_996.tla. Wrapper limits 115s (255s for sizes four and five)."
+    "tlc": "java -XX:ActiveProcessorCount=1 -Xmx1500m -DTLA-Library=LIB -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config CFG kraft_kip_996.tla. Wrapper limits 115s (255s for sizes four and five).",
+    "tlc_extended": "Repeat the four-server command from a fresh metadir with 600s external timeout; same JVM, CPU set and flags."
   },
   "cfg_edits": {
     "base": "model_liveness.cfg; same six safety invariants, four temporal properties, original modules, TestLiveness TRUE and deadlock checking on.",
@@ -359,7 +360,69 @@
           "left_on_queue": 0,
           "reported_by_tlc": false
         }
+      },
+      "tlc": {
+        "wall_s": 255.01,
+        "rss_kib": 310132,
+        "exit": 124,
+        "verdict": "external-timeout",
+        "last_reported_depth_generated_distinct_queue": [
+          31,
+          86691,
+          26691,
+          989
+        ]
+      },
+      "tlc_extended": {
+        "wall_s": 281.2,
+        "rss_kib": 304924,
+        "exit": 0,
+        "verdict": "success",
+        "statistics": {
+          "generated": 95041,
+          "distinct": 28440,
+          "left_on_queue": 0,
+          "depth": 38
+        }
+      }
+    },
+    "fixed5": {
+      "cfg_sha256": "1875b686891580a70c44075852711429ea7e697122688e3254020d5733c26c72",
+      "dive": {
+        "wall_s": 240.1,
+        "rss_kib": 465868,
+        "exit": 5,
+        "verdict": "stopped",
+        "message": "DIVE-L0038: stopped during temporal-analysis after 240049 ms: the time limit is 240000 ms",
+        "statistics": {
+          "depth": 26,
+          "distinct": 373341,
+          "exhaustive": false,
+          "generated": 1457497,
+          "initial_generated": 1,
+          "left_on_queue": 77649,
+          "reported_by_tlc": false
+        }
+      },
+      "tlc": {
+        "wall_s": 255.01,
+        "rss_kib": 290680,
+        "exit": 124,
+        "verdict": "external-timeout",
+        "last_reported_depth_generated_distinct_queue": [
+          15,
+          46587,
+          12819,
+          3775
+        ]
       }
     }
+  },
+  "merged_main_replay": {
+    "commit": "d07f2a5cac165a9211cae580ad4d8c3029a315bc",
+    "elf_sha256": "d54a5576c1e25aacefb74db02c68dd04136620517d4dbe90eaac881115c8dbc0",
+    "copies": 256,
+    "result": "valid",
+    "states": 1055
   }
 }
