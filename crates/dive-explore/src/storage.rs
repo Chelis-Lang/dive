@@ -760,7 +760,49 @@ impl Inserted {
 }
 
 /// Retained identities with equal keys, each with its discovery id.
-type Bucket<T> = Vec<(T, u64)>;
+#[derive(Debug)]
+enum Bucket<T> {
+    Single((T, u64)),
+    Collision(Vec<(T, u64)>),
+}
+
+impl<T: Default> Bucket<T> {
+    fn rows(&self) -> &[(T, u64)] {
+        match self {
+            Self::Single(row) => std::slice::from_ref(row),
+            Self::Collision(rows) => rows,
+        }
+    }
+
+    fn add(
+        entry: std::collections::hash_map::Entry<'_, u64, Self>,
+        row: (T, u64),
+    ) -> Result<(), std::collections::TryReserveError> {
+        use std::collections::hash_map::Entry;
+        match entry {
+            Entry::Vacant(slot) => {
+                slot.insert(Self::Single(row));
+            }
+            Entry::Occupied(slot) => {
+                let bucket = slot.into_mut();
+                match bucket {
+                    Self::Single(first) => {
+                        let mut rows = Vec::new();
+                        rows.try_reserve(2)?;
+                        rows.push(std::mem::take(first));
+                        rows.push(row);
+                        *bucket = Self::Collision(rows);
+                    }
+                    Self::Collision(rows) => {
+                        rows.try_reserve(1)?;
+                        rows.push(row);
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+}
 
 /// Retained canonical rows, bucketed by the existing state hash. Hashes select
 /// candidates only; even a complete collision cannot discard a distinct state.
@@ -799,6 +841,7 @@ impl Exact {
         let bytes = detached_key(heap, row, poll)?;
         Ok(encoded.get(&key).and_then(|bucket| {
             bucket
+                .rows()
                 .iter()
                 .find(|(kept, _)| *kept == bytes)
                 .map(|&(_, id)| id)
@@ -830,18 +873,16 @@ impl Exact {
         let bytes = detached_key(heap, row, poll)?;
         if let Some(&(_, seen)) = encoded
             .get(&key)
-            .and_then(|bucket| bucket.iter().find(|(kept, _)| *kept == bytes))
+            .and_then(|bucket| bucket.rows().iter().find(|(kept, _)| *kept == bytes))
         {
             return Ok(Inserted::Seen(Some(seen)));
         }
         encoded
             .try_reserve(1)
             .map_err(|_| Error::internal("DIVE-S0203: detached exact state index allocation"))?;
-        let bucket = encoded.entry(key).or_default();
-        bucket.try_reserve(1).map_err(|_| {
+        Bucket::add(encoded.entry(key), (bytes, id)).map_err(|_| {
             Error::internal("DIVE-S0203: detached exact collision bucket allocation")
         })?;
-        bucket.push((bytes, id));
         self.len += 1;
         Ok(Inserted::New)
     }
@@ -857,7 +898,7 @@ impl Exact {
         let Some(rows) = self.rows.get(&key) else {
             return Ok(false);
         };
-        for (row, _) in rows {
+        for (row, _) in rows.rows() {
             let encoded =
                 dive_core::key::canonical(heap, row, limit, &|| !poll()).map_err(|error| {
                     if error == dive_core::key::KeyError::Interrupted {
@@ -880,6 +921,7 @@ impl Exact {
     pub(crate) fn lookup(&self, key: u64, row: &[Handle], heap: &Heap) -> Option<u64> {
         self.rows.get(&key).and_then(|bucket| {
             bucket
+                .rows()
                 .iter()
                 .find(|(kept, _)| {
                     kept.len() == row.len() && kept.iter().zip(row).all(|(&a, &b)| heap.eq(a, b))
@@ -906,11 +948,8 @@ impl Exact {
         kept.try_reserve_exact(row.len())
             .map_err(|_| Error::unsupported("exact state row allocation"))?;
         kept.extend_from_slice(row);
-        let bucket = self.rows.entry(key).or_default();
-        bucket
-            .try_reserve(1)
+        Bucket::add(self.rows.entry(key), (kept, id))
             .map_err(|_| Error::unsupported("exact state collision bucket allocation"))?;
-        bucket.push((kept, id));
         self.len += 1;
         Ok(Inserted::New)
     }
