@@ -472,9 +472,8 @@ In the default profile, Core can label all outgoing edges of a state false
 for a fairness action whose leading state conditions already rule it out.
 For example, in `WF_vars(ready /\ Step)`, every nonstuttering occurrence of
 `ready /\ Step` requires a source with `ready = TRUE`. Core checks the guard
-once per source when the subscript
-consists of state variables and every retained row is materialized. If a
-condition raises an error or needs the successor, ordinary edge evaluation
+once per source when the subscript is a tuple of state variables and every
+retained row is materialized. If a condition raises an error or needs the successor, ordinary edge evaluation
 handles the remaining work. The JSON report counts attempts and proven false
 rows under `core.metrics.liveness.atoms.action_source_guards`.
 
