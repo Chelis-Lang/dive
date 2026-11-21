@@ -7,14 +7,18 @@
     "guard": "4c11eb3f217014a71692be8f7ed2ae72c6073578fd586f04b79f584facc11b1a",
     "guard-bool": "0fa684ca5ac4388c329da3e35320d3f81ecd6171305a514cf07784db632a6d3d",
     "guard-final": "65077266cfb2fad4a78447fba682426704e66767a51670067cc21f5baff5ab44",
-    "guard-temporal": "9d5972a8f9fc6f4882d9bfe22dd577ca890ae9efbc8f977736c31a376796c3fc"
+    "guard-temporal": "9d5972a8f9fc6f4882d9bfe22dd577ca890ae9efbc8f977736c31a376796c3fc",
+    "guard-mixed": "fc65ed1cf3a6b792c617435a3da5d7213871fa1f7770daa96cd3a4eb16a5261b",
+    "power-final": "eafcc5755dd2baad1a26646f52027644d3790e76862207ef10dae7494a551960"
   },
   "variant_scope": {
     "baseline": "Parent main before guarded action-domain reduction",
     "guard": "Core successor generation only",
     "guard-bool": "Also Core boolean existential",
     "guard-final": "Also independent IR on concrete step for trace validation",
-    "guard-temporal": "Also independent IR for enabledness. Final measured product binary."
+    "guard-temporal": "Independent evaluation on concrete steps and enabledness before correcting mixed canonical values and deferred operands.",
+    "guard-mixed": "Profile-aware eligible-set construction; deferred provider regression found by independent replay.",
+    "power-final": "Profile-aware, requires materialized roots and base before speculative evaluation. Independent review approved this binary."
   },
   "compiled_with": "cargo build --release --locked -p dive-cli --bin dive (CARGO_PROFILE_RELEASE_DEBUG=0), Rust 1.99.0",
   "kernel_source": {
@@ -104,6 +108,16 @@
       "generated": 44658,
       "depth": 43,
       "left_on_queue": 1003
+    },
+    "Safety3-fullbaseline": {
+      "verdict": "success",
+      "message": null,
+      "wall_seconds": 452.96,
+      "peak_rss_kib": 208184,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
     },
     "Safety3-guard": {
       "verdict": "success",
@@ -236,7 +250,9 @@
       "left_on_queue": 0
     }
   },
-  "controls": {
+  "replay": "dive validate-trace <module> --config <cfg> --trace <witness> --output json. The 40-message forged trace changes the delivered recipient to 2 on step two. The 140-state failure detector witness and its orphan-age forgery are from 2026-11-21-environment-detector.json.",
+  "notes": "The no-fault comparison uses the original TLA+ with N=3,T=0. The published configuration permits a fault and has a separately validated TypeOK counterexample. These searches address different properties.",
+  "controls_before_independent_review": {
     "W1-dive": {
       "exit": 0,
       "wall_seconds": 0.0,
@@ -365,8 +381,341 @@
       "generated": 104842,
       "depth": 44,
       "left_on_queue": 0
+    },
+    "full-temporal": {
+      "exit": 0,
+      "wall_seconds": 221.01,
+      "peak_rss_kib": 98572,
+      "verdict": "success",
+      "message": null,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
     }
   },
-  "replay": "dive validate-trace <module> --config <cfg> --trace <witness> --output json. The 40-message forged trace changes the delivered recipient to 2 on step two. The 140-state failure detector witness and its orphan-age forgery are from 2026-11-21-environment-detector.json.",
-  "notes": "The no-fault comparison uses the original TLA+ with N=3,T=0. The published configuration permits a fault and has a separately validated TypeOK counterexample. These searches address different properties."
+  "controls": {
+    "W1-dive": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 23964,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W1-tlc": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 23652,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W4-dive": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 23588,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "W4-tlc": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24124,
+      "verdict": "success",
+      "message": null,
+      "distinct": 5,
+      "generated": 9,
+      "depth": 2,
+      "left_on_queue": 0
+    },
+    "replay-wide": {
+      "exit": 0,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 24732,
+      "result": "valid",
+      "length": 2,
+      "notes": []
+    },
+    "replay-wide-forged": {
+      "exit": 1,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 25096,
+      "result": "invalid",
+      "length": 2,
+      "notes": []
+    },
+    "replay-published": {
+      "exit": 0,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 38980,
+      "result": "valid",
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ]
+    },
+    "replay-published-forged": {
+      "exit": 1,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 39552,
+      "result": "invalid",
+      "length": 140,
+      "notes": [
+        "label `Scheduled` names no definition of the root module; not checked"
+      ]
+    },
+    "counterexample": {
+      "exit": 12,
+      "wall_seconds": 0.0,
+      "peak_rss_kib": 23828,
+      "verdict": "invariant-violation",
+      "message": null,
+      "distinct": 3,
+      "generated": 3,
+      "depth": 2,
+      "left_on_queue": 1
+    },
+    "tlc-8": {
+      "exit": 0,
+      "wall_seconds": 0.92,
+      "peak_rss_kib": 97160,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "tlc-19": {
+      "exit": 0,
+      "wall_seconds": 1.23,
+      "peak_rss_kib": 226752,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "tlc-40": {
+      "exit": 0,
+      "wall_seconds": 0.84,
+      "peak_rss_kib": 89836,
+      "generated": 3,
+      "distinct": 3,
+      "queued": 0,
+      "depth": 2
+    },
+    "full-safety": {
+      "exit": 0,
+      "wall_seconds": 4.7,
+      "peak_rss_kib": 36364,
+      "verdict": "success",
+      "message": null,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    },
+    "full-temporal": {
+      "exit": 0,
+      "wall_seconds": 218.79,
+      "peak_rss_kib": 106164,
+      "verdict": "success",
+      "message": null,
+      "distinct": 26003,
+      "generated": 104842,
+      "depth": 44,
+      "left_on_queue": 0
+    }
+  },
+  "small_tier_ratchet": {
+    "dive": {
+      "agree": 6,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    },
+    "tlc": {
+      "agree": 6,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    }
+  },
+  "same_cpu_process_repetitions": {
+    "method": "time.perf_counter_ns around a new process including taskset, alternating order in five pairs on logical CPU 2, W1, exact store. Every row checked the verdict and each completed row checked both counts, queue and depth.",
+    "widths": {
+      "8": {
+        "samples_ms": {
+          "baseline": [
+            9.281,
+            8.61,
+            7.967,
+            7.939,
+            7.671
+          ],
+          "power-final": [
+            8.448,
+            7.958,
+            7.989,
+            7.863,
+            7.441
+          ]
+        },
+        "medians_ms": {
+          "baseline": 7.967,
+          "power-final": 7.958
+        },
+        "baseline_verdict": "success",
+        "candidate_verdict": "success"
+      },
+      "12": {
+        "samples_ms": {
+          "baseline": [
+            11.287,
+            12.716,
+            12.5,
+            12.37,
+            11.869
+          ],
+          "power-final": [
+            8.053,
+            7.918,
+            8.515,
+            8.123,
+            8.025
+          ]
+        },
+        "medians_ms": {
+          "baseline": 12.37,
+          "power-final": 8.053
+        },
+        "baseline_verdict": "success",
+        "candidate_verdict": "success"
+      },
+      "16": {
+        "samples_ms": {
+          "baseline": [
+            69.115,
+            68.605,
+            69.476,
+            68.476,
+            68.441
+          ],
+          "power-final": [
+            8.677,
+            7.847,
+            8.63,
+            8.06,
+            8.768
+          ]
+        },
+        "medians_ms": {
+          "baseline": 68.605,
+          "power-final": 8.63
+        },
+        "baseline_verdict": "success",
+        "candidate_verdict": "success"
+      },
+      "19": {
+        "samples_ms": {
+          "baseline": [
+            544.837,
+            546.519,
+            551.044,
+            547.026,
+            548.822
+          ],
+          "power-final": [
+            8.798,
+            8.202,
+            8.723,
+            7.634,
+            8.289
+          ]
+        },
+        "medians_ms": {
+          "baseline": 547.026,
+          "power-final": 8.289
+        },
+        "baseline_verdict": "success",
+        "candidate_verdict": "success"
+      },
+      "25": {
+        "samples_ms": {
+          "baseline": [
+            7.804,
+            7.592,
+            7.209,
+            7.887,
+            7.797
+          ],
+          "power-final": [
+            7.736,
+            7.317,
+            7.519,
+            7.61,
+            7.966
+          ]
+        },
+        "medians_ms": {
+          "baseline": 7.797,
+          "power-final": 7.61
+        },
+        "baseline_verdict": "unsupported",
+        "candidate_verdict": "success"
+      },
+      "40": {
+        "samples_ms": {
+          "baseline": [
+            7.851,
+            7.871,
+            7.563,
+            7.84,
+            7.647
+          ],
+          "power-final": [
+            7.832,
+            7.784,
+            7.854,
+            7.55,
+            7.968
+          ]
+        },
+        "medians_ms": {
+          "baseline": 7.84,
+          "power-final": 7.832
+        },
+        "baseline_verdict": "unsupported",
+        "candidate_verdict": "success"
+      }
+    }
+  },
+  "independent_review": {
+    "checks_unchanged": 98,
+    "intended_wide_improvements": 2,
+    "genuine_trace_probes": 34,
+    "forged_trace_probes": 34,
+    "regressions_fixed": "Canonical records mixing integer and string payloads must validate. A deferred set can hide register reads, writes or randomness in a settled operand; accepting an empty subset must not invoke it. Pinned TLC emitted the x=0 -> x=1 write-provider trace (2 distinct/2 generated). Regression tests exercise both profiles."
+  }
 }
