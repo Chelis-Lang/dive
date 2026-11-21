@@ -1352,6 +1352,7 @@ fn simulate_command(
     let mut exit_convention = None;
     let mut file = None;
     let mut sample_unbounded: Option<bool> = None;
+    let mut trace_format = None;
     let mut sample_mean: Option<u64> = None;
     let mut it = args.iter().peekable();
     while let Some(arg) = it.next() {
@@ -1602,6 +1603,44 @@ fn simulate_command(
             }
             "--generate" => request.generation = true,
             "--constructive-init" => request.constructive_init = true,
+            "--trace-dir" => {
+                let Some(dir) = it.next() else {
+                    return simulation_usage_error(err, "--trace-dir expects a directory");
+                };
+                if request.trace_dir.replace(dir.into()).is_some() {
+                    return simulation_usage_error(err, "--trace-dir given twice");
+                }
+            }
+            "--trace-format" => {
+                trace_format = Some(match it.next().map(String::as_str) {
+                    Some("dive") => dive_api::TraceFormat::Dive,
+                    Some("json") => dive_api::TraceFormat::TlcJson,
+                    Some("tla") => dive_api::TraceFormat::TlcTla,
+                    _ => {
+                        return simulation_usage_error(
+                            err,
+                            "--trace-format expects dive, json or tla",
+                        );
+                    }
+                });
+            }
+            "--trace-ids" => {
+                let range = it.next().and_then(|value| {
+                    let (first, last) = value.split_once("..").unwrap_or((value, value));
+                    Some((first.parse::<u64>().ok()?, last.parse::<u64>().ok()?))
+                });
+                match range {
+                    Some((first, last)) if first <= last && last < dive_api::UNLIMITED_TRACES => {
+                        request.trace_ids = Some((first, last));
+                    }
+                    _ => {
+                        return simulation_usage_error(
+                            err,
+                            "--trace-ids expects A..B with A <= B, or one id",
+                        );
+                    }
+                }
+            }
             "--continue"
             | "--probabilistic"
             | "--rl"
@@ -1626,8 +1665,21 @@ fn simulate_command(
     let Some(file) = file else {
         return simulation_usage_error(err, "simulate needs a specification file and --traces N");
     };
-    if request.traces == 0 {
-        return simulation_usage_error(err, "simulate requires a positive --traces N or unlimited");
+    if request.trace_ids.is_some() && request.traces != 0 {
+        return simulation_usage_error(err, "--trace-ids replaces --traces; give one of them");
+    }
+    if request.traces == 0 && request.trace_ids.is_none() {
+        return simulation_usage_error(
+            err,
+            "simulate requires a positive --traces N, unlimited, or --trace-ids A..B",
+        );
+    }
+    match (trace_format, &request.trace_dir) {
+        (Some(_), None) => {
+            return simulation_usage_error(err, "--trace-format needs --trace-dir");
+        }
+        (Some(format), Some(_)) => request.trace_format = format,
+        (None, _) => {}
     }
     if request.traces == dive_api::UNLIMITED_TRACES
         && !matches!(request.time_limit, dive_api::BudgetSetting::Explicit(_))

@@ -576,7 +576,8 @@ cache hits and misses, entries, requested bytes, replacements and bypasses.
 conversion timing leaves out one-variable cache hits. `memory` fields cover the
 graph buffers and action labels; `accounting_complete` is false. Core packs repeated
 action IDs and derives successor ordinals from their source positions when
-possible. Temporal analysis can recover the original ordinal and any named
+possible. It stores destination IDs in 64-edge blocks when the IDs or their
+repeated runs fit in fewer bytes. Temporal analysis can recover the original ordinal and any named
 action for each generated graph edge.
 `core.metrics.liveness.atoms` counts eligible atoms, direct evaluations by kind
 and fallbacks, and `atoms.row_proofs` counts reused atom checks. These describe

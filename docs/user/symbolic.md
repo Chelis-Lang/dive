@@ -82,7 +82,23 @@ The second row reports `reused: true` and a two-state counterexample to
 checker compares the variable layout, concrete initial state, symmetry group
 and guarded Boolean updates, including duplicate action witnesses. When all
 match a previous completed search, it checks the edited obligations on the
-saved reachable set. Ordinary symbolic search starts over when the relation changes. Refined sessions can also prove that an edited relation preserves reachable destinations and distances, as described below. Each violation
+saved reachable set.
+
+When an edit changes an action but preserves the encoding, initial states,
+constraint and symmetry, ordinary symbolic search can reuse individual
+breadth-first layers. It checks the edited properties on each layer, including
+emissions excluded by the state constraint. It reuses the old next layer when
+every removed transition from the current sources leads to an already reached
+state. It then adds the destinations of the new transitions. If this changes
+the next layer, subsequent layers are explored from that new frontier. When a
+removed transition could have supplied a shortest path, the checker explores
+that layer again. Generated counts include the edited witness multiplicities.
+
+A positive `reused_layer_images` gives the number of old layer images used
+during the edit. `reused: true` continues to describe reuse of the complete
+previous search under an identical relation. A change to the encoding,
+initial-state set, constraint or symmetry starts a fresh search. Refined
+set-domain checking has its own reuse conditions below. Each violation
 has a concrete trace that Dive independently validates. With `--trace`, the first violation writes the requested file and later violations include their own trace in the JSON row. Without `--trace`,
 the row contains the trace.
 

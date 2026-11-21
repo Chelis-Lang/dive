@@ -125,8 +125,24 @@ enum End {
     Stopped,
 }
 
+/// Receives every finished trace (`--trace-dir`): `write` runs on the
+/// worker that sampled it, before commit, and `commit` when the trace commits
+/// in id order. A trace that never commits (after the deciding one, or when
+/// the run stops) is never committed.
+pub(crate) trait TraceExport: Sync {
+    /// Validates and writes `trace`, which decides the run with `deciding`
+    /// if given. An error decides the run at this trace instead.
+    fn write(&self, trace: &Trace, deciding: Option<&Outcome>) -> Result<(), Outcome>;
+    /// Makes the written trace `id` part of the output.
+    fn commit(&self, id: u64) -> Result<(), String>;
+}
+
 /// One sampled trace before commit: interned rows, so no conversion is paid
 /// for a trace the report does not keep.
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "independent facts about one trace, each read at a different commit step"
+)]
 struct Run {
     id: u64,
     rows: Vec<Vec<Handle>>,
@@ -143,6 +159,8 @@ struct Run {
     sampled: Vec<String>,
     /// Ended early: no drawn member led to an admitted state.
     stalled: bool,
+    /// Written by the run's [`TraceExport`], to be committed with it.
+    exported: bool,
     end: End,
     /// The last state had no admitted successor.
     terminal: bool,
@@ -200,6 +218,8 @@ struct Context<'a> {
     /// Action labels for the report's sampled-set notes: Init's, Next's.
     init_labels: &'a [String],
     next_labels: &'a [String],
+    /// Where every finished trace is written, if anywhere (`--trace-dir`).
+    export: Option<&'a dyn TraceExport>,
 }
 
 /// A kept trace: interned rows, actions, generated count and witnesses, or
@@ -247,6 +267,7 @@ impl Native {
         options: &dive_sim::Options,
         runtime: &dive_sim::Runtime,
         poll: &(dyn Fn() -> bool + Sync),
+        export: Option<&dyn TraceExport>,
     ) -> Report {
         if let Some(outcome) = dive_sim::preflight(model, options) {
             return preflight_report(outcome);
@@ -256,7 +277,7 @@ impl Native {
             Err(outcome) => return preflight_report(outcome),
         };
         runtime.simulate_with_backend(model, |remaining| {
-            let mut report = self.sample(model, checker.as_ref(), options, poll, remaining);
+            let mut report = self.sample(model, checker.as_ref(), options, poll, remaining, export);
             if self.machine.heap.poisoned() {
                 report.outcome = Outcome::Internal("native finite mode read a stale value".into());
             }
@@ -275,6 +296,7 @@ impl Native {
         options: &dive_sim::Options,
         poll: &(dyn Fn() -> bool + Sync),
         remaining: &dyn Fn() -> (usize, usize),
+        export: Option<&dyn TraceExport>,
     ) -> Report {
         let mut report = preflight_report(Outcome::Sampled);
         if options.action_stats {
@@ -402,13 +424,13 @@ impl Native {
                 .collect(),
         });
         let shared = Shared {
-            next: AtomicU64::new(0),
+            next: AtomicU64::new(options.first_trace),
             best: AtomicU64::new(u64::MAX),
             stop: AtomicBool::new(false),
-            committed: AtomicU64::new(0),
+            committed: AtomicU64::new(options.first_trace),
             waiting: AtomicUsize::new(0),
             commit: Mutex::new(Commit {
-                next: 0,
+                next: options.first_trace,
                 pending: BTreeMap::new(),
                 finished: false,
                 report,
@@ -437,6 +459,7 @@ impl Native {
             output,
             init_labels: &init_labels,
             next_labels: &next_labels,
+            export,
         };
         let budget = &self.budget;
         let store = std::sync::Arc::clone(self.machine.heap.store());
@@ -502,32 +525,17 @@ impl Native {
     /// Converts a kept trace's interned rows and witnesses to values.
     fn kept_trace(&mut self, model: &Model, kept: Kept) -> Result<Trace, String> {
         if let Some(word) = kept.word {
-            return Ok(Trace {
-                id: kept.id,
-                states: word.states,
-                actions: word.actions,
-                generated: kept.generated,
-                witnesses: Vec::new(),
-                temporal: Some((word.ending, word.properties)),
-            });
+            return Ok(word_trace(kept.id, kept.generated, word));
         }
-        let mut states = Vec::with_capacity(kept.rows.len());
-        for row in &kept.rows {
-            states.push(values(&mut self.machine, model, row)?);
-        }
-        let mut drawn = Vec::with_capacity(kept.witnesses.len());
-        for (state, row) in &kept.witnesses {
-            let members = values(&mut self.machine, model, row)?;
-            drawn.push((*state, members.iter().flatten().cloned().collect()));
-        }
-        Ok(Trace {
-            id: kept.id,
-            states,
-            actions: kept.actions,
-            generated: kept.generated,
-            witnesses: drawn,
-            temporal: None,
-        })
+        trace_values(
+            &mut self.machine,
+            model,
+            kept.id,
+            &kept.rows,
+            kept.actions,
+            kept.generated,
+            &kept.witnesses,
+        )
     }
 
     fn flush_driver_output(&mut self, report: &mut Report) {
@@ -549,6 +557,82 @@ impl Native {
             report.outcome =
                 Outcome::Unsupported("native simulation warning/output interleaving".into());
         }
+    }
+}
+
+/// A trace's interned rows and witnesses as values.
+fn trace_values(
+    machine: &mut Machine,
+    model: &Model,
+    id: u64,
+    rows: &[Vec<Handle>],
+    actions: Vec<usize>,
+    generated: u64,
+    witnesses: &[(usize, Vec<Handle>)],
+) -> Result<Trace, String> {
+    let mut states = Vec::with_capacity(rows.len());
+    for row in rows {
+        states.push(values(machine, model, row)?);
+    }
+    let mut drawn = Vec::with_capacity(witnesses.len());
+    for (state, row) in witnesses {
+        let members = values(machine, model, row)?;
+        drawn.push((*state, members.iter().flatten().cloned().collect()));
+    }
+    Ok(Trace {
+        id,
+        states,
+        actions,
+        generated,
+        witnesses: drawn,
+        temporal: None,
+    })
+}
+
+/// A temporal counterexample word as the trace it decides.
+fn word_trace(id: u64, generated: u64, word: Word) -> Trace {
+    Trace {
+        id,
+        states: word.states,
+        actions: word.actions,
+        generated,
+        witnesses: Vec::new(),
+        temporal: Some((word.ending, word.properties)),
+    }
+}
+
+/// Hands a finished trace to the run's [`TraceExport`]; a failure decides
+/// the run at this trace.
+fn export(machine: &mut Machine, cx: &Context<'_>, run: &mut Run) {
+    let Some(export) = cx.export else {
+        return;
+    };
+    let deciding = match &run.end {
+        End::Completed => None,
+        End::Deciding(outcome) => Some(outcome),
+        End::Superseded | End::Stopped => return,
+    };
+    let trace = if let Some(word) = &run.word {
+        Ok(word_trace(run.id, run.generated, word.clone()))
+    } else if run.rows.is_empty() {
+        return;
+    } else {
+        trace_values(
+            machine,
+            cx.model,
+            run.id,
+            &run.rows,
+            run.actions.clone(),
+            run.generated,
+            &run.witnesses,
+        )
+    };
+    let written = trace
+        .map_err(Outcome::Unsupported)
+        .and_then(|trace| export.write(&trace, deciding));
+    match written {
+        Ok(()) => run.exported = true,
+        Err(outcome) => run.end = End::Deciding(outcome),
     }
 }
 
@@ -658,8 +742,10 @@ fn enumerate_init(
             }
             report.outcome = outcome;
             match values(machine, model, &state) {
+                // Init is checked before any trace, so its violation is the
+                // first trace of the run.
                 Ok(state) => report.traces.push(Trace {
-                    id: 0,
+                    id: options.first_trace,
                     states: vec![state],
                     actions: Vec::new(),
                     generated: 0,
@@ -716,7 +802,7 @@ fn work(machine: &mut Machine, cx: &Context<'_>, shared: &Shared) {
             break;
         }
         let id = shared.next.fetch_add(1, Ordering::SeqCst);
-        if id >= cx.options.traces || id > shared.best.load(Ordering::SeqCst) {
+        if id >= cx.options.end_trace() || id > shared.best.load(Ordering::SeqCst) {
             break;
         }
         if !shared.wait_window(id, window, cx.poll) {
@@ -773,7 +859,7 @@ impl Shared {
             };
             commit.apply(run, cx);
             commit.next += 1;
-            if !commit.finished && commit.next >= cx.options.traces {
+            if !commit.finished && commit.next >= cx.options.end_trace() {
                 commit.finished = true;
             }
         }
@@ -811,6 +897,7 @@ impl Commit {
             witnesses,
             sampled,
             stalled,
+            exported,
             end,
             class,
             coverage,
@@ -879,6 +966,12 @@ impl Commit {
                     return self.end(Outcome::Internal(error.to_string()));
                 }
             }
+        }
+        if exported
+            && let Some(export) = cx.export
+            && let Err(message) = export.commit(id)
+        {
+            return self.end(Outcome::Unsupported(message));
         }
         let length = word.as_ref().map_or(rows.len(), |word| word.states.len());
         let kept = Kept {
@@ -973,6 +1066,7 @@ fn trace(machine: &mut Machine, cx: &Context<'_>, id: u64) -> Run {
         witnesses: Vec::new(),
         sampled: Vec::new(),
         stalled: false,
+        exported: false,
         end: End::Completed,
         terminal: false,
         extended: false,
@@ -1014,9 +1108,13 @@ fn trace(machine: &mut Machine, cx: &Context<'_>, id: u64) -> Run {
             "native finite mode read a stale value".into(),
         ));
     }
-    // Ids commit in order, so only ids below `keep_traces` are kept unless
-    // they decide the run: the rows of any other finished trace go now.
-    if matches!(run.end, End::Completed) && id >= cx.options.keep_traces {
+    // Every finished trace reaches the export before its rows can go.
+    export(machine, cx, &mut run);
+    // Ids commit in order, so only the first `keep_traces` ids are kept
+    // unless they decide the run: the rows of any other finished trace go now.
+    if matches!(run.end, End::Completed)
+        && id.saturating_sub(cx.options.first_trace) >= cx.options.keep_traces
+    {
         run.rows = Vec::new();
         run.actions = Vec::new();
         run.witnesses = Vec::new();

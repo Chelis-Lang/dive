@@ -1977,6 +1977,167 @@
       }
     }
   },
+  "exact_membership_layout": {
+    "platform": "Dedicated EC2 r7i.8xlarge, 16 physical cores / 32 vCPUs, Xeon Platinum 8488C. Linux 7.0.0-1018-aws. Each run alone with CPU affinity 0-15.",
+    "source_base": "933410b53d1c8e26caf3e0a5d4f98c97c2fda26b",
+    "build": "Rust 1.99.0, cargo build --locked --release -p dive-cli, LTO disabled, 16 codegen units. The bucket, inline and packed arms share the base and differ only in exact membership layout.",
+    "arm_definitions": {
+      "bucket": "Vector per distinct hash, separately owned state rows",
+      "inline": "First identity stored directly in each hash slot, separately owned state rows",
+      "packed": "Singleton hash slot, identities in lossless blocks of 256 rows, full equality for matching hashes"
+    },
+    "binary_sha256": {
+      "exact-bucket": "50d406b2b540c5c4c7ee151ae48353c69de95f15796019e110f3edd46c3b6e72",
+      "exact-inline": "38771047e0ba730bc5f0c87657852d74a25f18b3ac345959f13e3e35bf8cdc9e",
+      "exact-packed": "c86d1ac833fd934335eda7ee68e7d45e867c51c00d9bb9c29b6fa72ce55a1146"
+    },
+    "command": "dive check SlateDBWAL.tla --config OneValue.cfg --library-path modules --workers 16 --store exact --compat=tlc --fp 0 --seed 0 --max-memory 195g --time-limit 5500s --output json. Prefix trials add --max-states 10000000. Original trials use the released CFG, --max-memory 125g and --max-states 100000000.",
+    "rows": [
+      {
+        "trial": "complete-bucket1",
+        "configuration": "one_value",
+        "verdict": "success",
+        "exit_code": 0,
+        "distinct": 242213642,
+        "generated": 1068416158,
+        "depth": 126,
+        "left_on_queue": 0,
+        "exact_identities": 242213642,
+        "wall_seconds": 938.27,
+        "peak_rss_kib": 93744184
+      },
+      {
+        "trial": "complete-inline1",
+        "configuration": "one_value",
+        "verdict": "success",
+        "exit_code": 0,
+        "distinct": 242213642,
+        "generated": 1068416158,
+        "depth": 126,
+        "left_on_queue": 0,
+        "exact_identities": 242213642,
+        "wall_seconds": 900.22,
+        "peak_rss_kib": 70557968
+      },
+      {
+        "trial": "prefix-bucket1",
+        "configuration": "one_value",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "distinct": 10000000,
+        "generated": 35441851,
+        "depth": 47,
+        "left_on_queue": 1416296,
+        "exact_identities": 10000000,
+        "wall_seconds": 32.4,
+        "peak_rss_kib": 4070192
+      },
+      {
+        "trial": "prefix-bucket2",
+        "configuration": "one_value",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "distinct": 10000000,
+        "generated": 35441851,
+        "depth": 47,
+        "left_on_queue": 1416296,
+        "exact_identities": 10000000,
+        "wall_seconds": 32.39,
+        "peak_rss_kib": 4086192
+      },
+      {
+        "trial": "prefix-inline1",
+        "configuration": "one_value",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "distinct": 10000000,
+        "generated": 35441851,
+        "depth": 47,
+        "left_on_queue": 1416296,
+        "exact_identities": 10000000,
+        "wall_seconds": 30.47,
+        "peak_rss_kib": 2951360
+      },
+      {
+        "trial": "prefix-inline2",
+        "configuration": "one_value",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "distinct": 10000000,
+        "generated": 35441851,
+        "depth": 47,
+        "left_on_queue": 1416296,
+        "exact_identities": 10000000,
+        "wall_seconds": 30.1,
+        "peak_rss_kib": 2962624
+      },
+      {
+        "trial": "complete-packed",
+        "configuration": "one_value",
+        "verdict": "success",
+        "exit_code": 0,
+        "distinct": 242213642,
+        "generated": 1068416158,
+        "depth": 126,
+        "left_on_queue": 0,
+        "exact_identities": 242213642,
+        "wall_seconds": 972.52,
+        "peak_rss_kib": 36861124
+      },
+      {
+        "trial": "original-inline",
+        "configuration": "published",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "distinct": 100000000,
+        "generated": 362779396,
+        "depth": 56,
+        "left_on_queue": 15988974,
+        "exact_identities": 100000000,
+        "wall_seconds": 368.73,
+        "peak_rss_kib": 22901260
+      },
+      {
+        "trial": "original-packed",
+        "configuration": "published",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "distinct": 100000000,
+        "generated": 362779396,
+        "depth": 56,
+        "left_on_queue": 15988974,
+        "exact_identities": 100000000,
+        "wall_seconds": 380.86,
+        "peak_rss_kib": 10679532
+      },
+      {
+        "trial": "prefix-inline",
+        "configuration": "one_value",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "distinct": 10000000,
+        "generated": 35441851,
+        "depth": 47,
+        "left_on_queue": 1416296,
+        "exact_identities": 10000000,
+        "wall_seconds": 33.17,
+        "peak_rss_kib": 2979280
+      },
+      {
+        "trial": "prefix-packed",
+        "configuration": "one_value",
+        "verdict": "stopped",
+        "exit_code": 5,
+        "distinct": 10000000,
+        "generated": 35441851,
+        "depth": 47,
+        "left_on_queue": 1416296,
+        "exact_identities": 10000000,
+        "wall_seconds": 34.32,
+        "peak_rss_kib": 1733572
+      }
+    ]
+  },
   "released_configuration_completion": {
     "input": "Unmodified released module and CFG, three writers, two values, one restart, fixed protocol, six invariants, configured symmetry, deadlocks disabled.",
     "platform": "Dedicated EC2 r7i.48xlarge, 40 physical cores pinned, Xeon Platinum 8488C, 1536 GiB nominal. Core and pinned TLC run sequentially on this node.",

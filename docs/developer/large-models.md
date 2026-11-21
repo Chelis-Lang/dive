@@ -151,6 +151,10 @@ above used a different host and budget. [Merged Core source, binary, input hashe
 
 The explicit Core edit experiment also captured 3,599 exact integer rows and parents. Rebinding and scanning a second property reused the completed closure, and a rebuilt transition produced 3,658 rows. Scanning took about 0.9 ms versus 12 ms for a fresh search, excluding binding. This gives an explicit alternative when a model has poor BDD structure.
 
+For an edit that changes the transition relation, a completed ordinary symbolic search also supplies its breadth-first layers. A saved successor layer is sufficient when the enabled transitions removed from its source only reached already visited states. The checker unions the images of the added transitions, preserves new constrained-out emissions for property checking, and resumes a fresh breadth-first search at the first changed frontier. This maintains shortest-path depth even when an edit introduces a shortcut or removes the only predecessor of a state. [Edit reports and trace behavior](../user/symbolic.md#check-edits-and-prove-properties).
+
+On the 594,616,815-state KVS Large input, adding a transition that resets the store and every transaction to their initial values took 3.81 s versus 118.82 s for fresh search. Removing it took 3.68 s versus 111.98 s. Both edits reused all 30 layer images, and the added transition raised the generated count from 13,385,471,536 to 13,980,088,351. A second edit opened every transaction at once. It changed the first successor layer and took 144.03 s versus 144.19 s fresh. On Medium the same edit shortened depth from 22 to 21. [Paired results and edit definitions](../../conformance/reports/perf/2026-11-20-isolated-symbolic-growth.json).
+
 ### Which evidence can decide a source edit?
 
 | Evidence retained | Eligible change | Measured edited check and ordinary comparison |
@@ -324,6 +328,32 @@ RSS was 2,258 MiB before and 1,903 MiB after; wall times were 302.12 s and
 two-state, independently validated lasso for the false recurrence property. [All capacities,
 individual runs, outcomes and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
 
+### Destination IDs in temporal graphs
+
+At the pre-periodic Kafka cutoff, the graph held 36,120,197 destination IDs.
+The dense target vector reserved 256 MiB. Core now packs 64 destinations at a
+time using the minimum ID and enough bits for the largest difference.
+When IDs repeat, a bitmap marks the starts of runs. Counting the set bits
+through a position selects the corresponding value. Blocks with a wider
+range can keep the original full-width IDs.
+
+| Graph at the same cutoff | Dense targets | Base-relative values alone | Run starts alone | Combined |
+|---|---:|---:|---:|---:|
+| Kafka KIP-996 | 310.0 MiB | 118.0 MiB | 142.0 MiB | 110.0 MiB |
+| c1cs | 383.0 MiB | 255.0 MiB | 219.0 MiB | 199.0 MiB |
+| BlockingQueuePoisonApple | 128.9 MiB | 124.9 MiB | 127.9 MiB | 124.9 MiB |
+| Binary tree | 10.1 MiB | 8.0 MiB | 8.7 MiB | 8.0 MiB |
+
+These are whole collector capacities. On 4,194,304 random full-width IDs, the
+encoder kept a dense prefix and a 256-byte tail. Reading the captured Kafka
+targets in 2.5 million pseudorandom positions took 0.033 s from the dense
+array and 0.112 s from the production encoding. The full 200,000-state Kafka
+check took 303.03 s with dense targets and 306.80 s with packed targets.
+Peak RSS fell from 1,903 to 1,793 MiB. Both completed one periodic check,
+made the same 118,830,867 native predicate evaluations, and resumed capture
+before reaching the state limit. [Individual timings, capacities, decoded
+checksums and input hashes](../../conformance/reports/perf/2026-11-20-temporal-edge-ordinals.json)
+
 ### What occupies memory at the same discovery prefix?
 
 Each of the six previously memory-limited configurations reached the same
@@ -437,10 +467,10 @@ provide comparisons at the same work or against an independent calculation.
 |---|---|---|
 | KVS Large | Ordinary Core exhausted 594,616,815 distinct states within the original 24 GiB / 7,200 s limits. The source-driven symbolic result agrees. | Fingerprint-table resize peaks and predecessor size mattered for explicit search. Key-local field dependencies matter for symbolic compression. |
 | BPConProof | The isolated 24 GiB cgroup killed the checker. At the measured 300,000-state prefix, 299,867 states were queued and the persistent-value lower bound alone was 179 MiB. | A frontier on disk still references persistent values. Bound the live value store or give queued states an independent representation. |
-| TLCSailfish2 | The 24 GiB cgroup killed the checker. Spilling the frontier at the fixed prefix changed peak process RSS from 234 MiB to 231 MiB. | Measure and reduce retained value graphs and evaluation working sets independently of frontier placement. |
+| TLCSailfish2 | The original 24 GiB cgroup killed the checker. With the revised store, the same 24 GiB budget produced a measured memory stop at 43,224,883 distinct states, 89,157,072 generated and 35,714,020 queued. Spilling the frontier at the fixed prefix changed peak process RSS from 234 MiB to 231 MiB. | Measure and reduce retained value graphs and evaluation working sets independently of frontier placement. |
 | DiskSynod | At 7,200 s, Core had reached 299,192,687 distinct, 4,260,111,630 generated and depth 30, with 65,518,609 queued. The cgroup peak was 18.31 GiB. | At 300,000 distinct states, disk-frontier placement cut peak process RSS from 230 MiB to 177 MiB. The larger run includes membership and predecessor growth as well. |
 | BlockingQueuePoisonApple, c1cs | Both ordinary 24 GiB runs ended in a kernel OOM. At equal work the compact ordinal column reduced RSS on both. | Edges per state and the width of each retained edge field dominate dense prefixes. c1cs still had 13.76 million states queued at the compact 20 GiB stop. |
-| EWD998, EnvironmentController | Default Core reached 19,573,292 and 1,332,012 distinct states respectively before the 900 s capture deadline. | The earlier startup refusals are gone. Success would require exhausting the graph and finishing fair temporal analysis, or an independently validated counterexample. |
+| EWD998, EnvironmentController | At the isolated 18 GiB / 900 s capture deadline, Core reached 19,779,576 distinct states on EWD998 and 2,173,413 on EnvironmentController. | The earlier startup refusals are gone. Success would require exhausting the graph and finishing fair temporal analysis, or an independently validated counterexample. |
 | Kafka KIP-996 liveness | The original model returned from its first periodic check at 181,983 distinct states. The release candidate then reached its 200,000-state cap with 38,232,770 generated. A longer experiment on the preceding collector reached the 8 GiB limit at 1,378,619 distinct and 268,295,930 generated, depth 5. | Reusing first-order lexical checks cleared the original planning limit. At the first periodic boundary, a source guard proved 4,143,409 outgoing action rows false across the fairness atoms. The current collector uses 512 MiB of action-label capacity for 292 actions at that boundary. The full temporal verdict is still open. [Inputs, profiles and bounded runs](../../conformance/reports/perf/2026-11-20-large-model-outcomes.json). |
 | etcdraft | Default Core reached 70,655,639 distinct and 266,068,245 generated, depth 13, at the 18 GiB sampled limit. | 55,290,518 states were queued. Queue width and retained aggregate values are practical targets. |
 | MCetcdraft | The original default run refused mixed record keys after 679 s. Canonical bag construction reached 47,609,227 distinct and 257,868,368 generated, depth 15, before the 18 GiB memory limit. | Message bags use structurally different records. Distinct keys and their multiplicities must survive construction and independent replay. |
@@ -627,6 +657,18 @@ distinct, 12,508,420 generated and depth 93. The small exact-state control and
 both fingerprint checkers also agreed on 268 distinct and 460 generated at
 depth 27. These controls establish the counters on smaller complete graphs.
 [Commands, all trial measurements and binary identities](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
+
+#### Resident exact state identities
+
+A hash bucket and a separately allocated row per discovery made exact equality expensive even when nearly every hash had only one identity. The resident safety store now keeps that first entry in the hash slot and seals groups of 256 rows by variable. A matching hash still requires mathematical equality across all variables. Additional identities sharing a hash retain their own discovery IDs.
+
+| Resident exact layout | Peak process RSS | Wall seconds |
+|---|---:|---:|
+| Previous buckets and rows | 89.4 GiB | 938.27 |
+| Inline first identity | 67.3 GiB | 900.22 |
+| Inline first identity and packed rows | 35.2 GiB | 972.52 |
+
+All three runs exhausted the one-value SlateDB control on the same dedicated 16-core host, storing all 242,213,642 identities, generating 1,068,416,158 states and reaching depth 126. Packing reduced complete-run peak RSS by 60.7% against the previous layout and added 3.7% wall time. A separate 10-million-state comparison of inline and packed rows used 2.84 and 1.65 GiB. On the unmodified two-value input at 100 million exact identities, inline and packed rows used 21.84 and 10.18 GiB in 368.73 and 380.86 s. Both reached 362,779,396 generated, depth 56 and 15,988,974 queued. [Inputs, binary identities, individual trials and commands](../../conformance/reports/perf/2026-11-20-slatedb-wal.json).
 
 ### Reproduce the released PaxosLease runs
 

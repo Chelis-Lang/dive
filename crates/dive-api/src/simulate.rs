@@ -1,6 +1,6 @@
 //! Finite seeded safety simulation with independent trace validation.
 
-use crate::trace::{Ending, SpecModel, TraceDoc, TraceOptions};
+use crate::trace::{SpecModel, TraceOptions};
 use dive_sim::{KEEP_ALL_TRACES, Options, Outcome, UNLIMITED_TRACES};
 use dive_stdlib::random::RandomMode;
 use serde_json::{Value, json};
@@ -90,6 +90,17 @@ pub struct SimulateRequest {
     /// Per-trace temporal work budget; `None` scales with the trace
     /// ([`dive_sim::liveness_budget`]). A budget stop is never a verdict.
     pub liveness_budget: Option<u64>,
+    /// Writes every trace, independently validated, to its own file in this
+    /// directory as it commits, in id order (`--trace-dir`). The directory
+    /// must be absent or empty. Memory does not grow with the trace count.
+    pub trace_dir: Option<PathBuf>,
+    /// The format of [`Self::trace_dir`] files.
+    pub trace_format: crate::TraceFormat,
+    /// Samples only traces `A` to `B`, inclusive, of the seed's sequence
+    /// (`--trace-ids A..B`); [`Self::traces`] is then ignored. A trace
+    /// depends only on the seed and its id, so this regenerates exactly
+    /// those traces of a larger run.
+    pub trace_ids: Option<(u64, u64)>,
 }
 
 /// Concrete sampled traces and independently checked violation evidence.
@@ -100,7 +111,7 @@ pub struct SimulateRequest {
 #[derive(Debug)]
 pub struct SimulateReport {
     document: Value,
-    traces: Vec<String>,
+    traces: Vec<crate::simulate_traces::Written>,
     exit: u8,
 }
 
@@ -121,7 +132,7 @@ impl SimulateReport {
             document["traces"] = Value::Array(
                 self.traces
                     .iter()
-                    .map(|entry| serde_json::from_str(entry).unwrap_or(Value::Null))
+                    .map(|entry| serde_json::from_str(&entry.text).unwrap_or(Value::Null))
                     .collect(),
             );
         }
@@ -131,7 +142,7 @@ impl SimulateReport {
     /// per trace beyond its fixed summary.
     #[must_use]
     pub fn retained_trace_bytes(&self) -> usize {
-        self.traces.iter().map(String::len).sum()
+        self.traces.iter().map(|entry| entry.text.len()).sum()
     }
 
     /// Writes the compact JSON text of [`Self::to_json`], or of
@@ -174,7 +185,7 @@ impl SimulateReport {
                     if number > 0 {
                         out.write_all(b",")?;
                     }
-                    out.write_all(entry.as_bytes())?;
+                    out.write_all(entry.text.as_bytes())?;
                 }
                 out.write_all(b"]")?;
             } else {
@@ -333,6 +344,17 @@ impl SimulateReport {
 )]
 pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::ApiError> {
     let seed = req.seed.unwrap_or_else(dive_stdlib::random::fresh_seed);
+    let (first_trace, traces) = match req.trace_ids {
+        None => (0, req.traces),
+        Some((first, last)) if first <= last && last < UNLIMITED_TRACES => {
+            (first, last - first + 1)
+        }
+        Some((first, last)) => {
+            return Err(crate::ApiError::Rejected {
+                message: format!("trace ids {first}..{last} are not a range of trace ids"),
+            });
+        }
+    };
     let options = Options::new(
         seed,
         if req.compat_tlc {
@@ -341,11 +363,9 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             RandomMode::Dive
         },
         req.depth.unwrap_or(100),
-        req.traces,
+        traces,
     );
-    if req.traces == UNLIMITED_TRACES
-        && !matches!(req.time_limit, crate::BudgetSetting::Explicit(_))
-    {
+    if traces == UNLIMITED_TRACES && !matches!(req.time_limit, crate::BudgetSetting::Explicit(_)) {
         return Err(crate::ApiError::Rejected {
             message: "unlimited simulation traces need an explicit time limit".to_owned(),
         });
@@ -361,6 +381,7 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         action_stats: req.action_stats,
         generation: req.generation,
         constructive_init: req.constructive_init,
+        first_trace,
         workers,
         keep_traces: req.keep_traces.unwrap_or(10),
         sample_unbounded: req.sample_unbounded.unwrap_or(if req.compat_tlc {
@@ -428,6 +449,20 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
             Err(error) => setup_failure = Some(error.simulation()),
         }
     }
+    let stop = || run_budget.budget.poll() != Ok(None);
+    let trace_dir = match &req.trace_dir {
+        Some(dir) if setup_failure.is_none() => Some(
+            crate::simulate_export::TraceDir::create(
+                dir,
+                req.trace_format,
+                &model,
+                control.clone(),
+                &stop,
+            )
+            .map_err(|message| crate::ApiError::Rejected { message })?,
+        ),
+        _ => None,
+    };
     let result = if let Some(outcome) = setup_failure {
         crate::core_modes::preflight_report(outcome)
     } else {
@@ -437,7 +472,15 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                 .spawn_scoped(scope, || {
                     let poll = || run_budget.budget.poll() != Ok(None);
                     if let Some(native) = &mut native {
-                        native.simulate(model.model(), &options, &runtime, &poll)
+                        native.simulate(
+                            model.model(),
+                            &options,
+                            &runtime,
+                            &poll,
+                            trace_dir
+                                .as_ref()
+                                .map(|dir| dir as &dyn crate::core_modes::sample::TraceExport),
+                        )
                     } else {
                         crate::core_modes::preflight_report(Outcome::Internal(
                             "Core simulation was neither prepared nor refused".to_owned(),
@@ -499,43 +542,71 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
         ),
         Outcome::Internal(s) => ("internal-error", None, Some(s.clone()), 4),
     };
-    // Each trace's concrete states are released once its entry is serialized,
-    // and only the entry's text and validation verdict are kept (issue #1024).
+    // Each trace's entry is written state by state from its values, which
+    // are released once it is validated; neither the document nor the
+    // validator's input is ever held as JSON (issue #1024).
     let mut result = result;
-    let sampled = std::mem::take(&mut result.traces);
-    let mut traces = Vec::<String>::new();
-    let mut verdicts = Vec::<TraceVerdict>::new();
     let mut trace_refusal = None;
     let mut alias_failures = Vec::<String>::new();
-    'documents: for (number, trace) in sampled.into_iter().enumerate() {
-        if run_budget.budget.poll() != Ok(None) {
+    if let Some(dir) = &trace_dir {
+        // A violation found while enumerating Init decides before any trace
+        // runs; it still reaches the directory.
+        use crate::core_modes::sample::TraceExport as _;
+        for (number, trace) in result.traces.iter().enumerate() {
+            if dir.has(trace.id) {
+                continue;
+            }
+            let deciding = match &result.outcome {
+                Outcome::Violation { trace, .. } if *trace == number => Some(&result.outcome),
+                _ => None,
+            };
+            if let Err(outcome) = dir.write(trace, deciding) {
+                trace_refusal = Some(match outcome {
+                    Outcome::Unsupported(message) | Outcome::Internal(message) => message,
+                    other => format!("{other:?}"),
+                });
+                break;
+            }
+            if let Err(message) = dir.commit(trace.id) {
+                trace_refusal = Some(message);
+                break;
+            }
+        }
+        dir.finish();
+        alias_failures.extend(dir.alias_failures());
+    }
+    let sampled = std::mem::take(&mut result.traces);
+    let mut traces = Vec::<crate::simulate_traces::Written>::new();
+    let mut verdicts = Vec::<TraceVerdict>::new();
+    for (number, trace) in sampled.into_iter().enumerate() {
+        if stop() {
             break;
         }
-        let states: Result<Vec<_>, _> = trace
-            .states
-            .iter()
-            .map(|state| {
-                if run_budget.budget.poll() != Ok(None) {
-                    return Err("run budget exhausted during trace serialization".to_owned());
-                }
-                let mut object = serde_json::Map::new();
-                for (var, value) in model.model().ir.vars().iter().zip(state.iter()) {
-                    let value = value
-                        .as_ref()
-                        .ok_or_else(|| "incomplete sampled trace".to_owned())?;
-                    object.insert(
-                        model.model().ir.decl(*var).name.clone(),
-                        dive_trace::value_json::to_json(
-                            value,
-                            model.model().evaluator.options().ctx,
-                        )?,
-                    );
-                }
-                Ok::<_, String>(Value::Object(object))
-            })
-            .collect();
-        let states = match states {
-            Ok(states) => states,
+        let source = crate::simulate_traces::SimStates::new(model.model(), &trace, &stop);
+        let header = source.header(crate::simulate_traces::ending(
+            &result.outcome,
+            number,
+            &trace,
+        ));
+        let alias = model
+            .model()
+            .alias
+            .as_ref()
+            .and_then(|alias| alias.as_ref().ok())
+            .map(|alias| {
+                crate::simulate_alias::render(model.model(), alias, &trace.states, &stop)
+                    .map_err(|reason| alias_failures.push(format!("trace {}: {reason}", trace.id)))
+                    .ok()
+            });
+        let entry = match crate::simulate_traces::Entry::begin(
+            Vec::new(),
+            &header,
+            &source,
+            alias
+                .as_ref()
+                .map(|alias| alias.as_deref().unwrap_or("null")),
+        ) {
+            Ok(entry) => entry,
             Err(feature) => {
                 trace_refusal = Some(format!(
                     "simulation concrete trace serialization: {feature}"
@@ -543,141 +614,48 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                 break;
             }
         };
-        let ending = match (&result.outcome, &trace.temporal) {
-            (_, Some((ending, _))) => match ending {
-                dive_sim::TemporalEnding::Lasso { back_to } => Ending::Lasso { back_to: *back_to },
-                dive_sim::TemporalEnding::Stuttering => Ending::Stuttering,
-                dive_sim::TemporalEnding::BadPrefix(name) => Ending::BadPrefix(name.clone()),
-            },
-            (
-                Outcome::Violation {
-                    kind, name, trace, ..
-                },
-                None,
-            ) if *trace == number => match *kind {
-                "invariant" => Ending::Invariant(name.clone().unwrap_or_default()),
-                "property" => Ending::Property(name.clone().unwrap_or_default()),
-                _ => Ending::Deadlock,
-            },
-            _ => Ending::Behavior,
-        };
-        let mut document = TraceDoc::behavior(states)
-            .map_err(|message| crate::ApiError::Rejected { message })?
-            .with_ending(ending);
-        // Members drawn for the existentials of a step, which the validator
-        // may use to prove them (D-040).
-        for (state, members) in &trace.witnesses {
-            let members: Result<Vec<_>, _> = members
-                .iter()
-                .map(|value| {
-                    dive_trace::value_json::to_json(value, model.model().evaluator.options().ctx)
-                })
-                .collect();
-            match members {
-                Ok(members) => document = document.with_witnesses(*state, members),
-                Err(feature) => {
-                    trace_refusal = Some(format!("simulation witness serialization: {feature}"));
-                    break 'documents;
-                }
-            }
-        }
-        // A lasso's loop closes on equal states, which the validator then
-        // checks whatever VIEW or SYMMETRY is declared (D-037).
-        if let Some((ending, properties)) = &trace.temporal
-            && !matches!(ending, dive_sim::TemporalEnding::BadPrefix(_))
-        {
-            document = document
-                .with_properties(properties.clone())
-                .with_concrete_closure();
-        }
-        // The step into state `k + 1` is labelled with the action the sampler
-        // chose; the validator checks each label's definition on its step.
-        for (step, &action) in trace.actions.iter().enumerate() {
-            if let (Some(slot), Some(action)) = (
-                document.labels.get_mut(step + 1),
-                model.model().actions.get(action),
-            ) {
-                *slot = crate::core_engine::action_name(model.model(), action).map(|name| {
-                    dive_trace::Label {
-                        name,
-                        location: Some(action.label().to_owned()),
-                    }
-                });
-            }
-        }
         // Validation replays the given states; it never reruns the simulation.
-        let validated = if matches!(
-            &trace.temporal,
-            Some((
-                dive_sim::TemporalEnding::Lasso { .. } | dive_sim::TemporalEnding::Stuttering,
-                _
-            ))
+        let validation = match crate::simulate_traces::validate(
+            &model,
+            &header,
+            &source,
+            matches!(result.outcome, Outcome::Sampled | Outcome::Violation { .. }),
+            control.clone(),
         ) {
-            // A lasso is checked on a fresh session: every step including
-            // the closing one, fairness, and the complete false-property set.
-            Ok(model.validate(&document))
-        } else if matches!(result.outcome, Outcome::Sampled | Outcome::Violation { .. }) {
-            model.validate_sample_mode(&document, control.clone())
-        } else {
-            // Diagnostic error prefixes can include the actual failing row.
-            // They carry no claim that every safety obligation passed there.
-            model.validate_mode(&document, control.clone())
-        };
-        let validation = match validated {
-            Ok(validation) => validation,
+            Ok(Ok(validation)) => validation,
+            Ok(Err(feature)) => {
+                trace_refusal = Some(format!(
+                    "simulation concrete trace serialization: {feature}"
+                ));
+                break;
+            }
             Err(error) => {
                 trace_refusal = Some(format!("simulation trace validation interrupted: {error}"));
                 break;
             }
         };
-        let mut compressed = Vec::<usize>::new();
-        for (index, state) in trace.states.iter().enumerate() {
-            if run_budget.budget.poll() != Ok(None) {
-                break 'documents;
+        let tlc_states = match crate::simulate_traces::distinct_states(model.model(), &trace, &stop)
+        {
+            Ok(states) => states,
+            Err(feature) => {
+                trace_refusal = Some(feature);
+                break;
             }
-            let same = if let Some(&previous) = compressed.last() {
-                let mut equal = true;
-                for (left, right) in trace.states[previous].iter().zip(state.iter()) {
-                    if let (Some(left), Some(right)) = (left, right) {
-                        match model.model().evaluator.equal_values(left, right) {
-                            Ok(same) => equal &= same,
-                            Err(error) => {
-                                trace_refusal =
-                                    Some(format!("simulation trace compression: {error}"));
-                                break 'documents;
-                            }
-                        }
-                    }
-                }
-                equal
-            } else {
-                false
-            };
-            if !same {
-                compressed.push(index);
-            }
-        }
-        let tlc_states: Vec<_> = compressed
-            .iter()
-            .map(|&i| document.states[i].clone())
-            .collect();
+        };
         let validation = crate::trace::report_json(&validation);
         verdicts.push(TraceVerdict {
             result: validation["result"].as_str().map(str::to_owned),
             unsupported: validation["unsupported"].as_str().map(str::to_owned),
         });
-        let mut entry = json!({ "id": trace.id, "document": document.to_json(), "tlc_states": tlc_states, "validation": validation });
-        if let Some(Ok(alias)) = &model.model().alias {
-            let poll = || run_budget.budget.poll() != Ok(None);
-            match crate::simulate_alias::render(model.model(), alias, &trace.states, &poll) {
-                Ok(rendered) => entry["alias"] = Value::Array(rendered),
-                Err(reason) => {
-                    entry["alias"] = Value::Null;
-                    alias_failures.push(format!("trace {}: {reason}", trace.id));
-                }
+        match entry.finish_text(&source, &tlc_states, &validation) {
+            Ok(written) => traces.push(written),
+            Err(feature) => {
+                trace_refusal = Some(format!(
+                    "simulation concrete trace serialization: {feature}"
+                ));
+                break;
             }
         }
-        traces.push(entry.to_string());
     }
     let validation_failed = verdicts.iter().any(|t| t.is("invalid"));
     let violation_validated = match &result.outcome {
@@ -829,6 +807,17 @@ pub fn simulate_file(req: &SimulateRequest) -> Result<SimulateReport, crate::Api
                 .collect(),
         );
     }
+    document["options"]["trace_ids"] = json!(req.trace_ids.map(|(first, last)| [first, last]));
+    document["options"]["trace_dir"] =
+        json!(req.trace_dir.as_ref().map(|dir| dir.display().to_string()));
+    document["options"]["trace_format"] =
+        json!(req.trace_dir.as_ref().map(|_| req.trace_format.name()));
+    document["statistics"]["traces_written"] = json!(
+        trace_dir
+            .as_ref()
+            .map(crate::simulate_export::TraceDir::count)
+    );
+    drop(trace_dir);
     // Each trace entry's `alias` renders its validated states; a trace whose
     // ALIAS could not be rendered says why here.
     let mut notes = Vec::new();
@@ -963,20 +952,8 @@ impl SimulateReport {
         if deciding
             && self.widest_len() > bound
             && let Some(entry) = self.traces.last_mut()
-            && let Ok(entry_json) = serde_json::from_str::<Value>(entry)
         {
-            let document = entry_json["document"].to_string();
-            *entry = json!({
-                "id": entry_json["id"],
-                "summary": {
-                    "reason": "report byte bound",
-                    "length": entry_json["document"]["states"].as_array().map_or(0, Vec::len),
-                    "ending": entry_json["document"]["ending"],
-                    "document_sha256": dive_runtime::checkpoint::hash(document.as_bytes()),
-                },
-                "validation": entry_json["validation"],
-            })
-            .to_string();
+            entry.text = std::mem::take(&mut entry.summary);
         }
     }
 }

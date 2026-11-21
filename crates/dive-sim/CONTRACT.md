@@ -70,6 +70,20 @@ one ends the run with the statistics of the traces before it, and a deciding
 violation that does not fit stays pending evidence. A budget stop ends the run
 with the committed prefix.
 
+`Options::first_trace` (default 0) starts the ids there, so a run of ids
+`A..=B` samples exactly the traces that a run from 0 samples for those ids
+(`dive simulate --trace-ids`); `keep_traces` counts from `first_trace`.
+
+The `dive-api` driver can export every finished trace (`--trace-dir`): a
+trace is serialized and independently validated by the worker that ran it,
+before its states are released, and the file becomes visible (a rename from
+a hidden partial file) only when the committer takes the trace in id order.
+A trace that cannot be serialized or validated decides the run at its id,
+like any other deciding trace, so the directory always holds exactly the
+committed prefix. Validation streams the trace's states into the validator
+without building the document as JSON, except for a temporal lasso or
+stuttering word, which is validated as a whole document.
+
 In both profiles each trace has dive's counter-based stream keyed by seed and
 trace number (`Streams::simulation_trace`). `--compat=tlc` does not use TLC's
 Java worker selection stream, so for a given seed and aril dive samples

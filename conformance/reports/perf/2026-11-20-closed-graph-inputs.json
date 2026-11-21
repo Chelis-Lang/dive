@@ -163,6 +163,43 @@
           "peak_rss_kib": 45976
         }
       ]
+    },
+    "reordered_bfs_control": {
+      "config": "Closed selector 7. Reverse the order of the two configured properties to Live then Termination. All obligations retained.",
+      "command": "dive check TestMCReachability.tla --config livefirst.cfg --library-path modules --workers 8 --time-limit 6600s --max-memory 212g --seed 0 --output json",
+      "platform": "Dedicated EC2 r7i.8xlarge, 16 physical cores available, requested 8 workers; capture used 1 for the model’s effects/names.",
+      "wall_seconds": 761.8,
+      "peak_rss_kib": 8282716,
+      "statistics": {
+        "depth": 44,
+        "distinct": 25376696,
+        "generated": 40890086,
+        "initial_generated": 1,
+        "left_on_queue": 9605666,
+        "reported_by_tlc": false
+      },
+      "verdict": "liveness-violation",
+      "properties": [
+        "Live"
+      ],
+      "periodic": {
+        "bounds_scope": "capture cumulative; label and product per property per check; no total-run work or byte cap",
+        "exhausted": false,
+        "final_check": false,
+        "growth_factor": 2,
+        "last_level": 43,
+        "last_size": 25376696,
+        "min_states": 65536,
+        "prefix_checks": 7
+      },
+      "replay_under_original_property_order": {
+        "command": "validate-trace",
+        "length": 42,
+        "notes": [],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "source_witness_sha256": "ae0394556f0010b9077263043686f06eabce9e99da5b6f827fb25b291aa4c43c"
     }
   }
 }

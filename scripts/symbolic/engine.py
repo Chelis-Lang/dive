@@ -198,8 +198,11 @@ class SourceModel(FiniteRelation):
             else:
                 group.append(guard)
         self.effects = Counter((g, frozenset(change)) for change, guards in merged.items() for g in guards)
+        self.effect_parts = {
+            frozenset(change): self.partitions(dict(change), single_partition) for change in merged
+        }
         self.actions = [
-            (guard, self.partitions(dict(change), single_partition))
+            (guard, self.effect_parts[frozenset(change)])
             for change, guards in merged.items()
             for guard in guards
         ]
@@ -1027,17 +1030,8 @@ class SourceModel(FiniteRelation):
         # Adding/removing a self-loop cannot change any shortest-path distance.
         removed = previous.effects - self.effects
         added = self.effects - previous.effects
-        affected = {update for _, update in itertools.chain(removed, added)}
-        def enabled(effects):
-            guards = dict.fromkeys(affected, self.b.false)
-            for guard, update in effects:
-                if update in guards:
-                    guards[update] |= guard
-            return guards
-
-        before, after = enabled(previous.effects), enabled(self.effects)
-        for update in affected:
-            changed = reached & ~before[update].equiv(after[update])
+        for update, removed_guard, added_guard in self.changed_guards(previous):
+            changed = reached & (removed_guard | added_guard)
             if changed != self.b.false and any(
                 changed & ~self.b.var(bit).equiv(value) != self.b.false for bit, value in update
             ):
@@ -1051,6 +1045,31 @@ class SourceModel(FiniteRelation):
             for (guard, _), multiplicity in effects.items():
                 generated += sign * multiplicity * self.state_count(reached & guard)
         return generated
+
+    def changed_guards(self, previous):
+        """Compare enabling sets per deterministic update, independently of witness count."""
+        different = self.effects.keys() ^ previous.effects.keys()
+        affected = {update for _, update in different}
+
+        def enabled(effects):
+            guards = dict.fromkeys(affected, self.b.false)
+            for guard, update in effects:
+                if update in guards:
+                    guards[update] |= guard
+            return guards
+
+        before, after = enabled(previous.effects), enabled(self.effects)
+        for update in affected:
+            yield update, before[update] & ~after[update], after[update] & ~before[update]
+
+    def layer_delta(self, previous):
+        removed, added = [], []
+        for update, old, new in self.changed_guards(previous):
+            if old != self.b.false:
+                removed.append((old, previous.effect_parts[update]))
+            if new != self.b.false:
+                added.append((new, self.effect_parts[update]))
+        return removed, added
 
     def violations(self, states):
         admitted = states & self.constraint
@@ -1138,15 +1157,37 @@ class SourceModel(FiniteRelation):
             self.complete = previous.complete
             return self.success(self.depth(layers), reached & self.constraint, distinct, generated, True), None
 
+        old_layers = ()
+        if previous is not None and previous.complete is not None and self.same_encoding_and_admission(previous):
+            old_layers = previous.complete[1]
+            removed, added = self.layer_delta(previous)
+
         reached = frontier = self.initial
         layers = []
+        reused_images = 0
         while frontier != self.b.false:
             layers.append(frontier)
             for ending, bad in self.violations(frontier):
-                return self.failure(layers, frontier & bad, ending, reused=False)
-            # TLC checks invariants on excluded emissions too. They form
-            # terminal states in the witness layers and never become sources.
+                row, trace = self.failure(layers, frontier & bad, ending, reused=False)
+                if reused_images:
+                    row["reused_layer_images"] = reused_images
+                return row, trace
+            # Include excluded emissions in the witness layers but never expand them.
             sources = frontier & self.constraint
+            if old_layers:
+                # At this point both searches have identical layers through this source.
+                # A deleted edge into an earlier layer cannot remove a shortest path.
+                if all(self.image(sources, guard, parts) & ~reached == self.b.false
+                       for guard, parts in removed):
+                    next_old = old_layers[len(layers)] if len(layers) < len(old_layers) else self.b.false
+                    extra = self.any(self.image(sources, guard, parts) for guard, parts in added)
+                    frontier = next_old | (extra & ~reached)
+                    reached |= frontier
+                    reused_images += 1
+                    if frontier != next_old:
+                        old_layers = ()
+                    continue
+                old_layers = ()
             successors = self.b.false
             for guard, updates in self.actions:
                 successors |= self.image(sources, guard, updates)
@@ -1154,7 +1195,10 @@ class SourceModel(FiniteRelation):
             reached |= frontier
         distinct, generated = self.counts(reached & self.constraint, self.symmetry, self.initial_generated)
         self.complete = reached, layers, distinct, generated
-        return self.success(self.depth(layers), reached & self.constraint, distinct, generated, False), None
+        row = self.success(self.depth(layers), reached & self.constraint, distinct, generated, False)
+        if reused_images:
+            row["reused_layer_images"] = reused_images
+        return row, None
 
     def depth(self, layers):
         return max(1, len(layers) - int(layers[-1] & self.constraint == self.b.false))

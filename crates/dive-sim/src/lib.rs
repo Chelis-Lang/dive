@@ -74,6 +74,11 @@ pub struct Options {
     /// Total number of traces to sample at any worker count, stopping on the
     /// first deciding trace; [`UNLIMITED_TRACES`] samples until a budget stops.
     pub traces: u64,
+    /// The id of the first trace: ids `first_trace` to
+    /// `first_trace + traces - 1` are sampled. A trace's states depend only
+    /// on the seed and its id, so a range regenerates exactly those traces
+    /// of a larger run (`--trace-ids`).
+    pub first_trace: u64,
     /// Sampling threads. Traces are committed in id order, so the report
     /// does not depend on this.
     pub workers: usize,
@@ -149,6 +154,17 @@ pub const fn liveness_budget(states: usize) -> u64 {
 }
 
 impl Options {
+    /// One past the last trace id sampled: `first_trace + traces`, or
+    /// `u64::MAX` for [`UNLIMITED_TRACES`].
+    #[must_use]
+    pub const fn end_trace(&self) -> u64 {
+        if self.traces == UNLIMITED_TRACES {
+            u64::MAX
+        } else {
+            self.first_trace.saturating_add(self.traces)
+        }
+    }
+
     /// One worker, the default retention of 10 traces and no state bounds:
     /// the caller's time and memory budgets govern.
     #[must_use]
@@ -158,6 +174,7 @@ impl Options {
             aril: 0,
             depth,
             traces,
+            first_trace: 0,
             workers: 1,
             keep_traces: 10,
             mode,

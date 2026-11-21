@@ -97,14 +97,39 @@ impl Host for AliasHost {
     }
 }
 
-/// Renders the model's `ALIAS` on each state of `states`, or names why it
-/// cannot. `poll` returns true once the run's budget is exhausted.
+/// Renders the model's `ALIAS` on each state of `states` as the text of a
+/// JSON array of their values in dive's JSON form, or names why it cannot.
+/// `poll` returns true once the run's budget is exhausted.
 pub(crate) fn render(
     model: &dive_model::Model,
     alias: &dive_model::Named,
     states: &[StateVals],
     poll: &dyn Fn() -> bool,
-) -> Result<Vec<Json>, String> {
+) -> Result<String, String> {
+    let ctx = model.evaluator.options().ctx;
+    let mut rendered = String::from("[");
+    for (index, value) in render_values(model, alias, states, poll)?
+        .iter()
+        .enumerate()
+    {
+        if index > 0 {
+            rendered.push(',');
+        }
+        let json: Json = dive_trace::value_json::to_json(value, ctx)?;
+        rendered.push_str(&json.to_string());
+    }
+    rendered.push(']');
+    Ok(rendered)
+}
+
+/// The model's `ALIAS` value on each state of `states`, or why it cannot be
+/// rendered ([`render`]).
+pub(crate) fn render_values(
+    model: &dive_model::Model,
+    alias: &dive_model::Named,
+    states: &[StateVals],
+    poll: &dyn Fn() -> bool,
+) -> Result<Vec<Value>, String> {
     let previous = model.evaluator.host();
     let host = Arc::new(AliasHost {
         level: AtomicI64::new(0),
@@ -132,8 +157,7 @@ fn render_with(
     states: &[StateVals],
     host: &AliasHost,
     poll: &dyn Fn() -> bool,
-) -> Result<Vec<Json>, String> {
-    let ctx = model.evaluator.options().ctx;
+) -> Result<Vec<Value>, String> {
     let mut rendered = Vec::with_capacity(states.len());
     for (index, state) in states.iter().enumerate() {
         if poll() {
@@ -146,7 +170,7 @@ fn render_with(
         let value = model
             .eval(&alias.pred, &St::state(state.clone()))
             .map_err(|error| format!("evaluating ALIAS at state {}: {error}", index + 1))?;
-        rendered.push(dive_trace::value_json::to_json(&value, ctx)?);
+        rendered.push(value);
     }
     Ok(rendered)
 }

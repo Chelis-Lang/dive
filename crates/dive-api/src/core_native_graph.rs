@@ -13,7 +13,8 @@ use dive_explore::graph::{GraphSink, SourceRow, Step, Stopped};
 use dive_liveness::analyze::AnalysisError;
 use dive_runtime::budget::{EvaluationControl, Phase};
 use dive_runtime::capture::{
-    CsrActionBlocks, CsrActions, CsrEdgeRows, CsrOrdinals, CsrStorage, Limits, MAX_EXPANSION_UNITS,
+    CsrActionBlocks, CsrActions, CsrEdgeRows, CsrOrdinals, CsrTargetStorage, CsrTargets, Limits,
+    MAX_EXPANSION_UNITS, PackedTargets,
 };
 use dive_runtime::{CheckOptions, Stats, Verdict};
 
@@ -91,6 +92,22 @@ pub(crate) struct NativeMemory {
     pub(crate) growth_overlap_upper_bound_bytes: usize,
     pub(crate) key_entries: usize,
     pub(crate) key_capacity: usize,
+}
+
+impl NativeMemory {
+    fn growth(&mut self, before: usize, after: usize) -> Result<(), Verdict> {
+        if after != before {
+            self.buffer_bytes = self
+                .buffer_bytes
+                .checked_add(after - before)
+                .ok_or_else(|| limit("native retained buffer bytes"))?;
+            // A realloc may temporarily retain its old buffer beside its new one.
+            self.growth_overlap_upper_bound_bytes = self
+                .growth_overlap_upper_bound_bytes
+                .max(self.buffer_bytes.saturating_add(before));
+        }
+        Ok(())
+    }
 }
 
 #[derive(Default)]
@@ -224,7 +241,7 @@ impl OriginalRows {
 
     fn append(
         &mut self,
-        targets: &[u32],
+        targets: CsrTargets<'_>,
         representatives: &[u32],
         target: u32,
         original: u32,
@@ -245,7 +262,10 @@ impl OriginalRows {
             // Only this block's earlier entries need materialization. Until now
             // every one used its destination's first-discovery original.
             reserve(&mut self.rows, CsrEdgeRows::BLOCK, memory, control)?;
-            for &to in &targets[targets.len() - position..] {
+            for edge in targets.len() - position..targets.len() {
+                let to = targets
+                    .get(edge)
+                    .ok_or_else(|| bug("missing native target in original row block"))?;
                 self.rows.push(representatives[to as usize]);
             }
             let end = self
@@ -267,7 +287,7 @@ pub(crate) struct NativeGraph {
     retained_rows: usize,
     representatives: Vec<u32>,
     offsets: Vec<usize>,
-    targets: Vec<u32>,
+    targets: PackedTargets,
     ordinal_sources: Vec<u32>,
     ordinal_blocks: Vec<usize>,
     ordinals: Vec<u16>,
@@ -286,10 +306,10 @@ impl NativeGraph {
         Arc::ptr_eq(&self.store, store)
     }
 
-    pub(crate) fn input(&self) -> CsrStorage<'_> {
-        CsrStorage {
+    pub(crate) fn input(&self) -> CsrTargetStorage<'_> {
+        CsrTargetStorage {
             offsets: &self.offsets,
-            targets: &self.targets,
+            targets: (&self.targets).into(),
             ordinals: CsrOrdinals::PositionBlocks {
                 edges: self.targets.len(),
                 sources: &self.ordinal_sources,
@@ -363,7 +383,7 @@ impl NativeGraph {
         if self.targets.len() >= self.limits.edges {
             return Err(limit("edges"));
         }
-        reserve(&mut self.targets, 1, &mut self.memory, control)?;
+        poll(control)?;
         self.actions.reserve(&mut self.memory, control)
     }
 
@@ -376,7 +396,7 @@ impl NativeGraph {
         control: &EvaluationControl,
     ) -> Result<(), Verdict> {
         self.edge_rows.append(
-            &self.targets,
+            (&self.targets).into(),
             &self.representatives,
             to,
             row,
@@ -385,7 +405,12 @@ impl NativeGraph {
         )?;
         self.actions.push(action)?;
         self.push_ordinal(ordinal, control)?;
-        self.targets.push(to);
+        let before = self.targets.capacities();
+        let pushed = self.targets.try_push(to);
+        for (old, new) in before.into_iter().zip(self.targets.capacities()) {
+            self.memory.growth(old, new)?;
+        }
+        pushed.map_err(|_| limit("native target allocation"))?;
         Ok(())
     }
 
@@ -477,7 +502,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             retained_rows: 0,
             representatives: Vec::new(),
             offsets: Vec::new(),
-            targets: Vec::new(),
+            targets: PackedTargets::default(),
             ordinal_sources: Vec::new(),
             ordinal_blocks: Vec::new(),
             ordinals: Vec::new(),
@@ -947,17 +972,7 @@ fn reserve<T>(
         .try_reserve(additional)
         .map_err(|_| limit("native buffer allocation"))?;
     let after = buffer.capacity() * std::mem::size_of::<T>();
-    if after != before {
-        memory.buffer_bytes = memory
-            .buffer_bytes
-            .checked_add(after - before)
-            .ok_or_else(|| limit("native retained buffer bytes"))?;
-        // A realloc may temporarily keep its old buffer alongside the new one.
-        // This is a requested-buffer upper bound, not an observed RSS peak.
-        memory.growth_overlap_upper_bound_bytes = memory
-            .growth_overlap_upper_bound_bytes
-            .max(memory.buffer_bytes.saturating_add(before));
-    }
+    memory.growth(before, after)?;
     poll(control)
 }
 

@@ -17,11 +17,13 @@ use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 
 mod csr;
 mod evidence;
+mod targets;
 pub use csr::{
     CsrActionBlocks, CsrActions, CsrCapture, CsrCaptureColumns, CsrCaptureInput, CsrComplete,
-    CsrEdgeRows, CsrOrdinals, CsrPrefix, CsrStorage,
+    CsrEdgeRows, CsrOrdinals, CsrPrefix, CsrStorage, CsrTargetStorage,
 };
 pub use evidence::{CompleteEvidence, PrefixEvidence};
+pub use targets::{CsrTargets, PackedTargetPrefix, PackedTargets, TargetCapacityError};
 
 /// Refuses an actual Next or action-candidate error whose TLC primary depends
 /// on unproved later temporal demand. This is an admission guard, not evidence that fairness

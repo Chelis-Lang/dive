@@ -97,6 +97,49 @@ impl Block {
         Ok(Self { width, data })
     }
 
+    /// Compare a single row without allocating, using the caller's value equality.
+    ///
+    /// # Errors
+    /// The row index is outside the block or the encoded layout is invalid.
+    pub fn row_matches(
+        &self,
+        index: usize,
+        values: &[Handle],
+        equal: impl Fn(Handle, Handle) -> bool,
+    ) -> Result<bool, BlockError> {
+        if index >= ROWS {
+            return Err(BlockError::Layout);
+        }
+        if values.len() != self.width {
+            return Ok(false);
+        }
+        match &self.data {
+            Data::Raw(rows) => Ok(rows[index * self.width..(index + 1) * self.width]
+                .iter()
+                .zip(values)
+                .all(|(&a, &b)| equal(a, b))),
+            Data::Packed(columns, data) => {
+                for (column, &value) in columns.iter().zip(values) {
+                    let start = column.offset + index * column.bytes;
+                    let encoded = &data[start..start + column.bytes];
+                    let delta = match encoded {
+                        [] => 0,
+                        [byte] => u64::from(*byte),
+                        [a, b] => u64::from(u16::from_le_bytes([*a, *b])),
+                        [a, b, c, d] => u64::from(u32::from_le_bytes([*a, *b, *c, *d])),
+                        eight => {
+                            u64::from_le_bytes(eight.try_into().map_err(|_| BlockError::Layout)?)
+                        }
+                    };
+                    if !equal(Handle(column.base ^ delta), value) {
+                        return Ok(false);
+                    }
+                }
+                Ok(true)
+            }
+        }
+    }
+
     /// Appends the requested subrange in original row and variable order.
     ///
     /// # Errors
@@ -175,6 +218,15 @@ mod tests {
                 block.append(start, end, &mut output)?;
             }
             assert_eq!(output[1..], values);
+            for (index, row) in values.chunks_exact(masks.len()).enumerate() {
+                assert!(block.row_matches(index, row, |a, b| a == b)?);
+                assert!(!block.row_matches(index, &row[1..], |a, b| a == b)?);
+                assert!(!block.row_matches(index, row, |_, _| false)?);
+            }
+            assert_eq!(
+                block.row_matches(ROWS, &[], |a, b| a == b),
+                Err(BlockError::Layout)
+            );
             assert!(block.append(5, 4, &mut output).is_err());
             assert!(block.append(0, ROWS + 1, &mut output).is_err());
         }

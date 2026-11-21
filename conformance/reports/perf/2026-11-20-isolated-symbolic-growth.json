@@ -231,5 +231,195 @@
         }
       ]
     }
-  ]
+  ],
+  "changed_transition_layers": {
+    "hardware": "EC2 c7i.4xlarge, Ubuntu 24.04 x86_64, pinned to logical CPU 0; sequential fresh processes; 7 GiB address-space budget and 3,000 s time limit per session. GNU time measures overall peak RSS including child processes.",
+    "input": "tlaplus/Examples KeyValueStore at 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f. Use original Medium and Large CFGs and every original obligation and symmetry setting.",
+    "changes": [
+      "Original",
+      "Reset sets all five variables to their Init values, from any source. Add Reset as another branch of Next.",
+      "Remove Reset, restoring Next.",
+      "Add Reset and OpenAll. OpenAll requires an empty transaction set, opens every transaction, snapshots the current store for every transaction, and leaves store/written/missed unchanged."
+    ],
+    "command": "dive check Revised.tla --strategy symbolic --config BASE --recheck Revised.tla RESET --recheck Revised.tla BASE --recheck Revised.tla OPEN --time-limit 3000s --max-memory 7g --output json",
+    "hashes_sha256": {
+      "dive": "b1c69d86dc836db1bcf34c708ffef8d77340ef4625ada6a31d4b2b3cea222ed1",
+      "libexec/dive-symbolic/symbolic_input": "4626f839059d53ff71ca8ff04a4892db4bdfe3dc7df89f9d8cdb527485a84a12",
+      "libexec/dive-symbolic/engine.py": "35b63528e8c35af1ed9b6b35c4dc9721afeccedb8155a78d1aa6f694cd647a84",
+      "../product/libexec/dive-symbolic/engine.py": "91f15b8caa9d5c1f514d8b93822bdb089902015d0a68a68e4bb0e870ec04c7d3",
+      "spec/KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07",
+      "spec/Revised.tla": "0276415239e0bf234faa2eaeabe674fa81c78afc9444c14a8f4eed35f499ce20",
+      "spec/Large-Reset.cfg": "29b88c1dfa8472d71b94eca5b09fbfc6b054fa91262a4aaa24eab3933195042b",
+      "spec/Medium-Reset.cfg": "d4d0e195ab1513780df84c18dd2e934d65ab8fa52b1f1517661ad094ab64b93d",
+      "spec/Large-Open.cfg": "12b7a20f0e5866fb0b43be87b5713b17bc4ba72ec23c0d59ca51aaf7d5fe2802",
+      "spec/Medium-Open.cfg": "aae5b8ddc546fd2f76bd501b2cf5f8bae4c0216601514352526b6dcb85d82a35",
+      "spec/MCKVSSafetyMedium.cfg": "d3272277738dce3a0f0c16480e96870a1630c9ea1fb7e64fdca0f0763fc7a629",
+      "spec/MCKVSSafetyLarge.cfg": "c1f414a1caf84df31089ecb569de0dd6b835fad640f7545b2b7b239b7aad7964"
+    },
+    "verification": "Each edit agrees with a full search under the same executable and the previous worker. Independent BFS checked a 53-revision sequence, 165 frontiers and eight symmetric revisions. Six negative controls per execution replayed independently.",
+    "sizes": {
+      "Medium": {
+        "control": {
+          "wall_s": 1.89,
+          "peak_rss_kib": 83148,
+          "revisions": [
+            {
+              "verdict": "success",
+              "distinct": 17220672,
+              "generated": 365609473,
+              "depth": 22,
+              "seconds": 0.457225,
+              "reused": false
+            },
+            {
+              "verdict": "success",
+              "distinct": 17220672,
+              "generated": 382830145,
+              "depth": 22,
+              "seconds": 0.423202,
+              "reused": false
+            },
+            {
+              "verdict": "success",
+              "distinct": 17220672,
+              "generated": 365609473,
+              "depth": 22,
+              "seconds": 0.381183,
+              "reused": false
+            },
+            {
+              "verdict": "success",
+              "distinct": 17220672,
+              "generated": 382830209,
+              "depth": 21,
+              "seconds": 0.397621,
+              "reused": false
+            }
+          ]
+        },
+        "candidate": {
+          "wall_s": 1.19,
+          "peak_rss_kib": 85252,
+          "revisions": [
+            {
+              "verdict": "success",
+              "distinct": 17220672,
+              "generated": 365609473,
+              "depth": 22,
+              "seconds": 0.458673,
+              "reused": false
+            },
+            {
+              "verdict": "success",
+              "distinct": 17220672,
+              "generated": 382830145,
+              "depth": 22,
+              "seconds": 0.060977,
+              "reused": false,
+              "reused_layer_images": 22
+            },
+            {
+              "verdict": "success",
+              "distinct": 17220672,
+              "generated": 365609473,
+              "depth": 22,
+              "seconds": 0.033569,
+              "reused": false,
+              "reused_layer_images": 22
+            },
+            {
+              "verdict": "success",
+              "distinct": 17220672,
+              "generated": 382830209,
+              "depth": 21,
+              "seconds": 0.414745,
+              "reused": false,
+              "reused_layer_images": 1
+            }
+          ]
+        }
+      },
+      "Large": {
+        "control": {
+          "wall_s": 485.58,
+          "peak_rss_kib": 620764,
+          "revisions": [
+            {
+              "verdict": "success",
+              "distinct": 594616815,
+              "generated": 13385471536,
+              "depth": 30,
+              "seconds": 110.351392,
+              "reused": false
+            },
+            {
+              "verdict": "success",
+              "distinct": 594616815,
+              "generated": 13980088351,
+              "depth": 30,
+              "seconds": 118.817989,
+              "reused": false
+            },
+            {
+              "verdict": "success",
+              "distinct": 594616815,
+              "generated": 13385471536,
+              "depth": 30,
+              "seconds": 111.979825,
+              "reused": false
+            },
+            {
+              "verdict": "success",
+              "distinct": 594616815,
+              "generated": 13980088378,
+              "depth": 30,
+              "seconds": 144.18539,
+              "reused": false
+            }
+          ]
+        },
+        "candidate": {
+          "wall_s": 257.47,
+          "peak_rss_kib": 620696,
+          "revisions": [
+            {
+              "verdict": "success",
+              "distinct": 594616815,
+              "generated": 13385471536,
+              "depth": 30,
+              "seconds": 105.68059,
+              "reused": false
+            },
+            {
+              "verdict": "success",
+              "distinct": 594616815,
+              "generated": 13980088351,
+              "depth": 30,
+              "seconds": 3.814971,
+              "reused": false,
+              "reused_layer_images": 30
+            },
+            {
+              "verdict": "success",
+              "distinct": 594616815,
+              "generated": 13385471536,
+              "depth": 30,
+              "seconds": 3.680804,
+              "reused": false,
+              "reused_layer_images": 30
+            },
+            {
+              "verdict": "success",
+              "distinct": 594616815,
+              "generated": 13980088378,
+              "depth": 30,
+              "seconds": 144.033931,
+              "reused": false,
+              "reused_layer_images": 1
+            }
+          ]
+        }
+      }
+    }
+  }
 }

@@ -16,6 +16,8 @@ keeps colliding candidates until the ordered commit. A predecessor read,
 write, corruption or cleanup failure stops the run as a resource stop, with
 storage diagnostics and no certified counterexample.
 
+Resident exact membership keeps the first identity directly in its hash slot and compares every variable when the hash matches. Full rectangular blocks of 256 identities with up to 256 variables use lossless per-column encoding. Other widths, partial blocks and variable-length identity rows retain their complete values. Each discovery keeps its original predecessor identifier. These are internal memory representations selected automatically by `--store exact`. [Complete model comparison](../developer/large-models.md#resident-exact-state-identities).
+
 dive's safety BFS also supports disk membership with `--seen-disk-entries`,
 using one worker and complete canonical keys for exact membership. The indexed
 store supports completed-level checkpoints and recovery. Adding

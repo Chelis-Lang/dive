@@ -321,7 +321,7 @@ fn view_borrows_all_occurrences_without_cloning_state_owners() {
     assert_eq!(view.roots().as_ptr(), graph.roots.as_ptr());
     assert_eq!(view.roots(), &[0, 0]);
     assert_eq!(view.row_len(0), 3);
-    assert_eq!(view.target(0, 2), 0);
+    assert_eq!(view.target(0, 2), Some(0));
     assert_eq!(Arc::strong_count(&original), count);
     assert_eq!(Arc::strong_count(&graph.states[0]), state_count);
     assert_eq!(graph.concrete[0].len(), 2);
