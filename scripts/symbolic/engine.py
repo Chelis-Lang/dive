@@ -126,7 +126,7 @@ def require_index_permutation(condition, reason):
 
 class SourceModel(FiniteRelation):
     def __init__(self, doc, type_invariant, manager=None, order_by_path=False, single_partition=False,
-                 learned=None, table_order="inner"):
+                 learned=None, table_order="inner", state_bit_limit=512):
         require(doc["format"] == "dive-symbolic-input-v2", "incompatible bound IR exporter")
         self.doc = doc
         self.ir = doc["ir"]
@@ -176,7 +176,7 @@ class SourceModel(FiniteRelation):
                         (k, bit) for k, bit in typ.domain.items() if (path, k) in learned
                     ))
         self.types = types
-        self.allocate(types, atoms, order_by_path, table_order)
+        self.allocate(types, atoms, order_by_path, table_order, state_bit_limit)
 
         # TLC counts every enabled Init witness before symmetry or duplicate
         # elimination. BFS retains their union; induction checks the same union.
@@ -286,7 +286,7 @@ class SourceModel(FiniteRelation):
         require(found.keys() == set(self.names), "need one finite bound for every state variable")
         return found
 
-    def allocate(self, types, group_atoms, order_by_path, table_order):
+    def allocate(self, types, group_atoms, order_by_path, table_order, state_bit_limit):
         """Place bits of paths sharing the most common inner index near one another."""
         leaves = []
         domains = Counter()
@@ -314,7 +314,7 @@ class SourceModel(FiniteRelation):
             if isinstance(bound, PowerSet):
                 keys = indices(bound.domain)
                 planned_bits += len(keys)
-                require(planned_bits <= 512, f"finite layout exceeds 512 state bits at {path[0]} ({planned_bits} bits so far)")
+                require(planned_bits <= state_bit_limit, f"finite layout exceeds {state_bit_limit} state bits at {path[0]} ({planned_bits} bits so far)")
                 for k in keys:
                     leaves.append(((*path, k), None))
                 domains[tuple(keys)] += len(keys)
@@ -323,7 +323,7 @@ class SourceModel(FiniteRelation):
             require(choices, "empty scalar domain")
             require_index_permutation(not set(choices) & permuted, "permuted atoms in a scalar field")
             planned_bits += max(1, (len(choices) - 1).bit_length())
-            require(planned_bits <= 512, f"finite layout exceeds 512 state bits at {path[0]} ({planned_bits} bits so far)")
+            require(planned_bits <= state_bit_limit, f"finite layout exceeds {state_bit_limit} state bits at {path[0]} ({planned_bits} bits so far)")
             domains[inner_domain] += 1
             leaves.append((path, choices))
 
@@ -606,6 +606,51 @@ class SourceModel(FiniteRelation):
             scope = {**env, **{slot: self.bound_value(k) for slot, k in zip(slots, keys)}}
             yield keys[0] if len(keys) == 1 else keys, self.conjunction(g for _, g in values), scope
 
+    def indexed_literal_test(self, term):
+        """The sole bound slot in an unprimed table entry compared with a literal."""
+        tag, op = self.node(term)
+        if tag != "Builtin" or op["op"] != "Eq":
+            return None
+        left, right = op["args"]
+        for indexed, literal in ((left, right), (right, left)):
+            tag, field = self.node(indexed)
+            if tag != "FcnApply" or self.node(literal)[0] not in ("Str", "Num"):
+                continue
+            target, var = self.node(field["fcn"])
+            index, local = self.node(field["arg"])
+            if target == "Var" and not var["primed"] and index == "Local" and local["up"] == 0:
+                return local["slot"], self.names[var["var"]]
+        return None
+
+    def pair_exclusion(self, q, env, assigned):
+        """Forbid two independently indexed literal matches without forming all pairs."""
+        if q["kind"] != "Forall" or len(q["bounds"]) != 1:
+            return None
+        bound, = q["bounds"]
+        neg, body = self.node(q["body"])
+        if (neg != "Not" or bound["tuple"] or len(bound["vars"]) != 2 or len(set(bound["vars"])) != 2
+                or bound["domain"] is None or self.node(bound["domain"])[0] != "Const"):
+            return None
+        kind, pair = self.node(body)
+        if kind != "Junction" or pair["kind"] != "And" or len(pair["items"]) != 2:
+            return None
+        terms = pair["items"]
+        tests = [self.indexed_literal_test(term) for term in terms]
+        if any(test is None for test in tests) or {slot for slot, _ in tests} != set(bound["vars"]):
+            return None
+        domain = self.eval(bound["domain"], env, assigned)
+        if (not isinstance(domain, Members) or any(bit != self.b.true for bit in domain.values())
+                or any(not isinstance(self.types[name], FunctionSpace)
+                       or not isinstance(self.types[name].codomain, Members)
+                       or not domain.keys() <= self.types[name].domain.keys() for _, name in tests)):
+            return None
+        require(2 * len(domain) <= 100000, "quantifier exceeds 100000 bindings")
+        # A rejected pair exists exactly when each indexed match has a witness.
+        # Both independent scans are empty on an empty quantified domain.
+        matches = [self.any(self.boolean(self.eval(term, {**env, slot: self.bound_value(k)}, assigned))
+                            for k in domain) for term, (slot, _) in zip(terms, tests)]
+        return ~(matches[0] & matches[1])
+
     def bound_value(self, key):
         if isinstance(key, tuple) and key[0] == "boolean":
             return self.b.true if key[1] else self.b.false
@@ -789,6 +834,10 @@ class SourceModel(FiniteRelation):
         if tag == "FcnSet":
             return FunctionSpace(sub(x["domain"]), sub(x["range"]))
         if tag in ("FcnCons", "Quant"):
+            if tag == "Quant" and not self.reading_init:
+                exclusion = self.pair_exclusion(x, env, assigned)
+                if exclusion is not None:
+                    return exclusion
             bindings = self.bindings(x, env, assigned, multiple=(tag == "Quant"))
             if tag == "FcnCons":
                 out = Function()
@@ -1515,7 +1564,12 @@ class PermutedModel(SourceModel):
 def bind_source_model(doc, type_invariant, manager, order_by_path, single_partition, learned, direct_induction=False):
     args = (doc, type_invariant, manager, order_by_path, single_partition, learned)
     try:
-        return SourceModel(*args, table_order="outer" if direct_induction else "inner")
+        # Direct induction never stores breadth-first layers, counts the
+        # graph, transfers a positional predicate or reconstructs a word.
+        # Keep those paths and refined/compound symmetry on their own bounds.
+        direct = direct_induction and learned is None
+        return SourceModel(*args, table_order="outer" if direct_induction else "inner",
+                           state_bit_limit=2048 if direct else 512)
     except NeedsValuePermutation:
         return PermutedModel(*args)
 

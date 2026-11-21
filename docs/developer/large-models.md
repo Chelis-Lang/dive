@@ -83,6 +83,8 @@ and `scripts/symbolic/check_transaction_commit.py` include generated counts,
 depth and a validated negative control. The three-manager property forbidding
 commit fails at depth five, after all three managers prepare.
 
+A direct source induction check of the original invariants reached **1,000 managers** in **99.01 s**, using **598,416 KiB** peak RSS. This is a proof over a finite domain. The formula above gives roughly **1.322 × 10⁴⁷⁷** reachable states for that domain. The proof returns no search counts or depth. Two independent limits mattered: the previous bit budget rejected 257 managers and Cartesian expansion of the safety property rejected 384 even after widening the layout. At 257 managers the wider Cartesian proof took 15.28 s; compiling the original property into two finite scans took 4.56 s. At 512 managers an action that creates one aborted and other committed managers failed the next-step obligation. At three managers the same edit yielded an independently replayed depth-two counterexample. [Proof measurements, guard controls and source identities](../../conformance/reports/perf/2026-11-21-wide-source-induction.json).
+
 ### Isolated symbolic measurements
 
 Three fresh processes per configuration ran sequentially on a fixed 2.4 GHz

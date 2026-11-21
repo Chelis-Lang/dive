@@ -1,0 +1,342 @@
+{
+  "format": "dive-wide-source-induction-v1",
+  "inputs": {
+    "corpus": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "TCommit": "specifications/transaction_commit/TCommit.tla; for each configuration replace {r1, r2, r3} in the pinned TCommit.cfg with {r1, r2, \u2026, rN}. Keep SPECIFICATION TCSpec, TCTypeOK, TCConsistent, CHECK_DEADLOCK FALSE. No symmetry or strengthening.",
+    "KVS": "specifications/KeyValueStore; use scripts/perf/scale/sail_kvs_edits.py as below. 2 values. Selected means SYMMETRY TxIdSymmetric configured; labeled means remove that CFG clause and leave the module definition. FullHasFresh strengthens the full TypeInvariant, TxLifecycle and SomeCommit conjunction."
+  },
+  "method": "EC2 c7i.4xlarge; Ubuntu 24.04.5, Intel Xeon Platinum 8488C, 16 vCPUs (8 cores). Fresh isolated Linux processes pinned to a physical core while other campaigns used disjoint cores. GNU time wall seconds and peak RSS KiB, including frontend and worker; no warm search, learned predicate or reused certificate. TCommit 150 s / 2,700 MiB worker virtual / 3,000 MiB cgroup and KVS 140 s / 3,300 MiB worker virtual / 3,800 MiB cgroup. Final repeats used 145/137 s and 2,700/3,000 MiB worker caps. Samples document single runs, except explicitly repeated endpoints.",
+  "commands": [
+    "dive check TCommit.tla --config N.cfg --strategy symbolic --type-invariant TCTypeOK --prove-inductive --time-limit 150s --max-memory 2700m --output json",
+    "python3 scripts/perf/scale/sail_kvs_edits.py KVS OUT --keys K --transactions T",
+    "dive check OUT/FullHasFresh/MCKVS.tla --config OUT/FullHasFresh/Model.cfg --strategy symbolic --prove-inductive --time-limit 140s --max-memory 3300m --output json",
+    "python scripts/symbolic/check_source.py KVS --dive DIVE --exporter SYMBOLIC_INPUT (with the pinned dd/CUDD); python scripts/symbolic/check_transaction_commit.py --help documents the independent graph-count control."
+  ],
+  "sha256": {
+    "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+    "TCommit.cfg": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415",
+    "tcommit-factored-results/TCommit.tla": "c6653fe649711b3f78e08b7084cf6228a481fe0f86da856ebb2a145b6d99eac0",
+    "original-width-controls/BrokenCommit.tla": "a0c045853a9b778103449f439940f0aca4d13c42556d12db53aca4ade4a923d5",
+    "product-proof-bundle/dive": "a2797d1867ecece6e4e93ca1bb47d60a3660a26fa3816d1ee6c0643e510b07d5",
+    "product-proof-bundle/libexec/dive-symbolic/symbolic_input": "aec41fb7dfc99d0d27efeeab84f45b483724021504083dd9c81de870fd4982da",
+    "current-bundle/libexec/dive-symbolic/engine.py": "272b45ffd4114d6e86461c6f761bb62c52914d67c74f150236fa04ccdc21e9a6",
+    "large-proof-bundle/libexec/dive-symbolic/engine.py": "a965a3a1571119b25f9fd0ea9eeb01338bba5d579994b15ad880ee6a00dab6a1",
+    "paired-quant-bundle/libexec/dive-symbolic/engine.py": "eeee59bbabc22fec20e58806b43201db1a82d18b1c45d01dceabb10785399a13",
+    "product-proof-bundle/libexec/dive-symbolic/engine.py": "bbab4fd8d3ee0bdc253c59750fec85790c9507a8719e51b84ec0df642c08f7f7",
+    "product-proof-bundle/libexec/dive-symbolic/check.py": "340c72a376b6276d63d956d59333add015f4da4511d0bc2a5ffb78a25ea8a38e",
+    "product-proof-bundle/libexec/dive-symbolic/finite_relation.py": "aadb0f8844d6099533eae41385c9d9691e407fd0c77fd90ecd509a9e14fe7ad9",
+    "product-proof-bundle/libexec/dive-symbolic/induction.py": "77dc5831a524e78659d8d7ccd1c3c88fc9b680a0a95c4616e18c77a7912842b8",
+    "large-proof-results/200-2-selected/FullHasFresh/MCKVS.tla": "ccd5eab5b8bb36487c07474a3d57d80aed32ea1d6be9218071d17b80793842b1",
+    "large-proof-results/200-2-selected/FullHasFresh/KeyValueStore.tla": "0306e7659212ef214fdb40012f1f24a78b25669292a80127c815da5eec466b07"
+  },
+  "arms": {
+    "previous": "current-bundle (512-bit bounds and Cartesian state quantification; published layout code).",
+    "width_only": "large-proof-bundle. Experimental 2,048-bit cap for outer-ordered runs; all measurements are unrefined direct induction. Previous limit used on other measured paths.",
+    "factored_source": "width_only and manually rewrite only TCConsistent to ~((\u2203 i \u2208 RM: rmState[i] = \"aborted\") \u2227 (\u2203 j \u2208 RM: rmState[j] = \"committed\")).",
+    "original_with_factoring": "paired-quant-bundle, unmodified TCommit, narrower static guard added afterward. final_original and final_kvs use product-proof-bundle with the final table-domain/codomain checks. Main and large in row names select previous and experiment respectively.",
+    "mutation": "BrokenCommit extends the unmodified module; set Victim=r1; Corrupt assigns rmState[r] to \"aborted\" for Victim and \"committed\" otherwise; select TCInit and TCNext \\/ Corrupt and keep TCTypeOK, TCConsistent and deadlock checking disabled."
+  },
+  "reachability": {
+    "formula": "3^N + 2^N - 1",
+    "N": 1000,
+    "analytic_distinct": 1322070819480806636890455259752144365965422032752148167664920368226828597346704899540778313850608061963909777696872582355950954582100618911865342725257953674027620225198320803888729860300827514483874650608188636146742995932678430512499070056757597185739867403057464132562505635672985624992996836506787589077753408999763159864926991202242455671742787389505973542671744384049800542091741991748600881855507827985255215384941165728921582126433707999671044197784797489606108523289376,
+    "scope": "Before any commit managers may independently be working, prepared or aborted. After a commit each is prepared or committed. The all-prepared state overlaps. This analytical graph cardinality is separate from the direct proof. The wide CLI reports initial inclusion and next-step closure, no exploration counts or depth."
+  },
+  "tests": {
+    "truth_table": "0, 1, 2, 3 index domains each with two separate Boolean tables, 85 complete assignments, five properties compared against Cartesian evaluation and a separate explicit truth definition. Includes reversed operands, one common table, same bound index, i\u2260j, empty/singleton vacuity and coincidence. Partial indices and incomparable literals retain named refusals; empty-domain comparison remains vacuously true.",
+    "boundary": "Direct source induction with 2,048 state bits, mutation failure on Next closure, 2,049 refusal, ordinary search and portable verification retain their 512-bit refusal.",
+    "full_source_suite": {
+      "result": "passed",
+      "wall_s": 56.76,
+      "peak_rss_kib": 123004,
+      "scope": "Complete standard scripts/symbolic/check_source.py with the merged finite replay validator, the CI corpus goldens, configured edit/restart/replay controls and the added guards; no --large/--growth."
+    }
+  },
+  "width_only_original": {
+    "R257-large": {
+      "exit": 0,
+      "wall_s": 15.28,
+      "peak_rss_kib": 579492,
+      "proof": "inductive-safety",
+      "cfg_sha256": "ba1dcbedd6f559f78e85894a9e2f1a7f74353a363fd52a9bd3d03eb2b2161af7"
+    },
+    "R257-main": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 55736,
+      "verdict": "unsupported",
+      "reason": "finite layout exceeds 512 state bits at rmState (514 bits so far)"
+    },
+    "R32-large": {
+      "exit": 0,
+      "wall_s": 0.35,
+      "peak_rss_kib": 55624,
+      "proof": "inductive-safety",
+      "cfg_sha256": "2471617a12a723c66fd16ff5f1885b336e375d97d60a94af6ee58dee74721445"
+    },
+    "R32-main": {
+      "exit": 0,
+      "wall_s": 0.35,
+      "peak_rss_kib": 55676,
+      "proof": "inductive-safety",
+      "cfg_sha256": "2471617a12a723c66fd16ff5f1885b336e375d97d60a94af6ee58dee74721445"
+    },
+    "R384-large": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 56644,
+      "verdict": "unsupported",
+      "reason": "quantifier exceeds 100000 bindings"
+    },
+    "R512-large": {
+      "exit": 2,
+      "wall_s": 0.3,
+      "peak_rss_kib": 73584,
+      "verdict": "unsupported",
+      "reason": "quantifier exceeds 100000 bindings"
+    }
+  },
+  "manually_factored_source": {
+    "R1000-proof": {
+      "exit": 0,
+      "wall_s": 97.49,
+      "peak_rss_kib": 598164,
+      "proof": "inductive-safety",
+      "cfg_sha256": "0a3d2e510938671d668e5c86ecde6b52d7a284d30c061970aa9b136d94dc7512"
+    },
+    "R257-proof": {
+      "exit": 0,
+      "wall_s": 4.61,
+      "peak_rss_kib": 183392,
+      "proof": "inductive-safety",
+      "cfg_sha256": "ba1dcbedd6f559f78e85894a9e2f1a7f74353a363fd52a9bd3d03eb2b2161af7"
+    },
+    "R3-proof": {
+      "exit": 0,
+      "wall_s": 0.25,
+      "peak_rss_kib": 55736,
+      "proof": "inductive-safety",
+      "cfg_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415"
+    },
+    "R3-search": {
+      "exit": 0,
+      "wall_s": 0.25,
+      "peak_rss_kib": 55564,
+      "verdict": "success",
+      "depth": 7,
+      "distinct": 34,
+      "generated": 94,
+      "cfg_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415"
+    },
+    "R384-proof": {
+      "exit": 0,
+      "wall_s": 10.98,
+      "peak_rss_kib": 331124,
+      "proof": "inductive-safety",
+      "cfg_sha256": "4da19d3f8190a94d051cb34f3d0360233a91e812df09138cd03283735355bf03"
+    },
+    "R512-proof": {
+      "exit": 0,
+      "wall_s": 20.8,
+      "peak_rss_kib": 620484,
+      "proof": "inductive-safety",
+      "cfg_sha256": "7f11e540a24ce8c60866152e7339c5e2b099f33b4099eb8a2ecf0657863050de"
+    }
+  },
+  "original_with_factoring": {
+    "R1000-large": {
+      "exit": 0,
+      "wall_s": 98.14,
+      "peak_rss_kib": 598184,
+      "proof": "inductive-safety",
+      "cfg_sha256": "0a3d2e510938671d668e5c86ecde6b52d7a284d30c061970aa9b136d94dc7512"
+    },
+    "R257-large": {
+      "exit": 0,
+      "wall_s": 4.56,
+      "peak_rss_kib": 183464,
+      "proof": "inductive-safety",
+      "cfg_sha256": "ba1dcbedd6f559f78e85894a9e2f1a7f74353a363fd52a9bd3d03eb2b2161af7"
+    },
+    "R257-main": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 55364,
+      "verdict": "unsupported",
+      "reason": "finite layout exceeds 512 state bits at rmState (514 bits so far)"
+    },
+    "R32-large": {
+      "exit": 0,
+      "wall_s": 0.3,
+      "peak_rss_kib": 55820,
+      "proof": "inductive-safety",
+      "cfg_sha256": "2471617a12a723c66fd16ff5f1885b336e375d97d60a94af6ee58dee74721445"
+    },
+    "R32-main": {
+      "exit": 0,
+      "wall_s": 0.35,
+      "peak_rss_kib": 55704,
+      "proof": "inductive-safety",
+      "cfg_sha256": "2471617a12a723c66fd16ff5f1885b336e375d97d60a94af6ee58dee74721445"
+    },
+    "R384-large": {
+      "exit": 0,
+      "wall_s": 11.07,
+      "peak_rss_kib": 331308,
+      "proof": "inductive-safety",
+      "cfg_sha256": "4da19d3f8190a94d051cb34f3d0360233a91e812df09138cd03283735355bf03"
+    },
+    "R512-large": {
+      "exit": 0,
+      "wall_s": 20.45,
+      "peak_rss_kib": 620780,
+      "proof": "inductive-safety",
+      "cfg_sha256": "7f11e540a24ce8c60866152e7339c5e2b099f33b4099eb8a2ecf0657863050de"
+    }
+  },
+  "original_mutation_controls": {
+    "R3-core": {
+      "exit": 12,
+      "wall_s": 0.0,
+      "peak_rss_kib": 22488,
+      "verdict": "invariant-violation",
+      "statistics": {
+        "distinct": 8,
+        "generated": 8,
+        "depth": 2
+      },
+      "cfg_sha256": "2a044801260d38b30350ac041d9278a7f2b721681041b63d873c200df75aca07"
+    },
+    "R3-proof": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 56024,
+      "proof": "inconclusive",
+      "failed_obligation": "Next closure",
+      "cfg_sha256": "2a044801260d38b30350ac041d9278a7f2b721681041b63d873c200df75aca07"
+    },
+    "R3-symbolic": {
+      "exit": 1,
+      "wall_s": 0.25,
+      "peak_rss_kib": 55808,
+      "verdict": "invariant-violation",
+      "trace_validated": true,
+      "depth": 2,
+      "ending": {
+        "kind": "invariant",
+        "name": "TCConsistent"
+      },
+      "cfg_sha256": "2a044801260d38b30350ac041d9278a7f2b721681041b63d873c200df75aca07"
+    },
+    "R512-proof": {
+      "exit": 2,
+      "wall_s": 26.71,
+      "peak_rss_kib": 621340,
+      "proof": "inconclusive",
+      "failed_obligation": "Next closure",
+      "cfg_sha256": "d1a50b57c9deb453a896cecdeb599e3a64a45621143c5dd578edf7942aeea16f"
+    }
+  },
+  "final_original": {
+    "T1000": {
+      "exit": 0,
+      "wall_s": 99.01,
+      "peak_rss_kib": 598416,
+      "proof": "inductive-safety",
+      "cfg_sha256": "0a3d2e510938671d668e5c86ecde6b52d7a284d30c061970aa9b136d94dc7512"
+    }
+  },
+  "kvs_width_only": {
+    "1-128-labeled": {
+      "exit": 0,
+      "wall_s": 13.53,
+      "peak_rss_kib": 606708,
+      "proof": "inductive-safety",
+      "cfg_sha256": "86727cf5dec60c20efb231bc56044353a9e6614a555e10f5dc99bdffdb3de23b"
+    },
+    "1-256-labeled": {
+      "exit": 0,
+      "wall_s": 74.78,
+      "peak_rss_kib": 598232,
+      "proof": "inductive-safety",
+      "cfg_sha256": "73e3f23a883be7726df297d10d3da51930707adde9764db97fe7d19cb339872e"
+    },
+    "1-410-labeled": {
+      "exit": 2,
+      "wall_s": 0.25,
+      "peak_rss_kib": 57860,
+      "verdict": "unsupported",
+      "reason": "finite layout exceeds 2048 state bits at missed (2049 bits so far)"
+    },
+    "128-2-selected": {
+      "exit": 0,
+      "wall_s": 19.59,
+      "peak_rss_kib": 323748,
+      "proof": "inductive-safety",
+      "cfg_sha256": "482a22707f45899a038b8771aa31b5ebe46d96198cf290f217f8b02b74bb279d"
+    },
+    "2-112-labeled": {
+      "exit": 0,
+      "wall_s": 45.72,
+      "peak_rss_kib": 595236,
+      "proof": "inductive-safety",
+      "cfg_sha256": "9450fa422d4519a6a9ed08debd460a0b2f63485eb690f9b2683e3b5b8dad81de"
+    },
+    "200-2-selected": {
+      "exit": 0,
+      "wall_s": 55.77,
+      "peak_rss_kib": 599000,
+      "proof": "inductive-safety",
+      "cfg_sha256": "cd5b58715219458dcbbc5466749e88510502a32f91e1beb3e2d1601c590e8a7d"
+    },
+    "64-2-selected": {
+      "exit": 0,
+      "wall_s": 3.85,
+      "peak_rss_kib": 182904,
+      "proof": "inductive-safety",
+      "cfg_sha256": "dec82ebeac3fcf0594849b616e4ddcf76db88f5641c1ae9ec4a4f2f085032f52"
+    },
+    "64-4-selected": {
+      "exit": 0,
+      "wall_s": 57.53,
+      "peak_rss_kib": 586592,
+      "proof": "inductive-safety",
+      "cfg_sha256": "6df2b3ece9275fd3a1146b4ec0cdd4f50bc5c286d5cc172534c12157a47bd155"
+    }
+  },
+  "final_kvs": {
+    "1-256-labeled": {
+      "exit": 0,
+      "wall_s": 75.05,
+      "peak_rss_kib": 598356,
+      "proof": "inductive-safety",
+      "cfg_sha256": "73e3f23a883be7726df297d10d3da51930707adde9764db97fe7d19cb339872e"
+    },
+    "200-2-selected": {
+      "exit": 0,
+      "wall_s": 56.22,
+      "peak_rss_kib": 598696,
+      "proof": "inductive-safety",
+      "cfg_sha256": "cd5b58715219458dcbbc5466749e88510502a32f91e1beb3e2d1601c590e8a7d"
+    }
+  },
+  "tiny_original_and_previous_256": {
+    "R256": {
+      "exit": 0,
+      "wall_s": 14.93,
+      "peak_rss_kib": 580824,
+      "proof": "inductive-safety",
+      "cfg_sha256": "573c8f5a8bae6765b0dd4d594db1418bf491e21b21fe7afb6674a9dcff92bdb7"
+    },
+    "R3": {
+      "exit": 0,
+      "wall_s": 0.25,
+      "peak_rss_kib": 55688,
+      "verdict": "success",
+      "depth": 7,
+      "distinct": 34,
+      "generated": 94,
+      "cfg_sha256": "a896b1bb937ac8fee372e6bc05029c1ffae64acbac7ca58b02e097c40862c415"
+    }
+  }
+}
