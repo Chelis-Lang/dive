@@ -104,7 +104,9 @@ section 4 decide.
      `SignedBlock \cup {NoBlock}` takes about 5,000 iterations and, unfolded,
      was rebuilt in every state (72% of the run in `set_bin`). CoffeeCan's
      initial filter (10,201 records at 100 beans) still exceeds it and
-     streams.
+     streams. Reusing a split action body charges its original fold cost to
+     the plan budget. When a later occurrence can draw less fuel, the compiler
+     recompiles its body. The reported `fold_fuel` counts work performed.
    - **Closed definitions.** The body of a closed zero-arity top-level
      definition whose fold ran out of fuel is evaluated once, at its first
      use outside any `INSTANCE` substitution, within `SETTLE_FUEL` (2^22)
