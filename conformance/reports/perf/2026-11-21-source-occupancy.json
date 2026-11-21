@@ -214,6 +214,14 @@
       "occupancy_source.py": "bcabd96ebeca8ccfcbb2e062c8201cdc816fb7eff6486433c3ccc78587ddb23f",
       "worker_process.py": "310294e83ac7f4155e1e077dd2841a0a0f0dab35b77cdcd80eb8aeca3baaf32a",
       "symbolic_input": "e3b4c8955de3630993a748dbf89b1bfe18fbc74fd31bf26fb7dda9d7115ecdee"
+    },
+    "merged_main_stage": {
+      "dive": "7fb847fac1047417856cfa68327adea74e8a63b7a4c2f442619a3920b63fe547",
+      "check.py": "ca5e5d3a9f6aaf609aed22a5815e9f56f149b4c31dfdd8240814c2679d8c84fd",
+      "occupancy.py": "ebec70fb8196d368536b48809b6a847bdcb846a3a421fca2f51b2c27fba25bd2",
+      "occupancy_source.py": "bcabd96ebeca8ccfcbb2e062c8201cdc816fb7eff6486433c3ccc78587ddb23f",
+      "worker_process.py": "310294e83ac7f4155e1e077dd2841a0a0f0dab35b77cdcd80eb8aeca3baaf32a",
+      "symbolic_input": "e3b4c8955de3630993a748dbf89b1bfe18fbc74fd31bf26fb7dda9d7115ecdee"
     }
   },
   "tables": {
@@ -714,6 +722,93 @@
         }
       }
     },
+    "merged_main_stage": {
+      "method": "Fresh release CLI and exporter plus the installed worker from protected main. env -i PATH=/nonexistent. Positive grid CPU4, 34,500,000 orbits and 380 s/3,900 MiB process. First-transition negative CPU3 at 2,048 managers and initial negative at 8,192, both preserving the original properties, followed by separate direct replay and damaged-word controls.",
+      "runs": {
+        "F2048-invalid": {
+          "exit": 1,
+          "wall_s": 0.02,
+          "peak_rss_kib": 45420,
+          "result": "invalid",
+          "length": 2,
+          "failed_check": "init"
+        },
+        "F2048-valid": {
+          "exit": 0,
+          "wall_s": 119.74,
+          "peak_rss_kib": 43544,
+          "result": "valid",
+          "length": 2
+        },
+        "F2048": {
+          "exit": 1,
+          "wall_s": 115.54,
+          "peak_rss_kib": 43208,
+          "verdict": "invariant-violation",
+          "ending": {
+            "kind": "invariant",
+            "name": "NonePrepared"
+          },
+          "depth": 2,
+          "trace_validated": true,
+          "trace_sha256": "936c003dfaab8bf6e85b29d17c7c891e8771a24298efd1f1c5aeb5a00a4571af",
+          "trace_bytes": 133161
+        },
+        "F8192-invalid": {
+          "exit": 1,
+          "wall_s": 0.05,
+          "peak_rss_kib": 86488,
+          "result": "invalid",
+          "length": 1,
+          "failed_check": "init"
+        },
+        "F8192-valid": {
+          "exit": 0,
+          "wall_s": 0.05,
+          "peak_rss_kib": 88448,
+          "result": "valid",
+          "length": 1
+        },
+        "F8192": {
+          "exit": 1,
+          "wall_s": 0.19,
+          "peak_rss_kib": 86584,
+          "verdict": "invariant-violation",
+          "ending": {
+            "kind": "invariant",
+            "name": "NoneWorking"
+          },
+          "depth": 1,
+          "trace_validated": true,
+          "trace_sha256": "578a0edea0cf3293dcfff41b30ee070ae8e94e6f2ac033fcae589bd8c5e20df6",
+          "trace_bytes": 269398
+        },
+        "T1000": {
+          "exit": 0,
+          "wall_s": 0.99,
+          "peak_rss_kib": 60296,
+          "complete": "TCommit-1000"
+        },
+        "T256": {
+          "exit": 0,
+          "wall_s": 0.14,
+          "peak_rss_kib": 20436,
+          "complete": "TCommit-256"
+        },
+        "T3": {
+          "exit": 0,
+          "wall_s": 0.09,
+          "peak_rss_kib": 17876,
+          "complete": "TCommit-3"
+        },
+        "T8192": {
+          "exit": 0,
+          "wall_s": 222.14,
+          "peak_rss_kib": 2710152,
+          "complete": "TCommit-8192"
+        }
+      }
+    },
     "extended_release_negative": {
       "method": "Same release archive and negative configuration, retaining both original properties. CPU2 1,440 s / 1,800 MiB supervised process, 2,100 MiB cgroup. On CPU5 the native validator separately checks a manually constructed word and rejects its altered initial state. Exact word digest compared whenever a source witness completes. External replay uses its default profile; mandatory internal replay selects --compat=tlc.",
       "runs": {
@@ -748,6 +843,54 @@
         }
       },
       "independently_constructed_word_sha256": "0438016ffb3b9753973fcb977306f159d178723a6eb4387ce3e4f480af4c6720"
+    }
+  },
+  "merged_main": {
+    "revision": "d613e3f357c45d33aacccf9a922a03d140e65655",
+    "qualified_candidate_code_identical": true,
+    "installed_focused_suite": true
+  },
+  "integrated_noninitial_8192": {
+    "revision": "8f3d053c6bc712d273ec43f5d34b766bfc4e6c79",
+    "runtime_sha256": {
+      "dive": "3a6c43b2a9b9293aec0448938c4e8483bd6da58e03e7ac752c12abe0595faf6a",
+      "symbolic_input": "26d75e9739aeb9df55e016270f702b0008a444114fc2c4cbf484343f81ab55ff"
+    },
+    "input_sha256": {
+      "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+      "false.cfg": "deac088f13a68a5c268488bdf52080d2bab2167a66ffddc2521c6acaaa5f5116"
+    },
+    "method": "Protected main with the native pair-quantifier optimization. Independent fresh 8,192-manager source run retained TCTypeOK and TCConsistent and added NonePrepared. One manager moves from working to prepared; all others remain working. GNU time includes worker, binding and mandatory native replay. A separate native invocation checks the same two-state word or a corrupted Init. CPU2/3 cgroup 4 GiB, checker 550 s/1,800 MiB. This is a successful larger-domain qualification; binary, domain and host differ from the controlled quantifier comparison.",
+    "runs": {
+      "F8192-invalid": {
+        "exit": 1,
+        "wall_s": 0.06,
+        "peak_rss_kib": 104840,
+        "result": "invalid",
+        "length": 2,
+        "failed_check": "init"
+      },
+      "F8192-valid": {
+        "exit": 0,
+        "wall_s": 0.08,
+        "peak_rss_kib": 104796,
+        "result": "valid",
+        "length": 2
+      },
+      "F8192": {
+        "exit": 1,
+        "wall_s": 0.24,
+        "peak_rss_kib": 104952,
+        "verdict": "invariant-violation",
+        "ending": {
+          "kind": "invariant",
+          "name": "NonePrepared"
+        },
+        "depth": 2,
+        "trace_validated": true,
+        "trace_sha256": "0ed7e7df7b91d0e19bd63da1b95397031f10f4ffc5860ba740ece497a1c03f85",
+        "trace_bytes": 538665
+      }
     }
   },
   "validator_diagnostic": {
