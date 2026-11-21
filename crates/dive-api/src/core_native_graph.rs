@@ -13,7 +13,7 @@ use dive_explore::graph::{GraphSink, SourceRow, Step, Stopped};
 use dive_liveness::analyze::AnalysisError;
 use dive_runtime::budget::{EvaluationControl, Phase};
 use dive_runtime::capture::{
-    CsrActions, CsrEdgeRows, CsrOrdinals, CsrStorage, Limits, MAX_EXPANSION_UNITS,
+    CsrActionBlocks, CsrActions, CsrEdgeRows, CsrOrdinals, CsrStorage, Limits, MAX_EXPANSION_UNITS,
 };
 use dive_runtime::{CheckOptions, Stats, Verdict};
 
@@ -93,15 +93,65 @@ pub(crate) struct NativeMemory {
     pub(crate) key_capacity: usize,
 }
 
+#[derive(Default)]
+struct ActionBlocks<T> {
+    directory: Vec<usize>,
+    encoded: Vec<T>,
+    tail: Vec<T>,
+}
+
+impl<T: Copy + Eq + From<u8> + Into<u32>> ActionBlocks<T> {
+    fn view(&self) -> CsrActionBlocks<'_, T> {
+        CsrActionBlocks {
+            edges: self.directory.len() * CsrActionBlocks::<T>::BLOCK + self.tail.len(),
+            directory: &self.directory,
+            encoded: &self.encoded,
+            tail: &self.tail,
+        }
+    }
+
+    /// Seals the previous block before accepting another occurrence. A dense
+    /// block costs exactly one ID per edge plus its single directory entry.
+    fn reserve(
+        &mut self,
+        memory: &mut NativeMemory,
+        control: &EvaluationControl,
+    ) -> Result<(), Verdict> {
+        if self.tail.len() == CsrActionBlocks::<T>::BLOCK {
+            let runs = 1 + self.tail.windows(2).filter(|p| p[0] != p[1]).count();
+            let cells = self.tail.len().min(runs * 2);
+            reserve(&mut self.directory, 1, memory, control)?;
+            reserve(&mut self.encoded, cells, memory, control)?;
+            if cells == self.tail.len() {
+                self.encoded.extend_from_slice(&self.tail);
+            } else {
+                for (position, &id) in self.tail.iter().enumerate() {
+                    if self.tail.get(position + 1) != Some(&id) {
+                        let end = u8::try_from(position)
+                            .map_err(|_| bug("native action block position"))?;
+                        self.encoded.extend_from_slice(&[T::from(end), id]);
+                    }
+                }
+            }
+            self.directory.push(self.encoded.len());
+            self.tail.clear();
+        }
+        reserve(&mut self.tail, 1, memory, control)
+    }
+}
+
 enum ActionIds {
-    Bytes(Vec<u8>),
+    Bytes(ActionBlocks<u8>),
+    Words(ActionBlocks<u16>),
     Expanded(Vec<Option<u32>>),
 }
 
 impl ActionIds {
     fn for_labels(count: usize) -> Self {
         if u8::try_from(count).is_ok() {
-            Self::Bytes(Vec::new())
+            Self::Bytes(ActionBlocks::default())
+        } else if u16::try_from(count).is_ok() {
+            Self::Words(ActionBlocks::default())
         } else {
             Self::Expanded(Vec::new())
         }
@@ -109,7 +159,10 @@ impl ActionIds {
 
     fn view(&self) -> CsrActions<'_> {
         match self {
-            Self::Bytes(ids) => CsrActions::Bytes(ids),
+            Self::Bytes(ids) if ids.directory.is_empty() => CsrActions::Bytes(&ids.tail),
+            Self::Bytes(ids) => CsrActions::ByteBlocks(ids.view()),
+            Self::Words(ids) if ids.directory.is_empty() => CsrActions::Words(&ids.tail),
+            Self::Words(ids) => CsrActions::WordBlocks(ids.view()),
             Self::Expanded(ids) => CsrActions::Expanded(ids),
         }
     }
@@ -120,7 +173,8 @@ impl ActionIds {
         control: &EvaluationControl,
     ) -> Result<(), Verdict> {
         match self {
-            Self::Bytes(ids) => reserve(ids, 1, memory, control),
+            Self::Bytes(ids) => ids.reserve(memory, control),
+            Self::Words(ids) => ids.reserve(memory, control),
             Self::Expanded(ids) => reserve(ids, 1, memory, control),
         }
     }
@@ -135,7 +189,17 @@ impl ActionIds {
                         .ok_or_else(|| bug("native action index exceeds compact label range"))?,
                     None => u8::MAX,
                 };
-                ids.push(id);
+                ids.tail.push(id);
+            }
+            Self::Words(ids) => {
+                let id = match action {
+                    Some(id) => u16::try_from(id)
+                        .ok()
+                        .filter(|&n| n != u16::MAX)
+                        .ok_or_else(|| bug("native action index exceeds compact label range"))?,
+                    None => u16::MAX,
+                };
+                ids.tail.push(id);
             }
             Self::Expanded(ids) => ids.push(action),
         }
@@ -204,6 +268,8 @@ pub(crate) struct NativeGraph {
     representatives: Vec<u32>,
     offsets: Vec<usize>,
     targets: Vec<u32>,
+    ordinal_sources: Vec<u32>,
+    ordinal_blocks: Vec<usize>,
     ordinals: Vec<u16>,
     large_ordinals: Vec<(usize, u64)>,
     actions: ActionIds,
@@ -224,7 +290,13 @@ impl NativeGraph {
         CsrStorage {
             offsets: &self.offsets,
             targets: &self.targets,
-            ordinals: CsrOrdinals::Compact(&self.ordinals, &self.large_ordinals),
+            ordinals: CsrOrdinals::PositionBlocks {
+                edges: self.targets.len(),
+                sources: &self.ordinal_sources,
+                directory: &self.ordinal_blocks,
+                words: &self.ordinals,
+                large: &self.large_ordinals,
+            },
             actions: self.actions.view(),
             edge_rows: self.edge_rows.view(self.targets.len()),
             representatives: &self.representatives,
@@ -287,19 +359,11 @@ impl NativeGraph {
         Ok(row)
     }
 
-    fn reserve_edge(
-        &mut self,
-        ordinal: Option<u64>,
-        control: &EvaluationControl,
-    ) -> Result<(), Verdict> {
+    fn reserve_edge(&mut self, control: &EvaluationControl) -> Result<(), Verdict> {
         if self.targets.len() >= self.limits.edges {
             return Err(limit("edges"));
         }
         reserve(&mut self.targets, 1, &mut self.memory, control)?;
-        reserve(&mut self.ordinals, 1, &mut self.memory, control)?;
-        if ordinal.is_some_and(|n| n >= u64::from(CsrOrdinals::EXTENDED)) {
-            reserve(&mut self.large_ordinals, 1, &mut self.memory, control)?;
-        }
         self.actions.reserve(&mut self.memory, control)
     }
 
@@ -320,13 +384,51 @@ impl NativeGraph {
             control,
         )?;
         self.actions.push(action)?;
+        self.push_ordinal(ordinal, control)?;
         self.targets.push(to);
-        let entry = match ordinal {
+        Ok(())
+    }
+
+    fn push_ordinal(
+        &mut self,
+        ordinal: Option<u64>,
+        control: &EvaluationControl,
+    ) -> Result<(), Verdict> {
+        let edge = self.targets.len();
+        let position = edge % CsrEdgeRows::BLOCK;
+        let previous = self.ordinal_blocks.last().copied().unwrap_or(0);
+        if position == 0 {
+            reserve(&mut self.ordinal_blocks, 1, &mut self.memory, control)?;
+            reserve(&mut self.ordinal_sources, 1, &mut self.memory, control)?;
+            let source = u32::try_from(self.closed_rows).map_err(|_| limit("native vertex ids"))?;
+            self.ordinal_blocks.push(previous);
+            self.ordinal_sources.push(source);
+        }
+        let implicit = ordinal.is_none_or(|n| n == (edge - self.offsets[self.closed_rows]) as u64);
+        if self.ordinals.len().is_multiple_of(CsrEdgeRows::BLOCK) {
+            if implicit {
+                return Ok(());
+            }
+            reserve(
+                &mut self.ordinals,
+                CsrEdgeRows::BLOCK,
+                &mut self.memory,
+                control,
+            )?;
+            self.ordinals
+                .resize(self.ordinals.len() + position, u16::MAX);
+            *self
+                .ordinal_blocks
+                .last_mut()
+                .ok_or_else(|| bug("missing ordinal block"))? += 1;
+        }
+        let entry = match ordinal.filter(|_| !implicit) {
             None => u16::MAX,
             Some(n) => match u16::try_from(n) {
                 Ok(word) if word < CsrOrdinals::EXTENDED => word,
                 _ => {
-                    self.large_ordinals.push((self.ordinals.len(), n));
+                    reserve(&mut self.large_ordinals, 1, &mut self.memory, control)?;
+                    self.large_ordinals.push((edge, n));
                     CsrOrdinals::EXTENDED
                 }
             },
@@ -376,6 +478,8 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             representatives: Vec::new(),
             offsets: Vec::new(),
             targets: Vec::new(),
+            ordinal_sources: Vec::new(),
+            ordinal_blocks: Vec::new(),
             ordinals: Vec::new(),
             large_ordinals: Vec::new(),
             actions: ActionIds::for_labels(model.actions.len()),
@@ -605,7 +709,7 @@ impl<'model, 'callback> NativeSink<'model, 'callback> {
             (target, original)
         };
         if parent.is_some() {
-            self.graph.reserve_edge(Some(step.ordinal), &self.control)?;
+            self.graph.reserve_edge(&self.control)?;
             self.graph
                 .push_edge(target, Some(step.ordinal), action, original, &self.control)?;
         } else {
@@ -664,7 +768,7 @@ impl GraphSink for NativeSink<'_, '_> {
                 .representatives
                 .get(source as usize)
                 .ok_or_else(|| bug("native stutter source not discovered"))?;
-            self.graph.reserve_edge(None, &self.control)?;
+            self.graph.reserve_edge(&self.control)?;
             self.graph
                 .push_edge(source, None, None, row, &self.control)?;
             self.graph.closed_rows += 1;
@@ -718,24 +822,34 @@ impl GraphSink for NativeSink<'_, '_> {
                 .offsets
                 .get(source)
                 .ok_or_else(|| bug("native source row offset"))?;
+            // A completed source ends in its implicit stutter. A generator
+            // failure leaves an open row containing only admitted successors.
+            let end = if row.next_error.is_some() {
+                self.graph.targets.len()
+            } else {
+                self.graph
+                    .targets
+                    .len()
+                    .checked_sub(1)
+                    .filter(|&end| end >= start)
+                    .ok_or_else(|| bug("missing native source row stutter"))?
+            };
             let mut targets = Vec::new();
-            for index in start..self.graph.targets.len() {
-                if self.graph.ordinals[index] != u16::MAX {
-                    let retained = self
-                        .graph
-                        .input()
-                        .edge_row(index)
-                        .ok_or_else(|| bug("native source row original"))?
-                        as usize;
-                    targets.try_reserve(1).map_err(|_| Verdict::ResourceLimit {
-                        message: "native source-row targets allocation".into(),
-                    })?;
-                    targets.push(
-                        self.values
-                            .read_retained(&self.graph, retained, &self.control)
-                            .map_err(source_error)?,
-                    );
-                }
+            for index in start..end {
+                let retained = self
+                    .graph
+                    .input()
+                    .edge_row(index)
+                    .ok_or_else(|| bug("native source row original"))?
+                    as usize;
+                targets.try_reserve(1).map_err(|_| Verdict::ResourceLimit {
+                    message: "native source-row targets allocation".into(),
+                })?;
+                targets.push(
+                    self.values
+                        .read_retained(&self.graph, retained, &self.control)
+                        .map_err(source_error)?,
+                );
             }
             let counts = Stats {
                 generated: row.stats.generated,

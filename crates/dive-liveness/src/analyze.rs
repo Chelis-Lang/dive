@@ -774,10 +774,11 @@ impl<'a> OriginalEdges<'a> {
                 if at >= range.end {
                     return None;
                 }
+                let (ordinal, label) = graph.metadata(source, position)?;
                 Some(OriginalEdge {
                     to: graph.target(at)?,
-                    ordinal: graph.ordinal(at)?,
-                    label: graph.label(at)?,
+                    ordinal,
+                    label,
                 })
             }
         }

@@ -7,6 +7,8 @@ are in git history.
 
 ### Added
 
+- Temporal graph capture packs repeated action labels and stores exceptions to source-local successor numbering. [Storage measurements](docs/developer/large-models.md#action-labels-in-temporal-graphs).
+
 - Core temporal checks share original row IDs across transitions whose targets match the first-discovery representation. [Temporal graph storage](docs/developer/large-models.md#action-labels-in-temporal-graphs).
 
 - `dive simulate` checks temporal `PROPERTY`s on each trace's own behaviors

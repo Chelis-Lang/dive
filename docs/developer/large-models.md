@@ -242,11 +242,13 @@ targets the two CoffeeCan models. [Every sample, worker width and input digest](
 
 Replay needs the exact original successor ordinal on every generated edge,
 including duplicate destinations. The graph also holds a stutter entry per
-expanded state. Core stores ordinals below 65,534 in two bytes per entry.
-One reserved value marks stutters, the other points to a sparse table with
-the full ordinal indexed by physical edge. A source with many successors
-continues to support full-width ordinals. The checked graph verifies the
-table and source order before temporal analysis or reuse.
+expanded state. When a generated ordinal matches its position in the source row, Core
+derives it directly. The last physical edge of a closed source is its
+stutter. A block of 256 edges acquires a two-byte ordinal column only if
+it contains an exception. Full-width exceptions use a side table keyed
+by physical edge. A source hint per block bounds random ordinal lookup;
+consumers that already know the source read it directly. The checked
+graph verifies each block, extended ordinal and source range.
 
 | Two-million-state prefix | Generated | Collector buffers, before / after | Peak process RSS, before / after | Wall seconds, before / after |
 |---|---:|---:|---:|---:|
@@ -268,7 +270,7 @@ individual observations under `capacity`.
 
 ### Action labels in temporal graphs
 
-Core retains one action ID per edge so it can distinguish named transitions during replay. For up to 255 action names, it stores a byte per edge, with 255 reserved for an unnamed entry. Larger action tables retain full-width IDs. Duplicate destinations, successor ordinals and implicit stutter edges keep their identities.
+Core retains the action ID of every physical transition, including duplicate destinations. It uses byte IDs for up to 255 action names and two-byte IDs for up to 65,535. The maximum value at each width marks an unnamed occurrence. Each sealed block of 256 IDs uses either a dense array or sorted pairs of inclusive end position and action ID, whichever occupies fewer cells. One directory lookup and a search within the block recover a random ID. Action tables above 65,535 names retain full-width optional IDs.
 
 | Two-million-state prefix | Generated | Collector buffers, before / after | Mean peak RSS, before / after | Mean wall seconds, before / after |
 |---|---:|---:|---:|---:|

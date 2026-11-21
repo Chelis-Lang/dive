@@ -230,14 +230,10 @@ impl StateSource for NativeStates<'_, '_> {
     }
 
     fn concrete_metadata(&self, source: usize, original: usize) -> Option<ConcreteMetadata<'_>> {
-        let range = self.graph.outgoing_range(source)?;
-        let edge = range.start.checked_add(original)?;
-        if edge >= range.end {
-            return None;
-        }
+        let (ordinal, label) = self.graph.metadata(source, original)?;
         Some(ConcreteMetadata {
-            ordinal: self.graph.ordinal(edge)??,
-            label: self.graph.label(edge)??,
+            ordinal: ordinal?,
+            label: label?,
         })
     }
 

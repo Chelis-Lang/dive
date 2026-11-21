@@ -16,6 +16,21 @@ pub enum CsrOrdinals<'a> {
     /// Ordinals 0 through 65533 use one entry. 65535 denotes stutter.
     /// 65534 refers to a full-width ordinal in the sorted (edge, ordinal) table.
     Compact(&'a [u16], &'a [(usize, u64)]),
+    /// Ordinals default to their source-local position. The final entry of
+    /// each expanded source is its stutter. Only blocks with exceptions
+    /// retain words: 65535 uses the default, 65534 indexes the wide table.
+    PositionBlocks {
+        /// Physical occurrences covered by the graph.
+        edges: usize,
+        /// Source of the first edge in each block, for bounded random lookup.
+        sources: &'a [u32],
+        /// Cumulative count of explicit 256-edge blocks.
+        directory: &'a [usize],
+        /// Words for explicit blocks, concatenated in physical order.
+        words: &'a [u16],
+        /// Absolute physical edge and full ordinal for extended words.
+        large: &'a [(usize, u64)],
+    },
 }
 
 impl CsrOrdinals<'_> {
@@ -26,6 +41,36 @@ impl CsrOrdinals<'_> {
         match self {
             Self::Expanded(v) => v.len(),
             Self::Compact(v, _) => v.len(),
+            Self::PositionBlocks { edges, .. } => edges,
+        }
+    }
+
+    fn word(self, edge: usize) -> Option<u16> {
+        match self {
+            Self::Compact(words, _) => words.get(edge).copied(),
+            Self::PositionBlocks {
+                edges,
+                directory,
+                words,
+                ..
+            } if edge < edges => {
+                let block = edge / CsrEdgeRows::BLOCK;
+                let before = block
+                    .checked_sub(1)
+                    .map_or(0, |i| directory.get(i).copied().unwrap_or(0));
+                if *directory.get(block)? == before {
+                    Some(u16::MAX)
+                } else {
+                    words
+                        .get(
+                            before
+                                .checked_mul(CsrEdgeRows::BLOCK)?
+                                .checked_add(edge % CsrEdgeRows::BLOCK)?,
+                        )
+                        .copied()
+                }
+            }
+            _ => None,
         }
     }
 
@@ -33,24 +78,92 @@ impl CsrOrdinals<'_> {
         clippy::option_option,
         reason = "distinguishes missing entries, stutters and generated transitions"
     )]
-    fn get(self, index: usize) -> Option<Option<u64>> {
-        match self {
-            Self::Expanded(v) => v.get(index).copied(),
-            Self::Compact(v, large) => match *v.get(index)? {
-                u16::MAX => Some(None),
-                Self::EXTENDED => large
-                    .binary_search_by_key(&index, |&(edge, _)| edge)
-                    .ok()
-                    .map(|i| Some(large[i].1)),
-                n => Some(Some(u64::from(n))),
-            },
+    fn get(self, index: usize, position: Option<u64>) -> Option<Option<u64>> {
+        let (large, implicit) = match self {
+            Self::Expanded(v) => return v.get(index).copied(),
+            Self::Compact(_, large) => (large, None),
+            Self::PositionBlocks { large, .. } => (large, position),
+        };
+        match self.word(index)? {
+            u16::MAX => Some(implicit),
+            Self::EXTENDED => large
+                .binary_search_by_key(&index, |&(edge, _)| edge)
+                .ok()
+                .map(|i| Some(large[i].1)),
+            n => Some(Some(u64::from(n))),
         }
+    }
+    fn check(
+        self,
+        edges: usize,
+        offsets: &[usize],
+        closed: usize,
+        control: &EvaluationControl,
+    ) -> Result<(), Verdict> {
+        let large = match self {
+            CsrOrdinals::PositionBlocks {
+                sources,
+                directory,
+                words,
+                large,
+                ..
+            } => {
+                check_blocks(edges, directory, words.len(), "ordinal", control)?;
+                if sources.len() != directory.len() {
+                    return Err(bug("invalid CSR ordinal block source count"));
+                }
+                for (block, &source) in sources.iter().enumerate() {
+                    checkpoint(control, block)?;
+                    let source = source as usize;
+                    let edge = block * CsrEdgeRows::BLOCK;
+                    if source >= closed || offsets[source] > edge || offsets[source + 1] <= edge {
+                        return Err(bug("invalid CSR ordinal block source"));
+                    }
+                }
+                Some(large)
+            }
+            CsrOrdinals::Compact(_, large) => Some(large),
+            CsrOrdinals::Expanded(_) => None,
+        };
+        if let Some(large) = large {
+            let mut previous = None;
+            for (i, &(edge, ordinal)) in large.iter().enumerate() {
+                checkpoint(control, i)?;
+                if previous.is_some_and(|p| p >= edge)
+                    || self.word(edge) != Some(CsrOrdinals::EXTENDED)
+                    || ordinal < u64::from(CsrOrdinals::EXTENDED)
+                {
+                    return Err(bug("invalid extended CSR ordinal"));
+                }
+                previous = Some(edge);
+            }
+        }
+        Ok(())
     }
 
     /// Keeps the first `edges` entries without expanding their representation.
     #[must_use]
     pub fn prefix(self, edges: usize) -> Option<Self> {
         match self {
+            Self::PositionBlocks {
+                edges: full,
+                sources,
+                directory,
+                words,
+                large,
+            } => {
+                if edges > full {
+                    return None;
+                }
+                let (directory, count) = block_prefix(edges, directory)?;
+                Some(Self::PositionBlocks {
+                    edges,
+                    sources: sources.get(..directory.len())?,
+                    directory,
+                    words: words.get(..count)?,
+                    large: &large[..large.partition_point(|&(edge, _)| edge < edges)],
+                })
+            }
             Self::Expanded(v) => Some(Self::Expanded(v.get(..edges)?)),
             Self::Compact(v, large) => Some(Self::Compact(
                 v.get(..edges)?,
@@ -78,6 +191,115 @@ impl<'a> From<&'a Vec<Option<u64>>> for CsrOrdinals<'a> {
     }
 }
 
+/// Dense or run-length encoded action IDs in independently indexed blocks.
+/// Each completed block stores either 256 dense IDs or strictly increasing
+/// inclusive end-position/ID pairs. The final unsealed block stays dense.
+///
+/// ```
+/// use dive_runtime::capture::{CsrActionBlocks, CsrActions};
+/// // The first 200 transitions use action 7, the remaining 56 are unnamed.
+/// let actions = CsrActions::ByteBlocks(CsrActionBlocks {
+///     edges: 256, directory: &[4], encoded: &[199, 7, 255, 255], tail: &[],
+/// });
+/// assert!(actions.prefix(201).is_some());
+/// assert!(actions.prefix(257).is_none());
+/// ```
+#[derive(Clone, Copy, Debug)]
+pub struct CsrActionBlocks<'a, T> {
+    /// Logical prefix length. A prefix may end inside a sealed block.
+    pub edges: usize,
+    /// Cumulative ends in the encoded array, one per sealed block.
+    pub directory: &'a [usize],
+    /// Sealed dense blocks and run pairs.
+    pub encoded: &'a [T],
+    /// Unsealed dense IDs.
+    pub tail: &'a [T],
+}
+
+impl<T: Copy + Into<u32>> CsrActionBlocks<'_, T> {
+    /// Logical physical edge count of each sealed block.
+    pub const BLOCK: usize = 256;
+
+    fn get(self, edge: usize) -> Option<u32> {
+        if edge >= self.edges {
+            return None;
+        }
+        let block = edge / Self::BLOCK;
+        let pos = edge % Self::BLOCK;
+        if block == self.directory.len() {
+            return self.tail.get(pos).copied().map(Into::into);
+        }
+        let start = block
+            .checked_sub(1)
+            .map_or(0, |i| self.directory.get(i).copied().unwrap_or(0));
+        let data = self.encoded.get(start..*self.directory.get(block)?)?;
+        if data.len() == Self::BLOCK {
+            return data.get(pos).copied().map(Into::into);
+        }
+        let position = u32::try_from(pos).ok()?;
+        let pairs = data.as_chunks::<2>().0;
+        let run = pairs.partition_point(|pair| pair[0].into() < position);
+        pairs.get(run).map(|pair| pair[1].into())
+    }
+
+    fn prefix(self, edges: usize) -> Option<Self> {
+        if edges > self.edges {
+            return None;
+        }
+        let blocks = self.directory.len().min(edges.div_ceil(Self::BLOCK));
+        let directory = self.directory.get(..blocks)?;
+        let encoded = self.encoded.get(..directory.last().copied().unwrap_or(0))?;
+        let tail = self
+            .tail
+            .get(..edges.saturating_sub(blocks.checked_mul(Self::BLOCK)?))?;
+        Some(Self {
+            edges,
+            directory,
+            encoded,
+            tail,
+        })
+    }
+
+    fn check(self, control: &EvaluationControl) -> Result<(), Verdict> {
+        let malformed = || bug("invalid CSR action blocks");
+        let sealed = self
+            .directory
+            .len()
+            .checked_mul(Self::BLOCK)
+            .ok_or_else(malformed)?;
+        if self.directory.len() > self.edges.div_ceil(Self::BLOCK)
+            || self.tail.len() > Self::BLOCK
+            || self.tail.len() != self.edges.saturating_sub(sealed)
+            || self.directory.last().copied().unwrap_or(0) != self.encoded.len()
+        {
+            return Err(malformed());
+        }
+        let mut start = 0;
+        for (block, &end) in self.directory.iter().enumerate() {
+            checkpoint(control, block)?;
+            let data = self.encoded.get(start..end).ok_or_else(malformed)?;
+            if data.len() != Self::BLOCK {
+                if data.len() > Self::BLOCK || data.is_empty() || !data.len().is_multiple_of(2) {
+                    return Err(malformed());
+                }
+                let mut previous = None;
+                for pair in data.as_chunks::<2>().0 {
+                    let position = pair[0].into();
+                    if previous.is_some_and(|p| p >= position) {
+                        return Err(malformed());
+                    }
+                    previous = Some(position);
+                }
+                if previous != Some(255) {
+                    return Err(malformed());
+                }
+            }
+            start = end;
+        }
+        Ok(())
+    }
+}
+
 /// Storage for the action label of each transition occurrence.
 #[derive(Clone, Copy, Debug)]
 pub enum CsrActions<'a> {
@@ -85,6 +307,12 @@ pub enum CsrActions<'a> {
     Expanded(&'a [Option<u32>]),
     /// Dense action indices 0 through 254; 255 marks the absence of a label.
     Bytes(&'a [u8]),
+    /// Dense action indices through 65534, with 65535 marking an unnamed entry.
+    Words(&'a [u16]),
+    /// Indexed blocks with byte-sized IDs and the same unnamed sentinel as `Bytes`.
+    ByteBlocks(CsrActionBlocks<'a, u8>),
+    /// Indexed blocks with two-byte IDs and the same unnamed sentinel as `Words`.
+    WordBlocks(CsrActionBlocks<'a, u16>),
 }
 
 impl CsrActions<'_> {
@@ -92,14 +320,20 @@ impl CsrActions<'_> {
         match self {
             Self::Expanded(values) => values.len(),
             Self::Bytes(values) => values.len(),
+            Self::Words(values) => values.len(),
+            Self::ByteBlocks(b) => b.edges,
+            Self::WordBlocks(b) => b.edges,
         }
     }
 
     // Structural checks bind every access to the shared physical edge range.
     fn at(self, edge: usize) -> Option<u32> {
         match self {
+            Self::ByteBlocks(b) => b.get(edge).filter(|&id| id != u32::from(u8::MAX)),
+            Self::WordBlocks(b) => b.get(edge).filter(|&id| id != u32::from(u16::MAX)),
             Self::Expanded(values) => values[edge],
             Self::Bytes(values) => (values[edge] != u8::MAX).then(|| u32::from(values[edge])),
+            Self::Words(values) => (values[edge] != u16::MAX).then(|| u32::from(values[edge])),
         }
     }
 
@@ -109,6 +343,9 @@ impl CsrActions<'_> {
         match self {
             Self::Expanded(values) => Some(Self::Expanded(values.get(..edges)?)),
             Self::Bytes(values) => Some(Self::Bytes(values.get(..edges)?)),
+            Self::Words(values) => Some(Self::Words(values.get(..edges)?)),
+            Self::ByteBlocks(b) => Some(Self::ByteBlocks(b.prefix(edges)?)),
+            Self::WordBlocks(b) => Some(Self::WordBlocks(b.prefix(edges)?)),
         }
     }
 }
@@ -187,17 +424,7 @@ impl CsrEdgeRows<'_> {
                 if edges > full {
                     return None;
                 }
-                let directory = directory.get(..edges.div_ceil(Self::BLOCK))?;
-                let count = match directory.split_last() {
-                    None => 0,
-                    Some((&end, previous)) => {
-                        let before = previous.last().copied().unwrap_or(0);
-                        let width = (edges - 1) % Self::BLOCK + 1;
-                        before
-                            .checked_mul(Self::BLOCK)?
-                            .checked_add(if before == end { 0 } else { width })?
-                    }
-                };
+                let (directory, count) = block_prefix(edges, directory)?;
                 Some(Self::Blocks {
                     edges,
                     directory,
@@ -214,27 +441,55 @@ impl CsrEdgeRows<'_> {
                 edges: full,
                 directory,
                 rows,
-            } if full == edges && directory.len() == edges.div_ceil(Self::BLOCK) => {
-                let mut previous = 0usize;
-                let mut retained = 0usize;
-                for (block, &end) in directory.iter().enumerate() {
-                    checkpoint(control, block)?;
-                    if end != previous {
-                        if end != previous + 1 {
-                            return Err(bug("invalid CSR original row block directory"));
-                        }
-                        retained += Self::BLOCK.min(edges - block * Self::BLOCK);
-                    }
-                    previous = end;
-                }
-                if retained == rows.len() {
-                    Ok(())
-                } else {
-                    Err(bug("invalid CSR original row blocks"))
-                }
+            } if full == edges => {
+                check_blocks(edges, directory, rows.len(), "original row", control)
             }
             _ => Err(bug("inconsistent CSR array dimensions")),
         }
+    }
+}
+
+fn block_prefix(edges: usize, directory: &[usize]) -> Option<(&[usize], usize)> {
+    let directory = directory.get(..edges.div_ceil(CsrEdgeRows::BLOCK))?;
+    let count = match directory.split_last() {
+        None => 0,
+        Some((&end, previous)) => {
+            let before = previous.last().copied().unwrap_or(0);
+            let width = (edges - 1) % CsrEdgeRows::BLOCK + 1;
+            before
+                .checked_mul(CsrEdgeRows::BLOCK)?
+                .checked_add(if before == end { 0 } else { width })?
+        }
+    };
+    Some((directory, count))
+}
+
+fn check_blocks(
+    edges: usize,
+    directory: &[usize],
+    cells: usize,
+    column: &str,
+    control: &EvaluationControl,
+) -> Result<(), Verdict> {
+    if directory.len() != edges.div_ceil(CsrEdgeRows::BLOCK) {
+        return Err(bug("inconsistent CSR array dimensions"));
+    }
+    let mut before = 0;
+    let mut retained = 0;
+    for (block, &end) in directory.iter().enumerate() {
+        checkpoint(control, block)?;
+        if end != before {
+            if end != before + 1 {
+                return Err(bug(&format!("invalid CSR {column} block directory")));
+            }
+            retained += CsrEdgeRows::BLOCK.min(edges - block * CsrEdgeRows::BLOCK);
+        }
+        before = end;
+    }
+    if retained == cells {
+        Ok(())
+    } else {
+        Err(bug(&format!("invalid CSR {column} blocks")))
     }
 }
 
@@ -352,19 +607,14 @@ impl<'a> CsrCapture<'a> {
             return Err(bug("inconsistent CSR array dimensions"));
         }
         input.edge_rows.check(edges, control)?;
-        if let CsrOrdinals::Compact(words, large) = input.ordinals {
-            let mut previous = None;
-            for (i, &(edge, ordinal)) in large.iter().enumerate() {
-                checkpoint(control, i)?;
-                if previous.is_some_and(|p| p >= edge)
-                    || words.get(edge) != Some(&CsrOrdinals::EXTENDED)
-                    || ordinal < u64::from(CsrOrdinals::EXTENDED)
-                {
-                    return Err(bug("invalid extended CSR ordinal"));
-                }
-                previous = Some(edge);
-            }
+        match input.actions {
+            CsrActions::ByteBlocks(blocks) => blocks.check(control)?,
+            CsrActions::WordBlocks(blocks) => blocks.check(control)?,
+            _ => {}
         }
+        input
+            .ordinals
+            .check(edges, input.offsets, input.closed_rows, control)?;
         let mut previous_root = None;
         for (i, &root) in input.roots.iter().enumerate() {
             checkpoint(control, i)?;
@@ -394,7 +644,7 @@ impl<'a> CsrCapture<'a> {
                 return Err(bug("missing CSR source/stutter row"));
             };
             if input.targets[last] as usize != source
-                || input.ordinals.get(last) != Some(None)
+                || input.ordinals.get(last, None) != Some(None)
                 || input.actions.at(last).is_some()
                 || input.edge_row(last) != Some(representative)
             {
@@ -403,7 +653,8 @@ impl<'a> CsrCapture<'a> {
             let mut previous_ordinal = None;
             for edge in start..last {
                 checkpoint(control, edge)?;
-                let Some(Some(ordinal)) = input.ordinals.get(edge) else {
+                let Some(Some(ordinal)) = input.ordinals.get(edge, Some((edge - start) as u64))
+                else {
                     return Err(bug("CSR generated edge lacks original ordinal"));
                 };
                 if ordinal >= limits.successors_per_unit {
@@ -486,14 +737,47 @@ impl<'a> CsrCapture<'a> {
     /// Generation ordinal of a physical entry; stutters have `Some(None)`.
     #[must_use]
     pub fn ordinal(&self, edge: usize) -> Option<Option<u64>> {
-        self.input.ordinals.get(edge)
+        if let CsrOrdinals::PositionBlocks { sources, .. } = self.input.ordinals {
+            // Every closed source has a stutter, so at most 256 sources
+            // contribute to a 256-edge block. Known-source consumers call
+            // metadata directly and do not search offsets.
+            let first = *sources.get(edge / CsrEdgeRows::BLOCK)? as usize;
+            let last = first
+                .saturating_add(CsrEdgeRows::BLOCK)
+                .min(self.input.closed_rows);
+            let source = first
+                + self
+                    .input
+                    .offsets
+                    .get(first..last)?
+                    .partition_point(|&start| start <= edge)
+                    .checked_sub(1)?;
+            let range = self.outgoing_range(source)?;
+            if !range.contains(&edge) {
+                return None;
+            }
+            self.input.ordinals.get(
+                edge,
+                (edge + 1 < range.end).then_some((edge - range.start) as u64),
+            )
+        } else {
+            self.input.ordinals.get(edge, None)
+        }
     }
 
     /// Action label; generated unnamed actions use the empty label.
     /// Stutters have `Some(None)`, and out-of-range entries have `None`.
     #[must_use]
     pub fn label(&self, edge: usize) -> Option<Option<&'a str>> {
-        let ordinal = self.input.ordinals.get(edge)?;
+        let ordinal = self.ordinal(edge)?;
+        self.edge_label(edge, ordinal)
+    }
+
+    #[allow(
+        clippy::option_option,
+        reason = "an invalid edge or label differs from a valid unlabelled stutter"
+    )]
+    fn edge_label(&self, edge: usize, ordinal: Option<u64>) -> Option<Option<&'a str>> {
         if ordinal.is_none() {
             return Some(None);
         }
@@ -501,6 +785,26 @@ impl<'a> CsrCapture<'a> {
             Some(action) => self.input.action_labels.get(action as usize)?.as_str(),
             None => "",
         }))
+    }
+
+    /// Returns the original ordinal and action label at a source-local
+    /// physical position. The implicit stutter has neither.
+    #[must_use]
+    pub fn metadata(
+        &self,
+        source: usize,
+        position: usize,
+    ) -> Option<(Option<u64>, Option<&'a str>)> {
+        let range = self.outgoing_range(source)?;
+        let edge = range.start.checked_add(position)?;
+        if edge >= range.end {
+            return None;
+        }
+        let ordinal = self
+            .input
+            .ordinals
+            .get(edge, (edge + 1 < range.end).then_some(position as u64))?;
+        Some((ordinal, self.edge_label(edge, ordinal)?))
     }
 
     /// Opaque first-discovery row for a representative vertex.
@@ -518,7 +822,7 @@ impl<'a> CsrCapture<'a> {
     pub fn original_row(&self, source: usize, position: usize) -> Option<usize> {
         let range = self.outgoing_range(source)?;
         let edge = range.start.checked_add(position)?;
-        if edge >= range.end || self.input.ordinals.get(edge)?.is_none() {
+        if position >= range.len().saturating_sub(1) {
             return None;
         }
         self.input.edge_row(edge).map(|row| row as usize)

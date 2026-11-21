@@ -18,8 +18,8 @@ use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 mod csr;
 mod evidence;
 pub use csr::{
-    CsrActions, CsrCapture, CsrCaptureColumns, CsrCaptureInput, CsrComplete, CsrEdgeRows,
-    CsrOrdinals, CsrPrefix, CsrStorage,
+    CsrActionBlocks, CsrActions, CsrCapture, CsrCaptureColumns, CsrCaptureInput, CsrComplete,
+    CsrEdgeRows, CsrOrdinals, CsrPrefix, CsrStorage,
 };
 pub use evidence::{CompleteEvidence, PrefixEvidence};
 
