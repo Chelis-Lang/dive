@@ -129,3 +129,56 @@ fn captured_operator_substitutions_keep_their_named_refusal()
     }
     Ok(())
 }
+
+#[test]
+fn repeated_split_calls_keep_parameters_guard_sites_and_replay()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-split-bodies");
+    for compat_tlc in [false, true] {
+        let mut request = CheckRequest {
+            file: root.join("SplitBodies.tla"),
+            config: Some(root.join("Holding.cfg")),
+            workers: Some(1),
+            seed: Some(1),
+            fp: Some(0),
+            compat_tlc,
+            ..Default::default()
+        };
+        let report = check_file(&request)?.to_json();
+        assert_eq!(report["verdict"], "success");
+        assert_eq!(report["statistics"]["distinct"], 4);
+        assert_eq!(report["statistics"]["generated"], 21);
+        assert_eq!(report["statistics"]["depth"], 2);
+        let metrics = &report["core"]["metrics"];
+        // The original expansion of these 32 calls emitted 801 value nodes.
+        assert!(metrics["plan"]["nodes"].as_u64().is_some_and(|n| n < 200));
+        let sites = metrics["memo"].as_array().ok_or("memo sites")?;
+        assert_eq!(sites.len(), 64);
+        for [source, order] in sites.as_chunks::<2>().0 {
+            assert_eq!(source["site"], order["site"]);
+            assert_eq!(source["lookups"], 4);
+            assert_eq!(order["lookups"], 1);
+        }
+
+        let cfg = root.join("Violation.cfg");
+        request.config = Some(cfg.clone());
+        let report = check_file(&request)?.to_json();
+        assert_eq!(report["verdict"], "invariant-violation");
+        assert_eq!(report["property"], "Bound");
+        assert_eq!(report["statistics"]["generated"], 6);
+        assert_eq!(report["statistics"]["distinct"], 4);
+        assert_eq!(report["statistics"]["depth"], 2);
+        let model = SpecModel::load(
+            &request.file,
+            &cfg,
+            &TraceOptions {
+                compat_tlc,
+                run: Some((1, 0)),
+                ..Default::default()
+            },
+        )?;
+        let trace = TraceDoc::from_json(&report["counterexample"]["trace"])?;
+        assert_eq!(model.validate(&trace).validation, Validation::Valid);
+    }
+    Ok(())
+}

@@ -17,6 +17,11 @@ record or a powerset, such as `MessagePool \in SUBSET Message`. Asking for the
 elements of the type still requires actual enumeration. The [LuPastry+ example](../developer/large-models.md#lupastry-message-and-leaf-domains)
 shows how to distinguish a large type from a large set of reachable states.
 
+Core can split a next-state action such as `\E i, j \in Nodes : Send(i, j)`
+into one action per pair. When the pairs bind the same slots in a pure
+expression, they share compiled instructions. Each pair still has its own
+parameter values, action label and guard memo statistics.
+
 ## Select a closed model input in the CFG
 
 When a zero-argument TLA+ definition selects a host input, you can give that

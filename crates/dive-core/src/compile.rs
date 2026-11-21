@@ -51,6 +51,9 @@ use crate::store::Store;
 #[path = "compile_gen.rs"]
 mod generator;
 
+#[path = "compile_split.rs"]
+mod split;
+
 #[path = "compile_composition.rs"]
 mod composition;
 
@@ -803,10 +806,7 @@ fn compile_inner(
     } else {
         vec![c.init_action(&h.init)?]
     };
-    let mut next = Vec::new();
-    for r in &h.next {
-        next.push(c.action(r, false)?);
-    }
+    let next = c.next_actions(&h.next)?;
     let mut invariants = Vec::new();
     for r in &h.invariants {
         invariants.push(c.check(r)?);
