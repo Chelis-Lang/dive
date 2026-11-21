@@ -1238,5 +1238,171 @@
         "max_rss_kib": 3562636
       }
     }
+  },
+  "integrated_protected_main": {
+    "cold3": {
+      "verdict": "success",
+      "depth": 7,
+      "occupancies": 13,
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "distinct_digits": 2,
+      "distinct_decimal_sha256": "86e50149658661312a9e0b35558d84f6c6d3da797f552a9657fe0558ca40cdef",
+      "generated_digits": 2,
+      "generated_decimal_sha256": "e3d6c4d4599e00882384ca981ee287ed961fa5f3828e2adb5e9ea890ab0d0525",
+      "elapsed_seconds": 0.09,
+      "max_rss_kib": 18684
+    },
+    "retained-stronger8192": {
+      "proof": "inductive-safety",
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent",
+        "NoWorkingCommit"
+      ],
+      "elapsed_seconds": 0.14,
+      "max_rss_kib": 32052
+    },
+    "retained-false8192": {
+      "verdict": "invariant-violation",
+      "depth": 2,
+      "ending": {
+        "kind": "invariant",
+        "name": "NonePrepared"
+      },
+      "trace_validated": true,
+      "trace_sha256": "0ed7e7df7b91d0e19bd63da1b95397031f10f4ffc5860ba740ece497a1c03f85",
+      "elapsed_seconds": 0.33,
+      "max_rss_kib": 106404
+    },
+    "retained-addition8192": {
+      "verdict": "invariant-violation",
+      "depth": 3,
+      "ending": {
+        "kind": "invariant",
+        "name": "TCConsistent"
+      },
+      "trace_validated": true,
+      "trace_sha256": "758eb75563d448489563134726ad57d51c2d394eceb222ca930f76086ed0199d",
+      "elapsed_seconds": 0.38,
+      "max_rss_kib": 123012
+    },
+    "fresh-deletion8192": {
+      "verdict": "success",
+      "depth": 16385,
+      "occupancies": 16385,
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "distinct_digits": 2467,
+      "distinct_decimal_sha256": "456b4c9c3d4ad1899ff4d9e0b066e4bc34c8a69dc293c08b76bdfa704c292c63",
+      "generated_digits": 2470,
+      "generated_decimal_sha256": "3c0ed6419d4602f9e0fcc89da9c01c15afbc0af56a2b011f1c37cbf320b0f200",
+      "elapsed_seconds": 0.19,
+      "max_rss_kib": 28236
+    },
+    "original8192": {
+      "verdict": "success",
+      "depth": 16385,
+      "occupancies": 33574913,
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "distinct_digits": 3909,
+      "distinct_decimal_sha256": "f788958d10868e0cfaeec764f515d37287cfc50ec9a060db910fc4859c618ab8",
+      "generated_digits": 3913,
+      "generated_decimal_sha256": "51578a95d7f5166bd7dd35f30e3e0277397f3782f50d704c817e68743d22834c",
+      "elapsed_seconds": 172.27,
+      "max_rss_kib": 2711172
+    },
+    "replay-addition8192": {
+      "result": "valid",
+      "elapsed_seconds": 0.11,
+      "max_rss_kib": 122832
+    },
+    "tamper-addition8192": {
+      "result": "invalid",
+      "elapsed_seconds": 0.07,
+      "max_rss_kib": 123000
+    },
+    "million-original": {
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent"
+      ],
+      "elapsed_seconds": 6.86,
+      "max_rss_kib": 3179508
+    },
+    "million-stronger": {
+      "proof": "inductive-safety",
+      "failed_obligation": null,
+      "invariants": [
+        "TCTypeOK",
+        "TCConsistent",
+        "NoWorkingCommit"
+      ],
+      "elapsed_seconds": 6.86,
+      "max_rss_kib": 3179716
+    },
+    "million-false": {
+      "verdict": "unsupported",
+      "reason": "exact search owner count exceeds 8192",
+      "elapsed_seconds": 13.71,
+      "max_rss_kib": 3179780
+    },
+    "million-addition": {
+      "verdict": "unsupported",
+      "reason": "exact search owner count exceeds 8192",
+      "elapsed_seconds": 15.22,
+      "max_rss_kib": 3593800
+    },
+    "predicate": {
+      "bytes": 125,
+      "sha256": "4bde049a0ad6235731d9c336f1dab28167e1dbe441323adb4e85829abf6c5472"
+    },
+    "dive_revision": "d1bcac65a5ab8b7cb4afdcf8720489a463979d16",
+    "sail_revision": "5d0003708674ec6f755e31da04eb52754c38dd87",
+    "host": "Dedicated EC2 c7i.4xlarge x86_64 Linux. The source pair ran in a four-vCPU affinity set (CPUs 8–11), 8 GiB cgroup, 450 s per exact operation and a 480 s outer timeout. Million-member edit sessions had a 120 s end-to-end deadline. One timed observation per row; reported RSS is from /usr/bin/time.",
+    "installation": "Native Dive CLI, tlc and exporter rebuilt from the recorded protected Dive revision; all eight worker modules installed from it alongside the previously verified private interpreter and pinned dependencies. The installed release smoke passed. The standalone Sail release CLI was built from its protected revision; the CLI integration test passed there. The source pair ran with an otherwise empty environment and PATH=/nonexistent.",
+    "sha256": {
+      "sail": "cbb6342c5ad826e50f26c8128e12b727fa79afd3778607a753e5523e6bfda82a",
+      "dive": "90d518f81142f30025b4bc895f3a52491fcb146604f2a3a40139bb36047f1908",
+      "tlc": "38de06ff9d66f7cf2ba45e5be357b02b5ee86b1624738035abf1f8c827a3c453",
+      "symbolic_input": "76fc94af94f5de2a7e50d1c783c6d52d01beba529a232a32e1ad20ab835fb0c3"
+    },
+    "commands": "Use the source preparation and CLI commands in this record. Run the three-manager original into a new Sail occupancy session; use it for stronger, false and addition with 8192, then for original, stronger, false and addition at 1000000. The million-member original uses TCommit.tla; its edits use Edits.tla. Use fresh session directories for the 8192 original and abort deletion, --max-orbits 34500000 for these counted runs, and --max-orbits 1 on the million-member controls. Replay the 8192 addition word against its original and altered Init state with dive validate-trace.",
+    "million_fallback": "The two unsafe edits fail their direct proof obligations as recorded in larger_concrete_proof_domains. Sail then invokes exact search. At 1,000,000 owners it returns the public exact-search refusal, without a proof, count, depth or concrete word. The original three-manager candidate remained byte-identical throughout.",
+    "native_three_manager": {
+      "original": {
+        "exit": 0,
+        "verdict": "success",
+        "property": null,
+        "distinct": 34,
+        "generated": 94,
+        "depth": 7
+      },
+      "false": {
+        "exit": 12,
+        "verdict": "invariant-violation",
+        "property": "NonePrepared",
+        "distinct": 2,
+        "generated": 2,
+        "depth": 2
+      },
+      "addition": {
+        "exit": 12,
+        "verdict": "invariant-violation",
+        "property": "TCConsistent",
+        "distinct": 21,
+        "generated": 24,
+        "depth": 3
+      }
+    }
   }
 }
