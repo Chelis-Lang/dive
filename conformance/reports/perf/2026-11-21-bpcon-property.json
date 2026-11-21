@@ -398,5 +398,65 @@
       "unused_instance": "In the specialized root prefix remove the P == INSTANCE PConProof declaration and only the PNextDef lemma and its proof. Pinned tla2sany.SANY resolves BPConProof with FiniteSetTheorems and the TLAPS library, with PConProof, VoteProof and Consensus absent. This checks that the remaining root definitions and Invariance proof have no references to the instance."
     },
     "input_integrity_control": "Appended a comment to each of the six pinned inputs separately. Each preparation exited 1, named the altered file and created no output directory. The generated proof modules and the isolated NextDef prefix reproduced the measured byte hashes."
+  },
+  "ordinary_core_capacity": {
+    "host": "Matched isolated EC2 r7i.16xlarge, Xeon Platinum 8488C, 32 physical cores, GNU time. Default fingerprint identity, original BPConProof.tla and CFG.",
+    "kernel": "7.0.0-1018-aws",
+    "binary_sha256": "a883483bd64f0ac4adbd18959b7813a108fb4ff593f95de41c361cf2ff4cae35",
+    "args": "taskset -c 0-31 ./row-spans check specifications/byzpaxos/BPConProof.tla --config specifications/byzpaxos/BPConProof.cfg --library-path modules --workers 32 --compat=tlc --fp 0 --seed 0 --max-memory CAPg --time-limit SECONDSs --output json",
+    "time_limits_s": [
+      7200,
+      40000
+    ],
+    "exit": 5,
+    "trials": [
+      {
+        "sampled_limit_gib": 24,
+        "elapsed_s": 181.95,
+        "peak_rss_kib": 25840256,
+        "observed_stop_bytes": 26390908928,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 4,
+          "distinct": 134831096,
+          "exhaustive": false,
+          "generated": 272400921,
+          "initial_generated": 1,
+          "left_on_queue": 134714941,
+          "reported_by_tlc": false
+        },
+        "store_nodes": 134361708,
+        "store_handles": 408794859,
+        "store_slab_bytes": 15792848128,
+        "store_current_table_bytes": 2147483648,
+        "store_known_retained_bytes_lower_bound": 17942478057,
+        "completed_store_collections": 1,
+        "reclaimed_nodes": 24
+      },
+      {
+        "sampled_limit_gib": 448,
+        "elapsed_s": 4593.52,
+        "peak_rss_kib": 470530644,
+        "observed_stop_bytes": 481754030080,
+        "verdict": "stopped",
+        "statistics": {
+          "depth": 4,
+          "distinct": 2121549383,
+          "exhaustive": false,
+          "generated": 6378597082,
+          "initial_generated": 1,
+          "left_on_queue": 2118831514,
+          "reported_by_tlc": false
+        },
+        "store_nodes": 2105476949,
+        "store_handles": 6329936787,
+        "store_slab_bytes": 155055275264,
+        "store_current_table_bytes": 34359738368,
+        "store_known_retained_bytes_lower_bound": 189417192681,
+        "completed_store_collections": 1,
+        "reclaimed_nodes": 24
+      }
+    ],
+    "interpretation": "Both runs stopped on memory at depth four. More than 99.8% of admitted fingerprints were queued in both. The value store alone accounts for at least 176.41 GiB in the larger run. Its total excludes the frontier, seen membership, worker arenas and allocator overhead. The 761 checked proof obligations establish the configured invariant independently of this graph size."
   }
 }
