@@ -1255,6 +1255,50 @@ class SourceModel(FiniteRelation):
             result = self.b.let(rename, cudd.and_exists(result, relation, old))
         return result
 
+    def deletion_region(self, previous):
+        """A forward-closed region containing every removed transition's target."""
+        fixed = None
+        for update, guard, _ in self.changed_guards(previous):
+            if guard == self.b.false:
+                continue
+            assignment = dict(update)
+            candidates = (guard.support | assignment.keys()) if fixed is None else fixed.keys()
+            common = {}
+            for bit in candidates:
+                after = assignment.get(bit, self.b.var(bit))
+                value = guard & ~after == self.b.false
+                if (value or guard & after == self.b.false) and (fixed is None or fixed[bit] == value):
+                    common[bit] = value
+            fixed = common
+            if not fixed:
+                break
+        while fixed:
+            region = self.b.cube(fixed)
+            unstable = set()
+            for guard, update in previous.effects:
+                changed = [(bit, expr) for bit, expr in update if bit in fixed and bit not in unstable]
+                if not changed:
+                    continue
+                active = region & guard
+                for bit, expr in changed:
+                    if active & (~expr if fixed[bit] else expr) != self.b.false:
+                        unstable.add(bit)
+            if not unstable:
+                # Only these retained action guards can carry an unaffected
+                # source across the boundary. The assignments are simultaneous.
+                incoming = []
+                outside = ~region
+                for guard, update in self.effects:
+                    if not any(bit in fixed for bit, _ in update):
+                        continue
+                    crossing = outside & guard & self.b.let(dict(update), region)
+                    if crossing != self.b.false:
+                        incoming.append((crossing, self.effect_parts[update]))
+                return region, incoming
+            for bit in unstable:
+                del fixed[bit]
+        return self.b.true, []
+
     def recheck_refined(self, previous, keep_layers=False):
         if previous is None:
             if keep_layers:
@@ -1338,6 +1382,8 @@ class SourceModel(FiniteRelation):
             return self.success(self.depth(layers), reached & self.constraint, distinct, generated, True), None
 
         old_layers = ()
+        region = self.b.true
+        incoming = []
         if previous is not None and previous.complete is not None and self.same_encoding_and_admission(previous):
             old_layers = previous.complete[1]
             removed, added = self.layer_delta(previous)
@@ -1356,7 +1402,7 @@ class SourceModel(FiniteRelation):
                 return row, trace
             # Include excluded emissions in the witness layers but never expand them.
             sources = frontier & self.constraint
-            if old_layers:
+            if old_layers and region == self.b.true:
                 # A deleted edge into an earlier layer cannot remove a shortest path.
                 if all(self.image(sources, guard, parts) & ~reached == self.b.false
                        for guard, parts in removed):
@@ -1375,7 +1421,27 @@ class SourceModel(FiniteRelation):
                     if len(layers) == len(old_layers) or (removed and frontier != next_old):
                         old_layers = ()
                     continue
-                old_layers = ()
+                if removed and not added:
+                    region, incoming = self.deletion_region(previous)
+                    if previous.complete[0] & ~region == self.b.false:
+                        region = self.b.true
+                if region == self.b.true:
+                    old_layers = ()
+            if region != self.b.true:
+                # No changed edge can enter the complement and neither old
+                # nor surviving paths can leave the region. Consequently the
+                # old shortest layers outside the region are still exact.
+                index = len(layers)
+                outside_next = (old_layers[index] & ~region
+                                if index < len(old_layers) else self.b.false)
+                inside = sources & region
+                successors = self.any(self.image(inside, g, update) for g, update in self.actions) if inside != self.b.false else self.b.false
+                successors |= self.any(self.image(sources, g, update) for g, update in incoming)
+                frontier = (outside_next | successors) & ~reached
+                reached |= frontier
+                if outside_next != self.b.false:
+                    reused_images += 1
+                continue
             # All earlier admitted layers have been expanded under this relation.
             # Their successors are already in reached. Either BDD therefore
             # yields exactly the same next frontier after subtracting reached.

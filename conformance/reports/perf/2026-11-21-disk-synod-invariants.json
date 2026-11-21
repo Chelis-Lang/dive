@@ -1,0 +1,316 @@
+{
+  "model": "https://github.com/tlaplus/Examples/tree/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/diskpaxos",
+  "proof_publication": "https://isa-afp.org/entries/DiskPaxos.html",
+  "theories": "https://github.com/isabelle-prover/mirror-afp-devel/tree/17e9066954875a1aa5744b7de7b70b8d65f9a966/thys/DiskPaxos",
+  "host": "EC2 c7i.4xlarge, us-west-2, Linux 7.0.0-1018-aws, Xeon Platinum 8488C. Isabelle pinned to two CPUs; each explicit or replay control to a third single CPU.",
+  "isabelle": "Isabelle2025-2 Linux, SHA-256 a20a507bc7c1270d8be96a9f3fbec06345387789d2dc2c4d3df6260d47bfb33c",
+  "tlc_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "bridge_sha256": "25bb29b90620fc2911f6c1f3c740708de306be10a89bc1f38b2cc42d3796a36c",
+  "exact_cfg": {
+    "processes": [
+      1,
+      2,
+      3
+    ],
+    "disks": [
+      1,
+      2
+    ],
+    "ballots": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        6,
+        7
+      ]
+    ],
+    "inputs": [
+      "in1",
+      "in2"
+    ],
+    "quorum": "2*Cardinality(D)>N",
+    "invariants": [
+      "HInv1",
+      "HInv2",
+      "HInv3",
+      "HInv4",
+      "HInv6"
+    ],
+    "deadlock": true
+  },
+  "proof_scope": "Isabelle checks finite constants, six original premises, typed model, five reachable invariants and existence of HNext successor. A human-readable transcription connects the pinned TLA+ and HOL actions, records and CHOOSE operations. Graph cardinality is unknown.",
+  "commands": {
+    "proof": [
+      "python3 scripts/perf/scale/disk_synod_proof.py EXAMPLES/specifications/diskpaxos AFP/thys/DiskPaxos NEW_DIR",
+      "isabelle build -v -o threads=2 -o parallel_proofs=0 -o document=false -D NEW_DIR"
+    ],
+    "core": "dive check MODULE.tla --config CFG --workers 1 --seed 0 --store exact --fp 0 --time-limit 248s --max-memory 2g --output json",
+    "tlc": "java -XX:ActiveProcessorCount=1 -Xmx1900m -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config CFG MODULE",
+    "trace": "dive validate-trace MODULE.tla --config CFG --trace TRACE --output json"
+  },
+  "controls": {
+    "ControlNDBV": "Change only N, the disk count D, BallotCountPerProcess B and the input count V. Keep complete HNext and all five configured predicates.",
+    "schedule": "Original configured HInit and HNext, plus a step counter restricting actions to Phase0Read(1,d) for each disk, EndPhase0(1), then twice the sequence of Phase1or2Write(1,d) for both disks, Phase1or2Read(1,d,q) for every disk and q=2,3, EndPhase1or2(1). Check NoOutput: output[1] = NotAnInput. Strip the schedule from the resulting trace and replay against the complete original Next. The forgery restores the previous chosen value at step 17.",
+    "disjoint": "Allow every nonempty disk set as a quorum. Start with input[1] # input[2]. Process 1 uses only disk 1, then process 2 uses only disk 2. Each executes one Phase0Read and EndPhase0, then twice writes, reads both other processes and ends the phase. Agree requires each output to be chosen or NotAnInput. Replay the unscheduled behavior under both quorum predicates.",
+    "changed_cfg": "Replacing N=3 by N=4 was refused by the shipping helper before creating the output directory."
+  },
+  "independent_checks": {
+    "read_guard_valuations": 16,
+    "individual_read_relation_differences": 1,
+    "whole_next_differences": 0,
+    "poststate_history_cases": 5184,
+    "maximum_witness_comparisons": 5766,
+    "ties_with_distinct_inputs": 1431,
+    "wrong_prestate_chosen_mismatches": 384,
+    "wrong_prestate_allInput_mismatches": 1296
+  },
+  "native_and_oracle": {
+    "Control1111-core": {
+      "exit": 0,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 30532,
+      "verdict": "success",
+      "depth": 9,
+      "distinct": 13,
+      "generated": 29,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "Control1111-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.21,
+      "peak_rss_kib": 102012,
+      "generated": 29,
+      "distinct": 13,
+      "left_on_queue": 0,
+      "depth": 9,
+      "verdict": "success"
+    },
+    "Control1122-core": {
+      "exit": 0,
+      "wall_seconds": 0.01,
+      "peak_rss_kib": 30108,
+      "verdict": "success",
+      "depth": 14,
+      "distinct": 190,
+      "generated": 638,
+      "initial_generated": 2,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "Control1122-tlc": {
+      "exit": 0,
+      "wall_seconds": 1.44,
+      "peak_rss_kib": 106688,
+      "generated": 638,
+      "distinct": 190,
+      "left_on_queue": 0,
+      "depth": 14,
+      "verdict": "success"
+    },
+    "Control2211-core": {
+      "exit": 0,
+      "wall_seconds": 0.15,
+      "peak_rss_kib": 40620,
+      "verdict": "success",
+      "depth": 30,
+      "distinct": 3169,
+      "generated": 21933,
+      "initial_generated": 1,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "Control2211-tlc": {
+      "exit": 0,
+      "wall_seconds": 2.61,
+      "peak_rss_kib": 124684,
+      "generated": 21933,
+      "distinct": 3169,
+      "left_on_queue": 0,
+      "depth": 30,
+      "verdict": "success"
+    },
+    "Control2212-core": {
+      "exit": 0,
+      "wall_seconds": 0.86,
+      "peak_rss_kib": 44860,
+      "verdict": "success",
+      "depth": 30,
+      "distinct": 27178,
+      "generated": 239642,
+      "initial_generated": 4,
+      "left_on_queue": 0,
+      "reported_by_tlc": true
+    },
+    "Control2212-tlc": {
+      "exit": 0,
+      "wall_seconds": 6.18,
+      "peak_rss_kib": 138468,
+      "generated": 239642,
+      "distinct": 27178,
+      "left_on_queue": 0,
+      "depth": 30,
+      "verdict": "success"
+    },
+    "disjoint-Loose": {
+      "exit": 0,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 27276,
+      "verdict": "valid",
+      "validation": {
+        "length": 21,
+        "result": "valid"
+      }
+    },
+    "disjoint-Original": {
+      "exit": 1,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 29068,
+      "verdict": "invalid",
+      "validation": {
+        "length": 21,
+        "result": "invalid",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 10, col 10 to line 16, col 62 of module HDiskSynod",
+          "state": 2
+        }
+      }
+    },
+    "disjoint-core": {
+      "exit": 12,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 32368,
+      "verdict": "invariant-violation",
+      "depth": 21,
+      "distinct": 217,
+      "generated": 217,
+      "initial_generated": 4,
+      "left_on_queue": 15,
+      "reported_by_tlc": true,
+      "trace_states": 21,
+      "ending": {
+        "kind": "invariant",
+        "name": "Agree"
+      }
+    },
+    "disjoint-tlc": {
+      "exit": 12,
+      "wall_seconds": 1.46,
+      "peak_rss_kib": 119344,
+      "generated": 217,
+      "distinct": 217,
+      "left_on_queue": 15,
+      "depth": 21,
+      "verdict": "Agree"
+    },
+    "forgery": {
+      "exit": 1,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 29112,
+      "verdict": "invalid",
+      "validation": {
+        "length": 18,
+        "result": "invalid",
+        "failure": {
+          "check": "next",
+          "detail": "the step into this state does not satisfy the next-state relation line 10, col 10 to line 16, col 62 of module HDiskSynod",
+          "state": 17
+        }
+      }
+    },
+    "original-replay": {
+      "exit": 0,
+      "wall_seconds": 0.02,
+      "peak_rss_kib": 29244,
+      "verdict": "valid",
+      "validation": {
+        "length": 18,
+        "result": "valid"
+      }
+    },
+    "schedule-core": {
+      "exit": 12,
+      "wall_seconds": 0.03,
+      "peak_rss_kib": 34824,
+      "verdict": "invariant-violation",
+      "depth": 18,
+      "distinct": 249,
+      "generated": 249,
+      "initial_generated": 8,
+      "left_on_queue": 15,
+      "reported_by_tlc": true,
+      "trace_states": 18,
+      "ending": {
+        "kind": "invariant",
+        "name": "NoOutput"
+      }
+    },
+    "schedule-tlc": {
+      "exit": 12,
+      "wall_seconds": 1.71,
+      "peak_rss_kib": 117868,
+      "generated": 249,
+      "distinct": 249,
+      "left_on_queue": 15,
+      "depth": 18,
+      "verdict": "NoOutput"
+    }
+  },
+  "sources": {
+    "Synod.tla": "4bd2a69cc03151158cb422a0ee670470ad62b0dd2b56bc1d49a67cf77c3cc008",
+    "Scheduled.cfg": "e0ba2ec691d8bb4199db1c7faf1040f5803d72ab55f6b4f541dba77ae47a6439",
+    "Disjoint.cfg": "e76eeebbb257b9a05036acb11d4b25c07bf2d06f2d34a1808a82c8a05baba641",
+    "Scheduled.tla": "d005f1020a68a0fc5b6c0aa623eca56a4edf21821cbac6ed2f55dad8a6d27d35",
+    "Loose.cfg": "57b6865aad3862e04ace6ead6e47fe6973b14d8cdb2602917346025e58e620ec",
+    "Control1111.cfg": "b2eae5565d9de9adc36546ec19b818c20e640e320bc902bb08c3269dfbe3de4e",
+    "MC_HDiskSynod.tla": "f70a04902aaa20b175daddeead891e2f687128b8fe43b30cee3049bbb46af041",
+    "Disjoint.tla": "fc8e4eb44932d89f89447c8b778f7d26f878602bb1df49b27b737541e1acfe01",
+    "Control1122.cfg": "cfb2796c5402771ef1bd148eb045243e26f5f13130c91bbe90b4382a2353dc95",
+    "Control2212.cfg": "a27334fcc877036f0ce6f620ef73b1d787557799278f56b5afca395a25ca558f",
+    "HDiskSynod.tla": "1758028ad1a579b045189ed305392361a5d154101ed8f9773bc3955f7646713a",
+    "MC_HDiskSynod.cfg": "76994aae4c323b971b05cc6604f92213f7bf6f147cf40074c1b03fecf5d1005c",
+    "Control2211.cfg": "a7e3743040234def42c3172252a7dbff1b9440625d5972c61ecc38bf03d019b0",
+    "Original.cfg": "76994aae4c323b971b05cc6604f92213f7bf6f147cf40074c1b03fecf5d1005c",
+    "Loose.tla": "c6f8bdf6193782f18a37cb9a12b7f2e1ee3271ee541feebbedcb992049e90608",
+    "DiskSynod.tla": "c3924d65bfedaf991a43f50b1739822543e8e25b39c15854f9bf80cab09902da"
+  },
+  "binary_sha256": "eafcc5755dd2baad1a26646f52027644d3790e76862207ef10dae7494a551960",
+  "proof_sessions": {
+    "abstract": {
+      "exit": 0,
+      "wall_seconds": 51.22,
+      "peak_rss_kib": 3748460,
+      "model_sha256": "fb6fdc376d02e424884c34fa3f19483b672edef47d4072c284c45ac72987f866",
+      "root": "session Abstract_Disk = HOL + theories DiskPaxos\n"
+    },
+    "concrete": {
+      "exit": 0,
+      "wall_seconds": 55.23,
+      "peak_rss_kib": 3798388,
+      "model_sha256": "5d13d55411d6c6a34702a0722f4c9bd32c019fe119c6a26105cb3a3aa6ed4bc8",
+      "root": "session Concrete_Disk = HOL + theories DiskPaxos\n"
+    },
+    "bridge6": {
+      "exit": 0,
+      "wall_seconds": 58.84,
+      "peak_rss_kib": 3857632,
+      "model_sha256": "5d13d55411d6c6a34702a0722f4c9bd32c019fe119c6a26105cb3a3aa6ed4bc8",
+      "root": "session Disk_Source_Bridge6 = HOL + theories DiskPaxos_Configured\n"
+    },
+    "packaged": {
+      "exit": 0,
+      "wall_seconds": 55.25,
+      "peak_rss_kib": 3841624,
+      "model_sha256": "5d13d55411d6c6a34702a0722f4c9bd32c019fe119c6a26105cb3a3aa6ed4bc8",
+      "root": "session Disk_Source = HOL + theories DiskPaxos DiskPaxos_Configured\n"
+    }
+  }
+}
