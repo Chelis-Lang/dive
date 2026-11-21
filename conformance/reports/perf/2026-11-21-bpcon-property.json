@@ -1,0 +1,187 @@
+{
+  "source": "tlaplus/Examples 6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f, specifications/byzpaxos",
+  "sha256": {
+    "BPConProof.tla": "daa731dcadf12a892415131881d82d5b23e56c53097e90b986a24b1408a2e3c6",
+    "BPConProof.cfg": "8a3af0fba0f0ed0d96827717e0edacf7ad9bedc23b9f7aebf82f3c2bb5434e9a"
+  },
+  "host": "EC2 c7i.4xlarge in us-east-2, Xeon Platinum 8488C, Linux. One pinned CPU per process. Other experiments occupied separate physical cores.",
+  "checker_sha256": "d54a5576c1e25aacefb74db02c68dd04136620517d4dbe90eaac881115c8dbc0",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "lower_bound": {
+    "distinct_formula": "9^2304 * 2^21",
+    "digits": 2205,
+    "scope": "Constructively reachable subset, including individual honest knowledge sets; full graph cardinality and universal Inv are separate questions."
+  },
+  "face_module": [
+    "---- MODULE Face ----",
+    "EXTENDS BPConProof",
+    "CONSTANT K",
+    "FaceMsgs == { [type |-> \"1b\", acc |-> a, bal |-> b, mbal |-> -1,",
+    "               mval |-> None, m2av |-> {}] : a \\in FakeAcceptor, b \\in 0..(K-1) }",
+    "Face == bmsgs \\subseteq FaceMsgs",
+    "Unheard == Face /\\ \\A a \\in Acceptor : knowsSent[a] = {}",
+    "===="
+  ],
+  "face_cfg": "Append CONSTANT K = 1, 2, or 3 and CONSTRAINT Face or CONSTRAINT Unheard to original CFG. Retain SPECIFICATION Spec and INVARIANT Inv.",
+  "face_sha256": "4acffe8b8908a06344e0c3c44f7fcaaad1ee849295591ff13f69281a22fa025d",
+  "commands": {
+    "core": "dive check Face.tla --config CFG --library-path LIB --store exact --workers 1 --seed 0 --fp 0 --max-memory 1500m --time-limit 180s --output json",
+    "tlc": "java -Xmx1700m -XX:ActiveProcessorCount=1 -DTLA-Library=LIB -cp tla2tools.jar tlc2.TLC -workers 1 -seed 0 -fp 0 -config CFG Face.tla",
+    "replay": "dive validate-trace BPConProof.tla --config BPConProof.cfg --library-path LIB --trace TRACE --seed 0 --fp 0 --output json"
+  },
+  "checks": [
+    {
+      "constraint": "Face",
+      "messages": 1,
+      "cfg_sha256": "8852200577393ada0d3e7ce6c8f8ed33511117ef6cbfa37c94574013dd518a10",
+      "core": {
+        "wall_seconds": 0.28,
+        "peak_rss_kib": 77904,
+        "exit": 0
+      },
+      "tlc": {
+        "wall_seconds": 3.2,
+        "peak_rss_kib": 167612,
+        "exit": 0
+      },
+      "statistics": {
+        "generated": 21085,
+        "distinct": 9,
+        "depth": 5,
+        "left_on_queue": 0
+      }
+    },
+    {
+      "constraint": "Unheard",
+      "messages": 1,
+      "cfg_sha256": "6cbe5b945a7aa389975baf6c9a2eb294a623d5389d76598e5202f4f333e80de8",
+      "core": {
+        "wall_seconds": 0.16,
+        "peak_rss_kib": 78008,
+        "exit": 0
+      },
+      "tlc": {
+        "wall_seconds": 2.59,
+        "peak_rss_kib": 155720,
+        "exit": 0
+      },
+      "statistics": {
+        "generated": 4684,
+        "distinct": 2,
+        "depth": 2,
+        "left_on_queue": 0
+      }
+    },
+    {
+      "constraint": "Face",
+      "messages": 2,
+      "cfg_sha256": "54b2d6b78a357689c4abfa9c69891645b258d4d7ae26b6c97baff6581276be48",
+      "core": {
+        "wall_seconds": 1.83,
+        "peak_rss_kib": 77664,
+        "exit": 0
+      },
+      "tlc": {
+        "wall_seconds": 5.15,
+        "peak_rss_kib": 169160,
+        "exit": 0
+      },
+      "statistics": {
+        "generated": 189973,
+        "distinct": 81,
+        "depth": 9,
+        "left_on_queue": 0
+      }
+    },
+    {
+      "constraint": "Unheard",
+      "messages": 2,
+      "cfg_sha256": "d6352a84f092f64046f038040c649131d8ad0627edb08940c49ef7a3e615e13b",
+      "core": {
+        "wall_seconds": 0.2,
+        "peak_rss_kib": 77952,
+        "exit": 0
+      },
+      "tlc": {
+        "wall_seconds": 2.95,
+        "peak_rss_kib": 179564,
+        "exit": 0
+      },
+      "statistics": {
+        "generated": 9373,
+        "distinct": 4,
+        "depth": 3,
+        "left_on_queue": 0
+      }
+    },
+    {
+      "constraint": "Face",
+      "messages": 3,
+      "cfg_sha256": "63dbc688ecb2db91c4a38ad37eb2f88b32b3a40bee0f68fc7456f8f2baf2755d",
+      "core": {
+        "wall_seconds": 19.77,
+        "peak_rss_kib": 79848,
+        "exit": 0
+      },
+      "tlc": {
+        "wall_seconds": 19.34,
+        "peak_rss_kib": 174312,
+        "exit": 0
+      },
+      "statistics": {
+        "generated": 1711693,
+        "distinct": 729,
+        "depth": 13,
+        "left_on_queue": 0
+      }
+    },
+    {
+      "constraint": "Unheard",
+      "messages": 3,
+      "cfg_sha256": "3e55ecee576a84cda4673c883ff3d66d860a6199b9efca8ab6839962a2b25cfd",
+      "core": {
+        "wall_seconds": 0.29,
+        "peak_rss_kib": 80172,
+        "exit": 0
+      },
+      "tlc": {
+        "wall_seconds": 3.1,
+        "peak_rss_kib": 165852,
+        "exit": 0
+      },
+      "statistics": {
+        "generated": 18757,
+        "distinct": 8,
+        "depth": 4,
+        "left_on_queue": 0
+      }
+    }
+  ],
+  "dimension_assertions": {
+    "clauses": [
+      "ASSUME Cardinality({m \\in 1bMessage : m.acc \\in FakeAcceptor}) = 2304",
+      "ASSUME Cardinality({m \\in 2avMessage \\cup 2bMessage : m.acc \\in FakeAcceptor}) = 12",
+      "ASSUME Cardinality(1aMessage \\cup 1cMessage) = 9"
+    ],
+    "test": "Face-1 under the original constants and Inv. Both Core exact and pinned TLC passed all three assumptions and reached 9 states, depth 5."
+  },
+  "replay": {
+    "recipe": "Begin in the original Init. For each of the three ballots send three fake 1b records, two 2av and two 2b records and both 1c values, then one 1a. For 1b index j=0,1,2 choose mbal=j-1, mval=(None,v1,v2)[j] and m2av containing pairs for ballots 0..j-1 with alternating values. For the nine 1b messages numbered 0..8, deliver each to the subset of the three honest nodes selected by the low three bits of its number. Each delivery takes one original acceptor step. Give each finite trace a behavior ending. Append one step deleting a sent record as the negative control.",
+    "runs": [
+      {
+        "states": 43,
+        "result": "valid",
+        "next_failure_state": null,
+        "wall_seconds": 0.63,
+        "peak_rss_kib": 91056
+      },
+      {
+        "states": 44,
+        "result": "invalid",
+        "next_failure_state": 43,
+        "wall_seconds": 0.71,
+        "peak_rss_kib": 88992
+      }
+    ]
+  }
+}
