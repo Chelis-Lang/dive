@@ -63,7 +63,9 @@ impl Spool {
         let mut out = Write { bytes: Vec::new() };
         out.word(action as u64)?;
         match occ {
-            Occ::Old { key, inside, at } => {
+            Occ::Old {
+                key, inside, at, ..
+            } => {
                 out.byte(0)?;
                 out.word(*key)?;
                 out.byte(u8::from(*inside))?;
@@ -112,6 +114,7 @@ impl Spool {
         let action = input.index()?;
         let mut occ = match input.byte()? {
             0 => Occ::Old {
+                resident_hit: false,
                 key: input.word()?,
                 inside: input.boolean()?,
                 at: input.boolean()?.then_some(0),
