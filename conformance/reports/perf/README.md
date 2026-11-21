@@ -21,6 +21,8 @@ extend this evidence to native checkers, implementation traces and proofs.
 
 The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
 
+The [etcd election-term witnesses](2026-11-21-etcd-election-terms.json) reproduce the unbounded election counter in the released three-server configuration.
+
 The [native peer panel](2026-11-20-native-peer-panel.json) records process
 measurements against pinned Manyan, tlx and tla-mc, plus the same-binary
 guard experiment. [Results and interpretation](../../../docs/internal/survey/verification-workloads.md#native-peer-measurements)
