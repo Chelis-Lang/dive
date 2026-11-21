@@ -684,6 +684,12 @@ The archive includes `Next` and a separate `NextMC` that omits lookup actions. I
 
 Keeping all four nodes and enabling lookup actions with `Next` changed the result again. Neither definition completed on either checker in the one-worker run. At its 420 s limit the counted Core run had reached depth 17 with 1,233,725 distinct states and 494,504 still queued. The bounded Core run reached the same depth with 1,138,948 distinct and 461,672 queued. The TLC record gives the last periodic sample before each external deadline.
 
+### LuPastry+ neighbour choice at 32 and 64 addresses
+
+During initialization the released ring computes the nearest neighbours with a bounded `CHOOSE` over `SUBSET a`. At `L=1`, the answer is a singleton. The earlier checker refused at 25 base elements before it tested a candidate. On an integer domain, Core and its independent evaluator now test the empty set and then singletons in normalized order. A witness ends the search. Exhausting this prefix gives an explicit refusal when larger subsets remain.
+
+With one joining address, both engines exhausted 256 distinct states, 15,249 generated and depth 19 at 32 addresses. At 64 addresses they exhausted 316 distinct, 30,493 generated and depth 19. At 128 addresses both exhausted 474 distinct, 61,019 generated and depth 19. With three workers each, Core used 3.09 GiB in 179.61 s and TLC used 0.74 GiB in 125.17 s. These are full safety checks with the counted routing equation, bounded leaf declaration and both original invariants. For this experiment Core uses `SharedNext == TRUE /\ NextMC` to isolate choice evaluation from the separate action compiler limit. Pinned TLC uses `NextMC` directly. A deliberately false additional invariant at 32 addresses produced a depth-two trace that validated independently. Replacing its second state with its initial state failed validation. [Exact edits, baseline failures, CPU placement, wall time and RSS](../../conformance/reports/perf/2026-11-21-pastry-source-scale.json).
+
 ### LuPastry+ message and leaf domains
 
 A one-state experiment isolated an eight-address limit to checking whether the **empty** message pool belongs to `SUBSET Message`. The earlier Core build exhausted a 15 GiB cgroup. It imported eight record variants by enumerating their possible payloads, including routing functions. Core now keeps eligible closed record families as finite set descriptors and tests the fields of the message presented to it. The explicit states, invariants and transition relation stay the same.

@@ -8,6 +8,12 @@ use crate::heap::Cursor;
 use crate::node::Kind;
 use crate::plan::{Bind, Code};
 
+/// The complete domain or an ordered prefix of a wide integer powerset.
+pub(crate) enum ChoiceCursor {
+    Complete(Cursor),
+    EmptyAndSingletons { base: Cursor, empty_pending: bool },
+}
+
 fn quota() -> Error {
     Error::unsupported("the optional domain materialization budget")
 }
@@ -194,6 +200,60 @@ impl Machine {
         self.heap.cursor(h)
     }
 
+    /// A bounded CHOOSE stops at its first witness. For a wide powerset we
+    /// can visit the empty set and the singleton layer in the existing cursor
+    /// order without materializing the powerset. Only an exhausted complete
+    /// cursor proves that no witness exists.
+    pub(crate) fn choice_cursor(&mut self, domain: Handle) -> Result<ChoiceCursor, Error> {
+        if self.fuel == u64::MAX && self.heap.kind(domain) == Some(Kind::Subset) {
+            let base = self.heap.view(domain).data[0];
+            let eligible = match self.heap.kind(base) {
+                Some(Kind::Interval) => true,
+                Some(Kind::Set) => {
+                    let values = self.heap.view(base).data;
+                    values.len() > 24 && values.iter().all(|v| v.as_int().is_some())
+                }
+                _ => false,
+            };
+            if eligible {
+                let size = self.heap.cardinality(base)?;
+                if self.heap.int_mode() == crate::int::IntMode::Tlc && size > i32::MAX as u64 {
+                    return Err(Error::unsupported(
+                        "CHOOSE over a powerset whose base exceeds TLC's signed 32-bit size",
+                    ));
+                }
+                if size > 24 {
+                    return Ok(ChoiceCursor::EmptyAndSingletons {
+                        base: self.work_cursor(base)?,
+                        empty_pending: true,
+                    });
+                }
+            }
+        }
+        self.work_cursor(domain).map(ChoiceCursor::Complete)
+    }
+
+    pub(crate) fn next_choice(
+        &mut self,
+        cursor: &mut ChoiceCursor,
+    ) -> Result<Option<Handle>, Error> {
+        match cursor {
+            ChoiceCursor::Complete(domain) => self.work_next(domain),
+            ChoiceCursor::EmptyAndSingletons {
+                base,
+                empty_pending,
+            } => {
+                if std::mem::take(empty_pending) {
+                    return Ok(Some(self.heap.empty_set()));
+                }
+                let element = self.work_next(base)?.ok_or_else(|| Error::unsupported(
+                    "CHOOSE over a wide powerset needs candidates beyond the empty set and singletons",
+                ))?;
+                Ok(Some(self.heap.set_sorted(&[element])))
+            }
+        }
+    }
+
     pub(crate) fn work_next(&mut self, cursor: &mut Cursor) -> Result<Option<Handle>, Error> {
         let work = match cursor {
             Cursor::Odometer { comps, shape, .. } => {
@@ -278,7 +338,7 @@ impl Machine {
 mod tests {
     use super::*;
     use crate::plan::Node;
-    use crate::{Opts, Store};
+    use crate::{Opts, Semantics, Store, int::IntMode, memo::Memo};
     use std::sync::Arc;
 
     #[test]
@@ -536,5 +596,26 @@ mod tests {
             machine.fuel > 0,
             "no fabricated known-cost exhaustion for an unknown shape"
         );
+    }
+
+    #[test]
+    fn powerset_choice_uses_integer_mode_independently_of_comparison_order() {
+        for int_mode in [IntMode::Big, IntMode::Tlc] {
+            for tlc_comparisons in [false, true] {
+                let semantics = Semantics {
+                    int_mode,
+                    tlc_comparisons,
+                    ..Semantics::default()
+                };
+                let store = Arc::new(Store::with_semantics(true, semantics));
+                let mut machine = Machine::new(store, 0, Opts::default(), Memo::new(&[]));
+                let base = machine.heap.interval(0, i64::from(i32::MAX));
+                let domain = machine.heap.symbolic(Kind::Subset, 0, &[base]);
+                assert_eq!(
+                    machine.choice_cursor(domain).is_ok(),
+                    int_mode == IntMode::Big
+                );
+            }
+        }
     }
 }

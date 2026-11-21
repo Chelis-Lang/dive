@@ -2283,12 +2283,12 @@ impl Machine {
                     return Err(Error::unsupported("CHOOSE with several bound variables"));
                 }
                 let d = self.eval(code, binds[0].domain)?;
-                let mut cur = self.work_cursor(d)?;
+                let mut cur = self.choice_cursor(d)?;
                 loop {
                     // Free a rejected candidate, and the predicate's
                     // transients, by arena rollback, as `filter` does.
                     let before = self.heap.mark();
-                    let Some(e) = self.work_next(&mut cur)? else {
+                    let Some(e) = self.next_choice(&mut cur)? else {
                         break;
                     };
                     self.charge(1)?;
