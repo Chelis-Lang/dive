@@ -897,6 +897,9 @@
       }
     },
     "occupancy_run": "tables.archive.runs.T256",
-    "record": "2026-11-21-wide-source-induction.json"
+    "ordinary_bdd_evidence_file": "2026-11-21-wide-source-induction.json",
+    "terminal_run_key": "full_original_256_extended",
+    "previous_2370_second_stop_key": "full_original_256",
+    "terminal_time_limit_s": 6690
   }
 }
