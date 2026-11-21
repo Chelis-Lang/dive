@@ -69,10 +69,10 @@ def replay(args, candidate_depths):
 
 
 def emit_worker(document, type_invariant, template, manager):
-    model = SourceModel(document, type_invariant, manager, state_bit_limit=32)
+    model = SourceModel(document, type_invariant, manager, state_bit_limit=63)
     emitter = Rust(model)
     text = emitter.emit(template)
-    return text, emitter.metadata["width"]
+    return text, emitter.metadata
 
 
 def lower(document, type_invariant, template):
@@ -90,7 +90,7 @@ def run(args):
     exported = run_helper([args.exporter, args.module, args.config], "Dive frontend", args.max_memory)
     require(exported.returncode == 0, "Dive frontend: " + exported.stderr.strip())
     template = Path(__file__).with_name("packed_worker.rs.in").read_text()
-    text, width = lower(json.loads(exported.stdout), args.type_invariant, template)
+    text, layout = lower(json.loads(exported.stdout), args.type_invariant, template)
     folder = Path(args.scratch)
     source = folder / "worker.rs"
     binary = folder / "worker"
@@ -109,6 +109,8 @@ def run(args):
     search_seconds = time.monotonic() - started
     if searched.returncode == 4:
         raise Stopped("compiled state bitset exceeds available memory")
+    if searched.returncode == 6:
+        raise RuntimeError(searched.stderr.strip().removeprefix("Error: "))
     if searched.returncode not in (0, 5):
         raise RuntimeError(f"unexpected compiled checker status {searched.returncode}")
     result = json.loads(searched.stdout)
@@ -117,7 +119,8 @@ def run(args):
                             "deadlock": result["deadlock_depth"]})
     else:
         row = dict(verdict="success", left_on_queue=0, **result)
-    row.update(workers_requested=args.workers, state_bits=width,
+    row.update(workers_requested=args.workers, state_bits=layout["width"],
+               membership_bits=layout["membership_bits"],
                compile_seconds=round(compile_seconds, 6), search_seconds=round(search_seconds, 6))
     return row, 11 if searched.returncode == 5 else 0
 

@@ -5,16 +5,45 @@ use std::process::ExitCode;
 use std::sync::atomic::{AtomicU64, Ordering::Relaxed};
 use std::thread;
 
-const WIDTH: u32 = @WIDTH@;
+type Row = @WORD@;
+const RANKED: bool = @RANKED@;
 const FIXED: u32 = @FIXED@;
 const ROLES: usize = @ROLES@;
 const LANE: u32 = @LANE@;
 const CHECK_DEADLOCK: bool = @CHECK_DEADLOCK@;
 const INITIAL_GENERATED: u64 = @INITIAL_GENERATED@;
+const MEMBERSHIP_BITS: usize = @MEMBERSHIP_BITS@;
+const INVALID: u16 = u16::MAX;
+const FIXED_SPACE: usize = @FIXED_SPACE@;
+const LANE_RANGE: usize = @LANE_RANGE@;
+const FIXED_RANKS: [u16; if RANKED { 1 << FIXED } else { 0 }] = [@FIXED_RANKS@];
+const LANE_RANKS: [u16; if RANKED { 1 << LANE } else { 0 }] = [@LANE_RANKS@];
 
-fn identity(row: u32) -> u32 {
+// For sorted lane ordinals r[i], the integers r[i] + i form a strict
+// combination. Its colexicographic rank is sum(C(r[i] + i, i + 1)).
+const COLEX: [[usize; LANE_RANGE]; ROLES] = {
+    let mut ranks = [[0; LANE_RANGE]; ROLES];
+    let mut index = 0;
+    while index < ROLES {
+        let mut lane = 0;
+        while lane < LANE_RANGE {
+            let mut rank = 1;
+            let mut k = 0;
+            while k <= index {
+                rank = rank * (lane + index - k) / (k + 1);
+                k += 1;
+            }
+            ranks[index][lane] = rank;
+            lane += 1;
+        }
+        index += 1;
+    }
+    ranks
+};
+
+fn identity(row: Row) -> Option<(Row, usize)> {
     if ROLES < 2 {
-        return row;
+        return Some((row, row as usize));
     }
     let mask = (1 << LANE) - 1;
     let mut lanes = [0; ROLES];
@@ -22,36 +51,67 @@ fn identity(row: u32) -> u32 {
         *lane = row >> (FIXED + LANE * index as u32) & mask;
     }
     lanes.sort_unstable();
-    let mut key = row & u32::MAX.checked_shr(32 - FIXED).unwrap_or(0);
+    let mut key = row & Row::MAX.checked_shr(Row::BITS - FIXED).unwrap_or(0);
+    let fixed = if RANKED {
+        let fixed = FIXED_RANKS[key as usize];
+        if fixed == INVALID {
+            return None;
+        }
+        usize::from(fixed)
+    } else {
+        0
+    };
+    let mut orbit = 0;
     for (index, lane) in lanes.into_iter().enumerate() {
+        if RANKED {
+            let ordinal = LANE_RANKS[lane as usize];
+            if ordinal == INVALID {
+                return None;
+            }
+            orbit += COLEX[index][usize::from(ordinal)];
+        }
         key |= lane << (FIXED + LANE * index as u32);
     }
-    key
+    let rank = if RANKED { orbit * FIXED_SPACE + fixed } else { key as usize };
+    Some((key, rank))
+}
+
+#[inline]
+fn holds(row: Row) -> bool {
+    @PROPERTIES@
 }
 
 struct Search<'a> {
     seen: &'a [AtomicU64],
-    next: Vec<u32>,
+    next: Vec<Row>,
     generated: u64,
     invariant: bool,
     deadlock: bool,
+    rank_error: bool,
 }
 
 impl Search<'_> {
     #[inline]
-    fn emit(&mut self, row: u32) {
+    fn emit(&mut self, row: Row) {
         self.generated += 1;
-        let key = identity(row);
-        let word = &self.seen[key as usize / 64];
-        let mask = 1_u64 << (key % 64);
+        let Some((key, rank)) = identity(row) else {
+            // Projections cover every state satisfying all configured
+            // invariants. A missing rank can still be a real finding.
+            let valid = holds(row);
+            self.invariant |= !valid;
+            self.rank_error |= valid;
+            return;
+        };
+        let word = &self.seen[rank / 64];
+        let mask = 1_u64 << (rank % 64);
         if word.load(Relaxed) & mask != 0 || word.fetch_or(mask, Relaxed) & mask != 0 {
             return;
         }
-        self.invariant |= !(@PROPERTIES@);
+        self.invariant |= !holds(row);
         self.next.push(key);
     }
 
-    fn expand(&mut self, row: u32) {
+    fn expand(&mut self, row: Row) {
         let before = self.generated;
         @EXPAND@
         self.deadlock |= CHECK_DEADLOCK && self.generated == before;
@@ -61,6 +121,7 @@ impl Search<'_> {
         self.generated += other.generated;
         self.invariant |= other.invariant;
         self.deadlock |= other.deadlock;
+        self.rank_error |= other.rank_error;
         if self.next.is_empty() {
             self.next = other.next;
         } else {
@@ -69,8 +130,8 @@ impl Search<'_> {
     }
 }
 
-fn expand<'a>(seen: &'a [AtomicU64], rows: &[u32], next: Vec<u32>) -> Search<'a> {
-    let mut search = Search { seen, next, generated: 0, invariant: false, deadlock: false };
+fn expand<'a>(seen: &'a [AtomicU64], rows: &[Row], next: Vec<Row>) -> Search<'a> {
+    let mut search = Search { seen, next, generated: 0, invariant: false, deadlock: false, rank_error: false };
     for &row in rows {
         search.expand(row);
     }
@@ -83,11 +144,16 @@ fn finding(invariant: bool, invariant_depth: u32, deadlock: bool, deadlock_depth
     println!("{{\"invariant_depth\":{invariant},\"deadlock_depth\":{deadlock}}}");
 }
 
+fn rank_error() -> ExitCode {
+    eprintln!("Error: compiled orbit rank is missing for a state satisfying all invariants");
+    ExitCode::from(6)
+}
+
 fn main() -> ExitCode {
     let Some(workers @ 1..=8) = std::env::args().nth(1).and_then(|s| s.parse::<usize>().ok()) else {
         return ExitCode::from(3);
     };
-    let bitset_words = (1_usize << WIDTH).div_ceil(64);
+    let bitset_words = MEMBERSHIP_BITS.div_ceil(64);
     let mut seen = Vec::new();
     if seen.try_reserve_exact(bitset_words).is_err() {
         return ExitCode::from(4);
@@ -96,6 +162,9 @@ fn main() -> ExitCode {
     let mut wave = expand(&seen, &[], Vec::new());
     for row in [@INITIALS@] {
         wave.emit(row);
+    }
+    if wave.rank_error {
+        return rank_error();
     }
     if wave.invariant {
         finding(true, 1, false, 0);
@@ -129,6 +198,9 @@ fn main() -> ExitCode {
                 }
                 combined
             });
+        }
+        if wave.rank_error {
+            return rank_error();
         }
         if wave.invariant || wave.deadlock {
             finding(wave.invariant, depth + 1, wave.deadlock, depth);

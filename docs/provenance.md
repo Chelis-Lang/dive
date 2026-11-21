@@ -1094,6 +1094,17 @@ filters, intersections and differences can carry repeated elements from their
 iteration domain. The symbolic compiler tracks when that enumeration is
 provably duplicate-free and refuses unproved initial membership counts.
 
+### Exact compiled orbit ranks
+
+The [finite relation experiment](internal/survey/verification-workloads.md#compiling-the-finite-relation)
+used Boolean projections followed by a combinatorial number system for sorted
+symmetry lanes. The compiled checker uses that rank with the source binder's
+adjacent-swap equivariance proof for Init, invariants and the transition
+witness multiset. For lane ordinals in sorted order, adding their positions
+gives a strictly increasing combination. The colexicographic rank and the
+ordinal of the unswapped fields uniquely identify the orbit. Every state that
+satisfies the configured invariants is in all the projections.
+
 ### Independent initial-predicate context
 
 

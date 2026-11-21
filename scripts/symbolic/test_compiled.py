@@ -54,8 +54,66 @@ def installed(root, binary, exporter):
     return dive
 
 
+def check_wide(root, dive):
+    module = root / "WideReceipts.tla"
+    module.write_text(r'''---- MODULE WideReceipts ----
+EXTENDS TLC
+CONSTANT IDs
+VARIABLE got
+Tokens == {"red", "blue", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
+TypeInvariant == got \in [IDs -> SUBSET Tokens]
+OnlyRed == \A id \in IDs : got[id] \subseteq {"red"}
+OnlyBlue == \A id \in IDs : got[id] \subseteq {"blue"}
+SomeEmpty == \E id \in IDs : got[id] = {}
+Never == \E id \in IDs : got[id] = {"red"} /\ got[id] = {"blue"}
+Symmetric == Permutations(IDs)
+Init == got = [id \in IDs |-> {}]
+Receive(token) == \E id \in IDs :
+    /\ got[id] = {}
+    /\ got' = [got EXCEPT ![id] = {token}]
+Next == \/ Receive("red")
+        \/ Receive("red")
+        \/ UNCHANGED got
+NextBad == \/ Next
+           \/ Receive("blue")
+====
+''')
+    cfg = module.with_suffix(".cfg")
+    base = 'CONSTANT IDs = {p1, p2, p3}\nINIT Init\nINVARIANT TypeInvariant\nSYMMETRY Symmetric\n'
+    compiled = [dive, "check", module, "--strategy=compiled", "--output", "json"]
+    core = [dive, "check", module, "--compat=tlc", "--store", "exact", "--seed", "0", "--fp", "0",
+            "--workers", "1", "--output", "json"]
+    cfg.write_text(base + 'NEXT Next\nINVARIANT OnlyRed\n')
+    row = check([*compiled, "--workers", "8"])
+    assert row["state_bits"] == 36 and row["membership_bits"] == 4
+    ordinary = check(core)["statistics"]
+    keys = ("initial_generated", "distinct", "generated", "depth", "left_on_queue")
+    assert tuple(row[k] for k in keys) == tuple(ordinary[k] for k in keys) == (1, 4, 17, 4, 0)
+
+    # Blue is excluded by the lane projection, as is the initial row if
+    # the invariant is identically false. Both findings must survive ranking.
+    for next_op, invariant, depth, ranks in (("NextBad", "OnlyRed", 2, 4),
+                                            ("Next", "OnlyBlue", 2, 4),
+                                            ("Next", "Never", 1, 0)):
+        cfg.write_text(base + f'NEXT {next_op}\nINVARIANT {invariant}\n')
+        row = check(compiled, 1)
+        assert row["trace_validated"] and row["ending"]["name"] == invariant
+        assert row["depth"] == depth and row["membership_bits"] == ranks
+
+    # Each lane of the final row has a rank, but the combination still
+    # violates the cross-lane predicate.
+    cfg.write_text(base + 'NEXT Next\nINVARIANT OnlyRed\nINVARIANT SomeEmpty\n')
+    row = check(compiled, 1)
+    assert row["trace_validated"] and row["ending"]["name"] == "SomeEmpty" and row["depth"] == 4
+
+    cfg.write_text(base.replace('SYMMETRY Symmetric\n', '') + 'NEXT Next\nINVARIANT OnlyRed\n')
+    row = check(compiled, 2)
+    assert row["verdict"] == "unsupported" and "proved index symmetry" in row["reason"]
+
+
 def run(root, binary, exporter):
     dive = installed(root, binary, exporter)
+    check_wide(root, dive)
     module = root / "Receipts.tla"
     module.write_text(r'''---- MODULE Receipts ----
 CONSTANT IDs
