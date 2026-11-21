@@ -125,6 +125,22 @@ struct Table {
 }
 
 impl Table {
+    fn allocation(&self, sets_log: u32) -> usize {
+        (1usize << (sets_log + WAYS_LOG)) * (1 + self.klen) * 8
+    }
+
+    fn allocate(&mut self, used: &mut usize, cap: usize) -> bool {
+        if self.words.is_empty() {
+            let bytes = self.allocation(self.sets_log);
+            if bytes > cap.saturating_sub(*used) {
+                return false;
+            }
+            self.words = vec![Handle::EMPTY.bits(); bytes / 8];
+            *used += self.bytes();
+        }
+        true
+    }
+
     fn bytes(&self) -> usize {
         self.words.len() * 8
     }
@@ -340,6 +356,42 @@ impl Memo {
         None
     }
 
+    /// Gives selected sites their initial tables when all sites cannot fit.
+    /// This uses the ordinary per-worker byte cap. It records no lookups,
+    /// keys or cached answers.
+    ///
+    /// ```
+    /// use dive_core::memo::Memo;
+    /// let mut memo = Memo::new(&[1; 8]);
+    /// memo.set_cap(2048);
+    /// memo.prepare_sites([7]);
+    /// assert_eq!(memo.bytes(), 2048);
+    /// ```
+    pub fn prepare_sites(&mut self, sites: impl IntoIterator<Item = u32>) {
+        let cap = self
+            .cap
+            .saturating_sub(self.members.cap + self.member_index.cap);
+        let needed = self
+            .tables
+            .iter()
+            .flatten()
+            .fold(0usize, |n, t| n.saturating_add(t.allocation(MIN_SETS_LOG)));
+        if needed <= cap {
+            return;
+        }
+        for id in sites {
+            if let Some(Some(table)) = self.tables.get_mut(id as usize)
+                && !table.stats.off
+                && table.words.is_empty()
+            {
+                // After Store compaction, discard the old table's growth history.
+                table.sets_log = MIN_SETS_LOG;
+                table.evictions = 0;
+                table.allocate(&mut self.bytes, cap);
+            }
+        }
+    }
+
     /// Records a result.
     pub fn put(&mut self, site: u32, key: &[Handle], result: Handle) {
         let Some(Some(t)) = self.tables.get_mut(site as usize) else {
@@ -349,17 +401,11 @@ impl Memo {
             return;
         }
         let stride = 1 + t.klen;
-        let bytes_for = |sets_log: u32| (1usize << (sets_log + WAYS_LOG)) * stride * 8;
-        if t.words.is_empty() {
-            if self.bytes + bytes_for(t.sets_log)
-                > self
-                    .cap
-                    .saturating_sub(self.members.cap + self.member_index.cap)
-            {
-                return;
-            }
-            t.words = vec![Handle::EMPTY.bits(); bytes_for(t.sets_log) / 8];
-            self.bytes += t.bytes();
+        let cap = self
+            .cap
+            .saturating_sub(self.members.cap + self.member_index.cap);
+        if !t.allocate(&mut self.bytes, cap) {
+            return;
         }
         let mut entry = [0u64; 1 + MAX_KEY];
         entry[0] = result.bits();
@@ -370,13 +416,10 @@ impl Memo {
         if Self::place(&mut t.words, &mut t.flip, t.sets_log, entry) {
             t.evictions += 1;
         }
-        let grown = bytes_for(t.sets_log + 1);
+        let grown = t.allocation(t.sets_log + 1);
         if t.evictions > 1 << (t.sets_log + WAYS_LOG - 2)
             && t.sets_log < SETS_LOG
-            && self.bytes - t.bytes() + grown
-                <= self
-                    .cap
-                    .saturating_sub(self.members.cap + self.member_index.cap)
+            && self.bytes - t.bytes() + grown <= cap
         {
             // Rehash every entry into a table twice the size.
             let mut words = vec![Handle::EMPTY.bits(); grown / 8];
@@ -415,6 +458,41 @@ impl Memo {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn prioritized_tables_use_the_existing_cap_and_survive_a_store_reset() {
+        let mut m = Memo::new(&[1; 4]);
+        let bytes = 2048;
+        m.set_cap(2 * bytes);
+        m.prepare_sites([3, 3, u32::MAX]);
+        assert_eq!(m.bytes(), bytes);
+        assert_eq!(m.stats()[3].lookups, 0);
+        // Only one other site can fit. A new key, a miss, and an entry
+        // from a previous Store must never become a cached answer.
+        let first = [Handle::TRUE];
+        let other = [Handle::FALSE];
+        for site in 0..4 {
+            m.put(site, &first, Handle::FALSE);
+        }
+        assert_eq!(m.bytes(), 2 * bytes);
+        assert_eq!(m.get(3, &other), None);
+        assert_eq!(m.get(3, &first), Some(Handle::FALSE));
+        assert_eq!(m.get(1, &first), None);
+        m.clear();
+        m.prepare_sites([3]);
+        assert_eq!(m.bytes(), bytes);
+        assert_eq!(m.get(3, &first), None);
+        assert_eq!(m.stats()[3].lookups, 3);
+
+        let mut ample = Memo::new(&[1; 4]);
+        ample.set_cap(4 * bytes);
+        ample.prepare_sites([3]);
+        assert_eq!(ample.bytes(), 0);
+        let mut tiny = Memo::new(&[1; 4]);
+        tiny.set_cap(bytes - 1);
+        tiny.prepare_sites([3]);
+        assert_eq!(tiny.bytes(), 0);
+    }
 
     #[test]
     fn put_then_get_and_key_mismatch() {

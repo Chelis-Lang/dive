@@ -75,6 +75,10 @@ inputs are always persistent.
 - Each site has a set-associative table (2-way). It starts with 64 sets.
   It doubles, rehashing its entries, once it has evicted more entries than
   a quarter of its capacity since it last grew, up to 8,192 sets.
+- Parallel workers running pure plans without debugger observation allocate
+  the initial state-invariant tables first if the minimum allocations for all
+  sites exceed the available table budget. Preparing an empty table records
+  no lookup. A store compaction clears its entries and reapplies this policy.
 - **Memory bound (built).** A worker's tables together stay under a byte
   cap: a sixty-fourth of the run's memory ceiling (`--max-memory`) shared
   by the workers, clamped to between 1 MiB and 64 MiB (`Opts::memo_cap`,

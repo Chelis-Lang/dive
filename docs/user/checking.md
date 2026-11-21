@@ -513,6 +513,12 @@ See the [matched high-fanout measurements](../developer/large-models.md#high-fan
 A wide frontier or a single state with many successors can still require
 substantial memory. [Core storage measurements](../developer/core/07-engine.md#resident-storage-measurements).
 
+A parallel worker uses a bounded cache for both action guards and state invariants.
+When the initial tables for all sites exceed that cache, a pure plan reserves
+the invariant tables first. This lets workers reuse a checked invariant across
+duplicate candidates even when the model contains thousands of action guards.
+[LuPastry+ measurements](../developer/large-models.md#lupastry-parallel-invariant-checking).
+
 With `--store exact`, Core grows the resident hash index one shard at a time.
 Each matching hash still requires equality of the full state. Peak memory also
 depends on the queued states and the values shared between them.

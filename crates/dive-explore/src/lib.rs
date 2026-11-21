@@ -1421,6 +1421,18 @@ impl Sink for Explorer<'_> {
     }
 }
 
+/// A worker can visit thousands of split-action guards before its first
+/// successor. Under pressure, keep room for the state invariants it checks.
+fn prepare_invariant_tables(machine: &mut Machine, plan: &Plan, workers: usize) {
+    if workers > 1 && machine.opts.memo && !plan.effects.any && plan.code.debugger.is_none() {
+        machine.memo.prepare_sites(
+            plan.invariants
+                .iter()
+                .flat_map(|check| check.conjuncts.iter().filter_map(|conjunct| conjunct.site)),
+        );
+    }
+}
+
 fn run_actions(
     m: &mut Machine,
     ex: &mut Explorer<'_>,
@@ -1753,6 +1765,7 @@ fn explore_inner<'p>(
     let mut machines: Vec<Machine> = (0..local_workers)
         .map(|_| {
             let mut m = Machine::new(Arc::clone(store), nvars, config.opts, Memo::new(&keys));
+            prepare_invariant_tables(&mut m, plan, local_workers);
             m.warn = config.warn;
             m.set_work_control(control.cloned());
             m.set_debugger(plan.code.debugger.clone());

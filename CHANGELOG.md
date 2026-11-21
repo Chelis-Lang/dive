@@ -13,6 +13,8 @@ are in git history.
 
 - Core can check larger [bounded existential actions](docs/user/checking.md) by compiling their pure parameterized expressions once per slot layout.
 
+- Parallel Core can [keep large split-action plans from exhausting invariant memo storage](docs/user/checking.md#time-and-memory-budgets) within the existing worker memory cap.
+
 - The [EmergencyCall benchmark](docs/developer/large-models.md#enlarge-the-emergencycall-number-sets) checks four larger source configurations and exports independently validated counterexamples.
 
 - The bundled [FramedFunctions module](docs/user/modules.md#enumerating-functions-with-fixed-coordinates) generates finite function updates on their writable coordinates. Release archives include the TLA+ source for TLC.

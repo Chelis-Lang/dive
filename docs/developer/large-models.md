@@ -695,6 +695,14 @@ gives a second location for the earlier code, `tiit.lu/fmPastry/`. Its live page
 returned 404, and the Wayback URL-prefix query returned no successful capture.
 [Lu, Tables 5.2–5.3](https://doi.org/10.22028/D291-26550) · [Lu, 2015, reference 10](https://doi.org/10.1007/978-3-319-25942-0_19).
 
+### LuPastry+ parallel invariant checking
+
+The 32-address, one-join ring compiles to 32,779 memo sites with the published `NextMC`. In a four-worker exact check, a worker can fill its 28 MiB cache with action-guard tables before checking its first successor. LuPastry+’s `CorrectDelivery` quantifies over three identifiers and all pending messages. Repeating that check dominated the run. Removing both invariants reduced direct exploration to 0.66 s. Keeping `CorrectDelivery` alone took 23.66 s. Raising the worker cache allowance to 64 MiB let the full direct check explore the graph in 2.21 s.
+
+Core now prepares the invariant tables within the worker’s existing allowance when the minimum tables for all sites would exceed it. At the original 7 GiB process ceiling, the 32-address default check fell from 25.89 s to 1.96 s, with 256 distinct states, 15,249 generated and depth 19. At 64 addresses the earlier direct run reached its 420 s limit with nine states queued. The corrected direct check finished in 16.28 s with 316 distinct, 30,493 generated and depth 19. Both profiles matched pinned TLC.
+
+At 128 addresses the direct action still reached the compiler’s four-million-node limit before search. The diagnostic wrapper `TRUE /\ NextMC` exhausted 474 distinct states, 61,019 generated and depth 19 in 167.74 s. [Direct and grouped runs, CPU profiles and reproduction](../../conformance/reports/perf/2026-11-21-pastry-source-scale.json).
+
 ### Reproduce the ZooKeeper protocol specification
 
 Three completed no-restart configurations reproduce the state counts and diameters in Ouyang et al., Table 1. The paper’s count matches **generated** states in each. With four servers, two transactions and one timeout, Core and pinned TLC exhausted the queue at 6,634,696 distinct states, 21,393,294 generated and depth 64. Core took 623.70 s and 452 MiB peak RSS. TLC took 136.24 s and 46.3 GiB on the same host. Core used one of the 32 requested workers because the released specification contains twelve diagnostic `PrintT` calls. The completed Core run emitted no lines. With two timeouts the paper reports 1,599,588,210 states at its 24-hour cutoff. [Paper, Table 1](https://arxiv.org/pdf/2302.02703#page=7).
