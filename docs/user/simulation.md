@@ -59,9 +59,10 @@ states, counted in trace order.
 ## What a sample covers
 
 `Print` and `PrintT` run through captured operators, with their arguments,
-rendering and return values evaluated. `RandomElement` in `Init` and `Next`
-draws from the trace's own stream (see [Random choices](#random-choices)). A
-register, a Randomization operator or another unsupported host effect refuses
+rendering and return values evaluated. `RandomElement`, `RandomSubset` and
+`RandomSetOfSubsets` in `Init` and `Next` draw from the trace's own stream
+(see [Random choices](#random-choices)). A register, `RandomSubsetSet` or
+another unsupported host effect refuses
 by name when the simulation reaches it; a branch that is never taken does not
 run it.
 
@@ -367,8 +368,9 @@ limit and unsupported returns.
 
 ## Random choices
 
-`RandomElement` in `Init` and `Next` draws from a stream keyed by the seed,
-the trace, the step, the action and the attempt:
+`RandomElement`, `RandomSubset` and `RandomSetOfSubsets` in `Init` and `Next`
+draw from a stream keyed by the seed, the trace, the step, the action and the
+attempt:
 
 ```sh
 dive simulate crates/dive-sim/tests/fixtures/random-ops/RndNext.tla --traces 3 --depth 3 --seed 0 --output json
@@ -383,8 +385,12 @@ A constant definition draws once at start-up. A configured `C <- Pick` names
 
 Each state of a trace document lists the values its step drew under
 `draws`, and the document lists what start-up drew under `startup_draws`.
-Validation evaluates each set itself and accepts a recorded value only if it
-is a member, so a trace whose draws were edited fails validation.
+Validation evaluates each argument itself and accepts a recorded value only
+if the operator can return it, without enumerating the set: for
+`RandomSubset(k, S)`, a set of `min(k, Cardinality(S))` members of `S`. A
+trace whose draws or states were edited fails validation. A label on a step
+whose action draws is not evaluated again; the step is checked against
+`Next`.
 
 A draw is one value, never proof that no other value works:
 - A step whose draws give no successor draws again, up to eight attempts.
@@ -395,8 +401,11 @@ A draw is one value, never proof that no other value works:
 - A temporal violation on a trace with draws refuses by name: its lasso
   document does not record draws yet.
 
-`RandomSubset`, `RandomSetOfSubsets` and `RandomSubsetSet` refuse by name in
-simulation. Dive does not match TLC's individual draws in either profile.
+`RandomSubset` follows TLC: a count above the set's size gives the whole set
+and 0 gives `{}`; a negative count stops the run with a named refusal, where
+TLC reports error 2154. `RandomSubsetSet` refuses by name, and `dive check`
+still refuses the Randomization operators. Dive does not match TLC's
+individual draws in either profile.
 
 The file API creates the host for you. A low-level caller that binds source
 creates `dive_sim::Runtime::new(options)`, installs `runtime.host()` in
@@ -502,8 +511,8 @@ has every bench.
 ## Engine
 
 dive runs simulation with compiled Init, Next and predicates for finite safety
-models in either profile. What dive does not implement, such as the
-Randomization operators and registers, refuses by name. A refusal is not retried and does not repeat
+models in either profile. What dive does not implement, such as
+`RandomSubsetSet` and registers, refuses by name. A refusal is not retried and does not repeat
 output. JSON reports `engine: "core"`, `engine_requested` and
 `engine_fallback`, which is always `null`, and reports requested and used
 workers separately.

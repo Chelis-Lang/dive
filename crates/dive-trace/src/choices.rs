@@ -7,9 +7,10 @@
 //! each step's random operators drew ([`crate::TraceDoc::draws`]) and those
 //! start-up drew ([`crate::TraceDoc::startup_draws`]). They are untrusted
 //! hints. A call first chooses among the step's recorded values that this
-//! validator's own evaluation shows to be a possible result (a member of
-//! the set for `RandomElement`), from the one after the last used, then
-//! falls back to the complete bounded enumeration below; a start-up value
+//! validator's own evaluation shows to be a possible result
+//! ([`crate::draws::admits`]), from the one after the last used, then falls
+//! back to the complete bounded enumeration below, which only
+//! `RandomElement` has (any other operator refuses there); a start-up value
 //! only moves the matching member to the front of that enumeration. The
 //! search runs in two phases: the first offers only the admitted recorded
 //! draws, so a wrong `\E` binding above a call is revisited before that
@@ -109,6 +110,14 @@ impl Search {
 
     pub(crate) fn drew(&self) -> bool {
         self.0.lock().unwrap_or_else(PoisonError::into_inner).random
+    }
+
+    /// One of `count` elements of a set, trying `preferred` first.
+    pub(crate) fn element(&self, count: usize, preferred: usize) -> Result<usize, HostError> {
+        self.0
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .select(count, preferred)
     }
 
     pub(crate) fn branch(&self, count: usize) -> Result<usize, HostError> {
@@ -357,6 +366,11 @@ impl Choices {
     }
 
     fn select(&mut self, count: usize, preferred: usize) -> Result<usize, HostError> {
+        // A single alternative is no choice point: nothing to revisit. Every
+        // attempt of a phase skips it alike, so the path stays aligned.
+        if count == 1 && preferred == 0 {
+            return Ok(0);
+        }
         if self.visited.len() >= MAX_CHOICES {
             return Err(self.refuse("independent random choice draw bound".into()));
         }

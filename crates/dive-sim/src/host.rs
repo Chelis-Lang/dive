@@ -107,6 +107,17 @@ impl SimulationHost {
     }
 }
 
+/// The random operators simulation draws: `RandomElement`, `RandomSubset`
+/// and `RandomSetOfSubsets`. `RandomSubsetSet` stays a named refusal.
+fn drawn(op: StdOp) -> bool {
+    matches!(
+        op,
+        StdOp::TlcRandomElement
+            | StdOp::RandomizationRandomSubset
+            | StdOp::RandomizationRandomSetOfSubsets
+    )
+}
+
 impl Host for SimulationHost {
     fn check_random_in_enabled(&self) -> Result<(), HostError> {
         Err(self.refuse(
@@ -115,22 +126,22 @@ impl Host for SimulationHost {
     }
 
     fn check_native_access(&self, op: StdOp) -> Result<(), HostError> {
-        if op == StdOp::TlcRandomElement && self.sampling.load(Ordering::Relaxed) {
-            return Err(self.refuse(
-                "RandomElement evaluated outside Init and Next once simulation started (an ALIAS or a temporal property atom)"
-                    .to_owned(),
-            ));
+        if drawn(op) && self.sampling.load(Ordering::Relaxed) {
+            return Err(self.refuse(format!(
+                "{} evaluated outside Init and Next once simulation started (an ALIAS or a temporal property atom)",
+                op.qualified_name()
+            )));
         }
-        if op == StdOp::TlcRandomElement {
+        if drawn(op) {
             let phase = self
                 .ownership
                 .lock()
                 .unwrap_or_else(PoisonError::into_inner);
             if phase.caller_host {
-                return Err(self.refuse(
-                    "simulation RandomElement cannot preserve a caller-provided startup stream"
-                        .to_owned(),
-                ));
+                return Err(self.refuse(format!(
+                    "simulation {} cannot preserve a caller-provided startup stream",
+                    op.qualified_name()
+                )));
             }
             return Ok(());
         }
@@ -144,7 +155,7 @@ impl Host for SimulationHost {
     }
 
     fn random(&self, op: StdOp, args: &[Value], ctx: Ctx) -> Option<Result<Value, HostError>> {
-        if op != StdOp::TlcRandomElement {
+        if !drawn(op) {
             return None;
         }
         let phase = self

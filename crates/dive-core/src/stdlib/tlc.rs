@@ -3,7 +3,8 @@
 //! the effects `Print` and `PrintT`, whose output the machine keeps in
 //! order (`Machine::printed`), and `RandomElement`, which draws from the
 //! machine's stream (`crate::random`), and `TLCGet`/`TLCSet`, against the
-//! run's registers. The reference is `dive-eval`'s `std` module
+//! run's registers. `Randomization!RandomSubset` and `RandomSetOfSubsets`
+//! draw from the same stream; only simulation's streams implement them. The reference is `dive-eval`'s `std` module
 //! (`TlcMakeFcn`, `combine_fcn`, `TlcAssert`, `permutations`).
 
 use dive_ir::StdOp;
@@ -28,6 +29,8 @@ pub(super) fn implements(op: StdOp) -> bool {
             | StdOp::TlcRandomElement
             | StdOp::TlcTLCGet
             | StdOp::TlcTLCSet
+            | StdOp::RandomizationRandomSubset
+            | StdOp::RandomizationRandomSetOfSubsets
     )
 }
 
@@ -66,6 +69,9 @@ pub(super) fn call(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle
             Ok(Handle::TRUE)
         }
         StdOp::TlcRandomElement => random_element(m, op, arg(args, 0)?),
+        StdOp::RandomizationRandomSubset | StdOp::RandomizationRandomSetOfSubsets => {
+            draw(m, op, args)
+        }
         StdOp::TlcTLCGet | StdOp::TlcTLCSet => register(m, op, args),
         StdOp::TlcToString => {
             let text = crate::print::tlc_string(&mut m.heap, arg(args, 0)?)?;
@@ -132,28 +138,41 @@ fn random_element(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error
         s
     };
     let simulation = m.draw.as_ref().is_some_and(|stream| stream.simulation());
+    // A simulation draw is any member of its set, so it need not follow
+    // TLC's per-component order on a lazily held set.
+    if !simulation && let Some(why) = draw_ambiguous(m, s) {
+        return Err(refuse(op, why));
+    }
+    draw(m, op, &[s])
+}
+
+/// A draw of `op` on `args` from the machine's stream, on the arguments
+/// converted with their lazy forms, so that a set such as `[D -> R]` is
+/// never enumerated to draw from it.
+fn draw(m: &mut Machine, op: StdOp, args: &[Handle]) -> Result<Handle, Error> {
+    let simulation = m.draw.as_ref().is_some_and(|stream| stream.simulation());
     if simulation && m.in_enabled > 0 {
         return Err(refuse(
             op,
             "inside ENABLED in simulation, where one draw cannot show that an action is disabled",
         ));
     }
-    // A simulation draw is any member of its set, so it need not follow
-    // TLC's per-component order on a lazily held set.
-    if !simulation && let Some(why) = draw_ambiguous(m, s) {
-        return Err(refuse(op, why));
-    }
     let Some(p) = m.heap.store().printer().cloned() else {
         return Err(refuse(op, "a draw without the model's names (M1 core)"));
     };
-    let v = crate::print::to_value(
-        &mut m.heap,
-        &p.names,
-        s,
-        p.ctx,
-        crate::print::Conversion::Draw,
-    )
-    .map_err(Error::unsupported)?;
+    let mut values = Vec::with_capacity(args.len());
+    for &h in args {
+        values.push(
+            crate::print::to_value(
+                &mut m.heap,
+                &p.names,
+                h,
+                p.ctx,
+                crate::print::Conversion::Draw,
+            )
+            .map_err(Error::unsupported)?,
+        );
+    }
     let Some(stream) = m.draw.as_mut() else {
         return Err(refuse(
             op,
@@ -161,7 +180,7 @@ fn random_element(m: &mut Machine, op: StdOp, s: Handle) -> Result<Handle, Error
         ));
     };
     m.draws += 1;
-    let out = stream.draw(op, &[v], p.ctx)?;
+    let out = stream.draw(op, &values, p.ctx)?;
     let out = crate::convert::from_value(&mut m.heap, &out, p.ctx)?;
     record(m, out)
 }

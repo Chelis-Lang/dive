@@ -593,8 +593,24 @@ are tried first, from the one after the last used, then the existing bounded
 enumeration; start-up values only reorder that enumeration. A trace is
 invalid only when no admitted value of any call reproduces it.
 `SpanTreeRandom` (D-002) validates in well under a second, because its six
-start-up subsets are found first. Remaining gaps, all named refusals:
-`RandomSubset`, `RandomSetOfSubsets` and `RandomSubsetSet` in simulation;
+start-up subsets are found first.
+
+`RandomSubset` and `RandomSetOfSubsets` draw from the same stream
+(`dive_stdlib::random`, through `core_modes::sim_random`). Their admission
+relations (`draws.rs`) are structural: size and membership of `S`, never its
+enumeration. Only `RandomElement` has an enumeration fallback; when the
+recorded draws of another operator do not reproduce a step, the search
+refuses. A direct `v = Op(..)` or `v \in Op(..)` of these two operators in Init or Next is instead
+decided from the arguments (`initial.rs`, `Evaluator::direct_draw`), since
+that draw is used nowhere else; the ordered construction also binds
+`v \in S` from the trace's state, which is how SmokeEWD998's
+`pending \in RandomSubset(k, [Node -> 0..(N-1)])` validates. A label on a
+drawing action is not evaluated again. Every non-simulation Core engine
+refuses these two operators before exploring (`Effects::sampled_draw`), so
+`dive check` keeps its refusal. Remaining gaps, all named refusals:
+`RandomSubsetSet`; a negative `RandomSubset` count (TLC's 2154), refused like
+other evaluation errors in a sampled `Next`; start-up Randomization draws
+whose recorded values do not reproduce, which have no enumeration fallback;
 temporal counterexamples through draws, whose lasso documents do not record
 draws yet (S3).
 

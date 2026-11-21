@@ -50,6 +50,7 @@ pub(crate) fn random_check(model: &Model, witness: &State) -> Result<Option<bool
         model,
         slots: vec![None],
         source: None,
+        target: None,
         choices: None,
     };
     let init = &model.init[0].pred;
@@ -59,16 +60,21 @@ pub(crate) fn random_check(model: &Model, witness: &State) -> Result<Option<bool
 /// `None` grants no membership proof. Pure callers may use a fresh predicate
 /// runtime after a structural decline or a witness-comparison evaluation error.
 /// Errors raised while actually evaluating source are retained separately.
+///
+/// With `choices` (a trace whose source draws), `v \in S` binds `v` to each
+/// element of the evaluated `S` in turn ([`Initial::member`]).
 pub(crate) fn check(
     model: &Model,
     witness: &State,
     control: Option<&dyn HostControl>,
+    choices: Option<&crate::choices::Search>,
 ) -> Result<Option<bool>, EvalError> {
     let mut operation = Initial {
         model,
         slots: vec![None; model.ir.vars().len()],
         source: None,
-        choices: None,
+        target: Some(witness),
+        choices,
     };
     for init in &model.init {
         match operation.predicate(&init.pred.scope, init.pred.expr, 0) {
@@ -204,6 +210,7 @@ pub(crate) fn next(
         model,
         slots: vec![None; model.ir.vars().len()],
         source: Some(source),
+        target: Some(witness),
         choices: Some(choices),
     };
     if !operation
@@ -249,18 +256,34 @@ fn action_shape(model: &Model, expr: ExprId, depth: u32) -> bool {
             callee: OpRef::Param(_),
             ..
         }
-        | Expr::Local(_)
-        | Expr::Builtin {
-            op: BuiltinOp::In, ..
-        } => false,
+        | Expr::Local(_) => false,
+        // `x' \in S` binds `x'` by choice ([`Initial::member`]).
+        Expr::Builtin {
+            op: BuiltinOp::In,
+            args,
+        } => args.len() == 2 && primed_variable(model, args[0]),
         _ => true,
     }
 }
+
+/// `x'` or `(x)'` for a state variable `x`, syntactically.
+fn primed_variable(model: &Model, expr: ExprId) -> bool {
+    match model.ir.expr(expr) {
+        Expr::Var { primed, .. } => *primed,
+        Expr::Prime(body) => matches!(model.ir.expr(*body), Expr::Var { primed: false, .. }),
+        _ => false,
+    }
+}
+
+/// The most elements `x \in S` offers as choices.
+const MAX_MEMBERS: usize = 65_536;
 
 struct Initial<'a> {
     model: &'a Model,
     slots: Vec<Option<Value>>,
     source: Option<&'a State>,
+    /// The state the trace claims: only orders the alternatives tried.
+    target: Option<&'a State>,
     choices: Option<&'a crate::choices::Search>,
 }
 
@@ -486,6 +509,12 @@ impl Initial<'_> {
                 op: BuiltinOp::Eq,
                 args,
             } if args.len() == 2 => self.equality(scope, expr, args[0], args[1]),
+            Expr::Builtin {
+                op: BuiltinOp::In,
+                args,
+            } if args.len() == 2 && self.choices.is_some() => {
+                self.member(scope, expr, args[0], args[1])
+            }
             Expr::Let { body, .. } => {
                 let inner = ev.scope_let(scope, expr)?;
                 self.predicate(&inner, *body, depth + 1)
@@ -494,7 +523,7 @@ impl Initial<'_> {
                 kind: JunctionKind::Or,
                 items,
                 ..
-            } if self.source.is_some() => {
+            } if self.source.is_some() || self.choices.is_some() => {
                 if items.is_empty() {
                     return Ok(false);
                 }
@@ -506,7 +535,7 @@ impl Initial<'_> {
                 let item = *items.get(choice).ok_or(ConstructionError::Declined)?;
                 self.predicate(scope, item, depth + 1)
             }
-            Expr::If { cond, then, other } if self.source.is_some() => {
+            Expr::If { cond, then, other } if self.source.is_some() || self.choices.is_some() => {
                 let condition = ev.eval_scoped(scope, *cond, &self.st())?;
                 let Some(condition) = condition.as_bool() else {
                     return Err(EvalError::unsupported(
@@ -564,6 +593,9 @@ impl Initial<'_> {
         let Some(var) = self.variable(scope, left, 0)? else {
             return self.filter(scope, expr);
         };
+        if let Some(decided) = self.drawn_relation(scope, var, right, false)? {
+            return Ok(decided);
+        }
         let ev = &self.model.evaluator;
         let value = ev.eval_scoped(scope, right, &self.st())?;
         if let Some(previous) = &self.slots[var.index()] {
@@ -572,6 +604,125 @@ impl Initial<'_> {
             self.slots[var.index()] = Some(value);
             Ok(true)
         }
+    }
+
+    /// `v \in S` for an unbound variable `v`: `S` is evaluated, then `v` is
+    /// bound. With the state the trace claims, only its value of `v` can
+    /// end in a match, so `v` is bound to that value when it is a member of
+    /// `S` and the conjunct is false otherwise; without one, `v` is bound
+    /// to each element in turn, as a choice point of the search. Anything
+    /// else is a filter.
+    fn member(
+        &mut self,
+        scope: &Scope,
+        expr: ExprId,
+        left: ExprId,
+        right: ExprId,
+    ) -> Result<bool, ConstructionError> {
+        let (Some(var), Some(choices)) = (self.variable(scope, left, 0)?, self.choices) else {
+            return self.filter(scope, expr);
+        };
+        if self.slots[var.index()].is_some() {
+            return self.filter(scope, expr);
+        }
+        if let Some(decided) = self.drawn_relation(scope, var, right, true)? {
+            return Ok(decided);
+        }
+        let ev = &self.model.evaluator;
+        let domain = ev.eval_scoped(scope, right, &self.st())?;
+        if let Some(wanted) = self
+            .target
+            .and_then(|state| state.get(var.index()))
+            .and_then(Option::as_ref)
+        {
+            if !dive_value::tlc::member(wanted, &domain, ev.options().ctx)
+                .map_err(EvalError::from)?
+            {
+                return Ok(false);
+            }
+            self.slots[var.index()] = Some(wanted.clone());
+            return Ok(true);
+        }
+        let Value::Set(set) = &domain else {
+            return Err(EvalError::unsupported(
+                "independent `\\in` choice over a value that is not a set",
+            )
+            .into());
+        };
+        let size = set.size(ev.options().ctx).map_err(EvalError::from)?;
+        if size > MAX_MEMBERS as u64 {
+            return Err(EvalError::unsupported(format!(
+                "independent `\\in` choice over more than {MAX_MEMBERS} elements"
+            ))
+            .into());
+        }
+        let elements = set.elements(ev.options().ctx).map_err(EvalError::from)?;
+        if elements.is_empty() {
+            return Ok(false);
+        }
+        let index = choices
+            .element(elements.len(), 0)
+            .map_err(|error| EvalError::unsupported(error.message))?;
+        let value = elements
+            .get(index)
+            .cloned()
+            .ok_or(ConstructionError::Declined)?;
+        self.slots[var.index()] = Some(value);
+        Ok(true)
+    }
+
+    /// `v = Op(..)` (or `v \in Op(..)` with `member`) for a direct
+    /// `RandomSubset` or `RandomSetOfSubsets` application `Op(..)`, in a
+    /// search that replays draws, and an unbound `v` the trace's state
+    /// gives: the arguments are evaluated and the relation decided from them
+    /// by [`crate::draws`], with no draw. That draw is used nowhere else, so
+    /// whether some draw satisfies the conjunct is the whole question. `None`
+    /// leaves the conjunct to ordinary evaluation (not such an application,
+    /// no target value, or arguments the operator rejects).
+    fn drawn_relation(
+        &mut self,
+        scope: &Scope,
+        var: VarId,
+        right: ExprId,
+        member: bool,
+    ) -> Result<Option<bool>, ConstructionError> {
+        let ev = &self.model.evaluator;
+        // Only a run whose draws the search replays grants this authority;
+        // `RandomElement` keeps its existing relation and enumeration.
+        if self.choices.is_none() {
+            return Ok(None);
+        }
+        let Some((op, args)) = ev
+            .direct_draw(right)
+            .filter(|(op, _)| *op != dive_ir::StdOp::TlcRandomElement)
+        else {
+            return Ok(None);
+        };
+        let Some(wanted) = self
+            .target
+            .and_then(|state| state.get(var.index()))
+            .and_then(Option::as_ref)
+        else {
+            return Ok(None);
+        };
+        if self.slots[var.index()].is_some() {
+            return Ok(None);
+        }
+        let st = self.st();
+        let values = args
+            .iter()
+            .map(|&arg| ev.eval_scoped(scope, arg, &st))
+            .collect::<Result<Vec<_>, _>>()?;
+        let ctx = ev.options().ctx;
+        let decided = if member {
+            crate::draws::decide_member(op, &values, wanted, ctx)
+        } else {
+            crate::draws::decide(op, &values, wanted, ctx)
+        };
+        if decided == Some(true) {
+            self.slots[var.index()] = Some(wanted.clone());
+        }
+        Ok(decided)
     }
 
     fn filter(&self, scope: &Scope, expr: ExprId) -> Result<bool, ConstructionError> {

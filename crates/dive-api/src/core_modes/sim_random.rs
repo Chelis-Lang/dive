@@ -14,7 +14,7 @@
 use dive_core::random::DrawStream;
 use dive_core::{Error, Machine};
 use dive_ir::StdOp;
-use dive_stdlib::random::{Stream, Streams, random_element};
+use dive_stdlib::random::{Stream, Streams, random_element, random_set_of_subsets, random_subset};
 use dive_value::{Ctx, Value};
 
 /// The draw stream of one trace position.
@@ -28,6 +28,14 @@ impl DrawStream for Position {
         match (op, args) {
             (StdOp::TlcRandomElement, [s]) => random_element(s, ctx, &mut self.stream)
                 .map_err(|e| crate::core_random::draw_error(&e)),
+            (StdOp::RandomizationRandomSubset, [k, s]) => {
+                random_subset(k, s, ctx, &mut self.stream)
+                    .map_err(|e| crate::core_random::draw_error(&e))
+            }
+            (StdOp::RandomizationRandomSetOfSubsets, [k, n, s]) => {
+                random_set_of_subsets(k, n, s, ctx, &mut self.stream)
+                    .map_err(|e| crate::core_random::draw_error(&e))
+            }
             _ => Err(Error::unsupported(format!(
                 "{} in simulation",
                 op.qualified_name()

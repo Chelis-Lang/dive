@@ -1,4 +1,5 @@
-//! `RandomElement` in simulation (ADR 0162 §8, D-044), against the pinned
+//! `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` in simulation
+//! (ADR 0162 §8, D-044), against the pinned
 //! TLC receipts in `crates/dive-sim/tests/fixtures/random-ops/oracle.json`.
 //!
 //! Draws come from each trace's own stream, so a run is the same at any
@@ -104,6 +105,8 @@ fn draws_are_identical_at_one_four_and_eight_workers_and_replay_by_trace_ids() {
         ("N1", "RndNext"),
         ("E1", "RndExists"),
         ("D2", "RndDeadlock"),
+        ("S1", "RndSubset"),
+        ("R1", "RndSetOfSubsets"),
     ] {
         for compat_tlc in [false, true] {
             let (base, _dir) = request(id, module, compat_tlc);
@@ -125,7 +128,12 @@ fn draws_are_identical_at_one_four_and_eight_workers_and_replay_by_trace_ids() {
             assert_eq!(traces.len(), 8);
             for trace in traces {
                 let states = trace["document"]["states"].as_array().expect("states");
-                assert!(states[0]["draws"].is_null(), "Init draws nothing");
+                // Only RndSubset's Init draws.
+                assert_eq!(
+                    states[0]["draws"].as_array().map(Vec::len),
+                    (module == "RndSubset").then_some(1),
+                    "{id}: {states:?}"
+                );
                 for state in &states[1..] {
                     let draws = state["draws"].as_array().expect("each step drew");
                     assert_eq!(draws.len(), 1, "one draw per chosen step: {state}");
@@ -306,4 +314,106 @@ fn validation_rejects_a_step_no_draw_of_its_set_gives() {
     let mut start = document;
     start.startup_draws = vec![json!(-1)];
     assert_eq!(model.validate(&start).validation, Validation::Valid);
+}
+
+/// The members of a document's set value `{"set": [...]}`.
+fn members(value: &Value) -> Vec<Value> {
+    value["set"].as_array().expect("a set").clone()
+}
+
+#[test]
+fn subsets_are_drawn_as_tlc_draws_them() {
+    // S1-S3: `RandomSubset(K, 1..10)` has min(K, 10) members; R1: between
+    // one and three subsets of 1..5.
+    for (id, module, size) in [
+        ("S1", "RndSubset", Some(2)),
+        ("S2", "RndSubset", Some(10)),
+        ("S3", "RndSubset", Some(0)),
+        ("R1", "RndSetOfSubsets", None),
+    ] {
+        let tlc = oracle(id);
+        assert_eq!(tlc["exit"], 0, "{id}");
+        let (request, _dir) = request(id, module, false);
+        let report = run(&request);
+        assert_eq!(report["result"], "sampled", "{id}: {report}");
+        for trace in report["traces"].as_array().expect("traces") {
+            let states = trace["document"]["states"].as_array().expect("states");
+            for state in &states[1..] {
+                let s = members(&state["values"]["s"]);
+                assert_eq!(state["draws"], json!([state["values"]["s"]]), "{id}");
+                if let Some(size) = size {
+                    assert_eq!(s.len(), size, "{id}: {state}");
+                    assert!(
+                        s.iter()
+                            .all(|e| (1..=10).contains(&e.as_i64().expect("int")))
+                    );
+                } else {
+                    assert!((1..=3).contains(&s.len()), "{id}: {state}");
+                    for subset in &s {
+                        assert!(
+                            members(subset)
+                                .iter()
+                                .all(|e| (1..=5).contains(&e.as_i64().expect("int")))
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn a_negative_subset_count_stops_the_run() {
+    // TLC (S4): error 2154, exit 255. dive's sampler keeps its existing
+    // refusal for an evaluation error in Next; it never reports a sample.
+    let tlc = oracle("S4");
+    assert_eq!(
+        (tlc["exit"].as_i64(), tlc["deciding"][0]["code"].as_i64()),
+        (Some(255), Some(2154))
+    );
+    let (request, _dir) = request("S4", "RndSubsetNegative", false);
+    let report = simulate_file(&request).expect("simulation");
+    let json = report.to_json();
+    assert_eq!(json["result"], "unsupported", "{json}");
+    assert!(
+        json["message"]
+            .as_str()
+            .is_some_and(|m| m.contains("RandomSubset")),
+        "{json}"
+    );
+}
+
+#[test]
+fn validation_decides_subset_steps_from_the_set_alone() {
+    // Init == s \in RandomSubset(3, SUBSET (1..4)); Next == s' = RandomSubset(2, 1..10)
+    let (request, _dir) = request("S1", "RndSubset", false);
+    let report = run(&request);
+    let document = TraceDoc::from_json(&report["traces"][0]["document"]).expect("document");
+    let model = SpecModel::load(
+        &request.file,
+        &request.file.with_extension("cfg"),
+        &TraceOptions::default(),
+    )
+    .expect("model");
+    assert_eq!(model.validate(&document).validation, Validation::Valid);
+    let with = |state: usize, s: &[i64]| {
+        let mut forged = document.clone();
+        forged.states[state]["s"] = json!({ "set": s });
+        model.validate(&forged).validation
+    };
+    // Some draw gives these, whatever was recorded.
+    assert_eq!(with(1, &[4, 9]), Validation::Valid);
+    assert_eq!(with(0, &[1, 2]), Validation::Valid, "a member of some draw");
+    for (state, s, check) in [
+        (1, &[4, 5, 9][..], Check::Next),
+        (1, &[4][..], Check::Next),
+        (1, &[4, 11][..], Check::Next),
+        (0, &[5][..], Check::Init),
+    ] {
+        let validation = with(state, s);
+        assert!(
+            matches!(validation, Validation::Invalid(ref f) if f.check == check),
+            "{s:?}: {validation:?}"
+        );
+    }
 }

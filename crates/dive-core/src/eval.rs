@@ -1172,6 +1172,8 @@ impl Machine {
                         | dive_ir::StdOp::TlcPrintT
                         | dive_ir::StdOp::TlcToString
                         | dive_ir::StdOp::TlcRandomElement
+                        | dive_ir::StdOp::RandomizationRandomSubset
+                        | dive_ir::StdOp::RandomizationRandomSetOfSubsets
                 );
                 let mut a = Vec::with_capacity(args.len());
                 for &x in args {
