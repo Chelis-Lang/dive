@@ -672,6 +672,34 @@ impl Word<'_> {
         depth: usize,
         steps: &mut usize,
     ) -> Result<(DefId, Scope), TemporalError> {
+        let (def, called) = self.bind_configured_call(expr, scope, constant, args, depth, steps)?;
+        for arg in args {
+            let Arg::Expr { expr: actual, .. } = arg else {
+                return Err(TemporalError::Unsupported(
+                    "higher-order configured temporal argument".into(),
+                ));
+            };
+            self.check_scoped_context_mode(*actual, scope, depth + 1, steps, true)?;
+        }
+        self.check_scoped_context_mode(
+            self.model.ir.def(def).body,
+            &called,
+            depth + 1,
+            steps,
+            true,
+        )?;
+        Ok((def, called))
+    }
+
+    fn bind_configured_call(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        constant: ConstId,
+        args: &[Arg],
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<(DefId, Scope), TemporalError> {
         *steps = steps.saturating_add(1);
         if depth > 256 || *steps > 100_000 || args.len() > 4096 {
             return Err(TemporalError::Unsupported(
@@ -715,17 +743,6 @@ impl Word<'_> {
         let called = ev
             .scope_apply(scope, def, args)
             .map_err(TemporalError::from)?;
-        for arg in args {
-            let Arg::Expr { expr: actual, .. } = arg else {
-                return Err(TemporalError::Unsupported(
-                    "higher-order configured temporal argument".into(),
-                ));
-            };
-            self.check_scoped_context_mode(*actual, scope, depth + 1, steps, true)?;
-        }
-        // Independently inspect the configured target before any domain evaluation;
-        // ordinary recursive-source analysis must not erase this call origin.
-        self.check_scoped_context_mode(target.body, &called, depth + 1, steps, true)?;
         Ok((def, called))
     }
 
@@ -1834,6 +1851,23 @@ impl Word<'_> {
                         let (def, called) =
                             self.parameter_call(&scope, local, args, depth + 1, steps)?;
                         todo.push((ir.def(def).body, called, depth + 1));
+                        continue;
+                    }
+                    OpRef::Const(constant) if inspect_only => {
+                        // Schedule strict inspection of the target and actual arguments on
+                        // this work stack. A configured cycle must reach the source depth
+                        // bound without recursively creating a context walker per application.
+                        let (def, called) =
+                            self.bind_configured_call(e, &scope, constant, args, depth + 1, steps)?;
+                        todo.push((ir.def(def).body, called, depth + 2));
+                        for arg in args.iter().rev() {
+                            let Arg::Expr { expr: actual, .. } = arg else {
+                                return Err(TemporalError::Unsupported(
+                                    "higher-order configured temporal argument".into(),
+                                ));
+                            };
+                            todo.push((*actual, scope.clone(), depth + 2));
+                        }
                         continue;
                     }
                     OpRef::Const(constant) => {

@@ -980,7 +980,24 @@
           }
         }
       },
-      "focused_tests": 538
+      "focused_tests": 538,
+      "configured_cycle_control": {
+        "host": "Separate c7i.4xlarge us-east-2. Pinned CPU 0 for the fair replay; same build profile and compiler.",
+        "problem": "On the debug test stack, a cyclic CFG operator repeatedly entered the configured target/context inspection until the thread stack overflowed. Backtrace alternated configured_call and check_scoped_context_mode.",
+        "change": "Nested configured operator actuals and target bodies are scheduled on the existing strict-inspection work list. A cycle reaches the original depth bound.",
+        "checks": "7 configured temporal operator tests, 538 evaluator and independent-validator tests and doctests, clippy --all-targets on both crates. Regenerated the concrete trace and projected lasso from source.",
+        "binary_sha256": "593b618034c22b15e6b15e8560e53dc13631fbb7ceee9a118283b240483144b9",
+        "fair_verdict": "valid",
+        "fair_states": 38,
+        "fair_wall_seconds": 0.62,
+        "fair_peak_rss_kib": 60504,
+        "negative_checks": {
+          "unfair": "fairness",
+          "omitted": "temporal",
+          "extra": "temporal",
+          "damaged": "next"
+        }
+      }
     },
     "remaining_property_search": {
       "sampling": "36 original-source simulations, seed 996, W1, requested depth 100. Select eight pending-value and eight prospective-state pivots, favoring spent crash and network-change budgets.",
