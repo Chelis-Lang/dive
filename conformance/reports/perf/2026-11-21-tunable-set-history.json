@@ -1,0 +1,1306 @@
+{
+  "schema": 1,
+  "study": "Building Tunable CRDTs, André dos Reis Martins Rijo (2018), chapter 5 and Appendix E",
+  "source": "https://run.unl.pt/server/api/core/bitstreams/d2570d62-6972-4877-a791-636d876d0096/content",
+  "pdf_sha256": "193d967847376d802d4d60b4b64c5f6d39b27620839138f1ec5ecdd2a4bb1ef6",
+  "source_scope": "Algorithms 5.3 and 5.4, Figures 5.7, 5.12 and E.1 define stamped issue, FIFO broadcast, and local histories. Figure 5.17 shows replica and element symmetry. The university ORIGINAL bundle lists just the PDF. The published implementation repository contains Java; an original executable Toolbox specification and a final TLC log for the three-element stop have not been identified. The reconstructed graph uses all three policies per operation kind and a unique stamp.",
+  "authors_repository": "https://github.com/AndreRijo/T-CRDTs/tree/1792fbaa22c8f89cff4db5f886866b9795b9a7df",
+  "author_results": {
+    "hardware": "One node, two Xeon E5-2620 v2 CPUs, 64 GB RAM.",
+    "key": "replicas, operations per replica, elements",
+    "elapsed_s": {
+      "2,2,1": 4,
+      "2,2,2": 12,
+      "2,2,3": 25,
+      "2,3,1": 212,
+      "2,3,2": 9780,
+      "2,3,3": 55140,
+      "3,2,1": 3506,
+      "3,2,2": 208800
+    },
+    "3,2,3": "Stopped after approximately nine billion generated states and about 750 GB disk. Distinct count, depth and complete count unavailable."
+  },
+  "properties": "The history controls check FIFO accounting and convergence of full operation sets. The bounded policy proof and independent explicit comparisons additionally cover the five reconstructed Toolbox invariants. The original executable and its policies have not been recovered.",
+  "encoding": "State fields for own issued count, operation set, ordered receive/issue history, FIFO inbox, last received record, clock and control label. Done recovers finished. Kind and policy select the source policy pair; the fixed happens-before policy is implicit. Read-only queries do not constrain Next. Nonterminal empty receive and final PlusCal stutter are counted.",
+  "platform": "Dedicated c7i.4xlarge in us-east-2, Xeon Platinum 8488C, Linux 7.0.0-1018-aws. Explicit Core and TLC each used one physical core on the control panel; the source counter ran in a fresh Python process pinned to CPU 1. Wall seconds and peak process RSS use GNU time. External setup excluded.",
+  "commands": {
+    "counter": "python3 scripts/perf/scale/tunable_set_counts.py R N E P [--symmetry]",
+    "cfg": "Repeat the counter command with --emit-config and redirect stdout to model.cfg.",
+    "core": "dive check TunableSetHistory.tla --config model.cfg --store exact --workers 1 --compat=tlc --seed 0 --fp 0 --time-limit 130s --max-memory 6g --output json",
+    "tlc": "java -Xmx4g -XX:ActiveProcessorCount=1 -cp tla2tools.jar tlc2.TLC -workers 1 -fp 0 -seed 0 -metadir FRESH -config model.cfg TunableSetHistory.tla"
+  },
+  "negative_controls": {
+    "receive_order": "Add clock = MaxIssued to Receive. R=2,N=1,E=2,P=1, labeled. Core and TLC each find 521 distinct / 843 generated / depth 9, compared with 913 / 1467 / depth 9 in the original reconstruction. All queues exhausted.",
+    "missing_history": "On Receive replace append(history, x) by <<x>>. Both explicit checkers report HistoryAgreement, 50 distinct / 52 generated / depth 4 with 39 queued. The genuine four-state trace validates independently. Changing the initial clock to 1 fails independent Init at state zero.",
+    "counter_admission": "Substituting the LateReceive module at the expected filename refused with exit 2. A one-creator-prefix budget also refused with exit 2 and emitted no partial count."
+  },
+  "independent_calculation": "A separate Burnside sum enumerated actor permutations, fixed-point payload colors and independent local histories. Both counters agreed for all 72 combinations of 1–3 replicas, 1–2 operations per replica, 1–3 elements, 1 or 3 policies per operation, and both symmetry choices.",
+  "explicit_controls": [
+    {
+      "config": "r1n1e1p3",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 19,
+        "generated": 26,
+        "depth": 4
+      },
+      "actual": {
+        "distinct": 19,
+        "generated": 26,
+        "depth": 4
+      },
+      "wall_s": 0.01,
+      "peak_rss_kib": 24604
+    },
+    {
+      "config": "r1n1e1p3-sym",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 19,
+        "generated": 26,
+        "depth": 4
+      },
+      "actual": {
+        "distinct": 19,
+        "generated": 26,
+        "depth": 4
+      },
+      "wall_s": 0.01,
+      "peak_rss_kib": 24600
+    },
+    {
+      "config": "r1n1e1p3-sym",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 19,
+        "generated": 26,
+        "depth": 4
+      },
+      "actual": {
+        "distinct": 19,
+        "generated": 26,
+        "depth": 4
+      },
+      "wall_s": 0.78,
+      "peak_rss_kib": 99412
+    },
+    {
+      "config": "r1n1e1p3",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 19,
+        "generated": 26,
+        "depth": 4
+      },
+      "actual": {
+        "distinct": 19,
+        "generated": 26,
+        "depth": 4
+      },
+      "wall_s": 0.78,
+      "peak_rss_kib": 100192
+    },
+    {
+      "config": "r2n1e1p1",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 233,
+        "generated": 375,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 233,
+        "generated": 375,
+        "depth": 9
+      },
+      "wall_s": 0.01,
+      "peak_rss_kib": 24540
+    },
+    {
+      "config": "r2n1e1p1-sym",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 117,
+        "generated": 191,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 117,
+        "generated": 191,
+        "depth": 9
+      },
+      "wall_s": 0.01,
+      "peak_rss_kib": 24440
+    },
+    {
+      "config": "r2n1e1p1-sym",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 117,
+        "generated": 191,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 117,
+        "generated": 191,
+        "depth": 9
+      },
+      "wall_s": 0.86,
+      "peak_rss_kib": 110852
+    },
+    {
+      "config": "r2n1e1p1",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 233,
+        "generated": 375,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 233,
+        "generated": 375,
+        "depth": 9
+      },
+      "wall_s": 0.9,
+      "peak_rss_kib": 107228
+    },
+    {
+      "config": "r2n1e2p1",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 913,
+        "generated": 1467,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 913,
+        "generated": 1467,
+        "depth": 9
+      },
+      "wall_s": 0.01,
+      "peak_rss_kib": 26512
+    },
+    {
+      "config": "r2n1e2p1-sym",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 229,
+        "generated": 375,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 229,
+        "generated": 375,
+        "depth": 9
+      },
+      "wall_s": 0.01,
+      "peak_rss_kib": 26600
+    },
+    {
+      "config": "r2n1e2p1-sym",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 229,
+        "generated": 375,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 229,
+        "generated": 375,
+        "depth": 9
+      },
+      "wall_s": 0.9,
+      "peak_rss_kib": 112764
+    },
+    {
+      "config": "r2n1e2p1",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 913,
+        "generated": 1467,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 913,
+        "generated": 1467,
+        "depth": 9
+      },
+      "wall_s": 1.0,
+      "peak_rss_kib": 136576
+    },
+    {
+      "config": "r2n1e2p3",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 8113,
+        "generated": 13035,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 8113,
+        "generated": 13035,
+        "depth": 9
+      },
+      "wall_s": 0.06,
+      "peak_rss_kib": 38892
+    },
+    {
+      "config": "r2n1e2p3-sym",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 2029,
+        "generated": 3279,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 2029,
+        "generated": 3279,
+        "depth": 9
+      },
+      "wall_s": 0.03,
+      "peak_rss_kib": 34644
+    },
+    {
+      "config": "r2n1e2p3-sym",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 2029,
+        "generated": 3279,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 2029,
+        "generated": 3279,
+        "depth": 9
+      },
+      "wall_s": 1.18,
+      "peak_rss_kib": 144392
+    },
+    {
+      "config": "r2n1e2p3",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 8113,
+        "generated": 13035,
+        "depth": 9
+      },
+      "actual": {
+        "distinct": 8113,
+        "generated": 13035,
+        "depth": 9
+      },
+      "wall_s": 1.54,
+      "peak_rss_kib": 166168
+    },
+    {
+      "config": "r2n2e1p1",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 14689,
+        "generated": 24559,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 14689,
+        "generated": 24559,
+        "depth": 13
+      },
+      "wall_s": 0.12,
+      "peak_rss_kib": 41004
+    },
+    {
+      "config": "r2n2e1p1-sym",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 7345,
+        "generated": 12283,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 7345,
+        "generated": 12283,
+        "depth": 13
+      },
+      "wall_s": 0.07,
+      "peak_rss_kib": 36956
+    },
+    {
+      "config": "r2n2e1p1-sym",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 7345,
+        "generated": 12283,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 7345,
+        "generated": 12283,
+        "depth": 13
+      },
+      "wall_s": 1.67,
+      "peak_rss_kib": 165264
+    },
+    {
+      "config": "r2n2e1p1",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 14689,
+        "generated": 24559,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 14689,
+        "generated": 24559,
+        "depth": 13
+      },
+      "wall_s": 2.13,
+      "peak_rss_kib": 169036
+    },
+    {
+      "config": "r2n2e1p3",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 1150225,
+        "generated": 1917783,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 1150225,
+        "generated": 1917783,
+        "depth": 13
+      },
+      "wall_s": 8.88,
+      "peak_rss_kib": 579556
+    },
+    {
+      "config": "r2n2e1p3-sym",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 575113,
+        "generated": 958899,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 575113,
+        "generated": 958899,
+        "depth": 13
+      },
+      "wall_s": 5.34,
+      "peak_rss_kib": 367076
+    },
+    {
+      "config": "r2n2e1p3-sym",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 575113,
+        "generated": 958899,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 575113,
+        "generated": 958899,
+        "depth": 13
+      },
+      "wall_s": 20.42,
+      "peak_rss_kib": 397632
+    },
+    {
+      "config": "r2n2e1p3",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 1150225,
+        "generated": 1917783,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 1150225,
+        "generated": 1917783,
+        "depth": 13
+      },
+      "wall_s": 35.96,
+      "peak_rss_kib": 551424
+    },
+    {
+      "config": "r2n2e2p1",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 229041,
+        "generated": 382091,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 229041,
+        "generated": 382091,
+        "depth": 13
+      },
+      "wall_s": 1.78,
+      "peak_rss_kib": 128980
+    },
+    {
+      "config": "r2n2e2p1-sym",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 57261,
+        "generated": 95531,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 57261,
+        "generated": 95531,
+        "depth": 13
+      },
+      "wall_s": 0.62,
+      "peak_rss_kib": 84012
+    },
+    {
+      "config": "r2n2e2p1-sym",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 57261,
+        "generated": 95531,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 57261,
+        "generated": 95531,
+        "depth": 13
+      },
+      "wall_s": 4.98,
+      "peak_rss_kib": 224184
+    },
+    {
+      "config": "r2n2e2p1",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 229041,
+        "generated": 382091,
+        "depth": 13
+      },
+      "actual": {
+        "distinct": 229041,
+        "generated": 382091,
+        "depth": 13
+      },
+      "wall_s": 9.11,
+      "peak_rss_kib": 281072
+    },
+    {
+      "config": "r3n1e1p1",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 26377,
+        "generated": 62434,
+        "depth": 16
+      },
+      "actual": {
+        "distinct": 26377,
+        "generated": 62434,
+        "depth": 16
+      },
+      "wall_s": 0.25,
+      "peak_rss_kib": 46932
+    },
+    {
+      "config": "r3n1e1p1-sym",
+      "tool": "core",
+      "match": true,
+      "predicted": {
+        "distinct": 4399,
+        "generated": 10426,
+        "depth": 16
+      },
+      "actual": {
+        "distinct": 4399,
+        "generated": 10426,
+        "depth": 16
+      },
+      "wall_s": 0.07,
+      "peak_rss_kib": 40876
+    },
+    {
+      "config": "r3n1e1p1-sym",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 4399,
+        "generated": 10426,
+        "depth": 16
+      },
+      "actual": {
+        "distinct": 4399,
+        "generated": 10426,
+        "depth": 16
+      },
+      "wall_s": 1.65,
+      "peak_rss_kib": 163340
+    },
+    {
+      "config": "r3n1e1p1",
+      "tool": "tlc",
+      "match": true,
+      "predicted": {
+        "distinct": 26377,
+        "generated": 62434,
+        "depth": 16
+      },
+      "actual": {
+        "distinct": 26377,
+        "generated": 62434,
+        "depth": 16
+      },
+      "wall_s": 2.83,
+      "peak_rss_kib": 174604
+    }
+  ],
+  "counts": [
+    {
+      "replicas": 2,
+      "operations": 2,
+      "elements": 1,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17276,
+      "distinct": 1150225,
+      "generated": 1917783,
+      "depth": 13,
+      "creator_prefixes": 10
+    },
+    {
+      "replicas": 2,
+      "operations": 2,
+      "elements": 1,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17176,
+      "distinct": 575113,
+      "generated": 958899,
+      "depth": 13,
+      "creator_prefixes": 10
+    },
+    {
+      "replicas": 2,
+      "operations": 2,
+      "elements": 2,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17116,
+      "distinct": 18260689,
+      "generated": 30432219,
+      "depth": 13,
+      "creator_prefixes": 10
+    },
+    {
+      "replicas": 2,
+      "operations": 2,
+      "elements": 2,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17148,
+      "distinct": 4565173,
+      "generated": 7608075,
+      "depth": 13,
+      "creator_prefixes": 10
+    },
+    {
+      "replicas": 2,
+      "operations": 2,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17080,
+      "distinct": 92209825,
+      "generated": 153650703,
+      "depth": 13,
+      "creator_prefixes": 10
+    },
+    {
+      "replicas": 2,
+      "operations": 2,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17092,
+      "distinct": 7971709,
+      "generated": 13337631,
+      "depth": 13,
+      "creator_prefixes": 10
+    },
+    {
+      "replicas": 2,
+      "operations": 3,
+      "elements": 1,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17208,
+      "distinct": 929722993,
+      "generated": 1579389327,
+      "depth": 17,
+      "creator_prefixes": 35
+    },
+    {
+      "replicas": 2,
+      "operations": 3,
+      "elements": 1,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17112,
+      "distinct": 464861497,
+      "generated": 789694671,
+      "depth": 17,
+      "creator_prefixes": 35
+    },
+    {
+      "replicas": 2,
+      "operations": 3,
+      "elements": 2,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17076,
+      "distinct": 59004522193,
+      "generated": 100163070267,
+      "depth": 17,
+      "creator_prefixes": 35
+    },
+    {
+      "replicas": 2,
+      "operations": 3,
+      "elements": 2,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17096,
+      "distinct": 14751130549,
+      "generated": 25040767587,
+      "depth": 17,
+      "creator_prefixes": 35
+    },
+    {
+      "replicas": 2,
+      "operations": 3,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17160,
+      "distinct": 670255891201,
+      "generated": 1137534343815,
+      "depth": 17,
+      "creator_prefixes": 35
+    },
+    {
+      "replicas": 2,
+      "operations": 3,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17148,
+      "distinct": 56087088349,
+      "generated": 95236134543,
+      "depth": 17,
+      "creator_prefixes": 35
+    },
+    {
+      "replicas": 3,
+      "operations": 2,
+      "elements": 1,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17244,
+      "distinct": 116608138885,
+      "generated": 290284944502,
+      "depth": 25,
+      "creator_prefixes": 47
+    },
+    {
+      "replicas": 3,
+      "operations": 2,
+      "elements": 1,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17080,
+      "distinct": 19434689875,
+      "generated": 48380824984,
+      "depth": 25,
+      "creator_prefixes": 47
+    },
+    {
+      "replicas": 3,
+      "operations": 2,
+      "elements": 2,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17092,
+      "distinct": 7432078799233,
+      "generated": 18501786023224,
+      "depth": 25,
+      "creator_prefixes": 47
+    },
+    {
+      "replicas": 3,
+      "operations": 2,
+      "elements": 2,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17080,
+      "distinct": 619339900051,
+      "generated": 1541815505014,
+      "depth": 25,
+      "creator_prefixes": 47
+    },
+    {
+      "replicas": 3,
+      "operations": 2,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17128,
+      "distinct": 84540521158453,
+      "generated": 210460894564522,
+      "depth": 25,
+      "creator_prefixes": 47
+    },
+    {
+      "replicas": 3,
+      "operations": 2,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17084,
+      "distinct": 2358065154979,
+      "generated": 5871295435612,
+      "depth": 25,
+      "creator_prefixes": 47
+    },
+    {
+      "replicas": 4,
+      "operations": 2,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.03,
+      "peak_rss_kib": 17076,
+      "distinct": 367749080222084954065,
+      "generated": 1254776176774440537341,
+      "depth": 41,
+      "creator_prefixes": 313
+    },
+    {
+      "replicas": 4,
+      "operations": 2,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17092,
+      "distinct": 2554985080281612985,
+      "generated": 8717800163434173389,
+      "depth": 41,
+      "creator_prefixes": 313
+    },
+    {
+      "replicas": 3,
+      "operations": 3,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.03,
+      "peak_rss_kib": 17232,
+      "distinct": 720668828817203991445,
+      "generated": 1835659262113781740366,
+      "depth": 34,
+      "creator_prefixes": 877
+    },
+    {
+      "replicas": 3,
+      "operations": 3,
+      "elements": 3,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.03,
+      "peak_rss_kib": 17216,
+      "distinct": 20021648781593510227,
+      "generated": 50998701885720362284,
+      "depth": 34,
+      "creator_prefixes": 877
+    },
+    {
+      "replicas": 3,
+      "operations": 2,
+      "elements": 32,
+      "policies": 3,
+      "symmetric": false,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17088,
+      "distinct": 124214083174434339073,
+      "generated": 309231509923758669124,
+      "depth": 25,
+      "creator_prefixes": 47
+    },
+    {
+      "replicas": 3,
+      "operations": 2,
+      "elements": 32,
+      "policies": 3,
+      "symmetric": true,
+      "wall_s": 0.02,
+      "peak_rss_kib": 17080,
+      "distinct": 3921112695475,
+      "generated": 11141368414618,
+      "depth": 25,
+      "creator_prefixes": 47
+    }
+  ],
+  "oracle_cross_products": 72,
+  "sha256": {
+    "TunableSetHistory.tla": "c59b7a02af26badd2a522c8384ba0f99abb7dca58c342a5f2c507e157c2ce88f",
+    "tunable_set_counts.py": "931494f382ccb729d3a5aa3004c10444aa12e1f985f1dd4809d4a0c1bd5c06bc",
+    "dive": "425057b2e3038a7c2ae1ec65254fc9529cd994ca3a020d6e6f9e318724d7c395",
+    "tla2tools.jar": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+  },
+  "wide_explicit_runs": [
+    {
+      "config": "r2n2e2p3-sym",
+      "tool": "core",
+      "wall_s": 16.61,
+      "peak_rss_kib": 2361852,
+      "distinct": 4565173,
+      "generated": 7608075,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e2p3-sym",
+      "tool": "tlc",
+      "wall_s": 22.48,
+      "peak_rss_kib": 6542368,
+      "distinct": 4565173,
+      "generated": 7608075,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e3p3-sym",
+      "tool": "core",
+      "wall_s": 9.04,
+      "peak_rss_kib": 430504,
+      "distinct": 584515,
+      "generated": 1390486,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e3p3-sym",
+      "tool": "tlc",
+      "wall_s": 7.58,
+      "peak_rss_kib": 5876164,
+      "distinct": 584515,
+      "generated": 1390486,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n2e1p1-sym",
+      "tool": "core",
+      "wall_s": 245.74,
+      "peak_rss_kib": 15578064,
+      "distinct": 27123751,
+      "generated": 67521608,
+      "depth": 25,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n2e1p1-sym",
+      "tool": "tlc",
+      "wall_s": 387.02,
+      "peak_rss_kib": 8055992,
+      "distinct": 27123751,
+      "generated": 67521608,
+      "depth": 25,
+      "left_on_queue": 0
+    }
+  ],
+  "policy_explicit_runs": [
+    {
+      "config": "r2n1e2p3",
+      "tool": "core",
+      "wall_s": 0.17,
+      "peak_rss_kib": 47072,
+      "distinct": 8113,
+      "generated": 13035,
+      "depth": 9,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n1e2p3-sym",
+      "tool": "core",
+      "wall_s": 0.06,
+      "peak_rss_kib": 41004,
+      "distinct": 2029,
+      "generated": 3279,
+      "depth": 9,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n1e2p3-sym",
+      "tool": "tlc",
+      "wall_s": 1.68,
+      "peak_rss_kib": 154320,
+      "distinct": 2029,
+      "generated": 3279,
+      "depth": 9,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n1e2p3",
+      "tool": "tlc",
+      "wall_s": 2.72,
+      "peak_rss_kib": 160444,
+      "distinct": 8113,
+      "generated": 13035,
+      "depth": 9,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e1p1",
+      "tool": "core",
+      "wall_s": 1.09,
+      "peak_rss_kib": 46668,
+      "distinct": 14689,
+      "generated": 24559,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e1p1-sym",
+      "tool": "core",
+      "wall_s": 0.44,
+      "peak_rss_kib": 47136,
+      "distinct": 7345,
+      "generated": 12283,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e1p1-sym",
+      "tool": "tlc",
+      "wall_s": 3.12,
+      "peak_rss_kib": 156624,
+      "distinct": 7345,
+      "generated": 12283,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r2n2e1p1",
+      "tool": "tlc",
+      "wall_s": 4.06,
+      "peak_rss_kib": 171088,
+      "distinct": 14689,
+      "generated": 24559,
+      "depth": 13,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e1p1",
+      "tool": "core",
+      "wall_s": 1.12,
+      "peak_rss_kib": 54856,
+      "distinct": 26377,
+      "generated": 62434,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e1p1-sym",
+      "tool": "core",
+      "wall_s": 0.14,
+      "peak_rss_kib": 47228,
+      "distinct": 4399,
+      "generated": 10426,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e1p1-sym",
+      "tool": "tlc",
+      "wall_s": 2.5,
+      "peak_rss_kib": 159692,
+      "distinct": 4399,
+      "generated": 10426,
+      "depth": 16,
+      "left_on_queue": 0
+    },
+    {
+      "config": "r3n1e1p1",
+      "tool": "tlc",
+      "wall_s": 5.27,
+      "peak_rss_kib": 170408,
+      "distinct": 26377,
+      "generated": 62434,
+      "depth": 16,
+      "left_on_queue": 0
+    }
+  ],
+  "bounded_policy_verification": {
+    "source": "Figures 5.2, 5.4–5.6, 5.9–5.16, E.1–E.4. Normalize NORMAL_REM to NORMAL_REMOVE and supply the missing op in the printed two-argument call to the three-argument noOtherElementsAffected (the appendix supplies all three). The executable reconstruction retains E.3’s disjunction of implications. The separately checked only_one_kind_in_history obligation states its operational one-kind consequence.",
+    "scope": "Unmodified stamped FIFO reconstruction with the three numbered policies per operation kind, no overrides. For any color and any replica, admit every time-oriented transitive causal relation on at most replicas × operations stamps, and any causally closed local history prefix and next operation. Prove pointwise properties independently of other colors. When all replicas finish, all know precisely the same operation records, establishing convergence and equal total queries. A sat query needs a concrete witness for the protocol: the disabled rule has one.",
+    "commands": {
+      "formula": "/usr/bin/python3 scripts/perf/scale/tunable_set_policies.py REPLICAS OPERATIONS [--policy-file EDITED_TLA] (Ubuntu python3-z3).",
+      "explicit": "Use --emit-config from the counter, then replace its INVARIANTS line with INVARIANTS Convergence ObservableConvergence NoSimultaneousAddRemove AtLeastOneOp CorrectnessPrinciples HistoryAgreement. Check TunableSetPolicies.tla under the same explicit commands.",
+      "edits": "Keep the parent and edited module beside each other. Earliest replaces a.stamp > b.stamp by a.stamp < b.stamp in ApplyPolicy. LostNormalAdd replaces the result of the normal-add branch with FALSE. ForeignPolicy tries a.author = b.author in place of the stamp comparison. Unchecked changes the outer correctness predicate.",
+      "wide_explicit": "Eight workers pinned to CPUs 0–7; 22 GiB Core, 16 GiB JVM, 1250s Core and external 1265s wall limit. One short isolated policy-solver diagnostic overlapped the third configuration on an SMT sibling. Time/RSS include process startup.",
+      "policy_explicit": "One worker and physical CPU 0, max 6 GiB Core, 4 GiB JVM; external 215s wall limit. Short solver checks used a separate logical CPU. Preceding wider runs finished first."
+    },
+    "sha256": {
+      "tunable_set_policies.py": "e5beac8aae4615cfcdecebbd43defb747a88799ee44a13f88f6586ab0a951232",
+      "TunableSetHistory.tla": "c59b7a02af26badd2a522c8384ba0f99abb7dca58c342a5f2c507e157c2ce88f",
+      "TunableSetPolicies.tla": "aa5d632daeeb98e498b3b3354f54dd8d5cbbf35324e53e89b13d86c78468eb7e",
+      "Earliest.tla": "233404a93b94a4347ff1fedc775f1a2d4c5bd6501708f16cd9fcfc23710c49a3",
+      "LostNormalAdd.tla": "4a4d96d040c952237670e9196d4974fd286044a38027b90dda42c6afc39ae4b3",
+      "ForeignPolicy.tla": "1492531484bdebe905dd3f2f39c3d01e7bba5f20e41cdd5cca33ebdd0a561b57",
+      "Unchecked.tla": "2145109b8393f023b2203ea770fac23b53eb2b275cf2c24a370d2bed9700834d"
+    },
+    "solver_runs": [
+      {
+        "input": "Earliest-3-2",
+        "exit": 0,
+        "wall_s": 0.33,
+        "peak_rss_kib": 60416,
+        "bound": 6,
+        "solver": "4.8.12",
+        "policy_sha256": "233404a93b94a4347ff1fedc775f1a2d4c5bd6501708f16cd9fcfc23710c49a3",
+        "branches": [
+          "earliest",
+          "source",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "unsat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "unsat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "unsat",
+          "only_one_kind_in_history": "unsat"
+        }
+      },
+      {
+        "input": "ForeignPolicy-1-2",
+        "exit": 2,
+        "wall_s": 0.09,
+        "peak_rss_kib": 31392,
+        "refusal": "tunable_set_policies.py: error: unsupported expression for owner.policy = 3"
+      },
+      {
+        "input": "LostNormalAdd-3-2",
+        "exit": 1,
+        "wall_s": 0.28,
+        "peak_rss_kib": 60008,
+        "bound": 6,
+        "solver": "4.8.12",
+        "policy_sha256": "4a4d96d040c952237670e9196d4974fd286044a38027b90dda42c6afc39ae4b3",
+        "branches": [
+          "source",
+          "FALSE",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "sat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "sat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "sat",
+          "only_one_kind_in_history": "unsat"
+        }
+      },
+      {
+        "input": "Unchecked-1-2",
+        "exit": 2,
+        "wall_s": 0.09,
+        "peak_rss_kib": 31396,
+        "refusal": "tunable_set_policies.py: error: change outside the five supported policy branches"
+      },
+      {
+        "input": "original-1-2",
+        "exit": 0,
+        "wall_s": 0.12,
+        "peak_rss_kib": 58916,
+        "bound": 2,
+        "solver": "4.8.12",
+        "policy_sha256": "aa5d632daeeb98e498b3b3354f54dd8d5cbbf35324e53e89b13d86c78468eb7e",
+        "branches": [
+          "source",
+          "source",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "unsat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "unsat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "unsat",
+          "only_one_kind_in_history": "unsat"
+        }
+      },
+      {
+        "input": "original-3-2",
+        "exit": 0,
+        "wall_s": 0.31,
+        "peak_rss_kib": 60356,
+        "bound": 6,
+        "solver": "4.8.12",
+        "policy_sha256": "aa5d632daeeb98e498b3b3354f54dd8d5cbbf35324e53e89b13d86c78468eb7e",
+        "branches": [
+          "source",
+          "source",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "unsat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "unsat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "unsat",
+          "only_one_kind_in_history": "unsat"
+        }
+      },
+      {
+        "input": "original-4-2",
+        "exit": 0,
+        "wall_s": 1.84,
+        "peak_rss_kib": 65092,
+        "bound": 8,
+        "solver": "4.8.12",
+        "policy_sha256": "aa5d632daeeb98e498b3b3354f54dd8d5cbbf35324e53e89b13d86c78468eb7e",
+        "branches": [
+          "source",
+          "source",
+          "source",
+          "source",
+          "source"
+        ],
+        "counterexample_queries": {
+          "no_conflicting_kinds": "unsat",
+          "nonempty_active_for_every_used_element": "unsat",
+          "unchanged_other_elements": "unsat",
+          "PSE": "unsat",
+          "PPE_figure_E3": "unsat",
+          "PCS": "unsat",
+          "only_one_kind_in_history": "unsat"
+        }
+      }
+    ],
+    "earliest_explicit": [
+      {
+        "tool": "core",
+        "wall_s": 0.16,
+        "peak_rss_kib": 45056,
+        "distinct": 8113,
+        "generated": 13035,
+        "depth": 9,
+        "left_on_queue": 0
+      },
+      {
+        "tool": "tlc",
+        "wall_s": 2.63,
+        "peak_rss_kib": 132888,
+        "distinct": 8113,
+        "generated": 13035,
+        "depth": 9,
+        "left_on_queue": 0
+      }
+    ],
+    "disabled_rule_violation": {
+      "core": {
+        "depth": 4,
+        "distinct": 342,
+        "generated": 344,
+        "initial_generated": 1,
+        "left_on_queue": 313,
+        "reported_by_tlc": true
+      },
+      "property": "NoSimultaneousAddRemove",
+      "exit": 12,
+      "tlc_exit": 12,
+      "tlc_terminal": "344 states generated, 342 distinct states found, 313 states left on queue",
+      "replay": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [
+          "label `Issue` names an operator with parameters; not checked",
+          "label `Receive` names an operator with parameters; not checked"
+        ],
+        "result": "valid",
+        "schema_version": 4
+      },
+      "damaged_init": {
+        "command": "validate-trace",
+        "failure": {
+          "check": "init",
+          "detail": "the first state is outside the independent Init relation",
+          "state": 0
+        },
+        "length": 4,
+        "notes": [],
+        "result": "invalid",
+        "schema_version": 4
+      }
+    }
+  }
+}
