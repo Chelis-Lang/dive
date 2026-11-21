@@ -61,7 +61,7 @@ num-integer = "0.1"
 num-traits = "0.2"
 divan = "0.1"
 # Global allocator for the dive binaries only (ADR 0102).
-mimalloc = { version = "0.1", default-features = false }
+mimalloc = { package = "mimalloc3", version = "=0.1.61", default-features = false }
 # Safe native process RSS on macOS (ADR 0109).
 memory-stats = { version = "1.2.0", default-features = false }
 

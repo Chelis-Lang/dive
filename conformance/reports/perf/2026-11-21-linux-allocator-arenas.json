@@ -1,0 +1,1216 @@
+{
+  "date": "2026-11-21",
+  "question": "Do the Linux command-line binaries keep using allocator arenas as the live heap grows?",
+  "upstream": {
+    "defect": "https://github.com/microsoft/mimalloc/issues/1309",
+    "upstream_fix": "https://github.com/microsoft/mimalloc/commit/566fbc1f4d",
+    "rust_crates": "Historical diagnostic arms used published mimalloc 0.1.52 and libmimalloc-sys 0.1.49 (native 3.3.2 and 2.3.2)."
+  },
+  "reservation_control": {
+    "method": "Link the public mi_reserve_os_memory(size,false,false) API against the exact static library from each release build, one uncommitted request per fresh process. Zero is success; Linux errno 12 is ENOMEM. No graph is allocated by this control.",
+    "runs": {
+      "arm64": {
+        "reserve-v3-8": {
+          "mimalloc_version": 30302,
+          "reservation_gib": 8,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 1552
+        },
+        "reserve-v3-16": {
+          "mimalloc_version": 30302,
+          "reservation_gib": 16,
+          "errno": 12,
+          "wall_s": 0.0,
+          "rss_kib": 1552
+        },
+        "reserve-v2-8": {
+          "mimalloc_version": 20302,
+          "reservation_gib": 8,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 0
+        },
+        "reserve-v2-16": {
+          "mimalloc_version": 20302,
+          "reservation_gib": 16,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 0
+        }
+      },
+      "x86_64": {
+        "reserve-v3-8": {
+          "mimalloc_version": 30302,
+          "reservation_gib": 8,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 1928
+        },
+        "reserve-v3-16": {
+          "mimalloc_version": 30302,
+          "reservation_gib": 16,
+          "errno": 12,
+          "wall_s": 0.0,
+          "rss_kib": 1924
+        },
+        "reserve-v2-8": {
+          "mimalloc_version": 20302,
+          "reservation_gib": 8,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 1696
+        },
+        "reserve-v2-16": {
+          "mimalloc_version": 20302,
+          "reservation_gib": 16,
+          "errno": 0,
+          "wall_s": 0.0,
+          "rss_kib": 1696
+        }
+      }
+    }
+  },
+  "flint": {
+    "host": "Two dedicated r8g.48xlarge in us-east-1a, W192. CPU 0–191, memory cgroup 1400 GiB, no swap. Same generated compiled checker, exact key implementation and original released three-writer CFG. The full command and model properties are in the Flint exact admission record. Only the mimalloc Cargo feature differs.",
+    "sample_method": "/proc per-thread wait channels, then a maps count. The stock sample began during the slowdown. The v2 sampler began at launch. Samples are observations during the run. Timings include sampling and the short public-API probe on the v2 host.",
+    "stock_observation": {
+      "wait_channels": {
+        "futex_do_wait": 1,
+        "vm_mmap_pgoff": 38,
+        "__vm_munmap": 71,
+        "madvise_lock": 41,
+        "0": 42
+      },
+      "map_count": 129062,
+      "largest_frequency": [
+        [
+          65536,
+          120798
+        ],
+        [
+          4194304,
+          5500
+        ],
+        [
+          4718592,
+          1489
+        ],
+        [
+          16384,
+          195
+        ],
+        [
+          4096,
+          195
+        ],
+        [
+          135168,
+          194
+        ]
+      ],
+      "permissions": {
+        "rw-p": 128473,
+        "r-xp": 5,
+        "r--p": 5,
+        "---p": 579
+      },
+      "observation_s": 0.24,
+      "epoch_s": 1795275472
+    },
+    "runs": {
+      "v3": {
+        "sha256": {
+          "generated-Small/target/release/tlcgen-weightedflint": "511fd645b344a6bdeed1e114c1033c677cfbdbddab42e137e2c2ff408f5b45a3",
+          "generated-Small/src/main.rs": "de767a670a19d1499b68cb5a3b346f618982079021318a0432b20eac101fe5ec",
+          "generated-Full/target/release/tlcgen-weightedflint": "c0e39bb5a74521bc3776698711977149d6b72cad7fa8f8e6c44a338b7712ecdb",
+          "generated-Full/src/main.rs": "d5bccd4a3b84b668d09aea35d86c84b58386a24e68e8c853f3427a18284d1007",
+          "Small.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+          "Full.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+          "WeightedFlint.tla": "94a54e6443dea6ac9993e6826556e35d5f3cf8bc042c9c8db2d3eab17154b63e",
+          "flint-exact/state_codes.rs": "27c2867436eaacb60c6e88a50fd30be4ebcad6faf5d19c5e2cc5e696ea56274d",
+          "verified/src/check.rs": "a941b611830171cca8ff62b4b91ab013d4e910b9341e099f6ee5c6784dc8c02c",
+          "verified/src/cli.rs": "769778839905ea6df9456cfc61b0b367023484028e09635aa152cec88793c14a"
+        },
+        "completed_levels_at_observation": {
+          "17": {
+            "generated": 57126847,
+            "distinct": 15425142,
+            "queue": 7137699,
+            "on_disk": 0,
+            "checker_s": 11.7
+          },
+          "18": {
+            "generated": 104511147,
+            "distinct": 28248305,
+            "queue": 12823163,
+            "on_disk": 0,
+            "checker_s": 21.8
+          },
+          "19": {
+            "generated": 188454830,
+            "distinct": 50604610,
+            "queue": 22356305,
+            "on_disk": 0,
+            "checker_s": 39.8
+          },
+          "20": {
+            "generated": 331909909,
+            "distinct": 87878516,
+            "queue": 37273906,
+            "on_disk": 0,
+            "checker_s": 73.7
+          },
+          "21": {
+            "generated": 563557768,
+            "distinct": 146566644,
+            "queue": 58688128,
+            "on_disk": 0,
+            "checker_s": 130.7
+          }
+        },
+        "mappings": {
+          "sample_count": 9,
+          "first": {
+            "epoch_s": 1795275860,
+            "rss_kib": 201821628,
+            "waits": {
+              "futex_do_wait": 1,
+              "0": 113,
+              "madvise_lock": 22,
+              "__vm_munmap": 36,
+              "vm_mmap_pgoff": 21
+            },
+            "maps": 140987,
+            "maps_64k": 132369,
+            "map_read_s": 0.256
+          },
+          "last": {
+            "epoch_s": 1795276342,
+            "rss_kib": 204067536,
+            "waits": {
+              "futex_do_wait": 1,
+              "__vm_munmap": 39,
+              "0": 128,
+              "vm_mmap_pgoff": 12,
+              "madvise_lock": 13
+            },
+            "maps": 153984,
+            "maps_64k": 144983,
+            "map_read_s": 0.285
+          },
+          "maximum_map_count_sample": {
+            "epoch_s": 1795276342,
+            "rss_kib": 204067536,
+            "waits": {
+              "futex_do_wait": 1,
+              "__vm_munmap": 39,
+              "0": 128,
+              "vm_mmap_pgoff": 12,
+              "madvise_lock": 13
+            },
+            "maps": 153984,
+            "maps_64k": 144983,
+            "map_read_s": 0.285
+          }
+        },
+        "status": "in progress",
+        "observation_epoch_s": 1795276359,
+        "process_elapsed_s_at_observation": 1638,
+        "small_audits": {
+          "Small-audit0": {
+            "excess": 449594,
+            "wall_s": 3.24,
+            "rss_kib": 795196
+          },
+          "Small-audit64": {
+            "excess": 0,
+            "wall_s": 3.17,
+            "rss_kib": 745392
+          }
+        }
+      },
+      "v2": {
+        "sha256": {
+          "generated-Small/target/release/tlcgen-weightedflint": "e96ffd35a458dc3159fc349dbefefd2816f950c1c5efb1e49b3fc011f2431cb7",
+          "generated-Small/src/main.rs": "de767a670a19d1499b68cb5a3b346f618982079021318a0432b20eac101fe5ec",
+          "generated-Full/target/release/tlcgen-weightedflint": "bc05df59ce4400b84b11de8fc9bf6661f061542ddaa2a4d72af0aecafce499f0",
+          "generated-Full/src/main.rs": "d5bccd4a3b84b668d09aea35d86c84b58386a24e68e8c853f3427a18284d1007",
+          "Small.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+          "Full.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+          "WeightedFlint.tla": "94a54e6443dea6ac9993e6826556e35d5f3cf8bc042c9c8db2d3eab17154b63e",
+          "verified/src/state_codes.rs": "27c2867436eaacb60c6e88a50fd30be4ebcad6faf5d19c5e2cc5e696ea56274d",
+          "verified/src/check.rs": "a941b611830171cca8ff62b4b91ab013d4e910b9341e099f6ee5c6784dc8c02c",
+          "verified/src/cli.rs": "769778839905ea6df9456cfc61b0b367023484028e09635aa152cec88793c14a"
+        },
+        "completed_levels_at_observation": {
+          "17": {
+            "generated": 57126847,
+            "distinct": 15425142,
+            "queue": 7137699,
+            "on_disk": 0,
+            "checker_s": 10.7
+          },
+          "19": {
+            "generated": 188454830,
+            "distinct": 50604610,
+            "queue": 22356305,
+            "on_disk": 0,
+            "checker_s": 34.7
+          },
+          "20": {
+            "generated": 331909909,
+            "distinct": 87878516,
+            "queue": 37273906,
+            "on_disk": 0,
+            "checker_s": 62.2
+          },
+          "21": {
+            "generated": 563557768,
+            "distinct": 146566644,
+            "queue": 58688128,
+            "on_disk": 0,
+            "checker_s": 106.0
+          },
+          "22": {
+            "generated": 912959945,
+            "distinct": 233438204,
+            "queue": 86871560,
+            "on_disk": 0,
+            "checker_s": 172.5
+          },
+          "23": {
+            "generated": 1405007876,
+            "distinct": 354509790,
+            "queue": 121071586,
+            "on_disk": 0,
+            "checker_s": 264.7
+          },
+          "24": {
+            "generated": 2058422381,
+            "distinct": 515066444,
+            "queue": 160556654,
+            "on_disk": 0,
+            "checker_s": 400.0
+          },
+          "25": {
+            "generated": 2893352283,
+            "distinct": 721363081,
+            "queue": 206296637,
+            "on_disk": 0,
+            "checker_s": 575.1
+          }
+        },
+        "mappings": {
+          "sample_count": 10,
+          "first": {
+            "epoch_s": 1795275803,
+            "rss_kib": 102722628,
+            "waits": {
+              "futex_do_wait": 1,
+              "0": 192
+            },
+            "maps": 1294,
+            "maps_64k": 193,
+            "map_read_s": 0.002
+          },
+          "last": {
+            "epoch_s": 1795276344,
+            "rss_kib": 413276972,
+            "waits": {
+              "futex_do_wait": 1,
+              "0": 192
+            },
+            "maps": 1319,
+            "maps_64k": 193,
+            "map_read_s": 0.003
+          },
+          "maximum_map_count_sample": {
+            "epoch_s": 1795276344,
+            "rss_kib": 413276972,
+            "waits": {
+              "futex_do_wait": 1,
+              "0": 192
+            },
+            "maps": 1319,
+            "maps_64k": 193,
+            "map_read_s": 0.003
+          }
+        },
+        "status": "in progress",
+        "observation_epoch_s": 1795276361,
+        "process_elapsed_s_at_observation": 618,
+        "small_audits": {
+          "Small-audit0": {
+            "excess": 449594,
+            "wall_s": 3.14,
+            "rss_kib": 586276
+          },
+          "Small-audit64": {
+            "excess": 0,
+            "wall_s": 3.19,
+            "rss_kib": 583840
+          }
+        }
+      }
+    }
+  },
+  "sailfish": {
+    "source": "Dive main at 09cdfa6f1934a1ed558f00d5628c8baaf99798ee. Same source tree and locked dependencies, v2 target-specific feature only. Rust 1.99.0, release, LTO off, 16 codegen units.",
+    "host": "Dedicated r7i.8xlarge us-east-1a; W16, 238 GiB cgroup, no swap, Linux stock mapping limit. Positive and negative CLI controls used one worker.",
+    "sha256": {
+      "../dive-v3": "e9f3b9971cafffda1b6b0f2ebe268824c6b98d40b3c90e53ecc2a5604ffc6606",
+      "../dive-v2": "b2f8a0e00dad5a84c874bb4c17ab5eacdd97f151cdb095914c77376431524b5b",
+      "specifications/dag-consensus/TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+      "specifications/dag-consensus/TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f"
+    },
+    "vm_max_map_count": 1048576,
+    "fixture_controls": {
+      "Success": {
+        "verdict": "success",
+        "exit": 0,
+        "property": null
+      },
+      "Deadlock": {
+        "verdict": "deadlock",
+        "exit": 11,
+        "property": null
+      },
+      "Invariant": {
+        "verdict": "invariant-violation",
+        "exit": 12,
+        "property": "Inv"
+      },
+      "Liveness": {
+        "verdict": "liveness-violation",
+        "exit": 13,
+        "property": "Live"
+      },
+      "EvaluationError": {
+        "verdict": "evaluation-error",
+        "exit": 76,
+        "property": null
+      }
+    },
+    "runs": {
+      "stock-prefix": {
+        "exit": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "distinct": 4000000,
+          "generated": 7261317,
+          "depth": 14,
+          "left_on_queue": 3226964
+        },
+        "stopped": {
+          "elapsed_ms": 101079,
+          "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+          "limit": 4000000,
+          "observed": 4000001,
+          "phase": "safety-search",
+          "resource": "states",
+          "unit": "states"
+        },
+        "wall_s": 101.29,
+        "rss_kib": 1787892,
+        "maps": {
+          "sample_count": 1,
+          "first": {
+            "epoch_s": 1795275946,
+            "rss_kib": 1194820,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 142,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          },
+          "last": {
+            "epoch_s": 1795275946,
+            "rss_kib": 1194820,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 142,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          },
+          "maximum_map_count_sample": {
+            "epoch_s": 1795275946,
+            "rss_kib": 1194820,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 142,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          }
+        },
+        "cumulative_cgroup_events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0,
+          "sock_throttled": 0
+        }
+      },
+      "other-prefix": {
+        "exit": 5,
+        "verdict": "stopped",
+        "statistics": {
+          "distinct": 4000000,
+          "generated": 7261317,
+          "depth": 14,
+          "left_on_queue": 3226964
+        },
+        "stopped": {
+          "elapsed_ms": 101283,
+          "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+          "limit": 4000000,
+          "observed": 4000001,
+          "phase": "safety-search",
+          "resource": "states",
+          "unit": "states"
+        },
+        "wall_s": 101.62,
+        "rss_kib": 1610344,
+        "maps": {
+          "sample_count": 1,
+          "first": {
+            "epoch_s": 1795276048,
+            "rss_kib": 1036216,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 152,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          },
+          "last": {
+            "epoch_s": 1795276048,
+            "rss_kib": 1036216,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 152,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          },
+          "maximum_map_count_sample": {
+            "epoch_s": 1795276048,
+            "rss_kib": 1036216,
+            "waits": {
+              "futex_do_wait": 2,
+              "0": 16
+            },
+            "maps": 152,
+            "maps_64k": 1,
+            "map_read_s": 0.001
+          }
+        },
+        "cumulative_cgroup_events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0,
+          "sock_throttled": 0
+        }
+      }
+    },
+    "command": "taskset -c 0-15 dive check specifications/dag-consensus/TLCSailfish2.tla --config specifications/dag-consensus/TLCSailfish2.cfg --library-path modules --workers 16 --compat=tlc --fp 0 --seed 0 --max-memory 224g --output json; both prefixes use --max-states 4000000 --time-limit 480s. Both original trials use --time-limit 19600s."
+  },
+  "smaller_model_panel": {
+    "host": "Isolated c7i.4xlarge us-east-2b, CPUs 0-7, W8, 26 GiB cgroup. Same binaries as the two Sailfish trials, same binary per variant across all models. Run order v3, v2, v2, v3. Each process has a 620 s and 23 GiB limit.",
+    "inputs": "Released MCKVSSafetySmall, SlateDB WAL Medium, and three-node EWD998Small. Default profile, --seed 0 --fp 0, original properties.",
+    "sha256": {
+      "dive-v2": "b2f8a0e00dad5a84c874bb4c17ab5eacdd97f151cdb095914c77376431524b5b",
+      "dive-v3": "e9f3b9971cafffda1b6b0f2ebe268824c6b98d40b3c90e53ecc2a5604ffc6606",
+      "KeyValueStore/MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+      "KeyValueStore/MCKVSSafetySmall.cfg": "2360ddff6cac82d84a7077e35cd5e77e7acf81a5d37fc37bc10f335082854103",
+      "ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+      "ewd998/EWD998Small.cfg": "f0869ebeddcdec5b0208014218a946532c01fdb34130579acff081ed6e883f2a",
+      "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+      "spec/Medium.cfg": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10"
+    },
+    "runs": {
+      "kvs": {
+        "v3-1": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 3409605,
+            "generated": 56349379,
+            "depth": 23,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 23.91,
+          "rss_kib": 205248
+        },
+        "v3-2": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 3409605,
+            "generated": 56349379,
+            "depth": 23,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 23.36,
+          "rss_kib": 194900
+        },
+        "v2-1": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 3409605,
+            "generated": 56349379,
+            "depth": 23,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 23.18,
+          "rss_kib": 154984
+        },
+        "v2-2": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 3409605,
+            "generated": 56349379,
+            "depth": 23,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 23.24,
+          "rss_kib": 157044
+        }
+      },
+      "slate": {
+        "v3-1": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 74637,
+            "generated": 198123,
+            "depth": 69,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 0.32,
+          "rss_kib": 129960
+        },
+        "v3-2": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 74637,
+            "generated": 198123,
+            "depth": 69,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 0.32,
+          "rss_kib": 133888
+        },
+        "v2-1": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 74637,
+            "generated": 198123,
+            "depth": 69,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 0.31,
+          "rss_kib": 86808
+        },
+        "v2-2": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 74637,
+            "generated": 198123,
+            "depth": 69,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 0.32,
+          "rss_kib": 83744
+        }
+      },
+      "ewd": {
+        "v3-1": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 1520618,
+            "generated": 11238019,
+            "depth": 59,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 5.53,
+          "rss_kib": 170348
+        },
+        "v3-2": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 1520618,
+            "generated": 11238019,
+            "depth": 59,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 5.54,
+          "rss_kib": 150004
+        },
+        "v2-1": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 1520618,
+            "generated": 11238019,
+            "depth": 59,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 5.49,
+          "rss_kib": 94904
+        },
+        "v2-2": {
+          "exit": 0,
+          "verdict": "success",
+          "statistics": {
+            "distinct": 1520618,
+            "generated": 11238019,
+            "depth": 59,
+            "left_on_queue": 0
+          },
+          "property": null,
+          "wall_s": 5.42,
+          "rss_kib": 89520
+        }
+      }
+    }
+  },
+  "fixed_release": {
+    "mimalloc": "3.7.0",
+    "native_commit": "1ed67b5156a763441d2ec3c20221a7b3cd866129",
+    "rust_wrapper": "mimalloc3 0.1.61",
+    "native_package": "libmimalloc-sys3 0.1.58",
+    "native_source_verification": "Both src/ and include/ under c_src/mimalloc/v3 in the registry archive match the upstream v3.7.0 tag byte for byte.",
+    "reservation_controls": {
+      "Graviton4": {
+        "linux_vm_max_map_count": 1048576,
+        "fields": [
+          "native_version",
+          "virtual_gib",
+          "errno"
+        ],
+        "runs": [
+          [
+            30700,
+            8,
+            0
+          ],
+          [
+            30700,
+            16,
+            0
+          ]
+        ]
+      },
+      "Intel Xeon": {
+        "linux_vm_max_map_count": 1048576,
+        "fields": [
+          "native_version",
+          "virtual_gib",
+          "errno"
+        ],
+        "runs": [
+          [
+            30700,
+            8,
+            0
+          ],
+          [
+            30700,
+            16,
+            0
+          ]
+        ]
+      }
+    },
+    "cli_fixtures": {
+      "Success": {
+        "verdict": "success",
+        "property": null,
+        "exit": 0,
+        "statistics": {
+          "distinct": 3,
+          "generated": 4,
+          "depth": 3,
+          "left_on_queue": 0
+        }
+      },
+      "Invariant": {
+        "verdict": "invariant-violation",
+        "property": "Inv",
+        "exit": 12,
+        "statistics": {
+          "distinct": 3,
+          "generated": 3,
+          "depth": 3,
+          "left_on_queue": 0
+        },
+        "validate_trace": "valid"
+      },
+      "Deadlock": {
+        "verdict": "deadlock",
+        "property": null,
+        "exit": 11,
+        "statistics": {
+          "distinct": 3,
+          "generated": 3,
+          "depth": 3,
+          "left_on_queue": 0
+        },
+        "validate_trace": "valid"
+      },
+      "Liveness": {
+        "verdict": "liveness-violation",
+        "property": "Live",
+        "exit": 13,
+        "statistics": {
+          "distinct": 3,
+          "generated": 4,
+          "depth": 3,
+          "left_on_queue": 0
+        },
+        "validate_trace": "valid"
+      },
+      "EvaluationError": {
+        "verdict": "evaluation-error",
+        "property": null,
+        "exit": 76,
+        "statistics": {
+          "distinct": 3,
+          "generated": 3,
+          "depth": 3,
+          "left_on_queue": 0
+        },
+        "validate_trace": "valid"
+      }
+    },
+    "tlc_alias": {
+      "fixture": "report-schema/Success.cfg",
+      "generated": 4,
+      "distinct": 3,
+      "depth": 3,
+      "exit": 0
+    },
+    "flint": {
+      "host_and_command": "Same original model, checker sources, worker count, resource limits and commands as the flint comparison above. The 3.7.0 registry build puts metadata in a fresh directory.",
+      "sha256": {
+        "generated-Small/target/release/tlcgen-weightedflint": "f923b0a73e13ca5d0a9fdad8d6f1c6d667fb1b107afec3f9ed3c86d4df156541",
+        "generated-Small/src/main.rs": "de767a670a19d1499b68cb5a3b346f618982079021318a0432b20eac101fe5ec",
+        "generated-Full/target/release/tlcgen-weightedflint": "e2a7046ad87796a073ef36cee9f6ffbf2461b72b18a552f6e03f0f979923f2bd",
+        "generated-Full/src/main.rs": "d5bccd4a3b84b668d09aea35d86c84b58386a24e68e8c853f3427a18284d1007",
+        "Small.cfg": "ea6cb0a200d45fa3b9ae9e4e51a4d23373234850b289b91b52997fc1c51577d7",
+        "Full.cfg": "164fd016e65d63aee9e6111afcceb4659f6b96f8ab41c28c6403e960640a41a1",
+        "WeightedFlint.tla": "94a54e6443dea6ac9993e6826556e35d5f3cf8bc042c9c8db2d3eab17154b63e",
+        "verified/src/state_codes.rs": "27c2867436eaacb60c6e88a50fd30be4ebcad6faf5d19c5e2cc5e696ea56274d",
+        "verified/src/check.rs": "a941b611830171cca8ff62b4b91ab013d4e910b9341e099f6ee5c6784dc8c02c",
+        "verified/src/cli.rs": "769778839905ea6df9456cfc61b0b367023484028e09635aa152cec88793c14a"
+      },
+      "small_audits": {
+        "Small-audit0": {
+          "repeats": 449594,
+          "generated": 1954072,
+          "distinct": 449595,
+          "depth": 33,
+          "wall_s": 3.19,
+          "peak_rss_kib": 620916
+        },
+        "Small-audit64": {
+          "repeats": 0,
+          "generated": 1954072,
+          "distinct": 449595,
+          "depth": 33,
+          "wall_s": 3.11,
+          "peak_rss_kib": 633212
+        }
+      },
+      "completed_levels": {
+        "17": {
+          "generated": 57126847,
+          "distinct": 15425142,
+          "queue": 7137699,
+          "disk": 0,
+          "checker_s": 12.2
+        },
+        "19": {
+          "generated": 188454830,
+          "distinct": 50604610,
+          "queue": 22356305,
+          "disk": 0,
+          "checker_s": 38.4
+        },
+        "20": {
+          "generated": 331909909,
+          "distinct": 87878516,
+          "queue": 37273906,
+          "disk": 0,
+          "checker_s": 66.9
+        },
+        "21": {
+          "generated": 563557768,
+          "distinct": 146566644,
+          "queue": 58688128,
+          "disk": 0,
+          "checker_s": 112.9
+        },
+        "22": {
+          "generated": 912959945,
+          "distinct": 233438204,
+          "queue": 86871560,
+          "disk": 0,
+          "checker_s": 182.7
+        }
+      },
+      "mappings": {
+        "n": 3,
+        "highest_map_count_sample": {
+          "epoch_s": 1795277688,
+          "rss_kib": 226576748,
+          "waits": {
+            "futex_do_wait": 1,
+            "0": 192
+          },
+          "maps": 1543,
+          "maps_64k": 198,
+          "map_read_s": 0.003
+        },
+        "last": {
+          "epoch_s": 1795277688,
+          "rss_kib": 226576748,
+          "waits": {
+            "futex_do_wait": 1,
+            "0": 192
+          },
+          "maps": 1543,
+          "maps_64k": 198,
+          "map_read_s": 0.003
+        }
+      },
+      "old_3_3_2_observation": {
+        "elapsed_s": 2963,
+        "observed_utc": "2026-11-21T16:14:44Z",
+        "last_completed_level": 21,
+        "last_completed_level_data": {
+          "generated": 563557768,
+          "distinct": 146566644,
+          "queue": 58688128,
+          "disk": 0,
+          "checker_s": 130.7
+        }
+      },
+      "full_result": "Prefix; the original exact check was still running at observation."
+    },
+    "sailfish": {
+      "host_and_command": "Same host, original files, Linux map limit and commands as the sailfish comparison above. Fresh processes alternate on one guest.",
+      "sha256": {
+        "dive-370": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+        "dive-v3": "e9f3b9971cafffda1b6b0f2ebe268824c6b98d40b3c90e53ecc2a5604ffc6606",
+        "specifications/dag-consensus/TLCSailfish2.tla": "8263711a83ee9afe4a26ead6219ab7235775b084c9fea87e3934b34f24f4bb86",
+        "specifications/dag-consensus/TLCSailfish2.cfg": "c2e2517d52b97e7dba6bf2296c70bfc4116c1cbfc88f68f48969f8c109236d0f"
+      },
+      "runs": {
+        "3.3.2-prefix": {
+          "exit": 5,
+          "verdict": "stopped",
+          "property": null,
+          "statistics": {
+            "distinct": 4000000,
+            "generated": 7261317,
+            "depth": 14,
+            "left_on_queue": 3226964
+          },
+          "wall_s": 101.07,
+          "peak_rss_kib": 1769104,
+          "stop": {
+            "elapsed_ms": 100849,
+            "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+            "limit": 4000000,
+            "observed": 4000001,
+            "phase": "safety-search",
+            "resource": "states",
+            "unit": "states"
+          },
+          "mappings": {
+            "n": 1,
+            "highest_map_count_sample": {
+              "epoch_s": 1795277511,
+              "rss_kib": 1199392,
+              "waits": {
+                "futex_do_wait": 2,
+                "0": 16
+              },
+              "maps": 142,
+              "maps_64k": 1,
+              "map_read_s": 0.001
+            },
+            "last": {
+              "epoch_s": 1795277511,
+              "rss_kib": 1199392,
+              "waits": {
+                "futex_do_wait": 2,
+                "0": 16
+              },
+              "maps": 142,
+              "maps_64k": 1,
+              "map_read_s": 0.001
+            }
+          }
+        },
+        "3.7.0-prefix": {
+          "exit": 5,
+          "verdict": "stopped",
+          "property": null,
+          "statistics": {
+            "distinct": 4000000,
+            "generated": 7261317,
+            "depth": 14,
+            "left_on_queue": 3226964
+          },
+          "wall_s": 98.37,
+          "peak_rss_kib": 1659660,
+          "stop": {
+            "elapsed_ms": 98017,
+            "hint": "raise --max-states, or pass --max-states=none; the run made no claim about the model",
+            "limit": 4000000,
+            "observed": 4000001,
+            "phase": "safety-search",
+            "resource": "states",
+            "unit": "states"
+          },
+          "mappings": {
+            "n": 1,
+            "highest_map_count_sample": {
+              "epoch_s": 1795277612,
+              "rss_kib": 1097256,
+              "waits": {
+                "futex_do_wait": 17,
+                "0": 1
+              },
+              "maps": 143,
+              "maps_64k": 1,
+              "map_read_s": 0.0
+            },
+            "last": {
+              "epoch_s": 1795277612,
+              "rss_kib": 1097256,
+              "waits": {
+                "futex_do_wait": 17,
+                "0": 1
+              },
+              "maps": 143,
+              "maps_64k": 1,
+              "map_read_s": 0.0
+            }
+          }
+        }
+      }
+    },
+    "smaller_model_panel": {
+      "host_and_commands": "Same release inputs, CPU affinity and budgets as smaller_model_panel above. Order 3.3.2, 3.7.0, 3.7.0, 3.3.2.",
+      "sha256": {
+        "dive-v3": "e9f3b9971cafffda1b6b0f2ebe268824c6b98d40b3c90e53ecc2a5604ffc6606",
+        "dive-370": "6cfaee45f0ba61261e54e39c75c1d31e6665e9ff62feafe916a7ce9879857703",
+        "KeyValueStore/MCKVS.tla": "4d66a40abeb29558b473770b736dc1bd16c841d9ac847b4644b36cd47d8c8962",
+        "KeyValueStore/MCKVSSafetySmall.cfg": "2360ddff6cac82d84a7077e35cd5e77e7acf81a5d37fc37bc10f335082854103",
+        "ewd998/EWD998.tla": "b51ba3587e0d1b88a38cc15cd667b7a50ccb72e7f5f79f7260c97e473f9392e8",
+        "ewd998/EWD998Small.cfg": "f0869ebeddcdec5b0208014218a946532c01fdb34130579acff081ed6e883f2a",
+        "spec/SlateDBWAL.tla": "37f80bb106ca1e5c9981d0a91f51de4fdf04bfcbb9b6fcadfb8e7b16b463821c",
+        "spec/Medium.cfg": "0b59ff90ac10ae3cfe3177b2e1d343502805545ac5291970e11ee8dba27d4b10"
+      },
+      "runs": {
+        "kvs": {
+          "3.3.2-1": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 3409605,
+              "generated": 56349379,
+              "depth": 23,
+              "left_on_queue": 0
+            },
+            "wall_s": 20.47,
+            "peak_rss_kib": 192140
+          },
+          "3.3.2-2": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 3409605,
+              "generated": 56349379,
+              "depth": 23,
+              "left_on_queue": 0
+            },
+            "wall_s": 20.51,
+            "peak_rss_kib": 201220
+          },
+          "3.7.0-1": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 3409605,
+              "generated": 56349379,
+              "depth": 23,
+              "left_on_queue": 0
+            },
+            "wall_s": 19.65,
+            "peak_rss_kib": 179460
+          },
+          "3.7.0-2": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 3409605,
+              "generated": 56349379,
+              "depth": 23,
+              "left_on_queue": 0
+            },
+            "wall_s": 20.29,
+            "peak_rss_kib": 177268
+          }
+        },
+        "slate": {
+          "3.3.2-1": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 74637,
+              "generated": 198123,
+              "depth": 69,
+              "left_on_queue": 0
+            },
+            "wall_s": 0.27,
+            "peak_rss_kib": 123656
+          },
+          "3.3.2-2": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 74637,
+              "generated": 198123,
+              "depth": 69,
+              "left_on_queue": 0
+            },
+            "wall_s": 0.28,
+            "peak_rss_kib": 131816
+          },
+          "3.7.0-1": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 74637,
+              "generated": 198123,
+              "depth": 69,
+              "left_on_queue": 0
+            },
+            "wall_s": 0.26,
+            "peak_rss_kib": 82772
+          },
+          "3.7.0-2": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 74637,
+              "generated": 198123,
+              "depth": 69,
+              "left_on_queue": 0
+            },
+            "wall_s": 0.27,
+            "peak_rss_kib": 82840
+          }
+        },
+        "ewd": {
+          "3.3.2-1": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 1520618,
+              "generated": 11238019,
+              "depth": 59,
+              "left_on_queue": 0
+            },
+            "wall_s": 4.8,
+            "peak_rss_kib": 160240
+          },
+          "3.3.2-2": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 1520618,
+              "generated": 11238019,
+              "depth": 59,
+              "left_on_queue": 0
+            },
+            "wall_s": 4.8,
+            "peak_rss_kib": 158004
+          },
+          "3.7.0-1": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 1520618,
+              "generated": 11238019,
+              "depth": 59,
+              "left_on_queue": 0
+            },
+            "wall_s": 4.66,
+            "peak_rss_kib": 105140
+          },
+          "3.7.0-2": {
+            "exit": 0,
+            "verdict": "success",
+            "property": null,
+            "statistics": {
+              "distinct": 1520618,
+              "generated": 11238019,
+              "depth": 59,
+              "left_on_queue": 0
+            },
+            "wall_s": 4.47,
+            "peak_rss_kib": 96820
+          }
+        }
+      }
+    }
+  }
+}

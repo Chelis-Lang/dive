@@ -49,6 +49,10 @@ completeness. Cancelling during decoding or validation is a budget stop; a read,
 write, corruption or cleanup failure means no certified result, with storage
 diagnostics in the report.
 
+## Large Linux heaps
+
+The `dive` and `tlc` binaries use mimalloc 3.7.0. On Linux the previous allocator (3.3.2) could fail to reserve a 16 GiB arena and start requesting many small mappings from the kernel. Threads then spent time competing for the kernel’s memory-map lock while physical memory was still available. Version 3.7.0 includes the upstream fix for initializing a 16 GiB arena. An arena reserves virtual address space and takes up physical memory as the search touches it. Applying this fix requires no change to `vm.max_map_count`. Existing search memory budgets still apply. [Upstream fix](https://github.com/microsoft/mimalloc/commit/566fbc1f4d) · [Measurements and commands](../../conformance/reports/perf/2026-11-21-linux-allocator-arenas.json).
+
 ## Reclaiming expanded values
 
 Pure safety BFS accepts `--store-compact-bytes N`:

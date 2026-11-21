@@ -19,6 +19,8 @@ The scripts that produced the records are in
 The [peer comparison panel and source pins](../../../docs/internal/survey/verification-workloads.md)
 extend this evidence to native checkers, implementation traces and proofs.
 
+The [Linux allocator comparison](2026-11-21-linux-allocator-arenas.json) records the mimalloc 3.3.2 and 3.7.0 arena probes on Intel and Graviton, original Flint time to 233 million exact states, ordinary Sailfish, and paired KVS, SlateDB and EWD998 runs. The `fixed_release` object contains the 3.7.0 results.
+
 The [KRaft pre-vote measurements](2026-11-21-kafka-liveness.json) contain the replayable witness for infinitely many reachable states in the released liveness CFG and the smaller configurations that both engines exhausted.
 
 The [poison queue comparisons](2026-11-21-poison-queue.json) cover the original five-by-five deadlock witnesses, complete small fair graphs and a checked projection of ordinary message identities.
