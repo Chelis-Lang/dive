@@ -65,8 +65,10 @@ fn sample_operation_checks_roles_while_legacy_behavior_stays_unchanged() -> Resu
     Ok(())
 }
 
+/// A valid sample claims only its finite obligations: fairness and temporal
+/// properties constrain infinite behaviors, so neither refuses nor is claimed.
 #[test]
-fn finite_sampling_ignores_fairness_but_cannot_claim_temporal_properties() -> Result {
+fn finite_sampling_claims_neither_fairness_nor_temporal_properties() -> Result {
     for tlc in [false, true] {
         let options = TraceOptions {
             compat_tlc: tlc,
@@ -85,7 +87,7 @@ fn finite_sampling_ignores_fairness_but_cannot_claim_temporal_properties() -> Re
         )?;
         assert!(matches!(
             temporal.try_validate_sample(&word(1)?)?.validation,
-            Validation::Unsupported(_)
+            Validation::Valid
         ));
         let end = word(1)?.with_ending(Ending::Invariant("Inv".to_owned()));
         assert!(matches!(

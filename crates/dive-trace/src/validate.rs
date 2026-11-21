@@ -282,6 +282,8 @@ enum Goal {
     Deadlock,
     Behavior,
     Liveness(&'static str),
+    /// The index of the configured property claim the prefix refutes.
+    BadPrefix(usize),
     ErrorEnd(&'static str),
     TemporalStateError,
     NextStateError,
@@ -754,6 +756,10 @@ impl<'a> Run<'a> {
                 self.next(&step, last, &what)?;
             }
         }
+        if let Goal::BadPrefix(index) = goal {
+            self.bad_prefix(index, trace, last)?;
+            return Ok(None);
+        }
         Ok(match goal {
             Goal::Deadlock
                 if self.finite_scope == FiniteScope::SampledDeadlock
@@ -792,6 +798,7 @@ impl<'a> Run<'a> {
             | Goal::ImpliedInit(_)
             | Goal::ImpliedAction(_)
             | Goal::Behavior
+            | Goal::BadPrefix(_)
             | Goal::NextStateError => None,
             Goal::Liveness(why) | Goal::ErrorEnd(why) => Some(why.to_owned()),
         })
@@ -961,6 +968,32 @@ impl<'a> Run<'a> {
         Ok(())
     }
 
+    /// A `bad-prefix` ending: every state and step passed the safety checks
+    /// above; the named claim must be false on every infinite extension.
+    fn bad_prefix(&mut self, index: usize, trace: &Trace, last: usize) -> Result<(), Stop> {
+        use crate::temporal::TemporalError;
+        let claim = &self.model.property_claims()[index];
+        match crate::temporal::refutes_prefix(self.model, &claim.pred, &trace.states) {
+            Ok(true) => {
+                self.passed += 1;
+                Ok(())
+            }
+            Ok(false) => Err(invalid(
+                last,
+                Check::Temporal,
+                format!(
+                    "some extension of the prefix may satisfy temporal property {}",
+                    claim.name
+                ),
+            )),
+            Err(TemporalError::Invalid(detail)) => Err(invalid(last, Check::Temporal, detail)),
+            Err(TemporalError::Unsupported(detail)) => Err(Stop::Unsupported(detail)),
+            Err(TemporalError::Interrupted(error)) => {
+                Err(refused(&error).at(None, Check::Temporal))
+            }
+        }
+    }
+
     fn temporal_truth(&self, pred: &Pred, trace: &Trace, back: usize) -> Result<bool, Stop> {
         use crate::temporal::TemporalError;
         match crate::temporal::evaluate_lasso(self.model, pred, &trace.states, back) {
@@ -1024,6 +1057,9 @@ impl<'a> Run<'a> {
                 Goal::Liveness("liveness: the steps and the loop back (unless noted) were checked, but named temporal-property claims are missing")
             }
             Ending::Stuttering => Goal::Liveness("liveness: the steps were checked, but named temporal-property claims are missing"),
+            Ending::BadPrefix(name) => Goal::BadPrefix(find(m.property_claims(), name).ok_or_else(|| {
+                invalid(last, Check::Ending, format!("the model has no temporal property named `{name}`"))
+            })?),
             Ending::Assertion | Ending::Error { .. } => Goal::ErrorEnd("an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"),
         })
     }

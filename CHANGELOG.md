@@ -15,8 +15,6 @@ are in git history.
 
 - Parallel disk fingerprint membership skips unnecessary page reads using bounded in-memory filters. [Measured time, memory and lookup counts](docs/developer/large-models.md#external-fingerprint-membership).
 
-- Core packs ordinary in-memory safety frontiers by variable. Peak process memory fell about 42% on the measured SlateDB and DiskSynod prefixes. [Inputs, counts and wall times](docs/developer/large-models.md#resident-frontier-rows).
-
 - `dive check --partitioned-fingerprints` supports parallel safety search with disk membership beyond four billion entries. The [storage guide](docs/user/disk-seen-safety.md#multi-worker-fingerprint-membership) covers capacity, audit results and the measured throughput cost.
 
 - The installed symbolic checker accepts `--recheck MODULE CONFIG` for successive edits. With `--refine-domains`, a completed revision can also check edited invariants on the same reachable set. Relation changes start a fresh search with the previous set coordinates. [Usage and report fields](docs/user/symbolic.md#check-edits-and-prove-properties).
@@ -89,6 +87,13 @@ are in git history.
   scalar Core graph. The checker replays ordinary scheduled prefix analyses,
   evaluates fairness on the retained labelled transitions and independently
   validates liveness witnesses. See [temporal property reuse](docs/user/rust-api.md#recheck-temporal-properties).
+
+- Trace documents gain the version-7 `bad-prefix` ending: a finite word that
+  no infinite extension can make satisfy the named temporal property. The
+  validator checks it in three-valued logic after the usual safety checks.
+  Sample validation (`--sample`) no longer refuses configured temporal
+  properties; a valid sample claims only its finite obligations. See
+  [bad prefixes](docs/user/traces.md#bad-prefixes).
 
 ### Changed
 

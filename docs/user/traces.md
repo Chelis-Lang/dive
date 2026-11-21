@@ -54,9 +54,11 @@ implied initial and action properties), and the report says
 `validation_goal: "sample"`. A plain Behavior validation checks only the
 relation. A sample may also end in `deadlock`: every successor of the last
 state must then fall outside the `CONSTRAINT`s and `ACTION_CONSTRAINT`s.
-Other endings are rejected, and configured temporal properties and unproved
-projections refuse; fairness alone does not constrain a finite sample. A valid
-sample proves neither exhaustive safety nor liveness. Rust callers use
+Other endings are rejected, and unproved projections refuse. A valid sample
+claims only its finite obligations: configured temporal properties and fairness
+constrain infinite behaviors, which a finite sample does not have, and
+simulation refutes a temporal property only with a lasso or a `bad-prefix`
+word. A valid sample proves neither exhaustive safety nor liveness. Rust callers use
 `SpecModel::try_validate_sample`, or `Session::read_sampled` and
 `Session::read_sampled_deadlock`.
 
@@ -73,9 +75,10 @@ A counterexample is a JSON document with `"format": "dive-trace"` and a
 | 4 | `candidate-ordered-terminal`: an error on a generated candidate | [Candidate errors](#candidate-errors) |
 | 5 | `temporal-source-row`: an error in a temporal property's source row | [Temporal source-row errors](#temporal-source-row-errors) |
 | 6 | `view-source-terminal`: an error while evaluating VIEW | [VIEW errors](reports-and-errors.md#view-errors) |
+| 7 | `bad-prefix`: a finite refutation of a temporal property | [Bad prefixes](#bad-prefixes) |
 
 Each ending has exactly one version, and a document may not be relabeled with
-another. Readers accept all six and fail closed on an unknown version or
+another. Readers accept all seven and fail closed on an unknown version or
 ending. Tags, endings and loop indexing follow the
 [compatibility policy](reports-and-errors.md#report-compatibility).
 
@@ -85,6 +88,20 @@ what to evaluate. Use the fallible Rust entry points for these endings (see
 [Rust APIs](#rust-apis)); the legacy infallible ones refuse them.
 
 ## Endings
+
+### Bad prefixes
+
+`{"kind": "bad-prefix", "name": P}` claims that every infinite behavior that
+starts with the trace's states violates the configured property `P`, as
+`(x = 0) => [](x < 3)` is violated by any behavior starting `x = 0, 1, 2, 3`.
+Simulation reports these words (`dive simulate`). The validator checks every
+state and step as for an invariant ending (Init, Next, constraints,
+invariants, implied initial and action properties), then evaluates `P` on the
+finite word in three-valued logic: state predicates are known at every
+state, an action is unknown on the step out of the last state, and `[]`,
+`<>`, `~>`, `WF` and `SF` see an unknown future after it. The word is valid
+only if `P` is definitely false at its first state. A property such as
+`<>Q` or `[]<>Q` can never be refuted this way.
 
 ### Named invariant errors
 
