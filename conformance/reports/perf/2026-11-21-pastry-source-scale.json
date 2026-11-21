@@ -1085,7 +1085,7 @@
   "wide_powerset_choice": {
     "inputs": "Same authors’ pinned archive and libraries as above. Use lupastry.py --bits M --ready 0 ... (2^M-2) --definition counted --singleton-leaves. No test disables TypeInvariant or CorrectDelivery. For Core on this base we change just NEXT to SharedNext in a wrapper extending Pastry: SharedNext == TRUE /\\ NextMC. The pinned TLC rows use the original NextMC directly. The real PoolEmpty negative adds an invariant to both. The 16-address three-join controls use ready IDs 0..12.",
     "cause": "The original ClosestNodesFromTheLeft/Right choose a subset of candidate neighbours of exactly L elements. Init alone reproduces the native 24-element powerset ceiling with no properties and stuttering; L=1 puts a witness among the singleton candidates.",
-    "measurements": "c7i.4xlarge, us-east-2, identical node to the record_union matrix. GNU time inside the cgroup includes process startup. TLC used CPUs 0-3 and 4 workers. Native CHOOSE trials used CPUs 4-6 and 3 workers. Independent controls could overlap on other cores. Engine-rings used MemoryMax=9G and a 420 s checker limit; early baseline growth used four workers. RSS is KiB, wall_s is seconds. The two- and three-join rows are separate workloads.",
+    "measurements": "c7i.4xlarge, us-east-2, identical node to the record_union matrix. GNU time inside the cgroup includes process startup. TLC used CPUs 0-3 and 4 workers. Native CHOOSE trials used CPUs 4-6 and 3 workers. Independent controls could overlap on other cores. Engine-rings used MemoryMax=9G and a 420 s checker limit; early baseline growth used four workers. RSS is KiB, wall_s is seconds. The two- and three-join rows are separate workloads. The 128-address pair used three workers on CPUs 4–6, a 9 GiB cgroup and the choice3 ELF. Other groups could overlap on disjoint cores.",
     "implementation": "choice is the native-only prototype. Its successful exhaustive rows matched TLC but independent validation and diagnostic replay exhausted 1 GiB; this prototype was rejected. choice2 added independent streaming and still incorrectly admitted a TLC-profile interval of size 2^31. choice3 fixed standard profiles. choice4 ties the guard to integer arithmetic mode, including independent selections of integer mode and comparison order in the Rust API. Unproved searches beyond the prefix return unsupported.",
     "controls": "Independent review compared ambiguous choices at 25/32 elements against pinned TLC, negative later or absent witnesses, five derived integer domains, genuine and mutated traces and a diagnostic trace for division by zero at the empty candidate. Checked the exact signed 32-bit size boundary, both CLI profiles, output effects and a deadline. The committed native test exercises all four combinations of integer and comparison modes.",
     "growth": {
@@ -1201,9 +1201,29 @@
         "generated": 15249,
         "depth": 19,
         "left_on_queue": 0
+      },
+      "growth-64-1": {
+        "exit": 0,
+        "wall_s": 26.98,
+        "rss_kib": 542084,
+        "verdict": "success",
+        "distinct": 316,
+        "generated": 30493,
+        "depth": 19,
+        "left_on_queue": 0
       }
     },
     "eightfold": {
+      "128-1-tlc": {
+        "exit": 0,
+        "wall_s": 125.17,
+        "rss_kib": 776044,
+        "generated": 61019,
+        "distinct": 474,
+        "left_on_queue": 0,
+        "depth": 19,
+        "verdict": "success"
+      },
       "128-1-wrapped": {
         "exit": 0,
         "wall_s": 179.61,
@@ -1255,7 +1275,96 @@
       "growth-32-1/Shared.cfg": "561b9d63ea803b5a10d32f8bf2279735970f8753523c8d8eccd4d5d2495198dd",
       "growth-64-1/Shared.cfg": "eada6d8bded243231140441455c351122511d05e8e32170327d46dc079ceebd9",
       "growth-32-1/Ring.tla": "7e64b452ea10e6aa83229e05c19a82bc72a483c4125adeac4bf399c3ef30cf96"
-    }
+    },
+    "earlier_explicit_runs": {
+      "4-full-tlc": {
+        "exit": 124,
+        "wall_s": 910.35,
+        "last_progress": {
+          "depth": 20,
+          "generated": 72234765,
+          "distinct": 4897472,
+          "left_on_queue": 1973620
+        }
+      },
+      "4-two-dive": {
+        "exit": 0,
+        "wall_s": 3.74,
+        "verdict": "success",
+        "message": null,
+        "depth": 37,
+        "distinct": 33644,
+        "generated": 682657,
+        "initial_generated": 1,
+        "left_on_queue": 0,
+        "reported_by_tlc": true
+      },
+      "8-two-tlc": {
+        "exit": 0,
+        "wall_s": 44.9,
+        "generated": 3798734,
+        "distinct": 92269,
+        "left_on_queue": 0,
+        "depth": 38
+      },
+      "8-two-dive": {
+        "exit": 1,
+        "wall_s": 29.22
+      },
+      "4-full-dive": {
+        "exit": 5,
+        "wall_s": 900.27,
+        "verdict": "stopped",
+        "message": "stopped during safety-search after 900041 ms: the time limit is 900000 ms",
+        "depth": 20,
+        "distinct": 4158399,
+        "exhaustive": false,
+        "generated": 60293008,
+        "initial_generated": 1,
+        "left_on_queue": 1677842,
+        "reported_by_tlc": false
+      },
+      "4-threef-tlc": {
+        "exit": 124,
+        "wall_s": 910.25,
+        "last_progress": {
+          "depth": 25,
+          "generated": 73045709,
+          "distinct": 3014243,
+          "left_on_queue": 404662
+        }
+      },
+      "4-two-tlc": {
+        "exit": 0,
+        "wall_s": 7.34,
+        "generated": 682657,
+        "distinct": 33644,
+        "left_on_queue": 0,
+        "depth": 37
+      },
+      "4-threef-dive": {
+        "exit": 5,
+        "wall_s": 900.19,
+        "verdict": "stopped",
+        "message": "stopped during safety-search after 900042 ms: the time limit is 900000 ms",
+        "depth": 22,
+        "distinct": 1886867,
+        "exhaustive": false,
+        "generated": 42697146,
+        "initial_generated": 1,
+        "left_on_queue": 307592,
+        "reported_by_tlc": false
+      },
+      "8-one-tlc": {
+        "exit": 0,
+        "wall_s": 1.51,
+        "generated": 2560,
+        "distinct": 141,
+        "left_on_queue": 0,
+        "depth": 19
+      }
+    },
+    "earlier_protocol": "Older four-worker audit on the counted routing definition. 4-full and 4-threef run Next including lookups (one and three initially ready respectively). The other cases run NextMC. Time limits are 900 checker seconds/910 external. The timer wrapped the systemd client on resumed rows, so its RSS is omitted. Last-progress counts belong to unfinished runs."
   },
   "record_union": {
     "model": "Released LuPastry+, counted routing function, NextMC, TypeInvariant and CorrectDelivery, B=L=1. Shape IDs give ring size and number of IDs initially eligible to join. Other IDs start ready (0 through ring_size - joining - 1).",
