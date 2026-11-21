@@ -882,5 +882,361 @@
         "proof": "inductive-safety"
       }
     }
+  },
+  "larger_concrete_proof_domains": {
+    "scope": "Concrete induction over each explicitly configured named set. Both TCTypeOK and TCConsistent selected. No exploration totals, depth or counterexample are inferred. The identical 125-byte predicate comes from a 3-manager exact source search.",
+    "machine": "EC2 c7i.4xlarge (Linux x86_64). Each run pinned to one vCPU. 3 GiB RLIMIT_AS for the exploratory smaller ladder; 6 GiB for million-member runs under a 7 GiB cgroup except the explicit 128 MiB stop. One sample per cell. The temporary host also ran independent Sail gates. Peaks and wall times are /usr/bin/time, including frontend helpers.",
+    "implementation": "Installed private interpreter and dependencies from the reviewed archive recorded above. Native CLI and exporter rebuilt from the protected Dive revision below. The installed occupancy worker files match the production source digests. Exploratory smaller domains used the same code except for the duplicate-identity diagnostic wording. No production Rust changes.",
+    "native_revision": "c5a54d12edc4957d1b46a6cb795800eb19e6e7a6",
+    "native_sha256": {
+      "dive": "d516bd54437b8ff5ccf4dcd380b9651cd6b9aca79e56dd2843c69e51b74b7a2d",
+      "symbolic_input": "5d95029487902b623e11ab164e7c879f40e585dd1f7548778640417627b03067"
+    },
+    "worker_sha256": {
+      "occupancy.py": "e599ede4068c42eea84571ff9f31cbde33ef155d5551140e69e46030c2559a9d",
+      "occupancy_source.py": "8c7ed9fd6c21acb1f5f36f70c90efa876681552afaa89e5f32d709376b54fce1",
+      "occupancy_predicate.py": "aafac700d924994a056e9c73ff937474e8d142efbec2e8c553a07b23ed263d68"
+    },
+    "reproduce": "Use the existing prepare command at the top of this record with 1000000 managers. Establish a predicate on 3 with --write-predicate. Run the original TCommit.tla using --config original.cfg --strategy occupancy --type-invariant TCTypeOK --max-memory 6g --time-limit 100s and either --prove-inductive or --verify-predicate PATH. Use Edits.tla and stronger.cfg, false.cfg, addition.cfg for edited obligations. For exact refusal replace proof options with --max-orbits 1. For the resource control use --prove-inductive --max-memory 128m.",
+    "source_sha256": {
+      "TCommit.tla": "98974d8c5ee007f4f62188737c20c7dcdb05af099cc53a59c8b8651331fd925d",
+      "Edits.tla": "ecf9b2296cbdad40e3ec84b74414d9bb6508c3157fec959b8540fa4d94e87635",
+      "original.cfg": "47a331e51554bfe0320b0a094fdea470bf895229b08c2ef7ec2e3f9ea293d3b1",
+      "stronger.cfg": "9bd4477ff0e1412e9d5ebb32e7ac03317510503d0a941b7ba83d5182f38f0cc1",
+      "false.cfg": "0c83b79b312e146bbae8782c49486c581edd484da712131fa9d989fe93c0be9b",
+      "addition.cfg": "8e1df033eef54042a6afc435fa3ea2b6e16b92f567027afe4b48bc0c3f65302b"
+    },
+    "original_cfg_bytes": 8888987,
+    "predicate_sha256": "4bde049a0ad6235731d9c336f1dab28167e1dbe441323adb4e85829abf6c5472",
+    "parent_controls": {
+      "8193": {
+        "exit": 2,
+        "verdict": "unsupported",
+        "reason": "owner count or uniqueness",
+        "wall_s": 0.12,
+        "max_rss_kib": 31860
+      },
+      "65536": {
+        "exit": 2,
+        "verdict": "unsupported",
+        "reason": "owner count or uniqueness",
+        "wall_s": 0.51,
+        "max_rss_kib": 210968
+      }
+    },
+    "smaller_domains": {
+      "8193": {
+        "direct": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 0.14,
+          "max_rss_kib": 31896
+        },
+        "retained-true": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 0.14,
+          "max_rss_kib": 31924
+        },
+        "retained-false": {
+          "exit": 2,
+          "proof": "inconclusive",
+          "failed_obligation": "NonePrepared",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NonePrepared"
+          ],
+          "wall_s": 0.14,
+          "max_rss_kib": 31876
+        }
+      },
+      "32768": {
+        "direct": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 0.3,
+          "max_rss_kib": 108636
+        },
+        "retained-true": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 0.3,
+          "max_rss_kib": 108552
+        },
+        "retained-false": {
+          "exit": 2,
+          "proof": "inconclusive",
+          "failed_obligation": "NonePrepared",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NonePrepared"
+          ],
+          "wall_s": 0.3,
+          "max_rss_kib": 108548
+        }
+      },
+      "65536": {
+        "direct": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 0.5,
+          "max_rss_kib": 210892
+        },
+        "retained-true": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 0.55,
+          "max_rss_kib": 210780
+        },
+        "retained-false": {
+          "exit": 2,
+          "proof": "inconclusive",
+          "failed_obligation": "NonePrepared",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NonePrepared"
+          ],
+          "wall_s": 0.55,
+          "max_rss_kib": 210904
+        }
+      },
+      "131072": {
+        "direct": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 1.0,
+          "max_rss_kib": 416176
+        },
+        "retained-true": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 1.0,
+          "max_rss_kib": 416156
+        },
+        "retained-false": {
+          "exit": 2,
+          "proof": "inconclusive",
+          "failed_obligation": "NonePrepared",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NonePrepared"
+          ],
+          "wall_s": 1.0,
+          "max_rss_kib": 416164
+        }
+      },
+      "262144": {
+        "direct": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 1.95,
+          "max_rss_kib": 829168
+        },
+        "retained-true": {
+          "exit": 0,
+          "proof": "inductive-safety",
+          "failed_obligation": null,
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent"
+          ],
+          "wall_s": 1.95,
+          "max_rss_kib": 829068
+        },
+        "retained-false": {
+          "exit": 2,
+          "proof": "inconclusive",
+          "failed_obligation": "NonePrepared",
+          "invariants": [
+            "TCTypeOK",
+            "TCConsistent",
+            "NonePrepared"
+          ],
+          "wall_s": 1.95,
+          "max_rss_kib": 829084
+        }
+      }
+    },
+    "one_million": {
+      "direct": {
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "wall_s": 7.56,
+        "max_rss_kib": 3156080
+      },
+      "retained-original": {
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "wall_s": 7.66,
+        "max_rss_kib": 3156140
+      },
+      "retained-stronger": {
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent",
+          "NoWorkingCommit"
+        ],
+        "wall_s": 7.71,
+        "max_rss_kib": 3156256
+      },
+      "retained-false": {
+        "exit": 2,
+        "proof": "inconclusive",
+        "failed_obligation": "NonePrepared",
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent",
+          "NonePrepared"
+        ],
+        "wall_s": 7.87,
+        "max_rss_kib": 3156312
+      },
+      "retained-addition": {
+        "exit": 2,
+        "proof": "inconclusive",
+        "failed_obligation": "Next closure",
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "wall_s": 8.93,
+        "max_rss_kib": 3562604
+      },
+      "exact-refusal": {
+        "exit": 2,
+        "verdict": "unsupported",
+        "reason": "exact search owner count exceeds 8192",
+        "wall_s": 7.56,
+        "max_rss_kib": 3156068
+      },
+      "low-memory": {
+        "exit": 4,
+        "verdict": "stopped",
+        "reason": "Dive frontend terminated by signal 6",
+        "wall_s": 0.35,
+        "max_rss_kib": 78972
+      }
+    },
+    "exploratory_million": {
+      "direct": {
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "wall_s": 7.61,
+        "max_rss_kib": 3156148
+      },
+      "retained-original": {
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "wall_s": 7.66,
+        "max_rss_kib": 3156152
+      },
+      "retained-stronger": {
+        "exit": 0,
+        "proof": "inductive-safety",
+        "failed_obligation": null,
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent",
+          "NoWorkingCommit"
+        ],
+        "wall_s": 7.76,
+        "max_rss_kib": 3156288
+      },
+      "retained-false": {
+        "exit": 2,
+        "proof": "inconclusive",
+        "failed_obligation": "NonePrepared",
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent",
+          "NonePrepared"
+        ],
+        "wall_s": 7.66,
+        "max_rss_kib": 3156336
+      },
+      "retained-addition": {
+        "exit": 2,
+        "proof": "inconclusive",
+        "failed_obligation": "Next closure",
+        "invariants": [
+          "TCTypeOK",
+          "TCConsistent"
+        ],
+        "wall_s": 8.66,
+        "max_rss_kib": 3562636
+      }
+    }
   }
 }
